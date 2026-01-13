@@ -1,7 +1,8 @@
 import {expect} from '@playwright/test'
-import {Page} from 'playwright'
+import {Page} from '@playwright/test'
 import {waitForHtmxReady} from './wait'
 
+// For legacy predicate view.
 type PredicateSpec = {
   questionName: string
   action?: string | null
@@ -15,6 +16,34 @@ type PredicateSpec = {
 type PredicateValue = {
   value: string
   secondValue?: string
+}
+
+// For expanded predicate view.
+export type SubconditionSpec = {
+  conditionId: number
+  subconditionId: number
+  questionText: string
+  scalar?: string
+  operator?: string
+  value: SubconditionValue
+}
+
+/**
+ * For SubconditionValue, expect only three valid cases:
+ * 1. firstValue is populated, rest are unpopulated.
+ * 2. firstValue and secondValue are populated, multiValues is unpopulated.
+ * 3. multiValues is populated, rest are unpopulated.
+ */
+export type SubconditionValue = {
+  firstValue?: string
+  secondValue?: string
+  multiValues?: MultiValueSpec[]
+}
+
+export type MultiValueSpec = {
+  adminName: string
+  text: string
+  checked: boolean
 }
 
 export class AdminPredicates {
@@ -73,13 +102,21 @@ export class AdminPredicates {
 
   async clickAddConditionButton() {
     await this.page.getByRole('button', {name: 'Add condition'}).click()
+    await waitForHtmxReady(this.page)
   }
 
   async clickDeleteConditionButton(conditionId: number) {
+    this.page.once('dialog', async (dialog) => {
+      expect(dialog.message().toString()).toContain(
+        'Are you sure you would like to delete this condition',
+      )
+      await dialog.accept()
+    })
     await this.page
       .getByRole('button', {name: 'Delete condition'})
       .nth(conditionId - 1)
       .click()
+    await waitForHtmxReady(this.page)
   }
 
   async clickDeleteSubconditionButton(
@@ -91,9 +128,24 @@ export class AdminPredicates {
       .getByRole('button', {name: 'Delete sub-condition'})
       .nth(subconditionId - 1)
       .click()
+    await waitForHtmxReady(this.page)
+  }
+
+  async deleteAndExpectNoSubcondition(
+    conditionId: number,
+    subconditionId: number,
+  ) {
+    await this.clickDeleteSubconditionButton(conditionId, subconditionId)
+    await this.expectNoSubcondition(conditionId, subconditionId)
   }
 
   async clickDeleteAllConditionsButton() {
+    this.page.once('dialog', async (dialog) => {
+      expect(dialog.message().toString()).toContain(
+        'Are you sure you would like to delete all conditions',
+      )
+      await dialog.accept()
+    })
     await this.page.getByRole('button', {name: 'Delete all conditions'}).click()
     await waitForHtmxReady(this.page)
   }
@@ -103,10 +155,45 @@ export class AdminPredicates {
       .getByRole('button', {name: 'Add sub-condition'})
       .nth(conditionId - 1)
       .click()
+    await waitForHtmxReady(this.page)
+  }
+
+  async addAndExpectCondition(conditionId: number) {
+    await this.clickAddConditionButton()
+    await this.expectCondition(conditionId)
+  }
+
+  async addAndExpectSubcondition(conditionId: number, subconditionId: number) {
+    await this.clickAddSubconditionButton(conditionId)
+    await this.expectSubcondition(conditionId, subconditionId)
+  }
+
+  async selectRootLogicalOperator(logicalOperatorValue: string) {
+    await this.page
+      .getByRole('combobox', {name: 'root-nodeType'})
+      .selectOption(logicalOperatorValue)
+    await waitForHtmxReady(this.page)
+  }
+
+  async expectRootLogicalOperatorValues(logicalOperatorValue: string) {
+    const conditionLogicSeparatorsText = this.page.locator(
+      '.cf-predicate-condition-separator span',
+    )
+
+    expect(conditionLogicSeparatorsText.count()).not.toEqual(0)
+
+    for (const separatorText of await conditionLogicSeparatorsText.all()) {
+      await expect(separatorText).toHaveText(logicalOperatorValue.toLowerCase())
+      await expect(separatorText).toBeVisible()
+    }
   }
 
   async clickSaveAndExitButton() {
     await this.page.getByRole('button', {name: 'Save and exit'}).click()
+  }
+
+  async clickCancelButton() {
+    await this.page.getByRole('button', {name: 'Cancel'}).click()
   }
 
   async clickSaveConditionButton() {
@@ -178,7 +265,73 @@ export class AdminPredicates {
     const valuesToSet = this.coalesceValueOptions(complexValues, values, value)
     let groupNum = 1
     for (const valueToSet of valuesToSet) {
-      await this.fillValue(scalar, valueToSet, groupNum++, questionId)
+      await this.legacyFillValue(scalar, valueToSet, groupNum++, questionId)
+    }
+  }
+
+  /**
+   * Configures an expanded form logic predicate with the given inputs. For the values, populate whatever is present.
+   */
+  async configureSubcondition({
+    conditionId,
+    subconditionId,
+    questionText,
+    scalar,
+    operator,
+    value,
+  }: SubconditionSpec) {
+    await this.selectQuestion(conditionId, subconditionId, questionText)
+
+    if (scalar) {
+      await this.selectScalar(conditionId, subconditionId, scalar)
+    }
+
+    if (operator) {
+      await this.selectOperator(conditionId, subconditionId, operator)
+    }
+
+    await this.fillValue(conditionId, subconditionId, value)
+  }
+
+  /**
+   * Configures multiple subconditions at once using the given inputs.
+   */
+  async configureSubconditions(subconditions: SubconditionSpec[]) {
+    for (const subcondition of subconditions) {
+      await this.configureSubcondition(subcondition)
+    }
+  }
+
+  /**
+   * Asserts the state of a given subcondition, checking selected question, scalar, operator, and value(s).
+   */
+  async expectSubconditionEquals({
+    conditionId,
+    subconditionId,
+    questionText,
+    scalar,
+    operator,
+    value,
+  }: SubconditionSpec) {
+    await this.expectSelectedQuestion(conditionId, subconditionId, questionText)
+
+    if (scalar) {
+      await this.expectSelectedScalar(conditionId, subconditionId, scalar)
+    }
+
+    if (operator) {
+      await this.expectSelectedOperator(conditionId, subconditionId, operator)
+    }
+
+    await this.expectFilledValue(conditionId, subconditionId, value)
+  }
+
+  /**
+   * Assert the state of multiple subconditions at once, using the given inputs.
+   */
+  async expectSubconditionsEqual(subconditions: SubconditionSpec[]) {
+    for (const subcondition of subconditions) {
+      await this.expectSubconditionEquals(subcondition)
     }
   }
 
@@ -199,7 +352,7 @@ export class AdminPredicates {
     return []
   }
 
-  async fillValue(
+  async legacyFillValue(
     scalar: string,
     valueToSet: PredicateValue,
     groupNum: number,
@@ -207,40 +360,75 @@ export class AdminPredicates {
   ) {
     // Service areas are the only value input that use a select
     if (scalar === 'service area') {
-      const valueSelect = await this.page.$(
+      const valueSelect = this.page.locator(
         `select[name="group-${groupNum}-question-${questionId}-predicateValue"]`,
       )
-
-      if (valueSelect == null) {
-        throw new Error(
-          `Unable to find select for service area: select[name="group-${groupNum}-question-${questionId}-predicateValue"]`,
-        )
-      }
-
       await valueSelect.selectOption({label: valueToSet.value})
       return
     }
 
-    const valueInput = await this.page.$(
+    const valueInput = this.page.locator(
       `input[name="group-${groupNum}-question-${questionId}-predicateValue"]`,
     )
 
-    if (valueInput) {
+    if ((await valueInput.count()) > 0) {
       await valueInput.fill(valueToSet.value || '')
     } else {
-      // We have a checkbox for the value.
       const valueArray = valueToSet.value.split(',')
       for (const value of valueArray) {
-        await this.page.check(`label:has-text("${value}")`)
+        await this.page.getByLabel(value).check()
       }
     }
 
-    const secondValueInput = await this.page.$(
+    const secondValueInput = this.page.locator(
       `input[name="group-${groupNum}-question-${questionId}-predicateSecondValue"]:enabled`,
     )
-    if (secondValueInput) {
-      // second value inputs are always a single input box
+    if ((await secondValueInput.count()) > 0) {
       await secondValueInput.fill(valueToSet.secondValue || '')
+    }
+  }
+
+  async fillValue(
+    conditionId: number,
+    subconditionId: number,
+    value: SubconditionValue,
+  ) {
+    if (value.firstValue) {
+      await this.page
+        .locator(
+          `#condition-${conditionId}-subcondition-${subconditionId}-value:enabled`,
+        )
+        .fill(value.firstValue)
+    }
+
+    if (value.secondValue) {
+      await this.page
+        .locator(
+          `#condition-${conditionId}-subcondition-${subconditionId}-secondValue:enabled`,
+        )
+        .fill(value.secondValue)
+    } else {
+      await expect(
+        this.page.locator(
+          `#condition-${conditionId}-subcondition-${subconditionId}-secondValue:enabled`,
+        ),
+      ).toHaveCount(0)
+    }
+
+    if (value.multiValues) {
+      for (let count = 1; count <= value.multiValues.length; count++) {
+        const checkboxLabel = this.page.locator(
+          `label[for="condition-${conditionId}-subcondition-${subconditionId}-values[${count}]"]`,
+        )
+        const multiValueSpec: MultiValueSpec = value.multiValues[count - 1]
+
+        if (multiValueSpec.checked) {
+          await checkboxLabel.check()
+          await expect(checkboxLabel).toBeChecked()
+        }
+
+        await expect(checkboxLabel).toHaveText(multiValueSpec.text)
+      }
     }
   }
 
@@ -274,6 +462,16 @@ export class AdminPredicates {
         `#condition-${conditionId}-subcondition-${subconditionId}-question`,
       ),
     ).toBeVisible()
+  }
+
+  async expectConditionAndSubconditions(
+    conditionId: number,
+    subconditionIds: number[],
+  ) {
+    await this.expectCondition(conditionId)
+    for (const subconditionId of subconditionIds) {
+      await this.expectSubcondition(conditionId, subconditionId)
+    }
   }
 
   async expectNoSubcondition(conditionId: number, subconditionId: number) {
@@ -362,5 +560,90 @@ export class AdminPredicates {
       .selectOption(`${scalarValue}`)
 
     await waitForHtmxReady(this.page)
+  }
+
+  async expectSelectedQuestion(
+    conditionId: number,
+    subconditionId: number,
+    questionText: string,
+  ) {
+    const questionDropdownLocator = this.page.locator(
+      `#condition-${conditionId}-subcondition-${subconditionId}-question`,
+    )
+    const selectionText = await questionDropdownLocator.evaluate(
+      (selectElement: HTMLSelectElement) => {
+        const selectedOption =
+          selectElement.options[selectElement.selectedIndex]
+        return selectedOption.textContent || selectedOption.innerText
+      },
+    )
+    expect(selectionText).toEqual(questionText)
+  }
+
+  async expectSelectedScalar(
+    conditionId: number,
+    subconditionId: number,
+    scalar: string,
+  ) {
+    await expect(
+      this.page.locator(
+        `#condition-${conditionId}-subcondition-${subconditionId}-scalar`,
+      ),
+    ).toHaveValue(scalar)
+  }
+
+  async expectSelectedOperator(
+    conditionId: number,
+    subconditionId: number,
+    operator: string,
+  ) {
+    await expect(
+      this.page.locator(
+        `#condition-${conditionId}-subcondition-${subconditionId}-operator`,
+      ),
+    ).toHaveValue(operator)
+  }
+
+  async expectFilledValue(
+    conditionId: number,
+    subconditionId: number,
+    value: SubconditionValue,
+  ) {
+    if (value.firstValue) {
+      await expect(
+        this.page.locator(
+          `#condition-${conditionId}-subcondition-${subconditionId}-value:enabled`,
+        ),
+      ).toHaveValue(value.firstValue)
+    }
+
+    if (value.secondValue) {
+      await expect(
+        this.page.locator(
+          `#condition-${conditionId}-subcondition-${subconditionId}-secondValue:enabled`,
+        ),
+      ).toHaveValue(value.secondValue)
+    } else {
+      await expect(
+        this.page.locator(
+          `#condition-${conditionId}-subcondition-${subconditionId}-secondValue:enabled`,
+        ),
+      ).toHaveCount(0)
+    }
+
+    if (value.multiValues) {
+      for (let count = 1; count <= value.multiValues.length; count++) {
+        const checkboxLabel = this.page.locator(
+          `label[for="condition-${conditionId}-subcondition-${subconditionId}-values[${count}]"]`,
+        )
+        const multiValueSpec: MultiValueSpec = value.multiValues[count - 1]
+
+        if (multiValueSpec.checked) {
+          await expect(checkboxLabel).toBeChecked()
+        }
+
+        await expect(checkboxLabel).toHaveText(multiValueSpec.text)
+      }
+    }
   }
 }

@@ -20,6 +20,8 @@ export class AdminPredicateEdit {
 
   static CSV_OPERATORS: string[] = ['IN', 'NOT_IN']
 
+  static INITIAL_PREDICATE_FORM_STATE: string
+
   static onHtmxAfterSwap(event: HtmxAfterSwapEvent): void {
     const targetId: string = event.target.id
     // Update for changes to 'subcondition-container', and also refreshes of condition lists.
@@ -35,14 +37,26 @@ export class AdminPredicateEdit {
       document
         .querySelectorAll<HTMLSelectElement>('.cf-predicate-scalar-select')
         .forEach((dropdown: HTMLSelectElement) => {
-          dropdown.removeEventListener('change', this.onScalarDropdownChange)
-          dropdown.addEventListener('change', this.onScalarDropdownChange)
+          dropdown.removeEventListener(
+            'change',
+            this.onScalarDropdownChange.bind(this),
+          )
+          dropdown.addEventListener(
+            'change',
+            this.onScalarDropdownChange.bind(this),
+          )
         })
       document
         .querySelectorAll<HTMLSelectElement>('.cf-predicate-operator-select')
         .forEach((dropdown: HTMLSelectElement) => {
-          dropdown.removeEventListener('change', this.onOperatorDropdownChange)
-          dropdown.addEventListener('change', this.onOperatorDropdownChange)
+          dropdown.removeEventListener(
+            'change',
+            this.onOperatorDropdownChange.bind(this),
+          )
+          dropdown.addEventListener(
+            'change',
+            this.onOperatorDropdownChange.bind(this),
+          )
         })
 
       // Trigger change to update operators based on the current scalar selected.
@@ -67,18 +81,49 @@ export class AdminPredicateEdit {
   }
 
   onPageLoad(): void {
+    const initialFormState = AdminPredicateEdit.getPredicateFormState()
+    if (initialFormState) {
+      AdminPredicateEdit.INITIAL_PREDICATE_FORM_STATE = initialFormState
+    }
+
     AdminPredicateEdit.showOrHideDeleteAllConditionsButton()
 
     addEventListenerToElements(
       '.cf-predicate-scalar-select',
       'change',
-      AdminPredicateEdit.onScalarDropdownChange,
+      AdminPredicateEdit.onScalarDropdownChange.bind(this),
     )
     addEventListenerToElements(
       '.cf-predicate-operator-select',
       'change',
-      AdminPredicateEdit.onOperatorDropdownChange,
+      AdminPredicateEdit.onOperatorDropdownChange.bind(this),
     )
+    addEventListenerToElements(
+      '[name="root-nodeType"]',
+      'change',
+      AdminPredicateEdit.onConditionLogicDropdownChange,
+    )
+    addEventListenerToElements(
+      '#predicate-form',
+      'submit',
+      AdminPredicateEdit.onPredicateFormSubmit.bind(this),
+    )
+
+    // Trigger change to update operators based on the current scalar selected.
+    Array.from(
+      document.querySelectorAll('.cf-predicate-scalar-select select'),
+    ).forEach((el) => {
+      const event = new CustomEvent('change', {bubbles: true})
+      el.dispatchEvent(event)
+    })
+
+    // Trigger change to update values inputs based on the current operator selected.
+    Array.from(
+      document.querySelectorAll('.cf-predicate-operator-select select'),
+    ).forEach((el) => {
+      const event = new CustomEvent('change', {bubbles: true})
+      el.dispatchEvent(event)
+    })
   }
 
   private static onScalarDropdownChange(event: Event): void {
@@ -128,6 +173,75 @@ export class AdminPredicateEdit {
       selectedOperatorValue,
       valueBaseId,
     )
+  }
+
+  private static onConditionLogicDropdownChange(this: void, event: Event) {
+    AdminPredicateEdit.handleConditionLogicDropdownChange(
+      event.target as HTMLSelectElement,
+    )
+  }
+
+  private static handleConditionLogicDropdownChange(
+    predicateLogicDropdown: HTMLSelectElement,
+  ) {
+    const selectedPredicateLogicValue: string =
+      predicateLogicDropdown.options[
+        predicateLogicDropdown.options.selectedIndex
+      ].value
+    if (!selectedPredicateLogicValue) {
+      return
+    }
+
+    // Set inner text of all condition separators to the desired value.
+    // Applies to all separators on the page.
+    const separators: HTMLElement[] = Array.from(
+      document.querySelectorAll(`.cf-predicate-condition-separator`),
+    )
+    for (const separator of separators) {
+      separator.innerText = selectedPredicateLogicValue
+    }
+  }
+
+  private static onPredicateFormSubmit(event: SubmitEvent) {
+    // If this is a submit, do nothing and let it go through.
+    // If this is a cancel, handle submit manually.
+    if (event.submitter && event.submitter.id === 'cancel-predicate-edit') {
+      event.preventDefault()
+      AdminPredicateEdit.confirmExitWithoutSaving(
+        event.target as HTMLFormElement,
+        event.submitter as HTMLButtonElement,
+      )
+    }
+  }
+
+  private static confirmExitWithoutSaving(
+    predicateForm: HTMLFormElement,
+    cancelButton: HTMLButtonElement,
+  ) {
+    const currentPredicateState = AdminPredicateEdit.getPredicateFormState()
+
+    // Check the initial form state against the current form state.
+    // If they're equal, do nothing and cancel.
+    // If there have been changes, show a confirmation dialog.
+    if (
+      currentPredicateState !== AdminPredicateEdit.INITIAL_PREDICATE_FORM_STATE
+    ) {
+      const confirmationMessage =
+        cancelButton.getAttribute('data-cancel-dialog')
+      if (!confirmationMessage) {
+        return
+      }
+
+      if (window.confirm(confirmationMessage)) {
+        predicateForm.action = cancelButton.formAction
+        predicateForm.submit()
+      } else {
+        return
+      }
+    }
+
+    predicateForm.action = cancelButton.formAction
+    predicateForm.submit()
   }
 
   /**
@@ -573,6 +687,28 @@ export class AdminPredicateEdit {
         child.hidden = false
       }
     }
+  }
+
+  /**
+   * Gets the current state of the predicate form to track changes.
+   *
+   * @returns A serialized representation of the form state.
+   */
+  private static getPredicateFormState(): string | undefined | null {
+    const predicateForm = document.getElementById('predicate-form') as
+      | HTMLFormElement
+      | undefined
+      | null
+    if (!predicateForm) {
+      return null
+    }
+    const formData = new FormData(predicateForm)
+    const params = new URLSearchParams()
+    formData.forEach((value, key) => {
+      params.append(key, JSON.stringify(value))
+    })
+
+    return params.toString()
   }
 }
 

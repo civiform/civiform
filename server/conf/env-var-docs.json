@@ -8,6 +8,12 @@
         "type": "string",
         "required": true
       },
+      "CIVIC_ENTITY_FOOTER_LOGO_URL": {
+        "mode": "ADMIN_READABLE",
+        "description": "Logo for the civic entity used in the footer. If not set, falls back to CIVIC_ENTITY_SMALL_LOGO_URL.",
+        "type": "string",
+        "required": false
+      },
       "WHITELABEL_CIVIC_ENTITY_SHORT_NAME": {
         "mode": "ADMIN_WRITEABLE",
         "description": "The short display name of the civic entity, will use 'TestCity' if not set.",
@@ -933,6 +939,12 @@
         "description": "Enable allowing CiviForm admins to add a map question to their programs.",
         "type": "bool",
         "required": false
+      },
+      "SETTINGS_CACHE_ENABLED": {
+        "mode": "ADMIN_READABLE",
+        "description": "Enables reading settings from the cache instead of directly from the database.",
+        "type": "bool",
+        "required": false
       }
     }
   },
@@ -966,12 +978,6 @@
       "YES_NO_QUESTION_ENABLED": {
         "mode": "ADMIN_READABLE",
         "description": "(NOT FOR PRODUCTION USE) Enables being able to add a new yes/no question.",
-        "type": "bool",
-        "required": false
-      },
-      "SETTINGS_CACHE_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enables reading settings from the cache instead of directly from the database.",
         "type": "bool",
         "required": false
       },

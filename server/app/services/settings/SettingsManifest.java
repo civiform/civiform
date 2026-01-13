@@ -46,6 +46,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("CIVIC_ENTITY_SMALL_LOGO_URL");
   }
 
+  /**
+   * Logo for the civic entity used in the footer. If not set, falls back to
+   * CIVIC_ENTITY_SMALL_LOGO_URL.
+   */
+  public Optional<String> getCivicEntityFooterLogoUrl() {
+    return getString("CIVIC_ENTITY_FOOTER_LOGO_URL");
+  }
+
   /** The short display name of the civic entity, will use 'TestCity' if not set. */
   public Optional<String> getWhitelabelCivicEntityShortName(RequestHeader request) {
     return getString("WHITELABEL_CIVIC_ENTITY_SHORT_NAME", request);
@@ -1074,6 +1082,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("MAP_QUESTION_ENABLED", request);
   }
 
+  /** Enables reading settings from the cache instead of directly from the database. */
+  public boolean getSettingsCacheEnabled() {
+    return getBool("SETTINGS_CACHE_ENABLED");
+  }
+
   /** (NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration. */
   public boolean getSessionTimeoutEnabled(RequestHeader request) {
     return getBool("SESSION_TIMEOUT_ENABLED", request);
@@ -1097,14 +1110,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** (NOT FOR PRODUCTION USE) Enables being able to add a new yes/no question. */
   public boolean getYesNoQuestionEnabled() {
     return getBool("YES_NO_QUESTION_ENABLED");
-  }
-
-  /**
-   * (NOT FOR PRODUCTION USE) Enables reading settings from the cache instead of directly from the
-   * database.
-   */
-  public boolean getSettingsCacheEnabled() {
-    return getBool("SETTINGS_CACHE_ENABLED");
   }
 
   /** (NOT FOR PRODUCTION USE) Enables changes to support API Bridge */
@@ -1149,6 +1154,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "CIVIC_ENTITY_SMALL_LOGO_URL",
                           "Small logo for the civic entity used on the login page.",
                           /* isRequired= */ true,
+                          SettingType.STRING,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "CIVIC_ENTITY_FOOTER_LOGO_URL",
+                          "Logo for the civic entity used in the footer. If not set, falls back to"
+                              + " CIVIC_ENTITY_SMALL_LOGO_URL.",
+                          /* isRequired= */ false,
                           SettingType.STRING,
                           SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
@@ -2335,7 +2347,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " programs.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE))))
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "SETTINGS_CACHE_ENABLED",
+                          "Enables reading settings from the cache instead of directly from the"
+                              + " database.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_READABLE))))
           .put(
               "Experimental",
               SettingsSection.create(
@@ -2375,13 +2394,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "YES_NO_QUESTION_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables being able to add a new yes/no"
                               + " question.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
-                          "SETTINGS_CACHE_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enables reading settings from the cache instead"
-                              + " of directly from the database.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_READABLE),

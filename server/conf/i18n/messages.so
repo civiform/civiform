@@ -62,7 +62,7 @@ link.opensNewTabSr=waxay ku furaysaa bog cusub
 # Aria-label for the primary navigation
 label.primaryNavigation=Hagitaanka aasasiga ah
 # Aria-label for agency identifier
-label.agencyIdentifier=Aqooonsiga hay'adda,
+label.agencyIdentifier=Aqooonsiga hay''adda,
 # Aria-label for guest session alert
 label.guestSessionAlert=Digniinta warbixineed ee fadhi martiyeedka
 # Link to skip to the main content of the page
@@ -245,7 +245,7 @@ button.viewAndAddClients=Arag oo ku dar macaamiisha
 # Part of the confirmation banner which appears after a new client has been added to a community-based organization.
 content.clientCreated=Macmiilkaaga cusub {0} waxaa lagu daray liiska macmiilkaaga. Hadda waxaad bilaabi kartaa soo gudbinta codsiyada macmiilkan.
 # The tooltip of the email input field.
-content.emailTooltip=Ku dar ciwaanka iimaylka macmiilkaaga si uu u helo wararka ku soo kordha xaalada ku saabsan codsigooda si toos ah. Iimayl la'aan, adiga ama ururkaaga bulshada ayaa mas'uul ka noqon doona gaarsiinta wararka soo kordha macmiilkaaga.
+content.emailTooltip=Ku dar ciwaanka iimaylka macmiilkaaga si uu u helo wararka ku soo kordha xaalada ku saabsan codsigooda si toos ah. Iimayl la''aan, adiga ama ururkaaga bulshada ayaa mas''uul ka noqon doona gaarsiinta wararka soo kordha macmiilkaaga.
 # For each client on the client list, shows the number of applications that have been submitted for them.
 content.numberOfAppSubmitted={0} Codsiyada waa la gudbiyey
 # Shows that a single application has been submitted on behalf of the client.
@@ -332,7 +332,7 @@ button.continue=Sii wad
 # Button text on a button that will allow the user to start filling out a section of questions.
 button.start=Bilow
 # A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
-toast.applicationOutOfDate=Waxaa jirtay cusboonaysiin lagu sameeyay app-ka, fadlan dib u eeg oo ka jawaab su'aalaha si aad horay ugu sii socoto
+toast.applicationOutOfDate=Waxaa jirtay cusboonaysiin lagu sameeyay app-ka, fadlan dib u eeg oo ka jawaab su''aalaha si aad horay ugu sii socoto
 
 # Text shown next to a question indicating that due to it, the application does not qualify or is not eligible.
 content.doesNotQualify=Uma qalmo
@@ -349,7 +349,7 @@ ariaLabel.answer=Jawaab {0}
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=Wax ka beddel {0}
 # Title for the summary of the pre-screener page
-title.preScreenerSummary=Faa'iidooyinka hore u baadhaha oo kooban
+title.preScreenerSummary=Faa''iidooyinka hore u baadhaha oo kooban
 # Heading content at the top of the review page, where applicants can start answering questions.
 title.getStarted=Aan bilowno.
 title.programSummary=Soo koobida barnaamijka codsiga
@@ -410,17 +410,17 @@ alert.eligibility_applicant_not_eligible_title=Waxaa suurtagal ah inaadan u qalm
 # Alert text when applicant may not be eligible for a program
 alert.eligibility_applicant_not_eligible_text=Iyadoo laguu salaynayo jawaabahaaga, waxaa suurtagal ah inaadan u qalmin barnaamijkan. Haddii macluumaadkaaga is badalay, waad badali kartaa jawaabtaada islamarkaana sii wadi kartaa arjigaaga.
 # Alert text when applicant may not be eligible for a program (new version for North Star)
-alert.eligibilityApplicantNotEligibleTextShort=Iyada oo lagu saleynayo jawaabahaaga ee su'aalaha soo socda, waxaa laga yaabaa inaadan u qalmin barnaamijkan.
+alert.eligibilityApplicantNotEligibleTextShort=Iyada oo lagu saleynayo jawaabahaaga ee su''aalaha soo socda, waxaa laga yaabaa inaadan u qalmin barnaamijkan.
 
 # Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_applicant_fastforwarded_eligible_title=Waxaa suurtagal ah inaad u qalanto barnaamijkan
 # Alert text when applicant may be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_applicant_fastforwarded_eligible_text=Waxaa jiri kara su'aalo cusub mise kuwo la cusbooneysiiyay oo saameeya jawaabahaaga mise u qalmitaankaaga. Fadlan dib u eeg dhammaan su'aalaha hoose.
+alert.eligibility_applicant_fastforwarded_eligible_text=Waxaa jiri kara su''aalo cusub mise kuwo la cusbooneysiiyay oo saameeya jawaabahaaga mise u qalmitaankaaga. Fadlan dib u eeg dhammaan su''aalaha hoose.
 
 # Alert title when applicant may not be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_applicant_fastforwarded_not_eligible_title=Waxaa suurtagal ah inaadan u qalmin barnaamijkan mar dambe
 # Alert text when applicant may not be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_applicant_fastforwarded_not_eligible_text=Waxaa jiri kara su'aalo cusub mise la cusboonaysiiyay oo saameeya jawaabahaaga mise u qalmitaankaaga. Fadlan dib u eeg dhammaan su'aalaha hoose.
+alert.eligibility_applicant_fastforwarded_not_eligible_text=Waxaa jiri kara su''aalo cusub mise la cusboonaysiiyay oo saameeya jawaabahaaga mise u qalmitaankaaga. Fadlan dib u eeg dhammaan su''aalaha hoose.
 
 # Alert title when TI client may be eligible for a program
 alert.eligibility_ti_eligible_title=Waxaa suurtagal ah in macmiilkaagu u qalmo barnaamijkan
@@ -432,17 +432,17 @@ alert.eligibility_ti_not_eligible_title=Waxaa suurtagal ah in macmiilkaagu u qal
 # Alert text when TI client may not be eligible for a program
 alert.eligibility_ti_not_eligible_text=Iyadoo laguu salaynayo jawaabahaaga, waxaa suurtagal ah in macmiilkaagu u qalmin barnaamijkan. Haddii macluumaadka macmiilkaaga la badalo, waad badali kartaa jawaabtaada islamarkaana sii wadi kartaa arjiga.
 # Alert text when TI client may not be eligible for a program (new version for North Star)
-alert.eligibilityTiNotEligibleTextShort=Iyada oo lagu saleynayo jawaabahaaga ee su'aalaha soo socda, macmiilkaagu waxaa laga yaabaa in aanu u qalmin barnaamijkan.
+alert.eligibilityTiNotEligibleTextShort=Iyada oo lagu saleynayo jawaabahaaga ee su''aalaha soo socda, macmiilkaagu waxaa laga yaabaa in aanu u qalmin barnaamijkan.
 
 # Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_eligible_title=Waxaa suurtagal ah in macmiilkaagu u qalmo barnaamijkan
 # Alert text when TI client may be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_ti_fastforwarded_eligible_text=Waxaa jiri kara su'aalo cusub mise la cusboonaysiiyay oo saameeya jawaabaha macmiilkaaga mise u qalmitaankooda. Fadlan dib u eeg dhammaan su'aalaha hoose.
+alert.eligibility_ti_fastforwarded_eligible_text=Waxaa jiri kara su''aalo cusub mise la cusboonaysiiyay oo saameeya jawaabaha macmiilkaaga mise u qalmitaankooda. Fadlan dib u eeg dhammaan su''aalaha hoose.
 
 # Alert title when TI client may not be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_not_eligible_title=Waxaa suurtagal ah in macmiilkaagu u qalmin barnaamijkan mar dambe
 # Alert text when TI client may not be eligible for a program after the application gets updated to using a newer program version
-alert.eligibility_ti_fastforwarded_not_eligible_text=Waxaa jiri kara su'aalo cusub mise la cusboonaysiiyay oo saameeya jawaabaha macmiilkaaga mise u qalmitaankooda. Fadlan dib u eeg dhammaan su'aalaha hoose.
+alert.eligibility_ti_fastforwarded_not_eligible_text=Waxaa jiri kara su''aalo cusub mise la cusboonaysiiyay oo saameeya jawaabaha macmiilkaaga mise u qalmitaankooda. Fadlan dib u eeg dhammaan su''aalaha hoose.
 
 # Alert on the program overview page letting the user know that they will likely be eligible for the program.
 alert.likelyEligible=Waxay u badan tahay inaad u qalanto barnaamijkan iyadoo lagu saleynayo jawaabaha aad ku bixisay codsi kale.
@@ -471,7 +471,7 @@ content.signInModal=Waxaad hubin kartaa heerka codsiga, wax ka beddeli kartaa, o
 # A message to show on the login prompt modal that encourages users to log in before applying to a program from the programs index page.
 content.initialLoginModalPrompt=Ka hor inta aanad sii wadin, soo gal {0} akoonkaaga ama samayso akoon. Waxaad awoodi doontaa inaad codsatid dhowr barnaamij adigoon galineyn isla macluumaadkii markale. Waxaad sidoo kale wax ka beddeli kartaa codsiyadaada oo hubin kartaa heerarka codsigaagu marayo.
 # A button for continuing to apply to other programs without an account.
-button.continueWithoutAnAccount=Sii soco koonto la'aan
+button.continueWithoutAnAccount=Sii soco koonto la''aan
 title.preScreenerConfirmation=Barnaamijyada aad u qalmi karaysid
 # Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
 title.preScreenerConfirmationTi=Barnaamijyada macmiilkaagu u qalmi karayo
@@ -553,9 +553,9 @@ button.homePage=Ku noqo bogga hore
 link.backToEditProgramBlock=Dib u laabo si aad wax u badesho {0}
 
 # Long form description for configuring a visibility condition and how it can be used to show or hide a screen for applicants filling out an application form with multiple screens.
-content.predicateVisibilityDescription=Qaabee marka shaashadaan soo baxdo ama la qariyo codsadaha iyadoo lagu salaynayo jawaabaha su'aalaha shaashadihii hore.
+content.predicateVisibilityDescription=Qaabee marka shaashadaan soo baxdo ama la qariyo codsadaha iyadoo lagu salaynayo jawaabaha su''aalaha shaashadihii hore.
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
-content.predicateEligibilityDescription=Ku dar shuruudaha u qalmitaanka si loo go'aamiyo haddii codsaduhu uu u qalmo barnaamijka iyadoo lagu salaynayo jawaabaha su'aalaha shaashadaan. Codsadayaasha aan buuxin shuruudaha ugu yar waxaa laga xanibi doonaa inay soo gudbiyaan codsi. Waad ka badeli kartaa arrintaan gudaha
+content.predicateEligibilityDescription=Ku dar shuruudaha u qalmitaanka si loo go''aamiyo haddii codsaduhu uu u qalmo barnaamijka iyadoo lagu salaynayo jawaabaha su''aalaha shaashadaan. Codsadayaasha aan buuxin shuruudaha ugu yar waxaa laga xanibi doonaa inay soo gudbiyaan codsi. Waad ka badeli kartaa arrintaan gudaha
 # Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
 link.programSettings=sitinka barnaamijka
 
@@ -576,7 +576,7 @@ content.predicateConditionIsTrueIf=Shuruudu ay sax tahay haddii:
 content.predicateSubconditionsAreTrue=Shuruudo hoosaadyada ay sax yihiin:
 
 # Label for select option dropdown to choose a question
-label.predicateQuestion=Su'aal
+label.predicateQuestion=Su''aal
 # Label for a select option dropdown to choose a field to use within a question, such as "first name", "email", "date", etc.
 label.predicateField=Godka
 # Label for a select option dropdown to choose a state for a logical condition, such as "is equal to", "is one of", "is later than", etc.
@@ -594,6 +594,8 @@ content.and=iyo
 button.predicateAddCondition=Ku dar shuruud
 # Button to remove a condition from the form
 button.predicateDeleteCondition=Tirtir shuruud
+# Button to remove all conditions from the form
+button.predicateDeleteAllConditions=Delete all conditions
 # Link to append form fields for configuring a new sub-condition within a condition
 link.predicateAddSubcondition=Ku dar xaalad-hoosaad
 # Link to remove a sub-condition from the form
@@ -603,10 +605,22 @@ link.backToTop=Ku laabo kor
 # Button to save the visibility or eligibility predicate and return to editing the program.
 button.saveAndExit=Keydi oo ka bax
 
+# Confirmation dialog shown to admin for deleting all conditions in the predicate edit view
+confirm.deleteAllConditions=Are you sure you would like to delete all conditions?
+# Confirmation dialog shown to admin for deleting a condition in the predicate edit view
+confirm.deleteSingleCondition=Are you sure you would like to delete this condition?
+# Dialog to warn admin that a deletion action cannot be undone
+confirm.actionNotReversable=This action cannot be undone.
+
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
-alert.predicateNoAvailableQuestionsVisibility=Ma jiraan su'aalo la heli karo oo ka muuqda shaashadihii hore oo lagu dejinayo shuruud muujin oo loogu talagalay shaashaddan.
+alert.predicateNoAvailableQuestionsVisibility=Ma jiraan su''aalo la heli karo oo ka muuqda shaashadihii hore oo lagu dejinayo shuruud muujin oo loogu talagalay shaashaddan.
 # Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
-alert.predicateNoAvailableQuestionsEligibility=Ma jiraan wax su'aalo ah oo la heli karo oo ka muuqda shaashaddan oo lagu dejinayo shuruuda u-qalmitaanka.
+alert.predicateNoAvailableQuestionsEligibility=Ma jiraan wax su''aalo ah oo la heli karo oo ka muuqda shaashaddan oo lagu dejinayo shuruuda u-qalmitaanka.
+
+# Label for textarea where admins can enter a message to show to applicants who are deemed ineligible based on the eligibility conditions set.
+label.predicateEligibilityMessageField=Display message shown to ineligible applicants
+# Help text for a textarea input explaining that markdown is supported.
+content.markdownSupported=Markdown is supported
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -850,7 +864,7 @@ map.locationLinkText=Eeg faahfaahin dheeraad ah
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr=Eeg faahfaahinada dheeraadka ah ee {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
-map.locationsCount=Soo bandhigaya {0} ka mid ah {1} gobood
+map.locationsCount=Displaying {0} to {1} of {2} locations
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount={0} ee {1} goobaha ugu badan ee la doortay.
 # Alt text for map region
@@ -884,7 +898,7 @@ map.switchToListViewSr=Eegida waxaa loo baddelay liis
 # Error message that indicates the applicant has selected too many locations
 map.validation.tooManySelections=Fadlan dooro goobaha {0} ee ugu badan.
 # Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
-map.geoJsonErrorText = Waan ka xunahay ma awoodno inaan soo bandhigno su'aashaan waqtigan. Fadlan iskuday inaad ku soo noqoto codsigaan waqti dambe. Dhanka kale, ku noqo {0} ama {1} waxaana kuu tilmaami doonaa jihada saxda ah.
+map.geoJsonErrorText = Waan ka xunahay ma awoodno inaan soo bandhigno su''aashaan waqtigan. Fadlan iskuday inaad ku soo noqoto codsigaan waqti dambe. Dhanka kale, ku noqo {0} ama {1} waxaana kuu tilmaami doonaa jihada saxda ah.
 map.contactUs = Nala soo xariir
 map.homepage = Bogga hore
 # screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
@@ -903,7 +917,7 @@ map.addFiltersTitle=Shaandheeyaal
 # Button for adding a tag
 map.addTagButton=Ku dar calaamad
 # Subtitle text for adding a tag
-map.addTagSubtitle=Ku dar calaamad si loogu soo bandhigo goobo gaar ah halkaas oo furaha la doortay uu la mid yahay cadad go'an. Marka codsaduhu doorto ugu yaraan mid ka mid ah goobahaan, si ikhtiyaar ah u muuji digniinta gudaha Goobaha La Doortay.
+map.addTagSubtitle=Ku dar calaamad si loogu soo bandhigo goobo gaar ah halkaas oo furaha la doortay uu la mid yahay cadad go''an. Marka codsaduhu doorto ugu yaraan mid ka mid ah goobahaan, si ikhtiyaar ah u muuji digniinta gudaha Goobaha La Doortay.
 # Title for tag section
 map.addTagTitle=Calaamad
 # Label for display name field
@@ -1094,13 +1108,13 @@ ariaLabel.categories=Qaybaha
 #------------------------------------------------------------------------------#
 
 # Title of the warning modal that appears when the user has been inactive for a while
-session.inactivity.warning.title=Digniinta Dhaqdhaqaaq La'aanta ku'aadan Kulanka
+session.inactivity.warning.title=Digniinta Dhaqdhaqaaq La''aanta ku''aadan Kulanka
 
 # Message shown in a modal asking the user if they want to extend their session due to inactivity
-session.inactivity.warning.message=Kulankaaga wuxuu dhici doonaa dhawaan sababo la xiriira dhaqdhaqaaq la'aan. Ma jeclaan lahayd inaad mudo dheeraysato kulankaaga?
+session.inactivity.warning.message=Kulankaaga wuxuu dhici doonaa dhawaan sababo la xiriira dhaqdhaqaaq la''aan. Ma jeclaan lahayd inaad mudo dheeraysato kulankaaga?
 
 # Title of a modal dialog displayed when a user's session is about to expire due to session length limit
-session.length.warning.title=Digniinta ku'aadan Dhererka Kulanka
+session.length.warning.title=Digniinta ku''aadan Dhererka Kulanka
 
 # Message shown in a modal warning the user their session will end soon due to session length limit
 session.length.warning.message=Kulankaaga wuxuu dhici doonaa dhawaan sababo la xiriira dhererka kulanka. Fadlan kaydi shaqadaada oo dib u soo gal haddii loo baahdo.

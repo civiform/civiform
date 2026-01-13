@@ -241,6 +241,18 @@ function attachFormDebouncers() {
 }
 
 /**
+ * Click handler for the admin question add new option button for
+ * multi-option questions (checkboxes, radios, selects)
+ */
+function addNewOptionHandler() {
+  addNewInput(
+    'multi-option-question-answer-template',
+    'add-new-option',
+    'question-settings',
+  )
+}
+
+/**
  * Adds listeners to all elements that have `data-redirect-to="..."` attribute.
  * All such elements act as links taking user to another page.
  */
@@ -309,13 +321,8 @@ export function init() {
   // Configure the button on the admin question form to add more answer options
   const questionOptionButton = document.getElementById('add-new-option')
   if (questionOptionButton) {
-    questionOptionButton.addEventListener('click', function () {
-      addNewInput(
-        'multi-option-question-answer-template',
-        'add-new-option',
-        'question-settings',
-      )
-    })
+    questionOptionButton.removeEventListener('click', addNewOptionHandler)
+    questionOptionButton.addEventListener('click', addNewOptionHandler)
   }
 
   // Note that this formatting logic mimics QuestionDefinition.getQuestionNameKey()

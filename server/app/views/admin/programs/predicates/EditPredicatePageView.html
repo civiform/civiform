@@ -37,12 +37,7 @@
         </p>
       </div>
 
-      <form
-        id="predicate-form"
-        class="usa-form"
-        th:action="${model.updatePredicateEndpoint()}"
-        method="post"
-      >
+      <form id="predicate-form" class="usa-form">
         <input
           type="hidden"
           th:value="${templateGlobals.csrfToken()}"
@@ -83,11 +78,13 @@
               <select
                 class="usa-select width-9 display-inline-block font-body-xs margin-x-1"
                 name="root-nodeType"
+                aria-label="root-nodeType"
               >
                 <option
                   th:each="nodeType : ${model.operatorNodeTypes()}"
                   th:text="${nodeType.toDisplayString()}"
                   th:value="${nodeType.name()}"
+                  th:selected="${nodeType.equals(model.rootLogicalOperator.toNodeType())}"
                 ></option>
               </select>
               [[#{content.predicateConditionsAreTrue}]]
@@ -161,15 +158,23 @@
     <div class="grid-container margin-left-0 padding-left-0 padding-top-2">
       <div class="grid-row flex-align-left">
         <button
+          id="submit-predicate"
           type="submit"
           class="usa-button tablet:grid-col-auto"
           form="predicate-form"
+          th:formaction="${model.updatePredicateEndpoint()}"
+          formmethod="post"
           th:text="#{button.saveAndExit}"
         ></button>
         <button
+          id="cancel-predicate-edit"
           type="submit"
           class="usa-button usa-button--outline tablet:grid-col-auto"
+          form="predicate-form"
+          th:formaction="${model.blockEditUrl()}"
+          formmethod="get"
           th:text="#{button.cancel}"
+          th:data-cancel-dialog="#{confirm.leaveWithoutSaving} + '&#10;&#10;' + #{confirm.unsavedChanges}"
         ></button>
         <div
           id="delete-all-conditions-button"
@@ -179,6 +184,8 @@
           <button
             type="button"
             class="usa-button usa-button--unstyled zero-top-margin text-secondary-dark"
+            th:with="deleteAllConfirmation=#{confirm.deleteAllConditions} + '&#10;&#10;' + #{confirm.actionNotReversable}"
+            th:hx-confirm="${deleteAllConfirmation}"
             th:hx-post="${model.hxDeleteAllConditionsEndpoint()}"
             hx-target="#predicate-conditions-list"
           >

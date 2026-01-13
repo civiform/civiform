@@ -594,6 +594,8 @@ content.and=at
 button.predicateAddCondition=Magdagdag ng kondisyon
 # Button to remove a condition from the form
 button.predicateDeleteCondition=I-delete ang kondisyon
+# Button to remove all conditions from the form
+button.predicateDeleteAllConditions=Delete all conditions
 # Link to append form fields for configuring a new sub-condition within a condition
 link.predicateAddSubcondition=Magdagdag ng sub-kondisyon
 # Link to remove a sub-condition from the form
@@ -603,10 +605,22 @@ link.backToTop=Bumalik sa itaas
 # Button to save the visibility or eligibility predicate and return to editing the program.
 button.saveAndExit=I-save at mag-exit
 
+# Confirmation dialog shown to admin for deleting all conditions in the predicate edit view
+confirm.deleteAllConditions=Are you sure you would like to delete all conditions?
+# Confirmation dialog shown to admin for deleting a condition in the predicate edit view
+confirm.deleteSingleCondition=Are you sure you would like to delete this condition?
+# Dialog to warn admin that a deletion action cannot be undone
+confirm.actionNotReversable=This action cannot be undone.
+
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsVisibility=Walang mga available na tanong sa mga naunang screen kung saan magtatakda ng kondisyon sa visibility para sa screen na ito.
 # Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsEligibility=Walang mga available na tanong sa screen na ito kung saan magtatakda ng kondisyon sa pagiging karapat-dapat.
+
+# Label for textarea where admins can enter a message to show to applicants who are deemed ineligible based on the eligibility conditions set.
+label.predicateEligibilityMessageField=Display message shown to ineligible applicants
+# Help text for a textarea input explaining that markdown is supported.
+content.markdownSupported=Markdown is supported
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -850,7 +864,7 @@ map.locationLinkText=Tingnan ang higit pang detalye
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr=Tingnan ang higit pang detalye para sa {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
-map.locationsCount=Ipinapakita ang {0} sa {1} (na) lokasyon
+map.locationsCount=Displaying {0} to {1} of {2} locations
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount={0} sa {1} na maximum na lokasyon ang napili.
 # Alt text for map region

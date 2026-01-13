@@ -1,5 +1,5 @@
-import {expect, Locator} from '@playwright/test'
-import {Page} from 'playwright'
+import {expect} from './civiform_fixtures'
+import {Page, Locator} from '@playwright/test'
 import {readFileSync, writeFileSync, unlinkSync} from 'fs'
 import {
   waitForAnyModalLocator,
@@ -310,16 +310,19 @@ export class ApplicantQuestions {
   }
 
   async clickApplyProgramButton(programName: string) {
-    await this.page.click(
-      `.cf-application-card:has-text("${programName}") .cf-apply-button`,
-    )
+    await this.page
+      .locator('.cf-application-card')
+      .filter({hasText: programName})
+      .locator('.cf-apply-button')
+      .click()
 
     // If we are as a guest, we will get a prompt to log in before continuing to the
     // application. Bypass this to continue as a guest.
-    const loginPromptButton = await this.page.$(
-      `[id^="bypass-login-prompt-button-"]:visible`,
-    )
-    if (loginPromptButton !== null) {
+    const loginPromptButton = this.page
+      .locator('[id^="bypass-login-prompt-button-"]')
+      .and(this.page.locator(':visible'))
+
+    if ((await loginPromptButton.count()) > 0) {
       await loginPromptButton.click()
     }
 
