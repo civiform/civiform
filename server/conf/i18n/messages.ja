@@ -1144,10 +1144,10 @@ input.repeatedSet.maxEntities=
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
 alert.repeatedSet.newQuestion=
 # Submission button for creating a new repeated set
-button.repeatedSet.submitNew=Create repeated set
+button.repeatedSet.submitNew=
 # Button for admins to add a new repeated set
-button.repeatedSet.addNew=Add repeated set
+button.repeatedSet.addNew=
 # Text letting admins know which block represents the group of screens for repeating questions
-text.repeatedSet=Repeated set
+text.repeatedSet=
 # Text letting admins know which block represents the group of screens for nested repeating questions
-text.nestedRepeatedSet=Nested repeated set
+text.nestedRepeatedSet=
