@@ -1116,3 +1116,38 @@ session.extended.success=Đã gia hạn phiên thành công
 
 # Error message shown when there was a problem extending the user's session
 session.extended.error=Không gia hạn được phiên
+
+#------------------------------------------------------------------------------#
+#  ADMIN PROGRAM BLOCK EDIT                                                    #
+#------------------------------------------------------------------------------#
+
+# Heading for the repeated set creation method radio buttons
+heading.repeatedSet.creationMethod=Repeated set creation method
+# Option for allowing an admin to create a new repeated set
+option.repeatedSet.createNew=Create new
+# Option for allowing an admin to choose an existing repeated set
+option.repeatedSet.chooseExisting=Choose existing
+# Label for the new repeated set form
+label.repeatedSet.newSetForm=Create new repeated set
+# Label for the text input field asking what type of entity users will be listing (e.g., household members)
+input.repeatedSet.listedEntity=Listed entity
+# Label for the text input field asking for the admin identifier of the repeated set
+input.repeatedSet.adminId=Repeated set admin ID
+# A text input field asking admins for the text that will prompt applicants to list out the entity
+input.repeatedSet.questionText=Question text
+# A text input field for admins to add a hint that will help applicants decide what entities to list out
+input.repeatedSet.hintText=Hint text
+# A form field where admins set the minimum number of entities that applicants must list
+input.repeatedSet.minEntities=Minimum entity count
+# A form field where admins set the maximum number of entities that applicants can list
+input.repeatedSet.maxEntities=Maximum entity count
+# Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
+alert.repeatedSet.newQuestion=Creating a repeated set will add a new question to the question bank.
+# Submission button for creating a new repeated set
+button.repeatedSet.submitNew=Create repeated set
+# Button for admins to add a new repeated set
+button.repeatedSet.addNew=Add repeated set
+# Text letting admins know which block represents the group of screens for repeating questions
+text.repeatedSet=Repeated set
+# Text letting admins know which block represents the group of screens for nested repeating questions
+text.nestedRepeatedSet=Nested repeated set
