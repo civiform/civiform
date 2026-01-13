@@ -1122,19 +1122,19 @@ session.extended.error=Hindi na-extend ang session
 #------------------------------------------------------------------------------#
 
 # Heading for the repeated set creation method radio buttons
-heading.repeatedSet.creationMethod=Repeated set creation method
+heading.repeatedSet.creationMethod=
 # Option for allowing an admin to create a new repeated set
-option.repeatedSet.createNew=Create new
+option.repeatedSet.createNew=
 # Option for allowing an admin to choose an existing repeated set
-option.repeatedSet.chooseExisting=Choose existing
+option.repeatedSet.chooseExisting=
 # Label for the new repeated set form
-label.repeatedSet.newSetForm=Create new repeated set
+label.repeatedSet.newSetForm=
 # Label for the text input field asking what type of entity users will be listing (e.g., household members)
-input.repeatedSet.listedEntity=Listed entity
+input.repeatedSet.listedEntity=
 # Label for the text input field asking for the admin identifier of the repeated set
-input.repeatedSet.adminId=Repeated set admin ID
+input.repeatedSet.adminId=
 # A text input field asking admins for the text that will prompt applicants to list out the entity
-input.repeatedSet.questionText=Question text
+input.repeatedSet.questionText=
 # A text input field for admins to add a hint that will help applicants decide what entities to list out
 input.repeatedSet.hintText=Hint text
 # A form field where admins set the minimum number of entities that applicants must list
