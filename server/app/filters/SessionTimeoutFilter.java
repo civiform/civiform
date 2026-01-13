@@ -7,6 +7,9 @@ import auth.ProfileUtils;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -15,6 +18,8 @@ import java.util.function.Function;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import org.apache.pekko.stream.Materializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.libs.Json;
 import play.mvc.Filter;
 import play.mvc.Http;
@@ -25,16 +30,15 @@ import services.settings.SettingsManifest;
 /**
  * A filter to manage session timeouts in CiviForm.
  *
- * <p>NOTE: This filter is currently not called from application.conf because of issues we were
- * seeing with #10330.
- *
- * <p>TODO: #9819 Re-enable this filter when we ensure there aren't performance issues.
- *
  * <p>This filter is responsible for setting a cookie with the current session's timeout data. The
  * cookie is used by the frontend to determine when to show a warning to the user that their session
  * is about to expire.
  */
 public class SessionTimeoutFilter extends Filter {
+  private static final Logger logger = LoggerFactory.getLogger(SessionTimeoutFilter.class);
+  private static final ZoneId PST_ZONE = ZoneId.of("America/Los_Angeles");
+  private static final DateTimeFormatter PST_FORMATTER =
+      DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z").withZone(PST_ZONE);
   private static final String TIMEOUT_COOKIE_NAME = "session_timeout_data";
   private static final Duration COOKIE_MAX_AGE = Duration.ofDays(2);
 
@@ -103,6 +107,14 @@ public class SessionTimeoutFilter extends Filter {
               String cookieValue =
                   Base64.getEncoder()
                       .encodeToString(Json.stringify(timestamps).getBytes(StandardCharsets.UTF_8));
+
+              logger.info(
+                  "Created session timeout cookie | Inactivity warning: {} | Inactivity timeout: {} | Total warning: {} | Total timeout: {} | Current: {}",
+                  PST_FORMATTER.format(Instant.ofEpochSecond(timeoutData.inactivityWarning())),
+                  PST_FORMATTER.format(Instant.ofEpochSecond(timeoutData.inactivityTimeout())),
+                  PST_FORMATTER.format(Instant.ofEpochSecond(timeoutData.totalWarning())),
+                  PST_FORMATTER.format(Instant.ofEpochSecond(timeoutData.totalTimeout())),
+                  PST_FORMATTER.format(Instant.ofEpochSecond(timeoutData.currentTime())));
 
               return Http.Cookie.builder(TIMEOUT_COOKIE_NAME, cookieValue)
                   .withHttpOnly(false)
