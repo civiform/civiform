@@ -78,9 +78,7 @@ test.describe('Session timeout for applicants', () => {
     await enableFeatureFlag(page, 'session_timeout_enabled')
   })
 
-  test('shows inactivity warning modal after 50 minutes', async ({
-    page,
-  }) => {
+  test('shows inactivity warning modal after 50 minutes', async ({page}) => {
     await test.step('Create and login as applicant', async () => {
       await page.goto('/')
       await loginAsTestUser(page)
