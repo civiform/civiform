@@ -153,7 +153,7 @@ test.describe('create and edit predicates', () => {
 
     expect(await page.innerHTML('#application-view')).not.toContain('Screen 2')
 
-    await page.getByRole('link', {name: 'Back'}).click()
+    await page.getByRole('button', {name: 'Back'}).click()
   })
 
   test('add a show predicate', async ({
@@ -293,7 +293,7 @@ test.describe('create and edit predicates', () => {
       'Screen 2',
     )
 
-    await page.getByRole('link', {name: 'Back'}).click()
+    await page.getByRole('button', {name: 'Back'}).click()
   })
 
   test('add an eligibility predicate', async ({
@@ -447,7 +447,7 @@ test.describe('create and edit predicates', () => {
       'Screen 1',
     )
 
-    await page.getByRole('link', {name: 'Back'}).click()
+    await page.getByRole('button', {name: 'Back'}).click()
   })
 
   test('suffix cannot be added as an eligibility predicate for name question', async ({
