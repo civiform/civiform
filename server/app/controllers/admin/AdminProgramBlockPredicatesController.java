@@ -95,13 +95,9 @@ import views.html.helper.form;
  * logic.
  */
 public class AdminProgramBlockPredicatesController extends CiviFormController {
-  // List of question types for which we expect multiple populated values.
-  private static final ImmutableList<QuestionType> MULTI_VALUE_QUESTION_TYPES =
-      ImmutableList.of(
-          QuestionType.CHECKBOX,
-          QuestionType.DROPDOWN,
-          QuestionType.RADIO_BUTTON,
-          QuestionType.YES_NO);
+  // List of operator types for which we expect two input fields
+  private static final ImmutableList<Operator> INPUT_PAIR_OPERATOR_TYPES =
+      ImmutableList.of(Operator.BETWEEN, Operator.AGE_BETWEEN);
 
   private final PredicateGenerator predicateGenerator;
   private final ProgramService programService;
@@ -783,6 +779,29 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
 
     try {
       DynamicForm form = formFactory.form().bindFromRequest(request);
+
+      // Validate input fields
+      ImmutableList<EditConditionPartialViewModel> validatedConditionsList =
+          buildConditionsListFromFormData(
+              programId,
+              blockDefinitionId,
+              predicateUseCase,
+              ImmutableMap.copyOf(form.rawData()),
+              /* validateInputFields= */ true);
+
+      // If there are invalid input fields present, return to the same screen.
+      if (predicateHasInvalidInputs(validatedConditionsList)) {
+        return ok(conditionListPartialView.render(
+                request,
+                ConditionListPartialViewModel.builder()
+                    .programId(programId)
+                    .blockId(blockDefinitionId)
+                    .predicateUseCase(PredicateUseCase.valueOf(predicateUseCase))
+                    .conditions(validatedConditionsList)
+                    .build()))
+            .as(Http.MimeTypes.HTML);
+      }
+
       PredicateDefinition predicateDefinition =
           predicateGenerator.generatePredicateDefinition(
               programService.getFullProgramDefinition(programId),
@@ -833,13 +852,17 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
         | BadRequestException e) {
       // TODO(#11761): Replace toast with dismissable alert when admin alerts are
       // ready.
-      return redirect(routes.AdminProgramBlocksController.edit(programId, blockDefinitionId))
+      return ok().withHeader(
+              "HX-Redirect",
+              routes.AdminProgramBlocksController.edit(programId, blockDefinitionId).url())
           .flashing(FlashKey.ERROR, e.getLocalizedMessage());
     }
 
     // TODO(#11761): Replace toast with dismissable alert when admin alerts are
     // ready.
-    return redirect(routes.AdminProgramBlocksController.edit(programId, blockDefinitionId))
+    return ok().withHeader(
+            "HX-Redirect",
+            routes.AdminProgramBlocksController.edit(programId, blockDefinitionId).url())
         .flashing(
             FlashKey.SUCCESS,
             String.format("Saved %s condition", predicateUseCase.toLowerCase(Locale.ROOT)));
@@ -873,7 +896,11 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       ArrayList<EditConditionPartialViewModel> currentConditions =
           new ArrayList<>(
               buildConditionsListFromFormData(
-                  programId, blockDefinitionId, predicateUseCase, formData));
+                  programId,
+                  blockDefinitionId,
+                  predicateUseCase,
+                  formData,
+                  /* validateInputFields= */ false));
       EditConditionPartialViewModel condition =
           EditConditionPartialViewModel.builder()
               .programId(programId)
@@ -946,7 +973,11 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       EditConditionPartialViewModel condition =
           getOnlyElement(
               buildConditionsListFromFormData(
-                  programId, blockDefinitionId, predicateUseCase, ImmutableMap.copyOf(formData)));
+                  programId,
+                  blockDefinitionId,
+                  predicateUseCase,
+                  ImmutableMap.copyOf(formData),
+                  /* validateInputFields= */ false));
 
       // Focus only the edited subcondition
       int focusedIndex = subconditionId.intValue() - 1;
@@ -1004,7 +1035,11 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       EditConditionPartialViewModel condition =
           getOnlyElement(
               buildConditionsListFromFormData(
-                  programId, blockDefinitionId, predicateUseCase, ImmutableMap.copyOf(formData)));
+                  programId,
+                  blockDefinitionId,
+                  predicateUseCase,
+                  ImmutableMap.copyOf(formData),
+                  /* validateInputFields= */ false));
       ArrayList<EditSubconditionPartialViewModel> subconditionList =
           new ArrayList<>(condition.subconditions());
 
@@ -1060,7 +1095,11 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
 
       ImmutableList<EditConditionPartialViewModel> conditions =
           buildConditionsListFromFormData(
-              programId, blockDefinitionId, predicateUseCase, ImmutableMap.copyOf(formData));
+              programId,
+              blockDefinitionId,
+              predicateUseCase,
+              ImmutableMap.copyOf(formData),
+              /* validateInputFields= */ false);
 
       // Handle accessibility steps (skip if there are no conditions left).
       // Focus either: subcondition 1 of the previous condition OR subcondition 1 of condition 1.
@@ -1128,7 +1167,11 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       EditConditionPartialViewModel condition =
           getOnlyElement(
               buildConditionsListFromFormData(
-                  programId, blockDefinitionId, predicateUseCase, ImmutableMap.copyOf(formData)));
+                  programId,
+                  blockDefinitionId,
+                  predicateUseCase,
+                  ImmutableMap.copyOf(formData),
+                  /* validateInputFields= */ false));
 
       // Focus either the previous (zero-indexed) subcondition index before the deleted
       // subcondition, or the first subcondition.
@@ -1286,7 +1329,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                     .build();
               })
           .collect(ImmutableList.toImmutableList());
-    } else if (MULTI_VALUE_QUESTION_TYPES.contains(question.getQuestionType())) {
+    } else if (question.getQuestionType().isMultiOptionType()) {
       checkState(selectedValue.getKind().equals(SelectedValue.Kind.MULTIPLE));
       MultiOptionQuestionDefinition multiOptionQuestionDefinition =
           (MultiOptionQuestionDefinition) question;
@@ -1342,7 +1385,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       Long programId,
       Long blockDefinitionId,
       String predicateUseCase,
-      ImmutableMap<String, String> formData)
+      ImmutableMap<String, String> formData,
+      boolean validateInputFields)
       throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException {
     ArrayList<EditConditionPartialViewModel> editConditionModels = new ArrayList<>();
     PredicateUseCase useCase = PredicateUseCase.valueOf(predicateUseCase);
@@ -1383,7 +1427,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                 condition.emptySubconditionViewModel(),
                 subconditionFieldPrefix,
                 availableQuestions,
-                formData));
+                formData,
+                validateInputFields));
       }
 
       condition = condition.toBuilder().subconditions(ImmutableList.copyOf(subconditions)).build();
@@ -1412,12 +1457,15 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
    *     "condition-{conditionId}-subcondition-{subconditionId}".
    * @param availableQuestions All questions available in this program.
    * @param formData The dynamic form data, containing user-entered values for this subcondition.
+   * @param validateInputFields Whether or not to validate the presence of form inputs. Validation
+   *     data is stored in the returned EditSubconditionPartialViewModel.
    */
   private EditSubconditionPartialViewModel getParsedSubconditionFromFormData(
       EditSubconditionPartialViewModel emptyModel,
       String fieldNamePrefix,
       ImmutableList<QuestionDefinition> availableQuestions,
-      ImmutableMap<String, String> formData) {
+      ImmutableMap<String, String> formData,
+      boolean validateInputFields) {
     EditSubconditionPartialViewModelBuilder subconditionBuilder = emptyModel.toBuilder();
 
     // Set the user-selected question
@@ -1442,7 +1490,10 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
         optionallyGetEnumFromFormData(Scalar.class, formData, fieldNamePrefix + "-scalar");
 
     // Get the user-entered values, if present. Empty string otherwise.
-    String inputFieldValue = Objects.toString(formData.get(fieldNamePrefix + "-value"), "");
+    String inputFieldId = fieldNamePrefix + "-value";
+    String secondInputFieldId = fieldNamePrefix + "-secondValue";
+
+    String inputFieldValue = Objects.toString(formData.get(inputFieldId), "");
     String secondInputFieldValue =
         Objects.toString(formData.get(fieldNamePrefix + "-secondValue"), "");
 
@@ -1453,10 +1504,36 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     // Populate the selected value, depending on whether this is a multi-value question type.
     SelectedValue selectedValue =
         selectedQuestion
-                .map(question -> MULTI_VALUE_QUESTION_TYPES.contains(question.getQuestionType()))
+                .map(question -> question.getQuestionType().isMultiOptionType())
                 .orElse(false)
             ? SelectedValue.multiple(multiValueSelections)
             : SelectedValue.single(inputFieldValue);
+
+    // Perform input validation
+    ArrayList<String> invalidFieldIds = new ArrayList<>();
+    if (validateInputFields) {
+      // First input field
+      // Ignore cases where the user selected a multi-value question.
+      if (selectedQuestion.isPresent()
+          && !selectedQuestion.get().getQuestionType().isMultiOptionType()
+          && inputFieldValue.isBlank()) {
+        invalidFieldIds.add(inputFieldId);
+      }
+      // Second input field
+      // Ignore cases where we're not expecting a pair of inputs.
+      if (selectedOperatorOptional.isPresent()
+          && INPUT_PAIR_OPERATOR_TYPES.contains(selectedOperatorOptional.get())
+          && secondInputFieldValue.isBlank()) {
+        invalidFieldIds.add(secondInputFieldId);
+      }
+      // Multi-value checkboxes
+      // If there's nothing entered in multi-value selections, mark the whole field as invalid.
+      // If any value is present in invalidInputIds, we invalidate the multivalue question.
+      if (multiValueSelections.isEmpty()
+          && selectedValue.getKind().equals(SelectedValue.Kind.MULTIPLE)) {
+        invalidFieldIds.add(fieldNamePrefix);
+      }
+    }
 
     return subconditionBuilder
         .selectedQuestionType(
@@ -1471,6 +1548,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
             selectedQuestion.isPresent()
                 ? getValueOptionsForQuestion(selectedQuestion.get(), selectedValue)
                 : ImmutableList.of())
+        .invalidInputIds(ImmutableList.copyOf(invalidFieldIds))
         .userEnteredValue(inputFieldValue)
         .secondUserEnteredValue(secondInputFieldValue)
         .build();
@@ -1611,5 +1689,18 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     conditionsArrayList.set(conditionIndex, focusedCondition);
 
     return ImmutableList.copyOf(conditionsArrayList);
+  }
+
+  /**
+   * Given an {@link ImmutableList} of {@link EditConditionPartialViewModel}, return true if any
+   * subconditions have invalid input fields present.
+   */
+  private static boolean predicateHasInvalidInputs(
+      ImmutableList<EditConditionPartialViewModel> conditions) {
+    return conditions.stream()
+        .anyMatch(
+            condition ->
+                condition.subconditions().stream()
+                    .anyMatch(subcondition -> !subcondition.invalidInputIds().isEmpty()));
   }
 }

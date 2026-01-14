@@ -2,7 +2,11 @@ import {expect, test} from '../support/civiform_fixtures'
 import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 import {waitForHtmxReady} from '../support/wait'
 import {QuestionType} from '../support/admin_questions'
-import {MultiValueSpec, SubconditionSpec} from '../support/admin_predicates'
+import {
+  MultiValueSpec,
+  SubconditionSpec,
+  SubconditionValue,
+} from '../support/admin_predicates'
 import {assertNotNull} from '../support/helpers'
 
 /**
@@ -55,7 +59,7 @@ const PROGRAM_SAMPLE_QUESTIONS = new Map<
       questionText: 'currency question text',
       firstValue: '3.50',
       secondValue: '4.75',
-      defaultInputType: 'currency',
+      defaultInputType: 'number',
       defaultInputMode: 'decimal',
     },
   ],
@@ -300,11 +304,13 @@ test.describe('create and edit predicates', () => {
   }) => {
     await loginAsAdmin(page)
     const programName = 'Create and edit an eligibility predicate'
+    const questionName = 'predicate-q'
+    const questionText = 'Text question'
 
     await test.step('Create a program with a question to use in the predicate', async () => {
-      const questionName = 'predicate-q'
       await adminQuestions.addTextQuestion({
         questionName: questionName,
+        questionText: questionText,
       })
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockUsingSpec(programName, {
@@ -346,6 +352,20 @@ test.describe('create and edit predicates', () => {
       await validateScreenshot(
         page.locator('#edit-predicate'),
         'edit-eligibility-predicate',
+      )
+    })
+
+    await test.step('Select question, save, and check predicate validation', async () => {
+      await adminPredicates.selectQuestion(1, 1, questionText)
+
+      await adminPredicates.clickSaveAndExitButton()
+
+      await expect(page.locator('#edit-predicate')).toContainText(
+        'Error: This field is required.',
+      )
+      await validateScreenshot(
+        page.locator('#condition-1'),
+        'edit-eligibility-predicate-with-validation-error',
       )
     })
   })
@@ -476,10 +496,9 @@ test.describe('create and edit predicates', () => {
     ]) {
       const singleValueOperator =
         questionType === QuestionType.DATE ? 'IS_AFTER' : 'EQUAL_TO'
+      const questionData = PROGRAM_SAMPLE_QUESTIONS.get(questionType)!
 
       await test.step(`Select ${questionType} question and validate single-value operator behavior`, async () => {
-        const questionData = PROGRAM_SAMPLE_QUESTIONS.get(questionType)!
-
         await adminPredicates.configureSubcondition({
           conditionId: 1,
           subconditionId: 1,
@@ -509,6 +528,36 @@ test.describe('create and edit predicates', () => {
           questionData.defaultInputMode!,
         )
       })
+
+      await test.step('Enter an empty string and check validation behavior', async () => {
+        await adminPredicates.fillValue(1, 1, {
+          firstValue: ' ',
+        } as SubconditionValue)
+
+        await adminPredicates.clickSaveAndExitButton()
+        await waitForHtmxReady(page)
+
+        const errorMessageLocator = page.locator(
+          '#condition-1-subcondition-1-errorMessage',
+        )
+        const inputElementLocator = page.locator(
+          `#condition-1-subcondition-1-value[type=${questionData.defaultInputType!}]`,
+        )
+
+        await expect(errorMessageLocator).toContainText(
+          'Error: This field is required.',
+        )
+        await expect(errorMessageLocator).toBeVisible()
+        await expect(inputElementLocator).toHaveAttribute(
+          'aria-invalid',
+          'true',
+        )
+        if (questionType === QuestionType.CURRENCY) {
+          await expect(page.locator('.usa-input-group--error')).toBeVisible()
+        } else {
+          await expect(inputElementLocator).toContainClass('usa-input--error')
+        }
+      })
     }
 
     // Test question types that allow multiple input fields with the BETWEEN operator
@@ -517,8 +566,9 @@ test.describe('create and edit predicates', () => {
       QuestionType.DATE,
       QuestionType.NUMBER,
     ]) {
+      const questionData = PROGRAM_SAMPLE_QUESTIONS.get(questionType)!
+
       await test.step(`Select ${questionType} question and validate BETWEEN operator behavior`, async () => {
-        const questionData = PROGRAM_SAMPLE_QUESTIONS.get(questionType)!
         await adminPredicates.configureSubcondition({
           conditionId: 1,
           subconditionId: 1,
@@ -556,6 +606,49 @@ test.describe('create and edit predicates', () => {
           'inputmode',
           questionData.defaultInputMode!,
         )
+      })
+
+      await test.step('Enter an empty string in the second input and check validation behavior', async () => {
+        await adminPredicates.fillValue(1, 1, {
+          firstValue: questionData.firstValue,
+          secondValue: ' ',
+        } as SubconditionValue)
+
+        await adminPredicates.clickSaveAndExitButton()
+        await waitForHtmxReady(page)
+
+        const errorMessageLocator = page.locator(
+          '#condition-1-subcondition-1-errorMessage',
+        )
+        const inputElementLocator = page.locator(
+          `#condition-1-subcondition-1-value[type=${questionData.defaultInputType!}]`,
+        )
+        const secondInputElementLocator = page.locator(
+          `#condition-1-subcondition-1-secondValue[type=${questionData.defaultInputType!}]`,
+        )
+
+        await expect(errorMessageLocator).toContainText(
+          'Error: This field is required.',
+        )
+        await expect(errorMessageLocator).toBeVisible()
+        await expect(inputElementLocator).toHaveAttribute(
+          'aria-invalid',
+          'false',
+        )
+        await expect(secondInputElementLocator).toHaveAttribute(
+          'aria-invalid',
+          'true',
+        )
+        if (questionType === QuestionType.CURRENCY) {
+          await expect(page.locator('.usa-input-group--error')).toBeVisible()
+        } else {
+          await expect(inputElementLocator).not.toContainClass(
+            'usa-input--error',
+          )
+          await expect(secondInputElementLocator).toContainClass(
+            'usa-input--error',
+          )
+        }
       })
     }
 
@@ -686,9 +779,16 @@ test.describe('create and edit predicates', () => {
           questionText: questionData.questionText,
           value: {multiValues: questionData.multiValueOptions!},
         })
+
+        await adminPredicates.expectSubconditionEquals({
+          conditionId: 1,
+          subconditionId: 1,
+          questionText: questionData.questionText,
+          value: {multiValues: questionData.multiValueOptions!},
+        })
       })
 
-      await test.step('add and delete subcondition and expect no change', async () => {
+      await test.step('Add and delete subcondition and expect no change', async () => {
         await adminPredicates.addAndExpectSubcondition(1, 2)
         await adminPredicates.deleteAndExpectNoSubcondition(1, 2)
 
@@ -698,6 +798,33 @@ test.describe('create and edit predicates', () => {
           questionText: questionData.questionText,
           value: {multiValues: questionData.multiValueOptions!},
         })
+      })
+
+      await test.step('Delete and re-add first condition', async () => {
+        await adminPredicates.clickDeleteConditionButton(1)
+        await adminPredicates.clickAddConditionButton(1)
+      })
+
+      await test.step('Select nothing and check validation behavior', async () => {
+        await adminPredicates.configureSubcondition({
+          conditionId: 1,
+          subconditionId: 1,
+          questionText: questionData.questionText,
+          value: {multiValues: [] as MultiValueSpec[]},
+        })
+
+        await adminPredicates.clickSaveAndExitButton()
+        await waitForHtmxReady(page)
+
+        const errorMessageLocator = page.locator(
+          '#condition-1-subcondition-1-errorMessage',
+        )
+
+        await expect(errorMessageLocator).toContainText(
+          'Error: You must select at least one option.',
+        )
+        await expect(errorMessageLocator).toBeVisible()
+        await expect(page.locator('.usa-form-group--error')).toBeVisible()
       })
     }
   })
@@ -1142,6 +1269,7 @@ test.describe('create and edit predicates', () => {
 
   test('Eligibility message', async ({
     page,
+    adminQuestions,
     adminPrograms,
     adminPredicates,
   }) => {
@@ -1149,12 +1277,20 @@ test.describe('create and edit predicates', () => {
     const programName = 'Eligibility message'
     const eligibilityMessageLabel =
       'Display message shown to ineligible applicants'
+    const questionValues = assertNotNull(
+      PROGRAM_SAMPLE_QUESTIONS.get(QuestionType.DATE),
+    )
 
     await test.step('Create a program', async () => {
+      await adminQuestions.addDateQuestion({
+        questionName: questionValues.questionName,
+        questionText: questionValues.questionText,
+      })
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockUsingSpec(programName, {
         name: 'Screen 1',
         description: 'first screen',
+        questions: [{name: questionValues.questionName}],
       })
     })
 

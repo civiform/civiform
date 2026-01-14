@@ -35,9 +35,9 @@ export type SubconditionSpec = {
  * 3. multiValues is populated, rest are unpopulated.
  */
 export type SubconditionValue = {
-  firstValue?: string
-  secondValue?: string
-  multiValues?: MultiValueSpec[]
+  firstValue: string | undefined
+  secondValue: string | undefined
+  multiValues: MultiValueSpec[] | undefined
 }
 
 export type MultiValueSpec = {
@@ -216,6 +216,7 @@ export class AdminPredicates {
 
   async clickSaveAndExitButton() {
     await this.page.getByRole('button', {name: 'Save and exit'}).click()
+    await waitForHtmxReady(this.page)
   }
 
   async clickCancelButton() {
@@ -441,7 +442,7 @@ export class AdminPredicates {
       ).toHaveCount(0)
     }
 
-    if (value.multiValues) {
+    if (Array.isArray(value.multiValues)) {
       for (let count = 1; count <= value.multiValues.length; count++) {
         const checkboxLabel = this.page.locator(
           `label[for="condition-${conditionId}-subcondition-${subconditionId}-values[${count}]"]`,
