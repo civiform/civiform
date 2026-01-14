@@ -17,7 +17,8 @@ import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.MessageKey;
 import services.settings.SettingsManifest;
-import views.applicant.ProgramCardsSectionParamsFactory.ProgramSectionParams;
+import views.applicant.programindex.ProgramCardsSectionParamsFactory;
+import views.applicant.programindex.ProgramCardsSectionParamsFactory.ProgramSectionParams;
 import views.components.TextFormatter;
 
 public class ApplicantUpsellView extends ApplicantBaseView {
