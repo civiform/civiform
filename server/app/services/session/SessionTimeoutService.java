@@ -73,20 +73,14 @@ public final class SessionTimeoutService {
 
               long lastActivityTimeInSeconds =
                   profile.getProfileData().getLastActivityTime(clock) / 1000;
-
-              long inactivityTimeout =
-                  calculateTimeoutLimit(lastActivityTimeInSeconds, inactivityMinutes);
-              long totalTimeout =
-                  calculateTimeoutLimit(sessionStartTimeInSeconds, totalLengthMinutes);
-              long inactivityWarning =
-                  calculateWarningTime(
-                      lastActivityTimeInSeconds, inactivityMinutes, inactivityWarningMinutes);
-              long totalWarning =
-                  calculateWarningTime(
-                      sessionStartTimeInSeconds, totalLengthMinutes, durationWarningMinutes);
-
               return new TimeoutData(
-                  inactivityTimeout, totalTimeout, inactivityWarning, totalWarning, currentTime);
+                  calculateTimeoutLimit(lastActivityTimeInSeconds, inactivityMinutes),
+                  calculateTimeoutLimit(sessionStartTimeInSeconds, totalLengthMinutes),
+                  calculateWarningTime(
+                      lastActivityTimeInSeconds, inactivityMinutes, inactivityWarningMinutes),
+                  calculateWarningTime(
+                      sessionStartTimeInSeconds, totalLengthMinutes, durationWarningMinutes),
+                  currentTime);
             });
   }
 
