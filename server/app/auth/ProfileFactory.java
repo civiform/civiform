@@ -75,7 +75,8 @@ public final class ProfileFactory {
         .thenAccept(
             account -> {
               profile.storeApplicantIdInProfile(account);
-              if (settingsManifest.getSessionReplayProtectionEnabled()) {
+              if (settingsManifest.getSessionReplayProtectionEnabled()
+                  || settingsManifest.getSessionTimeoutEnabled()) {
                 account.addActiveSession(profileData.getSessionId(), clock);
                 account.save();
               }
@@ -251,7 +252,8 @@ public final class ProfileFactory {
   }
 
   private void addActiveSession(AccountModel account, CiviFormProfileData profileData) {
-    if (settingsManifest.getSessionReplayProtectionEnabled()) {
+    if (settingsManifest.getSessionReplayProtectionEnabled()
+        || settingsManifest.getSessionTimeoutEnabled()) {
       account.addActiveSession(profileData.getSessionId(), clock);
     }
   }

@@ -41,7 +41,7 @@ public class SessionController extends Controller {
    *     timeouts are disabled
    */
   public Result extendSession(Http.Request request) {
-    if (!settingsManifest.getSessionTimeoutEnabled(request)) {
+    if (!settingsManifest.getSessionTimeoutEnabled()) {
       logger.warn("Session timeout is disabled - rejecting extend session request");
       return badRequest();
     }

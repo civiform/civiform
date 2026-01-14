@@ -953,7 +953,7 @@
     "group_description": "These are __NOT READY FOR PRODUCTION USE__. Use these configuration options to enable or disable in-development features.",
     "members": {
       "SESSION_TIMEOUT_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
+        "mode": "ADMIN_READABLE",
         "description": "(NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration.",
         "type": "bool",
         "required": false
