@@ -44,6 +44,8 @@ header.guestIndicator=ທ່ານເປັນຜູ້ໃຊ້ທີ່ເປ�
 header.userName=ເຂົ້າສູ່ລະບົບໃນຖານະ {0} ແລ້ວ
 # Error message to answer a required question
 validation.isRequired=ຕ້ອງຕອບຄຳຖາມນີ້.
+# Error message to fill a required field
+validation.fieldIsRequired=This field is required.
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=ກະລຸນາປ້ອນຂໍ້ມູນທີ່ຖືກຕ້ອງ.
 content.requiredFieldsNote=ໝາຍເຫດ: ຕ້ອງລະບຸຊ່ອງຂໍ້ມູນທີ່ມີເຄື່ອງໝາຍ {0}.
@@ -625,6 +627,9 @@ alert.predicateNoAvailableQuestionsEligibility=There are no available questions 
 label.predicateEligibilityMessageField=Display message shown to ineligible applicants
 # Help text for a textarea input explaining that markdown is supported.
 content.markdownSupported=Markdown is supported
+
+# Error message for when the admin leaves a multi-select question blank in admin predicate edit.
+validation.selectionRequired=You must select at least one option.
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
