@@ -913,7 +913,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     }
   }
 
-  private DivTag renderEmptyEligibilityPredicate(ProgramDefinition program) {
+  private DivTag renderEmptyEligibilityPredicate(ProgramDefinition program, boolean isEditingAllowed) {
     ImmutableList.Builder<DomContent> emptyPredicateContentBuilder = ImmutableList.builder();
     String eligibilityText =
         program.eligibilityIsGating()
