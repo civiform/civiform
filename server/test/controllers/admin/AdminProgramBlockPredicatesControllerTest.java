@@ -292,7 +292,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                     ImmutableMap.of(
                         "predicateAction",
                         PredicateAction.ELIGIBLE_BLOCK.name(),
-                        "root-nodeType",
+                        "root-node-type",
                         "OR",
                         "condition-1-subcondition-1-question",
                         String.valueOf(testQuestionBank.nameApplicantName().id),
@@ -301,7 +301,10 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                         "condition-1-subcondition-1-operator",
                         Operator.EQUAL_TO.name(),
                         "condition-1-subcondition-1-value",
-                        "firstname"))
+                        "firstname",
+                        "condition-1-node-type",
+                        "AND"
+                    ))
                 .build(),
             programWithThreeBlocks.id,
             /* blockDefinitionId= */ 1L,
