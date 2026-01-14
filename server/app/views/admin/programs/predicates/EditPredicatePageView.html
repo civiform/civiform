@@ -163,8 +163,8 @@
           type="submit"
           class="usa-button tablet:grid-col-auto"
           form="predicate-form"
-          th:formaction="${model.updatePredicateEndpoint()}"
-          formmethod="post"
+          th:hx-post="${model.updatePredicateEndpoint()}"
+          hx-target="#predicate-conditions-list"
           th:text="#{button.saveAndExit}"
         ></button>
         <button

@@ -7,7 +7,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
-import static play.mvc.Http.Status.SEE_OTHER;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
@@ -304,13 +303,16 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                         "condition-1-subcondition-1-operator",
                         Operator.EQUAL_TO.name(),
                         "condition-1-subcondition-1-value",
-                        "firstname"))
+                        "firstname",
+                        "condition-1-node-type",
+                        "AND"))
                 .build(),
             programWithThreeBlocks.id,
             /* blockDefinitionId= */ 1L,
             PredicateUseCase.ELIGIBILITY.name());
 
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.header("HX-Redirect")).isNotEmpty();
     PredicateDefinition expectedPredicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
@@ -369,7 +371,8 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
             /* blockDefinitionId= */ 1L,
             PredicateUseCase.ELIGIBILITY.name());
 
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.header("HX-Redirect")).isNotEmpty();
     assertThat(
             repo.lookupProgram(programWithEligibility.id)
                 .toCompletableFuture()
@@ -401,7 +404,8 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
             /* blockDefinitionId= */ 1L,
             PredicateUseCase.ELIGIBILITY.name());
 
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.header("HX-Redirect")).isNotEmpty();
     assertThat(
             repo.lookupProgram(programWithThreeBlocks.id)
                 .toCompletableFuture()
@@ -441,7 +445,8 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
             /* blockDefinitionId= */ 1L,
             PredicateUseCase.ELIGIBILITY.name());
 
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.header("HX-Redirect")).isNotEmpty();
     assertThat(
             repo.lookupProgram(programWithEligibilityMessage.id)
                 .toCompletableFuture()
