@@ -3,22 +3,14 @@ package services.session;
 import auth.CiviFormProfile;
 import java.time.Clock;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import services.settings.SettingsManifest;
 
 /** Service responsible for managing session timeout logic in CiviForm. */
 public final class SessionTimeoutService {
-  private static final Logger logger = LoggerFactory.getLogger(SessionTimeoutService.class);
-  private static final ZoneId PST_ZONE = ZoneId.of("America/Los_Angeles");
-  private static final DateTimeFormatter PST_FORMATTER =
-      DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z").withZone(PST_ZONE);
   private final Provider<SettingsManifest> settingsManifest;
   private final Clock clock;
 
@@ -92,22 +84,6 @@ public final class SessionTimeoutService {
               long totalWarning =
                   calculateWarningTime(
                       sessionStartTimeInSeconds, totalLengthMinutes, durationWarningMinutes);
-
-              logger.info(
-                  "Calculated timeout data | Current time: {} | Session start: {} | Last activity:"
-                      + " {} | Inactivity warning: {} (in {}s) | Inactivity timeout: {} (in {}s) |"
-                      + " Total warning: {} (in {}s) | Total timeout: {} (in {}s)",
-                  PST_FORMATTER.format(Instant.ofEpochSecond(currentTime)),
-                  PST_FORMATTER.format(Instant.ofEpochSecond(sessionStartTimeInSeconds)),
-                  PST_FORMATTER.format(Instant.ofEpochSecond(lastActivityTimeInSeconds)),
-                  PST_FORMATTER.format(Instant.ofEpochSecond(inactivityWarning)),
-                  inactivityWarning - currentTime,
-                  PST_FORMATTER.format(Instant.ofEpochSecond(inactivityTimeout)),
-                  inactivityTimeout - currentTime,
-                  PST_FORMATTER.format(Instant.ofEpochSecond(totalWarning)),
-                  totalWarning - currentTime,
-                  PST_FORMATTER.format(Instant.ofEpochSecond(totalTimeout)),
-                  totalTimeout - currentTime);
 
               return new TimeoutData(
                   inactivityTimeout, totalTimeout, inactivityWarning, totalWarning, currentTime);

@@ -57,13 +57,8 @@ export class SessionTimeoutHandler {
   private static hasInactivityWarningBeenShown = false
   /** Tracks if total length warning has been shown at least once */
   private static hasTotalLengthWarningBeenShown = false
-  /** Current active timeout timer */
-  private static timer: number | null = null
   /** Tracks if handler has been initialized */
   private static isInitialized = false
-
-  /** Used for testing. Stores the next timeout action and time. */
-  private static initialClockSkew: number | null = null
 
   static init() {
     if (this.isInitialized) {
@@ -75,43 +70,11 @@ export class SessionTimeoutHandler {
     this.isInitialized = true
   }
 
-  /**
-   * Main timer management method that:
-   * 1. Checks for immediate timeout conditions and logs out if needed
-   * 2. Shows inactivity warning once if its time has passed and not shown before
-   * 3. Shows total length warning once if its time has passed and not shown before
-   * 4. Sets timer for next future event (warning or timeout)
-   *
-   * Warning dialogs are shown only once per session and only one dialog
-   * can be visible at a time. If a warning was previously shown, it won't
-   * be shown again even if its time passes again.
-   */
-  private static checkAndSetTimer() {
-    const data = this.getTimeoutData()
-    if (!data) return
+  private static checkTimer(data: TimeoutData, now: number) {
 
-    // Clear existing timer
-    if (this.timer) {
-      window.clearTimeout(this.timer)
-      this.timer = null
+    if (!data) {
+      return
     }
-
-    const now = Math.floor(Date.now() / 1000)
-
-    console.log('=== Session Timeout Check ===')
-    console.log('Current time:', now, new Date(now * 1000).toISOString())
-    console.log(
-      'Inactivity timeout at:',
-      data.inactivityTimeout,
-      new Date(data.inactivityTimeout * 1000).toISOString(),
-      `(in ${data.inactivityTimeout - now}s)`,
-    )
-    console.log(
-      'Total session timeout at:',
-      data.totalTimeout,
-      new Date(data.totalTimeout * 1000).toISOString(),
-      `(in ${data.totalTimeout - now}s)`,
-    )
 
     // 1. If there is an inactivityTimeout or totalTimeout that has passed, just logout
     if (data.inactivityTimeout <= now || data.totalTimeout <= now) {
@@ -139,67 +102,21 @@ export class SessionTimeoutHandler {
       this.hasTotalLengthWarningBeenShown = true
       return
     }
+  }
 
-    // Set timers for future events
-    const timeouts = []
-
-    // Only add inactivity warning if it hasn't been shown yet
-    if (!this.hasInactivityWarningBeenShown && data.inactivityWarning > now) {
-      timeouts.push({
-        time: data.inactivityWarning,
-        action: () => {
-          this.showWarning(WarningType.INACTIVITY)
-          this.hasInactivityWarningBeenShown = true
-        },
-      })
+  private static checkAndSetTimer() {
+    const data = this.getTimeoutData()
+    if (!data) {
+      return
     }
 
-    // Only add total length warning if it hasn't been shown yet
-    if (!this.hasTotalLengthWarningBeenShown && data.totalWarning > now) {
-      timeouts.push({
-        time: data.totalWarning,
-        action: () => {
-          this.showWarning(WarningType.TOTAL_LENGTH)
-          this.hasTotalLengthWarningBeenShown = true
-        },
-      })
-    }
+    const now = Math.floor(Date.now() / 1000)
 
-    // Always add timeout events
-    timeouts.push({
-      time: data.inactivityTimeout,
-      action: () => this.handleTimeout(),
-    })
-
-    timeouts.push({
-      time: data.totalTimeout,
-      action: () => this.handleTimeout(),
-    })
-
-    // Sort by earliest time
-    timeouts.sort((a, b) => a.time - b.time)
-
-    // We will always have at least one event in the future
-    const nextTimeout = timeouts[0]
-    const delay = (nextTimeout.time - now) * 1000
-
-    console.log(
-      'Next timeout event at:',
-      nextTimeout.time,
-      new Date(nextTimeout.time * 1000).toISOString(),
-    )
-    console.log(
-      `Setting timer for ${delay}ms (${Math.floor(delay / 1000)}s / ${Math.floor(delay / 60000)}m)`,
-    )
-    console.log('===========================')
-
-    this.timer = window.setTimeout(() => {
-      console.log('Timer fired - executing timeout action')
-      nextTimeout.action()
-
-      // Check for next timeout after handling this one
+    this.checkTimer(data, now)
+    
+    window.setTimeout(() => {
       this.checkAndSetTimer()
-    }, delay)
+    }, 30000) // Check every 30 seconds
   }
 
   /**
@@ -317,18 +234,12 @@ export class SessionTimeoutHandler {
         console.error('Invalid timeout data format')
         return null
       }
-      // Store initial clock skew when data is first read
-      if (!this.initialClockSkew) {
-        const clientNow = Math.floor(Date.now() / 1000)
-        this.initialClockSkew = clientNow - data.currentTime
-      }
 
-      // Use the initial clock skew instead of recalculating
       return {
-        inactivityWarning: data.inactivityWarning + this.initialClockSkew,
-        inactivityTimeout: data.inactivityTimeout + this.initialClockSkew,
-        totalWarning: data.totalWarning + this.initialClockSkew,
-        totalTimeout: data.totalTimeout + this.initialClockSkew,
+        inactivityWarning: data.inactivityWarning,
+        inactivityTimeout: data.inactivityTimeout,
+        totalWarning: data.totalWarning,
+        totalTimeout: data.totalTimeout,
         currentTime: data.currentTime,
       }
     } catch (e) {

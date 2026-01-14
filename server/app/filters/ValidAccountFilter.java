@@ -16,7 +16,6 @@ import play.libs.streams.Accumulator;
 import play.mvc.EssentialAction;
 import play.mvc.EssentialFilter;
 import play.mvc.Http;
-import play.mvc.Http.RequestHeader;
 import play.mvc.Result;
 import play.mvc.Results;
 import repository.DatabaseExecutionContext;
@@ -63,14 +62,14 @@ public class ValidAccountFilter extends EssentialFilter {
           }
 
           CompletionStage<Accumulator<ByteString, Result>> futureAccumulator =
-              shouldLogoutUser(profile.get(), request)
+              shouldLogoutUser(profile.get())
                   .thenApply(
                       shouldLogout -> {
                         if (shouldLogout) {
                           return Accumulator.done(
                               Results.redirect(org.pac4j.play.routes.LogoutController.logout()));
                         } else {
-                          if (settingsManifest.get().getSessionTimeoutEnabled(request)) {
+                          if (settingsManifest.get().getSessionTimeoutEnabled()) {
                             profile.get().getProfileData().updateLastActivityTime(clock);
                           }
                           return next.apply(request);
@@ -81,8 +80,7 @@ public class ValidAccountFilter extends EssentialFilter {
         });
   }
 
-  private CompletionStage<Boolean> shouldLogoutUser(
-      CiviFormProfile profile, RequestHeader request) {
+  private CompletionStage<Boolean> shouldLogoutUser(CiviFormProfile profile) {
     return profileUtils
         .validCiviFormProfile(profile)
         .thenComposeAsync(
@@ -100,7 +98,7 @@ public class ValidAccountFilter extends EssentialFilter {
                 return CompletableFuture.completedFuture(true);
               }
               // If flag is disabled, keep them logged in if they have a valid session
-              if (!settingsManifest.get().getSessionTimeoutEnabled(request)) {
+              if (!settingsManifest.get().getSessionTimeoutEnabled()) {
                 return CompletableFuture.completedFuture(false);
               }
               // Otherwise, let the SessionTimeoutService decide
@@ -110,7 +108,8 @@ public class ValidAccountFilter extends EssentialFilter {
   }
 
   private CompletionStage<Boolean> isValidSession(CiviFormProfile profile) {
-    if (settingsManifest.get().getSessionReplayProtectionEnabled()) {
+    if (settingsManifest.get().getSessionReplayProtectionEnabled()
+        || settingsManifest.get().getSessionTimeoutEnabled()) {
       return profile
           .getAccount()
           .thenApply(
