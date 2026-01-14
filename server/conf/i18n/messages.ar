@@ -44,6 +44,8 @@ header.guestIndicator=أنت من المستخدمين الضيوف
 header.userName=مُسجَّل الدخول باسم المستخدم {0}
 # Error message to answer a required question
 validation.isRequired=يجب الإجابة عن هذا السؤال.
+# Error message to fill a required field
+validation.fieldIsRequired=This field is required.
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=يُرجى إدخال معلومات صالحة.
 content.requiredFieldsNote=ملاحظة: يجب ملء الحقول التي تحمل العلامة {0}.
@@ -625,6 +627,9 @@ alert.predicateNoAvailableQuestionsEligibility=لا توجد أسئلة متاح
 label.predicateEligibilityMessageField=Display message shown to ineligible applicants
 # Help text for a textarea input explaining that markdown is supported.
 content.markdownSupported=Markdown is supported
+
+# Error message for when the admin leaves a multi-select question blank in admin predicate edit.
+validation.selectionRequired=You must select at least one option.
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
