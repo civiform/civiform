@@ -44,6 +44,8 @@ header.guestIndicator=Bisitang user ka
 header.userName=Nakalog-in bilang {0}
 # Error message to answer a required question
 validation.isRequired=Ang tanong na ito ay kinakailangan.
+# Error message to fill a required field
+validation.fieldIsRequired=This field is required.
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=Maaari lamang ay maglagay ng halaga para sa bawat linya.
 content.requiredFieldsNote=Tandaan: Nire-require ang mga field na may markang {0}.
@@ -625,6 +627,9 @@ alert.predicateNoAvailableQuestionsEligibility=Walang mga available na tanong sa
 label.predicateEligibilityMessageField=Display message shown to ineligible applicants
 # Help text for a textarea input explaining that markdown is supported.
 content.markdownSupported=Markdown is supported
+
+# Error message for when the admin leaves a multi-select question blank in admin predicate edit.
+validation.selectionRequired=You must select at least one option.
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
