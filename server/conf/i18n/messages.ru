@@ -44,6 +44,8 @@ header.guestIndicator=Вы используете сайт в качестве �
 header.userName=Вы вошли в аккаунт: {0}
 # Error message to answer a required question
 validation.isRequired=Ответ на этот вопрос обязателен.
+# Error message to fill a required field
+validation.fieldIsRequired=This field is required.
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=Введите действительные данные.
 content.requiredFieldsNote=Примечание. Поля, отмеченные знаком "{0}", должны быть заполнены.
@@ -625,6 +627,9 @@ alert.predicateNoAvailableQuestionsEligibility=На этом экране нет
 label.predicateEligibilityMessageField=Display message shown to ineligible applicants
 # Help text for a textarea input explaining that markdown is supported.
 content.markdownSupported=Markdown is supported
+
+# Error message for when the admin leaves a multi-select question blank in admin predicate edit.
+validation.selectionRequired=You must select at least one option.
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
