@@ -303,8 +303,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                         "condition-1-subcondition-1-value",
                         "firstname",
                         "condition-1-node-type",
-                        "AND"
-                    ))
+                        "AND"))
                 .build(),
             programWithThreeBlocks.id,
             /* blockDefinitionId= */ 1L,
