@@ -183,7 +183,6 @@ public final class ProgramApplicationView extends BaseHtmlView {
 
   private ATag renderBackLink() {
     return new LinkElement()
-        .setId("application-table-view-")
         .setId("back-to-applications-link")
         .setText("Back")
         .setStyles(ButtonStyles.SOLID_BLUE_TEXT_SM)
