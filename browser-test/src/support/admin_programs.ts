@@ -7,6 +7,7 @@ import {
   waitForAnyModal,
   waitForAnyModalLocator,
   waitForPageJsLoad,
+  waitForHtmxReady,
 } from './wait'
 import {BASE_URL, TEST_CIVIC_ENTITY_SHORT_NAME} from './config'
 import {AdminProgramStatuses} from './admin_program_statuses'
@@ -1095,6 +1096,7 @@ export class AdminPrograms {
     // Click on the edit predicate button
     await this.page.click('#cf-edit-eligibility-predicate')
     await waitForPageJsLoad(this.page)
+    await waitForHtmxReady(this.page)
     if (expandedFormLogicEnabled) {
       await this.expectEditPredicatePage(PredicateType.ELIGIBILITY)
     } else {
