@@ -44,6 +44,8 @@ header.guestIndicator=게스트 사용자
 header.userName={0}(으)로 로그인됨
 # Error message to answer a required question
 validation.isRequired=이 질문은 필수입니다.
+# Error message to fill a required field
+validation.fieldIsRequired=This field is required.
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=유효한 내용을 입력하세요.
 content.requiredFieldsNote=참고: {0} 표시가 있는 입력란은 필수입니다.
@@ -625,6 +627,9 @@ alert.predicateNoAvailableQuestionsEligibility=이 화면에는 자격 조건을
 label.predicateEligibilityMessageField=Display message shown to ineligible applicants
 # Help text for a textarea input explaining that markdown is supported.
 content.markdownSupported=Markdown is supported
+
+# Error message for when the admin leaves a multi-select question blank in admin predicate edit.
+validation.selectionRequired=You must select at least one option.
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
