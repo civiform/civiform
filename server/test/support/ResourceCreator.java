@@ -161,8 +161,8 @@ public class ResourceCreator {
     return ProgramBuilder.newActiveProgram().withLocalizedName(locale, name).build();
   }
 
-  public ProgramModel insertActiveCommonIntakeForm(String name) {
-    return ProgramBuilder.newActiveCommonIntakeForm(name).build();
+  public ProgramModel insertActivePreScreenerForm(String name) {
+    return ProgramBuilder.newActivePreScreenerForm(name).build();
   }
 
   public ProgramModel insertActiveExternalProgram(String name) {
