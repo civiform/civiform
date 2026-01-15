@@ -8,7 +8,7 @@ epic: ''
 status: ''
 ---
 
-> **NOTE:** This template should only be used when creating an epic within the main `CiviForm Project Roadmap & Tracker` project.
+> **NOTE:** This template should only be used when creating an issue for an epic contained in the `CiviForm Project Roadmap & Tracker` project.
 
 ### Checklist (remove this section after completion): 
 - [ ] Add the correct epic label to the 'epic' category 
