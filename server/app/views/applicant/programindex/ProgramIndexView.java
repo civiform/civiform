@@ -1,4 +1,4 @@
-package views.applicant;
+package views.applicant.programindex;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
@@ -26,7 +26,8 @@ import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.settings.SettingsManifest;
-import views.applicant.ProgramCardsSectionParamsFactory.ProgramSectionParams;
+import views.applicant.ApplicantBaseView;
+import views.applicant.programindex.ProgramCardsSectionParamsFactory.ProgramSectionParams;
 
 /** Renders a list of programs that an applicant can browse, with buttons for applying. */
 public class ProgramIndexView extends ApplicantBaseView {
@@ -161,7 +162,7 @@ public class ProgramIndexView extends ApplicantBaseView {
     // Toasts
     context.setVariable("bannerMessage", bannerMessage);
 
-    return templateEngine.process("applicant/ProgramIndexTemplate", context);
+    return templateEngine.process("applicant/programindex/ProgramIndexTemplate", context);
   }
 
   private ProgramSectionParams getCommonIntakeFormSection(

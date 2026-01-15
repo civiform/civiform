@@ -1,4 +1,4 @@
-package views.applicant;
+package views.applicant.programindex;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -19,6 +19,7 @@ import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.settings.SettingsManifest;
+import views.applicant.ApplicantBaseView;
 
 /**
  * Renders the HTMX partial view for programs filtered by category on the landing page. The view has
@@ -122,6 +123,6 @@ public class FilteredProgramsViewPartial extends ApplicantBaseView {
 
     context.setVariable("recommendedSection", recommendedSection);
     context.setVariable("otherProgramsSection", otherProgramsSection);
-    return templateEngine.process("applicant/FilteredProgramsTemplate", context);
+    return templateEngine.process("applicant/programindex/FilteredProgramsTemplate", context);
   }
 }

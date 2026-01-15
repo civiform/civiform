@@ -48,8 +48,8 @@ import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.applicant.ApplicantDisabledProgramView;
-import views.applicant.FilteredProgramsViewPartial;
-import views.applicant.ProgramIndexView;
+import views.applicant.programindex.FilteredProgramsViewPartial;
+import views.applicant.programindex.ProgramIndexView;
 
 public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
