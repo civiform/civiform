@@ -1,4 +1,4 @@
-package views.applicant;
+package views.applicant.blocks;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static views.questiontypes.ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_ERROR;

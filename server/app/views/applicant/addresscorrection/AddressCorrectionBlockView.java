@@ -1,4 +1,4 @@
-package views.applicant;
+package views.applicant.addresscorrection;
 
 import com.google.inject.Inject;
 import controllers.LanguageUtils;
@@ -15,6 +15,8 @@ import services.DeploymentType;
 import services.MessageKey;
 import services.geo.AddressSuggestionGroup;
 import services.settings.SettingsManifest;
+import views.applicant.ApplicantBaseView;
+import views.applicant.blocks.ProgressBar;
 import views.trustedintermediary.ApplicationBaseViewParams;
 
 public class AddressCorrectionBlockView extends ApplicantBaseView {
@@ -94,7 +96,8 @@ public class AddressCorrectionBlockView extends ApplicantBaseView {
             AlertType.WARNING);
     context.setVariable("addressAlertSettings", addressAlertSettings);
 
-    return templateEngine.process("applicant/AddressCorrectionBlockTemplate", context);
+    return templateEngine.process(
+        "applicant/addresscorrection/AddressCorrectionBlockTemplate", context);
   }
 
   private String getFormAction(

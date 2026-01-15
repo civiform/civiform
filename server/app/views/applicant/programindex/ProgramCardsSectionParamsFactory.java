@@ -232,7 +232,7 @@ public final class ProgramCardsSectionParamsFactory {
    * page.
    */
   @VisibleForTesting
-  public static String getActionUrl(
+  static String getActionUrl(
       ApplicantRoutes applicantRoutes,
       Long programId,
       String programSlug,

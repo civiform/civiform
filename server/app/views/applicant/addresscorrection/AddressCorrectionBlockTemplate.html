@@ -9,7 +9,7 @@
 
     <main id="main-content" tabindex="-1">
       <div
-        th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle}, ${programShortDescription})}"
+        th:replace="~{applicant/blocks/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle}, ${programShortDescription})}"
       ></div>
       <div
         th:replace="~{components/SeparatorLineFragment :: separatorLineFragment()}"
@@ -23,7 +23,7 @@
             ></div>
             <div class="section-external">
               <div
-                th:replace="~{applicant/ApplicantBaseFragment :: progressBar(${progressBar})}"
+                th:replace="~{applicant/blocks/ProgressBarFragment :: progressBar(${progressBar})}"
               ></div>
             </div>
 
@@ -48,7 +48,7 @@
                 <div th:if="${!isEligibilityEnabled}" class="usa-prose">
                   <h4 th:text="#{content.addressEntered}"></h4>
                   <div
-                    th:replace="~{applicant/AddressCorrectionOptionFragment :: address-correction-option(
+                    th:replace="~{applicant/addresscorrection/AddressCorrectionOptionFragment :: address-correction-option(
                         ${addressSuggestionGroup.getOriginalAddress()},
                         ${!anySuggestions},
                         ${!anySuggestions},
@@ -75,7 +75,7 @@
                     th:if="${iterator.index &lt; 3}"
                   >
                     <div
-                      th:replace="~{applicant/AddressCorrectionOptionFragment :: address-correction-option(
+                      th:replace="~{applicant/addresscorrection/AddressCorrectionOptionFragment :: address-correction-option(
                         ${suggestions.get(iterator.index).getAddress()},
                         ${iterator.index == 0},
                         false,

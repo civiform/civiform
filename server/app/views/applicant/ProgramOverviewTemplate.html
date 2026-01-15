@@ -14,7 +14,7 @@
         th:replace="~{applicant/NavigationFragment :: adminPreviewBackButton(${goBackToAdminUrl})}"
       ></div>
       <div
-        th:replace="~{applicant/TitleAndDescriptionFragment ::
+        th:replace="~{applicant/blocks/TitleAndDescriptionFragment ::
           titleAndDescriptionFragment(
           #{heading.programOverview(${programName})},
           ${programDescription})}"
