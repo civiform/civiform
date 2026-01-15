@@ -6,10 +6,10 @@
     <div>
       <!--*/Title */-->
       <div
-        th:replace="~{applicant/ProgramCardsFragment :: preScreeningBannerTitle(${card})}"
+        th:replace="~{applicant/programindex/ProgramCardsFragment :: preScreeningBannerTitle(${card})}"
       ></div>
       <div
-        th:replace="~{applicant/ProgramCardsFragment :: preScreeningBannerDescription(${card})}"
+        th:replace="~{applicant/programindex/ProgramCardsFragment :: preScreeningBannerDescription(${card})}"
       ></div>
     </div>
 
@@ -32,25 +32,25 @@
 >
   <div class="usa-card__container bg-primary-lighter">
     <div
-      th:replace="~{applicant/ProgramCardsFragment :: cardTitle(${card})}"
+      th:replace="~{applicant/programindex/ProgramCardsFragment :: cardTitle(${card})}"
     ></div>
 
     <div class="usa-card__body">
       <div
-        th:replace="~{applicant/ProgramCardsFragment :: cardProgramDescription(${card})}"
+        th:replace="~{applicant/programindex/ProgramCardsFragment :: cardProgramDescription(${card})}"
       ></div>
 
       <div
-        th:replace="~{applicant/ProgramCardsFragment :: inProgressCardTag(${card})}"
+        th:replace="~{applicant/programindex/ProgramCardsFragment :: inProgressCardTag(${card})}"
       ></div>
 
       <div
-        th:replace="~{applicant/ProgramCardsFragment :: submittedCardTag(${card})}"
+        th:replace="~{applicant/programindex/ProgramCardsFragment :: submittedCardTag(${card})}"
       ></div>
     </div>
 
     <div
-      th:replace="~{applicant/ProgramCardsFragment :: cardActionButton(${card})}"
+      th:replace="~{applicant/programindex/ProgramCardsFragment :: cardActionButton(${card})}"
     ></div>
   </div>
 </li>
@@ -64,7 +64,7 @@
 >
   <div class="usa-card__container">
     <div
-      th:replace="~{applicant/ProgramCardsFragment :: cardTitle(${card})}"
+      th:replace="~{applicant/programindex/ProgramCardsFragment :: cardTitle(${card})}"
     ></div>
 
     <!-- Optional image -->
@@ -94,15 +94,15 @@
       </div>
 
       <div
-        th:replace="~{applicant/ProgramCardsFragment :: cardProgramDescription(${card})}"
+        th:replace="~{applicant/programindex/ProgramCardsFragment :: cardProgramDescription(${card})}"
       ></div>
 
       <div
-        th:replace="~{applicant/ProgramCardsFragment :: inProgressCardTag(${card})}"
+        th:replace="~{applicant/programindex/ProgramCardsFragment :: inProgressCardTag(${card})}"
       ></div>
 
       <div
-        th:replace="~{applicant/ProgramCardsFragment :: submittedCardTag(${card})}"
+        th:replace="~{applicant/programindex/ProgramCardsFragment :: submittedCardTag(${card})}"
       ></div>
 
       <!--Application status (set by admin) -->
@@ -154,7 +154,7 @@
     </div>
 
     <div
-      th:replace="~{applicant/ProgramCardsFragment :: cardActionButton(${card})}"
+      th:replace="~{applicant/programindex/ProgramCardsFragment :: cardActionButton(${card})}"
     ></div>
   </div>
 </li>

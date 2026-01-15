@@ -21,6 +21,7 @@ import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
+import views.applicant.programindex.ProgramCardsSectionParamsFactory;
 import views.components.TextFormatter;
 
 /**

@@ -20,8 +20,8 @@ import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.settings.SettingsManifest;
 import views.applicant.ApplicantBaseView;
-import views.applicant.ProgramCardsSectionParamsFactory;
-import views.applicant.ProgramCardsSectionParamsFactory.ProgramCardParams;
+import views.applicant.programindex.ProgramCardsSectionParamsFactory;
+import views.applicant.programindex.ProgramCardsSectionParamsFactory.ProgramCardParams;
 
 public class ProgramCardPreview extends ApplicantBaseView {
   ProgramCardsSectionParamsFactory programCardsSectionParamsFactory;

@@ -3,12 +3,12 @@
 <th:block th:if="${recommendedSection.isPresent()}">
   <div
     th:id="recommended-programs"
-    th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${recommendedSection.get()})}"
+    th:replace="~{applicant/programindex/ProgramCardsSectionFragment :: cardsSection(${recommendedSection.get()})}"
   ></div>
 </th:block>
 <th:block th:if="${otherProgramsSection.isPresent()}">
   <div
     th:id="not-started-programs"
-    th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${otherProgramsSection.get()})}"
+    th:replace="~{applicant/programindex/ProgramCardsSectionFragment :: cardsSection(${otherProgramsSection.get()})}"
   ></div>
 </th:block>
