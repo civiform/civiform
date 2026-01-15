@@ -26,7 +26,7 @@ public class AdminProgramPreviewControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void northStar_preview_displaysProgramOverviewPage() {
+  public void preview_displaysProgramOverviewPage() {
     String programSlug = "test-slug";
     resourceCreator().insertActiveProgram(programSlug);
     createGlobalAdminWithMockedProfile();

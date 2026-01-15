@@ -2980,7 +2980,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void relevantProgramsForApplicant_externalProgram_NorthStar() {
+  public void relevantProgramsForApplicant_externalProgram() {
     ApplicantModel applicant = createTestApplicant();
     ProgramModel externalProgram =
         ProgramBuilder.newActiveProgram(

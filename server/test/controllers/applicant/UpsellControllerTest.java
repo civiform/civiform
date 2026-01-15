@@ -31,7 +31,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void considerRegister_redirectsToUpsellViewForDefaultProgramType_northstar() {
+  public void considerRegister_redirectsToUpsellViewForDefaultProgramType() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
     ApplicantModel applicant = createApplicantWithMockedProfile();
