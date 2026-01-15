@@ -865,3 +865,9 @@ main {
 .opacity-40:hover {
   opacity: 1;
 }
+
+// Remove focus outline from main content when focused via skip navigation
+// The tabindex is set for skip nav accessibility, but the outline is visually distracting
+main#main-content {
+  outline: none;
+}
