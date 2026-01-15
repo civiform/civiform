@@ -111,7 +111,7 @@ public final class UpsellController extends CiviFormController {
             .toCompletableFuture();
 
     return CompletableFuture.allOf(
-        isPreScreener, account, roApplicantProgramService, relevantProgramsFuture)
+            isPreScreener, account, roApplicantProgramService, relevantProgramsFuture)
         .thenComposeAsync(
             ignored -> {
               if (!isPreScreener.join()) {
