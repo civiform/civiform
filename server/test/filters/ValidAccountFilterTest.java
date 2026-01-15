@@ -88,6 +88,11 @@ public class ValidAccountFilterTest extends WithApplication {
     when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(true);
     when(settingsManifest.getSessionReplayProtectionEnabled()).thenReturn(false);
 
+    // Session must be valid (found in active sessions) for activity time to be updated
+    when(mockProfileData.getSessionId()).thenReturn("session123");
+    when(mockAccount.getActiveSession("session123"))
+        .thenReturn(Optional.of(mock(models.SessionDetails.class)));
+
     Result result = executeFilter(request);
 
     verify(mockProfileData).updateLastActivityTime(clock);
