@@ -1,5 +1,4 @@
 import {ToastController} from '@/toast'
-import {hideUswdsModal} from '@/modal'
 
 /**
  * Represents session timeout data with timestamps for various timeout events.
@@ -57,44 +56,32 @@ export class SessionTimeoutHandler {
   private static hasInactivityWarningBeenShown = false
   /** Tracks if total length warning has been shown at least once */
   private static hasTotalLengthWarningBeenShown = false
-  /** Current active timeout timer */
-  private static timer: number | null = null
+  /** Tracks if handler has been initialized */
+  private static isInitialized = false
 
   static init() {
-    void this.checkAndSetTimer()
-    this.setupModalEventHandlers()
-  }
-
-  /**
-   * Main timer management method that:
-   * 1. Checks for immediate timeout conditions and logs out if needed
-   * 2. Shows inactivity warning once if its time has passed and not shown before
-   * 3. Shows total length warning once if its time has passed and not shown before
-   * 4. Sets timer for next future event (warning or timeout)
-   *
-   * Warning dialogs are shown only once per session and only one dialog
-   * can be visible at a time. If a warning was previously shown, it won't
-   * be shown again even if its time passes again.
-   */
-  private static checkAndSetTimer() {
-    const data = this.getTimeoutData()
-    if (!data) return
-
-    // Clear existing timer
-    if (this.timer) {
-      window.clearTimeout(this.timer)
-      this.timer = null
-    }
-
-    const now = Math.floor(Date.now() / 1000)
-
-    // 1. If there is an inactivityTimeout or totalTimeout that has passed, just logout
-    if (data.inactivityTimeout <= now || data.totalTimeout <= now) {
-      this.handleTimeout()
+    if (this.isInitialized) {
       return
     }
 
-    // If a warning is already being shown, don't show another one
+    this.setupModalEventHandlers()
+    this.pollSession()
+    this.isInitialized = true
+  }
+
+  private static monitorSession(data: TimeoutData | null, now: number) {
+    if (!data) {
+      console.warn('No session timeout data available')
+      return
+    }
+
+    // 1. If there is an inactivityTimeout or totalTimeout that has passed, just logout
+    if (data.inactivityTimeout <= now || data.totalTimeout <= now) {
+      this.logout()
+      return
+    }
+
+    // If a warning is currently being shown, don't show another one
     if (this.inactivityWarningShown || this.totalLengthWarningShown) {
       return
     }
@@ -102,65 +89,34 @@ export class SessionTimeoutHandler {
     // 2 & 3. Show warnings if they haven't been shown before and their time has passed
     if (!this.hasInactivityWarningBeenShown && data.inactivityWarning <= now) {
       this.showWarning(WarningType.INACTIVITY)
+      this.inactivityWarningShown = true
       this.hasInactivityWarningBeenShown = true
       return
     }
 
     if (!this.hasTotalLengthWarningBeenShown && data.totalWarning <= now) {
       this.showWarning(WarningType.TOTAL_LENGTH)
+      this.totalLengthWarningShown = true
       this.hasTotalLengthWarningBeenShown = true
       return
     }
+  }
 
-    // Set timers for future events
-    const timeouts = []
+  private static pollSession() {
+    const data = this.getTimeoutData()
 
-    // Only add inactivity warning if it hasn't been shown yet
-    if (!this.hasInactivityWarningBeenShown && data.inactivityWarning > now) {
-      timeouts.push({
-        time: data.inactivityWarning,
-        action: () => {
-          this.showWarning(WarningType.INACTIVITY)
-          this.hasInactivityWarningBeenShown = true
-        },
-      })
+    const now = Math.floor(Date.now() / 1000)
+    try {
+      this.monitorSession(data, now)
+    } catch (e) {
+      console.error('Error monitoring session:', e)
+      // If an error is thrown, do not continue polling
+      return
     }
 
-    // Only add total length warning if it hasn't been shown yet
-    if (!this.hasTotalLengthWarningBeenShown && data.totalWarning > now) {
-      timeouts.push({
-        time: data.totalWarning,
-        action: () => {
-          this.showWarning(WarningType.TOTAL_LENGTH)
-          this.hasTotalLengthWarningBeenShown = true
-        },
-      })
-    }
-
-    // Always add timeout events
-    timeouts.push({
-      time: data.inactivityTimeout,
-      action: () => this.handleTimeout(),
-    })
-
-    timeouts.push({
-      time: data.totalTimeout,
-      action: () => this.handleTimeout(),
-    })
-
-    // Sort by earliest time
-    timeouts.sort((a, b) => a.time - b.time)
-
-    // We will always have at least one timeout in the future
-    const nextTimeout = timeouts[0]
-    const delay = (nextTimeout.time - now) * 1000
-
-    this.timer = window.setTimeout(() => {
-      nextTimeout.action()
-
-      // Check for next timeout after handling this one
-      this.checkAndSetTimer()
-    }, delay)
+    window.setTimeout(() => {
+      this.pollSession()
+    }, 30000) // Check every 30 seconds
   }
 
   /**
@@ -169,7 +125,6 @@ export class SessionTimeoutHandler {
   private static setupModalEventHandlers() {
     // HTMX handler remains at document level for form submissions
     document.addEventListener('htmx:afterRequest', (event: Event) => {
-      // ...existing htmx handler code...
       const customEvent = event as CustomEvent
       const detail = customEvent.detail as {
         xhr: XMLHttpRequest
@@ -177,7 +132,10 @@ export class SessionTimeoutHandler {
       }
       if (detail.elt.id !== 'extend-session-form') return
 
-      hideUswdsModal(SessionModalType.INACTIVITY)
+      const inactivityModal = document.getElementById(
+        `${SessionModalType.INACTIVITY}-modal`,
+      )
+      inactivityModal?.classList.add('is-hidden')
       this.inactivityWarningShown = false
 
       // Processes /extend-session form submissions
@@ -194,7 +152,7 @@ export class SessionTimeoutHandler {
           canIgnore: false,
           condOnStorageKey: null,
         })
-        this.checkAndSetTimer()
+        this.pollSession()
       } else {
         const errorText =
           document.getElementById('session-extended-error-text')?.textContent ||
@@ -231,9 +189,9 @@ export class SessionTimeoutHandler {
       )
       closeButtons.forEach((button) => {
         button.addEventListener('click', () => {
-          hideUswdsModal(SessionModalType.INACTIVITY)
+          inactivityModal.classList.add('is-hidden')
           this.inactivityWarningShown = false
-          this.checkAndSetTimer()
+          this.pollSession()
         })
       })
     }
@@ -255,9 +213,9 @@ export class SessionTimeoutHandler {
       )
       closeButtons.forEach((button) => {
         button.addEventListener('click', () => {
-          hideUswdsModal(SessionModalType.LENGTH)
+          lengthModal.classList.add('is-hidden')
           this.totalLengthWarningShown = false
-          this.checkAndSetTimer()
+          this.pollSession()
         })
       })
     }
@@ -278,14 +236,11 @@ export class SessionTimeoutHandler {
         console.error('Invalid timeout data format')
         return null
       }
-      // Calculate clock skew between client and server
-      const clientNow = Math.floor(Date.now() / 1000)
-      const clockSkew = clientNow - data.currentTime
       return {
-        inactivityWarning: data.inactivityWarning + clockSkew,
-        inactivityTimeout: data.inactivityTimeout + clockSkew,
-        totalWarning: data.totalWarning + clockSkew,
-        totalTimeout: data.totalTimeout + clockSkew,
+        inactivityWarning: data.inactivityWarning,
+        inactivityTimeout: data.inactivityTimeout,
+        totalWarning: data.totalWarning,
+        totalTimeout: data.totalTimeout,
         currentTime: data.currentTime,
       }
     } catch (e) {
@@ -350,44 +305,20 @@ export class SessionTimeoutHandler {
   }
 
   /**
-   * Shows a warning modal of specified type.
-   * Only shows the modal if:
-   * - No other warning is currently shown
-   * - The modal element exists in the DOM
-   *
-   * Updates visibility tracking flags when showing a modal.
+   * Shows a warning modal of the specified type.
    *
    * @param type Type of warning to show (inactivity or total length)
    */
   private static showWarning(type: WarningType) {
-    // Check if any warning is already shown to prevent showing multiple dialogs
-    if (this.inactivityWarningShown || this.totalLengthWarningShown) return
-
-    // Get the appropriate modal element
     const modalId =
       type === WarningType.INACTIVITY
         ? `${SessionModalType.INACTIVITY}-modal`
         : `${SessionModalType.LENGTH}-modal`
     const modal = document.getElementById(modalId)
     if (!modal) {
-      console.error(`Modal with ID ${modalId} not found`)
-      return
+      throw new Error(`Modal with ID ${modalId} not found`)
     }
-    // Show the modal by removing the hidden class
     modal.classList.remove('is-hidden')
-    // Set the flag to indicate that the warning is shown
-    if (type === WarningType.INACTIVITY) {
-      this.inactivityWarningShown = true
-    } else {
-      this.totalLengthWarningShown = true
-    }
-  }
-
-  /**
-   * Handles timeout conditions by calling logout.
-   */
-  private static handleTimeout() {
-    this.logout()
   }
 
   /**
