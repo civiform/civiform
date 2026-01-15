@@ -914,7 +914,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   private DivTag renderEmptyEligibilityPredicate(
-      ProgramDefinition program, boolean viewAllowsEditingProgram) {
+      ProgramDefinition program, boolean editingAllowed) {
     ImmutableList.Builder<DomContent> emptyPredicateContentBuilder = ImmutableList.builder();
     String eligibilityText =
         program.eligibilityIsGating()
@@ -929,7 +929,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                     + " program. "))
         .add(text(eligibilityText));
 
-    if (viewAllowsEditingProgram) {
+    if (editingAllowed) {
       emptyPredicateContentBuilder
           .add(text(" You can change this in the "))
           .add(
