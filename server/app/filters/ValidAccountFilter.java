@@ -86,8 +86,7 @@ public class ValidAccountFilter extends EssentialFilter {
       // Still execute the DB queries, but force rejection after
       return profileUtils
           .validCiviFormProfile(profile)
-          .thenComposeAsync(
-              profileValid -> isValidSession(profile), databaseExecutionContext.get())
+          .thenComposeAsync(profileValid -> isValidSession(profile), databaseExecutionContext.get())
           .thenApplyAsync(
               isValidProfileAndSession -> {
                 logger.warn(
