@@ -67,7 +67,7 @@ public class ProgramIndexView extends ApplicantBaseView {
 
     context.setVariable("pageTitle", messages.at(MessageKey.CONTENT_FIND_PROGRAMS.getKeyName()));
     Optional<ProgramSectionParams> myApplicationsSection = Optional.empty();
-    Optional<ProgramSectionParams> intakeSection = Optional.empty();
+    Optional<ProgramSectionParams> preScreenerSection = Optional.empty();
     Optional<ProgramSectionParams> unfilteredSection = Optional.empty();
 
     Locale preferredLocale = messages.lang().toLocale();
@@ -82,7 +82,7 @@ public class ProgramIndexView extends ApplicantBaseView {
             .collect(ImmutableList.toImmutableList());
 
     if (isUnstartedPreScreenerForm(applicationPrograms.preScreenerForm())) {
-      intakeSection =
+      preScreenerSection =
           Optional.of(
               getPreScreenerFormSection(
                   messages,
