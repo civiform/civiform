@@ -1,4 +1,4 @@
-package views.applicant;
+package views.applicant.blocks;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
