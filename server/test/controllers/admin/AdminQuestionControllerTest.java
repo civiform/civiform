@@ -208,7 +208,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void northStar_edit_returnsPopulatedForm() {
+  public void edit_returnsPopulatedForm() {
     QuestionModel question = testQuestionBank.nameApplicantName();
     Request request = fakeRequestBuilder().addCSRFToken().build();
     Result result = controller.edit(request, question.id).toCompletableFuture().join();
@@ -219,7 +219,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void northStar_edit_repeatedQuestion_hasEnumeratorName() {
+  public void edit_repeatedQuestion_hasEnumeratorName() {
     QuestionModel repeatedQuestion = testQuestionBank.nameRepeatedApplicantHouseholdMemberName();
     Request request = fakeRequestBuilder().addCSRFToken().build();
     Result result = controller.edit(request, repeatedQuestion.id).toCompletableFuture().join();
@@ -289,7 +289,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void northStar_newOne_returnsExpectedForm() {
+  public void newOne_returnsExpectedForm() {
     Request request = fakeRequestBuilder().addCSRFToken().build();
     Result result = controller.newOne(request, "text", "/some/redirect/url");
 
