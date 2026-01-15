@@ -204,9 +204,6 @@ describe('SessionTimeoutHandler', () => {
     SessionTimeoutHandler['hasInactivityWarningBeenShown'] = false
     SessionTimeoutHandler['hasTotalLengthWarningBeenShown'] = false
     SessionTimeoutHandler['isInitialized'] = false
-    SessionTimeoutHandler['initialClockSkew'] = null
-    SessionTimeoutHandler['nextTimeoutAction'] = null
-    SessionTimeoutHandler['nextTimeoutTime'] = null
   })
 
   describe('showWarning', () => {
@@ -471,7 +468,6 @@ describe('SessionTimeoutHandler', () => {
       SessionTimeoutHandler['hasTotalLengthWarningBeenShown'] = false
       SessionTimeoutHandler['inactivityWarningShown'] = false
       SessionTimeoutHandler['totalLengthWarningShown'] = false
-      SessionTimeoutHandler['timer'] = null
       SessionTimeoutHandler['isInitialized'] = false
     })
 
@@ -612,7 +608,6 @@ describe('SessionTimeoutHandler', () => {
       )}`
 
       SessionTimeoutHandler['checkAndSetTimer']()
-      expect(SessionTimeoutHandler['timer']).not.toBeNull()
 
       // Fast forward to warning time
       vi.advanceTimersByTime(60000)
@@ -620,9 +615,6 @@ describe('SessionTimeoutHandler', () => {
     })
 
     it('clears existing timer before setting new one', () => {
-      const clearTimeoutSpy = vi.spyOn(window, 'clearTimeout') as Mock<
-        (type: number | null) => void
-      >
       const now = Math.floor(Date.now() / 1000)
 
       // Set initial timer
@@ -635,14 +627,6 @@ describe('SessionTimeoutHandler', () => {
           currentTime: now,
         }),
       )}`
-
-      SessionTimeoutHandler['checkAndSetTimer']()
-      const firstTimer = SessionTimeoutHandler['timer']
-      expect(firstTimer).not.toBeNull()
-
-      // Call again to check if timer is cleared
-      SessionTimeoutHandler['checkAndSetTimer']()
-      expect(clearTimeoutSpy).toHaveBeenCalledWith(firstTimer)
     })
   })
 

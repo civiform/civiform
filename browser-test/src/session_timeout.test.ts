@@ -18,7 +18,9 @@ test.describe('Session timeout for admins', () => {
     await loginAsAdmin(page)
   })
 
-  test('shows inactivity warning modal after 50 minutes and logs user out after 80 more minutes', async ({page}) => {
+  test('shows inactivity warning modal after 50 minutes and logs user out after 80 more minutes', async ({
+    page,
+  }) => {
     await test.step('Fast forward 50 mins', async () => {
       await page.clock.runFor('50:00')
     })
@@ -61,7 +63,9 @@ test.describe('Session timeout for applicants', () => {
     await page.clock.install({time: realTime})
   })
 
-  test('shows inactivity warning modal after 50 minutes and session length warning modal after 60 minutes', async ({page}) => {
+  test('shows inactivity warning modal after 50 minutes and session length warning modal after 60 minutes', async ({
+    page,
+  }) => {
     await test.step('Create and login as applicant', async () => {
       await page.goto('/')
       await loginAsTestUser(page)

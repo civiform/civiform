@@ -7,7 +7,6 @@ import auth.ProfileUtils;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.time.ZoneId;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;

@@ -71,7 +71,6 @@ export class SessionTimeoutHandler {
   }
 
   private static checkTimer(data: TimeoutData, now: number) {
-
     if (!data) {
       return
     }
@@ -113,7 +112,7 @@ export class SessionTimeoutHandler {
     const now = Math.floor(Date.now() / 1000)
 
     this.checkTimer(data, now)
-    
+
     window.setTimeout(() => {
       this.checkAndSetTimer()
     }, 30000) // Check every 30 seconds
