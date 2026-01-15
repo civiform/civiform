@@ -27,6 +27,8 @@ public abstract class FormSettings {
   private final AttributeInfo size;
   private final AttributeInfo validationClass;
   private final AttributeInfo validationField;
+  private final AttributeInfo readonly;
+  private final AttributeInfo disabled;
   private final Map<String, String> attributeMap;
 
   private final String errorMessageId;
@@ -46,6 +48,8 @@ public abstract class FormSettings {
       AttributeInfo size,
       AttributeInfo validationClass,
       AttributeInfo validationField,
+      AttributeInfo readonly,
+      AttributeInfo disabled,
       Map<String, String> attributeMap) {
     this.id = id;
     this.name = name;
@@ -60,6 +64,8 @@ public abstract class FormSettings {
     this.size = size;
     this.validationClass = validationClass;
     this.validationField = validationField;
+    this.readonly = readonly;
+    this.disabled = disabled;
     this.attributeMap = attributeMap;
 
     this.errorMessageId = makeId("error-message", name());
@@ -106,7 +112,7 @@ public abstract class FormSettings {
     } else if (isBlank(name().value())) {
       sb.append("Attribute 'name' is blank.\n");
     } else if (!isValidName(name().value())) {
-      sb.append("Attribute 'name' is not a valid id\n");
+      sb.append("Attribute 'name' is not a valid name\n");
     }
 
     // label

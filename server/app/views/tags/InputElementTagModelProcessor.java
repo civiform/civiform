@@ -73,6 +73,13 @@ public final class InputElementTagModelProcessor extends AbstractElementModelPro
             .required(getAttributeInfo(context, tag, "required"))
             .validationClass(getAttributeInfo(context, tag, "validation-class"))
             .validationField(getAttributeInfo(context, tag, "validation-field"))
+            .min(getAttributeInfo(context, tag, "min"))
+            .max(getAttributeInfo(context, tag, "max"))
+            .minLength(getAttributeInfo(context, tag, "minlength"))
+            .maxLength(getAttributeInfo(context, tag, "maxlength"))
+            .pattern(getAttributeInfo(context, tag, "pattern"))
+            .readonly(getAttributeInfo(context, tag, "readonly", "false"))
+            .disabled(getAttributeInfo(context, tag, "disabled", "false"))
             .attributeMap(tag.getAttributeMap())
             .build();
 
@@ -140,6 +147,12 @@ public final class InputElementTagModelProcessor extends AbstractElementModelPro
     // Attribute: required
     inputAttrs.put(buildBooleanAttribute("required", elementSettings.required()));
 
+    // Attribute: readonly
+    inputAttrs.put(buildBooleanAttribute("readonly", elementSettings.readonly()));
+
+    // Attribute: disabled
+    inputAttrs.put(buildBooleanAttribute("disabled", elementSettings.disabled()));
+
     // Attribute: aria-describedby
     var ariaDescribedByIds = getAriaDescribedByIds(elementSettings);
 
@@ -148,6 +161,36 @@ public final class InputElementTagModelProcessor extends AbstractElementModelPro
 
     // Attribute: aria-invalid
     inputAttrs.putIf(!elementSettings.isValid().valueAsBoolean(), "aria-invalid", "true");
+
+    // Attribute: min
+    inputAttrs.putIf(
+        isNotBlank(elementSettings.min().value()),
+        elementSettings.min().attributeName(),
+        elementSettings.min().value());
+
+    // Attribute: max
+    inputAttrs.putIf(
+        isNotBlank(elementSettings.max().value()),
+        elementSettings.max().attributeName(),
+        elementSettings.max().value());
+
+    // Attribute: minLength
+    inputAttrs.putIf(
+        isNotBlank(elementSettings.minLength().value()),
+        elementSettings.minLength().attributeName(),
+        elementSettings.minLength().value());
+
+    // Attribute: maxLength
+    inputAttrs.putIf(
+        isNotBlank(elementSettings.maxLength().value()),
+        elementSettings.maxLength().attributeName(),
+        elementSettings.maxLength().value());
+
+    // Attribute: pattern
+    inputAttrs.putIf(
+        isNotBlank(elementSettings.pattern().value()),
+        elementSettings.pattern().attributeName(),
+        elementSettings.pattern().value());
 
     // Fill any other data-* and aria-* attributes
     inputAttrs.putAll(getDataAndAriaAttributes(elementSettings.attributeMap()));

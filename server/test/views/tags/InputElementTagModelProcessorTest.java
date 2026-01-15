@@ -24,7 +24,12 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
       String validationMessage,
       String isValid,
       String required,
+      String readonly,
+      String disabled,
       String size,
+      String minLength,
+      String maxLength,
+      String pattern,
       String validationClass,
       String validationField) {}
 
@@ -76,6 +81,92 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
   <label class="usa-label" for="firstName">First Name</label>
   <span id="error-message-firstName" class="usa-error-message" role="alert" hidden="hidden"></span>
   <input type="text" class="usa-input" id="firstName" name="firstName"/>
+</div>
+""");
+  }
+
+  @Test
+  public void disabled_input_with_thymeleaf_and_plain_attributes() {
+    // With Thymeleaf attributes
+    assertHtml(
+        Model.builder()
+            .id("firstName")
+            .name("firstName")
+            .label("First Name")
+            .disabled("true")
+            .build(),
+        """
+        <cf:input
+            th:id="${model.id()}"
+            th:name="${model.name()}"
+            th:label="${model.label()}"
+            th:disabled="${model.disabled()}" />
+        """,
+        """
+<div class="usa-form-group">
+<label class="usa-label" for="firstName">First Name</label>
+<span id="error-message-firstName" class="usa-error-message" role="alert" hidden="hidden"></span>
+<input type="text" class="usa-input" id="firstName" name="firstName" disabled="disabled"/>
+</div>
+""");
+
+    // With plain attributes
+    assertHtml(
+        """
+        <cf:input
+            id="firstName"
+            name="firstName"
+            label="First Name"
+            disabled="true" />
+        """,
+        """
+<div class="usa-form-group">
+<label class="usa-label" for="firstName">First Name</label>
+<span id="error-message-firstName" class="usa-error-message" role="alert" hidden="hidden"></span>
+<input type="text" class="usa-input" id="firstName" name="firstName" disabled="disabled"/>
+</div>
+""");
+  }
+
+  @Test
+  public void readonly_input_with_thymeleaf_and_plain_attributes() {
+    // With Thymeleaf attributes
+    assertHtml(
+        Model.builder()
+            .id("firstName")
+            .name("firstName")
+            .label("First Name")
+            .readonly("true")
+            .build(),
+        """
+        <cf:input
+            th:id="${model.id()}"
+            th:name="${model.name()}"
+            th:label="${model.label()}"
+            th:readonly="${model.readonly()}" />
+        """,
+        """
+<div class="usa-form-group">
+  <label class="usa-label" for="firstName">First Name</label>
+  <span id="error-message-firstName" class="usa-error-message" role="alert" hidden="hidden"></span>
+  <input type="text" class="usa-input" id="firstName" name="firstName" readonly="readonly"/>
+</div>
+""");
+
+    // With plain attributes
+    assertHtml(
+        """
+        <cf:input
+            id="firstName"
+            name="firstName"
+            label="First Name"
+            readonly="true" />
+        """,
+        """
+<div class="usa-form-group">
+  <label class="usa-label" for="firstName">First Name</label>
+  <span id="error-message-firstName" class="usa-error-message" role="alert" hidden="hidden"></span>
+  <input type="text" class="usa-input" id="firstName" name="firstName" readonly="readonly"/>
 </div>
 """);
   }
@@ -507,6 +598,9 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             .type("text")
             .required("true")
             .size("md")
+            .minLength("2")
+            .maxLength("100")
+            .pattern("[A-Z]")
             .build(),
         """
         <cf:input
@@ -518,14 +612,17 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             th:help-text="${model.helpText()}"
             th:type="${model.type()}"
             th:required="${model.required()}"
-            th:size="${model.size()}" />
+            th:size="${model.size()}"
+            th:minlength="${model.minLength()}"
+            th:maxlength="${model.maxLength()}"
+            th:pattern="${model.pattern()}"/>
         """,
         """
 <div class="usa-form-group">
   <label class="usa-label" for="fullName">Full Name</label>
   <div id="help-text-fullName" class="usa-hint">First and last name</div>
   <span id="error-message-fullName" class="usa-error-message" role="alert" hidden="hidden"></span>
-  <input type="text" class="usa-input usa-input--md" id="fullName" name="fullName" value="John Doe" placeholder="Enter your full name" required="required" aria-describedby="help-text-fullName"/>
+  <input type="text" class="usa-input usa-input--md" id="fullName" name="fullName" value="John Doe" placeholder="Enter your full name" required="required" aria-describedby="help-text-fullName" minlength="2" maxlength="100" pattern="[A-Z]"/>
 </div>
 """);
 
@@ -541,14 +638,17 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             help-text="First and last name"
             type="text"
             required="true"
-            size="md" />
+            size="md"
+            minlength="2"
+            maxlength="100"
+            pattern="[A-Z]"/>
         """,
         """
 <div class="usa-form-group">
   <label class="usa-label" for="fullName">Full Name</label>
   <div id="help-text-fullName" class="usa-hint">First and last name</div>
   <span id="error-message-fullName" class="usa-error-message" role="alert" hidden="hidden"></span>
-  <input type="text" class="usa-input usa-input--md" id="fullName" name="fullName" value="John Doe" placeholder="Enter your full name" required="required" aria-describedby="help-text-fullName"/>
+  <input type="text" class="usa-input usa-input--md" id="fullName" name="fullName" value="John Doe" placeholder="Enter your full name" required="required" aria-describedby="help-text-fullName" minlength="2" maxlength="100" pattern="[A-Z]"/>
 </div>
 """);
   }
@@ -822,6 +922,30 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             name="test"
             label="Test"
             th:validation-field="${model.validationField()}" />
+        """,
+        IllegalStateException.class);
+
+    // Invalid minLength
+    assertException(
+        Model.builder().minLength("myField").build(),
+        """
+        <cf:input
+            id="test"
+            name="test"
+            label="Test"
+            th:minLength="${model.minLength()}" />
+        """,
+        IllegalStateException.class);
+
+    // Invalid maxLength
+    assertException(
+        Model.builder().maxLength("myField").build(),
+        """
+        <cf:input
+            id="test"
+            name="test"
+            label="Test"
+            th:maxLength="${model.maxLength()}" />
         """,
         IllegalStateException.class);
   }

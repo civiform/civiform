@@ -147,6 +147,24 @@
         </xs:annotation>
       </xs:attribute>
 
+      <xs:attribute name="readonly" type="xs:string" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+            Whether the input is editable
+            Accepts: "true" or "false"
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+
+      <xs:attribute name="disabled" type="xs:string" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+            Whether the input is disabled
+            Accepts: "true" or "false"
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+
       <xs:attribute name="validation-class" type="xs:string" use="optional">
         <xs:annotation>
           <xs:documentation>
@@ -163,6 +181,46 @@
             Field name within the validation-class for extracting Play framework validation constraints.
             Must be used together with validation-class.
             Example: "email"
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+
+      <xs:attribute name="min" type="xs:string" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+            Minimum value
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+
+      <xs:attribute name="max" type="xs:string" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+            Maximum value
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+
+      <xs:attribute name="minLength" type="xs:string" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+            Minimum length (number of characters) of value
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+
+      <xs:attribute name="maxLength" type="xs:string" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+            Maximum length (number of characters) of value
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+
+      <xs:attribute name="pattern" type="xs:string" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+            Pattern the value must match to be valid
           </xs:documentation>
         </xs:annotation>
       </xs:attribute>
