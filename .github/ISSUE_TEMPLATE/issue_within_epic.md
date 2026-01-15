@@ -7,6 +7,9 @@ assignees: ''
 epic: ''
 status: ''
 ---
+
+> **NOTE:** This template should only be used when creating an epic within the main `CiviForm Project Roadmap & Tracker` project.
+
 ### Checklist (remove this section after completion): 
 - [ ] Add the correct epic label to the 'epic' category 
 - [ ] Add the correct status to the 'status' category
