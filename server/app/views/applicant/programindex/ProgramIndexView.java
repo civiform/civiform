@@ -81,10 +81,10 @@ public class ProgramIndexView extends ApplicantBaseView {
             .sorted()
             .collect(ImmutableList.toImmutableList());
 
-    if (isUnstartedCommonIntakeForm(applicationPrograms.preScreenerForm())) {
+    if (isUnstartedPreScreenerForm(applicationPrograms.preScreenerForm())) {
       intakeSection =
           Optional.of(
-              getCommonIntakeFormSection(
+              getPreScreenerFormSection(
                   messages,
                   request,
                   applicationPrograms.preScreenerForm().get(),
@@ -145,7 +145,7 @@ public class ProgramIndexView extends ApplicantBaseView {
     context.setVariable("noProgramsAlertSettings", noProgramsAlertSettings);
 
     context.setVariable("myApplicationsSection", myApplicationsSection);
-    context.setVariable("commonIntakeSection", intakeSection);
+    context.setVariable("preScreenerSection", preScreenerSection);
 
     context.setVariable("unfilteredSection", unfilteredSection);
     context.setVariable(
@@ -165,10 +165,10 @@ public class ProgramIndexView extends ApplicantBaseView {
     return templateEngine.process("applicant/programindex/ProgramIndexTemplate", context);
   }
 
-  private ProgramSectionParams getCommonIntakeFormSection(
+  private ProgramSectionParams getPreScreenerFormSection(
       Messages messages,
       Request request,
-      ApplicantProgramData commonIntakeForm,
+      ApplicantProgramData preScreenerForm,
       Optional<CiviFormProfile> profile,
       Optional<Long> applicantId,
       ApplicantPersonalInfo personalInfo) {
@@ -178,7 +178,7 @@ public class ProgramIndexView extends ApplicantBaseView {
         messages,
         Optional.of(MessageKey.TITLE_FIND_SERVICES_SECTION),
         MessageKey.BUTTON_START_SURVEY,
-        ImmutableList.of(commonIntakeForm),
+        ImmutableList.of(preScreenerForm),
         /* preferredLocale= */ messages.lang().toLocale(),
         profile,
         applicantId,
@@ -186,12 +186,12 @@ public class ProgramIndexView extends ApplicantBaseView {
         ProgramCardsSectionParamsFactory.SectionType.COMMON_INTAKE);
   }
 
-  private boolean isUnstartedCommonIntakeForm(
-      Optional<ApplicantProgramData> commonIntakeFormOptional) {
-    if (commonIntakeFormOptional.isEmpty()) {
+  private boolean isUnstartedPreScreenerForm(
+      Optional<ApplicantProgramData> preScreenerFormOptional) {
+    if (preScreenerFormOptional.isEmpty()) {
       return false;
     }
-    return commonIntakeFormOptional
+    return preScreenerFormOptional
         .flatMap(ApplicantProgramData::latestApplicationLifecycleStage)
         .isEmpty();
   }
