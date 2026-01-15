@@ -96,7 +96,8 @@ public class AddressCorrectionBlockView extends ApplicantBaseView {
             AlertType.WARNING);
     context.setVariable("addressAlertSettings", addressAlertSettings);
 
-    return templateEngine.process("applicant/AddressCorrectionBlockTemplate", context);
+    return templateEngine.process(
+        "applicant/addresscorrection/AddressCorrectionBlockTemplate", context);
   }
 
   private String getFormAction(

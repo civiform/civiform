@@ -136,7 +136,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
       this.addFileUploadParameters(request, applicationParams, context);
 
       return templateEngine.process(
-          "applicant/ApplicantProgramFileUploadBlockEditTemplate", context);
+          "applicant/blocks/ApplicantProgramFileUploadBlockEditTemplate", context);
     } else {
 
       context.setVariable(
@@ -161,7 +161,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
       context.setVariable(
           "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(request));
       context.setVariable("isYesNoQuestionEnabled", settingsManifest.getYesNoQuestionEnabled());
-      return templateEngine.process("applicant/ApplicantProgramBlockEditTemplate", context);
+      return templateEngine.process("applicant/blocks/ApplicantProgramBlockEditTemplate", context);
     }
   }
 
