@@ -26,6 +26,10 @@ test.describe('admin program view page', () => {
     await adminPrograms.publishAllDrafts()
     await adminPrograms.gotoViewActiveProgramPage(programName)
     await validateScreenshot(page, 'program-read-only-view')
+    // After publishing, editing is not allowed and text mentions draft mode
+    await expect(page.locator('#eligibility-predicate')).toContainText(
+      'You can change this in the program settings if your program is in draft mode',
+    )
   })
 
   test('view program details shows program categories', async ({
