@@ -1,21 +1,24 @@
 <!--HTMX partial template for the filtered programs section of the landing page.-->
 
-<th:block
-  th:if="${recommendedSection.isPresent()}"
-  th:with="recommendedCount=${recommendedSection.get().cards().size()}"
->
+<th:block th:if="${recommendedSection.isPresent()}">
   <div
     th:id="recommended-programs"
-    th:replace="~{applicant/programindex/ProgramCardsSectionFragment :: cardsSection(${recommendedSection.get()}, #{title.recommendedSection.v2(${recommendedCount})})}"
+    th:replace="~{applicant/programindex/ProgramCardsSectionFragment :: cardsSection(${recommendedSection.get()}, #{title.recommendedSection.v2(${recommendedSection.get().cards().size()})})}"
   ></div>
 </th:block>
 <th:block
-  th:if="${otherProgramsSection.isPresent()}"
-  th:with="otherCount=${otherProgramsSection.get().cards().size()},
-           otherTitle=${recommendedSection.isEmpty() ? #messages.msg('title.programsSection.v2', otherCount) : #messages.msg('title.otherProgramsSection.v2', otherCount)}"
+  th:if="${otherProgramsSection.isPresent() && recommendedSection.isEmpty()}"
 >
   <div
-    th:id="not-started-programs"
-    th:replace="~{applicant/programindex/ProgramCardsSectionFragment :: cardsSection(${otherProgramsSection.get()}, ${otherTitle})}"
+    id="not-started-programs"
+    th:replace="~{applicant/programindex/ProgramCardsSectionFragment :: cardsSection(${otherProgramsSection.get()}, #{title.programsSection.v2(${otherProgramsSection.get().cards().size()})})}"
+  ></div>
+</th:block>
+<th:block
+  th:if="${otherProgramsSection.isPresent() && !recommendedSection.isEmpty()}"
+>
+  <div
+    id="not-started-programs"
+    th:replace="~{applicant/programindex/ProgramCardsSectionFragment :: cardsSection(${otherProgramsSection.get()}, #{title.otherProgramsSection.v2(${otherProgramsSection.get().cards().size()})})}"
   ></div>
 </th:block>
