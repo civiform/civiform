@@ -1,4 +1,4 @@
-package views.applicant;
+package views.applicant.blocks;
 
 import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
@@ -33,6 +33,7 @@ import services.geojson.FeatureCollection;
 import services.question.types.MapQuestionDefinition.MapValidationPredicates;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
+import views.applicant.ApplicantBaseView;
 import views.fileupload.FileUploadViewStrategy;
 import views.html.helper.CSRF;
 import views.questiontypes.ApplicantQuestionRendererParams;
