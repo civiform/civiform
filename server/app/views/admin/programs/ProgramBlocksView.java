@@ -3,7 +3,6 @@ package views.admin.programs;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.b;
-import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
@@ -674,7 +673,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 csrfTag,
                 programQuestions,
                 addQuestion,
-                messages));
+                messages,
+                program.id(),
+                blockDefinition.id()));
       }
 
       return div.with(programQuestions, addQuestion);
@@ -712,11 +713,14 @@ public final class ProgramBlocksView extends ProgramBaseView {
       InputTag csrfTag,
       DivTag programQuestions,
       ButtonTag addQuestion,
-      Messages messages) {
+      Messages messages,
+      Long programId,
+      Long blockId) {
     // If it's an empty enumerator block
     if (!blockDefinitionHasEnumeratorQuestion) {
       FieldsetTag creationMethodRadio = renderCreationMethodRadioButtons(messages);
-      FormTag newEnumeratorQuestionForm = renderNewEnumeratorQuestionForm(csrfTag, messages);
+      FormTag newEnumeratorQuestionForm =
+          renderNewEnumeratorQuestionForm(csrfTag, messages, programId, blockId);
       return div().with(creationMethodRadio, newEnumeratorQuestionForm);
     } else {
       return div()
@@ -759,41 +763,44 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .withClasses("usa-fieldset"));
   }
 
-  private FormTag renderNewEnumeratorQuestionForm(InputTag csrfTag, Messages messages) {
+  private FormTag renderNewEnumeratorQuestionForm(
+      InputTag csrfTag, Messages messages, Long programId, Long blockId) {
     return form(csrfTag)
         .withClasses("border", "border-gray-300")
         .withId("new-enumerator-question-form")
         .withMethod(HttpVerbs.POST)
+        .withAction(
+            routes.AdminProgramBlockQuestionsController.createEnumerator(programId, blockId).url())
         .with(
             p(messages.at(MessageKey.LABEL_NEW_REPEATED_SET_FORM.getKeyName())),
             FieldWithLabel.input()
                 .setId("listed-entity-input")
-                .setFieldName("listed-entity")
+                .setFieldName("entityType")
                 .setLabelText(messages.at(MessageKey.INPUT_LISTED_ENTITY.getKeyName()))
                 .getUSWDSInputTag(),
             FieldWithLabel.input()
                 .setId("enumerator-admin-id-input")
-                .setFieldName("enumerator-admin-id")
+                .setFieldName("questionName")
                 .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_ADMIN_ID.getKeyName()))
                 .getUSWDSInputTag(),
             FieldWithLabel.textArea()
                 .setId("question-text-input")
-                .setFieldName("question-text")
+                .setFieldName("questionText")
                 .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_QUESTION_TEXT.getKeyName()))
                 .getUSWDSTextareaTag(),
             FieldWithLabel.textArea()
                 .setId("hint-text-input")
-                .setFieldName("hint")
+                .setFieldName("questionHelpText")
                 .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_HINT_TEXT.getKeyName()))
                 .getUSWDSTextareaTag(),
             FieldWithLabel.number()
                 .setId("min-entity-count-input")
-                .setFieldName("min-entity-count")
+                .setFieldName("minEntities")
                 .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_MIN_ENTITIES.getKeyName()))
                 .getNumberTag(),
             FieldWithLabel.number()
                 .setId("max-entity-count-input")
-                .setFieldName("max-entity-count")
+                .setFieldName("maxEntities")
                 .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_MAX_ENTITIES.getKeyName()))
                 .getNumberTag(),
             AlertComponent.renderSlimInfoAlert(
