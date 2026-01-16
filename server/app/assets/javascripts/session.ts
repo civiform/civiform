@@ -48,14 +48,10 @@ export const enum SessionModalType {
 export class SessionTimeoutHandler {
   /** Name of cookie storing timeout data */
   private static TIMEOUT_COOKIE_NAME = 'session_timeout_data'
-  /** Tracks if inactivity warning is currently shown */
-  private static inactivityWarningShown = false
-  /** Tracks if total length warning is currently shown */
-  private static totalLengthWarningShown = false
-  /** Tracks if inactivity warning has been shown at least once */
-  private static hasInactivityWarningBeenShown = false
-  /** Tracks if total length warning has been shown at least once */
-  private static hasTotalLengthWarningBeenShown = false
+  /** Tracks if inactivity warning is currently visible */
+  private static inactivityWarningVisible = false
+  /** Tracks if total length warning is currently visible */
+  private static totalLengthWarningVisible = false
   /** Tracks if handler has been initialized */
   private static isInitialized = false
 
@@ -69,49 +65,37 @@ export class SessionTimeoutHandler {
     this.isInitialized = true
   }
 
-  private static monitorSession(data: TimeoutData | null, now: number) {
-    if (!data) {
-      console.warn('No session timeout data available')
-      return
-    }
-
+  private static monitorSession(data: TimeoutData, now: number) {
     // 1. If there is an inactivityTimeout or totalTimeout that has passed, just logout
     if (data.inactivityTimeout <= now || data.totalTimeout <= now) {
       this.logout()
       return
     }
 
-    // If a warning is currently being shown, don't show another one
-    if (this.inactivityWarningShown || this.totalLengthWarningShown) {
+    // If a warning is currently visible, don't show another one
+    if (this.inactivityWarningVisible || this.totalLengthWarningVisible) {
       return
     }
 
-    // 2 & 3. Show warnings if they haven't been shown before and their time has passed
-    if (!this.hasInactivityWarningBeenShown && data.inactivityWarning <= now) {
-      this.showWarning(WarningType.INACTIVITY)
-      this.inactivityWarningShown = true
-      this.hasInactivityWarningBeenShown = true
+    // 2 & 3. Show warnings if their time has passed and not dismissed
+    if (data.inactivityWarning <= now) {
+      this.setWarningModalVisible(WarningType.INACTIVITY, true)
       return
     }
 
-    if (!this.hasTotalLengthWarningBeenShown && data.totalWarning <= now) {
-      this.showWarning(WarningType.TOTAL_LENGTH)
-      this.totalLengthWarningShown = true
-      this.hasTotalLengthWarningBeenShown = true
+    if (data.totalWarning <= now) {
+      this.setWarningModalVisible(WarningType.TOTAL_LENGTH, true)
       return
     }
   }
 
   private static pollSession() {
     const data = this.getTimeoutData()
-
     const now = Math.floor(Date.now() / 1000)
-    try {
+    if (!data) {
+      console.warn('No session timeout data available')
+    } else {
       this.monitorSession(data, now)
-    } catch (e) {
-      console.error('Error monitoring session:', e)
-      // If an error is thrown, do not continue polling
-      return
     }
 
     window.setTimeout(() => {
@@ -132,11 +116,7 @@ export class SessionTimeoutHandler {
       }
       if (detail.elt.id !== 'extend-session-form') return
 
-      const inactivityModal = document.getElementById(
-        `${SessionModalType.INACTIVITY}-modal`,
-      )
-      inactivityModal?.classList.add('is-hidden')
-      this.inactivityWarningShown = false
+      this.setWarningModalVisible(WarningType.INACTIVITY, false)
 
       // Processes /extend-session form submissions
       if (detail.xhr.status === 200) {
@@ -189,9 +169,7 @@ export class SessionTimeoutHandler {
       )
       closeButtons.forEach((button) => {
         button.addEventListener('click', () => {
-          inactivityModal.classList.add('is-hidden')
-          this.inactivityWarningShown = false
-          this.pollSession()
+          this.setWarningModalVisible(WarningType.INACTIVITY, false)
         })
       })
     }
@@ -213,9 +191,7 @@ export class SessionTimeoutHandler {
       )
       closeButtons.forEach((button) => {
         button.addEventListener('click', () => {
-          lengthModal.classList.add('is-hidden')
-          this.totalLengthWarningShown = false
-          this.pollSession()
+          this.setWarningModalVisible(WarningType.TOTAL_LENGTH, false)
         })
       })
     }
@@ -309,16 +285,19 @@ export class SessionTimeoutHandler {
    *
    * @param type Type of warning to show (inactivity or total length)
    */
-  private static showWarning(type: WarningType) {
+  private static setWarningModalVisible(type: WarningType, visible: boolean) {
     const modalId =
       type === WarningType.INACTIVITY
         ? `${SessionModalType.INACTIVITY}-modal`
         : `${SessionModalType.LENGTH}-modal`
     const modal = document.getElementById(modalId)
-    if (!modal) {
-      throw new Error(`Modal with ID ${modalId} not found`)
+    modal?.classList.toggle('is-hidden', !visible)
+
+    if (type === WarningType.INACTIVITY) {
+      this.inactivityWarningVisible = visible
+    } else {
+      this.totalLengthWarningVisible = visible
     }
-    modal.classList.remove('is-hidden')
   }
 
   /**

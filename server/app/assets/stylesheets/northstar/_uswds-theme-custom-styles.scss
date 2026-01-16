@@ -21,6 +21,12 @@ See the radio-option below as an example.
 
 @use 'uswds-core' as *;
 
+// Hide usa-modal elements until USWDS wraps them in usa-modal-wrapper.
+// This prevents a flash of the modal content on page load.
+.usa-modal:not(.usa-modal-wrapper .usa-modal) {
+  display: none;
+}
+
 // Prevents improper scaling on mobile devices
 body,
 html {
