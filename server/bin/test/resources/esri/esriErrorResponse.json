@@ -1,0 +1,8 @@
+{
+  "error": {
+    "code": 403,
+    "extendedCode": -2147200253,
+    "message": "Message text",
+    "details": ["Details text 1", "Details text 2"]
+  }
+}

@@ -1,0 +1,57 @@
+<th:block
+  th:fragment="validationErrors(validationErrors, questionRendererParams, questionId)"
+>
+  <div
+    th:each="error: ${validationErrors}"
+    th:if="${questionRendererParams.shouldShowErrors()}"
+    th:id="${questionId} + '-error'"
+    th:text="#{toast.errorMessageOutline(#{${error.key.getKeyName()}(${error.args})})}"
+    class="cf-question-error-message cf-applicant-question-errors"
+  ></div>
+</th:block>
+
+<div
+  th:fragment="titleAndHelpTextMultipleInput(question, questionId)"
+  class="margin-bottom-105"
+  th:with="ariaLabelForNewTabs=#{link.opensNewTabSr}"
+>
+  <!--/* Question title */-->
+  <legend th:id="${questionId} + '-title'" class="usa-legend display-flex">
+    <div th:replace="~{this :: titleContent(${question})}"></div>
+  </legend>
+
+  <!--/* Question help text */-->
+  <div
+    th:id="${questionId} + '-description'"
+    th:utext="${question.getFormattedQuestionHelpText(ariaLabelForNewTabs)}"
+    class="font-sans-xs padding-top-05 cf-applicant-question-help-text"
+  ></div>
+</div>
+
+<div
+  th:fragment="titleAndHelpTextSingleInput(question, questionId, inputId)"
+  class="margin-bottom-105"
+  th:with="ariaLabelForNewTabs=#{link.opensNewTabSr}"
+>
+  <!--/* Question title */-->
+  <label class="usa-label display-flex" th:for="${inputId}">
+    <div th:replace="~{this :: titleContent(${question})}"></div>
+  </label>
+
+  <!--/* Question help text */-->
+  <div
+    th:id="${questionId} + '-description'"
+    th:utext="${question.getFormattedQuestionHelpText(ariaLabelForNewTabs)}"
+    class="cf-applicant-question-help-text"
+  ></div>
+</div>
+
+<th:block
+  th:fragment="titleContent(question)"
+  th:with="ariaLabelForNewTabs=#{link.opensNewTabSr}"
+>
+  <span
+    th:utext="${question.getFormattedQuestionText(ariaLabelForNewTabs)}"
+    class="font-sans-lg cf-applicant-question-text"
+  ></span>
+</th:block>

@@ -1,0 +1,225 @@
+<div
+  th:fragment="address (question, questionRendererParams, stateAbbreviations)"
+  th:with="questionId=${'id-' + #strings.randomAlphanumeric(8)},
+           addressQuestion=${question.createAddressQuestion()},
+           firstPathWithError=${addressQuestion.getFirstPathWithError()},
+           hasGroupErrors=${addressQuestion.getValidationErrors().get(addressQuestion.getContextualizedPath())},"
+  th:id="${questionId}"
+  class="cf-question-address"
+  th:classappend="${hasGroupErrors ? 'cf-question-field-with-error' : ''}"
+  data-testid="questionRoot"
+  th:aria-labelledby="|${questionId}-title ${questionId}-description|"
+>
+  <fieldset class="usa-fieldset">
+    <div class="cf-question-header">
+      <!--/* Title and Help Text */-->
+      <div
+        th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
+      ></div>
+
+      <!--/* Display errors for the entire question */-->
+      <div
+        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(
+          ${addressQuestion.getValidationErrors().get(question.getContextualizedPath())},
+          ${questionRendererParams},
+          ${questionId})}"
+      ></div>
+    </div>
+
+    <!--/* Street address */-->
+    <div
+      th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},
+               streetPath=${addressQuestion.getStreetPath()},
+               fieldErrors=${addressQuestion.getValidationErrors().get(streetPath)},
+               hasFieldErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()},
+               showFieldErrorMessages=${!hasGroupErrors && hasFieldErrors},"
+      class="cf-address-street-1 cf-applicant-question-field"
+      th:classappend="${showFieldErrorMessages ? 'cf-question-field-with-error' : ''}"
+    >
+      <th:block th:if="${showFieldErrorMessages}">
+        <div
+          th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams}, ${questionId})}"
+        ></div>
+      </th:block>
+      <label class="usa-label" th:for="${inputId}">
+        <span th:text="#{label.street}"></span>
+        <span
+          th:if="${!question.isOptional()}"
+          class="usa-hint--required"
+          th:aria-hidden="true"
+        >
+          *</span
+        >
+      </label>
+      <input
+        class="usa-input cf-input-large"
+        th:classappend="${hasFieldErrors ? 'usa-input--error' : ''}"
+        th:id="${inputId}"
+        th:name="${streetPath}"
+        th:value="${addressQuestion.getStreetValue().orElse('')}"
+        th:aria-describedby="${questionId} + '-description' + (${hasGroupErrors || hasFieldErrors} ? ' ' + ${questionId} + '-error' : '')"
+        th:aria-invalid="${hasFieldErrors}"
+        th:aria-required="${!question.isOptional()}"
+        autocomplete="address-line1"
+        th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(streetPath)}"
+      />
+    </div>
+
+    <!--/* Street address line 2 */-->
+    <div
+      th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},
+               line2Path=${addressQuestion.getLine2Path()},
+               fieldErrors=${addressQuestion.getValidationErrors().get(line2Path)},
+               hasFieldErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()},
+               showFieldErrorMessages=${!hasGroupErrors && hasFieldErrors},"
+      class="cf-address-street-2 cf-applicant-question-field"
+      th:classappend="${showFieldErrorMessages ? 'cf-question-field-with-error' : ''}"
+    >
+      <th:block th:if="${showFieldErrorMessages}">
+        <div
+          th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams}, ${inputId})}"
+        ></div>
+      </th:block>
+      <label
+        class="usa-label"
+        th:for="${inputId}"
+        th:text="#{label.addressLine2}"
+      ></label>
+      <input
+        class="usa-input cf-input-large"
+        th:classappend="${hasFieldErrors ? 'usa-input--error' : ''}"
+        th:id="${inputId}"
+        th:name="${line2Path}"
+        th:value="${addressQuestion.getLine2Value().orElse('')}"
+        th:aria-describedby="${hasFieldErrors} ? ${inputId} + '-error'"
+        th:aria-invalid="${hasFieldErrors}"
+        autocomplete="address-line2"
+        th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(line2Path)}"
+      />
+    </div>
+
+    <!--/* City */-->
+    <div
+      th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},
+               cityPath=${addressQuestion.getCityPath()},
+               fieldErrors=${addressQuestion.getValidationErrors().get(cityPath)},
+               hasFieldErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()},
+               showFieldErrorMessages=${!hasGroupErrors && hasFieldErrors},"
+      class="cf-address-city cf-applicant-question-field"
+      th:classappend="${showFieldErrorMessages ? 'cf-question-field-with-error' : ''}"
+    >
+      <th:block th:if="${showFieldErrorMessages}">
+        <div
+          th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams}, ${inputId})}"
+        ></div>
+      </th:block>
+      <label class="usa-label" th:for="${inputId}">
+        <span th:text="#{label.city}"></span>
+        <span
+          th:if="${!question.isOptional()}"
+          class="usa-hint--required"
+          th:aria-hidden="true"
+        >
+          *</span
+        >
+      </label>
+      <input
+        class="usa-input cf-input-large"
+        th:classappend="${hasFieldErrors ? 'usa-input--error' : ''}"
+        th:id="${inputId}"
+        th:name="${cityPath}"
+        th:value="${addressQuestion.getCityValue().orElse('')}"
+        th:aria-describedby="${hasFieldErrors} ? ${inputId} + '-error'"
+        th:aria-invalid="${hasFieldErrors}"
+        th:aria-required="${!question.isOptional()}"
+        autocomplete="address-level2"
+        th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(cityPath)}"
+      />
+    </div>
+
+    <!--/* State */-->
+    <div
+      th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},
+               statePath=${addressQuestion.getStatePath()},
+               fieldErrors=${addressQuestion.getValidationErrors().get(statePath)},
+               hasFieldErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()},
+               showFieldErrorMessages=${!hasGroupErrors && hasFieldErrors},"
+      class="cf-address-state cf-applicant-question-field"
+      th:classappend="${showFieldErrorMessages ? 'cf-question-field-with-error' : ''}"
+    >
+      <th:block th:if="${showFieldErrorMessages}">
+        <div
+          th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams}, ${inputId})}"
+        ></div>
+      </th:block>
+      <label class="usa-label" th:for="${inputId}">
+        <span th:text="#{label.state}"></span>
+        <span
+          th:if="${!question.isOptional()}"
+          class="usa-hint--required"
+          th:aria-hidden="true"
+        >
+          *</span
+        >
+      </label>
+      <select
+        class="usa-select usa-input--medium"
+        th:classappend="${hasFieldErrors ? 'usa-input--error' : ''}"
+        th:id="${inputId}"
+        th:name="${statePath}"
+        th:aria-describedby="${hasFieldErrors} ? ${inputId} + '-error'"
+        th:aria-invalid="${hasFieldErrors}"
+        th:aria-required="${!question.isOptional()}"
+        autocomplete="address-level1"
+        th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(statePath)}"
+      >
+        <option value th:text="#{label.selectState}"></option>
+        <option
+          th:each="option: ${stateAbbreviations}"
+          th:value="${option}"
+          th:text="${option}"
+          th:selected="${addressQuestion.getStateValue().orElse('').equals(option)}"
+        ></option>
+      </select>
+    </div>
+
+    <!--/* ZIP code */-->
+    <div
+      th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},
+               zipPath=${addressQuestion.getZipPath()},
+               fieldErrors=${addressQuestion.getValidationErrors().get(zipPath)},
+               hasFieldErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()},
+               showFieldErrorMessages=${!hasGroupErrors && hasFieldErrors},"
+      class="cf-address-zip cf-applicant-question-field"
+      th:classappend="${showFieldErrorMessages ? 'cf-question-field-with-error cf-address-zip-error' : ''}"
+    >
+      <th:block th:if="${showFieldErrorMessages}">
+        <div
+          th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams}, ${inputId})}"
+        ></div>
+      </th:block>
+      <label class="usa-label" th:for="${inputId}">
+        <span th:text="#{label.zipcode}"></span>
+        <span
+          th:if="${!question.isOptional()}"
+          class="usa-hint--required"
+          th:aria-hidden="true"
+        >
+          *</span
+        >
+      </label>
+      <input
+        class="usa-input usa-input--medium"
+        th:classappend="${hasFieldErrors ? 'usa-input--error' : ''}"
+        th:id="${inputId}"
+        th:name="${zipPath}"
+        th:value="${addressQuestion.getZipValue().orElse('')}"
+        th:aria-describedby="${hasFieldErrors} ? ${inputId} + '-error'"
+        th:aria-invalid="${hasFieldErrors}"
+        th:aria-required="${!question.isOptional()}"
+        autocomplete="postal-code"
+        th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(zipPath)}"
+      />
+    </div>
+  </fieldset>
+</div>

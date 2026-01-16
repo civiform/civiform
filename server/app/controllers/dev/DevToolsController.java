@@ -31,9 +31,6 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import play.mvc.With;
 import repository.TransactionManager;
-import services.program.ActiveAndDraftPrograms;
-import services.program.ProgramService;
-import services.question.QuestionService;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import services.settings.SettingsService;
@@ -47,8 +44,6 @@ public class DevToolsController extends Controller {
   private final DevDatabaseSeedTask devDatabaseSeedTask;
   private final DevToolsView view;
   private final Database database;
-  private final QuestionService questionService;
-  private final ProgramService programService;
   private final SettingsService settingsService;
   private final SettingsManifest settingsManifest;
   private final AsyncCacheApi questionsByVersionCache;
@@ -65,8 +60,6 @@ public class DevToolsController extends Controller {
   public DevToolsController(
       DevDatabaseSeedTask devDatabaseSeedTask,
       DevToolsView view,
-      QuestionService questionService,
-      ProgramService programService,
       SettingsService settingsService,
       SettingsManifest settingsManifest,
       Clock clock,
@@ -80,8 +73,6 @@ public class DevToolsController extends Controller {
     this.devDatabaseSeedTask = checkNotNull(devDatabaseSeedTask);
     this.view = checkNotNull(view);
     this.database = DB.getDefault();
-    this.questionService = checkNotNull(questionService);
-    this.programService = checkNotNull(programService);
     this.settingsService = checkNotNull(settingsService);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.questionsByVersionCache = checkNotNull(questionsByVersionCache);
@@ -100,13 +91,6 @@ public class DevToolsController extends Controller {
    */
   public Result index(Request request) {
     return ok(view.render(request, request.flash().get(FlashKey.SUCCESS)));
-  }
-
-  public Result data(Request request) {
-    ActiveAndDraftPrograms activeAndDraftPrograms = programService.getActiveAndDraftPrograms();
-    ImmutableList<QuestionDefinition> questionDefinitions =
-        questionService.getReadOnlyQuestionService().toCompletableFuture().join().getAllQuestions();
-    return ok(view.renderSeedDataView(request, activeAndDraftPrograms, questionDefinitions));
   }
 
   public Result seedQuestions() {

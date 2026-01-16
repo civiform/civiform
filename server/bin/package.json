@@ -1,0 +1,58 @@
+{
+  "name": "server",
+  "version": "0.0.1",
+  "description": "Universal Application Tool (UAT aka CiviForm) that aims to simplify the application process for benefits programs.",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build --base=/assets/dist/",
+    "build:watch": "vite build --base=/assets/dist/ --watch",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "license": "CC0-1.0",
+  "devDependencies": {
+    "@tsconfig/recommended": "1.0.13",
+    "@types/cleave.js": "1.4.12",
+    "@types/markdown-it": "14.1.2",
+    "@types/node": "^24.0.0",
+    "@typescript-eslint/eslint-plugin": "8.52.0",
+    "@typescript-eslint/parser": "8.52.0",
+    "@vitest/coverage-v8": "^4.0.16",
+    "autoprefixer": "^10.4.16",
+    "eslint": "9.39.2",
+    "eslint-config-google": "0.14.0",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-no-unsanitized": "^4.0.2",
+    "globals": "17.0.0",
+    "htmx-ext-response-targets": "2.0.4",
+    "htmx.org": "2.0.8",
+    "jsdom": "^27.3.0",
+    "postcss": "8.5.6",
+    "sass": "^1.94.0",
+    "tailwindcss": "^3.4.1",
+    "typescript": "5.9.3",
+    "vite": "^7.2.2",
+    "vite-plugin-static-copy": "^3.1.4",
+    "vitest": "^4.0.16"
+  },
+  "dependencies": {
+    "@azure/storage-blob": "^12.27.0",
+    "@uswds/uswds": "^3.6.0",
+    "cleave.js": "1.6.0",
+    "dompurify": "3.3.1",
+    "maplibre-gl": "^5.6.1",
+    "markdown-it": "14.1.0",
+    "swagger-ui-dist": "^5.18.2"
+  },
+  "browserslist": [
+    "> 2%",
+    "last 2 versions",
+    "IE 11",
+    "not dead"
+  ]
+}

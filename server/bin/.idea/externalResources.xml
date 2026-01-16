@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ExternalResourceManagerImpl">
+    <resource url="https://civiform.us/thymeleaf/cf" 
+              location="$PROJECT_DIR$/schemas/cf-schema-root.xsd" />
+  </component>
+</project>

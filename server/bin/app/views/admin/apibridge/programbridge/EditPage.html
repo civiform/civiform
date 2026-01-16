@@ -1,0 +1,56 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.apibridge.programbridge.EditPageViewModel"*/-->
+<th:block th:fragment="content">
+  <div class="padding-top-3">
+    <a
+      class="display-flex font-sans-md text-no-underline text-blue"
+      th:href="${model.getProgramEditUrl()}"
+      ><cf:icon
+        type="legacy-icon-back-arrow"
+        class="width-205 height-205 margin-right-1"
+      />
+      Back</a
+    >
+
+    <h1 class="text-normal" th:text="${templateGlobals.pageTitle()}"></h1>
+    <div>
+      <label class="usa-label text-bold" for="bridgeAdminName"
+        >API Bridge</label
+      >
+
+      <select
+        id="bridgeAdminName"
+        name="bridgeAdminName"
+        class="usa-select"
+        th:hx-post="${model.getBridgeConfigurationUrl()}"
+        hx-target="#output"
+        required="required"
+      >
+        <option value="">--- Select ---</option>
+        <option
+          th:each="config : ${model.enabledApiBridgeConfigurations()}"
+          th:value="${config.adminName()}"
+          th:text="${config.description()}"
+        ></option>
+      </select>
+    </div>
+
+    <div id="output"></div>
+  </div>
+</th:block>
+
+<th:block th:fragment="scripts">
+  <!--/* Store the question scalar map for use on the client */-->
+  <script
+    type="text/javascript"
+    th:nonce="${templateGlobals.cspNonce()}"
+    th:inline="javascript"
+  >
+    window.app = window.app || {}
+    window.app.data = window.app.data || {}
+    window.app.data.bridge = window.app.data.bridge || {}
+    window.app.data.bridge.question_scalars = JSON.parse(
+      /*[[${model.questionScalarsJson()}]]*/ '{}',
+    )
+  </script>
+</th:block>
