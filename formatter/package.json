@@ -9,7 +9,7 @@
     "eslint-plugin-no-unsanitized": "4.1.4",
     "eslint-plugin-playwright": "2.5.0",
     "prettier": "3.8.0",
-    "sql-formatter": "15.6.12",
+    "sql-formatter": "15.7.0",
     "typescript": "5.9.3"
   }
 }
