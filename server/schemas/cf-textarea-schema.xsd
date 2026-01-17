@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:cf="https://civiform.us/thymeleaf/cf"
+           targetNamespace="https://civiform.us/thymeleaf/cf"
+           elementFormDefault="qualified">
+
+  <xs:import namespace="https://civiform.us/thymeleaf/cf" schemaLocation="common-types.xsd"/>
+
+  <xs:annotation>
+    <xs:documentation>
+      CiviForm Textarea Element Schema
+
+      Custom Thymeleaf element that renders into a textarea element with all appropriate HTML
+      including labels, validation messages, help text, etc.
+
+      Example usage:
+      &lt;cf:textarea id="firstName" name="firstName" label="First Name" /&gt;
+
+      Renders to:
+      &lt;div class="usa-form-group"&gt;
+      &lt;label class="usa-label" for="firstName"&gt;First Name&lt;/label&gt;
+      &lt;span id="error-message-firstName" class="usa-error-message" role="alert" hidden="hidden"&gt;&lt;/span&gt;
+      &lt;textarea class="usa-textarea" id="firstName" name="firstName"&gt;&lt;/textarea&gt;
+      &lt;/div&gt;
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:element name="textarea">
+    <xs:annotation>
+      <xs:documentation>
+        Custom textarea element that generates a complete form group with label, validation, and help text.
+      </xs:documentation>
+    </xs:annotation>
+
+    <xs:complexType>
+      <xs:attributeGroup ref="cf:commonFormAttributes"/>
+
+      <xs:attribute name="markdown-enabled" type="cf:booleanString">
+        <xs:annotation>
+          <xs:documentation>
+            Whether the textarea has markdown enabled
+            Accepts: "true" or "false"
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+
+      <xs:attribute name="minLength" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            Minimum length (number of characters) of value
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+
+      <xs:attribute name="maxLength" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            Maximum length (number of characters) of value
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+
+      <!-- Allow any data-* attributes -->
+      <xs:anyAttribute namespace="##other" processContents="lax">
+        <xs:annotation>
+          <xs:documentation>
+            Supports custom data-* and aria-* attributes. These will be passed through to the rendered textarea element.
+            Note: aria-describedby and aria-invalid are managed automatically by the component.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:anyAttribute>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

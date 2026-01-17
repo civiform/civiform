@@ -22,6 +22,7 @@ public final class CiviFormProcessorDialect extends AbstractProcessorDialect {
   public Set<IProcessor> getProcessors(String dialectPrefix) {
     return Set.of(
         new IconElementTagProcessor(getPrefix(), assetsFinder, environment),
-        new InputElementTagModelProcessor(getPrefix()));
+        new InputElementTagModelProcessor(getPrefix()),
+        new TextAreaElementTagModelProcessor(getPrefix()));
   }
 }
