@@ -546,7 +546,8 @@ public final class AccountRepository {
     idTokens.purgeExpiredIdTokens(clock);
     idTokens.storeIdToken(sessionId, idToken);
 
-    if (settingsManifest.getSessionReplayProtectionEnabled()) {
+    if (settingsManifest.getSessionReplayProtectionEnabled()
+        || settingsManifest.getSessionTimeoutEnabled()) {
       // For now, we set the duration to Auth0s default of 10 hours.
       account.removeExpiredActiveSessions(sessionLifecycle);
       if (!account.getActiveSession(sessionId).isPresent()) {

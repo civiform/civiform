@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import java.time.Clock;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -18,6 +19,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 import repository.DatabaseExecutionContext;
+import services.session.SessionTimeoutService;
 import services.settings.SettingsManifest;
 
 /**
@@ -29,6 +31,8 @@ public class ValidAccountFilter extends EssentialFilter {
   private final ProfileUtils profileUtils;
   private final Provider<SettingsManifest> settingsManifest;
   private final Materializer materializer;
+  private final Clock clock;
+  private final Provider<SessionTimeoutService> sessionTimeoutService;
   private final Provider<DatabaseExecutionContext> databaseExecutionContext;
 
   @Inject
@@ -36,10 +40,14 @@ public class ValidAccountFilter extends EssentialFilter {
       ProfileUtils profileUtils,
       Provider<SettingsManifest> settingsManifest,
       Materializer materializer,
+      Clock clock,
+      Provider<SessionTimeoutService> sessionTimeoutService,
       Provider<DatabaseExecutionContext> databaseExecutionContext) {
     this.profileUtils = checkNotNull(profileUtils);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.materializer = checkNotNull(materializer);
+    this.clock = checkNotNull(clock);
+    this.sessionTimeoutService = sessionTimeoutService;
     this.databaseExecutionContext = databaseExecutionContext;
   }
 
@@ -61,6 +69,9 @@ public class ValidAccountFilter extends EssentialFilter {
                           return Accumulator.done(
                               Results.redirect(org.pac4j.play.routes.LogoutController.logout()));
                         } else {
+                          if (settingsManifest.get().getSessionTimeoutEnabled()) {
+                            profile.get().getProfileData().updateLastActivityTime(clock);
+                          }
                           return next.apply(request);
                         }
                       });
@@ -70,7 +81,6 @@ public class ValidAccountFilter extends EssentialFilter {
   }
 
   private CompletionStage<Boolean> shouldLogoutUser(CiviFormProfile profile) {
-
     return profileUtils
         .validCiviFormProfile(profile)
         .thenComposeAsync(
@@ -87,13 +97,19 @@ public class ValidAccountFilter extends EssentialFilter {
                 // Log out if either profile or session was invalid
                 return CompletableFuture.completedFuture(true);
               }
-              return CompletableFuture.completedFuture(false);
+              // If flag is disabled, keep them logged in if they have a valid session
+              if (!settingsManifest.get().getSessionTimeoutEnabled()) {
+                return CompletableFuture.completedFuture(false);
+              }
+              // Otherwise, let the SessionTimeoutService decide
+              return sessionTimeoutService.get().isSessionTimedOut(profile);
             },
             databaseExecutionContext.get());
   }
 
   private CompletionStage<Boolean> isValidSession(CiviFormProfile profile) {
-    if (settingsManifest.get().getSessionReplayProtectionEnabled()) {
+    if (settingsManifest.get().getSessionReplayProtectionEnabled()
+        || settingsManifest.get().getSessionTimeoutEnabled()) {
       return profile
           .getAccount()
           .thenApply(
