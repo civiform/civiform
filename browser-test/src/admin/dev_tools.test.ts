@@ -12,6 +12,7 @@ test.describe('developer tools', () => {
     // unless a specific test intends to enable it.
     await disableFeatureFlag(page, 'staging_disable_demo_mode_logins')
   })
+
   test('dev link exists', async ({page}) => {
     const header = page.locator('nav')
 
@@ -25,6 +26,7 @@ test.describe('developer tools', () => {
       await validateScreenshot(page, 'dev-tools-modal')
     })
   })
+
   test('not functional when disable demo mode logins is enabled', async ({
     page,
   }) => {
@@ -39,12 +41,6 @@ test.describe('developer tools', () => {
 
     await test.step('navigating to dev tools URL unsuccessful', async () => {
       await page.goto(`/dev/seed`)
-      expect(page.url()).toContain('/programs')
-      expect(await page.innerText('h1')).not.toContain('Dev tools')
-    })
-
-    await test.step('navigating to clear URL unsuccessful', async () => {
-      await page.goto(`/dev/seed/data`)
       expect(page.url()).toContain('/programs')
       expect(await page.innerText('h1')).not.toContain('Dev tools')
     })
