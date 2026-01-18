@@ -21,7 +21,7 @@
   authProviderName: String
     Auth provider, for logging in.
 
-  commonIntakeSection: Optional<ProgramSectionParams>
+  preScreenerSection: Optional<ProgramSectionParams>
     An optional which contains the pre-screener section, if there is one.
 
   applicantId: Optional<Long>
@@ -50,9 +50,9 @@
         id="programs-list"
         class="grid-container padding-section-large-three-sides usa-prose"
       >
-        <div th:if="${commonIntakeSection.isPresent()}">
+        <div th:if="${preScreenerSection.isPresent()}">
           <div
-            th:replace="~{applicant/programindex/ProgramCardsSectionFragment :: cardsSection(${commonIntakeSection.get()})}"
+            th:replace="~{applicant/programindex/ProgramCardsSectionFragment :: cardsSection(${preScreenerSection.get()})}"
           ></div>
         </div>
         <th:block th:if="${myApplicationsSection.isPresent()}">
