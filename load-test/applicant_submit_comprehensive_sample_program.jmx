@@ -52,6 +52,17 @@
           <stringProp name="CookieManager.policy">default</stringProp>
         </CookieManager>
         <hashTree/>
+        <!-- Add trigger header for even-numbered threads (2, 4, 6, 8, 10, etc.) -->
+        <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Conditional Trigger Header (Even Threads)" enabled="true">
+          <collectionProp name="HeaderManager.headers">
+            <elementProp name="X-Test-Trigger-Filter" elementType="Header">
+              <stringProp name="Header.name">X-Test-Trigger-Filter</stringProp>
+              <stringProp name="Header.value">${__groovy(${__threadNum()} % 2 == 0 ? "true" : "")}</stringProp>
+            </elementProp>
+          </collectionProp>
+          <stringProp name="TestPlan.comments">Triggers ValidAccountFilter for even-numbered threads to simulate invalid accounts</stringProp>
+        </HeaderManager>
+        <hashTree/>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Load Program Page" enabled="true">
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
             <collectionProp name="Arguments.arguments"/>
