@@ -285,7 +285,7 @@ test.describe('Program admin review of submitted applications', () => {
         'fileupload-q',
         'file-upload-second.png',
       )
-      await page.getByRole('link', {name: 'Back'}).click()
+      await page.getByRole('button', {name: 'Back'}).click()
     })
 
     await test.step('Log in as civiform admin', async () => {
@@ -317,7 +317,7 @@ test.describe('Program admin review of submitted applications', () => {
         'pine; cherry',
       )
 
-      await page.getByRole('link', {name: 'Back'}).click()
+      await page.getByRole('button', {name: 'Back'}).click()
     })
 
     await test.step('Click CiviForm logo and navigate to the programs admins home page', async () => {
@@ -420,7 +420,7 @@ test.describe('Program admin review of submitted applications', () => {
           'fruit-text-q',
           answers[answers.length - i - 1],
         )
-        await page.getByRole('link', {name: 'Back'}).click()
+        await page.getByRole('button', {name: 'Back'}).click()
       }
     })
   })

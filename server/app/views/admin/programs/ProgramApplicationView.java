@@ -2,6 +2,7 @@ package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
+import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
@@ -20,9 +21,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import com.google.inject.Inject;
-import controllers.admin.routes;
+import j2html.TagCreator;
 import j2html.tags.DomContent;
-import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -53,7 +53,6 @@ import views.admin.AdminLayoutFactory;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
-import views.components.LinkElement;
 import views.components.Modal;
 import views.components.Modal.Width;
 import views.style.BaseStyles;
@@ -132,7 +131,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .withClasses("px-20")
             .with(
                 h2("Program: " + programName).withClasses("my-4"),
-                renderBackLink(programId),
+                renderBackButton(),
                 div()
                     .withClasses(
                         "flex", "flex-wrap", "items-center", "my-4", "gap-2", "justify-between")
@@ -182,26 +181,12 @@ public final class ProgramApplicationView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private ATag renderBackLink(Long programId) {
-    String backUrl =
-        routes.AdminApplicationController.index(
-                programId,
-                /* search= */ Optional.empty(),
-                /* page= */ Optional.empty(),
-                /* fromDate= */ Optional.empty(),
-                /* untilDate= */ Optional.empty(),
-                /* applicationStatus= */ Optional.empty(),
-                /* selectedApplicationUri= */ Optional.empty(),
-                /* showDownloadModal= */ Optional.empty(),
-                /* message= */ Optional.empty())
-            .url();
-
-    return new LinkElement()
-        .setId("application-table-view-")
-        .setHref(backUrl)
-        .setText("Back")
-        .setStyles(ButtonStyles.SOLID_BLUE_TEXT_SM)
-        .asAnchorText();
+  private ButtonTag renderBackButton() {
+    return TagCreator.button()
+        .withText("Back")
+        .withType("button")
+        .withClass(ButtonStyles.SOLID_BLUE_TEXT_SM)
+        .withId("back-to-applications-link");
   }
 
   private ButtonTag renderDownloadButton(long programId, long applicationId) {

@@ -38,7 +38,7 @@ test.describe('with program statuses', () => {
       const modal =
         await adminPrograms.setStatusOptionAndAwaitModal(approvedStatusName)
       await adminPrograms.confirmStatusUpdateModal(modal)
-      await page.getByRole('link', {name: 'Back'}).click()
+      await page.getByRole('button', {name: 'Back'}).click()
       await logout(page)
     },
   )
