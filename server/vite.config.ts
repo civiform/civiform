@@ -1,12 +1,12 @@
 import {defineConfig} from 'vite'
 import {configDefaults} from 'vitest/config'
 import {viteStaticCopy} from 'vite-plugin-static-copy'
-import path from 'path'
+import {resolve} from 'node:path'
 
 // Asset paths to reference in the below config
 const assetPaths = {
-  applicant: 'app/assets/javascripts/applicant_entry_point.ts',
-  admin: 'app/assets/javascripts/admin_entry_point.ts',
+  applicant: 'app/assets/javascripts/pages/applicant/applicant_entry_point.ts',
+  admin: 'app/assets/javascripts/pages/admin/admin_entry_point.ts',
   uswds_css: 'app/assets/stylesheets/uswds/styles.scss',
   uswds_js: 'node_modules/@uswds/uswds/dist/js/uswds.min.js',
   uswdsinit_js: 'node_modules/@uswds/uswds/dist/js/uswds-init.min.js',
@@ -29,8 +29,8 @@ export default defineConfig({
     fs: {
       // Allow serving files from node_modules and project root
       allow: [
-        path.resolve(__dirname, 'app/assets'),
-        path.resolve(__dirname, 'node_modules'),
+        resolve(__dirname, 'app/assets'),
+        resolve(__dirname, 'node_modules'),
       ],
     },
     // Pre-compile on startup for faster loading of the first page hit
@@ -85,14 +85,14 @@ export default defineConfig({
     // Set up the main entrypoint chunks
     rollupOptions: {
       input: {
-        applicant: path.resolve(__dirname, assetPaths.applicant),
-        admin: path.resolve(__dirname, assetPaths.admin),
-        uswdsinit_js: path.resolve(__dirname, assetPaths.uswdsinit_js),
-        uswds_js: path.resolve(__dirname, assetPaths.uswds_js),
-        uswds_css: path.resolve(__dirname, assetPaths.uswds_css),
-        northstar_css: path.resolve(__dirname, assetPaths.northstar_css),
-        maplibregl: path.resolve(__dirname, assetPaths.maplibregl_css),
-        tailwind: path.resolve(__dirname, assetPaths.tailwind),
+        applicant: resolve(__dirname, assetPaths.applicant),
+        admin: resolve(__dirname, assetPaths.admin),
+        uswdsinit_js: resolve(__dirname, assetPaths.uswdsinit_js),
+        uswds_js: resolve(__dirname, assetPaths.uswds_js),
+        uswds_css: resolve(__dirname, assetPaths.uswds_css),
+        northstar_css: resolve(__dirname, assetPaths.northstar_css),
+        maplibregl: resolve(__dirname, assetPaths.maplibregl_css),
+        tailwind: resolve(__dirname, assetPaths.tailwind),
       },
       // Set up the output file naming conventions
       output: {
@@ -143,8 +143,8 @@ export default defineConfig({
         quietDeps: true,
         // Add USWDS load paths for SCSS imports
         loadPaths: [
-          path.resolve(__dirname, 'app/assets/stylesheets/uswds'),
-          path.resolve(__dirname, 'node_modules/@uswds/uswds/packages'),
+          resolve(__dirname, 'app/assets/stylesheets/uswds'),
+          resolve(__dirname, 'node_modules/@uswds/uswds/packages'),
         ],
       },
     },
