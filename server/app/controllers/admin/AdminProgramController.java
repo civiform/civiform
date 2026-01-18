@@ -143,7 +143,7 @@ public final class AdminProgramController extends CiviFormController {
 
     // If the user needs to confirm that they want to change the pre-screener form from a different
     // program to this one, show the confirmation dialog.
-    if (programData.getProgramType().equals(ProgramType.COMMON_INTAKE_FORM)
+    if (programData.getProgramType().equals(ProgramType.PRE_SCREENER_FORM)
         && !programData.getConfirmedChangePreScreenerForm()) {
       Optional<ProgramDefinition> maybePreScreenerForm = programService.getPreScreenerForm();
       if (maybePreScreenerForm.isPresent()) {
@@ -285,7 +285,7 @@ public final class AdminProgramController extends CiviFormController {
 
     // If the user needs to confirm that they want to change the pre-screener form from a different
     // program to this one, show the confirmation dialog.
-    if (programData.getProgramType().equals(ProgramType.COMMON_INTAKE_FORM)
+    if (programData.getProgramType().equals(ProgramType.PRE_SCREENER_FORM)
         && !programData.getConfirmedChangePreScreenerForm()) {
       Optional<ProgramDefinition> maybePreScreenerForm = programService.getPreScreenerForm();
       if (maybePreScreenerForm.isPresent()

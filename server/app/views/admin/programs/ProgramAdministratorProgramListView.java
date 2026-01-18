@@ -76,7 +76,7 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
 
     ProgramType programType = activeProgram.programType();
     if (programType.equals(ProgramType.DEFAULT)
-        || programType.equals(ProgramType.COMMON_INTAKE_FORM)) {
+        || programType.equals(ProgramType.PRE_SCREENER_FORM)) {
       actionsBuilder.add(renderShareLink(activeProgram));
       actionsBuilder.add(renderViewApplicationsLink(activeProgram));
     }
