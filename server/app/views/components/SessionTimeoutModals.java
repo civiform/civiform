@@ -74,14 +74,13 @@ public final class SessionTimeoutModals {
 
     // Create the inactivity warning modal
     return ViewUtils.makeUswdsModal(
-            modalBody,
-            "session-inactivity-warning",
-            messages.at(MessageKey.SESSION_INACTIVITY_WARNING_TITLE.getKeyName()),
-            messages.at(MessageKey.SESSION_EXTEND_BUTTON.getKeyName()),
-            true,
-            messages.at(MessageKey.SESSION_EXTEND_BUTTON.getKeyName()),
-            messages.at(MessageKey.BUTTON_CANCEL.getKeyName()))
-        .withClasses("hidden");
+        modalBody,
+        "session-inactivity-warning",
+        messages.at(MessageKey.SESSION_INACTIVITY_WARNING_TITLE.getKeyName()),
+        messages.at(MessageKey.SESSION_EXTEND_BUTTON.getKeyName()),
+        true,
+        messages.at(MessageKey.SESSION_EXTEND_BUTTON.getKeyName()),
+        messages.at(MessageKey.BUTTON_CANCEL.getKeyName()));
   }
 
   private static DivTag createSessionLengthWarningModal(Messages messages) {
@@ -93,13 +92,12 @@ public final class SessionTimeoutModals {
 
     // Create the session length warning modal
     return ViewUtils.makeUswdsModal(
-            modalBody,
-            "session-length-warning",
-            messages.at(MessageKey.SESSION_LENGTH_WARNING_TITLE.getKeyName()),
-            messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()),
-            true,
-            messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()),
-            messages.at(MessageKey.BUTTON_CANCEL.getKeyName()))
-        .withClasses("hidden");
+        modalBody,
+        "session-length-warning",
+        messages.at(MessageKey.SESSION_LENGTH_WARNING_TITLE.getKeyName()),
+        messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()),
+        true,
+        messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()),
+        messages.at(MessageKey.BUTTON_CANCEL.getKeyName()));
   }
 }
