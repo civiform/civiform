@@ -89,13 +89,13 @@ public final class BundledAssetsFinder {
 
   public String getAdminJsBundle() {
     return useDevServer
-        ? bundlerPath("app/assets/javascripts/admin_entry_point.ts")
+        ? bundlerPath("app/assets/javascripts/pages/admin/admin_entry_point.ts")
         : bundlerPath("dist/admin.bundle.js");
   }
 
   public String getApplicantJsBundle() {
     return useDevServer
-        ? bundlerPath("app/assets/javascripts/applicant_entry_point.ts")
+        ? bundlerPath("app/assets/javascripts/pages/applicant/applicant_entry_point.ts")
         : bundlerPath("dist/applicant.bundle.js");
   }
 
