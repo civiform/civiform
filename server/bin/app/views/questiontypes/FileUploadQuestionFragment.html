@@ -1,0 +1,85 @@
+<div
+  th:fragment="file-upload(question, questionRendererParams)"
+  th:with="fileUploadQuestion=${question.createFileUploadQuestion()},
+    questionId=${'id-' + #strings.randomAlphanumeric(8)},
+    inputId=${'id-' + #strings.randomAlphanumeric(8)},
+    hasErrors=${questionRendererParams.shouldShowErrors() && !fileUploadQuestion.getValidationErrors().isEmpty()}"
+  th:id="${questionId}"
+  class="cf-question-fileupload cf-applicant-question-field"
+  th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
+  data-testid="questionRoot"
+>
+  <!--/* Title and Help Text */-->
+  <div
+    th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextSingleInput(${question}, ${questionId}, ${inputId})}"
+  ></div>
+  <div
+    class="usa-hint"
+    th:with="maxFiles=${question.getQuestionDefinition().getMaxFiles()}"
+  >
+    <p
+      th:if="${maxFiles.isPresent() and maxFiles.getAsInt() == 1}"
+      th:text="#{input.singleFileUploadHint}"
+    ></p>
+    <p
+      th:if="${maxFiles.isPresent() and maxFiles.getAsInt() > 1}"
+      th:text="#{input.multipleFileUploadHint(${maxFiles.getAsInt()})}"
+    ></p>
+    <p
+      th:unless="${maxFiles.isPresent()}"
+      th:text="#{input.unlimitedFileUploadHint}"
+    ></p>
+  </div>
+
+  <!--/* Display errors */-->
+  <div
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fileUploadQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams}, ${questionId})}"
+  ></div>
+
+  <!--/* Errors always rendered in the DOM and hidden, but shown by file_upload.ts when needed. */-->
+  <div
+    hidden
+    class="usa-alert usa-alert--error usa-alert--slim"
+    id="cf-fileupload-required-error"
+  >
+    <div class="usa-alert__body">
+      <p
+        class="usa-alert__text"
+        th:text="#{toast.errorMessageOutline(#{validation.fileRequired})}"
+      ></p>
+    </div>
+  </div>
+  <div
+    hidden
+    class="usa-alert usa-alert--error usa-alert--slim"
+    id="cf-fileupload-too-large-error"
+  >
+    <div class="usa-alert__body">
+      <p
+        class="usa-alert__text"
+        th:text="#{toast.errorMessageOutline(#{validation.fileTooLarge(${maxFileSizeMb})})}"
+      ></p>
+    </div>
+  </div>
+
+  <input
+    th:id="${inputId}"
+    class="usa-file-input"
+    type="file"
+    name="file"
+    th:aria-describedby="${hasErrors} ? ' ' + ${questionId} + '-error' : ''"
+    th:aria-invalid="${hasErrors}"
+    th:accept="${fileUploadAllowedFileTypeSpecifiers}"
+    th:data-file-limit-mb="${maxFileSizeMb}"
+    th:disabled="${!fileUploadQuestion.canUploadFile()}"
+    th:aria-required="${!question.isOptional()}"
+  />
+</div>
+
+<!--/* Fragment for rendering file key fields within hidden inputs */-->
+<div th:fragment="file-key-field(fileUploadQuestion, clearData)">
+  <input
+    th:name="${fileUploadQuestion.getFileKeyPath()}"
+    th:value="${clearData ? '' : fileUploadQuestion.getFileKeyValue().orElse('')}"
+  />
+</div>

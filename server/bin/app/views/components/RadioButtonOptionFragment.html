@@ -1,0 +1,21 @@
+<div
+  th:fragment="radioButtonOptionFragment(inputId, optionId, name, isChecked, isRequired, autofocus, optionLabelText, hasErrors, questionId)"
+>
+  <input
+    class="usa-radio__input usa-radio__input--tile cf-radio-input"
+    th:id="${inputId}"
+    th:value="${optionId}"
+    th:name="${name}"
+    th:checked="${isChecked}"
+    type="radio"
+    th:aria-describedby="${hasErrors} ? ' ' + ${questionId} + '-error' : ''"
+    th:aria-invalid="${hasErrors}"
+    th:aria-required="${isRequired}"
+    th:autofocus="${autofocus}"
+  />
+  <label
+    class="usa-radio__label maxw-mobile-lg cf-multi-option-value"
+    th:for="${inputId}"
+    th:utext="${optionLabelText}"
+  ></label>
+</div>

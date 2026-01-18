@@ -1,0 +1,124 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "seattle-central-library",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.3321, 47.6062]
+      },
+      "properties": {
+        "name": "Seattle Central Library",
+        "address": "1000 4th Ave, Seattle, WA 98104",
+        "type": "library",
+        "hours": "Mon-Thu: 10am-8pm, Fri-Sat: 10am-6pm, Sun: 12pm-6pm",
+        "phone": "(206) 386-4636",
+        "website": "https://spl.org",
+        "requiresDirectEnrollment": "false"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "international-district-community-center",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.3233, 47.5979]
+      },
+      "properties": {
+        "name": "International District Community Center",
+        "address": "719 8th Ave S, Seattle, WA 98104",
+        "type": "community_center",
+        "hours": "Mon-Fri: 8am-6pm",
+        "phone": "(206) 233-0042",
+        "website": "https://idcommunity.org",
+        "requiresDirectEnrollment": "false"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "capitol-hill-health-center",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.3207, 47.6205]
+      },
+      "properties": {
+        "name": "Capitol Hill Health Center",
+        "address": "1200 12th Ave S, Seattle, WA 98144",
+        "type": "health_center",
+        "hours": "Mon-Fri: 7am-7pm, Sat: 8am-4pm",
+        "phone": "(206) 296-4600",
+        "website": "https://kingcounty.gov/depts/health",
+        "requiresDirectEnrollment": "false"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "ballard-community-center",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.3817, 47.6677]
+      },
+      "properties": {
+        "name": "Ballard Community Center",
+        "address": "6020 28th Ave NW, Seattle, WA 98107",
+        "type": "community_center",
+        "hours": "Mon-Fri: 9am-9pm, Sat-Sun: 10am-6pm",
+        "phone": "(206) 684-4093",
+        "website": "https://seattle.gov/parks",
+        "requiresDirectEnrollment": "false"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "university-branch-library",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.315, 47.6606]
+      },
+      "properties": {
+        "name": "University Branch Library",
+        "address": "5009 Roosevelt Way NE, Seattle, WA 98105",
+        "type": "library",
+        "hours": "Tue-Wed: 10am-8pm, Thu-Fri: 12pm-6pm, Sat: 10am-6pm",
+        "phone": "(206) 684-4063",
+        "website": "https://spl.org/locations/university-branch",
+        "requiresDirectEnrollment": "true"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "rainier-beach-pool",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.2619, 47.5223]
+      },
+      "properties": {
+        "name": "Rainier Beach Pool",
+        "address": "8825 Rainier Ave S, Seattle, WA 98118",
+        "type": "recreation_center",
+        "hours": "Mon-Fri: 6am-9pm, Sat-Sun: 8am-6pm",
+        "phone": "(206) 386-1944",
+        "website": "https://seattle.gov/parks/aquatics",
+        "requiresDirectEnrollment": "false"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "magnolia-community-center",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.3985, 47.6417]
+      },
+      "properties": {
+        "name": "Magnolia Community Center",
+        "address": "2550 34th Ave W, Seattle, WA 98199",
+        "type": "community_center",
+        "hours": "Mon-Fri: 9am-9pm, Sat: 9am-5pm",
+        "phone": "(206) 386-4235",
+        "website": "https://seattle.gov/parks",
+        "requiresDirectEnrollment": "true"
+      }
+    }
+  ]
+}

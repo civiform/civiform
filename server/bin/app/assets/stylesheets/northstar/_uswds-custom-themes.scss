@@ -1,0 +1,58 @@
+@use 'uswds-core' as *;
+
+/*
+ * Create a CSS variable for each USWDS Sass color variable.
+ * The CSS variables will be accessibile after the Sass has been
+ * compiled away, but the Sass variables will not be.
+ */
+:root {
+  @each $name, $value in $assignments-theme-color {
+    @if $value {
+      --#{$name}: #{color($name)};
+    }
+  }
+}
+
+.bg-primary-darker {
+  background-color: var(--primary-dark);
+}
+
+.bg-primary-darker.border-primary {
+  border-color: var(--primary-dark);
+}
+
+.usa-button:not(
+  .usa-button--outline,
+  .usa-button--unstyled,
+  .usa-button--base,
+  .usa-modal__close,
+  :disabled
+) {
+  background-color: var(--primary);
+}
+
+.usa-button:hover:not(
+    .usa-button--outline,
+    .usa-button--unstyled,
+    .usa-button--base,
+    .usa-modal__close,
+    :disabled
+  ) {
+  background-color: var(--primary-dark);
+}
+
+.usa-button.usa-button--outline {
+  box-shadow: inset 0 0 0 2px var(--primary);
+  background-color: color('white');
+  color: var(--primary);
+}
+
+.usa-button.usa-button--outline:hover {
+  box-shadow: inset 0 0 0 2px var(--primary-dark);
+  background-color: color('white');
+  color: var(--primary-dark);
+}
+
+.usa-menu-btn {
+  background-color: var(--primary);
+}

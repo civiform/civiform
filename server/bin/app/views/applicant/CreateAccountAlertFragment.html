@@ -1,0 +1,47 @@
+<!-- Element that looks similar to a USWDS alert. It has more customization,
+     such as the "Create account" button. -->
+<div
+  th:fragment="createAccount(createAccountLink, loginLink, createAccountLinkText, loginLinkText)"
+  class="usa-alert usa-alert--info"
+>
+  <div class="usa-alert__body">
+    <h2
+      th:if="${!loginOnly}"
+      class="usa-alert__heading"
+      th:text="#{alert.createAccount}"
+      th:aria-label="#{heading.informationAriaLabelPrefix(#{alert.createAccount})}"
+    ></h2>
+    <h2
+      th:if="${loginOnly}"
+      class="usa-alert__heading"
+      th:text="#{alert.createAccountForLoginOnly}"
+      th:aria-label="#{heading.informationAriaLabelPrefix(#{alert.createAccountForLoginOnly})}"
+    ></h2>
+    <p class="usa-alert__text" th:text="#{alert.createAccountDescription}"></p>
+
+    <div class="content-spacing"></div>
+
+    <div class="grid-row">
+      <div class="grid-col-auto">
+        <a
+          class="usa-button usa-button--inverse"
+          role="button"
+          th:text="${createAccountLinkText}"
+          id="create-account"
+          th:href="${createAccountLink}"
+        ></a>
+      </div>
+    </div>
+
+    <div class="text-medium-spacing"></div>
+    <p th:if="${!loginOnly}">
+      <a
+        class="usa-link"
+        role="button"
+        href="javascript:void(0);"
+        th:text="${loginLinkText}"
+        th:href="${loginLink}"
+      ></a>
+    </p>
+  </div>
+</div>

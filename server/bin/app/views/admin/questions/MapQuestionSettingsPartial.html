@@ -1,0 +1,62 @@
+<!-- TODO(#11161): Update styling to match design specifications -->
+<div id="geoJsonOutput">
+  <label
+    for="maxLocationSelections"
+    class="usa-label text-base-dark margin-top-0"
+    th:text="#{map.maxLocationSelectionsLabel}"
+  ></label>
+  <input
+    class="usa-input"
+    name="maxLocationSelections"
+    id="maxLocationSelections"
+    type="number"
+    th:value="${model.maxLocationSelections.isPresent() ? model.maxLocationSelections.getAsInt() : ''}"
+  />
+  <div
+    th:replace="~{admin/questions/MapQuestionSettingsFragment :: keyInput('locationName', ${model.locationName}, ${model.possibleKeys}, 'map.locationNameLabel', 'map.locationNameHelpText')}"
+  ></div>
+  <div
+    th:replace="~{admin/questions/MapQuestionSettingsFragment :: keyInput('locationAddress', ${model.locationAddress}, ${model.possibleKeys}, 'map.locationAddressLabel', 'map.locationAddressHelpText')}"
+  ></div>
+  <div
+    th:replace="~{admin/questions/MapQuestionSettingsFragment :: keyInput('locationDetailsUrl', ${model.locationDetailsUrl}, ${model.possibleKeys}, 'map.locationDetailsUrlLabel', 'map.locationDetailsUrlHelpText')}"
+  ></div>
+
+  <fieldset class="usa-fieldset margin-top-3">
+    <legend class="usa-legend text-base-dark margin-top-105">
+      <h3 class="font-body-sm" th:text="#{map.addFiltersTitle}"></h3>
+      <h4 class="font-body-2xs" th:text="#{map.addFiltersSubtitle}"></h4>
+    </legend>
+    <div id="filters">
+      <div th:each="filter, i : ${model.filters}">
+        <div
+          th:insert="~{admin/questions/MapQuestionSettingsFragment :: filterInput(${i.index}, ${model.possibleKeys}, ${model.hxDeleteMapQuestionFilterEndpoint}, ${filter.key}, ${filter.displayName})}"
+        ></div>
+      </div>
+    </div>
+  </fieldset>
+  <input type="hidden" name="possibleKeys" th:value="${model.possibleKeys}" />
+  <button
+    th:hx-post="${model.hxAddMapQuestionFilterEndpoint}"
+    hx-include="closest form"
+    hx-swap="beforeend"
+    hx-target="#filters"
+    id="add-map-filter-button"
+    type="button"
+    class="add-map-filter usa-button usa-button--outline margin-top-3"
+    th:inline="text"
+  >
+    <cf:icon type="icon-add" />[[#{map.addFilterButton}]]
+  </button>
+  <th:block
+    th:with="tagKey=${model.locationTag != null ? model.locationTag.key : null},
+            tagValue=${model.locationTag != null ? model.locationTag.value : null},
+            tagDisplayName=${model.locationTag != null ? model.locationTag.displayName : null},
+            tagText=${model.locationTag != null ? model.locationTag.alertText : null}"
+  >
+    <div
+      th:replace="~{admin/questions/MapQuestionSettingsFragment :: tagInput(${model.possibleKeys}, ${tagKey}, ${tagValue}, ${tagDisplayName}, ${tagText})}"
+    ></div>
+  </th:block>
+</div>
+<div id="geoJsonURL-errors" hx-swap-oob="true"></div>
