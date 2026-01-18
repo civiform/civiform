@@ -440,6 +440,26 @@ test.describe('create and edit predicates', () => {
         'edit-visibility-predicate',
       )
     })
+
+    await test.step('Update predicate action selectors and validate', async () => {
+      await adminPredicates.expectRootLogicalOperatorLabel(
+        'AND',
+        'VISIBILITY',
+        'HIDE_BLOCK',
+      )
+      await adminPredicates.selectVisibilityAction('SHOW_BLOCK')
+      await adminPredicates.expectRootLogicalOperatorLabel(
+        'AND',
+        'VISIBILITY',
+        'SHOW_BLOCK',
+      )
+      await adminPredicates.selectRootLogicalOperator('OR')
+      await adminPredicates.expectRootLogicalOperatorLabel(
+        'OR',
+        'VISIBILITY',
+        'SHOW_BLOCK',
+      )
+    })
   })
 
   test('Populate predicate values across question types', async ({
@@ -878,12 +898,15 @@ test.describe('create and edit predicates', () => {
       await expect(
         page.locator('#condition-1-subcondition-1-ariaAnnounce'),
       ).toHaveAttribute('data-should-announce', 'true')
-      await adminPredicates.selectConditionLogicalOperator(1, 'OR')
+      await adminPredicates.selectConditionLogicalOperatorAndExpectLabel(
+        1,
+        'OR',
+      )
     })
 
     await test.step('Add second subcondition, select questions, and enter input', async () => {
       await adminPredicates.addAndExpectSubcondition(1, 2)
-      await adminPredicates.expectConditionLogicalOperatorValues(1, 'OR')
+      await adminPredicates.validateConditionLogicalOperatorState(1, 'OR')
 
       await adminPredicates.configureSubcondition({
         conditionId: 1,
@@ -921,7 +944,7 @@ test.describe('create and edit predicates', () => {
 
     await test.step('Add second subcondition, select question, and enter values', async () => {
       await adminPredicates.addAndExpectSubcondition(1, 2)
-      await adminPredicates.expectConditionLogicalOperatorValues(1, 'OR')
+      await adminPredicates.validateConditionLogicalOperatorState(1, 'OR')
 
       await adminPredicates.configureSubcondition({
         conditionId: 1,
@@ -992,7 +1015,9 @@ test.describe('create and edit predicates', () => {
         /* subconditionId= */ 1,
         dateQuestionValues.questionText,
       )
+      await adminPredicates.expectRootLogicalOperatorLabel('AND', 'ELIGIBILITY')
       await adminPredicates.selectRootLogicalOperator('OR')
+      await adminPredicates.expectRootLogicalOperatorLabel('OR', 'ELIGIBILITY')
     })
 
     await test.step('Delete first condition - second condition should become first', async () => {
@@ -1024,6 +1049,7 @@ test.describe('create and edit predicates', () => {
     await test.step('Add second condition, delete all conditions, and validate null state', async () => {
       await adminPredicates.addAndExpectCondition(2)
       await adminPredicates.expectRootLogicalOperatorValues('OR')
+      await adminPredicates.expectRootLogicalOperatorLabel('OR', 'ELIGIBILITY')
 
       await adminPredicates.clickDeleteAllConditionsButton()
 
@@ -1158,14 +1184,20 @@ test.describe('create and edit predicates', () => {
     })
 
     await test.step('select logical operators', async () => {
+      await adminPredicates.expectRootLogicalOperatorLabel('AND', 'ELIGIBILITY')
       await adminPredicates.selectRootLogicalOperator('OR')
-      await adminPredicates.selectConditionLogicalOperator(1, 'OR')
+      await adminPredicates.expectRootLogicalOperatorLabel('OR', 'ELIGIBILITY')
+
+      await adminPredicates.expectConditionLogicalOperatorLabel(1, 'AND')
+      await adminPredicates.selectConditionLogicalOperatorAndExpectLabel(
+        1,
+        'OR',
+      )
     })
 
     await test.step('validate state', async () => {
       await adminPredicates.expectConditionAndSubconditions(1, [1, 2])
       await adminPredicates.expectConditionAndSubconditions(2, [1, 2])
-      await adminPredicates.expectRootLogicalOperatorValues('OR')
 
       // Checking values
       await expect(
@@ -1176,8 +1208,9 @@ test.describe('create and edit predicates', () => {
 
       await adminPredicates.expectSubconditionsEqual(subconditionConfigs)
       await adminPredicates.expectRootLogicalOperatorValues('OR')
-      await adminPredicates.expectConditionLogicalOperatorValues(1, 'OR')
-      await adminPredicates.expectConditionLogicalOperatorValues(2, 'AND')
+      await adminPredicates.expectRootLogicalOperatorLabel('OR', 'ELIGIBILITY')
+      await adminPredicates.validateConditionLogicalOperatorState(1, 'OR')
+      await adminPredicates.validateConditionLogicalOperatorState(2, 'AND')
     })
 
     await test.step('save and reload', async () => {
@@ -1192,7 +1225,6 @@ test.describe('create and edit predicates', () => {
     await test.step('re-validate state', async () => {
       await adminPredicates.expectConditionAndSubconditions(1, [1, 2])
       await adminPredicates.expectConditionAndSubconditions(2, [1, 2])
-      await adminPredicates.expectRootLogicalOperatorValues('OR')
 
       // Checking values
       await expect(
@@ -1203,8 +1235,9 @@ test.describe('create and edit predicates', () => {
 
       await adminPredicates.expectSubconditionsEqual(subconditionConfigs)
       await adminPredicates.expectRootLogicalOperatorValues('OR')
-      await adminPredicates.expectConditionLogicalOperatorValues(1, 'OR')
-      await adminPredicates.expectConditionLogicalOperatorValues(2, 'AND')
+      await adminPredicates.expectRootLogicalOperatorLabel('OR', 'ELIGIBILITY')
+      await adminPredicates.validateConditionLogicalOperatorState(1, 'OR')
+      await adminPredicates.validateConditionLogicalOperatorState(2, 'AND')
     })
   })
 

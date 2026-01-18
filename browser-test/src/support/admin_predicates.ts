@@ -168,14 +168,20 @@ export class AdminPredicates {
     await this.expectSubcondition(conditionId, subconditionId)
   }
 
-  async selectRootLogicalOperator(logicalOperatorValue: string) {
+  async selectVisibilityAction(visibilityAction: 'HIDE_BLOCK' | 'SHOW_BLOCK') {
     await this.page
-      .getByRole('combobox', {name: 'Root condition node type'})
+      .locator('#visibility-predicate-action-select')
+      .selectOption(visibilityAction)
+  }
+
+  async selectRootLogicalOperator(logicalOperatorValue: 'AND' | 'OR') {
+    await this.page
+      .locator('#root-node-type')
       .selectOption(logicalOperatorValue)
     await waitForHtmxReady(this.page)
   }
 
-  async expectRootLogicalOperatorValues(logicalOperatorValue: string) {
+  async expectRootLogicalOperatorValues(logicalOperatorValue: 'AND' | 'OR') {
     const conditionLogicSeparatorsText = this.page.locator(
       '.cf-predicate-condition-separator span',
     )
@@ -188,19 +194,61 @@ export class AdminPredicates {
     }
   }
 
-  async selectConditionLogicalOperator(
-    conditionId: number,
-    logicalOperatorValue: string,
+  async expectRootLogicalOperatorLabel(
+    logicalOperatorValue: 'AND' | 'OR',
+    predicateType: 'ELIGIBILITY' | 'VISIBILITY',
+    visibilityBehavior?: 'HIDE_BLOCK' | 'SHOW_BLOCK',
   ) {
-    await this.page
-      .getByRole('combobox', {name: `Condition ${conditionId} node type`})
-      .selectOption(logicalOperatorValue)
-    await waitForHtmxReady(this.page)
+    const logicalOperatorDisplayText =
+      logicalOperatorValue === 'AND' ? 'all' : 'any'
+    if (predicateType === 'ELIGIBILITY') {
+      await expect(
+        this.page.getByLabel(
+          'Applicant is eligible if ' +
+            logicalOperatorDisplayText +
+            ' conditions are true:',
+        ),
+      ).toHaveId('root-node-type')
+    } else {
+      // Visibility behavior is part of the label for visibility predicates
+      if (!visibilityBehavior) {
+        expect(false).toBeTruthy()
+      }
+      const visibilityActionText =
+        visibilityBehavior === 'HIDE_BLOCK' ? 'hidden if' : 'shown if'
+
+      const visibilityDropdownsCount = await this.page
+        .getByLabel(
+          'Screen is ' +
+            visibilityActionText +
+            ' ' +
+            logicalOperatorDisplayText +
+            ' conditions are true:',
+        )
+        .count()
+      expect(visibilityDropdownsCount).toBe(2)
+    }
   }
 
-  async expectConditionLogicalOperatorValues(
+  async selectConditionLogicalOperatorAndExpectLabel(
     conditionId: number,
-    logicalOperatorValue: string,
+    logicalOperatorValue: 'AND' | 'OR',
+  ) {
+    await this.page
+      .locator(`#condition-${conditionId}-node-type`)
+      .selectOption(logicalOperatorValue)
+    await waitForHtmxReady(this.page)
+
+    await this.expectConditionLogicalOperatorLabel(
+      conditionId,
+      logicalOperatorValue,
+    )
+  }
+
+  // Check the values and label for logical operator separators on a predicate condition
+  async validateConditionLogicalOperatorState(
+    conditionId: number,
+    logicalOperatorValue: 'AND' | 'OR',
   ) {
     const subconditionLogicSeparatorsText = this.page.locator(
       `#condition-${conditionId} .cf-predicate-subcondition-separator span`,
@@ -212,6 +260,28 @@ export class AdminPredicates {
       await expect(separatorText).toHaveText(logicalOperatorValue.toLowerCase())
       await expect(separatorText).toBeVisible()
     }
+
+    await this.expectConditionLogicalOperatorLabel(
+      conditionId,
+      logicalOperatorValue,
+    )
+  }
+
+  async expectConditionLogicalOperatorLabel(
+    conditionId: number,
+    logicalOperatorValue: 'AND' | 'OR',
+  ) {
+    const logicalOperatorDisplayText =
+      logicalOperatorValue === 'AND' ? 'all' : 'any'
+    await expect(
+      this.page
+        .locator(`#condition-${conditionId}`)
+        .getByLabel(
+          'Condition is true if ' +
+            logicalOperatorDisplayText +
+            ' sub-conditions are true:',
+        ),
+    ).toHaveId(`condition-${conditionId}-node-type`)
   }
 
   async clickSaveAndExitButton() {
