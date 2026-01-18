@@ -6,7 +6,6 @@
 import * as main from './main'
 import * as languageSelector from './language_selector'
 import * as enumerator from './enumerator'
-import * as radio from './radio'
 import * as toast from './toast'
 import * as map from './mapquestion/map'
 import * as modal from './modal'
@@ -33,7 +32,6 @@ window.addEventListener('load', () => {
   main.init()
   languageSelector.init()
   enumerator.init()
-  radio.init()
   toast.init()
   map.init()
   modal.init()
