@@ -2,6 +2,7 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.stubMessagesApi;
@@ -92,6 +93,28 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminProgramBlocksController.edit(program.id, 1).url());
     assertThat(contentAsString(result)).contains("List your pets.");
+  }
+
+  @Test
+  public void createEnumerator_withIncompleteForm_returnsQuestionEditFormWithToastError()
+      throws ProgramBlockDefinitionNotFoundException {
+
+    ProgramBuilder programBuilder = ProgramBuilder.newDraftProgram();
+    ProgramModel program = programBuilder.withEnumeratorBlock().build();
+
+    Request request =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "entityType", "Pets",
+                    "questionName", "pets enumerator", // Missing questionText
+                    "questionHelpText", "help text"))
+            .build();
+
+    Result result = controller.createEnumerator(request, program.id, 1);
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Error: Question text cannot be blank.");
   }
 
   @Test
