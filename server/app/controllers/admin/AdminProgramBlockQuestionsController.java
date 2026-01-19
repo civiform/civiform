@@ -88,7 +88,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
           programId,
           blockId,
           latestQuestionIds,
-          settingsManifest.getEnumeratorImprovementsEnabled(request));
+          settingsManifest.getEnumeratorImprovementsEnabled());
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
@@ -181,7 +181,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
 
       // In these cases, we warn admins that changing address correction is not allowed in the
       // tooltip, so we can silently ignore the request.
-      if (!settingsManifest.getEsriAddressCorrectionEnabled(request)
+      if (!settingsManifest.getEsriAddressCorrectionEnabled()
           || programDefinition.isQuestionUsedInPredicate(questionDefinitionId)
           || programDefinition
               .getBlockDefinition(blockDefinitionId)

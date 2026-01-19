@@ -5,6 +5,7 @@ import auth.oidc.StandardClaimsAttributeNames;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod;
 import java.util.Optional;
@@ -13,6 +14,7 @@ import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.KeycloakOidcConfiguration;
 import org.pac4j.oidc.config.OidcConfiguration;
 import play.Environment;
+import services.settings.SettingsManifest;
 
 /**
  * WARNING! This is EXPERIMENTAL only and not production ready
@@ -27,8 +29,11 @@ public class KeycloakApplicantClientProvider extends GenericOidcClientProvider {
           .build();
 
   @Inject
-  public KeycloakApplicantClientProvider(OidcClientProviderParams params, Environment env) {
-    super(params);
+  public KeycloakApplicantClientProvider(
+      OidcClientProviderParams params,
+      Environment env,
+      Provider<SettingsManifest> settingsManifestProvider) {
+    super(params, settingsManifestProvider);
 
     if (env.isProd()) {
       throw new UnsupportedOperationException(
@@ -68,7 +73,8 @@ public class KeycloakApplicantClientProvider extends GenericOidcClientProvider {
 
   @Override
   public ProfileCreator getProfileCreator(OidcConfiguration config, OidcClient client) {
-    return new GenericApplicantProfileCreator(config, client, params, standardClaimsAttributeNames);
+    return new GenericApplicantProfileCreator(
+        config, client, params, standardClaimsAttributeNames, settingsManifest);
   }
 
   @Override

@@ -75,7 +75,7 @@ public class DiscoveryController extends Controller {
   /** Show the initial discovery page */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result discovery(Http.Request request) {
-    if (!settingsManifest.getApiBridgeEnabled(request)) {
+    if (!settingsManifest.getApiBridgeEnabled()) {
       return notFound();
     }
 
@@ -86,7 +86,7 @@ public class DiscoveryController extends Controller {
   /** Displays the results of api bridge endpoints found by the discovery process. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public CompletionStage<Result> hxDiscoveryPopulate(Http.Request request) {
-    if (!settingsManifest.getApiBridgeEnabled(request)) {
+    if (!settingsManifest.getApiBridgeEnabled()) {
       return CompletableFuture.completedFuture(notFound());
     }
 
@@ -179,7 +179,7 @@ public class DiscoveryController extends Controller {
   /** Save the selected endpoint */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public CompletionStage<Result> hxAdd(Http.Request request) {
-    if (!settingsManifest.getApiBridgeEnabled(request)) {
+    if (!settingsManifest.getApiBridgeEnabled()) {
       return CompletableFuture.completedFuture(notFound());
     }
 

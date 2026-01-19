@@ -98,7 +98,7 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
         OidcClientProviderParams.create(civiformConfig, profileFactory, accountRepositoryProvider);
     CiviformOidcLogoutActionBuilder builder =
         new CiviformOidcLogoutActionBuilder(
-            oidcConfig, clientId, params, IdentityProviderType.APPLICANT_IDENTITY_PROVIDER);
+            oidcConfig, clientId, params, IdentityProviderType.APPLICANT_IDENTITY_PROVIDER, null);
 
     Optional<RedirectionAction> logoutAction =
         builder.getLogoutAction(
@@ -136,7 +136,7 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
         OidcClientProviderParams.create(civiformConfig, profileFactory, accountRepositoryProvider);
     CiviformOidcLogoutActionBuilder builder =
         new CiviformOidcLogoutActionBuilder(
-            oidcConfig, clientId, params, IdentityProviderType.ADMIN_IDENTITY_PROVIDER);
+            oidcConfig, clientId, params, IdentityProviderType.ADMIN_IDENTITY_PROVIDER, null);
 
     Optional<RedirectionAction> logoutAction =
         builder.getLogoutAction(
@@ -178,7 +178,7 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
         OidcClientProviderParams.create(civiformConfig, profileFactory, accountRepositoryProvider);
     CiviformOidcLogoutActionBuilder builder =
         new CiviformOidcLogoutActionBuilder(
-            oidcConfig, clientId, params, IdentityProviderType.APPLICANT_IDENTITY_PROVIDER);
+            oidcConfig, clientId, params, IdentityProviderType.APPLICANT_IDENTITY_PROVIDER, null);
 
     Optional<RedirectionAction> logoutAction =
         builder.getLogoutAction(
@@ -219,7 +219,7 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
         OidcClientProviderParams.create(civiformConfig, profileFactory, accountRepositoryProvider);
     CiviformOidcLogoutActionBuilder builder =
         new CiviformOidcLogoutActionBuilder(
-            oidcConfig, clientId, params, IdentityProviderType.ADMIN_IDENTITY_PROVIDER);
+            oidcConfig, clientId, params, IdentityProviderType.ADMIN_IDENTITY_PROVIDER, null);
 
     Optional<RedirectionAction> logoutAction =
         builder.getLogoutAction(
@@ -262,7 +262,7 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
         OidcClientProviderParams.create(civiformConfig, profileFactory, accountRepositoryProvider);
     CiviformOidcLogoutActionBuilder builder =
         new CiviformOidcLogoutActionBuilder(
-            oidcConfig, clientId, params, IdentityProviderType.ADMIN_IDENTITY_PROVIDER);
+            oidcConfig, clientId, params, IdentityProviderType.ADMIN_IDENTITY_PROVIDER, null);
 
     Optional<RedirectionAction> logoutAction =
         builder.getLogoutAction(
@@ -300,7 +300,7 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
         OidcClientProviderParams.create(civiformConfig, profileFactory, accountRepositoryProvider);
     CiviformOidcLogoutActionBuilder builder =
         new CiviformOidcLogoutActionBuilder(
-            oidcConfig, clientId, params, IdentityProviderType.ADMIN_IDENTITY_PROVIDER);
+            oidcConfig, clientId, params, IdentityProviderType.ADMIN_IDENTITY_PROVIDER, null);
 
     Optional<RedirectionAction> logoutAction =
         builder.getLogoutAction(

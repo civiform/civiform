@@ -96,7 +96,6 @@ public class ProgramFormBuilder extends BaseHtmlView {
   protected final FormTag buildProgramForm(
       Request request, ProgramForm program, ProgramEditStatus programEditStatus) {
     return buildProgramForm(
-        request,
         program.getAdminName(),
         program.getAdminDescription(),
         program.getLocalizedDisplayName(),
@@ -119,7 +118,6 @@ public class ProgramFormBuilder extends BaseHtmlView {
   protected final FormTag buildProgramForm(
       Request request, ProgramDefinition program, ProgramEditStatus programEditStatus) {
     return buildProgramForm(
-        request,
         program.adminName(),
         program.adminDescription(),
         program.localizedName().getDefault(),
@@ -151,7 +149,6 @@ public class ProgramFormBuilder extends BaseHtmlView {
   }
 
   private FormTag buildProgramForm(
-      Request request,
       String adminName,
       String adminDescription,
       String displayName,
@@ -171,8 +168,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
     boolean isDefaultProgram = programType.equals(ProgramType.DEFAULT);
     boolean isPreScreenerForm = programType.equals(ProgramType.COMMON_INTAKE_FORM);
     boolean isExternalProgram = programType.equals(ProgramType.EXTERNAL);
-    boolean isExternalProgramCardsEnabled =
-        settingsManifest.getExternalProgramCardsEnabled(request);
+    boolean isExternalProgramCardsEnabled = settingsManifest.getExternalProgramCardsEnabled();
 
     boolean disableProgramEligibility = isPreScreenerForm || isExternalProgram;
     boolean disableLongDescription = isPreScreenerForm || isExternalProgram;

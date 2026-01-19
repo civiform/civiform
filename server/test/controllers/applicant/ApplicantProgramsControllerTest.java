@@ -94,7 +94,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
    */
   Result callEdit(Boolean isProgramSlugEnabled, Boolean isFromUrlCall, String programParam) {
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(isProgramSlugEnabled);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(isProgramSlugEnabled);
 
     return controller.edit(request, programParam, isFromUrlCall).toCompletableFuture().join();
   }
@@ -442,7 +442,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     String programId = String.valueOf(program.id);
 
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         controller.edit(request, programId, /* isFromUrlCall= */ true).toCompletableFuture().join();
@@ -475,7 +475,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     String programId = String.valueOf(program.id);
 
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         controller

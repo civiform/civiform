@@ -307,7 +307,7 @@ public final class ProgramQuestionBank {
                         params.program(),
                         params.blockDefinition(),
                         q,
-                        settingsManifest.getEnumeratorImprovementsEnabled(request))
+                        settingsManifest.getEnumeratorImprovementsEnabled())
                     == AddQuestionResult.ELIGIBLE);
   }
 

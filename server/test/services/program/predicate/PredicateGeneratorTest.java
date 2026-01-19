@@ -2,7 +2,6 @@ package services.program.predicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static support.FakeRequestBuilder.fakeRequest;
@@ -58,7 +57,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
     formFactory = instanceOf(FormFactory.class);
     predicateGenerator = instanceOf(PredicateGenerator.class);
     settingsManifest = mock(SettingsManifest.class);
-    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    when(settingsManifest.getExpandedFormLogicEnabled()).thenReturn(true);
   }
 
   @Test

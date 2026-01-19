@@ -141,7 +141,7 @@ public class BaseHtmlLayout {
         link().withHref(bundledAssetsFinder.getUswdsStylesheet()).withRel("stylesheet"));
     bundle.addStylesheets(
         link().withHref(bundledAssetsFinder.getTailwindStylesheet()).withRel("stylesheet"));
-    if (settingsManifest.getMapQuestionEnabled(bundle.getRequest())) {
+    if (settingsManifest.getMapQuestionEnabled()) {
       bundle.addStylesheets(
           link().withHref(bundledAssetsFinder.getMapLibreGLStylesheet()).withRel("stylesheet"));
     }
@@ -174,7 +174,7 @@ public class BaseHtmlLayout {
   }
 
   protected void addSessionTimeoutModals(HtmlBundle bundle, Messages messages) {
-    if (settingsManifest.getSessionTimeoutEnabled(bundle.getRequest())
+    if (settingsManifest.getSessionTimeoutEnabled()
         && bundle.getRequest() instanceof Http.Request) {
       // Add the session timeout modals to the bundle
       Http.Request request = (Http.Request) bundle.getRequest();

@@ -24,7 +24,6 @@ import j2html.tags.specialized.NavTag;
 import j2html.tags.specialized.UlTag;
 import java.util.Optional;
 import play.i18n.MessagesApi;
-import play.mvc.Http;
 import play.twirl.api.Content;
 import services.BundledAssetsFinder;
 import services.DeploymentType;
@@ -113,9 +112,7 @@ public final class AdminLayout extends BaseHtmlLayout {
 
   @Override
   public HtmlBundle getBundle(HtmlBundle bundle) {
-    return super.getBundle(bundle)
-        .addHeaderContent(renderNavBar(bundle.getRequest()))
-        .setJsBundle(JsBundle.ADMIN);
+    return super.getBundle(bundle).addHeaderContent(renderNavBar()).setJsBundle(JsBundle.ADMIN);
   }
 
   /**
@@ -150,7 +147,7 @@ public final class AdminLayout extends BaseHtmlLayout {
         .withClasses("grid-row");
   }
 
-  private NavTag renderNavBar(Http.RequestHeader request) {
+  private NavTag renderNavBar() {
     DivTag headerIcon =
         div(
             a().withHref(controllers.routes.HomeController.index().url())
@@ -176,15 +173,14 @@ public final class AdminLayout extends BaseHtmlLayout {
     NavTag navBar =
         nav()
             .condWith(
-                !settingsManifest.getShowNotProductionBannerEnabled(request),
+                !settingsManifest.getShowNotProductionBannerEnabled(),
                 getGovBanner(Optional.empty()))
             .withClasses("position-fixed", "top-0", "width-full", "z-10");
 
     HeaderTag headerAccordion =
         header()
             .withClasses("usa-header", "usa-header--basic", "display-inline-block", "width-full")
-            .with(
-                nav().attr("aria-label", "Primary navigation").with(createAdminHeaderUl(request)));
+            .with(nav().attr("aria-label", "Primary navigation").with(createAdminHeaderUl()));
 
     DivTag adminHeader =
         div()
@@ -201,7 +197,7 @@ public final class AdminLayout extends BaseHtmlLayout {
     return navBar.with(adminHeader);
   }
 
-  private UlTag createAdminHeaderUl(Http.RequestHeader request) {
+  private UlTag createAdminHeaderUl() {
 
     UlTag adminHeaderUl =
         ul().withClasses(
@@ -274,11 +270,11 @@ public final class AdminLayout extends BaseHtmlLayout {
                         createDropdownSubItem(
                             "API Keys", apiKeysLink, NavPage.API_KEYS.equals(activeNavPage)))
                     .condWith(
-                        getSettingsManifest().getApiGeneratedDocsEnabled(request),
+                        getSettingsManifest().getApiGeneratedDocsEnabled(),
                         createDropdownSubItem(
                             "Documentation", apiDocsLink, NavPage.API_DOCS.equals(activeNavPage)))
                     .condWith(
-                        getSettingsManifest().getApiBridgeEnabled(request),
+                        getSettingsManifest().getApiBridgeEnabled(),
                         createDropdownSubItem(
                             "Bridge Discovery",
                             apiBridgeDiscoveryLink,
@@ -308,7 +304,7 @@ public final class AdminLayout extends BaseHtmlLayout {
           adminHeaderUl
               .with(programAdminProgramsHeaderLink, reportingNavItem)
               .condWith(
-                  getSettingsManifest().getApiGeneratedDocsEnabled(request),
+                  getSettingsManifest().getApiGeneratedDocsEnabled(),
                   programAdminApiNavItemDropdown)
               .with(logoutNavItem.withClasses("usa-nav__primary-item", "margin-left-auto"));
     }

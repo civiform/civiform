@@ -141,7 +141,7 @@ public final class AdminApplicationController extends CiviFormController {
       Optional<String> applicationStatus,
       Optional<String> ignoreFilters)
       throws ProgramNotFoundException {
-    if (settingsManifest.getRemoveDownloadForProgramAdminsEnabled(request)
+    if (settingsManifest.getRemoveDownloadForProgramAdminsEnabled()
         && profileUtils.currentUserProfile(request).isOnlyProgramAdmin()) {
       return unauthorized();
     }
@@ -194,7 +194,7 @@ public final class AdminApplicationController extends CiviFormController {
       Optional<String> applicationStatus,
       Optional<String> ignoreFilters)
       throws ProgramNotFoundException {
-    if (settingsManifest.getRemoveDownloadForProgramAdminsEnabled(request)
+    if (settingsManifest.getRemoveDownloadForProgramAdminsEnabled()
         && profileUtils.currentUserProfile(request).isOnlyProgramAdmin()) {
       return unauthorized();
     }
@@ -279,7 +279,7 @@ public final class AdminApplicationController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result download(Http.Request request, long programId, long applicationId)
       throws ProgramNotFoundException {
-    if (settingsManifest.getRemoveDownloadForProgramAdminsEnabled(request)
+    if (settingsManifest.getRemoveDownloadForProgramAdminsEnabled()
         && profileUtils.currentUserProfile(request).isOnlyProgramAdmin()) {
       return unauthorized();
     }

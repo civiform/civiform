@@ -6,10 +6,12 @@ import auth.oidc.StandardClaimsAttributeNames;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.util.Optional;
 import org.pac4j.core.profile.creator.ProfileCreator;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
+import services.settings.SettingsManifest;
 
 public class GenericOidcClientProvider extends OidcClientProvider {
 
@@ -34,8 +36,9 @@ public class GenericOidcClientProvider extends OidcClientProvider {
   private static final String PHONE_NUMBER_ATTRIBUTE_CONFIG_NAME = "phone_number_attribute";
 
   @Inject
-  public GenericOidcClientProvider(OidcClientProviderParams params) {
-    super(params);
+  public GenericOidcClientProvider(
+      OidcClientProviderParams params, Provider<SettingsManifest> settingsManifestProvider) {
+    super(params, settingsManifestProvider);
   }
 
   @Override
@@ -65,7 +68,8 @@ public class GenericOidcClientProvider extends OidcClientProvider {
             .setPhoneNumber(getConfigurationValue(PHONE_NUMBER_ATTRIBUTE_CONFIG_NAME))
             .build();
 
-    return new GenericApplicantProfileCreator(config, client, params, standardClaimsAttributeNames);
+    return new GenericApplicantProfileCreator(
+        config, client, params, standardClaimsAttributeNames, settingsManifest);
   }
 
   @Override

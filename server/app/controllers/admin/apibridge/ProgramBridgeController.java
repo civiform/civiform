@@ -89,7 +89,7 @@ public class ProgramBridgeController extends Controller {
   /** Primary edit page for the program api bridge configuration listing available api bridges */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public CompletionStage<Result> edit(Http.Request request, Long programId) {
-    if (!settingsManifest.getApiBridgeEnabled(request)) {
+    if (!settingsManifest.getApiBridgeEnabled()) {
       return CompletableFuture.completedFuture(notFound());
     }
 
@@ -144,7 +144,7 @@ public class ProgramBridgeController extends Controller {
   /** HTMX partial that returns the edit form for the specified api bridge */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public CompletionStage<Result> hxBridgeConfiguration(Http.Request request, Long programId) {
-    if (!settingsManifest.getApiBridgeEnabled(request)) {
+    if (!settingsManifest.getApiBridgeEnabled()) {
       return CompletableFuture.completedFuture(notFound());
     }
 
@@ -223,7 +223,7 @@ public class ProgramBridgeController extends Controller {
   /** Form post endpoint to save configuration settings of the specified api bridge */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result save(Http.Request request, Long programId) {
-    if (!settingsManifest.getApiBridgeEnabled(request)) {
+    if (!settingsManifest.getApiBridgeEnabled()) {
       return notFound();
     }
 

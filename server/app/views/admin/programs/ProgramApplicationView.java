@@ -99,7 +99,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
       CiviFormProfile profile,
       Request request) {
     boolean showDownloadButton =
-        !(settingsManifest.getRemoveDownloadForProgramAdminsEnabled(request)
+        !(settingsManifest.getRemoveDownloadForProgramAdminsEnabled()
             && profile.isOnlyProgramAdmin());
     ListMultimap<Block, AnswerData> blockToAnswers = ArrayListMultimap.create();
     for (AnswerData answer : answers) {

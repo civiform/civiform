@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import org.junit.After;
 import org.junit.Test;
+import play.cache.SyncCacheApi;
 import play.test.WithApplication;
 import services.Address;
 import services.geo.AddressSuggestion;
@@ -30,7 +31,11 @@ public class EsriClientTest extends WithApplication {
 
   @Test
   public void getServiceAreaInclusionGroup() throws Exception {
-    helper = new EsriTestHelper(TestType.SERVICE_AREA_VALIDATION, instanceOf(ObjectMapper.class));
+    helper =
+        new EsriTestHelper(
+            TestType.SERVICE_AREA_VALIDATION,
+            instanceOf(ObjectMapper.class),
+            instanceOf(SyncCacheApi.class));
     ImmutableList<ServiceAreaInclusion> inclusionList =
         helper
             .getClient()
@@ -49,7 +54,9 @@ public class EsriClientTest extends WithApplication {
   public void getServiceAreaInclusionGroupAreaNotIncluded() throws Exception {
     helper =
         new EsriTestHelper(
-            TestType.SERVICE_AREA_VALIDATION_NOT_INCLUDED, instanceOf(ObjectMapper.class));
+            TestType.SERVICE_AREA_VALIDATION_NOT_INCLUDED,
+            instanceOf(ObjectMapper.class),
+            instanceOf(SyncCacheApi.class));
     ImmutableList<ServiceAreaInclusion> inclusionList =
         helper
             .getClient()
@@ -68,7 +75,9 @@ public class EsriClientTest extends WithApplication {
   public void getServiceAreaInclusionGroupNoFeatures() throws Exception {
     helper =
         new EsriTestHelper(
-            TestType.SERVICE_AREA_VALIDATION_NO_FEATURES, instanceOf(ObjectMapper.class));
+            TestType.SERVICE_AREA_VALIDATION_NO_FEATURES,
+            instanceOf(ObjectMapper.class),
+            instanceOf(SyncCacheApi.class));
     ImmutableList<ServiceAreaInclusion> inclusionList =
         helper
             .getClient()
@@ -86,7 +95,10 @@ public class EsriClientTest extends WithApplication {
   @Test
   public void getServiceAreaInclusionGroupError() throws Exception {
     helper =
-        new EsriTestHelper(TestType.SERVICE_AREA_VALIDATION_ERROR, instanceOf(ObjectMapper.class));
+        new EsriTestHelper(
+            TestType.SERVICE_AREA_VALIDATION_ERROR,
+            instanceOf(ObjectMapper.class),
+            instanceOf(SyncCacheApi.class));
     ImmutableList<ServiceAreaInclusion> inclusionList =
         helper
             .getClient()
@@ -103,7 +115,9 @@ public class EsriClientTest extends WithApplication {
 
   @Test
   public void getAddressSuggestions() throws Exception {
-    helper = new EsriTestHelper(TestType.STANDARD, instanceOf(ObjectMapper.class));
+    helper =
+        new EsriTestHelper(
+            TestType.STANDARD, instanceOf(ObjectMapper.class), instanceOf(SyncCacheApi.class));
     Address address =
         Address.builder()
             .setStreet("380 New York St")
@@ -129,7 +143,9 @@ public class EsriClientTest extends WithApplication {
 
   @Test
   public void getAddressSuggestionsIncludesOriginalAddress() throws Exception {
-    helper = new EsriTestHelper(TestType.STANDARD, instanceOf(ObjectMapper.class));
+    helper =
+        new EsriTestHelper(
+            TestType.STANDARD, instanceOf(ObjectMapper.class), instanceOf(SyncCacheApi.class));
     Address address =
         Address.builder()
             .setStreet("380 New York St")
@@ -152,7 +168,9 @@ public class EsriClientTest extends WithApplication {
 
   @Test
   public void getAddressSuggestionsWithNoCandidates() throws Exception {
-    helper = new EsriTestHelper(TestType.NO_CANDIDATES, instanceOf(ObjectMapper.class));
+    helper =
+        new EsriTestHelper(
+            TestType.NO_CANDIDATES, instanceOf(ObjectMapper.class), instanceOf(SyncCacheApi.class));
     Address address =
         Address.builder()
             .setStreet("380 New York St")
@@ -171,7 +189,11 @@ public class EsriClientTest extends WithApplication {
 
   @Test
   public void getAddressSuggestionsWithEmptyResponse() throws Exception {
-    helper = new EsriTestHelper(TestType.EMPTY_RESPONSE, instanceOf(ObjectMapper.class));
+    helper =
+        new EsriTestHelper(
+            TestType.EMPTY_RESPONSE,
+            instanceOf(ObjectMapper.class),
+            instanceOf(SyncCacheApi.class));
     Address address =
         Address.builder()
             .setStreet("380 New York St")
@@ -191,7 +213,11 @@ public class EsriClientTest extends WithApplication {
 
   @Test
   public void getAddressSuggestionsWithEsriErrorResponse() {
-    helper = new EsriTestHelper(TestType.ESRI_ERROR_RESPONSE, instanceOf(ObjectMapper.class));
+    helper =
+        new EsriTestHelper(
+            TestType.ESRI_ERROR_RESPONSE,
+            instanceOf(ObjectMapper.class),
+            instanceOf(SyncCacheApi.class));
     Address address =
         Address.builder()
             .setStreet("380 New York St")
@@ -211,7 +237,9 @@ public class EsriClientTest extends WithApplication {
 
   @Test
   public void getAddressSuggestionsWithError() throws Exception {
-    helper = new EsriTestHelper(TestType.ERROR, instanceOf(ObjectMapper.class));
+    helper =
+        new EsriTestHelper(
+            TestType.ERROR, instanceOf(ObjectMapper.class), instanceOf(SyncCacheApi.class));
     Address address =
         Address.builder()
             .setStreet("380 New York St")
