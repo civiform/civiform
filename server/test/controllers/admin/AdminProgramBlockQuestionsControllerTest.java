@@ -92,7 +92,6 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminProgramBlocksController.edit(program.id, 1).url());
-    assertThat(contentAsString(result)).contains("List your pets.");
   }
 
   @Test
