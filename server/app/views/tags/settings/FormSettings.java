@@ -14,6 +14,9 @@ import views.tags.AbstractElementModelProcessor.AttributeInfo;
 @Data
 @Accessors(fluent = true)
 public abstract class FormSettings {
+  private static final ImmutableList<String> ALLOWED_SIZES =
+      ImmutableList.of("2xs", "xs", "sm", "small", "md", "medium", "lg", "xl", "2xl");
+
   private final AttributeInfo id;
   private final AttributeInfo name;
   private final AttributeInfo label;
@@ -23,7 +26,6 @@ public abstract class FormSettings {
   private final AttributeInfo isValid;
   private final AttributeInfo value;
   private final AttributeInfo placeholder;
-  private final AttributeInfo type;
   private final AttributeInfo size;
   private final AttributeInfo validationClass;
   private final AttributeInfo validationField;
@@ -44,7 +46,6 @@ public abstract class FormSettings {
       AttributeInfo isValid,
       AttributeInfo value,
       AttributeInfo placeholder,
-      AttributeInfo type,
       AttributeInfo size,
       AttributeInfo validationClass,
       AttributeInfo validationField,
@@ -60,7 +61,6 @@ public abstract class FormSettings {
     this.isValid = isValid;
     this.value = value;
     this.placeholder = placeholder;
-    this.type = type;
     this.size = size;
     this.validationClass = validationClass;
     this.validationField = validationField;
@@ -144,15 +144,10 @@ public abstract class FormSettings {
     }
 
     // size
-    if (isNotBlank(size().value())) {
-      var allowedSizes =
-          ImmutableList.of("2xs", "xs", "sm", "small", "md", "medium", "lg", "xl", "2xl");
-
-      if (!allowedSizes.contains(size().value())) {
-        sb.append(
-            "Attribute 'size' is not valid with '%s'. Either do not set a size or use one of these allowed sizes: %s\n"
-                .formatted(size(), String.join(", ", allowedSizes)));
-      }
+    if (isNotBlank(size().value()) && !ALLOWED_SIZES.contains(size().value())) {
+      sb.append(
+          "Attribute 'size' is not valid with '%s'. Either do not set a size or use one of these allowed sizes: %s\n"
+              .formatted(size(), String.join(", ", ALLOWED_SIZES)));
     }
 
     // Get any custom validation results

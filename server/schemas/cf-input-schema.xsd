@@ -4,6 +4,8 @@
            targetNamespace="https://civiform.us/thymeleaf/cf"
            elementFormDefault="qualified">
 
+  <xs:import namespace="https://civiform.us/thymeleaf/cf" schemaLocation="common-types.xsd"/>
+
   <xs:annotation>
     <xs:documentation>
       CiviForm Input Element Schema
@@ -31,49 +33,9 @@
     </xs:annotation>
 
     <xs:complexType>
-      <xs:attribute name="id" type="xs:string" use="required">
-        <xs:annotation>
-          <xs:documentation>
-            The id attribute for the input element. Must be a valid HTML id (starts with letter or underscore,
-            followed by letters, digits, underscores, or hyphens).
-          </xs:documentation>
-        </xs:annotation>
-      </xs:attribute>
+      <xs:attributeGroup ref="cf:commonFormAttributes"/>
 
-      <xs:attribute name="name" type="xs:string" use="required">
-        <xs:annotation>
-          <xs:documentation>
-            The name attribute for the input element. Supports standard names and nested names like "user[profile][email]".
-            No spaces allowed. Can contain alphanumeric characters, underscores, hyphens, periods, and brackets.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:attribute>
-
-      <xs:attribute name="label" type="xs:string" use="required">
-        <xs:annotation>
-          <xs:documentation>
-            The label text displayed above the input field.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:attribute>
-
-      <xs:attribute name="value" type="xs:string" use="optional">
-        <xs:annotation>
-          <xs:documentation>
-            The initial value of the input field.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:attribute>
-
-      <xs:attribute name="placeholder" type="xs:string" use="optional">
-        <xs:annotation>
-          <xs:documentation>
-            Placeholder text shown in the input when empty.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:attribute>
-
-      <xs:attribute name="type" use="optional" default="text">
+      <xs:attribute name="type" default="text">
         <xs:annotation>
           <xs:documentation>
             The input type. Defaults to "text".
@@ -81,111 +43,26 @@
         </xs:annotation>
         <xs:simpleType>
           <xs:restriction base="xs:string">
-            <xs:enumeration value="text"/>
-            <xs:enumeration value="email"/>
-            <xs:enumeration value="password"/>
-            <xs:enumeration value="number"/>
-            <xs:enumeration value="tel"/>
-            <xs:enumeration value="url"/>
+            <xs:enumeration value="color"/>
             <xs:enumeration value="date"/>
+            <xs:enumeration value="datetime-local"/>
+            <xs:enumeration value="email"/>
+            <xs:enumeration value="hidden"/>
+            <xs:enumeration value="month"/>
+            <xs:enumeration value="number"/>
+            <xs:enumeration value="password"/>
+            <xs:enumeration value="range"/>
+            <xs:enumeration value="search"/>
+            <xs:enumeration value="tel"/>
+            <xs:enumeration value="text"/>
+            <xs:enumeration value="time"/>
+            <xs:enumeration value="url"/>
+            <xs:enumeration value="week"/>
           </xs:restriction>
         </xs:simpleType>
       </xs:attribute>
 
-      <xs:attribute name="size" use="optional">
-        <xs:annotation>
-          <xs:documentation>
-            The size of the input field. Adds corresponding CSS class (e.g., "usa-input--small").
-          </xs:documentation>
-        </xs:annotation>
-        <xs:simpleType>
-          <xs:restriction base="xs:string">
-            <xs:enumeration value="2xs"/>
-            <xs:enumeration value="xs"/>
-            <xs:enumeration value="sm"/>
-            <xs:enumeration value="small"/>
-            <xs:enumeration value="md"/>
-            <xs:enumeration value="medium"/>
-            <xs:enumeration value="lg"/>
-            <xs:enumeration value="xl"/>
-            <xs:enumeration value="2xl"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:attribute>
-
-      <xs:attribute name="help-text" type="xs:string" use="optional">
-        <xs:annotation>
-          <xs:documentation>
-            Optional help text displayed below the label to provide additional context.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:attribute>
-
-      <xs:attribute name="validation-message" type="xs:string" use="optional">
-        <xs:annotation>
-          <xs:documentation>
-            Validation error message to display when the input is invalid (is-valid="false").
-          </xs:documentation>
-        </xs:annotation>
-      </xs:attribute>
-
-      <xs:attribute name="is-valid" type="xs:string" use="optional" default="true">
-        <xs:annotation>
-          <xs:documentation>
-            Whether the input is valid. Set to "false" to show validation error state.
-            Accepts: "true" or "false"
-          </xs:documentation>
-        </xs:annotation>
-      </xs:attribute>
-
-      <xs:attribute name="required" type="xs:string" use="optional">
-        <xs:annotation>
-          <xs:documentation>
-            Whether the input is required. Set to "true" to add the required attribute.
-            Accepts: "true" or "false"
-          </xs:documentation>
-        </xs:annotation>
-      </xs:attribute>
-
-      <xs:attribute name="readonly" type="xs:string" use="optional">
-        <xs:annotation>
-          <xs:documentation>
-            Whether the input is editable
-            Accepts: "true" or "false"
-          </xs:documentation>
-        </xs:annotation>
-      </xs:attribute>
-
-      <xs:attribute name="disabled" type="xs:string" use="optional">
-        <xs:annotation>
-          <xs:documentation>
-            Whether the input is disabled
-            Accepts: "true" or "false"
-          </xs:documentation>
-        </xs:annotation>
-      </xs:attribute>
-
-      <xs:attribute name="validation-class" type="xs:string" use="optional">
-        <xs:annotation>
-          <xs:documentation>
-            Fully qualified class name for client-side validation data binding.
-            Must be used together with validation-field.
-            Example: "com.example.models.UserProfile"
-          </xs:documentation>
-        </xs:annotation>
-      </xs:attribute>
-
-      <xs:attribute name="validation-field" type="xs:string" use="optional">
-        <xs:annotation>
-          <xs:documentation>
-            Field name within the validation-class for extracting Play framework validation constraints.
-            Must be used together with validation-class.
-            Example: "email"
-          </xs:documentation>
-        </xs:annotation>
-      </xs:attribute>
-
-      <xs:attribute name="min" type="xs:string" use="optional">
+      <xs:attribute name="min" type="xs:string">
         <xs:annotation>
           <xs:documentation>
             Minimum value
@@ -193,7 +70,7 @@
         </xs:annotation>
       </xs:attribute>
 
-      <xs:attribute name="max" type="xs:string" use="optional">
+      <xs:attribute name="max" type="xs:string">
         <xs:annotation>
           <xs:documentation>
             Maximum value
@@ -201,7 +78,7 @@
         </xs:annotation>
       </xs:attribute>
 
-      <xs:attribute name="minLength" type="xs:string" use="optional">
+      <xs:attribute name="minLength" type="xs:string">
         <xs:annotation>
           <xs:documentation>
             Minimum length (number of characters) of value
@@ -209,7 +86,7 @@
         </xs:annotation>
       </xs:attribute>
 
-      <xs:attribute name="maxLength" type="xs:string" use="optional">
+      <xs:attribute name="maxLength" type="xs:string">
         <xs:annotation>
           <xs:documentation>
             Maximum length (number of characters) of value
@@ -217,7 +94,7 @@
         </xs:annotation>
       </xs:attribute>
 
-      <xs:attribute name="pattern" type="xs:string" use="optional">
+      <xs:attribute name="pattern" type="xs:string">
         <xs:annotation>
           <xs:documentation>
             Pattern the value must match to be valid

@@ -3,7 +3,6 @@ package views.tags.settings;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.isNumeric;
 
-import com.google.common.collect.ImmutableList;
 import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
@@ -14,34 +13,13 @@ import views.tags.AbstractElementModelProcessor.AttributeInfo;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(fluent = true)
-public final class InputFormSettings extends FormSettings {
-  private static final ImmutableList<String> ALLOWED_TYPES =
-      ImmutableList.of(
-          "color",
-          "date",
-          "datetime-local",
-          "email",
-          "hidden",
-          "month",
-          "number",
-          "password",
-          "range",
-          "search",
-          "tel",
-          "text",
-          "time",
-          "url",
-          "week");
-
-  private final AttributeInfo type;
-  private final AttributeInfo min;
-  private final AttributeInfo max;
+public class TextAreaFormSettings extends FormSettings {
   private final AttributeInfo minLength;
   private final AttributeInfo maxLength;
-  private final AttributeInfo pattern;
+  private final AttributeInfo markdownEnabled;
 
   @Builder
-  public InputFormSettings(
+  public TextAreaFormSettings(
       AttributeInfo id,
       AttributeInfo name,
       AttributeInfo label,
@@ -51,17 +29,14 @@ public final class InputFormSettings extends FormSettings {
       AttributeInfo isValid,
       AttributeInfo value,
       AttributeInfo placeholder,
-      AttributeInfo type,
       AttributeInfo size,
       AttributeInfo validationClass,
       AttributeInfo validationField,
-      AttributeInfo min,
-      AttributeInfo max,
       AttributeInfo minLength,
       AttributeInfo maxLength,
-      AttributeInfo pattern,
       AttributeInfo readonly,
       AttributeInfo disabled,
+      AttributeInfo markdownEnabled,
       Map<String, String> attributeMap) {
     super(
         id,
@@ -79,23 +54,19 @@ public final class InputFormSettings extends FormSettings {
         readonly,
         disabled,
         attributeMap);
-    this.type = type;
-    this.min = min;
-    this.max = max;
     this.minLength = minLength;
     this.maxLength = maxLength;
-    this.pattern = pattern;
+    this.markdownEnabled = markdownEnabled;
+  }
+
+  @Override
+  public String sizeCssClass() {
+    return "usa-textarea--%s".formatted(size().value());
   }
 
   @Override
   protected StringBuilder validateInternal() {
     var sb = new StringBuilder();
-
-    if (isNotBlank(type().value()) && !ALLOWED_TYPES.contains(type().value())) {
-      sb.append(
-          "Attribute 'type' is not valid with '%s'. Use one of these allowed types: %s\n"
-              .formatted(type(), String.join(", ", ALLOWED_TYPES)));
-    }
 
     if (isNotBlank(minLength().value())
         && !isNumeric(minLength().value())
