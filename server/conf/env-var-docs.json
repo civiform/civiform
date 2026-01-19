@@ -872,11 +872,6 @@
         "description": "If this is a staging or demo deployment and this variable is set to true, the 'DEMO MODE. LOGIN AS:' buttons are not shown on the login page. Warning: if you turn on this flag, you will need to log in through the admin authenticator to get back to this settings page",
         "type": "bool"
       },
-      "API_GENERATED_DOCS_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "Enables the API docs tab on CiviForm.",
-        "type": "bool"
-      },
       "VERSION_CACHE_ENABLED": {
         "mode": "HIDDEN",
         "description": "Enables caching for versions and their associated data.",

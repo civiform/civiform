@@ -1010,11 +1010,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("STAGING_DISABLE_DEMO_MODE_LOGINS", request);
   }
 
-  /** Enables the API docs tab on CiviForm. */
-  public boolean getApiGeneratedDocsEnabled(RequestHeader request) {
-    return getBool("API_GENERATED_DOCS_ENABLED", request);
-  }
-
   /** Enables caching for versions and their associated data. */
   public boolean getVersionCacheEnabled() {
     return getBool("VERSION_CACHE_ENABLED");
@@ -2259,12 +2254,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " login page. Warning: if you turn on this flag, you will need to"
                               + " log in through the admin authenticator to get back to this"
                               + " settings page",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "API_GENERATED_DOCS_ENABLED",
-                          "Enables the API docs tab on CiviForm.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
