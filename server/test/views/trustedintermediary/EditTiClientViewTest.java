@@ -1,4 +1,4 @@
-package views.applicant;
+package views.trustedintermediary;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import com.google.common.collect.ImmutableList;
 import com.typesafe.config.ConfigFactory;
 import controllers.LanguageUtils;
 import controllers.WithMockedProfiles;
@@ -23,23 +22,19 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
 import repository.AccountRepository;
-import repository.SearchParameters;
 import services.BundledAssetsFinder;
 import services.DateConverter;
 import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
-import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import support.FakeRequestBuilder;
 import views.BaseHtmlLayout;
 import views.LanguageSelector;
 import views.ViewUtils;
 import views.components.PageNotProductionBanner;
-import views.trustedintermediary.ApplicantLayout;
-import views.trustedintermediary.TrustedIntermediaryClientListView;
 
-public class TrustedIntermediaryClientListViewTest extends WithMockedProfiles {
+public class EditTiClientViewTest extends WithMockedProfiles {
 
   private SettingsManifest settingsManifest;
   private ProfileUtils profileUtils;
@@ -47,7 +42,7 @@ public class TrustedIntermediaryClientListViewTest extends WithMockedProfiles {
   private CiviFormProfile profile;
   private Messages messages;
   private AccountRepository accountRepo;
-  private TrustedIntermediaryClientListView view;
+  private EditTiClientView view;
 
   @Before
   public void setUp() {
@@ -83,16 +78,18 @@ public class TrustedIntermediaryClientListViewTest extends WithMockedProfiles {
             instanceOf(ApplicantRoutes.class));
 
     view =
-        new TrustedIntermediaryClientListView(
+        new EditTiClientView(
             applicantLayout,
             instanceOf(DateConverter.class),
-            instanceOf(ProgramService.class),
-            ConfigFactory.load());
+            ConfigFactory.load(),
+            accountRepo,
+            settingsManifest);
   }
 
   @Test
   // Only the oldest Applicant should be used.
-  public void render_ignoresOtherApplicants() {
+  public void renderIgnoresOtherApplicants() {
+
     Http.Request request = FakeRequestBuilder.fakeRequest();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(profile));
     when(languageUtils.getPreferredLanguage(request)).thenReturn(Lang.defaultLang());
@@ -105,16 +102,13 @@ public class TrustedIntermediaryClientListViewTest extends WithMockedProfiles {
     AccountModel ti = createTIWithMockedProfile(createApplicant());
     TrustedIntermediaryGroupModel tiGroup = accountRepo.listTrustedIntermediaryGroups().get(0);
 
-    // Check a subset of the displayed info
     final String PRIMARY_APPLICANT_NAME = "ClientFirstApplicant";
-    final String PRIMARY_APPLICANT_DOB = "2000-01-01";
     final String SECONDARY_APPLICANT_NAME = "ClientSecondApplicant";
-    final String SECONDARY_APPLICANT_DOB = "2012-12-12";
     var tiClientAccount =
         setupTiClientAccountWithApplicant(
-            PRIMARY_APPLICANT_NAME, PRIMARY_APPLICANT_DOB, "email2123", tiGroup);
+            PRIMARY_APPLICANT_NAME, "2021-12-12", "email2123", tiGroup);
     var tiClientSecondaryApplicant =
-        setTiClientApplicant(tiClientAccount, SECONDARY_APPLICANT_NAME, SECONDARY_APPLICANT_DOB);
+        setTiClientApplicant(tiClientAccount, SECONDARY_APPLICANT_NAME, "2021-12-12");
 
     ApplicantPersonalInfo personalInfo =
         ApplicantPersonalInfo.ofTiPartiallyCreated(
@@ -124,17 +118,15 @@ public class TrustedIntermediaryClientListViewTest extends WithMockedProfiles {
         view.render(
                 tiGroup,
                 personalInfo,
-                /* managedAccounts= */ ImmutableList.of(tiClientAccount),
-                /* totalPageCount= */ 1,
-                /* page= */ 1,
-                SearchParameters.builder().build(),
                 request,
                 messages,
-                ti.id)
+                /* accountIdToEdit= */ Optional.of(tiClientAccount.id),
+                /* applicantIdOfTi= */ ti.id,
+                /* tiClientInfoForm= */ Optional.empty(),
+                /* applicantIdOfNewlyAddedClient= */ null)
             .body();
 
     assertThat(html).contains(PRIMARY_APPLICANT_NAME);
-    assertThat(html).contains(PRIMARY_APPLICANT_DOB);
     assertThat(html).doesNotContain(SECONDARY_APPLICANT_NAME);
 
     // Now make the newer Applicant older and ensure it shows instead of the
@@ -146,17 +138,15 @@ public class TrustedIntermediaryClientListViewTest extends WithMockedProfiles {
         view.render(
                 tiGroup,
                 personalInfo,
-                /* managedAccounts= */ ImmutableList.of(tiClientAccount),
-                /* totalPageCount= */ 1,
-                /* page= */ 1,
-                SearchParameters.builder().build(),
                 request,
                 messages,
-                ti.id)
+                /* accountIdToEdit= */ Optional.of(tiClientAccount.id),
+                /* applicantIdOfTi= */ ti.id,
+                /* tiClientInfoForm= */ Optional.empty(),
+                /* applicantIdOfNewlyAddedClient= */ null)
             .body();
     assertThat(html).doesNotContain(PRIMARY_APPLICANT_NAME);
     assertThat(html).contains(SECONDARY_APPLICANT_NAME);
-    assertThat(html).contains(SECONDARY_APPLICANT_DOB);
   }
 
   private AccountModel setupTiClientAccountWithApplicant(
@@ -174,11 +164,9 @@ public class TrustedIntermediaryClientListViewTest extends WithMockedProfiles {
     return account;
   }
 
-  private ApplicantModel setTiClientApplicant(
-      AccountModel tiAccount, String firstName, String dob) {
+  private ApplicantModel setTiClientApplicant(AccountModel account, String firstName, String dob) {
     ApplicantModel applicant = new ApplicantModel();
-    tiAccount.getApplicants().add(applicant);
-    applicant.setAccount(tiAccount);
+    applicant.setAccount(account);
     applicant.setUserName(
         firstName,
         /* middleName= */ Optional.empty(),
@@ -186,7 +174,7 @@ public class TrustedIntermediaryClientListViewTest extends WithMockedProfiles {
         /* nameSuffix= */ Optional.empty());
     applicant.setDateOfBirth(dob);
     applicant.save();
-    tiAccount.save();
+    account.save();
     return applicant;
   }
 }

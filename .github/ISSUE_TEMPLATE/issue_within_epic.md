@@ -7,23 +7,31 @@ assignees: ''
 epic: ''
 status: ''
 ---
-### Checklist (remove this section after completion): 
-- [ ] Add the correct epic label to the 'epic' category 
+
+> **NOTE:** This template should only be used when creating an issue for an epic contained in the `CiviForm Project Roadmap & Tracker` project.
+
+### Checklist (remove this section after completion):
+
+- [ ] Add the correct epic label to the 'epic' category
 - [ ] Add the correct status to the 'status' category
 - [ ] Complete the info below
 
 #### Describe the solution presented in this issue.
-A clear description of what work is to be done within this issue. 
 
-#### Link to Figma mocks: 
+A clear description of what work is to be done within this issue.
 
-#### Add screenshot of relevant mocks for this issue here: 
+#### Link to Figma mocks:
+
+#### Add screenshot of relevant mocks for this issue here:
 
 #### Additional Context
-Add any other context, link related issues, etc. 
+
+Add any other context, link related issues, etc.
 
 #### Done when:
-What criteria need to be met for the issue to be finished? 
+
+What criteria need to be met for the issue to be finished?
+
 - [ ] Clicking button A takes the user to Page B
-- [ ] Criteria 2 
+- [ ] Criteria 2
 - [ ] Criteria 3

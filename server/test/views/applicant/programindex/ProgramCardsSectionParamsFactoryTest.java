@@ -1,4 +1,4 @@
-package views.applicant;
+package views.applicant.programindex;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

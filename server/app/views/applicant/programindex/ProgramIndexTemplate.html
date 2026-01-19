@@ -52,7 +52,7 @@
       >
         <div th:if="${commonIntakeSection.isPresent()}">
           <div
-            th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${commonIntakeSection.get()})}"
+            th:replace="~{applicant/programindex/ProgramCardsSectionFragment :: cardsSection(${commonIntakeSection.get()})}"
           ></div>
         </div>
         <th:block th:if="${myApplicationsSection.isPresent()}">
@@ -61,7 +61,7 @@
             class="cf-below-cards"
           ></h2>
           <div
-            th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${myApplicationsSection.get()})}"
+            th:replace="~{applicant/programindex/ProgramCardsSectionFragment :: cardsSection(${myApplicationsSection.get()})}"
           ></div>
         </th:block>
         <h2
@@ -69,7 +69,7 @@
           class="cf-below-cards"
         ></h2>
         <div
-          th:replace="~{applicant/ProgramFiltersFragment :: programFiltersFragment(${categoryOptions}, ${applicantId})}"
+          th:replace="~{applicant/programindex/ProgramFiltersFragment :: programFiltersFragment(${categoryOptions}, ${applicantId})}"
         ></div>
         <div th:if="${categoryOptions != null and !categoryOptions.isEmpty()}">
           <div
@@ -79,7 +79,7 @@
         <div id="not-started-programs">
           <th:block th:if="${unfilteredSection.isPresent()}">
             <div
-              th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${unfilteredSection.get()})}"
+              th:replace="~{applicant/programindex/ProgramCardsSectionFragment :: cardsSection(${unfilteredSection.get()})}"
             ></div>
           </th:block>
           <th:block th:if="${!unfilteredSection.isPresent()}">

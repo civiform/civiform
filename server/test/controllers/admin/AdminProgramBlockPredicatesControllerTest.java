@@ -7,7 +7,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
-import static play.mvc.Http.Status.SEE_OTHER;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
@@ -56,7 +55,7 @@ import views.admin.programs.predicates.SubconditionListPartialView;
 public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   private static final Request ADD_CONDITION_REQUEST =
       fakeRequestBuilder()
-          .bodyForm(ImmutableMap.of("conditionId", "1", "root-nodeType", "AND"))
+          .bodyForm(ImmutableMap.of("conditionId", "1", "root-node-type", "AND"))
           .build();
   private static final Request EDIT_SUBCONDITION_REQUEST =
       fakeRequestBuilder()
@@ -67,7 +66,9 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                   "subconditionId",
                   "1",
                   "condition-1-subcondition-1-question",
-                  "-Select-"))
+                  "-Select-",
+                  "condition-1-node-type",
+                  "AND"))
           .build();
   private ProgramModel programWithThreeBlocks;
   private SettingsManifest settingsManifest;
@@ -293,7 +294,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                     ImmutableMap.of(
                         "predicateAction",
                         PredicateAction.ELIGIBLE_BLOCK.name(),
-                        "root-nodeType",
+                        "root-node-type",
                         "OR",
                         "condition-1-subcondition-1-question",
                         String.valueOf(testQuestionBank.nameApplicantName().id),
@@ -302,13 +303,16 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                         "condition-1-subcondition-1-operator",
                         Operator.EQUAL_TO.name(),
                         "condition-1-subcondition-1-value",
-                        "firstname"))
+                        "firstname",
+                        "condition-1-node-type",
+                        "AND"))
                 .build(),
             programWithThreeBlocks.id,
             /* blockDefinitionId= */ 1L,
             PredicateUseCase.ELIGIBILITY.name());
 
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.header("HX-Redirect")).isNotEmpty();
     PredicateDefinition expectedPredicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
@@ -360,14 +364,15 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                     ImmutableMap.of(
                         "predicateAction",
                         PredicateAction.ELIGIBLE_BLOCK.name(),
-                        "root-nodeType",
+                        "root-node-type",
                         "OR"))
                 .build(),
             programWithEligibility.id,
             /* blockDefinitionId= */ 1L,
             PredicateUseCase.ELIGIBILITY.name());
 
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.header("HX-Redirect")).isNotEmpty();
     assertThat(
             repo.lookupProgram(programWithEligibility.id)
                 .toCompletableFuture()
@@ -390,7 +395,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                     ImmutableMap.of(
                         "predicateAction",
                         PredicateAction.ELIGIBLE_BLOCK.name(),
-                        "root-nodeType",
+                        "root-node-type",
                         "OR",
                         "eligibilityMessage",
                         "New eligibility message"))
@@ -399,7 +404,8 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
             /* blockDefinitionId= */ 1L,
             PredicateUseCase.ELIGIBILITY.name());
 
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.header("HX-Redirect")).isNotEmpty();
     assertThat(
             repo.lookupProgram(programWithThreeBlocks.id)
                 .toCompletableFuture()
@@ -430,7 +436,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                     ImmutableMap.of(
                         "predicateAction",
                         PredicateAction.ELIGIBLE_BLOCK.name(),
-                        "root-nodeType",
+                        "root-node-type",
                         "OR",
                         "eligibilityMessage",
                         ""))
@@ -439,7 +445,8 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
             /* blockDefinitionId= */ 1L,
             PredicateUseCase.ELIGIBILITY.name());
 
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.header("HX-Redirect")).isNotEmpty();
     assertThat(
             repo.lookupProgram(programWithEligibilityMessage.id)
                 .toCompletableFuture()
@@ -634,6 +641,8 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                         "1",
                         "subconditionId",
                         "1",
+                        "condition-1-node-type",
+                        "AND",
                         "condition-1-subcondition-1-question",
                         String.valueOf(testQuestionBank.addressApplicantAddress().id)))
                 .build(),
@@ -668,6 +677,8 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                         "1",
                         "subconditionId",
                         "1",
+                        "condition-1-node-type",
+                        "AND",
                         "condition-1-subcondition-1-INVALIDQuestionId",
                         String.valueOf(testQuestionBank.addressApplicantAddress().id)))
                 .build(),
@@ -705,6 +716,8 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                         "1",
                         "subconditionId",
                         "1",
+                        "condition-1-node-type",
+                        "AND",
                         "condition-1-subcondition-1-question",
                         String.valueOf(testQuestionBank.checkboxApplicantKitchenTools().id)))
                 .build(),
@@ -965,11 +978,12 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   private Map<String, String> createConditionMapWithSelectedQuestions(
       ImmutableList<Long> questionIds) {
     Map<String, String> conditionMap = new HashMap<>();
-    conditionMap.put("root-nodeType", "AND");
+    conditionMap.put("root-node-type", "AND");
     for (int i = 1; i <= questionIds.size(); ++i) {
       conditionMap.put(
           String.format("condition-%d-subcondition-1-question", i),
           String.valueOf(questionIds.get(i - 1)));
+      conditionMap.put(String.format("condition-%d-node-type", i), "AND");
     }
 
     return conditionMap;
@@ -987,7 +1001,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
       conditionMap.put(
           String.format("condition-1-subcondition-%d-question", i),
           String.valueOf(questionIds.get(i - 1)));
-      conditionMap.put("condition-1-nodeType", "AND");
+      conditionMap.put("condition-1-node-type", "AND");
     }
 
     return conditionMap;

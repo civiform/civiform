@@ -895,7 +895,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .withId("eligibility-predicate")
             .withClasses("my-4")
             .with(div("Eligibility condition").withClasses("text-lg", "font-bold", "py-2"))
-            .with(renderEmptyEligibilityPredicate(program).withClasses("text-lg", "max-w-prose"));
+            .with(
+                renderEmptyEligibilityPredicate(program, viewAllowsEditingProgram())
+                    .withClasses("text-lg", "max-w-prose"));
     if (predicate.isEmpty()) {
       return div.with(
           renderEmptyPredicate(
@@ -918,7 +920,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
     }
   }
 
-  private DivTag renderEmptyEligibilityPredicate(ProgramDefinition program) {
+  private DivTag renderEmptyEligibilityPredicate(
+      ProgramDefinition program, boolean viewAllowsEditingProgram) {
     ImmutableList.Builder<DomContent> emptyPredicateContentBuilder = ImmutableList.builder();
     String eligibilityText =
         program.eligibilityIsGating()
@@ -931,15 +934,23 @@ public final class ProgramBlocksView extends ProgramBaseView {
             text(
                 "You can add eligibility conditions to determine if an applicant qualifies for the"
                     + " program. "))
-        .add(text(eligibilityText))
-        .add(text(" You can change this in the "))
-        .add(
-            a().withData("testid", "goto-program-settings-link")
-                .withText("program settings.")
-                .withHref(
-                    routes.AdminProgramController.edit(program.id(), ProgramEditStatus.EDIT.name())
-                        .url())
-                .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT));
+        .add(text(eligibilityText));
+
+    if (viewAllowsEditingProgram) {
+      emptyPredicateContentBuilder
+          .add(text(" You can change this in the "))
+          .add(
+              a().withData("testid", "goto-program-settings-link")
+                  .withText("program settings.")
+                  .withHref(
+                      routes.AdminProgramController.edit(
+                              program.id(), ProgramEditStatus.EDIT.name())
+                          .url())
+                  .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT));
+    } else {
+      emptyPredicateContentBuilder.add(
+          text(" You can change this in the program settings if your program is in draft mode."));
+    }
     return div().with(emptyPredicateContentBuilder.build());
   }
 

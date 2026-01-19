@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import controllers.admin.AdminProgramBlockPredicatesController.OptionElement;
 import java.util.Optional;
 import lombok.Builder;
+import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.types.QuestionType;
 import views.admin.BaseViewModel;
 
@@ -29,5 +30,13 @@ public record PredicateValuesInputPartialViewModel(
     String userEnteredValue,
     String secondUserEnteredValue,
     ImmutableList<OptionElement> valueOptions,
+    ImmutableList<String> invalidInputIds,
     boolean hasSelectedQuestion)
-    implements BaseViewModel {}
+    implements BaseViewModel {
+  public boolean isMultiValueQuestion() throws InvalidQuestionTypeException {
+    if (questionType.isPresent()) {
+      return QuestionType.fromLabel(questionType.get()).isMultiOptionType();
+    }
+    return false;
+  }
+}

@@ -32,7 +32,7 @@
           ${programOverviewUrl})}"
       ></div>
       <div
-        th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(
+        th:replace="~{applicant/blocks/TitleAndDescriptionFragment :: titleAndDescriptionFragment(
           ${applicationParams.programTitle()},
           ${applicationParams.programShortDescription()})}"
       ></div>
@@ -62,7 +62,7 @@
 
               <div class="section-external">
                 <div
-                  th:replace="~{applicant/ApplicantBaseFragment :: progressBar(${progressBar})}"
+                  th:replace="~{applicant/blocks/ProgressBarFragment :: progressBar(${progressBar})}"
                 ></div>
               </div>
 

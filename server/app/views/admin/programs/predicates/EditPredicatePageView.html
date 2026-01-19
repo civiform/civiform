@@ -77,8 +77,9 @@
 
               <select
                 class="usa-select width-9 display-inline-block font-body-xs margin-x-1"
-                name="root-nodeType"
-                aria-label="root-nodeType"
+                name="root-node-type"
+                id="root-node-type"
+                aria-label="Root condition node type"
               >
                 <option
                   th:each="nodeType : ${model.operatorNodeTypes()}"
@@ -162,8 +163,8 @@
           type="submit"
           class="usa-button tablet:grid-col-auto"
           form="predicate-form"
-          th:formaction="${model.updatePredicateEndpoint()}"
-          formmethod="post"
+          th:hx-post="${model.updatePredicateEndpoint()}"
+          hx-target="#predicate-conditions-list"
           th:text="#{button.saveAndExit}"
         ></button>
         <button
