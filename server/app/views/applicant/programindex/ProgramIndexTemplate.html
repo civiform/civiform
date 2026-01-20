@@ -1,0 +1,103 @@
+<!--/*
+  Shows list of programs.
+
+  Parameters:
+
+  isGuest: Boolean
+    True if the user is a guest, false if user is logged in.
+
+  section: List<ProgramSectionParams>
+    List of ProgramSectionParams defining each section.
+
+  loginLink: String
+    Server-relative link to login.
+
+  createAccountLink: String
+    Server-relative link to create an account
+
+  civicEntityShortName: String
+    Name of the civic entity.
+
+  authProviderName: String
+    Auth provider, for logging in.
+
+  preScreenerSection: Optional<ProgramSectionParams>
+    An optional which contains the pre-screener section, if there is one.
+
+  applicantId: Optional<Long>
+    Id of the applicant whose data is requested to be accessed
+*/-->
+<!doctype html>
+<html th:attr="lang=${preferredLanguage.code()},dir=${shouldDisplayRtl}? 'rtl'">
+  <head
+    th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
+  ></head>
+  <body>
+    <div th:replace="~{applicant/ApplicantBaseFragment :: skipNav}"></div>
+    <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
+    <main id="main-content" tabindex="-1">
+      <div th:replace="~{components/ToastFragment :: programIndexToasts}"></div>
+      <div
+        id="top-content"
+        class="bg-primary-darker border-y border-primary padding-y-4 padding-x-2"
+      >
+        <div class="grid-container text-white usa-prose">
+          <h1 th:text="#{heading.homepage.v2}"></h1>
+          <div class="usa-intro" th:text="#{content.homepageIntro.v2}"></div>
+        </div>
+      </div>
+      <div
+        id="programs-list"
+        class="grid-container padding-section-large-three-sides usa-prose"
+      >
+        <div th:if="${preScreenerSection.isPresent()}">
+          <div
+            th:replace="~{applicant/programindex/ProgramCardsSectionFragment :: cardsSection(${preScreenerSection.get()}, #{title.getStartedSection})}"
+          ></div>
+        </div>
+        <th:block th:if="${myApplicationsSection.isPresent()}">
+          <h2
+            th:text="#{title.myApplicationsSection.v2}"
+            class="cf-below-cards"
+          ></h2>
+          <div
+            th:replace="~{applicant/programindex/ProgramCardsSectionFragment :: cardsSection(${myApplicationsSection.get()}, #{title.myApplicationsSection.v2})}"
+          ></div>
+        </th:block>
+        <h2
+          th:text="#{title.availableProgramsSection}"
+          class="cf-below-cards"
+        ></h2>
+        <div
+          th:replace="~{applicant/programindex/ProgramFiltersFragment :: programFiltersFragment(${categoryOptions}, ${applicantId})}"
+        ></div>
+        <div th:if="${categoryOptions != null and !categoryOptions.isEmpty()}">
+          <div
+            th:replace="~{components/SeparatorLineFragment :: separatorLineFragment()}"
+          ></div>
+        </div>
+        <div id="not-started-programs">
+          <th:block
+            th:if="${unfilteredSection.isPresent()}"
+            th:with="programCount=${unfilteredSection.get().cards().size()}"
+          >
+            <div
+              th:replace="~{applicant/programindex/ProgramCardsSectionFragment :: cardsSection(${unfilteredSection.get()}, #{title.programsSection.v2(${programCount})})}"
+            ></div>
+          </th:block>
+          <th:block th:if="${!unfilteredSection.isPresent()}">
+            <div class="section usa-prose">
+              <div
+                th:replace="~{components/AlertFragment :: alert(alertSettings=${noProgramsAlertSettings}, headingLevel='H3')}"
+              ></div>
+            </div>
+          </th:block>
+        </div>
+      </div>
+    </main>
+    <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
+    <th:block
+      th:replace="~{components/GoogleTagManagerFragment :: tagManager(${optionalMeasurementId}, ${cspNonce})}"
+    ></th:block>
+  </body>
+</html>

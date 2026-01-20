@@ -2,10 +2,22 @@
   <div
     th:id="${'predicate-condition-' + model.conditionId + '-subcondition-list'}"
   >
-    <th:block th:each="subcondition, subconditionStat: ${model.subconditions}">
+    <th:block
+      th:each="subcondition, subconditionStat: ${model.subconditions}"
+      th:with="separatorId=${'condition-' + model.conditionId + '-subcondition-' + subconditionStat.count + '-predicateLogicSeparator'}"
+    >
       <div
         th:replace="~{admin/programs/predicates/EditSubconditionFragment :: editSubcondition(${model.conditionId}, ${subconditionStat.count}, ${model.subconditions.size() == 1}, ${subcondition})}"
       ></div>
+      <div
+        th:if="${subconditionStat.count != model.subconditions.size()}"
+        th:id="${separatorId}"
+        class="cf-predicate-subcondition-separator font-sans-2xs text-uppercase margin-bottom-2"
+      >
+        <span
+          th:text="${model.predicateLogicalOperator.toDisplayString()}"
+        ></span>
+      </div>
     </th:block>
     <div class="margin-top-3" th:hx-target="this">
       <button

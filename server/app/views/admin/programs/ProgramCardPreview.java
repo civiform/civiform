@@ -15,13 +15,12 @@ import play.mvc.Http.Request;
 import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.LocalizedStrings;
-import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.settings.SettingsManifest;
-import views.ApplicantBaseView;
-import views.applicant.ProgramCardsSectionParamsFactory;
-import views.applicant.ProgramCardsSectionParamsFactory.ProgramCardParams;
+import views.applicant.ApplicantBaseView;
+import views.applicant.programindex.ProgramCardsSectionParamsFactory;
+import views.applicant.programindex.ProgramCardsSectionParamsFactory.ProgramCardParams;
 
 public class ProgramCardPreview extends ApplicantBaseView {
   ProgramCardsSectionParamsFactory programCardsSectionParamsFactory;
@@ -60,7 +59,6 @@ public class ProgramCardPreview extends ApplicantBaseView {
         programCardsSectionParamsFactory.getCard(
             params.request(),
             params.messages(),
-            MessageKey.BUTTON_VIEW_AND_APPLY,
             params.applicantProgramData(),
             LocalizedStrings.DEFAULT_LOCALE, // Admin console is not localized
             Optional.of(params.profile()),

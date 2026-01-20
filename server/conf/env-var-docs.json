@@ -8,6 +8,12 @@
         "type": "string",
         "required": true
       },
+      "CIVIC_ENTITY_FOOTER_LOGO_URL": {
+        "mode": "ADMIN_READABLE",
+        "description": "Logo for the civic entity used in the footer. If not set, falls back to CIVIC_ENTITY_SMALL_LOGO_URL.",
+        "type": "string",
+        "required": false
+      },
       "WHITELABEL_CIVIC_ENTITY_SHORT_NAME": {
         "mode": "ADMIN_WRITEABLE",
         "description": "The short display name of the civic entity, will use 'TestCity' if not set.",
@@ -866,11 +872,6 @@
         "description": "If this is a staging or demo deployment and this variable is set to true, the 'DEMO MODE. LOGIN AS:' buttons are not shown on the login page. Warning: if you turn on this flag, you will need to log in through the admin authenticator to get back to this settings page",
         "type": "bool"
       },
-      "API_GENERATED_DOCS_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "Enables the API docs tab on CiviForm.",
-        "type": "bool"
-      },
       "VERSION_CACHE_ENABLED": {
         "mode": "HIDDEN",
         "description": "Enables caching for versions and their associated data.",
@@ -939,6 +940,12 @@
         "description": "Enables being able to add a new yes/no question.",
         "type": "bool",
         "required": false
+      },
+      "SETTINGS_CACHE_ENABLED": {
+        "mode": "ADMIN_READABLE",
+        "description": "Enables reading settings from the cache instead of directly from the database.",
+        "type": "bool",
+        "required": false
       }
     }
   },
@@ -966,12 +973,6 @@
       "TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Enables translation management improvement phase one",
-        "type": "bool",
-        "required": false
-      },
-      "SETTINGS_CACHE_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enables reading settings from the cache instead of directly from the database.",
         "type": "bool",
         "required": false
       },

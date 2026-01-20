@@ -14,7 +14,7 @@
         th:replace="~{applicant/NavigationFragment :: adminPreviewBackButton(${goBackToAdminUrl})}"
       ></div>
       <div
-        th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle},${programShortDescription})}"
+        th:replace="~{applicant/blocks/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle},${programShortDescription})}"
       ></div>
       <div
         th:replace="~{components/SeparatorLineFragment :: separatorLineFragment()}"
@@ -37,7 +37,7 @@
           <div class="tablet:grid-col-8">
             <div class="section-external">
               <div
-                th:replace="~{applicant/ApplicantBaseFragment :: progressBar(${progressBar})}"
+                th:replace="~{applicant/blocks/ProgressBarFragment :: progressBar(${progressBar})}"
               ></div>
             </div>
 

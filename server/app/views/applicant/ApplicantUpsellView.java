@@ -17,8 +17,8 @@ import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.MessageKey;
 import services.settings.SettingsManifest;
-import views.ApplicantBaseView;
-import views.applicant.ProgramCardsSectionParamsFactory.ProgramSectionParams;
+import views.applicant.programindex.ProgramCardsSectionParamsFactory;
+import views.applicant.programindex.ProgramCardsSectionParamsFactory.ProgramSectionParams;
 import views.components.TextFormatter;
 
 public class ApplicantUpsellView extends ApplicantBaseView {
@@ -121,8 +121,6 @@ public class ApplicantUpsellView extends ApplicantBaseView {
               programCardsSectionParamsFactory.getSection(
                   params.request(),
                   params.messages(),
-                  Optional.empty(),
-                  MessageKey.BUTTON_VIEW_AND_APPLY,
                   params.eligiblePrograms().get(),
                   /* preferredLocale= */ params.messages().lang().toLocale(),
                   Optional.of(params.profile()),

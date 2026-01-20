@@ -65,12 +65,12 @@ import services.program.ProgramService;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
-import views.ApplicationBaseViewParams;
-import views.applicant.AddressCorrectionBlockView;
 import views.applicant.ApplicantIneligibleView;
-import views.applicant.ApplicantProgramBlockEditView;
+import views.applicant.addresscorrection.AddressCorrectionBlockView;
+import views.applicant.blocks.ApplicantProgramBlockEditView;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererParams;
+import views.trustedintermediary.ApplicationBaseViewParams;
 
 /**
  * Controller for handling an applicant filling out a single program. CAUTION: you must explicitly

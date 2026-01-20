@@ -7,6 +7,7 @@ import {
   waitForAnyModal,
   waitForAnyModalLocator,
   waitForPageJsLoad,
+  waitForHtmxReady,
 } from './wait'
 import {BASE_URL, TEST_CIVIC_ENTITY_SHORT_NAME} from './config'
 import {AdminProgramStatuses} from './admin_program_statuses'
@@ -362,7 +363,7 @@ export class AdminPrograms {
     await this.page.fill('#program-description-textarea', adminDescription)
     await this.page.fill('#program-display-name-input', programName)
     await this.page.fill(
-      '#program-display-short-description-textarea',
+      '#program-display-short-description-input',
       shortDescription,
     )
 
@@ -1095,6 +1096,7 @@ export class AdminPrograms {
     // Click on the edit predicate button
     await this.page.click('#cf-edit-eligibility-predicate')
     await waitForPageJsLoad(this.page)
+    await waitForHtmxReady(this.page)
     if (expandedFormLogicEnabled) {
       await this.expectEditPredicatePage(PredicateType.ELIGIBILITY)
     } else {

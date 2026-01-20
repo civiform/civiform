@@ -1,9 +1,21 @@
 <th:block th:fragment="conditionList(model)">
-  <div id="predicate-conditions-list">
-    <th:block th:each="condition, conditionStat: ${model.conditions}">
+  <div id="predicate-conditions-list" class="width-mobile-lg">
+    <th:block
+      th:each="condition, conditionStat: ${model.conditions}"
+      th:with="separatorId=${'condition-' + conditionStat.count + '-predicateLogicSeparator'}"
+    >
       <div
         th:replace="~{admin/programs/predicates/EditConditionFragment :: editCondition(${conditionStat.count}, ${condition})}"
       ></div>
+      <div
+        th:if="${conditionStat.count != model.conditions.size()}"
+        th:id="${separatorId}"
+        class="cf-predicate-condition-separator font-sans-2xs text-uppercase margin-bottom-3 width-mobile-lg"
+      >
+        <span
+          th:text="${model.predicateLogicalOperator.toDisplayString()}"
+        ></span>
+      </div>
     </th:block>
     <button
       type="button"

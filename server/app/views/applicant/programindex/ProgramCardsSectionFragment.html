@@ -1,0 +1,44 @@
+<section
+  th:fragment="cardsSection (section, title)"
+  class="cf-application-program-section cf-below-cards"
+  th:with="sectionType=${section.sectionType().name()},
+           showHeading=${(sectionType == 'RECOMMENDED' || sectionType == 'DEFAULT') && title != null},
+           headingId=${'id-' + #strings.randomAlphanumeric(8)}"
+  th:aria-label="${!showHeading && title != null} ? ${title}"
+  th:id="${sectionType == 'UNFILTERED_PROGRAMS'} ? 'unfiltered-programs'"
+>
+  <div th:if="${showHeading}" class="grid-row usa-prose section-bottom">
+    <h3
+      th:if="${sectionType == 'RECOMMENDED'}"
+      th:id="${headingId}"
+      th:text="${title}"
+      tabindex="-1"
+      autofocus
+    ></h3>
+    <h3
+      th:unless="${sectionType == 'RECOMMENDED'}"
+      th:id="${headingId}"
+      th:text="${title}"
+    ></h3>
+  </div>
+
+  <!--/* Pre-screener card (before it is started) */-->
+  <div th:if="${sectionType == 'COMMON_INTAKE'}">
+    <div
+      th:replace="~{applicant/programindex/ProgramCardsFragment :: preScreenerCard(${section.cards().get(0)})}"
+    ></div>
+  </div>
+
+  <!--/* Programs card section */-->
+  <ul
+    th:unless="${sectionType == 'COMMON_INTAKE'}"
+    class="usa-card-group cf-program-card-group"
+  >
+    <th:block th:each="card : ${section.cards()}">
+      <!-- Standard cards and pre-screener card (after it is started) -->
+      <li
+        th:replace="${card.programType().toString() == 'COMMON_INTAKE_FORM'} ? ~{applicant/programindex/ProgramCardsFragment :: submittedOrInProgressPreScreenerCard(${card})} : ~{applicant/programindex/ProgramCardsFragment :: card(${card}, ${sectionType} ?: 'DEFAULT')}"
+      ></li>
+    </th:block>
+  </ul>
+</section>

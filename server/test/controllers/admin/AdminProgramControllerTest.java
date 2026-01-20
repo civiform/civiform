@@ -137,7 +137,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void create_northStar_showsNewProgramInListWithShortDescription() {
+  public void create_showsNewProgramInListWithShortDescription() {
     controller.create(fakeRequestBuilder().bodyForm(DEFAULT_FORM_FIELDS).build());
 
     Result programDashboardResult = controller.index(fakeRequest());
@@ -153,7 +153,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void create_northStar_returnsNewProgramWithAcls() {
+  public void create_returnsNewProgramWithAcls() {
     Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
     formData.put("displayMode", DisplayMode.SELECT_TI.getValue());
     formData.put("tiGroups[]", "1");
@@ -197,7 +197,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void create_northStar_includesNewAndExistingProgramsInList() {
+  public void create_includesNewAndExistingProgramsInList() {
     ProgramBuilder.newActiveProgram("Existing One").build();
 
     Result result = controller.create(fakeRequestBuilder().bodyForm(DEFAULT_FORM_FIELDS).build());
@@ -211,8 +211,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void create_showsErrorsBeforePromptingUserToConfirmCommonIntakeChange() {
-    ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
+  public void create_showsErrorsBeforePromptingUserToConfirmPreScreenerChange() {
+    ProgramBuilder.newActivePreScreenerForm("Old pre-screener").build();
     Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
     formData.put("localizedDisplayName", ""); // Empty name to force validation error
     formData.put("programTypeValue", ProgramType.COMMON_INTAKE_FORM.getValue());
@@ -226,8 +226,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void create_promptsUserToConfirmCommonIntakeChange() {
-    ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
+  public void create_promptsUserToConfirmPreScreenerChange() {
+    ProgramBuilder.newActivePreScreenerForm("Old pre-screener").build();
     Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
     formData.put("programTypeValue", ProgramType.COMMON_INTAKE_FORM.getValue());
     formData.put("confirmedChangePreScreenerForm", "false");
@@ -239,7 +239,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void create_northStar_doesNotPromptUserToConfirmCommonIntakeChangeIfNoneExists() {
+  public void create_doesNotPromptUserToConfirmPreScreenerChangeIfNoneExists() {
     Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
     formData.put("programTypeValue", ProgramType.COMMON_INTAKE_FORM.getValue());
     formData.put("confirmedChangePreScreenerForm", "false");
@@ -254,8 +254,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void create_allowsChangingCommonIntakeAfterConfirming() {
-    ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
+  public void create_allowsChangingPreScreenerAfterConfirming() {
+    ProgramBuilder.newActivePreScreenerForm("Old pre-screener").build();
 
     Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
     formData.put("programTypeValue", ProgramType.COMMON_INTAKE_FORM.getValue());
@@ -392,7 +392,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void update_northStar_overwritesExistingProgram() throws Exception {
+  public void update_overwritesExistingProgram() throws Exception {
     ProgramModel program =
         ProgramBuilder.newDraftProgram("Existing One", "old description").build();
 
@@ -470,10 +470,10 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void update_showsErrorsBeforePromptingUserToConfirmCommonIntakeChange() throws Exception {
+  public void update_showsErrorsBeforePromptingUserToConfirmPreScreenerChange() throws Exception {
     ProgramModel program =
         ProgramBuilder.newDraftProgram("Existing One", "old description").build();
-    ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
+    ProgramBuilder.newActivePreScreenerForm("Old pre-screener").build();
 
     Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
     formData.put("localizedDisplayName", ""); // Empty name to force validation error
@@ -492,10 +492,10 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void update_promptsUserToConfirmCommonIntakeChange() throws Exception {
+  public void update_promptsUserToConfirmPreScreenerChange() throws Exception {
     ProgramModel program =
         ProgramBuilder.newDraftProgram("Existing One", "old description").build();
-    ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
+    ProgramBuilder.newActivePreScreenerForm("Old pre-screener").build();
 
     Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
     formData.put("programTypeValue", ProgramType.COMMON_INTAKE_FORM.getValue());
@@ -512,7 +512,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void update_doesNotPromptUserToConfirmCommonIntakeChangeIfNoneExists() throws Exception {
+  public void update_doesNotPromptUserToConfirmPreScreenerChangeIfNoneExists() throws Exception {
     ProgramModel program =
         ProgramBuilder.newDraftProgram("Existing One", "old description").build();
 
@@ -536,11 +536,11 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void update_northStar_allowsChangingCommonIntakeAfterConfirming() throws Exception {
+  public void update_allowsChangingPreScreenerAfterConfirming() throws Exception {
     ProgramModel program =
         ProgramBuilder.newDraftProgram("Existing One", "old description", "old short description")
             .build();
-    ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
+    ProgramBuilder.newActivePreScreenerForm("Old pre-screener").build();
 
     String newProgramShortDescription = "External program short description";
 

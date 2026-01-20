@@ -35,8 +35,8 @@ import services.monitoring.MonitoringMetricCounters;
 import services.program.ProgramNotFoundException;
 import services.settings.SettingsManifest;
 import views.applicant.ApplicantDisabledProgramView;
-import views.applicant.FilteredProgramsViewPartial;
-import views.applicant.ProgramIndexView;
+import views.applicant.programindex.FilteredProgramsViewPartial;
+import views.applicant.programindex.ProgramIndexView;
 
 /**
  * Controller for handling methods for an applicant applying to programs. CAUTION: you must

@@ -9,7 +9,7 @@
 
     <main id="main-content" tabindex="-1">
       <div
-        th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle}, ${programShortDescription})}"
+        th:replace="~{applicant/blocks/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle}, ${programShortDescription})}"
       ></div>
       <div
         th:replace="~{components/SeparatorLineFragment :: separatorLineFragment()}"
@@ -115,7 +115,7 @@
           </div>
           <div class="section-internal">
             <div
-              th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${cardsSection.get()})}"
+              th:replace="~{applicant/programindex/ProgramCardsSectionFragment :: cardsSection(${cardsSection.get()}, null)}"
             ></div>
           </div>
         </div>

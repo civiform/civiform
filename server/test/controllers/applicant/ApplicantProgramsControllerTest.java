@@ -48,8 +48,8 @@ import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.applicant.ApplicantDisabledProgramView;
-import views.applicant.FilteredProgramsViewPartial;
-import views.applicant.ProgramIndexView;
+import views.applicant.programindex.FilteredProgramsViewPartial;
+import views.applicant.programindex.ProgramIndexView;
 
 public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
@@ -234,8 +234,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void indexWithApplicantId_withCommonIntakeform_includesStartHereButtonWithRedirect() {
-    ProgramModel program = resourceCreator().insertActiveCommonIntakeForm("benefits");
+  public void indexWithApplicantId_withPreScreenerform_includesStartHereButtonWithRedirect() {
+    ProgramModel program = resourceCreator().insertActivePreScreenerForm("benefits");
 
     Result result =
         controller
@@ -244,7 +244,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
             .join();
 
     assertThat(result.status()).isEqualTo(OK);
-    // In North Star, unstarted common intake forms use the edit URL with program ID
+    // Unstarted pre-screener forms use the edit URL with program ID
     // (not the show URL with slug) to skip the program overview page.
     // For regular applicants (non-TI), the URL doesn't include the applicant ID prefix.
     assertThat(contentAsString(result))
@@ -372,7 +372,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void northStar_show_withStringProgramParam_showsProgramOverview() {
+  public void show_withStringProgramParam_showsProgramOverview() {
     ProgramModel program = resourceCreator().insertActiveProgram("program");
 
     currentApplicant.getApplicantData().setPreferredLocale(Locale.US);
@@ -404,7 +404,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void northStar_showWithApplicantId_withStringProgramParam_showsProgramOverview() {
+  public void showWithApplicantId_withStringProgramParam_showsProgramOverview() {
     ProgramModel program = resourceCreator().insertActiveProgram("program");
 
     currentApplicant.getApplicantData().setPreferredLocale(Locale.US);
@@ -684,7 +684,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
   @Test
   public void
-      northStar_showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithSingleHoursAndMinutes() {
+      showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithSingleHoursAndMinutes() {
     SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
     when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
     when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(90));
@@ -712,7 +712,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
   @Test
   public void
-      northStar_showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithHoursAndMinutes() {
+      showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithHoursAndMinutes() {
     SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
     when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
     when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(130));
@@ -740,7 +740,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
   @Test
   public void
-      northStar_showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithSingleMinute() {
+      showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithSingleMinute() {
     SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
     when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
     when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(1));
@@ -767,7 +767,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
   @Test
   public void
-      northStar_showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithMultipleMinutes() {
+      showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithMultipleMinutes() {
     SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
     when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
     when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(5));
@@ -794,7 +794,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
   @Test
   public void
-      northStar_showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithMultipleHoursAndSingleMinute() {
+      showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithMultipleHoursAndSingleMinute() {
     SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
     when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
     when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(121));
@@ -821,8 +821,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void
-      northStar_showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithOneHour() {
+  public void showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithOneHour() {
     SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
     when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
     when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(60));
@@ -849,7 +848,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
   @Test
   public void
-      northStar_showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithMultipleHours() {
+      showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithMultipleHours() {
     SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
     when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
     when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(120));

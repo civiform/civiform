@@ -105,7 +105,11 @@ export const test = base.extend<CiviformFixtures>({
     await use(new AdminTIGroups(page))
   },
 
-  seeding: async ({request}, use) => {
+  // This doesn't use the {page} variable directly, but it needs to be here so that Playwright
+  // creates the fixtures in the correct order. Without the {page} variable this gets created
+  // before the "page" fixture so any seeding gets cleared right immediately.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  seeding: async ({page, request}, use) => {
     await use(new Seeding(request))
   },
 

@@ -35,9 +35,9 @@ export type SubconditionSpec = {
  * 3. multiValues is populated, rest are unpopulated.
  */
 export type SubconditionValue = {
-  firstValue?: string
-  secondValue?: string
-  multiValues?: MultiValueSpec[]
+  firstValue: string | undefined
+  secondValue: string | undefined
+  multiValues: MultiValueSpec[] | undefined
 }
 
 export type MultiValueSpec = {
@@ -168,8 +168,131 @@ export class AdminPredicates {
     await this.expectSubcondition(conditionId, subconditionId)
   }
 
+  async selectVisibilityAction(visibilityAction: 'HIDE_BLOCK' | 'SHOW_BLOCK') {
+    await this.page
+      .locator('#visibility-predicate-action-select')
+      .selectOption(visibilityAction)
+  }
+
+  async selectRootLogicalOperator(logicalOperatorValue: 'AND' | 'OR') {
+    await this.page
+      .locator('#root-node-type')
+      .selectOption(logicalOperatorValue)
+    await waitForHtmxReady(this.page)
+  }
+
+  async expectRootLogicalOperatorValues(logicalOperatorValue: 'AND' | 'OR') {
+    const conditionLogicSeparatorsText = this.page.locator(
+      '.cf-predicate-condition-separator span',
+    )
+
+    expect(conditionLogicSeparatorsText.count()).not.toEqual(0)
+
+    for (const separatorText of await conditionLogicSeparatorsText.all()) {
+      await expect(separatorText).toHaveText(logicalOperatorValue.toLowerCase())
+      await expect(separatorText).toBeVisible()
+    }
+  }
+
+  async expectRootLogicalOperatorLabel(
+    logicalOperatorValue: 'AND' | 'OR',
+    predicateType: 'ELIGIBILITY' | 'VISIBILITY',
+    visibilityBehavior?: 'HIDE_BLOCK' | 'SHOW_BLOCK',
+  ) {
+    const logicalOperatorDisplayText =
+      logicalOperatorValue === 'AND' ? 'all' : 'any'
+    if (predicateType === 'ELIGIBILITY') {
+      await expect(
+        this.page.getByLabel(
+          'Applicant is eligible if ' +
+            logicalOperatorDisplayText +
+            ' conditions are true:',
+        ),
+      ).toHaveId('root-node-type')
+    } else {
+      // Visibility behavior is part of the label for visibility predicates
+      if (!visibilityBehavior) {
+        expect(false).toBeTruthy()
+      }
+      const visibilityActionText =
+        visibilityBehavior === 'HIDE_BLOCK' ? 'hidden if' : 'shown if'
+
+      const visibilityDropdownsCount = await this.page
+        .getByLabel(
+          'Screen is ' +
+            visibilityActionText +
+            ' ' +
+            logicalOperatorDisplayText +
+            ' conditions are true:',
+        )
+        .count()
+
+      // Expect two dropdowns: one for visibility behavior and another for logic
+      expect(visibilityDropdownsCount).toBe(2)
+    }
+  }
+
+  async selectConditionLogicalOperatorAndExpectLabel(
+    conditionId: number,
+    logicalOperatorValue: 'AND' | 'OR',
+  ) {
+    await this.page
+      .locator(`#condition-${conditionId}-node-type`)
+      .selectOption(logicalOperatorValue)
+    await waitForHtmxReady(this.page)
+
+    await this.expectConditionLogicalOperatorLabel(
+      conditionId,
+      logicalOperatorValue,
+    )
+  }
+
+  // Check the values and label for logical operator separators on a predicate condition
+  async validateConditionLogicalOperatorState(
+    conditionId: number,
+    logicalOperatorValue: 'AND' | 'OR',
+  ) {
+    const subconditionLogicSeparatorsText = this.page.locator(
+      `#condition-${conditionId} .cf-predicate-subcondition-separator span`,
+    )
+
+    expect(subconditionLogicSeparatorsText.count()).not.toEqual(0)
+
+    for (const separatorText of await subconditionLogicSeparatorsText.all()) {
+      await expect(separatorText).toHaveText(logicalOperatorValue.toLowerCase())
+      await expect(separatorText).toBeVisible()
+    }
+
+    await this.expectConditionLogicalOperatorLabel(
+      conditionId,
+      logicalOperatorValue,
+    )
+  }
+
+  async expectConditionLogicalOperatorLabel(
+    conditionId: number,
+    logicalOperatorValue: 'AND' | 'OR',
+  ) {
+    const logicalOperatorDisplayText =
+      logicalOperatorValue === 'AND' ? 'all' : 'any'
+    await expect(
+      this.page
+        .locator(`#condition-${conditionId}`)
+        .getByLabel(
+          'Condition is true if ' +
+            logicalOperatorDisplayText +
+            ' sub-conditions are true:',
+        ),
+    ).toHaveId(`condition-${conditionId}-node-type`)
+  }
+
   async clickSaveAndExitButton() {
     await this.page.getByRole('button', {name: 'Save and exit'}).click()
+    await waitForHtmxReady(this.page)
+  }
+
+  async clickCancelButton() {
+    await this.page.getByRole('button', {name: 'Cancel'}).click()
   }
 
   async clickSaveConditionButton() {
@@ -270,6 +393,15 @@ export class AdminPredicates {
   }
 
   /**
+   * Configures multiple subconditions at once using the given inputs.
+   */
+  async configureSubconditions(subconditions: SubconditionSpec[]) {
+    for (const subcondition of subconditions) {
+      await this.configureSubcondition(subcondition)
+    }
+  }
+
+  /**
    * Asserts the state of a given subcondition, checking selected question, scalar, operator, and value(s).
    */
   async expectSubconditionEquals({
@@ -291,6 +423,15 @@ export class AdminPredicates {
     }
 
     await this.expectFilledValue(conditionId, subconditionId, value)
+  }
+
+  /**
+   * Assert the state of multiple subconditions at once, using the given inputs.
+   */
+  async expectSubconditionsEqual(subconditions: SubconditionSpec[]) {
+    for (const subcondition of subconditions) {
+      await this.expectSubconditionEquals(subcondition)
+    }
   }
 
   coalesceValueOptions(
@@ -373,7 +514,7 @@ export class AdminPredicates {
       ).toHaveCount(0)
     }
 
-    if (value.multiValues) {
+    if (Array.isArray(value.multiValues)) {
       for (let count = 1; count <= value.multiValues.length; count++) {
         const checkboxLabel = this.page.locator(
           `label[for="condition-${conditionId}-subcondition-${subconditionId}-values[${count}]"]`,

@@ -23,7 +23,7 @@ import services.applicant.ApplicantPersonalInfo;
 import services.applicant.Block;
 import services.program.ProgramType;
 import services.settings.SettingsManifest;
-import views.ApplicantBaseView;
+import views.applicant.blocks.ProgressBar;
 
 /** Renders a list of sections in the form with their status. */
 public final class ApplicantProgramSummaryView extends ApplicantBaseView {
