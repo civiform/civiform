@@ -1077,6 +1077,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("MAP_QUESTION_ENABLED", request);
   }
 
+  /** Enables being able to add a new yes/no question. */
+  public boolean getYesNoQuestionEnabled() {
+    return getBool("YES_NO_QUESTION_ENABLED");
+  }
+
   /** Enables reading settings from the cache instead of directly from the database. */
   public boolean getSettingsCacheEnabled() {
     return getBool("SETTINGS_CACHE_ENABLED");
@@ -1100,11 +1105,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** (NOT FOR PRODUCTION USE) Enables translation management improvement phase one */
   public boolean getTranslationManagementImprovementEnabled(RequestHeader request) {
     return getBool("TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED", request);
-  }
-
-  /** (NOT FOR PRODUCTION USE) Enables being able to add a new yes/no question. */
-  public boolean getYesNoQuestionEnabled() {
-    return getBool("YES_NO_QUESTION_ENABLED");
   }
 
   /** (NOT FOR PRODUCTION USE) Enables changes to support API Bridge */
@@ -2338,6 +2338,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
+                          "YES_NO_QUESTION_ENABLED",
+                          "Enables being able to add a new yes/no question.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
                           "SETTINGS_CACHE_ENABLED",
                           "Enables reading settings from the cache instead of directly from the"
                               + " database.",
@@ -2379,13 +2385,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "YES_NO_QUESTION_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enables being able to add a new yes/no"
-                              + " question.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "API_BRIDGE_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables changes to support API Bridge",
