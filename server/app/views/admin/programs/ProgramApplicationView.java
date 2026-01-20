@@ -281,7 +281,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     div(answerData.questionDefinition().getName())
                         .withClasses("text-gray-400", "text-base", "line-clamp-3")))
         .with(p().withClasses("w-8"))
-        .with(answerContent.withClasses("text-gray-700", "text-base", "line-clamp-3"))
+        .with(answerContent.withClasses("text-gray-700", "text-base"))
         .with(p().withClasses("flex-grow"))
         .with(eligibilityAndTimestampDiv);
   }

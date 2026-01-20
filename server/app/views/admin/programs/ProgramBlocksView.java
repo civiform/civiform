@@ -3,7 +3,6 @@ package views.admin.programs;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.b;
-import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
@@ -589,7 +588,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             settingsManifest.getExpandedFormLogicEnabled(request));
 
     Optional<DivTag> maybeEligibilityPredicateDisplay = Optional.empty();
-    if (!program.programType().equals(ProgramType.COMMON_INTAKE_FORM)) {
+    if (!program.programType().equals(ProgramType.PRE_SCREENER_FORM)) {
       maybeEligibilityPredicateDisplay =
           Optional.of(
               renderEligibilityPredicate(
@@ -674,7 +673,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 csrfTag,
                 programQuestions,
                 addQuestion,
-                messages));
+                messages,
+                program.id(),
+                blockDefinition.id()));
       }
 
       return div.with(programQuestions, addQuestion);
@@ -712,11 +713,14 @@ public final class ProgramBlocksView extends ProgramBaseView {
       InputTag csrfTag,
       DivTag programQuestions,
       ButtonTag addQuestion,
-      Messages messages) {
+      Messages messages,
+      Long programId,
+      Long blockId) {
     // If it's an empty enumerator block
     if (!blockDefinitionHasEnumeratorQuestion) {
       FieldsetTag creationMethodRadio = renderCreationMethodRadioButtons(messages);
-      FormTag newEnumeratorQuestionForm = renderNewEnumeratorQuestionForm(csrfTag, messages);
+      FormTag newEnumeratorQuestionForm =
+          renderNewEnumeratorQuestionForm(csrfTag, messages, programId, blockId);
       return div().with(creationMethodRadio, newEnumeratorQuestionForm);
     } else {
       return div()
@@ -759,41 +763,44 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .withClasses("usa-fieldset"));
   }
 
-  private FormTag renderNewEnumeratorQuestionForm(InputTag csrfTag, Messages messages) {
+  private FormTag renderNewEnumeratorQuestionForm(
+      InputTag csrfTag, Messages messages, Long programId, Long blockId) {
     return form(csrfTag)
         .withClasses("border", "border-gray-300")
         .withId("new-enumerator-question-form")
         .withMethod(HttpVerbs.POST)
+        .withAction(
+            routes.AdminProgramBlockQuestionsController.createEnumerator(programId, blockId).url())
         .with(
             p(messages.at(MessageKey.LABEL_NEW_REPEATED_SET_FORM.getKeyName())),
             FieldWithLabel.input()
                 .setId("listed-entity-input")
-                .setFieldName("listed-entity")
+                .setFieldName("entityType")
                 .setLabelText(messages.at(MessageKey.INPUT_LISTED_ENTITY.getKeyName()))
                 .getUSWDSInputTag(),
             FieldWithLabel.input()
                 .setId("enumerator-admin-id-input")
-                .setFieldName("enumerator-admin-id")
+                .setFieldName("questionName")
                 .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_ADMIN_ID.getKeyName()))
                 .getUSWDSInputTag(),
             FieldWithLabel.textArea()
                 .setId("question-text-input")
-                .setFieldName("question-text")
+                .setFieldName("questionText")
                 .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_QUESTION_TEXT.getKeyName()))
                 .getUSWDSTextareaTag(),
             FieldWithLabel.textArea()
                 .setId("hint-text-input")
-                .setFieldName("hint")
+                .setFieldName("questionHelpText")
                 .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_HINT_TEXT.getKeyName()))
                 .getUSWDSTextareaTag(),
             FieldWithLabel.number()
                 .setId("min-entity-count-input")
-                .setFieldName("min-entity-count")
+                .setFieldName("minEntities")
                 .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_MIN_ENTITIES.getKeyName()))
                 .getNumberTag(),
             FieldWithLabel.number()
                 .setId("max-entity-count-input")
-                .setFieldName("max-entity-count")
+                .setFieldName("maxEntities")
                 .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_MAX_ENTITIES.getKeyName()))
                 .getNumberTag(),
             AlertComponent.renderSlimInfoAlert(
@@ -888,7 +895,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .withId("eligibility-predicate")
             .withClasses("my-4")
             .with(div("Eligibility condition").withClasses("text-lg", "font-bold", "py-2"))
-            .with(renderEmptyEligibilityPredicate(program).withClasses("text-lg", "max-w-prose"));
+            .with(
+                renderEmptyEligibilityPredicate(program, viewAllowsEditingProgram())
+                    .withClasses("text-lg", "max-w-prose"));
     if (predicate.isEmpty()) {
       return div.with(
           renderEmptyPredicate(
@@ -911,7 +920,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
     }
   }
 
-  private DivTag renderEmptyEligibilityPredicate(ProgramDefinition program) {
+  private DivTag renderEmptyEligibilityPredicate(
+      ProgramDefinition program, boolean viewAllowsEditingProgram) {
     ImmutableList.Builder<DomContent> emptyPredicateContentBuilder = ImmutableList.builder();
     String eligibilityText =
         program.eligibilityIsGating()
@@ -924,15 +934,23 @@ public final class ProgramBlocksView extends ProgramBaseView {
             text(
                 "You can add eligibility conditions to determine if an applicant qualifies for the"
                     + " program. "))
-        .add(text(eligibilityText))
-        .add(text(" You can change this in the "))
-        .add(
-            a().withData("testid", "goto-program-settings-link")
-                .withText("program settings.")
-                .withHref(
-                    routes.AdminProgramController.edit(program.id(), ProgramEditStatus.EDIT.name())
-                        .url())
-                .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT));
+        .add(text(eligibilityText));
+
+    if (viewAllowsEditingProgram) {
+      emptyPredicateContentBuilder
+          .add(text(" You can change this in the "))
+          .add(
+              a().withData("testid", "goto-program-settings-link")
+                  .withText("program settings.")
+                  .withHref(
+                      routes.AdminProgramController.edit(
+                              program.id(), ProgramEditStatus.EDIT.name())
+                          .url())
+                  .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT));
+    } else {
+      emptyPredicateContentBuilder.add(
+          text(" You can change this in the program settings if your program is in draft mode."));
+    }
     return div().with(emptyPredicateContentBuilder.build());
   }
 

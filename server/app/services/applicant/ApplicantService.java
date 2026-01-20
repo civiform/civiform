@@ -96,7 +96,7 @@ import services.question.types.QuestionType;
 import services.question.types.ScalarType;
 import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
-import views.applicant.AddressCorrectionBlockView;
+import views.applicant.addresscorrection.AddressCorrectionBlockView;
 
 /**
  * The service responsible for accessing the Applicant resource. Applicants can view program
@@ -1360,7 +1360,7 @@ public final class ApplicantService {
           }
 
           ProgramType programType = program.programType();
-          if (programType.equals(ProgramType.COMMON_INTAKE_FORM)) {
+          if (programType.equals(ProgramType.PRE_SCREENER_FORM)) {
             relevantPrograms.setPreScreenerForm(applicantProgramDataBuilder.build());
           } else if (programType.equals(ProgramType.DEFAULT)
               || (programType.equals(ProgramType.EXTERNAL)

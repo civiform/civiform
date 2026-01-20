@@ -107,7 +107,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
 import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
-import views.applicant.AddressCorrectionBlockView;
+import views.applicant.addresscorrection.AddressCorrectionBlockView;
 
 public class ApplicantServiceTest extends ResetPostgres {
 
@@ -2616,8 +2616,8 @@ public class ApplicantServiceTest extends ResetPostgres {
   @Test
   public void relevantProgramsForApplicant() {
     ApplicantModel applicant = createTestApplicant();
-    ProgramModel commonIntakeForm =
-        ProgramBuilder.newActiveCommonIntakeForm("common_intake_form")
+    ProgramModel preScreenerForm =
+        ProgramBuilder.newActivePreScreenerForm("pre_screener_form")
             .withBlock()
             .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
             .build();
@@ -2635,7 +2635,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         ProgramBuilder.newActiveProgram("program_for_unapplied").withBlock().build();
 
     applicationRepository
-        .createOrUpdateDraft(applicant.id, commonIntakeForm.id)
+        .createOrUpdateDraft(applicant.id, preScreenerForm.id)
         .toCompletableFuture()
         .join();
     applicationRepository
@@ -2675,7 +2675,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             result.unapplied().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
         .containsExactly(Optional.empty(), Optional.empty());
     assertThat(result.preScreenerForm().isPresent()).isTrue();
-    assertThat(result.preScreenerForm().get().program().id()).isEqualTo(commonIntakeForm.id);
+    assertThat(result.preScreenerForm().get().program().id()).isEqualTo(preScreenerForm.id);
     assertThat(result.allPrograms())
         .containsExactlyInAnyOrder(
             result.preScreenerForm().get(),
@@ -2684,14 +2684,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             result.unapplied().get(0),
             result.unapplied().get(1));
     assertThat(result.inProgressIncludingPreScreener().stream().map(p -> p.program().id()))
-        .containsExactlyInAnyOrder(commonIntakeForm.id, programForDraft.id);
+        .containsExactlyInAnyOrder(preScreenerForm.id, programForDraft.id);
   }
 
   @Test
   public void relevantProgramsWithoutApplicant() {
     // Note that setup() creates a test-program program in addition to these.
-    ProgramModel commonIntakeForm =
-        ProgramBuilder.newActiveCommonIntakeForm("common_intake_form")
+    ProgramModel preScreenerForm =
+        ProgramBuilder.newActivePreScreenerForm("pre_screener_form")
             .withBlock()
             .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
             .build();
@@ -2719,14 +2719,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             result.unapplied().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
         .containsExactly(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
     assertThat(result.preScreenerForm().isPresent()).isTrue();
-    assertThat(result.preScreenerForm().get().program().id()).isEqualTo(commonIntakeForm.id);
+    assertThat(result.preScreenerForm().get().program().id()).isEqualTo(preScreenerForm.id);
     assertThat(result.allPrograms().stream().map(p -> p.program().id()))
         .containsExactlyInAnyOrder(
-            commonIntakeForm.id, program1.id, program2.id, program3.id, programDefinition.id());
+            preScreenerForm.id, program1.id, program2.id, program3.id, programDefinition.id());
   }
 
   @Test
-  public void relevantProgramsForApplicant_noCommonIntakeForm() {
+  public void relevantProgramsForApplicant_nopreScreenerForm() {
     ApplicantModel applicant = createTestApplicant();
     ProgramModel programForDraft =
         ProgramBuilder.newActiveProgram("program_for_draft")
@@ -2786,10 +2786,10 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void relevantProgramsForApplicant_commonIntakeFormHasCorrectLifecycleStage() {
+  public void relevantProgramsForApplicant_preScreenerFormHasCorrectLifecycleStage() {
     ApplicantModel applicant = createTestApplicant();
-    ProgramModel commonIntakeForm =
-        ProgramBuilder.newActiveCommonIntakeForm("common_intake_form")
+    ProgramModel preScreenerForm =
+        ProgramBuilder.newActivePreScreenerForm("pre_screener_form")
             .withBlock()
             .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
             .build();
@@ -2805,13 +2805,13 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(result.unapplied().stream().map(p -> p.program().id()))
         .containsExactlyInAnyOrder(programDefinition.id());
     assertThat(result.preScreenerForm().isPresent()).isTrue();
-    assertThat(result.preScreenerForm().get().program().id()).isEqualTo(commonIntakeForm.id);
+    assertThat(result.preScreenerForm().get().program().id()).isEqualTo(preScreenerForm.id);
     assertThat(result.preScreenerForm().get().latestApplicationLifecycleStage().isPresent())
         .isFalse();
 
     // CIF application in progress.
     applicationRepository
-        .createOrUpdateDraft(applicant.id, commonIntakeForm.id)
+        .createOrUpdateDraft(applicant.id, preScreenerForm.id)
         .toCompletableFuture()
         .join();
     result =
@@ -2824,7 +2824,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(result.unapplied().stream().map(p -> p.program().id()))
         .containsExactlyInAnyOrder(programDefinition.id());
     assertThat(result.preScreenerForm().isPresent()).isTrue();
-    assertThat(result.preScreenerForm().get().program().id()).isEqualTo(commonIntakeForm.id);
+    assertThat(result.preScreenerForm().get().program().id()).isEqualTo(preScreenerForm.id);
     assertThat(result.preScreenerForm().get().latestApplicationLifecycleStage().isPresent())
         .isTrue();
     assertThat(result.preScreenerForm().get().latestApplicationLifecycleStage().get())
@@ -2834,7 +2834,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicationRepository
         .submitApplication(
             applicant.id,
-            commonIntakeForm.id,
+            preScreenerForm.id,
             Optional.empty(),
             EligibilityDetermination.NOT_COMPUTED)
         .toCompletableFuture()
@@ -2846,7 +2846,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .join();
     assertThat(result.inProgress()).isEmpty();
     assertThat(result.submitted().stream().map(p -> p.program().id()))
-        .containsExactly(commonIntakeForm.id);
+        .containsExactly(preScreenerForm.id);
     assertThat(result.unapplied().stream().map(p -> p.program().id()))
         .containsExactlyInAnyOrder(programDefinition.id());
   }
@@ -2980,7 +2980,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void relevantProgramsForApplicant_externalProgram_NorthStar() {
+  public void relevantProgramsForApplicant_externalProgram() {
     ApplicantModel applicant = createTestApplicant();
     ProgramModel externalProgram =
         ProgramBuilder.newActiveProgram(
@@ -3794,7 +3794,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     EligibilityDefinition unansweredQuestionEligibilityDefinition =
         createEligibilityDefinition(unansweredQuestion, "Sza");
 
-    // Setup program for answering questions (not necessarily a common intake program)
+    // Setup program for answering questions (not necessarily a pre-screener program)
     ProgramModel programForAnsweringQuestions =
         ProgramBuilder.newDraftProgram("other program")
             .withBlock()
@@ -4050,23 +4050,23 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void maybeEligibleProgramsForApplicant_doesNotIncludeCommonIntake() {
+  public void maybeEligibleProgramsForApplicant_doesNotIncludePreScreener() {
     // Set up applicant
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
 
-    // Set up common intake form
+    // Set up pre-screener form
     NameQuestionDefinition question = createNameQuestion("question");
-    ProgramModel commonIntakeForm =
+    ProgramModel preScreenerForm =
         ProgramBuilder.newDraftProgram(
                 ProgramDefinition.builder()
                     .setId(new Random().nextLong())
-                    .setAdminName("common_intake_form")
-                    .setAdminDescription("common_intake_form")
+                    .setAdminName("pre_screener_form")
+                    .setAdminDescription("pre_screener_form")
                     .setExternalLink("https://usa.gov")
                     .setDisplayMode(DisplayMode.PUBLIC)
-                    .setProgramType(ProgramType.COMMON_INTAKE_FORM)
+                    .setProgramType(ProgramType.PRE_SCREENER_FORM)
                     .setEligibilityIsGating(false)
                     .setLoginOnly(false)
                     .setAcls(new ProgramAcls())
@@ -4086,9 +4086,9 @@ public class ApplicantServiceTest extends ResetPostgres {
         "Allison",
         "Swift",
         "I",
-        commonIntakeForm.getProgramDefinition().getBlockDefinitionByIndex(0).orElseThrow().id(),
+        preScreenerForm.getProgramDefinition().getBlockDefinitionByIndex(0).orElseThrow().id(),
         applicant.id,
-        commonIntakeForm.id);
+        preScreenerForm.id);
 
     // We need at least one application for the ApplicantService to bother filling eligibility
     // statuses. It doesn't have to be the same one we're filling out.
@@ -4106,7 +4106,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     var matchingProgramIds =
         result.stream().map(pd -> pd.program().id()).collect(ImmutableList.toImmutableList());
-    assertThat(matchingProgramIds).doesNotContain(commonIntakeForm.id);
+    assertThat(matchingProgramIds).doesNotContain(preScreenerForm.id);
   }
 
   @Test

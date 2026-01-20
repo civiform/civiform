@@ -8,7 +8,7 @@
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
     <main id="main-content" tabindex="-1">
       <div
-        th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle}, ${programShortDescription})}"
+        th:replace="~{applicant/blocks/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle}, ${programShortDescription})}"
       ></div>
       <div
         th:replace="~{components/SeparatorLineFragment :: separatorLineFragment()}"
