@@ -75,7 +75,7 @@ export class AdminPredicateEdit {
       Array.from(
         document.querySelectorAll('.cf-predicate-scalar-select select'),
       ).forEach((el) => {
-        const event = new CustomEvent('change', {bubbles: true})
+        const event = new Event('change', {bubbles: true})
         el.dispatchEvent(event)
       })
 
@@ -83,7 +83,7 @@ export class AdminPredicateEdit {
       Array.from(
         document.querySelectorAll('.cf-predicate-operator-select select'),
       ).forEach((el) => {
-        const event = new CustomEvent('change', {bubbles: true})
+        const event = new Event('change', {bubbles: true})
         el.dispatchEvent(event)
       })
 
@@ -91,7 +91,7 @@ export class AdminPredicateEdit {
       Array.from(
         document.querySelectorAll('.cf-subcondition-logic-select'),
       ).forEach((el) => {
-        const event = new CustomEvent('change', {bubbles: true})
+        const event = new Event('change', {bubbles: true})
         el.dispatchEvent(event)
       })
     }
@@ -143,7 +143,7 @@ export class AdminPredicateEdit {
     Array.from(
       document.querySelectorAll('.cf-predicate-scalar-select select'),
     ).forEach((el) => {
-      const event = new CustomEvent('change', {bubbles: true})
+      const event = new Event('change', {bubbles: true})
       el.dispatchEvent(event)
     })
 
@@ -151,13 +151,13 @@ export class AdminPredicateEdit {
     Array.from(
       document.querySelectorAll('.cf-predicate-operator-select select'),
     ).forEach((el) => {
-      const event = new CustomEvent('change', {bubbles: true})
+      const event = new Event('change', {bubbles: true})
       el.dispatchEvent(event)
     })
 
     // Trigger change to update condition logic separators based on current node type selected.
     Array.from(document.querySelectorAll('#root-node-type')).forEach((el) => {
-      const event = new CustomEvent('change', {bubbles: true})
+      const event = new Event('change', {bubbles: true})
       el.dispatchEvent(event)
     })
 
@@ -165,7 +165,7 @@ export class AdminPredicateEdit {
     Array.from(
       document.querySelectorAll('.cf-subcondition-logic-select'),
     ).forEach((el) => {
-      const event = new CustomEvent('change', {bubbles: true})
+      const event = new Event('change', {bubbles: true})
       el.dispatchEvent(event)
     })
   }
