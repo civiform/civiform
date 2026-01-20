@@ -16,7 +16,7 @@
     <ul class="zero-padding usa-list--unstyled">
       <li th:each="answerData : ${blockSummary.answerData()}">
         <div
-          th:replace="~{applicant/QuestionSummaryFragment :: questionSummaryFragment(${answerData})}"
+          th:replace="~{applicant/review/QuestionSummaryFragment :: questionSummaryFragment(${answerData})}"
         ></div>
       </li>
     </ul>
