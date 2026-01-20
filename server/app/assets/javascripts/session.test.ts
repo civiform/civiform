@@ -705,6 +705,7 @@ describe('SessionTimeoutHandler', () => {
         expect(setWarningModalVisibleSpy).toHaveBeenCalledWith(
           WarningType.INACTIVITY,
           true,
+          expect.any(Number),
         )
       })
 
@@ -782,6 +783,7 @@ describe('SessionTimeoutHandler', () => {
         expect(setWarningModalVisibleSpy).toHaveBeenCalledWith(
           WarningType.INACTIVITY,
           true,
+          expect.any(Number),
         )
       })
     })
