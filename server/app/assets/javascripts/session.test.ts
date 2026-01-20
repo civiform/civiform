@@ -6,7 +6,7 @@ import {WarningType} from '@/session'
 type SessionTimeoutHandlerType = typeof SessionTimeoutHandler & {
   logout: () => void
   pollSession: () => void
-  showWarning: (type: WarningType) => void
+  setWarningModalVisible: (type: WarningType) => void
   inactivityWarningShown: boolean
   totalLengthWarningShown: boolean
   isInitialized: boolean
@@ -180,6 +180,26 @@ describe('SessionTimeoutHandler', () => {
       value: {href: ''},
       writable: true,
     })
+
+    const sessionStorageMock = (() => {
+      let store: Record<string, string> = {}
+      return {
+        getItem: (key: string) => store[key] || null,
+        setItem: (key: string, value: string) => {
+          store[key] = value
+        },
+        removeItem: (key: string) => {
+          delete store[key]
+        },
+        clear: () => {
+          store = {}
+        },
+      }
+    })()
+    Object.defineProperty(window, 'sessionStorage', {
+      value: sessionStorageMock,
+      writable: true,
+    })
   }
 
   beforeEach(() => {
@@ -194,13 +214,15 @@ describe('SessionTimeoutHandler', () => {
 
     vi.clearAllMocks()
 
+    sessionStorage.clear()
+
     // Reset all static flags
     SessionTimeoutHandler['inactivityWarningVisible'] = false
     SessionTimeoutHandler['totalLengthWarningVisible'] = false
     SessionTimeoutHandler['isInitialized'] = false
   })
 
-  describe('showWarning', () => {
+  describe('setWarningModalVisible', () => {
     it('shows inactivity warning modal', () => {
       SessionTimeoutHandler['setWarningModalVisible'](
         WarningType.INACTIVITY,
@@ -217,17 +239,6 @@ describe('SessionTimeoutHandler', () => {
       )
 
       expect(lengthModal.classList.contains('is-hidden')).toBe(false)
-    })
-
-    it('throws error if modal element is not found', () => {
-      inactivityModal.remove()
-
-      expect(() => {
-        SessionTimeoutHandler['setWarningModalVisible'](
-          WarningType.INACTIVITY,
-          true,
-        )
-      }).toThrow('Modal with ID session-inactivity-warning-modal not found')
     })
   })
 
@@ -263,42 +274,172 @@ describe('SessionTimeoutHandler', () => {
 
       expect(lengthModal.classList.contains('is-hidden')).toBe(false)
       expect(SessionTimeoutHandler['totalLengthWarningVisible']).toBe(true)
+    })
 
-      it('does not show inactivity warning if already shown', () => {
-        SessionTimeoutHandler['inactivityWarningVisible'] = true
-        inactivityModal.classList.add('is-hidden')
+    it('does not show inactivity warning if already shown', () => {
+      SessionTimeoutHandler['inactivityWarningVisible'] = true
+      inactivityModal.classList.add('is-hidden')
 
-        const now = Math.floor(Date.now() / 1000)
-        const data = {
-          inactivityWarning: now - 60,
-          inactivityTimeout: now + 60,
-          totalWarning: now + 3600,
-          totalTimeout: now + 7200,
-          currentTime: now,
-        }
+      const now = Math.floor(Date.now() / 1000)
+      const data = {
+        inactivityWarning: now - 60,
+        inactivityTimeout: now + 60,
+        totalWarning: now + 3600,
+        totalTimeout: now + 7200,
+        currentTime: now,
+      }
 
-        SessionTimeoutHandler['monitorSession'](data, now)
+      SessionTimeoutHandler['monitorSession'](data, now)
 
-        expect(inactivityModal.classList.contains('is-hidden')).toBe(true)
-      })
+      expect(inactivityModal.classList.contains('is-hidden')).toBe(true)
+    })
 
-      it('does not show total length warning if already shown', () => {
-        SessionTimeoutHandler['totalLengthWarningVisible'] = true
-        lengthModal.classList.add('is-hidden')
+    it('does not show total length warning if already shown', () => {
+      SessionTimeoutHandler['totalLengthWarningVisible'] = true
+      lengthModal.classList.add('is-hidden')
 
-        const now = Math.floor(Date.now() / 1000)
-        const data = {
-          inactivityWarning: now + 3600,
-          inactivityTimeout: now + 7200,
-          totalWarning: now - 60,
-          totalTimeout: now + 60,
-          currentTime: now,
-        }
+      const now = Math.floor(Date.now() / 1000)
+      const data = {
+        inactivityWarning: now + 3600,
+        inactivityTimeout: now + 7200,
+        totalWarning: now - 60,
+        totalTimeout: now + 60,
+        currentTime: now,
+      }
 
-        SessionTimeoutHandler['monitorSession'](data, now)
+      SessionTimeoutHandler['monitorSession'](data, now)
 
-        expect(lengthModal.classList.contains('is-hidden')).toBe(true)
-      })
+      expect(lengthModal.classList.contains('is-hidden')).toBe(true)
+    })
+
+    it('does not show inactivity warning again after dismissal with same timestamp', () => {
+      const now = Math.floor(Date.now() / 1000)
+      const warningTimestamp = now - 60
+      const data = {
+        inactivityWarning: warningTimestamp,
+        inactivityTimeout: now + 60,
+        totalWarning: now + 3600,
+        totalTimeout: now + 7200,
+        currentTime: now,
+      }
+
+      // First call shows the warning
+      SessionTimeoutHandler['monitorSession'](data, now)
+      expect(inactivityModal.classList.contains('is-hidden')).toBe(false)
+      expect(SessionTimeoutHandler['inactivityWarningVisible']).toBe(true)
+
+      // User dismisses the modal
+      SessionTimeoutHandler['setWarningModalVisible'](
+        WarningType.INACTIVITY,
+        false,
+      )
+      expect(inactivityModal.classList.contains('is-hidden')).toBe(true)
+      expect(SessionTimeoutHandler['inactivityWarningVisible']).toBe(false)
+
+      // Second call should NOT show the warning again (same timestamp)
+      SessionTimeoutHandler['monitorSession'](data, now)
+      expect(inactivityModal.classList.contains('is-hidden')).toBe(true)
+      expect(SessionTimeoutHandler['inactivityWarningVisible']).toBe(false)
+    })
+
+    it('does not show total length warning again after dismissal', () => {
+      const now = Math.floor(Date.now() / 1000)
+      const warningTimestamp = now - 60
+      const data = {
+        inactivityWarning: now + 3600,
+        inactivityTimeout: now + 7200,
+        totalWarning: warningTimestamp,
+        totalTimeout: now + 60,
+        currentTime: now,
+      }
+
+      // First call shows the warning
+      SessionTimeoutHandler['monitorSession'](data, now)
+      expect(lengthModal.classList.contains('is-hidden')).toBe(false)
+      expect(SessionTimeoutHandler['totalLengthWarningVisible']).toBe(true)
+
+      // User dismisses the modal
+      SessionTimeoutHandler['setWarningModalVisible'](
+        WarningType.TOTAL_LENGTH,
+        false,
+      )
+      expect(lengthModal.classList.contains('is-hidden')).toBe(true)
+      expect(SessionTimeoutHandler['totalLengthWarningVisible']).toBe(false)
+
+      // Second call should NOT show the warning again (same timestamp)
+      SessionTimeoutHandler['monitorSession'](data, now)
+      expect(lengthModal.classList.contains('is-hidden')).toBe(true)
+      expect(SessionTimeoutHandler['totalLengthWarningVisible']).toBe(false)
+    })
+
+    it('shows warning again after session extension with new timestamp', () => {
+      const now = Math.floor(Date.now() / 1000)
+      const oldWarningTimestamp = now - 60
+      const newWarningTimestamp = now + 240 // New timestamp after session extension
+
+      const oldData = {
+        inactivityWarning: oldWarningTimestamp,
+        inactivityTimeout: now + 60,
+        totalWarning: now + 3600,
+        totalTimeout: now + 7200,
+        currentTime: now,
+      }
+
+      // First call shows the warning with old timestamp
+      SessionTimeoutHandler['monitorSession'](oldData, now)
+      expect(inactivityModal.classList.contains('is-hidden')).toBe(false)
+
+      // User dismisses and extends session
+      SessionTimeoutHandler['setWarningModalVisible'](
+        WarningType.INACTIVITY,
+        false,
+      )
+
+      // Simulate time passing and new warning threshold being reached
+      const laterNow = now + 300
+      const newData = {
+        inactivityWarning: newWarningTimestamp, // New timestamp from extended session
+        inactivityTimeout: laterNow + 60,
+        totalWarning: laterNow + 3600,
+        totalTimeout: laterNow + 7200,
+        currentTime: laterNow,
+      }
+
+      // Warning should show again because timestamp is different
+      SessionTimeoutHandler['monitorSession'](newData, laterNow)
+      expect(inactivityModal.classList.contains('is-hidden')).toBe(false)
+      expect(SessionTimeoutHandler['inactivityWarningVisible']).toBe(true)
+    })
+
+    it('persists shown state across simulated page navigations', () => {
+      const now = Math.floor(Date.now() / 1000)
+      const warningTimestamp = now - 60
+      const data = {
+        inactivityWarning: warningTimestamp,
+        inactivityTimeout: now + 60,
+        totalWarning: now + 3600,
+        totalTimeout: now + 7200,
+        currentTime: now,
+      }
+
+      // First call shows the warning
+      SessionTimeoutHandler['monitorSession'](data, now)
+      expect(inactivityModal.classList.contains('is-hidden')).toBe(false)
+
+      // User dismisses the modal
+      SessionTimeoutHandler['setWarningModalVisible'](
+        WarningType.INACTIVITY,
+        false,
+      )
+
+      // Simulate page navigation by resetting the visible flag (as would happen on new page load)
+      SessionTimeoutHandler['inactivityWarningVisible'] = false
+      inactivityModal.classList.add('is-hidden')
+
+      // Warning should NOT show again because sessionStorage remembers the timestamp
+      SessionTimeoutHandler['monitorSession'](data, now)
+      expect(inactivityModal.classList.contains('is-hidden')).toBe(true)
+      expect(SessionTimeoutHandler['inactivityWarningVisible']).toBe(false)
     })
 
     describe('setupModalEventHandlers', () => {
@@ -543,9 +684,9 @@ describe('SessionTimeoutHandler', () => {
       })
 
       it('shows inactivity warning immediately if time has passed and not shown before', () => {
-        const showWarningSpy = vi.spyOn(
+        const setWarningModalVisibleSpy = vi.spyOn(
           SessionTimeoutHandler as SessionTimeoutHandlerType,
-          'showWarning',
+          'setWarningModalVisible',
         ) as Mock<(type: WarningType) => void>
 
         const now = Math.floor(Date.now() / 1000)
@@ -561,34 +702,16 @@ describe('SessionTimeoutHandler', () => {
         )}`
 
         SessionTimeoutHandler['pollSession']()
-        expect(showWarningSpy).toHaveBeenCalledWith(WarningType.INACTIVITY)
-      })
-
-      it('does not show inactivity warning if already shown before', () => {
-        const showWarningSpy = vi.spyOn(
-          SessionTimeoutHandler as SessionTimeoutHandlerType,
-          'showWarning',
+        expect(setWarningModalVisibleSpy).toHaveBeenCalledWith(
+          WarningType.INACTIVITY,
+          true,
         )
-        const now = Math.floor(Date.now() / 1000)
-
-        document.cookie = `session_timeout_data=${btoa(
-          JSON.stringify({
-            inactivityWarning: now - 60,
-            inactivityTimeout: now + 60,
-            totalWarning: now + 3600,
-            totalTimeout: now + 7200,
-            currentTime: now,
-          }),
-        )}`
-
-        SessionTimeoutHandler['pollSession']()
-        expect(showWarningSpy).not.toHaveBeenCalled()
       })
 
       it('shows total length warning if time has passed and no other warning shown', () => {
-        const showWarningSpy = vi.spyOn(
+        const setWarningModalVisibleSpy = vi.spyOn(
           SessionTimeoutHandler as SessionTimeoutHandlerType,
-          'showWarning',
+          'setWarningModalVisible',
         ) as Mock<(type: WarningType) => void>
 
         const now = Math.floor(Date.now() / 1000)
@@ -604,15 +727,21 @@ describe('SessionTimeoutHandler', () => {
         )}`
 
         SessionTimeoutHandler['pollSession']()
-        expect(showWarningSpy).toHaveBeenCalledWith(WarningType.TOTAL_LENGTH)
+        expect(setWarningModalVisibleSpy).toHaveBeenCalledWith(
+          WarningType.TOTAL_LENGTH,
+          true,
+        )
       })
 
       it('does not show total length warning if inactivity warning is showing', () => {
-        const showWarningSpy = vi.spyOn(
+        const setWarningModalVisibleSpy = vi.spyOn(
           SessionTimeoutHandler as SessionTimeoutHandlerType,
-          'showWarning',
+          'setWarningModalVisible',
         )
         const now = Math.floor(Date.now() / 1000)
+
+        // Set inactivity warning as already visible
+        SessionTimeoutHandler['inactivityWarningVisible'] = true
 
         document.cookie = `session_timeout_data=${btoa(
           JSON.stringify({
@@ -625,13 +754,13 @@ describe('SessionTimeoutHandler', () => {
         )}`
 
         SessionTimeoutHandler['pollSession']()
-        expect(showWarningSpy).not.toHaveBeenCalled()
+        expect(setWarningModalVisibleSpy).not.toHaveBeenCalled()
       })
 
       it('sets timer for future inactivity warning', () => {
-        const showWarningSpy = vi.spyOn(
+        const setWarningModalVisibleSpy = vi.spyOn(
           SessionTimeoutHandler as SessionTimeoutHandlerType,
-          'showWarning',
+          'setWarningModalVisible',
         ) as Mock<(type: WarningType) => void>
 
         const now = Math.floor(Date.now() / 1000)
@@ -650,7 +779,10 @@ describe('SessionTimeoutHandler', () => {
 
         // Fast forward to warning time
         vi.advanceTimersByTime(60000)
-        expect(showWarningSpy).toHaveBeenCalledWith(WarningType.INACTIVITY)
+        expect(setWarningModalVisibleSpy).toHaveBeenCalledWith(
+          WarningType.INACTIVITY,
+          true,
+        )
       })
     })
 

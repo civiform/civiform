@@ -48,6 +48,11 @@ export const enum SessionModalType {
 export class SessionTimeoutHandler {
   /** Name of cookie storing timeout data */
   private static TIMEOUT_COOKIE_NAME = 'session_timeout_data'
+  /** sessionStorage key for tracking shown inactivity warning timestamp */
+  private static INACTIVITY_WARNING_SHOWN_KEY =
+    'session_inactivity_warning_shown'
+  /** sessionStorage key for tracking shown total warning timestamp */
+  private static TOTAL_WARNING_SHOWN_KEY = 'session_total_warning_shown'
   /** Tracks if inactivity warning is currently visible */
   private static inactivityWarningVisible = false
   /** Tracks if total length warning is currently visible */
@@ -77,13 +82,28 @@ export class SessionTimeoutHandler {
       return
     }
 
-    // 2 & 3. Show warnings if their time has passed and not dismissed
-    if (data.inactivityWarning <= now) {
-      this.setWarningModalVisible(WarningType.INACTIVITY, true)
+    // Show inactivity warning if threshold passed and not already shown for this timestamp
+    const lastShownInactivity = sessionStorage.getItem(
+      this.INACTIVITY_WARNING_SHOWN_KEY,
+    )
+    if (
+      data.inactivityWarning <= now &&
+      lastShownInactivity !== data.inactivityWarning.toString()
+    ) {
+      this.setWarningModalVisible(
+        WarningType.INACTIVITY,
+        true,
+        data.inactivityWarning,
+      )
       return
     }
 
-    if (data.totalWarning <= now) {
+    // Show total length warning if threshold passed AND not already shown
+    // (Total session length cannot be extended, so a simple boolean suffices)
+    const totalWarningShown = sessionStorage.getItem(
+      this.TOTAL_WARNING_SHOWN_KEY,
+    )
+    if (data.totalWarning <= now && !totalWarningShown) {
       this.setWarningModalVisible(WarningType.TOTAL_LENGTH, true)
       return
     }
@@ -91,10 +111,8 @@ export class SessionTimeoutHandler {
 
   private static pollSession() {
     const data = this.getTimeoutData()
-    const now = Math.floor(Date.now() / 1000)
-    if (!data) {
-      console.warn('No session timeout data available')
-    } else {
+    if (data) {
+      const now = Math.floor(Date.now() / 1000)
       this.monitorSession(data, now)
     }
 
@@ -281,11 +299,18 @@ export class SessionTimeoutHandler {
   }
 
   /**
-   * Shows a warning modal of the specified type.
+   * Shows or hides a warning modal of the specified type.
+   * When showing, also records in sessionStorage that the warning was shown.
    *
    * @param type Type of warning to show (inactivity or total length)
+   * @param visible Whether to show or hide the modal
+   * @param warningTimestamp For inactivity warnings, the timestamp to record (used to detect session extension)
    */
-  private static setWarningModalVisible(type: WarningType, visible: boolean) {
+  private static setWarningModalVisible(
+    type: WarningType,
+    visible: boolean,
+    warningTimestamp?: number,
+  ) {
     const modalId =
       type === WarningType.INACTIVITY
         ? `${SessionModalType.INACTIVITY}-modal`
@@ -295,8 +320,17 @@ export class SessionTimeoutHandler {
 
     if (type === WarningType.INACTIVITY) {
       this.inactivityWarningVisible = visible
+      if (visible && warningTimestamp !== undefined) {
+        sessionStorage.setItem(
+          this.INACTIVITY_WARNING_SHOWN_KEY,
+          warningTimestamp.toString(),
+        )
+      }
     } else {
       this.totalLengthWarningVisible = visible
+      if (visible) {
+        sessionStorage.setItem(this.TOTAL_WARNING_SHOWN_KEY, 'true')
+      }
     }
   }
 
