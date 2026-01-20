@@ -484,6 +484,4 @@ public class ApplicantRoutesTest extends ResetPostgres {
                 .url())
         .isEqualTo(expectedReviewUrl);
   }
-
-
 }
