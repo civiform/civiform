@@ -409,7 +409,7 @@ test.describe('create and edit predicates', () => {
     })
 
     await test.step('Edit visibility predicate', async () => {
-      // Edit eligibility predicate
+      // Edit visibility predicate
       await adminPrograms.goToEditBlockVisibilityPredicatePage(
         programName,
         'Screen 2',
@@ -1283,6 +1283,7 @@ test.describe('create and edit predicates', () => {
 
       await adminPredicates.expectNoAddConditionButton()
       await adminPredicates.expectNoDeleteAllConditionsButton()
+      await expect(page.locator('#submit-predicate')).toBeDisabled()
       await validateScreenshot(page, 'no-available-eligibility-questions')
     })
 
@@ -1296,6 +1297,7 @@ test.describe('create and edit predicates', () => {
 
       await adminPredicates.expectNoAddConditionButton()
       await adminPredicates.expectNoDeleteAllConditionsButton()
+      await expect(page.locator('#submit-predicate')).toBeDisabled()
       await validateScreenshot(page, 'no-available-visibility-questions')
     })
   })
