@@ -2,16 +2,14 @@ import {test, expect} from './support/civiform_fixtures'
 import {
   enableFeatureFlag,
   loginAsAdmin,
-  logout,
   validateScreenshot,
   waitForPageJsLoad,
 } from './support'
 import {ProgramVisibility} from './support/admin_programs'
 
 test.describe('Viewing API docs', () => {
-  test.beforeEach(async ({page, seeding}) => {
+  test.beforeEach(async ({seeding}) => {
     await seeding.seedProgramsAndCategories()
-    await enableFeatureFlag(page, 'api_generated_docs_enabled')
   })
 
   test('Views active API docs', async ({
@@ -66,60 +64,6 @@ test.describe('Viewing API docs', () => {
       await validateScreenshot(
         page,
         'minimal-program-active-version-with-multiple-upload',
-      )
-    })
-  })
-
-  test('Views active API docs without logging in', async ({
-    page,
-    adminPrograms,
-    context,
-  }) => {
-    await page.goto('/')
-    await loginAsAdmin(page)
-
-    await adminPrograms.publishAllDrafts()
-
-    const freshPage =
-      await test.step('Log out and clear cookies before accessing API docs', async () => {
-        await page.getByRole('button', {name: 'API'}).click()
-
-        const apiDocsUrl = await page
-          .getByRole('link', {name: 'Documentation'})
-          .getAttribute('href')
-
-        await logout(page)
-        await context.clearCookies()
-        const freshPage = await context.newPage()
-        await freshPage.goto(apiDocsUrl!)
-        await waitForPageJsLoad(freshPage)
-        return freshPage
-      })
-
-    await test.step('Verify default comprehensive sample program', async () => {
-      await expect(
-        freshPage.getByRole('complementary').getByRole('code'),
-      ).toContainText('"program_name" : "comprehensive-sample-program"')
-
-      await validateScreenshot(
-        freshPage,
-        'comprehensive-program-active-version-logged-out-with-multiple-upload',
-      )
-    })
-
-    await test.step('Select a different program and verify minimal sample program', async () => {
-      await freshPage.selectOption('#select-slug', {
-        value: 'minimal-sample-program',
-      })
-
-      await waitForPageJsLoad(freshPage)
-
-      expect(await freshPage.textContent('html')).toContain(
-        '"program_name" : "minimal-sample-program"',
-      )
-      await validateScreenshot(
-        freshPage,
-        'minimal-program-active-version-logged-out-with-multiple-upload',
       )
     })
   })

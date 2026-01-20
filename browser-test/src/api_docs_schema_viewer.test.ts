@@ -6,9 +6,8 @@ test.describe('Viewing API docs', () => {
   const program1 = 'comprehensive-sample-program'
   const program2 = 'minimal-sample-program'
 
-  test.beforeEach(async ({page, seeding}) => {
+  test.beforeEach(async ({seeding}) => {
     await seeding.seedProgramsAndCategories()
-    await enableFeatureFlag(page, 'api_generated_docs_enabled')
   })
 
   test.use({

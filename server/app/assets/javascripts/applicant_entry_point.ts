@@ -15,7 +15,6 @@ import * as fileUpload from './file_upload'
 import * as azureDelete from './azure_delete'
 import * as azureUpload from './azure_upload'
 import * as phoneNumber from './phone'
-import * as apiDocs from './api_docs'
 import * as htmx from './htmx'
 import {SessionTimeoutHandler} from './session'
 
@@ -42,7 +41,5 @@ window.addEventListener('load', () => {
   azureDelete.init()
   azureUpload.init(AZURE_APPLICANT_FILEUPLOAD_FORM_ID)
   phoneNumber.init()
-  // API docs are publicly visible, so we need the supporting scripts here.
-  apiDocs.init()
   SessionTimeoutHandler.init()
 })
