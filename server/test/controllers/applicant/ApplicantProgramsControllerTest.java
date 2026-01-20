@@ -234,7 +234,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void indexWithApplicantId_withCommonIntakeform_includesStartHereButtonWithRedirect() {
+  public void indexWithApplicantId_withPreScreenerform_includesStartHereButtonWithRedirect() {
     ProgramModel program = resourceCreator().insertActivePreScreenerForm("benefits");
 
     Result result =
@@ -244,7 +244,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
             .join();
 
     assertThat(result.status()).isEqualTo(OK);
-    // In North Star, unstarted common intake forms use the edit URL with program ID
+    // Unstarted pre-screener forms use the edit URL with program ID
     // (not the show URL with slug) to skip the program overview page.
     // For regular applicants (non-TI), the URL doesn't include the applicant ID prefix.
     assertThat(contentAsString(result))

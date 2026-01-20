@@ -134,7 +134,7 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
   }
 
   @Test
-  public void getActionUrl_returnsEditUrlWhenCommonIntake() {
+  public void getActionUrl_returnsEditUrlWhenPreScreener() {
     ApplicantRoutes applicantRoutes = new ApplicantRoutes();
     String url =
         ProgramCardsSectionParamsFactory.getActionUrl(
@@ -151,7 +151,7 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
   }
 
   @Test
-  public void getActionUrl_returnsEditUrlWhenCommonIntakeWithApplicantIdWhenPresent() {
+  public void getActionUrl_returnsEditUrlWhenPreScreenerWithApplicantIdWhenPresent() {
     ApplicantRoutes applicantRoutes = new ApplicantRoutes();
     String url =
         ProgramCardsSectionParamsFactory.getActionUrl(
