@@ -1136,6 +1136,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("ENUMERATOR_IMPROVEMENTS_ENABLED", request);
   }
 
+  /** (NOT FOR PRODUCTION USE) Enable the admin UI migration in Thymeleaf. */
+  public boolean getAdminUiMigrationScEnabled(RequestHeader request) {
+    return getBool("ADMIN_UI_MIGRATION_SC_ENABLED", request);
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.<String, SettingsSection>builder()
           .put(
@@ -2409,6 +2414,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "ENUMERATOR_IMPROVEMENTS_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables improvements which make it easier for"
                               + " admins to work with enumerators.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "ADMIN_UI_MIGRATION_SC_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enable the admin UI migration in Thymeleaf.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))
