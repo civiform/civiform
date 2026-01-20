@@ -20,7 +20,8 @@ public record EditConditionPartialViewModel(
     ImmutableList<OptionElement> questionOptions,
     ImmutableList<ScalarOptionElement> scalarOptions,
     ImmutableList<OptionElement> operatorOptions,
-    ImmutableList<OptionElement> valueOptions)
+    ImmutableList<OptionElement> valueOptions,
+    boolean focusLogicDropdown)
     implements EditPredicateBaseViewModel {
 
   public String hxAddConditionEndpoint() {

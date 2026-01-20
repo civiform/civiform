@@ -267,12 +267,16 @@ test.describe('create and edit predicates', () => {
       await page.reload()
       await adminPredicates.clickAddConditionButton()
       await adminPredicates.expectCondition(1)
+      await expect(page.locator('#root-node-type')).toBeFocused()
     })
 
     await test.step('Add a subcondition', async () => {
       await adminPredicates.clickAddSubconditionButton(/* conditionId= */ 1)
       await waitForHtmxReady(page)
       await adminPredicates.expectSubcondition(1, 2)
+      await expect(
+        page.locator('#condition-1-subcondition-2-question'),
+      ).toBeFocused()
       await validateScreenshot(
         page.getByTestId('condition-1'),
         'condition-with-multiple-subconditions',
@@ -288,6 +292,7 @@ test.describe('create and edit predicates', () => {
       await adminPredicates.clickAddConditionButton()
       await adminPredicates.expectCondition(2)
       await waitForHtmxReady(page)
+      await expect(page.locator('#condition-2-node-type')).toBeFocused()
 
       await validateScreenshot(
         page.locator('#predicate-conditions-list'),
@@ -348,6 +353,7 @@ test.describe('create and edit predicates', () => {
       await waitForHtmxReady(page)
 
       await adminPredicates.expectCondition(1)
+      await expect(page.locator('#root-node-type')).toBeFocused()
       await adminPredicates.expectDeleteAllConditionsButton()
       await validateScreenshot(
         page.locator('#edit-predicate'),
@@ -357,6 +363,9 @@ test.describe('create and edit predicates', () => {
 
     await test.step('Select question, save, and check predicate validation', async () => {
       await adminPredicates.selectQuestion(1, 1, questionText)
+      await expect(
+        page.locator('#condition-1-subcondition-1-question'),
+      ).toBeFocused()
 
       await adminPredicates.clickSaveAndExitButton()
 
@@ -434,6 +443,9 @@ test.describe('create and edit predicates', () => {
       await adminPredicates.clickAddConditionButton()
 
       await adminPredicates.expectCondition(1)
+      await expect(
+        page.locator('#visibility-predicate-action-select'),
+      ).toBeFocused()
       await adminPredicates.expectDeleteAllConditionsButton()
       await validateScreenshot(
         page.locator('#edit-predicate'),
@@ -892,12 +904,10 @@ test.describe('create and edit predicates', () => {
       await adminPredicates.clickAddConditionButton()
       await adminPredicates.expectCondition(1)
 
-      await expect(
-        page.locator('#condition-1-subcondition-1-question'),
-      ).toBeFocused()
+      await expect(page.locator('#root-node-type')).toBeFocused()
       await expect(
         page.locator('#condition-1-subcondition-1-ariaAnnounce'),
-      ).toHaveAttribute('data-should-announce', 'true')
+      ).toHaveAttribute('data-should-announce', 'false')
       await adminPredicates.selectConditionLogicalOperatorAndExpectLabel(
         1,
         'OR',
@@ -1040,10 +1050,11 @@ test.describe('create and edit predicates', () => {
       ).toContainText(dateQuestionValues.questionText)
       await expect(
         page.locator('#condition-1-subcondition-1-question'),
-      ).toBeFocused()
+      ).not.toBeFocused()
       await expect(
         page.locator('#condition-1-subcondition-1-ariaAnnounce'),
-      ).toHaveAttribute('data-should-announce', 'true')
+      ).toHaveAttribute('data-should-announce', 'false')
+      await expect(page.locator('#condition-1-node-type')).toBeFocused()
     })
 
     await test.step('Add second condition, delete all conditions, and validate null state', async () => {

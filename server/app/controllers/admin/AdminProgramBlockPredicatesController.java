@@ -912,14 +912,19 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
               .scalarOptions(ImmutableList.of())
               .operatorOptions(getOperatorOptions(/* selectedOperator= */ Optional.empty()))
               .build();
+
+      // If there are existing conditions, autofocus the new condition's logic dropdown.
+      // Otherwise, focus the root logic dropdown.
+      boolean isExistingPredicate = !currentConditions.isEmpty();
       condition =
           condition.toBuilder()
               .subconditions(
                   ImmutableList.of(
                       condition.emptySubconditionViewModel().toBuilder()
-                          .autofocus(true)
-                          .shouldAnnounceChanges(true)
+                          .autofocus(false)
+                          .shouldAnnounceChanges(false)
                           .build()))
+              .focusLogicDropdown(isExistingPredicate)
               .build();
       currentConditions.add(condition);
 
@@ -1093,25 +1098,23 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       // Start by pre-filtering formData to remove entry for the deleted condition.
       formData.keySet().removeIf(key -> key.startsWith(removedConditionPrefix));
 
-      ImmutableList<EditConditionPartialViewModel> conditions =
-          buildConditionsListFromFormData(
-              programId,
-              blockDefinitionId,
-              predicateUseCase,
-              ImmutableMap.copyOf(formData),
-              /* validateInputFields= */ false);
+      ArrayList<EditConditionPartialViewModel> conditions =
+          new ArrayList<>(
+              buildConditionsListFromFormData(
+                  programId,
+                  blockDefinitionId,
+                  predicateUseCase,
+                  ImmutableMap.copyOf(formData),
+                  /* validateInputFields= */ false));
 
       // Handle accessibility steps (skip if there are no conditions left).
       // Focus either: subcondition 1 of the previous condition OR subcondition 1 of condition 1.
       // (Note: conditionId is 1-indexed, lists are 0-indexed.)
       if (!conditions.isEmpty()) {
         int focusedConditionIndex = Integer.max(0, conditionId - 2);
-        conditions =
-            focusSubconditionInList(
-                conditions,
-                focusedConditionIndex,
-                /* subconditionIndex= */ 0,
-                /* shouldAnnounceChanges= */ true);
+        EditConditionPartialViewModel focusedCondition = conditions.get(focusedConditionIndex);
+        focusedCondition = focusedCondition.toBuilder().focusLogicDropdown(true).build();
+        conditions.set(focusedConditionIndex, focusedCondition);
       }
 
       return ok(conditionListPartialView.render(
@@ -1616,6 +1619,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
         .scalarOptions(ImmutableList.of())
         .operatorOptions(getOperatorOptions(/* selectedOperator= */ Optional.empty()))
         .subconditionLogicalOperator(subconditionLogicalOperator)
+        .focusLogicDropdown(false)
         .build();
   }
 
