@@ -37,7 +37,7 @@
     <th:block th:each="card : ${section.cards()}">
       <!-- Standard cards and pre-screener card (after it is started) -->
       <li
-        th:replace="${card.programType().toString() == 'COMMON_INTAKE_FORM'} ? ~{applicant/programindex/ProgramCardsFragment :: submittedOrInProgressPreScreenerCard(${card})} : ~{applicant/programindex/ProgramCardsFragment :: card(${card}, ${sectionType} ?: 'DEFAULT')}"
+        th:replace="${card.programType().toString() == 'PRE_SCREENER_FORM'} ? ~{applicant/programindex/ProgramCardsFragment :: submittedOrInProgressPreScreenerCard(${card})} : ~{applicant/programindex/ProgramCardsFragment :: card(${card}, ${sectionType} ?: 'DEFAULT')}"
       ></li>
     </th:block>
   </ul>

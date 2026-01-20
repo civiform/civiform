@@ -378,11 +378,10 @@ public final class ProgramService {
    *     submit an application, and false if an application can submit an application even if they
    *     don't meet some/all of the eligibility criteria.
    * @param loginOnly true if only logged in applicants can apply to the program.
-   * @param programType ProgramType for this Program. If this is set to COMMON_INTAKE_FORM and there
+   * @param programType ProgramType for this Program. If this is set to PRE_SCREENER_FORM and there
    *     is already another active or draft program with {@link
-   *     services.program.ProgramType#COMMON_INTAKE_FORM}, that program's ProgramType will be
-   *     changed to {@link services.program.ProgramType#DEFAULT}, creating a new draft of it if
-   *     necessary.
+   *     services.program.ProgramType#PRE_SCREENER_FORM}, that program's ProgramType will be changed
+   *     to {@link services.program.ProgramType#DEFAULT}, creating a new draft of it if necessary.
    * @param tiGroups The List of TiOrgs who have visibility to program in SELECT_TI display mode
    * @return the {@link ProgramDefinition} that was created if succeeded, or a set of errors if
    *     failed
@@ -429,7 +428,7 @@ public final class ProgramService {
       return ErrorAnd.error(maybeEmptyBlock.getErrors());
     }
 
-    if (programType.equals(ProgramType.COMMON_INTAKE_FORM) && getPreScreenerForm().isPresent()) {
+    if (programType.equals(ProgramType.PRE_SCREENER_FORM) && getPreScreenerForm().isPresent()) {
       clearPreScreenerForm();
     }
     ProgramAcls programAcls = new ProgramAcls(new HashSet<>(tiGroups));
@@ -556,10 +555,10 @@ public final class ProgramService {
    *     submit an application, and false if an application can submit an application even if they
    *     don't meet some/all of the eligibility criteria.
    * @param loginOnly true if an applicant must be logged in before applying to a program.
-   * @param programType ProgramType for this Program. If this is set to COMMON_INTAKE_FORM and there
-   *     is already another active or draft program with {@link ProgramType#COMMON_INTAKE_FORM},
-   *     that program's ProgramType will be changed to {@link ProgramType#DEFAULT}, creating a new
-   *     draft of it if necessary.
+   * @param programType ProgramType for this Program. If this is set to PRE_SCREENER_FORM and there
+   *     is already another active or draft program with {@link ProgramType#PRE_SCREENER_FORM}, that
+   *     program's ProgramType will be changed to {@link ProgramType#DEFAULT}, creating a new draft
+   *     of it if necessary.
    * @param tiGroups the TI Orgs having visibility to the program for SELECT_TI display_mode
    * @return the {@link ProgramDefinition} that was updated if succeeded, or a set of errors if
    *     failed
@@ -599,7 +598,7 @@ public final class ProgramService {
       return ErrorAnd.error(errors);
     }
 
-    if (programType.equals(ProgramType.COMMON_INTAKE_FORM)) {
+    if (programType.equals(ProgramType.PRE_SCREENER_FORM)) {
       Optional<ProgramDefinition> maybePreScreenerForm = getPreScreenerForm();
       if (maybePreScreenerForm.isPresent()
           && !programDefinition.adminName().equals(maybePreScreenerForm.get().adminName())) {
@@ -613,7 +612,7 @@ public final class ProgramService {
     applicationSteps =
         preserveApplicationStepTranslations(applicationSteps, programDefinition.applicationSteps());
 
-    if (programType.equals(ProgramType.COMMON_INTAKE_FORM)
+    if (programType.equals(ProgramType.PRE_SCREENER_FORM)
         && !programDefinition.isPreScreenerForm()) {
       programDefinition = removeAllEligibilityPredicates(programDefinition);
     }
@@ -921,7 +920,7 @@ public final class ProgramService {
       ImmutableSet.Builder<CiviFormError> errorsBuilder,
       ImmutableList<ApplicationStep> applicationSteps) {
     // Pre-screener and external programs don't have application steps.
-    if (programType == ProgramType.COMMON_INTAKE_FORM || programType == ProgramType.EXTERNAL) {
+    if (programType == ProgramType.PRE_SCREENER_FORM || programType == ProgramType.EXTERNAL) {
       return errorsBuilder;
     }
 

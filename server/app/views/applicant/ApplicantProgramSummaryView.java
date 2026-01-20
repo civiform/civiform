@@ -58,7 +58,7 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
 
     // Create a string such as "Program appplication summary - Pet Assistance Program"
     String summarySubstring =
-        params.programType().equals(ProgramType.COMMON_INTAKE_FORM)
+        params.programType().equals(ProgramType.PRE_SCREENER_FORM)
             ? params.messages().at(MessageKey.TITLE_PRE_SCREENER_SUMMARY.getKeyName())
             : params.messages().at(MessageKey.TITLE_PROGRAM_SUMMARY.getKeyName());
     String pageTitle = String.format("%s — %s", summarySubstring, params.programTitle());
