@@ -23,9 +23,7 @@ import services.applicant.ApplicantPersonalInfo;
 import services.applicant.Block;
 import services.program.ProgramType;
 import services.settings.SettingsManifest;
-import views.applicant.ApplicantAnswerData;
 import views.applicant.ApplicantBaseView;
-import views.applicant.AutoValue_ApplicantProgramSummaryView_Params;
 import views.applicant.blocks.ProgressBar;
 
 /** Renders a list of sections in the form with their status. */

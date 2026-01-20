@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Collections;
 import services.applicant.Block;
-import views.applicant.ApplicantAnswerData;
 
 // Represents a block on the Application Summary page
 public final class BlockSummary {
