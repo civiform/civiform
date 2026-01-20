@@ -226,6 +226,8 @@ export class AdminPredicates {
             ' conditions are true:',
         )
         .count()
+
+      // Expect two dropdowns: one for visibility behavior and another for logic
       expect(visibilityDropdownsCount).toBe(2)
     }
   }
