@@ -7,10 +7,8 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
-import static j2html.TagCreator.pre;
 import static j2html.TagCreator.section;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.ImmutableList;
@@ -25,9 +23,6 @@ import javax.inject.Inject;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.DeploymentType;
-import services.program.ActiveAndDraftPrograms;
-import services.program.ProgramDefinition;
-import services.question.types.QuestionDefinition;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -46,46 +41,6 @@ public class DevToolsView extends BaseHtmlView {
     this.objectMapper = checkNotNull(objectMapper);
     this.deploymentType = checkNotNull(deploymentType);
     this.objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-  }
-
-  /**
-   * Renders a page for a developer to view seeded data. This is only available in non-prod
-   * environments.
-   */
-  public Content renderSeedDataView(
-      Request request,
-      ActiveAndDraftPrograms activeAndDraftPrograms,
-      ImmutableList<QuestionDefinition> questionDefinitions) {
-
-    String title = "Dev database seed data";
-
-    ImmutableList<ProgramDefinition> draftPrograms = activeAndDraftPrograms.getDraftPrograms();
-    ImmutableList<ProgramDefinition> activePrograms = activeAndDraftPrograms.getActivePrograms();
-
-    String prettyDraftPrograms = getPrettyJson(draftPrograms);
-    String prettyActivePrograms = getPrettyJson(activePrograms);
-    String prettyQuestions = getPrettyJson(questionDefinitions);
-
-    ATag indexLinkTag =
-        a().withHref(routes.DevToolsController.index().url())
-            .withId("index")
-            .with(submitButton("index", "Go to dev database seeder page"));
-
-    DivTag content =
-        div()
-            .with(h1(title))
-            .with(indexLinkTag)
-            .with(
-                div()
-                    .withClasses("grid", "grid-cols-2")
-                    .with(div().with(h2("Current draft programs:")).with(pre(prettyDraftPrograms)))
-                    .with(
-                        div().with(h2("Current active programs:")).with(pre(prettyActivePrograms)))
-                    .with(div().with(h2("Current questions:")).with(pre(prettyQuestions))))
-            .withClasses("px-6", "py-6");
-
-    HtmlBundle bundle = layout.getBundle(request).setTitle(title).addMainContent(content);
-    return layout.render(bundle);
   }
 
   public Content render(Request request, Optional<String> maybeFlash) {
@@ -124,7 +79,7 @@ public class DevToolsView extends BaseHtmlView {
     return section()
         .withClasses("flex", "flex-col", "gap-4", "border", "border-black", "p-4")
         .with(h2("Seed").withClass("text-2xl"))
-        .with(p("Populate, view, or clear sample data"))
+        .with(p("Populate or clear sample data"))
         .with(
             createForm(
                 request,
@@ -143,8 +98,7 @@ public class DevToolsView extends BaseHtmlView {
                 "clear",
                 "Clear entire database (irreversible!)",
                 routes.DevToolsController.clear().url(),
-                true))
-        .with(createLink("View seed data", routes.DevToolsController.data().url()));
+                true));
   }
 
   private SectionTag createCachingSection(Request request) {
@@ -278,13 +232,5 @@ public class DevToolsView extends BaseHtmlView {
             "font-semibold",
             "bg-blue-600",
             "hover:bg-blue-700");
-  }
-
-  private <T> String getPrettyJson(ImmutableList<T> list) {
-    try {
-      return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(list);
-    } catch (JsonProcessingException e) {
-      throw new RuntimeException(e);
-    }
   }
 }
