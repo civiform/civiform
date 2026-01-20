@@ -36,7 +36,6 @@ import models.AccountModel;
 import models.ApplicantModel;
 import models.LifecycleStage;
 import models.ProgramModel;
-import models.StoredFileModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -1727,7 +1726,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
   }
-
 
   @Test
   public void addFile_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
