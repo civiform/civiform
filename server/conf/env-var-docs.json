@@ -999,6 +999,12 @@
         "description": "(NOT FOR PRODUCTION USE) Enables improvements which make it easier for admins to work with enumerators.",
         "type": "bool",
         "required": false
+      },
+      "ADMIN_UI_MIGRATION_SC_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enable the admin UI migration in Thymeleaf.",
+        "type": "bool",
+        "required": false
       }
     }
   }
