@@ -118,7 +118,7 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
                             .with(makeCsrfTokenInputTag(request))
                             .condWith(
                                 programType.equals(ProgramType.DEFAULT)
-                                    || programType.equals(ProgramType.COMMON_INTAKE_FORM),
+                                    || programType.equals(ProgramType.PRE_SCREENER_FORM),
                                 buildManageQuestionLink(existingProgram.id()))
                             .withAction(
                                 controllers.admin.routes.AdminProgramController.update(
