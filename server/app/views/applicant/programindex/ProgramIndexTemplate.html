@@ -52,7 +52,7 @@
       >
         <div th:if="${preScreenerSection.isPresent()}">
           <div
-            th:replace="~{applicant/programindex/ProgramCardsSectionFragment :: cardsSection(${preScreenerSection.get()})}"
+            th:replace="~{applicant/programindex/ProgramCardsSectionFragment :: cardsSection(${preScreenerSection.get()}, #{title.getStartedSection})}"
           ></div>
         </div>
         <th:block th:if="${myApplicationsSection.isPresent()}">
@@ -61,7 +61,7 @@
             class="cf-below-cards"
           ></h2>
           <div
-            th:replace="~{applicant/programindex/ProgramCardsSectionFragment :: cardsSection(${myApplicationsSection.get()})}"
+            th:replace="~{applicant/programindex/ProgramCardsSectionFragment :: cardsSection(${myApplicationsSection.get()}, #{title.myApplicationsSection.v2})}"
           ></div>
         </th:block>
         <h2
@@ -77,9 +77,12 @@
           ></div>
         </div>
         <div id="not-started-programs">
-          <th:block th:if="${unfilteredSection.isPresent()}">
+          <th:block
+            th:if="${unfilteredSection.isPresent()}"
+            th:with="programCount=${unfilteredSection.get().cards().size()}"
+          >
             <div
-              th:replace="~{applicant/programindex/ProgramCardsSectionFragment :: cardsSection(${unfilteredSection.get()})}"
+              th:replace="~{applicant/programindex/ProgramCardsSectionFragment :: cardsSection(${unfilteredSection.get()}, #{title.programsSection.v2(${programCount})})}"
             ></div>
           </th:block>
           <th:block th:if="${!unfilteredSection.isPresent()}">
