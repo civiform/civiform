@@ -48,7 +48,7 @@ const responseSchema = {
       description: 'Has valid account',
     },
   },
-  required: ['accountNumber, isValid'],
+  required: ['accountNumber', 'isValid'],
   additionalProperties: false,
 };
 
