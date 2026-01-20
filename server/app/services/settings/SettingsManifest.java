@@ -1136,7 +1136,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("ENUMERATOR_IMPROVEMENTS_ENABLED", request);
   }
 
-  /** Enable the admin UI migration in Thymeleaf. */
+  /** (NOT FOR PRODUCTION USE) Enable the admin UI migration in Thymeleaf. */
   public boolean getAdminUiMigrationScEnabled(RequestHeader request) {
     return getBool("ADMIN_UI_MIGRATION_SC_ENABLED", request);
   }
@@ -2420,7 +2420,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "ADMIN_UI_MIGRATION_SC_ENABLED",
-                          "Enable the admin UI migration in Thymeleaf.",
+                          "(NOT FOR PRODUCTION USE) Enable the admin UI migration in Thymeleaf.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))

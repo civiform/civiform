@@ -1002,7 +1002,7 @@
       },
       "ADMIN_UI_MIGRATION_SC_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "Enable the admin UI migration in Thymeleaf.",
+        "description": "(NOT FOR PRODUCTION USE) Enable the admin UI migration in Thymeleaf.",
         "type": "bool",
         "required": false
       }
