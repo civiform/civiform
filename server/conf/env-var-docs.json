@@ -668,12 +668,12 @@
     "members": {
       "COMMON_INTAKE_MORE_RESOURCES_LINK_TEXT": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "The text for a link on the Common Intake confirmation page that links to more resources. Shown when the applicant is not eligible for any programs in CiviForm.",
+        "description": "The text for a link on the Pre-Screener confirmation page that links to more resources. Shown when the applicant is not eligible for any programs in CiviForm.",
         "type": "string"
       },
       "COMMON_INTAKE_MORE_RESOURCES_LINK_HREF": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "The HREF for a link on the Common Intake confirmation page that links to more resources. Shown when the applicant is not eligible for any programs in CiviForm.",
+        "description": "The HREF for a link on the Pre-Screener confirmation page that links to more resources. Shown when the applicant is not eligible for any programs in CiviForm.",
         "type": "string",
         "regex": "^(http://|https://).+",
         "regex_tests": [

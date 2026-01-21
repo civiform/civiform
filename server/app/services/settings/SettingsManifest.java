@@ -762,7 +762,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * The text for a link on the Common Intake confirmation page that links to more resources. Shown
+   * The text for a link on the Pre-Screener confirmation page that links to more resources. Shown
    * when the applicant is not eligible for any programs in CiviForm.
    */
   public Optional<String> getCommonIntakeMoreResourcesLinkText(RequestHeader request) {
@@ -770,7 +770,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * The HREF for a link on the Common Intake confirmation page that links to more resources. Shown
+   * The HREF for a link on the Pre-Screener confirmation page that links to more resources. Shown
    * when the applicant is not eligible for any programs in CiviForm.
    */
   public Optional<String> getCommonIntakeMoreResourcesLinkHref(RequestHeader request) {
@@ -2074,7 +2074,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   ImmutableList.of(
                       SettingDescription.create(
                           "COMMON_INTAKE_MORE_RESOURCES_LINK_TEXT",
-                          "The text for a link on the Common Intake confirmation page that links to"
+                          "The text for a link on the Pre-Screener confirmation page that links to"
                               + " more resources. Shown when the applicant is not eligible for any"
                               + " programs in CiviForm.",
                           /* isRequired= */ false,
@@ -2082,7 +2082,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "COMMON_INTAKE_MORE_RESOURCES_LINK_HREF",
-                          "The HREF for a link on the Common Intake confirmation page that links to"
+                          "The HREF for a link on the Pre-Screener confirmation page that links to"
                               + " more resources. Shown when the applicant is not eligible for any"
                               + " programs in CiviForm.",
                           /* isRequired= */ false,

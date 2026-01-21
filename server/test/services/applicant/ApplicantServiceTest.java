@@ -2726,7 +2726,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void relevantProgramsForApplicant_nopreScreenerForm() {
+  public void relevantProgramsForApplicant_noPreScreenerForm() {
     ApplicantModel applicant = createTestApplicant();
     ProgramModel programForDraft =
         ProgramBuilder.newActiveProgram("program_for_draft")
