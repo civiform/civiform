@@ -12,7 +12,6 @@ test.describe('developer tools', () => {
     // unless a specific test intends to enable it.
     await disableFeatureFlag(page, 'staging_disable_demo_mode_logins')
   })
-
   test('dev link exists', async ({page}) => {
     const header = page.locator('nav')
 
@@ -26,7 +25,6 @@ test.describe('developer tools', () => {
       await validateScreenshot(page, 'dev-tools-modal')
     })
   })
-
   test('not functional when disable demo mode logins is enabled', async ({
     page,
   }) => {
