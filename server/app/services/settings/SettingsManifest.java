@@ -1088,8 +1088,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** (NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration. */
-  public boolean getSessionTimeoutEnabled() {
-    return getBool("SESSION_TIMEOUT_ENABLED");
+  public boolean getSessionTimeoutEnabled(RequestHeader request) {
+    return getBool("SESSION_TIMEOUT_ENABLED", request);
   }
 
   /** (NOT FOR PRODUCTION USE) Enable showing external program cards. */
@@ -2369,7 +2369,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " maximum duration.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
+                          SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "EXTERNAL_PROGRAM_CARDS_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enable showing external program cards.",
