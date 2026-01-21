@@ -51,7 +51,7 @@ public class SessionTimeoutFilter extends Filter {
     super(mat);
     this.profileUtils = checkNotNull(profileUtils);
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.sessionTimeoutService = sessionTimeoutService;
+    this.sessionTimeoutService = checkNotNull(sessionTimeoutService);
   }
 
   @Override
@@ -61,10 +61,14 @@ public class SessionTimeoutFilter extends Filter {
     if (SettingsFilter.areSettingRequestAttributesExcluded(requestHeader)) {
       return nextFilter.apply(requestHeader);
     }
+
+    if (!settingsManifest.get().getSessionTimeoutEnabled(requestHeader)) {
+      return nextFilter.apply(requestHeader).thenApply(this::clearTimeoutCookie);
+    }
+
     Optional<CiviFormProfile> optionalProfile =
         profileUtils.optionalCurrentUserProfile(requestHeader);
-    if (optionalProfile.isEmpty()
-        || !settingsManifest.get().getSessionTimeoutEnabled(requestHeader)) {
+    if (optionalProfile.isEmpty()) {
       return nextFilter.apply(requestHeader).thenApply(this::clearTimeoutCookie);
     }
     return nextFilter
