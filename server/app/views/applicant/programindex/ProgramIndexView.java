@@ -177,7 +177,7 @@ public class ProgramIndexView extends ApplicantBaseView {
         profile,
         applicantId,
         personalInfo,
-        ProgramCardsSectionParamsFactory.SectionType.COMMON_INTAKE);
+        ProgramCardsSectionParamsFactory.SectionType.PRE_SCREENER);
   }
 
   private boolean isUnstartedPreScreenerForm(

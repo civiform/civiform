@@ -23,7 +23,7 @@
   </div>
 
   <!--/* Pre-screener card (before it is started) */-->
-  <div th:if="${sectionType == 'COMMON_INTAKE'}">
+  <div th:if="${sectionType == 'PRE_SCREENER'}">
     <div
       th:replace="~{applicant/programindex/ProgramCardsFragment :: preScreenerCard(${section.cards().get(0)})}"
     ></div>
@@ -31,7 +31,7 @@
 
   <!--/* Programs card section */-->
   <ul
-    th:unless="${sectionType == 'COMMON_INTAKE'}"
+    th:unless="${sectionType == 'PRE_SCREENER'}"
     class="usa-card-group cf-program-card-group"
   >
     <th:block th:each="card : ${section.cards()}">

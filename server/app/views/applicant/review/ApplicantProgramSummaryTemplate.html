@@ -61,7 +61,7 @@
             <ol class="application-summary usa-list--unstyled">
               <li class="" th:each="blockSummary: ${blockSummaries}">
                 <div
-                  th:replace="~{applicant/BlockSummaryFragment :: blockSummaryFragment(${blockSummary})}"
+                  th:replace="~{applicant/review/BlockSummaryFragment :: blockSummaryFragment(${blockSummary})}"
                 ></div>
               </li>
             </ol>
