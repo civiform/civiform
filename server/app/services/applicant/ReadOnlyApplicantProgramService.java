@@ -127,7 +127,7 @@ public final class ReadOnlyApplicantProgramService {
   public ImmutableList<String> getStoredFileKeys() {
     return getAllActiveBlocks().stream()
         .filter(Block::isFileUpload)
-        .flatMap(block -> block.getQuestions().stream())
+        .flatMap(block -> block.getVisibleQuestions().stream())
         .filter(ApplicantQuestion::isAnswered)
         .filter(ApplicantQuestion::isFileUploadQuestion)
         .map(ApplicantQuestion::createFileUploadQuestion)
@@ -155,7 +155,7 @@ public final class ReadOnlyApplicantProgramService {
     return getAllActiveBlocks().stream()
         .anyMatch(
             block ->
-                block.getQuestions().stream()
+                block.getVisibleQuestions().stream()
                     .anyMatch(
                         question ->
                             !isQuestionEligibleInBlock(block, question) && question.isAnswered()));
@@ -192,7 +192,19 @@ public final class ReadOnlyApplicantProgramService {
    * @return A stream of the questions in the program.
    */
   public Stream<ApplicantQuestion> getAllQuestions() {
-    return getBlocks((block) -> true).stream().flatMap((block) -> block.getQuestions().stream());
+    return getBlocks((block) -> true).stream()
+        .flatMap((block) -> block.getVisibleQuestions().stream());
+  }
+
+  /**
+   * Get a list of all {@link ApplicantQuestion}s in the program, including questions with any
+   * display mode (including HIDDEN). This should only be used for admin-facing features like
+   * exports.
+   *
+   * @return A stream of all questions in the program, including hidden questions.
+   */
+  public Stream<ApplicantQuestion> getAllQuestionsIncludingHidden() {
+    return getBlocks((block) -> true).stream().flatMap((block) -> block.getAllQuestions().stream());
   }
 
   /**
@@ -404,7 +416,8 @@ public final class ReadOnlyApplicantProgramService {
   public ImmutableList<AnswerData> getSummaryDataAllQuestions() {
     ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
     ImmutableList<Block> blocks = getBlocks((block) -> true);
-    addDataToBuilder(blocks, builder, /* showAnswerText= */ true);
+    addDataToBuilder(
+        blocks, builder, /* showAnswerText= */ true, /* includeHiddenQuestions= */ false);
     return builder.build();
   }
 
@@ -417,7 +430,22 @@ public final class ReadOnlyApplicantProgramService {
     // TODO: We need to be able to use this on the admin side with admin-specific l10n.
     ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
     ImmutableList<Block> activeBlocks = getAllActiveBlocks();
-    addDataToBuilder(activeBlocks, builder, /* showAnswerText= */ true);
+    addDataToBuilder(
+        activeBlocks, builder, /* showAnswerText= */ true, /* includeHiddenQuestions= */ false);
+    return builder.build();
+  }
+
+  /**
+   * Returns summary data for each question in the active blocks in this application. Active block
+   * is the block an applicant must complete for this program. This will include blocks that are
+   * hidden from the applicant.
+   */
+  public ImmutableList<AnswerData> getSummaryDataOnlyActiveForAdmin() {
+    // TODO: We need to be able to use this on the admin side with admin-specific l10n.
+    ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
+    ImmutableList<Block> activeBlocks = getAllActiveBlocks();
+    addDataToBuilder(
+        activeBlocks, builder, /* showAnswerText= */ true, /* includeHiddenQuestions= */ true);
     return builder.build();
   }
 
@@ -430,7 +458,8 @@ public final class ReadOnlyApplicantProgramService {
     // TODO: We need to be able to use this on the admin side with admin-specific l10n.
     ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
     ImmutableList<Block> hiddenBlocks = getAllHiddenBlocks();
-    addDataToBuilder(hiddenBlocks, builder, /* showAnswerText= */ false);
+    addDataToBuilder(
+        hiddenBlocks, builder, /* showAnswerText= */ false, /* includeHiddenQuestions= */ false);
     return builder.build();
   }
 
@@ -447,9 +476,12 @@ public final class ReadOnlyApplicantProgramService {
   private void addDataToBuilder(
       ImmutableList<Block> blocks,
       ImmutableList.Builder<AnswerData> builder,
-      boolean showAnswerText) {
+      boolean showAnswerText,
+      boolean includeHiddenQuestions) {
     for (Block block : blocks) {
-      ImmutableList<ApplicantQuestion> questions = block.getQuestions();
+      ImmutableList<ApplicantQuestion> questions =
+          includeHiddenQuestions ? block.getAllQuestions() : block.getVisibleQuestions();
+
       for (int questionIndex = 0; questionIndex < questions.size(); questionIndex++) {
         ApplicantQuestion applicantQuestion = questions.get(questionIndex);
         // Don't include static content in summary data.
@@ -627,6 +659,12 @@ public final class ReadOnlyApplicantProgramService {
         return false;
       }
     }
+
+    // Check if the block has any visible questions. If not, don't show it to applicants.
+    if (block.getVisibleQuestions().isEmpty()) {
+      return false;
+    }
+
     if (block.getVisibilityPredicate().isEmpty()) {
       // Default to show
       return true;
