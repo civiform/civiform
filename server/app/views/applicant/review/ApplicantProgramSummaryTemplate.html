@@ -8,10 +8,10 @@
   ></head>
   <body>
     <div th:replace="~{applicant/ApplicantBaseFragment :: skipNav}"></div>
-    <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
+    <div th:replace="~{applicant/shared/NavigationFragment :: pageHeader}"></div>
     <main id="main-content" tabindex="-1">
       <div
-        th:replace="~{applicant/NavigationFragment :: adminPreviewBackButton(${goBackToAdminUrl})}"
+        th:replace="~{applicant/shared/NavigationFragment :: adminPreviewBackButton(${goBackToAdminUrl})}"
       ></div>
       <div
         th:replace="~{applicant/blocks/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle},${programShortDescription})}"
@@ -25,7 +25,7 @@
         class="grid-container padding-top-4"
       >
         <div
-          th:replace="~{applicant/LoginOnlyAlertFragment :: loginOnly(${createAccountLink}, #{link.createAccountFromOverview})}"
+          th:replace="~{applicant/shared/LoginOnlyAlertFragment :: loginOnly(${createAccountLink}, #{link.createAccountFromOverview})}"
         ></div>
       </div>
 
@@ -92,15 +92,15 @@
       <div class="page-spacing"></div>
     </main>
     <div th:if="${isGuest and redirectedFromProgramSlug.isPresent()}">
-      <div th:replace="~{applicant/ModalFragment:: reviewLogin}"></div>
+      <div th:replace="~{applicant/shared/ModalFragment:: reviewLogin}"></div>
     </div>
     <div th:if="${duplicateSubmission.isPresent()}">
       <div id="show-duplicate-submission-modal"></div>
       <th:block
-        th:replace="~{applicant/ModalFragment:: preventDuplicateSubmission(${programTitle}, ${exitHref})}"
+        th:replace="~{applicant/shared/ModalFragment:: preventDuplicateSubmission(${programTitle}, ${exitHref})}"
       ></th:block>
     </div>
-    <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
+    <footer th:replace="~{applicant/shared/NavigationFragment :: pageFooter}"></footer>
     <th:block
       th:replace="~{components/GoogleTagManagerFragment :: tagManager(${optionalMeasurementId}, ${cspNonce})}"
     ></th:block>

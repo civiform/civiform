@@ -1,4 +1,4 @@
-package views.applicant;
+package views.applicant.ineligible;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -23,6 +23,8 @@ import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
+import views.applicant.ApplicantBaseView;
+import views.applicant.AutoValue_ApplicantIneligibleView_Params;
 
 public class ApplicantIneligibleView extends ApplicantBaseView {
   private final EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator;
@@ -108,7 +110,7 @@ public class ApplicantIneligibleView extends ApplicantBaseView {
         applicantRoutes.review(params.profile(), params.applicantId(), program.id()).url();
     context.setVariable("goBackHref", goBackHref);
 
-    return templateEngine.process("applicant/IneligibleTemplate", context);
+    return templateEngine.process("applicant/ineligible/ApplicantIneligibleTemplate", context);
   }
 
   @AutoValue

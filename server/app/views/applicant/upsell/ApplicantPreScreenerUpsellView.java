@@ -1,4 +1,4 @@
-package views.applicant;
+package views.applicant.upsell;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -12,6 +12,7 @@ import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.MessageKey;
 import services.settings.SettingsManifest;
+import views.applicant.ApplicantBaseView;
 
 public class ApplicantPreScreenerUpsellView extends ApplicantBaseView {
 

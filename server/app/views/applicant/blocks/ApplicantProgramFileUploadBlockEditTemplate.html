@@ -5,13 +5,13 @@
   ></head>
   <body>
     <div th:replace="~{applicant/ApplicantBaseFragment :: skipNav}"></div>
-    <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
+    <div th:replace="~{applicant/shared/NavigationFragment :: pageHeader}"></div>
     <div
       th:if="${applicationParams.loginOnly() and isGuest}"
       class="grid-container padding-top-4"
     >
       <div
-        th:replace="~{applicant/LoginOnlyAlertFragment :: loginOnly(${createAccountLink}, #{link.createAccountFromOverview})}"
+        th:replace="~{applicant/shared/LoginOnlyAlertFragment :: loginOnly(${createAccountLink}, #{link.createAccountFromOverview})}"
       ></div>
     </div>
     <main
@@ -26,7 +26,7 @@
       <div th:replace="~{components/ToastFragment :: blockEditToasts}"></div>
 
       <div
-        th:replace="~{applicant/BreadcrumbFragment :: breadcrumb(
+        th:replace="~{applicant/blocks/BreadcrumbFragment :: breadcrumb(
           ${applicationParams.programTitle()},
           ${homeUrl},
           ${programOverviewUrl})}"
@@ -153,7 +153,7 @@
         [(${footerTag.render()})]
       </th:block>
     </main>
-    <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
+    <footer th:replace="~{applicant/shared/NavigationFragment :: pageFooter}"></footer>
     <th:block
       th:replace="~{components/GoogleTagManagerFragment :: tagManager(${optionalMeasurementId}, ${cspNonce})}"
     ></th:block>
