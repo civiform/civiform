@@ -1,4 +1,4 @@
-package views.applicant;
+package views.applicant.review;
 
 import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
@@ -23,6 +23,7 @@ import services.applicant.ApplicantPersonalInfo;
 import services.applicant.Block;
 import services.program.ProgramType;
 import services.settings.SettingsManifest;
+import views.applicant.ApplicantBaseView;
 import views.applicant.blocks.ProgressBar;
 
 /** Renders a list of sections in the form with their status. */
@@ -58,7 +59,7 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
 
     // Create a string such as "Program appplication summary - Pet Assistance Program"
     String summarySubstring =
-        params.programType().equals(ProgramType.COMMON_INTAKE_FORM)
+        params.programType().equals(ProgramType.PRE_SCREENER_FORM)
             ? params.messages().at(MessageKey.TITLE_PRE_SCREENER_SUMMARY.getKeyName())
             : params.messages().at(MessageKey.TITLE_PROGRAM_SUMMARY.getKeyName());
     String pageTitle = String.format("%s — %s", summarySubstring, params.programTitle());
@@ -139,7 +140,7 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
 
     context.setVariable("blockSummaries", blockSummaries);
 
-    return templateEngine.process("applicant/ApplicantProgramSummaryTemplate", context);
+    return templateEngine.process("applicant/review/ApplicantProgramSummaryTemplate", context);
   }
 
   private String getBlockEditUrl(Params params, Block block) {

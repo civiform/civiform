@@ -762,7 +762,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * The text for a link on the Common Intake confirmation page that links to more resources. Shown
+   * The text for a link on the Pre-Screener confirmation page that links to more resources. Shown
    * when the applicant is not eligible for any programs in CiviForm.
    */
   public Optional<String> getCommonIntakeMoreResourcesLinkText(RequestHeader request) {
@@ -770,7 +770,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * The HREF for a link on the Common Intake confirmation page that links to more resources. Shown
+   * The HREF for a link on the Pre-Screener confirmation page that links to more resources. Shown
    * when the applicant is not eligible for any programs in CiviForm.
    */
   public Optional<String> getCommonIntakeMoreResourcesLinkHref(RequestHeader request) {
@@ -1010,11 +1010,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("STAGING_DISABLE_DEMO_MODE_LOGINS", request);
   }
 
-  /** Enables the API docs tab on CiviForm. */
-  public boolean getApiGeneratedDocsEnabled(RequestHeader request) {
-    return getBool("API_GENERATED_DOCS_ENABLED", request);
-  }
-
   /** Enables caching for versions and their associated data. */
   public boolean getVersionCacheEnabled() {
     return getBool("VERSION_CACHE_ENABLED");
@@ -1082,6 +1077,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("MAP_QUESTION_ENABLED", request);
   }
 
+  /** Enables being able to add a new yes/no question. */
+  public boolean getYesNoQuestionEnabled() {
+    return getBool("YES_NO_QUESTION_ENABLED");
+  }
+
   /** Enables reading settings from the cache instead of directly from the database. */
   public boolean getSettingsCacheEnabled() {
     return getBool("SETTINGS_CACHE_ENABLED");
@@ -1105,11 +1105,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** (NOT FOR PRODUCTION USE) Enables translation management improvement phase one */
   public boolean getTranslationManagementImprovementEnabled(RequestHeader request) {
     return getBool("TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED", request);
-  }
-
-  /** (NOT FOR PRODUCTION USE) Enables being able to add a new yes/no question. */
-  public boolean getYesNoQuestionEnabled() {
-    return getBool("YES_NO_QUESTION_ENABLED");
   }
 
   /** (NOT FOR PRODUCTION USE) Enables changes to support API Bridge */
@@ -1139,6 +1134,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public boolean getEnumeratorImprovementsEnabled(RequestHeader request) {
     return getBool("ENUMERATOR_IMPROVEMENTS_ENABLED", request);
+  }
+
+  /** (NOT FOR PRODUCTION USE) Enable the admin UI migration in Thymeleaf. */
+  public boolean getAdminUiMigrationScEnabled(RequestHeader request) {
+    return getBool("ADMIN_UI_MIGRATION_SC_ENABLED", request);
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -2074,7 +2074,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   ImmutableList.of(
                       SettingDescription.create(
                           "COMMON_INTAKE_MORE_RESOURCES_LINK_TEXT",
-                          "The text for a link on the Common Intake confirmation page that links to"
+                          "The text for a link on the Pre-Screener confirmation page that links to"
                               + " more resources. Shown when the applicant is not eligible for any"
                               + " programs in CiviForm.",
                           /* isRequired= */ false,
@@ -2082,7 +2082,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "COMMON_INTAKE_MORE_RESOURCES_LINK_HREF",
-                          "The HREF for a link on the Common Intake confirmation page that links to"
+                          "The HREF for a link on the Pre-Screener confirmation page that links to"
                               + " more resources. Shown when the applicant is not eligible for any"
                               + " programs in CiviForm.",
                           /* isRequired= */ false,
@@ -2263,12 +2263,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "API_GENERATED_DOCS_ENABLED",
-                          "Enables the API docs tab on CiviForm.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
                           "VERSION_CACHE_ENABLED",
                           "Enables caching for versions and their associated data.",
                           /* isRequired= */ false,
@@ -2349,6 +2343,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
+                          "YES_NO_QUESTION_ENABLED",
+                          "Enables being able to add a new yes/no question.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
                           "SETTINGS_CACHE_ENABLED",
                           "Enables reading settings from the cache instead of directly from the"
                               + " database.",
@@ -2391,13 +2391,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "YES_NO_QUESTION_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enables being able to add a new yes/no"
-                              + " question.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
                           "API_BRIDGE_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables changes to support API Bridge",
                           /* isRequired= */ false,
@@ -2421,6 +2414,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "ENUMERATOR_IMPROVEMENTS_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables improvements which make it easier for"
                               + " admins to work with enumerators.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "ADMIN_UI_MIGRATION_SC_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enable the admin UI migration in Thymeleaf.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))

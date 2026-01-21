@@ -273,8 +273,7 @@ public final class AdminLayout extends BaseHtmlLayout {
                     .with(
                         createDropdownSubItem(
                             "API Keys", apiKeysLink, NavPage.API_KEYS.equals(activeNavPage)))
-                    .condWith(
-                        getSettingsManifest().getApiGeneratedDocsEnabled(request),
+                    .with(
                         createDropdownSubItem(
                             "Documentation", apiDocsLink, NavPage.API_DOCS.equals(activeNavPage)))
                     .condWith(
@@ -305,12 +304,11 @@ public final class AdminLayout extends BaseHtmlLayout {
               settingsNavItem.withClasses("usa-nav__primary-item", "margin-left-auto"),
               logoutNavItem);
       case PROGRAM_ADMIN ->
-          adminHeaderUl
-              .with(programAdminProgramsHeaderLink, reportingNavItem)
-              .condWith(
-                  getSettingsManifest().getApiGeneratedDocsEnabled(request),
-                  programAdminApiNavItemDropdown)
-              .with(logoutNavItem.withClasses("usa-nav__primary-item", "margin-left-auto"));
+          adminHeaderUl.with(
+              programAdminProgramsHeaderLink,
+              reportingNavItem,
+              programAdminApiNavItemDropdown,
+              logoutNavItem.withClasses("usa-nav__primary-item", "margin-left-auto"));
     }
 
     return adminHeaderUl;

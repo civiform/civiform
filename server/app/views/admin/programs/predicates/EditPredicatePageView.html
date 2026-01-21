@@ -52,12 +52,20 @@
             th:id="predicate-operator-node-select"
             th:attr="hidden=${!model.screenHasPredicates()}"
           >
+            <label
+              id="predicate-operator-node-select-label"
+              class="usa-sr-only"
+              th:data-label-prefix="${model.predicateUseCase.name() == 'ELIGIBILITY'} ? #{content.predicateApplicantIsEligible} : #{content.predicateScreenIs}"
+              th:data-label-suffix="#{content.predicateConditionsAreTrue}"
+            ></label>
             <p>
               <th:block th:case="'VISIBILITY'">
                 [[#{content.predicateScreenIs}]]
                 <select
                   class="usa-select width-15 display-inline-block font-body-xs margin-left-1"
+                  id="visibility-predicate-action-select"
                   name="predicateAction"
+                  aria-labelledby="predicate-operator-node-select-label"
                 >
                   <option
                     th:each="action : ${model.visibilityActions()}"
@@ -79,7 +87,7 @@
                 class="usa-select width-9 display-inline-block font-body-xs margin-x-1"
                 name="root-node-type"
                 id="root-node-type"
-                aria-label="Root condition node type"
+                aria-labelledby="predicate-operator-node-select-label"
               >
                 <option
                   th:each="nodeType : ${model.operatorNodeTypes()}"
@@ -166,6 +174,7 @@
           th:hx-post="${model.updatePredicateEndpoint()}"
           hx-target="#predicate-conditions-list"
           th:text="#{button.saveAndExit}"
+          th:disabled="${!model.hasAvailableQuestions}"
         ></button>
         <button
           id="cancel-predicate-edit"

@@ -1360,7 +1360,7 @@ public final class ApplicantService {
           }
 
           ProgramType programType = program.programType();
-          if (programType.equals(ProgramType.COMMON_INTAKE_FORM)) {
+          if (programType.equals(ProgramType.PRE_SCREENER_FORM)) {
             relevantPrograms.setPreScreenerForm(applicantProgramDataBuilder.build());
           } else if (programType.equals(ProgramType.DEFAULT)
               || (programType.equals(ProgramType.EXTERNAL)

@@ -816,7 +816,7 @@ public abstract class ProgramDefinition {
 
   @JsonIgnore
   public boolean isPreScreenerForm() {
-    return this.programType() == ProgramType.COMMON_INTAKE_FORM;
+    return this.programType() == ProgramType.PRE_SCREENER_FORM;
   }
 
   /**

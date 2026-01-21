@@ -6,11 +6,13 @@ import static play.mvc.Results.internalServerError;
 import static play.mvc.Results.notFound;
 import static play.mvc.Results.ok;
 
+import auth.Authorizers;
 import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.LifecycleStage;
+import org.pac4j.play.java.Secure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.mvc.Http;
@@ -47,14 +49,12 @@ public final class OpenApiSchemaController {
   }
 
   /** Endpoint to return the generated openapi schema */
+  @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result getSchemaByProgramSlug(
       Http.Request request,
       String programSlug,
       Optional<String> stage,
       Optional<String> openApiVersion) {
-    if (!settingsManifest.getApiGeneratedDocsEnabled(request)) {
-      return notFound("API Docs are not enabled.");
-    }
 
     LifecycleStage lifecycleStage =
         stage
@@ -132,14 +132,12 @@ public final class OpenApiSchemaController {
   }
 
   /** Render the swagger ui to view the select swagger/openapi */
+  @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result getSchemaUI(
       Http.Request request,
       String programSlug,
       Optional<String> stage,
       Optional<String> openApiVersion) {
-    if (!settingsManifest.getApiGeneratedDocsEnabled(request)) {
-      return notFound("API Docs are not enabled.");
-    }
 
     ImmutableSet<String> allNonExternalProgramSlugs =
         programService.getAllNonExternalProgramSlugs();
@@ -170,6 +168,7 @@ public final class OpenApiSchemaController {
   }
 
   /** Redirect to the swagger ui to view the select swagger/openapi */
+  @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result getSchemaUIRedirect(
       Http.Request request,
       Optional<String> programSlug,

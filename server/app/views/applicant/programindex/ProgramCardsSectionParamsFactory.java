@@ -25,7 +25,6 @@ import services.cloud.PublicStorageClient;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
 import views.ProgramImageUtils;
-import views.components.Modal;
 
 /**
  * Factory for creating parameter info for applicant program card sections.
@@ -41,7 +40,7 @@ public final class ProgramCardsSectionParamsFactory {
   /** Enumerates the card section types, which may have different card components or styles. */
   public enum SectionType {
     MY_APPLICATIONS,
-    COMMON_INTAKE,
+    PRE_SCREENER,
     UNFILTERED_PROGRAMS,
     RECOMMENDED, // Once filters are applied, these are programs that match the filters
     DEFAULT; // Used when the card section doesn't have any special style requirements.
@@ -65,8 +64,6 @@ public final class ProgramCardsSectionParamsFactory {
   public ProgramSectionParams getSection(
       Request request,
       Messages messages,
-      Optional<MessageKey> title,
-      MessageKey buttonText,
       ImmutableList<ApplicantProgramData> programData,
       Locale preferredLocale,
       Optional<CiviFormProfile> profile,
@@ -76,23 +73,10 @@ public final class ProgramCardsSectionParamsFactory {
 
     List<ProgramCardParams> cards =
         getCards(
-            request,
-            messages,
-            buttonText,
-            programData,
-            preferredLocale,
-            profile,
-            applicantId,
-            personalInfo);
+            request, messages, programData, preferredLocale, profile, applicantId, personalInfo);
 
-    ProgramSectionParams.Builder sectionBuilder = ProgramSectionParams.builder().setCards(cards);
-
-    if (title.isPresent()) {
-      sectionBuilder.setTitle(messages.at(title.get().getKeyName(), cards.size()));
-      sectionBuilder.setId(Modal.randomModalId());
-    }
-
-    sectionBuilder.setSectionType(sectionType);
+    ProgramSectionParams.Builder sectionBuilder =
+        ProgramSectionParams.builder().setCards(cards).setSectionType(sectionType);
 
     return sectionBuilder.build();
   }
@@ -101,7 +85,6 @@ public final class ProgramCardsSectionParamsFactory {
   public ImmutableList<ProgramCardParams> getCards(
       Request request,
       Messages messages,
-      MessageKey buttonText,
       ImmutableList<ApplicantProgramData> programData,
       Locale preferredLocale,
       Optional<CiviFormProfile> profile,
@@ -114,7 +97,6 @@ public final class ProgramCardsSectionParamsFactory {
           getCard(
               request,
               messages,
-              buttonText,
               programDatum,
               preferredLocale,
               profile,
@@ -128,7 +110,6 @@ public final class ProgramCardsSectionParamsFactory {
   public ProgramCardParams getCard(
       Request request,
       Messages messages,
-      MessageKey buttonText,
       ApplicantProgramData programDatum,
       Locale preferredLocale,
       Optional<CiviFormProfile> profile,
@@ -158,17 +139,12 @@ public final class ProgramCardsSectionParamsFactory {
 
     String description = program.localizedShortDescription().getOrDefault(preferredLocale);
 
-    if (program.programType().equals(ProgramType.EXTERNAL)) {
-      buttonText = MessageKey.BUTTON_VIEW_IN_NEW_TAB;
-    }
-
     cardBuilder
         .setTitle(program.localizedName().getOrDefault(preferredLocale))
         .setBody(description)
         .setActionUrl(actionUrl)
         .setIsGuest(isGuest)
         .setCategories(categoriesBuilder.build())
-        .setActionText(messages.at(buttonText.getKeyName()))
         .setProgramId(program.id())
         .setProgramType(program.programType());
 
@@ -273,7 +249,7 @@ public final class ProgramCardsSectionParamsFactory {
       }
       // If they are completing the pre-screener form for the first time, skip the program overview
       // page
-    } else if (programType.equals(ProgramType.COMMON_INTAKE_FORM)) {
+    } else if (programType.equals(ProgramType.PRE_SCREENER_FORM)) {
       actionUrl =
           haveApplicant
               ? applicantRoutes.edit(profile.get(), applicantId.get(), programId).url()
@@ -317,12 +293,7 @@ public final class ProgramCardsSectionParamsFactory {
   public abstract static class ProgramSectionParams {
     public abstract ImmutableList<ProgramCardParams> cards();
 
-    public abstract Optional<String> title();
-
     public abstract SectionType sectionType();
-
-    /** The id of the section. Only needs to be specified if a title is also specified. */
-    public abstract Optional<String> id();
 
     public static Builder builder() {
       return new AutoValue_ProgramCardsSectionParamsFactory_ProgramSectionParams.Builder();
@@ -334,11 +305,7 @@ public final class ProgramCardsSectionParamsFactory {
     public abstract static class Builder {
       public abstract Builder setCards(List<ProgramCardParams> cards);
 
-      public abstract Builder setTitle(String title);
-
       public abstract Builder setSectionType(SectionType sectionType);
-
-      public abstract Builder setId(String id);
 
       public abstract ProgramSectionParams build();
     }
@@ -347,8 +314,6 @@ public final class ProgramCardsSectionParamsFactory {
   @AutoValue
   public abstract static class ProgramCardParams {
     public abstract String title();
-
-    public abstract String actionText();
 
     public abstract String body();
 
@@ -392,8 +357,6 @@ public final class ProgramCardsSectionParamsFactory {
     @AutoValue.Builder
     public abstract static class Builder {
       public abstract Builder setTitle(String title);
-
-      public abstract Builder setActionText(String actionText);
 
       public abstract Builder setBody(String body);
 
