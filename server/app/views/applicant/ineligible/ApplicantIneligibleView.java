@@ -24,7 +24,6 @@ import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
 import views.applicant.ApplicantBaseView;
-import views.applicant.AutoValue_ApplicantIneligibleView_Params;
 
 public class ApplicantIneligibleView extends ApplicantBaseView {
   private final EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator;

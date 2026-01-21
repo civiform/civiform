@@ -5,7 +5,9 @@
   ></head>
   <body>
     <div th:replace="~{applicant/ApplicantBaseFragment :: skipNav}"></div>
-    <div th:replace="~{applicant/shared/NavigationFragment :: pageHeader}"></div>
+    <div
+      th:replace="~{applicant/shared/NavigationFragment :: pageHeader}"
+    ></div>
     <main id="main-content" tabindex="-1">
       <div
         th:replace="~{applicant/blocks/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle}, ${programShortDescription})}"
@@ -103,7 +105,9 @@
       <div th:replace="~{applicant/shared/ModalFragment:: upsellLogin}"></div>
     </div>
 
-    <footer th:replace="~{applicant/shared/NavigationFragment :: pageFooter}"></footer>
+    <footer
+      th:replace="~{applicant/shared/NavigationFragment :: pageFooter}"
+    ></footer>
     <th:block
       th:replace="~{components/GoogleTagManagerFragment :: tagManager(${optionalMeasurementId}, ${cspNonce})}"
     ></th:block>

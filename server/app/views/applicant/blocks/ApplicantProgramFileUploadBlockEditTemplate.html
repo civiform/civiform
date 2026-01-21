@@ -5,7 +5,9 @@
   ></head>
   <body>
     <div th:replace="~{applicant/ApplicantBaseFragment :: skipNav}"></div>
-    <div th:replace="~{applicant/shared/NavigationFragment :: pageHeader}"></div>
+    <div
+      th:replace="~{applicant/shared/NavigationFragment :: pageHeader}"
+    ></div>
     <div
       th:if="${applicationParams.loginOnly() and isGuest}"
       class="grid-container padding-top-4"
@@ -153,7 +155,9 @@
         [(${footerTag.render()})]
       </th:block>
     </main>
-    <footer th:replace="~{applicant/shared/NavigationFragment :: pageFooter}"></footer>
+    <footer
+      th:replace="~{applicant/shared/NavigationFragment :: pageFooter}"
+    ></footer>
     <th:block
       th:replace="~{components/GoogleTagManagerFragment :: tagManager(${optionalMeasurementId}, ${cspNonce})}"
     ></th:block>
