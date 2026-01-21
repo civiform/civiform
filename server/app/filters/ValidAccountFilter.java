@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import java.time.Clock;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -18,17 +19,21 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 import repository.DatabaseExecutionContext;
+import services.session.SessionTimeoutService;
 import services.settings.SettingsManifest;
 
 /**
- * A filter to ensure the account referenced in the browser cookie is valid. This should only matter
- * when the account is deleted from the database which almost will never happen in prod database.
+ * A filter to ensure the account referenced in the browser cookie is valid. This validates that:
+ * the account still exists in the database, the session is valid (when session replay protection is
+ * enabled), and the session has not timed out (when session timeout is enabled)
  */
 public class ValidAccountFilter extends EssentialFilter {
 
   private final ProfileUtils profileUtils;
   private final Provider<SettingsManifest> settingsManifest;
   private final Materializer materializer;
+  private final Clock clock;
+  private final Provider<SessionTimeoutService> sessionTimeoutService;
   private final Provider<DatabaseExecutionContext> databaseExecutionContext;
 
   @Inject
@@ -36,17 +41,22 @@ public class ValidAccountFilter extends EssentialFilter {
       ProfileUtils profileUtils,
       Provider<SettingsManifest> settingsManifest,
       Materializer materializer,
+      Clock clock,
+      Provider<SessionTimeoutService> sessionTimeoutService,
       Provider<DatabaseExecutionContext> databaseExecutionContext) {
     this.profileUtils = checkNotNull(profileUtils);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.materializer = checkNotNull(materializer);
-    this.databaseExecutionContext = databaseExecutionContext;
+    this.clock = checkNotNull(clock);
+    this.sessionTimeoutService = checkNotNull(sessionTimeoutService);
+    this.databaseExecutionContext = checkNotNull(databaseExecutionContext);
   }
 
   @Override
   public EssentialAction apply(EssentialAction next) {
     return EssentialAction.of(
         request -> {
+          // Check allowed endpoints first to avoid unnecessary profile lookup for static assets
           if (allowedEndpoint(request)) {
             return next.apply(request);
           }
@@ -58,13 +68,16 @@ public class ValidAccountFilter extends EssentialFilter {
           }
 
           CompletionStage<Accumulator<ByteString, Result>> futureAccumulator =
-              shouldLogoutUser(profile.get())
+              shouldLogoutUser(profile.get(), request)
                   .thenApply(
                       shouldLogout -> {
                         if (shouldLogout) {
                           return Accumulator.done(
                               Results.redirect(org.pac4j.play.routes.LogoutController.logout()));
                         } else {
+                          if (settingsManifest.get().getSessionTimeoutEnabled(request)) {
+                            profile.get().getProfileData().updateLastActivityTime(clock);
+                          }
                           return next.apply(request);
                         }
                       });
@@ -73,8 +86,8 @@ public class ValidAccountFilter extends EssentialFilter {
         });
   }
 
-  private CompletionStage<Boolean> shouldLogoutUser(CiviFormProfile profile) {
-
+  private CompletionStage<Boolean> shouldLogoutUser(
+      CiviFormProfile profile, Http.RequestHeader request) {
     return profileUtils
         .validCiviFormProfile(profile)
         .thenComposeAsync(
