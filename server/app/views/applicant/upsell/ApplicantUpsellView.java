@@ -135,6 +135,6 @@ public class ApplicantUpsellView extends ApplicantBaseView {
         "showProgramsCardsSection",
         cardsSection.isPresent() && cardsSection.get().cards().size() > 0);
 
-    return templateEngine.process("applicant/ApplicantUpsellTemplate", context);
+    return templateEngine.process("applicant/upsell/ApplicantUpsellTemplate", context);
   }
 }
