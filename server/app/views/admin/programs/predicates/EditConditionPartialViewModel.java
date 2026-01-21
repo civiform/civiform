@@ -54,7 +54,6 @@ public record EditConditionPartialViewModel(
         .valueOptions(valueOptions)
         .invalidInputIds(ImmutableList.of())
         .autofocus(false)
-        .shouldAnnounceChanges(false)
         .build();
   }
 

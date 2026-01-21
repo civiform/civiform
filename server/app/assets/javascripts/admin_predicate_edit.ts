@@ -437,28 +437,8 @@ export class AdminPredicateEdit {
       return
     }
 
-    const ariaAnnounceElementId = focusedSubconditionQuestion.id.replace(
-      this.QUESTION_ID_SUFFIX,
-      this.ARIA_ANNOUNCE_ID_SUFFIX,
-    )
-    const ariaAnnounceElement: HTMLElement | null = document.querySelector(
-      `#${ariaAnnounceElementId}`,
-    )
-    if (ariaAnnounceElement === null) {
-      return
-    }
-
     // Focus the question dropdown of the desired subcondition
     focusedSubconditionQuestion.focus()
-
-    // If we want an aria announcement here, set the text of the aria-live region after a short delay.
-    // This update will trigger screen readers to read the text.
-    if (ariaAnnounceElement.getAttribute('data-should-announce') === 'true') {
-      setTimeout(function () {
-        ariaAnnounceElement.textContent =
-          ariaAnnounceElement.getAttribute('data-announce-text')
-      }, 1000)
-    }
   }
 
   /**

@@ -920,10 +920,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
           condition.toBuilder()
               .subconditions(
                   ImmutableList.of(
-                      condition.emptySubconditionViewModel().toBuilder()
-                          .autofocus(false)
-                          .shouldAnnounceChanges(false)
-                          .build()))
+                      condition.emptySubconditionViewModel().toBuilder().autofocus(false).build()))
               .focusLogicDropdown(isExistingPredicate)
               .build();
       currentConditions.add(condition);
@@ -989,10 +986,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       ImmutableList<EditSubconditionPartialViewModel> subconditionList =
           getOnlyElement(
                   focusSubconditionInList(
-                      ImmutableList.of(condition),
-                      /* conditionIndex= */ 0,
-                      focusedIndex,
-                      /* shouldAnnounceChanges= */ false))
+                      ImmutableList.of(condition), /* conditionIndex= */ 0, focusedIndex))
               .subconditions();
 
       return ok(subconditionListPartialView.render(
@@ -1049,10 +1043,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
           new ArrayList<>(condition.subconditions());
 
       subconditionList.add(
-          condition.emptySubconditionViewModel().toBuilder()
-              .autofocus(true)
-              .shouldAnnounceChanges(true)
-              .build());
+          condition.emptySubconditionViewModel().toBuilder().autofocus(true).build());
 
       return ok(subconditionListPartialView.render(
               request,
@@ -1183,16 +1174,12 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       ImmutableList<EditSubconditionPartialViewModel> subconditions =
           condition.subconditions().isEmpty()
               ? ImmutableList.of(
-                  condition.emptySubconditionViewModel().toBuilder()
-                      .autofocus(true)
-                      .shouldAnnounceChanges(false)
-                      .build())
+                  condition.emptySubconditionViewModel().toBuilder().autofocus(true).build())
               : getOnlyElement(
                       focusSubconditionInList(
                           ImmutableList.of(condition),
                           /* conditionIndex= */ 0,
-                          autofocusedSubcondition,
-                          /* shouldAnnounceChanges= */ true))
+                          autofocusedSubcondition))
                   .subconditions();
 
       return ok(subconditionListPartialView.render(
@@ -1665,22 +1652,17 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
    * @param conditions The list of conditions to be edited.
    * @param conditionIndex The (zero-indexed) condition whose subcondition we'd like to focus.
    * @param subconditionIndex The (zero-indexed) subcondition we'd like to focus.
-   * @param shouldAnnounceChanges Controls whether these changes will be announced via aria-live.
    */
   private ImmutableList<EditConditionPartialViewModel> focusSubconditionInList(
       ImmutableList<EditConditionPartialViewModel> conditions,
       int conditionIndex,
-      int subconditionIndex,
-      boolean shouldAnnounceChanges) {
+      int subconditionIndex) {
     // Get the focused elements from their respective lists.
     EditConditionPartialViewModel focusedCondition = conditions.get(conditionIndex);
     ArrayList<EditSubconditionPartialViewModel> focusedSubconditionList =
         new ArrayList<>(focusedCondition.subconditions());
     EditSubconditionPartialViewModel focusedSubcondition =
-        focusedSubconditionList.get(subconditionIndex).toBuilder()
-            .autofocus(true)
-            .shouldAnnounceChanges(shouldAnnounceChanges)
-            .build();
+        focusedSubconditionList.get(subconditionIndex).toBuilder().autofocus(true).build();
 
     // Set correct element
     focusedSubconditionList.set(subconditionIndex, focusedSubcondition);

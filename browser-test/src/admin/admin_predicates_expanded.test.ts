@@ -905,9 +905,6 @@ test.describe('create and edit predicates', () => {
       await adminPredicates.expectCondition(1)
 
       await expect(page.locator('#root-node-type')).toBeFocused()
-      await expect(
-        page.locator('#condition-1-subcondition-1-ariaAnnounce'),
-      ).toHaveAttribute('data-should-announce', 'false')
       await adminPredicates.selectConditionLogicalOperatorAndExpectLabel(
         1,
         'OR',
@@ -984,9 +981,6 @@ test.describe('create and edit predicates', () => {
           secondValue: dateQuestionValues.secondValue,
         },
       })
-      await expect(
-        page.locator('#condition-1-subcondition-1-ariaAnnounce'),
-      ).toHaveAttribute('data-should-announce', 'true')
     })
 
     await test.step('Delete condition and validate null state', async () => {
@@ -1051,9 +1045,6 @@ test.describe('create and edit predicates', () => {
       await expect(
         page.locator('#condition-1-subcondition-1-question'),
       ).not.toBeFocused()
-      await expect(
-        page.locator('#condition-1-subcondition-1-ariaAnnounce'),
-      ).toHaveAttribute('data-should-announce', 'false')
       await expect(page.locator('#condition-1-node-type')).toBeFocused()
     })
 
