@@ -197,7 +197,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .url();
 
     return new LinkElement()
-        .setId("application-table-view-")
+        .setId("back-to-applications-link")
         .setHref(backUrl)
         .setText("Back")
         .setStyles(ButtonStyles.SOLID_BLUE_TEXT_SM)
