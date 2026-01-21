@@ -2,6 +2,7 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.stubMessagesApi;
@@ -20,6 +21,7 @@ import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.InvalidQuestionPositionException;
+import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramQuestionDefinition;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
@@ -66,6 +68,52 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
     program.refresh();
     assertThat(program.getProgramDefinition().hasQuestion(toUpdate)).isTrue();
     assertThat(program.getProgramDefinition().hasQuestion(nameQuestion)).isFalse();
+  }
+
+  @Test
+  public void createEnumerator_addsNewEnumeratorQuestionToBlock()
+      throws ProgramBlockDefinitionNotFoundException {
+
+    ProgramBuilder programBuilder = ProgramBuilder.newDraftProgram();
+    ProgramModel program = programBuilder.withEnumeratorBlock().build();
+
+    Request request =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "entityType", "Pets",
+                    "questionName", "pets enumerator",
+                    "questionText", "List your pets.",
+                    "questionHelpText", "help text"))
+            .build();
+
+    Result result = controller.createEnumerator(request, program.id, 1);
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(routes.AdminProgramBlocksController.edit(program.id, 1).url());
+  }
+
+  @Test
+  public void createEnumerator_withIncompleteForm_returnsQuestionEditFormWithToastError()
+      throws ProgramBlockDefinitionNotFoundException {
+
+    ProgramBuilder programBuilder = ProgramBuilder.newDraftProgram();
+    ProgramModel program = programBuilder.withEnumeratorBlock().build();
+
+    Request request =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "entityType", "Pets",
+                    "questionName", "pets enumerator", // Missing questionText
+                    "questionHelpText", "help text"))
+            .build();
+
+    Result result = controller.createEnumerator(request, program.id, 1);
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Error: Question text cannot be blank.");
   }
 
   @Test

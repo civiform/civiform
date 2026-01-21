@@ -1,4 +1,4 @@
-package views.applicant;
+package views.applicant.review;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

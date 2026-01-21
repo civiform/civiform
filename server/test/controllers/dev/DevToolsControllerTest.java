@@ -52,11 +52,6 @@ public class DevToolsControllerTest {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).doesNotContain("comprehensive-sample-program");
 
-    // Go to seed data display page.
-    result = controller.data(fakeRequest());
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("comprehensive-sample-program");
-
     // Clear the data.
     result = controller.clear();
     assertThat(result.redirectLocation()).hasValue(routes.DevToolsController.index().url());

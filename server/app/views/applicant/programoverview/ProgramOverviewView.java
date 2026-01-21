@@ -1,4 +1,4 @@
-package views.applicant;
+package views.applicant.programoverview;
 
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
@@ -21,6 +21,7 @@ import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
+import views.applicant.ApplicantBaseView;
 import views.applicant.programindex.ProgramCardsSectionParamsFactory;
 import views.components.TextFormatter;
 
@@ -108,7 +109,7 @@ public class ProgramOverviewView extends ApplicantBaseView {
     context.setVariable("actionUrl", actionUrl);
     context.setVariable("goBackToAdminUrl", getGoBackToAdminUrl(programDefinition));
 
-    return templateEngine.process("applicant/ProgramOverviewTemplate", context);
+    return templateEngine.process("applicant/programoverview/ProgramOverviewTemplate", context);
   }
 
   private String getProgramDescription(
