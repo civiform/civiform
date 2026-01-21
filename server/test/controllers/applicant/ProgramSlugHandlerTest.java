@@ -39,7 +39,7 @@ import services.program.ProgramService;
 import services.program.ProgramType;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
-import views.applicant.ProgramOverviewView;
+import views.applicant.programoverview.ProgramOverviewView;
 
 public class ProgramSlugHandlerTest extends WithMockedProfiles {
 

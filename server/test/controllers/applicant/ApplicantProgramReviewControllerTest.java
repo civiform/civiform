@@ -38,7 +38,7 @@ import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.applicant.ApplicantIneligibleView;
-import views.applicant.ApplicantProgramSummaryView;
+import views.applicant.review.ApplicantProgramSummaryView;
 
 public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 

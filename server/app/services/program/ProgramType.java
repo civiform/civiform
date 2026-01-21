@@ -5,7 +5,7 @@ import io.ebean.annotation.DbEnumValue;
 
 /**
  * ProgramType for a Program. Most Programs are a regular DEFAULT program. A PRE_SCREENER_FORM
- * Program is an intake screener for other programs.
+ * Program is a pre-screener for other programs.
  */
 public enum ProgramType {
   DEFAULT("default"),
