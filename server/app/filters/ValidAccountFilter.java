@@ -70,14 +70,14 @@ public class ValidAccountFilter extends EssentialFilter {
           }
 
           CompletionStage<Accumulator<ByteString, Result>> futureAccumulator =
-              shouldLogoutUser(profile.get())
+              shouldLogoutUser(profile.get(), request)
                   .thenApply(
                       shouldLogout -> {
                         if (shouldLogout) {
                           return Accumulator.done(
                               Results.redirect(org.pac4j.play.routes.LogoutController.logout()));
                         } else {
-                          if (settingsManifest.get().getSessionTimeoutEnabled()) {
+                          if (settingsManifest.get().getSessionTimeoutEnabled(request)) {
                             profile.get().getProfileData().updateLastActivityTime(clock);
                           }
                           return next.apply(request);
@@ -122,8 +122,7 @@ public class ValidAccountFilter extends EssentialFilter {
   }
 
   private CompletionStage<Boolean> isValidSession(CiviFormProfile profile) {
-    if (settingsManifest.get().getSessionReplayProtectionEnabled()
-        || settingsManifest.get().getSessionTimeoutEnabled()) {
+    if (settingsManifest.get().getSessionReplayProtectionEnabled()) {
       return profile
           .getAccount()
           .thenApply(
