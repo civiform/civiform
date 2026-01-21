@@ -28,7 +28,7 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
-import views.applicant.ProgramOverviewView;
+import views.applicant.programoverview.ProgramOverviewView;
 
 /** Class for showing program view based on program slug. */
 public final class ProgramSlugHandler {
