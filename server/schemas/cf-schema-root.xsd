@@ -21,5 +21,6 @@
 
   <!-- Include child schemas -->
   <xs:include schemaLocation="cf-input-schema.xsd"/>
+  <xs:include schemaLocation="cf-select-schema.xsd"/>
   <xs:include schemaLocation="cf-textarea-schema.xsd"/>
 </xs:schema>
