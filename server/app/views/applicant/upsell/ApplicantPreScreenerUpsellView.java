@@ -92,7 +92,7 @@ public class ApplicantPreScreenerUpsellView extends ApplicantBaseView {
 
       context.setVariable("bannerMessage", params.bannerMessage());
     }
-    return templateEngine.process("applicant/ApplicantPreScreenerUpsellTemplate", context);
+    return templateEngine.process("applicant/upsell/ApplicantPreScreenerUpsellTemplate", context);
   }
 
   /* Provides syntactic sugar for displaying user-facing program information in HTML. */
