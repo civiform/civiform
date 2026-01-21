@@ -23,6 +23,7 @@ import org.junit.Test;
 import play.data.FormFactory;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.CategoryRepository;
 import repository.ProgramRepository;
 import repository.ResetPostgres;
 import repository.VersionRepository;
@@ -30,9 +31,11 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
 import services.question.QuestionService;
+import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.admin.programs.ProgramEditStatus;
 import views.admin.programs.ProgramIndexView;
+import views.admin.programs.ProgramMetaDataEdit2PageView;
 import views.admin.programs.ProgramMetaDataEditView;
 import views.admin.programs.ProgramNewOneView;
 import views.html.helper.CSRF;
@@ -77,6 +80,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     controller =
         new AdminProgramController(
+            instanceOf(SettingsManifest.class),
             instanceOf(ProgramService.class),
             instanceOf(QuestionService.class),
             instanceOf(ProgramIndexView.class),
@@ -85,7 +89,9 @@ public class AdminProgramControllerTest extends ResetPostgres {
             versionRepository,
             instanceOf(ProfileUtils.class),
             instanceOf(FormFactory.class),
-            instanceOf(RequestChecker.class));
+            instanceOf(RequestChecker.class),
+            instanceOf(ProgramMetaDataEdit2PageView.class),
+            instanceOf(CategoryRepository.class));
   }
 
   @Test

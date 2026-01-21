@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:cf="https://civiform.us/thymeleaf/cf"
+           targetNamespace="https://civiform.us/thymeleaf/cf"
+           elementFormDefault="qualified">
+
+  <!-- Simple types for enumerations -->
+  <xs:simpleType name="buttonVariant">
+    <xs:annotation>
+      <xs:documentation>Button visual variants following USWDS design system</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="primary">
+        <xs:annotation>
+          <xs:documentation>Default blue button (default)</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="secondary">
+        <xs:annotation>
+          <xs:documentation>Gray secondary button</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="outline">
+        <xs:annotation>
+          <xs:documentation>Outlined button with transparent background</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="accent-cool">
+        <xs:annotation>
+          <xs:documentation>Cool accent color button</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="accent-warm">
+        <xs:annotation>
+          <xs:documentation>Warm accent color button</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="base">
+        <xs:annotation>
+          <xs:documentation>Base styling button</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="unstyled">
+        <xs:annotation>
+          <xs:documentation>Button with minimal styling</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="buttonType">
+    <xs:annotation>
+      <xs:documentation>HTML button type attribute</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="button">
+        <xs:annotation>
+          <xs:documentation>Default button type (default)</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="submit">
+        <xs:annotation>
+          <xs:documentation>Submit button for forms</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="reset">
+        <xs:annotation>
+          <xs:documentation>Reset button for forms</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="buttonSize">
+    <xs:annotation>
+      <xs:documentation>Button size variant</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="big">
+        <xs:annotation>
+          <xs:documentation>Larger button size</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="inputType">
+    <xs:annotation>
+      <xs:documentation>HTML input type attribute</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="text"/>
+      <xs:enumeration value="email"/>
+      <xs:enumeration value="password"/>
+      <xs:enumeration value="number"/>
+      <xs:enumeration value="tel"/>
+      <xs:enumeration value="url"/>
+      <xs:enumeration value="date"/>
+      <xs:enumeration value="time"/>
+      <xs:enumeration value="datetime-local"/>
+      <xs:enumeration value="search"/>
+      <xs:enumeration value="color"/>
+      <xs:enumeration value="range"/>
+      <xs:enumeration value="month"/>
+      <xs:enumeration value="week"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="booleanString">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="true"/>
+      <xs:enumeration value="false"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Common attribute groups -->
+  <xs:attributeGroup name="commonFormAttributes">
+    <xs:attribute name="id" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Unique identifier for the element</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="name" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Name attribute for form submission</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="label" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Label text displayed above the field</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="help-text" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Helper text displayed below the label</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="validation-message" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Error message to display when validation fails</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="is-valid" type="booleanString">
+      <xs:annotation>
+        <xs:documentation>Whether the field is valid (false to show error state)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Mark field as required</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+
+  <xs:attributeGroup name="thymeleafFormAttributes">
+    <xs:attribute name="th:id" type="xs:string"/>
+    <xs:attribute name="th:name" type="xs:string"/>
+    <xs:attribute name="th:label" type="xs:string"/>
+    <xs:attribute name="th:help-text" type="xs:string"/>
+    <xs:attribute name="th:validation-message" type="xs:string"/>
+    <xs:attribute name="th:is-valid" type="xs:string"/>
+    <xs:attribute name="th:required" type="xs:string"/>
+    <xs:attribute name="th:value" type="xs:string"/>
+  </xs:attributeGroup>
+
+  <!-- cf:input element -->
+  <xs:element name="input">
+    <xs:annotation>
+      <xs:documentation>
+        USWDS form input field with label, help text, and validation support.
+        Supports various input types (text, email, password, number, tel, url, date, etc.)
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attributeGroup ref="cf:commonFormAttributes"/>
+      <xs:attributeGroup ref="cf:thymeleafFormAttributes"/>
+      <xs:attribute name="type" type="cf:inputType">
+        <xs:annotation>
+          <xs:documentation>Input type (text, email, password, number, tel, url, date, etc.)</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:type" type="xs:string"/>
+      <xs:attribute name="value" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Default value for the input</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="placeholder" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Placeholder text displayed when input is empty</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:placeholder" type="xs:string"/>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- cf:textarea element -->
+  <xs:element name="textarea">
+    <xs:annotation>
+      <xs:documentation>
+        USWDS textarea field with label, help text, and validation support.
+        Supports rows and cols attributes for sizing.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attributeGroup ref="cf:commonFormAttributes"/>
+      <xs:attributeGroup ref="cf:thymeleafFormAttributes"/>
+      <xs:attribute name="rows" type="xs:positiveInteger">
+        <xs:annotation>
+          <xs:documentation>Number of visible text rows</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:rows" type="xs:string"/>
+      <xs:attribute name="cols" type="xs:positiveInteger">
+        <xs:annotation>
+          <xs:documentation>Visible width in characters</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:cols" type="xs:string"/>
+      <xs:attribute name="value" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Default text content for the textarea</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="placeholder" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Placeholder text displayed when textarea is empty</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:placeholder" type="xs:string"/>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- option element for checkbox/radio -->
+  <xs:complexType name="optionType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="id" type="xs:string">
+          <xs:annotation>
+            <xs:documentation>Unique ID for this option</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="value" type="xs:string">
+          <xs:annotation>
+            <xs:documentation>Value submitted when this option is selected</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="label" type="xs:string">
+          <xs:annotation>
+            <xs:documentation>Label text for this option</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="description" type="xs:string">
+          <xs:annotation>
+            <xs:documentation>Optional description text below the label</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="selected" type="xs:string">
+          <xs:annotation>
+            <xs:documentation>Pre-select this option (true, selected, or checked)</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="disabled" type="xs:string">
+          <xs:annotation>
+            <xs:documentation>Disable this option (true or disabled)</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:anyAttribute namespace="##other" processContents="lax"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <!-- cf:checkbox element -->
+  <xs:element name="checkbox">
+    <xs:annotation>
+      <xs:documentation>
+        USWDS checkbox group with fieldset, legend, and support for multiple options.
+        Use nested option elements to define checkboxes.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="option" type="cf:optionType" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="cf:commonFormAttributes"/>
+      <xs:attributeGroup ref="cf:thymeleafFormAttributes"/>
+      <xs:attribute name="tiled" type="booleanString">
+        <xs:annotation>
+          <xs:documentation>Use tile variant: true (default) or false</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:tiled" type="xs:string"/>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- cf:radio element -->
+  <xs:element name="radio">
+    <xs:annotation>
+      <xs:documentation>
+        USWDS radio button group with fieldset, legend, and support for multiple options.
+        Use nested option elements to define radio buttons.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="option" type="cf:optionType" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="cf:commonFormAttributes"/>
+      <xs:attributeGroup ref="cf:thymeleafFormAttributes"/>
+      <xs:attribute name="tiled" type="booleanString">
+        <xs:annotation>
+          <xs:documentation>Use tile variant: true (default) or false</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:tiled" type="xs:string"/>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- cf:button element -->
+  <xs:element name="button">
+    <xs:annotation>
+      <xs:documentation>
+        USWDS button with support for various variants, sizes, and states.
+        Can contain text via 'text' attribute or nested HTML content.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:any minOccurs="0" maxOccurs="unbounded" processContents="lax"/>
+      </xs:sequence>
+      <xs:attribute name="id" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Unique identifier for the button</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:id" type="xs:string"/>
+      <xs:attribute name="name" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Name attribute for form submission</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:name" type="xs:string"/>
+      <xs:attribute name="value" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Value submitted when button is clicked</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:value" type="xs:string"/>
+      <xs:attribute name="text" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Button text content (alternative to nested content)</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:text" type="xs:string"/>
+      <xs:attribute name="type" type="cf:buttonType">
+        <xs:annotation>
+          <xs:documentation>Button type: button (default), submit, or reset</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:type" type="xs:string"/>
+      <xs:attribute name="variant" type="cf:buttonVariant">
+        <xs:annotation>
+          <xs:documentation>Button variant: primary (default), secondary, outline, accent-cool, accent-warm, base, unstyled</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:variant" type="xs:string"/>
+      <xs:attribute name="size" type="cf:buttonSize">
+        <xs:annotation>
+          <xs:documentation>Button size: big</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:size" type="xs:string"/>
+      <xs:attribute name="disabled" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Disable the button: true or disabled</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:disabled" type="xs:string"/>
+      <xs:attribute name="full-width" type="booleanString">
+        <xs:annotation>
+          <xs:documentation>Make button full width: true</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:full-width" type="xs:string"/>
+      <xs:attribute name="inverse" type="booleanString">
+        <xs:annotation>
+          <xs:documentation>Use inverse styling for dark backgrounds: true</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:inverse" type="xs:string"/>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

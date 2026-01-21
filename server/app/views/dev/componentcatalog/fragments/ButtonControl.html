@@ -1,0 +1,275 @@
+<!--/*@thymesVar id="model" type="views.dev.componentcatalog.fragments.ButtonControl"*/-->
+<th:block
+  th:fragment="render(model)"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <h2>Button Component</h2>
+
+  <!-- Sample 1: Primary Button -->
+  <h3>Primary Button</h3>
+  <cf:button
+    th:id="${model.primaryButton.id()}"
+    th:text="${model.primaryButton.text()}"
+  />
+
+  <h4>Java</h4>
+  <pre><code class="language-java">public record PrimaryButton(
+    String id,
+    String text) {
+
+  public PrimaryButton() {
+    this(&quot;submitBtn&quot;,
+         &quot;Submit&quot;);
+  }
+}</code></pre>
+
+  <h4>Thymeleaf</h4>
+  <pre><code class="language-markup">&lt;cf:button
+  th:id=&quot;${model.primaryButton.id()}&quot;
+  th:text=&quot;${model.primaryButton.text()}&quot;
+/&gt;</code></pre>
+
+  <h4>Rendered HTML</h4>
+  <pre><code class="language-markup">&lt;button
+  type=&quot;button&quot;
+  class=&quot;usa-button&quot;
+  id=&quot;submitBtn&quot;&gt;Submit&lt;/button&gt;</code></pre>
+
+  <!-- Sample 2: Secondary Button with Type -->
+  <h3>Secondary Button (Submit Type)</h3>
+  <cf:button
+    th:id="${model.secondaryButton.id()}"
+    th:name="${model.secondaryButton.name()}"
+    th:text="${model.secondaryButton.text()}"
+    th:type="${model.secondaryButton.type()}"
+    th:variant="${model.secondaryButton.variant()}"
+  />
+
+  <h4>Java</h4>
+  <pre><code class="language-java">public record SecondaryButton(
+    String id,
+    String name,
+    String text,
+    String type,
+    String variant) {
+
+  public SecondaryButton() {
+    this(&quot;saveBtn&quot;,
+         &quot;save&quot;,
+         &quot;Save Draft&quot;,
+         &quot;submit&quot;,
+         &quot;secondary&quot;);
+  }
+}</code></pre>
+
+  <h4>Thymeleaf</h4>
+  <pre><code class="language-markup">&lt;cf:button
+  th:id=&quot;${model.secondaryButton.id()}&quot;
+  th:name=&quot;${model.secondaryButton.name()}&quot;
+  th:text=&quot;${model.secondaryButton.text()}&quot;
+  th:type=&quot;${model.secondaryButton.type()}&quot;
+  th:variant=&quot;${model.secondaryButton.variant()}&quot;
+/&gt;</code></pre>
+
+  <h4>Rendered HTML</h4>
+  <pre><code class="language-markup">&lt;button
+  type=&quot;submit&quot;
+  class=&quot;usa-button usa-button--secondary&quot;
+  id=&quot;saveBtn&quot;
+  name=&quot;save&quot;&gt;Save Draft&lt;/button&gt;</code></pre>
+
+  <!-- Sample 3: Outline Button (Big Size) -->
+  <h3>Outline Button (Big Size)</h3>
+  <cf:button
+    th:id="${model.outlineButton.id()}"
+    th:text="${model.outlineButton.text()}"
+    th:variant="${model.outlineButton.variant()}"
+    th:size="${model.outlineButton.size()}"
+  />
+
+  <h4>Java</h4>
+  <pre><code class="language-java">public record OutlineButton(
+    String id,
+    String text,
+    String variant,
+    String size) {
+
+  public OutlineButton() {
+    this(&quot;cancelBtn&quot;,
+         &quot;Cancel&quot;,
+         &quot;outline&quot;,
+         &quot;big&quot;);
+  }
+}</code></pre>
+
+  <h4>Thymeleaf</h4>
+  <pre><code class="language-markup">&lt;cf:button
+  th:id=&quot;${model.outlineButton.id()}&quot;
+  th:text=&quot;${model.outlineButton.text()}&quot;
+  th:variant=&quot;${model.outlineButton.variant()}&quot;
+  th:size=&quot;${model.outlineButton.size()}&quot;
+/&gt;</code></pre>
+
+  <h4>Rendered HTML</h4>
+  <pre><code class="language-markup">&lt;button
+  type=&quot;button&quot;
+  class=&quot;usa-button usa-button--outline usa-button--big&quot;
+  id=&quot;cancelBtn&quot;&gt;Cancel&lt;/button&gt;</code></pre>
+
+  <!-- Sample 4: Disabled Button with Full Width -->
+  <h3>Disabled Button (Full Width)</h3>
+  <cf:button
+    th:id="${model.disabledButton.id()}"
+    th:text="${model.disabledButton.text()}"
+    th:variant="${model.disabledButton.variant()}"
+    th:disabled="${model.disabledButton.disabled()}"
+    th:full-width="${model.disabledButton.fullWidth()}"
+  />
+
+  <h4>Java</h4>
+  <pre><code class="language-java">public record DisabledButton(
+    String id,
+    String text,
+    String variant,
+    String disabled,
+    String fullWidth) {
+
+  public DisabledButton() {
+    this(&quot;processBtn&quot;,
+         &quot;Processing...&quot;,
+         &quot;accent-cool&quot;,
+         &quot;true&quot;,
+         &quot;true&quot;);
+  }
+}</code></pre>
+
+  <h4>Thymeleaf</h4>
+  <pre><code class="language-markup">&lt;cf:button
+  th:id=&quot;${model.disabledButton.id()}&quot;
+  th:text=&quot;${model.disabledButton.text()}&quot;
+  th:variant=&quot;${model.disabledButton.variant()}&quot;
+  th:disabled=&quot;${model.disabledButton.disabled()}&quot;
+  th:full-width=&quot;${model.disabledButton.fullWidth()}&quot;
+/&gt;</code></pre>
+
+  <h4>Rendered HTML</h4>
+  <pre><code class="language-markup">&lt;button
+  type=&quot;button&quot;
+  class=&quot;usa-button usa-button--accent-cool usa-button--full-width&quot;
+  id=&quot;processBtn&quot;
+  disabled=&quot;disabled&quot;&gt;Processing...&lt;/button&gt;</code></pre>
+
+  <!-- Sample 5: Button with Data Attributes and ARIA -->
+  <h3>Button with Data Attributes</h3>
+  <cf:button
+    th:id="${model.dataButton.id()}"
+    th:name="${model.dataButton.name()}"
+    th:value="${model.dataButton.value()}"
+    th:text="${model.dataButton.text()}"
+    th:type="${model.dataButton.type()}"
+    th:variant="${model.dataButton.variant()}"
+    th:data-action="${model.dataButton.action()}"
+    th:data-confirm="${model.dataButton.confirm()}"
+    th:aria-label="${model.dataButton.ariaLabel()}"
+  />
+
+  <h4>Java</h4>
+  <pre><code class="language-java">public record DataButton(
+    String id,
+    String name,
+    String value,
+    String text,
+    String type,
+    String variant,
+    String action,
+    String confirm,
+    String ariaLabel) {
+
+  public DataButton() {
+    this(&quot;deleteBtn&quot;,
+         &quot;action&quot;,
+         &quot;delete&quot;,
+         &quot;Delete&quot;,
+         &quot;submit&quot;,
+         &quot;base&quot;,
+         &quot;delete-record&quot;,
+         &quot;Are you sure you want to delete this?&quot;,
+         &quot;Delete this record&quot;);
+  }
+}</code></pre>
+
+  <h4>Thymeleaf</h4>
+  <pre><code class="language-markup">&lt;cf:button
+  th:id=&quot;${model.dataButton.id()}&quot;
+  th:name=&quot;${model.dataButton.name()}&quot;
+  th:value=&quot;${model.dataButton.value()}&quot;
+  th:text=&quot;${model.dataButton.text()}&quot;
+  th:type=&quot;${model.dataButton.type()}&quot;
+  th:variant=&quot;${model.dataButton.variant()}&quot;
+  th:data-action=&quot;${model.dataButton.action()}&quot;
+  th:data-confirm=&quot;${model.dataButton.confirm()}&quot;
+  th:aria-label=&quot;${model.dataButton.ariaLabel()}&quot;
+/&gt;</code></pre>
+
+  <h4>Rendered HTML</h4>
+  <pre><code class="language-markup">&lt;button
+  type=&quot;submit&quot;
+  class=&quot;usa-button usa-button--base&quot;
+  id=&quot;deleteBtn&quot;
+  name=&quot;action&quot;
+  value=&quot;delete&quot;
+  data-action=&quot;delete-record&quot;
+  data-confirm=&quot;Are you sure you want to delete this?&quot;
+  aria-label=&quot;Delete this record&quot;&gt;Delete&lt;/button&gt;</code></pre>
+
+  <!-- Sample 6: Unstyled Button with Nested Content -->
+  <h3>Button with Icon (Nested Content)</h3>
+  <cf:button
+    th:id="${model.iconButton.id()}"
+    th:variant="${model.iconButton.variant()}"
+    th:aria-label="${model.iconButton.ariaLabel()}"
+  >
+    <cf:icon type="icon-delete" />
+    <span th:text="${model.iconButton.text()}"></span>
+  </cf:button>
+
+  <h4>Java</h4>
+  <pre><code class="language-java">public record IconButton(
+    String id,
+    String variant,
+    String ariaLabel,
+    String text) {
+
+  public IconButton() {
+    this(&quot;menuBtn&quot;,
+         &quot;accent-warm&quot;,
+         &quot;Delete&quot;,
+         &quot;Delete&quot;);
+  }
+}</code></pre>
+
+  <h4>Thymeleaf</h4>
+  <pre><code class="language-markup">&lt;cf:button
+  th:id=&quot;${model.iconButton.id()}&quot;
+  th:variant=&quot;${model.iconButton.variant()}&quot;
+  th:aria-label=&quot;${model.iconButton.ariaLabel()}&quot;
+&gt;
+  &lt;cf:icon type=&quot;icon-delete&quot; /&gt;
+  &lt;span th:text=&quot;${model.iconButton.text()}&quot;&gt;&lt;/span&gt;
+&lt;/cf:button&gt;</code></pre>
+
+  <h4>Rendered HTML</h4>
+  <pre><code class="language-markup">&lt;button
+  type=&quot;button&quot;
+  class=&quot;usa-button usa-button--accent-warm&quot;
+  id=&quot;menuBtn&quot;
+  aria-label=&quot;Delete&quot;&gt;
+  &lt;img
+    src=&quot;/assets/Images/uswds/icon-delete.svg&quot;
+    aria-hidden=&quot;true&quot;
+    role=&quot;img&quot;
+    alt=&quot;&quot;&gt;
+  &lt;span&gt;Delete&lt;/span&gt;
+&lt;/button&gt;</code></pre>
+</th:block>

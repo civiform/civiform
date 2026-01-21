@@ -1,0 +1,383 @@
+<!--/*@thymesVar id="model" type="views.dev.componentcatalog.fragments.SelectControl"*/-->
+<th:block
+  th:fragment="render(model)"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <h2>Select Component</h2>
+
+  <!-- Sample 1: Basic Select -->
+  <h3>Basic Select</h3>
+  <cf:select
+    th:id="${model.basicSelect.id()}"
+    th:name="${model.basicSelect.name()}"
+    th:label="${model.basicSelect.label()}"
+    th:aria-label="${model.basicSelect.label()}"
+  >
+    <option
+      th:each="item: ${model.basicSelect.options()}"
+      th:value="${item.value()}"
+      th:text="${item.text()}"
+      th:selected="${item.value() == model.basicSelect.selectedValue()}"
+    ></option>
+  </cf:select>
+
+  <h4>Java</h4>
+  <pre><code class="language-java">import com.google.common.collect.ImmutableList;
+
+public record BasicSelect(
+    String id,
+    String name,
+    String label,
+    ImmutableList&lt;Option&gt; options,
+    String selectedValue) {
+
+  public static BasicSelect create() {
+    return new BasicSelect(
+        &quot;color&quot;,
+        &quot;color&quot;,
+        &quot;Favorite Color&quot;,
+        ImmutableList.of(
+            new Option(&quot;red&quot;, &quot;Red&quot;),
+            new Option(&quot;blue&quot;, &quot;Blue&quot;),
+            new Option(&quot;green&quot;, &quot;Green&quot;)),
+        &quot;blue&quot;);
+  }
+}
+
+public record Option(String value, String text) {}</code></pre>
+
+  <h4>Thymeleaf</h4>
+  <pre><code class="language-markup">&lt;cf:select
+  th:id=&quot;${model.basicSelect.id()}&quot;
+  th:name=&quot;${model.basicSelect.name()}&quot;
+  th:label=&quot;${model.basicSelect.label()}&quot;
+&gt;
+  &lt;option
+    th:each=&quot;item: ${model.basicSelect.options()}&quot;
+    th:value=&quot;${item.value()}&quot;
+    th:text=&quot;${item.text()}&quot;
+    th:selected=&quot;${item.value() == model.basicSelect.selectedValue()}&quot;
+  &gt;&lt;/option&gt;
+&lt;/cf:select&gt;</code></pre>
+
+  <h4>Rendered HTML</h4>
+  <pre><code class="language-markup">&lt;div class=&quot;usa-form-group&quot;&gt;
+  &lt;label for=&quot;color&quot; class=&quot;usa-label&quot;&gt;Favorite Color&lt;/label&gt;
+  &lt;select class=&quot;usa-select&quot; id=&quot;color&quot; name=&quot;color&quot;&gt;
+    &lt;option value=&quot;red&quot;&gt;Red&lt;/option&gt;
+    &lt;option value=&quot;blue&quot; selected&gt;Blue&lt;/option&gt;
+    &lt;option value=&quot;green&quot;&gt;Green&lt;/option&gt;
+  &lt;/select&gt;
+&lt;/div&gt;</code></pre>
+
+  <!-- Sample 2: Required Select with Placeholder -->
+  <h3>Required Select with Placeholder</h3>
+  <cf:select
+    th:id="${model.requiredSelect.id()}"
+    th:name="${model.requiredSelect.name()}"
+    th:label="${model.requiredSelect.label()}"
+    required
+  >
+    <option value="">-- Select a country --</option>
+    <option
+      th:each="item: ${model.requiredSelect.options()}"
+      th:value="${item.value()}"
+      th:text="${item.text()}"
+    ></option>
+  </cf:select>
+
+  <h4>Java</h4>
+  <pre><code class="language-java">import com.google.common.collect.ImmutableList;
+
+public record RequiredSelect(
+    String id,
+    String name,
+    String label,
+    ImmutableList&lt;Option&gt; options) {
+
+  public static RequiredSelect create() {
+    return new RequiredSelect(
+        &quot;country&quot;,
+        &quot;country&quot;,
+        &quot;Country&quot;,
+        ImmutableList.of(
+            new Option(&quot;us&quot;, &quot;United States&quot;),
+            new Option(&quot;ca&quot;, &quot;Canada&quot;),
+            new Option(&quot;mx&quot;, &quot;Mexico&quot;)));
+  }
+}
+
+public record Option(String value, String text) {}</code></pre>
+
+  <h4>Thymeleaf</h4>
+  <pre><code class="language-markup">&lt;cf:select
+  th:id=&quot;${model.requiredSelect.id()}&quot;
+  th:name=&quot;${model.requiredSelect.name()}&quot;
+  th:label=&quot;${model.requiredSelect.label()}&quot;
+  required
+&gt;
+  &lt;option value=&quot;&quot;&gt;-- Select a country --&lt;/option&gt;
+  &lt;option
+    th:each=&quot;item: ${model.requiredSelect.options()}&quot;
+    th:value=&quot;${item.value()}&quot;
+    th:text=&quot;${item.text()}&quot;
+  &gt;&lt;/option&gt;
+&lt;/cf:select&gt;</code></pre>
+
+  <h4>Rendered HTML</h4>
+  <pre><code class="language-markup">&lt;div class=&quot;usa-form-group&quot;&gt;
+  &lt;label for=&quot;country&quot; class=&quot;usa-label&quot;&gt;Country&lt;/label&gt;
+  &lt;select class=&quot;usa-select&quot; id=&quot;country&quot; name=&quot;country&quot; required=&quot;required&quot;&gt;
+    &lt;option value=&quot;&quot;&gt;-- Select a country --&lt;/option&gt;
+    &lt;option value=&quot;us&quot;&gt;United States&lt;/option&gt;
+    &lt;option value=&quot;ca&quot;&gt;Canada&lt;/option&gt;
+    &lt;option value=&quot;mx&quot;&gt;Mexico&lt;/option&gt;
+  &lt;/select&gt;
+&lt;/div&gt;</code></pre>
+
+  <!-- Sample 3: Select with Validation Error -->
+  <h3>Select with Validation Error</h3>
+  <cf:select
+    th:id="${model.selectWithError.id()}"
+    th:name="${model.selectWithError.name()}"
+    th:label="${model.selectWithError.label()}"
+    th:is-valid="${model.selectWithError.isValid()}"
+    th:validation-message="${model.selectWithError.validationMessage()}"
+    required
+  >
+    <option value="">-- Please select --</option>
+    <option
+      th:each="item: ${model.selectWithError.options()}"
+      th:value="${item.value()}"
+      th:text="${item.text()}"
+    ></option>
+  </cf:select>
+
+  <h4>Java</h4>
+  <pre><code class="language-java">import com.google.common.collect.ImmutableList;
+
+public record SelectWithError(
+    String id,
+    String name,
+    String label,
+    String isValid,
+    String validationMessage,
+    ImmutableList&lt;Option&gt; options) {
+
+  public static SelectWithError create() {
+    return new SelectWithError(
+        &quot;state&quot;,
+        &quot;state&quot;,
+        &quot;State&quot;,
+        &quot;false&quot;,
+        &quot;Please select a state&quot;,
+        ImmutableList.of(
+            new Option(&quot;ca&quot;, &quot;California&quot;),
+            new Option(&quot;ny&quot;, &quot;New York&quot;),
+            new Option(&quot;tx&quot;, &quot;Texas&quot;)));
+  }
+}
+
+public record Option(String value, String text) {}</code></pre>
+
+  <h4>Thymeleaf</h4>
+  <pre><code class="language-markup">&lt;cf:select
+  th:id=&quot;${model.selectWithError.id()}&quot;
+  th:name=&quot;${model.selectWithError.name()}&quot;
+  th:label=&quot;${model.selectWithError.label()}&quot;
+  th:is-valid=&quot;${model.selectWithError.isValid()}&quot;
+  th:validation-message=&quot;${model.selectWithError.validationMessage()}&quot;
+  required
+&gt;
+  &lt;option value=&quot;&quot;&gt;-- Please select --&lt;/option&gt;
+  &lt;option
+    th:each=&quot;item: ${model.selectWithError.options()}&quot;
+    th:value=&quot;${item.value()}&quot;
+    th:text=&quot;${item.text()}&quot;
+  &gt;&lt;/option&gt;
+&lt;/cf:select&gt;</code></pre>
+
+  <h4>Rendered HTML</h4>
+  <pre><code class="language-markup">&lt;div class=&quot;usa-form-group usa-form-group--error&quot;&gt;
+  &lt;label for=&quot;state&quot; class=&quot;usa-label&quot;&gt;State&lt;/label&gt;
+  &lt;select
+    class=&quot;usa-select usa-input--error&quot;
+    id=&quot;state&quot;
+    name=&quot;state&quot;
+    required=&quot;required&quot;
+    aria-describedby=&quot;state-error&quot;
+    aria-invalid=&quot;true&quot;&gt;
+    &lt;option value=&quot;&quot;&gt;-- Please select --&lt;/option&gt;
+    &lt;option value=&quot;ca&quot;&gt;California&lt;/option&gt;
+    &lt;option value=&quot;ny&quot;&gt;New York&lt;/option&gt;
+    &lt;option value=&quot;tx&quot;&gt;Texas&lt;/option&gt;
+  &lt;/select&gt;
+  &lt;span id=&quot;state-error&quot; class=&quot;usa-error-message&quot; role=&quot;alert&quot;&gt;
+    Please select a state
+  &lt;/span&gt;
+&lt;/div&gt;</code></pre>
+
+  <!-- Sample 4: Select with Option Groups -->
+  <h3>Select with Option Groups</h3>
+  <cf:select
+    th:id="${model.groupedSelect.id()}"
+    th:name="${model.groupedSelect.name()}"
+    th:label="${model.groupedSelect.label()}"
+  >
+    <optgroup label="Fruits">
+      <option
+        th:each="item: ${model.groupedSelect.fruits()}"
+        th:value="${item.value()}"
+        th:text="${item.text()}"
+      ></option>
+    </optgroup>
+    <optgroup label="Vegetables">
+      <option
+        th:each="item: ${model.groupedSelect.vegetables()}"
+        th:value="${item.value()}"
+        th:text="${item.text()}"
+      ></option>
+    </optgroup>
+  </cf:select>
+
+  <h4>Java</h4>
+  <pre><code class="language-java">import com.google.common.collect.ImmutableList;
+
+public record GroupedSelect(
+    String id,
+    String name,
+    String label,
+    ImmutableList&lt;Option&gt; fruits,
+    ImmutableList&lt;Option&gt; vegetables) {
+
+  public static GroupedSelect create() {
+    return new GroupedSelect(
+        &quot;food&quot;,
+        &quot;food&quot;,
+        &quot;Choose a Food&quot;,
+        ImmutableList.of(
+            new Option(&quot;apple&quot;, &quot;Apple&quot;),
+            new Option(&quot;banana&quot;, &quot;Banana&quot;)),
+        ImmutableList.of(
+            new Option(&quot;carrot&quot;, &quot;Carrot&quot;),
+            new Option(&quot;broccoli&quot;, &quot;Broccoli&quot;)));
+  }
+}
+
+public record Option(String value, String text) {}</code></pre>
+
+  <h4>Thymeleaf</h4>
+  <pre><code class="language-markup">&lt;cf:select
+  th:id=&quot;${model.groupedSelect.id()}&quot;
+  th:name=&quot;${model.groupedSelect.name()}&quot;
+  th:label=&quot;${model.groupedSelect.label()}&quot;
+&gt;
+  &lt;optgroup label=&quot;Fruits&quot;&gt;
+    &lt;option
+      th:each=&quot;item: ${model.groupedSelect.fruits()}&quot;
+      th:value=&quot;${item.value()}&quot;
+      th:text=&quot;${item.text()}&quot;
+    &gt;&lt;/option&gt;
+  &lt;/optgroup&gt;
+  &lt;optgroup label=&quot;Vegetables&quot;&gt;
+    &lt;option
+      th:each=&quot;item: ${model.groupedSelect.vegetables()}&quot;
+      th:value=&quot;${item.value()}&quot;
+      th:text=&quot;${item.text()}&quot;
+    &gt;&lt;/option&gt;
+  &lt;/optgroup&gt;
+&lt;/cf:select&gt;</code></pre>
+
+  <h4>Rendered HTML</h4>
+  <pre><code class="language-markup">&lt;div class=&quot;usa-form-group&quot;&gt;
+  &lt;label for=&quot;food&quot; class=&quot;usa-label&quot;&gt;Choose a Food&lt;/label&gt;
+  &lt;select class=&quot;usa-select&quot; id=&quot;food&quot; name=&quot;food&quot;&gt;
+    &lt;optgroup label=&quot;Fruits&quot;&gt;
+      &lt;option value=&quot;apple&quot;&gt;Apple&lt;/option&gt;
+      &lt;option value=&quot;banana&quot;&gt;Banana&lt;/option&gt;
+    &lt;/optgroup&gt;
+    &lt;optgroup label=&quot;Vegetables&quot;&gt;
+      &lt;option value=&quot;carrot&quot;&gt;Carrot&lt;/option&gt;
+      &lt;option value=&quot;broccoli&quot;&gt;Broccoli&lt;/option&gt;
+    &lt;/optgroup&gt;
+  &lt;/select&gt;
+&lt;/div&gt;</code></pre>
+
+  <!-- Sample 5: Select with Data Attributes -->
+  <h3>Select with Data Attributes</h3>
+  <cf:select
+    th:id="${model.selectWithData.id()}"
+    th:name="${model.selectWithData.name()}"
+    th:label="${model.selectWithData.label()}"
+    th:data-test-id="${model.selectWithData.testId()}"
+    th:data-category="${model.selectWithData.category()}"
+  >
+    <option
+      th:each="item: ${model.selectWithData.options()}"
+      th:value="${item.value()}"
+      th:text="${item.text()}"
+      th:selected="${item.value() == model.selectWithData.selectedValue()}"
+    ></option>
+  </cf:select>
+
+  <h4>Java</h4>
+  <pre><code class="language-java">import com.google.common.collect.ImmutableList;
+
+public record SelectWithData(
+    String id,
+    String name,
+    String label,
+    String testId,
+    String category,
+    ImmutableList&lt;Option&gt; options,
+    String selectedValue) {
+
+  public static SelectWithData create() {
+    return new SelectWithData(
+        &quot;size&quot;,
+        &quot;size&quot;,
+        &quot;T-Shirt Size&quot;,
+        &quot;size-selector&quot;,
+        &quot;clothing&quot;,
+        ImmutableList.of(
+            new Option(&quot;s&quot;, &quot;Small&quot;),
+            new Option(&quot;m&quot;, &quot;Medium&quot;),
+            new Option(&quot;l&quot;, &quot;Large&quot;)),
+        &quot;m&quot;);
+  }
+}
+
+public record Option(String value, String text) {}</code></pre>
+
+  <h4>Thymeleaf</h4>
+  <pre><code class="language-markup">&lt;cf:select
+  th:id=&quot;${model.selectWithData.id()}&quot;
+  th:name=&quot;${model.selectWithData.name()}&quot;
+  th:label=&quot;${model.selectWithData.label()}&quot;
+  th:data-test-id=&quot;${model.selectWithData.testId()}&quot;
+  th:data-category=&quot;${model.selectWithData.category()}&quot;
+&gt;
+  &lt;option
+    th:each=&quot;item: ${model.selectWithData.options()}&quot;
+    th:value=&quot;${item.value()}&quot;
+    th:text=&quot;${item.text()}&quot;
+    th:selected=&quot;${item.value() == model.selectWithData.selectedValue()}&quot;
+  &gt;&lt;/option&gt;
+&lt;/cf:select&gt;</code></pre>
+
+  <h4>Rendered HTML</h4>
+  <pre><code class="language-markup">&lt;div class=&quot;usa-form-group&quot;&gt;
+  &lt;label for=&quot;size&quot; class=&quot;usa-label&quot;&gt;T-Shirt Size&lt;/label&gt;
+  &lt;select
+    class=&quot;usa-select&quot;
+    id=&quot;size&quot;
+    name=&quot;size&quot;
+    data-test-id=&quot;size-selector&quot;
+    data-category=&quot;clothing&quot;&gt;
+    &lt;option value=&quot;s&quot;&gt;Small&lt;/option&gt;
+    &lt;option value=&quot;m&quot; selected&gt;Medium&lt;/option&gt;
+    &lt;option value=&quot;l&quot;&gt;Large&lt;/option&gt;
+  &lt;/select&gt;
+&lt;/div&gt;</code></pre>
+</th:block>

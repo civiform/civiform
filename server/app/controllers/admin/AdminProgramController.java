@@ -21,8 +21,10 @@ import models.ProgramTab;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
+import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.CategoryRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
@@ -33,8 +35,11 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
 import services.question.QuestionService;
+import services.settings.SettingsManifest;
 import views.admin.programs.ProgramEditStatus;
 import views.admin.programs.ProgramIndexView;
+import views.admin.programs.ProgramMetaDataEdit2PageView;
+import views.admin.programs.ProgramMetaDataEdit2PageViewModel;
 import views.admin.programs.ProgramMetaDataEditView;
 import views.admin.programs.ProgramNewOneView;
 import views.components.ToastMessage;
@@ -42,6 +47,7 @@ import views.components.ToastMessage;
 /** Controller for handling methods for admins managing program definitions. */
 public final class AdminProgramController extends CiviFormController {
 
+  private final SettingsManifest settingsManifest;
   private final ProgramService programService;
   private final QuestionService questionService;
   private final ProgramIndexView listView;
@@ -49,9 +55,12 @@ public final class AdminProgramController extends CiviFormController {
   private final ProgramMetaDataEditView editView;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
+  private final ProgramMetaDataEdit2PageView programMetaDataEdit2PageView;
+  private final CategoryRepository categoryRepository;
 
   @Inject
   public AdminProgramController(
+      SettingsManifest settingsManifest,
       ProgramService programService,
       QuestionService questionService,
       ProgramIndexView listView,
@@ -60,8 +69,11 @@ public final class AdminProgramController extends CiviFormController {
       VersionRepository versionRepository,
       ProfileUtils profileUtils,
       FormFactory formFactory,
-      RequestChecker requestChecker) {
+      RequestChecker requestChecker,
+      ProgramMetaDataEdit2PageView programMetaDataEdit2PageView,
+      CategoryRepository categoryRepository) {
     super(profileUtils, versionRepository);
+    this.settingsManifest = checkNotNull(settingsManifest);
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
     this.listView = checkNotNull(listView);
@@ -69,6 +81,8 @@ public final class AdminProgramController extends CiviFormController {
     this.editView = checkNotNull(editView);
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
+    this.programMetaDataEdit2PageView = checkNotNull(programMetaDataEdit2PageView);
+    this.categoryRepository = checkNotNull(categoryRepository);
   }
 
   /**
@@ -190,6 +204,24 @@ public final class AdminProgramController extends CiviFormController {
     ProgramDefinition program = programService.getFullProgramDefinition(id);
     requestChecker.throwIfProgramNotDraft(id);
     return ok(editView.render(request, program, ProgramEditStatus.getStatusFromString(editStatus)));
+  }
+
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result edit2(Request request, long id, String editStatus) throws ProgramNotFoundException {
+    ProgramDefinition program = programService.getFullProgramDefinition(id);
+    requestChecker.throwIfProgramNotDraft(id);
+
+    var categoryOptions = categoryRepository.listCategories();
+
+    var viewmodel =
+        ProgramMetaDataEdit2PageViewModel.builder()
+            .programEditStatus(ProgramEditStatus.getStatusFromString(editStatus))
+            .program(program)
+            .baseUrl(settingsManifest.getBaseUrl().orElse(""))
+            .allCategories(categoryOptions)
+            .build();
+
+    return ok(programMetaDataEdit2PageView.render(request, viewmodel)).as(Http.MimeTypes.HTML);
   }
 
   /** POST endpoint for publishing all programs in the draft version. */

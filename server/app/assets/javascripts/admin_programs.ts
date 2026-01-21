@@ -342,6 +342,11 @@ class AdminPrograms {
 }
 
 export function init() {
+  if (document.location.pathname.indexOf('edit2') > -1) {
+    console.log('not loading admin_programs.ts')
+    return
+  }
+
   AdminPrograms.attachCopyProgramLinkListeners()
   AdminPrograms.attachConfirmPreScreenerChangeListener()
   AdminPrograms.attachProgramTypeChangeListener()

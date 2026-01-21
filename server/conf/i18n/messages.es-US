@@ -974,6 +974,9 @@ error.internalServerHomeButton=Visitar página principal
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
 error.statusCode=Código de error: {0}
 
+# DO NOT COMMIT THIS, for testing
+error.required=Este campo es obligatorio
+
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #
 #-------------------------------------------------------------#

@@ -1,0 +1,312 @@
+<!--/*@thymesVar id="model" type="views.dev.componentcatalog.fragments.AlertControl"*/-->
+<th:block
+  th:fragment="render(model)"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <h2>Alert Component</h2>
+
+  <h2>Overview</h2>
+  <p>
+    The <code class="font-code-md bg-accent-warm">&lt;cf:alert&gt;</code> custom
+    tag creates USWDS (U.S. Web Design System) alert components in Thymeleaf
+    templates. It transforms simple markup into properly structured alert HTML
+    with appropriate CSS classes and wraps content in the required
+    <code>usa-alert__body</code> structure.
+  </p>
+
+  <h2>Attributes</h2>
+  <table class="usa-table">
+    <thead>
+      <tr>
+        <th>Attribute</th>
+        <th>Type</th>
+        <th>Default</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code class="font-code-md">type</code></td>
+        <td>String</td>
+        <td><code>"info"</code></td>
+        <td>
+          Alert type: <code>info</code>, <code>warning</code>,
+          <code>error</code>, <code>success</code>, or other USWDS alert types
+        </td>
+      </tr>
+      <tr>
+        <td><code>slim</code></td>
+        <td>Boolean</td>
+        <td><code>false</code></td>
+        <td>Creates a slim alert with reduced padding</td>
+      </tr>
+      <tr>
+        <td><code>no-icon</code></td>
+        <td>Boolean</td>
+        <td><code>false</code></td>
+        <td>Removes the icon from the alert</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Content Elements</h2>
+
+  <h3>Heading Elements (h1-h6)</h3>
+  <ul class="usa-list">
+    <li>Automatically styled with the <code>usa-alert__heading</code> class</li>
+    <li><strong>Must be the first element</strong> in the alert if used</li>
+    <li>Any existing CSS classes on the heading are preserved</li>
+    <li>
+      The heading tag itself is preserved (h1 stays h1, h2 stays h2, etc.)
+    </li>
+  </ul>
+
+  <h3><code>&lt;text&gt;</code> Element</h3>
+  <ul class="usa-list">
+    <li>
+      Transforms into a <code>&lt;p class="usa-alert__text"&gt;</code> tag
+    </li>
+    <li>Use for simple text content without complex HTML markup</li>
+    <li>Content between the tags is preserved as-is</li>
+  </ul>
+
+  <h3><code>&lt;content&gt;</code> Element</h3>
+  <ul class="usa-list">
+    <li>Inserts rich HTML content without transformation</li>
+    <li>Use for complex markup like lists, multiple paragraphs, links, etc.</li>
+    <li>
+      All HTML within <code>&lt;content&gt;</code> tags is rendered exactly as
+      written
+    </li>
+    <li>Does not wrap content in any additional elements</li>
+  </ul>
+
+  <h2>Validation Rules</h2>
+  <p>
+    The processor enforces these rules and will throw a
+    <code>TemplateProcessingException</code> if violated:
+  </p>
+
+  <h3>1. Slim + Heading Restriction</h3>
+  <p>Cannot use <code>slim="true"</code> with heading elements (h1-h6).</p>
+  <p>
+    <strong>Error message:</strong>
+    <code
+      >"Invalid cf:alert configuration: slim="true" cannot be used with heading
+      elements (h1-h6)"</code
+    >
+  </p>
+
+  <h3>2. Text vs Content Exclusivity</h3>
+  <p>
+    Cannot use both <code>&lt;text&gt;</code> and
+    <code>&lt;content&gt;</code> elements in the same alert.
+  </p>
+  <p>
+    <strong>Error message:</strong>
+    <code
+      >"Invalid cf:alert configuration: cannot use both &lt;text&gt; and
+      &lt;content&gt; elements. Use only one."</code
+    >
+  </p>
+
+  <h3>3. Heading Position Requirement</h3>
+  <p>
+    Heading elements (h1-h6) must be the first element in the alert, before any
+    other content.
+  </p>
+  <p>
+    <strong>Error message:</strong>
+    <code
+      >"Invalid cf:alert configuration: heading elements (h1-h6) must be the
+      first element in the alert"</code
+    >
+  </p>
+
+  <h3>one</h3>
+  <cf:alert type="info">
+    <h4>Lorem Ipsum</h4>
+    <text>Lorem Ipsum</text>
+  </cf:alert>
+
+  <div class="code-sample">
+    <div>
+      <h4>Thymeleaf</h4>
+      <pre><code class="language-markup">&lt;cf:alert type="info"&gt;
+  &lt;h4 th:name="${variable1}"&gt;Lorem Ipsum&lt;/h4&gt;
+  &lt;text&gt;Lorem Ipsum&lt;/text&gt;
+&lt;/cf:alert&gt;</code></pre>
+    </div>
+
+    <div>
+      <h4>Rendered HTML</h4>
+      <pre><code class="language-markup">&lt;div class="usa-alert usa-alert--info"&gt;
+  &lt;div class="usa-alert__body"&gt;
+    &lt;h4 class="usa-alert__heading"&gt;Lorem Ipsum&lt;/h4&gt;
+    &lt;p class="usa-alert__text"&gt;Lorem Ipsum&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </div>
+
+  <h3>two</h3>
+  <cf:alert type="error">
+    <h5>Lorem Ipsum</h5>
+    <text>Lorem Ipsum</text>
+  </cf:alert>
+
+  <div class="code-sample">
+    <pre><code class="language-markup">&lt;cf:alert type="error"&gt;
+  &lt;h5&gt;Lorem Ipsum&lt;/h5&gt;
+  &lt;text&gt;Lorem Ipsum&lt;/text&gt;
+&lt;/cf:alert&gt;</code></pre>
+
+    <pre><code class="language-markup">&lt;div class="usa-alert usa-alert--error"&gt;
+  &lt;div class="usa-alert__body"&gt;
+    &lt;h5 class="usa-alert__heading"&gt;Lorem Ipsum&lt;/h5&gt;
+    &lt;p class="usa-alert__text"&gt;Lorem Ipsum&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+  </div>
+
+  <cf:alert type="success" no-icon="true">
+    <h5>Lorem Ipsum</h5>
+    <text>Lorem Ipsum</text>
+  </cf:alert>
+
+  <div class="code-sample">
+    <pre><code class="language-markup">&lt;cf:alert type="success" no-icon="true"&gt;
+  &lt;h5&gt;Lorem Ipsum&lt;/h5&gt;
+  &lt;text&gt;Lorem Ipsum&lt;/text&gt;
+&lt;/cf:alert&gt;</code></pre>
+
+    <pre><code class="language-markup">&lt;div class="usa-alert usa-alert--success usa-alert--no-icon"&gt;
+  &lt;div class="usa-alert__body"&gt;
+    &lt;h5 class="usa-alert__heading"&gt;Lorem Ipsum&lt;/h5&gt;
+    &lt;p class="usa-alert__text"&gt;Lorem Ipsum&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+  </div>
+
+  <cf:alert type="warning" slim="true">
+    <text>Lorem Ipsum</text>
+  </cf:alert>
+
+  <div class="code-sample">
+    <pre><code class="language-markup">&lt;cf:alert type="warning" slim="true"&gt;
+  &lt;text&gt;Lorem Ipsum&lt;/text&gt;
+&lt;/cf:alert&gt;</code></pre>
+
+    <pre><code class="language-markup">&lt;div class="usa-alert usa-alert--warning usa-alert--slim"&gt;
+  &lt;div class="usa-alert__body"&gt;
+    &lt;p class="usa-alert__text"&gt;Lorem Ipsum&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+  </div>
+
+  <cf:alert type="error" slim="true" no-icon="true">
+    <text>Lorem Ipsum</text>
+  </cf:alert>
+
+  <div class="code-sample">
+    <pre><code class="language-markup">&lt;cf:alert type="error" slim="true" no-icon="true"&gt;
+  &lt;text&gt;Lorem Ipsum&lt;/text&gt;
+&lt;/cf:alert&gt;</code></pre>
+
+    <pre><code class="language-markup">&lt;div class="usa-alert usa-alert--error usa-alert--slim usa-alert--no-icon"&gt;
+  &lt;div class="usa-alert__body"&gt;
+    &lt;p class="usa-alert__text"&gt;Lorem Ipsum&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+  </div>
+
+  <cf:alert type="info" slim="true">
+    <text>Lorem Ipsum</text>
+  </cf:alert>
+
+  <div class="code-sample">
+    <pre><code class="language-markup">&lt;cf:alert type="info" slim="true"&gt;
+  &lt;text&gt;Lorem Ipsum&lt;/text&gt;
+&lt;/cf:alert&gt;</code></pre>
+
+    <pre><code class="language-markup">&lt;div class="usa-alert usa-alert--info usa-alert--slim"&gt;
+  &lt;div class="usa-alert__body"&gt;
+    &lt;p class="usa-alert__text"&gt;Lorem Ipsum&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+  </div>
+
+  <cf:alert type="success">
+    <h5>Lorem Ipsum</h5>
+    <content>
+      <p class="usa-alert__text">Lorem Ipsum</p>
+      <ul class="usa-list">
+        <li>one</li>
+        <li>two</li>
+        <li>three</li>
+      </ul>
+      <p class="usa-alert__text">Lorem Ipsum</p>
+      <button class="usa-button">click</button>
+      <p class="usa-alert__text">Lorem Ipsum</p>
+    </content>
+  </cf:alert>
+
+  <cf:alert type="success">
+    <h5>Lorem Ipsum</h5>
+    <content>
+      <p class="usa-alert__text">Lorem Ipsum</p>
+      <cf:button variant="accent-warm">
+        <cf:icon type="icon-delete" /> Download
+      </cf:button>
+    </content>
+  </cf:alert>
+
+  <div class="usa-alert usa-alert--success">
+    <div class="usa-alert__body">
+      <h5 class="usa-alert__heading">Lorem Ipsum</h5>
+      <p class="usa-alert__text">Lorem Ipsum</p>
+      <button type="button" class="usa-button usa-button--accent-warm">
+        <img
+          src="/assets/Images/uswds/aa06d9d16007736c2c453fe3d239b125-icon-delete.svg"
+          aria-hidden="true"
+          role="img"
+          alt=""
+        />
+        Download
+      </button>
+    </div>
+  </div>
+
+  <div class="code-sample">
+    <pre><code class="language-markup">&lt;cf:alert type="success"&gt;
+  &lt;h5&gt;Lorem Ipsum&lt;/h5&gt;
+  &lt;content&gt;
+    &lt;p class="usa-alert__text"&gt;Lorem Ipsum&lt;/p&gt;
+    &lt;ul class="usa-list"&gt;
+      &lt;li&gt;one&lt;/li&gt;
+      &lt;li&gt;two&lt;/li&gt;
+      &lt;li&gt;three&lt;/li&gt;
+    &lt;/ul&gt;
+    &lt;p class="usa-alert__text"&gt;Lorem Ipsum&lt;/p&gt;
+    &lt;button class="usa-button"&gt;click&lt;/button&gt;
+    &lt;p class="usa-alert__text"&gt;Lorem Ipsum&lt;/p&gt;
+  &lt;/content&gt;
+&lt;/cf:alert&gt;</code></pre>
+
+    <pre><code class="language-markup">&lt;div class="usa-alert usa-alert--success"&gt;
+  &lt;div class="usa-alert__body"&gt;
+    &lt;h5 class="usa-alert__heading"&gt;Lorem Ipsum&lt;/h5&gt;
+    &lt;p class="usa-alert__text"&gt;Lorem Ipsum&lt;/p&gt;
+    &lt;ul class="usa-list"&gt;
+      &lt;li&gt;one&lt;/li&gt;
+      &lt;li&gt;two&lt;/li&gt;
+      &lt;li&gt;three&lt;/li&gt;
+    &lt;/ul&gt;
+    &lt;p class="usa-alert__text"&gt;Lorem Ipsum&lt;/p&gt;
+    &lt;button class="usa-button"&gt;click&lt;/button&gt;
+    &lt;p class="usa-alert__text"&gt;Lorem Ipsum&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+  </div>
+</th:block>

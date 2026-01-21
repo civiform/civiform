@@ -20,7 +20,12 @@ public class ComponentCatalogController extends Controller {
   }
 
   public Result index(Http.Request request) {
-    var viewmodel = new CatalogPageViewModel();
+    return redirect(routes.ComponentCatalogController.index2("alert").url());
+  }
+
+  public Result index2(Http.Request request, String controlName) {
+    var viewmodel = CatalogPageViewModel.builder().controlName(controlName).build();
+
     return ok(catalogPageView.render(request, viewmodel)).as(Http.MimeTypes.HTML);
   }
 }

@@ -1,0 +1,321 @@
+<!--/*@thymesVar id="model" type="views.dev.componentcatalog.fragments.InputControl"*/-->
+<th:block
+  th:fragment="render(model)"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <h2>Input Component</h2>
+
+  <!-- Sample 1: Basic Text Input -->
+  <h3>Basic Text Input</h3>
+  <cf:input
+    th:id="${model.basicInput.id()}"
+    th:name="${model.basicInput.name()}"
+    th:label="${model.basicInput.label()}"
+    th:placeholder="${model.basicInput.placeholder()}"
+  />
+
+  <details>
+    <summary>Code Sample</summary>
+      <h4>Java</h4>
+      <pre><code class="language-java">public class BasicTextInput {
+      public String id() {
+        return &quot;firstName&quot;;
+      }
+
+      public String name() {
+        return &quot;firstName&quot;;
+      }
+
+      public String label() {
+        return &quot;First Name&quot;;
+      }
+
+      public String placeholder() {
+        return &quot;Enter your first name&quot;;
+      }
+    }</code></pre>
+
+      <h4>Thymeleaf</h4>
+      <pre><code class="language-markup">&lt;cf:input
+      th:id=&quot;${model.basicInput.id()}&quot;
+      th:name=&quot;${model.basicInput.name()}&quot;
+      th:label=&quot;${model.basicInput.label()}&quot;
+      th:placeholder=&quot;${model.basicInput.placeholder()}&quot;
+    /&gt;</code></pre>
+
+      <h4>Rendered HTML</h4>
+      <pre><code class="language-markup">&lt;div class=&quot;usa-form-group&quot;&gt;
+      &lt;label class=&quot;usa-label&quot; for=&quot;firstName&quot;&gt;First Name&lt;/label&gt;
+      &lt;input
+        type=&quot;text&quot;
+        class=&quot;usa-input&quot;
+        id=&quot;firstName&quot;
+        name=&quot;firstName&quot;
+        placeholder=&quot;Enter your first name&quot; /&gt;
+    &lt;/div&gt;</code></pre>
+  </details>
+
+  <!-- Sample 2: Email Input with Help Text -->
+  <h3>Email Input with Help Text</h3>
+  <cf:input
+    th:id="${model.emailInput.id()}"
+    th:name="${model.emailInput.name()}"
+    th:label="${model.emailInput.label()}"
+    th:type="${model.emailInput.type()}"
+    th:help-text="${model.emailInput.helpText()}"
+    th:placeholder="${model.emailInput.placeholder()}"
+    required
+  />
+
+  <details>
+    <summary>Code Sample</summary>
+      <h4>Java</h4>
+      <pre><code class="language-java">public class EmailInput {
+      public String id() {
+        return &quot;userEmail&quot;;
+      }
+
+      public String name() {
+        return &quot;email&quot;;
+      }
+
+      public String label() {
+        return &quot;Email Address&quot;;
+      }
+
+      public String type() {
+        return &quot;email&quot;;
+      }
+
+      public String helpText() {
+        return &quot;We'll never share your email with anyone else.&quot;;
+      }
+
+      public String placeholder() {
+        return &quot;name@example.com&quot;;
+      }
+    }</code></pre>
+
+      <h4>Thymeleaf</h4>
+      <pre><code class="language-markup">&lt;cf:input
+      th:id=&quot;${model.emailInput.id()}&quot;
+      th:name=&quot;${model.emailInput.name()}&quot;
+      th:label=&quot;${model.emailInput.label()}&quot;
+      th:type=&quot;${model.emailInput.type()}&quot;
+      th:help-text=&quot;${model.emailInput.helpText()}&quot;
+      th:placeholder=&quot;${model.emailInput.placeholder()}&quot;
+    /&gt;</code></pre>
+
+      <h4>Rendered HTML</h4>
+      <pre><code class="language-markup">&lt;div class=&quot;usa-form-group&quot;&gt;
+      &lt;label class=&quot;usa-label&quot; for=&quot;userEmail&quot;&gt;Email Address&lt;/label&gt;
+      &lt;div class=&quot;usa-hint&quot;&gt;We'll never share your email with anyone else.&lt;/div&gt;
+      &lt;input
+        type=&quot;email&quot;
+        class=&quot;usa-input&quot;
+        id=&quot;userEmail&quot;
+        name=&quot;email&quot;
+        placeholder=&quot;name@example.com&quot; /&gt;
+    &lt;/div&gt;</code></pre>
+  </details>
+
+  <!-- Sample 3: Password Input with Validation Error -->
+  <h3>Password Input with Validation Error</h3>
+  <cf:input
+    th:id="${model.passwordInput.id()}"
+    th:name="${model.passwordInput.name()}"
+    th:label="${model.passwordInput.label()}"
+    th:type="${model.passwordInput.type()}"
+    th:is-valid="${model.passwordInput.isValid()}"
+    th:validation-message="${model.passwordInput.validationMessage()}"
+    required
+  />
+
+  <details>
+    <summary>Code Sample</summary>
+      <h4>Java</h4>
+      <pre><code class="language-java">public class PasswordInput {
+      public String id() {
+        return &quot;userPassword&quot;;
+      }
+
+      public String name() {
+        return &quot;password&quot;;
+      }
+
+      public String label() {
+        return &quot;Password&quot;;
+      }
+
+      public String type() {
+        return &quot;password&quot;;
+      }
+
+      public String isValid() {
+        return &quot;false&quot;;
+      }
+
+      public String validationMessage() {
+        return &quot;Password must be at least 8 characters&quot;;
+      }
+    }</code></pre>
+
+      <h4>Thymeleaf</h4>
+      <pre><code class="language-markup">&lt;cf:input
+      th:id=&quot;${model.passwordInput.id()}&quot;
+      th:name=&quot;${model.passwordInput.name()}&quot;
+      th:label=&quot;${model.passwordInput.label()}&quot;
+      th:type=&quot;${model.passwordInput.type()}&quot;
+      th:is-valid=&quot;${model.passwordInput.isValid()}&quot;
+      th:validation-message=&quot;${model.passwordInput.validationMessage()}&quot;
+      required
+    /&gt;</code></pre>
+
+      <h4>Rendered HTML</h4>
+      <pre><code class="language-markup">&lt;div class=&quot;usa-form-group usa-form-group--error&quot;&gt;
+      &lt;label class=&quot;usa-label&quot; for=&quot;userPassword&quot;&gt;Password&lt;/label&gt;
+      &lt;span id=&quot;userPassword-error&quot; class=&quot;usa-error-message&quot; role=&quot;alert&quot;&gt;
+        Password must be at least 8 characters
+      &lt;/span&gt;
+      &lt;input
+        type=&quot;password&quot;
+        class=&quot;usa-input usa-input--error&quot;
+        id=&quot;userPassword&quot;
+        name=&quot;password&quot;
+        required=&quot;required&quot;
+        aria-describedby=&quot;userPassword-error&quot;
+        aria-invalid=&quot;true&quot; /&gt;
+    &lt;/div&gt;</code></pre>
+  </details>
+
+  <!-- Sample 4: Number Input with Value -->
+  <h3>Number Input with Value</h3>
+  <cf:input
+    th:id="${model.numberInput.id()}"
+    th:name="${model.numberInput.name()}"
+    th:label="${model.numberInput.label()}"
+    th:type="${model.numberInput.type()}"
+    th:value="${model.numberInput.value()}"
+    th:help-text="${model.numberInput.helpText()}"
+    required
+  />
+
+  <details>
+    <summary>Code Sample</summary>
+      <h4>Java</h4>
+      <pre><code class="language-java">public class NumberInput {
+      public String id() {
+        return &quot;age&quot;;
+      }
+
+      public String name() {
+        return &quot;age&quot;;
+      }
+
+      public String label() {
+        return &quot;Age&quot;;
+      }
+
+      public String type() {
+        return &quot;number&quot;;
+      }
+
+      public String value() {
+        return &quot;25&quot;;
+      }
+
+      public String helpText() {
+        return &quot;You must be 18 or older&quot;;
+      }
+    }</code></pre>
+
+      <h4>Thymeleaf</h4>
+      <pre><code class="language-markup">&lt;cf:input
+      th:id=&quot;${model.numberInput.id()}&quot;
+      th:name=&quot;${model.numberInput.name()}&quot;
+      th:label=&quot;${model.numberInput.label()}&quot;
+      th:type=&quot;${model.numberInput.type()}&quot;
+      th:value=&quot;${model.numberInput.value()}&quot;
+      th:help-text=&quot;${model.numberInput.helpText()}&quot;
+      required
+    /&gt;</code></pre>
+
+      <h4>Rendered HTML</h4>
+      <pre><code class="language-markup">&lt;div class=&quot;usa-form-group&quot;&gt;
+      &lt;label class=&quot;usa-label&quot; for=&quot;age&quot;&gt;Age&lt;/label&gt;
+      &lt;div class=&quot;usa-hint&quot;&gt;You must be 18 or older&lt;/div&gt;
+      &lt;input
+        type=&quot;number&quot;
+        class=&quot;usa-input&quot;
+        id=&quot;age&quot;
+        name=&quot;age&quot;
+        value=&quot;25&quot;
+        required=&quot;required&quot; /&gt;
+    &lt;/div&gt;</code></pre>
+  </details>
+
+  <!-- Sample 5: Input with Data Attributes -->
+  <h3>Input with Data Attributes</h3>
+  <cf:input
+    th:id="${model.dataInput.id()}"
+    th:name="${model.dataInput.name()}"
+    th:label="${model.dataInput.label()}"
+    th:data-test-id="${model.dataInput.testId()}"
+    th:data-analytics="${model.dataInput.analyticsEvent()}"
+    th:aria-label="${model.dataInput.ariaLabel()}"
+  />
+
+  <details>
+    <summary>Code Sample</summary>
+      <h4>Java</h4>
+      <pre><code class="language-java">public class DataAttributeInput {
+      public String id() {
+        return &quot;searchQuery&quot;;
+      }
+
+      public String name() {
+        return &quot;q&quot;;
+      }
+
+      public String label() {
+        return &quot;Search&quot;;
+      }
+
+      public String testId() {
+        return &quot;search-input&quot;;
+      }
+
+      public String analyticsEvent() {
+        return &quot;search-initiated&quot;;
+      }
+
+      public String ariaLabel() {
+        return &quot;Search our website&quot;;
+      }
+    }</code></pre>
+
+      <h4>Thymeleaf</h4>
+      <pre><code class="language-markup">&lt;cf:input
+      th:id=&quot;${model.dataInput.id()}&quot;
+      th:name=&quot;${model.dataInput.name()}&quot;
+      th:label=&quot;${model.dataInput.label()}&quot;
+      th:data-test-id=&quot;${model.dataInput.testId()}&quot;
+      th:data-analytics=&quot;${model.dataInput.analyticsEvent()}&quot;
+      th:aria-label=&quot;${model.dataInput.ariaLabel()}&quot;
+    /&gt;</code></pre>
+
+      <h4>Rendered HTML</h4>
+      <pre><code class="language-markup">&lt;div class=&quot;usa-form-group&quot;&gt;
+      &lt;label class=&quot;usa-label&quot; for=&quot;searchQuery&quot;&gt;Search&lt;/label&gt;
+      &lt;input
+        type=&quot;text&quot;
+        class=&quot;usa-input&quot;
+        id=&quot;searchQuery&quot;
+        name=&quot;q&quot;
+        data-test-id=&quot;search-input&quot;
+        data-analytics=&quot;search-initiated&quot;
+        aria-label=&quot;Search our website&quot; /&gt;
+    &lt;/div&gt;</code></pre>
+  </details>
+</th:block>

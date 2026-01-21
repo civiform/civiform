@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:cf="https://civiform.us/thymeleaf/cf"
+           targetNamespace="https://civiform.us/thymeleaf/cf"
+           elementFormDefault="qualified">
+
+  <xs:import namespace="https://civiform.us/thymeleaf/cf" schemaLocation="common-types.xsd"/>
+
+  <xs:annotation>
+    <xs:documentation>
+      CiviForm Select Element Schema
+
+      Custom Thymeleaf element that renders into a select element with all appropriate HTML
+      including labels, validation messages, help text, etc.
+
+      Example usage:
+      &lt;cf:select id="country" name="country" label="Country"&gt;
+      &lt;option value=""&gt;--Select a country--&lt;/option&gt;
+      &lt;option value="us"&gt;United States&lt;/option&gt;
+      &lt;option value="ca"&gt;Canada&lt;/option&gt;
+      &lt;/cf:select&gt;
+
+      Renders to:
+      &lt;div class="usa-form-group"&gt;
+      &lt;label class="usa-label" for="country"&gt;Country&lt;/label&gt;
+      &lt;span id="error-message-country" class="usa-error-message" role="alert" hidden="hidden"&gt;&lt;/span&gt;
+      &lt;select class="usa-select" id="country" name="country"&gt;
+      &lt;option value=""&gt;--Select a country--&lt;/option&gt;
+      &lt;option value="us"&gt;United States&lt;/option&gt;
+      &lt;option value="ca"&gt;Canada&lt;/option&gt;
+      &lt;/select&gt;
+      &lt;/div&gt;
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:element name="select">
+    <xs:annotation>
+      <xs:documentation>
+        Custom select element that generates a complete form group with label, validation, and help text.
+        Contains standard HTML option elements, optgroup elements, or hr elements as child content.
+      </xs:documentation>
+    </xs:annotation>
+
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:any namespace="##other" processContents="lax">
+          <xs:annotation>
+            <xs:documentation>
+              Allows standard HTML elements: option, optgroup, and hr.
+              These elements are preserved and rendered inside the select element.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:any>
+      </xs:choice>
+
+      <xs:attributeGroup ref="cf:commonFormAttributes"/>
+
+      <!-- Allow any data-* and aria-* attributes -->
+      <xs:anyAttribute namespace="##other" processContents="lax">
+        <xs:annotation>
+          <xs:documentation>
+            Supports custom data-* and aria-* attributes. These will be passed through to the rendered select element.
+            Note: aria-describedby and aria-invalid are managed automatically by the component.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:anyAttribute>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>
