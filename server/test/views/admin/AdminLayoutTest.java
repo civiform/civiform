@@ -128,7 +128,7 @@ public class AdminLayoutTest extends ResetPostgres {
 
     // Create bundle with the request
     Http.Request request = fakeRequestBuilder().build();
-    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(true);
+    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
 
     HtmlBundle bundle = new HtmlBundle(request);
     bundle
@@ -145,7 +145,7 @@ public class AdminLayoutTest extends ResetPostgres {
   @Test
   public void render_doesNotIncludeSessionTimeoutModals_whenDisabled() {
     Http.Request request = fakeRequestBuilder().build();
-    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(false);
+    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(false);
 
     HtmlBundle bundle = new HtmlBundle(request);
     bundle

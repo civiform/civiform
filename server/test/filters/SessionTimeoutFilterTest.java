@@ -82,7 +82,7 @@ public class SessionTimeoutFilterTest extends WithApplication {
   public void testTimeoutDisabled_clearsCookie() throws Exception {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
-    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(false);
+    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(false);
 
     Result result = executeFilter(request);
 
@@ -97,7 +97,7 @@ public class SessionTimeoutFilterTest extends WithApplication {
   public void testTimeoutEnabled_setsCookie() throws Exception {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
-    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(true);
+    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
 
     Result result = executeFilter(request);
 
@@ -122,7 +122,7 @@ public class SessionTimeoutFilterTest extends WithApplication {
   public void testCookieProperties() throws Exception {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
-    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(true);
+    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
 
     Result result = executeFilter(request);
 
