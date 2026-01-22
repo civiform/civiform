@@ -1,5 +1,5 @@
-import {attachRedirectToPageListeners} from './main'
-import {HtmxRequest} from './htmx_request'
+import {attachRedirectToPageListeners} from '@/main'
+import {HtmxRequest} from '@/htmx_request'
 
 /**
  * Dynamic behavior for AdminImportView.

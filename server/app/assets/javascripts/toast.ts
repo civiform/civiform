@@ -6,7 +6,7 @@
  *  - dismiss a toast messages based on a user action or after a specified timeout.
  *  - permanently dismiss toast messags (using localStorage)
  */
-import {assertNotNull} from './util'
+import {assertNotNull} from '@/util'
 
 export class ToastController {
   private static readonly CONTAINER_ID = 'toast-container'

@@ -1,6 +1,6 @@
 /** The question bank controller is responsible for manipulating the question bank. */
-import {assertNotNull} from './util'
-import {sortElementsByDataAttributes} from './sort_selector'
+import {assertNotNull} from '@/util'
+import {sortElementsByDataAttributes} from '@/sort_selector'
 
 class QuestionBankController {
   static readonly FILTER_ID = 'question-bank-filter'

@@ -1,5 +1,5 @@
 /** This class controls the style of selected radio buttons. */
-import {assertNotNull} from './util'
+import {assertNotNull} from '@/util'
 
 class RadioController {
   static radioDefaultClass = '.cf-radio-default'

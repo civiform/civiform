@@ -1,7 +1,7 @@
 // Javascript handling for enumerators
 // This file requires that main.ts is also added to the page.
 
-import {addEventListenerToElements, assertNotNull} from './util'
+import {addEventListenerToElements, assertNotNull} from '@/util'
 
 export function init() {
   updateListeners()

@@ -18,8 +18,8 @@ import {
   DATA_MAP_ID,
   queryLocationCheckboxes,
   updateLocationCountForMap,
-} from './map_util'
-import {resetPagination} from './map_question_pagination'
+} from '@/mapquestion/map_util'
+import {resetPagination} from '@/mapquestion/map_question_pagination'
 
 export const initFilters = (
   mapId: string,

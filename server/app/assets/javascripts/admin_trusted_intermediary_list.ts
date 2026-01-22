@@ -1,5 +1,5 @@
 /** The Trusted Intermediary controller is responsible for manipulating the trusted intermediary group list. */
-import {sortElementsByDataAttributes} from './sort_selector'
+import {sortElementsByDataAttributes} from '@/sort_selector'
 
 class TrustedIntermediaryController {
   // Keep in sync with TrustedIntermediaryGrouplistView.java

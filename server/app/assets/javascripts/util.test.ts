@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeEach, afterEach} from 'vitest'
-import {addEventListenerToElements, assertNotNull, formatTextHtml} from './util'
+import {addEventListenerToElements, assertNotNull, formatTextHtml} from '@/util'
 
 describe('addEventListenerToElements', () => {
   let container: HTMLElement
