@@ -86,6 +86,7 @@ test.describe('Yes/no question for applicant flow', () => {
   test.describe('yes/no question with options not displayed to applicant', () => {
     const programName =
       'Test program for single yes/no question with some options hidden'
+
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
       await loginAsAdmin(page)
 

@@ -13,6 +13,7 @@ test.describe('admin preview as applicant', () => {
     applicantProgramOverview,
   }) => {
     const programName = 'test program'
+
     await test.step('create test program', async () => {
       await adminQuestions.addEmailQuestion({questionName: 'email-q'})
       await adminPrograms.addProgram(programName)

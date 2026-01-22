@@ -106,9 +106,11 @@ test.describe('Admin can manage program image', () => {
 
   test.describe('back button', () => {
     const programName = 'Back Test Program'
+
     test.beforeEach(async ({adminPrograms}) => {
       await adminPrograms.addProgram(programName)
     })
+
     test('back button redirects to block page if came from block page', async ({
       adminPrograms,
       adminProgramImage,
@@ -158,9 +160,11 @@ test.describe('Admin can manage program image', () => {
 
   test.describe('continue button', () => {
     const programName = 'Back Test Program'
+
     test.beforeEach(async ({adminPrograms}) => {
       await adminPrograms.addProgram(programName)
     })
+
     test('continue button shows if from program creation page', async ({
       adminProgramImage,
     }) => {
