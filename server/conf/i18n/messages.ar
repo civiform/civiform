@@ -239,6 +239,8 @@ button.save=حفظ
 button.search=بحث
 # Button to start an application on behalf of a client.
 button.startApp=بدء الطلب
+# Button to redirect to the login page when the applicant is not logged in for login-only programs.
+button.startAppForLoginOnlyProgram=Sign in to start an application
 # Button to view the applications belonging to an applicant.
 button.viewApplications=عرض الطلبات
 # Button to view and add clients
