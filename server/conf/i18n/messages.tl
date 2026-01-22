@@ -239,6 +239,8 @@ button.save=I-save
 button.search=Maghanap
 # Button to start an application on behalf of a client.
 button.startApp=Magsimula ng application
+# Button to redirect to the login page when the applicant is not logged in for login-only programs.
+button.startAppForLoginOnlyProgram=Sign in to start an application
 # Button to view the applications belonging to an applicant.
 button.viewApplications=Tingnan ang mga application
 # Button to view and add clients
