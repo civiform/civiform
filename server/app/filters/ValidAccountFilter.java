@@ -47,9 +47,13 @@ public class ValidAccountFilter extends EssentialFilter {
   public EssentialAction apply(EssentialAction next) {
     return EssentialAction.of(
         request -> {
+          if (allowedEndpoint(request)) {
+            return next.apply(request);
+          }
+
           Optional<CiviFormProfile> profile = profileUtils.optionalCurrentUserProfile(request);
 
-          if (profile.isEmpty() || allowedEndpoint(request)) {
+          if (profile.isEmpty()) {
             return next.apply(request);
           }
 
@@ -81,15 +85,7 @@ public class ValidAccountFilter extends EssentialFilter {
               return isValidSession(profile);
             },
             databaseExecutionContext.get())
-        .thenComposeAsync(
-            isValidProfileAndSession -> {
-              if (!isValidProfileAndSession) {
-                // Log out if either profile or session was invalid
-                return CompletableFuture.completedFuture(true);
-              }
-              return CompletableFuture.completedFuture(false);
-            },
-            databaseExecutionContext.get());
+        .thenApplyAsync(isValidProfileAndSession -> !isValidProfileAndSession);
   }
 
   private CompletionStage<Boolean> isValidSession(CiviFormProfile profile) {
