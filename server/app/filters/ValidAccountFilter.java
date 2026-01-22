@@ -96,8 +96,20 @@ public class ValidAccountFilter extends EssentialFilter {
               return isValidSession(profile);
             },
             databaseExecutionContext.get())
-        // Log out if either profile or session was invalid
-        .thenApplyAsync(isValidProfileAndSession -> !isValidProfileAndSession);
+        .thenComposeAsync(
+            isValidProfileAndSession -> {
+              if (!isValidProfileAndSession) {
+                // Log out if either profile or session was invalid
+                return CompletableFuture.completedFuture(true);
+              }
+              // If flag is disabled, keep them logged in if they have a valid session
+              if (!settingsManifest.get().getSessionTimeoutEnabled(request)) {
+                return CompletableFuture.completedFuture(false);
+              }
+              // Otherwise, let the SessionTimeoutService decide
+              return sessionTimeoutService.get().isSessionTimedOut(profile);
+            },
+            databaseExecutionContext.get());
   }
 
   private CompletionStage<Boolean> isValidSession(CiviFormProfile profile) {
