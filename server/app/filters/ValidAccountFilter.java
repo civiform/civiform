@@ -84,7 +84,8 @@ public class ValidAccountFilter extends EssentialFilter {
         });
   }
 
-  private CompletionStage<Boolean> shouldLogoutUser(CiviFormProfile profile, Http.Request request) {
+  private CompletionStage<Boolean> shouldLogoutUser(
+      CiviFormProfile profile, Http.RequestHeader request) {
     return profileUtils
         .validCiviFormProfile(profile)
         .thenComposeAsync(
