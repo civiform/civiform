@@ -1129,7 +1129,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           }
                         }
 
-                        return ensureFileRecordExists(key.get(), originalFileName, applicantId)
+                        return ensureFileRecordExists(key.get(), originalFileName)
                             .thenComposeAsync(
                                 (StoredFileModel unused) ->
                                     applicantService.stageAndUpdateIfValid(
@@ -1733,7 +1733,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
   /** Gets StoredFileModel for {@code key}, creating one if it is not present. */
   private CompletionStage<StoredFileModel> ensureFileRecordExists(
-      String key, Optional<String> originalFileName, long applicantId) {
+      String key, Optional<String> originalFileName) {
     return storedFileRepository
         .lookupFile(key)
         .thenComposeAsync(
