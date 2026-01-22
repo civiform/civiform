@@ -103,7 +103,7 @@ lazy val root = (project in file("."))
       "commons-validator" % "commons-validator" % "1.10.1",
 
       // pdf library for export
-      "com.itextpdf" % "itextpdf" % "5.5.13.4",
+      "com.itextpdf" % "itextpdf" % "5.5.13.5",
       // Phone number formatting and validation dependency
       "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.22",
 
