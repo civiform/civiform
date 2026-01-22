@@ -2,7 +2,7 @@
 <th:block
   th:fragment="editSubcondition(conditionId, subconditionId, disableDeletion, model)"
 >
-  <div class="subcondition-container margin-bottom-2">
+  <div class="subcondition-container margin-y-3">
     <!-- Define input ids in the expected format: 
     questionDropdownId: conditionId-<conditionId>-subconditionId-<subconditionId>-question
     scalarDropdownId:   conditionId-<conditionId>-subconditionId-<subconditionId>-scalar
@@ -13,13 +13,13 @@
       class="border-left-05 border-base-lighter padding-left-3"
       th:with="questionDropdownId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-question'}, scalarDropDownId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-scalar'},operatorDropdownId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-operator'}"
     >
-      <fieldset class="usa-fieldset usa-fieldset--no-legend margin-top-3">
+      <fieldset class="usa-fieldset usa-fieldset--no-legend">
         <legend
           class="usa-sr-only"
           th:text="${'Condition ' + conditionId + ' subcondition ' + subconditionId}"
         ></legend>
-        <div class="usa-form-group margin-top-0 padding-top-0 border-0">
-          <label class="usa-label py-0 my-0" th:for="${questionDropdownId}"
+        <div class="usa-form-group margin-top-0">
+          <label class="usa-label" th:for="${questionDropdownId}"
             >[[#{label.predicateQuestion}]]<span class="usa-hint--required"
               >*</span
             ></label
