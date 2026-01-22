@@ -27,9 +27,7 @@ test.describe('Session timeout for admins', () => {
 
     await test.step('Validate inactivity warning modal appears', async () => {
       const inactivityModal = page.locator('#session-inactivity-warning-modal')
-      await expect(inactivityModal).not.toHaveClass(/display-none/, {
-        timeout: 10000,
-      })
+      await expect(inactivityModal).not.toHaveClass(/is-hidden/)
 
       await validateScreenshot(page, 'admin-inactivity-warning-modal')
     })
@@ -41,9 +39,7 @@ test.describe('Session timeout for admins', () => {
       await extendSessionButton.click()
 
       const inactivityModal = page.locator('#session-inactivity-warning-modal')
-      await expect(inactivityModal).toHaveClass(/hidden/, {
-        timeout: 10000,
-      })
+      await expect(inactivityModal).toHaveClass(/is-hidden/)
     })
 
     await test.step('Confirm toast appears confirming that session has been extended', async () => {
@@ -77,9 +73,7 @@ test.describe('Session timeout for applicants', () => {
 
     await test.step('Validate inactivity warning modal appears', async () => {
       const inactivityModal = page.locator('#session-inactivity-warning-modal')
-      await expect(inactivityModal).not.toHaveClass(/hidden/, {
-        timeout: 10000,
-      })
+      await expect(inactivityModal).not.toHaveClass(/is-hidden/)
 
       await validateScreenshot(page, 'applicant-inactivity-warning-modal')
     })
@@ -97,9 +91,7 @@ test.describe('Session timeout for applicants', () => {
 
     await test.step('Validate session length warning modal appears', async () => {
       const sessionLengthModal = page.locator('#session-length-warning-modal')
-      await expect(sessionLengthModal).not.toHaveClass(/hidden/, {
-        timeout: 10000,
-      })
+      await expect(sessionLengthModal).not.toHaveClass(/is-hidden/)
     })
 
     await test.step('Click logout', async () => {
