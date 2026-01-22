@@ -239,6 +239,8 @@ button.save=Сохранить
 button.search=Искать
 # Button to start an application on behalf of a client.
 button.startApp=Заполнить заявку
+# Button to redirect to the login page when the applicant is not logged in for login-only programs.
+button.startAppForLoginOnlyProgram=Sign in to start an application
 # Button to view the applications belonging to an applicant.
 button.viewApplications=Посмотреть заявки
 # Button to view and add clients
