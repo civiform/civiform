@@ -1,6 +1,25 @@
 import {ToastController} from '@/toast'
 
 /**
+ * There are two types of session timeouts, each with its own warning modal.
+ * Timeout durations are configured in application.conf and read from a cookie set by the server.
+ *
+ * Inactivity timeout (can be extended)
+ *   - Appears after a period of no server activity
+ *   - User can click "Extend Session", which calls the server to reset the session's last activity timestamp
+ *   - If extended, modal will re-appear when the next inactivity timeout approaches
+ *   - User can dismiss the modal, in which case they will be logged out when the inactivity timestamp passes
+ *
+ * Total session length timeout (cannot be extended)
+ *   - Appears when the session approaches the maximum allowed duration
+ *   - User can click "Log Out" or dismiss the modal
+ *   - If dismissed, user will be logged out when the total timeout passes
+ *   - Only shown once per session
+ *
+ * The handler polls every 30 seconds to check timeout thresholds.
+ */
+
+/**
  * Represents session timeout data with timestamps for various timeout events.
  * All timestamps are Unix timestamps in seconds.
  */
