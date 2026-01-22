@@ -58,7 +58,8 @@ public class SessionTimeoutFilter extends Filter {
     }
     Optional<CiviFormProfile> optionalProfile =
         profileUtils.optionalCurrentUserProfile(requestHeader);
-    if (optionalProfile.isEmpty() || !settingsManifest.get().getSessionTimeoutEnabled()) {
+    if (optionalProfile.isEmpty()
+        || !settingsManifest.get().getSessionTimeoutEnabled(requestHeader)) {
       return nextFilter.apply(requestHeader).thenApply(this::clearTimeoutCookie);
     }
     return nextFilter
