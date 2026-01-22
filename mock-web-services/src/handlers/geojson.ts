@@ -1,6 +1,6 @@
 import {http, HttpResponse} from 'msw';
-import {readJsonFile} from '../utils/fileReader.js';
-import {CONFIG} from '../config.js';
+import {readJsonFile} from '@/utils/fileReader.js';
+import {CONFIG} from '@/config.js';
 
 /**
  * GET /geojson/data

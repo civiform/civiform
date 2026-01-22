@@ -1,6 +1,6 @@
 import {http, HttpResponse} from 'msw';
-import {readJsonFile} from '../utils/fileReader.js';
-import {CONFIG} from '../config.js';
+import {readJsonFile} from '@/utils/fileReader.js';
+import {CONFIG} from '@/config.js';
 
 function getJsonFromFile(fileName: string): any {
   return readJsonFile(CONFIG.ESRI_RESOURCES_PATH, fileName);
