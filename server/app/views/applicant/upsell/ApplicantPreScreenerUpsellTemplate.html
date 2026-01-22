@@ -5,7 +5,9 @@
   ></head>
   <body>
     <div th:replace="~{applicant/ApplicantBaseFragment :: skipNav}"></div>
-    <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
+    <div
+      th:replace="~{applicant/shared/NavigationFragment :: pageHeader}"
+    ></div>
     <main id="main-content" tabindex="-1">
       <div
         th:replace="~{applicant/blocks/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle}, ${programShortDescription})}"
@@ -91,7 +93,7 @@
 
             <section class="section-external" th:if="${isGuest}">
               <div
-                th:replace="~{applicant/CreateAccountAlertFragment :: createAccount(${createAccountLink}, ${loginLink}, #{button.createAnAccount}, #{content.loginToExistingAccount})}"
+                th:replace="~{applicant/shared/CreateAccountAlertFragment :: createAccount(${createAccountLink}, ${loginLink}, #{button.createAnAccount}, #{content.loginToExistingAccount})}"
               ></div>
             </section>
           </div>
@@ -100,10 +102,12 @@
     </main>
 
     <div th:if="${isGuest}">
-      <div th:replace="~{applicant/ModalFragment:: upsellLogin}"></div>
+      <div th:replace="~{applicant/shared/ModalFragment:: upsellLogin}"></div>
     </div>
 
-    <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
+    <footer
+      th:replace="~{applicant/shared/NavigationFragment :: pageFooter}"
+    ></footer>
     <th:block
       th:replace="~{components/GoogleTagManagerFragment :: tagManager(${optionalMeasurementId}, ${cspNonce})}"
     ></th:block>

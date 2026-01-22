@@ -1,4 +1,4 @@
-package views.applicant;
+package views.applicant.upsell;
 
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;

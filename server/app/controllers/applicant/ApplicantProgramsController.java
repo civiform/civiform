@@ -34,7 +34,7 @@ import services.applicant.Block;
 import services.monitoring.MonitoringMetricCounters;
 import services.program.ProgramNotFoundException;
 import services.settings.SettingsManifest;
-import views.applicant.ApplicantDisabledProgramView;
+import views.applicant.disabled.ApplicantDisabledProgramView;
 import views.applicant.programindex.FilteredProgramsViewPartial;
 import views.applicant.programindex.ProgramIndexView;
 

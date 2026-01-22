@@ -79,7 +79,7 @@
   <div th:replace="~{this :: tiAlert}"></div>
   <th:block th:if="${sessionTimeoutEnabled}">
     <th:div
-      th:replace="~{applicant/ModalFragment :: sessionTimeoutModals}"
+      th:replace="~{applicant/shared/ModalFragment :: sessionTimeoutModals}"
     ></th:div>
   </th:block>
 </th:block>
@@ -238,7 +238,7 @@
     aria-controls="debug-content-modal"
     >DevTools</a
   >
-  <div th:replace="~{applicant/ModalFragment:: devTools}"></div>
+  <div th:replace="~{applicant/shared/ModalFragment:: devTools}"></div>
 </div>
 
 <th:block th:fragment="userName">
@@ -285,7 +285,9 @@
 <th:block th:fragment="loginOrLogout">
   <th:block th:if="${isGuest}">
     <th:block th:if="${loginDropdownEnabled}">
-      <div th:replace="~{applicant/NavigationFragment:: loginDropdown}"></div>
+      <div
+        th:replace="~{applicant/shared/NavigationFragment:: loginDropdown}"
+      ></div>
     </th:block>
     <th:block th:if="${!loginDropdownEnabled}">
       <a

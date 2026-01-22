@@ -1,4 +1,4 @@
-package views.applicant;
+package views.applicant.upsell;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -12,6 +12,7 @@ import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.MessageKey;
 import services.settings.SettingsManifest;
+import views.applicant.ApplicantBaseView;
 
 public class ApplicantPreScreenerUpsellView extends ApplicantBaseView {
 
@@ -91,7 +92,7 @@ public class ApplicantPreScreenerUpsellView extends ApplicantBaseView {
 
       context.setVariable("bannerMessage", params.bannerMessage());
     }
-    return templateEngine.process("applicant/ApplicantPreScreenerUpsellTemplate", context);
+    return templateEngine.process("applicant/upsell/ApplicantPreScreenerUpsellTemplate", context);
   }
 
   /* Provides syntactic sugar for displaying user-facing program information in HTML. */

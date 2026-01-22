@@ -47,7 +47,7 @@ import services.question.QuestionAnswerer;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
-import views.applicant.ApplicantDisabledProgramView;
+import views.applicant.disabled.ApplicantDisabledProgramView;
 import views.applicant.programindex.FilteredProgramsViewPartial;
 import views.applicant.programindex.ProgramIndexView;
 
