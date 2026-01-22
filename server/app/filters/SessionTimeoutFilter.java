@@ -25,11 +25,6 @@ import services.settings.SettingsManifest;
 /**
  * A filter to manage session timeouts in CiviForm.
  *
- * <p>NOTE: This filter is currently not called from application.conf because of issues we were
- * seeing with #10330.
- *
- * <p>TODO: #9819 Re-enable this filter when we ensure there aren't performance issues.
- *
  * <p>This filter is responsible for setting a cookie with the current session's timeout data. The
  * cookie is used by the frontend to determine when to show a warning to the user that their session
  * is about to expire.
