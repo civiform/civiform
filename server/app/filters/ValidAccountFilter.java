@@ -25,8 +25,10 @@ import services.session.SessionTimeoutService;
 import services.settings.SettingsManifest;
 
 /**
- * A filter to ensure the account referenced in the browser cookie is valid. This should only matter
- * when the account is deleted from the database which almost will never happen in prod database.
+ * This filter validates the user's account and session. The user is logged out if the account no
+ * longer exists (which should only happen if an account is created and then deleted from the
+ * database), the session is invalid, or the session has timed out. If the account and session is
+ * valid and the session timeout feature flag is enabled, the user's last activity time is updated.
  */
 public class ValidAccountFilter extends EssentialFilter {
 
