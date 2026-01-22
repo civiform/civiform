@@ -85,6 +85,7 @@ public class ValidAccountFilter extends EssentialFilter {
               return isValidSession(profile);
             },
             databaseExecutionContext.get())
+        // Log out if either profile or session was invalid
         .thenApplyAsync(isValidProfileAndSession -> !isValidProfileAndSession);
   }
 
