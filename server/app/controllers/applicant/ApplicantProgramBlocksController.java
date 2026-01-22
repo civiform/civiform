@@ -1129,7 +1129,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           }
                         }
 
-                        return ensureFileRecord(key.get(), originalFileName)
+                        return ensureFileRecordExists(key.get(), originalFileName, applicantId)
                             .thenComposeAsync(
                                 (StoredFileModel unused) ->
                                     applicantService.stageAndUpdateIfValid(
@@ -1731,8 +1731,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .build();
   }
 
-  private CompletionStage<StoredFileModel> ensureFileRecord(
-      String key, Optional<String> originalFileName) {
+  /** Gets StoredFileModel for {@code key}, creating one if it is not present. */
+  private CompletionStage<StoredFileModel> ensureFileRecordExists(
+      String key, Optional<String> originalFileName, long applicantId) {
     return storedFileRepository
         .lookupFile(key)
         .thenComposeAsync(
@@ -1765,7 +1766,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
           || cause instanceof IllegalArgumentException
           || cause instanceof PathNotInBlockException
           || cause instanceof ProgramBlockNotFoundException
-          || cause instanceof ProgramNotFoundException
           || cause instanceof UnsupportedScalarTypeException) {
         logger.error("Exception while updating applicant data", cause);
         return badRequest("Unable to process this request");
