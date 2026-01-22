@@ -12,6 +12,10 @@
     "mapRoot": "/assets/javascripts",
     "sourceRoot": "/assets/javascripts",
     "baseUrl": "./",
+    "paths": {
+      "@/*": ["app/assets/javascripts/*"],
+      "@pages/*": ["app/assets/javascripts/pages/*"]
+    },
     "strict": true,
     "types": ["vitest"]
   },

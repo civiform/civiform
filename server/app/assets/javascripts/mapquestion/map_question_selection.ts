@@ -19,7 +19,7 @@ import {
   queryLocationCheckboxes,
   selectionCounts,
   CF_MAX_LOCATION_STATUS,
-} from './map_util'
+} from '@/mapquestion/map_util'
 
 let locationOffset = 0
 

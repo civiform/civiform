@@ -1,4 +1,4 @@
-import {addEventListenerToElements, assertNotNull, formatText} from './util'
+import {addEventListenerToElements, assertNotNull, formatText} from '@/util'
 import DOMPurify from 'dompurify'
 
 class AdminApplicationView {

@@ -3,20 +3,20 @@
  * that are used by applicants and trusted intermediaries.
  */
 
-import * as main from '../../main'
-import * as languageSelector from '../../language_selector'
-import * as enumerator from '../../enumerator'
-import * as radio from '../../radio'
-import * as toast from '../../toast'
-import * as map from '../../mapquestion/map'
-import * as modal from '../../modal'
-import * as northStarModal from './../../north_star_modal'
-import * as fileUpload from '../../file_upload'
-import * as azureDelete from '../../azure_delete'
-import * as azureUpload from '../../azure_upload'
-import * as phoneNumber from '../../phone'
-import * as htmx from '../../htmx'
-import {SessionTimeoutHandler} from '../../session'
+import * as main from '@/main'
+import * as languageSelector from '@/language_selector'
+import * as enumerator from '@/enumerator'
+import * as radio from '@/radio'
+import * as toast from '@/toast'
+import * as map from '@/mapquestion/map'
+import * as modal from '@/modal'
+import * as northStarModal from '@/north_star_modal'
+import * as fileUpload from '@/file_upload'
+import * as azureDelete from '@/azure_delete'
+import * as azureUpload from '@/azure_upload'
+import * as phoneNumber from '@/phone'
+import * as htmx from '@/htmx'
+import {SessionTimeoutHandler} from '@/session'
 
 declare global {
   interface Window {

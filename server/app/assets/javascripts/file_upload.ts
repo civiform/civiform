@@ -1,5 +1,5 @@
-import {addEventListenerToElements, assertNotNull} from './util'
-import {isFileTooLarge} from './file_upload_util'
+import {addEventListenerToElements, assertNotNull} from '@/util'
+import {isFileTooLarge} from '@/file_upload_util'
 
 const UPLOAD_ATTR = 'data-upload-text'
 const UPLOADED_FILE_ATTR = 'data-uploaded-files'

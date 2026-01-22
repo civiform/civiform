@@ -1,7 +1,7 @@
 import {expect, describe, it, beforeEach, afterEach, vi, Mock} from 'vitest'
-import {SessionTimeoutHandler} from './session'
-import {ToastController} from './toast'
-import {WarningType} from './session'
+import {SessionTimeoutHandler} from '@/session'
+import {ToastController} from '@/toast'
+import {WarningType} from '@/session'
 
 type SessionTimeoutHandlerType = typeof SessionTimeoutHandler & {
   logout: () => void

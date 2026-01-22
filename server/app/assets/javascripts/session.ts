@@ -1,5 +1,5 @@
-import {ToastController} from './toast'
-import {hideUswdsModal} from './modal'
+import {ToastController} from '@/toast'
+import {hideUswdsModal} from '@/modal'
 
 /**
  * Represents session timeout data with timestamps for various timeout events.

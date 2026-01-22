@@ -2,8 +2,8 @@
 import {
   YesNoOptionAdminId,
   YesNoOptionValue,
-} from './admin_yes_no_question_option'
-import {assertNotNull, formatText, formatTextHtml} from './util'
+} from '@/admin_yes_no_question_option'
+import {assertNotNull, formatText, formatTextHtml} from '@/util'
 import DOMPurify from 'dompurify'
 
 // This doesn't include all the possible question types, just the ones we need to

@@ -1,6 +1,6 @@
 import {describe, it, expect} from 'vitest'
 import {FeatureCollection} from 'geojson'
-import {calculateMapCenter} from './map_util'
+import {calculateMapCenter} from '@/mapquestion/map_util'
 
 describe('calculateMapCenter', () => {
   it('returns null for empty FeatureCollection', () => {
