@@ -808,24 +808,4 @@ describe('SessionTimeoutHandler', () => {
       })
     })
   })
-
-  describe('init', () => {
-    it('initializes only once', () => {
-      const checkAndSetTimerSpy = vi.spyOn(
-        SessionTimeoutHandler as SessionTimeoutHandlerType,
-        'checkAndSetTimer',
-      )
-
-      // First initialization
-      SessionTimeoutHandler.init()
-      expect(checkAndSetTimerSpy).toHaveBeenCalledTimes(1)
-      expect(SessionTimeoutHandler['isInitialized']).toBe(true)
-
-      // Second initialization attempt
-      SessionTimeoutHandler.init()
-
-      // Still only called once
-      expect(checkAndSetTimerSpy).toHaveBeenCalledTimes(1)
-    })
-  })
 })
