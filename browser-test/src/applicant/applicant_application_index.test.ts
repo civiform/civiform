@@ -93,6 +93,7 @@ test.describe('applicant program index page', () => {
     const skipLinkLocator: Locator = page.getByRole('link', {
       name: 'Skip to main content',
     })
+
     await test.step('Tab and verify focus on skip link', async () => {
       await page.keyboard.press('Tab')
       await expect(skipLinkLocator).toBeFocused()
@@ -253,6 +254,7 @@ test.describe('applicant program index page', () => {
       await test.step('publish programs with categories', async () => {
         await adminPrograms.publishAllDrafts()
       })
+
       await test.step('Navigate to homepage and check that cards in Programs and Services section have categories', async () => {
         await logout(page)
         await loginAsTestUser(page)
@@ -938,6 +940,7 @@ test.describe('applicant program index page with images', () => {
     )
 
     await loginAsTestUser(page)
+
     await test.step('verify no available programs info alert appears', async () => {
       await expect(
         page.getByText(

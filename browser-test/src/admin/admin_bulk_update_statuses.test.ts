@@ -62,6 +62,7 @@ test.describe('with program statuses', () => {
       approvedStatusName,
     )
   })
+
   test('if more than 100 applications, only the first page of applications undergo status update', async ({
     page,
     adminPrograms,
@@ -100,11 +101,13 @@ test.describe('with program statuses', () => {
     )
   })
 })
+
 test.describe('when email is configured for the status and applicant, a checkbox is shown to notify the applicant', () => {
   const programWithStatusesName = 'Test program with email statuses'
   const emailStatusName = 'Email status'
   const emailBody = 'Some email content'
   const noEmailStatusName = 'No email status'
+
   test.beforeEach(
     async ({page, adminPrograms, applicantQuestions, adminProgramStatuses}) => {
       await setupProgramsWithStatuses(
@@ -117,6 +120,7 @@ test.describe('when email is configured for the status and applicant, a checkbox
       await adminPrograms.viewApplications(programWithStatusesName)
     },
   )
+
   test('choosing not to notify applicants changes status and does not send email', async ({
     page,
     adminPrograms,
@@ -173,6 +177,7 @@ test.describe('when email is configured for the status and applicant, a checkbox
       )
     }
   })
+
   const setupProgramsWithStatuses = async (
     page: Page,
     adminPrograms: AdminPrograms,

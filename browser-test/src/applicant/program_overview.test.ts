@@ -90,6 +90,7 @@ test.describe('Applicant program overview', () => {
       await applicantQuestions.answerTextQuestion('first answer')
       await applicantQuestions.clickContinue()
     })
+
     test('takes guests and logged in users to the program overview', async ({
       page,
       applicantQuestions,
@@ -477,6 +478,7 @@ test.describe('Applicant program overview for login only program', () => {
       ),
     ).toBeVisible()
   })
+
   test('login only program has start application button when entering as a logged in user', async ({
     page,
   }) => {

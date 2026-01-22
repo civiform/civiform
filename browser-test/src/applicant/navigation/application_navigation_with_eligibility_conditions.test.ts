@@ -225,6 +225,7 @@ test.describe('Applicant navigation flow', () => {
           {mobileScreenshot: true},
         )
       })
+
       await test.step('verify ineligibility message on review page of overlapping program', async () => {
         await applicantQuestions.clickApplyProgramButton(fullProgramName)
         await applicantProgramOverview.startApplicationFromProgramOverviewPage(
