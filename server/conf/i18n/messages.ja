@@ -239,6 +239,8 @@ button.save=保存
 button.search=検索
 # Button to start an application on behalf of a client.
 button.startApp=申請を開始
+# Button to redirect to the login page when the applicant is not logged in for login-only programs.
+button.startAppForLoginOnlyProgram=Sign in to start an application
 # Button to view the applications belonging to an applicant.
 button.viewApplications=申請内容を表示
 # Button to view and add clients
