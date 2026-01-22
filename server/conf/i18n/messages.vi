@@ -239,6 +239,8 @@ button.save=Lưu
 button.search=Tìm kiếm
 # Button to start an application on behalf of a client.
 button.startApp=Bắt đầu đơn đăng ký
+# Button to redirect to the login page when the applicant is not logged in for login-only programs.
+button.startAppForLoginOnlyProgram=Sign in to start an application
 # Button to view the applications belonging to an applicant.
 button.viewApplications=Xem các đơn đăng ký
 # Button to view and add clients
