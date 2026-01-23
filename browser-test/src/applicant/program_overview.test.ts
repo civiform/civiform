@@ -466,9 +466,7 @@ test.describe('Applicant program overview for login only program', () => {
     ).toBeVisible()
 
     await expect(
-      page
-        .getByRole('link', {name: 'Start application with an account'})
-        .first(),
+      page.getByRole('link', {name: 'Sign in to start an application'}).first(),
     ).toBeVisible()
 
     // login only create account message
