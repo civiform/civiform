@@ -1,5 +1,5 @@
 // Javascript handling for the admin API keys page (ApiKeyIndexView)
-import {addEventListenerToElements} from './util'
+import {addEventListenerToElements} from '@/util'
 
 function onRetireKeyFormSubmit(event: Event) {
   const keyName = (event.target as HTMLFormElement).dataset.apiKeyName

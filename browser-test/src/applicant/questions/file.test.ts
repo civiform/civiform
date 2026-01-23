@@ -299,6 +299,7 @@ test.describe('file upload applicant flow', () => {
         await applicantFileQuestion.expectFileInputEnabled()
       })
     })
+
     test('shows correct hint text based on max files', async ({
       applicantQuestions,
       page,
@@ -452,6 +453,7 @@ test.describe('file upload applicant flow', () => {
         '.cf-question-fileupload',
       )
     })
+
     test('can upload multiple files', async ({
       page,
       applicantQuestions,
@@ -1232,6 +1234,7 @@ test.describe('file upload applicant flow', () => {
     })
   })
 })
+
 test.describe('for login only program, guest cannot see file upload question', () => {
   const programName = 'loginonly'
 
@@ -1261,6 +1264,7 @@ test.describe('for login only program, guest cannot see file upload question', (
     applicantQuestions,
   }) => {
     let fileuploadURL: string
+
     await test.step('logged in user navigates to file upload question', async () => {
       await loginAsTestUser(page)
       await page.goto(`/programs/${programName}`)

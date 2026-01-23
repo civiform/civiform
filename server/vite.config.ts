@@ -151,6 +151,10 @@ export default defineConfig({
   },
 
   resolve: {
+    alias: {
+      '@pages': resolve(__dirname, 'app/assets/javascripts/pages'),
+      '@': resolve(__dirname, 'app/assets/javascripts'),
+    },
     extensions: ['.ts', '.js', '.scss', '.css'],
   },
 

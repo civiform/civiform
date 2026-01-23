@@ -42,7 +42,7 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
-import views.applicant.ApplicantIneligibleView;
+import views.applicant.ineligible.ApplicantIneligibleView;
 import views.applicant.review.ApplicantProgramSummaryView;
 
 /**

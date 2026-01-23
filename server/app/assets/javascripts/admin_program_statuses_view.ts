@@ -1,4 +1,4 @@
-import {addEventListenerToElements, assertNotNull} from './util'
+import {addEventListenerToElements, assertNotNull} from '@/util'
 
 class AdminProgramStatusesView {
   private static STATUS_CHANGE_FORM_SELECTOR = '.cf-status-change-form'

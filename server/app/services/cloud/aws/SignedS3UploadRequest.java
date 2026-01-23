@@ -145,7 +145,7 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
 
   // -- Below are required for creating the upload policy.
 
-  /** Expiration time of the signed request, in the format of 'yyyy-MM-ddTkk:mm:ss.SSSZ'. */
+  /** Expiration time of the signed request, in the format of 'yyyy-MM-ddTHH:mm:ss.SSSZ'. */
   public abstract String expiration();
 
   /** S3 bucket name. */
@@ -276,7 +276,7 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
       setDateStamp(dateString);
       LocalDateTime expiration = currentUTCDateTime.plus(duration);
       return setExpiration(
-          expiration.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'kk:mm:ss.SSS'Z'")));
+          expiration.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")));
     }
 
     Builder buildCredential() {

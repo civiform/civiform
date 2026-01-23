@@ -37,6 +37,7 @@ test.describe('Applicant breadcrumb navigation', () => {
         programName,
       )
     })
+
     await test.step('verify accessibility', async () => {
       await validateAccessibility(page)
     })
@@ -58,6 +59,7 @@ test.describe('Applicant breadcrumb navigation', () => {
         programName,
       )
     })
+
     await test.step('verify accessibility', async () => {
       await validateAccessibility(page)
     })

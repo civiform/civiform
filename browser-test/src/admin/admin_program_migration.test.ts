@@ -77,6 +77,7 @@ test.describe('program migration', () => {
       expect(jsonPreview).toContain('"minLength" : 1')
       expect(jsonPreview).toContain('"maxLength" : 5')
     })
+
     await test.step('download json for program 2', async () => {
       const downloadedProgram = await adminProgramMigration.downloadJson()
       expect(downloadedProgram).toContain(programName)
@@ -91,6 +92,7 @@ test.describe('program migration', () => {
       expect(downloadedProgram).toContain('"minLength" : 1')
       expect(downloadedProgram).toContain('"maxLength" : 5')
     })
+
     await test.step('click back button to return to programs index page', async () => {
       await adminProgramMigration.clickBackButton()
       await adminPrograms.expectAdminProgramsPage()
@@ -342,6 +344,7 @@ test.describe('program migration', () => {
     })
 
     let downloadedComprehensiveProgram: string
+
     await test.step('export comprehensive program', async () => {
       await adminPrograms.goToExportProgramPage(
         'Comprehensive Sample Program',
@@ -591,6 +594,7 @@ test.describe('program migration', () => {
     })
 
     let downloadedComprehensiveProgram: string
+
     await test.step('export comprehensive program', async () => {
       await adminPrograms.goToExportProgramPage(
         'Comprehensive Sample Program',

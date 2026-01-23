@@ -854,6 +854,7 @@ test.describe('program creation', () => {
       await adminProgramImage.clickContinueButton()
       await adminPrograms.addQuestionFromQuestionBank('text-question')
     })
+
     await test.step('click edit question link', async () => {
       await adminPrograms.editQuestion('text-question')
       await adminQuestions.expectQuestionEditPage('text-question')

@@ -285,6 +285,7 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     applicantQuestions,
   }) => {
     const programName = 'Disabled program'
+
     await test.step('login as a CiviForm admin and publish a disabled program', async () => {
       await loginAsAdmin(page)
 

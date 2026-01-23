@@ -26,6 +26,7 @@ test.describe('view program statuses', () => {
 
   test.describe('without program statuses', () => {
     const programWithoutStatusesName = 'Test program without statuses'
+
     test.beforeEach(async ({page, adminPrograms, applicantQuestions}) => {
       await loginAsAdmin(page)
 
@@ -772,6 +773,7 @@ test.describe('view program statuses', () => {
       )
     })
   })
+
   test.describe('email status updates work correctly with PAI flag on', () => {
     test.beforeEach(
       async ({
@@ -803,6 +805,7 @@ test.describe('view program statuses', () => {
         await logout(page)
       },
     )
+
     test('email is displayed and sent for guest user that has answered the PAI email question', async ({
       page,
       applicantQuestions,
@@ -844,6 +847,7 @@ test.describe('view program statuses', () => {
         await adminPrograms.expectStatusSelection(emailStatusName)
         await adminPrograms.expectUpdateStatusToast()
       })
+
       await test.step('verify status update email was sent to applicant', async () => {
         if (supportsEmailInspection()) {
           await adminPrograms.expectEmailSent(
@@ -855,6 +859,7 @@ test.describe('view program statuses', () => {
         }
       })
     })
+
     test('both email addresses are displayed and two emails are sent for a logged in user that has answered the PAI email question with a different email', async ({
       page,
       applicantQuestions,
@@ -902,6 +907,7 @@ test.describe('view program statuses', () => {
         await adminPrograms.confirmStatusUpdateModal(modal)
         await adminPrograms.expectUpdateStatusToast()
       })
+
       await test.step('verify status update email was sent to both email addresses', async () => {
         if (supportsEmailInspection()) {
           await adminPrograms.expectEmailSent(
@@ -919,6 +925,7 @@ test.describe('view program statuses', () => {
         }
       })
     })
+
     test('only one email is displayed and sent for a logged in user that has answered the PAI email question with the same email they used to login', async ({
       page,
       applicantQuestions,
@@ -958,6 +965,7 @@ test.describe('view program statuses', () => {
         await adminPrograms.confirmStatusUpdateModal(modal)
         await adminPrograms.expectUpdateStatusToast()
       })
+
       await test.step('verify status update email was sent to the applicant', async () => {
         if (supportsEmailInspection()) {
           await adminPrograms.expectEmailSent(
@@ -969,6 +977,7 @@ test.describe('view program statuses', () => {
         }
       })
     })
+
     test('Trusted Intermediary application shows correct Submitted By name', async ({
       page,
 

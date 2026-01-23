@@ -1,5 +1,5 @@
 // Javascript handling for the applicant language selector
-import {addEventListenerToElements} from './util'
+import {addEventListenerToElements} from '@/util'
 
 function onLanguageChange(event: Event) {
   const languageSelector = event.target as HTMLSelectElement

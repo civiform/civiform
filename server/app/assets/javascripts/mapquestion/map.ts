@@ -1,6 +1,6 @@
 import {Feature, FeatureCollection, GeoJsonProperties, Point} from 'geojson'
 import {GeoJSONSource, LngLatLike, Map as MapLibreMap, Popup} from 'maplibre-gl'
-import {initFilters} from './map_question_filters'
+import {initFilters} from '@/mapquestion/map_question_filters'
 import {
   CF_MAP_QUESTION_PAGINATION_BUTTON,
   CF_MAP_QUESTION_PAGINATION_NEXT_BUTTON,
@@ -10,12 +10,12 @@ import {
   getPaginationState,
   goToPage,
   initPagination,
-} from './map_question_pagination'
+} from '@/mapquestion/map_question_pagination'
 import {
   initLocationSelection,
   selectLocationsFromMap,
   updateSelectedLocations,
-} from './map_question_selection'
+} from '@/mapquestion/map_question_selection'
 import {
   CF_LOCATIONS_LIST_CONTAINER,
   CF_POPUP_CONTENT_BUTTON,
@@ -50,7 +50,7 @@ import {
   calculateMapCenter,
   POPUP_LAYER,
   CF_LOCATION_CHECKBOX_INPUT,
-} from './map_util'
+} from '@/mapquestion/map_util'
 
 export const init = (): void => {
   const mapDataObject = window.app?.data?.maps || {}

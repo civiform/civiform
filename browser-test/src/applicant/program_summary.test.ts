@@ -217,6 +217,7 @@ test.describe('Applicant navigation flow', () => {
     })
   })
 })
+
 test.describe('guest cannot see program summary page for login only program', () => {
   const programName = 'loginonly'
 
@@ -247,6 +248,7 @@ test.describe('guest cannot see program summary page for login only program', ()
     applicantQuestions,
   }) => {
     let reviewPageURL: string
+
     await test.step('logged in user navigates to review page', async () => {
       await loginAsTestUser(page)
       await page.goto(`/programs/${programName}`)

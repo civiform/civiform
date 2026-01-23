@@ -1,5 +1,5 @@
-import {addEventListenerToElements, assertNotNull} from './util'
-import {ModalController} from './modal'
+import {addEventListenerToElements, assertNotNull} from '@/util'
+import {ModalController} from '@/modal'
 
 class AdminQuestionEdit {
   constructor() {

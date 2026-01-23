@@ -1,5 +1,5 @@
-import {HtmxAfterSwapEvent} from './htmx_request'
-import {addEventListenerToElements, assertNotNull} from './util'
+import {HtmxAfterSwapEvent} from '@/htmx_request'
+import {addEventListenerToElements, assertNotNull} from '@/util'
 
 export class AdminPredicateEdit {
   // Set in server/app/views/admin/programs/EditPredicatePageView.html

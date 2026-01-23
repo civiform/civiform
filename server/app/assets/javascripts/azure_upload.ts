@@ -8,7 +8,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import {assertNotNull} from './util'
+import {assertNotNull} from '@/util'
 import {BlockBlobClient} from '@azure/storage-blob'
 
 class AzureUploadController {

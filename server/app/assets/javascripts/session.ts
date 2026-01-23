@@ -1,5 +1,23 @@
-import {ToastController} from './toast'
-import {hideUswdsModal} from './modal'
+import {ToastController} from '@/toast'
+
+/**
+ * There are two types of session timeouts, each with its own warning modal.
+ * Timeout durations are configured in application.conf and read from a cookie set by the server.
+ *
+ * Inactivity timeout (can be extended)
+ *   - Appears after a period of no server activity
+ *   - User can click "Extend Session", which calls the server to reset the session's last activity timestamp
+ *   - If extended, modal will re-appear when the next inactivity timeout approaches
+ *   - User can dismiss the modal, in which case they will be logged out when the inactivity timestamp passes
+ *
+ * Total session length timeout (cannot be extended)
+ *   - Appears when the session approaches the maximum allowed duration
+ *   - User can click "Log Out" or dismiss the modal
+ *   - If dismissed, user will be logged out when the total timeout passes
+ *   - Only shown once per session
+ *
+ * The handler polls every 30 seconds to check timeout thresholds.
+ */
 
 /**
  * Represents session timeout data with timestamps for various timeout events.
@@ -49,118 +67,77 @@ export const enum SessionModalType {
 export class SessionTimeoutHandler {
   /** Name of cookie storing timeout data */
   private static TIMEOUT_COOKIE_NAME = 'session_timeout_data'
-  /** Tracks if inactivity warning is currently shown */
-  private static inactivityWarningShown = false
-  /** Tracks if total length warning is currently shown */
-  private static totalLengthWarningShown = false
-  /** Tracks if inactivity warning has been shown at least once */
-  private static hasInactivityWarningBeenShown = false
-  /** Tracks if total length warning has been shown at least once */
-  private static hasTotalLengthWarningBeenShown = false
-  /** Current active timeout timer */
-  private static timer: number | null = null
+  /** sessionStorage key for tracking shown inactivity warning timestamp */
+  private static INACTIVITY_WARNING_SHOWN_KEY =
+    'session_inactivity_warning_shown'
+  /** sessionStorage key for tracking shown total warning timestamp */
+  private static TOTAL_WARNING_SHOWN_KEY = 'session_total_warning_shown'
+  /** Tracks if inactivity warning is currently visible */
+  private static inactivityWarningVisible = false
+  /** Tracks if total length warning is currently visible */
+  private static totalLengthWarningVisible = false
+  /** Tracks if handler has been initialized */
+  private static isInitialized = false
 
   static init() {
-    void this.checkAndSetTimer()
+    if (this.isInitialized) {
+      return
+    }
+
     this.setupModalEventHandlers()
+    this.pollSession()
+    this.isInitialized = true
   }
 
-  /**
-   * Main timer management method that:
-   * 1. Checks for immediate timeout conditions and logs out if needed
-   * 2. Shows inactivity warning once if its time has passed and not shown before
-   * 3. Shows total length warning once if its time has passed and not shown before
-   * 4. Sets timer for next future event (warning or timeout)
-   *
-   * Warning dialogs are shown only once per session and only one dialog
-   * can be visible at a time. If a warning was previously shown, it won't
-   * be shown again even if its time passes again.
-   */
-  private static checkAndSetTimer() {
-    const data = this.getTimeoutData()
-    if (!data) return
-
-    // Clear existing timer
-    if (this.timer) {
-      window.clearTimeout(this.timer)
-      this.timer = null
-    }
-
-    const now = Math.floor(Date.now() / 1000)
-
+  private static monitorSession(data: TimeoutData, now: number) {
     // 1. If there is an inactivityTimeout or totalTimeout that has passed, just logout
     if (data.inactivityTimeout <= now || data.totalTimeout <= now) {
-      this.handleTimeout()
+      this.logout()
       return
     }
 
-    // If a warning is already being shown, don't show another one
-    if (this.inactivityWarningShown || this.totalLengthWarningShown) {
+    // If a warning is currently visible, don't show another one
+    if (this.inactivityWarningVisible || this.totalLengthWarningVisible) {
       return
     }
 
-    // 2 & 3. Show warnings if they haven't been shown before and their time has passed
-    if (!this.hasInactivityWarningBeenShown && data.inactivityWarning <= now) {
-      this.showWarning(WarningType.INACTIVITY)
-      this.hasInactivityWarningBeenShown = true
+    // Show inactivity warning if threshold passed and not already shown for this timestamp
+    const lastShownInactivity = sessionStorage.getItem(
+      this.INACTIVITY_WARNING_SHOWN_KEY,
+    )
+    if (
+      data.inactivityWarning <= now &&
+      lastShownInactivity !== data.inactivityWarning.toString()
+    ) {
+      this.setWarningModalVisible(
+        WarningType.INACTIVITY,
+        true,
+        data.inactivityWarning,
+      )
       return
     }
 
-    if (!this.hasTotalLengthWarningBeenShown && data.totalWarning <= now) {
-      this.showWarning(WarningType.TOTAL_LENGTH)
-      this.hasTotalLengthWarningBeenShown = true
+    // Show total length warning if threshold passed AND not already shown
+    // (Total session length cannot be extended, so a simple boolean suffices)
+    const totalWarningShown = sessionStorage.getItem(
+      this.TOTAL_WARNING_SHOWN_KEY,
+    )
+    if (data.totalWarning <= now && !totalWarningShown) {
+      this.setWarningModalVisible(WarningType.TOTAL_LENGTH, true)
       return
     }
+  }
 
-    // Set timers for future events
-    const timeouts = []
-
-    // Only add inactivity warning if it hasn't been shown yet
-    if (!this.hasInactivityWarningBeenShown && data.inactivityWarning > now) {
-      timeouts.push({
-        time: data.inactivityWarning,
-        action: () => {
-          this.showWarning(WarningType.INACTIVITY)
-          this.hasInactivityWarningBeenShown = true
-        },
-      })
+  private static pollSession() {
+    const data = this.getTimeoutData()
+    if (data) {
+      const now = Math.floor(Date.now() / 1000)
+      this.monitorSession(data, now)
     }
 
-    // Only add total length warning if it hasn't been shown yet
-    if (!this.hasTotalLengthWarningBeenShown && data.totalWarning > now) {
-      timeouts.push({
-        time: data.totalWarning,
-        action: () => {
-          this.showWarning(WarningType.TOTAL_LENGTH)
-          this.hasTotalLengthWarningBeenShown = true
-        },
-      })
-    }
-
-    // Always add timeout events
-    timeouts.push({
-      time: data.inactivityTimeout,
-      action: () => this.handleTimeout(),
-    })
-
-    timeouts.push({
-      time: data.totalTimeout,
-      action: () => this.handleTimeout(),
-    })
-
-    // Sort by earliest time
-    timeouts.sort((a, b) => a.time - b.time)
-
-    // We will always have at least one timeout in the future
-    const nextTimeout = timeouts[0]
-    const delay = (nextTimeout.time - now) * 1000
-
-    this.timer = window.setTimeout(() => {
-      nextTimeout.action()
-
-      // Check for next timeout after handling this one
-      this.checkAndSetTimer()
-    }, delay)
+    window.setTimeout(() => {
+      this.pollSession()
+    }, 30000) // Check every 30 seconds
   }
 
   /**
@@ -169,7 +146,6 @@ export class SessionTimeoutHandler {
   private static setupModalEventHandlers() {
     // HTMX handler remains at document level for form submissions
     document.addEventListener('htmx:afterRequest', (event: Event) => {
-      // ...existing htmx handler code...
       const customEvent = event as CustomEvent
       const detail = customEvent.detail as {
         xhr: XMLHttpRequest
@@ -177,8 +153,7 @@ export class SessionTimeoutHandler {
       }
       if (detail.elt.id !== 'extend-session-form') return
 
-      hideUswdsModal(SessionModalType.INACTIVITY)
-      this.inactivityWarningShown = false
+      this.setWarningModalVisible(WarningType.INACTIVITY, false)
 
       // Processes /extend-session form submissions
       if (detail.xhr.status === 200) {
@@ -194,7 +169,7 @@ export class SessionTimeoutHandler {
           canIgnore: false,
           condOnStorageKey: null,
         })
-        this.checkAndSetTimer()
+        this.pollSession()
       } else {
         const errorText =
           document.getElementById('session-extended-error-text')?.textContent ||
@@ -231,9 +206,7 @@ export class SessionTimeoutHandler {
       )
       closeButtons.forEach((button) => {
         button.addEventListener('click', () => {
-          hideUswdsModal(SessionModalType.INACTIVITY)
-          this.inactivityWarningShown = false
-          this.checkAndSetTimer()
+          this.setWarningModalVisible(WarningType.INACTIVITY, false)
         })
       })
     }
@@ -255,9 +228,7 @@ export class SessionTimeoutHandler {
       )
       closeButtons.forEach((button) => {
         button.addEventListener('click', () => {
-          hideUswdsModal(SessionModalType.LENGTH)
-          this.totalLengthWarningShown = false
-          this.checkAndSetTimer()
+          this.setWarningModalVisible(WarningType.TOTAL_LENGTH, false)
         })
       })
     }
@@ -278,14 +249,11 @@ export class SessionTimeoutHandler {
         console.error('Invalid timeout data format')
         return null
       }
-      // Calculate clock skew between client and server
-      const clientNow = Math.floor(Date.now() / 1000)
-      const clockSkew = clientNow - data.currentTime
       return {
-        inactivityWarning: data.inactivityWarning + clockSkew,
-        inactivityTimeout: data.inactivityTimeout + clockSkew,
-        totalWarning: data.totalWarning + clockSkew,
-        totalTimeout: data.totalTimeout + clockSkew,
+        inactivityWarning: data.inactivityWarning,
+        inactivityTimeout: data.inactivityTimeout,
+        totalWarning: data.totalWarning,
+        totalTimeout: data.totalTimeout,
         currentTime: data.currentTime,
       }
     } catch (e) {
@@ -350,44 +318,39 @@ export class SessionTimeoutHandler {
   }
 
   /**
-   * Shows a warning modal of specified type.
-   * Only shows the modal if:
-   * - No other warning is currently shown
-   * - The modal element exists in the DOM
-   *
-   * Updates visibility tracking flags when showing a modal.
+   * Shows or hides a warning modal of the specified type.
+   * When showing, also records in sessionStorage that the warning was shown.
    *
    * @param type Type of warning to show (inactivity or total length)
+   * @param visible Whether to show or hide the modal
+   * @param warningTimestamp For inactivity warnings, the timestamp to record (used to detect session extension)
    */
-  private static showWarning(type: WarningType) {
-    // Check if any warning is already shown to prevent showing multiple dialogs
-    if (this.inactivityWarningShown || this.totalLengthWarningShown) return
-
-    // Get the appropriate modal element
+  private static setWarningModalVisible(
+    type: WarningType,
+    visible: boolean,
+    warningTimestamp?: number,
+  ) {
     const modalId =
       type === WarningType.INACTIVITY
         ? `${SessionModalType.INACTIVITY}-modal`
         : `${SessionModalType.LENGTH}-modal`
     const modal = document.getElementById(modalId)
-    if (!modal) {
-      console.error(`Modal with ID ${modalId} not found`)
-      return
-    }
-    // Show the modal by removing the hidden class
-    modal.classList.remove('is-hidden')
-    // Set the flag to indicate that the warning is shown
-    if (type === WarningType.INACTIVITY) {
-      this.inactivityWarningShown = true
-    } else {
-      this.totalLengthWarningShown = true
-    }
-  }
+    modal?.classList.toggle('is-hidden', !visible)
 
-  /**
-   * Handles timeout conditions by calling logout.
-   */
-  private static handleTimeout() {
-    this.logout()
+    if (type === WarningType.INACTIVITY) {
+      this.inactivityWarningVisible = visible
+      if (visible && warningTimestamp !== undefined) {
+        sessionStorage.setItem(
+          this.INACTIVITY_WARNING_SHOWN_KEY,
+          warningTimestamp.toString(),
+        )
+      }
+    } else {
+      this.totalLengthWarningVisible = visible
+      if (visible) {
+        sessionStorage.setItem(this.TOTAL_WARNING_SHOWN_KEY, 'true')
+      }
+    }
   }
 
   /**

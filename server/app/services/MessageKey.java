@@ -83,6 +83,7 @@ public enum MessageKey {
   BUTTON_SAVE("button.save"),
   BUTTON_SEARCH("button.search"),
   BUTTON_START_APP("button.startApp"),
+  BUTTON_START_APP_LOGIN_ONLY("button.startAppForLoginOnlyProgram"),
   BUTTON_VIEW_APPLICATIONS("button.viewApplications"),
   BUTTON_VIEW_AND_ADD_CLIENTS("button.viewAndAddClients"),
   CURRENCY_VALIDATION_MISFORMATTED("validation.currencyMisformatted"),

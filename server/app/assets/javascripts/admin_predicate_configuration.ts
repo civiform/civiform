@@ -1,5 +1,5 @@
-import {ToastController} from './toast'
-import {addEventListenerToElements, assertNotNull} from './util'
+import {ToastController} from '@/toast'
+import {addEventListenerToElements, assertNotNull} from '@/util'
 
 /**
  * Dynamic behavior for ProgramBlockPredicateConfigureView.

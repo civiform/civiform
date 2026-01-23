@@ -1,10 +1,9 @@
-package views.applicant;
+package views.applicant.disabled;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.ProfileUtils;
 import controllers.LanguageUtils;
-import controllers.routes;
 import java.util.Optional;
 import javax.inject.Inject;
 import modules.ThymeleafModule;
@@ -15,6 +14,7 @@ import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.applicant.ApplicantPersonalInfo;
 import services.settings.SettingsManifest;
+import views.applicant.ApplicantBaseView;
 
 /** renders a info page for applicants trying to access a disabled program via its deep link */
 public final class ApplicantDisabledProgramView extends ApplicantBaseView {
@@ -55,8 +55,9 @@ public final class ApplicantDisabledProgramView extends ApplicantBaseView {
             personalInfo,
             messages);
 
-    context.setVariable("homeUrl", routes.HomeController.index().url());
+    context.setVariable("homeUrl", controllers.routes.HomeController.index().url());
 
-    return templateEngine.process("applicant/ApplicantDisabledProgramTemplate.html", context);
+    return templateEngine.process(
+        "applicant/disabled/ApplicantDisabledProgramTemplate.html", context);
   }
 }

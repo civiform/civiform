@@ -1,4 +1,4 @@
-package views.applicant;
+package views.applicant.upsell;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
-import controllers.applicant.routes;
 import java.util.Locale;
 import java.util.Optional;
 import modules.ThymeleafModule;
@@ -17,6 +16,7 @@ import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.MessageKey;
 import services.settings.SettingsManifest;
+import views.applicant.ApplicantBaseView;
 import views.applicant.programindex.ProgramCardsSectionParamsFactory;
 import views.applicant.programindex.ProgramCardsSectionParamsFactory.ProgramSectionParams;
 import views.components.TextFormatter;
@@ -107,7 +107,9 @@ public class ApplicantUpsellView extends ApplicantBaseView {
         controllers.routes.LoginController.applicantLogin(Optional.of(applyToProgramsUrl)).url());
 
     String downloadHref =
-        routes.UpsellController.download(params.applicationId(), params.applicantId()).url();
+        controllers.applicant.routes.UpsellController.download(
+                params.applicationId(), params.applicantId())
+            .url();
     context.setVariable("downloadHref", downloadHref);
 
     // Create account or login alert
@@ -133,6 +135,6 @@ public class ApplicantUpsellView extends ApplicantBaseView {
         "showProgramsCardsSection",
         cardsSection.isPresent() && cardsSection.get().cards().size() > 0);
 
-    return templateEngine.process("applicant/ApplicantUpsellTemplate", context);
+    return templateEngine.process("applicant/upsell/ApplicantUpsellTemplate", context);
   }
 }
