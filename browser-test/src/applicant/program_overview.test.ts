@@ -543,6 +543,9 @@ test.describe('guest cannot complete applications for login only program', () =>
         'Please log in or create an account to continue with this application.',
       ),
     ).toBeVisible()
+    await expect(
+      page.getByRole('link', {name: 'Sign in to start an application'}).first(),
+    ).toBeVisible()
     await expect(page.getByRole('button', {name: 'Log in'})).toBeVisible()
   })
 })
