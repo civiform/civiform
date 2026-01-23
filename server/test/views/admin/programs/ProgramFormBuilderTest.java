@@ -18,7 +18,6 @@ import repository.AccountRepository;
 import repository.CategoryRepository;
 import repository.ResetPostgres;
 import services.program.ProgramType;
-import services.settings.SettingsManifest;
 
 public class ProgramFormBuilderTest extends ResetPostgres {
   private ProgramFormBuilder formBuilder;
@@ -42,16 +41,11 @@ public class ProgramFormBuilderTest extends ResetPostgres {
   @Before
   public void setup() {
     config = ConfigFactory.load();
-    SettingsManifest settingsManifest = mock(SettingsManifest.class);
     AccountRepository mockAccountRepo = mock(AccountRepository.class);
     CategoryRepository mockCategoryRepo = mock(CategoryRepository.class);
     formBuilder =
         new ProgramFormBuilder(
-            config,
-            settingsManifest,
-            mockAccountRepo,
-            mockCategoryRepo,
-            instanceOf(MessagesApi.class)) {};
+            config, mockAccountRepo, mockCategoryRepo, instanceOf(MessagesApi.class)) {};
   }
 
   @Test
