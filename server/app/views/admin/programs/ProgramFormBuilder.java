@@ -8,7 +8,6 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.iff;
-import static j2html.TagCreator.iffElse;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.legend;
@@ -38,7 +37,6 @@ import modules.MainModule;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
-import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.CategoryRepository;
 import services.AlertType;
@@ -46,14 +44,12 @@ import services.MessageKey;
 import services.Path;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
-import services.settings.SettingsManifest;
 import views.AlertComponent;
 import views.AlertComponent.HeadingLevel;
 import views.BaseHtmlView;
 import views.ViewUtils;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
-import views.components.Icons;
 import views.components.Modal;
 import views.components.Modal.Width;
 import views.style.BaseStyles;
@@ -72,7 +68,6 @@ public class ProgramFormBuilder extends BaseHtmlView {
   private static final String PROGRAM_TYPE_FIELD_NAME = "programTypeValue";
   private static final String TI_GROUPS_FIELD_NAME = "tiGroups[]";
 
-  private final SettingsManifest settingsManifest;
   private final String baseUrl;
   private final AccountRepository accountRepository;
   private final CategoryRepository categoryRepository;
@@ -81,11 +76,9 @@ public class ProgramFormBuilder extends BaseHtmlView {
   @Inject
   ProgramFormBuilder(
       Config configuration,
-      SettingsManifest settingsManifest,
       AccountRepository accountRepository,
       CategoryRepository categoryRepository,
       MessagesApi messagesApi) {
-    this.settingsManifest = settingsManifest;
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.accountRepository = checkNotNull(accountRepository);
     this.categoryRepository = checkNotNull(categoryRepository);
@@ -94,9 +87,8 @@ public class ProgramFormBuilder extends BaseHtmlView {
 
   /** Builds the form using program form data. */
   protected final FormTag buildProgramForm(
-      Request request, ProgramForm program, ProgramEditStatus programEditStatus) {
+      ProgramForm program, ProgramEditStatus programEditStatus) {
     return buildProgramForm(
-        request,
         program.getAdminName(),
         program.getAdminDescription(),
         program.getLocalizedDisplayName(),
@@ -117,9 +109,8 @@ public class ProgramFormBuilder extends BaseHtmlView {
 
   /* Builds the form using program definition data. */
   protected final FormTag buildProgramForm(
-      Request request, ProgramDefinition program, ProgramEditStatus programEditStatus) {
+      ProgramDefinition program, ProgramEditStatus programEditStatus) {
     return buildProgramForm(
-        request,
         program.adminName(),
         program.adminDescription(),
         program.localizedName().getDefault(),
@@ -151,7 +142,6 @@ public class ProgramFormBuilder extends BaseHtmlView {
   }
 
   private FormTag buildProgramForm(
-      Request request,
       String adminName,
       String adminDescription,
       String displayName,
@@ -171,8 +161,6 @@ public class ProgramFormBuilder extends BaseHtmlView {
     boolean isDefaultProgram = programType.equals(ProgramType.DEFAULT);
     boolean isPreScreenerForm = programType.equals(ProgramType.PRE_SCREENER_FORM);
     boolean isExternalProgram = programType.equals(ProgramType.EXTERNAL);
-    boolean isExternalProgramCardsEnabled =
-        settingsManifest.getExternalProgramCardsEnabled(request);
 
     boolean disableProgramEligibility = isPreScreenerForm || isExternalProgram;
     boolean disableLongDescription = isPreScreenerForm || isExternalProgram;
@@ -209,11 +197,8 @@ public class ProgramFormBuilder extends BaseHtmlView {
                 .getInputTag()
                 .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
             // Program slug
-            iffElse(
-                isExternalProgramCardsEnabled,
-                buildProgramSlugFieldForExternalProgramsFeature(
-                    adminName, programEditStatus, programType),
-                buildProgramSlugField(adminName, programEditStatus)),
+            buildProgramSlugFieldForExternalProgramsFeature(
+                adminName, programEditStatus, programType),
             // Admin description
             FieldWithLabel.textArea()
                 .setId("program-description-textarea")
@@ -223,7 +208,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
                 .getTextareaTag()
                 .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
             // Program type
-            buildProgramTypeFieldset(programType, programEditStatus, isExternalProgramCardsEnabled),
+            buildProgramTypeFieldset(programType, programEditStatus),
             // Program Eligibility
             fieldset(
                     legend("Program eligibility gating")
@@ -395,98 +380,72 @@ public class ProgramFormBuilder extends BaseHtmlView {
   }
 
   private DomContent buildProgramTypeFieldset(
-      ProgramType programType,
-      ProgramEditStatus programEditStatus,
-      Boolean isExternalProgramCardsEnabled) {
+      ProgramType programType, ProgramEditStatus programEditStatus) {
     DomContent programTypeFieldset;
-    if (isExternalProgramCardsEnabled) {
-      // When creating a program, program type fields (if visible) are never disabled.
-      boolean defaultProgramFieldDisabled = false;
-      boolean preScreenerFieldDisabled = false;
-      boolean externalProgramFieldDisabled = false;
+    // When creating a program, program type fields (if visible) are never disabled.
+    boolean defaultProgramFieldDisabled = false;
+    boolean preScreenerFieldDisabled = false;
+    boolean externalProgramFieldDisabled = false;
 
-      // When editing a program:
-      //   - external program field is disabled when program type is default or pre-screener form,
-      // since a program can be changed to external after creation.
-      //   - pre-screener and default program fields are disabled when program type is external
-      // program, since an external program cannot change type after creation.
-      if (programEditStatus.equals(ProgramEditStatus.EDIT)) {
-        switch (programType) {
-          case DEFAULT, PRE_SCREENER_FORM -> {
-            defaultProgramFieldDisabled = false;
-            preScreenerFieldDisabled = false;
-            externalProgramFieldDisabled = true;
-          }
-          case EXTERNAL -> {
-            defaultProgramFieldDisabled = true;
-            preScreenerFieldDisabled = true;
-            externalProgramFieldDisabled = false;
-          }
+    // When editing a program:
+    //   - external program field is disabled when program type is default or pre-screener form,
+    // since a program can be changed to external after creation.
+    //   - pre-screener and default program fields are disabled when program type is external
+    // program, since an external program cannot change type after creation.
+    if (programEditStatus.equals(ProgramEditStatus.EDIT)) {
+      switch (programType) {
+        case DEFAULT, PRE_SCREENER_FORM -> {
+          defaultProgramFieldDisabled = false;
+          preScreenerFieldDisabled = false;
+          externalProgramFieldDisabled = true;
+        }
+        case EXTERNAL -> {
+          defaultProgramFieldDisabled = true;
+          preScreenerFieldDisabled = true;
+          externalProgramFieldDisabled = false;
         }
       }
-
-      programTypeFieldset =
-          fieldset(
-                  legend("Program type")
-                      .withData("testId", "program-type-options")
-                      .withClass("text-gray-600")
-                      .with(ViewUtils.requiredQuestionIndicator()),
-                  buildUSWDSRadioOption(
-                      /* id= */ "default-program-option",
-                      /* name= */ PROGRAM_TYPE_FIELD_NAME,
-                      /* value= */ ProgramType.DEFAULT.getValue(),
-                      /* isChecked= */ programType.equals(ProgramType.DEFAULT),
-                      /* isDisabled= */ defaultProgramFieldDisabled,
-                      /* label= */ "CiviForm program",
-                      /* description= */ Optional.of(
-                          "This program’s informational card will open program details on the"
-                              + " CiviForm website.")),
-                  buildUSWDSRadioOption(
-                      /* id= */ "external-program-option",
-                      /* name= */ PROGRAM_TYPE_FIELD_NAME,
-                      /* value= */ ProgramType.EXTERNAL.getValue(),
-                      /* isChecked= */ programType.equals(ProgramType.EXTERNAL),
-                      /* isDisabled= */ externalProgramFieldDisabled,
-                      /* label= */ "External program",
-                      /* description */ Optional.of(
-                          "This program’s informational card will open program details on an"
-                              + " external website.")),
-                  buildUSWDSRadioOption(
-                      /* id= */ "pre-screener-program-option",
-                      /* name= */ PROGRAM_TYPE_FIELD_NAME,
-                      /* value= */ ProgramType.PRE_SCREENER_FORM.getValue(),
-                      /* isChecked= */ programType.equals(ProgramType.PRE_SCREENER_FORM),
-                      /* isDisabled= */ preScreenerFieldDisabled,
-                      /* label= */ "Pre-screener",
-                      /* description */ Optional.of(
-                          "This program informational card will always appear at the top of the"
-                              + " Programs and Services page. Only one program can be a"
-                              + " screener.")))
-              .withId("program-type")
-              .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS);
-    } else {
-      programTypeFieldset =
-          fieldset(
-                  div(
-                          input()
-                              .withId("pre-screener-checkbox")
-                              .withClasses("usa-checkbox__input")
-                              .withType("checkbox")
-                              .withName(PROGRAM_TYPE_FIELD_NAME)
-                              .withValue(ProgramType.PRE_SCREENER_FORM.getValue())
-                              .withCondChecked(programType.equals(ProgramType.PRE_SCREENER_FORM)),
-                          label("Set program as pre-screener")
-                              .withFor("pre-screener-checkbox")
-                              .withClasses("usa-checkbox__label"),
-                          span(ViewUtils.makeSvgToolTip(
-                                  "You can set one program as the ‘pre-screener’. This will pin the"
-                                      + " program card to the top of the programs and services page"
-                                      + " while moving other program cards below it.",
-                                  Icons.INFO))
-                              .withClass("ml-2"))
-                      .withClasses("usa-checkbox"))
-              .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS);
     }
+
+    programTypeFieldset =
+        fieldset(
+                legend("Program type")
+                    .withData("testId", "program-type-options")
+                    .withClass("text-gray-600")
+                    .with(ViewUtils.requiredQuestionIndicator()),
+                buildUSWDSRadioOption(
+                    /* id= */ "default-program-option",
+                    /* name= */ PROGRAM_TYPE_FIELD_NAME,
+                    /* value= */ ProgramType.DEFAULT.getValue(),
+                    /* isChecked= */ programType.equals(ProgramType.DEFAULT),
+                    /* isDisabled= */ defaultProgramFieldDisabled,
+                    /* label= */ "CiviForm program",
+                    /* description= */ Optional.of(
+                        "This program’s informational card will open program details on the"
+                            + " CiviForm website.")),
+                buildUSWDSRadioOption(
+                    /* id= */ "external-program-option",
+                    /* name= */ PROGRAM_TYPE_FIELD_NAME,
+                    /* value= */ ProgramType.EXTERNAL.getValue(),
+                    /* isChecked= */ programType.equals(ProgramType.EXTERNAL),
+                    /* isDisabled= */ externalProgramFieldDisabled,
+                    /* label= */ "External program",
+                    /* description */ Optional.of(
+                        "This program’s informational card will open program details on an"
+                            + " external website.")),
+                buildUSWDSRadioOption(
+                    /* id= */ "pre-screener-program-option",
+                    /* name= */ PROGRAM_TYPE_FIELD_NAME,
+                    /* value= */ ProgramType.PRE_SCREENER_FORM.getValue(),
+                    /* isChecked= */ programType.equals(ProgramType.PRE_SCREENER_FORM),
+                    /* isDisabled= */ preScreenerFieldDisabled,
+                    /* label= */ "Pre-screener",
+                    /* description */ Optional.of(
+                        "This program informational card will always appear at the top of the"
+                            + " Programs and Services page. Only one program can be a"
+                            + " screener.")))
+            .withId("program-type")
+            .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS);
 
     return each(
         programTypeFieldset,
@@ -591,33 +550,6 @@ public class ProgramFormBuilder extends BaseHtmlView {
             .withId("TiList")
             .withClasses("px-4", "py-2");
     return selectTiChecked ? tiDiv : tiDiv.isHidden();
-  }
-
-  private DomContent buildProgramSlugField(String adminName, ProgramEditStatus programEditStatus) {
-    if (programEditStatus != ProgramEditStatus.CREATION) {
-      // Only allow editing the program URL at program creation time.
-      String programUrl =
-          baseUrl
-              + routes.ApplicantProgramsController.show(MainModule.SLUGIFIER.slugify(adminName))
-                  .url();
-      return div()
-          .withClass(SPACE_BETWEEN_FORM_ELEMENTS)
-          .with(
-              p("The URL for this program. This value can't be changed")
-                  .withClasses(BaseStyles.INPUT_LABEL),
-              p(programUrl).withClasses(BaseStyles.FORM_FIELD));
-    }
-    return FieldWithLabel.input()
-        .setId("program-slug")
-        .setFieldName("adminName")
-        .setLabelText(
-            "Enter an identifier that will be used in this program's applicant-facing URL. This"
-                + " value can't be changed later. Aim to keep it short so it's easy to share. Use"
-                + " a dash between each word")
-        .setRequired(true)
-        .setValue(adminName)
-        .getInputTag()
-        .withClass(SPACE_BETWEEN_FORM_ELEMENTS);
   }
 
   protected DomContent buildProgramSlugFieldForExternalProgramsFeature(

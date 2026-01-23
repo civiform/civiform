@@ -14,7 +14,6 @@ import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import repository.AccountRepository;
 import repository.CategoryRepository;
-import services.settings.SettingsManifest;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
@@ -30,11 +29,10 @@ public final class ProgramNewOneView extends ProgramFormBuilder {
   public ProgramNewOneView(
       AdminLayoutFactory layoutFactory,
       Config configuration,
-      SettingsManifest settingsManifest,
       AccountRepository accountRepository,
       CategoryRepository categoryRepository,
       MessagesApi messagesApi) {
-    super(configuration, settingsManifest, accountRepository, categoryRepository, messagesApi);
+    super(configuration, accountRepository, categoryRepository, messagesApi);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
   }
 
@@ -82,7 +80,7 @@ public final class ProgramNewOneView extends ProgramFormBuilder {
     DivTag contentDiv =
         div(
                 renderHeader(title),
-                buildProgramForm(request, programForm, ProgramEditStatus.CREATION)
+                buildProgramForm(programForm, ProgramEditStatus.CREATION)
                     .with(makeCsrfTokenInputTag(request))
                     .withAction(controllers.admin.routes.AdminProgramController.create().url()))
             .withClasses("mx-4", "my-12", "flex", "flex-col");

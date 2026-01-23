@@ -35,22 +35,7 @@ class AdminPrograms {
    * manage the disabled state of related form elements.
    */
   static attachProgramTypeChangeListener() {
-    // Listens for changes to the pre-screener checkbox.
-    // TODO(#10363): This should be removed once EXTERNAL_PROGRAM_CARDS feature
-    // is enabled by default, which is handled by the next listener.
-    addEventListenerToElements('#pre-screener-checkbox', 'click', () => {
-      const preScreenerCheckbox = <HTMLInputElement>(
-        document.querySelector('#pre-screener-checkbox')
-      )
-
-      const programType = preScreenerCheckbox.checked
-        ? ProgramType.PRE_SCREENER_FORM
-        : ProgramType.DEFAULT
-      this.updateDisabledStateFields(programType)
-    })
-
-    // Listen for changes to the program type radio button, which is only used
-    // when EXTERNAL_PROGRAM_CARDS feature is enabled.
+    // Listen for changes to the program type radio button
     addEventListenerToElements('#program-type', 'click', () => {
       const preScreenerCheckbox = <HTMLInputElement>(
         document.querySelector('#pre-screener-program-option')

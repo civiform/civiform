@@ -946,6 +946,12 @@
         "description": "Enables reading settings from the cache instead of directly from the database.",
         "type": "bool",
         "required": false
+      },
+      "EXTERNAL_PROGRAM_CARDS_ENABLED": {
+        "mode": "ADMIN_READABLE",
+        "description": "Enable showing external program cards.",
+        "type": "bool",
+        "required": false
       }
     }
   },
@@ -955,12 +961,6 @@
       "SESSION_TIMEOUT_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration.",
-        "type": "bool",
-        "required": false
-      },
-      "EXTERNAL_PROGRAM_CARDS_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enable showing external program cards.",
         "type": "bool",
         "required": false
       },

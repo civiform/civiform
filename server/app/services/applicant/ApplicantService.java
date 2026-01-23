@@ -94,7 +94,6 @@ import services.program.ProgramType;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
-import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import views.applicant.addresscorrection.AddressCorrectionBlockView;
 
@@ -122,7 +121,6 @@ public final class ApplicantService {
   private final String baseUrl;
   private final boolean isStaging;
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
-  private final SettingsManifest settingsManifest;
   private final String stagingProgramAdminNotificationMailingList;
   private final String stagingTiNotificationMailingList;
   private final String stagingApplicantNotificationMailingList;
@@ -151,8 +149,7 @@ public final class ApplicantService {
       ServiceAreaUpdateResolver serviceAreaUpdateResolver,
       EsriClient esriClient,
       MessagesApi messagesApi,
-      ApiBridgeProcessor apiBridgeProcessor,
-      SettingsManifest settingsManifest) {
+      ApiBridgeProcessor apiBridgeProcessor) {
     this.applicationEventRepository = checkNotNull(applicationEventRepository);
     this.applicationRepository = checkNotNull(applicationRepository);
     this.accountRepository = checkNotNull(accountRepository);
@@ -170,7 +167,6 @@ public final class ApplicantService {
 
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.isStaging = checkNotNull(deploymentType).isStaging();
-    this.settingsManifest = checkNotNull(settingsManifest);
     this.stagingProgramAdminNotificationMailingList =
         checkNotNull(configuration).getString("staging_program_admin_notification_mailing_list");
     this.stagingTiNotificationMailingList =
@@ -1118,7 +1114,7 @@ public final class ApplicantService {
               ImmutableSet<ApplicationModel> applications = applicationsFuture.join();
               logDuplicateDrafts(applications);
               return relevantProgramsForApplicantInternal(
-                  activeProgramDefinitions, applications, allPrograms, request);
+                  activeProgramDefinitions, applications, allPrograms);
             },
             classLoaderExecutionContext.current());
   }
@@ -1139,7 +1135,7 @@ public final class ApplicantService {
                   .filter(pdef -> pdef.displayMode().equals(DisplayMode.PUBLIC))
                   .collect(ImmutableList.toImmutableList());
           return relevantProgramsForApplicantInternal(
-              activeProgramDefinitions, ImmutableSet.of(), activeProgramDefinitions, request);
+              activeProgramDefinitions, ImmutableSet.of(), activeProgramDefinitions);
         },
         classLoaderExecutionContext.current());
   }
@@ -1214,8 +1210,7 @@ public final class ApplicantService {
   private ApplicationPrograms relevantProgramsForApplicantInternal(
       ImmutableList<ProgramDefinition> activePrograms,
       ImmutableSet<ApplicationModel> applications,
-      ImmutableList<ProgramDefinition> allPrograms,
-      Request request) {
+      ImmutableList<ProgramDefinition> allPrograms) {
     // Use ImmutableMap.copyOf rather than the collector to guard against cases where the
     // provided active programs contains duplicate entries with the same adminName. In this
     // case, the ImmutableMap collector would throw since ImmutableMap builders don't allow
@@ -1363,8 +1358,7 @@ public final class ApplicantService {
           if (programType.equals(ProgramType.PRE_SCREENER_FORM)) {
             relevantPrograms.setPreScreenerForm(applicantProgramDataBuilder.build());
           } else if (programType.equals(ProgramType.DEFAULT)
-              || (programType.equals(ProgramType.EXTERNAL)
-                  && settingsManifest.getExternalProgramCardsEnabled(request))) {
+              || programType.equals(ProgramType.EXTERNAL)) {
             unappliedPrograms.add(applicantProgramDataBuilder.build());
           }
         });
