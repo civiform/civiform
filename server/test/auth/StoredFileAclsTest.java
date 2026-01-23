@@ -2,18 +2,33 @@ package auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import junitparams.JUnitParamsRunner;
+import junitparams.NamedParameters;
+import junitparams.Parameters;
 import models.AccountModel;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import repository.ResetPostgres;
 import services.program.ProgramDefinition;
 import support.ProgramBuilder;
 
+@RunWith(JUnitParamsRunner.class)
 public class StoredFileAclsTest extends ResetPostgres {
 
-  private final ProgramDefinition programOne =
-      ProgramBuilder.newDraftProgram("program-one").buildDefinition();
-  private final ProgramDefinition programTwo =
-      ProgramBuilder.newDraftProgram("program-two").buildDefinition();
+  private ProgramDefinition programOne;
+  private ProgramDefinition programTwo;
+
+  @Before
+  public void setup() {
+    // These need to be initialized here rather than at the class level as
+    // there's a negative reflection interaction with @NamedParameters if
+    // they are at the class level.
+    programOne = ProgramBuilder.newDraftProgram("program-one").buildDefinition();
+    programTwo = ProgramBuilder.newDraftProgram("program-two").buildDefinition();
+  }
 
   @Test
   public void hasProgramReadPermission_emptyPermissions() {
@@ -33,10 +48,56 @@ public class StoredFileAclsTest extends ResetPostgres {
   }
 
   @Test
-  public void hasProgramReadPermission_doesNotHavePermission() {
+  public void hasProgramReadPermission_differentProgram_noPermission() {
     var acls = new StoredFileAcls().addProgramToReaders(programOne);
     var account = new AccountModel().addAdministeredProgram(programTwo);
 
     assertThat(acls.hasProgramReadPermission(account)).isFalse();
+  }
+
+  @Test
+  @Parameters(named = "programReadData")
+  public void hasProgramReadPermission_deserialize(String json, Boolean hasAccess)
+      throws JsonProcessingException {
+
+    var account = new AccountModel().addAdministeredProgram(programOne);
+
+    ObjectMapper mapper = new ObjectMapper();
+    var acl = mapper.readValue(json, StoredFileAcls.class);
+    assertThat(acl.hasProgramReadPermission(account)).isEqualTo(hasAccess);
+  }
+
+  // NamedParameters is necessary in Junit4 because the json contains commas
+  // which is also its argument delimiter.
+  @NamedParameters("programReadData")
+  private static Object[] programReadData() {
+    return new Object[][] {
+      // {json, expectedResult}
+      {"{}", false},
+      {
+        """
+        {"programReadAcls": []}"
+        """,
+        false,
+      },
+      {
+        """
+        {"programReadAcls": ["unAcldProgram1", "unAcldProgram2"]}
+        """,
+        false
+      },
+      {
+        """
+        {"programReadAcls": ["program-one"]}
+        """,
+        true
+      },
+      {
+        """
+        {"programReadAcls": ["unAcldProgram", "program-one"]}
+        """,
+        true
+      }
+    };
   }
 }
