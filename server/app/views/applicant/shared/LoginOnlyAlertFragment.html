@@ -1,6 +1,6 @@
 <!-- This is a USWDS alert very similar to CreateAccountAlertFragment -->
 <div
-  th:fragment="loginOnly(createAccountLink, createAccountLinkText)"
+  th:fragment="loginOnly(loginLink, startAppForLoginOnlyProgram)"
   class="usa-alert usa-alert--info"
 >
   <div class="usa-alert__body">
@@ -19,9 +19,9 @@
         <a
           class="usa-button usa-button--inverse"
           role="button"
-          th:text="${createAccountLinkText}"
+          th:text="${startAppForLoginOnlyProgram}"
           id="create-account"
-          th:href="${createAccountLink}"
+          th:href="${loginLink}"
         ></a>
       </div>
     </div>

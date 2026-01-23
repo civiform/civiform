@@ -103,6 +103,8 @@ public class ProgramOverviewView extends ApplicantBaseView {
     context.setVariable("showEligibilityAlert", showEligibilityAlert);
     context.setVariable("createAccountLink", controllers.routes.LoginController.register().url());
     context.setVariable("loginOnly", programDefinition.loginOnly());
+    context.setVariable(
+        "loginLink", controllers.routes.LoginController.applicantLogin(Optional.empty()).url());
 
     // This works for logged-in and logged-out applicants
     String actionUrl = applicantRoutes.edit(profile, applicantId, programDefinition.id()).url();

@@ -98,7 +98,8 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
     context.setVariable("programOverviewUrl", programOverview(applicationParams, programSlug));
     context.setVariable("goBackToAdminUrl", getGoBackToAdminUrl(applicationParams));
     context.setVariable("loginOnly", applicationParams.loginOnly());
-    context.setVariable("createAccountLink", controllers.routes.LoginController.register().url());
+    context.setVariable(
+        "loginLink", controllers.routes.LoginController.applicantLogin(Optional.empty()).url());
     boolean isTi = applicationParams.profile().isTrustedIntermediary();
     boolean isGuest = applicationParams.applicantPersonalInfo().getType() == GUEST && !isTi;
     context.setVariable("isGuest", isGuest);
