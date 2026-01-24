@@ -1,0 +1,18 @@
+<th:block th:fragment="tabStrip(currentPage)">
+  <header class="usa-header usa-header--basic cf-tab-strip">
+    <div class="usa-nav-container">
+      <nav class="usa-nav" aria-label="API bridge navigation">
+        <ul class="usa-nav__primary usa-accordion">
+          <li class="usa-nav__primary-item">
+            <a
+              href="/admin/api-bridge/discovery"
+              th:classappend="${currentPage == 'discovery' ? 'usa-current' : ''}"
+              th:attr="aria-current=${currentPage == 'discovery' ? 'page' : null}"
+              >Discovery</a
+            >
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+</th:block>

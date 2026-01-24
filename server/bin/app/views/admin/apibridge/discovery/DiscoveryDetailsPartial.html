@@ -1,0 +1,60 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.apibridge.discovery.DiscoveryDetailsPartialViewModel"*/-->
+<!--/*@thymesVar id="endpoint" type="services.apibridge.ApiBridgeServiceDto.Endpoint"*/-->
+<div>
+  <ul th:unless="${model.endpoints().isEmpty()}" class="usa-card-group">
+    <li
+      class="usa-card"
+      th:each="item: ${model.endpoints.entrySet()}"
+      th:with="urlPath=${item.getKey()},
+               endpoint=${item.getValue()}"
+    >
+      <div class="usa-card__container">
+        <div class="usa-card__header">
+          <h2
+            class="usa-card__heading"
+            th:text="'Endpoint: ' + ${urlPath}"
+          ></h2>
+        </div>
+        <div class="usa-card__body">
+          <div class="text-bold">Description</div>
+          <div
+            class="margin-bottom-2"
+            th:text="${endpoint.description()}"
+          ></div>
+
+          <div class="text-bold">Compatibility Level</div>
+          <div
+            class="margin-bottom-2"
+            th:text="${endpoint.compatibilityLevel()}"
+          ></div>
+
+          <div class="text-bold">URI</div>
+          <div th:text="${urlPath}"></div>
+
+          <th:block
+            th:insert="~{admin/apibridge/discovery/fragments/SchemaTable::displayTable('Input Fields', ${model.getSchema(endpoint.requestSchema())})}"
+          ></th:block>
+          <th:block
+            th:insert="~{admin/apibridge/discovery/fragments/SchemaTable::displayTable('Output Fields', ${model.getSchema(endpoint.responseSchema())})}"
+          ></th:block>
+        </div>
+        <div class="usa-card__footer">
+          <form th:hx-post="${model.hxAddUrl()}">
+            <input type="hidden" name="hostUrl" th:value="${model.hostUrl}" />
+            <input type="hidden" name="urlPath" th:value="${urlPath}" />
+            <input class="usa-button" type="submit" value="Add Endpoint" />
+          </form>
+        </div>
+      </div>
+    </li>
+  </ul>
+
+  <div th:if="${model.endpoints().isEmpty()}">
+    <div class="width-tablet usa-alert usa-alert--slim usa-alert--info">
+      <div class="usa-alert__body">
+        <div class="usa-alert__text">No endpoints found</div>
+      </div>
+    </div>
+  </div>
+</div>

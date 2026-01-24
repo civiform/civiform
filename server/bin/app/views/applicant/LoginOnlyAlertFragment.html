@@ -1,0 +1,29 @@
+<!-- This is a USWDS alert very similar to CreateAccountAlertFragment -->
+<div
+  th:fragment="loginOnly(createAccountLink, createAccountLinkText)"
+  class="usa-alert usa-alert--info"
+>
+  <div class="usa-alert__body">
+    <h2
+      class="usa-alert__heading"
+      th:text="#{alert.loginOnly}"
+      th:aria-label="#{heading.informationAriaLabelPrefix(#{alert.loginOnly})}"
+    ></h2>
+
+    <p class="usa-alert__text" th:text="#{alert.loginOnlyDescription}"></p>
+
+    <div class="content-spacing"></div>
+
+    <div class="grid-row">
+      <div class="grid-col-auto">
+        <a
+          class="usa-button usa-button--inverse"
+          role="button"
+          th:text="${createAccountLinkText}"
+          id="create-account"
+          th:href="${createAccountLink}"
+        ></a>
+      </div>
+    </div>
+  </div>
+</div>

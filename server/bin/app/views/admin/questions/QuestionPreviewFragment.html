@@ -1,0 +1,22 @@
+<div id="sample-question" class="margin-y-4 flex-5">
+  <th:block th:if="${question.getType().getLabel() == 'File Upload'}">
+    <div
+      th:replace="~{questiontypes/FileUploadQuestionFragment :: file-upload(${question}, ${questionRendererParams})}"
+    ></div>
+  </th:block>
+
+  <div
+    th:if="${question.getType().getLabel() != 'File Upload'}"
+    th:replace="~{questiontypes/QuestionFragment :: applicant-question(${question}, ${questionRendererParams}, ${stateAbbreviations}, ${enumMaxEntityCount})}"
+  ></div>
+  <div
+    th:replace="~{applicant/ApplicantBaseFragment :: pageFooterScripts}"
+  ></div>
+
+  <script th:inline="javascript" th:nonce="${cspNonce}">
+    window.app = window.app || {}
+    window.app.data = window.app.data || {}
+    window.app.data.questionType =
+      /*[[${question.getType().getLabel()}]]*/ undefined
+  </script>
+</div>
