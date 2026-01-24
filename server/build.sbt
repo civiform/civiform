@@ -64,7 +64,7 @@ lazy val root = (project in file("."))
       "pl.pragmatists" % "JUnitParams" % "1.1.1" % Test,
 
       // Testing libraries
-      "org.assertj" % "assertj-core" % "3.27.6" % Test,
+      "org.assertj" % "assertj-core" % "3.27.7" % Test,
       "org.mockito" % "mockito-inline" % "5.2.0",
 
       // EqualsTester
