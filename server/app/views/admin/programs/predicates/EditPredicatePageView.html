@@ -37,7 +37,12 @@
         </p>
       </div>
 
-      <form id="predicate-form" class="usa-form">
+      <form
+        id="predicate-form"
+        class="usa-form"
+        th:hx-post="${model.updatePredicateEndpoint()}"
+        hx-target="#predicate-conditions-list"
+      >
         <input
           type="hidden"
           th:value="${templateGlobals.csrfToken()}"
@@ -171,8 +176,6 @@
           type="submit"
           class="usa-button tablet:grid-col-auto"
           form="predicate-form"
-          th:hx-post="${model.updatePredicateEndpoint()}"
-          hx-target="#predicate-conditions-list"
           th:text="#{button.saveAndExit}"
           th:disabled="${!model.hasAvailableQuestions}"
         ></button>

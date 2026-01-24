@@ -25,6 +25,7 @@ const PROGRAM_SAMPLE_QUESTIONS = new Map<
     questionText: string
     firstValue: string
     secondValue?: string
+    invalidValue?: string
     defaultInputType?: string
     defaultInputMode?: string
     multiValueOptions?: MultiValueSpec[]
@@ -59,6 +60,7 @@ const PROGRAM_SAMPLE_QUESTIONS = new Map<
       questionText: 'currency question text',
       firstValue: '3.50',
       secondValue: '4.75',
+      invalidValue: '-1',
       defaultInputType: 'number',
       defaultInputMode: 'decimal',
     },
@@ -94,6 +96,7 @@ const PROGRAM_SAMPLE_QUESTIONS = new Map<
       questionName: 'email-q',
       questionText: 'email question text',
       firstValue: 'email@fake-email.gov',
+      invalidValue: 'email!',
       defaultInputType: 'email',
       defaultInputMode: 'text',
     },
@@ -578,6 +581,35 @@ test.describe('create and edit predicates', () => {
           await expect(inputElementLocator).toContainClass('usa-input--error')
         }
       })
+
+      if (questionData.invalidValue) {
+        await test.step('Enter an invalid string and check client-side validation', async () => {
+          await adminPredicates.configureSubcondition({
+            conditionId: 1,
+            subconditionId: 1,
+            questionText: questionData.questionText,
+            operator: singleValueOperator,
+            value: {firstValue: questionData.invalidValue},
+          })
+
+          // Save and exit button should leave us on the same page
+          await adminPredicates.clickSaveAndExitButton()
+
+          const inputElementLocator = page.locator(
+            `#condition-1-subcondition-1-value[type=${questionData.defaultInputType!}]`,
+          )
+
+          const validationMessage = await inputElementLocator.evaluate(
+            (element) => {
+              const input = element as HTMLInputElement
+              return input.validationMessage
+            },
+          )
+          expect(validationMessage).toBeDefined()
+          expect(validationMessage).not.toBeNull()
+          expect(validationMessage).not.toEqual('')
+        })
+      }
     }
 
     // Test question types that allow multiple input fields with the BETWEEN operator
@@ -631,7 +663,7 @@ test.describe('create and edit predicates', () => {
       await test.step('Enter an empty string in the second input and check validation behavior', async () => {
         await adminPredicates.fillValue(1, 1, {
           firstValue: questionData.firstValue,
-          secondValue: ' ',
+          secondValue: '',
         } as SubconditionValue)
 
         await adminPredicates.clickSaveAndExitButton()
@@ -670,6 +702,32 @@ test.describe('create and edit predicates', () => {
           )
         }
       })
+
+      if (questionData.invalidValue) {
+        await test.step('Enter an invalid string in the second input and check client-side validation', async () => {
+          await adminPredicates.fillValue(1, 1, {
+            firstValue: questionData.firstValue,
+            secondValue: questionData.invalidValue,
+          } as SubconditionValue)
+
+          // Save and exit button should leave us on the same page
+          await adminPredicates.clickSaveAndExitButton()
+
+          const secondInputElementLocator = page.locator(
+            `#condition-1-subcondition-1-secondValue[type=${questionData.defaultInputType!}]`,
+          )
+
+          const validationMessage = await secondInputElementLocator.evaluate(
+            (element) => {
+              const input = element as HTMLInputElement
+              return input.validationMessage
+            },
+          )
+          expect(validationMessage).toBeDefined()
+          expect(validationMessage).not.toBeNull()
+          expect(validationMessage).not.toEqual('')
+        })
+      }
     }
 
     await test.step('Select date question and validate age operator behavior', async () => {
@@ -707,6 +765,30 @@ test.describe('create and edit predicates', () => {
           '#condition-1-subcondition-1-secondValue[type="number"]:enabled',
         ),
       ).toHaveCount(1)
+    })
+
+    await test.step('Check age operator client-side validation', async () => {
+      await adminPredicates.fillValue(1, 1, {
+        firstValue: '18',
+        secondValue: '-1',
+      } as SubconditionValue)
+
+      // Save and exit button should leave us on the same page
+      await adminPredicates.clickSaveAndExitButton()
+
+      const secondInputElementLocator = page.locator(
+        '#condition-1-subcondition-1-secondValue[type="number"]:enabled',
+      )
+
+      const validationMessage = await secondInputElementLocator.evaluate(
+        (element) => {
+          const input = element as HTMLInputElement
+          return input.validationMessage
+        },
+      )
+      expect(validationMessage).toBeDefined()
+      expect(validationMessage).not.toBeNull()
+      expect(validationMessage).not.toEqual('')
     })
 
     // Test question types that allow CSV inputs with the IN / NOT_IN operators
