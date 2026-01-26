@@ -451,23 +451,16 @@ test.describe('Applicant program overview for login only program', () => {
 
     await page.goto(`/programs/${programName}`)
     await expect(
-      page.getByRole('link', {name: 'Start an application'}).first(),
-    ).toBeHidden()
+      page.getByRole('link', {name: 'Sign in to start an application'}).first(),
+    ).toBeVisible()
 
     await expect(
       page.getByRole('button', {name: 'Start application as a guest'}),
     ).toBeHidden()
 
-    // there is a link and button with the same name, check both
     await expect(
       page
         .getByRole('button', {name: 'Start application with an account'})
-        .first(),
-    ).toBeVisible()
-
-    await expect(
-      page
-        .getByRole('link', {name: 'Start application with an account'})
         .first(),
     ).toBeVisible()
 
@@ -544,6 +537,11 @@ test.describe('guest cannot complete applications for login only program', () =>
       page.getByText(
         'Please log in or create an account to continue with this application.',
       ),
+    ).toBeVisible()
+    await expect(
+      page
+        .getByRole('button', {name: 'Sign in to start an application'})
+        .first(),
     ).toBeVisible()
     await expect(page.getByRole('button', {name: 'Log in'})).toBeVisible()
   })
