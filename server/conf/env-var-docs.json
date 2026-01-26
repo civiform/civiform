@@ -954,7 +954,7 @@
     "members": {
       "SESSION_TIMEOUT_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration.",
+        "description": "(NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration. Requires SESSION_REPLAY_PROTECTION_ENABLED to be enabled.",
         "type": "bool",
         "required": false
       },
