@@ -493,13 +493,14 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
         leafNode.comparedValue().toSelectedValue(selectedQuestion.getQuestionType());
 
     // Grab user-entered text to populate text fields.
-    // For cases where we expect multi-value inputs (like checkbox questions),
-    // we use "valueOptions" below and the text fields aren't shown.
     Optional<String> firstValueOptional =
         switch (userEnteredValue.getKind()) {
           case SINGLE -> Optional.of(userEnteredValue.single());
           case PAIR -> Optional.of(userEnteredValue.pair().first());
-          case MULTIPLE -> Optional.empty();
+          case MULTIPLE ->
+              userEnteredValue.multiple().isEmpty()
+                  ? Optional.empty()
+                  : Optional.of(String.join(",", userEnteredValue.multiple()));
         };
 
     Optional<String> secondValueOptional =
