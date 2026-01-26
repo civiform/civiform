@@ -912,14 +912,16 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
               .scalarOptions(ImmutableList.of())
               .operatorOptions(getOperatorOptions(/* selectedOperator= */ Optional.empty()))
               .build();
+
+      // If there are existing conditions, autofocus the new condition's logic dropdown.
+      // Otherwise, focus the root logic dropdown.
+      boolean isExistingPredicate = !currentConditions.isEmpty();
       condition =
           condition.toBuilder()
               .subconditions(
                   ImmutableList.of(
-                      condition.emptySubconditionViewModel().toBuilder()
-                          .autofocus(true)
-                          .shouldAnnounceChanges(true)
-                          .build()))
+                      condition.emptySubconditionViewModel().toBuilder().autofocus(false).build()))
+              .focusLogicDropdown(isExistingPredicate)
               .build();
       currentConditions.add(condition);
 
@@ -984,10 +986,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       ImmutableList<EditSubconditionPartialViewModel> subconditionList =
           getOnlyElement(
                   focusSubconditionInList(
-                      ImmutableList.of(condition),
-                      /* conditionIndex= */ 0,
-                      focusedIndex,
-                      /* shouldAnnounceChanges= */ false))
+                      ImmutableList.of(condition), /* conditionIndex= */ 0, focusedIndex))
               .subconditions();
 
       return ok(subconditionListPartialView.render(
@@ -1044,10 +1043,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
           new ArrayList<>(condition.subconditions());
 
       subconditionList.add(
-          condition.emptySubconditionViewModel().toBuilder()
-              .autofocus(true)
-              .shouldAnnounceChanges(true)
-              .build());
+          condition.emptySubconditionViewModel().toBuilder().autofocus(true).build());
 
       return ok(subconditionListPartialView.render(
               request,
@@ -1093,25 +1089,23 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       // Start by pre-filtering formData to remove entry for the deleted condition.
       formData.keySet().removeIf(key -> key.startsWith(removedConditionPrefix));
 
-      ImmutableList<EditConditionPartialViewModel> conditions =
-          buildConditionsListFromFormData(
-              programId,
-              blockDefinitionId,
-              predicateUseCase,
-              ImmutableMap.copyOf(formData),
-              /* validateInputFields= */ false);
+      ArrayList<EditConditionPartialViewModel> conditions =
+          new ArrayList<>(
+              buildConditionsListFromFormData(
+                  programId,
+                  blockDefinitionId,
+                  predicateUseCase,
+                  ImmutableMap.copyOf(formData),
+                  /* validateInputFields= */ false));
 
       // Handle accessibility steps (skip if there are no conditions left).
       // Focus either: subcondition 1 of the previous condition OR subcondition 1 of condition 1.
       // (Note: conditionId is 1-indexed, lists are 0-indexed.)
       if (!conditions.isEmpty()) {
         int focusedConditionIndex = Integer.max(0, conditionId - 2);
-        conditions =
-            focusSubconditionInList(
-                conditions,
-                focusedConditionIndex,
-                /* subconditionIndex= */ 0,
-                /* shouldAnnounceChanges= */ true);
+        EditConditionPartialViewModel focusedCondition = conditions.get(focusedConditionIndex);
+        focusedCondition = focusedCondition.toBuilder().focusLogicDropdown(true).build();
+        conditions.set(focusedConditionIndex, focusedCondition);
       }
 
       return ok(conditionListPartialView.render(
@@ -1180,16 +1174,12 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       ImmutableList<EditSubconditionPartialViewModel> subconditions =
           condition.subconditions().isEmpty()
               ? ImmutableList.of(
-                  condition.emptySubconditionViewModel().toBuilder()
-                      .autofocus(true)
-                      .shouldAnnounceChanges(false)
-                      .build())
+                  condition.emptySubconditionViewModel().toBuilder().autofocus(true).build())
               : getOnlyElement(
                       focusSubconditionInList(
                           ImmutableList.of(condition),
                           /* conditionIndex= */ 0,
-                          autofocusedSubcondition,
-                          /* shouldAnnounceChanges= */ true))
+                          autofocusedSubcondition))
                   .subconditions();
 
       return ok(subconditionListPartialView.render(
@@ -1616,6 +1606,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
         .scalarOptions(ImmutableList.of())
         .operatorOptions(getOperatorOptions(/* selectedOperator= */ Optional.empty()))
         .subconditionLogicalOperator(subconditionLogicalOperator)
+        .focusLogicDropdown(false)
         .build();
   }
 
@@ -1661,22 +1652,17 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
    * @param conditions The list of conditions to be edited.
    * @param conditionIndex The (zero-indexed) condition whose subcondition we'd like to focus.
    * @param subconditionIndex The (zero-indexed) subcondition we'd like to focus.
-   * @param shouldAnnounceChanges Controls whether these changes will be announced via aria-live.
    */
   private ImmutableList<EditConditionPartialViewModel> focusSubconditionInList(
       ImmutableList<EditConditionPartialViewModel> conditions,
       int conditionIndex,
-      int subconditionIndex,
-      boolean shouldAnnounceChanges) {
+      int subconditionIndex) {
     // Get the focused elements from their respective lists.
     EditConditionPartialViewModel focusedCondition = conditions.get(conditionIndex);
     ArrayList<EditSubconditionPartialViewModel> focusedSubconditionList =
         new ArrayList<>(focusedCondition.subconditions());
     EditSubconditionPartialViewModel focusedSubcondition =
-        focusedSubconditionList.get(subconditionIndex).toBuilder()
-            .autofocus(true)
-            .shouldAnnounceChanges(shouldAnnounceChanges)
-            .build();
+        focusedSubconditionList.get(subconditionIndex).toBuilder().autofocus(true).build();
 
     // Set correct element
     focusedSubconditionList.set(subconditionIndex, focusedSubcondition);

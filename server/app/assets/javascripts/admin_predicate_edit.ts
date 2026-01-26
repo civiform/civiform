@@ -345,18 +345,39 @@ export class AdminPredicateEdit {
     const nodeOperatorSelect = document.getElementById(
       AdminPredicateEdit.NODE_OPERATOR_SELECT_ID,
     )
-    if (nodeOperatorSelect) {
-      const nodeOperatorSelectNullState = assertNotNull(
-        document.getElementById(
-          AdminPredicateEdit.NODE_OPERATOR_SELECT_NULL_STATE_ID,
-        ),
-      )
-      if (document.querySelector('#condition-1')) {
-        nodeOperatorSelect.hidden = false
-        nodeOperatorSelectNullState.hidden = true
+    if (!nodeOperatorSelect) {
+      return
+    }
+
+    const nodeOperatorSelectNullState = assertNotNull(
+      document.getElementById(
+        AdminPredicateEdit.NODE_OPERATOR_SELECT_NULL_STATE_ID,
+      ),
+    )
+
+    // If there's no predicate, hide the normal node operator select and show the null state.
+    if (!document.querySelector('#condition-1')) {
+      nodeOperatorSelect.hidden = true
+      nodeOperatorSelectNullState.hidden = false
+      return
+    }
+
+    nodeOperatorSelect.hidden = false
+    nodeOperatorSelectNullState.hidden = true
+
+    // When creating a new predicate, focus the first dropdown on the page.
+    // This helps screen-reader users gain context on the logic of the predicate.
+    if (!document.querySelector('#condition-2')) {
+      const visibilityBehaviorDropdown: HTMLSelectElement | null =
+        nodeOperatorSelect.querySelector('#visibility-predicate-action-select')
+      const logicDropdown: HTMLSelectElement = assertNotNull(
+        nodeOperatorSelect.querySelector('#root-node-type'),
+      ) as HTMLSelectElement
+
+      if (visibilityBehaviorDropdown) {
+        visibilityBehaviorDropdown.focus()
       } else {
-        nodeOperatorSelect.hidden = true
-        nodeOperatorSelectNullState.hidden = false
+        logicDropdown.focus()
       }
     }
   }
@@ -416,28 +437,8 @@ export class AdminPredicateEdit {
       return
     }
 
-    const ariaAnnounceElementId = focusedSubconditionQuestion.id.replace(
-      this.QUESTION_ID_SUFFIX,
-      this.ARIA_ANNOUNCE_ID_SUFFIX,
-    )
-    const ariaAnnounceElement: HTMLElement | null = document.querySelector(
-      `#${ariaAnnounceElementId}`,
-    )
-    if (ariaAnnounceElement === null) {
-      return
-    }
-
     // Focus the question dropdown of the desired subcondition
     focusedSubconditionQuestion.focus()
-
-    // If we want an aria announcement here, set the text of the aria-live region after a short delay.
-    // This update will trigger screen readers to read the text.
-    if (ariaAnnounceElement.getAttribute('data-should-announce') === 'true') {
-      setTimeout(function () {
-        ariaAnnounceElement.textContent =
-          ariaAnnounceElement.getAttribute('data-announce-text')
-      }, 1000)
-    }
   }
 
   /**
