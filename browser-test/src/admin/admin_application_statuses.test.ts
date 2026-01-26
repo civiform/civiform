@@ -342,7 +342,8 @@ test.describe('view program statuses', () => {
       expect(await adminPrograms.getNoteContent()).toBe(noteText)
     })
 
-    test('allows updating a note', async ({adminPrograms}) => {
+    test('allows updating a note', async ({adminPrograms, page}) => {
+      test.slow()
       const noteText = 'Some note content'
       await adminPrograms.editNote('first note content')
       await adminPrograms.expectNoteUpdatedToast()
@@ -350,7 +351,7 @@ test.describe('view program statuses', () => {
       await adminPrograms.expectNoteUpdatedToast()
 
       // Reload the note editor.
-      await adminPrograms.viewApplications(programWithStatusesName)
+      await page.getByRole('link', {name: 'Back'}).click()
       await adminPrograms.viewApplicationForApplicant('Guest')
 
       expect(await adminPrograms.getNoteContent()).toBe(noteText)
@@ -681,6 +682,7 @@ test.describe('view program statuses', () => {
         await page.getByRole('link', {name: 'Back'}).click()
         const csvContent = await adminPrograms.getCsv(false)
         expect(csvContent).toContain('Status Last Modified Time')
+        await logout(page)
       })
     })
   })
@@ -931,6 +933,8 @@ test.describe('view program statuses', () => {
       applicantQuestions,
       adminPrograms,
     }) => {
+      test.slow()
+
       await test.step('submit application as a logged in user with the same email address', async () => {
         await loginAsTestUser(page)
         await applicantQuestions.applyProgram(programWithStatusesName, false)
