@@ -361,6 +361,17 @@ test.describe('create and edit predicates', () => {
       )
     })
 
+    await test.step('Leave question unselected and check validation', async () => {
+      await adminPredicates.clickSaveAndExitButton()
+
+      await expect(
+        page.locator('#condition-1-subcondition-1-question'),
+      ).toContainClass('usa-input--error')
+      await expect(page.locator('#edit-predicate')).toContainText(
+        'Error: You must select a question.',
+      )
+    })
+
     await test.step('Select question, save, and check predicate validation', async () => {
       await adminPredicates.selectQuestion(1, 1, questionText)
       await expect(

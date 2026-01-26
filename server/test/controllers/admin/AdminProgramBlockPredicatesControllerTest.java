@@ -420,6 +420,89 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void update_eligibilityMessage_unselectedQuestion_returnsCurrentPage() throws Exception {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    ProgramModel programWithEligibilityMessage =
+        ProgramBuilder.newDraftProgram("new program")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
+            .build();
+
+    Result result =
+        controller.updatePredicate(
+            fakeRequestBuilder()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "predicateAction",
+                        PredicateAction.ELIGIBLE_BLOCK.name(),
+                        "root-node-type",
+                        "AND",
+                        "condition-1-node-type",
+                        "AND",
+                        "condition-1-subcondition-1-question",
+                        "-Select-",
+                        "eligibilityMessage",
+                        ""))
+                .build(),
+            programWithEligibilityMessage.id,
+            /* blockDefinitionId= */ 1L,
+            PredicateUseCase.ELIGIBILITY.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.header("HX-Redirect")).isEmpty();
+    String content = Helpers.contentAsString(result);
+    assertThat(content).contains("Error: You must select a question.");
+  }
+
+  @Test
+  public void update_eligibilityMessage_unfilledValueAndUnselectedQuestion_returnsCurrentPage()
+      throws Exception {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    ProgramModel programWithEligibilityMessage =
+        ProgramBuilder.newDraftProgram("new program")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
+            .build();
+
+    Result result =
+        controller.updatePredicate(
+            fakeRequestBuilder()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "predicateAction",
+                        PredicateAction.ELIGIBLE_BLOCK.name(),
+                        "root-node-type",
+                        "AND",
+                        "condition-1-node-type",
+                        "AND",
+                        "condition-2-node-type",
+                        "AND",
+                        "condition-1-subcondition-1-question",
+                        String.valueOf(testQuestionBank.nameApplicantName().id),
+                        "condition-1-subcondition-1-scalar",
+                        Scalar.FIRST_NAME.name(),
+                        "condition-1-subcondition-1-operator",
+                        Operator.EQUAL_TO.name(),
+                        "condition-1-subcondition-1-value",
+                        "",
+                        "condition-2-subcondition-1-question",
+                        "-Select-",
+                        "eligibilityMessage",
+                        ""))
+                .build(),
+            programWithEligibilityMessage.id,
+            /* blockDefinitionId= */ 1L,
+            PredicateUseCase.ELIGIBILITY.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.header("HX-Redirect")).isEmpty();
+    String content = Helpers.contentAsString(result);
+    // Multiple invalid fields should be present.
+    assertThat(content).contains("Error: This field is required.");
+    assertThat(content).contains("Error: You must select a question.");
+  }
+
+  @Test
   public void update_eligibilityMessage_savesEmptyMessage() throws Exception {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
     ProgramModel programWithEligibilityMessage =
