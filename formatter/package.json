@@ -7,7 +7,7 @@
     "eslint-config-google": "0.14.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-no-unsanitized": "4.1.4",
-    "eslint-plugin-playwright": "2.5.0",
+    "eslint-plugin-playwright": "2.5.1",
     "prettier": "3.8.1",
     "sql-formatter": "15.7.0",
     "typescript": "5.9.3"
