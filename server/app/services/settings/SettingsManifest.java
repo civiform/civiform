@@ -1087,7 +1087,10 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("SETTINGS_CACHE_ENABLED");
   }
 
-  /** (NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration. */
+  /**
+   * (NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration.
+   * Requires SESSION_REPLAY_PROTECTION_ENABLED to be enabled.
+   */
   public boolean getSessionTimeoutEnabled(RequestHeader request) {
     return getBool("SESSION_TIMEOUT_ENABLED", request);
   }
@@ -2366,7 +2369,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingDescription.create(
                           "SESSION_TIMEOUT_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and"
-                              + " maximum duration.",
+                              + " maximum duration. Requires SESSION_REPLAY_PROTECTION_ENABLED to"
+                              + " be enabled.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),

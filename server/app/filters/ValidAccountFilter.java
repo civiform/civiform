@@ -53,8 +53,8 @@ public class ValidAccountFilter extends EssentialFilter {
     this.settingsManifest = checkNotNull(settingsManifest);
     this.materializer = checkNotNull(materializer);
     this.clock = checkNotNull(clock);
-    this.sessionTimeoutService = sessionTimeoutService;
-    this.databaseExecutionContext = databaseExecutionContext;
+    this.sessionTimeoutService = checkNotNull(sessionTimeoutService);
+    this.databaseExecutionContext = checkNotNull(databaseExecutionContext);
   }
 
   @Override
