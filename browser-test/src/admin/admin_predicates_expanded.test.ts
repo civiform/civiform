@@ -15,6 +15,7 @@ import {assertNotNull} from '../support/helpers'
  *    @param questionText: The question text displayed to the applicant
  *    @param firstValue: The default value to fill in an input field, or to be selected from a dropdown
  *    @param secondValue: The default value to fill in a second input field. Optional, for question types that support BETWEEN operators.
+ *    @param invalidValue: A purposefully incorrect value for the first and second input fields. Optional, for question types with client-side validation.
  *    @param defaultInputType: The default input type for the question type. Optional, for question types that use input tags.
  *    @param defaultInputMode: The default inputmode for the question type. Optional, for question types that use input tags.
  */
