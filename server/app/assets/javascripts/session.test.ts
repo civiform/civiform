@@ -731,6 +731,7 @@ describe('SessionTimeoutHandler', () => {
         expect(setWarningModalVisibleSpy).toHaveBeenCalledWith(
           WarningType.TOTAL_LENGTH,
           true,
+          expect.any(Number),
         )
       })
 
