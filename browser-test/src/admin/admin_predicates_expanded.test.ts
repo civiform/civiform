@@ -1078,6 +1078,7 @@ test.describe('create and edit predicates', () => {
       QuestionType.CHECKBOX,
       QuestionType.DATE,
       QuestionType.NAME,
+      QuestionType.TEXT,
     ]
     const testQuestionData = questionTypes
       .filter((key) => PROGRAM_SAMPLE_QUESTIONS.has(key))
@@ -1104,6 +1105,11 @@ test.describe('create and edit predicates', () => {
     const nameValues = assertNotNull(
       testQuestionData.find(
         (question) => question.questionType === QuestionType.NAME,
+      ),
+    ).questionValue
+    const textValues = assertNotNull(
+      testQuestionData.find(
+        (question) => question.questionType === QuestionType.TEXT,
       ),
     ).questionValue
 
@@ -1136,6 +1142,13 @@ test.describe('create and edit predicates', () => {
         subconditionId: 2,
         questionText: addressValues.questionText,
         value: {},
+      },
+      {
+        conditionId: 2,
+        subconditionId: 3,
+        questionText: textValues.questionText,
+        operator: 'IN',
+        value: {firstValue: 'alpha,beta,gamma'},
       },
     ]
 
@@ -1181,6 +1194,7 @@ test.describe('create and edit predicates', () => {
 
       await adminPredicates.addAndExpectCondition(2)
       await adminPredicates.addAndExpectSubcondition(2, 2)
+      await adminPredicates.addAndExpectSubcondition(2, 3)
 
       await adminPredicates.configureSubconditions(subconditionConfigs)
     })
@@ -1199,7 +1213,7 @@ test.describe('create and edit predicates', () => {
 
     await test.step('validate state', async () => {
       await adminPredicates.expectConditionAndSubconditions(1, [1, 2])
-      await adminPredicates.expectConditionAndSubconditions(2, [1, 2])
+      await adminPredicates.expectConditionAndSubconditions(2, [1, 2, 3])
 
       // Checking values
       await expect(
@@ -1226,7 +1240,7 @@ test.describe('create and edit predicates', () => {
 
     await test.step('re-validate state', async () => {
       await adminPredicates.expectConditionAndSubconditions(1, [1, 2])
-      await adminPredicates.expectConditionAndSubconditions(2, [1, 2])
+      await adminPredicates.expectConditionAndSubconditions(2, [1, 2, 3])
 
       // Checking values
       await expect(
