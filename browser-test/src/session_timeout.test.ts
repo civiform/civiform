@@ -72,6 +72,7 @@ test.describe('Session timeout for applicants', () => {
     await test.step('Create and login as applicant', async () => {
       await page.goto('/')
       await loginAsTestUser(page)
+      await enableFeatureFlag(page, 'session_timeout_enabled')
     })
 
     await test.step('Fast forward 50 mins', async () => {
