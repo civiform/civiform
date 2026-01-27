@@ -169,7 +169,7 @@
         <button
           id="submit-predicate"
           type="submit"
-          class="usa-button tablet:grid-col-auto"
+          class="usa-button tablet:grid-col-auto justify-center"
           form="predicate-form"
           th:hx-post="${model.updatePredicateEndpoint()}"
           hx-target="#predicate-conditions-list"
@@ -179,7 +179,7 @@
         <button
           id="cancel-predicate-edit"
           type="submit"
-          class="usa-button usa-button--outline tablet:grid-col-auto"
+          class="usa-button usa-button--outline tablet:grid-col-auto justify-center"
           form="predicate-form"
           th:formaction="${model.blockEditUrl()}"
           formmethod="get"

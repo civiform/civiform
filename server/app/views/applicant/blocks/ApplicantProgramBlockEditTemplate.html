@@ -34,7 +34,7 @@
         class="grid-container padding-top-4"
       >
         <div
-          th:replace="~{applicant/shared/LoginOnlyAlertFragment :: loginOnly(${createAccountLink}, #{link.createAccountFromOverview})}"
+          th:replace="~{applicant/shared/LoginOnlyAlertFragment :: loginOnly(${loginLink}, #{button.startAppForLoginOnlyProgram})}"
         ></div>
       </div>
 

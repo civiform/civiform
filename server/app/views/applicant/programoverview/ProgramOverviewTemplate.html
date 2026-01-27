@@ -40,9 +40,9 @@
 
             <a
               th:if="${loginOnly and isGuest}"
-              th:href="${createAccountLink}"
+              th:href="${loginLink}"
               class="usa-button"
-              th:text="#{link.createAccountFromOverview}"
+              th:text="#{button.startAppForLoginOnlyProgram}"
             ></a>
 
             <!--*/ Application steps */-->

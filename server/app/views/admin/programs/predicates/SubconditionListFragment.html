@@ -1,5 +1,6 @@
 <th:block th:fragment="subconditionList(model)">
   <div
+    class="display-flex flex-column"
     th:id="${'predicate-condition-' + model.conditionId + '-subcondition-list'}"
   >
     <th:block
@@ -12,14 +13,17 @@
       <div
         th:if="${subconditionStat.count != model.subconditions.size()}"
         th:id="${separatorId}"
-        class="cf-predicate-subcondition-separator font-sans-2xs text-uppercase margin-bottom-2"
+        class="cf-predicate-subcondition-separator font-sans-2xs text-uppercase"
       >
         <span
           th:text="${model.predicateLogicalOperator.toDisplayString()}"
         ></span>
       </div>
     </th:block>
-    <div class="margin-top-3" th:hx-target="this">
+    <div
+      class="display-flex justify-center margin-bottom-05"
+      th:hx-target="this"
+    >
       <button
         type="button"
         class="usa-button usa-button--unstyled zero-top-margin"
