@@ -12,7 +12,6 @@ import javax.inject.Provider;
 import org.apache.pekko.stream.Materializer;
 import org.apache.pekko.util.ByteString;
 import play.libs.streams.Accumulator;
-import play.libs.typedmap.TypedKey;
 import play.mvc.EssentialAction;
 import play.mvc.EssentialFilter;
 import play.mvc.Http;
@@ -24,14 +23,8 @@ import services.settings.SettingsManifest;
 /**
  * A filter to ensure the account referenced in the browser cookie is valid. This should only matter
  * when the account is deleted from the database which almost will never happen in prod database.
- *
- * <p>If the account is valid, the profile is stored in request attributes for downstream filters
- * (e.g., {@link SessionTimeoutFilter}) to use without re-parsing session data.
  */
 public class ValidAccountFilter extends EssentialFilter {
-
-  /** Key for storing the user's profile in request attributes for downstream filters. */
-  public static final TypedKey<CiviFormProfile> PROFILE_ATTRIBUTE_KEY = TypedKey.create("profile");
 
   private final ProfileUtils profileUtils;
   private final Provider<SettingsManifest> settingsManifest;
@@ -58,13 +51,7 @@ public class ValidAccountFilter extends EssentialFilter {
             return next.apply(request);
           }
 
-          // Check for profile in request attributes first (set by CiviFormProfileFilter),
-          // fall back to parsing session if not present
-          Optional<CiviFormProfile> profile =
-              request
-                  .attrs()
-                  .getOptional(PROFILE_ATTRIBUTE_KEY)
-                  .or(() -> profileUtils.optionalCurrentUserProfile(request));
+          Optional<CiviFormProfile> profile = profileUtils.optionalCurrentUserProfile(request);
 
           if (profile.isEmpty()) {
             return next.apply(request);
@@ -78,10 +65,7 @@ public class ValidAccountFilter extends EssentialFilter {
                           return Accumulator.done(
                               Results.redirect(org.pac4j.play.routes.LogoutController.logout()));
                         } else {
-                          // Pass profile to downstream filters via request attributes
-                          Http.RequestHeader requestWithProfile =
-                              request.addAttr(PROFILE_ATTRIBUTE_KEY, profile.get());
-                          return next.apply(requestWithProfile);
+                          return next.apply(request);
                         }
                       });
 

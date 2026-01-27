@@ -1,13 +1,9 @@
 package filters;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
-import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Provider;
@@ -111,35 +107,6 @@ public class CiviFormProfileFilterTest extends WithApplication {
 
     // Since the request was for a route that doesn't exist, we should not get redirected to
     // the GuestClient.
-    assertThat(result.status()).isEqualTo(200);
-  }
-
-  @Test
-  public void testExistingProfile_passedToDownstreamFilters() throws Exception {
-    CiviFormProfile mockProfile = mock(CiviFormProfile.class);
-    ProfileUtils mockProfileUtils = mock(ProfileUtils.class);
-    Http.RequestHeader request =
-        fakeRequestBuilder().method("GET").uri("/programs/1/review").build();
-    when(mockProfileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
-
-    CiviFormProfileFilter filter = new CiviFormProfileFilter(mat, mockProfileUtils, routerProvider);
-
-    CompletionStage<Result> stage =
-        filter.apply(
-            header -> {
-              // Verify profile is passed via request attributes
-              Optional<CiviFormProfile> profileAttr =
-                  header.attrs().getOptional(ValidAccountFilter.PROFILE_ATTRIBUTE_KEY);
-              if (profileAttr.isPresent() && profileAttr.get() == mockProfile) {
-                return CompletableFuture.completedFuture(play.mvc.Results.ok("Profile passed"));
-              }
-              return CompletableFuture.completedFuture(
-                  play.mvc.Results.badRequest("Profile not passed"));
-            },
-            request);
-
-    Result result = stage.toCompletableFuture().get();
-
     assertThat(result.status()).isEqualTo(200);
   }
 }

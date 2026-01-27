@@ -3,6 +3,7 @@ package filters;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
+import auth.ProfileUtils;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
@@ -42,6 +43,7 @@ public class SessionTimeoutFilter extends Filter {
   private static final String TIMEOUT_COOKIE_NAME = "session_timeout_data";
   private static final Duration COOKIE_MAX_AGE = Duration.ofDays(2);
 
+  private final ProfileUtils profileUtils;
   private final Provider<SettingsManifest> settingsManifest;
   private final Provider<SessionTimeoutService> sessionTimeoutService;
   private final Clock clock;
@@ -49,10 +51,12 @@ public class SessionTimeoutFilter extends Filter {
   @Inject
   public SessionTimeoutFilter(
       Materializer mat,
+      ProfileUtils profileUtils,
       Provider<SettingsManifest> settingsManifest,
       Provider<SessionTimeoutService> sessionTimeoutService,
       Clock clock) {
     super(mat);
+    this.profileUtils = checkNotNull(profileUtils);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.sessionTimeoutService = checkNotNull(sessionTimeoutService);
     this.clock = checkNotNull(clock);
@@ -70,7 +74,8 @@ public class SessionTimeoutFilter extends Filter {
       return nextFilter.apply(requestHeader);
     }
     Optional<CiviFormProfile> optionalProfile =
-        requestHeader.attrs().getOptional(ValidAccountFilter.PROFILE_ATTRIBUTE_KEY);
+        profileUtils.optionalCurrentUserProfile(requestHeader);
+
     if (optionalProfile.isEmpty()) {
       return nextFilter.apply(requestHeader).thenApply(this::clearTimeoutCookie);
     }

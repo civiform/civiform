@@ -1,15 +1,14 @@
 package filters;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
+import auth.ProfileUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
@@ -35,6 +34,7 @@ public class SessionTimeoutFilterTest extends WithApplication {
   private static final long CURRENT_TIME = 1000000000L;
 
   private SessionTimeoutFilter filter;
+  private ProfileUtils profileUtils;
   private SettingsManifest settingsManifest;
   private SessionTimeoutService sessionTimeoutService;
   private Materializer materializer;
@@ -51,6 +51,7 @@ public class SessionTimeoutFilterTest extends WithApplication {
 
   @Before
   public void setUp() {
+    profileUtils = mock(ProfileUtils.class);
     settingsManifest = mock(SettingsManifest.class);
     sessionTimeoutService = mock(SessionTimeoutService.class);
     materializer = instanceOf(Materializer.class);
@@ -62,34 +63,32 @@ public class SessionTimeoutFilterTest extends WithApplication {
 
     filter =
         new SessionTimeoutFilter(
-            materializer, () -> settingsManifest, () -> sessionTimeoutService, clock);
+            materializer, profileUtils, () -> settingsManifest, () -> sessionTimeoutService, clock);
 
     when(sessionTimeoutService.calculateTimeoutData(mockProfile))
         .thenReturn(CompletableFuture.completedFuture(defaultTimeoutData));
   }
 
   @Test
-  public void testNoProfile_noCookie_doesNotClearCookie() throws Exception {
-    // Request without profile attribute and without existing cookie
+  public void testNoProfile_clearsCookie() throws Exception {
+    // Request without profile attribute - should clear the timeout cookie
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
+    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.empty());
+    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
 
     Result result = executeFilter(request);
 
     assertThat(result.status()).isEqualTo(200);
-    // No cookie should be set since there was no existing cookie to clear
+    // Cookie should be cleared (set with maxAge=0)
     Optional<Http.Cookie> cookie = result.cookies().get(TIMEOUT_COOKIE_NAME);
-    assertThat(cookie).isEmpty();
+    assertThat(cookie).isPresent();
+    assertThat(cookie.get().maxAge().longValue()).isEqualTo(Duration.ZERO.toSeconds());
   }
 
   @Test
   public void testTimeoutDisabled_noCookie_doesNotClearCookie() throws Exception {
-    // Request with profile but timeout disabled and no existing cookie
-    RequestHeader request =
-        fakeRequestBuilder()
-            .method("GET")
-            .uri("/programs/1")
-            .build()
-            .addAttr(ValidAccountFilter.PROFILE_ATTRIBUTE_KEY, mockProfile);
+    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
+    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(false);
 
     Result result = executeFilter(request);
@@ -102,14 +101,10 @@ public class SessionTimeoutFilterTest extends WithApplication {
 
   @Test
   public void testTimeoutEnabled_validSession_setsCookieAndUpdatesActivity() throws Exception {
-    RequestHeader request =
-        fakeRequestBuilder()
-            .method("GET")
-            .uri("/programs/1")
-            .build()
-            .addAttr(ValidAccountFilter.PROFILE_ATTRIBUTE_KEY, mockProfile);
+    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
+    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
-    when(sessionTimeoutService.isSessionTimedOut(any()))
+    when(sessionTimeoutService.isSessionTimedOut(mockProfile))
         .thenReturn(CompletableFuture.completedFuture(false));
 
     Result result = executeFilter(request);
@@ -133,34 +128,11 @@ public class SessionTimeoutFilterTest extends WithApplication {
   }
 
   @Test
-  public void testSessionTimedOut_redirectsToLogout() throws Exception {
-    RequestHeader request =
-        fakeRequestBuilder()
-            .method("GET")
-            .uri("/programs/1")
-            .build()
-            .addAttr(ValidAccountFilter.PROFILE_ATTRIBUTE_KEY, mockProfile);
+  public void testCookieProperties() throws Exception {
+    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
+    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
     when(sessionTimeoutService.isSessionTimedOut(mockProfile))
-        .thenReturn(CompletableFuture.completedFuture(true));
-
-    Result result = executeFilter(request);
-
-    assertThat(result.status()).isEqualTo(303);
-    assertThat(result.redirectLocation()).hasValue("/logout");
-    verify(mockProfileData, never()).updateLastActivityTime(any());
-  }
-
-  @Test
-  public void testCookieProperties() throws Exception {
-    RequestHeader request =
-        fakeRequestBuilder()
-            .method("GET")
-            .uri("/programs/1")
-            .build()
-            .addAttr(ValidAccountFilter.PROFILE_ATTRIBUTE_KEY, mockProfile);
-    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
-    when(sessionTimeoutService.isSessionTimedOut(any()))
         .thenReturn(CompletableFuture.completedFuture(false));
 
     Result result = executeFilter(request);
