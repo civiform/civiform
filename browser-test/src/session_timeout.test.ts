@@ -1,11 +1,17 @@
 import {test, expect} from './support/civiform_fixtures'
-import {loginAsAdmin, loginAsTestUser, validateScreenshot} from './support'
+import {
+  enableFeatureFlag,
+  loginAsAdmin,
+  loginAsTestUser,
+  validateScreenshot,
+} from './support'
 
 // Config values from application.dev-browser-tests.conf:
-// - Inactivity warning at: 50 minutes
-// - Inactivity timeout at: 80 minutes
-// - Session duration warning at: 55 minutes
-// - Maximum session at: 60 minutes
+// - Inactivity warning at: 50 minutes (60 - 10)
+// - Inactivity timeout at: 60 minutes
+// - Session duration warning at: 55 minutes (65 - 10)
+// - Maximum session at: 65 minutes
+// Note: inactivity timeout must be < max session for inactivity warning to show
 
 test.describe('Session timeout for admins', () => {
   test.beforeEach(async ({page}) => {
@@ -16,6 +22,7 @@ test.describe('Session timeout for admins', () => {
     // This way server timestamps and browser time should be in sync
     await page.clock.install({time: realTime})
     await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'session_timeout_enabled')
   })
 
   test('shows inactivity warning modal after 50 minutes and logs user out after 80 more minutes', async ({
@@ -59,7 +66,7 @@ test.describe('Session timeout for applicants', () => {
     await page.clock.install({time: realTime})
   })
 
-  test('shows inactivity warning modal after 50 minutes and session length warning modal after 60 minutes', async ({
+  test('shows inactivity warning modal after 50 minutes and session length warning modal after 55 minutes', async ({
     page,
   }) => {
     await test.step('Create and login as applicant', async () => {
@@ -92,6 +99,8 @@ test.describe('Session timeout for applicants', () => {
     await test.step('Validate session length warning modal appears', async () => {
       const sessionLengthModal = page.locator('#session-length-warning-modal')
       await expect(sessionLengthModal).not.toHaveClass(/is-hidden/)
+
+      await validateScreenshot(page, 'applicant-session-length-warning-modal')
     })
 
     await test.step('Click logout', async () => {
