@@ -55,27 +55,11 @@ public class ValidAccountFilterTest extends WithApplication {
   }
 
   @Test
-  public void testValidProfile_sessionTimeoutDisabled_noUpdatesLastActivityTime() throws Exception {
+  public void testInvalidSession_redirectsToLogout() throws Exception {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
     when(profileUtils.validCiviFormProfile(mockProfile))
         .thenReturn(CompletableFuture.completedFuture(true));
-    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(false);
-    when(settingsManifest.getSessionReplayProtectionEnabled()).thenReturn(false);
-
-    Result result = executeFilter(request);
-
-    verify(mockProfileData, never()).updateLastActivityTime(any());
-    assertThat(result.status()).isEqualTo(200);
-  }
-
-  @Test
-  public void testInvalidSession_sessionTimeoutDisabled_redirectsToLogout() throws Exception {
-    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
-    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
-    when(profileUtils.validCiviFormProfile(mockProfile))
-        .thenReturn(CompletableFuture.completedFuture(true));
-    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(false);
     when(settingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
 
     // Session ID not found in active sessions
@@ -133,6 +117,27 @@ public class ValidAccountFilterTest extends WithApplication {
     Result result = executeFilter(request);
 
     assertThat(result.status()).isEqualTo(200);
+  }
+
+  @Test
+  public void testProfileFromRequestAttributes_doesNotCallProfileUtils() throws Exception {
+    // Profile is already in request attributes (set by CiviFormProfileFilter)
+    RequestHeader request =
+        fakeRequestBuilder()
+            .method("GET")
+            .uri("/programs/1")
+            .build()
+            .addAttr(ValidAccountFilter.PROFILE_ATTRIBUTE_KEY, mockProfile);
+    when(profileUtils.validCiviFormProfile(mockProfile))
+        .thenReturn(CompletableFuture.completedFuture(true));
+    when(settingsManifest.getSessionReplayProtectionEnabled()).thenReturn(false);
+
+    Result result = executeFilter(request);
+
+    assertThat(result.status()).isEqualTo(200);
+    // Verify profileUtils.optionalCurrentUserProfile was never called since profile was in
+    // attributes
+    verify(profileUtils, never()).optionalCurrentUserProfile(any(RequestHeader.class));
   }
 
   private Result executeFilter(RequestHeader request) throws Exception {

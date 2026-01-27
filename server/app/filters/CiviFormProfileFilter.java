@@ -4,10 +4,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static play.mvc.Results.redirect;
 
+import auth.CiviFormProfile;
 import auth.GuestClient;
 import auth.ProfileUtils;
 import com.google.inject.Inject;
 import controllers.routes;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
@@ -43,7 +45,6 @@ public final class CiviFormProfileFilter extends Filter {
    *   <li>The request is for a route that exists (won't result in a 404)
    *   <li>The request uses the `GET` or `HEAD` method (POST cannot be redirected back to the
    *       original URI)
-   *   <li>The session associated with the request does not contain a pac4j user profile
    * </ul>
    */
   private boolean shouldRedirect(Http.RequestHeader requestHeader) {
@@ -52,15 +53,24 @@ public final class CiviFormProfileFilter extends Filter {
         && routerProvider.get().route(requestHeader).isPresent()
         && !requestHeader.path().startsWith("/callback")
         // TODO(#8504) extend to all HTTP methods
-        && (requestHeader.method().equals("GET") || requestHeader.method().equals("HEAD"))
-        && profileUtils.optionalCurrentUserProfile(requestHeader).isEmpty();
+        && (requestHeader.method().equals("GET") || requestHeader.method().equals("HEAD"));
   }
 
   @Override
   public CompletionStage<Result> apply(
       Function<Http.RequestHeader, CompletionStage<Result>> nextFilter,
       Http.RequestHeader requestHeader) {
-    if (shouldRedirect(requestHeader)) {
+    if (!shouldRedirect(requestHeader)) {
+      return nextFilter.apply(requestHeader);
+    }
+
+    // Check if profile exists to determine whether to redirect.
+    // If profile exists, pass it to downstream filters to avoid re-parsing session data.
+    // If profile does not exist, redirect
+    Optional<CiviFormProfile> optionalProfile =
+        profileUtils.optionalCurrentUserProfile(requestHeader);
+
+    if (optionalProfile.isEmpty()) {
       // Directly invoke the callback of the GuestClient, which creates a profile. Then redirect the
       // user to the page they were trying to reach.
       return CompletableFuture.completedFuture(
@@ -69,7 +79,9 @@ public final class CiviFormProfileFilter extends Filter {
                   requestHeader.session().adding(REDIRECT_TO_SESSION_KEY, requestHeader.uri())));
     }
 
-    // Do nothing
-    return nextFilter.apply(requestHeader);
+    // Pass profile to downstream filters via request attributes
+    Http.RequestHeader requestWithProfile =
+        requestHeader.addAttr(ValidAccountFilter.PROFILE_ATTRIBUTE_KEY, optionalProfile.get());
+    return nextFilter.apply(requestWithProfile);
   }
 }
