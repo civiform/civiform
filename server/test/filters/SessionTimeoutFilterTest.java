@@ -86,17 +86,17 @@ public class SessionTimeoutFilterTest extends WithApplication {
   }
 
   @Test
-  public void testTimeoutDisabled_noCookie_doesNotClearCookie() throws Exception {
+  public void testTimeoutDisabled_clearsCookie() throws Exception {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
-    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(false);
 
     Result result = executeFilter(request);
 
     assertThat(result.status()).isEqualTo(200);
-    // No cookie should be set since there was no existing cookie to clear
+    // Cookie should be cleared in case user had one from when feature was enabled
     Optional<Http.Cookie> cookie = result.cookies().get(TIMEOUT_COOKIE_NAME);
-    assertThat(cookie).isEmpty();
+    assertThat(cookie).isPresent();
+    assertThat(cookie.get().maxAge().longValue()).isEqualTo(Duration.ZERO.toSeconds());
   }
 
   @Test
@@ -142,6 +142,20 @@ public class SessionTimeoutFilterTest extends WithApplication {
     assertThat(cookie.get().httpOnly()).isFalse();
     assertThat(cookie.get().path()).isEqualTo("/");
     assertThat(cookie.get().maxAge().longValue()).isEqualTo(Duration.ofDays(2).toSeconds());
+  }
+
+  @Test
+  public void testSessionTimedOut_redirectsToLogout() throws Exception {
+    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
+    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
+    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
+    when(sessionTimeoutService.isSessionTimedOut(mockProfile))
+        .thenReturn(CompletableFuture.completedFuture(true));
+
+    Result result = executeFilter(request);
+
+    assertThat(result.status()).isEqualTo(303);
+    assertThat(result.redirectLocation()).hasValue("/logout");
   }
 
   private Result executeFilter(RequestHeader request) throws Exception {
