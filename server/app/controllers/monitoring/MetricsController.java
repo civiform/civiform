@@ -57,7 +57,7 @@ public final class MetricsController extends CiviFormController {
    * (https://github.com/Showmax/prometheus-docs/blob/master/content/docs/instrumenting/exposition_formats.md#format-version-004).
    */
   public Result getMetrics() {
-    if (!metricsEnabled) {
+    if (metricsEnabled) {
       return notFound();
     }
 
