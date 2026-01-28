@@ -2249,6 +2249,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         .join();
 
     applicant.refresh();
+    // Verify the applicant has the correct files.
     String applicantData = applicant.getApplicantData().asJsonString();
     assertThat(applicantData).contains("keyOne", "fileNameOne");
     assertThat(applicantData).contains("keyThree", "fileNameThree");
@@ -2256,12 +2257,14 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     // Assert that corresponding entries were created in the stored file repo.
     var storedFileRepo = instanceOf(StoredFileRepository.class);
+    // Verify the files exist.
     var storedFiles =
         storedFileRepo
             .lookupFiles(ImmutableList.of("keyOne", "keyTwo", "keyThree"))
             .toCompletableFuture()
             .join();
     assertThat(storedFiles.size()).isEqualTo(3);
+    // Verify the files all have the ACL.
     storedFiles.forEach(
         file -> {
           assertThat(file.getAcls().hasApplicantReadPermission(applicant.id))

@@ -134,9 +134,7 @@ public class StoredFileAclsTest extends ResetPostgres {
 
   // NamedParameters is necessary in Junit4 because the json contains commas
   // which is also @Parameters argument delimiter.
-  /**
-   * Test data for an account with applicant ACLs.
-   */
+  /** Test data for an account with applicant ACLs. */
   @NamedParameters("applicantReadData")
   private static Object[] applicantReadData() {
     return new Object[][] {

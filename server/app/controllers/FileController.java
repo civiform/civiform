@@ -59,17 +59,17 @@ public class FileController extends CiviFormController {
               boolean hasFileNameAcl =
                   ApplicantFileNameFormatter.isApplicantOwnedFileKey(fileKey, applicantId);
               String decodedFileKey = URLDecoder.decode(fileKey, StandardCharsets.UTF_8);
-              if(!hasFileNameAcl) {
+              if (!hasFileNameAcl) {
                 // Check the file ACL which may also include guest applicants
                 // merged into the account.
                 boolean hasStoredFileAcl =
-                  storedFileRepository
-                    .lookupFile(decodedFileKey)
-                    .toCompletableFuture()
-                    .join()
-                    .map(StoredFileModel::getAcls)
-                    .map(acls -> acls.hasApplicantReadPermission(applicantId))
-                    .orElse(false);
+                    storedFileRepository
+                        .lookupFile(decodedFileKey)
+                        .toCompletableFuture()
+                        .join()
+                        .map(StoredFileModel::getAcls)
+                        .map(acls -> acls.hasApplicantReadPermission(applicantId))
+                        .orElse(false);
                 if (!hasStoredFileAcl) {
                   return notFound();
                 }
