@@ -632,6 +632,8 @@ content.markdownSupported=Markdown is supported
 
 # Error message for when the admin leaves a multi-select question blank in admin predicate edit.
 validation.selectionRequired=You must select at least one option.
+# Error message for when the admin leaves a question unselected in admin predicate edit.
+validation.questionRequired=You must select a question.
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
