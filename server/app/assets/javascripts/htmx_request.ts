@@ -24,3 +24,25 @@ export interface HtmxAfterSwapEvent extends CustomEvent {
     anchor: string
   }
 }
+
+// TypeScript interface for htmx:confirm event https://htmx.org/events/#htmx:confirm
+export interface HtmxConfirmEvent extends CustomEvent {
+  target: HTMLElement
+  detail: {
+    elt: HTMLElement
+    issueRequest: (skipConfirmation?: boolean) => void
+    path: string
+    target: HTMLElement
+    triggeringEvent: Event
+    verb: string
+    question?: string // only available if hx-confirm attribute is present
+  }
+}
+
+// Extend HTMLElementEventMap to include htmx custom events
+declare global {
+  interface HTMLElementEventMap {
+    'htmx:confirm': HtmxConfirmEvent
+    'htmx:afterSwap': HtmxAfterSwapEvent
+  }
+}
