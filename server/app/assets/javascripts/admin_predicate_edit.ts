@@ -1,5 +1,6 @@
-import {HtmxAfterSwapEvent} from '@/htmx_request'
+import {HtmxAfterSwapEvent, HtmxConfirmEvent} from '@/htmx_request'
 import {addEventListenerToElements, assertNotNull} from '@/util'
+import {Modal, ModalActionSelectedEvent} from '@/components/shared/modal'
 
 export class AdminPredicateEdit {
   // Set in server/app/views/admin/programs/EditPredicatePageView.html
@@ -171,6 +172,35 @@ export class AdminPredicateEdit {
 
     AdminPredicateEdit.showNodeOperatorSelectOrNullState()
     AdminPredicateEdit.focusRootNodeOperatorSelect()
+
+    var predicateForm = document.getElementById('predicate-form')
+    if (predicateForm) {
+      predicateForm.addEventListener(
+        'htmx:confirm',
+        function (e: HtmxConfirmEvent) {
+          if (e.target.dataset.buttonType !== 'delete') {
+            console.log('not delete button')
+            return
+          }
+
+          e.preventDefault()
+
+          const modal = document.getElementById(
+            'predicate-delete-confirm-modal',
+          ) as Modal
+          modal.addEventListener(
+            'modal:action-selected',
+            function (innerEvent: CustomEvent<ModalActionSelectedEvent>) {
+              if (innerEvent.detail.action === 'ok') {
+                e.detail.issueRequest(true)
+              }
+            },
+            {once: true},
+          )
+          modal.open()
+        },
+      )
+    }
   }
 
   private static onScalarDropdownChange(event: Event): void {

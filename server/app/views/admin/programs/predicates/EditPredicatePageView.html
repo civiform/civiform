@@ -227,6 +227,20 @@
       </div>
     </div>
   </div>
+
+  <wc-modal
+    id="predicate-delete-confirm-modal"
+    modal-id="predicate-delete-confirm-modal-inner"
+    th:heading-text="#{confirm.deleteSingleCondition}"
+  >
+    <div slot="description" th:text="#{confirm.actionNotReversable}"></div>
+    <div slot="buttons">
+      <button class="usa-button" data-action="ok">OK</button>
+      <button class="usa-button usa-button--secondary" data-action="cancel">
+        Cancel
+      </button>
+    </div>
+  </wc-modal>
 </th:block>
 
 <th:block th:fragment="scripts">
