@@ -53,7 +53,10 @@ public final class AdminReportingController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result index(Http.Request request) {
     if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
-      AdminReportingPageViewModel model = AdminReportingPageViewModel.builder().icecreamFlavor("vanilla swiss almond").monthlyStats(reportingService.getMonthlyStats()).build();
+      AdminReportingPageViewModel model =
+          AdminReportingPageViewModel.builder()
+              .monthlyStats(reportingService.getMonthlyStats())
+              .build();
       return ok(adminReportingPageView.render(request, model)).as(Http.MimeTypes.HTML);
     }
     return ok(
