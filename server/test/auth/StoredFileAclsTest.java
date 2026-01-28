@@ -17,6 +17,8 @@ import support.ProgramBuilder;
 
 @RunWith(JUnitParamsRunner.class)
 public class StoredFileAclsTest extends ResetPostgres {
+  private static final String ACLD_PROGRAM_NAME1 = "program-one";
+  private static final long ACLD_APPLICANT_ID = 100;
 
   private ProgramDefinition programOne;
   private ProgramDefinition programTwo;
@@ -26,7 +28,7 @@ public class StoredFileAclsTest extends ResetPostgres {
     // These need to be initialized here rather than at the class level as
     // there's a negative reflection interaction with @NamedParameters if
     // they are at the class level.
-    programOne = ProgramBuilder.newDraftProgram("program-one").buildDefinition();
+    programOne = ProgramBuilder.newDraftProgram(ACLD_PROGRAM_NAME1).buildDefinition();
     programTwo = ProgramBuilder.newDraftProgram("program-two").buildDefinition();
   }
 
@@ -89,16 +91,100 @@ public class StoredFileAclsTest extends ResetPostgres {
       },
       {
         """
-        {"programReadAcls": ["program-one"]}
-        """,
+        {"programReadAcls": ["%s"]}
+        """
+            .formatted(ACLD_PROGRAM_NAME1),
         true
       },
       {
         """
-        {"programReadAcls": ["unAcldProgram", "program-one"]}
-        """,
+        {"programReadAcls": ["unAcldProgram", "%s"]}
+        """
+            .formatted(ACLD_PROGRAM_NAME1),
         true
-      }
+      },
+      // Combined with other acls.
+      {
+        """
+        {"programReadAcls": ["%s"],
+        "applicantReadAcls": [1111111]}
+        """
+            .formatted(ACLD_PROGRAM_NAME1),
+        true
+      },
+      {
+        """
+        {"programReadAcls": [],
+        "applicantReadAcls": [1111111]}
+        """,
+        false
+      },
+    };
+  }
+
+  @Test
+  @Parameters(named = "applicantReadData")
+  public void hasApplicantReadPermission_deserialize(String json, Boolean hasAccess)
+      throws JsonProcessingException {
+
+    ObjectMapper mapper = new ObjectMapper();
+    var acl = mapper.readValue(json, StoredFileAcls.class);
+    assertThat(acl.hasApplicantReadPermission(ACLD_APPLICANT_ID)).isEqualTo(hasAccess);
+  }
+
+  // NamedParameters is necessary in Junit4 because the json contains commas
+  // which is also @Parameters argument delimiter.
+  /**
+   * Test data for an account with applicant ACLs. 100 is the valid value, others are invalid acls.
+   */
+  @NamedParameters("applicantReadData")
+  private static Object[] applicantReadData() {
+    return new Object[][] {
+      // {json, hasAccess}
+      {"{}", false},
+      {
+        """
+        {"applicantReadAcls": []}"
+        """,
+        false,
+      },
+      // Invalid applicant ids, by way of large numbers.
+      {
+        """
+        {"applicantReadAcls": [800000, 900000]}
+        """,
+        false
+      },
+      {
+        """
+        {"applicantReadAcls": [%d]}
+        """
+            .formatted(ACLD_APPLICANT_ID),
+        true
+      },
+      {
+        """
+        {"applicantReadAcls": [900000, %d]}
+        """
+            .formatted(ACLD_APPLICANT_ID),
+        true
+      },
+      // Combined with other acls.
+      {
+        """
+        {"programReadAcls": ["program-one"],
+        "applicantReadAcls": [%d]}
+        """
+            .formatted(ACLD_APPLICANT_ID),
+        true
+      },
+      {
+        """
+        {"programReadAcls": ["program-one"],
+        "applicantReadAcls": []}
+        """,
+        false
+      },
     };
   }
 }

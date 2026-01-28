@@ -54,12 +54,25 @@ public class FileController extends CiviFormController {
         .thenApplyAsync(
             v -> {
               // Ensure the file being accessed belongs to the applicant.
-              // The key is generated when the applicant first uploaded the file.
-              if (!ApplicantFileNameFormatter.isApplicantOwnedFileKey(fileKey, applicantId)) {
+              // Check the file name key which embeds the applicant ID that
+              // uploaded it.
+              boolean hasFileNameAcl =
+                  ApplicantFileNameFormatter.isApplicantOwnedFileKey(fileKey, applicantId);
+              // Check the file ACL which may also include guest applicants
+              // merged into the account.
+              String decodedFileKey = URLDecoder.decode(fileKey, StandardCharsets.UTF_8);
+              boolean hasStoredFileAcl =
+                  storedFileRepository
+                      .lookupFile(decodedFileKey)
+                      .toCompletableFuture()
+                      .join()
+                      .map(StoredFileModel::getAcls)
+                      .map(acls -> acls.hasApplicantReadPermission(applicantId))
+                      .orElse(false);
+              if (!hasFileNameAcl && !hasStoredFileAcl) {
                 return notFound();
               }
 
-              String decodedFileKey = URLDecoder.decode(fileKey, StandardCharsets.UTF_8);
               return redirect(applicantStorageClient.getPresignedUrlString(decodedFileKey));
             },
             classLoaderExecutionContext.current())
