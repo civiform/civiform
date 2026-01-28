@@ -101,11 +101,13 @@ export class SessionTimeoutHandler {
       return
     }
 
-    // Show inactivity warning if threshold passed and not already shown for this timestamp
+    // Show inactivity warning if threshold passed, not already shown for this timestamp,
+    // and inactivity will actually cause logout before total session length does
     const lastShownInactivity = sessionStorage.getItem(
       this.INACTIVITY_WARNING_SHOWN_KEY,
     )
     if (
+      data.inactivityTimeout < data.totalTimeout &&
       data.inactivityWarning <= now &&
       lastShownInactivity !== data.inactivityWarning.toString()
     ) {
@@ -117,13 +119,17 @@ export class SessionTimeoutHandler {
       return
     }
 
-    // Show total length warning if threshold passed AND not already shown
-    // (Total session length cannot be extended, so a simple boolean suffices)
-    const totalWarningShown = sessionStorage.getItem(
-      this.TOTAL_WARNING_SHOWN_KEY,
-    )
-    if (data.totalWarning <= now && !totalWarningShown) {
-      this.setWarningModalVisible(WarningType.TOTAL_LENGTH, true)
+    // Show total length warning if threshold passed and not already shown for this session
+    const lastShownTotal = sessionStorage.getItem(this.TOTAL_WARNING_SHOWN_KEY)
+    if (
+      data.totalWarning <= now &&
+      lastShownTotal !== data.totalWarning.toString()
+    ) {
+      this.setWarningModalVisible(
+        WarningType.TOTAL_LENGTH,
+        true,
+        data.totalWarning,
+      )
       return
     }
   }
@@ -323,7 +329,7 @@ export class SessionTimeoutHandler {
    *
    * @param type Type of warning to show (inactivity or total length)
    * @param visible Whether to show or hide the modal
-   * @param warningTimestamp For inactivity warnings, the timestamp to record (used to detect session extension)
+   * @param warningTimestamp Timestamp to record (used to detect new sessions and session extension)
    */
   private static setWarningModalVisible(
     type: WarningType,
@@ -347,8 +353,11 @@ export class SessionTimeoutHandler {
       }
     } else {
       this.totalLengthWarningVisible = visible
-      if (visible) {
-        sessionStorage.setItem(this.TOTAL_WARNING_SHOWN_KEY, 'true')
+      if (visible && warningTimestamp !== undefined) {
+        sessionStorage.setItem(
+          this.TOTAL_WARNING_SHOWN_KEY,
+          warningTimestamp.toString(),
+        )
       }
     }
   }

@@ -492,20 +492,26 @@ export class AdminPredicates {
     subconditionId: number,
     value: SubconditionValue,
   ) {
-    if (value.firstValue) {
-      await this.page
-        .locator(
-          `#condition-${conditionId}-subcondition-${subconditionId}-value:enabled`,
-        )
-        .fill(value.firstValue)
+    if (value.firstValue !== undefined) {
+      const firstValueInput = this.page.locator(
+        `#condition-${conditionId}-subcondition-${subconditionId}-value:enabled`,
+      )
+
+      await firstValueInput.fill(value.firstValue)
+      if (value.firstValue === '') {
+        await firstValueInput.clear()
+      }
     }
 
-    if (value.secondValue) {
-      await this.page
-        .locator(
-          `#condition-${conditionId}-subcondition-${subconditionId}-secondValue:enabled`,
-        )
-        .fill(value.secondValue)
+    if (value.secondValue !== undefined) {
+      const secondValueInput = this.page.locator(
+        `#condition-${conditionId}-subcondition-${subconditionId}-secondValue:enabled`,
+      )
+
+      await secondValueInput.fill(value.secondValue)
+      if (value.secondValue === '') {
+        await secondValueInput.clear()
+      }
     } else {
       await expect(
         this.page.locator(
