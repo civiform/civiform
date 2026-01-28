@@ -94,6 +94,7 @@ import services.program.ProgramType;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
+import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import views.applicant.addresscorrection.AddressCorrectionBlockView;
 
@@ -121,6 +122,7 @@ public final class ApplicantService {
   private final String baseUrl;
   private final boolean isStaging;
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
+  private final SettingsManifest settingsManifest;
   private final String stagingProgramAdminNotificationMailingList;
   private final String stagingTiNotificationMailingList;
   private final String stagingApplicantNotificationMailingList;
@@ -149,7 +151,8 @@ public final class ApplicantService {
       ServiceAreaUpdateResolver serviceAreaUpdateResolver,
       EsriClient esriClient,
       MessagesApi messagesApi,
-      ApiBridgeProcessor apiBridgeProcessor) {
+      ApiBridgeProcessor apiBridgeProcessor,
+      SettingsManifest settingsManifest) {
     this.applicationEventRepository = checkNotNull(applicationEventRepository);
     this.applicationRepository = checkNotNull(applicationRepository);
     this.accountRepository = checkNotNull(accountRepository);
@@ -167,6 +170,7 @@ public final class ApplicantService {
 
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.isStaging = checkNotNull(deploymentType).isStaging();
+    this.settingsManifest = checkNotNull(settingsManifest);
     this.stagingProgramAdminNotificationMailingList =
         checkNotNull(configuration).getString("staging_program_admin_notification_mailing_list");
     this.stagingTiNotificationMailingList =
@@ -1358,7 +1362,8 @@ public final class ApplicantService {
           if (programType.equals(ProgramType.PRE_SCREENER_FORM)) {
             relevantPrograms.setPreScreenerForm(applicantProgramDataBuilder.build());
           } else if (programType.equals(ProgramType.DEFAULT)
-              || programType.equals(ProgramType.EXTERNAL)) {
+              || (programType.equals(ProgramType.EXTERNAL)
+                  && settingsManifest.getExternalProgramCardsEnabled())) {
             unappliedPrograms.add(applicantProgramDataBuilder.build());
           }
         });
