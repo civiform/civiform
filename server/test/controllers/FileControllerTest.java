@@ -59,7 +59,7 @@ public class FileControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void show_fileKey_applicant_successRedirects() {
+  public void show_fileKey_matchesApplicant_success() {
     // Applicant that is authorized per create helper.
     ApplicantModel applicant = createApplicantWithMockedProfile();
     String fileKey = creatFakeFileKey(applicant.id, /* programId= */ 1L);
@@ -68,7 +68,7 @@ public class FileControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void show_fileKey_TIManagedApplicant_successRedirects() {
+  public void show_fileKey_TIManagedApplicant_success() {
     ApplicantModel managedApplicant = createApplicant();
     createTIWithMockedProfile(managedApplicant);
     String fileKey = creatFakeFileKey(managedApplicant.id, 1L);
