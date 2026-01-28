@@ -37,7 +37,7 @@ class AdminPrograms {
   static attachProgramTypeChangeListener() {
     // Listens for changes to the pre-screener checkbox.
     // TODO(#10363): This should be removed once EXTERNAL_PROGRAM_CARDS feature
-    // is enabled by default, which is handled by the next listener.
+    // flag is removed, which is handled by the next listener.
     addEventListenerToElements('#pre-screener-checkbox', 'click', () => {
       const preScreenerCheckbox = <HTMLInputElement>(
         document.querySelector('#pre-screener-checkbox')

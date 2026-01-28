@@ -241,8 +241,6 @@ test.describe('admin program view page', () => {
   })
 
   test('view external program', async ({page, adminPrograms}) => {
-    await enableFeatureFlag(page, 'external_program_cards_enabled')
-
     await loginAsAdmin(page)
 
     const programName = 'External Program'
