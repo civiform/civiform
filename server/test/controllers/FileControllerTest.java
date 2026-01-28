@@ -42,7 +42,7 @@ public class FileControllerTest extends WithMockedProfiles {
   public void show_fileKey_differentApplicant_unauthorized() {
     // Applicant that is authorized per create helper.
     ApplicantModel applicant = createApplicantWithMockedProfile();
-    String fileKey = creatFakeFileKey(applicant.id, 1L);
+    String fileKey = creatFakeFileKey(applicant.id, /* programId= */ 1L);
     Result result =
         controller.show(request, applicant.id + 1, fileKey).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
@@ -52,7 +52,7 @@ public class FileControllerTest extends WithMockedProfiles {
   public void show_fileKey_forDifferentApplicant_notFound() {
     // Applicant that is authorized per create helper.
     ApplicantModel applicant = createApplicantWithMockedProfile();
-    String anothersFileKey = creatFakeFileKey(applicant.id + 1, 1L);
+    String anothersFileKey = creatFakeFileKey(applicant.id + 1, /* programId= */ 1L);
     Result result =
         controller.show(request, applicant.id, anothersFileKey).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(NOT_FOUND);
@@ -62,7 +62,7 @@ public class FileControllerTest extends WithMockedProfiles {
   public void show_fileKey_applicant_successRedirects() {
     // Applicant that is authorized per create helper.
     ApplicantModel applicant = createApplicantWithMockedProfile();
-    String fileKey = creatFakeFileKey(applicant.id, 1L);
+    String fileKey = creatFakeFileKey(applicant.id, /* programId= */ 1L);
     Result result = controller.show(request, applicant.id, fileKey).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(SEE_OTHER);
   }
@@ -84,7 +84,7 @@ public class FileControllerTest extends WithMockedProfiles {
   public void show_applicantAcl_differentApplicantAcled_success() {
     // Applicant that is authorized per create helper.
     ApplicantModel applicant = createApplicantWithMockedProfile();
-    String anothersFileKey = creatFakeFileKey(applicant.id + 1, 1L);
+    String anothersFileKey = creatFakeFileKey(applicant.id + 1, /* programId= */ 1L);
     Result result =
         controller.show(request, applicant.id, anothersFileKey).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(NOT_FOUND);
