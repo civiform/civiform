@@ -135,12 +135,13 @@ public class StoredFileAclsTest extends ResetPostgres {
   // NamedParameters is necessary in Junit4 because the json contains commas
   // which is also @Parameters argument delimiter.
   /**
-   * Test data for an account with applicant ACLs. 100 is the valid value, others are invalid acls.
+   * Test data for an account with applicant ACLs.
    */
   @NamedParameters("applicantReadData")
   private static Object[] applicantReadData() {
     return new Object[][] {
       // {json, hasAccess}
+      // Empty json data.
       {"{}", false},
       {
         """
@@ -148,7 +149,7 @@ public class StoredFileAclsTest extends ResetPostgres {
         """,
         false,
       },
-      // Invalid applicant ids, by way of large numbers.
+      // Different applicant ids, by way of large numbers.
       {
         """
         {"applicantReadAcls": [800000, 900000]}
@@ -162,6 +163,7 @@ public class StoredFileAclsTest extends ResetPostgres {
             .formatted(ACLD_APPLICANT_ID),
         true
       },
+      // Authorized with another applicant.
       {
         """
         {"applicantReadAcls": [900000, %d]}
