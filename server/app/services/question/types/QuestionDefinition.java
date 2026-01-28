@@ -262,6 +262,12 @@ public abstract class QuestionDefinition {
     return getQuestionType().equals(QuestionType.ADDRESS);
   }
 
+  /** True if the question is an {@link MapQuestionDefinition}. */
+  @JsonIgnore
+  public final boolean isMap() {
+    return getQuestionType().equals(QuestionType.MAP);
+  }
+
   /**
    * A repeated question definition references an enumerator question definition that determines the
    * entities the repeated question definition asks its question for.

@@ -26,6 +26,7 @@ import play.data.FormFactory;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import play.test.Helpers;
+import repository.GeoJsonDataRepository;
 import repository.ProgramRepository;
 import repository.ResetPostgres;
 import repository.VersionRepository;
@@ -96,6 +97,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
             instanceOf(ProfileUtils.class),
             instanceOf(VersionRepository.class),
             instanceOf(EsriServiceAreaValidationConfig.class),
+            instanceOf(GeoJsonDataRepository.class),
             settingsManifest);
     programWithThreeBlocks =
         ProgramBuilder.newDraftProgram("first program")
