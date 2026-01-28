@@ -799,6 +799,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                     .blockId(blockDefinitionId)
                     .predicateUseCase(PredicateUseCase.valueOf(predicateUseCase))
                     .conditions(validatedConditionsList)
+                    .predicateLogicalOperator(
+                        getLogicalOperatorFromFormData("root", ImmutableMap.copyOf(form.rawData())))
                     .build()))
             .as(Http.MimeTypes.HTML);
       }
@@ -1465,7 +1467,9 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     String questionFieldName = fieldNamePrefix + "-question";
     String questionFieldValue = formData.get(questionFieldName);
     if (!StringUtils.isNumeric(questionFieldValue) || !formData.containsKey(questionFieldName)) {
-      return subconditionBuilder.build();
+      ImmutableList<String> invalidInputIds =
+          validateInputFields ? ImmutableList.of(questionFieldName) : ImmutableList.of();
+      return subconditionBuilder.invalidInputIds(invalidInputIds).build();
     }
 
     Long questionId = Long.valueOf(questionFieldValue);
