@@ -66,7 +66,7 @@ public class SessionTimeoutFilter extends Filter {
   public CompletionStage<Result> apply(
       Function<Http.RequestHeader, CompletionStage<Result>> nextFilter,
       Http.RequestHeader requestHeader) {
-    if (allowedEndpoint(requestHeader)) {
+    if (ValidAccountFilter.allowedEndpoint(requestHeader)) {
       return nextFilter.apply(requestHeader);
     }
 
@@ -143,14 +143,5 @@ public class SessionTimeoutFilter extends Filter {
             .withMaxAge(Duration.ZERO)
             .withPath("/")
             .build());
-  }
-
-  /** Returns true if the endpoint does not require session timeout processing. */
-  private boolean allowedEndpoint(Http.RequestHeader requestHeader) {
-    return NonUserRoutes.anyMatch(requestHeader) || isLogoutRequest(requestHeader.uri());
-  }
-
-  private boolean isLogoutRequest(String uri) {
-    return uri.startsWith(org.pac4j.play.routes.LogoutController.logout().url());
   }
 }
