@@ -295,9 +295,9 @@ GET     /dev/seed                                           controllers.dev.DevT
 POST    /dev/seedQuestions                                  controllers.dev.DevToolsController.seedQuestions()
 +nocsrf
 POST    /dev/seedQuestionsHeadless                          controllers.dev.DevToolsController.seedQuestionsHeadless()
-POST    /dev/seedPrograms                                   controllers.dev.DevToolsController.seedPrograms()
+POST    /dev/seedPrograms                                   controllers.dev.DevToolsController.seedPrograms(request: Request)
 +nocsrf
-POST    /dev/seedProgramsHeadless                           controllers.dev.DevToolsController.seedProgramsHeadless()
+POST    /dev/seedProgramsHeadless                           controllers.dev.DevToolsController.seedProgramsHeadless(request: Request)
 +nocsrf
 POST    /dev/seedApplicationsHeadless                       controllers.dev.DevToolsController.seedApplicationsHeadless(request: Request)
 POST    /dev/seed/clear                                     controllers.dev.DevToolsController.clear()
