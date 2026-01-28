@@ -58,19 +58,21 @@ public class FileController extends CiviFormController {
               // uploaded it.
               boolean hasFileNameAcl =
                   ApplicantFileNameFormatter.isApplicantOwnedFileKey(fileKey, applicantId);
-              // Check the file ACL which may also include guest applicants
-              // merged into the account.
               String decodedFileKey = URLDecoder.decode(fileKey, StandardCharsets.UTF_8);
-              boolean hasStoredFileAcl =
+              if(!hasFileNameAcl) {
+                // Check the file ACL which may also include guest applicants
+                // merged into the account.
+                boolean hasStoredFileAcl =
                   storedFileRepository
-                      .lookupFile(decodedFileKey)
-                      .toCompletableFuture()
-                      .join()
-                      .map(StoredFileModel::getAcls)
-                      .map(acls -> acls.hasApplicantReadPermission(applicantId))
-                      .orElse(false);
-              if (!hasFileNameAcl && !hasStoredFileAcl) {
-                return notFound();
+                    .lookupFile(decodedFileKey)
+                    .toCompletableFuture()
+                    .join()
+                    .map(StoredFileModel::getAcls)
+                    .map(acls -> acls.hasApplicantReadPermission(applicantId))
+                    .orElse(false);
+                if (!hasStoredFileAcl) {
+                  return notFound();
+                }
               }
 
               return redirect(applicantStorageClient.getPresignedUrlString(decodedFileKey));
