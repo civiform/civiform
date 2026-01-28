@@ -1095,12 +1095,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           // If there are no originalFileNames in the question data, we don't need
                           // to append.
                           if (originalFileNamesOptional.isPresent()) {
-                            ImmutableList<String> orignalFileNames =
+                            ImmutableList<String> originalFileNames =
                                 originalFileNamesOptional.get();
 
                             // Write the existing filenames so that we don't delete any.
-                            for (int i = 0; i < orignalFileNames.size(); i++) {
-                              String originalFileNameValue = orignalFileNames.get(i);
+                            for (int i = 0; i < originalFileNames.size(); i++) {
+                              String originalFileNameValue = originalFileNames.get(i);
                               fileUploadQuestionFormData.put(
                                   fileUploadQuestion
                                       .getOriginalFileNameListPathForIndex(i)
@@ -1117,7 +1117,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
                             fileUploadQuestionFormData.put(
                                 fileUploadQuestion
-                                    .getOriginalFileNameListPathForIndex(orignalFileNames.size())
+                                    .getOriginalFileNameListPathForIndex(originalFileNames.size())
                                     .toString(),
                                 originalFileName.get());
                           } else {
@@ -1129,7 +1129,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           }
                         }
 
-                        return ensureFileRecordExists(key.get(), originalFileName)
+                        return getOrMakeFileRecord(key.get(), originalFileName, applicantId)
                             .thenComposeAsync(
                                 (StoredFileModel unused) ->
                                     applicantService.stageAndUpdateIfValid(
@@ -1732,8 +1732,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   /** Gets StoredFileModel for {@code key}, creating one if it is not present. */
-  private CompletionStage<StoredFileModel> ensureFileRecordExists(
-      String key, Optional<String> originalFileName) {
+  private CompletionStage<StoredFileModel> getOrMakeFileRecord(
+      String key, Optional<String> originalFileName, long applicantId) {
     return storedFileRepository
         .lookupFile(key)
         .thenComposeAsync(
@@ -1747,6 +1747,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
               var storedFile = new StoredFileModel();
               storedFile.setName(key);
+              storedFile.getAcls().addApplicantToReaders(applicantId);
               originalFileName.ifPresent(storedFile::setOriginalFileName);
 
               return storedFileRepository.insert(storedFile);
