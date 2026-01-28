@@ -1,35 +1,44 @@
 package views.admin.reporting;
 
 import java.time.Duration;
-
 import lombok.Builder;
 import lombok.Data;
+import modules.MainModule;
 import services.reporting.ReportingService.MonthlyStats;
 import views.admin.BaseViewModel;
 
 @Data
 @Builder
 public class AdminReportingPageViewModel implements BaseViewModel {
-	private final MonthlyStats monthlyStats;
-	private final String icecreamFlavor;
+  private final MonthlyStats monthlyStats;
 
-	public static String renderDuration(double durationSeconds) {
-		Duration duration = Duration.ofSeconds((long) durationSeconds);
+  public String getDetailsUrl(String programName) {
+    return controllers.admin.routes.AdminReportingController.show(
+            MainModule.SLUGIFIER.slugify(programName))
+        .url();
+  }
 
-		long days = duration.toDaysPart();
-		long hours = duration.toHoursPart();
-		int minutes = duration.toMinutesPart();
-		int seconds = duration.toSecondsPart();
+  public static String formatDuration(double durationSeconds) {
+    Duration duration = Duration.ofSeconds((long) durationSeconds);
 
-		StringBuilder result = new StringBuilder();
+    long days = duration.toDaysPart();
+    long hours = duration.toHoursPart();
+    int minutes = duration.toMinutesPart();
+    int seconds = duration.toSecondsPart();
 
-		if (days > 0) {
-		result.append(days);
-		result.append(":");
-		}
+    StringBuilder result = new StringBuilder();
 
-		result.append(String.format("%02d:%02d:%02d", hours, minutes, seconds));
+    if (days > 0) {
+      result.append(days);
+      result.append(":");
+    }
 
-		return result.toString();
+    result.append(String.format("%02d:%02d:%02d", hours, minutes, seconds));
+
+    return result.toString();
+  }
+
+  public String getDownloadMonthCsvUrl(String csvName) {
+    return controllers.admin.routes.AdminReportingController.downloadCsv(csvName).url();
   }
 }

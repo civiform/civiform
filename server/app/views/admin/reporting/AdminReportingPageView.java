@@ -1,12 +1,10 @@
 package views.admin.reporting;
 
 import auth.ProfileUtils;
-
-import java.time.Duration;
-
 import javax.inject.Inject;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
+import play.mvc.Http;
 import services.BundledAssetsFinder;
 import services.settings.SettingsManifest;
 import views.admin.AdminLayout;
@@ -41,5 +39,12 @@ public final class AdminReportingPageView extends AdminLayoutBaseView<AdminRepor
   @Override
   protected String pageTemplate() {
     return "admin/reporting/AdminReportingPage.html";
+  }
+
+  @Override
+  protected void customizeContext(
+      Http.Request request, ThymeleafModule.PlayThymeleafContext context) {
+    super.customizeContext(request, context);
+    context.setVariable("pageTitle", pageTitle());
   }
 }
