@@ -1,17 +1,18 @@
 package filters;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.CiviFormProfile;
+import auth.CiviFormProfileData;
 import auth.ProfileUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
+import java.time.Clock;
 import java.time.Duration;
 import java.util.Base64;
 import java.util.Optional;
@@ -38,6 +39,7 @@ public class SessionTimeoutFilterTest extends WithApplication {
   private SessionTimeoutService sessionTimeoutService;
   private Materializer materializer;
   private CiviFormProfile mockProfile;
+  private CiviFormProfileData mockProfileData;
   private SessionTimeoutService.TimeoutData defaultTimeoutData =
       new SessionTimeoutService.TimeoutData(
           CURRENT_TIME + (30 * 60),
@@ -45,6 +47,7 @@ public class SessionTimeoutFilterTest extends WithApplication {
           CURRENT_TIME + (25 * 60),
           CURRENT_TIME + (9 * 60 * 60 + 50 * 60),
           CURRENT_TIME);
+  private Clock clock;
 
   @Before
   public void setUp() {
@@ -53,55 +56,61 @@ public class SessionTimeoutFilterTest extends WithApplication {
     sessionTimeoutService = mock(SessionTimeoutService.class);
     materializer = instanceOf(Materializer.class);
     mockProfile = mock(CiviFormProfile.class);
+    mockProfileData = mock(CiviFormProfileData.class);
+    clock = mock(Clock.class);
+
+    when(mockProfile.getProfileData()).thenReturn(mockProfileData);
 
     filter =
         new SessionTimeoutFilter(
-            materializer, profileUtils, () -> settingsManifest, () -> sessionTimeoutService);
+            materializer, profileUtils, () -> settingsManifest, () -> sessionTimeoutService, clock);
 
-    // Setup default timeout data
-
-    when(sessionTimeoutService.calculateTimeoutData(any()))
+    when(sessionTimeoutService.calculateTimeoutData(mockProfile))
         .thenReturn(CompletableFuture.completedFuture(defaultTimeoutData));
   }
 
   @Test
   public void testNoProfile_clearsCookie() throws Exception {
+    // Request without profile attribute - should clear the timeout cookie
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.empty());
+    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
 
     Result result = executeFilter(request);
 
     assertThat(result.status()).isEqualTo(200);
+    // Cookie should be cleared (set with maxAge=0)
     Optional<Http.Cookie> cookie = result.cookies().get(TIMEOUT_COOKIE_NAME);
     assertThat(cookie).isPresent();
-    assertThat(cookie.get().maxAge().intValue()).isEqualTo(0);
-    assertThat(cookie.get().value()).isEmpty();
+    assertThat(cookie.get().maxAge().longValue()).isEqualTo(Duration.ZERO.toSeconds());
   }
 
   @Test
   public void testTimeoutDisabled_clearsCookie() throws Exception {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
-    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(false);
 
     Result result = executeFilter(request);
 
     assertThat(result.status()).isEqualTo(200);
+    // Cookie should be cleared in case user had one from when feature was enabled
     Optional<Http.Cookie> cookie = result.cookies().get(TIMEOUT_COOKIE_NAME);
     assertThat(cookie).isPresent();
-    assertThat(cookie.get().maxAge().intValue()).isEqualTo(0);
-    assertThat(cookie.get().value()).isEmpty();
+    assertThat(cookie.get().maxAge().longValue()).isEqualTo(Duration.ZERO.toSeconds());
   }
 
   @Test
-  public void testTimeoutEnabled_setsCookie() throws Exception {
+  public void testTimeoutEnabled_validSession_setsCookieAndUpdatesActivity() throws Exception {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
+    when(sessionTimeoutService.isSessionTimedOut(mockProfile))
+        .thenReturn(CompletableFuture.completedFuture(false));
 
     Result result = executeFilter(request);
 
     verify(sessionTimeoutService).calculateTimeoutData(mockProfile);
+    verify(mockProfileData).updateLastActivityTime(clock);
 
     Optional<Http.Cookie> cookie = result.cookies().get(TIMEOUT_COOKIE_NAME);
     assertThat(cookie).isPresent();
@@ -123,6 +132,8 @@ public class SessionTimeoutFilterTest extends WithApplication {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
+    when(sessionTimeoutService.isSessionTimedOut(mockProfile))
+        .thenReturn(CompletableFuture.completedFuture(false));
 
     Result result = executeFilter(request);
 
@@ -131,6 +142,20 @@ public class SessionTimeoutFilterTest extends WithApplication {
     assertThat(cookie.get().httpOnly()).isFalse();
     assertThat(cookie.get().path()).isEqualTo("/");
     assertThat(cookie.get().maxAge().longValue()).isEqualTo(Duration.ofDays(2).toSeconds());
+  }
+
+  @Test
+  public void testSessionTimedOut_redirectsToLogout() throws Exception {
+    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
+    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
+    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
+    when(sessionTimeoutService.isSessionTimedOut(mockProfile))
+        .thenReturn(CompletableFuture.completedFuture(true));
+
+    Result result = executeFilter(request);
+
+    assertThat(result.status()).isEqualTo(303);
+    assertThat(result.redirectLocation()).hasValue("/logout");
   }
 
   private Result executeFilter(RequestHeader request) throws Exception {
