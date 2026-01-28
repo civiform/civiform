@@ -197,8 +197,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
                 .getInputTag()
                 .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
             // Program slug
-            buildProgramSlugFieldForExternalProgramsFeature(
-                adminName, programEditStatus, programType),
+            buildProgramSlugFieldForExternalPrograms(adminName, programEditStatus, programType),
             // Admin description
             FieldWithLabel.textArea()
                 .setId("program-description-textarea")
@@ -552,7 +551,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
     return selectTiChecked ? tiDiv : tiDiv.isHidden();
   }
 
-  protected DomContent buildProgramSlugFieldForExternalProgramsFeature(
+  protected DomContent buildProgramSlugFieldForExternalPrograms(
       String adminName, ProgramEditStatus programEditStatus, ProgramType programType) {
     if (programEditStatus == ProgramEditStatus.CREATION) {
       String labelText =
