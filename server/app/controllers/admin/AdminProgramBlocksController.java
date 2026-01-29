@@ -34,6 +34,7 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
+import services.settings.SettingsManifest;
 import views.admin.programs.BlockType;
 import views.admin.programs.ProgramBlocksView;
 import views.components.ToastMessage;
@@ -48,6 +49,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
   private final MessagesApi messagesApi;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public AdminProgramBlocksController(
@@ -58,7 +60,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
       RequestChecker requestChecker,
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
-      MessagesApi messagesApi) {
+      MessagesApi messagesApi,
+      SettingsManifest settingsManifest) {
     super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
@@ -67,6 +70,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
     this.messagesApi = checkNotNull(messagesApi);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /**
@@ -141,14 +145,21 @@ public final class AdminProgramBlocksController extends CiviFormController {
     try {
       ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result;
       if (enumeratorId.isPresent()) {
-        result = programService.addRepeatedBlockToProgram(programId, enumeratorId.get());
+        result =
+            programService.addRepeatedBlockToProgram(
+                programId,
+                enumeratorId.get(),
+                messagesApi.preferred(request),
+                settingsManifest.getEnumeratorImprovementsEnabled(request));
       } else {
         result =
             programService.addBlockToProgram(
                 programId,
                 BlockType.ENUMERATOR.equals(blockType.orElse(null))
                     ? Optional.of(true)
-                    : Optional.empty());
+                    : Optional.empty(),
+                messagesApi.preferred(request),
+                settingsManifest.getEnumeratorImprovementsEnabled(request));
       }
       ProgramDefinition program = result.getResult().program();
       BlockDefinition block =
@@ -164,7 +175,12 @@ public final class AdminProgramBlocksController extends CiviFormController {
 
       // If it's an enumerator, also add the first repeated block.
       if (BlockType.ENUMERATOR.equals(blockType.orElse(null))) {
-        result = programService.addRepeatedBlockToProgram(programId, addedBlockId);
+        result =
+            programService.addRepeatedBlockToProgram(
+                programId,
+                addedBlockId,
+                messagesApi.preferred(request),
+                settingsManifest.getEnumeratorImprovementsEnabled(request));
         if (result.isError()) {
           ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
           return renderEditViewWithMessage(request, program, block, Optional.of(message));
