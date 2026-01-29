@@ -1,6 +1,7 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 import {waitForHtmxReady} from '../support/wait'
+import {Eligibility} from '../support/admin_programs'
 import {QuestionType} from '../support/admin_questions'
 import {
   MultiValueSpec,
@@ -347,6 +348,9 @@ test.describe('create and edit predicates', () => {
         'Screen 1',
         /* expandedFormLogicEnabled= */ true,
       )
+      await expect(page.locator('#edit-predicate')).toContainText(
+        'Applicants who do not meet the minimum requirements will be blocked from submitting an application.',
+      )
 
       await adminPredicates.expectEligibilityNullState()
     })
@@ -390,6 +394,42 @@ test.describe('create and edit predicates', () => {
       await validateScreenshot(
         page.locator('#condition-1'),
         'edit-eligibility-predicate-with-validation-error',
+      )
+    })
+  })
+
+  test('Create a non-blocking eligibility predicate', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+  }) => {
+    await loginAsAdmin(page)
+    const programName = 'Create a non-blocking eligibility predicate'
+
+    await test.step('Create a program with a question to use in the predicate', async () => {
+      const questionName = 'predicate-q'
+      await adminQuestions.addTextQuestion({
+        questionName: questionName,
+      })
+      await adminPrograms.addProgram(programName, {
+        eligibility: Eligibility.IS_NOT_GATING,
+      })
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        name: 'Screen 1',
+        description: 'first screen',
+        questions: [{name: questionName}],
+      })
+    })
+
+    await test.step('Validate eligibility description text', async () => {
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 1',
+        /* expandedFormLogicEnabled= */ true,
+      )
+
+      await expect(page.locator('#edit-predicate')).toContainText(
+        'Applicants can submit an application even if they do not meet the minimum requirements.',
       )
     })
   })
