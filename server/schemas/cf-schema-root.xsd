@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:cf="https://civiform.us/thymeleaf/cf"
+           targetNamespace="https://civiform.us/thymeleaf/cf"
+           elementFormDefault="qualified">
+
+  <xs:annotation>
+    <xs:documentation>
+      CiviForm Thymeleaf Custom Tags Schema
+
+      This is the parent schema that includes all CiviForm custom Thymeleaf tag definitions.
+      Reference this schema in your IDE to enable code completion and validation for cf: prefixed elements.
+
+      Namespace: https://civiform.us/thymeleaf/cf
+
+      Usage in templates:
+      &lt;html xmlns:th="http://www.thymeleaf.org"
+      xmlns:cf="https://civiform.us/thymeleaf/cf"&gt;
+    </xs:documentation>
+  </xs:annotation>
+
+  <!-- Include child schemas -->
+  <xs:include schemaLocation="cf-input-schema.xsd"/>
+  <xs:include schemaLocation="cf-select-schema.xsd"/>
+  <xs:include schemaLocation="cf-textarea-schema.xsd"/>
+</xs:schema>

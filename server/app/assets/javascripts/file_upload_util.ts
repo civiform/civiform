@@ -1,4 +1,4 @@
-import {assertNotNull} from './util'
+import {assertNotNull} from '@/util'
 
 /** @fileoverview Collection of utility functions for working with file upload.
  * Can be used for both the admin UI and applicant UI.

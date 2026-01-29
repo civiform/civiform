@@ -40,8 +40,8 @@
       <form
         id="predicate-form"
         class="usa-form"
-        th:action="${model.updatePredicateEndpoint()}"
-        method="post"
+        th:hx-post="${model.updatePredicateEndpoint()}"
+        hx-target="#predicate-conditions-list"
       >
         <input
           type="hidden"
@@ -57,12 +57,20 @@
             th:id="predicate-operator-node-select"
             th:attr="hidden=${!model.screenHasPredicates()}"
           >
+            <label
+              id="predicate-operator-node-select-label"
+              class="usa-sr-only"
+              th:data-label-prefix="${model.predicateUseCase.name() == 'ELIGIBILITY'} ? #{content.predicateApplicantIsEligible} : #{content.predicateScreenIs}"
+              th:data-label-suffix="#{content.predicateConditionsAreTrue}"
+            ></label>
             <p>
               <th:block th:case="'VISIBILITY'">
                 [[#{content.predicateScreenIs}]]
                 <select
                   class="usa-select width-15 display-inline-block font-body-xs margin-left-1"
+                  id="visibility-predicate-action-select"
                   name="predicateAction"
+                  aria-labelledby="predicate-operator-node-select-label"
                 >
                   <option
                     th:each="action : ${model.visibilityActions()}"
@@ -82,12 +90,15 @@
 
               <select
                 class="usa-select width-9 display-inline-block font-body-xs margin-x-1"
-                name="root-nodeType"
+                name="root-node-type"
+                id="root-node-type"
+                aria-labelledby="predicate-operator-node-select-label"
               >
                 <option
                   th:each="nodeType : ${model.operatorNodeTypes()}"
                   th:text="${nodeType.toDisplayString()}"
                   th:value="${nodeType.name()}"
+                  th:selected="${nodeType.equals(model.rootLogicalOperator.toNodeType())}"
                 ></option>
               </select>
               [[#{content.predicateConditionsAreTrue}]]
@@ -161,15 +172,22 @@
     <div class="grid-container margin-left-0 padding-left-0 padding-top-2">
       <div class="grid-row flex-align-left">
         <button
+          id="submit-predicate"
           type="submit"
-          class="usa-button tablet:grid-col-auto"
+          class="usa-button tablet:grid-col-auto justify-center"
           form="predicate-form"
           th:text="#{button.saveAndExit}"
+          th:disabled="${!model.hasAvailableQuestions}"
         ></button>
         <button
+          id="cancel-predicate-edit"
           type="submit"
-          class="usa-button usa-button--outline tablet:grid-col-auto"
+          class="usa-button usa-button--outline tablet:grid-col-auto justify-center"
+          form="predicate-form"
+          th:formaction="${model.blockEditUrl()}"
+          formmethod="get"
           th:text="#{button.cancel}"
+          th:data-cancel-dialog="#{confirm.leaveWithoutSaving} + '&#10;&#10;' + #{confirm.unsavedChanges}"
         ></button>
         <div
           id="delete-all-conditions-button"

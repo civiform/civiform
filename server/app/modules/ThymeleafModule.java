@@ -2,6 +2,7 @@ package modules;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
@@ -129,6 +130,12 @@ public final class ThymeleafModule extends AbstractModule {
 
     public PlayThymeleafContext create(Http.RequestHeader requestHeader) {
       Locale locale = Locale.forLanguageTag(messagesApi.preferred(requestHeader).lang().code());
+      return new PlayThymeleafContext(locale);
+    }
+
+    @VisibleForTesting
+    public PlayThymeleafContext create() {
+      Locale locale = Locale.getDefault();
       return new PlayThymeleafContext(locale);
     }
   }

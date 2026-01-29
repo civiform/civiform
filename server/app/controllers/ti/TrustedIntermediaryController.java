@@ -30,9 +30,9 @@ import services.pagination.PaginationInfo;
 import services.ti.AddNewApplicantReturnObject;
 import services.ti.TrustedIntermediarySearchResult;
 import services.ti.TrustedIntermediaryService;
-import views.applicant.EditTiClientView;
-import views.applicant.TrustedIntermediaryAccountSettingsView;
-import views.applicant.TrustedIntermediaryClientListView;
+import views.trustedintermediary.EditTiClientView;
+import views.trustedintermediary.TrustedIntermediaryAccountSettingsView;
+import views.trustedintermediary.TrustedIntermediaryClientListView;
 
 /**
  * Controller for handling methods for an trusted intermediary managing their clients and applying

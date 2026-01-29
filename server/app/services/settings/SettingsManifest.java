@@ -46,6 +46,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("CIVIC_ENTITY_SMALL_LOGO_URL");
   }
 
+  /**
+   * Logo for the civic entity used in the footer. If not set, falls back to
+   * CIVIC_ENTITY_SMALL_LOGO_URL.
+   */
+  public Optional<String> getCivicEntityFooterLogoUrl() {
+    return getString("CIVIC_ENTITY_FOOTER_LOGO_URL");
+  }
+
   /** The short display name of the civic entity, will use 'TestCity' if not set. */
   public Optional<String> getWhitelabelCivicEntityShortName(RequestHeader request) {
     return getString("WHITELABEL_CIVIC_ENTITY_SHORT_NAME", request);
@@ -754,7 +762,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * The text for a link on the Common Intake confirmation page that links to more resources. Shown
+   * The text for a link on the Pre-Screener confirmation page that links to more resources. Shown
    * when the applicant is not eligible for any programs in CiviForm.
    */
   public Optional<String> getCommonIntakeMoreResourcesLinkText(RequestHeader request) {
@@ -762,7 +770,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * The HREF for a link on the Common Intake confirmation page that links to more resources. Shown
+   * The HREF for a link on the Pre-Screener confirmation page that links to more resources. Shown
    * when the applicant is not eligible for any programs in CiviForm.
    */
   public Optional<String> getCommonIntakeMoreResourcesLinkHref(RequestHeader request) {
@@ -1002,11 +1010,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("STAGING_DISABLE_DEMO_MODE_LOGINS", request);
   }
 
-  /** Enables the API docs tab on CiviForm. */
-  public boolean getApiGeneratedDocsEnabled(RequestHeader request) {
-    return getBool("API_GENERATED_DOCS_ENABLED", request);
-  }
-
   /** Enables caching for versions and their associated data. */
   public boolean getVersionCacheEnabled() {
     return getBool("VERSION_CACHE_ENABLED");
@@ -1074,6 +1077,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("MAP_QUESTION_ENABLED", request);
   }
 
+  /** Enables being able to add a new yes/no question. */
+  public boolean getYesNoQuestionEnabled() {
+    return getBool("YES_NO_QUESTION_ENABLED");
+  }
+
+  /** Enables reading settings from the cache instead of directly from the database. */
+  public boolean getSettingsCacheEnabled() {
+    return getBool("SETTINGS_CACHE_ENABLED");
+  }
+
   /** (NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration. */
   public boolean getSessionTimeoutEnabled(RequestHeader request) {
     return getBool("SESSION_TIMEOUT_ENABLED", request);
@@ -1092,19 +1105,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** (NOT FOR PRODUCTION USE) Enables translation management improvement phase one */
   public boolean getTranslationManagementImprovementEnabled(RequestHeader request) {
     return getBool("TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED", request);
-  }
-
-  /** (NOT FOR PRODUCTION USE) Enables being able to add a new yes/no question. */
-  public boolean getYesNoQuestionEnabled() {
-    return getBool("YES_NO_QUESTION_ENABLED");
-  }
-
-  /**
-   * (NOT FOR PRODUCTION USE) Enables reading settings from the cache instead of directly from the
-   * database.
-   */
-  public boolean getSettingsCacheEnabled() {
-    return getBool("SETTINGS_CACHE_ENABLED");
   }
 
   /** (NOT FOR PRODUCTION USE) Enables changes to support API Bridge */
@@ -1136,6 +1136,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("ENUMERATOR_IMPROVEMENTS_ENABLED", request);
   }
 
+  /** (NOT FOR PRODUCTION USE) Enable the admin UI migration in Thymeleaf. */
+  public boolean getAdminUiMigrationScEnabled(RequestHeader request) {
+    return getBool("ADMIN_UI_MIGRATION_SC_ENABLED", request);
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.<String, SettingsSection>builder()
           .put(
@@ -1149,6 +1154,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "CIVIC_ENTITY_SMALL_LOGO_URL",
                           "Small logo for the civic entity used on the login page.",
                           /* isRequired= */ true,
+                          SettingType.STRING,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "CIVIC_ENTITY_FOOTER_LOGO_URL",
+                          "Logo for the civic entity used in the footer. If not set, falls back to"
+                              + " CIVIC_ENTITY_SMALL_LOGO_URL.",
+                          /* isRequired= */ false,
                           SettingType.STRING,
                           SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
@@ -2062,7 +2074,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   ImmutableList.of(
                       SettingDescription.create(
                           "COMMON_INTAKE_MORE_RESOURCES_LINK_TEXT",
-                          "The text for a link on the Common Intake confirmation page that links to"
+                          "The text for a link on the Pre-Screener confirmation page that links to"
                               + " more resources. Shown when the applicant is not eligible for any"
                               + " programs in CiviForm.",
                           /* isRequired= */ false,
@@ -2070,7 +2082,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "COMMON_INTAKE_MORE_RESOURCES_LINK_HREF",
-                          "The HREF for a link on the Common Intake confirmation page that links to"
+                          "The HREF for a link on the Pre-Screener confirmation page that links to"
                               + " more resources. Shown when the applicant is not eligible for any"
                               + " programs in CiviForm.",
                           /* isRequired= */ false,
@@ -2251,12 +2263,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "API_GENERATED_DOCS_ENABLED",
-                          "Enables the API docs tab on CiviForm.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
                           "VERSION_CACHE_ENABLED",
                           "Enables caching for versions and their associated data.",
                           /* isRequired= */ false,
@@ -2335,7 +2341,20 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " programs.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE))))
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "YES_NO_QUESTION_ENABLED",
+                          "Enables being able to add a new yes/no question.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "SETTINGS_CACHE_ENABLED",
+                          "Enables reading settings from the cache instead of directly from the"
+                              + " database.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_READABLE))))
           .put(
               "Experimental",
               SettingsSection.create(
@@ -2372,20 +2391,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "YES_NO_QUESTION_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enables being able to add a new yes/no"
-                              + " question.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
-                          "SETTINGS_CACHE_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enables reading settings from the cache instead"
-                              + " of directly from the database.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
                           "API_BRIDGE_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables changes to support API Bridge",
                           /* isRequired= */ false,
@@ -2409,6 +2414,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "ENUMERATOR_IMPROVEMENTS_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables improvements which make it easier for"
                               + " admins to work with enumerators.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "ADMIN_UI_MIGRATION_SC_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enable the admin UI migration in Thymeleaf.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))

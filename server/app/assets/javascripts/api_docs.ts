@@ -1,4 +1,4 @@
-import {addEventListenerToElements} from './util'
+import {addEventListenerToElements} from '@/util'
 
 class ApiDocs {
   // Redirects the user to the active version of the program slug they just selected upon

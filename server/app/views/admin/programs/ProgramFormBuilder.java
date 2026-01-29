@@ -169,7 +169,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
       ImmutableList<Long> categories,
       ImmutableList<Map<String, String>> applicationSteps) {
     boolean isDefaultProgram = programType.equals(ProgramType.DEFAULT);
-    boolean isPreScreenerForm = programType.equals(ProgramType.COMMON_INTAKE_FORM);
+    boolean isPreScreenerForm = programType.equals(ProgramType.PRE_SCREENER_FORM);
     boolean isExternalProgram = programType.equals(ProgramType.EXTERNAL);
     boolean isExternalProgramCardsEnabled =
         settingsManifest.getExternalProgramCardsEnabled(request);
@@ -198,15 +198,15 @@ public class ProgramFormBuilder extends BaseHtmlView {
                 .getInputTag()
                 .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
             // Short description
-            FieldWithLabel.textArea()
-                .setId("program-display-short-description-textarea")
+            FieldWithLabel.input()
+                .setId("program-display-short-description-input")
                 .setFieldName("localizedShortDescription")
                 .setLabelText(
                     "Short description of this program for the public. Maximum 100 characters.")
                 .setMaxLength(100)
                 .setRequired(true)
                 .setValue(shortDescription)
-                .getTextareaTag()
+                .getInputTag()
                 .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
             // Program slug
             iffElse(
@@ -412,7 +412,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
       // program, since an external program cannot change type after creation.
       if (programEditStatus.equals(ProgramEditStatus.EDIT)) {
         switch (programType) {
-          case DEFAULT, COMMON_INTAKE_FORM -> {
+          case DEFAULT, PRE_SCREENER_FORM -> {
             defaultProgramFieldDisabled = false;
             preScreenerFieldDisabled = false;
             externalProgramFieldDisabled = true;
@@ -454,8 +454,8 @@ public class ProgramFormBuilder extends BaseHtmlView {
                   buildUSWDSRadioOption(
                       /* id= */ "pre-screener-program-option",
                       /* name= */ PROGRAM_TYPE_FIELD_NAME,
-                      /* value= */ ProgramType.COMMON_INTAKE_FORM.getValue(),
-                      /* isChecked= */ programType.equals(ProgramType.COMMON_INTAKE_FORM),
+                      /* value= */ ProgramType.PRE_SCREENER_FORM.getValue(),
+                      /* isChecked= */ programType.equals(ProgramType.PRE_SCREENER_FORM),
                       /* isDisabled= */ preScreenerFieldDisabled,
                       /* label= */ "Pre-screener",
                       /* description */ Optional.of(
@@ -473,8 +473,8 @@ public class ProgramFormBuilder extends BaseHtmlView {
                               .withClasses("usa-checkbox__input")
                               .withType("checkbox")
                               .withName(PROGRAM_TYPE_FIELD_NAME)
-                              .withValue(ProgramType.COMMON_INTAKE_FORM.getValue())
-                              .withCondChecked(programType.equals(ProgramType.COMMON_INTAKE_FORM)),
+                              .withValue(ProgramType.PRE_SCREENER_FORM.getValue())
+                              .withCondChecked(programType.equals(ProgramType.PRE_SCREENER_FORM)),
                           label("Set program as pre-screener")
                               .withFor("pre-screener-checkbox")
                               .withClasses("usa-checkbox__label"),

@@ -6,6 +6,7 @@ import controllers.admin.AdminProgramBlockPredicatesController.ScalarOptionEleme
 import controllers.admin.routes;
 import java.util.Optional;
 import lombok.Builder;
+import services.program.predicate.PredicateLogicalOperator;
 import services.program.predicate.PredicateUseCase;
 
 /** Model for rendering the EditConditionPartial.html */
@@ -14,11 +15,13 @@ public record EditConditionPartialViewModel(
     long programId,
     long blockId,
     PredicateUseCase predicateUseCase,
+    PredicateLogicalOperator subconditionLogicalOperator,
     ImmutableList<EditSubconditionPartialViewModel> subconditions,
     ImmutableList<OptionElement> questionOptions,
     ImmutableList<ScalarOptionElement> scalarOptions,
     ImmutableList<OptionElement> operatorOptions,
-    ImmutableList<OptionElement> valueOptions)
+    ImmutableList<OptionElement> valueOptions,
+    boolean focusLogicDropdown)
     implements EditPredicateBaseViewModel {
 
   public String hxAddConditionEndpoint() {
@@ -49,8 +52,8 @@ public record EditConditionPartialViewModel(
         .scalarOptions(scalarOptions)
         .operatorOptions(operatorOptions)
         .valueOptions(valueOptions)
+        .invalidInputIds(ImmutableList.of())
         .autofocus(false)
-        .shouldAnnounceChanges(false)
         .build();
   }
 
@@ -60,6 +63,7 @@ public record EditConditionPartialViewModel(
         .blockId(blockId)
         .conditionId(conditionId)
         .predicateUseCase(predicateUseCase)
+        .predicateLogicalOperator(subconditionLogicalOperator)
         .subconditions(subconditions)
         .build();
   }

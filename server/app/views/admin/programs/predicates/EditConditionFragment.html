@@ -4,6 +4,8 @@
     class="usa-card margin-bottom-2 border border-base-lighter radius-md width-mobile-lg"
     th:id="${'condition-' + conditionId}"
     th:data-testid="|condition-${conditionId}|"
+    th:with="subconditionLogicSelectorId=${'condition-' + conditionId + '-node-type'},
+    subconditionLogicLabelId=${'condition-' + conditionId + '-node-type-label'}"
   >
     <div class="usa-card__header">
       <div class="display-flex flex-justify flex-align-center">
@@ -39,16 +41,27 @@
     </div>
     <div class="usa-card__body font-body-xs">
       <div class="border-top border-base-lighter margin-y-2"></div>
+      <label
+        th:id="${subconditionLogicLabelId}"
+        th:for="${subconditionLogicSelectorId}"
+        class="usa-sr-only"
+        th:data-label-prefix="#{content.predicateConditionIsTrueIf}"
+        th:data-label-suffix="#{content.predicateSubconditionsAreTrue}"
+      ></label>
       <div class="font-body-xs">
         [[#{content.predicateConditionIsTrueIf}]]
         <select
-          class="usa-select width-9 display-inline-block font-body-xs margin-x-1"
-          th:name="|condition-${conditionId}-nodeType|"
+          class="cf-subcondition-logic-select usa-select width-9 display-inline-block font-body-xs margin-x-1"
+          th:name="|condition-${conditionId}-node-type|"
+          th:id="${subconditionLogicSelectorId}"
+          th:data-condition-id="${conditionId}"
+          th:autofocus="${model.focusLogicDropdown}"
         >
           <option
             th:each="nodeType : ${model.operatorNodeTypes()}"
             th:text="${nodeType.toDisplayString()}"
             th:value="${nodeType.name()}"
+            th:selected="${nodeType.equals(model.subconditionLogicalOperator.toNodeType())}"
           ></option>
         </select>
         [[#{content.predicateSubconditionsAreTrue}]]

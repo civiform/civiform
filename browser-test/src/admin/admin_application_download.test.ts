@@ -127,6 +127,7 @@ test.describe('csv export for multioption question', () => {
     await seeding.seedQuestions()
     await page.goto('/')
   })
+
   test('multioption csv into its own column', async ({
     page,
     adminQuestions,
@@ -136,6 +137,7 @@ test.describe('csv export for multioption question', () => {
     const noApplyFilters = false
 
     const programName = 'Checkbox question program for export'
+
     await test.step('Setup program with multioption question', async () => {
       await loginAsAdmin(page)
       await adminQuestions.createCheckboxQuestion(

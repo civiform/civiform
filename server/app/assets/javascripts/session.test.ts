@@ -1,23 +1,23 @@
 import {expect, describe, it, beforeEach, afterEach, vi, Mock} from 'vitest'
-import {SessionTimeoutHandler} from './session'
-import {ToastController} from './toast'
-import {WarningType} from './session'
+import {SessionTimeoutHandler} from '@/session'
+import {ToastController} from '@/toast'
+import {WarningType} from '@/session'
 
 type SessionTimeoutHandlerType = typeof SessionTimeoutHandler & {
   logout: () => void
-  checkAndSetTimer: () => void
-  showWarning: (type: WarningType) => void
+  pollSession: () => void
+  setWarningModalVisible: (type: WarningType) => void
   inactivityWarningShown: boolean
   totalLengthWarningShown: boolean
+  isInitialized: boolean
 }
 
-// TODO: GH10925 Fix and re-enable
-describe.skip('SessionTimeoutHandler', () => {
+describe('SessionTimeoutHandler', () => {
   let container: HTMLElement
   let inactivityModal: HTMLElement
   let lengthModal: HTMLElement
   let extendSessionForm: HTMLFormElement
-  let consoleSpy: ReturnType<typeof vi.spyOn>
+  let showToastSpy: ReturnType<typeof vi.spyOn>
 
   /**
    * Create inactivity warning modal with new structure
@@ -171,14 +171,33 @@ describe.skip('SessionTimeoutHandler', () => {
    */
   function setupMocks() {
     // Mock ToastController
-    vi.spyOn(ToastController, 'showToastMessage').mockImplementation(() => {})
-
-    // Mock console.error
-    consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    showToastSpy = vi
+      .spyOn(ToastController, 'showToastMessage')
+      .mockImplementation(() => {})
 
     // Mock window.location
     Object.defineProperty(window, 'location', {
       value: {href: ''},
+      writable: true,
+    })
+
+    const sessionStorageMock = (() => {
+      let store: Record<string, string> = {}
+      return {
+        getItem: (key: string) => store[key] || null,
+        setItem: (key: string, value: string) => {
+          store[key] = value
+        },
+        removeItem: (key: string) => {
+          delete store[key]
+        },
+        clear: () => {
+          store = {}
+        },
+      }
+    })()
+    Object.defineProperty(window, 'sessionStorage', {
+      value: sessionStorageMock,
       writable: true,
     })
   }
@@ -186,6 +205,8 @@ describe.skip('SessionTimeoutHandler', () => {
   beforeEach(() => {
     setupDomElements()
     setupMocks()
+    // Reset initialization flag
+    SessionTimeoutHandler['isInitialized'] = false
   })
 
   afterEach(() => {
@@ -193,441 +214,599 @@ describe.skip('SessionTimeoutHandler', () => {
 
     vi.clearAllMocks()
 
-    SessionTimeoutHandler['inactivityWarningShown'] = false
-    SessionTimeoutHandler['totalLengthWarningShown'] = false
+    sessionStorage.clear()
+
+    // Reset all static flags
+    SessionTimeoutHandler['inactivityWarningVisible'] = false
+    SessionTimeoutHandler['totalLengthWarningVisible'] = false
+    SessionTimeoutHandler['isInitialized'] = false
   })
 
-  describe('showWarning', () => {
+  describe('setWarningModalVisible', () => {
     it('shows inactivity warning modal', () => {
-      SessionTimeoutHandler['showWarning'](WarningType.INACTIVITY)
+      SessionTimeoutHandler['setWarningModalVisible'](
+        WarningType.INACTIVITY,
+        true,
+      )
 
       expect(inactivityModal.classList.contains('is-hidden')).toBe(false)
-
-      expect(SessionTimeoutHandler['inactivityWarningShown']).toBe(true)
     })
 
     it('shows total length warning modal', () => {
-      SessionTimeoutHandler['showWarning'](WarningType.TOTAL_LENGTH)
+      SessionTimeoutHandler['setWarningModalVisible'](
+        WarningType.TOTAL_LENGTH,
+        true,
+      )
 
       expect(lengthModal.classList.contains('is-hidden')).toBe(false)
+    })
+  })
 
-      expect(SessionTimeoutHandler['totalLengthWarningShown']).toBe(true)
+  describe('monitorSession', () => {
+    it('shows inactivity warning and sets flags when time has passed', () => {
+      const now = Math.floor(Date.now() / 1000)
+      const data = {
+        inactivityWarning: now - 60,
+        inactivityTimeout: now + 60,
+        totalWarning: now + 3600,
+        totalTimeout: now + 7200,
+        currentTime: now,
+      }
+
+      SessionTimeoutHandler['monitorSession'](data, now)
+
+      expect(inactivityModal.classList.contains('is-hidden')).toBe(false)
+      expect(SessionTimeoutHandler['inactivityWarningVisible']).toBe(true)
+      expect(SessionTimeoutHandler['totalLengthWarningVisible']).toBe(false)
     })
 
-    it('does not show inactivity warning modal if already shown', () => {
-      SessionTimeoutHandler['inactivityWarningShown'] = true
+    it('shows total length warning and sets flags when time has passed', () => {
+      const now = Math.floor(Date.now() / 1000)
+      const data = {
+        inactivityWarning: now + 3600,
+        inactivityTimeout: now + 7200,
+        totalWarning: now - 60,
+        totalTimeout: now + 60,
+        currentTime: now,
+      }
 
+      SessionTimeoutHandler['monitorSession'](data, now)
+
+      expect(lengthModal.classList.contains('is-hidden')).toBe(false)
+      expect(SessionTimeoutHandler['totalLengthWarningVisible']).toBe(true)
+    })
+
+    it('does not show inactivity warning if already shown', () => {
+      SessionTimeoutHandler['inactivityWarningVisible'] = true
       inactivityModal.classList.add('is-hidden')
 
-      SessionTimeoutHandler['showWarning'](WarningType.INACTIVITY)
+      const now = Math.floor(Date.now() / 1000)
+      const data = {
+        inactivityWarning: now - 60,
+        inactivityTimeout: now + 60,
+        totalWarning: now + 3600,
+        totalTimeout: now + 7200,
+        currentTime: now,
+      }
+
+      SessionTimeoutHandler['monitorSession'](data, now)
 
       expect(inactivityModal.classList.contains('is-hidden')).toBe(true)
     })
 
-    it('does not show total length warning modal if already shown', () => {
-      SessionTimeoutHandler['totalLengthWarningShown'] = true
-
+    it('does not show total length warning if already shown', () => {
+      SessionTimeoutHandler['totalLengthWarningVisible'] = true
       lengthModal.classList.add('is-hidden')
 
-      SessionTimeoutHandler['showWarning'](WarningType.TOTAL_LENGTH)
-
-      expect(lengthModal.classList.contains('is-hidden')).toBe(true)
-    })
-
-    it('logs error if modal element is not found', () => {
-      inactivityModal.remove()
-
-      SessionTimeoutHandler['showWarning'](WarningType.INACTIVITY)
-
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Modal with ID session-inactivity-warning-modal not found',
-      )
-    })
-  })
-
-  describe('setupModalEventHandlers', () => {
-    it('handles successful session extension', () => {
-      SessionTimeoutHandler.init()
-
-      // Create a mock HTMX event
-      const successEvent = new CustomEvent('htmx:afterRequest', {
-        detail: {
-          xhr: {status: 200},
-          elt: extendSessionForm,
-        },
-      })
-
-      document.dispatchEvent(successEvent)
-
-      expect(inactivityModal.classList.contains('is-hidden')).toBe(true)
-
-      expect(SessionTimeoutHandler['inactivityWarningShown']).toBe(false)
-
-      expect(ToastController.showToastMessage).toHaveBeenCalledWith(
-        expect.objectContaining({
-          id: 'session-extended-toast',
-          type: 'success',
-        }),
-      )
-    })
-
-    it('handles failed session extension', () => {
-      SessionTimeoutHandler.init()
-
-      // Create a mock HTMX event
-      const failEvent = new CustomEvent('htmx:afterRequest', {
-        detail: {
-          xhr: {status: 500},
-          elt: extendSessionForm,
-        },
-      })
-
-      document.dispatchEvent(failEvent)
-
-      expect(inactivityModal.classList.contains('is-hidden')).toBe(true)
-
-      expect(SessionTimeoutHandler['inactivityWarningShown']).toBe(false)
-
-      expect(ToastController.showToastMessage).toHaveBeenCalledWith(
-        expect.objectContaining({
-          id: 'session-extend-error-toast',
-          type: 'error',
-        }),
-      )
-    })
-
-    it('handles logout button click', () => {
-      SessionTimeoutHandler.init()
-
-      const logoutButton = lengthModal.querySelector(
-        '[data-modal-primary][data-modal-type="session-length-warning"]',
-      ) as HTMLButtonElement
-      logoutButton?.click()
-
-      expect(window.location.href).toBe('/logout')
-    })
-
-    it('handles inactivity cancel button click', () => {
-      SessionTimeoutHandler.init()
-      SessionTimeoutHandler['inactivityWarningShown'] = true
-      inactivityModal.classList.remove('is-hidden')
-
-      const cancelButton = inactivityModal.querySelector(
-        '[data-modal-secondary][data-modal-type="session-inactivity-warning"]',
-      ) as HTMLButtonElement
-      cancelButton?.click()
-
-      expect(inactivityModal.classList.contains('is-hidden')).toBe(true)
-      expect(SessionTimeoutHandler['inactivityWarningShown']).toBe(false)
-    })
-
-    it('handles length cancel button click', () => {
-      SessionTimeoutHandler.init()
-      SessionTimeoutHandler['totalLengthWarningShown'] = true
-      lengthModal.classList.remove('is-hidden')
-
-      const cancelButton = lengthModal.querySelector(
-        '[data-modal-secondary][data-modal-type="session-length-warning"]',
-      ) as HTMLButtonElement
-      cancelButton?.click()
-
-      expect(lengthModal.classList.contains('is-hidden')).toBe(true)
-      expect(SessionTimeoutHandler['totalLengthWarningShown']).toBe(false)
-    })
-  })
-
-  describe('Modal Event Handlers', () => {
-    let originalLocation: Location
-
-    beforeEach(() => {
-      // Store original location
-      originalLocation = window.location
-
-      // Mock window.location
-      Object.defineProperty(window, 'location', {
-        configurable: true,
-        enumerable: true,
-        value: {href: ''},
-      })
-    })
-
-    afterEach(() => {
-      // Restore original location
-      Object.defineProperty(window, 'location', {
-        configurable: true,
-        enumerable: true,
-        value: originalLocation,
-      })
-    })
-
-    it('handles primary button click for inactivity warning', () => {
-      SessionTimeoutHandler.init()
-      const primaryButton = inactivityModal.querySelector(
-        '[data-modal-primary][data-modal-type="session-inactivity-warning"]',
-      ) as HTMLButtonElement
-      const requestSubmitSpy = vi.spyOn(extendSessionForm, 'requestSubmit')
-
-      primaryButton?.click()
-      expect(requestSubmitSpy).toHaveBeenCalled()
-    })
-
-    it('handles primary button click for session length warning', () => {
-      const logoutSpy = vi.spyOn(
-        SessionTimeoutHandler as SessionTimeoutHandlerType,
-        'logout',
-      )
-      SessionTimeoutHandler.init()
-
-      const primaryButton = lengthModal.querySelector(
-        '[data-modal-primary][data-modal-type="session-length-warning"]',
-      ) as HTMLButtonElement
-      primaryButton?.click()
-
-      expect(logoutSpy).toHaveBeenCalled()
-    })
-
-    it('handles secondary button click', () => {
-      SessionTimeoutHandler.init()
-      const secondaryButton = inactivityModal.querySelector(
-        '[data-modal-secondary][data-modal-type="session-inactivity-warning"]',
-      ) as HTMLButtonElement
-      secondaryButton?.click()
-
-      expect(inactivityModal.classList.contains('is-hidden')).toBe(true)
-      expect(SessionTimeoutHandler['inactivityWarningShown']).toBe(false)
-    })
-
-    it('handles close button click', () => {
-      SessionTimeoutHandler.init()
-      const closeButton = inactivityModal.querySelector(
-        '[data-close-modal][data-modal-type="session-inactivity-warning"]',
-      ) as HTMLButtonElement
-      closeButton?.click()
-
-      expect(inactivityModal.classList.contains('is-hidden')).toBe(true)
-      expect(SessionTimeoutHandler['inactivityWarningShown']).toBe(false)
-    })
-
-    it('shows localized success message on successful session extension', () => {
-      SessionTimeoutHandler.init()
-      const successEvent = new CustomEvent('htmx:afterRequest', {
-        detail: {
-          xhr: {status: 200},
-          elt: extendSessionForm,
-        },
-      })
-
-      document.dispatchEvent(successEvent)
-
-      expect(ToastController.showToastMessage).toHaveBeenCalledWith(
-        expect.objectContaining({
-          content: 'Session successfully extended',
-          type: 'success',
-        }),
-      )
-    })
-
-    it('calls logout when handling timeout', () => {
-      const logoutSpy = vi.spyOn(
-        SessionTimeoutHandler as SessionTimeoutHandlerType,
-        'logout',
-      )
-      SessionTimeoutHandler.init()
-
-      const expiredTimeoutData = {
-        inactivityWarning: 0,
-        inactivityTimeout: 0,
-        totalWarning: 0,
-        totalTimeout: 0,
-        currentTime: 0,
+      const now = Math.floor(Date.now() / 1000)
+      const data = {
+        inactivityWarning: now + 3600,
+        inactivityTimeout: now + 7200,
+        totalWarning: now - 60,
+        totalTimeout: now + 60,
+        currentTime: now,
       }
-      document.cookie = `session_timeout_data=${btoa(JSON.stringify(expiredTimeoutData))}`
 
-      SessionTimeoutHandler['checkAndSetTimer']()
+      SessionTimeoutHandler['monitorSession'](data, now)
 
-      expect(logoutSpy).toHaveBeenCalled()
-    })
-  })
-
-  describe('checkAndSetTimer', () => {
-    beforeEach(() => {
-      vi.useFakeTimers()
-      // Reset static flags
-      SessionTimeoutHandler['hasInactivityWarningBeenShown'] = false
-      SessionTimeoutHandler['hasTotalLengthWarningBeenShown'] = false
-      SessionTimeoutHandler['inactivityWarningShown'] = false
-      SessionTimeoutHandler['totalLengthWarningShown'] = false
-      SessionTimeoutHandler['timer'] = null
+      expect(lengthModal.classList.contains('is-hidden')).toBe(true)
     })
 
-    afterEach(() => {
-      vi.useRealTimers()
-      document.cookie = `${SessionTimeoutHandler['TIMEOUT_COOKIE_NAME']}=; expires=Thu, 01 Jan 1970 00:00:00 GMT`
-    })
+    it('does not show inactivity warning again after dismissal with same timestamp', () => {
+      const now = Math.floor(Date.now() / 1000)
+      const warningTimestamp = now - 60
+      const data = {
+        inactivityWarning: warningTimestamp,
+        inactivityTimeout: now + 60,
+        totalWarning: now + 3600,
+        totalTimeout: now + 7200,
+        currentTime: now,
+      }
 
-    it('immediately logs out if timeout is reached', () => {
-      const logoutSpy = vi.spyOn(
-        SessionTimeoutHandler as SessionTimeoutHandlerType,
-        'handleTimeout',
+      // First call shows the warning
+      SessionTimeoutHandler['monitorSession'](data, now)
+      expect(inactivityModal.classList.contains('is-hidden')).toBe(false)
+      expect(SessionTimeoutHandler['inactivityWarningVisible']).toBe(true)
+
+      // User dismisses the modal
+      SessionTimeoutHandler['setWarningModalVisible'](
+        WarningType.INACTIVITY,
+        false,
       )
-      const now = Math.floor(Date.now() / 1000)
+      expect(inactivityModal.classList.contains('is-hidden')).toBe(true)
+      expect(SessionTimeoutHandler['inactivityWarningVisible']).toBe(false)
 
-      document.cookie = `session_timeout_data=${btoa(
-        JSON.stringify({
-          inactivityWarning: now - 120,
-          inactivityTimeout: now - 60, // Past timeout
-          totalWarning: now + 3600,
-          totalTimeout: now + 7200,
-          currentTime: now,
-        }),
-      )}`
-
-      SessionTimeoutHandler['checkAndSetTimer']()
-      expect(logoutSpy).toHaveBeenCalled()
+      // Second call should NOT show the warning again (same timestamp)
+      SessionTimeoutHandler['monitorSession'](data, now)
+      expect(inactivityModal.classList.contains('is-hidden')).toBe(true)
+      expect(SessionTimeoutHandler['inactivityWarningVisible']).toBe(false)
     })
 
-    it('shows inactivity warning immediately if time has passed and not shown before', () => {
-      const showWarningSpy = vi.spyOn(
-        SessionTimeoutHandler as SessionTimeoutHandlerType,
-        'showWarning',
-      ) as Mock<(type: WarningType) => void>
-
+    it('does not show total length warning again after dismissal', () => {
       const now = Math.floor(Date.now() / 1000)
+      const warningTimestamp = now - 60
+      const data = {
+        inactivityWarning: now + 3600,
+        inactivityTimeout: now + 7200,
+        totalWarning: warningTimestamp,
+        totalTimeout: now + 60,
+        currentTime: now,
+      }
 
-      document.cookie = `session_timeout_data=${btoa(
-        JSON.stringify({
-          inactivityWarning: now - 60, // Past warning
-          inactivityTimeout: now + 60,
-          totalWarning: now + 3600,
-          totalTimeout: now + 7200,
-          currentTime: now,
-        }),
-      )}`
+      // First call shows the warning
+      SessionTimeoutHandler['monitorSession'](data, now)
+      expect(lengthModal.classList.contains('is-hidden')).toBe(false)
+      expect(SessionTimeoutHandler['totalLengthWarningVisible']).toBe(true)
 
-      SessionTimeoutHandler['checkAndSetTimer']()
-      expect(showWarningSpy).toHaveBeenCalledWith(WarningType.INACTIVITY)
-      expect(SessionTimeoutHandler['hasInactivityWarningBeenShown']).toBe(true)
-    })
-
-    it('does not show inactivity warning if already shown before', () => {
-      const showWarningSpy = vi.spyOn(
-        SessionTimeoutHandler as SessionTimeoutHandlerType,
-        'showWarning',
+      // User dismisses the modal
+      SessionTimeoutHandler['setWarningModalVisible'](
+        WarningType.TOTAL_LENGTH,
+        false,
       )
-      const now = Math.floor(Date.now() / 1000)
+      expect(lengthModal.classList.contains('is-hidden')).toBe(true)
+      expect(SessionTimeoutHandler['totalLengthWarningVisible']).toBe(false)
 
-      SessionTimeoutHandler['hasInactivityWarningBeenShown'] = true
-
-      document.cookie = `session_timeout_data=${btoa(
-        JSON.stringify({
-          inactivityWarning: now - 60,
-          inactivityTimeout: now + 60,
-          totalWarning: now + 3600,
-          totalTimeout: now + 7200,
-          currentTime: now,
-        }),
-      )}`
-
-      SessionTimeoutHandler['checkAndSetTimer']()
-      expect(showWarningSpy).not.toHaveBeenCalled()
+      // Second call should NOT show the warning again (same timestamp)
+      SessionTimeoutHandler['monitorSession'](data, now)
+      expect(lengthModal.classList.contains('is-hidden')).toBe(true)
+      expect(SessionTimeoutHandler['totalLengthWarningVisible']).toBe(false)
     })
 
-    it('shows total length warning if time has passed and no other warning shown', () => {
-      const showWarningSpy = vi.spyOn(
-        SessionTimeoutHandler as SessionTimeoutHandlerType,
-        'showWarning',
-      ) as Mock<(type: WarningType) => void>
-
+    it('shows warning again after session extension with new timestamp', () => {
       const now = Math.floor(Date.now() / 1000)
+      const oldWarningTimestamp = now - 60
+      const newWarningTimestamp = now + 240 // New timestamp after session extension
 
-      document.cookie = `session_timeout_data=${btoa(
-        JSON.stringify({
-          inactivityWarning: now + 3600,
-          inactivityTimeout: now + 7200,
-          totalWarning: now - 60, // Past warning
-          totalTimeout: now + 3600,
-          currentTime: now,
-        }),
-      )}`
+      const oldData = {
+        inactivityWarning: oldWarningTimestamp,
+        inactivityTimeout: now + 60,
+        totalWarning: now + 3600,
+        totalTimeout: now + 7200,
+        currentTime: now,
+      }
 
-      SessionTimeoutHandler['checkAndSetTimer']()
-      expect(showWarningSpy).toHaveBeenCalledWith(WarningType.TOTAL_LENGTH)
-      expect(SessionTimeoutHandler['hasTotalLengthWarningBeenShown']).toBe(true)
-    })
+      // First call shows the warning with old timestamp
+      SessionTimeoutHandler['monitorSession'](oldData, now)
+      expect(inactivityModal.classList.contains('is-hidden')).toBe(false)
 
-    it('does not show total length warning if inactivity warning is showing', () => {
-      const showWarningSpy = vi.spyOn(
-        SessionTimeoutHandler as SessionTimeoutHandlerType,
-        'showWarning',
+      // User dismisses and extends session
+      SessionTimeoutHandler['setWarningModalVisible'](
+        WarningType.INACTIVITY,
+        false,
       )
-      const now = Math.floor(Date.now() / 1000)
 
-      SessionTimeoutHandler['inactivityWarningShown'] = true
+      // Simulate time passing and new warning threshold being reached
+      const laterNow = now + 300
+      const newData = {
+        inactivityWarning: newWarningTimestamp, // New timestamp from extended session
+        inactivityTimeout: laterNow + 60,
+        totalWarning: laterNow + 3600,
+        totalTimeout: laterNow + 7200,
+        currentTime: laterNow,
+      }
 
-      document.cookie = `session_timeout_data=${btoa(
-        JSON.stringify({
-          inactivityWarning: now - 60,
-          inactivityTimeout: now + 60,
-          totalWarning: now - 30, // Past warning
-          totalTimeout: now + 3600,
-          currentTime: now,
-        }),
-      )}`
-
-      SessionTimeoutHandler['checkAndSetTimer']()
-      expect(showWarningSpy).not.toHaveBeenCalled()
+      // Warning should show again because timestamp is different
+      SessionTimeoutHandler['monitorSession'](newData, laterNow)
+      expect(inactivityModal.classList.contains('is-hidden')).toBe(false)
+      expect(SessionTimeoutHandler['inactivityWarningVisible']).toBe(true)
     })
 
-    it('sets timer for future inactivity warning', () => {
-      const showWarningSpy = vi.spyOn(
-        SessionTimeoutHandler as SessionTimeoutHandlerType,
-        'showWarning',
-      ) as Mock<(type: WarningType) => void>
-
+    it('persists shown state across simulated page navigations', () => {
       const now = Math.floor(Date.now() / 1000)
+      const warningTimestamp = now - 60
+      const data = {
+        inactivityWarning: warningTimestamp,
+        inactivityTimeout: now + 60,
+        totalWarning: now + 3600,
+        totalTimeout: now + 7200,
+        currentTime: now,
+      }
 
-      document.cookie = `session_timeout_data=${btoa(
-        JSON.stringify({
-          inactivityWarning: now + 60, // Future warning
-          inactivityTimeout: now + 120,
-          totalWarning: now + 3600,
-          totalTimeout: now + 7200,
-          currentTime: now,
-        }),
-      )}`
+      // First call shows the warning
+      SessionTimeoutHandler['monitorSession'](data, now)
+      expect(inactivityModal.classList.contains('is-hidden')).toBe(false)
 
-      SessionTimeoutHandler['checkAndSetTimer']()
-      expect(SessionTimeoutHandler['timer']).not.toBeNull()
+      // User dismisses the modal
+      SessionTimeoutHandler['setWarningModalVisible'](
+        WarningType.INACTIVITY,
+        false,
+      )
 
-      // Fast forward to warning time
-      vi.advanceTimersByTime(60000)
-      expect(showWarningSpy).toHaveBeenCalledWith(WarningType.INACTIVITY)
+      // Simulate page navigation by resetting the visible flag (as would happen on new page load)
+      SessionTimeoutHandler['inactivityWarningVisible'] = false
+      inactivityModal.classList.add('is-hidden')
+
+      // Warning should NOT show again because sessionStorage remembers the timestamp
+      SessionTimeoutHandler['monitorSession'](data, now)
+      expect(inactivityModal.classList.contains('is-hidden')).toBe(true)
+      expect(SessionTimeoutHandler['inactivityWarningVisible']).toBe(false)
     })
 
-    it('clears existing timer before setting new one', () => {
-      const clearTimeoutSpy = vi.spyOn(window, 'clearTimeout') as Mock<
-        (type: number | null) => void
-      >
-      const now = Math.floor(Date.now() / 1000)
+    describe('setupModalEventHandlers', () => {
+      it('handles successful session extension', () => {
+        SessionTimeoutHandler.init()
 
-      // Set initial timer
-      document.cookie = `session_timeout_data=${btoa(
-        JSON.stringify({
-          inactivityWarning: now + 60,
-          inactivityTimeout: now + 120,
-          totalWarning: now + 3600,
-          totalTimeout: now + 7200,
-          currentTime: now,
-        }),
-      )}`
+        // Create a mock HTMX event
+        const successEvent = new CustomEvent('htmx:afterRequest', {
+          detail: {
+            xhr: {status: 200},
+            elt: extendSessionForm,
+          },
+        })
 
-      SessionTimeoutHandler['checkAndSetTimer']()
-      const firstTimer = SessionTimeoutHandler['timer']
-      expect(firstTimer).not.toBeNull()
+        document.dispatchEvent(successEvent)
 
-      // Call again to check if timer is cleared
-      SessionTimeoutHandler['checkAndSetTimer']()
-      expect(clearTimeoutSpy).toHaveBeenCalledWith(firstTimer)
+        expect(inactivityModal.classList.contains('is-hidden')).toBe(true)
+
+        expect(SessionTimeoutHandler['inactivityWarningVisible']).toBe(false)
+
+        expect(showToastSpy).toHaveBeenCalledWith(
+          expect.objectContaining({
+            id: 'session-extended-toast',
+            type: 'success',
+          }),
+        )
+      })
+
+      it('handles failed session extension', () => {
+        SessionTimeoutHandler.init()
+
+        // Create a mock HTMX event
+        const failEvent = new CustomEvent('htmx:afterRequest', {
+          detail: {
+            xhr: {status: 500},
+            elt: extendSessionForm,
+          },
+        })
+
+        document.dispatchEvent(failEvent)
+
+        expect(inactivityModal.classList.contains('is-hidden')).toBe(true)
+
+        expect(SessionTimeoutHandler['inactivityWarningVisible']).toBe(false)
+
+        expect(showToastSpy).toHaveBeenCalledWith(
+          expect.objectContaining({
+            id: 'session-extend-error-toast',
+            type: 'error',
+          }),
+        )
+      })
+
+      it('handles logout button click', () => {
+        SessionTimeoutHandler.init()
+
+        const logoutButton = lengthModal.querySelector(
+          '[data-modal-primary][data-modal-type="session-length-warning"]',
+        ) as HTMLButtonElement
+        logoutButton?.click()
+
+        expect(window.location.href).toBe('/logout')
+      })
+
+      it('handles inactivity cancel button click', () => {
+        SessionTimeoutHandler.init()
+        SessionTimeoutHandler['inactivityWarningVisible'] = true
+        inactivityModal.classList.remove('is-hidden')
+
+        const cancelButton = inactivityModal.querySelector(
+          '[data-modal-secondary][data-modal-type="session-inactivity-warning"]',
+        ) as HTMLButtonElement
+        cancelButton?.click()
+
+        expect(inactivityModal.classList.contains('is-hidden')).toBe(true)
+        expect(SessionTimeoutHandler['inactivityWarningVisible']).toBe(false)
+      })
+
+      it('handles length cancel button click', () => {
+        SessionTimeoutHandler.init()
+        SessionTimeoutHandler['totalLengthWarningVisible'] = true
+        lengthModal.classList.remove('is-hidden')
+
+        const cancelButton = lengthModal.querySelector(
+          '[data-modal-secondary][data-modal-type="session-length-warning"]',
+        ) as HTMLButtonElement
+        cancelButton?.click()
+
+        expect(lengthModal.classList.contains('is-hidden')).toBe(true)
+        expect(SessionTimeoutHandler['totalLengthWarningVisible']).toBe(false)
+      })
+    })
+
+    describe('Modal Event Handlers', () => {
+      let originalLocation: Location
+
+      beforeEach(() => {
+        // Store original location
+        originalLocation = window.location
+
+        // Mock window.location
+        Object.defineProperty(window, 'location', {
+          configurable: true,
+          enumerable: true,
+          value: {href: ''},
+        })
+      })
+
+      afterEach(() => {
+        // Restore original location
+        Object.defineProperty(window, 'location', {
+          configurable: true,
+          enumerable: true,
+          value: originalLocation,
+        })
+      })
+
+      it('handles primary button click for inactivity warning', () => {
+        SessionTimeoutHandler.init()
+        const primaryButton = inactivityModal.querySelector(
+          '[data-modal-primary][data-modal-type="session-inactivity-warning"]',
+        ) as HTMLButtonElement
+        const requestSubmitSpy = vi.spyOn(extendSessionForm, 'requestSubmit')
+
+        primaryButton?.click()
+        expect(requestSubmitSpy).toHaveBeenCalled()
+      })
+
+      it('handles primary button click for session length warning', () => {
+        const logoutSpy = vi.spyOn(
+          SessionTimeoutHandler as SessionTimeoutHandlerType,
+          'logout',
+        )
+        SessionTimeoutHandler.init()
+
+        const primaryButton = lengthModal.querySelector(
+          '[data-modal-primary][data-modal-type="session-length-warning"]',
+        ) as HTMLButtonElement
+        primaryButton?.click()
+
+        expect(logoutSpy).toHaveBeenCalled()
+      })
+
+      it('handles secondary button click', () => {
+        SessionTimeoutHandler.init()
+        const secondaryButton = inactivityModal.querySelector(
+          '[data-modal-secondary][data-modal-type="session-inactivity-warning"]',
+        ) as HTMLButtonElement
+        secondaryButton?.click()
+
+        expect(inactivityModal.classList.contains('is-hidden')).toBe(true)
+        expect(SessionTimeoutHandler['inactivityWarningVisible']).toBe(false)
+      })
+
+      it('handles close button click', () => {
+        SessionTimeoutHandler.init()
+        const closeButton = inactivityModal.querySelector(
+          '[data-close-modal][data-modal-type="session-inactivity-warning"]',
+        ) as HTMLButtonElement
+        closeButton?.click()
+
+        expect(inactivityModal.classList.contains('is-hidden')).toBe(true)
+        expect(SessionTimeoutHandler['inactivityWarningVisible']).toBe(false)
+      })
+
+      it('shows localized success message on successful session extension', () => {
+        SessionTimeoutHandler.init()
+        const successEvent = new CustomEvent('htmx:afterRequest', {
+          detail: {
+            xhr: {status: 200},
+            elt: extendSessionForm,
+          },
+        })
+
+        document.dispatchEvent(successEvent)
+
+        expect(showToastSpy).toHaveBeenCalledWith(
+          expect.objectContaining({
+            content: 'Session successfully extended',
+            type: 'success',
+          }),
+        )
+      })
+
+      it('calls logout when handling timeout', () => {
+        const logoutSpy = vi.spyOn(
+          SessionTimeoutHandler as SessionTimeoutHandlerType,
+          'logout',
+        )
+        SessionTimeoutHandler.init()
+
+        const expiredTimeoutData = {
+          inactivityWarning: 0,
+          inactivityTimeout: 0,
+          totalWarning: 0,
+          totalTimeout: 0,
+          currentTime: 0,
+        }
+        document.cookie = `session_timeout_data=${btoa(
+          JSON.stringify(expiredTimeoutData),
+        )}`
+
+        SessionTimeoutHandler['pollSession']()
+
+        expect(logoutSpy).toHaveBeenCalled()
+      })
+    })
+
+    describe('pollSession', () => {
+      beforeEach(() => {
+        vi.useFakeTimers()
+        // Reset static flags
+        SessionTimeoutHandler['inactivityWarningVisible'] = false
+        SessionTimeoutHandler['totalLengthWarningVisible'] = false
+        SessionTimeoutHandler['isInitialized'] = false
+      })
+
+      afterEach(() => {
+        vi.useRealTimers()
+        document.cookie = `${SessionTimeoutHandler['TIMEOUT_COOKIE_NAME']}=; expires=Thu, 01 Jan 1970 00:00:00 GMT`
+      })
+
+      it('immediately logs out if timeout is reached', () => {
+        const logoutSpy = vi.spyOn(
+          SessionTimeoutHandler as SessionTimeoutHandlerType,
+          'logout',
+        )
+        const now = Math.floor(Date.now() / 1000)
+
+        document.cookie = `session_timeout_data=${btoa(
+          JSON.stringify({
+            inactivityWarning: now - 120,
+            inactivityTimeout: now - 60, // Past timeout
+            totalWarning: now + 3600,
+            totalTimeout: now + 7200,
+            currentTime: now,
+          }),
+        )}`
+
+        SessionTimeoutHandler['pollSession']()
+        expect(logoutSpy).toHaveBeenCalled()
+      })
+
+      it('shows inactivity warning immediately if time has passed and not shown before', () => {
+        const setWarningModalVisibleSpy = vi.spyOn(
+          SessionTimeoutHandler as SessionTimeoutHandlerType,
+          'setWarningModalVisible',
+        ) as Mock<(type: WarningType) => void>
+
+        const now = Math.floor(Date.now() / 1000)
+
+        document.cookie = `session_timeout_data=${btoa(
+          JSON.stringify({
+            inactivityWarning: now - 60, // Past warning
+            inactivityTimeout: now + 60,
+            totalWarning: now + 3600,
+            totalTimeout: now + 7200,
+            currentTime: now,
+          }),
+        )}`
+
+        SessionTimeoutHandler['pollSession']()
+        expect(setWarningModalVisibleSpy).toHaveBeenCalledWith(
+          WarningType.INACTIVITY,
+          true,
+          expect.any(Number),
+        )
+      })
+
+      it('shows total length warning if time has passed and no other warning shown', () => {
+        const setWarningModalVisibleSpy = vi.spyOn(
+          SessionTimeoutHandler as SessionTimeoutHandlerType,
+          'setWarningModalVisible',
+        ) as Mock<(type: WarningType) => void>
+
+        const now = Math.floor(Date.now() / 1000)
+
+        document.cookie = `session_timeout_data=${btoa(
+          JSON.stringify({
+            inactivityWarning: now + 3600,
+            inactivityTimeout: now + 7200,
+            totalWarning: now - 60, // Past warning
+            totalTimeout: now + 3600,
+            currentTime: now,
+          }),
+        )}`
+
+        SessionTimeoutHandler['pollSession']()
+        expect(setWarningModalVisibleSpy).toHaveBeenCalledWith(
+          WarningType.TOTAL_LENGTH,
+          true,
+          expect.any(Number),
+        )
+      })
+
+      it('does not show total length warning if inactivity warning is showing', () => {
+        const setWarningModalVisibleSpy = vi.spyOn(
+          SessionTimeoutHandler as SessionTimeoutHandlerType,
+          'setWarningModalVisible',
+        )
+        const now = Math.floor(Date.now() / 1000)
+
+        // Set inactivity warning as already visible
+        SessionTimeoutHandler['inactivityWarningVisible'] = true
+
+        document.cookie = `session_timeout_data=${btoa(
+          JSON.stringify({
+            inactivityWarning: now - 60,
+            inactivityTimeout: now + 60,
+            totalWarning: now - 30, // Past warning
+            totalTimeout: now + 3600,
+            currentTime: now,
+          }),
+        )}`
+
+        SessionTimeoutHandler['pollSession']()
+        expect(setWarningModalVisibleSpy).not.toHaveBeenCalled()
+      })
+
+      it('sets timer for future inactivity warning', () => {
+        const setWarningModalVisibleSpy = vi.spyOn(
+          SessionTimeoutHandler as SessionTimeoutHandlerType,
+          'setWarningModalVisible',
+        ) as Mock<(type: WarningType) => void>
+
+        const now = Math.floor(Date.now() / 1000)
+
+        document.cookie = `session_timeout_data=${btoa(
+          JSON.stringify({
+            inactivityWarning: now + 60, // Future warning
+            inactivityTimeout: now + 120,
+            totalWarning: now + 3600,
+            totalTimeout: now + 7200,
+            currentTime: now,
+          }),
+        )}`
+
+        SessionTimeoutHandler['pollSession']()
+
+        // Fast forward to warning time
+        vi.advanceTimersByTime(60000)
+        expect(setWarningModalVisibleSpy).toHaveBeenCalledWith(
+          WarningType.INACTIVITY,
+          true,
+          expect.any(Number),
+        )
+      })
+    })
+
+    describe('init', () => {
+      it('initializes only once', () => {
+        const pollSessionSpy = vi.spyOn(
+          SessionTimeoutHandler as SessionTimeoutHandlerType,
+          'pollSession',
+        )
+
+        // First initialization
+        SessionTimeoutHandler.init()
+        expect(pollSessionSpy).toHaveBeenCalledTimes(1)
+        expect(SessionTimeoutHandler['isInitialized']).toBe(true)
+
+        // Second initialization attempt
+        SessionTimeoutHandler.init()
+
+        // Still only called once
+        expect(pollSessionSpy).toHaveBeenCalledTimes(1)
+      })
     })
   })
 })

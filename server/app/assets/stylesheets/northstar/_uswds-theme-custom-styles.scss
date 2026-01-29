@@ -21,6 +21,12 @@ See the radio-option below as an example.
 
 @use 'uswds-core' as *;
 
+// Hide usa-modal elements until USWDS wraps them in usa-modal-wrapper.
+// This prevents a flash of the modal content on page load.
+.usa-modal:not(.usa-modal-wrapper .usa-modal) {
+  display: none;
+}
+
 // Prevents improper scaling on mobile devices
 body,
 html {
@@ -479,6 +485,15 @@ main {
   gap: units(1);
 }
 
+.failed-state {
+  border-radius: 2px;
+  background: var(--theme-color-error-lighter, #f4e3db);
+  @include u-padding-y(0.5);
+  @include u-padding-x(1);
+  align-items: center;
+  gap: units(1);
+}
+
 .cf-eligible-tag {
   @include u-font('sans', 'xs');
 }
@@ -855,4 +870,10 @@ main {
 
 .opacity-40:hover {
   opacity: 1;
+}
+
+// Remove focus outline from main content when focused via skip navigation
+// The tabindex is set for skip nav accessibility, but the outline is visually distracting
+main#main-content {
+  outline: none;
 }

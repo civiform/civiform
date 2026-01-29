@@ -8,7 +8,7 @@
  *  - TBD
  */
 
-import {addEventListenerToElements, assertNotNull} from './util'
+import {addEventListenerToElements, assertNotNull} from '@/util'
 
 function attachDropdown(elementId: string) {
   const dropdownId = elementId + '-dropdown'

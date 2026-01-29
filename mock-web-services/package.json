@@ -1,0 +1,33 @@
+{
+  "name": "civiform-mock-web-services",
+  "version": "1.0.0",
+  "description": "Mock web services for CiviForm testing (API Bridge, ESRI, GeoJSON)",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "tsc && node dist/server.js",
+    "dev": "ts-node src/server.ts",
+    "lint": "eslint src/**/*.ts",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@mswjs/http-middleware": "^0.10.1",
+    "express": "^5.2.1",
+    "msw": "^2.7.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@tsconfig/recommended": "1.0.13",
+    "@types/express": "^5.0.6",
+    "@types/node": "^24.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.51.0",
+    "@typescript-eslint/parser": "^8.51.0",
+    "eslint": "^9.39.2",
+    "eslint-config-google": "^0.14.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  },
+  "license": "Apache-2.0"
+}

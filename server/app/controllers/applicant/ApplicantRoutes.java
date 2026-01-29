@@ -347,43 +347,6 @@ public final class ApplicantRoutes {
   }
 
   /**
-   * Returns the route corresponding to the applicant update file action.
-   *
-   * @param profile - Profile corresponding to the logged-in user (applicant or TI).
-   * @param applicantId - ID of applicant for whom the action should be performed.
-   * @param programId - ID of program to review
-   * @param blockId - ID of the block containing file upload question
-   * @param inReview - true if executing the review action (as opposed to edit)
-   * @param applicantRequestedAction - the page the applicant would like to see after the updates
-   *     are made
-   * @return Route for the applicant update file action
-   */
-  public Call updateFile(
-      CiviFormProfile profile,
-      long applicantId,
-      long programId,
-      String blockId,
-      boolean inReview,
-      ApplicantRequestedAction applicantRequestedAction) {
-    String programIdStr = Long.toString(programId);
-    if (includeApplicantIdInRoute(profile)) {
-      return routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
-          applicantId,
-          programIdStr,
-          blockId,
-          inReview,
-          new ApplicantRequestedActionWrapper(applicantRequestedAction),
-          /* isFromUrlCall= */ false);
-    }
-    return routes.ApplicantProgramBlocksController.updateFile(
-        programIdStr,
-        blockId,
-        inReview,
-        new ApplicantRequestedActionWrapper(applicantRequestedAction),
-        /* isFromUrlCall= */ false);
-  }
-
-  /**
    * Returns the route corresponding to the applicant update block action.
    *
    * @param profile - Profile corresponding to the logged-in user (applicant or TI).

@@ -3,7 +3,6 @@ package views.admin.programs;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.b;
-import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
@@ -41,9 +40,11 @@ import java.util.OptionalLong;
 import java.util.stream.IntStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.i18n.Messages;
 import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
+import services.MessageKey;
 import services.ProgramBlockValidationFactory;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
@@ -129,7 +130,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       BlockDefinition blockDefinition,
       Optional<ToastMessage> message,
       ImmutableList<QuestionDefinition> questions,
-      ImmutableList<QuestionDefinition> allPreviousVersionQuestions) {
+      ImmutableList<QuestionDefinition> allPreviousVersionQuestions,
+      Messages messages) {
     return render(
         request,
         program,
@@ -139,7 +141,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
         blockDefinition.programQuestionDefinitions(),
         message,
         questions,
-        allPreviousVersionQuestions);
+        allPreviousVersionQuestions,
+        messages);
   }
 
   public Content render(
@@ -151,7 +154,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       ImmutableList<ProgramQuestionDefinition> blockQuestions,
       Optional<ToastMessage> message,
       ImmutableList<QuestionDefinition> questions,
-      ImmutableList<QuestionDefinition> allPreviousVersionQuestions) {
+      ImmutableList<QuestionDefinition> allPreviousVersionQuestions,
+      Messages messages) {
     InputTag csrfTag = makeCsrfTokenInputTag(request);
 
     String title =
@@ -217,7 +221,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
                             div()
                                 .withClasses("flex", "flex-grow", "-mx-2")
                                 .withData("testid", "block-panel")
-                                .with(renderBlockOrderPanel(request, programDefinition, blockId))
+                                .with(
+                                    renderBlockOrderPanel(
+                                        request, programDefinition, blockId, messages))
                                 .with(
                                     renderBlockPanel(
                                         programDefinition,
@@ -230,7 +236,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                                         csrfTag,
                                         blockDescriptionEditModal.getButton(),
                                         blockDeleteScreenModal.getButton(),
-                                        request)))));
+                                        request,
+                                        messages)))));
 
     // Add top level UI that is only visible in the editable version.
     if (viewAllowsEditingProgram()) {
@@ -333,7 +340,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * program, a button to add a new screen,
    */
   private DivTag renderBlockOrderPanel(
-      Request request, ProgramDefinition program, long focusedBlockId) {
+      Request request, ProgramDefinition program, long focusedBlockId, Messages messages) {
     DivTag ret = div().withClasses("shadow-lg", "pt-6", "w-2/12", "border-r", "border-gray-200");
     ret.with(
         renderBlockList(
@@ -341,7 +348,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
             program,
             program.getNonRepeatedBlockDefinitions(),
             focusedBlockId,
-            /* level= */ 0));
+            /* level= */ 0,
+            messages));
 
     if (viewAllowsEditingProgram()) {
       ret.condWith(
@@ -370,7 +378,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                           .withId("add-block-button")
                           .withForm(CREATE_BLOCK_FORM_ID)),
                   li(
-                      button("Add repeated set")
+                      button(messages.at(MessageKey.BUTTON_REPEATED_SET_ADD_NEW.getKeyName()))
                           .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN, "width-full")
                           .withType("submit")
                           .withId("add-enumerator-block-button")
@@ -388,7 +396,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       ProgramDefinition programDefinition,
       ImmutableList<BlockDefinition> blockDefinitions,
       long focusedBlockId,
-      int level) {
+      int level,
+      Messages messages) {
     DivTag container = div();
     String genericBlockDivId = "block_list_item_";
     for (BlockDefinition blockDefinition : blockDefinitions) {
@@ -397,7 +406,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
       String questionCountText = String.format("Question count: %d", numQuestions);
       if (settingsManifest.getEnumeratorImprovementsEnabled(request)
           && blockDefinition.getIsEnumerator()) {
-        questionCountText = (level > 0) ? "Nested repeated set" : "Repeated set";
+        questionCountText =
+            (level > 0)
+                ? messages.at(MessageKey.TEXT_NESTED_REPEATED_SET.getKeyName())
+                : messages.at(MessageKey.TEXT_REPEATED_SET.getKeyName());
       }
       String blockName = blockDefinition.name();
       // indentation value for enums and repeaters
@@ -476,7 +488,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 programDefinition,
                 programDefinition.getBlockDefinitionsForEnumerator(blockDefinition.id()),
                 focusedBlockId,
-                level + 1));
+                level + 1,
+                messages));
       }
     }
     return container;
@@ -550,7 +563,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       InputTag csrfTag,
       ButtonTag blockDescriptionModalButton,
       ButtonTag blockDeleteModalButton,
-      Request request) {
+      Request request,
+      Messages messages) {
     // A block can only be deleted when it has no repeated blocks. Same is true for
     // removing the enumerator question from the block.
     final boolean canDelete =
@@ -574,7 +588,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             settingsManifest.getExpandedFormLogicEnabled(request));
 
     Optional<DivTag> maybeEligibilityPredicateDisplay = Optional.empty();
-    if (!program.programType().equals(ProgramType.COMMON_INTAKE_FORM)) {
+    if (!program.programType().equals(ProgramType.PRE_SCREENER_FORM)) {
       maybeEligibilityPredicateDisplay =
           Optional.of(
               renderEligibilityPredicate(
@@ -655,7 +669,13 @@ public final class ProgramBlocksView extends ProgramBaseView {
           && blockDefinition.getIsEnumerator()) {
         return div.with(
             renderEnumeratorScreenContent(
-                blockDefinitionHasEnumeratorQuestion, csrfTag, programQuestions, addQuestion));
+                blockDefinitionHasEnumeratorQuestion,
+                csrfTag,
+                programQuestions,
+                addQuestion,
+                messages,
+                program.id(),
+                blockDefinition.id()));
       }
 
       return div.with(programQuestions, addQuestion);
@@ -692,11 +712,15 @@ public final class ProgramBlocksView extends ProgramBaseView {
       boolean blockDefinitionHasEnumeratorQuestion,
       InputTag csrfTag,
       DivTag programQuestions,
-      ButtonTag addQuestion) {
+      ButtonTag addQuestion,
+      Messages messages,
+      Long programId,
+      Long blockId) {
     // If it's an empty enumerator block
     if (!blockDefinitionHasEnumeratorQuestion) {
-      FieldsetTag creationMethodRadio = renderCreationMethodRadioButtons();
-      FormTag newEnumeratorQuestionForm = renderNewEnumeratorQuestionForm(csrfTag);
+      FieldsetTag creationMethodRadio = renderCreationMethodRadioButtons(messages);
+      FormTag newEnumeratorQuestionForm =
+          renderNewEnumeratorQuestionForm(csrfTag, messages, programId, blockId);
       return div().with(creationMethodRadio, newEnumeratorQuestionForm);
     } else {
       return div()
@@ -707,9 +731,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
     }
   }
 
-  private FieldsetTag renderCreationMethodRadioButtons() {
+  private FieldsetTag renderCreationMethodRadioButtons(Messages messages) {
     return fieldset(
-        legend("Repeated set creation method")
+        legend(messages.at(MessageKey.HEADING_REPEATED_SET_CREATION_METHOD.getKeyName()))
             .withClass("text-gray-600")
             .with(ViewUtils.requiredQuestionIndicator()),
         div()
@@ -721,7 +745,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
                     .withId("create-new")
                     .withValue("create-new")
                     .withClass("usa-radio__input usa-radio__input--tile"),
-                label("Create new").withClass("usa-radio__label").attr("for", "create-new")),
+                label(messages.at(MessageKey.OPTION_REPEATED_SET_CREATE_NEW.getKeyName()))
+                    .withClass("usa-radio__label")
+                    .attr("for", "create-new")),
         div()
             .withClass("usa-radio")
             .with(
@@ -731,52 +757,55 @@ public final class ProgramBlocksView extends ProgramBaseView {
                     .withId("choose-existing")
                     .withValue("choose-existing")
                     .withClass("usa-radio__input usa-radio__input--tile"),
-                label("Choose existing")
+                label(messages.at(MessageKey.OPTION_REPEATED_SET_CHOOSE_EXISTING.getKeyName()))
                     .withClass("usa-radio__label")
                     .attr("for", "choose-existing"))
             .withClasses("usa-fieldset"));
   }
 
-  private FormTag renderNewEnumeratorQuestionForm(InputTag csrfTag) {
+  private FormTag renderNewEnumeratorQuestionForm(
+      InputTag csrfTag, Messages messages, Long programId, Long blockId) {
     return form(csrfTag)
         .withClasses("border", "border-gray-300")
         .withId("new-enumerator-question-form")
         .withMethod(HttpVerbs.POST)
+        .withAction(
+            routes.AdminProgramBlockQuestionsController.createEnumerator(programId, blockId).url())
         .with(
-            p("Create new repeated set"),
+            p(messages.at(MessageKey.LABEL_NEW_REPEATED_SET_FORM.getKeyName())),
             FieldWithLabel.input()
                 .setId("listed-entity-input")
-                .setFieldName("listed-entity")
-                .setLabelText("Listed entity")
+                .setFieldName("entityType")
+                .setLabelText(messages.at(MessageKey.INPUT_LISTED_ENTITY.getKeyName()))
                 .getUSWDSInputTag(),
             FieldWithLabel.input()
                 .setId("enumerator-admin-id-input")
-                .setFieldName("enumerator-admin-id")
-                .setLabelText("Repeated set admin id")
+                .setFieldName("questionName")
+                .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_ADMIN_ID.getKeyName()))
                 .getUSWDSInputTag(),
             FieldWithLabel.textArea()
                 .setId("question-text-input")
-                .setFieldName("question-text")
-                .setLabelText("Question text")
+                .setFieldName("questionText")
+                .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_QUESTION_TEXT.getKeyName()))
                 .getUSWDSTextareaTag(),
             FieldWithLabel.textArea()
                 .setId("hint-text-input")
-                .setFieldName("hint")
-                .setLabelText("Hint text")
+                .setFieldName("questionHelpText")
+                .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_HINT_TEXT.getKeyName()))
                 .getUSWDSTextareaTag(),
             FieldWithLabel.number()
                 .setId("min-entity-count-input")
-                .setFieldName("min-entity-count")
-                .setLabelText("Minimum entity count")
+                .setFieldName("minEntities")
+                .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_MIN_ENTITIES.getKeyName()))
                 .getNumberTag(),
             FieldWithLabel.number()
                 .setId("max-entity-count-input")
-                .setFieldName("max-entity-count")
-                .setLabelText("Maximum entity count")
+                .setFieldName("maxEntities")
+                .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_MAX_ENTITIES.getKeyName()))
                 .getNumberTag(),
             AlertComponent.renderSlimInfoAlert(
-                "Creating a repeated set will add a new question to the question bank."),
-            submitButton("Create repeated set")
+                messages.at(MessageKey.ALERT_REPEATED_SET_NEW_QUESTION.getKeyName())),
+            submitButton(messages.at(MessageKey.BUTTON_REPEATED_SET_SUBMIT_NEW.getKeyName()))
                 .withId("create-repeated-set-button")
                 .withClasses("usa-button", "usa-button--primary"));
   }
@@ -866,7 +895,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .withId("eligibility-predicate")
             .withClasses("my-4")
             .with(div("Eligibility condition").withClasses("text-lg", "font-bold", "py-2"))
-            .with(renderEmptyEligibilityPredicate(program).withClasses("text-lg", "max-w-prose"));
+            .with(
+                renderEmptyEligibilityPredicate(program, viewAllowsEditingProgram())
+                    .withClasses("text-lg", "max-w-prose"));
     if (predicate.isEmpty()) {
       return div.with(
           renderEmptyPredicate(
@@ -889,7 +920,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
     }
   }
 
-  private DivTag renderEmptyEligibilityPredicate(ProgramDefinition program) {
+  private DivTag renderEmptyEligibilityPredicate(
+      ProgramDefinition program, boolean viewAllowsEditingProgram) {
     ImmutableList.Builder<DomContent> emptyPredicateContentBuilder = ImmutableList.builder();
     String eligibilityText =
         program.eligibilityIsGating()
@@ -902,15 +934,23 @@ public final class ProgramBlocksView extends ProgramBaseView {
             text(
                 "You can add eligibility conditions to determine if an applicant qualifies for the"
                     + " program. "))
-        .add(text(eligibilityText))
-        .add(text(" You can change this in the "))
-        .add(
-            a().withData("testid", "goto-program-settings-link")
-                .withText("program settings.")
-                .withHref(
-                    routes.AdminProgramController.edit(program.id(), ProgramEditStatus.EDIT.name())
-                        .url())
-                .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT));
+        .add(text(eligibilityText));
+
+    if (viewAllowsEditingProgram) {
+      emptyPredicateContentBuilder
+          .add(text(" You can change this in the "))
+          .add(
+              a().withData("testid", "goto-program-settings-link")
+                  .withText("program settings.")
+                  .withHref(
+                      routes.AdminProgramController.edit(
+                              program.id(), ProgramEditStatus.EDIT.name())
+                          .url())
+                  .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT));
+    } else {
+      emptyPredicateContentBuilder.add(
+          text(" You can change this in the program settings if your program is in draft mode."));
+    }
     return div().with(emptyPredicateContentBuilder.build());
   }
 

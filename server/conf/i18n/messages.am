@@ -594,6 +594,8 @@ content.and=እና
 button.predicateAddCondition=ሁኔታ አክል
 # Button to remove a condition from the form
 button.predicateDeleteCondition=ሁኔታ ደምስስ
+# Button to remove all conditions from the form
+button.predicateDeleteAllConditions=Delete all conditions
 # Link to append form fields for configuring a new sub-condition within a condition
 link.predicateAddSubcondition=ንዑስ-ሁኔታ አክል
 # Link to remove a sub-condition from the form
@@ -603,10 +605,22 @@ link.backToTop=ወደ ላይ ተመለስ
 # Button to save the visibility or eligibility predicate and return to editing the program.
 button.saveAndExit=አስቀምጥ እና ውጣ
 
+# Confirmation dialog shown to admin for deleting all conditions in the predicate edit view
+confirm.deleteAllConditions=Are you sure you would like to delete all conditions?
+# Confirmation dialog shown to admin for deleting a condition in the predicate edit view
+confirm.deleteSingleCondition=Are you sure you would like to delete this condition?
+# Dialog to warn admin that a deletion action cannot be undone
+confirm.actionNotReversable=This action cannot be undone.
+
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsVisibility=ለዚህ ማያ ገጽ የታይነት ሁኔታዎችን ለማዋቀር፣ በቀደሙ ማያ ገጾች ላይ ምንም ዝግጁ ጥያቄዎች የሉም።
 # Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsEligibility=በዚህ ማያ ገጽ ላይ የብቁነት ሁኔታን ለማዋቀር የሚያገለግሉ ምንም ዝግጁ ጥያቄዎች የሉም።
+
+# Label for textarea where admins can enter a message to show to applicants who are deemed ineligible based on the eligibility conditions set.
+label.predicateEligibilityMessageField=Display message shown to ineligible applicants
+# Help text for a textarea input explaining that markdown is supported.
+content.markdownSupported=Markdown is supported
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -850,7 +864,7 @@ map.locationLinkText=ተጨማሪ ዝርዝሮችን ይመልከቱ
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr=ለ{0} ተጨማሪ ዝርዝሮችን ይመልከቱ
 # Text showing the count of displayed locations, with placeholders for current count and total count
-map.locationsCount={0} ከ{1} አካባቢዎችን በማሳየት ላይ
+map.locationsCount=Displaying {0} to {1} of {2} locations
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount={0} ከ {1} ከፍተኛው የቦታዎች ቁጥር ተመርጧል።
 # Alt text for map region

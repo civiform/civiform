@@ -1,4 +1,4 @@
-import {HtmxAfterSwapEvent} from './htmx_request'
+import {HtmxAfterSwapEvent} from '@/htmx_request'
 
 /**
  * Client side event handlers for the program api bridge edit page only

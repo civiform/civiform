@@ -2,3 +2,9 @@
 # by webpack on build to this folder so we don't need to store it.
 public/swagger-ui
 app/assets/dist
+
+# Allow this specific intellij config file. It sets up
+# our custom thymeleaf schemas
+!.idea/
+.idea/*
+!.idea/externalResources.xml

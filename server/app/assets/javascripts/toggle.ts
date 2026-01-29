@@ -1,5 +1,5 @@
 /** This class controls the toggling of toggle components. */
-import {addEventListenerToElements} from './util'
+import {addEventListenerToElements} from '@/util'
 
 class ToggleController {
   static toggleButtonClass = '.cf-toggle-button'

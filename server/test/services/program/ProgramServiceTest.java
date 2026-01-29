@@ -623,6 +623,34 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void createProgramWithTooLongShortDescription_returnsError() {
+    // Create a string longer than 100 characters
+    String tooLongShortDescription = "a".repeat(101);
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.createProgramDefinition(
+            "test-program",
+            "description",
+            "name",
+            "description",
+            tooLongShortDescription,
+            "confirm",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
+            /* eligibilityIsGating= */ true,
+            /* loginOnly= */ false,
+            ProgramType.DEFAULT,
+            /* tiGroup */ ImmutableList.of(),
+            /* categoryIds= */ ImmutableList.of(),
+            ImmutableList.of(new ApplicationStep("title", "description")));
+
+    assertThat(result.hasResult()).isFalse();
+    assertThat(result.isError()).isTrue();
+    assertThat(result.getErrors())
+        .containsExactly(CiviFormError.of("Short description must be 100 characters or less"));
+  }
+
+  @Test
   public void createProgram_protectsAgainstProgramNameCollisions() {
     ps.createProgramDefinition(
         "name",
@@ -763,7 +791,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
-            ProgramType.COMMON_INTAKE_FORM,
+            ProgramType.PRE_SCREENER_FORM,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
@@ -788,7 +816,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ false,
             /* loginOnly= */ false,
-            ProgramType.COMMON_INTAKE_FORM,
+            ProgramType.PRE_SCREENER_FORM,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
@@ -812,7 +840,7 @@ public class ProgramServiceTest extends ResetPostgres {
         ImmutableList.of(),
         /* eligibilityIsGating= */ true,
         /* loginOnly= */ false,
-        ProgramType.COMMON_INTAKE_FORM,
+        ProgramType.PRE_SCREENER_FORM,
         ImmutableList.of(),
         /* categoryIds= */ ImmutableList.of(),
         ImmutableList.of(new ApplicationStep("title", "description")));
@@ -840,7 +868,7 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void createProgram_clearsExistingCommonIntakeForm() {
+  public void createProgram_clearsExistingPreScreenerForm() {
     ps.createProgramDefinition(
         "name-one",
         "description",
@@ -853,14 +881,14 @@ public class ProgramServiceTest extends ResetPostgres {
         ImmutableList.of(),
         /* eligibilityIsGating= */ true,
         /* loginOnly= */ false,
-        ProgramType.COMMON_INTAKE_FORM,
+        ProgramType.PRE_SCREENER_FORM,
         ImmutableList.of(),
         /* categoryIds= */ ImmutableList.of(),
         ImmutableList.of(new ApplicationStep("title", "description")));
 
-    Optional<ProgramDefinition> commonIntakeForm = ps.getPreScreenerForm();
-    assertThat(commonIntakeForm).isPresent();
-    assertThat(commonIntakeForm.get().adminName()).isEqualTo("name-one");
+    Optional<ProgramDefinition> preScreenerForm = ps.getPreScreenerForm();
+    assertThat(preScreenerForm).isPresent();
+    assertThat(preScreenerForm.get().adminName()).isEqualTo("name-one");
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.createProgramDefinition(
@@ -875,21 +903,21 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
-            ProgramType.COMMON_INTAKE_FORM,
+            ProgramType.PRE_SCREENER_FORM,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
-    assertThat(result.getResult().programType()).isEqualTo(ProgramType.COMMON_INTAKE_FORM);
+    assertThat(result.getResult().programType()).isEqualTo(ProgramType.PRE_SCREENER_FORM);
 
-    commonIntakeForm = ps.getPreScreenerForm();
-    assertThat(commonIntakeForm).isPresent();
-    assertThat(commonIntakeForm.get().adminName()).isEqualTo("name-two");
-    Optional<ProgramDefinition> oldCommonIntake =
+    preScreenerForm = ps.getPreScreenerForm();
+    assertThat(preScreenerForm).isPresent();
+    assertThat(preScreenerForm.get().adminName()).isEqualTo("name-two");
+    Optional<ProgramDefinition> oldPreScreener =
         ps.getActiveAndDraftPrograms().getDraftProgramDefinition("name-one");
-    assertThat(oldCommonIntake).isPresent();
-    assertThat(oldCommonIntake.get().programType()).isEqualTo(ProgramType.DEFAULT);
+    assertThat(oldPreScreener).isPresent();
+    assertThat(oldPreScreener.get().programType()).isEqualTo(ProgramType.DEFAULT);
   }
 
   @Test
@@ -1163,7 +1191,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void
-      validateProgramDataForCreate_noErrorForWhenMissingApplicationStepsForCommonIntakeForm() {
+      validateProgramDataForCreate_noErrorForWhenMissingApplicationStepsForPreScreenerForm() {
     ImmutableSet<CiviFormError> result =
         ps.validateProgramDataForCreate(
             "name-two",
@@ -1176,7 +1204,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(),
             ImmutableMap.of(),
-            ProgramType.COMMON_INTAKE_FORM);
+            ProgramType.PRE_SCREENER_FORM);
 
     assertThat(result).isEmpty();
   }
@@ -1225,15 +1253,32 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void checkApplicationStepErrors_commonIntakeProgram_returnsNoErrors() {
+  public void checkApplicationStepErrors_preScreenerProgram_returnsNoErrors() {
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     ImmutableList<ApplicationStep> applicationSteps = ImmutableList.of();
     ImmutableSet<CiviFormError> errors =
         ps.checkApplicationStepErrors(
-                ProgramType.COMMON_INTAKE_FORM, errorsBuilder, applicationSteps)
+                ProgramType.PRE_SCREENER_FORM, errorsBuilder, applicationSteps)
             .build();
 
     assertThat(errors.size()).isEqualTo(0);
+  }
+
+  @Test
+  public void checkApplicationStepErrors_defaultProgram_returnsErrorWhenTitleTooLong() {
+    ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
+    // Create a title longer than 100 characters
+    String tooLongTitle = "a".repeat(101);
+    ImmutableList<ApplicationStep> applicationSteps =
+        ImmutableList.of(
+            new ApplicationStep("valid title", "description one"),
+            new ApplicationStep(tooLongTitle, "description two"));
+    ImmutableSet<CiviFormError> errors =
+        ps.checkApplicationStepErrors(ProgramType.DEFAULT, errorsBuilder, applicationSteps).build();
+
+    assertThat(errors.size()).isEqualTo(1);
+    assertThat(errors.contains(CiviFormError.of("Step 2 title must be 100 characters or less")))
+        .isTrue();
   }
 
   @Test
@@ -1516,7 +1561,7 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void updateProgram_clearsExistingCommonIntakeForm() throws Exception {
+  public void updateProgram_clearsExistingPreScreenerForm() throws Exception {
     ps.createProgramDefinition(
         "name-one",
         "description",
@@ -1529,14 +1574,14 @@ public class ProgramServiceTest extends ResetPostgres {
         ImmutableList.of(),
         /* eligibilityIsGating= */ true,
         /* loginOnly= */ false,
-        ProgramType.COMMON_INTAKE_FORM,
+        ProgramType.PRE_SCREENER_FORM,
         ImmutableList.of(),
         /* categoryIds= */ ImmutableList.of(),
         ImmutableList.of(new ApplicationStep("title", "description")));
 
-    Optional<ProgramDefinition> commonIntakeForm = ps.getPreScreenerForm();
-    assertThat(commonIntakeForm).isPresent();
-    assertThat(commonIntakeForm.get().adminName()).isEqualTo("name-one");
+    Optional<ProgramDefinition> preScreenerForm = ps.getPreScreenerForm();
+    assertThat(preScreenerForm).isPresent();
+    assertThat(preScreenerForm.get().adminName()).isEqualTo("name-one");
 
     ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
@@ -1553,26 +1598,26 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
-            ProgramType.COMMON_INTAKE_FORM,
+            ProgramType.PRE_SCREENER_FORM,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
-    assertThat(result.getResult().programType()).isEqualTo(ProgramType.COMMON_INTAKE_FORM);
-    commonIntakeForm = ps.getPreScreenerForm();
-    assertThat(commonIntakeForm).isPresent();
-    assertThat(commonIntakeForm.get().adminName()).isEqualTo(program.adminName());
-    Optional<ProgramDefinition> oldCommonIntake =
+    assertThat(result.getResult().programType()).isEqualTo(ProgramType.PRE_SCREENER_FORM);
+    preScreenerForm = ps.getPreScreenerForm();
+    assertThat(preScreenerForm).isPresent();
+    assertThat(preScreenerForm.get().adminName()).isEqualTo(program.adminName());
+    Optional<ProgramDefinition> oldPreScreener =
         ps.getActiveAndDraftPrograms().getDraftProgramDefinition("name-one");
-    assertThat(oldCommonIntake).isPresent();
-    assertThat(oldCommonIntake.get().programType()).isEqualTo(ProgramType.DEFAULT);
+    assertThat(oldPreScreener).isPresent();
+    assertThat(oldPreScreener.get().programType()).isEqualTo(ProgramType.DEFAULT);
   }
 
   @Test
-  public void updateProgram_allowsUpdatingCommonIntakeForm() throws Exception {
-    ErrorAnd<ProgramDefinition, CiviFormError> commonIntakeForm =
+  public void updateProgram_allowsUpdatingPreScreenerForm() throws Exception {
+    ErrorAnd<ProgramDefinition, CiviFormError> preScreenerForm =
         ps.createProgramDefinition(
             "name-one",
             "description",
@@ -1585,14 +1630,14 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
-            ProgramType.COMMON_INTAKE_FORM,
+            ProgramType.PRE_SCREENER_FORM,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateProgramDefinition(
-            commonIntakeForm.getResult().id(),
+            preScreenerForm.getResult().id(),
             Locale.US,
             "a",
             "a",
@@ -1604,7 +1649,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
-            ProgramType.COMMON_INTAKE_FORM,
+            ProgramType.PRE_SCREENER_FORM,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
@@ -1614,8 +1659,8 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void updateProgram_allowsUpdatingCommonIntakeFormToDefaultProgram() throws Exception {
-    ErrorAnd<ProgramDefinition, CiviFormError> commonIntakeForm =
+  public void updateProgram_allowsUpdatingPreScreenerFormToDefaultProgram() throws Exception {
+    ErrorAnd<ProgramDefinition, CiviFormError> preScreenerForm =
         ps.createProgramDefinition(
             "name-one",
             "description",
@@ -1628,14 +1673,14 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
-            ProgramType.COMMON_INTAKE_FORM,
+            ProgramType.PRE_SCREENER_FORM,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateProgramDefinition(
-            commonIntakeForm.getResult().id(),
+            preScreenerForm.getResult().id(),
             Locale.US,
             "a",
             "a",
@@ -1658,7 +1703,7 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void updateProgram_clearsEligibilityConditionsWhenSettingCommonIntakeForm()
+  public void updateProgram_clearsEligibilityConditionsWhenSettingPreScreenerForm()
       throws Exception {
     QuestionDefinition question = nameQuestion;
     EligibilityDefinition eligibility =
@@ -1695,14 +1740,14 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
-            ProgramType.COMMON_INTAKE_FORM,
+            ProgramType.PRE_SCREENER_FORM,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
-    assertThat(result.getResult().programType()).isEqualTo(ProgramType.COMMON_INTAKE_FORM);
+    assertThat(result.getResult().programType()).isEqualTo(ProgramType.PRE_SCREENER_FORM);
     assertThat(result.getResult().getBlockCount()).isEqualTo(2);
     assertThat(result.getResult().getBlockDefinitionByIndex(0).get().eligibilityDefinition())
         .isNotPresent();
@@ -2796,7 +2841,7 @@ public class ProgramServiceTest extends ResetPostgres {
             .build();
     ProgramDefinition program =
         ProgramBuilder.newDraftProgram()
-            .withProgramType(ProgramType.COMMON_INTAKE_FORM)
+            .withProgramType(ProgramType.PRE_SCREENER_FORM)
             .withBlock()
             .withRequiredQuestionDefinition(question)
             .buildDefinition();
@@ -2804,7 +2849,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThatExceptionOfType(EligibilityNotValidForProgramTypeException.class)
         .isThrownBy(
             () -> ps.setBlockEligibilityDefinition(program.id(), 1L, Optional.of(eligibility)))
-        .withMessage("Eligibility conditions cannot be set for ProgramType COMMON_INTAKE_FORM");
+        .withMessage("Eligibility conditions cannot be set for ProgramType PRE_SCREENER_FORM");
   }
 
   @Test
@@ -3399,9 +3444,9 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void updateLocalizations_applicationStepValidationIsSkippedForCommonIntakeProgram()
+  public void updateLocalizations_applicationStepValidationIsSkippedForPreScreenerProgram()
       throws Exception {
-    ProgramModel program = ProgramBuilder.newActiveCommonIntakeForm("prescreener").build();
+    ProgramModel program = ProgramBuilder.newActivePreScreenerForm("prescreener").build();
 
     LocalizationUpdate updateData =
         LocalizationUpdate.builder()
@@ -3779,36 +3824,30 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void getCommonIntakeForm_ignoresObsoletePrograms() {
-    // No common intake form in the most recent version of any program, although some programs
-    // were previously marked as common intake.
-    ProgramBuilder.newObsoleteProgram("one")
-        .withProgramType(ProgramType.COMMON_INTAKE_FORM)
-        .build();
-    ProgramBuilder.newActiveProgram("two").withProgramType(ProgramType.COMMON_INTAKE_FORM).build();
+  public void getPreScreenerForm_ignoresObsoletePrograms() {
+    // No pre-screener form in the most recent version of any program, although some programs
+    // were previously marked as pre-screener.
+    ProgramBuilder.newObsoleteProgram("one").withProgramType(ProgramType.PRE_SCREENER_FORM).build();
+    ProgramBuilder.newActiveProgram("two").withProgramType(ProgramType.PRE_SCREENER_FORM).build();
     ProgramBuilder.newDraftProgram("two").withProgramType(ProgramType.DEFAULT).build();
 
     assertThat(ps.getPreScreenerForm()).isNotPresent();
   }
 
   @Test
-  public void getCommonIntakeForm_activeCommonIntake() {
-    ProgramBuilder.newObsoleteProgram("one")
-        .withProgramType(ProgramType.COMMON_INTAKE_FORM)
-        .build();
-    ProgramBuilder.newActiveProgram("two").withProgramType(ProgramType.COMMON_INTAKE_FORM).build();
+  public void getPreScreenerForm_activePreScreener() {
+    ProgramBuilder.newObsoleteProgram("one").withProgramType(ProgramType.PRE_SCREENER_FORM).build();
+    ProgramBuilder.newActiveProgram("two").withProgramType(ProgramType.PRE_SCREENER_FORM).build();
 
     assertThat(ps.getPreScreenerForm()).isPresent();
     assertThat(ps.getPreScreenerForm().get().adminName()).isEqualTo("two");
   }
 
   @Test
-  public void getCommonIntakeForm_draftCommonIntake() {
-    ProgramBuilder.newObsoleteProgram("one")
-        .withProgramType(ProgramType.COMMON_INTAKE_FORM)
-        .build();
+  public void getPreScreenerForm_draftPreScreener() {
+    ProgramBuilder.newObsoleteProgram("one").withProgramType(ProgramType.PRE_SCREENER_FORM).build();
     ProgramBuilder.newActiveProgram("two").withProgramType(ProgramType.DEFAULT).build();
-    ProgramBuilder.newDraftProgram("two").withProgramType(ProgramType.COMMON_INTAKE_FORM).build();
+    ProgramBuilder.newDraftProgram("two").withProgramType(ProgramType.PRE_SCREENER_FORM).build();
 
     assertThat(ps.getPreScreenerForm()).isPresent();
     assertThat(ps.getPreScreenerForm().get().adminName()).isEqualTo("two");

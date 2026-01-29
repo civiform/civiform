@@ -9,7 +9,7 @@ import {
   getMessages,
   ITEMS_PER_PAGE,
   updateLocationCountForMap,
-} from './map_util'
+} from '@/mapquestion/map_util'
 const MAX_VISIBLE_PAGE_BUTTONS_MOBILE = 3
 const MAX_VISIBLE_PAGE_BUTTONS_DESKTOP = 1
 const DATA_CURRENT_PAGE_ATTRIBUTE = 'data-current-page'

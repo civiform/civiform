@@ -28,7 +28,7 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
-import views.applicant.ProgramOverviewView;
+import views.applicant.programoverview.ProgramOverviewView;
 
 /** Class for showing program view based on program slug. */
 public final class ProgramSlugHandler {
@@ -228,7 +228,7 @@ public final class ProgramSlugHandler {
     }
 
     // For pre-screener forms, redirect to the first block edit page
-    if (activeProgramDefinition.programType().equals(ProgramType.COMMON_INTAKE_FORM)) {
+    if (activeProgramDefinition.programType().equals(ProgramType.PRE_SCREENER_FORM)) {
       return Results.redirect(
               applicantRoutes.edit(profile, applicantId, activeProgramDefinition.id()))
           .flashing(FlashKey.REDIRECTED_FROM_PROGRAM_SLUG, programSlug)

@@ -39,7 +39,7 @@ import services.program.ProgramService;
 import services.program.ProgramType;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
-import views.applicant.ProgramOverviewView;
+import views.applicant.programoverview.ProgramOverviewView;
 
 public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
@@ -49,7 +49,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void northStar_programBySlug_showsActiveProgramVersionForExistingApplications() {
+  public void programBySlug_showsActiveProgramVersionForExistingApplications() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
     VersionRepository versionRepository = instanceOf(VersionRepository.class);
@@ -411,7 +411,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
   @Test
   public void showProgramPreview_withPreScreener_loadsFirstBlockPage() {
     ProgramDefinition programDefinition =
-        ProgramBuilder.newActiveCommonIntakeForm("test pre-screener").buildDefinition();
+        ProgramBuilder.newActivePreScreenerForm("test pre-screener").buildDefinition();
 
     ApplicantModel applicant = createApplicantWithMockedProfile();
 

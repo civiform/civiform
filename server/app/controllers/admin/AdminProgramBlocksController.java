@@ -16,6 +16,7 @@ import org.pac4j.play.java.Secure;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.data.FormFactory;
+import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
@@ -46,6 +47,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
   private final QuestionService questionService;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
+  private final MessagesApi messagesApi;
 
   @Inject
   public AdminProgramBlocksController(
@@ -55,7 +57,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
       FormFactory formFactory,
       RequestChecker requestChecker,
       ProfileUtils profileUtils,
-      VersionRepository versionRepository) {
+      VersionRepository versionRepository,
+      MessagesApi messagesApi) {
     super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
@@ -63,6 +66,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
     this.readOnlyView = checkNotNull(programBlockViewFactory.create(ACTIVE));
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
+    this.messagesApi = checkNotNull(messagesApi);
   }
 
   /**
@@ -288,7 +292,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
             block,
             message,
             roQuestionService.getUpToDateQuestions(),
-            ImmutableList.of()));
+            ImmutableList.of(),
+            messagesApi.preferred(request)));
   }
 
   private Result renderReadOnlyViewWithMessage(
@@ -307,7 +312,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
             block,
             /* message= */ Optional.empty(),
             allQuestions,
-            allPreviousVersionQuestions));
+            allPreviousVersionQuestions,
+            messagesApi.preferred(request)));
   }
 
   private Result renderEditViewWithMessage(
@@ -331,7 +337,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
               blockDefinition.programQuestionDefinitions(),
               message,
               roQuestionService.getUpToDateQuestions(),
-              ImmutableList.of()));
+              ImmutableList.of(),
+              messagesApi.preferred(request)));
     } catch (ProgramBlockDefinitionNotFoundException e) {
       return notFound(e.toString());
     }

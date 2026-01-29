@@ -90,6 +90,8 @@ public final class ProgramService {
       "One or more TI Org must be selected for program visibility";
   private static final String MISSING_APPLICATION_STEP_MSG =
       "The program must contain at least one application step";
+  private static final String SHORT_DESCRIPTION_TOO_LONG_MSG =
+      "Short description must be 100 characters or less";
 
   private final ProgramRepository programRepository;
   private final QuestionService questionService;
@@ -376,11 +378,10 @@ public final class ProgramService {
    *     submit an application, and false if an application can submit an application even if they
    *     don't meet some/all of the eligibility criteria.
    * @param loginOnly true if only logged in applicants can apply to the program.
-   * @param programType ProgramType for this Program. If this is set to COMMON_INTAKE_FORM and there
+   * @param programType ProgramType for this Program. If this is set to PRE_SCREENER_FORM and there
    *     is already another active or draft program with {@link
-   *     services.program.ProgramType#COMMON_INTAKE_FORM}, that program's ProgramType will be
-   *     changed to {@link services.program.ProgramType#DEFAULT}, creating a new draft of it if
-   *     necessary.
+   *     services.program.ProgramType#PRE_SCREENER_FORM}, that program's ProgramType will be changed
+   *     to {@link services.program.ProgramType#DEFAULT}, creating a new draft of it if necessary.
    * @param tiGroups The List of TiOrgs who have visibility to program in SELECT_TI display mode
    * @return the {@link ProgramDefinition} that was created if succeeded, or a set of errors if
    *     failed
@@ -427,7 +428,7 @@ public final class ProgramService {
       return ErrorAnd.error(maybeEmptyBlock.getErrors());
     }
 
-    if (programType.equals(ProgramType.COMMON_INTAKE_FORM) && getPreScreenerForm().isPresent()) {
+    if (programType.equals(ProgramType.PRE_SCREENER_FORM) && getPreScreenerForm().isPresent()) {
       clearPreScreenerForm();
     }
     ProgramAcls programAcls = new ProgramAcls(new HashSet<>(tiGroups));
@@ -554,10 +555,10 @@ public final class ProgramService {
    *     submit an application, and false if an application can submit an application even if they
    *     don't meet some/all of the eligibility criteria.
    * @param loginOnly true if an applicant must be logged in before applying to a program.
-   * @param programType ProgramType for this Program. If this is set to COMMON_INTAKE_FORM and there
-   *     is already another active or draft program with {@link ProgramType#COMMON_INTAKE_FORM},
-   *     that program's ProgramType will be changed to {@link ProgramType#DEFAULT}, creating a new
-   *     draft of it if necessary.
+   * @param programType ProgramType for this Program. If this is set to PRE_SCREENER_FORM and there
+   *     is already another active or draft program with {@link ProgramType#PRE_SCREENER_FORM}, that
+   *     program's ProgramType will be changed to {@link ProgramType#DEFAULT}, creating a new draft
+   *     of it if necessary.
    * @param tiGroups the TI Orgs having visibility to the program for SELECT_TI display_mode
    * @return the {@link ProgramDefinition} that was updated if succeeded, or a set of errors if
    *     failed
@@ -597,7 +598,7 @@ public final class ProgramService {
       return ErrorAnd.error(errors);
     }
 
-    if (programType.equals(ProgramType.COMMON_INTAKE_FORM)) {
+    if (programType.equals(ProgramType.PRE_SCREENER_FORM)) {
       Optional<ProgramDefinition> maybePreScreenerForm = getPreScreenerForm();
       if (maybePreScreenerForm.isPresent()
           && !programDefinition.adminName().equals(maybePreScreenerForm.get().adminName())) {
@@ -611,7 +612,7 @@ public final class ProgramService {
     applicationSteps =
         preserveApplicationStepTranslations(applicationSteps, programDefinition.applicationSteps());
 
-    if (programType.equals(ProgramType.COMMON_INTAKE_FORM)
+    if (programType.equals(ProgramType.PRE_SCREENER_FORM)
         && !programDefinition.isPreScreenerForm()) {
       programDefinition = removeAllEligibilityPredicates(programDefinition);
     }
@@ -882,7 +883,10 @@ public final class ProgramService {
     }
     if (shortDescription.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_DESCRIPTION_MSG));
-    } else if (displayMode.equals(DisplayMode.SELECT_TI.getValue()) && tiGroups.isEmpty()) {
+    } else if (shortDescription.length() > 100) {
+      errorsBuilder.add(CiviFormError.of(SHORT_DESCRIPTION_TOO_LONG_MSG));
+    }
+    if (displayMode.equals(DisplayMode.SELECT_TI.getValue()) && tiGroups.isEmpty()) {
       errorsBuilder.add(CiviFormError.of(MISSING_TI_ORGS_FOR_THE_DISPLAY_MODE));
     }
     if (displayMode.isBlank()) {
@@ -938,7 +942,7 @@ public final class ProgramService {
       ImmutableSet.Builder<CiviFormError> errorsBuilder,
       ImmutableList<ApplicationStep> applicationSteps) {
     // Pre-screener and external programs don't have application steps.
-    if (programType == ProgramType.COMMON_INTAKE_FORM || programType == ProgramType.EXTERNAL) {
+    if (programType == ProgramType.PRE_SCREENER_FORM || programType == ProgramType.EXTERNAL) {
       return errorsBuilder;
     }
 
@@ -963,6 +967,12 @@ public final class ProgramService {
         errorsBuilder.add(
             CiviFormError.of(
                 String.format("Application step %s is missing a title", Integer.toString(i + 1))));
+      }
+      if (title.length() > 100) {
+        errorsBuilder.add(
+            CiviFormError.of(
+                String.format(
+                    "Step %s title must be 100 characters or less", Integer.toString(i + 1))));
       }
     }
 

@@ -222,6 +222,7 @@ test.describe('address correction single-block, single-address program', () => {
         await applicantQuestions.clickConfirmAddress()
         await applicantQuestions.clickSubmitApplication()
       })
+
       await logout(page)
     })
 
@@ -264,9 +265,11 @@ test.describe('address correction single-block, single-address program', () => {
         )
         await applicantQuestions.clickContinue()
       })
+
       await test.step('Validate review page is shown', async () => {
         await applicantQuestions.expectReviewPage()
       })
+
       await logout(page)
     })
   }
@@ -278,6 +281,7 @@ test.describe('address correction single-block, single-address program', () => {
     test.slow()
 
     await disableFeatureFlag(page, 'esri_address_correction_enabled')
+
     await test.step('Answer address question', async () => {
       await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
 
@@ -290,6 +294,7 @@ test.describe('address correction single-block, single-address program', () => {
       )
       await applicantQuestions.clickContinue()
     })
+
     await test.step('Validate review page is shown and user can submit', async () => {
       await applicantQuestions.expectQuestionAnsweredOnReviewPage(
         addressWithCorrectionText,
@@ -297,6 +302,7 @@ test.describe('address correction single-block, single-address program', () => {
       )
       await applicantQuestions.clickSubmitApplication()
     })
+
     await logout(page)
   })
 })
@@ -365,11 +371,13 @@ if (isLocalDevEnvironment()) {
 
         await applicantQuestions.clickContinue()
       })
+
       await test.step('Validate review page is shown and user can submit', async () => {
         await applicantQuestions.expectReviewPage()
 
         await applicantQuestions.clickSubmitApplication()
       })
+
       await logout(page)
     })
   })
@@ -469,6 +477,7 @@ if (isLocalDevEnvironment()) {
         )
         await applicantQuestions.clickContinue()
       })
+
       await test.step('Validate address correction page shown and user can finish application', async () => {
         await applicantQuestions.expectVerifyAddressPage(true)
         await applicantQuestions.clickConfirmAddress()
@@ -480,6 +489,7 @@ if (isLocalDevEnvironment()) {
         )
         await applicantQuestions.clickSubmitApplication()
       })
+
       await logout(page)
     })
   })
@@ -693,6 +703,7 @@ if (isLocalDevEnvironment()) {
             '92373',
           )
         })
+
         await test.step('Navigate back and validate verify address page', async () => {
           await applicantQuestions.clickBack()
 
@@ -718,6 +729,7 @@ if (isLocalDevEnvironment()) {
             '92373',
           )
         })
+
         await test.step('Navigate back and validate verify address page', async () => {
           await applicantQuestions.clickBack()
 
@@ -760,6 +772,7 @@ if (isLocalDevEnvironment()) {
             '92373',
           )
         })
+
         await test.step('Navigate back and validate verify address page', async () => {
           await applicantQuestions.clickBack()
           await applicantQuestions.expectVerifyAddressPage(true)
@@ -806,6 +819,7 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.clickBack()
           await applicantQuestions.expectVerifyAddressPage(false)
         })
+
         await test.step('Confirm address suggestion and validate we are taken to the previous page', async () => {
           await applicantQuestions.clickConfirmAddress()
 
@@ -841,11 +855,13 @@ if (isLocalDevEnvironment()) {
             '92373',
           )
         })
+
         await test.step('Navigate back and validate verify address page', async () => {
           await applicantQuestions.clickBack()
 
           await applicantQuestions.validateQuestionIsOnPage(emailQuestionText)
         })
+
         await test.step('Navigate to and validate review page', async () => {
           await applicantQuestions.clickReview()
           await applicantQuestions.expectQuestionAnsweredOnReviewPage(
@@ -853,6 +869,7 @@ if (isLocalDevEnvironment()) {
             'Address In Area',
           )
         })
+
         await logout(page)
       })
     })
@@ -876,6 +893,7 @@ if (isLocalDevEnvironment()) {
             '98109',
           )
         })
+
         await test.step('Click review and validate verify address page', async () => {
           await applicantQuestions.clickReview()
 
@@ -901,6 +919,7 @@ if (isLocalDevEnvironment()) {
             '92373',
           )
         })
+
         await test.step('Click review and validate verify address page', async () => {
           await applicantQuestions.clickReview()
 
@@ -931,6 +950,7 @@ if (isLocalDevEnvironment()) {
           await applicantQuestions.clickReview()
           await applicantQuestions.expectVerifyAddressPage(true)
         })
+
         await test.step('Confirm original address and validate review page', async () => {
           // Opt to keep the original address entered
           await applicantQuestions.selectAddressSuggestion('Legit Address')
@@ -967,10 +987,12 @@ if (isLocalDevEnvironment()) {
             '92373',
           )
         })
+
         await test.step('Click review and validate verify address page', async () => {
           await applicantQuestions.clickReview()
           await applicantQuestions.expectVerifyAddressPage(true)
         })
+
         await test.step('Confirm suggested address and validate review page', async () => {
           await applicantQuestions.selectAddressSuggestion(
             'Address With No Service Area Features',
@@ -984,6 +1006,7 @@ if (isLocalDevEnvironment()) {
             'Address With No Service Area Features',
           )
         })
+
         await logout(page)
       })
 
@@ -1005,6 +1028,7 @@ if (isLocalDevEnvironment()) {
             '98109',
           )
         })
+
         await test.step('Click review and validate verify address page', async () => {
           await applicantQuestions.clickReview()
           await applicantQuestions.expectVerifyAddressPage(false)
@@ -1045,6 +1069,7 @@ if (isLocalDevEnvironment()) {
             '92373',
           )
         })
+
         await test.step('Click review and validate review page', async () => {
           await applicantQuestions.clickReview()
 
@@ -1079,6 +1104,7 @@ if (isLocalDevEnvironment()) {
             '92373',
           )
         })
+
         await test.step('Click continue and validate address correction page', async () => {
           await applicantQuestions.clickContinue()
 
@@ -1104,6 +1130,7 @@ if (isLocalDevEnvironment()) {
             '92373',
           )
         })
+
         await test.step('Click continue and validate address correction page', async () => {
           await applicantQuestions.clickContinue()
 
@@ -1128,6 +1155,7 @@ if (isLocalDevEnvironment()) {
             '92373',
           )
         })
+
         await test.step('Click continue and validate address correction page shown', async () => {
           await applicantQuestions.clickContinue()
           await applicantQuestions.expectVerifyAddressPage(true)
@@ -1166,10 +1194,12 @@ if (isLocalDevEnvironment()) {
             '92373',
           )
         })
+
         await test.step('Click continue and validate address correction page shown', async () => {
           await applicantQuestions.clickContinue()
           await applicantQuestions.expectVerifyAddressPage(true)
         })
+
         await test.step('Confirm address selection and validate next page', async () => {
           // Opt for one of the suggested addresses
           await applicantQuestions.selectAddressSuggestion(
@@ -1180,6 +1210,7 @@ if (isLocalDevEnvironment()) {
           // Verify we're taken to the next page, which has the number question
           await applicantQuestions.validateQuestionIsOnPage(numberQuestionText)
         })
+
         await test.step('Click review and validate review page', async () => {
           await applicantQuestions.clickReview()
           await applicantQuestions.expectQuestionAnsweredOnReviewPage(
@@ -1206,16 +1237,19 @@ if (isLocalDevEnvironment()) {
             '98109',
           )
         })
+
         await test.step('Click continue and validate address correction page shown', async () => {
           await applicantQuestions.clickContinue()
           await applicantQuestions.expectVerifyAddressPage(false)
         })
+
         await test.step('Confirm address and validate next page', async () => {
           await applicantQuestions.clickConfirmAddress()
 
           // Verify we're taken to the next page, which has the number question
           await applicantQuestions.validateQuestionIsOnPage(numberQuestionText)
         })
+
         await test.step('Click review and validate review page', async () => {
           await applicantQuestions.clickReview()
           await applicantQuestions.expectQuestionAnsweredOnReviewPage(
@@ -1245,11 +1279,13 @@ if (isLocalDevEnvironment()) {
             '92373',
           )
         })
+
         await test.step('Click continue and validate next page shown', async () => {
           await applicantQuestions.clickContinue()
 
           await applicantQuestions.validateQuestionIsOnPage(numberQuestionText)
         })
+
         await test.step('Click review and validate review page', async () => {
           await applicantQuestions.clickReview()
           await applicantQuestions.expectQuestionAnsweredOnReviewPage(
@@ -1257,6 +1293,7 @@ if (isLocalDevEnvironment()) {
             'Address In Area',
           )
         })
+
         await logout(page)
       })
     })
@@ -1280,6 +1317,7 @@ if (isLocalDevEnvironment()) {
             '92373',
           )
         })
+
         await test.step('Click continue and validate address correction page shown', async () => {
           await applicantQuestions.clickContinue()
           await applicantQuestions.expectVerifyAddressPage(true)

@@ -41,7 +41,7 @@ services:
     image: civiform-mock-web-services
 
   db:
-    image: postgres:16.11@sha256:056b54f00419b49289227ab12d09df508543883f407fe9935a2cec430ef8aa8d
+    image: postgres:16.11@sha256:f992505e18f114c1e5102ac4dcf00f791b44462f6a423d899320f0bbf80e386f
     restart: always
     expose:
       - '5432'
@@ -115,6 +115,7 @@ services:
       - LOGIN_GOV_ACR_VALUE
       - CF_OPTIONAL_QUESTIONS
       - CIVIC_ENTITY_SMALL_LOGO_URL
+      - CIVIC_ENTITY_FOOTER_LOGO_URL
       - WHITELABEL_CIVIC_ENTITY_SHORT_NAME
       - WHITELABEL_CIVIC_ENTITY_FULL_NAME
       - FAVICON_URL

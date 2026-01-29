@@ -1,5 +1,5 @@
-import {ToastController} from './toast'
-import {addEventListenerToElements} from './util'
+import {ToastController} from '@/toast'
+import {addEventListenerToElements} from '@/util'
 
 enum ProgramType {
   DEFAULT = 'CiviForm program',

@@ -139,6 +139,33 @@ export const validateToastHidden = async (page: Page) => {
 }
 
 /**
+ * Asserts that passed value is not null. This method is used when working with
+ * various APIs that often return nullable values and often developers know
+ * that value is not-null. For example using document.querySelector on elements
+ * that 100% should be there. This function helps to assert that value is not
+ * null or fail quickly if those expectations are false.
+ *
+ * See TypeScript best practices for recommendations for when to use
+ * assertNotNull vs non-null operator `!`:
+ * https://github.com/civiform/civiform/wiki/Development-standards#assertnotnull-vs-non-null-expression
+ *
+ * @param value
+ * @param extraInfo Additional info to add to the error if provided value is
+ *     null. In most cases it's not needed as stack trace is enough to identify
+ *     the location of the error.
+ */
+export function assertNotNull<T>(
+  value: T | null | undefined,
+  extraInfo = '',
+): T {
+  if (value == null) {
+    const extra = extraInfo !== '' ? `Extra info: ${extraInfo}` : ''
+    throw new Error(`Provided value is ${String(value)}. ${extra}`)
+  }
+  return value
+}
+
+/**
  * This can be used to simulate slow networks to aid in debugging flaky tests. Its use *should NOT* be
  * committed into the codebase as a permanent fix to anything.
  *
