@@ -723,6 +723,13 @@ public final class ProgramService {
           }
         }
       }
+
+      for (ApplicationStep step : programDefinition.applicationSteps()) {
+        if (step.getTitle().maybeGet(locale).isEmpty()
+            || step.getDescription().maybeGet(locale).isEmpty()) {
+          return false;
+        }
+      }
     }
 
     return true;
