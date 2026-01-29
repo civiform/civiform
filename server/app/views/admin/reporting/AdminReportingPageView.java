@@ -1,9 +1,6 @@
 package views.admin.reporting;
 
 import auth.ProfileUtils;
-
-import java.time.Duration;
-
 import javax.inject.Inject;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
