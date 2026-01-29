@@ -88,6 +88,7 @@ import views.admin.programs.predicates.SubconditionListPartialView;
 import views.admin.programs.predicates.SubconditionListPartialViewModel;
 import views.components.ToastMessage;
 import views.components.ToastMessage.ToastType;
+import play.i18n.MessagesApi;
 import views.html.helper.form;
 
 /**
@@ -112,6 +113,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   private final RequestChecker requestChecker;
   private final SettingsManifest settingsManifest;
   private final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
+  private final MessagesApi messagesApi;
 
   /**
    * Contains data for rendering a simple HTML option element with no additional data attributes.
@@ -143,6 +145,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
       EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
+      MessagesApi messagesApi,
       SettingsManifest settingsManifest) {
     super(profileUtils, versionRepository);
     this.predicateGenerator = checkNotNull(predicateGenerator);
@@ -158,6 +161,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     this.requestChecker = checkNotNull(requestChecker);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.esriServiceAreaValidationConfig = checkNotNull(esriServiceAreaValidationConfig);
+    this.messagesApi = checkNotNull(messagesApi);
   }
 
   /**
@@ -215,7 +219,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
 
       return ok(
           legacyPredicatesEditView.render(
-              request, programDefinition, blockDefinition, predicateQuestions, predicateUseCase));
+              request, programDefinition, blockDefinition, predicateQuestions, predicateUseCase, messagesApi.preferred(request)));
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {

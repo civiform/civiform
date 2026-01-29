@@ -44,6 +44,7 @@ import services.program.predicate.PredicateValue;
 import services.question.QuestionService;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
+import play.i18n.MessagesApi;
 import views.admin.programs.ProgramPredicateConfigureView;
 import views.admin.programs.ProgramPredicatesEditView;
 import views.admin.programs.predicates.ConditionListPartialView;
@@ -96,6 +97,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
             instanceOf(ProfileUtils.class),
             instanceOf(VersionRepository.class),
             instanceOf(EsriServiceAreaValidationConfig.class),
+            instanceOf(MessagesApi.class),
             settingsManifest);
     programWithThreeBlocks =
         ProgramBuilder.newDraftProgram("first program")
@@ -226,7 +228,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
     String content = Helpers.contentAsString(result);
     assertThat(content).contains("Eligibility condition for Screen 1");
-    assertThat(content).contains("This screen does not have any eligibility conditions");
+    assertThat(content).contains("Applicant is always eligible");
     assertThat(content).contains("Admin ID: applicant name");
     assertThat(content).contains("what is your name?");
   }

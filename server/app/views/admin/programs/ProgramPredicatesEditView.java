@@ -26,6 +26,7 @@ import javax.inject.Inject;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Http;
+import play.i18n.Messages;
 import play.twirl.api.Content;
 import services.LocalizedStrings;
 import services.program.BlockDefinition;
@@ -84,7 +85,8 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
       ProgramDefinition programDefinition,
       BlockDefinition blockDefinition,
       ImmutableList<QuestionDefinition> predicateQuestions,
-      PredicateUseCase predicateUseCase) {
+      PredicateUseCase predicateUseCase,
+      Messages messages) {
 
     // This render code is used to render eligibility and visibility predicate editors.
     // The following vars set the per-use case visual and url values and the rest lays things out
@@ -136,7 +138,8 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
                                 predicateUseCase,
                                 programDefinition.id(),
                                 blockDefinition.id(),
-                                /* includeEditFooter= */ false)));
+                                /* includeEditFooter= */ false,
+                                messages)));
         removePredicateUrl =
             routes.AdminProgramBlockPredicatesController.destroyEligibility(
                     programDefinition.id(), blockDefinition.id())
@@ -183,7 +186,8 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
                                 predicateUseCase,
                                 programDefinition.id(),
                                 blockDefinition.id(),
-                                /* includeEditFooter= */ false)));
+                                /* includeEditFooter= */ false,
+                                messages)));
         removePredicateUrl =
             routes.AdminProgramBlockPredicatesController.destroyVisibility(
                     programDefinition.id(), blockDefinition.id())

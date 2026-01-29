@@ -203,6 +203,8 @@ public enum MessageKey {
   PHONE_VALIDATION_NON_NUMBER_VALUE("validation.phoneNumberMustContainNumbersOnly"),
   PHONE_VALIDATION_INVALID_PHONE_NUMBER("validation.invalidPhoneNumberProvided"),
   PHONE_VALIDATION_NUMBER_NOT_IN_COUNTRY("validation.phoneMustBeLocalToCountry"),
+  PREDICATE_ELIGIBILITY_NULL_STATE("content.predicateEligibilityNullState"),
+  PREDICATE_VISIBILITY_NULL_STATE("content.predicateVisibilityNullState"),
   SEARCH_BY_DOB("label.searchByDob"),
   SEARCH_BY_NAME("label.searchByName"),
   MONTH_LABEL("label.month"),

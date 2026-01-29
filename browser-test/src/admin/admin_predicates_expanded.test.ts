@@ -190,7 +190,7 @@ test.describe('create and edit predicates', () => {
       // Validate empty state without predicate
       await adminPrograms.goToBlockInProgram(programName, 'Screen 1')
       await expect(page.locator('#eligibility-predicate')).toContainText(
-        'This screen does not have any eligibility conditions',
+        'Applicant is always eligible',
       )
     })
 
@@ -207,7 +207,7 @@ test.describe('create and edit predicates', () => {
       // Validate no predicate is saved
       await adminPrograms.goToBlockInProgram(programName, 'Screen 1')
       await expect(page.locator('#eligibility-predicate')).toContainText(
-        'This screen does not have any eligibility conditions',
+        'Applicant is always eligible',
       )
     })
 
@@ -332,7 +332,7 @@ test.describe('create and edit predicates', () => {
     await test.step('Validate empty state without predicate', async () => {
       await adminPrograms.goToBlockInProgram(programName, 'Screen 1')
       await expect(page.locator('#eligibility-predicate')).toContainText(
-        'This screen does not have any eligibility conditions',
+        'Applicant is always eligible',
       )
       await validateScreenshot(
         page.locator('#eligibility-predicate'),

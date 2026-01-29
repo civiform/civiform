@@ -325,7 +325,7 @@ test.describe('create and edit predicates', () => {
     // Validate empty state without predicate
     await adminPrograms.goToBlockInProgram(programName, 'Screen 1')
     expect(await page.innerText('#eligibility-predicate')).toContain(
-      'This screen does not have any eligibility conditions',
+      'Applicant is always eligible',
     )
 
     // Edit predicate for second screen

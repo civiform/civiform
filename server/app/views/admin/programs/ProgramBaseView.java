@@ -24,6 +24,8 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 import models.CategoryModel;
 import play.mvc.Http;
+import services.MessageKey;
+import play.i18n.Messages;
 import services.program.ProgramDefinition;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateUseCase;
@@ -130,13 +132,13 @@ abstract class ProgramBaseView extends BaseHtmlView {
 
   /** Renders a div actively indicating there is no predicate condition for the admin. */
   protected final DivTag renderEmptyPredicate(
-      PredicateUseCase predicateUseCase, long programId, long blockId, boolean includeEditFooter) {
+      PredicateUseCase predicateUseCase, long programId, long blockId, boolean includeEditFooter, Messages messages) {
     DivTag emptyPredicateStatus =
         div().withClasses("border", "border-gray-200", "p-4", "usa-prose", "my-2");
     String message =
         switch (predicateUseCase) {
-          case ELIGIBILITY -> "This screen does not have any eligibility conditions.";
-          case VISIBILITY -> "This screen is always shown.";
+          case ELIGIBILITY -> messages.at(MessageKey.PREDICATE_ELIGIBILITY_NULL_STATE.getKeyName());
+          case VISIBILITY -> messages.at(MessageKey.PREDICATE_VISIBILITY_NULL_STATE.getKeyName());
         };
     emptyPredicateStatus.with(div().withText(message));
 
