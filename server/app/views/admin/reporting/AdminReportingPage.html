@@ -1,0 +1,103 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.reporting.AdminReportingPageViewModel"*/-->
+<th:block th:fragment="content">
+  <h1 th:text="${templateGlobals.pageTitle()}"></h1>
+  <div class="grid-container section usa-prose">
+    <table class="usa-table">
+      <caption>
+        Submissions by program (all programs)
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">Program</th>
+          <th scope="col">Submissions</th>
+          <th scope="col">Time to complete (p25)</th>
+          <th scope="col">Median time to complete</th>
+          <th scope="col">Time to complete (p75)</th>
+          <th scope="col">Time to complete (p99)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <th:block
+          th:each="stat : ${model.monthlyStats.totalSubmissionsByProgram}"
+        >
+          <tr>
+            <th scope="row">
+              <a
+                th:href="${model.getDetailsUrl(stat.programName)}"
+                th:text="${stat.enUSLocalizedProgramName()}"
+              ></a>
+            </th>
+            <td th:text="${stat.applicationCount}"></td>
+            <td
+              th:text="${model.formatDuration(stat.submissionDurationSeconds25p)}"
+            ></td>
+            <td
+              th:text="${model.formatDuration(stat.submissionDurationSeconds50p)}"
+            ></td>
+            <td
+              th:text="${model.formatDuration(stat.submissionDurationSeconds75p)}"
+            ></td>
+            <td
+              th:text="${model.formatDuration(stat.submissionDurationSeconds99p)}"
+            ></td>
+          </tr>
+        </th:block>
+      </tbody>
+    </table>
+    <a
+      class="usa-button"
+      th:href="${model.getDownloadMonthCsvUrl('APPLICATION_COUNTS_BY_PROGRAM')}"
+    >
+      Download CSV
+    </a>
+  </div>
+  <div class="grid-container section usa-prose">
+    <table class="usa-table">
+      <caption>
+        Submissions by month (all programs)
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">Month</th>
+          <th scope="col">Submissions</th>
+          <th scope="col">Time to complete (p25)</th>
+          <th scope="col">Median time to complete</th>
+          <th scope="col">Time to complete (p75)</th>
+          <th scope="col">Time to complete (p99)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <th:block
+          th:each="stat : ${model.monthlyStats.monthlySubmissionsAggregated}"
+        >
+          <tr>
+            <th
+              scope="row"
+              th:text="${#dates.format(stat.timestamp.get(), 'MM/yy')}"
+            ></th>
+            <td th:text="${stat.applicationCount}"></td>
+            <td
+              th:text="${model.formatDuration(stat.submissionDurationSeconds25p)}"
+            ></td>
+            <td
+              th:text="${model.formatDuration(stat.submissionDurationSeconds50p)}"
+            ></td>
+            <td
+              th:text="${model.formatDuration(stat.submissionDurationSeconds75p)}"
+            ></td>
+            <td
+              th:text="${model.formatDuration(stat.submissionDurationSeconds99p)}"
+            ></td>
+          </tr>
+        </th:block>
+      </tbody>
+    </table>
+    <a
+      class="usa-button"
+      th:href="${model.getDownloadMonthCsvUrl('APPLICATION_COUNTS_BY_MONTH')}"
+    >
+      Download CSV
+    </a>
+  </div>
+</th:block>
