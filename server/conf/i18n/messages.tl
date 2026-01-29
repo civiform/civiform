@@ -560,6 +560,12 @@ link.backToEditProgramBlock=Bumalik sa pag-edit {0}
 content.predicateVisibilityDescription=I-configure kung kailang ipapakita o itatago ang screen na ito para sa mga aplikante batay sa mga sagot sa mga tanong sa mga naunang screen.
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
 content.predicateEligibilityDescription=Magdagdag ng mga kondisyon sa pagiging karapat-dapat para matukoy kung kwalipikado ang isang aplikante para sa programa batay sa mga sagot sa mga tanong sa screen na ito. Haharangin ang pagsusumite ng aplikasyon ng mga aplikanteng hindi nakakatugon sa minimum na kinakailangan. Mababago mo ito sa
+# Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualitifies for the program.
+content.predicateEligibilityDescription.v2=Add eligibility conditions to determine if an applicant qualifies for the program based on responses to questions on this screen.
+# Text informing admins that ineligible applicants will be blocked from submitting an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
+content.blockIneligibleApplicants=Applicants who do not meet the minimum requirements will be blocked from submitting an application. You can change this in the
+# Text informing admins that ineligible applicants will still be able to submit an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
+content.allowIneligibleApplicants=Applicants can submit an application even if they do not meet the minimum requirements. You can change this in the
 # Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
 link.programSettings=settings ng program
 
