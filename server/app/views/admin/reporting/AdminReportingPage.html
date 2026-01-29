@@ -4,17 +4,15 @@
   <h1 th:text="${templateGlobals.pageTitle()}"></h1>
   <div class="grid-container section usa-prose">
     <table class="usa-table">
-      <caption>
-        Submissions by program (all programs)
-      </caption>
+      <caption th:text="#{caption.submissionsByProgram}"></caption>
       <thead>
         <tr>
-          <th scope="col">Program</th>
-          <th scope="col">Submissions</th>
-          <th scope="col">Time to complete (p25)</th>
-          <th scope="col">Median time to complete</th>
-          <th scope="col">Time to complete (p75)</th>
-          <th scope="col">Time to complete (p99)</th>
+          <th scope="col" th:text="#{content.program}"></th>
+          <th scope="col" th:text="#{content.submissions}"></th>
+          <th scope="col" th:text="#{content.timeToCompleteP25}"></th>
+          <th scope="col" th:text="#{content.medianTimeToComplete}"></th>
+          <th scope="col" th:text="#{content.timeToCompleteP75}"></th>
+          <th scope="col" th:text="#{content.timeToCompleteP99}"></th>
         </tr>
       </thead>
       <tbody>
@@ -48,23 +46,21 @@
     <a
       class="usa-button"
       th:href="${model.getDownloadMonthCsvUrl('APPLICATION_COUNTS_BY_PROGRAM')}"
+      th:text="#{button.downloadCsv}"
     >
-      Download CSV
     </a>
   </div>
   <div class="grid-container section usa-prose">
     <table class="usa-table">
-      <caption>
-        Submissions by month (all programs)
-      </caption>
+      <caption th:text="#{caption.submissionsByMonth}"></caption>
       <thead>
         <tr>
-          <th scope="col">Month</th>
-          <th scope="col">Submissions</th>
-          <th scope="col">Time to complete (p25)</th>
-          <th scope="col">Median time to complete</th>
-          <th scope="col">Time to complete (p75)</th>
-          <th scope="col">Time to complete (p99)</th>
+          <th scope="col" th:text="#{content.month}">Month</th>
+          <th scope="col" th:text="#{content.submissions}">Submissions</th>
+          <th scope="col" th:text="#{content.timeToCompleteP25}"></th>
+          <th scope="col" th:text="#{content.medianTimeToComplete}"></th>
+          <th scope="col" th:text="#{content.timeToCompleteP75}"></th>
+          <th scope="col" th:text="#{content.timeToCompleteP99}"></th>
         </tr>
       </thead>
       <tbody>
@@ -96,8 +92,8 @@
     <a
       class="usa-button"
       th:href="${model.getDownloadMonthCsvUrl('APPLICATION_COUNTS_BY_MONTH')}"
+      th:text="#{button.downloadCsv}"
     >
-      Download CSV
     </a>
   </div>
 </th:block>
