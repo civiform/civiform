@@ -15,8 +15,10 @@ import java.util.Optional;
 import models.AccountModel;
 import models.ApplicantModel;
 import models.TrustedIntermediaryGroupModel;
+import modules.ThymeleafModule;
 import org.junit.Before;
 import org.junit.Test;
+import org.thymeleaf.TemplateEngine;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
@@ -75,7 +77,9 @@ public class EditTiClientViewTest extends WithMockedProfiles {
             instanceOf(BundledAssetsFinder.class),
             instanceOf(PageNotProductionBanner.class),
             mock(MessagesApi.class),
-            instanceOf(ApplicantRoutes.class));
+            instanceOf(ApplicantRoutes.class),
+            instanceOf(ThymeleafModule.PlayThymeleafContextFactory.class),
+            instanceOf(TemplateEngine.class));
 
     view =
         new EditTiClientView(

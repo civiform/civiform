@@ -56,8 +56,7 @@ public final class AdminReportingIndexView extends BaseHtmlView {
     contentDiv.with(renderAggregatedProgramStats(totalSubmissionsByProgram));
     contentDiv.with(renderAllApplicationsMonthlyStats(allApplicationsMonthlyStats));
 
-    HtmlBundle htmlBundle =
-        layout.setAdminType(profile).getBundle(request).setTitle(title).addMainContent(contentDiv);
+    HtmlBundle htmlBundle = layout.getBundle(request).setTitle(title).addMainContent(contentDiv);
     return layout.renderCentered(htmlBundle);
   }
 

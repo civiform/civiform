@@ -6,7 +6,6 @@ import static j2html.TagCreator.document;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.footer;
 import static j2html.TagCreator.head;
-import static j2html.TagCreator.header;
 import static j2html.TagCreator.html;
 import static j2html.TagCreator.link;
 import static j2html.TagCreator.main;
@@ -15,12 +14,12 @@ import static j2html.TagCreator.title;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import j2html.tags.DomContent;
 import j2html.tags.Tag;
 import j2html.tags.specialized.BodyTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FooterTag;
 import j2html.tags.specialized.HeadTag;
-import j2html.tags.specialized.HeaderTag;
 import j2html.tags.specialized.HtmlTag;
 import j2html.tags.specialized.LinkTag;
 import j2html.tags.specialized.MainTag;
@@ -29,6 +28,7 @@ import j2html.tags.specialized.ScriptTag;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,8 +55,7 @@ public final class HtmlBundle {
   private final ArrayList<ScriptTag> footerScripts = new ArrayList<>();
   private final ArrayList<String> footerStyles = new ArrayList<>();
   private final ArrayList<ScriptTag> headScripts = new ArrayList<>();
-  private final ArrayList<Tag> headerContent = new ArrayList<>();
-  private final ArrayList<String> headerStyles = new ArrayList<>();
+  private final ArrayList<DomContent> headerContent = new ArrayList<>();
   private final ArrayList<Tag> mainContent = new ArrayList<>();
   private final ArrayList<String> mainStyles = new ArrayList<>();
   private final ArrayList<MetaTag> metadata = new ArrayList<>();
@@ -104,7 +103,7 @@ public final class HtmlBundle {
     return this;
   }
 
-  public HtmlBundle addHeaderContent(Tag... tags) {
+  public HtmlBundle addHeaderContent(DomContent... tags) {
     headerContent.addAll(Arrays.asList(tags));
     return this;
   }
@@ -194,7 +193,9 @@ public final class HtmlBundle {
     BodyTag bodyTag = j2html.TagCreator.body();
 
     pageNotProductionBannerTag.ifPresent(bodyTag::with);
-    bodyTag.with(renderHeader(), renderMain(), renderModals());
+
+    bodyTag.with(renderHeader());
+    bodyTag.with(renderMain(), renderModals());
 
     Optional<DivTag> uswdsModal = renderUswdsModals();
     uswdsModal.ifPresent(bodyTag::with);
@@ -261,16 +262,9 @@ public final class HtmlBundle {
         .with(CspUtil.applyCspToStyles(request, stylesheets));
   }
 
-  private HeaderTag renderHeader() {
-    // TODO: Sort toastMessages by priority before displaying.
-    HeaderTag headerTag =
-        header().with(each(toastMessages, ToastMessage::getContainerTag)).with(headerContent);
-
-    if (headerStyles.size() > 0) {
-      headerTag.withClasses(headerStyles.toArray(new String[0]));
-    }
-
-    return headerTag;
+  private List<DomContent> renderHeader() {
+    headerContent.add(0, each(toastMessages, ToastMessage::getContainerTag));
+    return headerContent;
   }
 
   private MainTag renderMain() {

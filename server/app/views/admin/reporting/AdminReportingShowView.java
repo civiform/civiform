@@ -80,8 +80,7 @@ public class AdminReportingShowView extends BaseHtmlView {
         renderProgramMonthlyStats(
             programSlug, monthlyStats.monthlySubmissionsForProgram(programName)));
 
-    HtmlBundle htmlBundle =
-        layout.setAdminType(profile).getBundle(request).setTitle(title).addMainContent(contentDiv);
+    HtmlBundle htmlBundle = layout.getBundle(request).setTitle(title).addMainContent(contentDiv);
     return layout.renderCentered(htmlBundle);
   }
 

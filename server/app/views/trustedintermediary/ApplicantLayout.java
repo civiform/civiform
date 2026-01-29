@@ -39,8 +39,10 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
+import modules.ThymeleafModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
@@ -105,8 +107,16 @@ public class ApplicantLayout extends BaseHtmlLayout {
       BundledAssetsFinder bundledAssetsFinder,
       PageNotProductionBanner pageNotProductionBanner,
       MessagesApi messagesApi,
-      ApplicantRoutes applicantRoutes) {
-    super(viewUtils, settingsManifest, deploymentType, bundledAssetsFinder);
+      ApplicantRoutes applicantRoutes,
+      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
+      TemplateEngine templateEngine) {
+    super(
+        viewUtils,
+        settingsManifest,
+        deploymentType,
+        bundledAssetsFinder,
+        playThymeleafContextFactory,
+        templateEngine);
     this.layout = layout;
     this.profileUtils = checkNotNull(profileUtils);
     this.languageSelector = checkNotNull(languageSelector);

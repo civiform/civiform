@@ -11,8 +11,10 @@ import j2html.tags.specialized.LinkTag;
 import j2html.tags.specialized.SectionTag;
 import java.util.HashMap;
 import java.util.Optional;
+import modules.ThymeleafModule;
 import org.junit.Before;
 import org.junit.Test;
+import org.thymeleaf.TemplateEngine;
 import play.twirl.api.Content;
 import repository.ResetPostgres;
 import services.BundledAssetsFinder;
@@ -37,7 +39,9 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
             instanceOf(ViewUtils.class),
             new SettingsManifest(ConfigFactory.parseMap(DEFAULT_CONFIG)),
             instanceOf(DeploymentType.class),
-            instanceOf(BundledAssetsFinder.class));
+            instanceOf(BundledAssetsFinder.class),
+            instanceOf(ThymeleafModule.PlayThymeleafContextFactory.class),
+            instanceOf(TemplateEngine.class));
   }
 
   @Test
@@ -69,7 +73,9 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
             instanceOf(ViewUtils.class),
             new SettingsManifest(ConfigFactory.parseMap(config)),
             instanceOf(DeploymentType.class),
-            instanceOf(BundledAssetsFinder.class));
+            instanceOf(BundledAssetsFinder.class),
+            instanceOf(ThymeleafModule.PlayThymeleafContextFactory.class),
+            instanceOf(TemplateEngine.class));
     HtmlBundle bundle = layout.getBundle(fakeRequestBuilder().cspNonce("my-nonce").build());
     Content content = layout.render(bundle);
 

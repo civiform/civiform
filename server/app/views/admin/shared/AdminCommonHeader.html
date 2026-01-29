@@ -1,7 +1,7 @@
 <!--/*@thymesVar id="adminCommonHeader" type="views.admin.shared.AdminCommonHeader"*/-->
 <th:block xmlns:cf="https://civiform.us/2024/html/icon">
   <header class="z-100">
-    <nav class="position-fixed width-full shadow-1">
+    <nav class="position-fixed width-full top-0 shadow-1">
       <section
         class="usa-banner cf-admin-heading-background-color"
         aria-label="This is an official government website."
@@ -133,7 +133,7 @@
                 <a
                   th:href="${adminCommonHeader.questionsUrl()}"
                   class="usa-nav__link cf-admin-heading-nav-item"
-                  th:classappend="${adminCommonHeader.activeNavPage().name() == 'Questions'} ? 'usa-current' : ''"
+                  th:classappend="${adminCommonHeader.activeNavPage().name() == 'QUESTIONS'} ? 'usa-current' : ''"
                   ><span class="text-normal font-sans-md line-height-sans-6"
                     >Questions</span
                   ></a
@@ -146,7 +146,7 @@
                 <a
                   th:href="${adminCommonHeader.intermediaryUrl()}"
                   class="usa-nav__link cf-admin-heading-nav-item"
-                  th:classappend="${adminCommonHeader.activeNavPage().name() == 'Intermediaries'} ? 'usa-current' : ''"
+                  th:classappend="${adminCommonHeader.activeNavPage().name() == 'INTERMEDIARIES'} ? 'usa-current' : ''"
                   ><span class="text-normal font-sans-md line-height-sans-6"
                     >Intermediaries</span
                   ></a
@@ -159,7 +159,7 @@
                 <a
                   th:href="${adminCommonHeader.reportingUrl()}"
                   class="usa-nav__link cf-admin-heading-nav-item"
-                  th:classappend="${adminCommonHeader.activeNavPage().name() == 'Reporting'} ? 'usa-current' : ''"
+                  th:classappend="${adminCommonHeader.activeNavPage().name() == 'REPORTING'} ? 'usa-current' : ''"
                   ><span class="text-normal font-sans-md line-height-sans-6"
                     >Reporting</span
                   ></a
