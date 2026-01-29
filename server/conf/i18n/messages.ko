@@ -560,6 +560,12 @@ link.backToEditProgramBlock={0} 편집으로 돌아가기
 content.predicateVisibilityDescription=이전 화면의 질문에 대한 응답에 따라 지원자에게 이 화면을 표시하거나 숨길 시점을 설정하세요.
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
 content.predicateEligibilityDescription=이 화면의 질문에 대한 응답에 따라 지원자의 프로그램 지원 자격 충족 여부를 결정할 조건을 추가하세요. 최소 조건을 충족하지 못하는 지원자는 지원서를 제출하지 못하도록 차단됩니다. 이 설정은 다음에서 변경할 수 있습니다.
+# Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualitifies for the program.
+content.predicateEligibilityDescription.v2=Add eligibility conditions to determine if an applicant qualifies for the program based on responses to questions on this screen.
+# Text informing admins that ineligible applicants will be blocked from submitting an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
+content.blockIneligibleApplicants=Applicants who do not meet the minimum requirements will be blocked from submitting an application. You can change this in the
+# Text informing admins that ineligible applicants will still be able to submit an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
+content.allowIneligibleApplicants=Applicants can submit an application even if they do not meet the minimum requirements. You can change this in the
 # Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
 link.programSettings=프로그램 설정
 
