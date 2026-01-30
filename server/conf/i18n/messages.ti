@@ -1166,3 +1166,28 @@ button.repeatedSet.addNew=
 text.repeatedSet=
 # Text letting admins know which block represents the group of screens for nested repeating questions
 text.nestedRepeatedSet=
+
+#------------------------------------------------------------------------------#
+#  ADMIN REPORTING                                                             #
+#------------------------------------------------------------------------------#
+
+# Caption for the table showing submissions by program
+caption.submissionsByProgram=Submissions by program (all programs)
+# Column header for program name
+content.program=Program
+# Column header for number of submissions
+content.submissions=Submissions
+# Column header for 25th percentile time to complete
+content.timeToCompleteP25=Time to complete (p25)
+# Column header for median (50th percentile) time to complete
+content.medianTimeToComplete=Median time to complete
+# Column header for 75th percentile time to complete
+content.timeToCompleteP75=Time to complete (p75)
+# Column header for 99th percentile time to complete
+content.timeToCompleteP99=Time to complete (p99)
+# Text on button to download CSV file
+button.downloadCsv=Download CSV
+# Caption for the table showing submissions by month
+caption.submissionsByMonth=Submissions by month (all programs)
+# Column header for month
+content.month=Month
