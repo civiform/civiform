@@ -19,6 +19,8 @@ import services.settings.SettingsManifest;
 import views.admin.reporting.AdminReportingIndexView;
 import views.admin.reporting.AdminReportingPageView;
 import views.admin.reporting.AdminReportingPageViewModel;
+import views.admin.reporting.AdminReportingProgramPageView;
+import views.admin.reporting.AdminReportingProgramPageViewModel;
 import views.admin.reporting.AdminReportingShowView;
 
 /** Controller for displaying reporting data to the admin roles. */
@@ -27,6 +29,7 @@ public final class AdminReportingController extends CiviFormController {
   private final Provider<AdminReportingIndexView> adminReportingIndexView;
   private final AdminReportingPageView adminReportingPageView;
   private final Provider<AdminReportingShowView> adminReportingShowView;
+  private final AdminReportingProgramPageView adminReportingProgramPageView;
   private final ProgramService programService;
   private final ReportingService reportingService;
   private final SettingsManifest settingsManifest;
@@ -36,6 +39,7 @@ public final class AdminReportingController extends CiviFormController {
       Provider<AdminReportingIndexView> adminReportingIndexView,
       AdminReportingPageView adminReportingPageView,
       Provider<AdminReportingShowView> adminReportingShowView,
+      AdminReportingProgramPageView adminReportingProgramPageView,
       ProfileUtils profileUtils,
       ProgramService programService,
       VersionRepository versionRepository,
@@ -45,6 +49,7 @@ public final class AdminReportingController extends CiviFormController {
     this.adminReportingIndexView = Preconditions.checkNotNull(adminReportingIndexView);
     this.adminReportingPageView = Preconditions.checkNotNull(adminReportingPageView);
     this.adminReportingShowView = Preconditions.checkNotNull(adminReportingShowView);
+    this.adminReportingProgramPageView = Preconditions.checkNotNull(adminReportingProgramPageView);
     this.programService = Preconditions.checkNotNull(programService);
     this.reportingService = Preconditions.checkNotNull(reportingService);
     this.settingsManifest = Preconditions.checkNotNull(settingsManifest);
@@ -70,6 +75,25 @@ public final class AdminReportingController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public CompletionStage<Result> show(Http.Request request, String programSlug) {
+    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+      return programService
+          .getActiveFullProgramDefinitionAsync(programSlug)
+          .thenApply(
+              programDefinition -> {
+                AdminReportingProgramPageViewModel model =
+                    AdminReportingProgramPageViewModel.builder()
+                        .monthlySubmissionsForProgram(
+                            reportingService
+                                .getMonthlyStats()
+                                .monthlySubmissionsForProgram(programDefinition.adminName()))
+                        .programSlug(programSlug)
+                        .programName(programDefinition.adminName())
+                        .enUSLocalizedProgramName(programDefinition.localizedName().getDefault())
+                        .build();
+                return ok(adminReportingProgramPageView.render(request, model))
+                    .as(Http.MimeTypes.HTML);
+              });
+    }
     return programService
         .getActiveFullProgramDefinitionAsync(programSlug)
         .thenApply(
