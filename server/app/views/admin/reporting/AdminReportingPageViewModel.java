@@ -1,6 +1,5 @@
 package views.admin.reporting;
 
-import java.time.Duration;
 import lombok.Builder;
 import lombok.Data;
 import modules.MainModule;
@@ -18,27 +17,11 @@ public class AdminReportingPageViewModel implements BaseViewModel {
         .url();
   }
 
-  public static String formatDuration(double durationSeconds) {
-    Duration duration = Duration.ofSeconds((long) durationSeconds);
-
-    long days = duration.toDaysPart();
-    long hours = duration.toHoursPart();
-    int minutes = duration.toMinutesPart();
-    int seconds = duration.toSecondsPart();
-
-    StringBuilder result = new StringBuilder();
-
-    if (days > 0) {
-      result.append(days);
-      result.append(":");
-    }
-
-    result.append(String.format("%02d:%02d:%02d", hours, minutes, seconds));
-
-    return result.toString();
+  public String formatDuration(double durationSeconds) {
+    return AdminReportingUtils.formatDuration(durationSeconds);
   }
 
-  public String getDownloadMonthCsvUrl(String csvName) {
+  public String getDownloadCsvUrl(String csvName) {
     return controllers.admin.routes.AdminReportingController.downloadCsv(csvName).url();
   }
 }
