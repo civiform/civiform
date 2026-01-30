@@ -11,7 +11,6 @@ import views.admin.BaseViewModel;
 public class AdminReportingProgramPageViewModel implements BaseViewModel {
   private final ImmutableList<ApplicationSubmissionsStat> monthlySubmissionsForProgram;
   private final String programSlug;
-  private final String programName;
   private final String enUSLocalizedProgramName;
 
   public String formatDuration(double durationSeconds) {

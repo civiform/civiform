@@ -87,7 +87,6 @@ public final class AdminReportingController extends CiviFormController {
                                 .getMonthlyStats()
                                 .monthlySubmissionsForProgram(programDefinition.adminName()))
                         .programSlug(programSlug)
-                        .programName(programDefinition.adminName())
                         .enUSLocalizedProgramName(programDefinition.localizedName().getDefault())
                         .build();
                 return ok(adminReportingProgramPageView.render(request, model))
