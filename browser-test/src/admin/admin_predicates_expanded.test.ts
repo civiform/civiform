@@ -378,6 +378,9 @@ test.describe('create and edit predicates', () => {
       await expect(page.locator('#edit-predicate')).toContainText(
         'Error: You must select a question.',
       )
+      await expect(
+        page.locator('#condition-1-subcondition-1-question'),
+      ).toBeFocused()
     })
 
     await test.step('Select question, save, and check predicate validation', async () => {
@@ -487,6 +490,9 @@ test.describe('create and edit predicates', () => {
       await expect(
         page.locator('#predicate-operator-node-select-null-state'),
       ).toContainText('This screen is always shown')
+      await expect(
+        page.getByRole('button', {name: 'Add condition'}),
+      ).toBeFocused()
       await adminPredicates.expectNoDeleteAllConditionsButton()
       await validateScreenshot(
         page.locator('#edit-predicate'),
@@ -639,6 +645,7 @@ test.describe('create and edit predicates', () => {
           'aria-invalid',
           'true',
         )
+        await expect(inputElementLocator).toBeFocused()
         if (questionType === QuestionType.CURRENCY) {
           await expect(page.locator('.usa-input-group--error')).toBeVisible()
         } else {
@@ -755,6 +762,7 @@ test.describe('create and edit predicates', () => {
           'aria-invalid',
           'true',
         )
+        await expect(secondInputElementLocator).toBeFocused()
         if (questionType === QuestionType.CURRENCY) {
           await expect(page.locator('.usa-input-group--error')).toBeVisible()
         } else {
@@ -991,6 +999,7 @@ test.describe('create and edit predicates', () => {
         )
         await expect(errorMessageLocator).toBeVisible()
         await expect(page.locator('.usa-form-group--error')).toBeVisible()
+        await expect(page.getByLabel('Pizza Bagel')).toBeFocused()
       })
     }
   })
