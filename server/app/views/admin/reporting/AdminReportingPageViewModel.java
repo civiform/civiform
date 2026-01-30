@@ -38,7 +38,7 @@ public class AdminReportingPageViewModel implements BaseViewModel {
     return result.toString();
   }
 
-  public String getDownloadMonthCsvUrl(String csvName) {
+  public String getDownloadCsvUrl(String csvName) {
     return controllers.admin.routes.AdminReportingController.downloadCsv(csvName).url();
   }
 }

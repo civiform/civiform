@@ -45,7 +45,7 @@
     </table>
     <a
       class="usa-button"
-      th:href="${model.getDownloadMonthCsvUrl('APPLICATION_COUNTS_BY_PROGRAM')}"
+      th:href="${model.getDownloadCsvUrl('APPLICATION_COUNTS_BY_PROGRAM')}"
       th:text="#{button.downloadCsv}"
     >
     </a>
@@ -91,7 +91,7 @@
     </table>
     <a
       class="usa-button"
-      th:href="${model.getDownloadMonthCsvUrl('APPLICATION_COUNTS_BY_MONTH')}"
+      th:href="${model.getDownloadCsvUrl('APPLICATION_COUNTS_BY_MONTH')}"
       th:text="#{button.downloadCsv}"
     >
     </a>
