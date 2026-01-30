@@ -24,8 +24,10 @@
           questionErrorMessageId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-questionError'}"
         >
           <label class="usa-label" th:for="${questionDropdownId}"
-            >[[#{label.predicateQuestion}]]<span class="usa-hint--required"
-              >*</span
+            >[[#{label.predicateQuestion}]]<abbr
+              title="required"
+              class="usa-hint usa-hint--required"
+              >*</abbr
             ></label
           >
           <span
@@ -66,8 +68,10 @@
             class="usa-form-group cf-predicate-scalar-select tablet:grid-col margin-top-0"
           >
             <label class="usa-label" th:for="${scalarDropDownId}"
-              >[[#{label.predicateField}]]<span class="usa-hint--required"
-                >*</span
+              >[[#{label.predicateField}]]<abbr
+                title="required"
+                class="usa-hint usa-hint--required"
+                >*</abbr
               ></label
             >
             <select
@@ -95,8 +99,10 @@
             class="usa-form-group cf-predicate-operator-select tablet:grid-col margin-top-0"
           >
             <label class="usa-label" th:for="${operatorDropdownId}"
-              >[[#{label.predicateState}]]<span class="usa-hint--required"
-                >*</span
+              >[[#{label.predicateState}]]<abbr
+                title="required"
+                class="usa-hint usa-hint--required"
+                >*</abbr
               ></label
             >
             <select
