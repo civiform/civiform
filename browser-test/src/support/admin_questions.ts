@@ -85,6 +85,7 @@ export enum QuestionType {
   NUMBER = 'number',
   RADIO = 'radio',
   TEXT = 'text',
+  YES_NO = 'yes-no',
   ENUMERATOR = 'enumerator',
   FILE_UPLOAD = 'file-upload',
 }
@@ -648,6 +649,9 @@ export class AdminQuestions {
         break
       case QuestionType.TEXT:
         await this.addTextQuestion({questionName, questionText: questionText})
+        break
+      case QuestionType.YES_NO:
+        await this.addYesNoQuestion({questionName, questionText: questionText})
         break
       case QuestionType.ENUMERATOR:
         await this.addEnumeratorQuestion({

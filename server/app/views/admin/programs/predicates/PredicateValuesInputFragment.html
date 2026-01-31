@@ -63,6 +63,11 @@
           th:replace="~{::textValuesInput(${valueInputId}, ${valueInputHintId})}"
         ></div>
       </th:block>
+      <th:block th:case="'Map'">
+        <div
+          th:replace="~{::multiValuesInput(${model.valueOptions}, ${multiValueInputId}, ${errorMessageId})}"
+        ></div>
+      </th:block>
       <th:block th:case="'Name'">
         <div
           th:replace="~{::textValuesInput(${valueInputId}, ${valueInputHintId})}"
@@ -81,6 +86,11 @@
       <th:block th:case="'Text'">
         <div
           th:replace="~{::textValuesInput(${valueInputId}, ${valueInputHintId})}"
+        ></div>
+      </th:block>
+      <th:block th:case="'Yes/No'">
+        <div
+          th:replace="~{::multiValuesInput(${model.valueOptions}, ${multiValueInputId}, ${errorMessageId})}"
         ></div>
       </th:block>
     </th:block>
