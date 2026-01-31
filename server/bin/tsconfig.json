@@ -1,0 +1,19 @@
+{
+  "extends": "@tsconfig/recommended/tsconfig.json",
+  "compilerOptions": {
+    "lib": ["es2022", "dom"],
+    "target": "es2022",
+    // Improve module compatibility with modern bundlers like Webpack.
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    // Allow importing JSON and other non-TS assets if needed.
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "mapRoot": "/assets/javascripts",
+    "sourceRoot": "/assets/javascripts",
+    "baseUrl": "./",
+    "strict": true,
+    "types": ["vitest"]
+  },
+  "include": ["app/assets/javascripts/**/*.ts"]
+}

@@ -1,0 +1,229 @@
+<th:block
+  th:fragment="keyInput(fieldName, setting, possibleKeys, labelKey, helpTextKey)"
+>
+  <div
+    th:with="hasKeyError=${setting.key != null && setting.key != '' && !possibleKeys.contains(setting.key)}"
+    th:class="${hasKeyError ? 'cf-question-field-with-error padding-left-105' : ''}"
+    data-key-field
+  >
+    <label
+      class="usa-label text-base-dark"
+      th:for="${fieldName + '.key'}"
+      th:inline="text"
+    >
+      <div class="font-body-sm">
+        [[#{${labelKey}}]]
+        <span title="required" class="usa-hint usa-hint--required">*</span>
+      </div>
+      <div class="font-body-2xs" th:text="#{${helpTextKey}}"></div>
+    </label>
+    <span
+      th:if="${hasKeyError}"
+      class="usa-error-message"
+      role="alert"
+      data-key-error
+      th:text="#{map.keyNotFoundError}"
+    ></span>
+    <select
+      class="usa-select"
+      th:name="${fieldName + '.key'}"
+      th:id="${fieldName + '.key'}"
+      data-key-select
+    >
+      <option value th:text="#{map.selectOptionPlaceholderText}"></option>
+      <option
+        th:each="key: ${possibleKeys}"
+        th:value="${key}"
+        th:text="${key}"
+        th:selected="${key == setting.key}"
+      ></option>
+    </select>
+  </div>
+</th:block>
+
+<th:block
+  th:fragment="filterInput(index, possibleKeys, hxDeleteMapFilterEndpoint, selectedKey, displayNameValue)"
+>
+  <div
+    class="display-flex flex-justify filter-input"
+    th:classappend="${hasKeyError ? 'cf-question-field-with-error padding-left-105' : ''}"
+    th:data-testid="filter-input"
+    th:with="keyId=|filter-${index}-key|, displayNameId=|filter-${index}-displayName|, hasKeyError=${selectedKey != null && selectedKey != '' && !possibleKeys.contains(selectedKey)}"
+    data-key-field
+  >
+    <div class="width-full">
+      <label
+        class="usa-label text-base-dark margin-top-105"
+        th:for="${keyId}"
+        th:inline="text"
+      >
+        [[#{map.keyLabel}]]
+        <span title="required" class="usa-hint usa-hint--required">*</span>
+      </label>
+      <span
+        th:if="${hasKeyError}"
+        class="usa-error-message"
+        role="alert"
+        data-key-error
+        th:text="#{map.keyNotFoundError}"
+      ></span>
+      <select
+        data-testid="key-select"
+        class="usa-select"
+        th:name="'filters[' + ${index} + '].key'"
+        th:id="${keyId}"
+        data-key-select
+      >
+        <option value th:text="#{map.selectOptionPlaceholderText}"></option>
+        <option
+          th:each="key : ${possibleKeys}"
+          th:value="${key}"
+          th:text="${key}"
+          th:selected="${selectedKey != null && key == selectedKey}"
+        ></option>
+      </select>
+      <label
+        class="usa-label text-base-dark margin-top-105"
+        th:for="${displayNameId}"
+        th:inline="text"
+      >
+        [[#{map.displayNameLabel}]]
+        <span title="required" class="usa-hint usa-hint--required">*</span>
+      </label>
+      <input
+        data-testid="display-name-input"
+        class="usa-input cf-display-name-input"
+        th:name="'filters[' + ${index} + '].displayName'"
+        th:id="${displayNameId}"
+        th:value="${displayNameValue}"
+      />
+    </div>
+    <button
+      type="button"
+      class="cf-map-question-filter-button usa-button usa-button--unstyled flex-align-self-end"
+      aria-label="Delete filter"
+      th:hx-post="${hxDeleteMapFilterEndpoint}"
+      th:hx-vals='|{"filterIndex": ${index}}|'
+      hx-include="closest form"
+      hx-target="#filters"
+      hx-swap="innerHTML"
+    >
+      <cf:icon type="icon-delete" />
+    </button>
+  </div>
+</th:block>
+
+<th:block
+  th:fragment="tagInput(possibleKeys, selectedKey, value, displayName, alertText)"
+>
+  <fieldset class="usa-fieldset margin-top-3">
+    <legend class="usa-legend text-base-dark margin-top-105">
+      <h3 class="font-body-sm" th:text="#{map.addTagTitle}"></h3>
+      <h4 class="font-body-2xs" th:text="#{map.addTagSubtitle}"></h4>
+    </legend>
+    <div
+      th:class="|map-tag-setting-container ${selectedKey != '' ? '' : 'hidden'}|"
+      th:classappend="${hasKeyError ? 'cf-question-field-with-error padding-left-105' : ''}"
+      th:with="hasKeyError=${selectedKey != null && selectedKey != '' && !possibleKeys.contains(selectedKey)}"
+      data-key-field
+    >
+      <div
+        class="display-flex flex-justify tag-input"
+        th:data-testid="tag-input"
+      >
+        <div class="width-full">
+          <label
+            class="usa-label text-base-dark margin-top-105"
+            for="tag-key"
+            th:inline="text"
+          >
+            [[#{map.keyLabel}]]
+            <span title="required" class="usa-hint usa-hint--required">*</span>
+          </label>
+          <span
+            th:if="${hasKeyError}"
+            class="usa-error-message"
+            role="alert"
+            data-key-error
+            th:text="#{map.keyNotFoundError}"
+          ></span>
+          <select
+            data-testid="tag-key-select"
+            class="usa-select cf-tag-key-select"
+            name="locationTag.key"
+            id="tag-key"
+            data-key-select
+          >
+            <option value th:text="#{map.selectOptionPlaceholderText}"></option>
+            <option
+              th:each="key : ${possibleKeys}"
+              th:value="${key}"
+              th:text="${key}"
+              th:selected="${selectedKey != '' && key == selectedKey}"
+            ></option>
+          </select>
+          <label
+            class="usa-label text-base-dark margin-top-105"
+            for="tag-value"
+            th:inline="text"
+          >
+            [[#{map.valueLabel}]]
+            <span title="required" class="usa-hint usa-hint--required">*</span>
+          </label>
+          <input
+            data-testid="tag-value-input"
+            class="usa-input cf-tag-value-input"
+            name="locationTag.value"
+            th:value="${value}"
+            id="tag-value"
+          />
+          <label
+            class="usa-label text-base-dark margin-top-105"
+            for="tag-displayName"
+            th:inline="text"
+          >
+            [[#{map.displayNameLabel}]]
+            <span title="required" class="usa-hint usa-hint--required">*</span>
+          </label>
+          <input
+            data-testid="tag-display-name-input"
+            class="usa-input cf-tag-display-name-input"
+            name="locationTag.displayName"
+            th:value="${displayName}"
+            id="tag-displayName"
+          />
+          <label
+            class="usa-label text-base-dark margin-top-105"
+            for="tag-alertText"
+            th:text="#{map.settingTextLabel}"
+          >
+          </label>
+          <textarea
+            data-testid="tag-text-input"
+            class="usa-textarea cf-tag-textarea"
+            name="locationTag.alertText"
+            th:text="${alertText}"
+            id="tag-alertText"
+          ></textarea>
+        </div>
+        <button
+          type="button"
+          class="cf-map-question-filter-button usa-button usa-button--unstyled flex-align-self-end"
+          aria-label="Delete tag"
+          id="delete-map-tag-button"
+        >
+          <cf:icon type="icon-delete" />
+        </button>
+      </div>
+    </div>
+    <button
+      id="add-map-tag-button"
+      type="button"
+      role="button"
+      th:class="|add-map-tag-button usa-button usa-button--outline margin-top-3 ${selectedKey != '' ? 'hidden' : ''}|"
+      th:inline="text"
+    >
+      <cf:icon type="icon-add" />[[#{map.addTagButton}]]
+    </button>
+  </fieldset>
+</th:block>

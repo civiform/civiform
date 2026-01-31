@@ -1,0 +1,31 @@
+<!-- Alert for no available questions on the current screen -->
+<div
+  th:fragment="noConditionsAlert(predicateUseCaseName)"
+  class="usa-alert usa-alert--info width-mobile-lg"
+>
+  <div class="usa-alert__body" th:switch="${predicateUseCaseName}">
+    <p
+      class="usa-alert__text"
+      th:case="'VISIBILITY'"
+      th:text="#{alert.predicateNoAvailableQuestionsVisibility}"
+    ></p>
+    <p
+      class="usa-alert__text"
+      th:case="'ELIGIBILITY'"
+      th:text="#{alert.predicateNoAvailableQuestionsEligibility}"
+    ></p>
+  </div>
+</div>
+
+<!-- Alert for failed HTMX request -->
+<div
+  th:fragment="failedRequestAlert()"
+  class="usa-alert usa-alert--warning width-mobile-lg"
+>
+  <div class="usa-alert__body">
+    <p class="usa-alert__text">
+      We are experiencing a system error that is preventing further conditions
+      from being added. Please save your progress and try again later.
+    </p>
+  </div>
+</div>
