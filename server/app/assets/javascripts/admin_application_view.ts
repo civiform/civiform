@@ -37,6 +37,16 @@ class AdminApplicationView {
     this.registerBulkSelectStatusListner()
     this.registerApplicationViewPostMessageListener()
     this.registerConfirmationMessageInputListeners()
+    this.registerBackButtonListener()
+  }
+
+  private registerBackButtonListener() {
+    addEventListenerToElements('#back-to-applications-link', 'click', (ev) => {
+      if (window.history.length > 1) {
+        ev.preventDefault()
+        window.history.back()
+      }
+    })
   }
   private registerBulkSelectStatusListner() {
     addEventListenerToElements('#selectAll', 'click', () => {
