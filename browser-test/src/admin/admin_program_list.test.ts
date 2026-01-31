@@ -1,7 +1,6 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {
   AdminPrograms,
-  enableFeatureFlag,
   isLocalDevEnvironment,
   loginAsAdmin,
   loginAsProgramAdmin,
@@ -223,10 +222,6 @@ test.describe('Program list page.', () => {
     page,
     adminPrograms,
   }) => {
-    // Feature flag is only needed for showing external program cards, other
-    // program types shouldn't be affected by it.
-    await enableFeatureFlag(page, 'external_program_cards_enabled')
-
     await loginAsAdmin(page)
 
     const program = 'Program'
@@ -300,7 +295,6 @@ test.describe('Program list page.', () => {
     adminPrograms,
     adminQuestions,
   }) => {
-    await enableFeatureFlag(page, 'external_program_cards_enabled')
     await loginAsAdmin(page)
 
     // Create an external program and a universal question
@@ -434,7 +428,6 @@ test.describe('Program list page.', () => {
     adminPrograms,
     adminQuestions,
   }) => {
-    await enableFeatureFlag(page, 'external_program_cards_enabled')
     await loginAsAdmin(page)
 
     // Create an external program and a universal question
@@ -593,7 +586,6 @@ test.describe('Program list page.', () => {
     const externalProgram = 'External'
 
     await test.step('add external program as a CiviForm admin', async () => {
-      await enableFeatureFlag(page, 'external_program_cards_enabled')
       await loginAsAdmin(page)
 
       await adminPrograms.addExternalProgram(

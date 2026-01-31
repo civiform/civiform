@@ -1118,7 +1118,7 @@ public final class ApplicantService {
               ImmutableSet<ApplicationModel> applications = applicationsFuture.join();
               logDuplicateDrafts(applications);
               return relevantProgramsForApplicantInternal(
-                  activeProgramDefinitions, applications, allPrograms, request);
+                  activeProgramDefinitions, applications, allPrograms);
             },
             classLoaderExecutionContext.current());
   }
@@ -1139,7 +1139,7 @@ public final class ApplicantService {
                   .filter(pdef -> pdef.displayMode().equals(DisplayMode.PUBLIC))
                   .collect(ImmutableList.toImmutableList());
           return relevantProgramsForApplicantInternal(
-              activeProgramDefinitions, ImmutableSet.of(), activeProgramDefinitions, request);
+              activeProgramDefinitions, ImmutableSet.of(), activeProgramDefinitions);
         },
         classLoaderExecutionContext.current());
   }
@@ -1214,8 +1214,7 @@ public final class ApplicantService {
   private ApplicationPrograms relevantProgramsForApplicantInternal(
       ImmutableList<ProgramDefinition> activePrograms,
       ImmutableSet<ApplicationModel> applications,
-      ImmutableList<ProgramDefinition> allPrograms,
-      Request request) {
+      ImmutableList<ProgramDefinition> allPrograms) {
     // Use ImmutableMap.copyOf rather than the collector to guard against cases where the
     // provided active programs contains duplicate entries with the same adminName. In this
     // case, the ImmutableMap collector would throw since ImmutableMap builders don't allow
@@ -1364,7 +1363,7 @@ public final class ApplicantService {
             relevantPrograms.setPreScreenerForm(applicantProgramDataBuilder.build());
           } else if (programType.equals(ProgramType.DEFAULT)
               || (programType.equals(ProgramType.EXTERNAL)
-                  && settingsManifest.getExternalProgramCardsEnabled(request))) {
+                  && settingsManifest.getExternalProgramCardsEnabled())) {
             unappliedPrograms.add(applicantProgramDataBuilder.build());
           }
         });

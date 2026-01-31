@@ -1,5 +1,5 @@
 import {test, expect} from './support/civiform_fixtures'
-import {enableFeatureFlag, loginAsAdmin, waitForPageJsLoad} from './support'
+import {loginAsAdmin, waitForPageJsLoad} from './support'
 import {ProgramVisibility} from './support/admin_programs'
 
 test.describe('Viewing API docs', () => {
@@ -56,7 +56,6 @@ test.describe('Viewing API docs', () => {
     })
 
     await test.step('Add external program does not show in program options', async () => {
-      await enableFeatureFlag(page, 'external_program_cards_enabled')
       await adminPrograms.addExternalProgram(
         'External Program Name',
         'short program description',
