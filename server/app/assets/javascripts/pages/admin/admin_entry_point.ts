@@ -2,7 +2,7 @@
  * Entry point for admin bundle. Admin bundle is served on all pages that are
  * accessed by CiviForm and Program admins.
  */
-
+import '@/components/shared/modal'
 import * as main from '@/main'
 import * as radio from '@/radio'
 import * as toast from '@/toast'
