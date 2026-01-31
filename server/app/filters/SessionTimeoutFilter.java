@@ -6,6 +6,7 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.nio.charset.StandardCharsets;
+import java.time.Clock;
 import java.time.Duration;
 import java.util.Base64;
 import java.util.Optional;
@@ -19,6 +20,7 @@ import play.libs.Json;
 import play.mvc.Filter;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.Results;
 import services.session.SessionTimeoutService;
 import services.settings.SettingsManifest;
 
@@ -30,9 +32,12 @@ import services.settings.SettingsManifest;
  *
  * <p>TODO: #9819 Re-enable this filter when we ensure there aren't performance issues.
  *
- * <p>This filter is responsible for setting a cookie with the current session's timeout data. The
- * cookie is used by the frontend to determine when to show a warning to the user that their session
- * is about to expire.
+ * <p>This filter checks for session timeout, updates last activity time, and sets a cookie for the
+ * frontend to show timeout warnings.
+ *
+ * <p>IMPORTANT: This filter must run after {@link ValidAccountFilter} in the filter chain. It reads
+ * the user's profile from request attributes set by ValidAccountFilter to avoid redundant session
+ * parsing.
  */
 public class SessionTimeoutFilter extends Filter {
   private static final String TIMEOUT_COOKIE_NAME = "session_timeout_data";
@@ -41,37 +46,57 @@ public class SessionTimeoutFilter extends Filter {
   private final ProfileUtils profileUtils;
   private final Provider<SettingsManifest> settingsManifest;
   private final Provider<SessionTimeoutService> sessionTimeoutService;
+  private final Clock clock;
 
   @Inject
   public SessionTimeoutFilter(
       Materializer mat,
       ProfileUtils profileUtils,
       Provider<SettingsManifest> settingsManifest,
-      Provider<SessionTimeoutService> sessionTimeoutService) {
+      Provider<SessionTimeoutService> sessionTimeoutService,
+      Clock clock) {
     super(mat);
     this.profileUtils = checkNotNull(profileUtils);
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.sessionTimeoutService = sessionTimeoutService;
+    this.sessionTimeoutService = checkNotNull(sessionTimeoutService);
+    this.clock = checkNotNull(clock);
   }
 
   @Override
   public CompletionStage<Result> apply(
       Function<Http.RequestHeader, CompletionStage<Result>> nextFilter,
       Http.RequestHeader requestHeader) {
-    if (SettingsFilter.areSettingRequestAttributesExcluded(requestHeader)) {
+    if (ValidAccountFilter.allowedEndpoint(requestHeader)) {
       return nextFilter.apply(requestHeader);
+    }
+
+    if (!settingsManifest.get().getSessionTimeoutEnabled(requestHeader)) {
+      return nextFilter.apply(requestHeader).thenApply(this::clearTimeoutCookie);
     }
     Optional<CiviFormProfile> optionalProfile =
         profileUtils.optionalCurrentUserProfile(requestHeader);
-    if (optionalProfile.isEmpty()
-        || !settingsManifest.get().getSessionTimeoutEnabled(requestHeader)) {
+
+    if (optionalProfile.isEmpty()) {
       return nextFilter.apply(requestHeader).thenApply(this::clearTimeoutCookie);
     }
-    return nextFilter
-        .apply(requestHeader)
+
+    CiviFormProfile profile = optionalProfile.get();
+    return sessionTimeoutService
+        .get()
+        .isSessionTimedOut(profile)
         .thenCompose(
-            result ->
-                createSessionTimestampCookie(optionalProfile.get()).thenApply(result::withCookies));
+            isTimedOut -> {
+              if (isTimedOut) {
+                return CompletableFuture.completedFuture(
+                    Results.redirect(org.pac4j.play.routes.LogoutController.logout()));
+              }
+              profile.getProfileData().updateLastActivityTime(clock);
+              return nextFilter
+                  .apply(requestHeader)
+                  .thenCompose(
+                      result ->
+                          createSessionTimestampCookie(profile).thenApply(result::withCookies));
+            });
   }
 
   /**
