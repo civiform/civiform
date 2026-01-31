@@ -11,8 +11,10 @@ import auth.ProfileUtils;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import java.util.Optional;
+import modules.ThymeleafModule;
 import org.junit.Before;
 import org.junit.Test;
+import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
@@ -60,7 +62,9 @@ public class ApplicantLayoutTest extends ResetPostgres {
             instanceOf(BundledAssetsFinder.class),
             instanceOf(PageNotProductionBanner.class),
             messagesApi,
-            instanceOf(ApplicantRoutes.class));
+            instanceOf(ApplicantRoutes.class),
+            instanceOf(ThymeleafModule.PlayThymeleafContextFactory.class),
+            instanceOf(TemplateEngine.class));
   }
 
   @Test

@@ -87,10 +87,6 @@ public final class ProgramIndexView extends BaseHtmlView {
       Http.Request request,
       ProgramTab selectedTab,
       Optional<CiviFormProfile> profile) {
-    if (profile.isPresent()) {
-      layout.setAdminType(profile.get());
-    }
-
     String pageTitle = "Program dashboard";
 
     // Revisit if we introduce internationalization because the word order could change in other

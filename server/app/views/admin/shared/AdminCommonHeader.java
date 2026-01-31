@@ -87,7 +87,7 @@ public record AdminCommonHeader(
 
   public Boolean isApiPage() {
     return switch (activeNavPage()) {
-      case API_DOCS, API_KEYS -> true;
+      case API_DOCS, API_KEYS, API_BRIDGE_DISCOVERY -> true;
       default -> false;
     };
   }

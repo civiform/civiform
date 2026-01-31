@@ -22,8 +22,6 @@ import static j2html.TagCreator.text;
 import static j2html.TagCreator.ul;
 import static services.export.JsonPrettifier.asPrettyJsonString;
 
-import auth.CiviFormProfile;
-import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.DomContent;
@@ -47,7 +45,6 @@ import services.export.ProgramJsonSampler;
 import services.program.ProgramDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
-import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -68,22 +65,16 @@ public class ApiDocsView extends BaseHtmlView {
   private static final String CODE_STYLES =
       StyleUtils.joinStyles("bg-slate-200", "p-0.5", "rounded-md");
 
-  private final ProfileUtils profileUtils;
-  private final BaseHtmlLayout unauthenticatedlayout;
-  private final AdminLayout authenticatedlayout;
+  private final AdminLayout layout;
   private final ProgramJsonSampler programJsonSampler;
   private final ExportServiceRepository exportServiceRepository;
 
   @Inject
   public ApiDocsView(
-      ProfileUtils profileUtils,
-      BaseHtmlLayout unauthenticatedlayout,
       AdminLayoutFactory layoutFactory,
       ProgramJsonSampler programJsonSampler,
       ExportServiceRepository exportServiceRepository) {
-    this.profileUtils = profileUtils;
-    this.unauthenticatedlayout = unauthenticatedlayout;
-    this.authenticatedlayout = layoutFactory.getLayout(NavPage.API_DOCS);
+    this.layout = layoutFactory.getLayout(NavPage.API_DOCS);
     this.programJsonSampler = programJsonSampler;
     this.exportServiceRepository = exportServiceRepository;
   }
@@ -93,17 +84,6 @@ public class ApiDocsView extends BaseHtmlView {
       String selectedProgramSlug,
       Optional<ProgramDefinition> programDefinition,
       ImmutableSet<String> allProgramSlugs) {
-    BaseHtmlLayout layout;
-
-    Optional<CiviFormProfile> currentUserProfile = profileUtils.optionalCurrentUserProfile(request);
-    if (currentUserProfile.isPresent()
-        && (currentUserProfile.get().isCiviFormAdmin()
-            || currentUserProfile.get().isProgramAdmin())) {
-      layout = authenticatedlayout.setAdminType(currentUserProfile.get());
-    } else {
-      // CiviFormProfileFilter does not apply to API docs views, so there may be no profile
-      layout = unauthenticatedlayout;
-    }
 
     HtmlBundle bundle =
         layout

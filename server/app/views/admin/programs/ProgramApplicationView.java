@@ -167,7 +167,6 @@ public final class ProgramApplicationView extends BaseHtmlView {
 
     HtmlBundle htmlBundle =
         layout
-            .setAdminType(profile)
             .getBundle(request)
             .setTitle(programName + " - " + applicantNameWithApplicationId)
             .addMainContent(contentDiv)

@@ -26,6 +26,8 @@ import j2html.tags.specialized.SectionTag;
 import j2html.tags.specialized.SpanTag;
 import java.util.Optional;
 import javax.inject.Inject;
+import modules.ThymeleafModule;
+import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -60,13 +62,17 @@ public class BaseHtmlLayout {
   private final Optional<String> measurementId;
   private final boolean isDevOrStaging;
   private final boolean addNoindexMetaTag;
+  protected final ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
+  protected final TemplateEngine templateEngine;
 
   @Inject
   public BaseHtmlLayout(
       ViewUtils viewUtils,
       SettingsManifest settingsManifest,
       DeploymentType deploymentType,
-      BundledAssetsFinder bundledAssetsFinder) {
+      BundledAssetsFinder bundledAssetsFinder,
+      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
+      TemplateEngine templateEngine) {
     this.viewUtils = checkNotNull(viewUtils);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.measurementId = settingsManifest.getMeasurementId();
@@ -76,6 +82,8 @@ public class BaseHtmlLayout {
 
     civiformImageTag = settingsManifest.getCiviformImageTag().get();
     this.bundledAssetsFinder = checkNotNull(bundledAssetsFinder);
+    this.templateEngine = checkNotNull(templateEngine);
+    this.playThymeleafContextFactory = checkNotNull(playThymeleafContextFactory);
   }
 
   /** Creates a new {@link HtmlBundle} with default css, scripts, and toast messages. */

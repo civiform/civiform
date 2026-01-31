@@ -165,7 +165,6 @@ public class ProgramApplicationTableView extends BaseHtmlView {
 
     HtmlBundle htmlBundle =
         layout
-            .setAdminType(profile)
             .getBundle(request)
             .setTitle(program.adminName() + " - Applications")
             .addMainContent(makeCsrfTokenInputTag(request), applicationListDiv);

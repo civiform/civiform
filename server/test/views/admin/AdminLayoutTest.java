@@ -6,13 +6,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
+import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
 import j2html.tags.specialized.ButtonTag;
 import java.util.Locale;
 import java.util.Optional;
+import modules.ThymeleafModule;
 import org.junit.Before;
 import org.junit.Test;
+import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
@@ -32,6 +35,7 @@ public class AdminLayoutTest extends ResetPostgres {
   private SettingsManifest settingsManifest;
   private TranslationLocales translationLocales;
   private AdminLayout adminLayout;
+  private ProfileUtils profileUtils;
 
   @Before
   public void setUp() {
@@ -50,7 +54,10 @@ public class AdminLayoutTest extends ResetPostgres {
             translationLocales,
             instanceOf(DeploymentType.class),
             instanceOf(BundledAssetsFinder.class),
-            instanceOf(MessagesApi.class));
+            instanceOf(MessagesApi.class),
+            instanceOf(ThymeleafModule.PlayThymeleafContextFactory.class),
+            instanceOf(TemplateEngine.class),
+            profileUtils);
   }
 
   @Test
@@ -116,6 +123,7 @@ public class AdminLayoutTest extends ResetPostgres {
     MessagesApi messagesApi = mock(MessagesApi.class);
     when(messagesApi.preferred(any(Http.RequestHeader.class))).thenReturn(messages);
 
+    profileUtils = mock(ProfileUtils.class);
     adminLayout =
         new AdminLayout(
             instanceOf(ViewUtils.class),
@@ -124,7 +132,10 @@ public class AdminLayoutTest extends ResetPostgres {
             translationLocales,
             instanceOf(DeploymentType.class),
             instanceOf(BundledAssetsFinder.class),
-            messagesApi);
+            messagesApi,
+            instanceOf(ThymeleafModule.PlayThymeleafContextFactory.class),
+            instanceOf(TemplateEngine.class),
+            profileUtils);
 
     // Create bundle with the request
     Http.Request request = fakeRequestBuilder().build();
