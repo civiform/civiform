@@ -18,20 +18,33 @@
           class="usa-sr-only"
           th:text="${'Condition ' + conditionId + ' subcondition ' + subconditionId}"
         ></legend>
-        <div class="usa-form-group margin-top-0">
+        <div
+          class="usa-form-group margin-top-0"
+          th:with="questionIsInvalid=${model.invalidInputIds.contains(questionDropdownId)},
+          questionErrorMessageId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-questionError'}"
+        >
           <label class="usa-label" th:for="${questionDropdownId}"
             >[[#{label.predicateQuestion}]]<span class="usa-hint--required"
               >*</span
             ></label
           >
+          <span
+            class="usa-error-message"
+            th:if="${questionIsInvalid}"
+            th:id="${questionErrorMessageId}"
+            th:text="#{toast.errorMessageOutline(#{validation.questionRequired})}"
+          ></span>
           <select
             class="usa-select cf-predicate-question-select"
+            th:classappend="${questionIsInvalid} ? 'usa-input--error' : ''"
             th:id="${questionDropdownId}"
             th:name="${questionDropdownId}"
             th:data-scalar-target-id="${scalarDropDownId}"
             th:hx-post="${model.hxEditSubconditionEndpoint()}"
             th:hx-vals='|{"conditionId": "${conditionId}", "subconditionId": "${subconditionId}"}|'
             th:hx-target="${'#predicate-condition-' + conditionId + '-subcondition-list'}"
+            th:aria-invalid="${questionIsInvalid}"
+            th:aria-describedby="${questionIsInvalid ? questionErrorMessageId : ''}"
             hx-swap="outerHTML"
             th:data-should-autofocus="${model.autofocus}"
           >
