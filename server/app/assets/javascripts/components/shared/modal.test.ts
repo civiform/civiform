@@ -86,6 +86,46 @@ describe('Modal', () => {
     return modal
   }
 
+  // Helper function to simulate USWDS modal wrapper structure
+  const createUswdsWrapper = (
+    modalElement: Modal,
+    options: {
+      isVisible?: boolean
+      includeModalDiv?: boolean
+    } = {},
+  ) => {
+    const {isVisible = false, includeModalDiv = false} = options
+
+    const innerModal = modalElement.querySelector('#test-modal')
+    if (!innerModal) {
+      throw new Error(
+        'Modal element not found - did you append the modal to the DOM first?',
+      )
+    }
+
+    const wrapper = document.createElement('div')
+    wrapper.id = 'test-modal'
+    wrapper.classList.add('usa-modal-wrapper')
+
+    if (isVisible) {
+      wrapper.classList.add('is-visible')
+    }
+
+    if (includeModalDiv) {
+      const modal = document.createElement('div')
+      modal.classList.add('usa-modal')
+      wrapper.appendChild(modal)
+    } else {
+      const modalClone = innerModal.cloneNode(true)
+      wrapper.appendChild(modalClone)
+    }
+
+    innerModal.id = ''
+    document.body.appendChild(wrapper)
+
+    return wrapper
+  }
+
   beforeEach(() => {
     // Clear the DOM
     document.body.innerHTML = ''
@@ -186,7 +226,12 @@ describe('Modal', () => {
 
   describe('force action mode', () => {
     it('should add data-force-action attribute when force-action is true', () => {
-      modalElement = createModal({forceAction: true})
+      modalElement = createModal({
+        forceAction: true,
+        buttons: [
+          {text: 'Confirm', action: 'confirm', className: 'usa-button'},
+        ],
+      })
       document.body.appendChild(modalElement)
 
       expect(
@@ -197,7 +242,10 @@ describe('Modal', () => {
     })
 
     it('should not render close button when force-action is true', () => {
-      modalElement = createModal({forceAction: true})
+      modalElement = createModal({
+        forceAction: true,
+        buttons: [{text: 'OK', action: 'ok'}],
+      })
       document.body.appendChild(modalElement)
 
       expect(modalElement.querySelector('.usa-modal__close')).toBeNull()
@@ -327,21 +375,7 @@ describe('Modal', () => {
       modalElement = createModal()
       document.body.appendChild(modalElement)
 
-      // Simulate USWDS wrapping behavior - it wraps the modal in a wrapper with the modal's id
-      const innerModal = modalElement.querySelector('#test-modal')
-      if (innerModal) {
-        const wrapper = document.createElement('div')
-        wrapper.id = 'test-modal'
-        wrapper.classList.add('usa-modal-wrapper')
-
-        // Move the modal into the wrapper
-        const modalClone = innerModal.cloneNode(true)
-        wrapper.appendChild(modalClone)
-
-        // Replace in DOM
-        innerModal.id = '' // Remove id from original
-        document.body.appendChild(wrapper)
-      }
+      createUswdsWrapper(modalElement)
 
       modalElement.open()
 
@@ -352,19 +386,7 @@ describe('Modal', () => {
       modalElement = createModal()
       document.body.appendChild(modalElement)
 
-      // Simulate USWDS wrapper that's already visible
-      const innerModal = modalElement.querySelector('#test-modal')
-      if (innerModal) {
-        const wrapper = document.createElement('div')
-        wrapper.id = 'test-modal'
-        wrapper.classList.add('usa-modal-wrapper', 'is-visible')
-
-        const modalClone = innerModal.cloneNode(true)
-        wrapper.appendChild(modalClone)
-
-        innerModal.id = ''
-        document.body.appendChild(wrapper)
-      }
+      createUswdsWrapper(modalElement, {isVisible: true})
 
       modalElement.open()
 
@@ -384,20 +406,7 @@ describe('Modal', () => {
       modalElement = createModal()
       document.body.appendChild(modalElement)
 
-      // Simulate USWDS wrapper
-      const innerModal = modalElement.querySelector('#test-modal')
-      if (innerModal) {
-        const wrapper = document.createElement('div')
-        wrapper.id = 'test-modal'
-        wrapper.classList.add('usa-modal-wrapper', 'is-visible')
-
-        const modal = document.createElement('div')
-        modal.classList.add('usa-modal')
-        wrapper.appendChild(modal)
-
-        innerModal.id = ''
-        document.body.appendChild(wrapper)
-      }
+      createUswdsWrapper(modalElement, {isVisible: true, includeModalDiv: true})
 
       modalElement.close()
 
@@ -408,16 +417,7 @@ describe('Modal', () => {
       modalElement = createModal()
       document.body.appendChild(modalElement)
 
-      // Simulate USWDS wrapper (not visible)
-      const innerModal = modalElement.querySelector('#test-modal')
-      if (innerModal) {
-        const wrapper = document.createElement('div')
-        wrapper.id = 'test-modal'
-        wrapper.classList.add('usa-modal-wrapper')
-
-        innerModal.id = ''
-        document.body.appendChild(wrapper)
-      }
+      createUswdsWrapper(modalElement)
 
       modalElement.close()
 
@@ -437,16 +437,7 @@ describe('Modal', () => {
       modalElement = createModal()
       document.body.appendChild(modalElement)
 
-      // Simulate USWDS wrapper
-      const innerModal = modalElement.querySelector('#test-modal')
-      if (innerModal) {
-        const wrapper = document.createElement('div')
-        wrapper.id = 'test-modal'
-        wrapper.classList.add('usa-modal-wrapper', 'is-visible')
-
-        innerModal.id = ''
-        document.body.appendChild(wrapper)
-      }
+      createUswdsWrapper(modalElement, {isVisible: true})
 
       expect(modalElement.isOpen()).toBe(true)
     })
@@ -455,16 +446,7 @@ describe('Modal', () => {
       modalElement = createModal()
       document.body.appendChild(modalElement)
 
-      // Simulate USWDS wrapper
-      const innerModal = modalElement.querySelector('#test-modal')
-      if (innerModal) {
-        const wrapper = document.createElement('div')
-        wrapper.id = 'test-modal'
-        wrapper.classList.add('usa-modal-wrapper')
-
-        innerModal.id = ''
-        document.body.appendChild(wrapper)
-      }
+      createUswdsWrapper(modalElement)
 
       expect(modalElement.isOpen()).toBe(false)
     })
@@ -479,20 +461,7 @@ describe('Modal', () => {
       modalElement = createModal()
       document.body.appendChild(modalElement)
 
-      // Simulate USWDS wrapper
-      const innerModal = modalElement.querySelector('#test-modal')
-      if (innerModal) {
-        const wrapper = document.createElement('div')
-        wrapper.id = 'test-modal'
-        wrapper.classList.add('usa-modal-wrapper', 'is-visible')
-
-        const modal = document.createElement('div')
-        modal.classList.add('usa-modal')
-        wrapper.appendChild(modal)
-
-        innerModal.id = ''
-        document.body.appendChild(wrapper)
-      }
+      createUswdsWrapper(modalElement, {isVisible: true, includeModalDiv: true})
 
       modalElement.toggle()
 
@@ -503,16 +472,7 @@ describe('Modal', () => {
       modalElement = createModal()
       document.body.appendChild(modalElement)
 
-      // Simulate USWDS wrapper
-      const innerModal = modalElement.querySelector('#test-modal')
-      if (innerModal) {
-        const wrapper = document.createElement('div')
-        wrapper.id = 'test-modal'
-        wrapper.classList.add('usa-modal-wrapper')
-
-        innerModal.id = ''
-        document.body.appendChild(wrapper)
-      }
+      createUswdsWrapper(modalElement)
 
       modalElement.toggle()
 

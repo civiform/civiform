@@ -104,6 +104,16 @@ export class Modal extends HTMLElement {
 
     const buttonFooter = this._buildButtonFooter(actionButtons)
 
+    // Make sure we don't get stuck with an unclosable modal
+    if (
+      actionButtons.length === 0 &&
+      this.getAttribute('force-action') === 'true'
+    ) {
+      throw new Error(
+        'wc-modal: when force-action=true, there must be at least one button to dismiss the modal',
+      )
+    }
+
     const forceAction =
       this.getAttribute('force-action') === 'true' ? 'data-force-action' : ''
 
