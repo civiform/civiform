@@ -25,7 +25,7 @@ public final class StoredFileAcls {
   @JsonProperty("programReadAcls")
   private Set<String> programReadAcls;
 
-  /** Applicant IDs additionally able to access the file. */
+  /** Applicant IDs able to access the file. */
   @JsonProperty("applicantReadAcls")
   private Set<Long> applicantReadAcls;
 
