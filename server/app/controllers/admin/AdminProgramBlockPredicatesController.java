@@ -1366,18 +1366,13 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       MapQuestionDefinition question, SelectedValue selectedValue) {
     // Get JSON data from the provided map question
     String geoJsonEndpoint = question.getMapValidationPredicates().geoJsonEndpoint();
-    GeoJsonDataModel geoJsonDataModel =
-        geoJsonDataRepository
-            .getMostRecentGeoJsonDataRowForEndpoint(geoJsonEndpoint)
-            .toCompletableFuture()
-            .join()
-            .orElse(null);
-    FeatureCollection geoJsonData = geoJsonDataModel != null ? geoJsonDataModel.getGeoJson() : null;
-    if (geoJsonData == null) {
-      return ImmutableList.of();
-    }
-
-    return geoJsonData.features().stream()
+    return geoJsonDataRepository
+        .getMostRecentGeoJsonDataRowForEndpoint(geoJsonEndpoint)
+        .toCompletableFuture()
+        .join()
+        .map(geoJsonDataModel -> geoJsonDataModel.getGeoJson().features())
+        .orElse(ImmutableList.of())
+        .stream()
         .map(
             feature -> {
               String featureId = feature.id();
