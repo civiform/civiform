@@ -330,9 +330,16 @@ public class ProgramServiceTest extends ResetPostgres {
             .setLocalizedDescription(
                 block.localizedDescription().updateTranslation(Locale.CHINESE, "屏幕 1 描述"))
             .build();
+    ApplicationStep translatedApplicationStep =
+        new ApplicationStep(
+            LocalizedStrings.withDefaultValue("Application step title")
+                .updateTranslation(Locale.CHINESE, "申请步骤"),
+            LocalizedStrings.withDefaultValue("Application step description")
+                .updateTranslation(Locale.CHINESE, "申请步骤说明"));
     programDefinition =
         programDefinition.toBuilder()
             .setBlockDefinitions(ImmutableList.of(translatedBlock))
+            .setApplicationSteps(ImmutableList.of(translatedApplicationStep))
             .build();
 
     assertThat(ps.isTranslationComplete(programDefinition)).isTrue();
@@ -391,9 +398,16 @@ public class ProgramServiceTest extends ResetPostgres {
                     LocalizedStrings.withDefaultValue("eligibility message")
                         .updateTranslation(Locale.CHINESE, "合格信息")))
             .build();
+    ApplicationStep translatedApplicationStep =
+        new ApplicationStep(
+            LocalizedStrings.withDefaultValue("Application step title")
+                .updateTranslation(Locale.CHINESE, "申请步骤"),
+            LocalizedStrings.withDefaultValue("Application step description")
+                .updateTranslation(Locale.CHINESE, "申请步骤说明"));
     programDefinition =
         programDefinition.toBuilder()
             .setBlockDefinitions(ImmutableList.of(translatedBlock))
+            .setApplicationSteps(ImmutableList.of(translatedApplicationStep))
             .build();
     assertThat(ps.isTranslationComplete(programDefinition)).isTrue();
   }
@@ -418,9 +432,16 @@ public class ProgramServiceTest extends ResetPostgres {
             .setLocalizedDescription(
                 block.localizedDescription().updateTranslation(Locale.CHINESE, "屏幕 1 描述"))
             .build();
+    ApplicationStep translatedApplicationStep =
+        new ApplicationStep(
+            LocalizedStrings.withDefaultValue("Application step title")
+                .updateTranslation(Locale.CHINESE, "申请步骤"),
+            LocalizedStrings.withDefaultValue("Application step description")
+                .updateTranslation(Locale.CHINESE, "申请步骤说明"));
     programDefinition =
         programDefinition.toBuilder()
             .setBlockDefinitions(ImmutableList.of(translatedBlock))
+            .setApplicationSteps(ImmutableList.of(translatedApplicationStep))
             .build();
 
     assertThat(ps.isTranslationComplete(programDefinition)).isTrue();
@@ -469,9 +490,16 @@ public class ProgramServiceTest extends ResetPostgres {
             .setLocalizedDescription(
                 block.localizedDescription().updateTranslation(Locale.CHINESE, "屏幕 1 描述"))
             .build();
+    ApplicationStep translatedApplicationStep =
+        new ApplicationStep(
+            LocalizedStrings.withDefaultValue("Application step title")
+                .updateTranslation(Locale.CHINESE, "申请步骤"),
+            LocalizedStrings.withDefaultValue("Application step description")
+                .updateTranslation(Locale.CHINESE, "申请步骤说明"));
     programDefinition =
         programDefinition.toBuilder()
             .setBlockDefinitions(ImmutableList.of(translatedBlock))
+            .setApplicationSteps(ImmutableList.of(translatedApplicationStep))
             .build();
 
     when(questionService.isTranslationComplete(translationLocales, question)).thenReturn(false);
