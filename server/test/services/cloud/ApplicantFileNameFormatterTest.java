@@ -32,7 +32,7 @@ public class ApplicantFileNameFormatterTest {
     // Must match at the start.
     assertThat(
             ApplicantFileNameFormatter.isApplicantOwnedFileKey(
-                "applicant-9/program-2/block-3-4/applicant-1", /* applicantId= */ 1L))
+                "applicant-9/program-2/block-3-4/applicant-1/", /* applicantId= */ 1L))
         .isFalse();
   }
 
