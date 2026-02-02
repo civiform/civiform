@@ -264,4 +264,21 @@ public class BlockDefinitionTest {
 
     assertThat(blockDefinition.hasNullQuestion()).isFalse();
   }
+
+  @Test
+  public void getFullName_succeedsWithEmptyPrefix() {
+    QuestionDefinition nullQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
+
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(9999L)
+            .setName("Block Name")
+            .setDescription("Block Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Block Name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Block Description"))
+            .addQuestion(ProgramQuestionDefinition.create(nullQuestion, Optional.empty()))
+            .build();
+
+    assertThat(blockDefinition.getFullName()).isEqualTo("Block Name");
+  }
 }

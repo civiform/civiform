@@ -259,7 +259,7 @@ public abstract class BlockDefinition {
 
   @JsonIgnore
   public String getFullName() {
-    return namePrefix().get() + name();
+    return namePrefix().get().orElse("") + name();
   }
 
   /**
@@ -284,7 +284,7 @@ public abstract class BlockDefinition {
     public abstract Builder setName(String value);
 
     @JsonProperty("namePrefix")
-    public abstract Builder setNamePrefix(String value);
+    public abstract Builder setNamePrefix(Optional<String> value);
 
     @JsonProperty("description")
     public abstract Builder setDescription(String value);

@@ -429,7 +429,7 @@ public final class ProgramService {
             /* blockId= */ 1,
             /* maybeEnumeratorBlockId= */ Optional.empty(),
             /* isEnumerator= */ Optional.empty(),
-            false,
+            /* enumeratorImprovementsEnabled= */ false,
             messages,
             enumeratorImprovementsEnabled);
     if (maybeEmptyBlock.isError()) {
