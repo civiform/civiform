@@ -39,6 +39,8 @@ test.describe('currency applicant flow', () => {
 
       await test.step('Screenshot with errors', async () => {
         await applicantQuestions.clickContinue()
+        // Focus the input to show the outline gap fix.
+        await page.locator('input[currency]').focus()
         await validateScreenshot(
           page.getByTestId('questionRoot'),
           'currency-errors',
