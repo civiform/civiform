@@ -37,6 +37,15 @@ public class ApplicantFileNameFormatterTest {
   }
 
   @Test
+  public void isApplicantOwnedFileKey_applicantIdPartialMatch_isFalse() {
+    // applicant-1 is a substring of applicant-100 and shouldn't match.
+    assertThat(
+            ApplicantFileNameFormatter.isApplicantOwnedFileKey(
+                "applicant-100/program-2/block-3-4/", /* applicantId= */ 1L))
+        .isFalse();
+  }
+
+  @Test
   public void isApplicantOwnedFileKey_badFileKey() {
     assertThatThrownBy(
             () ->

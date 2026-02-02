@@ -33,6 +33,6 @@ public final class ApplicantFileNameFormatter {
       throw new IllegalArgumentException("'applicantId' must be greater than zero.");
     }
 
-    return fileKey.startsWith(String.format("applicant-%d", applicantId));
+    return fileKey.startsWith(String.format("applicant-%d/", applicantId));
   }
 }
