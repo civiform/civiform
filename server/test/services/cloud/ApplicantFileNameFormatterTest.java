@@ -22,17 +22,17 @@ public class ApplicantFileNameFormatterTest {
   }
 
   @Test
+  public void isApplicantOwnedFileKey_applicantIdDoesNotMatch_isFalse() {
+    assertThat(ApplicantFileNameFormatter.isApplicantOwnedFileKey(FILE_NAME, /* applicantId= */ 2L))
+        .isFalse();
+  }
+
+  @Test
   public void isApplicantOwnedFileKey_applicantIdInFileNameOnly_isFalse() {
     // Must match at the start.
     assertThat(
             ApplicantFileNameFormatter.isApplicantOwnedFileKey(
                 "applicant-9/program-2/block-3-4/applicant-1", /* applicantId= */ 1L))
-        .isFalse();
-  }
-
-  @Test
-  public void isApplicantOwnedFileKey_applicantIdDoesNotMatch_isFalse() {
-    assertThat(ApplicantFileNameFormatter.isApplicantOwnedFileKey(FILE_NAME, /* applicantId= */ 2L))
         .isFalse();
   }
 
