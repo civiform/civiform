@@ -15,8 +15,8 @@ import org.pac4j.play.store.JdkAesDataEncrypter;
 import org.pac4j.play.store.PlayCookieSessionStore;
 
 public class CiviFormSessionStoreFactory implements SessionStoreFactory {
-  // Chosen based on Spring's default which targets ~0.5 seconds
-  private static final int PBKDF2_ITERATIONS = 310000;
+  // Chosen based on OWASP's recommendation for PBKDF2-HMAC-SHA256
+  private static final int PBKDF2_ITERATIONS = 600000;
   private static final int AES_KEY_BITS = 128;
   // This salt string should be a constant per "purpose", so that if we
   // ever want to reuse this technique in other parts of the app, we use
