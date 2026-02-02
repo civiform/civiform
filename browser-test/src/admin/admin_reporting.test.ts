@@ -15,9 +15,10 @@ test.describe('Admin Reporting', () => {
     await enableFeatureFlag(page, 'ADMIN_UI_MIGRATION_SC_ENABLED')
     await loginAsAdmin(page)
     await page.goto(reportingUrl)
-    await validateScreenshot(page, 'admin-reporting-page-flag-enabled', {
-      fullPage: true,
-    })
+    await validateScreenshot(
+      page.getByTestId('page-content'),
+      'admin-reporting-page-flag-enabled',
+    )
     await validateAccessibility(page)
   })
 })

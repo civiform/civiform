@@ -3,6 +3,7 @@ package views.admin.shared;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import lombok.Builder;
+import views.admin.LayoutType;
 import views.admin.ScriptElementSettings;
 
 /** This record contains values used by layout templates */
@@ -10,6 +11,7 @@ import views.admin.ScriptElementSettings;
 public record LayoutParams(
     String pageTemplate,
     Boolean isWidescreen,
+    LayoutType layoutType,
     String civiformImageTag,
     Boolean addNoIndexMetaTag,
     String favicon,
