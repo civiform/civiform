@@ -28,9 +28,9 @@ public class CiviFormSessionStoreFactory implements SessionStoreFactory {
   private final DataEncrypter encrypter;
 
   /**
-   * We need to use the secret key to generate the encrypter / decrypter for the session store, so
-   * that cookies from version n of the application can be read by version n + 1. This is especially
-   * important for dev, otherwise we're going to spend a lot of time deleting cookies.
+   * We need to use the secret key to generate the encrypter / decrypter AES key for the session
+   * store in a way that always results in the same key, so that cookies generated from different
+   * CiviForm server instances or different CiviForm versions are decryptable here.
    *
    * <p>In play-pac4j 13, the encryption library was replaced, so we provide a fallback to a 1:1
    * copy of the old Shiro implementation so that the upgrade is seamless. In a bit, once everyone
