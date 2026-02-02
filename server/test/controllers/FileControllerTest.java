@@ -42,7 +42,7 @@ public class FileControllerTest extends WithMockedProfiles {
   public void show_fileKey_differentApplicant_unauthorized() {
     // Applicant that is authorized per create helper.
     ApplicantModel applicant = createApplicantWithMockedProfile();
-    String fileKey = creatFakeFileKey(applicant.id, /* programId= */ 1L);
+    String fileKey = createFakeFileKey(applicant.id, /* programId= */ 1L);
     Result result =
         controller.show(request, applicant.id + 1, fileKey).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
@@ -52,7 +52,7 @@ public class FileControllerTest extends WithMockedProfiles {
   public void show_fileKey_forDifferentApplicant_notFound() {
     // Applicant that is authorized per create helper.
     ApplicantModel applicant = createApplicantWithMockedProfile();
-    String anothersFileKey = creatFakeFileKey(applicant.id + 1, /* programId= */ 1L);
+    String anothersFileKey = createFakeFileKey(applicant.id + 1, /* programId= */ 1L);
     Result result =
         controller.show(request, applicant.id, anothersFileKey).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(NOT_FOUND);
@@ -62,7 +62,7 @@ public class FileControllerTest extends WithMockedProfiles {
   public void show_fileKey_matchesApplicant_success() {
     // Applicant that is authorized per create helper.
     ApplicantModel applicant = createApplicantWithMockedProfile();
-    String fileKey = creatFakeFileKey(applicant.id, /* programId= */ 1L);
+    String fileKey = createFakeFileKey(applicant.id, /* programId= */ 1L);
     Result result = controller.show(request, applicant.id, fileKey).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(SEE_OTHER);
   }
@@ -71,7 +71,7 @@ public class FileControllerTest extends WithMockedProfiles {
   public void show_fileKey_TIManagedApplicant_success() {
     ApplicantModel managedApplicant = createApplicant();
     createTIWithMockedProfile(managedApplicant);
-    String fileKey = creatFakeFileKey(managedApplicant.id, 1L);
+    String fileKey = createFakeFileKey(managedApplicant.id, 1L);
     Result result =
         controller.show(request, managedApplicant.id, fileKey).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -84,7 +84,7 @@ public class FileControllerTest extends WithMockedProfiles {
   public void show_applicantAcl_differentApplicantAcled_success() {
     // Applicant that is authorized per create helper.
     ApplicantModel applicant = createApplicantWithMockedProfile();
-    String anothersFileKey = creatFakeFileKey(applicant.id + 1, /* programId= */ 1L);
+    String anothersFileKey = createFakeFileKey(applicant.id + 1, /* programId= */ 1L);
     Result result =
         controller.show(request, applicant.id, anothersFileKey).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(NOT_FOUND);
@@ -99,7 +99,7 @@ public class FileControllerTest extends WithMockedProfiles {
   public void adminShow_programAdmin_invalidProgram_notFound() {
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
     createProgramAdminWithMockedProfile(program);
-    String fileKey = creatFakeFileKey(1L, program.id);
+    String fileKey = createFakeFileKey(1L, program.id);
     Result result = controller.adminShow(request, program.id + 1, fileKey);
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
@@ -108,7 +108,7 @@ public class FileControllerTest extends WithMockedProfiles {
   public void adminShow_globalAdmin_invalidProgram_notFound() {
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
     createGlobalAdminWithMockedProfile();
-    String fileKey = creatFakeFileKey(1L, program.id);
+    String fileKey = createFakeFileKey(1L, program.id);
     Result result = controller.adminShow(request, program.id + 1, fileKey);
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
@@ -118,7 +118,7 @@ public class FileControllerTest extends WithMockedProfiles {
     ProgramModel programOne = ProgramBuilder.newDraftProgram("one").build();
     ProgramModel programTwo = ProgramBuilder.newDraftProgram("two").build();
     createProgramAdminWithMockedProfile(programOne);
-    String fileKey = creatFakeFileKey(1L, programTwo.id);
+    String fileKey = createFakeFileKey(1L, programTwo.id);
     createStoredFileWithProgramAccess(fileKey, programTwo);
 
     Result result = controller.adminShow(request, programTwo.id, fileKey);
@@ -129,8 +129,8 @@ public class FileControllerTest extends WithMockedProfiles {
   public void adminShow_programAdmin_differentFileKey_notFound() {
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
     createProgramAdminWithMockedProfile(program);
-    String fileKey = creatFakeFileKey(1L, program.id + 1);
-    createStoredFileWithProgramAccess(creatFakeFileKey(1L, program.id), program);
+    String fileKey = createFakeFileKey(1L, program.id + 1);
+    createStoredFileWithProgramAccess(createFakeFileKey(1L, program.id), program);
 
     Result result = controller.adminShow(request, program.id, fileKey);
     assertThat(result.status()).isEqualTo(NOT_FOUND);
@@ -141,8 +141,8 @@ public class FileControllerTest extends WithMockedProfiles {
     when(mockSettingsManifest.getAllowCiviformAdminAccessPrograms(request)).thenReturn(true);
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
     createGlobalAdminWithMockedProfile();
-    String fileKey = creatFakeFileKey(1L, program.id + 1);
-    createStoredFileWithProgramAccess(creatFakeFileKey(1L, program.id), program);
+    String fileKey = createFakeFileKey(1L, program.id + 1);
+    createStoredFileWithProgramAccess(createFakeFileKey(1L, program.id), program);
 
     Result result = controller.adminShow(request, program.id, fileKey);
     assertThat(result.status()).isEqualTo(NOT_FOUND);
@@ -153,7 +153,7 @@ public class FileControllerTest extends WithMockedProfiles {
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
     createProgramAdminWithMockedProfile(program);
     createGlobalAdminWithMockedProfile();
-    String fileKey = creatFakeFileKey(1L, program.id);
+    String fileKey = createFakeFileKey(1L, program.id);
     createStoredFileWithProgramAccess(fileKey, program);
 
     Result result = controller.adminShow(request, program.id, fileKey);
@@ -164,7 +164,7 @@ public class FileControllerTest extends WithMockedProfiles {
   public void adminShow_globalAdminWhenNoProgramAdmin_unauthorized() {
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
     createGlobalAdminWithMockedProfile();
-    String fileKey = creatFakeFileKey(1L, program.id);
+    String fileKey = createFakeFileKey(1L, program.id);
     createStoredFileWithProgramAccess(fileKey, program);
 
     Result result = controller.adminShow(request, program.id, fileKey);
@@ -175,7 +175,7 @@ public class FileControllerTest extends WithMockedProfiles {
   public void adminShow_programAdmin_success() {
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
     createProgramAdminWithMockedProfile(program);
-    String fileKey = creatFakeFileKey(1L, program.id);
+    String fileKey = createFakeFileKey(1L, program.id);
     createStoredFileWithProgramAccess(fileKey, program);
 
     Result result = controller.adminShow(request, program.id, fileKey);
@@ -187,7 +187,7 @@ public class FileControllerTest extends WithMockedProfiles {
     when(mockSettingsManifest.getAllowCiviformAdminAccessPrograms(request)).thenReturn(true);
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
     createGlobalAdminWithMockedProfile();
-    String fileKey = creatFakeFileKey(1L, program.id);
+    String fileKey = createFakeFileKey(1L, program.id);
     createStoredFileWithProgramAccess(fileKey, program);
 
     Result result = controller.adminShow(request, program.id, fileKey);
@@ -199,8 +199,8 @@ public class FileControllerTest extends WithMockedProfiles {
     ProgramModel programOne = ProgramBuilder.newDraftProgram("one").build();
     ProgramModel programTwo = ProgramBuilder.newDraftProgram("two").build();
     createProgramAdminWithMockedProfile(programOne);
-    String programTwoFileKey = creatFakeFileKey(1L, programTwo.id);
-    createStoredFileWithProgramAccess(creatFakeFileKey(1L, programOne.id), programOne);
+    String programTwoFileKey = createFakeFileKey(1L, programTwo.id);
+    createStoredFileWithProgramAccess(createFakeFileKey(1L, programOne.id), programOne);
     createStoredFileWithProgramAccess(programTwoFileKey, programTwo);
 
     Result result = controller.acledAdminShow(request, programTwoFileKey);
@@ -211,9 +211,9 @@ public class FileControllerTest extends WithMockedProfiles {
   public void acledAdminShow_programAdmin_differentFileKey_notFound() {
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
     createProgramAdminWithMockedProfile(program);
-    createStoredFileWithProgramAccess(creatFakeFileKey(1L, program.id), program);
+    createStoredFileWithProgramAccess(createFakeFileKey(1L, program.id), program);
 
-    String fileKey = creatFakeFileKey(1L, program.id + 1);
+    String fileKey = createFakeFileKey(1L, program.id + 1);
     Result result = controller.acledAdminShow(request, fileKey);
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
@@ -223,9 +223,9 @@ public class FileControllerTest extends WithMockedProfiles {
     when(mockSettingsManifest.getAllowCiviformAdminAccessPrograms(request)).thenReturn(true);
     createGlobalAdminWithMockedProfile();
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
-    createStoredFileWithProgramAccess(creatFakeFileKey(1L, program.id), program);
+    createStoredFileWithProgramAccess(createFakeFileKey(1L, program.id), program);
 
-    String fileKey = creatFakeFileKey(1L, program.id + 1);
+    String fileKey = createFakeFileKey(1L, program.id + 1);
     Result result = controller.acledAdminShow(request, fileKey);
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
@@ -235,7 +235,7 @@ public class FileControllerTest extends WithMockedProfiles {
     when(mockSettingsManifest.getAllowCiviformAdminAccessPrograms(request)).thenReturn(false);
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
     createGlobalAdminWithMockedProfile();
-    String fileKey = creatFakeFileKey(1L, program.id);
+    String fileKey = createFakeFileKey(1L, program.id);
     createStoredFileWithProgramAccess(fileKey, program);
 
     Result result = controller.acledAdminShow(request, fileKey);
@@ -247,7 +247,7 @@ public class FileControllerTest extends WithMockedProfiles {
     when(mockSettingsManifest.getAllowCiviformAdminAccessPrograms(request)).thenReturn(true);
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
     createGlobalAdminWithMockedProfile();
-    String fileKey = creatFakeFileKey(1L, program.id);
+    String fileKey = createFakeFileKey(1L, program.id);
     createStoredFileWithProgramAccess(fileKey, program);
     String encodedFileKey = encodeFakeFileKey(fileKey);
 
@@ -260,7 +260,7 @@ public class FileControllerTest extends WithMockedProfiles {
   public void acledAdminShow_programAdmin_success() {
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
     createProgramAdminWithMockedProfile(program);
-    String fileKey = creatFakeFileKey(1L, program.id);
+    String fileKey = createFakeFileKey(1L, program.id);
     createStoredFileWithProgramAccess(fileKey, program);
     String encodedFileKey = encodeFakeFileKey(fileKey);
 
@@ -269,7 +269,7 @@ public class FileControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
   }
 
-  private String creatFakeFileKey(long applicantId, long programId) {
+  private String createFakeFileKey(long applicantId, long programId) {
     return String.format("applicant-%d/program-%d/block-0", applicantId, programId);
   }
 

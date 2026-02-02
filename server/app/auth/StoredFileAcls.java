@@ -18,9 +18,7 @@ import services.program.ProgramDefinition;
  *
  * <p>Applicants may read a file if they are included in the {@code applicantReadAcls} for that
  * file. Note: The Applicant acl is new as of February 2026, and it serves as a supplement to the
- * existing acl which is the uploader's applicant id in the formated stored file name. In the case
- * of Guest account merging, this acl is important to maintain access to the user. This acl could be
- * the only source if we ran a backfill job on all existing files.
+ * existing acl which is the uploader's applicant id in the formated stored file name.
  */
 public final class StoredFileAcls {
 

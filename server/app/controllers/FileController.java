@@ -60,8 +60,8 @@ public class FileController extends CiviFormController {
                   ApplicantFileNameFormatter.isApplicantOwnedFileKey(fileKey, applicantId);
               String decodedFileKey = URLDecoder.decode(fileKey, StandardCharsets.UTF_8);
               if (!hasFileNameAcl) {
-                // Check the file ACL which may also include guest applicants
-                // merged into the account.
+                // Check the file ACL which may include other applicants
+                // given access.
                 boolean hasStoredFileAcl =
                     storedFileRepository
                         .lookupFile(decodedFileKey)
