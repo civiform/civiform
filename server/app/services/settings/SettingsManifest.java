@@ -1087,14 +1087,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("SETTINGS_CACHE_ENABLED");
   }
 
+  /** Enable showing external program cards. */
+  public boolean getExternalProgramCardsEnabled() {
+    return getBool("EXTERNAL_PROGRAM_CARDS_ENABLED");
+  }
+
   /** (NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration. */
   public boolean getSessionTimeoutEnabled(RequestHeader request) {
     return getBool("SESSION_TIMEOUT_ENABLED", request);
-  }
-
-  /** (NOT FOR PRODUCTION USE) Enable showing external program cards. */
-  public boolean getExternalProgramCardsEnabled(RequestHeader request) {
-    return getBool("EXTERNAL_PROGRAM_CARDS_ENABLED", request);
   }
 
   /** (NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in URLs. */
@@ -2354,6 +2354,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " database.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "EXTERNAL_PROGRAM_CARDS_ENABLED",
+                          "Enable showing external program cards.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
                           SettingMode.ADMIN_READABLE))))
           .put(
               "Experimental",
@@ -2367,12 +2373,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "SESSION_TIMEOUT_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and"
                               + " maximum duration.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "EXTERNAL_PROGRAM_CARDS_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enable showing external program cards.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
