@@ -509,6 +509,7 @@ heading.dateSubmitted=Date submitted
 heading.forYourRecords=Confirmation for your records
 # Text above a button to print this page
 content.youCanPrint=You can print this confirmation for your records.
+content.tiMessage=Please note-If you are a Trusted Intermediary applying on behalf of a client, both you and your client will receive an email regarding this application.
 # Heading above a paragraph explaining the next steps in the application process
 heading.nextSteps=What are my next steps?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
