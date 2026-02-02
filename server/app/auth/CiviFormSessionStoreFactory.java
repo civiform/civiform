@@ -88,11 +88,11 @@ public class CiviFormSessionStoreFactory implements SessionStoreFactory {
    * secret should be randomly generated, but this is not absolutely enforced and someone could
    * choose to use some insecure string instead.
    *
-   * <p>To mitigate this, PBKDF2 runs the HMAC operation 120k times while generating the 128-bit AES
-   * key. This makes brute forcing much slower than, say, taking a truncated version of a SHA-256
-   * digest of the app secret. Additionally, by utilizing a salt, if we use the app secret to derive
-   * keys in other parts of the application in a similar manner, the resulting keys will be
-   * different.
+   * <p>To mitigate this, PBKDF2 runs the HMAC operation PBKDF2_ITERATIONS times while generating
+   * the 128-bit AES key. This makes brute forcing much slower than, say, taking a truncated version
+   * of a SHA-256 digest of the app secret. Additionally, by utilizing a salt, if we use the app
+   * secret to derive keys in other parts of the application in a similar manner, the resulting keys
+   * will be different.
    *
    * <p>With play-pac4j 13.x, we have no choice but to use a 16-byte key. But AES-128 should be
    * sufficiently secure for this purpose with this method of derivation.
