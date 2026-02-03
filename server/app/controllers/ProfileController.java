@@ -45,8 +45,4 @@ public class ProfileController extends Controller {
             applicant -> ok(profileView.render(request, maybeProfile.get(), applicant)),
             classLoaderExecutionContext.current());
   }
-
-  public Result profilePage(Http.Request request, Long id) {
-    throw new UnsupportedOperationException("Not implemented yet.");
-  }
 }
