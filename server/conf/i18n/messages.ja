@@ -240,7 +240,7 @@ button.search=検索
 # Button to start an application on behalf of a client.
 button.startApp=申請を開始
 # Button to redirect to the login page when the applicant is not logged in for login-only programs.
-button.startAppForLoginOnlyProgram=Sign in to start an application
+button.startAppForLoginOnlyProgram=サインインして申請を開始
 # Button to view the applications belonging to an applicant.
 button.viewApplications=申請内容を表示
 # Button to view and add clients
@@ -561,11 +561,11 @@ content.predicateVisibilityDescription=前の画面の質問への回答に基�
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
 content.predicateEligibilityDescription=この画面の質問への回答に基づいて、応募者がプログラムの資格を満たすかどうかを判断する適格性条件を追加します。最低要件を満たさない応募者は、アプリケーションの提出がブロックされます。これはプログラム設定で変更できます。
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualitifies for the program.
-content.predicateEligibilityDescription.v2=Add eligibility conditions to determine if an applicant qualifies for the program based on responses to questions on this screen.
+content.predicateEligibilityDescription.v2=この画面の質問への回答に基づいて、申請者がプログラムを受ける資格があるかを判断するための適格条件を追加します。
 # Text informing admins that ineligible applicants will be blocked from submitting an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
-content.blockIneligibleApplicants=Applicants who do not meet the minimum requirements will be blocked from submitting an application. You can change this in the
+content.blockIneligibleApplicants=最低要件を満たさない申請者は、申請書の提出がブロックされます。これは次の設定で変更できます
 # Text informing admins that ineligible applicants will still be able to submit an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
-content.allowIneligibleApplicants=Applicants can submit an application even if they do not meet the minimum requirements. You can change this in the
+content.allowIneligibleApplicants=最低要件を満たさない場合でも、申請者は申請書を提出できます。これは次の設定で変更できます
 # Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
 link.programSettings=プログラム設定
 
@@ -639,7 +639,7 @@ content.markdownSupported=Markdown がサポートされています
 # Error message for when the admin leaves a multi-select question blank in admin predicate edit.
 validation.selectionRequired=少なくとも 1 つのオプションを選択してください。
 # Error message for when the admin leaves a question unselected in admin predicate edit.
-validation.questionRequired=You must select a question.
+validation.questionRequired=質問を 1 つ選択してください。
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -1167,32 +1167,32 @@ text.repeatedSet=
 # Text letting admins know which block represents the group of screens for nested repeating questions
 text.nestedRepeatedSet=
 # An uneditable prefix for the enumerator screen name representing the repeated object that will be enumerated
-text.repeatedSet.prefix=parent label
+text.repeatedSet.prefix=親ラベル
 # An uneditable prefix for the enumerator screen name representing the nested repeated object that will be enumerated
-text.repeatedSet.nestedPrefix=child label
+text.repeatedSet.nestedPrefix=子ラベル
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #
 #------------------------------------------------------------------------------#
 
 # Caption for the table showing submissions by program
-caption.submissionsByProgram=Submissions by program (all programs)
+caption.submissionsByProgram=プログラム別の提出数（全プログラム）
 # Column header for program name
-content.program=Program
+content.program=プログラム
 # Column header for number of submissions
-content.submissions=Submissions
+content.submissions=提出数
 # Column header for 25th percentile time to complete
-content.timeToCompleteP25=Time to complete (p25)
+content.timeToCompleteP25=完了までの時間（p25）
 # Column header for median (50th percentile) time to complete
-content.medianTimeToComplete=Median time to complete
+content.medianTimeToComplete=完了までの時間の中央値
 # Column header for 75th percentile time to complete
-content.timeToCompleteP75=Time to complete (p75)
+content.timeToCompleteP75=完了までの時間（p75）
 # Column header for 99th percentile time to complete
 content.timeToCompleteP99=完了までの時間（p99）
 # Text on button to download CSV file
-button.downloadCsv=Download CSV
+button.downloadCsv=CSV をダウンロード
 # Caption for the table showing submissions by month
-caption.submissionsByMonth=Submissions by month (all programs)
+caption.submissionsByMonth=月別提出数（全プログラム）
 # Column header for month
 content.month=月
 
@@ -1215,8 +1215,8 @@ reportingProgram.timeToCompleteP25=完了までの時間（p25）
 # Column header for median (50th percentile) time to complete
 reportingProgram.medianTimeToComplete=完了までの時間の中央値
 # Column header for 75th percentile time to complete
-reportingProgram.timeToCompleteP75=Time to complete (p75)
+reportingProgram.timeToCompleteP75=完了までの時間（p75）
 # Column header for 99th percentile time to complete
-reportingProgram.timeToCompleteP99=Time to complete (p99)
+reportingProgram.timeToCompleteP99=完了までの時間（p99）
 # Text on button to download CSV file
-reportingProgram.downloadCsv=Download CSV
+reportingProgram.downloadCsv=CSV をダウンロード
