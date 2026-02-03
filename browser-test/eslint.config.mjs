@@ -92,6 +92,7 @@ export default [
             "playwright/no-nested-step": "off",
             "playwright/no-skipped-test": "off",
             "playwright/no-wait-for-selector": "off",
+            "playwright/no-element-handle": "error",
         },
     },
 
