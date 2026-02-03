@@ -114,6 +114,51 @@ const PROGRAM_SAMPLE_QUESTIONS = new Map<
     },
   ],
   [
+    QuestionType.MAP,
+    {
+      questionName: 'map-q',
+      questionText: 'map question text',
+      firstValue: 'N/A',
+      multiValueOptions: [
+        {
+          adminName: 'seattle-central-library',
+          text: 'seattle-central-library',
+          checked: true,
+        },
+        {
+          adminName: 'international-district-community-center',
+          text: 'international-district-community-center',
+          checked: false,
+        },
+        {
+          adminName: 'capitol-hill-health-center',
+          text: 'capitol-hill-health-center',
+          checked: false,
+        },
+        {
+          adminName: 'ballard-community-center',
+          text: 'ballard-community-center',
+          checked: false,
+        },
+        {
+          adminName: 'university-branch-library',
+          text: 'university-branch-library',
+          checked: true,
+        },
+        {
+          adminName: 'rainier-beach-pool',
+          text: 'rainier-beach-pool',
+          checked: true,
+        },
+        {
+          adminName: 'magnolia-community-center',
+          text: 'magnolia-community-center',
+          checked: false,
+        },
+      ],
+    },
+  ],
+  [
     QuestionType.NAME,
     {
       questionName: 'name-q',
@@ -156,6 +201,20 @@ const PROGRAM_SAMPLE_QUESTIONS = new Map<
       firstValue: 'apple',
       defaultInputType: 'text',
       defaultInputMode: 'text',
+    },
+  ],
+  [
+    QuestionType.YES_NO,
+    {
+      questionName: 'yes-no-q',
+      questionText: 'yes/no question text',
+      firstValue: 'N/A',
+      multiValueOptions: [
+        {adminName: 'yes', text: 'Yes', checked: false},
+        {adminName: 'no', text: 'No', checked: true},
+        {adminName: 'not-sure', text: 'Not sure', checked: true},
+        {adminName: 'maybe', text: 'Maybe', checked: true},
+      ],
     },
   ],
 ])
@@ -934,7 +993,9 @@ test.describe('create and edit predicates', () => {
     for (const questionType of [
       QuestionType.CHECKBOX,
       QuestionType.DROPDOWN,
+      QuestionType.MAP,
       QuestionType.RADIO,
+      QuestionType.YES_NO,
     ]) {
       const questionData = PROGRAM_SAMPLE_QUESTIONS.get(questionType)!
 

@@ -745,6 +745,8 @@ export class AdminPredicates {
 
         if (multiValueSpec.checked) {
           await expect(checkboxLabel).toBeChecked()
+        } else {
+          await expect(checkboxLabel).not.toBeChecked()
         }
 
         await expect(checkboxLabel).toHaveText(multiValueSpec.text)

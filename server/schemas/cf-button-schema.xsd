@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:cf="https://civiform.us/thymeleaf/cf"
+           targetNamespace="https://civiform.us/thymeleaf/cf"
+           elementFormDefault="qualified">
+
+  <!-- Simple types for enumerations -->
+  <xs:simpleType name="buttonVariant">
+    <xs:annotation>
+      <xs:documentation>Button visual variants following USWDS design system</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="primary">
+        <xs:annotation>
+          <xs:documentation>Default blue button (default)</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="secondary">
+        <xs:annotation>
+          <xs:documentation>Gray secondary button</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="outline">
+        <xs:annotation>
+          <xs:documentation>Outlined button with transparent background</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="accent-cool">
+        <xs:annotation>
+          <xs:documentation>Cool accent color button</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="accent-warm">
+        <xs:annotation>
+          <xs:documentation>Warm accent color button</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="base">
+        <xs:annotation>
+          <xs:documentation>Base styling button</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="unstyled">
+        <xs:annotation>
+          <xs:documentation>Button with minimal styling</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="buttonType">
+    <xs:annotation>
+      <xs:documentation>HTML button type attribute</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="button">
+        <xs:annotation>
+          <xs:documentation>Default button type (default)</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="submit">
+        <xs:annotation>
+          <xs:documentation>Submit button for forms</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="reset">
+        <xs:annotation>
+          <xs:documentation>Reset button for forms</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="buttonSize">
+    <xs:annotation>
+      <xs:documentation>Button size variant</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="big">
+        <xs:annotation>
+          <xs:documentation>Larger button size</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="booleanString">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="true"/>
+      <xs:enumeration value="false"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- cf:button element -->
+  <xs:element name="button">
+    <xs:annotation>
+      <xs:documentation>
+        USWDS button with support for various variants, sizes, and states.
+        Can contain text via 'text' attribute or nested HTML content.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:any minOccurs="0" maxOccurs="unbounded" processContents="lax"/>
+      </xs:sequence>
+      <xs:attribute name="id" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Unique identifier for the button</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="name" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Name attribute for form submission</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="value" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Value submitted when button is clicked</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="text" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Button text content (alternative to nested content)</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="type" type="cf:buttonType">
+        <xs:annotation>
+          <xs:documentation>Button type: button (default), submit, or reset</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="variant" type="cf:buttonVariant">
+        <xs:annotation>
+          <xs:documentation>Button variant: primary (default), secondary, outline, accent-cool, accent-warm, base, unstyled</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="size" type="cf:buttonSize">
+        <xs:annotation>
+          <xs:documentation>Button size: big</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="disabled" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Disable the button: true or disabled</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="inverse" type="booleanString">
+        <xs:annotation>
+          <xs:documentation>Use inverse styling for dark backgrounds: true</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

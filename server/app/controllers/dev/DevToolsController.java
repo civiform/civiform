@@ -27,6 +27,7 @@ import play.cache.AsyncCacheApi;
 import play.cache.NamedCache;
 import play.data.DynamicForm;
 import play.data.FormFactory;
+import play.i18n.MessagesApi;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Http.Request;
@@ -63,6 +64,7 @@ public class DevToolsController extends Controller {
   private final TransactionManager transactionManager = new TransactionManager();
   private final FormFactory formFactory;
   private final DevToolsPageView devToolsPageView;
+  private final MessagesApi messagesApi;
 
   @Inject
   public DevToolsController(
@@ -74,6 +76,7 @@ public class DevToolsController extends Controller {
       Clock clock,
       DeploymentType deploymentType,
       FormFactory formFactory,
+      MessagesApi messagesApi,
       @NamedCache("version-questions") AsyncCacheApi questionsByVersionCache,
       @NamedCache("version-programs") AsyncCacheApi programsByVersionCache,
       @NamedCache("program") AsyncCacheApi programCache,
@@ -95,6 +98,7 @@ public class DevToolsController extends Controller {
     this.deploymentType = checkNotNull(deploymentType);
     this.formFactory = checkNotNull(formFactory);
     this.devToolsPageView = checkNotNull(devToolsPageView);
+    this.messagesApi = checkNotNull(messagesApi);
   }
 
   /**
@@ -112,7 +116,6 @@ public class DevToolsController extends Controller {
                           .setValue(val.toString())
                           .build())
               .collect(ImmutableList.toImmutableList());
-      // Build the view model for Thymeleaf
       String csrfToken = play.filters.csrf.CSRF.getToken(request).map(t -> t.value()).orElse("");
       DevToolsPageViewModel model =
           DevToolsPageViewModel.builder()
@@ -157,15 +160,15 @@ public class DevToolsController extends Controller {
     }
   }
 
-  public Result seedPrograms() {
+  public Result seedPrograms(Request request) {
     Result result = redirect(routes.DevToolsController.index().url());
-    return seedProgramsInternal()
+    return seedProgramsInternal(request)
         ? result.flashing(FlashKey.SUCCESS, "The database has been seeded")
         : result.flashing(FlashKey.ERROR, "Failed to seed programs");
   }
 
-  public Result seedProgramsHeadless() {
-    return seedProgramsInternal() ? ok() : internalServerError();
+  public Result seedProgramsHeadless(Request request) {
+    return seedProgramsInternal(request) ? ok() : internalServerError();
   }
 
   public Result seedApplicationsHeadless(Request request) {
@@ -175,14 +178,20 @@ public class DevToolsController extends Controller {
     return seedApplicationsInternal(programSlug, count) ? ok() : internalServerError();
   }
 
-  private boolean seedProgramsInternal() {
+  private boolean seedProgramsInternal(Request request) {
     try {
       // TODO: Check whether test program already exists to prevent error.
       ImmutableList<QuestionDefinition> createdSampleQuestions =
           devDatabaseSeedTask.seedQuestions();
       devDatabaseSeedTask.seedProgramCategories();
-      devDatabaseSeedTask.insertMinimalSampleProgram(createdSampleQuestions);
-      devDatabaseSeedTask.insertComprehensiveSampleProgram(createdSampleQuestions);
+      devDatabaseSeedTask.insertMinimalSampleProgram(
+          createdSampleQuestions,
+          messagesApi.preferred(request),
+          settingsManifest.getEnumeratorImprovementsEnabled(request));
+      devDatabaseSeedTask.insertComprehensiveSampleProgram(
+          createdSampleQuestions,
+          messagesApi.preferred(request),
+          settingsManifest.getEnumeratorImprovementsEnabled(request));
 
       return true;
     } catch (RuntimeException ex) {

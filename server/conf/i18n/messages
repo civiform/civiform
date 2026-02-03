@@ -1166,6 +1166,10 @@ button.repeatedSet.addNew=Add repeated set
 text.repeatedSet=Repeated set
 # Text letting admins know which block represents the group of screens for nested repeating questions
 text.nestedRepeatedSet=Nested repeated set
+# An uneditable prefix for the enumerator screen name representing the repeated object that will be enumerated
+text.repeatedSet.prefix=parent label
+# An uneditable prefix for the enumerator screen name representing the nested repeated object that will be enumerated
+text.repeatedSet.nestedPrefix=child label
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #
@@ -1216,4 +1220,3 @@ reportingProgram.timeToCompleteP75=Time to complete (p75)
 reportingProgram.timeToCompleteP99=Time to complete (p99)
 # Text on button to download CSV file
 reportingProgram.downloadCsv=Download CSV
-
