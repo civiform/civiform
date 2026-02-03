@@ -98,10 +98,11 @@ public final class CheckboxElementTagModelProcessor extends AbstractElementModel
     var itemSettingsList = new ArrayList<ItemFormSettings>();
 
     // Process child item elements
-    // Skip the first (opening tag) and last (closing tag) events
+    // Skip the first (opening tag) and last (closing tag) events. These are
+    // the parent/current html elements, and we only want the children.
     for (int i = 1; i < sourceModel.size() - 1; i++) {
       if (sourceModel.get(i) instanceof IProcessableElementTag itemTag) {
-        // Check if this is an opening item tag
+        // Check if this is an <item> element. If it is not skip it as it isn't allowed.
         if (!"item".equalsIgnoreCase(itemTag.getElementCompleteName())) {
           continue;
         }

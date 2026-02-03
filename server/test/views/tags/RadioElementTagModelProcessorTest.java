@@ -21,7 +21,6 @@ public class RadioElementTagModelProcessorTest extends BaseElementTagModelProces
       String isValid,
       String required,
       String tiled,
-      String columns,
       String validationClass,
       String validationField) {}
 
