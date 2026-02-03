@@ -192,7 +192,7 @@ public abstract class QuestionDefinition {
               builder.build(),
               questionOptions,
               MultiOptionQuestionDefinition.MultiOptionQuestionType.YES_NO);
-      case NULL_QUESTION -> throw new UnsupportedQuestionTypeException(this.questionType);
+      case NULL_QUESTION -> throw new UnsupportedQuestionTypeException(questionType);
     };
   }
 
