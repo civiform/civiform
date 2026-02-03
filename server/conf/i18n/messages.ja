@@ -45,7 +45,7 @@ header.userName={0} としてログイン中
 # Error message to answer a required question
 validation.isRequired=この質問は必須です。
 # Error message to fill a required field
-validation.fieldIsRequired=This field is required.
+validation.fieldIsRequired=この項目は必須です。
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=入力が正しくありません。
 content.requiredFieldsNote=Note:{0} の項目は必須です。
@@ -576,9 +576,9 @@ content.predicateApplicantIsEligible=応募者は以下の場合に資格があ�
 # Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
 content.predicateConditionsAreTrue=条件が真である場合：
 # Text that shows on the eligibility predicate screen when no eligibility conditions are set.
-content.predicateEligibilityNullState=Applicant is always eligible.
+content.predicateEligibilityNullState=申請者は常に適格です。
 # Text that shows on the visibility predicate screen when no visibility conditions are set.
-content.predicateVisibilityNullState=This screen is always shown.
+content.predicateVisibilityNullState=この画面は常に表示されます。
 
 # Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
 content.predicateConditionIsTrueIf=条件は以下の場合に真です
@@ -605,7 +605,7 @@ button.predicateAddCondition=条件を追加
 # Button to remove a condition from the form
 button.predicateDeleteCondition=条件を削除
 # Button to remove all conditions from the form
-button.predicateDeleteAllConditions=Delete all conditions
+button.predicateDeleteAllConditions=すべての条件を削除
 # Link to append form fields for configuring a new sub-condition within a condition
 link.predicateAddSubcondition=サブ条件を追加
 # Link to remove a sub-condition from the form
@@ -618,13 +618,13 @@ button.saveAndExit=保存して終了
 # Confirmation dialog shown to admin for deleting all conditions in the predicate edit view
 confirm.deleteAllConditions=Are you sure you would like to delete all conditions?
 # Confirmation dialog shown to admin for deleting a condition in the predicate edit view
-confirm.deleteSingleCondition=Are you sure you would like to delete this condition?
+confirm.deleteSingleCondition=この条件を削除してもよろしいですか？
 # Confirmation dialog shown to admin for leaving predicate edit without saving.
-confirm.leaveWithoutSaving=Are you sure you would like to leave?
+confirm.leaveWithoutSaving=この画面から離れてもよろしいですか？
 # Dialog to warn admin that a deletion action cannot be undone
-confirm.actionNotReversable=This action cannot be undone.
+confirm.actionNotReversable=この操作は元に戻せません。
 # Dialog to warn admin that they have unsaved changes in the predicate edit view.
-confirm.unsavedChanges=You have unsaved changes that will be lost.
+confirm.unsavedChanges=未保存の変更は失われます。
 
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsVisibility=この画面の表示条件を設定するために使用できる、前の画面の質問はありません。
@@ -632,12 +632,12 @@ alert.predicateNoAvailableQuestionsVisibility=この画面の表示条件を設�
 alert.predicateNoAvailableQuestionsEligibility=この画面には、適格性条件を設定するために使用できる質問がありません。
 
 # Label for textarea where admins can enter a message to show to applicants who are deemed ineligible based on the eligibility conditions set.
-label.predicateEligibilityMessageField=Display message shown to ineligible applicants
+label.predicateEligibilityMessageField=不適格な申請者に表示されるメッセージ
 # Help text for a textarea input explaining that markdown is supported.
-content.markdownSupported=Markdown is supported
+content.markdownSupported=Markdown がサポートされています
 
 # Error message for when the admin leaves a multi-select question blank in admin predicate edit.
-validation.selectionRequired=You must select at least one option.
+validation.selectionRequired=少なくとも 1 つのオプションを選択してください。
 # Error message for when the admin leaves a question unselected in admin predicate edit.
 validation.questionRequired=You must select a question.
 
@@ -883,7 +883,7 @@ map.locationLinkText=さらに詳細を表示
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr={0}のさらに詳細を表示
 # Text showing the count of displayed locations, with placeholders for current count and total count
-map.locationsCount=Displaying {0} to {1} of {2} locations
+map.locationsCount={2} か所中 {0} から {1} までを表示中
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount=最大{1}カ所のうち、{0}カ所を選択しています。
 # Alt text for map region
@@ -921,7 +921,7 @@ map.geoJsonErrorText = 申し訳ありませんが、この質問は現在表示
 map.contactUs = お問い合わせ
 map.homepage = ホームページ
 # screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
-map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a different location, please unselect at least one of the locations you have chosen.
+map.maxLocationsSelectedSr = 最大 {0} か所が選択されています。別の場所を追加するには、選択済みの場所の少なくとも 1 つを解除してください。
 
 #---------------------------------------------------------------------------#
 # MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
@@ -987,7 +987,7 @@ error.internalServerTitle.v2=エラーが発生しました
 # The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=申し訳ございません。システムに内部エラーが発生しました。
 # Additional information about the error that is shown to the user in small font
-error.internalServerDescription=Please contact technical support for assistance at {0} and include this error ID {1}.
+error.internalServerDescription=技術サポートが必要な場合は {0} までご連絡いただき、エラー ID {1} をお知らせください。
 # A button redirecting the user to the homepage
 error.internalServerHomeButton=ホームページにアクセス
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
