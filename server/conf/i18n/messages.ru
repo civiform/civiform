@@ -45,7 +45,7 @@ header.userName=Вы вошли в аккаунт: {0}
 # Error message to answer a required question
 validation.isRequired=Ответ на этот вопрос обязателен.
 # Error message to fill a required field
-validation.fieldIsRequired=This field is required.
+validation.fieldIsRequired=Это поле является обязательным.
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=Введите действительные данные.
 content.requiredFieldsNote=Примечание. Поля, отмеченные знаком "{0}", должны быть заполнены.
@@ -240,7 +240,7 @@ button.search=Искать
 # Button to start an application on behalf of a client.
 button.startApp=Заполнить заявку
 # Button to redirect to the login page when the applicant is not logged in for login-only programs.
-button.startAppForLoginOnlyProgram=Sign in to start an application
+button.startAppForLoginOnlyProgram=Войдите в систему, чтобы подать заявку
 # Button to view the applications belonging to an applicant.
 button.viewApplications=Посмотреть заявки
 # Button to view and add clients
@@ -561,11 +561,11 @@ content.predicateVisibilityDescription=Настройте, когда этот �
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
 content.predicateEligibilityDescription=Добавьте условия участия, чтобы определить, соответствует ли заявитель требованиям программы на основе ответов на вопросы на этом экране. Заявители, не соответствующие минимальным требованиям, не смогут подать заявку. Это можно изменить в
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualitifies for the program.
-content.predicateEligibilityDescription.v2=Add eligibility conditions to determine if an applicant qualifies for the program based on responses to questions on this screen.
+content.predicateEligibilityDescription.v2=Добавьте условия отбора для определения степени соответствия кандидата программе на базе ответов с этого экрана.
 # Text informing admins that ineligible applicants will be blocked from submitting an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
-content.blockIneligibleApplicants=Applicants who do not meet the minimum requirements will be blocked from submitting an application. You can change this in the
+content.blockIneligibleApplicants=Кандидаты, не соответствующие минимальным требованиям, не смогут отправить заявку. Это можно изменить в
 # Text informing admins that ineligible applicants will still be able to submit an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
-content.allowIneligibleApplicants=Applicants can submit an application even if they do not meet the minimum requirements. You can change this in the
+content.allowIneligibleApplicants=Кандидат может подать заявку, даже если не соответствует минимальным требованиям. Это можно изменить в
 # Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
 link.programSettings=настройках программы
 
@@ -576,9 +576,9 @@ content.predicateApplicantIsEligible=Заявитель соответствуе
 # Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
 content.predicateConditionsAreTrue=выполняются следующие условия:
 # Text that shows on the eligibility predicate screen when no eligibility conditions are set.
-content.predicateEligibilityNullState=Applicant is always eligible.
+content.predicateEligibilityNullState=Подходит любой кандидат.
 # Text that shows on the visibility predicate screen when no visibility conditions are set.
-content.predicateVisibilityNullState=This screen is always shown.
+content.predicateVisibilityNullState=Этот экран отображается всегда.
 
 # Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
 content.predicateConditionIsTrueIf=Условие выполняется, если
@@ -605,7 +605,7 @@ button.predicateAddCondition=Добавить условие
 # Button to remove a condition from the form
 button.predicateDeleteCondition=Удалить условие
 # Button to remove all conditions from the form
-button.predicateDeleteAllConditions=Delete all conditions
+button.predicateDeleteAllConditions=Удалить все условия
 # Link to append form fields for configuring a new sub-condition within a condition
 link.predicateAddSubcondition=Добавить подусловие
 # Link to remove a sub-condition from the form
@@ -616,15 +616,15 @@ link.backToTop=В начало страницы
 button.saveAndExit=Сохранить и выйти
 
 # Confirmation dialog shown to admin for deleting all conditions in the predicate edit view
-confirm.deleteAllConditions=Are you sure you would like to delete all conditions?
+confirm.deleteAllConditions=Вы уверены, что хотите удалить все условия?
 # Confirmation dialog shown to admin for deleting a condition in the predicate edit view
-confirm.deleteSingleCondition=Are you sure you would like to delete this condition?
+confirm.deleteSingleCondition=Вы уверены, что хотите удалить это условие?
 # Confirmation dialog shown to admin for leaving predicate edit without saving.
-confirm.leaveWithoutSaving=Are you sure you would like to leave?
+confirm.leaveWithoutSaving=Вы уверены, что хотите выйти?
 # Dialog to warn admin that a deletion action cannot be undone
-confirm.actionNotReversable=This action cannot be undone.
+confirm.actionNotReversable=Это действие нельзя отменить.
 # Dialog to warn admin that they have unsaved changes in the predicate edit view.
-confirm.unsavedChanges=You have unsaved changes that will be lost.
+confirm.unsavedChanges=Несохраненные изменения будут потеряны.
 
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsVisibility=На предыдущих экранах нет доступных вопросов, с помощью которых можно задать условие видимости для этого экрана.
@@ -632,14 +632,14 @@ alert.predicateNoAvailableQuestionsVisibility=На предыдущих экра
 alert.predicateNoAvailableQuestionsEligibility=На этом экране нет доступных вопросов, с помощью которых можно задать условие соответствия требованиям.
 
 # Label for textarea where admins can enter a message to show to applicants who are deemed ineligible based on the eligibility conditions set.
-label.predicateEligibilityMessageField=Display message shown to ineligible applicants
+label.predicateEligibilityMessageField=Сообщение, показывающееся неподходящим кандидатам
 # Help text for a textarea input explaining that markdown is supported.
-content.markdownSupported=Markdown is supported
+content.markdownSupported=Поддерживается Markdown
 
 # Error message for when the admin leaves a multi-select question blank in admin predicate edit.
-validation.selectionRequired=You must select at least one option.
+validation.selectionRequired=Нужно выбрать хотя бы одну опцию.
 # Error message for when the admin leaves a question unselected in admin predicate edit.
-validation.questionRequired=You must select a question.
+validation.questionRequired=Требуется выбрать вопрос.
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -883,7 +883,7 @@ map.locationLinkText=Подробнее
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr=Подробнее о {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
-map.locationsCount=Displaying {0} to {1} of {2} locations
+map.locationsCount=Показываем места с {0} по {1} из {2}
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount=Выбрано {0} из максимум {1} местоположений.
 # Alt text for map region
@@ -921,7 +921,7 @@ map.geoJsonErrorText = К сожалению, в данный момент мы 
 map.contactUs = связаться с нами
 map.homepage = домашняя страница
 # screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
-map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a different location, please unselect at least one of the locations you have chosen.
+map.maxLocationsSelectedSr = Вы выбрали максимальное количество мест {0}. Чтобы добавить другое, отмените выбор хотя бы одного.
 
 #---------------------------------------------------------------------------#
 # MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
@@ -987,7 +987,7 @@ error.internalServerTitle.v2=Произошла ошибка
 # The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=К сожалению, в нашей системе возникла ошибка.
 # Additional information about the error that is shown to the user in small font
-error.internalServerDescription=Please contact technical support for assistance at {0} and include this error ID {1}.
+error.internalServerDescription=Обратитесь за помощью в службу поддержки по адресу {0}, указав ID ошибки {1}.
 # A button redirecting the user to the homepage
 error.internalServerHomeButton=Перейти на главную страницу
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
@@ -1167,56 +1167,56 @@ text.repeatedSet=
 # Text letting admins know which block represents the group of screens for nested repeating questions
 text.nestedRepeatedSet=
 # An uneditable prefix for the enumerator screen name representing the repeated object that will be enumerated
-text.repeatedSet.prefix=parent label
+text.repeatedSet.prefix=заголовок родительского элемента
 # An uneditable prefix for the enumerator screen name representing the nested repeated object that will be enumerated
-text.repeatedSet.nestedPrefix=child label
+text.repeatedSet.nestedPrefix=заголовок дочернего элемента
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #
 #------------------------------------------------------------------------------#
 
 # Caption for the table showing submissions by program
-caption.submissionsByProgram=Submissions by program (all programs)
+caption.submissionsByProgram=Заявки по программам (все программы)
 # Column header for program name
-content.program=Program
+content.program=Программа
 # Column header for number of submissions
-content.submissions=Submissions
+content.submissions=Заявки
 # Column header for 25th percentile time to complete
-content.timeToCompleteP25=Time to complete (p25)
+content.timeToCompleteP25=Время завершения (p25)
 # Column header for median (50th percentile) time to complete
-content.medianTimeToComplete=Median time to complete
+content.medianTimeToComplete=Медианное время завершения
 # Column header for 75th percentile time to complete
-content.timeToCompleteP75=Time to complete (p75)
+content.timeToCompleteP75=Время завершения (p75)
 # Column header for 99th percentile time to complete
-content.timeToCompleteP99=Time to complete (p99)
+content.timeToCompleteP99=Время завершения (p99)
 # Text on button to download CSV file
-button.downloadCsv=Download CSV
+button.downloadCsv=Скачать CSV
 # Caption for the table showing submissions by month
-caption.submissionsByMonth=Submissions by month (all programs)
+caption.submissionsByMonth=Заявки по месяцам (все программы)
 # Column header for month
-content.month=Month
+content.month=Месяц
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING PROGRAM                                                     #
 #------------------------------------------------------------------------------#
 
 # Heading for the program reporting page
-reportingProgram.heading={0} reporting
+reportingProgram.heading={0} отчетов
 # Info text about data delay
-reportingProgram.dataDelay=Data may be up to an hour delayed.
+reportingProgram.dataDelay=Данные могут отображаться с задержкой до часа.
 # Caption for the table showing submissions by month for a program
-reportingProgram.caption.submissionsByMonth=Submissions by month
+reportingProgram.caption.submissionsByMonth=Заявки по месяцам
 # Column header for month
-reportingProgram.month=Month
+reportingProgram.month=Месяц
 # Column header for submissions
-reportingProgram.submissions=Submissions
+reportingProgram.submissions=Заявки
 # Column header for 25th percentile time to complete
-reportingProgram.timeToCompleteP25=Time to complete (p25)
+reportingProgram.timeToCompleteP25=Время завершения (p25)
 # Column header for median (50th percentile) time to complete
-reportingProgram.medianTimeToComplete=Median time to complete
+reportingProgram.medianTimeToComplete=Медианное время завершения
 # Column header for 75th percentile time to complete
-reportingProgram.timeToCompleteP75=Time to complete (p75)
+reportingProgram.timeToCompleteP75=Время завершения (p75)
 # Column header for 99th percentile time to complete
-reportingProgram.timeToCompleteP99=Time to complete (p99)
+reportingProgram.timeToCompleteP99=Время завершения (p99)
 # Text on button to download CSV file
-reportingProgram.downloadCsv=Download CSV
+reportingProgram.downloadCsv=Скачать CSV
