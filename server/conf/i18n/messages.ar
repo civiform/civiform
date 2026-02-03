@@ -576,9 +576,9 @@ content.predicateApplicantIsEligible=يكون المتقدم مؤهلًا إذا
 # Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
 content.predicateConditionsAreTrue=الشروط صحيحة:
 # Text that shows on the eligibility predicate screen when no eligibility conditions are set.
-content.predicateEligibilityNullState=Applicant is always eligible.
+content.predicateEligibilityNullState=المتقدم مؤهل دائماً.
 # Text that shows on the visibility predicate screen when no visibility conditions are set.
-content.predicateVisibilityNullState=This screen is always shown.
+content.predicateVisibilityNullState=هذه الشاشة معروضة دائماً.
 
 # Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
 content.predicateConditionIsTrueIf=يكون الشرط صحيح إذا كانت
@@ -605,7 +605,7 @@ button.predicateAddCondition=إضافة شرط
 # Button to remove a condition from the form
 button.predicateDeleteCondition=حذف الشرط
 # Button to remove all conditions from the form
-button.predicateDeleteAllConditions=Delete all conditions
+button.predicateDeleteAllConditions=حذف جميع الشروط.\n
 # Link to append form fields for configuring a new sub-condition within a condition
 link.predicateAddSubcondition=إضافة شرط فرعي
 # Link to remove a sub-condition from the form
@@ -616,13 +616,13 @@ link.backToTop=العودة إلى الأعلى
 button.saveAndExit=حفظ وخروج
 
 # Confirmation dialog shown to admin for deleting all conditions in the predicate edit view
-confirm.deleteAllConditions=Are you sure you would like to delete all conditions?
+confirm.deleteAllConditions=هل متأكد من رغبتك في حذف جميع الشروط؟\n
 # Confirmation dialog shown to admin for deleting a condition in the predicate edit view
-confirm.deleteSingleCondition=Are you sure you would like to delete this condition?
+confirm.deleteSingleCondition=هل متأكد من رغبتك في حذف هذا الشرط؟\n
 # Confirmation dialog shown to admin for leaving predicate edit without saving.
-confirm.leaveWithoutSaving=Are you sure you would like to leave?
+confirm.leaveWithoutSaving=هل متأكد من رغبتك في المغادرة؟\n
 # Dialog to warn admin that a deletion action cannot be undone
-confirm.actionNotReversable=This action cannot be undone.
+confirm.actionNotReversable=لا يمكن التراجع عن هذا الإجراء.\n
 # Dialog to warn admin that they have unsaved changes in the predicate edit view.
 confirm.unsavedChanges=لقد أجريتَ تغييرات لم تحفظها وستفقدها.
 
@@ -632,7 +632,7 @@ alert.predicateNoAvailableQuestionsVisibility=لا توجد أسئلة متاح�
 alert.predicateNoAvailableQuestionsEligibility=لا توجد أسئلة متاحة في هذه الشاشة يمكن استخدامها لتعيين شرط الأهلية.
 
 # Label for textarea where admins can enter a message to show to applicants who are deemed ineligible based on the eligibility conditions set.
-label.predicateEligibilityMessageField=Display message shown to ineligible applicants
+label.predicateEligibilityMessageField=عرض الرسالة للمتقدمين غير المؤهلين.
 # Help text for a textarea input explaining that markdown is supported.
 content.markdownSupported=يدعم التنسيق النصي (Markdown).
 
@@ -883,7 +883,7 @@ map.locationLinkText=عرض مزيد من التفاصيل
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr=عرض مزيد من التفاصيل لـ {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
-map.locationsCount=Displaying {0} to {1} of {2} locations
+map.locationsCount=معروض أمامك من {0} إلى {1} من أصل {2} موقعاً.\n
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount=تم تحديد {0} من {1} موقعًا كحد أقصى.
 # Alt text for map region
@@ -921,7 +921,7 @@ map.geoJsonErrorText = نأسف لعدم قدرتنا على عرض هذا ال�
 map.contactUs = اتصل بنا
 map.homepage = الصفحة الرئيسية
 # screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
-map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a different location, please unselect at least one of the locations you have chosen.
+map.maxLocationsSelectedSr = حددتَ الحد الأقصى للمواقع والبالغ {0} موقعاً. لإضافة موقع آخر، يُرجى إلغاء تحديد موقع واحد على الأقل من المواقع التي اخترتها.
 
 #---------------------------------------------------------------------------#
 # MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
@@ -987,7 +987,7 @@ error.internalServerTitle.v2=حدث خطأ ما
 # The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=عذرًا، لقد حدث خطأ داخلي في أنظمتنا.
 # Additional information about the error that is shown to the user in small font
-error.internalServerDescription=Please contact technical support for assistance at {0} and include this error ID {1}.
+error.internalServerDescription=يُرجى التواصل مع الدعم الفني للحصول على المساعدة على الرقم {0}، مع ذكر رمز الخطأ {1}.\n
 # A button redirecting the user to the homepage
 error.internalServerHomeButton=زيارة الصفحة الرئيسية
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
@@ -1178,23 +1178,23 @@ text.repeatedSet.nestedPrefix=التصنيف الفرعي
 # Caption for the table showing submissions by program
 caption.submissionsByProgram=الطلبات المقدمة حسب البرنامج (جميع البرامج)\n
 # Column header for program name
-content.program=Program
+content.program=البرنامج
 # Column header for number of submissions
-content.submissions=Submissions
+content.submissions=الطلبات المقدمة
 # Column header for 25th percentile time to complete
 content.timeToCompleteP25=مدة الإنجاز (p25)
 # Column header for median (50th percentile) time to complete
-content.medianTimeToComplete=Median time to complete
+content.medianTimeToComplete=متوسط ​​مدة الإنجاز
 # Column header for 75th percentile time to complete
-content.timeToCompleteP75=Time to complete (p75)
+content.timeToCompleteP75=مدة الإنجاز (p75)
 # Column header for 99th percentile time to complete
 content.timeToCompleteP99=مدة الإنجاز (p99)
 # Text on button to download CSV file
-button.downloadCsv=Download CSV
+button.downloadCsv=تنزيل ملف CSV
 # Caption for the table showing submissions by month
 caption.submissionsByMonth=الطلبات المقدمة حسب الشهر (جميع البرامج)
 # Column header for month
-content.month=Month
+content.month=الشهر
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING PROGRAM                                                     #
