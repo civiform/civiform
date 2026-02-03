@@ -1655,7 +1655,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private ImmutableMap<String, String> cleanForm(Map<String, String> formData) {
     return formData.entrySet().stream()
         .filter(entry -> !STRIPPED_FORM_FIELDS.contains(entry.getKey()))
-        .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
+        .collect(ImmutableMap.toImmutableMap(
+            Map.Entry::getKey, 
+            entry -> entry.getValue().trim()));
   }
 
   private ApplicationBaseViewParams.Builder applicationBaseViewParamsBuilder(
