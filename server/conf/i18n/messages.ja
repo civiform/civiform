@@ -616,7 +616,7 @@ link.backToTop=トップに戻る
 button.saveAndExit=保存して終了
 
 # Confirmation dialog shown to admin for deleting all conditions in the predicate edit view
-confirm.deleteAllConditions=Are you sure you would like to delete all conditions?
+confirm.deleteAllConditions=すべての条件を削除してもよろしいですか？
 # Confirmation dialog shown to admin for deleting a condition in the predicate edit view
 confirm.deleteSingleCondition=この条件を削除してもよろしいですか？
 # Confirmation dialog shown to admin for leaving predicate edit without saving.
@@ -1188,32 +1188,32 @@ content.medianTimeToComplete=Median time to complete
 # Column header for 75th percentile time to complete
 content.timeToCompleteP75=Time to complete (p75)
 # Column header for 99th percentile time to complete
-content.timeToCompleteP99=Time to complete (p99)
+content.timeToCompleteP99=完了までの時間（p99）
 # Text on button to download CSV file
 button.downloadCsv=Download CSV
 # Caption for the table showing submissions by month
 caption.submissionsByMonth=Submissions by month (all programs)
 # Column header for month
-content.month=Month
+content.month=月
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING PROGRAM                                                     #
 #------------------------------------------------------------------------------#
 
 # Heading for the program reporting page
-reportingProgram.heading={0} reporting
+reportingProgram.heading={0} 件のレポート
 # Info text about data delay
-reportingProgram.dataDelay=Data may be up to an hour delayed.
+reportingProgram.dataDelay=データは最大 1 時間遅延する場合があります。
 # Caption for the table showing submissions by month for a program
-reportingProgram.caption.submissionsByMonth=Submissions by month
+reportingProgram.caption.submissionsByMonth=月別提出数
 # Column header for month
-reportingProgram.month=Month
+reportingProgram.month=月
 # Column header for submissions
-reportingProgram.submissions=Submissions
+reportingProgram.submissions=提出数
 # Column header for 25th percentile time to complete
-reportingProgram.timeToCompleteP25=Time to complete (p25)
+reportingProgram.timeToCompleteP25=完了までの時間（p25）
 # Column header for median (50th percentile) time to complete
-reportingProgram.medianTimeToComplete=Median time to complete
+reportingProgram.medianTimeToComplete=完了までの時間の中央値
 # Column header for 75th percentile time to complete
 reportingProgram.timeToCompleteP75=Time to complete (p75)
 # Column header for 99th percentile time to complete
