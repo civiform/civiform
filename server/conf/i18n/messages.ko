@@ -45,7 +45,7 @@ header.userName={0}(으)로 로그인됨
 # Error message to answer a required question
 validation.isRequired=이 질문은 필수입니다.
 # Error message to fill a required field
-validation.fieldIsRequired=This field is required.
+validation.fieldIsRequired=이 필드는 필수입니다.
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=유효한 내용을 입력하세요.
 content.requiredFieldsNote=참고: {0} 표시가 있는 입력란은 필수입니다.
@@ -240,7 +240,7 @@ button.search=검색
 # Button to start an application on behalf of a client.
 button.startApp=애플리케이션 시작
 # Button to redirect to the login page when the applicant is not logged in for login-only programs.
-button.startAppForLoginOnlyProgram=Sign in to start an application
+button.startAppForLoginOnlyProgram=신청을 시작하려면 로그인하세요
 # Button to view the applications belonging to an applicant.
 button.viewApplications=애플리케이션 보기
 # Button to view and add clients
@@ -561,9 +561,9 @@ content.predicateVisibilityDescription=이전 화면의 질문에 대한 응답�
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
 content.predicateEligibilityDescription=이 화면의 질문에 대한 응답에 따라 지원자의 프로그램 지원 자격 충족 여부를 결정할 조건을 추가하세요. 최소 조건을 충족하지 못하는 지원자는 지원서를 제출하지 못하도록 차단됩니다. 이 설정은 다음에서 변경할 수 있습니다.
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualitifies for the program.
-content.predicateEligibilityDescription.v2=Add eligibility conditions to determine if an applicant qualifies for the program based on responses to questions on this screen.
+content.predicateEligibilityDescription.v2=이 화면의 질문에 대한 답변을 바탕으로, 신청자의 프로그램 지원 자격 여부를 결정하는 자격 조건을 추가하세요.
 # Text informing admins that ineligible applicants will be blocked from submitting an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
-content.blockIneligibleApplicants=Applicants who do not meet the minimum requirements will be blocked from submitting an application. You can change this in the
+content.blockIneligibleApplicants=최소 기준을 충족하지 않는 신청자는 신청서 제출이 차단됩니다. [여기]에서 변경할 수 있습니다. 
 # Text informing admins that ineligible applicants will still be able to submit an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
 content.allowIneligibleApplicants=Applicants can submit an application even if they do not meet the minimum requirements. You can change this in the
 # Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
@@ -576,7 +576,7 @@ content.predicateApplicantIsEligible=다음의 경우 지원자가 자격 조건
 # Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
 content.predicateConditionsAreTrue=조건이 참임:
 # Text that shows on the eligibility predicate screen when no eligibility conditions are set.
-content.predicateEligibilityNullState=Applicant is always eligible.
+content.predicateEligibilityNullState=신청자는 별도 조건 없이 항상 신청 가능합니다.
 # Text that shows on the visibility predicate screen when no visibility conditions are set.
 content.predicateVisibilityNullState=This screen is always shown.
 
@@ -622,9 +622,9 @@ confirm.deleteSingleCondition=Are you sure you would like to delete this conditi
 # Confirmation dialog shown to admin for leaving predicate edit without saving.
 confirm.leaveWithoutSaving=Are you sure you would like to leave?
 # Dialog to warn admin that a deletion action cannot be undone
-confirm.actionNotReversable=This action cannot be undone.
+confirm.actionNotReversable=이 실행은 되돌릴 수 없습니다.
 # Dialog to warn admin that they have unsaved changes in the predicate edit view.
-confirm.unsavedChanges=You have unsaved changes that will be lost.
+confirm.unsavedChanges=저장되지 않은 변경 사항이 있습니다.
 
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsVisibility=이전 화면에는 이 화면의 표시 조건을 설정하는 데 사용할 질문이 없습니다.
@@ -637,7 +637,7 @@ label.predicateEligibilityMessageField=Display message shown to ineligible appli
 content.markdownSupported=Markdown is supported
 
 # Error message for when the admin leaves a multi-select question blank in admin predicate edit.
-validation.selectionRequired=You must select at least one option.
+validation.selectionRequired=최소 한 가지 옵션을 선택해야 합니다.
 # Error message for when the admin leaves a question unselected in admin predicate edit.
 validation.questionRequired=You must select a question.
 
@@ -987,7 +987,7 @@ error.internalServerTitle.v2=오류가 발생했습니다
 # The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=죄송합니다. Google 시스템에 내부 오류가 발생했습니다
 # Additional information about the error that is shown to the user in small font
-error.internalServerDescription=Please contact technical support for assistance at {0} and include this error ID {1}.
+error.internalServerDescription=도움이 필요하면 기술 지원팀 {0}으로 문의하시고, 오류 ID {1}를 함께 제공해 주세요. 
 # A button redirecting the user to the homepage
 error.internalServerHomeButton=홈페이지 방문
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
@@ -1178,7 +1178,7 @@ text.repeatedSet.nestedPrefix=child label
 # Caption for the table showing submissions by program
 caption.submissionsByProgram=Submissions by program (all programs)
 # Column header for program name
-content.program=Program
+content.program=프로그램
 # Column header for number of submissions
 content.submissions=Submissions
 # Column header for 25th percentile time to complete
