@@ -27,6 +27,7 @@
             >[[#{label.predicateQuestion}]]<abbr
               title="required"
               class="usa-hint usa-hint--required"
+              aria-hidden="true"
               >*</abbr
             ></label
           >
@@ -47,6 +48,7 @@
             th:hx-target="${'#predicate-condition-' + conditionId + '-subcondition-list'}"
             th:aria-invalid="${questionIsInvalid}"
             th:aria-describedby="${questionIsInvalid ? questionErrorMessageId : ''}"
+            aria-required="true"
             hx-swap="outerHTML"
             th:data-should-autofocus="${model.autofocus}"
           >
@@ -71,6 +73,7 @@
               >[[#{label.predicateField}]]<abbr
                 title="required"
                 class="usa-hint usa-hint--required"
+                aria-hidden="true"
                 >*</abbr
               ></label
             >
@@ -80,6 +83,7 @@
               th:name="${scalarDropDownId}"
               th:data-operator-target-id="${operatorDropdownId}"
               th:disabled="${!model.hasSelectedQuestion}"
+              aria-required="true"
             >
               <option
                 th:selected="${!model.hasSelectedQuestion}"
@@ -102,6 +106,7 @@
               >[[#{label.predicateState}]]<abbr
                 title="required"
                 class="usa-hint usa-hint--required"
+                aria-hidden="true"
                 >*</abbr
               ></label
             >
@@ -112,6 +117,7 @@
               th:disabled="${!model.hasSelectedQuestion}"
               th:data-condition-id="${conditionId}"
               th:data-subcondition-id="${subconditionId}"
+              aria-required="true"
             >
               <option
                 th:selected="${!model.hasSelectedQuestion}"
