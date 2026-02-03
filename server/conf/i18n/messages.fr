@@ -45,7 +45,7 @@ header.userName=Connecté en tant que {0}
 # Error message to answer a required question
 validation.isRequired=Réponse obligatoire.
 # Error message to fill a required field
-validation.fieldIsRequired=This field is required.
+validation.fieldIsRequired=Ce champ est obligatoire.
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=Veuillez effectuer une saisie valide.
 content.requiredFieldsNote=Remarque : Les champs marqués d''un {0} sont obligatoires.
@@ -240,7 +240,7 @@ button.search=Rechercher
 # Button to start an application on behalf of a client.
 button.startApp=Commencer une demande d''inscription
 # Button to redirect to the login page when the applicant is not logged in for login-only programs.
-button.startAppForLoginOnlyProgram=Sign in to start an application
+button.startAppForLoginOnlyProgram=Connectez-vous pour commencer une demande
 # Button to view the applications belonging to an applicant.
 button.viewApplications=Afficher les demandes d''inscription
 # Button to view and add clients
@@ -561,11 +561,11 @@ content.predicateVisibilityDescription=Configurez l''affichage ou le masquage de
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
 content.predicateEligibilityDescription=Ajoutez des conditions d''éligibilité afin de déterminer si un candidat remplit les critères du programme en fonction des réponses aux questions posées sur cet écran. Les candidats qui ne satisfont pas aux exigences minimales ne pourront pas soumettre leur candidature. Vous pouvez modifier cela dans le(s)
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualitifies for the program.
-content.predicateEligibilityDescription.v2=Add eligibility conditions to determine if an applicant qualifies for the program based on responses to questions on this screen.
+content.predicateEligibilityDescription.v2=Ajoutez des conditions d'admissibilité afin de déterminer si un candidat remplit les critères du programme en fonction des réponses aux questions posées sur cet écran.
 # Text informing admins that ineligible applicants will be blocked from submitting an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
-content.blockIneligibleApplicants=Applicants who do not meet the minimum requirements will be blocked from submitting an application. You can change this in the
+content.blockIneligibleApplicants=Les candidats qui ne remplissent pas les conditions minimales requises ne pourront pas envoyer leur candidature. Vous pouvez modifier cela dans le
 # Text informing admins that ineligible applicants will still be able to submit an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
-content.allowIneligibleApplicants=Applicants can submit an application even if they do not meet the minimum requirements. You can change this in the
+content.allowIneligibleApplicants=Les candidats peuvent soumettre leur candidature même s'ils ne remplissent pas les conditions minimales requises. Vous pouvez modifier cela dans le
 # Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
 link.programSettings=paramètres du programme
 
@@ -576,9 +576,9 @@ content.predicateApplicantIsEligible=Le candidat est éligible si
 # Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
 content.predicateConditionsAreTrue=les conditions sont vraies :
 # Text that shows on the eligibility predicate screen when no eligibility conditions are set.
-content.predicateEligibilityNullState=Applicant is always eligible.
+content.predicateEligibilityNullState=Le candidat est toujours admissible.
 # Text that shows on the visibility predicate screen when no visibility conditions are set.
-content.predicateVisibilityNullState=This screen is always shown.
+content.predicateVisibilityNullState=Cet écran est toujours affiché.
 
 # Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
 content.predicateConditionIsTrueIf=La condition est vraie si
@@ -605,7 +605,7 @@ button.predicateAddCondition=Ajouter la condition
 # Button to remove a condition from the form
 button.predicateDeleteCondition=Supprimer la condition
 # Button to remove all conditions from the form
-button.predicateDeleteAllConditions=Delete all conditions
+button.predicateDeleteAllConditions=Supprimer toutes les conditions
 # Link to append form fields for configuring a new sub-condition within a condition
 link.predicateAddSubcondition=Ajouter une sous-condition
 # Link to remove a sub-condition from the form
@@ -616,15 +616,15 @@ link.backToTop=Retour en haut
 button.saveAndExit=Enregistrer et quitter
 
 # Confirmation dialog shown to admin for deleting all conditions in the predicate edit view
-confirm.deleteAllConditions=Are you sure you would like to delete all conditions?
+confirm.deleteAllConditions=Êtes-vous sûr de vouloir supprimer toutes les conditions ?
 # Confirmation dialog shown to admin for deleting a condition in the predicate edit view
-confirm.deleteSingleCondition=Are you sure you would like to delete this condition?
+confirm.deleteSingleCondition=Êtes-vous sûr de vouloir supprimer cette condition ?
 # Confirmation dialog shown to admin for leaving predicate edit without saving.
-confirm.leaveWithoutSaving=Are you sure you would like to leave?
+confirm.leaveWithoutSaving=Êtes-vous sûr de vouloir quitter ?
 # Dialog to warn admin that a deletion action cannot be undone
-confirm.actionNotReversable=This action cannot be undone.
+confirm.actionNotReversable=Cette action ne peut pas être annulée.
 # Dialog to warn admin that they have unsaved changes in the predicate edit view.
-confirm.unsavedChanges=You have unsaved changes that will be lost.
+confirm.unsavedChanges=Vous avez des modifications non enregistrées qui seront perdues.
 
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsVisibility=Il n''y a pas de questions disponibles sur les écrans précédents permettant de définir une condition de visibilité pour cet écran.
@@ -632,14 +632,14 @@ alert.predicateNoAvailableQuestionsVisibility=Il n''y a pas de questions disponi
 alert.predicateNoAvailableQuestionsEligibility=Il n''y a pas de questions disponibles sur cet écran permettant de définir une condition d'éligibilité.
 
 # Label for textarea where admins can enter a message to show to applicants who are deemed ineligible based on the eligibility conditions set.
-label.predicateEligibilityMessageField=Display message shown to ineligible applicants
+label.predicateEligibilityMessageField=Message affiché aux candidats non admissibles
 # Help text for a textarea input explaining that markdown is supported.
-content.markdownSupported=Markdown is supported
+content.markdownSupported=La réduction est prise en charge
 
 # Error message for when the admin leaves a multi-select question blank in admin predicate edit.
-validation.selectionRequired=You must select at least one option.
+validation.selectionRequired=Vous devez sélectionner au moins une option.
 # Error message for when the admin leaves a question unselected in admin predicate edit.
-validation.questionRequired=You must select a question.
+validation.questionRequired=Vous devez sélectionner une question.
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -883,7 +883,7 @@ map.locationLinkText=Voir plus de détails
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr=Afficher plus de détails pour {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
-map.locationsCount=Displaying {0} to {1} of {2} locations
+map.locationsCount=Affichage de {0} à {1} sur {2} emplacements
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount={0} emplacements sur {1} maximum sélectionnés.
 # Alt text for map region
@@ -921,7 +921,7 @@ map.geoJsonErrorText = Nous sommes désolés, nous ne pouvons pas afficher cette
 map.contactUs = nous contacter
 map.homepage = page d''accueil
 # screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
-map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a different location, please unselect at least one of the locations you have chosen.
+map.maxLocationsSelectedSr = Maximum de {0} emplacements sélectionnés. Pour ajouter un autre emplacement, veuillez désélectionner au moins un des emplacements que vous avez choisis.
 
 #---------------------------------------------------------------------------#
 # MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
@@ -987,7 +987,7 @@ error.internalServerTitle.v2=Une erreur s''est produite
 # The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=Malheureusement, une erreur interne s''est produite dans notre système.
 # Additional information about the error that is shown to the user in small font
-error.internalServerDescription=Please contact technical support for assistance at {0} and include this error ID {1}.
+error.internalServerDescription=Veuillez contacter le support technique au {0} pour obtenir de l'aide et indiquez ce numéro d'erreur {1}.
 # A button redirecting the user to the homepage
 error.internalServerHomeButton=Ouvrir la page d''accueil
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
@@ -1167,56 +1167,56 @@ text.repeatedSet=
 # Text letting admins know which block represents the group of screens for nested repeating questions
 text.nestedRepeatedSet=
 # An uneditable prefix for the enumerator screen name representing the repeated object that will be enumerated
-text.repeatedSet.prefix=parent label
+text.repeatedSet.prefix=étiquette parent
 # An uneditable prefix for the enumerator screen name representing the nested repeated object that will be enumerated
-text.repeatedSet.nestedPrefix=child label
+text.repeatedSet.nestedPrefix=étiquette enfant
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #
 #------------------------------------------------------------------------------#
 
 # Caption for the table showing submissions by program
-caption.submissionsByProgram=Submissions by program (all programs)
+caption.submissionsByProgram=Envois par programme (tous les programmes)
 # Column header for program name
-content.program=Program
+content.program=Programme
 # Column header for number of submissions
-content.submissions=Submissions
+content.submissions=Envois
 # Column header for 25th percentile time to complete
-content.timeToCompleteP25=Time to complete (p25)
+content.timeToCompleteP25=Temps nécessaire pour terminer (p. 25)
 # Column header for median (50th percentile) time to complete
-content.medianTimeToComplete=Median time to complete
+content.medianTimeToComplete=Temps médian pour terminer
 # Column header for 75th percentile time to complete
-content.timeToCompleteP75=Time to complete (p75)
+content.timeToCompleteP75=Temps nécessaire pour terminer (p. 75)
 # Column header for 99th percentile time to complete
-content.timeToCompleteP99=Time to complete (p99)
+content.timeToCompleteP99=Temps nécessaire pour terminer (p. 99)
 # Text on button to download CSV file
-button.downloadCsv=Download CSV
+button.downloadCsv=Télécharger le CSV
 # Caption for the table showing submissions by month
-caption.submissionsByMonth=Submissions by month (all programs)
+caption.submissionsByMonth=Envois par mois (tous les programmes)
 # Column header for month
-content.month=Month
+content.month=Mois
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING PROGRAM                                                     #
 #------------------------------------------------------------------------------#
 
 # Heading for the program reporting page
-reportingProgram.heading={0} reporting
+reportingProgram.heading={0} rapports
 # Info text about data delay
-reportingProgram.dataDelay=Data may be up to an hour delayed.
+reportingProgram.dataDelay=Les données peuvent présenter un retard pouvant aller jusqu'à une heure.
 # Caption for the table showing submissions by month for a program
-reportingProgram.caption.submissionsByMonth=Submissions by month
+reportingProgram.caption.submissionsByMonth=Envois par mois
 # Column header for month
-reportingProgram.month=Month
+reportingProgram.month=Mois
 # Column header for submissions
-reportingProgram.submissions=Submissions
+reportingProgram.submissions=Envois
 # Column header for 25th percentile time to complete
-reportingProgram.timeToCompleteP25=Time to complete (p25)
+reportingProgram.timeToCompleteP25=Temps nécessaire pour terminer (p. 25)
 # Column header for median (50th percentile) time to complete
-reportingProgram.medianTimeToComplete=Median time to complete
+reportingProgram.medianTimeToComplete=Temps médian pour terminer
 # Column header for 75th percentile time to complete
-reportingProgram.timeToCompleteP75=Time to complete (p75)
+reportingProgram.timeToCompleteP75=Temps nécessaire pour terminer (p. 75)
 # Column header for 99th percentile time to complete
-reportingProgram.timeToCompleteP99=Time to complete (p99)
+reportingProgram.timeToCompleteP99=Temps nécessaire pour terminer (p. 99)
 # Text on button to download CSV file
-reportingProgram.downloadCsv=Download CSV
+reportingProgram.downloadCsv=Télécharger le CSV
