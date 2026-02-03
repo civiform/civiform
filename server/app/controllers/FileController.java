@@ -53,12 +53,12 @@ public class FileController extends CiviFormController {
     return checkApplicantAuthorization(request, applicantId)
         .thenApplyAsync(
             v -> {
+              String decodedFileKey = URLDecoder.decode(fileKey, StandardCharsets.UTF_8);
               // Ensure the file being accessed belongs to the applicant.
               // Check the file name key which embeds the applicant ID that
               // uploaded it.
               boolean hasFileNameAcl =
-                  ApplicantFileNameFormatter.isApplicantOwnedFileKey(fileKey, applicantId);
-              String decodedFileKey = URLDecoder.decode(fileKey, StandardCharsets.UTF_8);
+                  ApplicantFileNameFormatter.isApplicantOwnedFileKey(decodedFileKey, applicantId);
               if (!hasFileNameAcl) {
                 // Check the file ACL which may include other applicants
                 // given access.

@@ -1,6 +1,5 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {
-  enableFeatureFlag,
   loginAsAdmin,
   logout,
   loginAsTestUser,
@@ -509,8 +508,6 @@ test.describe('Admin can manage program translations', () => {
     adminPrograms,
     adminTranslations,
   }) => {
-    await enableFeatureFlag(page, 'external_program_cards_enabled')
-
     await test.step('Add an external program', async () => {
       await loginAsAdmin(page)
       await adminPrograms.addExternalProgram(
