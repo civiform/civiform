@@ -220,6 +220,8 @@ public enum MessageKey {
   TAG_MAY_QUALIFY_TI("tag.mayQualifyTi"),
   TEXT_NESTED_REPEATED_SET("text.nestedRepeatedSet"),
   TEXT_REPEATED_SET("text.repeatedSet"),
+  TEXT_REPEATED_SET_PREFIX("text.repeatedSet.prefix"),
+  TEXT_REPEATED_SET_NESTED_PREFIX("text.repeatedSet.nestedPrefix"),
   TEXT_VALIDATION_TOO_LONG("validation.textTooLong"),
   TEXT_VALIDATION_TOO_SHORT("validation.textTooShort"),
   TITLE_ALL_CLIENTS("title.allClients"),
