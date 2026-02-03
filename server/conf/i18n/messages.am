@@ -1191,3 +1191,29 @@ button.downloadCsv=Download CSV
 caption.submissionsByMonth=Submissions by month (all programs)
 # Column header for month
 content.month=Month
+
+#------------------------------------------------------------------------------#
+#  ADMIN REPORTING PROGRAM                                                     #
+#------------------------------------------------------------------------------#
+
+# Heading for the program reporting page
+reportingProgram.heading={0} reporting
+# Info text about data delay
+reportingProgram.dataDelay=Data may be up to an hour delayed.
+# Caption for the table showing submissions by month for a program
+reportingProgram.caption.submissionsByMonth=Submissions by month
+# Column header for month
+reportingProgram.month=Month
+# Column header for submissions
+reportingProgram.submissions=Submissions
+# Column header for 25th percentile time to complete
+reportingProgram.timeToCompleteP25=Time to complete (p25)
+# Column header for median (50th percentile) time to complete
+reportingProgram.medianTimeToComplete=Median time to complete
+# Column header for 75th percentile time to complete
+reportingProgram.timeToCompleteP75=Time to complete (p75)
+# Column header for 99th percentile time to complete
+reportingProgram.timeToCompleteP99=Time to complete (p99)
+# Text on button to download CSV file
+reportingProgram.downloadCsv=Download CSV
+
