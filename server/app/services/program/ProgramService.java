@@ -429,7 +429,7 @@ public final class ProgramService {
             /* blockId= */ 1,
             /* maybeEnumeratorBlockId= */ Optional.empty(),
             /* isEnumerator= */ Optional.empty(),
-            /* enumeratorImprovementsEnabled= */ false,
+            /* isNested= */ false,
             messages,
             enumeratorImprovementsEnabled);
     if (maybeEmptyBlock.isError()) {
@@ -2165,7 +2165,7 @@ public final class ProgramService {
         BlockDefinition.builder()
             .setId(blockId)
             .setName(blockName)
-            .setNamePrefix(namePrefix)
+            .setNamePrefix(Optional.of(namePrefix))
             .setDescription(blockDescription)
             .setLocalizedName(LocalizedStrings.withDefaultValue(blockName))
             .setLocalizedDescription(LocalizedStrings.withDefaultValue(blockDescription))

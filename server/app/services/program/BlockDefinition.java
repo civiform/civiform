@@ -259,7 +259,7 @@ public abstract class BlockDefinition {
 
   @JsonIgnore
   public String getFullName() {
-    return namePrefix().get().orElse("") + name();
+    return namePrefix().orElse("") + name();
   }
 
   /**
