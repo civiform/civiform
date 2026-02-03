@@ -155,10 +155,7 @@ public abstract class QuestionForm {
     this.redirectUrl = checkNotNull(redirectUrl);
   }
 
-  /**
-   * @deprecated Use {@link #getConfigBuilder()} with {@link QuestionDefinition#create} instead.
-   */
-  @Deprecated
+  /** Use {@link #getConfigBuilder()} with {@link QuestionDefinition#create} instead. */
   public QuestionDefinitionBuilder getBuilder() {
     LocalizedStrings questionTextMap =
         questionText.isEmpty()
