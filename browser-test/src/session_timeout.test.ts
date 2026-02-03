@@ -50,8 +50,10 @@ test.describe('Session timeout for admins', () => {
     })
 
     await test.step('Confirm toast appears confirming that session has been extended', async () => {
-      const toast = page.locator('#session-extended-toast')
-      await expect(toast).toContainText('Session successfully extended')
+      const toast = page
+        .getByRole('alert')
+        .getByText('Session successfully extended')
+      await expect(toast).toBeVisible()
     })
   })
 })
@@ -105,8 +107,8 @@ test.describe('Session timeout for applicants', () => {
     })
 
     await test.step('Click logout', async () => {
-      const closeModalButton = page.getByTestId('modal-logout-button')
-      await closeModalButton.click()
+      const sessionLengthModal = page.locator('#session-length-warning-modal')
+      await sessionLengthModal.getByRole('button', {name: 'Logout'}).click()
       // If the user logged in through OIDC previously - during logout they are
       // redirected to dev-oidc:PORT/session/end page. There they need to confirm
       // logout.
@@ -114,7 +116,7 @@ test.describe('Session timeout for applicants', () => {
         const pageContent = await page.textContent('html')
         if (pageContent!.includes('Do you want to sign-out from')) {
           // OIDC central provider confirmation page
-          await page.click('button:has-text("Yes")')
+          await page.getByRole('button', {name: 'Yes'}).click()
         }
       }
 
