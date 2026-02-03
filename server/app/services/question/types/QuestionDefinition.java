@@ -74,6 +74,128 @@ public abstract class QuestionDefinition {
     this.config = config;
   }
 
+  public static QuestionDefinition create(
+      QuestionType questionType,
+      QuestionDefinitionConfig.Builder builder,
+      String validationPredicatesString,
+      ImmutableList<QuestionOption> questionOptions,
+      LocalizedStrings entityType)
+      throws UnsupportedQuestionTypeException {
+    return switch (questionType) {
+      case ADDRESS -> {
+        if (!validationPredicatesString.isEmpty()) {
+          builder.setValidationPredicates(
+              AddressQuestionDefinition.AddressValidationPredicates.parse(
+                  validationPredicatesString));
+        }
+        yield new AddressQuestionDefinition(builder.build());
+      }
+      case CHECKBOX -> {
+        if (!validationPredicatesString.isEmpty()) {
+          builder.setValidationPredicates(
+              MultiOptionQuestionDefinition.MultiOptionValidationPredicates.parse(
+                  validationPredicatesString));
+        }
+
+        yield new MultiOptionQuestionDefinition(
+            builder.build(),
+            questionOptions,
+            MultiOptionQuestionDefinition.MultiOptionQuestionType.CHECKBOX);
+      }
+      case CURRENCY -> new CurrencyQuestionDefinition(builder.build());
+      case DATE -> {
+        if (!validationPredicatesString.isEmpty()) {
+          builder.setValidationPredicates(
+              DateQuestionDefinition.DateValidationPredicates.parse(validationPredicatesString));
+        }
+        yield new DateQuestionDefinition(builder.build());
+      }
+      case DROPDOWN ->
+          new MultiOptionQuestionDefinition(
+              builder.build(),
+              questionOptions,
+              MultiOptionQuestionDefinition.MultiOptionQuestionType.DROPDOWN);
+      case EMAIL -> new EmailQuestionDefinition(builder.build());
+      case FILEUPLOAD -> {
+        if (!validationPredicatesString.isEmpty()) {
+          builder.setValidationPredicates(
+              FileUploadQuestionDefinition.FileUploadValidationPredicates.parse(
+                  validationPredicatesString));
+        }
+        yield new FileUploadQuestionDefinition(builder.build());
+      }
+      case ID -> {
+        if (!validationPredicatesString.isEmpty()) {
+          builder.setValidationPredicates(
+              IdQuestionDefinition.IdValidationPredicates.parse(validationPredicatesString));
+        }
+        yield new IdQuestionDefinition(builder.build());
+      }
+      case MAP -> {
+        if (!validationPredicatesString.isEmpty()) {
+          builder.setValidationPredicates(
+              MapQuestionDefinition.MapValidationPredicates.parse(validationPredicatesString));
+        }
+        yield new MapQuestionDefinition(builder.build());
+      }
+      case NAME -> {
+        if (!validationPredicatesString.isEmpty()) {
+          builder.setValidationPredicates(
+              NameQuestionDefinition.NameValidationPredicates.parse(validationPredicatesString));
+        }
+        yield new NameQuestionDefinition(builder.build());
+      }
+      case NUMBER -> {
+        if (!validationPredicatesString.isEmpty()) {
+          builder.setValidationPredicates(
+              NumberQuestionDefinition.NumberValidationPredicates.parse(
+                  validationPredicatesString));
+        }
+        yield new NumberQuestionDefinition(builder.build());
+      }
+      case RADIO_BUTTON ->
+          new MultiOptionQuestionDefinition(
+              builder.build(),
+              questionOptions,
+              MultiOptionQuestionDefinition.MultiOptionQuestionType.RADIO_BUTTON);
+      case ENUMERATOR -> {
+        // This shouldn't happen, but protects us in case there are enumerator questions in the prod
+        // database that don't have entity type specified.
+        if (entityType == null || entityType.isEmpty()) {
+          entityType =
+              LocalizedStrings.withDefaultValue(EnumeratorQuestionDefinition.DEFAULT_ENTITY_TYPE);
+        }
+        if (!validationPredicatesString.isEmpty()) {
+          builder.setValidationPredicates(
+              EnumeratorQuestionDefinition.EnumeratorValidationPredicates.parse(
+                  validationPredicatesString));
+        }
+        yield new EnumeratorQuestionDefinition(builder.build(), entityType);
+      }
+      case STATIC -> new StaticContentQuestionDefinition(builder.build());
+      case TEXT -> {
+        if (!validationPredicatesString.isEmpty()) {
+          builder.setValidationPredicates(
+              TextQuestionDefinition.TextValidationPredicates.parse(validationPredicatesString));
+        }
+        yield new TextQuestionDefinition(builder.build());
+      }
+      case PHONE -> {
+        if (!validationPredicatesString.isEmpty()) {
+          builder.setValidationPredicates(
+              PhoneQuestionDefinition.PhoneValidationPredicates.parse(validationPredicatesString));
+        }
+        yield new PhoneQuestionDefinition(builder.build());
+      }
+      case YES_NO ->
+          new MultiOptionQuestionDefinition(
+              builder.build(),
+              questionOptions,
+              MultiOptionQuestionDefinition.MultiOptionQuestionType.YES_NO);
+      case NULL_QUESTION -> throw new UnsupportedQuestionTypeException(this.questionType);
+    };
+  }
+
   @JsonIgnore
   public QuestionDisplayMode getDisplayMode() {
     return config.displayMode();
