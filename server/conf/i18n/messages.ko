@@ -616,7 +616,7 @@ link.backToTop=맨 위로 돌아가기
 button.saveAndExit=저장하고 종료
 
 # Confirmation dialog shown to admin for deleting all conditions in the predicate edit view
-confirm.deleteAllConditions=Are you sure you would like to delete all conditions?
+confirm.deleteAllConditions=정말 모든 조건을 삭제하겠습니까?
 # Confirmation dialog shown to admin for deleting a condition in the predicate edit view
 confirm.deleteSingleCondition=정말 모든 조건을 삭제하겠습니까?
 # Confirmation dialog shown to admin for leaving predicate edit without saving.
@@ -883,7 +883,7 @@ map.locationLinkText=세부 정보 더 보기
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr={0} 세부 정보 더 보기
 # Text showing the count of displayed locations, with placeholders for current count and total count
-map.locationsCount=Displaying {0} to {1} of {2} locations
+map.locationsCount={2}개 위치 중 {0}~{1} 표시
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount=최대 {1}개 중 {0}개 위치가 선택되었습니다.
 # Alt text for map region
@@ -1203,13 +1203,13 @@ content.month=월
 # Heading for the program reporting page
 reportingProgram.heading={0} 리포트
 # Info text about data delay
-reportingProgram.dataDelay=Data may be up to an hour delayed.
+reportingProgram.dataDelay=데이터가 최대 한 시간 지연될 수 있습니다.
 # Caption for the table showing submissions by month for a program
-reportingProgram.caption.submissionsByMonth=Submissions by month
+reportingProgram.caption.submissionsByMonth=월별 제출 현황
 # Column header for month
 reportingProgram.month=월
 # Column header for submissions
-reportingProgram.submissions=Submissions
+reportingProgram.submissions=제출 서류
 # Column header for 25th percentile time to complete
 reportingProgram.timeToCompleteP25=완료 시간 (p25)
 # Column header for median (50th percentile) time to complete
