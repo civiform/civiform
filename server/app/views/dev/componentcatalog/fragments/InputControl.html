@@ -6,6 +6,114 @@
 >
   <h2>Input Component</h2>
 
+  <table class="usa-table">
+    <tr>
+      <th>Parameter Name</th>
+      <th>Required</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>id</td>
+      <td>Yes</td>
+      <td>Unique identifier for the input element</td>
+    </tr>
+    <tr>
+      <td>name</td>
+      <td>Yes</td>
+      <td>The name attribute for form submission</td>
+    </tr>
+    <tr>
+      <td>label</td>
+      <td>No</td>
+      <td>The label text to display for the input</td>
+    </tr>
+    <tr>
+      <td>help-text</td>
+      <td>No</td>
+      <td>Optional help text to display</td>
+    </tr>
+    <tr>
+      <td>validation-message</td>
+      <td>No</td>
+      <td>Custom validation error message</td>
+    </tr>
+    <tr>
+      <td>value</td>
+      <td>No</td>
+      <td>The value of the input element</td>
+    </tr>
+    <tr>
+      <td>placeholder</td>
+      <td>No</td>
+      <td>Placeholder text for the input</td>
+    </tr>
+    <tr>
+      <td>type</td>
+      <td>No</td>
+      <td>Input type (defaults to "text")</td>
+    </tr>
+    <tr>
+      <td>size</td>
+      <td>No</td>
+      <td>Size of the input element (affects CSS class)</td>
+    </tr>
+    <tr>
+      <td>is-valid</td>
+      <td>No</td>
+      <td>Controls validation state (defaults to "true")</td>
+    </tr>
+    <tr>
+      <td>required</td>
+      <td>No</td>
+      <td>Makes the input required</td>
+    </tr>
+    <tr>
+      <td>validation-class</td>
+      <td>No</td>
+      <td>CSS class for validation styling</td>
+    </tr>
+    <tr>
+      <td>validation-field</td>
+      <td>No</td>
+      <td>Field name for validation</td>
+    </tr>
+    <tr>
+      <td>min</td>
+      <td>No</td>
+      <td>Minimum value for number/date inputs</td>
+    </tr>
+    <tr>
+      <td>max</td>
+      <td>No</td>
+      <td>Maximum value for number/date inputs</td>
+    </tr>
+    <tr>
+      <td>minlength</td>
+      <td>No</td>
+      <td>Minimum length for text inputs</td>
+    </tr>
+    <tr>
+      <td>maxlength</td>
+      <td>No</td>
+      <td>Maximum length for text inputs</td>
+    </tr>
+    <tr>
+      <td>pattern</td>
+      <td>No</td>
+      <td>Regular expression pattern for validation</td>
+    </tr>
+    <tr>
+      <td>readonly</td>
+      <td>No</td>
+      <td>Make the input readonly (defaults to "false")</td>
+    </tr>
+    <tr>
+      <td>disabled</td>
+      <td>No</td>
+      <td>Disable the input (defaults to "false")</td>
+    </tr>
+  </table>
+
   <!-- Sample 1: Basic Text Input -->
   <h3>Basic Text Input</h3>
   <cf:input
@@ -17,6 +125,7 @@
 
   <details>
     <summary>Code Sample</summary>
+    <div>
       <h4>Java</h4>
       <pre><code class="language-java">public class BasicTextInput {
       public String id() {
@@ -54,6 +163,7 @@
         name=&quot;firstName&quot;
         placeholder=&quot;Enter your first name&quot; /&gt;
     &lt;/div&gt;</code></pre>
+    </div>
   </details>
 
   <!-- Sample 2: Email Input with Help Text -->
@@ -68,8 +178,74 @@
     required
   />
 
+<!--  <div class="usa-accordion usa-accordion&#45;&#45;bordered usa-accordion&#45;&#45;multiselectable">-->
+<!--    <h4 class="usa-accordion__heading">-->
+<!--      <button-->
+<!--        type="button"-->
+<!--        class="usa-accordion__button"-->
+<!--        aria-expanded="false"-->
+<!--        aria-controls="b-a1"-->
+<!--      >-->
+<!--        Code Sample-->
+<!--      </button>-->
+<!--    </h4>-->
+<!--    <div id="b-a1" class="usa-accordion__content usa-prose">-->
+<!--      <p>-->
+<!--        <h5>Java</h5>-->
+<!--        <pre><code class="language-java">public class EmailInput {-->
+<!--        public String id() {-->
+<!--          return &quot;userEmail&quot;;-->
+<!--        }-->
+
+<!--        public String name() {-->
+<!--          return &quot;email&quot;;-->
+<!--        }-->
+
+<!--        public String label() {-->
+<!--          return &quot;Email Address&quot;;-->
+<!--        }-->
+
+<!--        public String type() {-->
+<!--          return &quot;email&quot;;-->
+<!--        }-->
+
+<!--        public String helpText() {-->
+<!--          return &quot;We'll never share your email with anyone else.&quot;;-->
+<!--        }-->
+
+<!--        public String placeholder() {-->
+<!--          return &quot;name@example.com&quot;;-->
+<!--        }-->
+<!--      }</code></pre>-->
+
+<!--        <h5>Thymeleaf</h5>-->
+<!--        <pre><code class="language-markup">&lt;cf:input-->
+<!--        th:id=&quot;${model.emailInput.id()}&quot;-->
+<!--        th:name=&quot;${model.emailInput.name()}&quot;-->
+<!--        th:label=&quot;${model.emailInput.label()}&quot;-->
+<!--        th:type=&quot;${model.emailInput.type()}&quot;-->
+<!--        th:help-text=&quot;${model.emailInput.helpText()}&quot;-->
+<!--        th:placeholder=&quot;${model.emailInput.placeholder()}&quot;-->
+<!--      /&gt;</code></pre>-->
+
+<!--        <h5>Rendered HTML</h5>-->
+<!--        <pre><code class="language-markup">&lt;div class=&quot;usa-form-group&quot;&gt;-->
+<!--        &lt;label class=&quot;usa-label&quot; for=&quot;userEmail&quot;&gt;Email Address&lt;/label&gt;-->
+<!--        &lt;div class=&quot;usa-hint&quot;&gt;We'll never share your email with anyone else.&lt;/div&gt;-->
+<!--        &lt;input-->
+<!--          type=&quot;email&quot;-->
+<!--          class=&quot;usa-input&quot;-->
+<!--          id=&quot;userEmail&quot;-->
+<!--          name=&quot;email&quot;-->
+<!--          placeholder=&quot;name@example.com&quot; /&gt;-->
+<!--      &lt;/div&gt;</code></pre>-->
+<!--      </p>-->
+<!--    </div>-->
+<!--  </div>-->
+
   <details>
     <summary>Code Sample</summary>
+    <div>
       <h4>Java</h4>
       <pre><code class="language-java">public class EmailInput {
       public String id() {
@@ -118,6 +294,7 @@
         name=&quot;email&quot;
         placeholder=&quot;name@example.com&quot; /&gt;
     &lt;/div&gt;</code></pre>
+    </div>
   </details>
 
   <!-- Sample 3: Password Input with Validation Error -->
