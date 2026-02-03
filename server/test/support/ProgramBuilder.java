@@ -37,7 +37,6 @@ public class ProgramBuilder {
       BlockDefinition.builder()
           .setId(1)
           .setName("Screen 1")
-          // .setNamePrefix("")
           .setDescription("Screen 1 description")
           .setLocalizedName(LocalizedStrings.withDefaultValue("Screen 1"))
           .setLocalizedDescription(LocalizedStrings.withDefaultValue("Screen 1 description"))
