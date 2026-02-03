@@ -6,6 +6,7 @@ import auth.Authorizers.Labels;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import controllers.FlashKey;
+import forms.EnumeratorQuestionForm;
 import forms.ProgramQuestionDefinitionOptionalityForm;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
@@ -139,9 +140,16 @@ public class AdminProgramBlockQuestionsController extends Controller {
       return badRequest(e.getMessage());
     }
 
+    EnumeratorQuestionForm enumeratorForm = (EnumeratorQuestionForm) questionForm;
     QuestionDefinition questionDefinition;
     try {
-      questionDefinition = questionForm.getBuilder().build();
+      questionDefinition =
+          QuestionDefinition.create(
+              questionForm.getQuestionType(),
+              questionForm.getConfigBuilder(),
+              enumeratorForm.getValidationPredicatesString(),
+              ImmutableList.of(),
+              enumeratorForm.getEntityTypeLocalizedStrings());
     } catch (UnsupportedQuestionTypeException e) {
       // Valid question type that is not yet fully supported.
       return badRequest(e.getMessage());

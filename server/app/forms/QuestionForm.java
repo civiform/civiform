@@ -2,6 +2,7 @@ package forms;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Locale;
@@ -15,8 +16,11 @@ import services.TranslationNotFoundException;
 import services.UrlUtils;
 import services.export.CsvExporterService;
 import services.question.PrimaryApplicantInfoTag;
+import services.question.QuestionOption;
+import services.question.QuestionSetting;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionDefinitionConfig;
 import services.question.types.QuestionType;
 
 /** Superclass for all forms updating a question. */
@@ -151,6 +155,10 @@ public abstract class QuestionForm {
     this.redirectUrl = checkNotNull(redirectUrl);
   }
 
+  /**
+   * @deprecated Use {@link #getConfigBuilder()} with {@link QuestionDefinition#create} instead.
+   */
+  @Deprecated
   public QuestionDefinitionBuilder getBuilder() {
     LocalizedStrings questionTextMap =
         questionText.isEmpty()
@@ -173,7 +181,89 @@ public abstract class QuestionForm {
             .setConcurrencyToken(concurrencyToken)
             .setDisplayMode(displayMode)
             .setPrimaryApplicantInfoTags(primaryApplicantInfoTags);
+
+    ImmutableList<QuestionOption> questionOptions = getQuestionOptions();
+    if (questionOptions != null && !questionOptions.isEmpty()) {
+      builder.setQuestionOptions(questionOptions);
+    }
+
+    LocalizedStrings entityType = getEntityTypeLocalizedStrings();
+    if (entityType != null) {
+      builder.setEntityType(entityType);
+    }
+
+    ImmutableSet<QuestionSetting> questionSettings = getQuestionSettings();
+    if (questionSettings != null && !questionSettings.isEmpty()) {
+      builder.setQuestionSettings(questionSettings);
+    }
+
+    QuestionDefinition.ValidationPredicates predicates = getValidationPredicates();
+    if (predicates != null) {
+      builder.setValidationPredicates(predicates);
+    }
+
     return builder;
+  }
+
+  public QuestionDefinitionConfig.Builder getConfigBuilder() {
+    LocalizedStrings questionTextMap =
+        questionText.isEmpty()
+            ? LocalizedStrings.of()
+            : LocalizedStrings.of(Locale.US, questionText);
+    LocalizedStrings questionHelpTextMap =
+        questionHelpText.isEmpty()
+            ? LocalizedStrings.empty()
+            : LocalizedStrings.of(Locale.US, questionHelpText);
+
+    QuestionDefinitionConfig.Builder configBuilder =
+        QuestionDefinitionConfig.builder()
+            .setName(questionName)
+            .setDescription(questionDescription)
+            .setQuestionText(questionTextMap)
+            .setEnumeratorId(enumeratorId)
+            .setQuestionHelpText(questionHelpTextMap)
+            .setUniversal(isUniversal)
+            .setConcurrencyToken(concurrencyToken)
+            .setDisplayMode(displayMode)
+            .setPrimaryApplicantInfoTags(primaryApplicantInfoTags);
+
+    ImmutableSet<QuestionSetting> questionSettings = getQuestionSettings();
+    if (questionSettings != null && !questionSettings.isEmpty()) {
+      configBuilder.setQuestionSettings(questionSettings);
+    }
+
+    QuestionDefinition.ValidationPredicates predicates = getValidationPredicates();
+    if (predicates != null) {
+      configBuilder.setValidationPredicates(predicates);
+    }
+
+    return configBuilder;
+  }
+
+  /** Returns the validation predicates. Subclasses should override if they have validation. */
+  public QuestionDefinition.ValidationPredicates getValidationPredicates() {
+    return null;
+  }
+
+  /** Returns the validation predicates as a serialized string. */
+  public String getValidationPredicatesString() {
+    QuestionDefinition.ValidationPredicates predicates = getValidationPredicates();
+    return predicates == null ? "" : predicates.serializeAsString();
+  }
+
+  /** Returns the question options. Subclasses should override for multi-option questions. */
+  public ImmutableList<QuestionOption> getQuestionOptions() {
+    return ImmutableList.of();
+  }
+
+  /** Returns the entity type. Subclasses should override for enumerator questions. */
+  public LocalizedStrings getEntityTypeLocalizedStrings() {
+    return null;
+  }
+
+  /** Returns the question settings. Subclasses should override if they have settings. */
+  public ImmutableSet<QuestionSetting> getQuestionSettings() {
+    return null;
   }
 
   public final void setQuestionExportState(String questionExportState) {

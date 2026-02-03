@@ -212,7 +212,13 @@ public final class AdminQuestionController extends CiviFormController {
 
     QuestionDefinition questionDefinition;
     try {
-      questionDefinition = questionForm.getBuilder().build();
+      questionDefinition =
+          QuestionDefinition.create(
+              questionForm.getQuestionType(),
+              questionForm.getConfigBuilder(),
+              questionForm.getValidationPredicatesString(),
+              questionForm.getQuestionOptions(),
+              questionForm.getEntityTypeLocalizedStrings());
     } catch (UnsupportedQuestionTypeException e) {
       // Valid question type that is not yet fully supported.
       return badRequest(e.getMessage());
