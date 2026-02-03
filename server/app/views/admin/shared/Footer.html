@@ -1,0 +1,53 @@
+<!--/*@thymesVar id="footer" type="views.admin.shared.Footer"*/-->
+<th:block>
+  <footer class="usa-footer">
+    <div class="grid-container usa-footer__return-to-top">
+      <a href="#">Return to top</a>
+    </div>
+    <div class="usa-footer__primary-section">
+      <nav class="usa-footer__nav" aria-label="Footer navigation">
+        <ul class="grid-row grid-gap">
+          <li
+            class="mobile-lg:grid-col-4 desktop:grid-col-auto usa-footer__primary-content"
+          >
+            <a
+              class="usa-footer__primary-link"
+              th:href="${footer.adminLoginUrl()}"
+              >Admin login</a
+            >
+          </li>
+          <li
+            class="mobile-lg:grid-col-4 desktop:grid-col-auto usa-footer__primary-content"
+          >
+            <a
+              class="usa-footer__primary-link display-inline-blockasdf"
+              th:text="'For technical support email ' + ${footer.technicalSupportEmail()}"
+              th:href="'mailto:' + ${footer.technicalSupportEmail()}"
+              th:aria-label="'For technical support email ' + ${footer.technicalSupportEmail()}"
+            ></a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+    <div class="usa-footer__secondary-section">
+      <div class="grid-container">
+        <div class="grid-row grid-gap">
+          <div
+            class="usa-footer__logo grid-row mobile-lg:grid-col-6 mobile-lg:grid-gap-2"
+          >
+            <div class="mobile-lg:grid-col-auto">
+              <img
+                class="usa-footer__logo-img"
+                src="/assets/Images/civiform-logo.png"
+                alt="PLACEHOLDER IMAGE"
+              />
+            </div>
+            <div class="mobile-lg:grid-col-auto">
+              <p class="usa-footer__logo-heading">CiviForm</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+</th:block>

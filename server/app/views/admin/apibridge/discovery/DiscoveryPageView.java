@@ -7,10 +7,10 @@ import org.thymeleaf.TemplateEngine;
 import services.BundledAssetsFinder;
 import services.settings.SettingsManifest;
 import views.admin.AdminLayout;
-import views.admin.AdminLayoutBaseView;
+import views.admin.TransitionalLayoutBaseView;
 
 /** View setup for rendering the DiscoveryPage.html */
-public class DiscoveryPageView extends AdminLayoutBaseView<DiscoveryPageViewModel> {
+public class DiscoveryPageView extends TransitionalLayoutBaseView<DiscoveryPageViewModel> {
 
   @Inject
   public DiscoveryPageView(
