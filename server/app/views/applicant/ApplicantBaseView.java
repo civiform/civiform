@@ -68,6 +68,8 @@ public abstract class ApplicantBaseView {
     context.setVariable("addNoIndexMetaTag", settingsManifest.getStagingAddNoindexMetaTag());
     context.setVariable("favicon", settingsManifest.getFaviconUrl().orElse(""));
     context.setVariable("mapQuestionEnabled", settingsManifest.getMapQuestionEnabled(request));
+    context.setVariable(
+        "dataSecurityBannerEnabled", settingsManifest.getDataSecurityBannerEnabled(request));
 
     context.setVariable("useBundlerDevServer", bundledAssetsFinder.useBundlerDevServer());
     context.setVariable("viteClientUrl", bundledAssetsFinder.viteClientUrl());

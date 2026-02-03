@@ -1,3 +1,4 @@
+<!--/*@thymesVar id="dataSecurityBannerEnabled" type="boolean"*/-->
 <th:block th:fragment="pageHeader">
   <div class="sticky top-0 z-50" th:if="${showNotProductionBannerEnabled}">
     <div
@@ -8,6 +9,10 @@
     <div th:replace="~{this :: officialGovermentWebsiteBanner}"></div>
   </div>
   <div class="usa-overlay"></div>
+  <div
+    th:replace="~{this :: dataSecurityBanner}"
+    th:if="${dataSecurityBannerEnabled}"
+  ></div>
   <header class="usa-header usa-header--basic" role="banner">
     <div class="usa-nav-container">
       <div class="usa-navbar width-full">
@@ -199,6 +204,29 @@
           th:if="${sessionReplayProtectionEnabled}"
           class="usa-alert__text"
           th:utext="#{banner.guestBannerText(${endSessionLinkHtml})} + ' ' + ${sessionReplayBanner}"
+        ></p>
+      </div>
+    </div>
+  </div>
+</section>
+<section
+  th:fragment="dataSecurityBanner"
+  th:if="${dataSecurityBannerEnabled}"
+  role="region"
+  th:aria-label="#{label.dataSecurityBannerAlert}"
+>
+  <div
+    class="usa-site-alert usa-site-alert--emergency usa-site-alert--slim cf-alert"
+  >
+    <div class="usa-alert">
+      <div class="usa-alert__body">
+        <p
+          class="usa-sr-only"
+          th:utext="#{heading.informationAriaLabelPrefix('')}"
+        ></p>
+        <p
+          class="usa-alert__text"
+          th:utext="#{banner.dataSecurityAlertText}"
         ></p>
       </div>
     </div>
