@@ -348,6 +348,15 @@ export class AdminPredicateEdit {
       return
     }
 
+    // Don't steal focus from other elements that are marked for autofocus.
+    const focusedElement: HTMLElement | null = document.querySelector(
+      '[data-should-autofocus="true"]',
+    )
+    if (focusedElement !== null) {
+      return
+    }
+
+    // Focus the first dropdown in the root node operator select.
     const visibilityBehaviorDropdown: HTMLSelectElement | null =
       nodeOperatorSelect.querySelector('#visibility-predicate-action-select')
     const logicDropdown: HTMLSelectElement = assertNotNull(
@@ -355,9 +364,9 @@ export class AdminPredicateEdit {
     ) as HTMLSelectElement
 
     if (visibilityBehaviorDropdown) {
-      visibilityBehaviorDropdown.focus()
+      setTimeout(() => visibilityBehaviorDropdown.focus(), 100)
     } else {
-      logicDropdown.focus()
+      setTimeout(() => logicDropdown.focus(), 100)
     }
   }
 
@@ -388,7 +397,7 @@ export class AdminPredicateEdit {
       // Focus the "Add condition" button in the null state.
       const addConditionButton = document.getElementById('add-condition-button')
       if (addConditionButton) {
-        addConditionButton.focus()
+        setTimeout(() => addConditionButton.focus(), 100)
       }
       return
     }
@@ -454,7 +463,7 @@ export class AdminPredicateEdit {
     const invalidSubconditionInputs: NodeListOf<HTMLElement> =
       document.querySelectorAll('[aria-invalid="true"]')
     if (invalidSubconditionInputs.length > 0) {
-      invalidSubconditionInputs[0].focus()
+      setTimeout(() => invalidSubconditionInputs[0].focus(), 100)
       return
     }
 
@@ -463,10 +472,17 @@ export class AdminPredicateEdit {
       document.querySelector(
         '.cf-predicate-question-select[data-should-autofocus="true"]',
       )
+    const focusedLogicDropdown: HTMLElement | null = document.querySelector(
+      '.cf-subcondition-logic-select[data-should-autofocus="true"]',
+    )
 
-    // If no subcondition is focused, focus the root node operator select by default
+    // If no subcondition is focused, focus the nearest operator select by default
     if (focusedSubconditionQuestion === null) {
-      AdminPredicateEdit.focusRootNodeOperatorSelect()
+      if (focusedLogicDropdown !== null) {
+        setTimeout(() => focusedLogicDropdown.focus(), 100)
+      } else {
+        AdminPredicateEdit.focusRootNodeOperatorSelect()
+      }
       return
     }
 
