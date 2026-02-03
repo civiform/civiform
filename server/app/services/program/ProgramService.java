@@ -2150,22 +2150,23 @@ public final class ProgramService {
             ? String.format("Screen %d (repeated from %d)", blockId, maybeEnumeratorBlockId.get())
             : String.format("Screen %d", blockId);
     String blockDescription = String.format("Screen %d description", blockId);
-    String namePrefix = "";
+    Optional<String> namePrefix = Optional.empty();
     if (maybeEnumeratorBlockId.isPresent() && enumeratorImprovementsEnabled) {
       namePrefix =
-          isNested
-              ? String.format(
-                  "[%s] - [%s] - ",
-                  messages.at(MessageKey.TEXT_REPEATED_SET_PREFIX.getKeyName()),
-                  messages.at(MessageKey.TEXT_REPEATED_SET_NESTED_PREFIX.getKeyName()))
-              : String.format(
-                  "[%s] - ", messages.at(MessageKey.TEXT_REPEATED_SET_PREFIX.getKeyName()));
+          Optional.of(
+              isNested
+                  ? String.format(
+                      "[%s] - [%s] - ",
+                      messages.at(MessageKey.TEXT_REPEATED_SET_PREFIX.getKeyName()),
+                      messages.at(MessageKey.TEXT_REPEATED_SET_NESTED_PREFIX.getKeyName()))
+                  : String.format(
+                      "[%s] - ", messages.at(MessageKey.TEXT_REPEATED_SET_PREFIX.getKeyName())));
     }
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
             .setId(blockId)
             .setName(blockName)
-            .setNamePrefix(Optional.of(namePrefix))
+            .setNamePrefix(namePrefix)
             .setDescription(blockDescription)
             .setLocalizedName(LocalizedStrings.withDefaultValue(blockName))
             .setLocalizedDescription(LocalizedStrings.withDefaultValue(blockDescription))
