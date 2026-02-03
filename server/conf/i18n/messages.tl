@@ -1176,13 +1176,13 @@ text.repeatedSet.nestedPrefix=anak na label
 #------------------------------------------------------------------------------#
 
 # Caption for the table showing submissions by program
-caption.submissionsByProgram=Submissions by program (all programs)
+caption.submissionsByProgram=Mga isinumite ayon sa programa (lahat ng programa)
 # Column header for program name
-content.program=Program
+content.program=Programa
 # Column header for number of submissions
-content.submissions=Submissions
+content.submissions=Mga isinumite
 # Column header for 25th percentile time to complete
-content.timeToCompleteP25=Time to complete (p25)
+content.timeToCompleteP25=Oras upang kumpletuhin (p25)
 # Column header for median (50th percentile) time to complete
 content.medianTimeToComplete=Median na oras upang kumpletuhin
 # Column header for 75th percentile time to complete
@@ -1192,7 +1192,7 @@ content.timeToCompleteP99=Oras upang kumpletuhin (p99)
 # Text on button to download CSV file
 button.downloadCsv=I-download ang CSV
 # Caption for the table showing submissions by month
-caption.submissionsByMonth=Submissions by month (all programs)
+caption.submissionsByMonth=Mga isinumite ayon sa buwan (lahat ng programa)
 # Column header for month
 content.month=Buwan
 
@@ -1205,7 +1205,7 @@ reportingProgram.heading={0} (na) nag-uulat
 # Info text about data delay
 reportingProgram.dataDelay=Ang datos ay maaaring hanggang isang oras na maantala.
 # Caption for the table showing submissions by month for a program
-reportingProgram.caption.submissionsByMonth=Submissions by month
+reportingProgram.caption.submissionsByMonth=Mga isinumite ayon sa buwan
 # Column header for month
 reportingProgram.month=Buwan
 # Column header for submissions
