@@ -900,6 +900,50 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
+    test('Enumerator block name edit retains prefix', async ({
+      page,
+      adminPrograms,
+    }) => {
+      await test.step('Go to the program block edit page', async () => {
+        await adminPrograms.gotoEditDraftProgramPage('Enumerator test program')
+      })
+
+      await test.step('Add a new repeated set', async () => {
+        await page.getByRole('button', {name: 'Add screen'}).first().click()
+        await page.getByRole('button', {name: 'Add repeated set'}).click()
+        await waitForPageJsLoad(page)
+      })
+
+      await test.step('Navigate to repeated screen', async () => {
+        await page
+          .getByRole('link', {
+            name: '[parent label] - Screen 3 (repeated from 2)',
+          })
+          .click()
+      })
+
+      await test.step('check for correct enumerator description and uneditable prefix', async () => {
+        await page
+          .getByRole('button', {name: 'Edit screen name and description'})
+          .click()
+        const modalDescription = page
+          .locator('.cf-modal:not(.hidden)')
+          .first()
+          .filter({
+            hasText:
+              'To give the applicant context, we will display the applicant-defined label(s) for the listed entity they are answering questions for on this screen',
+          })
+        const modalPrefix = page
+          .locator('.cf-modal:not(.hidden)')
+          .first()
+          .filter({
+            hasText: '[parent label] -',
+          })
+        await expect(modalDescription).toBeVisible()
+        await expect(modalPrefix).toBeVisible()
+      })
+    })
+
     async function fillOutEnumeratorQuestionFormCorrectly(page: Page) {
       const blockPanel = page.getByTestId('block-panel-edit')
 
