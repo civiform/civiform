@@ -38,9 +38,9 @@ public final class ButtonElementTagModelProcessor extends AbstractElementModelPr
         TemplateMode.HTML,
         dialectPrefix, // Prefix for <cf:button>
         TAG_NAME,
-        true, // Apply to tag name
-        null,
-        false,
+        /* prefixElementName= */ true, // Apply to tag name
+        /* attributeName= */ null,
+        /* prefixAttributeName= */ false,
         PRECEDENCE);
   }
 
@@ -115,7 +115,9 @@ public final class ButtonElementTagModelProcessor extends AbstractElementModelPr
     buttonAttrs.putAll(getDataAndAriaAttributes(elementSettings.attributeMap()));
 
     // Add opening button tag
-    targetModel.add(modelFactory.createOpenElementTag("button", buttonAttrs, null, false));
+    targetModel.add(
+        modelFactory.createOpenElementTag(
+            "button", buttonAttrs, /* attributeValueQuotes= */ null, /* synthetic= */ false));
 
     // Add text content, otherwise pass through child elements from the source to the new target
     if (isNotBlank(elementSettings.text().value())) {

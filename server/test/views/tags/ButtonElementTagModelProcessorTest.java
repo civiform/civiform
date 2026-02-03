@@ -279,7 +279,7 @@ public class ButtonElementTagModelProcessorTest extends BaseElementTagModelProce
             th:size="${model.size()}"
             th:text="${model.text()}" />
         """,
-        IllegalStateException.class);
+        IllegalArgumentException.class);
   }
 
   @Test
@@ -291,7 +291,7 @@ public class ButtonElementTagModelProcessorTest extends BaseElementTagModelProce
             th:variant="${model.variant()}"
             th:text="${model.text()}" />
         """,
-        IllegalStateException.class);
+        IllegalArgumentException.class);
   }
 
   @Test
@@ -303,6 +303,6 @@ public class ButtonElementTagModelProcessorTest extends BaseElementTagModelProce
             th:type="${model.type()}"
             th:text="${model.text()}" />
         """,
-        IllegalStateException.class);
+        IllegalArgumentException.class);
   }
 }

@@ -56,6 +56,7 @@ public final class ButtonFormSettings {
     this.attributeMap = attributeMap;
   }
 
+  /** Return variant css class or empty string */
   public String getVariantCssClass() {
     if (ALLOWED_VARIANTS.contains(variant().value())) {
       return "usa-button--%s".formatted(variant().value());
@@ -64,6 +65,7 @@ public final class ButtonFormSettings {
     return "";
   }
 
+  /** Return size css class or empty string */
   public String getSizeCssClass() {
     if (size().value().equalsIgnoreCase("big")) {
       return "usa-button--big";
@@ -72,6 +74,7 @@ public final class ButtonFormSettings {
     return "";
   }
 
+  /** Return inverse css class or empty string */
   public String getInverseCssClass() {
     if (inverse().valueAsBoolean()) {
       return "usa-button--inverse";
@@ -81,7 +84,7 @@ public final class ButtonFormSettings {
   }
 
   /**
-   * Verify that all the supplied settings are correct.
+   * Verify that all the supplied settings are correct, throwing an exception if not.
    *
    * @param thymeleafTemplateSupplier the HTML of the unprocessed thymeleaf template
    */
@@ -119,7 +122,7 @@ public final class ButtonFormSettings {
         sb.append(thymeleafTemplate);
       }
 
-      throw new IllegalStateException(sb.toString());
+      throw new IllegalArgumentException(sb.toString());
     }
   }
 }
