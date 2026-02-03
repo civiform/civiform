@@ -56,8 +56,8 @@ public class FileController extends CiviFormController {
               String decodedFileKey = URLDecoder.decode(fileKey, StandardCharsets.UTF_8);
               // Ensure the file being accessed belongs to the applicant.
               // The key is generated when the applicant first uploaded the file.
-              if (!ApplicantFileNameFormatter.isApplicantOwnedFileKey(decodedFileKey,
-                applicantId)) {
+              if (!ApplicantFileNameFormatter.isApplicantOwnedFileKey(
+                  decodedFileKey, applicantId)) {
                 return notFound();
               }
 
