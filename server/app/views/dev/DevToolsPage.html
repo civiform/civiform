@@ -1,0 +1,156 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.dev.DevToolsPageViewModel"*/-->
+<th:block th:fragment="content">
+  <div class="usa-section">
+    <!-- Home Section -->
+    <div class="grid-row grid-gap">
+      <div class="grid-col-12">
+        <a class="usa-button usa-button--outline" th:href="${model.homeUrl}"
+          >🏠 Home page</a
+        >
+      </div>
+    </div>
+
+    <!-- Seed Section -->
+    <div class="grid-row grid-gap margin-top-4">
+      <div class="grid-col-12 usa-prose border border-base-lighter padding-3">
+        <h2 class="usa-heading-lg">Seed</h2>
+        <p>Populate or clear sample data</p>
+        <form
+          th:action="${model.seedProgramsUrl}"
+          method="post"
+          class="margin-bottom-2"
+        >
+          <button class="usa-button" type="submit">
+            Seed sample programs and categories
+          </button>
+        </form>
+        <form
+          th:action="${model.seedQuestionsUrl}"
+          method="post"
+          class="margin-bottom-2"
+        >
+          <button class="usa-button" type="submit">
+            Seed sample questions
+          </button>
+        </form>
+        <form
+          th:action="${model.clearUrl}"
+          method="post"
+          class="margin-bottom-2"
+        >
+          <button
+            class="usa-button usa-button--secondary bg-red-60"
+            type="submit"
+          >
+            Clear entire database (irreversible!)
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Caching Section -->
+    <div class="grid-row grid-gap margin-top-4">
+      <div class="grid-col-12 usa-prose border border-base-lighter padding-3">
+        <h2 class="usa-heading-lg">Caching</h2>
+        <p>Manage or clear cache</p>
+        <form th:action="${model.clearCacheUrl}" method="post">
+          <input type="hidden" name="csrfToken" th:value="${model.csrfToken}" />
+          <button class="usa-button" type="submit">💵 Clear cache</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Durable Jobs Section -->
+    <div class="grid-row grid-gap margin-top-4">
+      <div class="grid-col-12 usa-prose border border-base-lighter padding-3">
+        <h2 class="usa-heading-lg">Durable Jobs</h2>
+        <p>Manually run the selected job</p>
+        <form th:action="${model.runDurableJobUrl}" method="post">
+          <input type="hidden" name="csrfToken" th:value="${model.csrfToken}" />
+          <label for="durable-job-select">Choose job to run once</label>
+          <select
+            id="durable-job-select"
+            name="durableJobSelect"
+            class="usa-select"
+          >
+            <option
+              th:each="option : ${model.durableJobOptions}"
+              th:value="${option.value}"
+              th:text="${option.label}"
+            ></option>
+          </select>
+          <button class="usa-button margin-top-1" type="submit">Run job</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Icons Section -->
+    <div class="grid-row grid-gap margin-top-4">
+      <div class="grid-col-12 usa-prose border border-base-lighter padding-3">
+        <h2 class="usa-heading-lg">Icons</h2>
+        <p>See all the svg icons in CiviForm</p>
+        <a class="usa-button usa-button--outline" th:href="${model.iconsUrl}"
+          >View All SVG Icons</a
+        >
+      </div>
+    </div>
+
+    <!-- Email/Localstack Section (Dev only) -->
+    <div th:if="${model.isDev}" class="grid-row grid-gap margin-top-4">
+      <div class="grid-col-12 usa-prose border border-base-lighter padding-3">
+        <h2 class="usa-heading-lg">Localstack</h2>
+        <p>Open S3 or SES endpoints on localstack</p>
+        <a
+          class="usa-button usa-button--outline margin-right-1"
+          href="http://localhost.localstack.cloud:4566/_aws/ses/"
+          target="_blank"
+          >✉️ View SES Emails</a
+        >
+        <a
+          class="usa-button usa-button--outline margin-right-1"
+          href="http://civiform-local-s3.localhost.localstack.cloud:4566/civiform-local-s3"
+          target="_blank"
+          >📁 S3 Private Bucket</a
+        >
+        <a
+          class="usa-button usa-button--outline"
+          href="http://civiform-local-s3.localhost.localstack.cloud:4566/civiform-local-s3-public"
+          target="_blank"
+          >📁 S3 Public Bucket</a
+        >
+      </div>
+    </div>
+
+    <!-- Address Tools Section -->
+    <div class="grid-row grid-gap margin-top-4">
+      <div class="grid-col-12 usa-prose border border-base-lighter padding-3">
+        <h2 class="usa-heading-lg">Address Tools</h2>
+        <p>View address lookup and eligibility results</p>
+        <a
+          class="usa-button usa-button--outline"
+          th:href="${model.addressToolsUrl}"
+          >🗺️ Go to address tools</a
+        >
+      </div>
+    </div>
+
+    <!-- Session Tools Section -->
+    <div class="grid-row grid-gap margin-top-4">
+      <div class="grid-col-12 usa-prose border border-base-lighter padding-3">
+        <h2 class="usa-heading-lg">Session Tools</h2>
+        <p>Inspect the current session</p>
+        <a
+          class="usa-button usa-button--outline margin-right-1"
+          th:href="${model.sessionProfileUrl}"
+          >👤 View current pac4j profile</a
+        >
+        <a
+          class="usa-button usa-button--outline"
+          th:href="${model.sessionDisplayUrl}"
+          >📜 View current Play session</a
+        >
+      </div>
+    </div>
+  </div>
+</th:block>

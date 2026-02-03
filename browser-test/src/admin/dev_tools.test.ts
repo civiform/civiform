@@ -45,4 +45,12 @@ test.describe('developer tools', () => {
       expect(await page.innerText('h1')).not.toContain('Dev tools')
     })
   })
+
+  test('dev tools page loads', async ({page}) => {
+    await enableFeatureFlag(page, 'ADMIN_UI_MIGRATION_SC_ENABLED')
+    await page.goto('/dev/seed')
+    await validateScreenshot(page, 'dev-tools-page-migrated')
+    await validateAccessibility(page)
+    await disableFeatureFlag(page, 'ADMIN_UI_MIGRATION_SC_ENABLED')
+  })
 })
