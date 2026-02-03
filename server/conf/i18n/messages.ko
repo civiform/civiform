@@ -1167,7 +1167,7 @@ text.repeatedSet=
 # Text letting admins know which block represents the group of screens for nested repeating questions
 text.nestedRepeatedSet=
 # An uneditable prefix for the enumerator screen name representing the repeated object that will be enumerated
-text.repeatedSet.prefix=parent label
+text.repeatedSet.prefix=상위 라벨
 # An uneditable prefix for the enumerator screen name representing the nested repeated object that will be enumerated
 text.repeatedSet.nestedPrefix=하위 라벨
 
@@ -1211,9 +1211,9 @@ reportingProgram.month=월
 # Column header for submissions
 reportingProgram.submissions=Submissions
 # Column header for 25th percentile time to complete
-reportingProgram.timeToCompleteP25=Time to complete (p25)
+reportingProgram.timeToCompleteP25=완료 시간 (p25)
 # Column header for median (50th percentile) time to complete
-reportingProgram.medianTimeToComplete=Median time to complete
+reportingProgram.medianTimeToComplete=완료 소요 시간(중간값)
 # Column header for 75th percentile time to complete
 reportingProgram.timeToCompleteP75=완료 시간 (p75)
 # Column header for 99th percentile time to complete
