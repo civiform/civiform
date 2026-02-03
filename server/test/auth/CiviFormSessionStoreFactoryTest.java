@@ -20,6 +20,9 @@ import play.mvc.Http.Request;
 
 public class CiviFormSessionStoreFactoryTest {
 
+  private static final String SECRET1 = "secret-one";
+  private static final String SECRET2 = "secret-two";
+
   private static PlayWebContext newContextWithSessionFrom(PlayWebContext source) {
     Request requestWithSession = source.supplementRequest(fakeRequestBuilder().build());
     return new PlayWebContext(requestWithSession);
@@ -31,34 +34,32 @@ public class CiviFormSessionStoreFactoryTest {
 
   @Test
   public void deriveAes128Key_generatesConsistentKeysWithSameSecret() throws Exception {
-    String secret = "consistent-secret-key";
-    byte[] key1 = CiviFormSessionStoreFactory.deriveAes128Key(secret);
-    byte[] key2 = CiviFormSessionStoreFactory.deriveAes128Key(secret);
+    byte[] key1 = CiviFormSessionStoreFactory.deriveAes128Key(SECRET1);
+    byte[] key2 = CiviFormSessionStoreFactory.deriveAes128Key(SECRET1);
 
     assertThat(key1).isEqualTo(key2);
   }
 
   @Test
   public void deriveAes128Key_generatesDifferentKeysWithDifferentSecrets() throws Exception {
-    byte[] key1 = CiviFormSessionStoreFactory.deriveAes128Key("secret-one");
-    byte[] key2 = CiviFormSessionStoreFactory.deriveAes128Key("secret-two");
+    byte[] key1 = CiviFormSessionStoreFactory.deriveAes128Key(SECRET1);
+    byte[] key2 = CiviFormSessionStoreFactory.deriveAes128Key(SECRET2);
 
     assertThat(key1).isNotEqualTo(key2);
   }
 
   @Test
   public void deriveLegacyKey_generatesConsistentKeysWithSameSecret() throws Exception {
-    String secret = "consistent-secret-key";
-    byte[] key1 = CiviFormSessionStoreFactory.deriveLegacyAesKey(secret);
-    byte[] key2 = CiviFormSessionStoreFactory.deriveLegacyAesKey(secret);
+    byte[] key1 = CiviFormSessionStoreFactory.deriveLegacyAesKey(SECRET1);
+    byte[] key2 = CiviFormSessionStoreFactory.deriveLegacyAesKey(SECRET1);
 
     assertThat(key1).isEqualTo(key2);
   }
 
   @Test
   public void deriveLegacyKey_generatesDifferentKeysWithDifferentSecrets() throws Exception {
-    byte[] key1 = CiviFormSessionStoreFactory.deriveLegacyAesKey("secret-one");
-    byte[] key2 = CiviFormSessionStoreFactory.deriveLegacyAesKey("secret-two");
+    byte[] key1 = CiviFormSessionStoreFactory.deriveLegacyAesKey(SECRET1);
+    byte[] key2 = CiviFormSessionStoreFactory.deriveLegacyAesKey(SECRET2);
 
     assertThat(key1).isNotEqualTo(key2);
   }
@@ -83,7 +84,7 @@ public class CiviFormSessionStoreFactoryTest {
 
   @Test
   public void newSessionStore_calledMultipleTimes_returnsNewInstances() {
-    Config config = createConfig("test-secret");
+    Config config = createConfig(SECRET1);
     CiviFormSessionStoreFactory factory = new CiviFormSessionStoreFactory(config);
 
     var store1 = factory.newSessionStore();
@@ -98,9 +99,8 @@ public class CiviFormSessionStoreFactoryTest {
 
   @Test
   public void sessionStore_cookieRoundTrip_sameSecret_canReadSession() {
-    String secret = "shared-secret";
-    CiviFormSessionStoreFactory factory1 = new CiviFormSessionStoreFactory(createConfig(secret));
-    CiviFormSessionStoreFactory factory2 = new CiviFormSessionStoreFactory(createConfig(secret));
+    CiviFormSessionStoreFactory factory1 = new CiviFormSessionStoreFactory(createConfig(SECRET1));
+    CiviFormSessionStoreFactory factory2 = new CiviFormSessionStoreFactory(createConfig(SECRET1));
 
     SessionStore store1 = factory1.newSessionStore();
     SessionStore store2 = factory2.newSessionStore();
@@ -110,15 +110,13 @@ public class CiviFormSessionStoreFactoryTest {
 
     PlayWebContext context2 = newContextWithSessionFrom(context1);
 
-    assertThat(store2.get(context2, "test-key")).contains("test-value");
+    assertThat(store2.get(context2, "test-key").get()).isEqualTo("test-value");
   }
 
   @Test
   public void sessionStore_cookieRoundTrip_differentSecret_rejectsSession() {
-    CiviFormSessionStoreFactory factory1 =
-        new CiviFormSessionStoreFactory(createConfig("secret-one"));
-    CiviFormSessionStoreFactory factory2 =
-        new CiviFormSessionStoreFactory(createConfig("secret-two"));
+    CiviFormSessionStoreFactory factory1 = new CiviFormSessionStoreFactory(createConfig(SECRET1));
+    CiviFormSessionStoreFactory factory2 = new CiviFormSessionStoreFactory(createConfig(SECRET2));
 
     SessionStore store1 = factory1.newSessionStore();
     SessionStore store2 = factory2.newSessionStore();
@@ -133,10 +131,9 @@ public class CiviFormSessionStoreFactoryTest {
 
   @Test
   public void sessionStore_cookieRoundTrip_legacyEncrypted_fallsBackToLegacyDecrypter() {
-    String secret = "legacy-secret";
-    CiviFormSessionStoreFactory factory = new CiviFormSessionStoreFactory(createConfig(secret));
+    CiviFormSessionStoreFactory factory = new CiviFormSessionStoreFactory(createConfig(SECRET1));
 
-    byte[] legacyKey = CiviFormSessionStoreFactory.deriveLegacyAesKey(secret);
+    byte[] legacyKey = CiviFormSessionStoreFactory.deriveLegacyAesKey(SECRET1);
 
     // Mimic what the old Shiro-based session store would have done to create
     // the cookie value.
@@ -156,6 +153,6 @@ public class CiviFormSessionStoreFactoryTest {
 
     SessionStore store = factory.newSessionStore();
 
-    assertThat(store.get(context, "test-key")).contains("test-value");
+    assertThat(store.get(context, "test-key").get()).isEqualTo("test-value");
   }
 }
