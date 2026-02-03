@@ -13,8 +13,8 @@ https://designsystem.digital.gov/utilities/.
   font and image urls to be relative to the Sass entrypoint. For us, that's
   app/assets/stylesheets/uswds/styles.scss. The fonts and images are still
   in the uswds directory under node_modules. So, we specify the correct paths here.
-   */
-  $theme-font-path: '../../../../node_modules/@uswds/uswds/dist/fonts',
+  */
+    $theme-font-path: '../../../../node_modules/@uswds/uswds/dist/fonts',
   $theme-image-path: '../../../../node_modules/@uswds/uswds/dist/img',
   // We set the background to a dark color so that the banner uses the dark theme,
   // but we override the background color with Tailwind "bg-gray-900" when we
@@ -29,10 +29,20 @@ https://designsystem.digital.gov/utilities/.
   $flex-direction-settings: (responsive: true),
   $align-self-settings: (responsive: true),
   $justify-content-settings: (responsive: true),
+  $max-width-settings: (responsive: true),
   $theme-utility-breakpoints-custom: ('none-width': 0px),
   $theme-breadcrumb-min-width: 'none-width',
   // Hide build notifications (the long changelog gets printed)
   $theme-show-notifications: false,
+  $background-color-palettes: ('palette-color-system-gray'),
+  // $theme-body-background-color: 'gray-3',
+  $theme-utility-breakpoints: (
+      'mobile-lg': true,
+      'tablet': true,
+      'desktop': true,
+      // desktop-lg is not default
+      'desktop-lg': true
+    ),
 
   // Disables mobile menu entirely as the admin area is not mobile friendly and
   // we don't want it to be collapsing into a vertical menu. Making the min width mobile

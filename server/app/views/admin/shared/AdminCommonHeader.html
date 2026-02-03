@@ -1,254 +1,103 @@
 <!--/*@thymesVar id="adminCommonHeader" type="views.admin.shared.AdminCommonHeader"*/-->
 <th:block xmlns:cf="https://civiform.us/2024/html/icon">
-  <header class="z-100">
-    <nav class="position-fixed width-full shadow-1">
-      <section
-        class="usa-banner cf-admin-heading-background-color"
-        aria-label="This is an official government website."
-      >
-        <div class="usa-accordion">
-          <header class="usa-banner__header">
-            <div class="usa-banner__inner margin-left-0 padding-left-2">
-              <div
-                class="grid-col-fill tablet:grid-col-auto"
-                aria-hidden="true"
-              >
-                <p class="usa-banner__header-text">
-                  This is an official government website.
-                </p>
-                <p class="usa-banner__header-action">Here's how you know</p>
-              </div>
-              <button
-                type="button"
-                class="usa-accordion__button usa-banner__button padding-0 p-0 bg-transparent"
-                aria-expanded="false"
-                aria-controls="gov-banner-default-default"
-              >
-                <span class="usa-banner__button-text text-bold text-white"
-                  >Here's how you know</span
-                >
-              </button>
-            </div>
-          </header>
-          <div
-            class="usa-banner__content usa-accordion__content padding-left-2 margin-left-0"
-            id="gov-banner-default-default"
-            hidden=""
-          >
-            <div class="grid-row grid-gap-lg">
-              <div class="usa-banner__guidance tablet:grid-col-6">
-                <cf:icon
-                  class="usa-banner__icon usa-media-block__img"
-                  type="icon-dot-gov"
-                />
-                <div class="usa-media-block__body">
-                  <p>
-                    <strong>Official websites use .gov</strong><br /><span
-                      >Website addresses ending in .gov belong to official
-                      government organizations in the United States.</span
-                    >
-                  </p>
-                </div>
-              </div>
-              <div class="usa-banner__guidance tablet:grid-col-6">
-                <cf:icon
-                  class="usa-banner__icon usa-media-block__img"
-                  type="icon-https"
-                />
-                <div class="usa-media-block__body">
-                  <p>
-                    <strong>Secure .gov websites use HTTPS</strong><br />
-                    A lock (
-                    <span class="icon-lock"
-                      ><svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="currentColor"
-                        stroke="currentColor"
-                        stroke-width="1%"
-                        aria-hidden="true"
-                        viewBox="0 0 52 64"
-                        class="inline align-baseline usa-banner__lock-image"
-                        role="img"
-                        aria-label="Locked padlock icon"
-                        focusable="false"
-                      >
-                        <path
-                          d="M26 0c10.493 0 19 8.507 19 19v9h3a4 4 0 0 1 4 4v28a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V32a4 4 0 0 1 4-4h3v-9C7 8.507 15.507 0 26 0zm0 8c-5.979 0-10.843 4.77-10.996 10.712L15 19v9h22v-9c0-6.075-4.925-11-11-11z"
-                        ></path>
-                        <title id="banner-lock-title-default">Lock</title>
-                      </svg></span
-                    >
-                    ) or https:// means you've safely connected to the .gov
-                    website. Only share sensitive information on official,
-                    secure websites.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+  <div class="usa-overlay"></div>
 
-      <div
-        class="bg-white text-base-darker padding-x-2 grid-row flex-no-wrap flex-align-center"
-      >
-        <div>
-          <a
-            href="/"
-            class="text-no-underline text-white text-base-lightest line-height-sans-5"
-            ><div
-              class="bg-base-dark width-4 margin-05 font-sans-lg radius-md grid-row flex-align-center flex-justify-center text-white"
-            >
-              <span>C</span><span class="text-light">F</span>
-            </div></a
-          >
+  <header class="usa-header usa-header--basic">
+    <div class="usa-nav-container bg-white">
+      <div class="usa-navbar">
+        <div class="usa-logo">
+          <em class="usa-logo__text">
+            <a href="/" title="CiviForm">
+              <img
+                alt="PLACEHOLDER IMAGE"
+                src="/assets/Images/civiform-logo.png"
+                class="cf-admin-header-logo"
+              />
+            </a>
+          </em>
         </div>
-        <div class="font-sans-lg padding-y-0 margin-right-2">
-          <span>Civi</span><span class="text-light">Form</span>
-        </div>
-        <header
-          class="usa-header usa-header--basic display-inline-block width-full"
-        >
-          <nav aria-label="Primary navigation">
-            <ul
-              class="usa-nav__primary usa-accordion grid-row flex-align-center padding-y-105"
-            >
-              <li
-                class="usa-nav__primary-item"
-                th:if="${adminCommonHeader.showProgramsUrl()}"
-              >
-                <a
-                  th:href="${adminCommonHeader.programsUrl()}"
-                  class="usa-nav__link cf-admin-heading-nav-item"
-                  th:classappend="${adminCommonHeader.activeNavPage().name() == 'PROGRAMS'} ? 'usa-current' : ''"
-                  ><span class="text-normal font-sans-md line-height-sans-6"
-                    >Programs</span
-                  ></a
-                >
-              </li>
-              <li
-                class="usa-nav__primary-item"
-                th:if="${adminCommonHeader.showQuestionsUrl()}"
-              >
-                <a
-                  th:href="${adminCommonHeader.questionsUrl()}"
-                  class="usa-nav__link cf-admin-heading-nav-item"
-                  th:classappend="${adminCommonHeader.activeNavPage().name() == 'Questions'} ? 'usa-current' : ''"
-                  ><span class="text-normal font-sans-md line-height-sans-6"
-                    >Questions</span
-                  ></a
-                >
-              </li>
-              <li
-                class="usa-nav__primary-item"
-                th:if="${adminCommonHeader.showIntermediaryUrl()}"
-              >
-                <a
-                  th:href="${adminCommonHeader.intermediaryUrl()}"
-                  class="usa-nav__link cf-admin-heading-nav-item"
-                  th:classappend="${adminCommonHeader.activeNavPage().name() == 'Intermediaries'} ? 'usa-current' : ''"
-                  ><span class="text-normal font-sans-md line-height-sans-6"
-                    >Intermediaries</span
-                  ></a
-                >
-              </li>
-              <li
-                class="usa-nav__primary-item"
-                th:if="${adminCommonHeader.showReportingUrl()}"
-              >
-                <a
-                  th:href="${adminCommonHeader.reportingUrl()}"
-                  class="usa-nav__link cf-admin-heading-nav-item"
-                  th:classappend="${adminCommonHeader.activeNavPage().name() == 'Reporting'} ? 'usa-current' : ''"
-                  ><span class="text-normal font-sans-md line-height-sans-6"
-                    >Reporting</span
-                  ></a
-                >
-              </li>
-              <li
-                class="usa-nav__primary-item"
-                th:href="${adminCommonHeader.showApi()}"
-              >
-                <button
-                  type="button"
-                  aria-expanded="false"
-                  aria-controls="admin-api-nav-item"
-                  class="usa-accordion__button usa-nav__link cf-admin-heading-nav-item"
-                  th:classappend="${adminCommonHeader.isApiPage()} ? 'usa-current' : ''"
-                >
-                  <span class="text-normal font-sans-md line-height-sans-6"
-                    >API</span
-                  >
-                </button>
-                <ul id="admin-api-nav-item" class="usa-nav__submenu" hidden="">
-                  <li
-                    class="usa-nav__submenu-item"
-                    th:if="${adminCommonHeader.showApiKeysUrl()}"
-                    th:classappend="${adminCommonHeader.activeNavPage().name() == 'API_KEYS'} ? 'text-bold' : ''"
-                  >
-                    <a th:href="${adminCommonHeader.apiKeysUrl()}"
-                      ><span>API Keys</span></a
-                    >
-                  </li>
-                  <li
-                    class="usa-nav__submenu-item"
-                    th:if="${adminCommonHeader.showApiDocsUrl()}"
-                    th:classappend="${adminCommonHeader.activeNavPage().name() == 'API_DOCS'} ? 'text-bold' : ''"
-                  >
-                    <a th:href="${adminCommonHeader.apiDocsUrl()}"
-                      ><span>Documentation</span></a
-                    >
-                  </li>
-                  <li
-                    class="usa-nav__submenu-item"
-                    th:if="${adminCommonHeader.showApiBridgeDiscoveryUrl()}"
-                    th:classappend="${adminCommonHeader.activeNavPage().name() == 'API_BRIDGE_DISCOVERY'} ? 'text-bold' : ''"
-                  >
-                    <a th:href="${adminCommonHeader.apiBridgeDiscoveryUrl()}"
-                      ><span>Bridge Discovery</span></a
-                    >
-                  </li>
-                </ul>
-              </li>
-              <li
-                class="usa-nav__primary-item margin-left-auto"
-                th:if="${adminCommonHeader.showSettingsUrl()}"
-              >
-                <a
-                  th:href="${adminCommonHeader.settingsUrl()}"
-                  class="cf-admin-heading-nav-item-settings-icon"
-                  aria-label="Settings Link"
-                  ><svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="currentColor"
-                    stroke="currentColor"
-                    stroke-width="1%"
-                    aria-hidden="true"
-                    viewBox="0 -960 960 960"
-                    class="height-3 width-3 opacity-75 hover:opacity-100"
-                  >
-                    <path
-                      d="m388-80-20-126q-19-7-40-19t-37-25l-118 54-93-164 108-79q-2-9-2.5-20.5T185-480q0-9 .5-20.5T188-521L80-600l93-164 118 54q16-13 37-25t40-18l20-127h184l20 126q19 7 40.5 18.5T669-710l118-54 93 164-108 77q2 10 2.5 21.5t.5 21.5q0 10-.5 21t-2.5 21l108 78-93 164-118-54q-16 13-36.5 25.5T592-206L572-80H388Zm92-270q54 0 92-38t38-92q0-54-38-92t-92-38q-54 0-92 38t-38 92q0 54 38 92t92 38Zm0-60q-29 0-49.5-20.5T410-480q0-29 20.5-49.5T480-550q29 0 49.5 20.5T550-480q0 29-20.5 49.5T480-410Zm0-70Zm-44 340h88l14-112q33-8 62.5-25t53.5-41l106 46 40-72-94-69q4-17 6.5-33.5T715-480q0-17-2-33.5t-7-33.5l94-69-40-72-106 46q-23-26-52-43.5T538-708l-14-112h-88l-14 112q-34 7-63.5 24T306-642l-106-46-40 72 94 69q-4 17-6.5 33.5T245-480q0 17 2.5 33.5T254-413l-94 69 40 72 106-46q24 24 53.5 41t62.5 25l14 112Z"
-                    ></path></svg
-                ></a>
-              </li>
-              <li
-                class="usa-nav__primary-item"
-                th:classappend="${adminCommonHeader.showSettingsUrl() ? '' : 'margin-left-auto'}"
-              >
-                <a
-                  th:href="${adminCommonHeader.logoutUrl()}"
-                  class="usa-nav__link cf-admin-heading-nav-item"
-                  id="logout-button"
-                  ><span class="text-normal font-sans-md line-height-sans-6"
-                    >Logout</span
-                  ></a
-                >
-              </li>
-            </ul>
-          </nav>
-        </header>
+        <button type="button" class="usa-menu-btn">Menu</button>
       </div>
-    </nav>
+
+      <nav aria-label="Primary navigation" class="usa-nav">
+        <button type="button" class="usa-nav__close">
+          <img src="/assets/Images/uswds/close.svg" role="img" alt="Close" />
+        </button>
+        <ul class="usa-nav__primary usa-accordion">
+          <th:block
+            th:insert="~{::createPrimaryItem(${adminCommonHeader.showProgramsUrl()}, ${adminCommonHeader.programsUrl()}, 'PROGRAMS', 'Programs')}"
+          />
+          <th:block
+            th:insert="~{::createPrimaryItem(${adminCommonHeader.showQuestionsUrl()}, ${adminCommonHeader.questionsUrl()}, 'QUESTIONS', 'Questions')}"
+          />
+          <th:block
+            th:insert="~{::createPrimaryItem(${adminCommonHeader.showIntermediaryUrl()}, ${adminCommonHeader.intermediaryUrl()}, 'INTERMEDIARIES', 'Intermediaries')}"
+          />
+          <th:block
+            th:insert="~{::createPrimaryItem(${adminCommonHeader.showReportingUrl()}, ${adminCommonHeader.reportingUrl()}, 'REPORTING', 'Reporting')}"
+          />
+
+          <li
+            class="usa-nav__primary-item"
+            th:href="${adminCommonHeader.showApi()}"
+          >
+            <button
+              type="button"
+              aria-expanded="false"
+              aria-controls="admin-api-nav-item"
+              class="usa-accordion__button usa-nav__link"
+              th:classappend="${adminCommonHeader.isApiPage()} ? 'usa-current' : ''"
+            >
+              <span>API</span>
+            </button>
+            <ul id="admin-api-nav-item" class="usa-nav__submenu" hidden="">
+              <th:block
+                th:insert="~{::createSubMenuItem(${adminCommonHeader.showApiKeysUrl()}, ${adminCommonHeader.apiKeysUrl()}, 'API_KEYS', 'API Keys')}"
+              />
+              <th:block
+                th:insert="~{::createSubMenuItem(${adminCommonHeader.showApiDocsUrl()}, ${adminCommonHeader.apiDocsUrl()}, 'API_DOCS', 'Documentation')}"
+              />
+              <th:block
+                th:insert="~{::createSubMenuItem(${adminCommonHeader.showApiBridgeDiscoveryUrl()}, ${adminCommonHeader.apiBridgeDiscoveryUrl()}, 'API_BRIDGE_DISCOVERY', 'Bridge Discovery')}"
+              />
+            </ul>
+          </li>
+
+          <th:block
+            th:insert="~{::createPrimaryItem(${adminCommonHeader.showSettingsUrl()}, ${adminCommonHeader.settingsUrl()}, 'SETTINGS', 'Settings')}"
+          />
+
+          <li class="usa-nav__primary-item">
+            <a
+              th:href="${adminCommonHeader.logoutUrl()}"
+              class="usa-button"
+              id="logout-button"
+              >Logout</a
+            >
+          </li>
+        </ul>
+      </nav>
+    </div>
   </header>
+</th:block>
+
+<th:block th:fragment="createPrimaryItem(show, url, expected, title)">
+  <li class="usa-nav__primary-item" th:if="${show}">
+    <a
+      th:href="${url}"
+      class="usa-nav__link"
+      th:classappend="${adminCommonHeader.activeNavPage().name() == expected} ? 'usa-current' : ''"
+      th:text="${title}"
+    ></a>
+  </li>
+</th:block>
+
+<th:block th:fragment="createSubMenuItem(show, url, expected, title)">
+  <li
+    class="usa-nav__submenu-item"
+    th:if="${show}"
+    th:classappend="${adminCommonHeader.activeNavPage().name() == expected} ? 'text-bold' : ''"
+  >
+    <a th:href="${url}" th:text="${title}"></a>
+  </li>
 </th:block>

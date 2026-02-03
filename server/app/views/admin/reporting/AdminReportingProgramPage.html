@@ -1,0 +1,59 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.reporting.AdminReportingProgramPageViewModel"*/-->
+<th:block th:fragment="content">
+  <h1
+    th:text="${#messages.msg('reportingProgram.heading', model.enUSLocalizedProgramName)}"
+  ></h1>
+  <div class="my-8">
+    <p th:text="#{reportingProgram.dataDelay}"></p>
+  </div>
+  <div class="grid-container section usa-prose">
+    <table class="usa-table">
+      <caption
+        th:text="#{reportingProgram.caption.submissionsByMonth}"
+      ></caption>
+      <thead>
+        <tr>
+          <th scope="col" th:text="#{reportingProgram.month}"></th>
+          <th scope="col" th:text="#{reportingProgram.submissions}"></th>
+          <th scope="col" th:text="#{reportingProgram.timeToCompleteP25}"></th>
+          <th
+            scope="col"
+            th:text="#{reportingProgram.medianTimeToComplete}"
+          ></th>
+          <th scope="col" th:text="#{reportingProgram.timeToCompleteP75}"></th>
+          <th scope="col" th:text="#{reportingProgram.timeToCompleteP99}"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <th:block th:each="stat : ${model.monthlySubmissionsForProgram}">
+          <tr>
+            <th
+              scope="row"
+              th:text="${#dates.format(stat.timestamp.get(), 'MM/yy')}"
+            ></th>
+            <td th:text="${stat.applicationCount}"></td>
+            <td
+              th:text="${model.formatDuration(stat.submissionDurationSeconds25p)}"
+            ></td>
+            <td
+              th:text="${model.formatDuration(stat.submissionDurationSeconds50p)}"
+            ></td>
+            <td
+              th:text="${model.formatDuration(stat.submissionDurationSeconds75p)}"
+            ></td>
+            <td
+              th:text="${model.formatDuration(stat.submissionDurationSeconds99p)}"
+            ></td>
+          </tr>
+        </th:block>
+      </tbody>
+    </table>
+    <a
+      class="usa-button"
+      th:href="${model.getDownloadProgramCsvUrl(model.programSlug)}"
+      th:text="#{reportingProgram.downloadCsv}"
+    >
+    </a>
+  </div>
+</th:block>

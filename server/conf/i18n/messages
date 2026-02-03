@@ -560,6 +560,12 @@ link.backToEditProgramBlock=Back to edit {0}
 content.predicateVisibilityDescription=Configure when this screen is shown or hidden for applicants based on responses to questions on preceding screens.
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
 content.predicateEligibilityDescription=Add eligibility conditions to determine if an applicant qualifies for the program based on responses to questions on this screen. Applicants who do not meet the minimum requirements will be blocked from submitting an application. You can change this in the
+# Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualitifies for the program.
+content.predicateEligibilityDescription.v2=Add eligibility conditions to determine if an applicant qualifies for the program based on responses to questions on this screen.
+# Text informing admins that ineligible applicants will be blocked from submitting an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
+content.blockIneligibleApplicants=Applicants who do not meet the minimum requirements will be blocked from submitting an application. You can change this in the
+# Text informing admins that ineligible applicants will still be able to submit an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
+content.allowIneligibleApplicants=Applicants can submit an application even if they do not meet the minimum requirements. You can change this in the
 # Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
 link.programSettings=program settings
 
@@ -632,6 +638,8 @@ content.markdownSupported=Markdown is supported
 
 # Error message for when the admin leaves a multi-select question blank in admin predicate edit.
 validation.selectionRequired=You must select at least one option.
+# Error message for when the admin leaves a question unselected in admin predicate edit.
+validation.questionRequired=You must select a question.
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -1158,3 +1166,57 @@ button.repeatedSet.addNew=Add repeated set
 text.repeatedSet=Repeated set
 # Text letting admins know which block represents the group of screens for nested repeating questions
 text.nestedRepeatedSet=Nested repeated set
+# An uneditable prefix for the enumerator screen name representing the repeated object that will be enumerated
+text.repeatedSet.prefix=parent label
+# An uneditable prefix for the enumerator screen name representing the nested repeated object that will be enumerated
+text.repeatedSet.nestedPrefix=child label
+
+#------------------------------------------------------------------------------#
+#  ADMIN REPORTING                                                             #
+#------------------------------------------------------------------------------#
+
+# Caption for the table showing submissions by program
+caption.submissionsByProgram=Submissions by program (all programs)
+# Column header for program name
+content.program=Program
+# Column header for number of submissions
+content.submissions=Submissions
+# Column header for 25th percentile time to complete
+content.timeToCompleteP25=Time to complete (p25)
+# Column header for median (50th percentile) time to complete
+content.medianTimeToComplete=Median time to complete
+# Column header for 75th percentile time to complete
+content.timeToCompleteP75=Time to complete (p75)
+# Column header for 99th percentile time to complete
+content.timeToCompleteP99=Time to complete (p99)
+# Text on button to download CSV file
+button.downloadCsv=Download CSV
+# Caption for the table showing submissions by month
+caption.submissionsByMonth=Submissions by month (all programs)
+# Column header for month
+content.month=Month
+
+#------------------------------------------------------------------------------#
+#  ADMIN REPORTING PROGRAM                                                     #
+#------------------------------------------------------------------------------#
+
+# Heading for the program reporting page
+reportingProgram.heading={0} reporting
+# Info text about data delay
+reportingProgram.dataDelay=Data may be up to an hour delayed.
+# Caption for the table showing submissions by month for a program
+reportingProgram.caption.submissionsByMonth=Submissions by month
+# Column header for month
+reportingProgram.month=Month
+# Column header for submissions
+reportingProgram.submissions=Submissions
+# Column header for 25th percentile time to complete
+reportingProgram.timeToCompleteP25=Time to complete (p25)
+# Column header for median (50th percentile) time to complete
+reportingProgram.medianTimeToComplete=Median time to complete
+# Column header for 75th percentile time to complete
+reportingProgram.timeToCompleteP75=Time to complete (p75)
+# Column header for 99th percentile time to complete
+reportingProgram.timeToCompleteP99=Time to complete (p99)
+# Text on button to download CSV file
+reportingProgram.downloadCsv=Download CSV

@@ -8,6 +8,7 @@ import org.thymeleaf.TemplateEngine;
 import play.mvc.Http;
 import services.settings.SettingsManifest;
 import views.CspUtil;
+import views.admin.shared.Footer;
 import views.admin.shared.LayoutParams;
 import views.admin.shared.TemplateGlobals;
 import views.html.helper.CSRF;
@@ -58,6 +59,14 @@ public abstract class BaseView<TModel extends BaseViewModel> {
   }
 
   /**
+   * Determines the {@link LayoutType} for the page main content and if/where it has sidebar
+   * content.
+   */
+  protected LayoutType layoutType() {
+    return LayoutType.CONTENT_ONLY;
+  }
+
+  /**
    * Override if needing to add additional configuration to the Thymeleaf context.
    *
    * <p>Most page level values should be added to your {@code TModel} instead of being added as
@@ -85,6 +94,7 @@ public abstract class BaseView<TModel extends BaseViewModel> {
         LayoutParams.builder()
             .pageTemplate(pageTemplate())
             .isWidescreen(isWidescreen())
+            .layoutType(layoutType())
             .civiformImageTag(settingsManifest.getCiviformImageTag().orElse("UNKNOWN"))
             .addNoIndexMetaTag(settingsManifest.getStagingAddNoindexMetaTag())
             .favicon(FAVICON_DATAURI)
@@ -101,6 +111,15 @@ public abstract class BaseView<TModel extends BaseViewModel> {
             .pageTitle(pageTitle())
             .cspNonce(CspUtil.getNonce(request))
             .csrfToken(CSRF.getToken(request.asScala()).value())
+            .build());
+
+    context.setVariable(
+        "footer",
+        Footer.builder()
+            .technicalSupportEmail(
+                settingsManifest
+                    .getSupportEmailAddress(request)
+                    .orElse("SUPPORT EMAIL ADDRESS MISSING"))
             .build());
 
     // This gives the Thymeleaf template a reference to this view class. Methods can be added
@@ -226,7 +245,13 @@ public abstract class BaseView<TModel extends BaseViewModel> {
     return ImmutableList.of();
   }
 
-  /** Returns true if a widescreen layout is requested. Defaults to false. */
+  /**
+   * Returns true if a widescreen layout is requested. Defaults to false.
+   *
+   * @deprecated This will go away after the admin redesign migration
+   */
+  @SuppressWarnings("InlineMeSuggester")
+  @Deprecated
   protected boolean isWidescreen() {
     return false;
   }

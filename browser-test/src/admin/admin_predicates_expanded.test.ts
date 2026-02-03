@@ -1,6 +1,7 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 import {waitForHtmxReady} from '../support/wait'
+import {Eligibility} from '../support/admin_programs'
 import {QuestionType} from '../support/admin_questions'
 import {
   MultiValueSpec,
@@ -15,6 +16,7 @@ import {assertNotNull} from '../support/helpers'
  *    @param questionText: The question text displayed to the applicant
  *    @param firstValue: The default value to fill in an input field, or to be selected from a dropdown
  *    @param secondValue: The default value to fill in a second input field. Optional, for question types that support BETWEEN operators.
+ *    @param invalidValue: A purposefully incorrect value for the first and second input fields. Optional, for question types with client-side validation.
  *    @param defaultInputType: The default input type for the question type. Optional, for question types that use input tags.
  *    @param defaultInputMode: The default inputmode for the question type. Optional, for question types that use input tags.
  */
@@ -25,6 +27,7 @@ const PROGRAM_SAMPLE_QUESTIONS = new Map<
     questionText: string
     firstValue: string
     secondValue?: string
+    invalidValue?: string
     defaultInputType?: string
     defaultInputMode?: string
     multiValueOptions?: MultiValueSpec[]
@@ -59,6 +62,7 @@ const PROGRAM_SAMPLE_QUESTIONS = new Map<
       questionText: 'currency question text',
       firstValue: '3.50',
       secondValue: '4.75',
+      invalidValue: '-1',
       defaultInputType: 'number',
       defaultInputMode: 'decimal',
     },
@@ -94,6 +98,7 @@ const PROGRAM_SAMPLE_QUESTIONS = new Map<
       questionName: 'email-q',
       questionText: 'email question text',
       firstValue: 'email@fake-email.gov',
+      invalidValue: 'email!',
       defaultInputType: 'email',
       defaultInputMode: 'text',
     },
@@ -106,6 +111,51 @@ const PROGRAM_SAMPLE_QUESTIONS = new Map<
       firstValue: 'A123456-ID',
       defaultInputType: 'text',
       defaultInputMode: 'text',
+    },
+  ],
+  [
+    QuestionType.MAP,
+    {
+      questionName: 'map-q',
+      questionText: 'map question text',
+      firstValue: 'N/A',
+      multiValueOptions: [
+        {
+          adminName: 'seattle-central-library',
+          text: 'seattle-central-library',
+          checked: true,
+        },
+        {
+          adminName: 'international-district-community-center',
+          text: 'international-district-community-center',
+          checked: false,
+        },
+        {
+          adminName: 'capitol-hill-health-center',
+          text: 'capitol-hill-health-center',
+          checked: false,
+        },
+        {
+          adminName: 'ballard-community-center',
+          text: 'ballard-community-center',
+          checked: false,
+        },
+        {
+          adminName: 'university-branch-library',
+          text: 'university-branch-library',
+          checked: true,
+        },
+        {
+          adminName: 'rainier-beach-pool',
+          text: 'rainier-beach-pool',
+          checked: true,
+        },
+        {
+          adminName: 'magnolia-community-center',
+          text: 'magnolia-community-center',
+          checked: false,
+        },
+      ],
     },
   ],
   [
@@ -151,6 +201,20 @@ const PROGRAM_SAMPLE_QUESTIONS = new Map<
       firstValue: 'apple',
       defaultInputType: 'text',
       defaultInputMode: 'text',
+    },
+  ],
+  [
+    QuestionType.YES_NO,
+    {
+      questionName: 'yes-no-q',
+      questionText: 'yes/no question text',
+      firstValue: 'N/A',
+      multiValueOptions: [
+        {adminName: 'yes', text: 'Yes', checked: false},
+        {adminName: 'no', text: 'No', checked: true},
+        {adminName: 'not-sure', text: 'Not sure', checked: true},
+        {adminName: 'maybe', text: 'Maybe', checked: true},
+      ],
     },
   ],
 ])
@@ -343,6 +407,9 @@ test.describe('create and edit predicates', () => {
         'Screen 1',
         /* expandedFormLogicEnabled= */ true,
       )
+      await expect(page.locator('#edit-predicate')).toContainText(
+        'Applicants who do not meet the minimum requirements will be blocked from submitting an application.',
+      )
 
       await adminPredicates.expectEligibilityNullState()
     })
@@ -361,6 +428,17 @@ test.describe('create and edit predicates', () => {
       )
     })
 
+    await test.step('Leave question unselected and check validation', async () => {
+      await adminPredicates.clickSaveAndExitButton()
+
+      await expect(
+        page.locator('#condition-1-subcondition-1-question'),
+      ).toContainClass('usa-input--error')
+      await expect(page.locator('#edit-predicate')).toContainText(
+        'Error: You must select a question.',
+      )
+    })
+
     await test.step('Select question, save, and check predicate validation', async () => {
       await adminPredicates.selectQuestion(1, 1, questionText)
       await expect(
@@ -375,6 +453,42 @@ test.describe('create and edit predicates', () => {
       await validateScreenshot(
         page.locator('#condition-1'),
         'edit-eligibility-predicate-with-validation-error',
+      )
+    })
+  })
+
+  test('Create a non-blocking eligibility predicate', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+  }) => {
+    await loginAsAdmin(page)
+    const programName = 'Create a non-blocking eligibility predicate'
+
+    await test.step('Create a program with a question to use in the predicate', async () => {
+      const questionName = 'predicate-q'
+      await adminQuestions.addTextQuestion({
+        questionName: questionName,
+      })
+      await adminPrograms.addProgram(programName, {
+        eligibility: Eligibility.IS_NOT_GATING,
+      })
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        name: 'Screen 1',
+        description: 'first screen',
+        questions: [{name: questionName}],
+      })
+    })
+
+    await test.step('Validate eligibility description text', async () => {
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 1',
+        /* expandedFormLogicEnabled= */ true,
+      )
+
+      await expect(page.locator('#edit-predicate')).toContainText(
+        'Applicants can submit an application even if they do not meet the minimum requirements.',
       )
     })
   })
@@ -590,6 +704,35 @@ test.describe('create and edit predicates', () => {
           await expect(inputElementLocator).toContainClass('usa-input--error')
         }
       })
+
+      if (questionData.invalidValue) {
+        await test.step('Enter an invalid string and check client-side validation', async () => {
+          await adminPredicates.configureSubcondition({
+            conditionId: 1,
+            subconditionId: 1,
+            questionText: questionData.questionText,
+            operator: singleValueOperator,
+            value: {firstValue: questionData.invalidValue},
+          })
+
+          // Save and exit button should leave us on the same page
+          await adminPredicates.clickSaveAndExitButton()
+
+          const inputElementLocator = page.locator(
+            `#condition-1-subcondition-1-value[type=${questionData.defaultInputType!}]`,
+          )
+
+          const validationMessage = await inputElementLocator.evaluate(
+            (element) => {
+              const input = element as HTMLInputElement
+              return input.validationMessage
+            },
+          )
+          expect(validationMessage).toBeDefined()
+          expect(validationMessage).not.toBeNull()
+          expect(validationMessage).not.toEqual('')
+        })
+      }
     }
 
     // Test question types that allow multiple input fields with the BETWEEN operator
@@ -643,7 +786,7 @@ test.describe('create and edit predicates', () => {
       await test.step('Enter an empty string in the second input and check validation behavior', async () => {
         await adminPredicates.fillValue(1, 1, {
           firstValue: questionData.firstValue,
-          secondValue: ' ',
+          secondValue: '',
         } as SubconditionValue)
 
         await adminPredicates.clickSaveAndExitButton()
@@ -682,6 +825,32 @@ test.describe('create and edit predicates', () => {
           )
         }
       })
+
+      if (questionData.invalidValue) {
+        await test.step('Enter an invalid string in the second input and check client-side validation', async () => {
+          await adminPredicates.fillValue(1, 1, {
+            firstValue: questionData.firstValue,
+            secondValue: questionData.invalidValue,
+          } as SubconditionValue)
+
+          // Save and exit button should leave us on the same page
+          await adminPredicates.clickSaveAndExitButton()
+
+          const secondInputElementLocator = page.locator(
+            `#condition-1-subcondition-1-secondValue[type=${questionData.defaultInputType!}]`,
+          )
+
+          const validationMessage = await secondInputElementLocator.evaluate(
+            (element) => {
+              const input = element as HTMLInputElement
+              return input.validationMessage
+            },
+          )
+          expect(validationMessage).toBeDefined()
+          expect(validationMessage).not.toBeNull()
+          expect(validationMessage).not.toEqual('')
+        })
+      }
     }
 
     await test.step('Select date question and validate age operator behavior', async () => {
@@ -719,6 +888,30 @@ test.describe('create and edit predicates', () => {
           '#condition-1-subcondition-1-secondValue[type="number"]:enabled',
         ),
       ).toHaveCount(1)
+    })
+
+    await test.step('Check age operator client-side validation', async () => {
+      await adminPredicates.fillValue(1, 1, {
+        firstValue: '18',
+        secondValue: '-1',
+      } as SubconditionValue)
+
+      // Save and exit button should leave us on the same page
+      await adminPredicates.clickSaveAndExitButton()
+
+      const secondInputElementLocator = page.locator(
+        '#condition-1-subcondition-1-secondValue[type="number"]:enabled',
+      )
+
+      const validationMessage = await secondInputElementLocator.evaluate(
+        (element) => {
+          const input = element as HTMLInputElement
+          return input.validationMessage
+        },
+      )
+      expect(validationMessage).toBeDefined()
+      expect(validationMessage).not.toBeNull()
+      expect(validationMessage).not.toEqual('')
     })
 
     // Test question types that allow CSV inputs with the IN / NOT_IN operators
@@ -800,7 +993,9 @@ test.describe('create and edit predicates', () => {
     for (const questionType of [
       QuestionType.CHECKBOX,
       QuestionType.DROPDOWN,
+      QuestionType.MAP,
       QuestionType.RADIO,
+      QuestionType.YES_NO,
     ]) {
       const questionData = PROGRAM_SAMPLE_QUESTIONS.get(questionType)!
 
