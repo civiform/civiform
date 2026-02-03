@@ -64,6 +64,7 @@ test.describe('Session timeout for applicants', () => {
     // Install clock at the current real time
     // This way server timestamps and browser time should be in sync
     await page.clock.install({time: realTime})
+    await enableFeatureFlag(page, 'session_timeout_enabled')
   })
 
   test('shows inactivity warning modal after 50 minutes and session length warning modal after 55 minutes', async ({
@@ -72,7 +73,6 @@ test.describe('Session timeout for applicants', () => {
     await test.step('Create and login as applicant', async () => {
       await page.goto('/')
       await loginAsTestUser(page)
-      await enableFeatureFlag(page, 'session_timeout_enabled')
     })
 
     await test.step('Fast forward 50 mins', async () => {
