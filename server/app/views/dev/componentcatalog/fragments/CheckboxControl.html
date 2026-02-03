@@ -1,0 +1,556 @@
+<!--/*@thymesVar id="model" type="views.dev.componentcatalog.fragments.CheckboxControl"*/-->
+<th:block
+  th:fragment="render(model)"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <h2>Checkbox Component</h2>
+
+  <!-- Sample 1: Basic Checkbox Group -->
+  <h3>Basic Checkbox Group</h3>
+  <cf:checkbox
+    th:id="${model.basicCheckbox.id()}"
+    th:name="${model.basicCheckbox.name()}"
+    th:label="${model.basicCheckbox.label()}"
+    columns="2"
+  >
+    <item
+      th:each="item: ${model.basicCheckbox.items()}"
+      th:id="${item.id()}"
+      th:value="${item.value()}"
+      th:label="${item.label()}"
+    ></item>
+    <item id="gg" value="ss" label="zz"></item>
+  </cf:checkbox>
+
+  <details>
+    <summary>Code sample</summary>
+
+    <h4>Java</h4>
+    <pre><code class="language-java">import com.google.common.collect.ImmutableList;
+
+public class BasicCheckbox {
+  public record Option(String id, String value, String label) {}
+
+  public String name() {
+    return &quot;interests&quot;;
+  }
+
+  public String label() {
+    return &quot;Select your interests&quot;;
+  }
+
+  public ImmutableList&lt;Option&gt; items() {
+    return ImmutableList.of(
+        new Option(&quot;interest-reading&quot;, &quot;reading&quot;, &quot;Reading&quot;),
+        new Option(&quot;interest-sports&quot;, &quot;sports&quot;, &quot;Sports&quot;),
+        new Option(&quot;interest-music&quot;, &quot;music&quot;, &quot;Music&quot;));
+  }
+}</code></pre>
+
+    <h4>Thymeleaf</h4>
+    <pre><code class="language-markup">&lt;cf:checkbox
+  th:name=&quot;${model.basicCheckbox.name()}&quot;
+  th:label=&quot;${model.basicCheckbox.label()}&quot;
+&gt;
+  &lt;item
+    th:each=&quot;item: ${model.basicCheckbox.items()}&quot;
+    th:id=&quot;${item.id()}&quot;
+    th:value=&quot;${item.value()}&quot;
+    th:label=&quot;${item.label()}&quot;
+  &gt;&lt;/item&gt;
+&lt;/cf:checkbox&gt;</code></pre>
+
+    <h4>Rendered HTML</h4>
+    <pre><code class="language-markup">&lt;div class=&quot;usa-form-group&quot;&gt;
+  &lt;fieldset class=&quot;usa-fieldset&quot;&gt;
+    &lt;legend class=&quot;usa-legend&quot;&gt;Select your interests&lt;/legend&gt;
+    &lt;div class=&quot;usa-checkbox&quot;&gt;
+      &lt;input
+        type=&quot;checkbox&quot;
+        class=&quot;usa-checkbox__input usa-checkbox__input--tile&quot;
+        id=&quot;interest-reading&quot;
+        name=&quot;interests&quot;
+        value=&quot;reading&quot; /&gt;
+      &lt;label class=&quot;usa-checkbox__label&quot; for=&quot;interest-reading&quot;&gt;Reading&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;usa-checkbox&quot;&gt;
+      &lt;input
+        type=&quot;checkbox&quot;
+        class=&quot;usa-checkbox__input usa-checkbox__input--tile&quot;
+        id=&quot;interest-sports&quot;
+        name=&quot;interests&quot;
+        value=&quot;sports&quot; /&gt;
+      &lt;label class=&quot;usa-checkbox__label&quot; for=&quot;interest-sports&quot;&gt;Sports&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;usa-checkbox&quot;&gt;
+      &lt;input
+        type=&quot;checkbox&quot;
+        class=&quot;usa-checkbox__input usa-checkbox__input--tile&quot;
+        id=&quot;interest-music&quot;
+        name=&quot;interests&quot;
+        value=&quot;music&quot; /&gt;
+      &lt;label class=&quot;usa-checkbox__label&quot; for=&quot;interest-music&quot;&gt;Music&lt;/label&gt;
+    &lt;/div&gt;
+  &lt;/fieldset&gt;
+&lt;/div&gt;</code></pre>
+  </details>
+
+  <hr />
+
+  <!-- Sample 2: Checkbox with Help Text and Descriptions -->
+  <h3>Checkbox with Help Text and Descriptions</h3>
+  <cf:checkbox
+    th:id="${model.checkboxWithHelp.id()}"
+    th:name="${model.checkboxWithHelp.name()}"
+    th:label="${model.checkboxWithHelp.label()}"
+    th:help-text="${model.checkboxWithHelp.helpText()}"
+  >
+    <item
+      th:each="item: ${model.checkboxWithHelp.items()}"
+      th:id="${item.id()}"
+      th:value="${item.value()}"
+      th:label="${item.label()}"
+      th:description="${item.description()}"
+    ></item>
+  </cf:checkbox>
+
+  <details>
+    <summary>Code sample</summary>
+
+    <h4>Java</h4>
+    <pre><code class="language-java">import com.google.common.collect.ImmutableList;
+
+public class CheckboxWithHelp {
+  public record Option(
+      String id,
+      String value,
+      String label,
+      String description) {}
+
+  public String name() {
+    return &quot;notifications&quot;;
+  }
+
+  public String label() {
+    return &quot;Email notifications&quot;;
+  }
+
+  public String helpText() {
+    return &quot;Select which types of emails you'd like to receive&quot;;
+  }
+
+  public ImmutableList&lt;Option&gt; items() {
+    return ImmutableList.of(
+        new Option(
+            &quot;notif-updates&quot;,
+            &quot;updates&quot;,
+            &quot;Product updates&quot;,
+            &quot;News about product features and updates&quot;),
+        new Option(
+            &quot;notif-newsletter&quot;,
+            &quot;newsletter&quot;,
+            &quot;Newsletter&quot;,
+            &quot;Monthly newsletter with tips and stories&quot;),
+        new Option(
+            &quot;notif-offers&quot;,
+            &quot;offers&quot;,
+            &quot;Promotional offers&quot;,
+            &quot;Exclusive deals and discounts&quot;));
+  }
+}</code></pre>
+
+    <h4>Thymeleaf</h4>
+    <pre><code class="language-markup">&lt;cf:checkbox
+  th:name=&quot;${model.checkboxWithHelp.name()}&quot;
+  th:label=&quot;${model.checkboxWithHelp.label()}&quot;
+  th:help-text=&quot;${model.checkboxWithHelp.helpText()}&quot;
+&gt;
+  &lt;item
+    th:each=&quot;item: ${model.checkboxWithHelp.items()}&quot;
+    th:id=&quot;${item.id()}&quot;
+    th:value=&quot;${item.value()}&quot;
+    th:label=&quot;${item.label()}&quot;
+    th:description=&quot;${item.description()}&quot;
+  &gt;&lt;/item&gt;
+&lt;/cf:checkbox&gt;</code></pre>
+
+    <h4>Rendered HTML</h4>
+    <pre><code class="language-markup">&lt;div class=&quot;usa-form-group&quot;&gt;
+  &lt;fieldset class=&quot;usa-fieldset&quot;&gt;
+    &lt;legend class=&quot;usa-legend&quot;&gt;Email notifications&lt;/legend&gt;
+    &lt;div class=&quot;usa-hint&quot;&gt;Select which types of emails you'd like to receive&lt;/div&gt;
+    &lt;div class=&quot;usa-checkbox&quot;&gt;
+      &lt;input
+        type=&quot;checkbox&quot;
+        class=&quot;usa-checkbox__input usa-checkbox__input--tile&quot;
+        id=&quot;notif-updates&quot;
+        name=&quot;notifications&quot;
+        value=&quot;updates&quot; /&gt;
+      &lt;label class=&quot;usa-checkbox__label&quot; for=&quot;notif-updates&quot;&gt;
+        Product updates
+        &lt;span class=&quot;usa-checkbox__label-description&quot;&gt;
+          News about product features and updates
+        &lt;/span&gt;
+      &lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;usa-checkbox&quot;&gt;
+      &lt;input
+        type=&quot;checkbox&quot;
+        class=&quot;usa-checkbox__input usa-checkbox__input--tile&quot;
+        id=&quot;notif-newsletter&quot;
+        name=&quot;notifications&quot;
+        value=&quot;newsletter&quot; /&gt;
+      &lt;label class=&quot;usa-checkbox__label&quot; for=&quot;notif-newsletter&quot;&gt;
+        Newsletter
+        &lt;span class=&quot;usa-checkbox__label-description&quot;&gt;
+          Monthly newsletter with tips and stories
+        &lt;/span&gt;
+      &lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;usa-checkbox&quot;&gt;
+      &lt;input
+        type=&quot;checkbox&quot;
+        class=&quot;usa-checkbox__input usa-checkbox__input--tile&quot;
+        id=&quot;notif-offers&quot;
+        name=&quot;notifications&quot;
+        value=&quot;offers&quot; /&gt;
+      &lt;label class=&quot;usa-checkbox__label&quot; for=&quot;notif-offers&quot;&gt;
+        Promotional offers
+        &lt;span class=&quot;usa-checkbox__label-description&quot;&gt;
+          Exclusive deals and discounts
+        &lt;/span&gt;
+      &lt;/label&gt;
+    &lt;/div&gt;
+  &lt;/fieldset&gt;
+&lt;/div&gt;</code></pre>
+  </details>
+
+  <hr />
+
+  <!-- Sample 3: Checkbox with Validation Error -->
+  <h3>Checkbox with Validation Error</h3>
+  <cf:checkbox
+    th:id="${model.checkboxWithError.id()}"
+    th:name="${model.checkboxWithError.name()}"
+    th:label="${model.checkboxWithError.label()}"
+    th:is-valid="${model.checkboxWithError.isValid()}"
+    th:validation-message="${model.checkboxWithError.validationMessage()}"
+    required
+  >
+    <item
+      th:each="item: ${model.checkboxWithError.items()}"
+      th:id="${item.id()}"
+      th:value="${item.value()}"
+      th:label="${item.label()}"
+    ></item>
+  </cf:checkbox>
+
+  <details>
+    <summary>Code sample</summary>
+
+    <h4>Java</h4>
+    <pre><code class="language-java">import com.google.common.collect.ImmutableList;
+
+public class CheckboxWithError {
+  public record Option(String id, String value, String label) {}
+
+  public String name() {
+    return &quot;terms&quot;;
+  }
+
+  public String label() {
+    return &quot;Terms and conditions&quot;;
+  }
+
+  public String isValid() {
+    return &quot;false&quot;;
+  }
+
+  public String validationMessage() {
+    return &quot;You must accept at least one term to continue&quot;;
+  }
+
+  public ImmutableList&lt;Option&gt; items() {
+    return ImmutableList.of(
+        new Option(&quot;terms-service&quot;, &quot;service&quot;, &quot;I agree to the Terms of Service&quot;),
+        new Option(&quot;terms-privacy&quot;, &quot;privacy&quot;, &quot;I agree to the Privacy Policy&quot;));
+  }
+}</code></pre>
+
+    <h4>Thymeleaf</h4>
+    <pre><code class="language-markup">&lt;cf:checkbox
+  th:name=&quot;${model.checkboxWithError.name()}&quot;
+  th:label=&quot;${model.checkboxWithError.label()}&quot;
+  th:is-valid=&quot;${model.checkboxWithError.isValid()}&quot;
+  th:validation-message=&quot;${model.checkboxWithError.validationMessage()}&quot;
+  required
+&gt;
+  &lt;item
+    th:each=&quot;item: ${model.checkboxWithError.items()}&quot;
+    th:id=&quot;${item.id()}&quot;
+    th:value=&quot;${item.value()}&quot;
+    th:label=&quot;${item.label()}&quot;
+  &gt;&lt;/item&gt;
+&lt;/cf:checkbox&gt;</code></pre>
+
+    <h4>Rendered HTML</h4>
+    <pre><code class="language-markup">&lt;div class=&quot;usa-form-group usa-form-group--error&quot;&gt;
+  &lt;fieldset class=&quot;usa-fieldset&quot;&gt;
+    &lt;legend class=&quot;usa-legend usa-legend--error&quot;&gt;Terms and conditions&lt;/legend&gt;
+    &lt;span id=&quot;terms-error&quot; class=&quot;usa-error-message&quot; role=&quot;alert&quot;&gt;
+      You must accept at least one term to continue
+    &lt;/span&gt;
+    &lt;div class=&quot;usa-checkbox&quot;&gt;
+      &lt;input
+        type=&quot;checkbox&quot;
+        class=&quot;usa-checkbox__input usa-checkbox__input--tile usa-checkbox__input--error&quot;
+        id=&quot;terms-service&quot;
+        name=&quot;terms&quot;
+        value=&quot;service&quot;
+        required=&quot;required&quot;
+        aria-describedby=&quot;terms-error&quot; /&gt;
+      &lt;label class=&quot;usa-checkbox__label&quot; for=&quot;terms-service&quot;&gt;
+        I agree to the Terms of Service
+      &lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;usa-checkbox&quot;&gt;
+      &lt;input
+        type=&quot;checkbox&quot;
+        class=&quot;usa-checkbox__input usa-checkbox__input--tile usa-checkbox__input--error&quot;
+        id=&quot;terms-privacy&quot;
+        name=&quot;terms&quot;
+        value=&quot;privacy&quot;
+        required=&quot;required&quot;
+        aria-describedby=&quot;terms-error&quot; /&gt;
+      &lt;label class=&quot;usa-checkbox__label&quot; for=&quot;terms-privacy&quot;&gt;
+        I agree to the Privacy Policy
+      &lt;/label&gt;
+    &lt;/div&gt;
+  &lt;/fieldset&gt;
+&lt;/div&gt;</code></pre>
+  </details>
+
+  <hr />
+
+  <!-- Sample 4: Checkbox with Selected Items and Non-Tiled -->
+  <h3>Checkbox with Pre-selected Items (Non-tiled)</h3>
+  <cf:checkbox
+    th:id="${model.checkboxSelected.id()}"
+    th:name="${model.checkboxSelected.name()}"
+    th:label="${model.checkboxSelected.label()}"
+    th:tiled="${model.checkboxSelected.tiled()}"
+  >
+    <item
+      th:each="item: ${model.checkboxSelected.items()}"
+      th:id="${item.id()}"
+      th:value="${item.value()}"
+      th:label="${item.label()}"
+      th:selected="${item.selected()}"
+    ></item>
+  </cf:checkbox>
+
+  <details>
+    <summary>Code sample</summary>
+
+    <h4>Java</h4>
+    <pre><code class="language-java">import com.google.common.collect.ImmutableList;
+
+public class CheckboxSelected {
+  public record Option(
+      String id,
+      String value,
+      String label,
+      boolean selected) {}
+
+  public String name() {
+    return &quot;skills&quot;;
+  }
+
+  public String label() {
+    return &quot;Programming skills&quot;;
+  }
+
+  public String tiled() {
+    return &quot;false&quot;;
+  }
+
+  public ImmutableList&lt;Option&gt; items() {
+    return ImmutableList.of(
+        new Option(&quot;skill-java&quot;, &quot;java&quot;, &quot;Java&quot;, true),
+        new Option(&quot;skill-python&quot;, &quot;python&quot;, &quot;Python&quot;, true),
+        new Option(&quot;skill-javascript&quot;, &quot;javascript&quot;, &quot;JavaScript&quot;, false),
+        new Option(&quot;skill-csharp&quot;, &quot;csharp&quot;, &quot;C#&quot;, false));
+  }
+}</code></pre>
+
+    <h4>Thymeleaf</h4>
+    <pre><code class="language-markup">&lt;cf:checkbox
+  th:name=&quot;${model.checkboxSelected.name()}&quot;
+  th:label=&quot;${model.checkboxSelected.label()}&quot;
+  th:tiled=&quot;${model.checkboxSelected.tiled()}&quot;
+&gt;
+  &lt;item
+    th:each=&quot;item: ${model.checkboxSelected.items()}&quot;
+    th:id=&quot;${item.id()}&quot;
+    th:value=&quot;${item.value()}&quot;
+    th:label=&quot;${item.label()}&quot;
+    th:selected=&quot;${item.selected()}&quot;
+  &gt;&lt;/item&gt;
+&lt;/cf:checkbox&gt;</code></pre>
+
+    <h4>Rendered HTML</h4>
+    <pre><code class="language-markup">&lt;div class=&quot;usa-form-group&quot;&gt;
+  &lt;fieldset class=&quot;usa-fieldset&quot;&gt;
+    &lt;legend class=&quot;usa-legend&quot;&gt;Programming skills&lt;/legend&gt;
+    &lt;div class=&quot;usa-checkbox&quot;&gt;
+      &lt;input
+        type=&quot;checkbox&quot;
+        class=&quot;usa-checkbox__input&quot;
+        id=&quot;skill-java&quot;
+        name=&quot;skills&quot;
+        value=&quot;java&quot;
+        checked=&quot;checked&quot; /&gt;
+      &lt;label class=&quot;usa-checkbox__label&quot; for=&quot;skill-java&quot;&gt;Java&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;usa-checkbox&quot;&gt;
+      &lt;input
+        type=&quot;checkbox&quot;
+        class=&quot;usa-checkbox__input&quot;
+        id=&quot;skill-python&quot;
+        name=&quot;skills&quot;
+        value=&quot;python&quot;
+        checked=&quot;checked&quot; /&gt;
+      &lt;label class=&quot;usa-checkbox__label&quot; for=&quot;skill-python&quot;&gt;Python&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;usa-checkbox&quot;&gt;
+      &lt;input
+        type=&quot;checkbox&quot;
+        class=&quot;usa-checkbox__input&quot;
+        id=&quot;skill-javascript&quot;
+        name=&quot;skills&quot;
+        value=&quot;javascript&quot; /&gt;
+      &lt;label class=&quot;usa-checkbox__label&quot; for=&quot;skill-javascript&quot;&gt;JavaScript&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;usa-checkbox&quot;&gt;
+      &lt;input
+        type=&quot;checkbox&quot;
+        class=&quot;usa-checkbox__input&quot;
+        id=&quot;skill-csharp&quot;
+        name=&quot;skills&quot;
+        value=&quot;csharp&quot; /&gt;
+      &lt;label class=&quot;usa-checkbox__label&quot; for=&quot;skill-csharp&quot;&gt;C#&lt;/label&gt;
+    &lt;/div&gt;
+  &lt;/fieldset&gt;
+&lt;/div&gt;</code></pre>
+  </details>
+
+  <hr />
+
+  <!-- Sample 5: Checkbox with Data Attributes and Disabled Option -->
+  <h3>Checkbox with Data Attributes</h3>
+  <cf:checkbox
+    th:id="${model.checkboxWithData.id()}"
+    th:name="${model.checkboxWithData.name()}"
+    th:label="${model.checkboxWithData.label()}"
+  >
+    <item
+      th:each="item: ${model.checkboxWithData.items()}"
+      th:id="${item.id()}"
+      th:value="${item.value()}"
+      th:label="${item.label()}"
+      th:data-test-id="${item.testId()}"
+      th:data-analytics="${item.analytics()}"
+      th:disabled="${item.disabled()}"
+    ></item>
+  </cf:checkbox>
+
+  <details>
+    <summary>Code sample</summary>
+
+    <h4>Java</h4>
+    <pre><code class="language-java">import com.google.common.collect.ImmutableList;
+
+public class CheckboxWithData {
+  public record Option(
+      String id,
+      String value,
+      String label,
+      String testId,
+      String analytics,
+      boolean disabled) {}
+
+  public String name() {
+    return &quot;features&quot;;
+  }
+
+  public String label() {
+    return &quot;Available features&quot;;
+  }
+
+  public ImmutableList&lt;Option&gt; items() {
+    return ImmutableList.of(
+        new Option(
+            &quot;feature-basic&quot;,
+            &quot;basic&quot;,
+            &quot;Basic features&quot;,
+            &quot;checkbox-basic&quot;,
+            &quot;feature-basic-selected&quot;,
+            false),
+        new Option(
+            &quot;feature-premium&quot;,
+            &quot;premium&quot;,
+            &quot;Premium features&quot;,
+            &quot;checkbox-premium&quot;,
+            &quot;feature-premium-selected&quot;,
+            true));
+  }
+}</code></pre>
+
+    <h4>Thymeleaf</h4>
+    <pre><code class="language-markup">&lt;cf:checkbox
+  th:name=&quot;${model.checkboxWithData.name()}&quot;
+  th:label=&quot;${model.checkboxWithData.label()}&quot;
+&gt;
+  &lt;item
+    th:each=&quot;item: ${model.checkboxWithData.items()}&quot;
+    th:id=&quot;${item.id()}&quot;
+    th:value=&quot;${item.value()}&quot;
+    th:label=&quot;${item.label()}&quot;
+    th:data-test-id=&quot;${item.testId()}&quot;
+    th:data-analytics=&quot;${item.analytics()}&quot;
+    th:disabled=&quot;${item.disabled()}&quot;
+  &gt;&lt;/item&gt;
+&lt;/cf:checkbox&gt;</code></pre>
+
+    <h4>Rendered HTML</h4>
+    <pre><code class="language-markup">&lt;div class=&quot;usa-form-group&quot;&gt;
+  &lt;fieldset class=&quot;usa-fieldset&quot;&gt;
+    &lt;legend class=&quot;usa-legend&quot;&gt;Available features&lt;/legend&gt;
+    &lt;div class=&quot;usa-checkbox&quot;&gt;
+      &lt;input
+        type=&quot;checkbox&quot;
+        class=&quot;usa-checkbox__input usa-checkbox__input--tile&quot;
+        id=&quot;feature-basic&quot;
+        name=&quot;features&quot;
+        value=&quot;basic&quot;
+        data-test-id=&quot;checkbox-basic&quot;
+        data-analytics=&quot;feature-basic-selected&quot; /&gt;
+      &lt;label class=&quot;usa-checkbox__label&quot; for=&quot;feature-basic&quot;&gt;Basic features&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;usa-checkbox&quot;&gt;
+      &lt;input
+        type=&quot;checkbox&quot;
+        class=&quot;usa-checkbox__input usa-checkbox__input--tile&quot;
+        id=&quot;feature-premium&quot;
+        name=&quot;features&quot;
+        value=&quot;premium&quot;
+        disabled=&quot;disabled&quot;
+        data-test-id=&quot;checkbox-premium&quot;
+        data-analytics=&quot;feature-premium-selected&quot; /&gt;
+      &lt;label class=&quot;usa-checkbox__label&quot; for=&quot;feature-premium&quot;&gt;Premium features&lt;/label&gt;
+    &lt;/div&gt;
+  &lt;/fieldset&gt;
+&lt;/div&gt;</code></pre>
+  </details>
+</th:block>

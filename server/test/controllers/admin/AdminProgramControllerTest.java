@@ -24,6 +24,7 @@ import play.data.FormFactory;
 import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.CategoryRepository;
 import repository.ProgramRepository;
 import repository.ResetPostgres;
 import repository.VersionRepository;
@@ -35,6 +36,7 @@ import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.admin.programs.ProgramEditStatus;
 import views.admin.programs.ProgramIndexView;
+import views.admin.programs.ProgramMetaDataEdit2PageView;
 import views.admin.programs.ProgramMetaDataEditView;
 import views.admin.programs.ProgramNewOneView;
 import views.html.helper.CSRF;
@@ -89,7 +91,9 @@ public class AdminProgramControllerTest extends ResetPostgres {
             instanceOf(FormFactory.class),
             instanceOf(RequestChecker.class),
             instanceOf(MessagesApi.class),
-            instanceOf(SettingsManifest.class));
+            instanceOf(SettingsManifest.class),
+            instanceOf(ProgramMetaDataEdit2PageView.class),
+            instanceOf(CategoryRepository.class));
   }
 
   @Test

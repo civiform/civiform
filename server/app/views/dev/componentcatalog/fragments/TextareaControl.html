@@ -1,0 +1,277 @@
+<!--/*@thymesVar id="model" type="views.dev.componentcatalog.fragments.TextareaControl"*/-->
+<th:block
+  th:fragment="render(model)"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <h2>Textarea Component</h2>
+
+  <!-- Sample 1: Basic Textarea -->
+  <h3>Basic Textarea</h3>
+  <cf:textarea
+    th:id="${model.basicTextarea.id()}"
+    th:name="${model.basicTextarea.name()}"
+    th:label="${model.basicTextarea.label()}"
+    th:placeholder="${model.basicTextarea.placeholder()}"
+    required="true"
+  />
+
+  <h4>Java</h4>
+  <pre><code class="language-java">public record BasicTextarea(
+    String id,
+    String name,
+    String label,
+    String placeholder) {
+
+  public BasicTextarea() {
+    this(&quot;comments&quot;,
+         &quot;comments&quot;,
+         &quot;Comments&quot;,
+         &quot;Enter your comments here&quot;);
+  }
+}</code></pre>
+
+  <h4>Thymeleaf</h4>
+  <pre><code class="language-markup">&lt;cf:textarea
+  th:id=&quot;${model.basicTextarea.id()}&quot;
+  th:name=&quot;${model.basicTextarea.name()}&quot;
+  th:label=&quot;${model.basicTextarea.label()}&quot;
+  th:placeholder=&quot;${model.basicTextarea.placeholder()}&quot;
+/&gt;</code></pre>
+
+  <h4>Rendered HTML</h4>
+  <pre><code class="language-markup">&lt;div class=&quot;usa-form-group&quot;&gt;
+  &lt;label class=&quot;usa-label&quot; for=&quot;comments&quot;&gt;Comments&lt;/label&gt;
+  &lt;textarea
+    class=&quot;usa-textarea&quot;
+    id=&quot;comments&quot;
+    name=&quot;comments&quot;
+    placeholder=&quot;Enter your comments here&quot;&gt;&lt;/textarea&gt;
+&lt;/div&gt;</code></pre>
+
+  <!-- Sample 2: Textarea with Help Text and Rows -->
+  <h3>Textarea with Help Text and Rows</h3>
+  <cf:textarea
+    th:id="${model.textareaWithHelp.id()}"
+    th:name="${model.textareaWithHelp.name()}"
+    th:label="${model.textareaWithHelp.label()}"
+    th:help-text="${model.textareaWithHelp.helpText()}"
+    th:rows="${model.textareaWithHelp.rows()}"
+    th:placeholder="${model.textareaWithHelp.placeholder()}"
+  />
+
+  <h4>Java</h4>
+  <pre><code class="language-java">public record TextareaWithHelp(
+    String id,
+    String name,
+    String label,
+    String helpText,
+    String rows,
+    String placeholder) {
+
+  public TextareaWithHelp() {
+    this(&quot;description&quot;,
+         &quot;description&quot;,
+         &quot;Project Description&quot;,
+         &quot;Provide a detailed description of your project&quot;,
+         &quot;5&quot;,
+         &quot;Describe your project...&quot;);
+  }
+}</code></pre>
+
+  <h4>Thymeleaf</h4>
+  <pre><code class="language-markup">&lt;cf:textarea
+  th:id=&quot;${model.textareaWithHelp.id()}&quot;
+  th:name=&quot;${model.textareaWithHelp.name()}&quot;
+  th:label=&quot;${model.textareaWithHelp.label()}&quot;
+  th:help-text=&quot;${model.textareaWithHelp.helpText()}&quot;
+  th:rows=&quot;${model.textareaWithHelp.rows()}&quot;
+  th:placeholder=&quot;${model.textareaWithHelp.placeholder()}&quot;
+/&gt;</code></pre>
+
+  <h4>Rendered HTML</h4>
+  <pre><code class="language-markup">&lt;div class=&quot;usa-form-group&quot;&gt;
+  &lt;label class=&quot;usa-label&quot; for=&quot;description&quot;&gt;Project Description&lt;/label&gt;
+  &lt;div class=&quot;usa-hint&quot;&gt;Provide a detailed description of your project&lt;/div&gt;
+  &lt;textarea
+    class=&quot;usa-textarea&quot;
+    id=&quot;description&quot;
+    name=&quot;description&quot;
+    placeholder=&quot;Describe your project...&quot;
+    rows=&quot;5&quot;&gt;&lt;/textarea&gt;
+&lt;/div&gt;</code></pre>
+
+  <!-- Sample 3: Textarea with Validation Error -->
+  <h3>Textarea with Validation Error</h3>
+  <cf:textarea
+    th:id="${model.textareaWithError.id()}"
+    th:name="${model.textareaWithError.name()}"
+    th:label="${model.textareaWithError.label()}"
+    th:is-valid="${model.textareaWithError.isValid()}"
+    th:validation-message="${model.textareaWithError.validationMessage()}"
+    th:rows="${model.textareaWithError.rows()}"
+    required="true"
+  />
+
+  <h4>Java</h4>
+  <pre><code class="language-java">public record TextareaWithError(
+    String id,
+    String name,
+    String label,
+    String isValid,
+    String validationMessage,
+    String rows) {
+
+  public TextareaWithError() {
+    this(&quot;feedback&quot;,
+         &quot;feedback&quot;,
+         &quot;Feedback&quot;,
+         &quot;false&quot;,
+         &quot;Feedback must be at least 10 characters&quot;,
+         &quot;4&quot;);
+  }
+}</code></pre>
+
+  <h4>Thymeleaf</h4>
+  <pre><code class="language-markup">&lt;cf:textarea
+  th:id=&quot;${model.textareaWithError.id()}&quot;
+  th:name=&quot;${model.textareaWithError.name()}&quot;
+  th:label=&quot;${model.textareaWithError.label()}&quot;
+  th:is-valid=&quot;${model.textareaWithError.isValid()}&quot;
+  th:validation-message=&quot;${model.textareaWithError.validationMessage()}&quot;
+  th:rows=&quot;${model.textareaWithError.rows()}&quot;
+  required
+/&gt;</code></pre>
+
+  <h4>Rendered HTML</h4>
+  <pre><code class="language-markup">&lt;div class=&quot;usa-form-group usa-form-group--error&quot;&gt;
+  &lt;label class=&quot;usa-label&quot; for=&quot;feedback&quot;&gt;Feedback&lt;/label&gt;
+  &lt;span id=&quot;feedback-error&quot; class=&quot;usa-error-message&quot; role=&quot;alert&quot;&gt;
+    Feedback must be at least 10 characters
+  &lt;/span&gt;
+  &lt;textarea
+    class=&quot;usa-textarea usa-input--error&quot;
+    id=&quot;feedback&quot;
+    name=&quot;feedback&quot;
+    rows=&quot;4&quot;
+    required=&quot;required&quot;
+    aria-describedby=&quot;feedback-error&quot;
+    aria-invalid=&quot;true&quot;&gt;&lt;/textarea&gt;
+&lt;/div&gt;</code></pre>
+
+  <!-- Sample 4: Textarea with Value and Dimensions -->
+  <h3>Textarea with Pre-filled Value</h3>
+  <cf:textarea
+    th:id="${model.textareaWithValue.id()}"
+    th:name="${model.textareaWithValue.name()}"
+    th:label="${model.textareaWithValue.label()}"
+    th:value="${model.textareaWithValue.value()}"
+    th:rows="${model.textareaWithValue.rows()}"
+    th:cols="${model.textareaWithValue.cols()}"
+    th:help-text="${model.textareaWithValue.helpText()}"
+  />
+
+  <h4>Java</h4>
+  <pre><code class="language-java">public record TextareaWithValue(
+    String id,
+    String name,
+    String label,
+    String value,
+    String rows,
+    String cols,
+    String helpText) {
+
+  public TextareaWithValue() {
+    this(&quot;bio&quot;,
+         &quot;bio&quot;,
+         &quot;Biography&quot;,
+         &quot;I am a software developer with 5 years of experience.&quot;,
+         &quot;6&quot;,
+         &quot;50&quot;,
+         &quot;Tell us about yourself&quot;);
+  }
+}</code></pre>
+
+  <h4>Thymeleaf</h4>
+  <pre><code class="language-markup">&lt;cf:textarea
+  th:id=&quot;${model.textareaWithValue.id()}&quot;
+  th:name=&quot;${model.textareaWithValue.name()}&quot;
+  th:label=&quot;${model.textareaWithValue.label()}&quot;
+  th:value=&quot;${model.textareaWithValue.value()}&quot;
+  th:rows=&quot;${model.textareaWithValue.rows()}&quot;
+  th:cols=&quot;${model.textareaWithValue.cols()}&quot;
+  th:help-text=&quot;${model.textareaWithValue.helpText()}&quot;
+/&gt;</code></pre>
+
+  <h4>Rendered HTML</h4>
+  <pre><code class="language-markup">&lt;div class=&quot;usa-form-group&quot;&gt;
+  &lt;label class=&quot;usa-label&quot; for=&quot;bio&quot;&gt;Biography&lt;/label&gt;
+  &lt;div class=&quot;usa-hint&quot;&gt;Tell us about yourself&lt;/div&gt;
+  &lt;textarea
+    class=&quot;usa-textarea&quot;
+    id=&quot;bio&quot;
+    name=&quot;bio&quot;
+    rows=&quot;6&quot;
+    cols=&quot;50&quot;&gt;I am a software developer with 5 years of experience.&lt;/textarea&gt;
+&lt;/div&gt;</code></pre>
+
+  <!-- Sample 5: Textarea with Data Attributes -->
+  <h3>Textarea with Data Attributes</h3>
+  <cf:textarea
+    th:id="${model.textareaWithData.id()}"
+    th:name="${model.textareaWithData.name()}"
+    th:label="${model.textareaWithData.label()}"
+    th:data-test-id="${model.textareaWithData.testId()}"
+    th:data-max-length="${model.textareaWithData.maxLength()}"
+    th:aria-label="${model.textareaWithData.ariaLabel()}"
+    th:rows="${model.textareaWithData.rows()}"
+    required
+  />
+
+  <h4>Java</h4>
+  <pre><code class="language-java">public record TextareaWithData(
+    String id,
+    String name,
+    String label,
+    String testId,
+    String maxLength,
+    String ariaLabel,
+    String rows) {
+
+  public TextareaWithData() {
+    this(&quot;message&quot;,
+         &quot;message&quot;,
+         &quot;Message&quot;,
+         &quot;message-textarea&quot;,
+         &quot;500&quot;,
+         &quot;Enter your message here&quot;,
+         &quot;8&quot;);
+  }
+}</code></pre>
+
+  <h4>Thymeleaf</h4>
+  <pre><code class="language-markup">&lt;cf:textarea
+  th:id=&quot;${model.textareaWithData.id()}&quot;
+  th:name=&quot;${model.textareaWithData.name()}&quot;
+  th:label=&quot;${model.textareaWithData.label()}&quot;
+  th:data-test-id=&quot;${model.textareaWithData.testId()}&quot;
+  th:data-max-length=&quot;${model.textareaWithData.maxLength()}&quot;
+  th:aria-label=&quot;${model.textareaWithData.ariaLabel()}&quot;
+  th:rows=&quot;${model.textareaWithData.rows()}&quot;
+  required
+/&gt;</code></pre>
+
+  <h4>Rendered HTML</h4>
+  <pre><code class="language-markup">&lt;div class=&quot;usa-form-group&quot;&gt;
+  &lt;label class=&quot;usa-label&quot; for=&quot;message&quot;&gt;Message&lt;/label&gt;
+  &lt;textarea
+    class=&quot;usa-textarea&quot;
+    id=&quot;message&quot;
+    name=&quot;message&quot;
+    rows=&quot;8&quot;
+    required=&quot;required&quot;
+    data-test-id=&quot;message-textarea&quot;
+    data-max-length=&quot;500&quot;
+    aria-label=&quot;Enter your message here&quot;&gt;&lt;/textarea&gt;
+&lt;/div&gt;</code></pre>
+</th:block>

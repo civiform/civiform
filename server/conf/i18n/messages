@@ -993,6 +993,15 @@ error.internalServerHomeButton=Visit homepage
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
 error.statusCode=Error code: {0}
 
+# Override default Play error messages
+error.required=This field is required
+error.minLength=Minimum length is {0}
+error.maxLength=Maximum length is {0}
+error.email=Valid email required
+error.pattern=Invalid format
+error.min=Minimum value is {0}
+error.max=Maximum value is {0}
+
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #
 #-------------------------------------------------------------#

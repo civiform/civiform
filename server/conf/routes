@@ -22,6 +22,7 @@ GET     /admin/programs                                                         
 GET     /admin/programs/disabled                                                                        controllers.admin.AdminProgramController.indexDisabled(request: Request)
 GET     /admin/programs/new                                                                             controllers.admin.AdminProgramController.newOne(request: Request)
 GET     /admin/programs/:programId/edit/:editStatus                                                     controllers.admin.AdminProgramController.edit(request: Request, programId: Long, editStatus: String)
+GET     /admin/programs/:programId/edit2/:editStatus                                                    controllers.admin.AdminProgramController.edit2(request: Request, programId: Long, editStatus: String)
 GET     /admin/programs/:programSlug/preview                                                            controllers.admin.AdminProgramPreviewController.preview(request: Request, programSlug: String)
 GET     /admin/programs/:programId/pdfPreview                                                           controllers.admin.AdminProgramPreviewController.pdfPreview(request: Request, programId: Long)
 GET     /admin/programs/:programId/back                                                                 controllers.admin.AdminProgramPreviewController.back(request: Request, programId: Long)
@@ -318,6 +319,7 @@ GET     /dev/profile                                        controllers.dev.Prof
 GET     /dev/session                                        controllers.dev.SessionDisplayController.index(request: Request)
 
 GET     /dev/component/catalog                              controllers.dev.ComponentCatalogController.index(request: Request)
+GET     /dev/component/catalog/:controlName                 controllers.dev.ComponentCatalogController.index2(request: Request, controlName: String)
 
 ## Prometheus metrics export
 GET     /metrics                                            controllers.monitoring.MetricsController.getMetrics()

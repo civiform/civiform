@@ -47,6 +47,7 @@
     "dompurify": "3.3.1",
     "maplibre-gl": "^5.6.1",
     "markdown-it": "14.1.0",
+    "nanostores": "^1.0.1",
     "swagger-ui-dist": "^5.18.2"
   },
   "browserslist": [

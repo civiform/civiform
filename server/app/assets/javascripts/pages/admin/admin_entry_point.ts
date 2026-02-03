@@ -36,6 +36,12 @@ import htmx from '@/htmx'
 
 import {AdminProgramApiBridge} from '@/admin_program_api_bridge'
 
+import {FormValidation} from '@/form_validation'
+import {
+  AdminProgramEditFormController,
+  AdminProgramEditStore,
+} from '@/admin_programs2'
+
 // Ensure the object path exists
 window.app = window.app || {}
 window.app.data = window.app.data || {}
@@ -83,6 +89,13 @@ function initializeEverything(): void {
   fileUpload.init()
   azureUpload.init(AZURE_ADMIN_FILEUPLOAD_FORM_ID)
   SessionTimeoutHandler.init()
+  new FormValidation()
+
+  if (document.location.pathname.indexOf('edit2') > -1) {
+    console.log('loading admin_programs2.ts')
+    const store = new AdminProgramEditStore()
+    new AdminProgramEditFormController(store)
+  }
 }
 
 function afterSettle(): void {

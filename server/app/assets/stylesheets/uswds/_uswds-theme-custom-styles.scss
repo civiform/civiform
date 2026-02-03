@@ -19,6 +19,47 @@ See the radio-option below as an example.
 */
 
 @use 'uswds-core' as *;
+@use 'usa-hint';
+@use 'usa-form' as *;
+@use 'usa-form-group' as *;
+@use 'usa-input' as *;
+@use 'usa-label' as *;
+@use 'usa-error-message' as *;
+
+
+.usa-prose h1 {
+  @include u-text('bold');
+  @include u-font('heading', 'xl');
+  @include at-media('tablet') {
+    @include u-font('heading', '2xl');
+  }
+}
+
+.usa-prose h2 {
+  @include u-font('heading', 'lg');
+  @include at-media('tablet') {
+    @include u-font('heading', 'xl');
+  }
+}
+//
+//h3 {
+//  @include u-font('heading', 'lg');
+//}
+//
+//h4 {
+//  @include u-font('heading', 'sm');
+//}
+//
+//h5 {
+//  @include u-font('heading', 'xs');
+//}
+//
+//h6 {
+//  @include u-font('heading', '3xs');
+//  @include u-padding(0);
+//  @include u-margin(0);
+//}
+
 
 .cf-radio-option:focus-within {
   @include u-border('blue-40v');
@@ -444,4 +485,70 @@ button.usa-button.usa-button--unstyled.htmx-request {
 
 fieldset .usa-error-message {
   font-size: initial;
+}
+
+// custom form stuff
+/* Add asterisk for required fields */
+//.usa-label:has(~ :is(input, textarea, select)[required])::after,
+//.usa-legend:has(~ :is(.usa-radio input[type='radio'])[required])::after,
+//.usa-legend:has(~ :is(.usa-checkbox input[type='checkbox'])[required])::after {
+//  content: ' *';
+//  color: #d54309;
+//}
+
+.usa-label:has(~ input.usa-input[required]:enabled)::after,
+.usa-label:has(~ textarea.usa-textarea[required]:enabled)::after,
+.usa-label:has(~ select.usa-select[required]:enabled)::after,
+.usa-legend:has(
+    ~ .checkbox-group
+      .usa-checkbox
+      input.usa-checkbox__input[type='checkbox'][required]:enabled
+  )::after,
+.usa-legend:has(
+    ~ .usa-radio input.usa-radio__input[type='radio'][required]:enabled
+  )::after {
+  @extend .usa-hint;
+  @extend .usa-hint--required;
+  content: ' *';
+  white-space: nowrap;
+}
+
+//
+.checkbox-group {
+  display: grid;
+  grid-template-columns: 1fr;
+  column-gap: 1rem;
+  row-gap: 0.2rem;
+
+  @each $cols in (2, 3, 4) {
+    &-col-#{$cols} {
+      @include at-media('tablet') {
+        grid-template-columns: repeat(#{$cols}, 1fr);
+      }
+    }
+  }
+}
+
+.usa-form-group--error {
+  .usa-label {
+    @extend .usa-label--error;
+  }
+
+  .usa-error-message {
+  }
+
+  .usa-input {
+    @extend .usa-input--error;
+  }
+}
+
+.usa-form-group--error {
+  .usa-fieldset {
+    .usa-legend {
+      @extend .usa-label--error;
+    }
+
+    .usa-error-message {
+    }
+  }
 }

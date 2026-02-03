@@ -20,7 +20,16 @@ public class ComponentCatalogController extends Controller {
   }
 
   public Result index(Http.Request request) {
-    var viewmodel = new CatalogPageViewModel();
-    return ok(catalogPageView.render(request, viewmodel)).as(Http.MimeTypes.HTML);
+    return redirect(routes.ComponentCatalogController.index2("button").url());
+  }
+
+  public Result index2(Http.Request request, String controlName) {
+    var viewModel = CatalogPageViewModel.builder().controlName(controlName).build();
+
+    if (viewModel.getUrls().stream().noneMatch(x -> x.right().toString().endsWith(controlName))) {
+      return notFound();
+    }
+
+    return ok(catalogPageView.render(request, viewModel)).as(Http.MimeTypes.HTML);
   }
 }

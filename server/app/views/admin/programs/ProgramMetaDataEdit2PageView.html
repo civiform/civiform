@@ -1,0 +1,300 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.programs.ProgramMetaDataEdit2PageViewModel"*/-->
+<th:block
+  th:fragment="content"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <h1 class="text-normal" th:text="${templateGlobals.pageTitle()}"></h1>
+
+  <h2>Program setup</h2>
+  <form
+    method="post"
+    action="ProgramMetaDataEdit2PageView.html"
+    data-form-type="static"
+  >
+    <!-- maxlength doesn't work yet -->
+    <cf:input
+      type="text"
+      label="Program name"
+      id="program-display-name-input"
+      name="localizedDisplayName"
+      th:value="${model.name()}"
+      maxlength="10000"
+      required="true"
+      th:validation-class="${model.getClassName()}"
+      validation-field="name"
+    />
+
+    <cf:textarea
+      type="text"
+      label="Short description of this program for the public. Maximum 100 characters."
+      id="program-display-short-description-textarea"
+      name="localizedShortDescription"
+      th:value="${model.program().localizedShortDescription().getDefault()}"
+      maxlength="100"
+      required="true"
+    />
+
+    <div>
+      <p>The URL for this program. This URL can't be changed</p>
+      <p th:text="${model.getAbsoluteProgramUrl()}"></p>
+    </div>
+
+    <cf:textarea
+      type="text"
+      label="Program note for administrative use only"
+      id="program-description-textarea"
+      name="adminDescription"
+      th:value="${model.program().adminDescription()}"
+      maxlength="100"
+      required="true"
+    />
+
+    <cf:radio
+      id="program-type"
+      name="programTypeValue"
+      label="Program type"
+      required="true"
+    >
+      <item
+        id="default-program-option"
+        label="Civiform program"
+        description="This program's information card will open program details on the CiviForm website."
+        value="default"
+        th:selected="${model.program().programType().name() == 'DEFAULT'}"
+      ></item>
+      <item
+        id="external-program-option"
+        label="External program"
+        description="This program’s informational card will open program details on an external website."
+        value="external"
+        th:selected="${model.program().programType().name() == 'EXTERNAL'}"
+      ></item>
+      <item
+        id="common-intake-program-option"
+        label="Pre-screener"
+        description="This program informational card will always appear at the top of the Programs and Services page. Only one program can be a screener."
+        value="common_intake_form"
+        th:selected="${model.program().programType().name() == 'COMMON_INTAKE_FORM'}"
+      ></item>
+    </cf:radio>
+
+    <cf:radio
+      id="program-type"
+      name="eligibilityIsGating"
+      label="Program eligibility gating"
+      required="true"
+    >
+      <item
+        id="program-eligibility-gating"
+        label="Only allow residents to submit applications if they meet all eligibility requirements"
+        value="true"
+        th:selected="${model.program().eligibilityIsGating() == true}"
+      ></item>
+      <item
+        id="program-eligibility-not-gating"
+        label="Allow residents to submit applications even if they don't meet eligibility requirements"
+        value="false"
+        th:selected="${model.program().eligibilityIsGating() == false}"
+      ></item>
+    </cf:radio>
+
+    <style th:nonce="${templateGlobals.cspNonce()}">
+      .usa-checkbox__label {
+        user-select: none;
+      }
+    </style>
+
+    <cf:checkbox
+      name="categories[]"
+      id="aaa"
+      columns="2"
+      label="Tag this program with 1 or more categories to make it easier to find"
+      validation-message="Required one two three"
+      required="true"
+    >
+      <item
+        th:each="category: ${model.allCategories()}"
+        th:id="|checkbox-category-${category.getDefaultName()}|"
+        th:value="${category.getId()}"
+        th:label="${category.getDefaultName()}"
+        th:selected="${model.program().categories().contains(category.getId())}"
+        required="true"
+      ></item>
+    </cf:checkbox>
+
+    <cf:radio id="bbb" name="displayMode" label="Program visibility" required="true">
+      <item
+        id="program-display-mode-public"
+        label="Publicly visible"
+        value="PUBLIC"
+        th:selected="${model.program().eligibilityIsGating() == true}"
+      ></item>
+      <item
+        id="program-display-mode-hidden"
+        label="Hide from applicants. Only individuals with the unique program link can access this program"
+        value="HIDDEN_IN_INDEX"
+        th:selected="${model.program().eligibilityIsGating() == true}"
+      ></item>
+      <item
+        id="program-display-mode-ti-only"
+        label="Trusted intermediaries only"
+        value="TI_ONLY"
+        th:selected="${model.program().eligibilityIsGating() == true}"
+      ></item>
+      <item
+        id="program-display-mode-select-ti-only"
+        label="Visible to selected trusted intermediaries only"
+        value="SELECT_TI"
+        th:selected="${model.program().eligibilityIsGating() == true}"
+      ></item>
+      <item
+        id="program-display-mode-disabled"
+        label="Disabled"
+        value="DISABLED"
+        th:selected="${model.program().eligibilityIsGating() == true}"
+      ></item>
+    </cf:radio>
+
+    <cf:input
+      type="text"
+      id="program-external-link-input"
+      name="externalLink"
+      label="Link to program website"
+      th:value="${model.program().externalLink()}"
+      disabled="true"
+    />
+
+    <cf:checkbox id="ccc" name="notificationPreferences" label="Email notifications">
+      <item
+        id="notification-preferences-email"
+        value="EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS"
+        label="Send Program Admins an email notification every time an application is submitted"
+      ></item>
+    </cf:checkbox>
+
+    <h2>Program overview</h2>
+
+    <cf:textarea
+      label="Long program description"
+      id="program-display-description-textarea"
+      name="localizedDisplayDescription"
+      th:value="${model.program().localizedDescription().getDefault()}"
+      required="true"
+    />
+
+    <h2>How to apply</h2>
+
+    <cf:input
+      type="text"
+      label="Step 1 title"
+      id="apply-step-1-title"
+      name="applicationSteps[0][title]"
+      value=""
+      maxlength="10000"
+      required="true"
+    />
+
+    <cf:textarea
+      label="Step 1 description"
+      id="apply-step-1-description"
+      name="applicationSteps[0][description]"
+      value=""
+      required="true"
+    />
+
+    <cf:input
+      type="text"
+      label="Step 2 title"
+      id="apply-step-2-title"
+      name="applicationSteps[1][title]"
+      value=""
+      maxlength="10000"
+    />
+
+    <cf:textarea
+      label="Step 2 description"
+      id="apply-step-2-description"
+      name="applicationSteps[1][description]"
+      value=""
+    />
+
+    <cf:input
+      type="text"
+      label="Step 3 title"
+      id="apply-step-3-title"
+      name="applicationSteps[2][title]"
+      value=""
+      maxlength="10000"
+    />
+
+    <cf:textarea
+      label="Step 3 description"
+      id="apply-step-3-description"
+      name="applicationSteps[2][description]"
+      value=""
+    />
+
+    <cf:input
+      type="text"
+      label="Step 4 title"
+      id="apply-step-4-title"
+      name="applicationSteps[3][title]"
+      value=""
+      maxlength="10000"
+    />
+
+    <cf:textarea
+      label="Step 4 description"
+      id="apply-step-4-description"
+      name="applicationSteps[3][description]"
+      value=""
+    />
+
+    <cf:input
+      type="text"
+      label="Step 5 title"
+      id="apply-step-5-title"
+      name="applicationSteps[4][title]"
+      value=""
+      maxlength="10000"
+    />
+
+    <cf:textarea
+      label="Step 5 description"
+      id="apply-step-5-description"
+      name="applicationSteps[4][description]"
+      value=""
+    />
+
+    <cf:input
+      type="text"
+      label="Step 6 title"
+      id="apply-step-6-title"
+      name="applicationSteps[5][title]"
+      value=""
+      maxlength="10000"
+    />
+
+    <cf:textarea
+      label="Step 6 description"
+      id="apply-step-6-description"
+      name="applicationSteps[5][description]"
+      value=""
+    />
+
+    <h2>Confirmation message</h2>
+
+    <cf:textarea
+      label="A custom message that will be shown on the confirmation page after an application has been submitted. You can use this message to explain next steps of the application process and/or highlight other programs to apply for."
+      id="program-confirmation-message-textarea"
+      name="localizedConfirmationMessage"
+      value=""
+    />
+
+    <!--/*
+        <cf:button id="program-update-button" text="Save" type="submit" />
+        */-->
+  </form>
+</th:block>

@@ -5,7 +5,33 @@
   xmlns:th="http://www.thymeleaf.org"
   xmlns:cf="https://civiform.us/thymeleaf/cf"
 >
+  <style th:nonce="${templateGlobals.cspNonce()}">
+    .code-sample {
+      display: flex;
+      gap: 1rem;
+    }
+    .code-sample > div {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .code-sample pre {
+      flex: 1;
+      margin: 0;
+      overflow: auto;
+    }
+    /*code { font-family: 'Courier New', monospace; font-size: 0.9em; }*/
+  </style>
+
   <h1 class="text-normal" th:text="${templateGlobals.pageTitle()}"></h1>
+
+  <div>
+    <ul>
+      <li th:each="url : ${model.getUrls()}">
+        <a th:href="${url.right()}" th:text="${url.left()}"></a>
+      </li>
+    </ul>
+  </div>
 
   <div class="usa-in-page-nav-container">
     <aside
@@ -18,11 +44,42 @@
       data-threshold="1"
     ></aside>
     <div id="in-page-nav-content" class="width-desktop">
-      <h2>Placeholder 1</h2>
-      <h3>Placeholder C</h3>
-      <h3>Placeholder B</h3>
-      <h2>Placeholder 2</h2>
-      <h3>Placeholder A</h3>
+      <!--      <th:block th:insert="|dev/componentcatalog/fragments/AlertControl::render(${model.getAlertControl()})|"></th:block>-->
+      <th:block
+        th:insert="~{__${'dev/componentcatalog/fragments/' + model.getTemplateFileName()}__ :: render(${model.getControlModel()})}"
+      ></th:block>
     </div>
   </div>
+
+  <!--  <link th:nonce="${templateGlobals.cspNonce()}" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/default.min.css">-->
+  <!--  <script th:nonce="${templateGlobals.cspNonce()}" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>-->
+  <!--  <script th:nonce="${templateGlobals.cspNonce()}">hljs.highlightAll();</script>-->
+
+  <!--  <link-->
+  <!--    href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css"-->
+  <!--    rel="stylesheet"-->
+  <!--    th:nonce="${templateGlobals.cspNonce()}"-->
+  <!--  />-->
+  <!--  <link-->
+  <!--    href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"-->
+  <!--    rel="stylesheet"-->
+  <!--    th:nonce="${templateGlobals.cspNonce()}"-->
+  <!--  />  -->
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css"
+    rel="stylesheet"
+    th:nonce="${templateGlobals.cspNonce()}"
+  />
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"
+    th:nonce="${templateGlobals.cspNonce()}"
+  ></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"
+    th:nonce="${templateGlobals.cspNonce()}"
+  ></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"
+    th:nonce="${templateGlobals.cspNonce()}"
+  ></script>
 </th:block>

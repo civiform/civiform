@@ -22,8 +22,10 @@ import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
 import play.i18n.MessagesApi;
+import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.CategoryRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
@@ -37,6 +39,8 @@ import services.question.QuestionService;
 import services.settings.SettingsManifest;
 import views.admin.programs.ProgramEditStatus;
 import views.admin.programs.ProgramIndexView;
+import views.admin.programs.ProgramMetaDataEdit2PageView;
+import views.admin.programs.ProgramMetaDataEdit2PageViewModel;
 import views.admin.programs.ProgramMetaDataEditView;
 import views.admin.programs.ProgramNewOneView;
 import views.components.ToastMessage;
@@ -53,6 +57,8 @@ public final class AdminProgramController extends CiviFormController {
   private final RequestChecker requestChecker;
   private final MessagesApi messagesApi;
   private final SettingsManifest settingsManifest;
+  private final ProgramMetaDataEdit2PageView programMetaDataEdit2PageView;
+  private final CategoryRepository categoryRepository;
 
   @Inject
   public AdminProgramController(
@@ -66,8 +72,11 @@ public final class AdminProgramController extends CiviFormController {
       FormFactory formFactory,
       RequestChecker requestChecker,
       MessagesApi messagesApi,
-      SettingsManifest settingsManifest) {
+      SettingsManifest settingsManifest,
+      ProgramMetaDataEdit2PageView programMetaDataEdit2PageView,
+      CategoryRepository categoryRepository) {
     super(profileUtils, versionRepository);
+    this.settingsManifest = checkNotNull(settingsManifest);
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
     this.listView = checkNotNull(listView);
@@ -76,7 +85,8 @@ public final class AdminProgramController extends CiviFormController {
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
     this.messagesApi = checkNotNull(messagesApi);
-    this.settingsManifest = checkNotNull(settingsManifest);
+    this.programMetaDataEdit2PageView = checkNotNull(programMetaDataEdit2PageView);
+    this.categoryRepository = checkNotNull(categoryRepository);
   }
 
   /**
@@ -200,6 +210,24 @@ public final class AdminProgramController extends CiviFormController {
     ProgramDefinition program = programService.getFullProgramDefinition(id);
     requestChecker.throwIfProgramNotDraft(id);
     return ok(editView.render(request, program, ProgramEditStatus.getStatusFromString(editStatus)));
+  }
+
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result edit2(Request request, long id, String editStatus) throws ProgramNotFoundException {
+    ProgramDefinition program = programService.getFullProgramDefinition(id);
+    requestChecker.throwIfProgramNotDraft(id);
+
+    var categoryOptions = categoryRepository.listCategories();
+
+    var viewmodel =
+        ProgramMetaDataEdit2PageViewModel.builder()
+            .programEditStatus(ProgramEditStatus.getStatusFromString(editStatus))
+            .program(program)
+            .baseUrl(settingsManifest.getBaseUrl().orElse(""))
+            .allCategories(categoryOptions)
+            .build();
+
+    return ok(programMetaDataEdit2PageView.render(request, viewmodel)).as(Http.MimeTypes.HTML);
   }
 
   /** POST endpoint for publishing all programs in the draft version. */
