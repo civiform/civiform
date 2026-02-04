@@ -1205,9 +1205,9 @@ reportingProgram.heading=Dib usoo sheegida {0}
 # Info text about data delay
 reportingProgram.dataDelay=Xogtu waxay noqon kartaa ilaa hal saac dib loo dhigo.
 # Caption for the table showing submissions by month for a program
-reportingProgram.caption.submissionsByMonth=Submissions by month
+reportingProgram.caption.submissionsByMonth=Gudbinta bisha
 # Column header for month
-reportingProgram.month=Month
+reportingProgram.month=Bisha
 # Column header for submissions
 reportingProgram.submissions=Submissions
 # Column header for 25th percentile time to complete
