@@ -618,7 +618,7 @@ button.saveAndExit=አስቀምጥ እና ውጣ
 # Confirmation dialog shown to admin for deleting all conditions in the predicate edit view
 confirm.deleteAllConditions=ሁሉንም መስፈርቶች መደምሰስ መፈለግዎን እርግጠኛ ነዎት?
 # Confirmation dialog shown to admin for deleting a condition in the predicate edit view
-confirm.deleteSingleCondition=Are you sure you would like to delete this condition?
+confirm.deleteSingleCondition=ይህን መስፈርት መደምሰስ መፈለግዎን እርግጠኛ ነዎት?
 # Confirmation dialog shown to admin for leaving predicate edit without saving.
 confirm.leaveWithoutSaving=Are you sure you would like to leave?
 # Dialog to warn admin that a deletion action cannot be undone
