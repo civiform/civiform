@@ -578,7 +578,7 @@ content.predicateConditionsAreTrue=ሁኔታዎች እውነት ከሆኑ፦
 # Text that shows on the eligibility predicate screen when no eligibility conditions are set.
 content.predicateEligibilityNullState=አመልካች ሁልጊዜም ብቁ ነው።
 # Text that shows on the visibility predicate screen when no visibility conditions are set.
-content.predicateVisibilityNullState=This screen is always shown.
+content.predicateVisibilityNullState=ይህ ገጽ ሁልጊዜም ይታያል።
 
 # Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
 content.predicateConditionIsTrueIf=ሁኔታ እውነት የሚሆነው
