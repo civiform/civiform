@@ -1169,14 +1169,14 @@ text.nestedRepeatedSet=
 # An uneditable prefix for the enumerator screen name representing the repeated object that will be enumerated
 text.repeatedSet.prefix=父標籤
 # An uneditable prefix for the enumerator screen name representing the nested repeated object that will be enumerated
-text.repeatedSet.nestedPrefix=child label
+text.repeatedSet.nestedPrefix=子標籤
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #
 #------------------------------------------------------------------------------#
 
 # Caption for the table showing submissions by program
-caption.submissionsByProgram=Submissions by program (all programs)
+caption.submissionsByProgram=按計劃提交的資料（所有計劃）
 # Column header for program name
 content.program=計劃
 # Column header for number of submissions
@@ -1194,7 +1194,7 @@ button.downloadCsv=下載 CSV
 # Caption for the table showing submissions by month
 caption.submissionsByMonth=按月份提交的資料（所有計劃）
 # Column header for month
-content.month=Month
+content.month=月份
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING PROGRAM                                                     #
@@ -1205,7 +1205,7 @@ reportingProgram.heading={0} 報告
 # Info text about data delay
 reportingProgram.dataDelay=資料延遲可能長達一小時。
 # Caption for the table showing submissions by month for a program
-reportingProgram.caption.submissionsByMonth=Submissions by month
+reportingProgram.caption.submissionsByMonth=按月份提交的資料
 # Column header for month
 reportingProgram.month=月份
 # Column header for submissions
@@ -1217,6 +1217,6 @@ reportingProgram.medianTimeToComplete=完成時間的中位數
 # Column header for 75th percentile time to complete
 reportingProgram.timeToCompleteP75=完成時間（第 75 頁）
 # Column header for 99th percentile time to complete
-reportingProgram.timeToCompleteP99=Time to complete (p99)
+reportingProgram.timeToCompleteP99=完成時間（第 99 頁）
 # Text on button to download CSV file
-reportingProgram.downloadCsv=Download CSV
+reportingProgram.downloadCsv=下載 CSV
