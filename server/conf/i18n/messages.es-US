@@ -1182,7 +1182,7 @@ content.program=Programa
 # Column header for number of submissions
 content.submissions=Envíos
 # Column header for 25th percentile time to complete
-content.timeToCompleteP25=Time to complete (p25)
+content.timeToCompleteP25=Tiempo para completar (p25)
 # Column header for median (50th percentile) time to complete
 content.medianTimeToComplete=Median time to complete
 # Column header for 75th percentile time to complete
