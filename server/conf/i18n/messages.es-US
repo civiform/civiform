@@ -1194,7 +1194,7 @@ button.downloadCsv=Descargar CSV
 # Caption for the table showing submissions by month
 caption.submissionsByMonth=Envíos por mes (todos los programas)
 # Column header for month
-content.month=Month
+content.month=Mes
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING PROGRAM                                                     #
