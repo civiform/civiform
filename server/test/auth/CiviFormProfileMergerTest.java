@@ -106,7 +106,6 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
   @Test
   public void mergeProfiles_noExistingApplicant_succeeds() {
     ApplicantModel guestApplicant = createApplicant();
-    // Create profile data with the guest email
     CiviFormProfileData profileData = new CiviFormProfileData();
     profileData.setId(guestApplicant.getAccount().id.toString());
     profileData.addAttribute(EMAIL_ATTR, EMAIL2);
@@ -176,5 +175,44 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
 
     assertThat(loggedInApplicant.getApplications()).hasSize(0);
     assertThat(guestApplicant.getApplications()).hasSize(1);
+  }
+
+  // TODO(#11776): Fix this undesired behavior.
+  @Test
+  public void mergeProfiles_mergeFunctionThrows_applicantStillMerged() {
+    // Create the logged-in user's applicant
+    ApplicantModel loggedInApplicant = createApplicant();
+
+    // Create a guest applicant with an application
+    ApplicantModel guestApplicant = createApplicant();
+
+    // Create profile data for the guest
+    CiviFormProfileData guestProfileData = new CiviFormProfileData();
+    guestProfileData.setId(guestApplicant.getAccount().id.toString());
+    CiviFormProfile guestProfile = profileFactory.wrapProfileData(guestProfileData);
+
+    // Count applications before merge
+    int initialGuestApplicationCount = guestApplicant.getApplications().size();
+    assertThat(initialGuestApplicationCount).isEqualTo(1);
+
+    long expectedAccountId = loggedInApplicant.getAccount().id;
+    var merged =
+        civiFormProfileMerger.mergeProfiles(
+            Optional.of(loggedInApplicant),
+            Optional.of(guestProfile),
+            oidcProfile,
+            /* mergeFunction= */ (civiFormProfile, profile) -> {
+              throw new RuntimeException();
+            });
+
+    assertThat(merged).hasValue(userProfile);
+
+    loggedInApplicant.refresh();
+    guestApplicant.refresh();
+
+    // Both applicants have the same account.
+    // TODO(#11776) This should not be the case when the provided merger throws.
+    assertThat(loggedInApplicant.getAccount().id).isEqualTo(expectedAccountId);
+    assertThat(guestApplicant.getAccount().id).isEqualTo(expectedAccountId);
   }
 }
