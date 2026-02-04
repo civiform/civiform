@@ -1180,7 +1180,7 @@ caption.submissionsByProgram=Gudbinada barnaamijka (dhammaan barnaamijyada)
 # Column header for program name
 content.program=Barnaamijka
 # Column header for number of submissions
-content.submissions=Submissions
+content.submissions=Gudbinada
 # Column header for 25th percentile time to complete
 content.timeToCompleteP25=Time to complete (p25)
 # Column header for median (50th percentile) time to complete
