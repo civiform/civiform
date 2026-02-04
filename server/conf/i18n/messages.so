@@ -921,7 +921,7 @@ map.geoJsonErrorText = Waan ka xunahay ma awoodno inaan soo bandhigno su''aashaa
 map.contactUs = Nala soo xariir
 map.homepage = Bogga hore
 # screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
-map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a different location, please unselect at least one of the locations you have chosen.
+map.maxLocationsSelectedSr = Goobaha ugu badnaan ee la doortay {0}. Si loogu daro meel ka duwan, fadlan ka saar ugu yaraan mid ka mid ah meelaha aad dooratay.
 
 #---------------------------------------------------------------------------#
 # MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
