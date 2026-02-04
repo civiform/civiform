@@ -109,12 +109,12 @@ public class ValidAccountFilter extends EssentialFilter {
    * present, we never make it here anyway. If the profile is invalid, we don't want to allow
    * hitting those endpoints with an invalid profile, so we don't add that check here.
    */
-  private boolean allowedEndpoint(Http.RequestHeader requestHeader) {
+  public static boolean allowedEndpoint(Http.RequestHeader requestHeader) {
     return NonUserRoutes.anyMatch(requestHeader) || isLogoutRequest(requestHeader.uri());
   }
 
   /** Return true if the request is to the logout endpoint. */
-  private boolean isLogoutRequest(String uri) {
+  private static boolean isLogoutRequest(String uri) {
     return uri.startsWith(org.pac4j.play.routes.LogoutController.logout().url());
   }
 }

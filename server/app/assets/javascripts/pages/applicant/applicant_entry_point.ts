@@ -2,7 +2,7 @@
  * Entry point for applicant bundle. Applicant bundle is served on all pages
  * that are used by applicants and trusted intermediaries.
  */
-
+import '@/components/shared/modal'
 import * as main from '@/main'
 import * as languageSelector from '@/language_selector'
 import * as enumerator from '@/enumerator'

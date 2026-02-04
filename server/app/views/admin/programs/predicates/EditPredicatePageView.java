@@ -7,7 +7,7 @@ import org.thymeleaf.TemplateEngine;
 import services.BundledAssetsFinder;
 import services.settings.SettingsManifest;
 import views.admin.AdminLayout;
-import views.admin.AdminLayoutBaseView;
+import views.admin.TransitionalLayoutBaseView;
 import views.admin.programs.ProgramPredicateConfigureView;
 import views.admin.programs.ProgramPredicatesEditView;
 
@@ -16,7 +16,7 @@ import views.admin.programs.ProgramPredicatesEditView;
  * block in a program and replaces {@link ProgramPredicatesEditView} and {@link
  * ProgramPredicateConfigureView}.
  */
-public class EditPredicatePageView extends AdminLayoutBaseView<EditPredicatePageViewModel> {
+public class EditPredicatePageView extends TransitionalLayoutBaseView<EditPredicatePageViewModel> {
   @Inject
   public EditPredicatePageView(
       TemplateEngine templateEngine,
@@ -43,6 +43,7 @@ public class EditPredicatePageView extends AdminLayoutBaseView<EditPredicatePage
   }
 
   @Override
+  @SuppressWarnings("deprecation")
   protected boolean isWidescreen() {
     return true;
   }

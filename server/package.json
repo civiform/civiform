@@ -28,7 +28,7 @@
     "eslint-config-google": "0.14.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-no-unsanitized": "^4.0.2",
-    "globals": "17.1.0",
+    "globals": "17.3.0",
     "htmx-ext-response-targets": "2.0.4",
     "htmx.org": "2.0.8",
     "jsdom": "^27.3.0",

@@ -73,7 +73,10 @@ public class SecurityModule extends AbstractModule {
     // After logging in you are redirected to '/', and auth autorenews.
     CallbackController callbackController = new CallbackController();
     callbackController.setDefaultUrl(routes.HomeController.index().url());
-    callbackController.setRenewSession(true);
+    // Since we use a cookie-backed session store in CiviFormSessionStoreFactory rather than
+    // server-side sessions, this prevents errors showing up in the log about
+    // being unable to renew the session.
+    callbackController.setRenewSession(false);
     bind(CallbackController.class).toInstance(callbackController);
 
     // you can logout by hitting the logout endpoint, you'll be redirected to root page.
