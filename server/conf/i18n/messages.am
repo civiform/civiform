@@ -1180,7 +1180,7 @@ caption.submissionsByProgram=በፕሮግራም የተሰደሩ ማመልከቻ�
 # Column header for program name
 content.program=ፕሮግራም
 # Column header for number of submissions
-content.submissions=Submissions
+content.submissions=ማመልከቻዎች
 # Column header for 25th percentile time to complete
 content.timeToCompleteP25=Time to complete (p25)
 # Column header for median (50th percentile) time to complete
