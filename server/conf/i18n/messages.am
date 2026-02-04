@@ -1205,7 +1205,7 @@ reportingProgram.heading={0} ሪፖርት በማድረግ ላይ
 # Info text about data delay
 reportingProgram.dataDelay=ውሂብ እስከ አንድ ሰዓት ሊዘገይ ይችላል።
 # Caption for the table showing submissions by month for a program
-reportingProgram.caption.submissionsByMonth=በወር የተሰደሩ ማመልከቻዎች
+reportingProgram.caption.submissionsByMonth=በወር የተደራጁ ማመልከቻዎች
 # Column header for month
 reportingProgram.month=ወር
 # Column header for submissions
