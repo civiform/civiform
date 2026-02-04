@@ -19,6 +19,11 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            // GitHub username -> Slack user ID mapping
+            const slackUserMap = {
+              'tallulahkay': 'U08ELT9CAB0'
+            };
+
             const files = await github.rest.pulls.listFiles({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -26,6 +31,11 @@ jobs:
             });
             const messagesModified = files.data.some(file => file.filename === 'server/conf/i18n/messages');
             core.setOutput('modified', messagesModified);
+
+            const ghUser = context.payload.pull_request.user.login;
+            const slackUserId = slackUserMap[ghUser];
+            const mention = slackUserId ? `<@${slackUserId}>` : `@${ghUser}`;
+            core.setOutput('mention', mention);
 
       - name: Send Slack notification
         if: steps.check_messages.outputs.modified == 'true'
@@ -41,7 +51,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*PR merged with messages file changes*\n<${{ github.event.pull_request.html_url }}|${{ github.event.pull_request.title }}>\n\nThe base messages file was modified. Translation context may need updating."
+                    "text": "${{ steps.check_messages.outputs.mention }}: *Reminder to update context in Transifex for this PR:*\n<${{ github.event.pull_request.html_url }}|${{ github.event.pull_request.title }}>\n\nThe base messages file was modified. Translation context may need to be added to Transifex."
                   }
                 }
               ]
