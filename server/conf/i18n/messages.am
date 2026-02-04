@@ -563,7 +563,7 @@ content.predicateEligibilityDescription=አንድ አመልካች በዚህ ማ�
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualitifies for the program.
 content.predicateEligibilityDescription.v2=በዚህ ገጽ ላይ ላሉ ጥያቄዎች በሚሰጣቸው ምላሾች መሰረት አንድ አመልካች ለፕሮግራሙ መስፈርቱን የሚያሟላ መሆኑን ለማረጋገጥ የብቁነት መስፈርቶችን ያክሉ።
 # Text informing admins that ineligible applicants will be blocked from submitting an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
-content.blockIneligibleApplicants=Applicants who do not meet the minimum requirements will be blocked from submitting an application. You can change this in the
+content.blockIneligibleApplicants=ዝቅተኛዎቹን መስፈርቶች የማያሟሉ አመልካቾች ማመልከቻ እንዳያስገቡ ይታገዳሉ። እርስዎ ይህን በ
 # Text informing admins that ineligible applicants will still be able to submit an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
 content.allowIneligibleApplicants=Applicants can submit an application even if they do not meet the minimum requirements. You can change this in the
 # Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
