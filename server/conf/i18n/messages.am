@@ -1192,7 +1192,7 @@ content.timeToCompleteP99=ማጠናቀቂያ ጊዜ (ገጽ99)
 # Text on button to download CSV file
 button.downloadCsv=CSV አውርድ
 # Caption for the table showing submissions by month
-caption.submissionsByMonth=Submissions by month (all programs)
+caption.submissionsByMonth=በወር የተሰደሩ ማመለክቻዎች (ሁሉም ፕሮግራሞች)
 # Column header for month
 content.month=Month
 
