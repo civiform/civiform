@@ -921,7 +921,7 @@ map.geoJsonErrorText = Lamentamos no poder mostrarte esta pregunta ahora mismo. 
 map.contactUs = comunícate con nosotros
 map.homepage = página de inicio
 # screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
-map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a different location, please unselect at least one of the locations you have chosen.
+map.maxLocationsSelectedSr = Se seleccionó el máximo de {0} ubicaciones. Para agregar una ubicación diferente, cancela la selección de al menos una de las ubicaciones que has elegido.
 
 #---------------------------------------------------------------------------#
 # MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
