@@ -1203,7 +1203,7 @@ content.month=Bisha
 # Heading for the program reporting page
 reportingProgram.heading=Dib usoo sheegida {0}
 # Info text about data delay
-reportingProgram.dataDelay=Data may be up to an hour delayed.
+reportingProgram.dataDelay=Xogtu waxay noqon kartaa ilaa hal saac dib loo dhigo.
 # Caption for the table showing submissions by month for a program
 reportingProgram.caption.submissionsByMonth=Submissions by month
 # Column header for month
