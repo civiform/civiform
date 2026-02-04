@@ -1184,7 +1184,7 @@ content.submissions=ማመልከቻዎች
 # Column header for 25th percentile time to complete
 content.timeToCompleteP25=መጨረሻ ጊዜ (ገጽ25)
 # Column header for median (50th percentile) time to complete
-content.medianTimeToComplete=Median time to complete
+content.medianTimeToComplete=ሜዲያን የማጠናቀቂያ ጊዜ
 # Column header for 75th percentile time to complete
 content.timeToCompleteP75=Time to complete (p75)
 # Column header for 99th percentile time to complete
