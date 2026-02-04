@@ -1,157 +1,180 @@
 package auth;
 
-import static java.util.concurrent.CompletableFuture.completedFuture;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import com.google.common.collect.ImmutableList;
-import java.util.Collections;
 import java.util.Optional;
-import models.AccountModel;
 import models.ApplicantModel;
 import models.ApplicationModel;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.core.profile.UserProfile;
 import org.pac4j.oidc.profile.OidcProfile;
 import repository.AccountRepository;
+import repository.ResetPostgres;
+import services.program.ProgramDefinition;
+import support.ProgramBuilder;
 
-@RunWith(MockitoJUnitRunner.class)
-public class CiviFormProfileMergerTest {
+public class CiviFormProfileMergerTest extends ResetPostgres {
 
   private static final String EMAIL_ATTR = "user_emailid";
   private static final String EMAIL1 = "foo@bar.com";
   private static final String EMAIL2 = "bar@foo.com";
-  private static final Long ACCOUNT_ID = 12345L;
 
-  @Mock private AccountRepository repository;
-  @Mock private ProfileFactory profileFactory;
-  @Mock private CiviFormProfile civiFormProfile;
-  @Mock private ApplicantModel applicant;
-
+  private AccountRepository repository;
+  private ProfileFactory profileFactory;
+  private CiviFormProfileMerger civiFormProfileMerger;
   private UserProfile userProfile;
   private OidcProfile oidcProfile;
-  private AccountModel account;
-
-  private CiviFormProfileMerger civiFormProfileMerger;
 
   @Before
   public void setup() {
+    repository = instanceOf(AccountRepository.class);
+    profileFactory = instanceOf(ProfileFactory.class);
     civiFormProfileMerger = new CiviFormProfileMerger(profileFactory, () -> repository);
-
     userProfile = new CommonProfile();
-
     oidcProfile = new OidcProfile();
     oidcProfile.addAttribute(EMAIL_ATTR, EMAIL1);
+  }
 
-    CiviFormProfileData civiFormProfileData = new CiviFormProfileData();
-    civiFormProfileData.setId(ACCOUNT_ID.toString());
-    civiFormProfileData.addAttribute(EMAIL_ATTR, EMAIL2);
-
-    account = new AccountModel();
-    account.id = ACCOUNT_ID;
-
-    account.setApplicants(Collections.singletonList(applicant));
-
-    when(applicant.getAccount()).thenReturn(account);
-
-    ApplicationModel dummyApplication = new ApplicationModel(applicant, null, null);
-
-    when(applicant.getApplications()).thenReturn(ImmutableList.of(dummyApplication));
-    when(civiFormProfile.getProfileData()).thenReturn(civiFormProfileData);
-    when(profileFactory.wrap(any(ApplicantModel.class))).thenReturn(civiFormProfile);
-    when(civiFormProfile.getApplicant()).thenReturn(completedFuture(applicant));
-    when(repository.mergeApplicantsOlderIntoNewer(applicant, applicant, account))
-        .thenReturn(completedFuture(applicant));
+  /**
+   * Helper method to create an applicant with an associated account. This follows the pattern from
+   * WithMockedProfiles.
+   */
+  private ApplicantModel createApplicant() {
+    ApplicantModel applicant = resourceCreator.insertApplicant();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+    return applicant;
   }
 
   @Test
-  public void mergeProfiles_succeeds_noExistingApplicantAndNoExistingProfile() {
+  public void mergeProfiles_noExistingApplicantAndNoExistingProfile_succeeds() {
     var merged =
         civiFormProfileMerger.mergeProfiles(
             /* applicantInDatabase= */ Optional.empty(),
             /* existingGuestProfile= */ Optional.empty(),
             oidcProfile,
-            (civiFormProfile, profile) -> {
+            /* mergeFunction= */ (civiFormProfile, profile) -> {
               assertThat(civiFormProfile).isEmpty();
               assertThat(profile).isEqualTo(oidcProfile);
               return userProfile;
             });
+
     assertThat(merged).hasValue(userProfile);
   }
 
   @Test
-  public void mergeProfiles_succeeds_noExistingProfile() {
+  public void mergeProfiles_noExistingProfile_succeeds() {
+    ApplicantModel applicant = createApplicant();
+
     var merged =
         civiFormProfileMerger.mergeProfiles(
             Optional.of(applicant),
             /* existingGuestProfile= */ Optional.empty(),
             oidcProfile,
-            (civiFormProfile, profile) -> {
+            /* mergeFunction= */ (civiFormProfile, profile) -> {
               var profileData = civiFormProfile.orElseThrow().getProfileData();
-              assertThat(profileData.getId()).isEqualTo(ACCOUNT_ID.toString());
+              assertThat(profileData.getId()).isEqualTo(applicant.getAccount().id.toString());
               assertThat(profile).isEqualTo(oidcProfile);
               return userProfile;
             });
+
     assertThat(merged).hasValue(userProfile);
   }
 
   @Test
-  public void mergeProfiles_succeeds_guestProfileWithNoApplications() {
-    // Simulate there being no applications for this guest applicant.
-    when(applicant.getApplications()).thenReturn(ImmutableList.of());
+  public void mergeProfiles_guestProfileWithNoApplications_succeeds() {
+    ApplicantModel applicant = createApplicant();
+    CiviFormProfile civiFormProfile = profileFactory.wrap(applicant);
 
     var merged =
         civiFormProfileMerger.mergeProfiles(
             Optional.of(applicant),
             Optional.of(civiFormProfile),
             oidcProfile,
-            (civiFormProfile, profile) -> {
-              var profileData = civiFormProfile.orElseThrow().getProfileData();
-              assertThat(profileData.getId()).isEqualTo(ACCOUNT_ID.toString());
+            /* mergeFunction= */ (profileFromMerger, profile) -> {
+              var profileData = profileFromMerger.orElseThrow().getProfileData();
+              assertThat(profileData.getId()).isEqualTo(applicant.getAccount().id.toString());
               assertThat(profile).isEqualTo(oidcProfile);
               return userProfile;
             });
+
     assertThat(merged).hasValue(userProfile);
   }
 
   @Test
-  public void mergeProfiles_succeeds_noExistingApplicant() {
+  public void mergeProfiles_noExistingApplicant_succeeds() {
+    ApplicantModel guestApplicant = createApplicant();
+    // Create profile data with the guest email
+    CiviFormProfileData profileData = new CiviFormProfileData();
+    profileData.setId(guestApplicant.getAccount().id.toString());
+    profileData.addAttribute(EMAIL_ATTR, EMAIL2);
+    CiviFormProfile civiFormProfile = profileFactory.wrapProfileData(profileData);
+
     var merged =
         civiFormProfileMerger.mergeProfiles(
             /* applicantInDatabase= */ Optional.empty(),
             Optional.of(civiFormProfile),
             oidcProfile,
-            (civiFormProfile, profile) -> {
-              var profileData = civiFormProfile.orElseThrow().getProfileData();
-              assertThat(profileData.getAttribute(EMAIL_ATTR)).isEqualTo(EMAIL2);
+            /* mergeFunction= */ (profileFromMerger, profile) -> {
+              var profileDataFromMerger = profileFromMerger.orElseThrow().getProfileData();
+              assertThat(profileDataFromMerger.getAttribute(EMAIL_ATTR)).isEqualTo(EMAIL2);
               assertThat(profile).isEqualTo(oidcProfile);
               return userProfile;
             });
+
     assertThat(merged).hasValue(userProfile);
   }
 
   @Test
-  public void mergeProfiles_succeeds_afterTwoWayMerge() {
+  public void mergeProfiles_afterTwoWayMerge_succeeds() {
+    // Create the logged-in user's applicant
+    ApplicantModel loggedInApplicant = createApplicant();
+
+    // Create a guest applicant with an application
+    ApplicantModel guestApplicant = createApplicant();
+
+    // Create a program and application for the guest
+    ProgramDefinition program = ProgramBuilder.newActiveProgram("test-program").buildDefinition();
+    ApplicationModel guestApplication =
+        new ApplicationModel(guestApplicant, program.toProgram(), null);
+    guestApplication.save();
+    guestApplicant.refresh();
+
+    // Create profile data for the guest
+    CiviFormProfileData guestProfileData = new CiviFormProfileData();
+    guestProfileData.setId(guestApplicant.getAccount().id.toString());
+    CiviFormProfile guestProfile = profileFactory.wrapProfileData(guestProfileData);
+
+    // Count applications before merge
+    int initialGuestApplicationCount = guestApplicant.getApplications().size();
+    assertThat(initialGuestApplicationCount).isEqualTo(1);
+
+    long expectedAccountId = loggedInApplicant.getAccount().id;
     var merged =
         civiFormProfileMerger.mergeProfiles(
-            Optional.of(applicant),
-            Optional.of(civiFormProfile),
+            Optional.of(loggedInApplicant),
+            Optional.of(guestProfile),
             oidcProfile,
-            (civiFormProfile, profile) -> {
+            /* mergeFunction= */ (civiFormProfile, profile) -> {
               var profileData = civiFormProfile.orElseThrow().getProfileData();
-              assertThat(profileData.getId()).isEqualTo(ACCOUNT_ID.toString());
+              assertThat(profileData.getId())
+                  .isEqualTo(loggedInApplicant.getAccount().id.toString());
               assertThat(profile).isEqualTo(oidcProfile);
               return userProfile;
             });
-    verify(repository).mergeApplicantsOlderIntoNewer(eq(applicant), eq(applicant), eq(account));
+
     assertThat(merged).hasValue(userProfile);
+
+    loggedInApplicant.refresh();
+    guestApplicant.refresh();
+
+    // Both applicants should now belong to the same account
+    assertThat(loggedInApplicant.getAccount().id).isEqualTo(expectedAccountId);
+    assertThat(guestApplicant.getAccount().id).isEqualTo(expectedAccountId);
+
+    assertThat(loggedInApplicant.getApplications()).hasSize(0);
+    assertThat(guestApplicant.getApplications()).hasSize(1);
   }
 }
