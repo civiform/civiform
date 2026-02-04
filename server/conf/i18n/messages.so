@@ -565,7 +565,7 @@ content.predicateEligibilityDescription.v2=Ku dar shuruudaha u-qalmitaanka si lo
 # Text informing admins that ineligible applicants will be blocked from submitting an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
 content.blockIneligibleApplicants=Codsadayaasha aan buuxin shuruudaha ugu yar waxaa laga joojin doonaa inay soo gudbiyaan codsi. Waxaad ka bedeli kartaa tan
 # Text informing admins that ineligible applicants will still be able to submit an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
-content.allowIneligibleApplicants=Applicants can submit an application even if they do not meet the minimum requirements. You can change this in the
+content.allowIneligibleApplicants=Codsadayaashu waxay soo gudbin karaan codsi xitaa haddii aysan buuxin shuruudaha ugu yar. Waxaad arrintaan ka bedeli kartaa
 # Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
 link.programSettings=sitinka barnaamijka
 
