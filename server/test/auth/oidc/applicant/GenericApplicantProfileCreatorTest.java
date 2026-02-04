@@ -1,6 +1,7 @@
 package auth.oidc.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static support.FakeRequestBuilder.fakeRequest;
 
 import auth.CiviFormProfileData;
 import auth.IdentityProviderType;
@@ -16,6 +17,7 @@ import org.junit.Test;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
+import org.pac4j.play.PlayWebContext;
 import repository.AccountRepository;
 import repository.ResetPostgres;
 import support.CfTestHelpers;
@@ -83,8 +85,9 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
     profile.addAttribute("iss", ISSUER);
     profile.setId(SUBJECT);
 
+    PlayWebContext context = new PlayWebContext(fakeRequest());
     CiviFormProfileData profileData =
-        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile);
+        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile, context);
     assertThat(profileData).isNotNull();
     assertThat(profileData.getEmail()).isEqualTo("foo@bar.com");
 
@@ -104,8 +107,9 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
     profile.addAttribute("iss", ISSUER);
     profile.setId(SUBJECT);
 
+    PlayWebContext context = new PlayWebContext(fakeRequest());
     CiviFormProfileData profileData =
-        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile);
+        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile, context);
     assertThat(profileData).isNotNull();
     assertThat(profileData.getEmail()).isEqualTo("foo@bar.com");
 
@@ -130,8 +134,9 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
     profile.addAttribute("iss", ISSUER);
     profile.setId(SUBJECT);
 
+    PlayWebContext context = new PlayWebContext(fakeRequest());
     CiviFormProfileData profileData =
-        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile);
+        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile, context);
     assertThat(profileData).isNotNull();
     assertThat(profileData.getEmail()).isEqualTo("foo@bar.com");
 
