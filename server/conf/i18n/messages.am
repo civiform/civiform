@@ -1201,7 +1201,7 @@ content.month=ወር
 #------------------------------------------------------------------------------#
 
 # Heading for the program reporting page
-reportingProgram.heading={0} reporting
+reportingProgram.heading={0} ሪፖርት በማድረግ ላይ
 # Info text about data delay
 reportingProgram.dataDelay=Data may be up to an hour delayed.
 # Caption for the table showing submissions by month for a program
