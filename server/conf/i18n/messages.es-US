@@ -1203,11 +1203,11 @@ content.month=Mes
 # Heading for the program reporting page
 reportingProgram.heading=Informe de {0}
 # Info text about data delay
-reportingProgram.dataDelay=Data may be up to an hour delayed.
+reportingProgram.dataDelay=Los datos pueden tener un retraso de hasta una hora.
 # Caption for the table showing submissions by month for a program
-reportingProgram.caption.submissionsByMonth=Submissions by month
+reportingProgram.caption.submissionsByMonth=Envíos por mes
 # Column header for month
-reportingProgram.month=Month
+reportingProgram.month=Mes
 # Column header for submissions
 reportingProgram.submissions=Submissions
 # Column header for 25th percentile time to complete
