@@ -622,7 +622,7 @@ confirm.deleteSingleCondition=ይህን መስፈርት መደምሰስ መፈ�
 # Confirmation dialog shown to admin for leaving predicate edit without saving.
 confirm.leaveWithoutSaving=ለቅቀው መውጣት መፈለግዎን እርግጠኛ ነዎት?
 # Dialog to warn admin that a deletion action cannot be undone
-confirm.actionNotReversable=This action cannot be undone.
+confirm.actionNotReversable=ይህ ድርጊት ሊቀለበስ አይችልም።
 # Dialog to warn admin that they have unsaved changes in the predicate edit view.
 confirm.unsavedChanges=You have unsaved changes that will be lost.
 
