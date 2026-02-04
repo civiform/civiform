@@ -637,7 +637,7 @@ label.predicateEligibilityMessageField=Mensaje para mostrar a los solicitantes q
 content.markdownSupported=Se admite Markdown
 
 # Error message for when the admin leaves a multi-select question blank in admin predicate edit.
-validation.selectionRequired=Debes seleccionar como mínimo una opción.
+validation.selectionRequired=Debes seleccionar una opción como mínimo.
 # Error message for when the admin leaves a question unselected in admin predicate edit.
 validation.questionRequired=Debes seleccionar una pregunta.
 
