@@ -921,7 +921,7 @@ map.geoJsonErrorText = ይህን ጥያቄ አሁን ማሳየት ባለመቻ�
 map.contactUs = ያነጋግሩን
 map.homepage = መነሻ ገጽ
 # screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
-map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a different location, please unselect at least one of the locations you have chosen.
+map.maxLocationsSelectedSr = ከፍተና {0} አካባቢዎች ተመርጠዋል። ሌላ አካባቢ ለማከል፣ እባክዎ አሁን ከመረጧችው አካባቢዎች ቢያንስ አንዱን ከምርጫ ያውጡ።
 
 #---------------------------------------------------------------------------#
 # MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
