@@ -637,7 +637,7 @@ label.predicateEligibilityMessageField=Muuji fariinta la tusay codsade aan u qal
 content.markdownSupported=Hoos u dhigista waa la taageeray
 
 # Error message for when the admin leaves a multi-select question blank in admin predicate edit.
-validation.selectionRequired=You must select at least one option.
+validation.selectionRequired=Waa inaad ugu yarana doorataa mid kamid ah dookhyada.
 # Error message for when the admin leaves a question unselected in admin predicate edit.
 validation.questionRequired=You must select a question.
 
