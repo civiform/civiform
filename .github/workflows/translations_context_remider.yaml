@@ -34,11 +34,11 @@ jobs:
 
             const ghUser = context.payload.pull_request.user.login;
             const slackUserId = slackUserMap[ghUser];
-            const mention = slackUserId ? `<@${slackUserId}>` : `@${ghUser}`;
+            const mention = slackUserId ? `<@${slackUserId}>` : '';
             core.setOutput('mention', mention);
 
       - name: Send Slack notification
-        if: steps.check_messages.outputs.modified == 'true'
+        if: steps.check_messages.outputs.modified == 'true' && steps.check_messages.outputs.mention != ''
         uses: slackapi/slack-github-action@v2.0.0
         with:
           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
