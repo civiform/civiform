@@ -1178,7 +1178,7 @@ text.repeatedSet.nestedPrefix=የልጅ መሰየሚያ
 # Caption for the table showing submissions by program
 caption.submissionsByProgram=በፕሮግራም የተሰደሩ ማመልከቻዎች (ሁሉም ፕሮግራሞች)
 # Column header for program name
-content.program=Program
+content.program=ፕሮግራም
 # Column header for number of submissions
 content.submissions=Submissions
 # Column header for 25th percentile time to complete
