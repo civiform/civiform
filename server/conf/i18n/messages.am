@@ -1194,7 +1194,7 @@ button.downloadCsv=CSV አውርድ
 # Caption for the table showing submissions by month
 caption.submissionsByMonth=በወር የተሰደሩ ማመለክቻዎች (ሁሉም ፕሮግራሞች)
 # Column header for month
-content.month=Month
+content.month=ወር
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING PROGRAM                                                     #
