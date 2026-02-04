@@ -634,7 +634,7 @@ alert.predicateNoAvailableQuestionsEligibility=Ma jiraan wax su''aalo ah oo la h
 # Label for textarea where admins can enter a message to show to applicants who are deemed ineligible based on the eligibility conditions set.
 label.predicateEligibilityMessageField=Muuji fariinta la tusay codsade aan u qalmin
 # Help text for a textarea input explaining that markdown is supported.
-content.markdownSupported=Markdown is supported
+content.markdownSupported=Hoos u dhigista waa la taageeray
 
 # Error message for when the admin leaves a multi-select question blank in admin predicate edit.
 validation.selectionRequired=You must select at least one option.
