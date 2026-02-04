@@ -987,7 +987,7 @@ error.internalServerTitle.v2=Cillad ayaa dhacday
 # The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=Waanu ka xunnahay, cillad farsamo oo gudaha ah ayaa sistamkeenna ku dhacay.
 # Additional information about the error that is shown to the user in small font
-error.internalServerDescription=Please contact technical support for assistance at {0} and include this error ID {1}.
+error.internalServerDescription=Fadlan kala xiriir taageerada farsamada ee caawimada {0} oo ku dar aqoonsigan khaladka {1}.
 # A button redirecting the user to the homepage
 error.internalServerHomeButton=Booqo bogga hore
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
