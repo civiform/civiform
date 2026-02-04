@@ -620,7 +620,7 @@ confirm.deleteAllConditions=ሁሉንም መስፈርቶች መደምሰስ መ�
 # Confirmation dialog shown to admin for deleting a condition in the predicate edit view
 confirm.deleteSingleCondition=ይህን መስፈርት መደምሰስ መፈለግዎን እርግጠኛ ነዎት?
 # Confirmation dialog shown to admin for leaving predicate edit without saving.
-confirm.leaveWithoutSaving=Are you sure you would like to leave?
+confirm.leaveWithoutSaving=ለቅቀው መውጣት መፈለግዎን እርግጠኛ ነዎት?
 # Dialog to warn admin that a deletion action cannot be undone
 confirm.actionNotReversable=This action cannot be undone.
 # Dialog to warn admin that they have unsaved changes in the predicate edit view.
