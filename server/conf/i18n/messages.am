@@ -1169,7 +1169,7 @@ text.nestedRepeatedSet=
 # An uneditable prefix for the enumerator screen name representing the repeated object that will be enumerated
 text.repeatedSet.prefix=የወላጅ መሰየሚያ
 # An uneditable prefix for the enumerator screen name representing the nested repeated object that will be enumerated
-text.repeatedSet.nestedPrefix=child label
+text.repeatedSet.nestedPrefix=የልጅ መሰየሚያ
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #
