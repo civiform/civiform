@@ -1,6 +1,8 @@
 package controllers;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
@@ -173,5 +175,17 @@ public class LanguageUtilsTest extends WithMockedProfiles {
                 .findAny()
                 .isEmpty())
         .isEqualTo(true);
+  }
+
+  @Test
+  public void shouldDisplayRtl_english() {
+    Lang english = new Lang(Locale.ENGLISH);
+    assertFalse(LanguageUtils.shouldDisplayRtl(english));
+  }
+
+  @Test
+  public void shouldDisplayRtl_arabic() {
+    Lang arabic = new Lang(new Locale("ar"));
+    assertTrue(LanguageUtils.shouldDisplayRtl(arabic));
   }
 }

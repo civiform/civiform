@@ -35,10 +35,17 @@ public class BlockDefinitionTest {
   }
 
   @Test
-  public void isEnumerator_isFalse() {
+  public void hasEnumeratorQuestion_isFalse() {
     BlockDefinition blockDefinition = makeBlockDefinitionWithQuestions();
 
-    assertThat(blockDefinition.isEnumerator()).isFalse();
+    assertThat(blockDefinition.hasEnumeratorQuestion()).isFalse();
+  }
+
+  @Test
+  public void getIsEnumerator_isFalse() {
+    BlockDefinition blockDefinition = makeBlockDefinitionWithQuestions();
+
+    assertThat(blockDefinition.getIsEnumerator()).isFalse();
   }
 
   @Test
@@ -56,7 +63,7 @@ public class BlockDefinitionTest {
   }
 
   @Test
-  public void isEnumerator_isTrue() {
+  public void hasEnumeratorQuestion_isTrue() {
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
             .setId(123L)
@@ -70,7 +77,22 @@ public class BlockDefinitionTest {
                     Optional.empty()))
             .build();
 
-    assertThat(blockDefinition.isEnumerator()).isTrue();
+    assertThat(blockDefinition.hasEnumeratorQuestion()).isTrue();
+  }
+
+  @Test
+  public void getIsEnumerator_isTrue() {
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(123L)
+            .setName("Block Name")
+            .setDescription("Block Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Block Name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Block Description"))
+            .setIsEnumerator(Optional.of(true))
+            .build();
+
+    assertThat(blockDefinition.getIsEnumerator()).isTrue();
   }
 
   @Test
@@ -241,5 +263,22 @@ public class BlockDefinitionTest {
             .build();
 
     assertThat(blockDefinition.hasNullQuestion()).isFalse();
+  }
+
+  @Test
+  public void getFullName_succeedsWithEmptyPrefix() {
+    QuestionDefinition nullQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
+
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(9999L)
+            .setName("Block Name")
+            .setDescription("Block Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Block Name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Block Description"))
+            .addQuestion(ProgramQuestionDefinition.create(nullQuestion, Optional.empty()))
+            .build();
+
+    assertThat(blockDefinition.getFullName()).isEqualTo("Block Name");
   }
 }

@@ -21,44 +21,46 @@ public final class TextFormatter {
 
   private static final Logger logger = LoggerFactory.getLogger(TextFormatter.class);
   private static final CiviFormMarkdown CIVIFORM_MARKDOWN = new CiviFormMarkdown();
-  public static final String DEFAULT_ARIA_LABEL = "opens in a new tab";
 
-  /** Adds an aria label to links before passing provided text through Markdown formatter. */
-  public static ImmutableList<DomContent> formatTextWithAriaLabel(
-      String text, boolean preserveEmptyLines, boolean addRequiredIndicator, String ariaLabel) {
-    CIVIFORM_MARKDOWN.setAriaLabel(ariaLabel);
-    return formatText(text, preserveEmptyLines, addRequiredIndicator);
-  }
-
-  /** Passes provided text through Markdown formatter. */
+  /**
+   * Passes provided text through Markdown formatter. This is used by j2html to render strings
+   * containing markdown
+   */
   public static ImmutableList<DomContent> formatText(
-      String text, boolean preserveEmptyLines, boolean addRequiredIndicator) {
+      String text,
+      boolean preserveEmptyLines,
+      boolean addRequiredIndicator,
+      String ariaLabelForNewTabs) {
     ImmutableList.Builder<DomContent> builder = new ImmutableList.Builder<DomContent>();
-    builder.add(rawHtml(formatTextToSanitizedHTML(text, preserveEmptyLines, addRequiredIndicator)));
+    builder.add(
+        rawHtml(
+            formatTextToSanitizedHTML(
+                text, preserveEmptyLines, addRequiredIndicator, ariaLabelForNewTabs)));
     return builder.build();
   }
 
   /**
    * Passes provided text through Markdown formatter with preserveEmptyLines and
-   * addRequiredIndicator set to false
+   * addRequiredIndicator set to false. This function does not add translated aria labels to links
+   * and should only be used in admin facing views.
    */
-  public static ImmutableList<DomContent> formatText(String text) {
-    return formatText(text, false, false);
+  public static ImmutableList<DomContent> formatTextForAdmins(String text) {
+    return formatText(
+        text,
+        /* preserveEmptyLines= */ false,
+        /* addRequiredIndicator= */ false,
+        /* ariaLabelForNewTabs= */ "opens in a new tab");
   }
 
   /**
    * Passes provided text through Markdown formatter, returning a String with the sanitized HTML.
-   * This is used by Thymeleaf to render Static Text questions.
+   * This is used by Thymeleaf to render strings containing markdown.
    */
-  public static String formatTextToSanitizedHTMLWithAriaLabel(
-      String text, boolean preserveEmptyLines, boolean addRequiredIndicator, String ariaLabel) {
-    CIVIFORM_MARKDOWN.setAriaLabel(ariaLabel);
-    return formatTextToSanitizedHTML(text, preserveEmptyLines, addRequiredIndicator);
-  }
-
-  /** Passes provided text through Markdown formatter, generating an HTML String */
   public static String formatTextToSanitizedHTML(
-      String text, boolean preserveEmptyLines, boolean addRequiredIndicator) {
+      String text,
+      boolean preserveEmptyLines,
+      boolean addRequiredIndicator,
+      String ariaLabelForNewTabs) {
     if (text.isBlank()) {
       return "";
     }
@@ -68,18 +70,12 @@ public final class TextFormatter {
     }
 
     String markdownText = CIVIFORM_MARKDOWN.render(text);
-    markdownText = addIconToLinks(markdownText);
-    markdownText = addTextSize(markdownText);
+    markdownText = addAriaLabelToLinks(markdownText, ariaLabelForNewTabs);
     if (addRequiredIndicator) {
       markdownText = addRequiredIndicator(markdownText);
     }
 
     return sanitizeHtml(markdownText);
-  }
-
-  /** Used for testing */
-  public static void resetAriaLabelToDefault() {
-    CIVIFORM_MARKDOWN.setAriaLabel(DEFAULT_ARIA_LABEL);
   }
 
   private static String preserveEmptyLines(String text) {
@@ -94,19 +90,10 @@ public final class TextFormatter {
     return String.join("\n", lines);
   }
 
-  private static String addIconToLinks(String markdownText) {
-    String closingATag = "</a>";
-    String svgIconString =
-        Icons.svg(Icons.OPEN_IN_NEW)
-            .withClasses("shrink-0", "h-5", "w-auto", "inline", "ml-1", "align-text-top")
-            .toString();
-    return markdownText.replaceAll(closingATag, svgIconString + closingATag);
-  }
-
-  private static String addTextSize(String markdownText) {
-    // h1 and h2 tags are set to "text-2xl" and "text-xl" respectively in styles.css
-    String replacedH3Tags = markdownText.replaceAll("<h3>", "<h3 class=\"text-lg\">");
-    return replacedH3Tags.replaceAll("<h4>", "<h4 class=\"text-base\">");
+  private static String addAriaLabelToLinks(String markdownText, String ariaLabelForNewTabs) {
+    // Use regex to find all <a> tags and add aria-label with link text + ariaLabelForNewTabs
+    return markdownText.replaceAll(
+        "<a ([^>]*)>([^<]+)</a>", "<a $1 aria-label=\"$2, " + ariaLabelForNewTabs + "\">$2</a>");
   }
 
   private static String addRequiredIndicator(String markdownText) {
@@ -165,18 +152,12 @@ public final class TextFormatter {
     PolicyFactory customPolicy =
         new HtmlPolicyBuilder()
             .allowElements(
-                "p", "div", "h2", "h3", "h4", "h5", "h6", "a", "ul", "ol", "li", "hr", "span",
-                "svg", "br", "em", "strong", "code", "path", "pre")
-            // Per accessibility best practices, we want to disallow adding h1 headers to
-            // ensure the page does not have more than one h1 header
-            // https://www.a11yproject.com/posts/how-to-accessible-heading-structure/
-            // This logic changes h1 headers to h2 headers which are still larger than the
-            // default text
+                "p", "div", "a", "ul", "ol", "li", "hr", "span", "svg", "br", "em", "strong",
+                "code", "path", "pre")
             .allowElements(
-                (String elementName, List<String> attrs) -> {
-                  return "h2";
-                },
-                "h1")
+                // Convert all heading tags (h1-h6) to paragraph tags to prevent multiple h1s
+                // on a page, which violates accessibility best practices
+                (String elementName, List<String> attrs) -> "p", "h1", "h2", "h3", "h4", "h5", "h6")
             .allowWithoutAttributes()
             .allowAttributes(
                 "class",
@@ -189,7 +170,8 @@ public final class TextFormatter {
                 "aria-label",
                 "aria-hidden",
                 "viewBox", // <--- This is for SVGs and it **IS** case-sensitive
-                "d")
+                "d",
+                "role")
             .globally()
             .toFactory();
 

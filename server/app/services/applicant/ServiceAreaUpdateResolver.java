@@ -52,11 +52,13 @@ final class ServiceAreaUpdateResolver {
    * <p>Returns empty under the following conditions:
    *
    * <ul>
-   *   <li>The block does not contain and address question with address correction enabled.
+   *   <li>The block does not contain an address question with address correction enabled.
    *   <li>There are no {@link EsriServiceAreaValidationOption}s corresponding to service area ideas
    *       configured for eligibility.
-   *   <li>The address has not been corrected.
    * </ul>
+   *
+   * <p>Returns a ServiceAreaUpdate with an empty ServiceAreaInclusion list for addresses that have
+   * not been corrected
    */
   public CompletionStage<Optional<ServiceAreaUpdate>> getServiceAreaUpdate(
       Block block, ImmutableMap<String, String> updateMap) {
@@ -70,15 +72,16 @@ final class ServiceAreaUpdateResolver {
       return CompletableFuture.completedFuture(Optional.empty());
     }
 
-    ImmutableList<EsriServiceAreaValidationOption> serviceAreaOptions = maybeOptions.get();
     ApplicantQuestion addressQuestion = maybeAddressQuestion.get();
+    Path serviceAreaPath = addressQuestion.getContextualizedPath().join(Scalar.SERVICE_AREAS);
+    ImmutableList<EsriServiceAreaValidationOption> serviceAreaOptions = maybeOptions.get();
     Boolean hasCorrectedAddress = doesUpdateContainCorrectedAddress(addressQuestion, updateMap);
 
     if (!hasCorrectedAddress) {
-      return CompletableFuture.completedFuture(Optional.empty());
+      return CompletableFuture.completedFuture(
+          Optional.of(ServiceAreaUpdate.create(serviceAreaPath, ImmutableList.of())));
     }
 
-    Path serviceAreaPath = addressQuestion.getContextualizedPath().join(Scalar.SERVICE_AREAS);
     ImmutableList<ServiceAreaInclusion> existingServiceAreaInclusionGroup =
         getExistingServiceAreaInclusionGroup(serviceAreaPath, updateMap);
 

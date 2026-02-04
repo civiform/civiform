@@ -6,27 +6,33 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.Random;
+import java.util.UUID;
+import models.QuestionDisplayMode;
 import services.CiviFormError;
 import services.LocalizedStrings;
+import services.ObjectMapperSingleton;
 import services.Path;
 import services.applicant.RepeatedEntity;
 import services.applicant.question.Scalar;
 import services.export.enums.ApiPathSegment;
+import services.question.LocalizedQuestionSetting;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
+import services.question.QuestionSetting;
+import services.question.YesNoQuestionOption;
+import services.question.exceptions.UnsupportedQuestionTypeException;
 
 /**
  * Superclass for all question types.
@@ -43,6 +49,7 @@ import services.question.QuestionOption;
   @JsonSubTypes.Type(value = EnumeratorQuestionDefinition.class, name = "enumerator"),
   @JsonSubTypes.Type(value = FileUploadQuestionDefinition.class, name = "fileupload"),
   @JsonSubTypes.Type(value = IdQuestionDefinition.class, name = "id"),
+  @JsonSubTypes.Type(value = MapQuestionDefinition.class, name = "map"),
   @JsonSubTypes.Type(value = MultiOptionQuestionDefinition.class, name = "multioption"),
   @JsonSubTypes.Type(value = NameQuestionDefinition.class, name = "name"),
   @JsonSubTypes.Type(value = NumberQuestionDefinition.class, name = "number"),
@@ -65,6 +72,11 @@ public abstract class QuestionDefinition {
     }
 
     this.config = config;
+  }
+
+  @JsonIgnore
+  public QuestionDisplayMode getDisplayMode() {
+    return config.displayMode();
   }
 
   /**
@@ -97,6 +109,9 @@ public abstract class QuestionDefinition {
         value = AutoValue_IdQuestionDefinition_IdValidationPredicates.class,
         name = "id"),
     @JsonSubTypes.Type(
+        value = AutoValue_MapQuestionDefinition_MapValidationPredicates.class,
+        name = "map"),
+    @JsonSubTypes.Type(
         value = AutoValue_MultiOptionQuestionDefinition_MultiOptionValidationPredicates.class,
         name = "multioption"),
     @JsonSubTypes.Type(
@@ -116,12 +131,8 @@ public abstract class QuestionDefinition {
         name = "text"),
   })
   public abstract static class ValidationPredicates {
-    protected static final ObjectMapper mapper =
-        new ObjectMapper().registerModule(new GuavaModule()).registerModule(new Jdk8Module());
-
-    static {
-      mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-    }
+    // Use legacy serialization settings. (De)serialization errors may occur if changed.
+    protected static final ObjectMapper mapper = ObjectMapperSingleton.createLegacyCopy();
 
     public String serializeAsString() {
       try {
@@ -181,6 +192,11 @@ public abstract class QuestionDefinition {
   @JsonIgnore
   public final Optional<Instant> getLastModifiedTime() {
     return config.lastModifiedTime();
+  }
+
+  @JsonIgnore
+  public final Optional<UUID> getConcurrencyToken() {
+    return config.concurrencyToken();
   }
 
   // TODO(#6597): Persist the question name key to the database instead of just memoizing it
@@ -244,6 +260,12 @@ public abstract class QuestionDefinition {
   @JsonIgnore
   public final boolean isAddress() {
     return getQuestionType().equals(QuestionType.ADDRESS);
+  }
+
+  /** True if the question is an {@link MapQuestionDefinition}. */
+  @JsonIgnore
+  public final boolean isMap() {
+    return getQuestionType().equals(QuestionType.MAP);
   }
 
   /**
@@ -314,6 +336,28 @@ public abstract class QuestionDefinition {
   /** Get the type of this question. */
   @JsonIgnore
   public abstract QuestionType getQuestionType();
+
+  /** Get the question settings for this question. */
+  @JsonIgnore
+  public Optional<ImmutableSet<QuestionSetting>> getQuestionSettings() {
+    return config.questionSettings();
+  }
+
+  /**
+   * Get localized question settings for the specified locale, falling back to default if needed.
+   */
+  @JsonIgnore
+  public Optional<ImmutableSet<LocalizedQuestionSetting>> getSettingsForLocaleOrDefault(
+      Locale locale) {
+    if (config.questionSettings().isEmpty()) {
+      return Optional.empty();
+    }
+
+    return Optional.of(
+        config.questionSettings().get().stream()
+            .map(setting -> setting.localizeOrDefault(locale))
+            .collect(ImmutableSet.toImmutableSet()));
+  }
 
   /** Get the default validation predicates for this question type. */
   @JsonIgnore
@@ -398,8 +442,7 @@ public abstract class QuestionDefinition {
   }
 
   private boolean idEquals(Object other) {
-    if (other instanceof QuestionDefinition) {
-      QuestionDefinition o = (QuestionDefinition) other;
+    if (other instanceof QuestionDefinition o) {
 
       return this.isPersisted() == o.isPersisted()
           && (!this.isPersisted() || this.getId() == o.getId());
@@ -415,15 +458,16 @@ public abstract class QuestionDefinition {
    * <p>This checks all other fields ignoring the id.
    */
   private boolean equalsIgnoreId(Object other) {
-    if (other instanceof QuestionDefinition) {
-      QuestionDefinition o = (QuestionDefinition) other;
+    if (other instanceof QuestionDefinition o) {
 
       return getQuestionType().equals(o.getQuestionType())
           && getName().equals(o.getName())
           && getDescription().equals(o.getDescription())
           && getQuestionText().equals(o.getQuestionText())
           && getQuestionHelpText().equals(o.getQuestionHelpText())
-          && getValidationPredicates().equals(o.getValidationPredicates());
+          && getValidationPredicates().equals(o.getValidationPredicates())
+          && getConcurrencyToken().equals(o.getConcurrencyToken())
+          && getDisplayMode().equals(o.getDisplayMode());
     }
     return false;
   }
@@ -445,13 +489,80 @@ public abstract class QuestionDefinition {
   }
 
   /**
+   * Creates a sample question definition for rendering previews in the admin interface. Used by
+   * {@link views.admin.questions.QuestionPreview}.
+   */
+  public static QuestionDefinition questionDefinitionSample(QuestionType questionType)
+      throws UnsupportedQuestionTypeException {
+    QuestionDefinitionBuilder builder =
+        new QuestionDefinitionBuilder()
+            .setId(1L)
+            .setName("")
+            .setDescription("")
+            .setQuestionText(LocalizedStrings.of(Locale.US, "Sample question text"))
+            .setQuestionType(questionType);
+
+    if (questionType.isMultiOptionType()) {
+      if (questionType == QuestionType.YES_NO) {
+        ImmutableList<QuestionOption> yesNoOptions =
+            ImmutableList.of(
+                QuestionOption.builder()
+                    .setId(YesNoQuestionOption.YES.getId())
+                    .setAdminName(YesNoQuestionOption.YES.getAdminName())
+                    .setOptionText(LocalizedStrings.of(Locale.US, "Yes"))
+                    .setDisplayOrder(OptionalLong.of(0L))
+                    .setDisplayInAnswerOptions(Optional.of(true))
+                    .build(),
+                QuestionOption.builder()
+                    .setId(YesNoQuestionOption.NO.getId())
+                    .setAdminName(YesNoQuestionOption.NO.getAdminName())
+                    .setOptionText(LocalizedStrings.of(Locale.US, "No"))
+                    .setDisplayOrder(OptionalLong.of(1L))
+                    .setDisplayInAnswerOptions(Optional.of(true))
+                    .build(),
+                QuestionOption.builder()
+                    .setId(YesNoQuestionOption.NOT_SURE.getId())
+                    .setAdminName(YesNoQuestionOption.NOT_SURE.getAdminName())
+                    .setOptionText(LocalizedStrings.of(Locale.US, "Not sure"))
+                    .setDisplayOrder(OptionalLong.of(2L))
+                    .setDisplayInAnswerOptions(Optional.of(true))
+                    .build(),
+                QuestionOption.builder()
+                    .setId(YesNoQuestionOption.MAYBE.getId())
+                    .setAdminName(YesNoQuestionOption.MAYBE.getAdminName())
+                    .setOptionText(LocalizedStrings.of(Locale.US, "Maybe"))
+                    .setDisplayOrder(OptionalLong.of(3L))
+                    .setDisplayInAnswerOptions(Optional.of(true))
+                    .build());
+        builder.setQuestionOptions(yesNoOptions);
+      } else {
+        builder.setQuestionOptions(
+            ImmutableList.of(
+                QuestionOption.create(
+                    1L,
+                    1L,
+                    "sample option admin name",
+                    LocalizedStrings.of(Locale.US, "Sample question option"))));
+      }
+    }
+
+    if (questionType.equals(QuestionType.ENUMERATOR)) {
+      builder.setEntityType(LocalizedStrings.withDefaultValue("Sample repeated entity type"));
+    }
+
+    return builder.build();
+  }
+
+  /**
    * Tests that use {@link QuestionDefinition} are required to have an ID in the question at some
    * points, but usually it's not populated until it's inserted in the DB. This method populates the
    * ID for testing purposes only.
    */
   @VisibleForTesting
   public QuestionDefinition withPopulatedTestId() {
-    config = config.toBuilder().setId(new Random().nextLong()).build();
+    if (config.id().isEmpty()) {
+      config = config.toBuilder().setId(new Random().nextLong()).build();
+    }
     return this;
   }
 }

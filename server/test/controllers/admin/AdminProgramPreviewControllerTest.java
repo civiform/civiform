@@ -1,16 +1,17 @@
 package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
+import static play.test.Helpers.contentAsString;
 import static support.FakeRequestBuilder.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import controllers.WithMockedProfiles;
-import models.AccountModel;
 import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
+import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.program.ProgramNotFoundException;
 
@@ -25,22 +26,14 @@ public class AdminProgramPreviewControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void preview_redirectsToProgramReviewPage() {
-    AccountModel adminAccount = createGlobalAdminWithMockedProfile();
-    long programId = 0;
-    Result result = controller.preview(fakeRequest(), programId);
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation())
-        .hasValue(
-            controllers.applicant.routes.ApplicantProgramReviewController.reviewWithApplicantId(
-                    adminAccount.ownedApplicantIds().get(0), programId)
-                .url());
-  }
-
-  @Test
-  public void preview_noProfile_throwsException() {
-    assertThatThrownBy(() -> controller.preview(fakeRequest(), /*p rogramId =*/ 0))
-        .isInstanceOf(RuntimeException.class);
+  public void preview_displaysProgramOverviewPage() {
+    String programSlug = "test-slug";
+    resourceCreator().insertActiveProgram(programSlug);
+    createGlobalAdminWithMockedProfile();
+    Request request = fakeRequestBuilder().build();
+    Result result = controller.preview(request, programSlug).toCompletableFuture().join();
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("<title>test-slug - Program Overview</title>");
   }
 
   @Test

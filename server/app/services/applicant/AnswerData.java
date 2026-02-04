@@ -4,8 +4,8 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import services.Path;
+import services.applicant.question.AbstractQuestion;
 import services.applicant.question.ApplicantQuestion;
-import services.applicant.question.Question;
 import services.question.types.QuestionDefinition;
 
 /**
@@ -69,6 +69,12 @@ public abstract class AnswerData {
    */
   public abstract boolean eligibilityIsGating();
 
+  /**
+   * True if the program can only be applied by logged in applicants. If false, program can be
+   * applied by both guest and non-guest applicants.
+   */
+  public abstract boolean loginOnly();
+
   /** The applicant's response to the question. */
   public abstract String answerText();
 
@@ -103,7 +109,7 @@ public abstract class AnswerData {
 
   @AutoValue.Builder
   public abstract static class Builder {
-    public abstract Builder setProgramId(Long programId);
+    public abstract Builder setProgramId(long programId);
 
     public abstract Builder setBlockId(String blockId);
 
@@ -127,6 +133,8 @@ public abstract class AnswerData {
 
     public abstract Builder setEligibilityIsGating(boolean eligibilityIsGating);
 
+    public abstract Builder setLoginOnly(boolean loginOnly);
+
     public abstract Builder setAnswerText(String answerText);
 
     public abstract Builder setEncodedFileKey(Optional<String> encodedFileKey);
@@ -137,15 +145,15 @@ public abstract class AnswerData {
 
     public abstract Builder setFileNames(ImmutableList<String> fileNames);
 
-    public abstract Builder setTimestamp(Long timestamp);
+    public abstract Builder setTimestamp(long timestamp);
 
     public abstract Builder setIsPreviousResponse(boolean isPreviousResponse);
 
     public abstract AnswerData build();
   }
 
-  /** Creates a {@link Question} for the given {@link AnswerData}'s type. */
-  public Question createQuestion() {
+  /** Creates a {@link AbstractQuestion} for the given {@link AnswerData}'s type. */
+  public AbstractQuestion createQuestion() {
     switch (questionDefinition().getQuestionType()) {
       case ENUMERATOR:
         return applicantQuestion().createEnumeratorQuestion();
@@ -161,6 +169,8 @@ public abstract class AnswerData {
         return applicantQuestion().createDateQuestion();
       case PHONE:
         return applicantQuestion().createPhoneQuestion();
+      case MAP:
+        return applicantQuestion().createMapQuestion();
       case NAME:
         return applicantQuestion().createNameQuestion();
       case ID:
@@ -172,6 +182,7 @@ public abstract class AnswerData {
       case ADDRESS:
         return applicantQuestion().createAddressQuestion();
       case DROPDOWN:
+      case YES_NO:
       case RADIO_BUTTON:
         return applicantQuestion().createSingleSelectQuestion();
       case FILEUPLOAD:

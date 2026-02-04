@@ -1,0 +1,21 @@
+<!--HTMX partial template for the filtered programs section of the landing page.-->
+
+<th:block
+  th:if="${recommendedSection.isPresent()}"
+  th:with="recommendedCount=${recommendedSection.get().cards().size()}"
+>
+  <div
+    th:id="recommended-programs"
+    th:replace="~{applicant/programindex/ProgramCardsSectionFragment :: cardsSection(${recommendedSection.get()}, #{title.recommendedSection.v2(${recommendedCount})})}"
+  ></div>
+</th:block>
+<th:block
+  th:if="${otherProgramsSection.isPresent()}"
+  th:with="otherCount=${otherProgramsSection.get().cards().size()},
+           otherTitle=${recommendedSection.isEmpty() ? #messages.msg('title.programsSection.v2', otherCount) : #messages.msg('title.otherProgramsSection.v2', otherCount)}"
+>
+  <div
+    th:id="not-started-programs"
+    th:replace="~{applicant/programindex/ProgramCardsSectionFragment :: cardsSection(${otherProgramsSection.get()}, ${otherTitle})}"
+  ></div>
+</th:block>

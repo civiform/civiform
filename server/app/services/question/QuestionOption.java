@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
@@ -33,6 +34,10 @@ public abstract class QuestionOption {
   @JsonProperty("displayOrder")
   public abstract OptionalLong displayOrder();
 
+  /** Whether to display the answer option to the applicant. */
+  @JsonProperty("displayInAnswerOptions")
+  public abstract Optional<Boolean> displayInAnswerOptions();
+
   /**
    * Create a QuestionOption, used for JSON mapping to account for the legacy `optionText`.
    *
@@ -44,12 +49,14 @@ public abstract class QuestionOption {
       @JsonProperty(value = "displayOrder", defaultValue = "-1L") long displayOrder,
       @JsonProperty("adminName") String adminName,
       @JsonProperty("localizedOptionText") LocalizedStrings localizedOptionText,
-      @JsonProperty("optionText") ImmutableMap<Locale, String> legacyOptionText) {
+      @JsonProperty("optionText") ImmutableMap<Locale, String> legacyOptionText,
+      @JsonProperty("displayInAnswerOptions") Optional<Boolean> displayInAnswerOptions) {
     if (displayOrder == -1) {
       displayOrder = id;
     }
     if (localizedOptionText != null) {
-      return QuestionOption.create(id, displayOrder, adminName, localizedOptionText);
+      return QuestionOption.create(
+          id, displayOrder, adminName, localizedOptionText, displayInAnswerOptions);
     }
     return QuestionOption.create(
         id, displayOrder, adminName, LocalizedStrings.create(legacyOptionText));
@@ -91,6 +98,31 @@ public abstract class QuestionOption {
         .build();
   }
 
+  /**
+   * Create a {@link QuestionOption}.
+   *
+   * @param id the option id
+   * @param displayOrder the option display
+   * @param adminName the option's immutable admin name, exposed via the API
+   * @param optionText the option's user-facing text
+   * @param displayInAnswerOptions whether to show the option to the applicant
+   * @return the {@link QuestionOption}
+   */
+  public static QuestionOption create(
+      long id,
+      long displayOrder,
+      String adminName,
+      LocalizedStrings optionText,
+      Optional<Boolean> displayInAnswerOptions) {
+    return QuestionOption.builder()
+        .setId(id)
+        .setAdminName(adminName)
+        .setOptionText(optionText)
+        .setDisplayOrder(OptionalLong.of(displayOrder))
+        .setDisplayInAnswerOptions(displayInAnswerOptions)
+        .build();
+  }
+
   public LocalizedQuestionOption localize(Locale locale) {
     if (!optionText().hasTranslationFor(locale)) {
       throw new RuntimeException(
@@ -108,13 +140,19 @@ public abstract class QuestionOption {
     try {
       String localizedText = optionText().get(locale);
       return LocalizedQuestionOption.create(
-          id(), displayOrder().orElse(id()), adminName(), localizedText, locale);
+          id(),
+          displayOrder().orElse(id()),
+          adminName(),
+          localizedText,
+          displayInAnswerOptions(),
+          locale);
     } catch (TranslationNotFoundException e) {
       return LocalizedQuestionOption.create(
           id(),
           displayOrder().orElse(id()),
           adminName(),
           optionText().getDefault(),
+          displayInAnswerOptions(),
           LocalizedStrings.DEFAULT_LOCALE);
     }
   }
@@ -139,6 +177,9 @@ public abstract class QuestionOption {
 
     @JsonProperty("displayOrder")
     public abstract Builder setDisplayOrder(OptionalLong displayOrder);
+
+    @JsonProperty("displayInAnswerOptions")
+    public abstract Builder setDisplayInAnswerOptions(Optional<Boolean> displayInAnswerOptions);
 
     public abstract QuestionOption build();
   }

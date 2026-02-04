@@ -20,7 +20,7 @@ import services.question.types.PhoneQuestionDefinition;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public final class PhoneQuestion extends Question {
+public final class PhoneQuestion extends AbstractQuestion {
 
   private Optional<String> phoneNumberValue;
   private Optional<String> countryCodeValue;

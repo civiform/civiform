@@ -8,11 +8,13 @@ import controllers.BadRequestException;
 import controllers.CiviFormController;
 import controllers.FlashKey;
 import forms.translation.EnumeratorQuestionTranslationForm;
+import forms.translation.MapQuestionTranslationForm;
 import forms.translation.MultiOptionQuestionTranslationForm;
 import forms.translation.QuestionTranslationForm;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
+import models.ConcurrentUpdateException;
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
 import play.mvc.Http;
@@ -63,7 +65,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result redirectToFirstLocale(Http.Request request, String questionName) {
     if (maybeFirstTranslatableLocale.isEmpty()) {
-      return redirect(routes.AdminQuestionController.index().url())
+      return redirect(routes.AdminQuestionController.index(Optional.empty()).url())
           .flashing(FlashKey.ERROR, "Translations are not enabled for this configuration");
     }
 
@@ -86,12 +88,17 @@ public class AdminQuestionTranslationsController extends CiviFormController {
   public Result edit(Http.Request request, String questionName, String locale) {
     Optional<Locale> maybeLocaleToEdit = translationLocales.fromLanguageTag(locale);
     if (maybeLocaleToEdit.isEmpty()) {
-      return redirect(routes.AdminQuestionController.index().url())
+      return redirect(routes.AdminQuestionController.index(Optional.empty()).url())
           .flashing(FlashKey.ERROR, String.format("The %s locale is not supported", locale));
     }
     Locale localeToEdit = maybeLocaleToEdit.get();
 
     QuestionDefinition definition = getDraftQuestionDefinition(questionName);
+    Optional<ToastMessage> message =
+        request.flash().get(FlashKey.CONCURRENT_UPDATE).map(m -> ToastMessage.errorNonLocalized(m));
+    if (message.isPresent()) {
+      return ok(translationView.renderErrors(request, localeToEdit, definition, message.get()));
+    }
     return ok(translationView.render(request, localeToEdit, definition));
   }
 
@@ -107,7 +114,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
   public Result update(Http.Request request, String questionName, String locale) {
     Optional<Locale> maybeLocaleToUpdate = translationLocales.fromLanguageTag(locale);
     if (maybeLocaleToUpdate.isEmpty()) {
-      return redirect(routes.AdminQuestionController.index().url())
+      return redirect(routes.AdminQuestionController.index(Optional.empty()).url())
           .flashing(FlashKey.ERROR, String.format("The %s locale is not supported", locale));
     }
 
@@ -133,20 +140,43 @@ public class AdminQuestionTranslationsController extends CiviFormController {
       return badRequest(e.getMessage());
     } catch (InvalidUpdateException e) {
       return internalServerError(e.getMessage());
+    } catch (ConcurrentUpdateException e) {
+      // If there was a concurrent update, load a fresh edit form so the admin sees the concurrently
+      // made changes.
+      return redirect(routes.AdminQuestionTranslationsController.edit(questionName, locale).url())
+          .flashing(
+              FlashKey.CONCURRENT_UPDATE,
+              "The question was updated by another user while the edit page was open in your"
+                  + " browser. Please try your edits again.");
     }
   }
 
   private QuestionDefinition getDraftQuestionDefinition(String questionName) {
-    return questionService
-        .getReadOnlyQuestionService()
-        .toCompletableFuture()
-        .join()
-        .getActiveAndDraftQuestions()
-        .getDraftQuestionDefinition(questionName)
-        .orElseThrow(
-            () ->
-                new BadRequestException(
-                    String.format("No draft found for question: \"%s\"", questionName)));
+    Optional<QuestionDefinition> draftQuestionMaybe =
+        questionService
+            .getReadOnlyQuestionService()
+            .toCompletableFuture()
+            .join()
+            .getActiveAndDraftQuestions()
+            .getDraftQuestionDefinition(questionName);
+
+    if (draftQuestionMaybe.isPresent()) {
+      return draftQuestionMaybe.get();
+    }
+
+    // If no draft is found, return the active question
+    Optional<QuestionDefinition> activeQuestionMaybe =
+        questionService
+            .getReadOnlyQuestionService()
+            .toCompletableFuture()
+            .join()
+            .getActiveAndDraftQuestions()
+            .getActiveQuestionDefinition(questionName);
+
+    return activeQuestionMaybe.orElseThrow(
+        () ->
+            new BadRequestException(
+                String.format("No draft or active found for question: \"%s\"", questionName)));
   }
 
   private QuestionTranslationForm buildFormFromRequest(Http.Request request, QuestionType type) {
@@ -163,6 +193,8 @@ public class AdminQuestionTranslationsController extends CiviFormController {
             .form(EnumeratorQuestionTranslationForm.class)
             .bindFromRequest(request)
             .get();
+      case MAP:
+        return formFactory.form(MapQuestionTranslationForm.class).bindFromRequest(request).get();
       case ADDRESS: // fallthrough intended
       case CURRENCY: // fallthrough intended
       case FILEUPLOAD: // fallthrough intended

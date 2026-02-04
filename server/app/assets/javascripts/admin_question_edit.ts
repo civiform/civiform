@@ -1,5 +1,5 @@
-import {addEventListenerToElements, assertNotNull} from './util'
-import {ModalController} from './modal'
+import {addEventListenerToElements, assertNotNull} from '@/util'
+import {ModalController} from '@/modal'
 
 class AdminQuestionEdit {
   constructor() {
@@ -16,6 +16,11 @@ class AdminQuestionEdit {
       this.addUniversalToggleHandler(primaryApplicantInfoSection)
       this.addEnumeratorDropdownHandler(primaryApplicantInfoSection)
     }
+
+    this.addDateValidationHandlers()
+    this.addMapFilterButtonHandler()
+    this.addMapTagButtonHandlers()
+    this.addMapKeyErrorHandler()
   }
 
   addEnumeratorDropdownHandler(primaryApplicantInfoSection: HTMLElement) {
@@ -110,6 +115,149 @@ class AdminQuestionEdit {
         submitButton.click()
       }
     })
+  }
+
+  addDateValidationHandlers() {
+    // Add min date handler if date validation settings are present
+    const minDateTypeDropdown = document.getElementById('min-date-type')
+    const minCustomDatePicker = document.getElementById(
+      'min-custom-date-fieldset',
+    )
+    if (minDateTypeDropdown !== null && minCustomDatePicker !== null) {
+      this.addDateTypeDropdownHandler(
+        minDateTypeDropdown,
+        minCustomDatePicker,
+        'min-custom-date',
+      )
+    }
+    // Add max date handler if date validation settings are present
+    const maxDateTypeDropdown = document.getElementById('max-date-type')
+    const maxCustomDatePicker = document.getElementById(
+      'max-custom-date-fieldset',
+    )
+    if (maxDateTypeDropdown !== null && maxCustomDatePicker !== null) {
+      this.addDateTypeDropdownHandler(
+        maxDateTypeDropdown,
+        maxCustomDatePicker,
+        'max-custom-date',
+      )
+    }
+  }
+
+  /**
+   * Handles showing the custom date picker if custom date type is selected. Hides the date picker and clears date picker values otherwise.
+   */
+  addDateTypeDropdownHandler(
+    dateTypeDropdown: HTMLElement,
+    datePicker: HTMLElement,
+    idPrefix: string,
+  ) {
+    dateTypeDropdown.addEventListener('change', (event: Event) => {
+      const target = event.target as HTMLInputElement
+      const dateTypeValue: string = target.value
+      // Show date picker iff type is custom
+      datePicker.toggleAttribute('hidden', dateTypeValue !== 'CUSTOM')
+
+      // Clear date picker values if type is not custom
+      if (dateTypeValue !== 'CUSTOM') {
+        ;(
+          document.getElementById(idPrefix + '-day') as HTMLInputElement
+        ).value = ''
+        ;(
+          document.getElementById(idPrefix + '-month') as HTMLInputElement
+        ).value = ''
+        ;(
+          document.getElementById(idPrefix + '-year') as HTMLInputElement
+        ).value = ''
+      }
+    })
+  }
+
+  updateAddFilterButtonState = () => {
+    const filterCount = document.querySelectorAll('.filter-input').length
+    const addButton = document.getElementById(
+      'add-map-filter-button',
+    ) as HTMLButtonElement
+    if (addButton) {
+      addButton.disabled = filterCount >= 6
+    }
+  }
+
+  addMapFilterButtonHandler() {
+    this.updateAddFilterButtonState()
+
+    document.body.addEventListener('htmx:afterRequest', () => {
+      this.updateAddFilterButtonState()
+      this.addMapTagButtonHandlers()
+    })
+  }
+
+  addMapTagButtonHandlers() {
+    addEventListenerToElements('#add-map-tag-button', 'click', (event) => {
+      const target = event.target as HTMLButtonElement
+      target.classList.add('hidden')
+      const tagContainer = document.querySelector(
+        '.map-tag-setting-container',
+      ) as HTMLDivElement
+      tagContainer.classList.remove('hidden')
+      const deleteButton = document.getElementById(
+        'delete-map-tag-button',
+      ) as HTMLButtonElement
+      deleteButton.classList.remove('hidden')
+    })
+
+    addEventListenerToElements('#delete-map-tag-button', 'click', () => {
+      const tagContainer = document.querySelector(
+        '.map-tag-setting-container',
+      ) as HTMLDivElement
+      const displayNameInput = tagContainer.querySelector(
+        '.cf-tag-display-name-input',
+      ) as HTMLInputElement
+      const valueInput = tagContainer.querySelector(
+        '.cf-tag-value-input',
+      ) as HTMLInputElement
+      const textarea = tagContainer.querySelector(
+        '.cf-tag-textarea',
+      ) as HTMLTextAreaElement
+      const select = tagContainer.querySelector(
+        '.cf-tag-key-select',
+      ) as HTMLSelectElement
+      displayNameInput.value = ''
+      valueInput.value = ''
+      textarea.value = ''
+      select.selectedIndex = 0
+      tagContainer.classList.add('hidden')
+      const addButton = document.getElementById(
+        'add-map-tag-button',
+      ) as HTMLButtonElement
+      addButton.classList.remove('hidden')
+    })
+  }
+
+  /**
+   * Clears validation errors when a user selects a new key for map question settings.
+   * Removes error message and error classes from wrapper when a key is changed.
+   */
+  addMapKeyErrorHandler() {
+    addEventListenerToElements(
+      '[data-key-select]',
+      'change',
+      (event: Event) => {
+        const target = event.target as HTMLElement
+        if (target.hasAttribute('data-key-select')) {
+          const dataKeyFieldContainer = target.closest('[data-key-field]')
+
+          const errorMessage =
+            dataKeyFieldContainer?.querySelector('[data-key-error]')
+          errorMessage?.remove()
+
+          dataKeyFieldContainer?.classList.remove(
+            'cf-question-field-with-error',
+            'padding-left-105',
+          )
+        }
+      },
+    )
   }
 }
 

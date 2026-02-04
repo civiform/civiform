@@ -1,103 +1,145 @@
 {
-  "extends": [
-    "config:recommended"
-  ],
+  extends: ["config:recommended"],
   // Default timezone is UTC. Not running during the "work day" will free up github
   // actions to run and lessen calls to docker hub.
   //
   // This will allow the schedule to run within this time range:
   //   PST/PDT -> 9pm - 3am
   //   EST/EDT -> Midnight - 6am 
-  "schedule": [
-    "after 4am",
-    "before 10am"
-  ],
+  schedule: ["after 4am", "before 10am"],
   // Github label(s) applied to the generated pull request, unless overridden below
-  "labels": [
-    "dependencies"
-  ],
+  labels: ["dependencies"],
   // These files deviate from standard compose naming convention. 
   // This makes sure renovate finds them.
   "docker-compose": {
-    "fileMatch": [
-      "browser-test/browser-test-compose.yml",
-      "browser-test/browser-test-compose.dev.yml",
-      "browser-test/browser-test-compose.dev_local.yml",
-      "test-support/prod-simulator-compose.yml",
-      "test-support/unit-test-docker-compose.yml",
-      "test-support/unit-test-docker-compose.dev.yml"
-    ]
+    managerFilePatterns: [
+      "/browser-test/browser-test-compose.yml/",
+      "/browser-test/browser-test-compose.dev.yml/",
+      "/browser-test/browser-test-compose.dev_local.yml/",
+      "/test-support/prod-simulator-compose.yml/",
+      "/test-support/unit-test-docker-compose.yml/",
+      "/test-support/unit-test-docker-compose.dev.yml/",
+    ],
   },
-  "packageRules": [
+  packageRules: [
     {
-      "groupName": "autovalue",
-      "matchPackagePrefixes": [
-        "com.google.auto.value:"
-      ]
+      groupName: "autovalue",
+      matchPackageNames: ["com.google.auto.value:{/,}**"],
     },
     {
-      "groupName": "guava",
-      "matchPackagePrefixes": [
-        "com.google.guava"
-      ]
+      groupName: "awssdk",
+      matchPackageNames: ["software.amazon.awssdk:{/,}**"],
+      prHeader: "Release Notes: https://github.com/aws/aws-sdk-java-v2/blob/master/CHANGELOG.md"
     },
     {
-      "groupName": "jackson",
-      "matchPackagePrefixes": [
-        "com.fasterxml.jackson"
-      ]
+      matchPackageNames: ["github/codeql-action"],
+      prHeader: "Release Notes: https://github.com/github/codeql-action/blob/main/CHANGELOG.md",
     },
     {
-      "groupName": "jdk and jre",
-      "matchPackagePrefixes": [
-        "bellsoft/liberica-openjdk-alpine",
-        "eclipse-temurin"
-      ],
+      matchPackageNames: ["org.checkerframework:dataflow-errorprone"],
+      prHeader: "Release Notes: https://checkerframework.org/CHANGELOG.md",
+    },
+    {
+      groupName: "guava",
+      matchPackageNames: ["com.google.guava{/,}**"],
+    },
+    // Keep jackson on v2 until Play supports v3.
+    {
+      groupName: "jackson",
+      matchPackageNames: ["com.fasterxml.jackson{/,}**"],
+      allowedVersions: "< 3.0.0"
+    },
+    {
+      groupName: "jdk and jre",
       // Allow for version 17.*
       // 
       // Examples of what this should match are:
       //   17.0.12_7-jdk-alpine
       //   17.0.12_7-jre-alpine
       //   17.0.12-10
-      "allowedVersions": "/^17\\.([0-9]*)\\.([0-9]*)([-_]?)([0-9]*)(-?.*)$/",
+      allowedVersions: "/^17\\.([0-9]*)\\.([0-9]*)([-_]?)([0-9]*)(-?.*)$/",
+      matchPackageNames: [
+        "bellsoft/liberica-openjdk-alpine{/,}**",
+        "eclipse-temurin{/,}**",
+      ],
     },
     {
-      "groupName": "jupiter",
-      "matchPackagePrefixes": [
-        "org.junit.jupiter:"
-      ]
+      groupName: "jupiter",
+      matchPackageNames: ["org.junit.jupiter:{/,}**"],
     },
     {
-      "groupName": "pac4j",
-      "matchPackagePrefixes": [
-        "org.pac4j:pac4j"
-      ]
+      matchPackageNames: ["ch.qos.logback:logback-classic"],
+      prHeader: "Release Notes: https://logback.qos.ch/news.html",
     },
     {
-      "groupName": "playwright",
-      "matchPackagePrefixes": [
-        "playwright",
-        "@playwright/test",
-        "mcr.microsoft.com/playwright"
-      ]
+      groupName: "microsoft graph",
+      matchPackageNames: ["com.microsoft.graph:{/,}**"],
+      prHeader: "Release Notes: https://github.com/microsoftgraph/msgraph-sdk-java/blob/main/CHANGELOG.md"
     },
     {
-      "matchFileNames": [
+      groupName: "pac4j",
+      matchPackageNames: ["org.pac4j:pac4j{/,}**"],
+    },
+    {
+      groupName: "playwright",
+      matchPackageNames: [
+        "playwright{/,}**",
+        "@playwright/test{/,}**",
+        "mcr.microsoft.com/playwright{/,}**",
+      ],
+    },
+    {
+      groupName: "sass-embedded",
+      matchPackageNames: ["sass-emdedded"],
+      prHeader: "Release Notes: https://github.com/sass/embedded-host-node/blob/main/CHANGELOG.md"
+    },
+    {
+      matchPackageNames: ["docker/setup-buildx-action"],
+      prHeader: "Release Notes: https://github.com/docker/setup-buildx-action/releases",
+    },
+    {
+      matchPackageNames: ["io.swagger.core.v3:swagger-core"],
+      prHeader: "Release Notes: https://github.com/swagger-api/swagger-core/releases",
+    },
+    {
+      matchFileNames: [
         ".github/workflows/**",
         "browser-test/**",
         "env-var-docs/**",
-        "formatter/**"
+        "formatter/**",
       ],
-      "labels": [
-        "dependencies",
-        "ignore-for-release"
-      ]
+      labels: ["dependencies", "ignore-for-release"],
     },
     {
-      "matchPackageNames": [
-        "postgres"
-      ],
-      "allowedVersions": "<17.0.0"
-    }
-  ]
+      matchPackageNames: ["postgres"],
+      allowedVersions: "<17.0.0",
+    },
+    {
+      matchPackageNames: ["prom/prometheus"],
+      prHeader: "Release Notes: https://github.com/prometheus/prometheus/releases",
+    },
+    {
+      groupName: "tailwindcss",
+      matchPackageNames: ["tailwindcss"],
+      allowedVersions: "<4.0.0",
+    },
+    {
+      // Using groupName null prevents all the GitHub Actions updates being done in a single commit
+      groupName: null,
+      matchManagers: ["github-actions"],
+      pinDigests: true,
+      commitMessageExtra: "to latest commit",
+      rebaseWhen: "always",
+      description: "Ensures GitHub Actions use commit hashes for security and include a version comment.",
+    },
+    {
+      // Using groupName null prevents all the Docker updates being done in a single commit
+      groupName: null,
+      matchManagers: ["docker-compose", "dockerfile"],
+      pinDigests: true,
+      commitMessageExtra: "to latest commit",
+      rebaseWhen: "always",
+      description: "Ensures Docker images use SHA256 digests for security and reproducibility.",
+    },
+  ],
 }

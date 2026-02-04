@@ -1,4 +1,5 @@
-import {addEventListenerToElements, assertNotNull} from './util'
+import {addEventListenerToElements, assertNotNull, formatText} from '@/util'
+import DOMPurify from 'dompurify'
 
 class AdminApplicationView {
   private static APPLICATION_STATUS_SELECTOR =
@@ -22,12 +23,20 @@ class AdminApplicationView {
   private static SEND_EMAIL_INPUT_NAME = 'sendEmail'
   private static NOTE_INPUT_NAME = 'note'
 
+  // These values should be kept in sync with views/admin/programs/ProgramFormBuilder.java
+  private static PROGRAM_DISPLAY_NAME_INPUT_ID = 'program-display-name-input'
+  private static CONFIRMATION_MESSAGE_TEXTBOX_ID =
+    'program-confirmation-message-textarea'
+  private static CONFIRMATION_MESSAGE_PREVIEW_ID =
+    'program-confirmation-message-preview'
+
   constructor() {
     this.registerStatusSelectorEventListener()
     this.registerStatusUpdateFormSubmitListeners()
     this.registerEditNoteFormSubmitListener()
     this.registerBulkSelectStatusListner()
     this.registerApplicationViewPostMessageListener()
+    this.registerConfirmationMessageInputListeners()
   }
   private registerBulkSelectStatusListner() {
     addEventListenerToElements('#selectAll', 'click', () => {
@@ -142,6 +151,46 @@ class AdminApplicationView {
         window.location.origin,
       )
     })
+  }
+
+  private registerConfirmationMessageInputListeners() {
+    // Check for presence of the confirmation message preview element before adding listeners
+    if (
+      !document.getElementById(
+        AdminApplicationView.CONFIRMATION_MESSAGE_PREVIEW_ID,
+      )
+    ) {
+      // If the confirmation message preview isn't present, there's nothing to do.
+      return
+    }
+
+    // Render confirmation message text on load
+    window.addEventListener(
+      'pageshow',
+      AdminApplicationView.changeConfirmationMessagePreviewState,
+    )
+
+    // On updates to the custom confirmation message
+    const confirmationMessageTextArea = document.getElementById(
+      AdminApplicationView.CONFIRMATION_MESSAGE_TEXTBOX_ID,
+    )
+    if (confirmationMessageTextArea) {
+      confirmationMessageTextArea.addEventListener(
+        'input',
+        AdminApplicationView.changeConfirmationMessagePreviewState,
+      )
+    }
+
+    // On updates to the program display name
+    const programDisplayNameInput = document.getElementById(
+      AdminApplicationView.PROGRAM_DISPLAY_NAME_INPUT_ID,
+    )
+    if (programDisplayNameInput) {
+      programDisplayNameInput.addEventListener(
+        'input',
+        AdminApplicationView.changeConfirmationMessagePreviewState,
+      )
+    }
   }
 
   private extractInputValueFromForm(
@@ -334,6 +383,55 @@ class AdminApplicationView {
     }
 
     return value
+  }
+
+  private static changeConfirmationMessagePreviewState() {
+    const confirmationMessagePreviewBody = assertNotNull(
+      document
+        .getElementById(AdminApplicationView.CONFIRMATION_MESSAGE_PREVIEW_ID)!
+        .querySelector('.usa-alert__body'),
+    ) as HTMLElement
+
+    // Replace text on update
+    Array.from(confirmationMessagePreviewBody.children).forEach((child) => {
+      child.remove()
+    })
+
+    /**
+     * Construct default confirmation message
+     * This data attribute leaves in the template fields so 'data-default-confirmation-message' is:
+     * 'Thank you for applying to {0}, your application has been received, and your application ID is {1}.'
+     * In java this replacement would be done automatically, but we can get the same result with find and replace here.
+     */
+    const programDisplayNameInput = assertNotNull(
+      document.getElementById(
+        AdminApplicationView.PROGRAM_DISPLAY_NAME_INPUT_ID,
+      ),
+    ) as HTMLInputElement
+    const programDisplayName = programDisplayNameInput.value
+    const defaultConfirmationMessage = document
+      .querySelector('form[data-default-confirmation-message]')!
+      .getAttribute('data-default-confirmation-message')!
+      .replace('{0}', programDisplayName)
+      .replace('{1}', 'N/A')
+
+    // Construct and insert displayed text (default confirmation message <br> custom confirmation message)
+    const customConfirmationMessageInput = assertNotNull(
+      document.getElementById(
+        AdminApplicationView.CONFIRMATION_MESSAGE_TEXTBOX_ID,
+      ),
+    ) as HTMLInputElement
+    const confirmationMessagePreviewText = `${defaultConfirmationMessage}\n${customConfirmationMessageInput.value}`
+    const newTextDiv = confirmationMessagePreviewBody.appendChild(
+      document.createElement('div'),
+    )
+    newTextDiv.className = 'usa-alert__text'
+    newTextDiv.innerHTML = DOMPurify.sanitize(
+      formatText(confirmationMessagePreviewText),
+      {
+        ADD_ATTR: ['target'],
+      },
+    )
   }
 }
 interface ApplicationViewMessage {

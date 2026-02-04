@@ -62,6 +62,7 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
           "Data Export API",
           "Observability",
           "External Services",
+          "Session Management",
           "Miscellaneous",
           "Experimental");
 
@@ -103,22 +104,15 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
                     request, errorMessages, settingsManifest.getSections().get(sectionName))));
 
     HtmlBundle bundle = layout.getBundle(request).addMainContent(mainContent);
-
-    if (errorMessages.isPresent()) {
-      bundle.addToastMessages(
-          ToastMessage.error(
-              "That update didn't look quite right. Please fix the errors in the form and try"
-                  + " saving again.",
-              messagesApi.preferred(request)));
-    }
-    request
-        .flash()
-        .get("success")
-        .ifPresent(successMessage -> bundle.addToastMessages(ToastMessage.success(successMessage)));
-    request
-        .flash()
-        .get("warning")
-        .ifPresent(warningMessage -> bundle.addToastMessages(ToastMessage.warning(warningMessage)));
+    errorMessages
+        .map(
+            errors ->
+                ToastMessage.error(
+                    "That update didn't look quite right. Please fix the errors in the form and try"
+                        + " saving again.",
+                    messagesApi.preferred(request)))
+        .ifPresent(bundle::addToastMessages);
+    addSuccessAndWarningToasts(bundle, request.flash());
 
     return layout.render(bundle);
   }
@@ -215,21 +209,16 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
             .getSettingDisplayValue(request, settingDescription)
             .filter(v -> !v.isBlank());
 
-    switch (settingDescription.settingType()) {
-      case BOOLEAN:
-        return renderBoolInput(settingDescription, value);
-      case LIST_OF_STRINGS:
-      case STRING:
-        return renderStringInput(settingDescription, value, errorMessages);
-      case ENUM:
-        return renderEnumInput(settingDescription, value);
-      case INT:
-        return renderIntInput(settingDescription, value);
-      default:
-        throw new IllegalStateException(
-            String.format(
-                "Settings of type %s are not writeable", settingDescription.settingType()));
-    }
+    return switch (settingDescription.settingType()) {
+      case BOOLEAN -> renderBoolInput(settingDescription, value);
+      case LIST_OF_STRINGS, STRING -> renderStringInput(settingDescription, value, errorMessages);
+      case ENUM -> renderEnumInput(settingDescription, value);
+      case INT -> renderIntInput(settingDescription, value);
+      default ->
+          throw new IllegalStateException(
+              String.format(
+                  "Settings of type %s are not writeable", settingDescription.settingType()));
+    };
   }
 
   private static DivTag renderIntInput(

@@ -7,6 +7,7 @@
   class="cf-question-radio cf-applicant-question-field"
   th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
   data-testid="questionRoot"
+  th:aria-labelledby="|${questionId}-title ${questionId}-description|"
 >
   <fieldset
     class="usa-fieldset"
@@ -19,30 +20,27 @@
 
     <!--/* Display errors */-->
     <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${singleSelectQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams})}"
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${singleSelectQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams}, ${questionId})}"
     ></div>
 
     <!--/* Render each radio button option */-->
     <div
       class="usa-radio cf-multi-option-question-option"
       th:each="option,iterator: ${singleSelectQuestion.getOptions()}"
-      th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)}"
+      th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},ariaLabelForNewTabs=#{link.opensNewTabSr}"
     >
-      <input
-        class="usa-radio__input usa-radio__input--tile cf-radio-input"
-        th:id="${inputId}"
-        th:value="${option.id()}"
-        th:name="${singleSelectQuestion.getSelectionPath()}"
-        th:checked="${singleSelectQuestion.optionIsSelected(option)}"
-        type="radio"
-        th:aria-required="${!question.isOptional()}"
-        th:autofocus="${questionRendererParams.autofocusFirstError() && iterator.index == 0}"
-      />
-      <label
-        class="usa-radio__label maxw-mobile-lg cf-multi-option-value"
-        th:for="${inputId}"
-        th:utext="${option.formattedOptionText()}"
-      ></label>
+      <div
+        th:replace="~{components/RadioButtonOptionFragment :: radioButtonOptionFragment(
+            ${inputId},
+            ${option.id()},
+            ${singleSelectQuestion.getSelectionPath()},
+            ${singleSelectQuestion.optionIsSelected(option)},
+            ${!question.isOptional()},
+            ${questionRendererParams.autofocusFirstError() && iterator.index == 0},
+            ${option.formattedOptionText(ariaLabelForNewTabs)},
+            ${hasErrors},
+            ${questionId})}"
+      ></div>
     </div>
   </fieldset>
 </div>

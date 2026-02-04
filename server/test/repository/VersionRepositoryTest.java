@@ -7,17 +7,24 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.ebean.DB;
 import io.ebean.Transaction;
+import io.ebean.TxScope;
+import io.ebean.annotation.TxIsolation;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
+import models.DisplayMode;
 import models.LifecycleStage;
 import models.ProgramModel;
 import models.QuestionModel;
 import models.VersionModel;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import play.cache.SyncCacheApi;
+import repository.VersionRepository.PreviewPublishedVersion;
 import services.applicant.question.Scalar;
 import services.program.CantPublishProgramWithSharedQuestionsException;
 import services.program.EligibilityDefinition;
@@ -37,6 +44,7 @@ import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 
+@RunWith(JUnitParamsRunner.class)
 public class VersionRepositoryTest extends ResetPostgres {
   private VersionRepository versionRepository;
   private SyncCacheApi questionsByVersionCache;
@@ -59,8 +67,9 @@ public class VersionRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void testPublish_tombstonesProgramsAndQuestionsOnlyCreatedInTheDraftVersion()
-      throws Exception {
+  @Parameters({"false", "true"})
+  public void testPublish_tombstonesProgramsAndQuestionsOnlyCreatedInTheDraftVersion(
+      Boolean useTransaction) throws Exception {
     QuestionModel draftOnlyQuestion = resourceCreator.insertQuestion("draft-only-question");
     draftOnlyQuestion.addVersion(versionRepository.getDraftVersionOrCreate()).save();
 
@@ -88,17 +97,41 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedQuestionNames())
         .containsExactly(draftOnlyQuestion.getQuestionDefinition().getName());
 
+    Optional<Transaction> maybeTransaction = Optional.empty();
+    if (useTransaction) {
+      maybeTransaction =
+          Optional.of(
+              DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE)));
+    }
+
     // Publish and ensure that both the program and question aren't carried forward.
-    VersionModel updated = versionRepository.previewPublishNewSynchronizedVersion();
-    assertThat(updated.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
-    assertThat(updated.getPrograms()).isEmpty();
-    assertThat(updated.getTombstonedProgramNames()).isEmpty();
-    assertThat(updated.getQuestions()).isEmpty();
-    assertThat(updated.getTombstonedQuestionNames()).isEmpty();
+    PreviewPublishedVersion updated = versionRepository.previewPublishNewSynchronizedVersion();
+    assertThat(updated.lifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+    assertThat(updated.programIds()).isEmpty();
+    assertThat(updated.tombstonedProgramNames()).isEmpty();
+    assertThat(updated.questionIds()).isEmpty();
+    assertThat(updated.tombstonedQuestionNames()).isEmpty();
+
+    // Ensure that the Active and Draft versions are still as expected after the preview.
+    assertThat(versionRepository.getActiveVersion().getPrograms()).isEmpty();
+    assertThat(versionRepository.getActiveVersion().getTombstonedProgramNames()).isEmpty();
+    assertThat(versionRepository.getActiveVersion().getQuestions()).isEmpty();
+    assertThat(versionRepository.getActiveVersion().getTombstonedQuestionNames()).isEmpty();
+    assertThat(versionRepository.getDraftVersionOrCreate().getPrograms().stream().map(p -> p.id))
+        .containsExactlyInAnyOrder(draftOnlyProgram.id);
+    assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedProgramNames())
+        .containsExactly(draftOnlyProgram.getProgramDefinition().adminName());
+    assertThat(versionRepository.getDraftVersionOrCreate().getQuestions().stream().map(q -> q.id))
+        .containsExactlyInAnyOrder(draftOnlyQuestion.id);
+    assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedQuestionNames())
+        .containsExactly(draftOnlyQuestion.getQuestionDefinition().getName());
+
+    maybeTransaction.ifPresent(Transaction::end);
   }
 
   @Test
-  public void testPublish() {
+  @Parameters({"false", "true"})
+  public void testPublish(Boolean useTransaction) {
     QuestionModel firstQuestion = resourceCreator.insertQuestion("first-question");
     firstQuestion.addVersion(versionRepository.getActiveVersion()).save();
     QuestionModel secondQuestion = resourceCreator.insertQuestion("second-question");
@@ -131,11 +164,19 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(versionRepository.getDraftVersionOrCreate().getQuestions().stream().map(q -> q.id))
         .containsExactlyInAnyOrder(secondQuestionUpdated.id);
 
+    Optional<Transaction> maybeTransaction = Optional.empty();
+    if (useTransaction) {
+      maybeTransaction =
+          Optional.of(
+              DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE)));
+    }
+
     VersionModel oldDraft = versionRepository.getDraftVersionOrCreate();
     VersionModel oldActive = versionRepository.getActiveVersion();
 
     // First, preview the changes and ensure no versions are updated.
-    VersionModel toApplyNewActiveVersion = versionRepository.previewPublishNewSynchronizedVersion();
+    PreviewPublishedVersion toApplyNewActiveVersion =
+        versionRepository.previewPublishNewSynchronizedVersion();
     assertThat(versionRepository.getDraftVersionOrCreate().id).isEqualTo(oldDraft.id);
     assertThat(versionRepository.getActiveVersion().id).isEqualTo(oldActive.id);
     assertThat(versionRepository.getDraftVersionOrCreate().getPrograms().stream().map(p -> p.id))
@@ -161,11 +202,11 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifecycleStage.DRAFT);
     assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
 
-    assertThat(toApplyNewActiveVersion.id).isEqualTo(oldDraft.id);
-    assertThat(toApplyNewActiveVersion.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
-    assertThat(toApplyNewActiveVersion.getPrograms().stream().map(p -> p.id))
+    assertThat(toApplyNewActiveVersion.id()).isEqualTo(oldDraft.id);
+    assertThat(toApplyNewActiveVersion.lifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+    assertThat(toApplyNewActiveVersion.programIds())
         .containsExactlyInAnyOrder(secondProgramDraft.id, firstProgramActive.id);
-    assertThat(toApplyNewActiveVersion.getQuestions().stream().map(q -> q.id))
+    assertThat(toApplyNewActiveVersion.questionIds())
         .containsExactlyInAnyOrder(firstQuestion.id, secondQuestionUpdated.id);
 
     // Now actually publish the version and assert the results.
@@ -186,6 +227,8 @@ public class VersionRepositoryTest extends ResetPostgres {
         .containsExactlyInAnyOrder(firstQuestion.id, secondQuestionUpdated.id);
     oldActive.refresh();
     assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
+
+    maybeTransaction.ifPresent(Transaction::end);
   }
 
   @Test
@@ -826,7 +869,7 @@ public class VersionRepositoryTest extends ResetPostgres {
                 .get()
                 .predicate()
                 .predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.OR_OF_SINGLE_LAYER_ANDS);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
   }
 
   @Test
@@ -1093,5 +1136,33 @@ public class VersionRepositoryTest extends ResetPostgres {
     versionRepository.getProgramsForVersion(version1);
 
     assertThat(programsByVersionCache.get(version1Key).isPresent()).isFalse();
+  }
+
+  @Test
+  public void testAnyDisabledPrograms_activeProgramDisabled() {
+    // When no programs, there are no disabled programs
+    assertThat(versionRepository.anyDisabledPrograms()).isFalse();
+
+    // Adding a non-disabled active program and verify that there are still no disabled programs
+    ProgramBuilder.newActiveProgram("active-program").build();
+    assertThat(versionRepository.anyDisabledPrograms()).isFalse();
+
+    // Adding a disabled program and verify that now we have disabled programs
+    ProgramBuilder.newActiveProgram("disabled-active-program", DisplayMode.DISABLED).build();
+    assertThat(versionRepository.anyDisabledPrograms()).isTrue();
+  }
+
+  @Test
+  public void testAnyDisabledPrograms_draftProgramDisabled() {
+    // When no programs, there are no disabled programs
+    assertThat(versionRepository.anyDisabledPrograms()).isFalse();
+
+    // Adding non-disabled draft programs and verify that there are still no disabled programs
+    ProgramBuilder.newDraftProgram("draft-program").build();
+    assertThat(versionRepository.anyDisabledPrograms()).isFalse();
+
+    // Adding a disabled program and verify that now we have disabled programs
+    ProgramBuilder.newDisabledDraftProgram("disabled-draft-program").build();
+    assertThat(versionRepository.anyDisabledPrograms()).isTrue();
   }
 }

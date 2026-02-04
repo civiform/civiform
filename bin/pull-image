@@ -31,7 +31,6 @@ function pull_all() {
   docker pull mcr.microsoft.com/azure-storage/azurite &
   docker pull localstack/localstack &
 
-  docker pull civiform/civiform-localstack:latest &
   docker pull civiform/formatter:latest &
   docker pull civiform/civiform-browser-test:latest &
   docker pull civiform/mock-web-services:latest &
@@ -40,7 +39,6 @@ function pull_all() {
 
   docker tag civiform/civiform-dev:latest civiform-dev
   docker tag civiform/formatter:latest civiform-formatter
-  docker tag civiform/civiform-localstack:latest civiform-localstack
   docker tag civiform/oidc-provider:latest civiform-oidc-provider
   docker tag civiform/civiform-browser-test:latest civiform-browser-test
   docker tag civiform/mock-web-services:latest civiform-mock-web-services
@@ -71,8 +69,7 @@ while [ "${1:-}" != "" ]; do
 
     "--localstack")
       echo "Pull localstack docker image"
-      docker pull civiform/civiform-localstack:latest
-      docker tag civiform/civiform-localstack:latest civiform-localstack
+      docker pull localstack/localstack
       ;;
 
     "--azurite")

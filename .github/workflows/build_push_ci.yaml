@@ -35,11 +35,11 @@ jobs:
     name: Build civiform ${{ matrix.version }} for ${{ matrix.platform }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - name: Set up Docker QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
       - name: Check if we should push
         if: ${{ (github.event_name == 'workflow_dispatch') || (github.event_name == 'push') }}
         run: echo "PUSH_IMAGE=1" >> $GITHUB_ENV
@@ -61,7 +61,6 @@ jobs:
         version:
           [
             'formatter',
-            'localstack',
             'browser_test',
             'oidc',
             'mock-web-services',
@@ -71,11 +70,6 @@ jobs:
             image: 'civiform/formatter:latest'
             script: 'bin/build-formatter'
             file_pattern: 'formatter/'
-            platform: 'linux/amd64,linux/arm64' # build for m1 mac, too
-          - version: localstack
-            image: 'civiform/civiform-localstack:latest'
-            script: 'bin/build-localstack-env'
-            file_pattern: 'localstack/'
             platform: 'linux/amd64,linux/arm64' # build for m1 mac, too
           - version: browser_test
             image: 'civiform/civiform-browser-test:latest'
@@ -97,12 +91,12 @@ jobs:
     name: Build civiform dependancy ${{ matrix.version }} for ${{ matrix.platform }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
         with:
           fetch-depth: 0
 
       - id: file_changes
-        uses: tj-actions/changed-files@v45
+        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 # v47
         with:
           json: 'true'
         if: ${{ github.event_name != 'workflow_dispatch' }}
@@ -121,10 +115,10 @@ jobs:
         run: echo "Skip ${{ matrix.image }} build for event ${{github.event_name}}" "${{steps.check_build.outputs.build}}"
 
       - name: Set up Docker QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
         if: ${{ steps.check_build.outputs.build == 'build' }}
 
       - name: Check if we should push

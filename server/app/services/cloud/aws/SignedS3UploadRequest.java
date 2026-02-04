@@ -5,9 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import java.nio.charset.StandardCharsets;
@@ -20,6 +17,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import services.ObjectMapperSingleton;
 import services.cloud.StorageServiceName;
 import services.cloud.StorageUploadRequest;
 import software.amazon.awssdk.utils.BinaryUtils;
@@ -64,7 +62,7 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
   public static Builder builder() {
     return new AutoValue_SignedS3UploadRequest.Builder()
         .setAlgorithm("AWS4-HMAC-SHA256")
-        .setServiceName(StorageServiceName.AWS_S3.getString());
+        .setServiceName(StorageServiceName.S3.getString());
   }
 
   // -- Below should be included in the upload form.
@@ -88,7 +86,7 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
    * in two places:
    *
    * <p>1) In the `<input name="success_action_redirect">` element. (See {@link
-   * views.fileupload.AwsFileUploadViewStrategy#additionalFileUploadFormInputs}.)
+   * views.fileupload.GenericS3FileUploadViewStrategy#additionalFileUploadFormInputs}.)
    *
    * <p>2) In the `<input name="Policy">` element as part of the encoded policy string. (See {@link
    * Builder#buildPolicy()}.)
@@ -147,7 +145,7 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
 
   // -- Below are required for creating the upload policy.
 
-  /** Expiration time of the signed request, in the format of 'yyyy-MM-ddTkk:mm:ss.SSSZ'. */
+  /** Expiration time of the signed request, in the format of 'yyyy-MM-ddTHH:mm:ss.SSSZ'. */
   public abstract String expiration();
 
   /** S3 bucket name. */
@@ -260,7 +258,7 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
     abstract String serviceName();
 
     /** Set fileLimitMb. This is used to build the credential and the signing key. */
-    abstract Builder setFileLimitMb(int fileLimitMb);
+    public abstract Builder setFileLimitMb(int fileLimitMb);
 
     /** Get fileLimitMb. This is used to build the credential and the signing key. */
     abstract int fileLimitMb();
@@ -278,7 +276,7 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
       setDateStamp(dateString);
       LocalDateTime expiration = currentUTCDateTime.plus(duration);
       return setExpiration(
-          expiration.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'kk:mm:ss.SSS'Z'")));
+          expiration.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")));
     }
 
     Builder buildCredential() {
@@ -329,12 +327,8 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
 
   @AutoValue
   abstract static class UploadPolicy {
-    private static final ObjectMapper mapper =
-        new ObjectMapper().registerModule(new GuavaModule()).registerModule(new Jdk8Module());
-
-    static {
-      mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-    }
+    // Use legacy serialization settings. (De)serialization errors may occur if changed.
+    private static final ObjectMapper mapper = ObjectMapperSingleton.createLegacyCopy();
 
     static Builder builder() {
       return new AutoValue_SignedS3UploadRequest_UploadPolicy.Builder();
@@ -394,9 +388,8 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
       abstract long maxBytes();
 
       @JsonValue
-      ImmutableList<String> toJson() {
-        return ImmutableList.of(
-            "content-length-range", String.valueOf(minBytes()), String.valueOf(maxBytes()));
+      ImmutableList<Object> toJson() {
+        return ImmutableList.of("content-length-range", minBytes(), maxBytes());
       }
     }
 

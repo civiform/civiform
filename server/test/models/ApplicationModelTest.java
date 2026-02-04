@@ -3,6 +3,7 @@ package models;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
+import java.time.Instant;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,6 +66,53 @@ public class ApplicationModelTest extends ResetPostgres {
   }
 
   @Test
+  public void eligibility_determination_default_not_computed() {
+    ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
+
+    ApplicationModel application =
+        resourceCreator.insertActiveApplication(
+            resourceCreator.insertApplicantWithAccount(), program);
+    assertThat(application.getEligibilityDetermination())
+        .isEqualTo(EligibilityDetermination.NOT_COMPUTED);
+  }
+
+  @Test
+  public void eligibility_determination_eligible() {
+    ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
+
+    ApplicationModel application =
+        resourceCreator.insertActiveApplication(
+            resourceCreator.insertApplicantWithAccount(), program);
+    application.setEligibilityDetermination(EligibilityDetermination.ELIGIBLE);
+    assertThat(application.getEligibilityDetermination())
+        .isEqualTo(EligibilityDetermination.ELIGIBLE);
+  }
+
+  @Test
+  public void eligibility_determination_ineligible() {
+    ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
+
+    ApplicationModel application =
+        resourceCreator.insertActiveApplication(
+            resourceCreator.insertApplicantWithAccount(), program);
+    application.setEligibilityDetermination(EligibilityDetermination.INELIGIBLE);
+    assertThat(application.getEligibilityDetermination())
+        .isEqualTo(EligibilityDetermination.INELIGIBLE);
+  }
+
+  @Test
+  public void eligibility_determination_no_eligibility_criteria() {
+    ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
+
+    ApplicationModel application =
+        resourceCreator.insertActiveApplication(
+            resourceCreator.insertApplicantWithAccount(), program);
+    application.setEligibilityDetermination(EligibilityDetermination.NO_ELIGIBILITY_CRITERIA);
+    assertThat(application.getEligibilityDetermination())
+        .isEqualTo(EligibilityDetermination.NO_ELIGIBILITY_CRITERIA);
+  }
+
+  @Test
   public void isAdmin_applicant_isFalse() {
     ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
 
@@ -104,5 +152,19 @@ public class ApplicationModelTest extends ResetPostgres {
 
     ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
     assertThat(application.getIsAdmin()).isTrue();
+  }
+
+  @Test
+  public void create_new_application_updatesLastActivityTime() {
+    ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
+
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    Instant activitytimeBeforeUpdate = applicant.getAccount().getLastActivityTime();
+    ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
+    application.refresh();
+
+    Instant activitytimeAfterUpdate = applicant.getAccount().getLastActivityTime();
+
+    assertThat(activitytimeAfterUpdate).isNotEqualTo(activitytimeBeforeUpdate);
   }
 }

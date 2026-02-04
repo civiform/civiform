@@ -4,23 +4,30 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.ApplicantModel;
 import services.Path;
 import services.applicant.ApplicantData;
+import services.applicant.RepeatedEntity;
+import services.applicant.question.AbstractQuestion;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.CurrencyQuestion;
 import services.applicant.question.DateQuestion;
 import services.applicant.question.EmailQuestion;
+import services.applicant.question.EnumeratorQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.applicant.question.IdQuestion;
+import services.applicant.question.MapQuestion;
 import services.applicant.question.MultiSelectQuestion;
 import services.applicant.question.NameQuestion;
 import services.applicant.question.NumberQuestion;
 import services.applicant.question.PhoneQuestion;
-import services.applicant.question.Question;
 import services.applicant.question.SingleSelectQuestion;
 import services.applicant.question.TextQuestion;
 import services.geo.ServiceAreaInclusion;
@@ -28,6 +35,7 @@ import services.geo.ServiceAreaState;
 import services.program.ProgramQuestionDefinition;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionAnswerer;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 
@@ -37,40 +45,96 @@ import services.question.types.QuestionType;
  *
  * <p>Some {@link QuestionType}s share the same {@link QuestionJsonSampler}.
  */
-public interface QuestionJsonSampler<Q extends Question> {
+public interface QuestionJsonSampler<Q extends AbstractQuestion> {
 
-  default ImmutableMap<Path, Optional<?>> getSampleJsonEntries(
-      QuestionDefinition questionDefinition, boolean multipleFileUploadEnabled) {
-    if (questionDefinition.getEnumeratorId().isPresent()) {
-      // TODO(#5238): support enumerated questions.
-      return ImmutableMap.of();
+  public record SampleDataContext(
+      ApplicantModel applicantModel,
+      Map<Long, List<ImmutableList<RepeatedEntity>>> enumeratorRepeatedEntities) {
+
+    public SampleDataContext() {
+      this(new ApplicantModel(), new HashMap<>());
     }
 
+    ApplicantData getApplicantData() {
+      return applicantModel.getApplicantData();
+    }
+  }
+
+  default ImmutableMap<Path, Optional<?>> getSampleJsonEntries(
+      QuestionDefinition questionDefinition) {
+    return getSampleJsonEntries(questionDefinition, new SampleDataContext());
+  }
+
+  default ImmutableMap<Path, Optional<?>> getSampleJsonEntries(
+      QuestionDefinition questionDefinition, SampleDataContext sampleDataContext) {
     ProgramQuestionDefinition programQuestionDefinition =
         ProgramQuestionDefinition.create(questionDefinition, Optional.empty());
-    ApplicantModel applicant = new ApplicantModel();
-    ApplicantData applicantData = applicant.getApplicantData();
+    return questionDefinition
+        .getEnumeratorId()
+        .map(
+            enumeratorId ->
+                getJsonEntriesForEnumerator(
+                    enumeratorId, programQuestionDefinition, sampleDataContext))
+        .orElseGet(
+            () ->
+                getEntitySampleJsonEntries(
+                    Optional.empty(), programQuestionDefinition, sampleDataContext));
+  }
+
+  /**
+   * Generates sample JSON entries for a question associated with an enumerator question. This
+   * method processes the given question for each repeated entity associated with the specified
+   * enumerator, effectively creating sample JSON data for each entity.
+   *
+   * @param enumeratorId The ID of the enumerator question.
+   * @param programQuestionDefinition The definition of the program question for which to generate
+   *     JSON.
+   * @param sampleDataContext The sample data context containing information about repeated
+   *     entities.
+   * @return An ImmutableMap representing the generated JSON entries, where keys are Paths and
+   *     values are Optional values. Returns an empty map if no repeated entities are found for the
+   *     given enumerator ID.
+   */
+  private ImmutableMap<Path, Optional<?>> getJsonEntriesForEnumerator(
+      long enumeratorId,
+      ProgramQuestionDefinition programQuestionDefinition,
+      SampleDataContext sampleDataContext) {
+    return sampleDataContext
+        .enumeratorRepeatedEntities
+        .getOrDefault(enumeratorId, ImmutableList.of())
+        .stream()
+        .flatMap(repeatedEntityList -> repeatedEntityList.stream())
+        .flatMap(
+            repeatedEntity ->
+                getEntitySampleJsonEntries(
+                    Optional.of(repeatedEntity), programQuestionDefinition, sampleDataContext)
+                    .entrySet()
+                    .stream())
+        .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
+  }
+
+  private ImmutableMap<Path, Optional<?>> getEntitySampleJsonEntries(
+      Optional<RepeatedEntity> repeatedEntity,
+      ProgramQuestionDefinition programQuestionDefinition,
+      SampleDataContext sampleDataContext) {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(
-            programQuestionDefinition, applicant, applicantData, Optional.empty());
-    addSampleData(applicantData, applicantQuestion, multipleFileUploadEnabled);
-
+            programQuestionDefinition,
+            sampleDataContext.applicantModel,
+            sampleDataContext.getApplicantData(),
+            repeatedEntity);
+    addSampleData(sampleDataContext, applicantQuestion);
     Q question = getQuestion(applicantQuestion);
     // Suppress warning about unchecked assignment because the JSON presenter is parameterized on
     // the question type, which we know matches Q.
     @SuppressWarnings("unchecked")
-    ImmutableMap<Path, Optional<?>> entries =
-        getJsonPresenter().getAllJsonEntries(question, multipleFileUploadEnabled);
-
+    ImmutableMap<Path, Optional<?>> entries = getJsonPresenter().getAllJsonEntries(question);
     return entries;
   }
 
   Q getQuestion(ApplicantQuestion applicantQuestion);
 
-  void addSampleData(
-      ApplicantData applicantData,
-      ApplicantQuestion applicantQuestion,
-      boolean multipleFileUploadEnabled);
+  void addSampleData(SampleDataContext sampleDataContext, ApplicantQuestion applicantQuestion);
 
   QuestionJsonPresenter getJsonPresenter();
 
@@ -83,12 +147,14 @@ public interface QuestionJsonSampler<Q extends Question> {
     private final EmptyJsonSampler emptyJsonSampler;
     private final FileUploadJsonSampler fileUploadJsonSampler;
     private final IdJsonSampler idJsonSampler;
+    private final MapJsonSampler mapJsonSampler;
     private final MultiSelectJsonSampler multiSelectJsonSampler;
     private final NameJsonSampler nameJsonSampler;
     private final NumberJsonSampler numberJsonSampler;
     private final PhoneJsonSampler phoneJsonSampler;
     private final SingleSelectJsonSampler singleSelectJsonSampler;
     private final TextJsonSampler textJsonSampler;
+    private final EnumeratorJsonSampler enumeratorJsonSampler;
 
     @Inject
     Factory(
@@ -99,12 +165,14 @@ public interface QuestionJsonSampler<Q extends Question> {
         EmptyJsonSampler emptyJsonSampler,
         FileUploadJsonSampler fileUploadJsonSampler,
         IdJsonSampler idJsonSampler,
+        MapJsonSampler mapJsonSampler,
         MultiSelectJsonSampler multiSelectJsonSampler,
         NameJsonSampler nameJsonSampler,
         NumberJsonSampler numberJsonSampler,
         PhoneJsonSampler phoneJsonSampler,
         SingleSelectJsonSampler singleSelectJsonSampler,
-        TextJsonSampler textJsonSampler) {
+        TextJsonSampler textJsonSampler,
+        EnumeratorJsonSampler enumeratorJsonSampler) {
       this.addressJsonSampler = checkNotNull(addressJsonSampler);
       this.currencyJsonSampler = checkNotNull(currencyJsonSampler);
       this.dateJsonSampler = checkNotNull(dateJsonSampler);
@@ -112,54 +180,95 @@ public interface QuestionJsonSampler<Q extends Question> {
       this.emptyJsonSampler = checkNotNull(emptyJsonSampler);
       this.fileUploadJsonSampler = checkNotNull(fileUploadJsonSampler);
       this.idJsonSampler = checkNotNull(idJsonSampler);
+      this.mapJsonSampler = checkNotNull(mapJsonSampler);
       this.multiSelectJsonSampler = checkNotNull(multiSelectJsonSampler);
       this.nameJsonSampler = checkNotNull(nameJsonSampler);
       this.numberJsonSampler = checkNotNull(numberJsonSampler);
       this.phoneJsonSampler = checkNotNull(phoneJsonSampler);
       this.singleSelectJsonSampler = checkNotNull(singleSelectJsonSampler);
       this.textJsonSampler = checkNotNull(textJsonSampler);
+      this.enumeratorJsonSampler = checkNotNull(enumeratorJsonSampler);
     }
 
     public QuestionJsonSampler create(QuestionType questionType) {
-      switch (questionType) {
-        case ADDRESS:
-          return addressJsonSampler;
-        case CHECKBOX:
-          return multiSelectJsonSampler;
-        case CURRENCY:
-          return currencyJsonSampler;
-        case DATE:
-          return dateJsonSampler;
-        case DROPDOWN:
-        case RADIO_BUTTON:
-          return singleSelectJsonSampler;
-        case EMAIL:
-          return emailJsonSampler;
+      return switch (questionType) {
+        case ADDRESS -> addressJsonSampler;
+        case CHECKBOX -> multiSelectJsonSampler;
+        case CURRENCY -> currencyJsonSampler;
+        case DATE -> dateJsonSampler;
+        case DROPDOWN -> singleSelectJsonSampler;
+        case RADIO_BUTTON -> singleSelectJsonSampler;
+        case EMAIL -> emailJsonSampler;
           // Answers to enumerator questions are not included. This is because enumerators store an
           // identifier value for each repeated entity, which with the current export logic
           // conflicts with the answers stored for repeated entities.
-        case ENUMERATOR:
-          return emptyJsonSampler;
-        case FILEUPLOAD:
-          return fileUploadJsonSampler;
-        case ID:
-          return idJsonSampler;
-        case NAME:
-          return nameJsonSampler;
-        case NUMBER:
-          return numberJsonSampler;
-        case PHONE:
-          return phoneJsonSampler;
+        case ENUMERATOR -> enumeratorJsonSampler;
+        case FILEUPLOAD -> fileUploadJsonSampler;
+        case ID -> idJsonSampler;
+        case MAP -> mapJsonSampler;
+        case NAME -> nameJsonSampler;
+        case NUMBER -> numberJsonSampler;
+        case PHONE -> phoneJsonSampler;
           // Static content questions are not included in API responses because they
           // do not include an answer from the user.
-        case STATIC:
-          return emptyJsonSampler;
-        case TEXT:
-          return textJsonSampler;
+        case STATIC -> emptyJsonSampler;
+        case TEXT -> textJsonSampler;
+        case YES_NO -> singleSelectJsonSampler;
 
-        default:
-          throw new RuntimeException(String.format("Unrecognized questionType %s", questionType));
-      }
+        default ->
+            throw new RuntimeException(String.format("Unrecognized questionType %s", questionType));
+      };
+    }
+  }
+
+  class EnumeratorJsonSampler implements QuestionJsonSampler<EnumeratorQuestion> {
+
+    private final QuestionJsonPresenter enumeratorJsonPresenter;
+
+    // Sample entity names for enumerator questions.
+    private static final ImmutableList<String> SAMPLE_ENTITY_NAMES =
+        ImmutableList.of("member1", "member2");
+
+    @Inject
+    EnumeratorJsonSampler(QuestionJsonPresenter.Factory questionJsonPresenterFactory) {
+      this.enumeratorJsonPresenter = questionJsonPresenterFactory.create(QuestionType.ENUMERATOR);
+    }
+
+    @Override
+    public EnumeratorQuestion getQuestion(ApplicantQuestion applicantQuestion) {
+      return applicantQuestion.createEnumeratorQuestion();
+    }
+
+    @Override
+    public void addSampleData(
+        SampleDataContext sampleDataContext, ApplicantQuestion applicantQuestion) {
+      // Answers enumerator question with sample entities
+      QuestionAnswerer.answerEnumeratorQuestion(
+          sampleDataContext.getApplicantData(),
+          applicantQuestion.getContextualizedPath(),
+          SAMPLE_ENTITY_NAMES);
+
+      EnumeratorQuestionDefinition enumeratorQuestionDefinition =
+          (EnumeratorQuestionDefinition) applicantQuestion.getQuestionDefinition();
+
+      // Create repeated entities and store it in the sampleDataContext. These entities will be used
+      // when processing a question that is associated with this enumerator question.
+      ImmutableList<RepeatedEntity> repeatedEntities =
+          RepeatedEntity.createRepeatedEntities(
+              applicantQuestion.getRepeatedEntity(),
+              enumeratorQuestionDefinition,
+              Optional.empty(),
+              sampleDataContext.getApplicantData());
+
+      sampleDataContext
+          .enumeratorRepeatedEntities
+          .computeIfAbsent(enumeratorQuestionDefinition.getId(), k -> new ArrayList<>())
+          .add(repeatedEntities);
+    }
+
+    @Override
+    public QuestionJsonPresenter getJsonPresenter() {
+      return enumeratorJsonPresenter;
     }
   }
 
@@ -178,11 +287,9 @@ public interface QuestionJsonSampler<Q extends Question> {
 
     @Override
     public void addSampleData(
-        ApplicantData applicantData,
-        ApplicantQuestion applicantQuestion,
-        boolean multipleFileUploadEnabled) {
+        SampleDataContext sampleDataContext, ApplicantQuestion applicantQuestion) {
       QuestionAnswerer.answerAddressQuestion(
-          applicantData,
+          sampleDataContext.getApplicantData(),
           applicantQuestion.getContextualizedPath(),
           /* street= */ "742 Evergreen Terrace",
           /* line2= */ "",
@@ -221,11 +328,11 @@ public interface QuestionJsonSampler<Q extends Question> {
 
     @Override
     public void addSampleData(
-        ApplicantData applicantData,
-        ApplicantQuestion applicantQuestion,
-        boolean multipleFileUploadEnabled) {
+        SampleDataContext sampleDataContext, ApplicantQuestion applicantQuestion) {
       QuestionAnswerer.answerCurrencyQuestion(
-          applicantData, applicantQuestion.getContextualizedPath(), "123.45");
+          sampleDataContext.getApplicantData(),
+          applicantQuestion.getContextualizedPath(),
+          "123.45");
     }
 
     @Override
@@ -249,11 +356,11 @@ public interface QuestionJsonSampler<Q extends Question> {
 
     @Override
     public void addSampleData(
-        ApplicantData applicantData,
-        ApplicantQuestion applicantQuestion,
-        boolean multipleFileUploadEnabled) {
+        SampleDataContext sampleDataContext, ApplicantQuestion applicantQuestion) {
       QuestionAnswerer.answerDateQuestion(
-          applicantData, applicantQuestion.getContextualizedPath(), "2023-01-02");
+          sampleDataContext.getApplicantData(),
+          applicantQuestion.getContextualizedPath(),
+          "2023-01-02");
     }
 
     @Override
@@ -277,11 +384,9 @@ public interface QuestionJsonSampler<Q extends Question> {
 
     @Override
     public void addSampleData(
-        ApplicantData applicantData,
-        ApplicantQuestion applicantQuestion,
-        boolean multipleFileUploadEnabled) {
+        SampleDataContext sampleDataContext, ApplicantQuestion applicantQuestion) {
       QuestionAnswerer.answerEmailQuestion(
-          applicantData,
+          sampleDataContext.getApplicantData(),
           applicantQuestion.getContextualizedPath(),
           "homer.simpson@springfield.gov");
     }
@@ -292,24 +397,22 @@ public interface QuestionJsonSampler<Q extends Question> {
     }
   }
 
-  class EmptyJsonSampler implements QuestionJsonSampler<Question> {
+  class EmptyJsonSampler implements QuestionJsonSampler<AbstractQuestion> {
 
     @Override
     public ImmutableMap<Path, Optional<?>> getSampleJsonEntries(
-        QuestionDefinition questionDefinition, boolean multipleFileUploadEnabled) {
+        QuestionDefinition questionDefinition, SampleDataContext sampleDataContext) {
       return ImmutableMap.of();
     }
 
     @Override
-    public Question getQuestion(ApplicantQuestion applicantQuestion) {
+    public AbstractQuestion getQuestion(ApplicantQuestion applicantQuestion) {
       return null;
     }
 
     @Override
     public void addSampleData(
-        ApplicantData applicantData,
-        ApplicantQuestion applicantQuestion,
-        boolean multipleFileUploadEnabled) {
+        SampleDataContext sampleDataContext, ApplicantQuestion applicantQuestion) {
       // no-op
     }
 
@@ -334,18 +437,11 @@ public interface QuestionJsonSampler<Q extends Question> {
 
     @Override
     public void addSampleData(
-        ApplicantData applicantData,
-        ApplicantQuestion applicantQuestion,
-        boolean multipleFileUploadEnabled) {
-      if (multipleFileUploadEnabled) {
-        QuestionAnswerer.answerFileQuestionWithMultipleUpload(
-            applicantData,
-            applicantQuestion.getContextualizedPath(),
-            ImmutableList.of("my-file-key-1", "my-file-key-2"));
-      } else {
-        QuestionAnswerer.answerFileQuestion(
-            applicantData, applicantQuestion.getContextualizedPath(), "my-file-key");
-      }
+        SampleDataContext sampleDataContext, ApplicantQuestion applicantQuestion) {
+      QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+          sampleDataContext.getApplicantData(),
+          applicantQuestion.getContextualizedPath(),
+          ImmutableList.of("my-file-key-1", "my-file-key-2"));
     }
 
     @Override
@@ -369,11 +465,9 @@ public interface QuestionJsonSampler<Q extends Question> {
 
     @Override
     public void addSampleData(
-        ApplicantData applicantData,
-        ApplicantQuestion applicantQuestion,
-        boolean multipleFileUploadEnabled) {
+        SampleDataContext sampleDataContext, ApplicantQuestion applicantQuestion) {
       QuestionAnswerer.answerIdQuestion(
-          applicantData, applicantQuestion.getContextualizedPath(), "12345");
+          sampleDataContext.getApplicantData(), applicantQuestion.getContextualizedPath(), "12345");
     }
 
     @Override
@@ -399,11 +493,10 @@ public interface QuestionJsonSampler<Q extends Question> {
 
     @Override
     public void addSampleData(
-        ApplicantData applicantData,
-        ApplicantQuestion applicantQuestion,
-        boolean multipleFileUploadEnabled) {
+        SampleDataContext sampleDataContext, ApplicantQuestion applicantQuestion) {
+      ApplicantData applicantData = sampleDataContext.getApplicantData();
       ImmutableList<LocalizedQuestionOption> questionOptions =
-          applicantQuestion.createMultiSelectQuestion().getOptions();
+          applicantQuestion.createMultiSelectQuestion().getDisplayableOptions();
 
       // Add up to two options to the sample data.
       if (questionOptions.size() > 0) {
@@ -428,6 +521,37 @@ public interface QuestionJsonSampler<Q extends Question> {
     }
   }
 
+  class MapJsonSampler implements QuestionJsonSampler<MapQuestion> {
+    private final QuestionJsonPresenter mapJsonPresenter;
+
+    @Inject
+    MapJsonSampler(QuestionJsonPresenter.Factory questionJsonPresenterFactory) {
+      this.mapJsonPresenter = questionJsonPresenterFactory.create(QuestionType.MAP);
+    }
+
+    @Override
+    public MapQuestion getQuestion(ApplicantQuestion applicantQuestion) {
+      return applicantQuestion.createMapQuestion();
+    }
+
+    @Override
+    public void addSampleData(
+        SampleDataContext sampleDataContext, ApplicantQuestion applicantQuestion) {
+      ApplicantData applicantData = sampleDataContext.getApplicantData();
+
+      QuestionAnswerer.answerMapQuestion(
+          applicantData, applicantQuestion.getContextualizedPath(), 0, "feature_123", "Location 1");
+
+      QuestionAnswerer.answerMapQuestion(
+          applicantData, applicantQuestion.getContextualizedPath(), 1, "feature_456", "Location 2");
+    }
+
+    @Override
+    public QuestionJsonPresenter getJsonPresenter() {
+      return mapJsonPresenter;
+    }
+  }
+
   class NameJsonSampler implements QuestionJsonSampler<NameQuestion> {
     private final QuestionJsonPresenter nameJsonPresenter;
 
@@ -443,11 +567,9 @@ public interface QuestionJsonSampler<Q extends Question> {
 
     @Override
     public void addSampleData(
-        ApplicantData applicantData,
-        ApplicantQuestion applicantQuestion,
-        boolean multipleFileUploadEnabled) {
+        SampleDataContext sampleDataContext, ApplicantQuestion applicantQuestion) {
       QuestionAnswerer.answerNameQuestion(
-          applicantData,
+          sampleDataContext.getApplicantData(),
           applicantQuestion.getContextualizedPath(),
           "Homer",
           "Jay",
@@ -477,11 +599,9 @@ public interface QuestionJsonSampler<Q extends Question> {
 
     @Override
     public void addSampleData(
-        ApplicantData applicantData,
-        ApplicantQuestion applicantQuestion,
-        boolean multipleFileUploadEnabled) {
+        SampleDataContext sampleDataContext, ApplicantQuestion applicantQuestion) {
       QuestionAnswerer.answerNumberQuestion(
-          applicantData, applicantQuestion.getContextualizedPath(), 12321);
+          sampleDataContext.getApplicantData(), applicantQuestion.getContextualizedPath(), 12321);
     }
 
     @Override
@@ -505,11 +625,12 @@ public interface QuestionJsonSampler<Q extends Question> {
 
     @Override
     public void addSampleData(
-        ApplicantData applicantData,
-        ApplicantQuestion applicantQuestion,
-        boolean multipleFileUploadEnabled) {
+        SampleDataContext sampleDataContext, ApplicantQuestion applicantQuestion) {
       QuestionAnswerer.answerPhoneQuestion(
-          applicantData, applicantQuestion.getContextualizedPath(), "US", "(214)-367-3764");
+          sampleDataContext.getApplicantData(),
+          applicantQuestion.getContextualizedPath(),
+          "US",
+          "(214)-367-3764");
     }
 
     @Override
@@ -536,16 +657,16 @@ public interface QuestionJsonSampler<Q extends Question> {
 
     @Override
     public void addSampleData(
-        ApplicantData applicantData,
-        ApplicantQuestion applicantQuestion,
-        boolean multipleFileUploadEnabled) {
+        SampleDataContext sampleDataContext, ApplicantQuestion applicantQuestion) {
       ImmutableList<LocalizedQuestionOption> questionOptions =
-          applicantQuestion.createSingleSelectQuestion().getOptions();
+          applicantQuestion.createSingleSelectQuestion().getDisplayableOptions();
 
       if (questionOptions.size() != 0) {
         LocalizedQuestionOption firstOption = questionOptions.get(0);
         QuestionAnswerer.answerSingleSelectQuestion(
-            applicantData, applicantQuestion.getContextualizedPath(), firstOption.id());
+            sampleDataContext.getApplicantData(),
+            applicantQuestion.getContextualizedPath(),
+            firstOption.id());
       }
     }
 
@@ -570,11 +691,11 @@ public interface QuestionJsonSampler<Q extends Question> {
 
     @Override
     public void addSampleData(
-        ApplicantData applicantData,
-        ApplicantQuestion applicantQuestion,
-        boolean multipleFileUploadEnabled) {
+        SampleDataContext sampleDataContext, ApplicantQuestion applicantQuestion) {
       QuestionAnswerer.answerTextQuestion(
-          applicantData, applicantQuestion.getContextualizedPath(), "I love CiviForm!");
+          sampleDataContext.getApplicantData(),
+          applicantQuestion.getContextualizedPath(),
+          "I love CiviForm!");
     }
 
     @Override

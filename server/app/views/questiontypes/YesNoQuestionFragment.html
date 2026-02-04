@@ -1,0 +1,47 @@
+<div
+  th:fragment="yes_no(question, questionRendererParams)"
+  th:with="questionId=${'id-' + #strings.randomAlphanumeric(8)},
+  singleSelectQuestion=${question.createSingleSelectQuestion()},
+  hasErrors=${questionRendererParams.shouldShowErrors() && !singleSelectQuestion.getValidationErrors().isEmpty()}"
+  th:id="${questionId}"
+  class="cf-question-radio cf-applicant-question-field"
+  th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
+  data-testid="questionRoot"
+  th:aria-labelledby="|${questionId}-title ${questionId}-description|"
+>
+  <fieldset
+    class="usa-fieldset"
+    th:aria-describedby="${questionId} + '-description'"
+  >
+    <!--/* Title and Help Text */-->
+    <div
+      th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
+    ></div>
+
+    <!--/* Display errors */-->
+    <div
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${singleSelectQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams}, ${questionId})}"
+    ></div>
+
+    <!--/* Render each radio button option */-->
+    <div
+      class="usa-radio cf-multi-option-question-option"
+      th:each="option,iterator: ${singleSelectQuestion.getOptions()}"
+      th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)}, ariaLabelForNewTabs=#{link.opensNewTabSr}, translatedText=#{${option.getYesNoOptionMessageKey()}}"
+      th:if="${option.displayInAnswerOptions().isPresent() && option.displayInAnswerOptions().get()}"
+    >
+      <div
+        th:replace="~{components/RadioButtonOptionFragment :: radioButtonOptionFragment(
+            ${inputId},
+            ${option.id()},
+            ${singleSelectQuestion.getSelectionPath()},
+            ${singleSelectQuestion.optionIsSelected(option)},
+            ${!question.isOptional()},
+            ${questionRendererParams.autofocusFirstError() && iterator.index == 0},
+            ${option.formattedOptionText(translatedText, ariaLabelForNewTabs)},
+            ${hasErrors},
+            ${questionId})}"
+      ></div>
+    </div>
+  </fieldset>
+</div>

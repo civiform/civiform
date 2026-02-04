@@ -30,7 +30,7 @@ import services.email.EmailSendClient;
  */
 public abstract class AbstractDurableJobRunner {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDurableJobRunner.class);
+  private static final Logger logger = LoggerFactory.getLogger(AbstractDurableJobRunner.class);
 
   private final String hostName;
   private final Database database = DB.getDefault();
@@ -55,7 +55,8 @@ public abstract class AbstractDurableJobRunner {
     this.durableJobRegistry = Preconditions.checkNotNull(durableJobRegistry);
     this.itEmailAddress =
         config.getString("it_email_address").isBlank()
-            ? config.getString("support_email_address")
+            // TODO(#11736): Set support_email_address as the fallback email
+            ? "civiform-dev@exygy.com"
             : config.getString("it_email_address");
     this.jobTimeoutMinutes = config.getInt("durable_jobs.job_timeout_minutes");
 
@@ -80,7 +81,7 @@ public abstract class AbstractDurableJobRunner {
    * <p>{@code synchronized} to avoid overlapping executions within the same server.
    */
   public synchronized void runJobs() {
-    LOGGER.info("JobRunner_Start thread ID={}", Thread.currentThread().getId());
+    logger.info("JobRunner_Start thread ID={}", Thread.currentThread().getId());
 
     Transaction transaction = database.beginTransaction();
     Optional<PersistedDurableJobModel> maybeJobToRun = getJobForExecution();
@@ -96,7 +97,7 @@ public abstract class AbstractDurableJobRunner {
     }
     transaction.close();
 
-    LOGGER.info("JobRunner_Stop thread_ID={}", Thread.currentThread().getId());
+    logger.info("JobRunner_Stop thread_ID={}", Thread.currentThread().getId());
   }
 
   private void notifyUponFinalFailure(PersistedDurableJobModel job) {
@@ -121,7 +122,7 @@ public abstract class AbstractDurableJobRunner {
 
   private void runJob(PersistedDurableJobModel persistedDurableJob) {
     LocalDateTime startTime = nowProvider.get();
-    LOGGER.info(
+    logger.info(
         "JobRunner_ExecutingJob thread_ID={}, job_name=\"{}\", job_ID={}",
         Thread.currentThread().getId(),
         persistedDurableJob.getJobName(),
@@ -144,7 +145,7 @@ public abstract class AbstractDurableJobRunner {
 
       persistedDurableJob.setSuccessTime(nowProvider.get().toInstant(zoneOffset)).save();
 
-      LOGGER.info(
+      logger.info(
           "JobRunner_JobSucceeded job_name=\"{}\", job_ID={}, duration_s={}",
           persistedDurableJob.getJobName(),
           persistedDurableJob.id,
@@ -154,7 +155,7 @@ public abstract class AbstractDurableJobRunner {
       // In this case, we want to delete the job from the database because it should not be run
       // anymore
       if (persistedDurableJob.delete()) {
-        LOGGER.info(
+        logger.info(
             String.format(
                 "Job was not found in the registry and was deleted from the db. job_name=\"%s\"",
                 persistedDurableJob.getJobName()));
@@ -171,7 +172,7 @@ public abstract class AbstractDurableJobRunner {
                 persistedDurableJob.getRemainingAttempts(),
                 getJobDurationInSeconds(startTime),
                 e.getMessage());
-        LOGGER.error(msg);
+        logger.error(msg);
         persistedDurableJob.appendErrorMessage(msg).save();
       }
     } catch (IllegalArgumentException | CancellationException | InterruptedException e) {
@@ -186,7 +187,7 @@ public abstract class AbstractDurableJobRunner {
               persistedDurableJob.getRemainingAttempts(),
               getJobDurationInSeconds(startTime),
               e.getMessage());
-      LOGGER.error(msg);
+      logger.error(msg);
       persistedDurableJob.appendErrorMessage(msg).save();
     } catch (TimeoutException e) {
       String msg =
@@ -197,7 +198,7 @@ public abstract class AbstractDurableJobRunner {
               persistedDurableJob.id,
               persistedDurableJob.getRemainingAttempts(),
               getJobDurationInSeconds(startTime));
-      LOGGER.error(msg);
+      logger.error(msg);
       persistedDurableJob.appendErrorMessage(msg).save();
     } catch (ExecutionException e) {
       String msg =
@@ -210,7 +211,7 @@ public abstract class AbstractDurableJobRunner {
               getJobDurationInSeconds(startTime),
               e.getMessage(),
               ExceptionUtils.getStackTrace(e));
-      LOGGER.error(msg);
+      logger.error(msg);
       persistedDurableJob.appendErrorMessage(msg).save();
     }
   }

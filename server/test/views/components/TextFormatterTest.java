@@ -1,70 +1,52 @@
 package views.components;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.endsWith;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
-import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import j2html.tags.DomContent;
-import java.util.List;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 import repository.ResetPostgres;
 
 public class TextFormatterTest extends ResetPostgres {
 
-  private void assertIsExternalUrlWithIcon(
-      String actualValue, String expectedValue, String endsWith) {
-    assertThat(actualValue).contains(expectedValue).endsWith(endsWith);
-  }
-
   @Test
   public void urlsRenderCorrectly() {
     ImmutableList<DomContent> content =
-        TextFormatter.formatText(
-            "hello google.com http://internet.website https://secure.website",
-            /* preserveEmptyLines= */ false,
-            /* addRequiredIndicator= */ false);
+        TextFormatter.formatTextForAdmins(
+            "hello google.com http://internet.website https://secure.website");
     String htmlContent = content.get(0).render();
 
     // URLs without protocols are not turned into links
     assertThat(htmlContent).contains("hello google.com ");
 
-    // URLs with protocols are turned into links, the protocol is maintained and the SVG icon is
+    // URLs with protocols are turned into links, the protocol is maintained and aria-label is
     // added
-    List<String> contentArr = Splitter.on("</a>").splitToList(htmlContent);
-    assertIsExternalUrlWithIcon(
-        contentArr.get(0),
-        "<a href=\"http://internet.website\" class=\"text-blue-900 font-bold opacity-75 underline"
-            + " hover:opacity-100\" target=\"_blank\" aria-label=\"opens in a new tab\""
-            + " rel=\"nofollow noopener noreferrer\">http://internet.website<svg",
-        "</svg>");
-    assertIsExternalUrlWithIcon(
-        htmlContent,
-        "<a href=\"https://secure.website\" class=\"text-blue-900 font-bold opacity-75 underline"
-            + " hover:opacity-100\" target=\"_blank\" aria-label=\"opens in a new tab\""
-            + " rel=\"nofollow noopener noreferrer\">https://secure.website<svg",
-        "</svg></a></p>\n");
+    assertThat(htmlContent)
+        .contains(
+            "<a href=\"http://internet.website\" class=\"usa-link usa-link--external\""
+                + " target=\"_blank\" aria-label=\"http://internet.website, opens in a new tab\""
+                + " rel=\"nofollow noopener noreferrer\">http://internet.website</a>");
+    assertThat(htmlContent)
+        .contains(
+            "<a href=\"https://secure.website\" class=\"usa-link usa-link--external\""
+                + " target=\"_blank\" aria-label=\"https://secure.website, opens in a new tab\""
+                + " rel=\"nofollow noopener noreferrer\">https://secure.website</a>");
   }
 
   @Test
   public void textLinksRenderCorrectly() {
     ImmutableList<DomContent> content =
-        TextFormatter.formatText(
-            "[this is a link](https://www.google.com)",
-            /* preserveEmptyLines= */ false,
-            /* addRequiredIndicator= */ false);
+        TextFormatter.formatTextForAdmins("[this is a link](https://www.google.com)");
     String htmlContent = content.get(0).render();
-    assertIsExternalUrlWithIcon(
-        htmlContent,
-        "<a href=\"https://www.google.com\" class=\"text-blue-900 font-bold opacity-75 underline"
-            + " hover:opacity-100\" target=\"_blank\" aria-label=\"opens in a new tab\""
-            + " rel=\"nofollow noopener noreferrer\">this is a link",
-        "</svg></a></p>\n");
+    assertThat(htmlContent)
+        .contains(
+            "<a href=\"https://www.google.com\" class=\"usa-link usa-link--external\""
+                + " target=\"_blank\" aria-label=\"this is a link, opens in a new tab\""
+                + " rel=\"nofollow noopener noreferrer\">this is a link</a>");
   }
 
   @Test
@@ -73,80 +55,118 @@ public class TextFormatterTest extends ResetPostgres {
         TextFormatter.formatText(
             "Enter your full legal name.",
             /* preserveEmptyLines= */ false,
-            /* addRequiredIndicator= */ true);
+            /* addRequiredIndicator= */ true,
+            /* ariaLabelForNewTabs= */ "");
 
     assertThat(content.get(0).render())
         .isEqualTo(
-            "<p>Enter your full legal name.<span class=\"text-red-600"
-                + " font-semibold\">\u00a0*</span></p>\n");
+            """
+<p>Enter your full legal name.<span class="usa-hint--required" aria-hidden="true">\u00a0*</span></p>
+""");
   }
 
   @Test
   public void insertsRequiredIndicatorBeforeLists() {
     ImmutableList<DomContent> contentWithUnorderedList =
         TextFormatter.formatText(
-            "Here is some text.\n" + "* list item one\n" + "* list item two",
+            """
+            Here is some text.
+            * list item one
+            * list item two""",
             /* preserveEmptyLines= */ false,
-            /* addRequiredIndicator= */ true);
+            /* addRequiredIndicator= */ true,
+            /* ariaLabelForNewTabs= */ "");
     String htmlContentWithUnorderedList = contentWithUnorderedList.get(0).render();
     assertThat(htmlContentWithUnorderedList)
         .isEqualTo(
-            "<p>Here is some text.<span class=\"text-red-600 font-semibold\"> *</span></p>\n"
-                + "<ul class=\"list-disc mx-8\"><li>list item one</li><li>list item"
-                + " two</li></ul>\n");
+            """
+<p>Here is some text.<span class="usa-hint--required" aria-hidden="true"> *</span></p>
+<ul class="usa-list margin-r-4"><li>list item one</li><li>list item two</li></ul>
+""");
 
     ImmutableList<DomContent> contentWithOrderedList =
         TextFormatter.formatText(
-            "Here is some text.\n" + "1. list item one\n" + "2. list item two",
+            """
+            Here is some text.
+            1. list item one
+            2. list item two""",
             /* preserveEmptyLines= */ false,
-            /* addRequiredIndicator= */ true);
+            /* addRequiredIndicator= */ true,
+            /* ariaLabelForNewTabs= */ "");
     String htmlContentWithOrderedList = contentWithOrderedList.get(0).render();
     assertThat(htmlContentWithOrderedList)
         .isEqualTo(
-            "<p>Here is some text.<span class=\"text-red-600 font-semibold\"> *</span></p>\n"
-                + "<ol class=\"list-decimal mx-8\"><li>list item one</li><li>list item"
-                + " two</li></ol>\n");
+            """
+<p>Here is some text.<span class="usa-hint--required" aria-hidden="true"> *</span></p>
+<ol class="usa-list margin-r-4"><li>list item one</li><li>list item two</li></ol>
+""");
   }
 
   @Test
   public void insertsRequiredIndicatorAfterLists() {
     ImmutableList<DomContent> contentWithUnorderedList =
         TextFormatter.formatText(
-            "- list item one\n" + "- list item two\n" + "- list item three",
+            """
+            - list item one
+            - list item two
+            - list item three""",
             /* preserveEmptyLines= */ false,
-            /* addRequiredIndicator= */ true);
+            /* addRequiredIndicator= */ true,
+            /* ariaLabelForNewTabs= */ "");
     String htmlContentWithUnorderedList = contentWithUnorderedList.get(0).render();
     assertThat(htmlContentWithUnorderedList)
         .isEqualTo(
-            "<ul class=\"list-disc mx-8\"><li>list item one</li><li>list item two</li><li>list item"
-                + " three<span class=\"text-red-600 font-semibold\"> *</span></li></ul>\n");
+            """
+<ul class="usa-list margin-r-4"><li>list item one</li><li>list item two</li><li>list item\
+ three<span class="usa-hint--required" aria-hidden="true">\
+ *</span></li></ul>
+""");
 
     ImmutableList<DomContent> contentWithOrderedList =
         TextFormatter.formatText(
-            "1. list item one\n" + "2. list item two\n" + "3. list item three",
+            """
+            1. list item one
+            2. list item two
+            3. list item three""",
             /* preserveEmptyLines= */ false,
-            /* addRequiredIndicator= */ true);
+            /* addRequiredIndicator= */ true,
+            /* ariaLabelForNewTabs= */ "");
     String htmlContentWithOrderedList = contentWithOrderedList.get(0).render();
     assertThat(htmlContentWithOrderedList)
         .isEqualTo(
-            "<ol class=\"list-decimal mx-8\"><li>list item one</li><li>list item two</li><li>list"
-                + " item three<span class=\"text-red-600 font-semibold\"> *</span></li></ol>\n");
+            """
+<ol class="usa-list margin-r-4">\
+<li>list item one</li>\
+<li>list item two</li>\
+<li>list item three\
+<span class="usa-hint--required" aria-hidden="true"> *</span>\
+</li></ol>
+""");
   }
 
   @Test
   public void listRendersCorrectly() {
     String withList =
-        "This is my list:\n" + "* cream cheese\n" + "* eggs\n" + "* sugar\n" + "* vanilla";
-    ImmutableList<DomContent> content =
-        TextFormatter.formatText(
-            withList, /* preserveEmptyLines= */ false, /* addRequiredIndicator= */ false);
+        """
+        This is my list:
+        * cream cheese
+        * eggs
+        * sugar
+        * vanilla""";
+    ImmutableList<DomContent> content = TextFormatter.formatTextForAdmins(withList);
     String htmlContent = content.get(0).render();
 
     assertThat(htmlContent)
         .isEqualTo(
-            "<p>This is my list:</p>\n"
-                + "<ul class=\"list-disc mx-8\"><li>cream"
-                + " cheese</li><li>eggs</li><li>sugar</li><li>vanilla</li></ul>\n");
+            """
+            <p>This is my list:</p>
+            <ul class="usa-list margin-r-4">\
+            <li>cream cheese</li>\
+            <li>eggs</li>\
+            <li>sugar</li>\
+            <li>vanilla</li>\
+            </ul>
+            """);
   }
 
   @Test
@@ -163,95 +183,102 @@ public class TextFormatterTest extends ResetPostgres {
         4. vanilla
         """;
 
-    ImmutableList<DomContent> content =
-        TextFormatter.formatText(
-            withList, /* preserveEmptyLines= */ false, /* addRequiredIndicator= */ false);
+    ImmutableList<DomContent> content = TextFormatter.formatTextForAdmins(withList);
     String htmlContent = content.get(0).render();
 
     assertThat(htmlContent)
         .isEqualTo(
             """
 <p>This is my list:</p>
-<ol class="list-decimal mx-8"><li>cream cheese</li></ol>
+<ol class="usa-list margin-r-4"><li>cream cheese</li></ol>
 <p><strong>hello</strong></p>
-<ol start="2" class="list-decimal mx-8"><li>eggs</li><li>sugar</li><li>vanilla</li></ol>
+<ol start="2" class="usa-list margin-r-4"><li>eggs</li><li>sugar</li><li>vanilla</li></ol>
 """);
   }
 
   @Test
   public void preservesLines() {
     String withBlankLine =
-        "This is the first line of content.\n"
-            + "\n"
-            + "This is the second (or third) line of content.\n"
-            + "\n"
-            + "\n"
-            + "This is the third (or sixth) line of content.";
+        """
+        This is the first line of content.
+
+        This is the second (or third) line of content.
+
+
+        This is the third (or sixth) line of content.""";
 
     ImmutableList<DomContent> preservedBlanksContent =
         TextFormatter.formatText(
-            withBlankLine, /* preserveEmptyLines= */ true, /* addRequiredIndicator= */ false);
+            withBlankLine,
+            /* preserveEmptyLines= */ true,
+            /* addRequiredIndicator= */ false,
+            /* ariaLabelForNewTabs= */ "");
     assertThat(preservedBlanksContent.get(0).render())
         .isEqualTo(
-            "<p>This is the first line of content.<br /> </p>\n"
-                + "<p>This is the second (or third) line of content.<br /> </p>\n"
-                + "<p> </p>\n"
-                + "<p>This is the third (or sixth) line of content.</p>\n");
+            """
+            <p>This is the first line of content.<br /> </p>
+            <p>This is the second (or third) line of content.<br /> </p>
+            <p> </p>
+            <p>This is the third (or sixth) line of content.</p>
+            """);
 
     ImmutableList<DomContent> nonPreservedBlanksContent =
-        TextFormatter.formatText(
-            withBlankLine, /* preserveEmptyLines= */ false, /* addRequiredIndicator= */ false);
+        TextFormatter.formatTextForAdmins(withBlankLine);
     assertThat(nonPreservedBlanksContent.get(0).render())
         .isEqualTo(
-            "<p>This is the first line of content.</p>\n"
-                + "<p>This is the second (or third) line of content.</p>\n"
-                + "<p>This is the third (or sixth) line of content.</p>\n");
+            """
+            <p>This is the first line of content.</p>
+            <p>This is the second (or third) line of content.</p>
+            <p>This is the third (or sixth) line of content.</p>
+            """);
   }
 
   @Test
   public void appliesTextEmphasis() {
     String stringWithMarkdown =
         "# Hello!\nThis is a string with *italics* and **bold** and `inline code`";
-    ImmutableList<DomContent> formattedText =
-        TextFormatter.formatText(
-            stringWithMarkdown, /* preserveEmptyLines= */ false, /* addRequiredIndicator= */ false);
+    ImmutableList<DomContent> formattedText = TextFormatter.formatTextForAdmins(stringWithMarkdown);
     assertThat(formattedText.get(0).render())
         .isEqualTo(
-            "<h2>Hello!</h2>\n"
-                + "<p>This is a string with <em>italics</em> and <strong>bold</strong> and"
-                + " <code>inline code</code></p>\n");
+            """
+            <p>Hello!</p>
+            <p>This is a string with <em>italics</em> and <strong>bold</strong> and\
+             <code>inline code</code></p>
+            """);
   }
 
   @Test
   public void removesScriptTags() {
     String stringWithScriptTag = "<script>alert('bad-time');</script>";
     ImmutableList<DomContent> formattedText =
-        TextFormatter.formatText(
-            stringWithScriptTag,
-            /* preserveEmptyLines= */ false,
-            /* addRequiredIndicator= */ false);
+        TextFormatter.formatTextForAdmins(stringWithScriptTag);
     assertThat(formattedText.get(0).render()).isEqualTo("\n");
   }
 
   @Test
-  public void replacesH1Tags() {
-    String stringWithH1Markdown =
-        "# Header 1\n"
-            + "should be changed to h2 but\n"
-            + "## Header 2\n"
-            + "and\n"
-            + "### Header 3\n"
-            + " should be allowed";
-    ImmutableList<DomContent> formattedText =
-        TextFormatter.formatText(stringWithH1Markdown, false, false);
+  public void replacesAllMarkdownHeadingsWithParagraphs() {
+    String markdown =
+        """
+        # Heading 1
+        ## Heading 2
+        ### Heading 3
+        #### Heading 4
+        ##### Heading 5
+        ###### Heading 6
+        """;
+
+    ImmutableList<DomContent> formattedText = TextFormatter.formatTextForAdmins(markdown);
+
     assertThat(formattedText.get(0).render())
         .isEqualTo(
-            "<h2>Header 1</h2>\n"
-                + "<p>should be changed to h2 but</p>\n"
-                + "<h2>Header 2</h2>\n"
-                + "<p>and</p>\n"
-                + "<h3 class=\"text-lg\">Header 3</h3>\n"
-                + "<p>should be allowed</p>\n");
+            """
+            <p>Heading 1</p>
+            <p>Heading 2</p>
+            <p>Heading 3</p>
+            <p>Heading 4</p>
+            <p>Heading 5</p>
+            <p>Heading 6</p>
+            """);
   }
 
   @Test
@@ -263,7 +290,7 @@ public class TextFormatterTest extends ResetPostgres {
 
     String stringWithBadAttributesAndElements =
         "<script>console.log('uhoh')</script><div id=\"bad-id\"></div>";
-    TextFormatter.formatText(stringWithBadAttributesAndElements, false, false);
+    TextFormatter.formatTextForAdmins(stringWithBadAttributesAndElements);
 
     ImmutableList<ILoggingEvent> logsList = ImmutableList.copyOf(listAppender.list);
     assertThat(logsList.get(0).getMessage())
@@ -275,32 +302,26 @@ public class TextFormatterTest extends ResetPostgres {
   @Test
   public void formatTextWithAriaLabel_addsAriaLabel() {
     ImmutableList<DomContent> content =
-        TextFormatter.formatTextWithAriaLabel(
+        TextFormatter.formatText(
             "[link](https://www.example.com)", false, false, "test aria label");
 
-    assertThat(content.get(0).render()).contains("aria-label=\"test aria label\"");
-
-    // Set the aria label back to the default for the other tests
-    TextFormatter.resetAriaLabelToDefault();
+    assertThat(content.get(0).render()).contains("aria-label=\"link, test aria label\"");
   }
 
   @Test
   public void formatTextToSanitizedHTMLWithAriaLabel_addsAriaLabel() {
     String content =
-        TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
+        TextFormatter.formatTextToSanitizedHTML(
             "[link](https://www.example.com)", false, false, "test aria label");
 
-    assertThat(content).contains("aria-label=\"test aria label\"");
-
-    // Set the aria label back to the default for the other tests
-    TextFormatter.resetAriaLabelToDefault();
+    assertThat(content).contains("aria-label=\"link, test aria label\"");
   }
 
   @Test
   public void formatTextToSanitizedHTMLWithAriaLabel_removesScriptTags() {
     String stringWithScriptTag = "<script>alert('bad-time');</script>";
     String formattedText =
-        TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
+        TextFormatter.formatTextToSanitizedHTML(
             stringWithScriptTag,
             /* preserveEmptyLines= */ false,
             /* addRequiredIndicator= */ false,
@@ -311,25 +332,29 @@ public class TextFormatterTest extends ResetPostgres {
   @Test
   public void formatTextToSanitizedHTMLWithAriaLabel_appliesMarkdownFormatting() {
     String stringWithMarkdown =
-        "# Hello!\nThis is a string with *italics* and **bold** and `inline code`";
+        """
+        # Hello!
+        This is a string with *italics* and **bold** and `inline code`""";
     String formattedText =
-        TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
+        TextFormatter.formatTextToSanitizedHTML(
             stringWithMarkdown,
             /* preserveEmptyLines= */ false,
             /* addRequiredIndicator= */ false,
             "aria ");
     assertThat(formattedText)
         .isEqualTo(
-            "<h2>Hello!</h2>\n"
-                + "<p>This is a string with <em>italics</em> and <strong>bold</strong> and"
-                + " <code>inline code</code></p>\n");
+            """
+            <p>Hello!</p>
+            <p>This is a string with <em>italics</em> and <strong>bold</strong> and\
+             <code>inline code</code></p>
+            """);
   }
 
   @Test
   public void formatTextToSanitizedHTML_emptyStringReturnsEmptyString() {
-    assertThat(TextFormatter.formatTextToSanitizedHTML("", false, false)).isEmpty();
-    assertThat(TextFormatter.formatTextToSanitizedHTML("", true, false)).isEmpty();
-    assertThat(TextFormatter.formatTextToSanitizedHTML("", false, true)).isEmpty();
-    assertThat(TextFormatter.formatTextToSanitizedHTML("", true, true)).isEmpty();
+    assertThat(TextFormatter.formatTextToSanitizedHTML("", false, false, "")).isEmpty();
+    assertThat(TextFormatter.formatTextToSanitizedHTML("", true, false, "")).isEmpty();
+    assertThat(TextFormatter.formatTextToSanitizedHTML("", false, true, "")).isEmpty();
+    assertThat(TextFormatter.formatTextToSanitizedHTML("", true, true, "")).isEmpty();
   }
 }

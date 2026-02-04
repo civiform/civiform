@@ -23,6 +23,7 @@ import static j2html.TagCreator.tr;
 
 import annotations.BindingAnnotations;
 import auth.CiviFormProfile;
+import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.admin.routes;
@@ -50,6 +51,7 @@ import services.applicant.ApplicantService;
 import services.pagination.PageNumberPaginationSpec;
 import services.pagination.PaginationResult;
 import services.program.ProgramDefinition;
+import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import views.AlertComponent;
 import views.ApplicantUtils;
@@ -80,8 +82,9 @@ public class ProgramApplicationTableView extends BaseHtmlView {
   private final ApplicantUtils applicantUtils;
   private final ApplicantService applicantService;
   private final DateConverter dateConverter;
-  private final Logger log = LoggerFactory.getLogger(ProgramApplicationListView.class);
+  private final Logger log = LoggerFactory.getLogger(ProgramApplicationTableView.class);
   private final Messages enUsMessages;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ProgramApplicationTableView(
@@ -89,12 +92,14 @@ public class ProgramApplicationTableView extends BaseHtmlView {
       ApplicantUtils applicantUtils,
       ApplicantService applicantService,
       DateConverter dateConverter,
-      @BindingAnnotations.EnUsLang Messages enUsMessages) {
+      @BindingAnnotations.EnUsLang Messages enUsMessages,
+      SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
     this.applicantUtils = checkNotNull(applicantUtils);
     this.applicantService = checkNotNull(applicantService);
     this.dateConverter = checkNotNull(dateConverter);
     this.enUsMessages = checkNotNull(enUsMessages);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public Content render(
@@ -105,9 +110,12 @@ public class ProgramApplicationTableView extends BaseHtmlView {
       ImmutableList<String> allPossibleProgramApplicationStatuses,
       PageNumberPaginationSpec paginationSpec,
       PaginationResult<ApplicationModel> paginatedApplications,
-      ProgramApplicationListView.RenderFilterParams filterParams,
+      ProgramApplicationTableView.RenderFilterParams filterParams,
       Optional<Boolean> showDownloadModal,
       Optional<String> message) {
+    boolean showDownloadButton =
+        !(settingsManifest.getRemoveDownloadForProgramAdminsEnabled(request)
+            && profile.isOnlyProgramAdmin());
     Modal downloadModal =
         renderDownloadApplicationsModal(program, filterParams, showDownloadModal.orElse(false));
 
@@ -124,7 +132,11 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                         "bg-opacity-75",
                         StyleUtils.responsiveSmall("mb-6")),
                 br(),
-                renderSearchForm(program, allPossibleProgramApplicationStatuses, filterParams),
+                renderSearchForm(
+                    program,
+                    allPossibleProgramApplicationStatuses,
+                    filterParams,
+                    showDownloadButton),
                 div(),
                 renderApplicationTable(
                         paginatedApplications.getPageContents(),
@@ -149,22 +161,25 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                                     /* selectedApplicationUri= */ Optional.empty(),
                                     /* showDownloadModal= */ Optional.empty(),
                                     /* message= */ Optional.empty()),
-                            /* optionalMessages */ Optional.empty())));
+                            /* optionalMessages= */ Optional.empty())));
 
     HtmlBundle htmlBundle =
         layout
             .setAdminType(profile)
             .getBundle(request)
             .setTitle(program.adminName() + " - Applications")
-            .addModals(downloadModal)
             .addMainContent(makeCsrfTokenInputTag(request), applicationListDiv);
+    if (showDownloadButton) {
+      htmlBundle.addModals(downloadModal);
+    }
     return layout.renderCentered(htmlBundle);
   }
 
   private FormTag renderSearchForm(
       ProgramDefinition program,
       ImmutableList<String> allPossibleProgramApplicationStatuses,
-      ProgramApplicationListView.RenderFilterParams filterParams) {
+      ProgramApplicationTableView.RenderFilterParams filterParams,
+      boolean showDownloadButton) {
     String redirectUrl =
         routes.AdminApplicationController.index(
                 program.id(),
@@ -262,13 +277,15 @@ public class ProgramApplicationTableView extends BaseHtmlView {
         .with(
             div()
                 .withClasses("mt-6", "mb-8", "flex", "space-x-2")
-                .with(
-                    div().withClass("flex-grow"),
+                .with(div().withClass("flex-grow"))
+                .condWith(
+                    showDownloadButton,
                     makeSvgTextButton("Download", Icons.DOWNLOAD)
                         .withClass(ButtonStyles.OUTLINED_WHITE_WITH_ICON)
                         .withName(SHOW_DOWNLOAD_MODAL)
                         .withValue("true")
-                        .withType("submit"),
+                        .withType("submit"))
+                .with(
                     makeSvgTextButton("Filter", Icons.FILTER_ALT)
                         .withClass(ButtonStyles.SOLID_BLUE_WITH_ICON)
                         .withType("submit"),
@@ -277,7 +294,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
 
   private Modal renderDownloadApplicationsModal(
       ProgramDefinition program,
-      ProgramApplicationListView.RenderFilterParams filterParams,
+      ProgramApplicationTableView.RenderFilterParams filterParams,
       boolean showDownloadModal) {
     String modalId = "download-program-applications-modal";
     DivTag modalContent =
@@ -457,7 +474,8 @@ public class ProgramApplicationTableView extends BaseHtmlView {
             .with(th("Name").withScope("col"))
             .condWith(hasEligibilityEnabled, th("Eligibility").withScope("col"))
             .condWith(displayStatus, th("Status").withScope("col"))
-            .with(th("Submission date").withScope("col")));
+            .with(th("Submission date").withScope("col"))
+            .with(th("Submitted by").withScope("col")));
   }
 
   private TrTag renderApplicationRowItem(
@@ -502,7 +520,8 @@ public class ProgramApplicationTableView extends BaseHtmlView {
         .with(td(renderApplicationLink(applicantNameWithApplicationId, application)))
         .condWith(hasEligibilityEnabled, td(eligibilityStatus))
         .condWith(displayStatus, td(applicationStatus))
-        .with(td(renderSubmitTime(application)).withClass(ReferenceClasses.BT_DATE));
+        .with(td(renderSubmitTime(application)).withClass(ReferenceClasses.BT_DATE))
+        .with(td(application.getSubmitterEmail().orElse("")).withClass("cf-submitted-by"));
   }
 
   private ATag renderApplicationLink(String text, ApplicationModel application) {
@@ -527,6 +546,35 @@ public class ProgramApplicationTableView extends BaseHtmlView {
     } catch (NullPointerException e) {
       log.error("Application {} submitted without submission time marked.", application.id);
       return span();
+    }
+  }
+
+  @AutoValue
+  public abstract static class RenderFilterParams {
+    public abstract Optional<String> search();
+
+    public abstract Optional<String> fromDate();
+
+    public abstract Optional<String> untilDate();
+
+    public abstract Optional<String> selectedApplicationStatus();
+
+    public static Builder builder() {
+      return new AutoValue_ProgramApplicationTableView_RenderFilterParams.Builder();
+    }
+
+    @AutoValue.Builder
+    public abstract static class Builder {
+      public abstract Builder setSearch(Optional<String> search);
+
+      public abstract Builder setFromDate(Optional<String> fromDate);
+
+      public abstract Builder setUntilDate(Optional<String> untilDate);
+
+      public abstract Builder setSelectedApplicationStatus(
+          Optional<String> selectedApplicationStatus);
+
+      public abstract RenderFilterParams build();
     }
   }
 }

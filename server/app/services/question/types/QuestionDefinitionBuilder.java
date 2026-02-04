@@ -6,14 +6,19 @@ import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
+import java.util.UUID;
+import models.QuestionDisplayMode;
 import services.LocalizedStrings;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
+import services.question.QuestionSetting;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition.AddressValidationPredicates;
+import services.question.types.DateQuestionDefinition.DateValidationPredicates;
 import services.question.types.EnumeratorQuestionDefinition.EnumeratorValidationPredicates;
 import services.question.types.FileUploadQuestionDefinition.FileUploadValidationPredicates;
 import services.question.types.IdQuestionDefinition.IdValidationPredicates;
+import services.question.types.MapQuestionDefinition.MapValidationPredicates;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionValidationPredicates;
 import services.question.types.NameQuestionDefinition.NameValidationPredicates;
@@ -150,8 +155,23 @@ public final class QuestionDefinitionBuilder {
     return this;
   }
 
+  public QuestionDefinitionBuilder setQuestionSettings(ImmutableSet<QuestionSetting> settings) {
+    builder.setQuestionSettings(settings);
+    return this;
+  }
+
   public QuestionDefinitionBuilder setLastModifiedTime(Optional<Instant> lastModifiedTime) {
     builder.setLastModifiedTime(lastModifiedTime);
+    return this;
+  }
+
+  public QuestionDefinitionBuilder setConcurrencyToken(UUID concurrencyToken) {
+    builder.setConcurrencyToken(concurrencyToken);
+    return this;
+  }
+
+  public QuestionDefinitionBuilder setDisplayMode(QuestionDisplayMode displayMode) {
+    builder.setDisplayMode(displayMode);
     return this;
   }
 
@@ -179,68 +199,79 @@ public final class QuestionDefinitionBuilder {
   }
 
   public QuestionDefinition build() throws UnsupportedQuestionTypeException {
-    switch (this.questionType) {
-      case ADDRESS:
+    return switch (this.questionType) {
+      case ADDRESS -> {
         if (!validationPredicatesString.isEmpty()) {
           builder.setValidationPredicates(
               AddressValidationPredicates.parse(validationPredicatesString));
         }
-        return new AddressQuestionDefinition(builder.build());
-
-      case CHECKBOX:
+        yield new AddressQuestionDefinition(builder.build());
+      }
+      case CHECKBOX -> {
         if (!validationPredicatesString.isEmpty()) {
           builder.setValidationPredicates(
               MultiOptionValidationPredicates.parse(validationPredicatesString));
         }
 
-        return new MultiOptionQuestionDefinition(
+        yield new MultiOptionQuestionDefinition(
             builder.build(), questionOptions, MultiOptionQuestionType.CHECKBOX);
-
-      case CURRENCY:
-        return new CurrencyQuestionDefinition(builder.build());
-
-      case DATE:
-        return new DateQuestionDefinition(builder.build());
-
-      case DROPDOWN:
-        return new MultiOptionQuestionDefinition(
+      }
+      case CURRENCY -> {
+        yield new CurrencyQuestionDefinition(builder.build());
+      }
+      case DATE -> {
+        if (!validationPredicatesString.isEmpty()) {
+          builder.setValidationPredicates(
+              DateValidationPredicates.parse(validationPredicatesString));
+        }
+        yield new DateQuestionDefinition(builder.build());
+      }
+      case DROPDOWN -> {
+        yield new MultiOptionQuestionDefinition(
             builder.build(), questionOptions, MultiOptionQuestionType.DROPDOWN);
-
-      case EMAIL:
-        return new EmailQuestionDefinition(builder.build());
-
-      case FILEUPLOAD:
+      }
+      case EMAIL -> {
+        yield new EmailQuestionDefinition(builder.build());
+      }
+      case FILEUPLOAD -> {
         if (!validationPredicatesString.isEmpty()) {
           builder.setValidationPredicates(
               FileUploadValidationPredicates.parse(validationPredicatesString));
         }
-        return new FileUploadQuestionDefinition(builder.build());
-
-      case ID:
+        yield new FileUploadQuestionDefinition(builder.build());
+      }
+      case ID -> {
         if (!validationPredicatesString.isEmpty()) {
           builder.setValidationPredicates(IdValidationPredicates.parse(validationPredicatesString));
         }
-        return new IdQuestionDefinition(builder.build());
-
-      case NAME:
+        yield new IdQuestionDefinition(builder.build());
+      }
+      case MAP -> {
+        if (!validationPredicatesString.isEmpty()) {
+          builder.setValidationPredicates(
+              MapValidationPredicates.parse(validationPredicatesString));
+        }
+        yield new MapQuestionDefinition(builder.build());
+      }
+      case NAME -> {
         if (!validationPredicatesString.isEmpty()) {
           builder.setValidationPredicates(
               NameValidationPredicates.parse(validationPredicatesString));
         }
-        return new NameQuestionDefinition(builder.build());
-
-      case NUMBER:
+        yield new NameQuestionDefinition(builder.build());
+      }
+      case NUMBER -> {
         if (!validationPredicatesString.isEmpty()) {
           builder.setValidationPredicates(
               NumberValidationPredicates.parse(validationPredicatesString));
         }
-        return new NumberQuestionDefinition(builder.build());
-
-      case RADIO_BUTTON:
-        return new MultiOptionQuestionDefinition(
+        yield new NumberQuestionDefinition(builder.build());
+      }
+      case RADIO_BUTTON -> {
+        yield new MultiOptionQuestionDefinition(
             builder.build(), questionOptions, MultiOptionQuestionType.RADIO_BUTTON);
-
-      case ENUMERATOR:
+      }
+      case ENUMERATOR -> {
         // This shouldn't happen, but protects us in case there are enumerator questions in the prod
         // database that don't have entity type specified.
         if (entityType == null || entityType.isEmpty()) {
@@ -251,27 +282,29 @@ public final class QuestionDefinitionBuilder {
           builder.setValidationPredicates(
               EnumeratorValidationPredicates.parse(validationPredicatesString));
         }
-        return new EnumeratorQuestionDefinition(builder.build(), entityType);
-
-      case STATIC:
-        return new StaticContentQuestionDefinition(builder.build());
-
-      case TEXT:
+        yield new EnumeratorQuestionDefinition(builder.build(), entityType);
+      }
+      case STATIC -> {
+        yield new StaticContentQuestionDefinition(builder.build());
+      }
+      case TEXT -> {
         if (!validationPredicatesString.isEmpty()) {
           builder.setValidationPredicates(
               TextValidationPredicates.parse(validationPredicatesString));
         }
-        return new TextQuestionDefinition(builder.build());
-
-      case PHONE:
+        yield new TextQuestionDefinition(builder.build());
+      }
+      case PHONE -> {
         if (!validationPredicatesString.isEmpty()) {
           builder.setValidationPredicates(
               PhoneValidationPredicates.parse(validationPredicatesString));
         }
-        return new PhoneQuestionDefinition(builder.build());
-
-      default:
-        throw new UnsupportedQuestionTypeException(this.questionType);
-    }
+        yield new PhoneQuestionDefinition(builder.build());
+      }
+      case YES_NO ->
+          new MultiOptionQuestionDefinition(
+              builder.build(), questionOptions, MultiOptionQuestionType.YES_NO);
+      case NULL_QUESTION -> throw new UnsupportedQuestionTypeException(this.questionType);
+    };
   }
 }

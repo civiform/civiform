@@ -59,4 +59,17 @@ public class JobExecutionTimeResolversTest {
 
     assertThat(result).isEqualTo(expected);
   }
+
+  @Test
+  public void everyThirtyMinutes() {
+    // 10:15:30 UTC
+    Clock clock = Clock.fixed(Instant.parse("2022-12-07T10:15:30.00Z"), ZoneId.of("UTC"));
+    // Next 30-minute boundary at 10:30:00 UTC
+    Instant expected = Instant.parse("2022-12-07T10:30:00.00Z");
+
+    Instant result =
+        new RecurringJobExecutionTimeResolvers.EveryThirtyMinutes().resolveExecutionTime(clock);
+
+    assertThat(result).isEqualTo(expected);
+  }
 }

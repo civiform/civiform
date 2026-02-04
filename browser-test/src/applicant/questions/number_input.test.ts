@@ -10,7 +10,9 @@ import {
 } from '../../support'
 
 test.describe('Number question for applicant flow', () => {
-  const numberInputError = 'div.cf-question-number-error'
+  const errorMessage = 'This question is required.'
+  const invalidErrorMessage =
+    'Error: Number must be a positive whole number and can only contain numeric characters 0-9.'
 
   test.describe('single number question', () => {
     const programName = 'Test program for single number'
@@ -27,17 +29,29 @@ test.describe('Number question for applicant flow', () => {
     test('validate screenshot', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
 
-      await validateScreenshot(page, 'number')
+      await test.step('Screenshot without errors', async () => {
+        await validateScreenshot(page.getByTestId('questionRoot'), 'number', {
+          fullPage: false,
+        })
+      })
+
+      await test.step('Screenshot with errors', async () => {
+        await applicantQuestions.clickContinue()
+        await validateScreenshot(
+          page.getByTestId('questionRoot'),
+          'number-errors',
+          {fullPage: false},
+        )
+      })
     })
 
-    test('validate screenshot with errors', async ({
+    test('has no accessiblity violations', async ({
       page,
       applicantQuestions,
     }) => {
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.clickNext()
 
-      await validateScreenshot(page, 'number-errors')
+      await validateAccessibility(page)
     })
 
     test('with valid number submits successfully', async ({
@@ -45,7 +59,7 @@ test.describe('Number question for applicant flow', () => {
     }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('8')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       await applicantQuestions.submitFromReviewPage()
     })
@@ -56,15 +70,12 @@ test.describe('Number question for applicant flow', () => {
     }) => {
       await applicantQuestions.applyProgram(programName)
       // Leave field blank.
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      const numberId = '.cf-question-number'
-      expect(await page.innerText(numberId)).toContain(
-        'This question is required.',
-      )
+      await expect(page.getByText(errorMessage)).toBeVisible()
     })
 
-    test('with non-numeric inputs does not submit', async ({
+    test('with invalid inputs does not submit', async ({
       page,
       applicantQuestions,
     }) => {
@@ -73,9 +84,9 @@ test.describe('Number question for applicant flow', () => {
 
       for (const testValue of testValues) {
         await applicantQuestions.answerNumberQuestion(testValue)
-        await applicantQuestions.clickNext()
+        await applicantQuestions.clickContinue()
 
-        await expect(page.locator(numberInputError)).toBeVisible()
+        await expect(page.getByText(invalidErrorMessage)).toBeVisible()
         await applicantQuestions.answerNumberQuestion('')
       }
     })
@@ -112,7 +123,7 @@ test.describe('Number question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('100', 0)
       await applicantQuestions.answerNumberQuestion('33', 1)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       await applicantQuestions.submitFromReviewPage()
     })
@@ -123,7 +134,7 @@ test.describe('Number question for applicant flow', () => {
       // Only answer required question.
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('33', 1)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       await applicantQuestions.submitFromReviewPage()
     })
@@ -135,16 +146,9 @@ test.describe('Number question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('-10', 0)
       await applicantQuestions.answerNumberQuestion('33', 1)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      // Fix me! ESLint: playwright/prefer-web-first-assertions
-      // Directly switching to the best practice method fails
-      // because of a locator stict mode violation. That is it
-      // returns multiple elements.
-      //
-      // Recommended prefer-web-first-assertions fix:
-      //   await expect(page.locator(numberInputError)).toBeVisible()
-      expect(await page.isHidden(numberInputError)).toEqual(false)
+      await expect(page.getByText(invalidErrorMessage)).toBeVisible()
     })
 
     test('with second invalid does not submit', async ({
@@ -154,16 +158,9 @@ test.describe('Number question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('10', 0)
       await applicantQuestions.answerNumberQuestion('-5', 1)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      // Fix me! ESLint: playwright/prefer-web-first-assertions
-      // Directly switching to the best practice method fails
-      // because of a locator stict mode violation. That is it
-      // returns multiple elements.
-      //
-      // Recommended prefer-web-first-assertions fix:
-      //   await expect(page.locator(numberInputError + ' >> nth=1')).toBeVisible()
-      expect(await page.isHidden(numberInputError + ' >> nth=1')).toEqual(false)
+      await expect(page.getByText(invalidErrorMessage)).toBeVisible()
     })
 
     test('has no accessiblity violations', async ({

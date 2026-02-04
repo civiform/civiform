@@ -1,11 +1,15 @@
 package services.program.predicate;
 
+import static j2html.TagCreator.join;
+import static j2html.TagCreator.strong;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+import j2html.tags.UnescapedText;
 import java.util.Optional;
 import services.question.types.QuestionDefinition;
 
@@ -56,18 +60,32 @@ public abstract class LeafAddressServiceAreaExpressionNode implements LeafExpres
    */
   @Override
   public String toDisplayString(ImmutableList<QuestionDefinition> questions) {
+    return String.format(
+        "%s is %s \"%s\"",
+        getAddressLabel(questions), operator().toDisplayString(), serviceAreaId());
+  }
+
+  /**
+   * Displays a formatted, human-readable representation of the assertion in HTML, in the format
+   * "<strong>[question name]</strong> is in service area <strong>[service area ID]</strong>".
+   */
+  @Override
+  public UnescapedText toDisplayFormattedHtml(ImmutableList<QuestionDefinition> questions) {
+    return join(
+        strong(getAddressLabel(questions)),
+        "is",
+        operator().toDisplayString(),
+        strong(String.format("\"%s\"", serviceAreaId())));
+  }
+
+  String getAddressLabel(ImmutableList<QuestionDefinition> questions) {
     Optional<QuestionDefinition> maybeQuestionDefinition =
         questions.stream().filter(q -> q.getId() == questionId()).findFirst();
 
-    String addressLabel =
-        maybeQuestionDefinition
-            .map(QuestionDefinition::getName)
-            .map(addressName -> String.format("\"%s\"", addressName))
-            .orElse("address");
-
-    String operator = operator().toDisplayString();
-
-    return String.format("%s is %s \"%s\"", addressLabel, operator, serviceAreaId());
+    return maybeQuestionDefinition
+        .map(QuestionDefinition::getName)
+        .map(addressName -> String.format("\"%s\"", addressName))
+        .orElse("address");
   }
 
   public static Builder builder() {

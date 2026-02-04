@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -21,13 +22,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import play.libs.Json;
 import play.libs.ws.WSClient;
+import play.test.WithApplication;
 import services.geo.esri.EsriTestHelper.TestType;
 import services.geo.esri.models.Candidate;
 import services.geo.esri.models.FindAddressCandidatesResponse;
 import services.settings.SettingsManifest;
 
 @RunWith(JUnitParamsRunner.class)
-public class RealEsriClientTest {
+public class RealEsriClientTest extends WithApplication {
   private EsriTestHelper helper;
 
   @After
@@ -39,7 +41,7 @@ public class RealEsriClientTest {
 
   @Test
   public void fetchAddressSuggestions() throws Exception {
-    helper = new EsriTestHelper(TestType.STANDARD);
+    helper = new EsriTestHelper(TestType.STANDARD, instanceOf(ObjectMapper.class));
     ObjectNode addressJson = Json.newObject();
     addressJson.put("street", "380 New York St");
     Optional<FindAddressCandidatesResponse> optionalResponse =
@@ -54,7 +56,9 @@ public class RealEsriClientTest {
     // This is the same as the fetchAddressSuggestions test but forces use of the old config
     // setting.
     // Can do away after the removal of the old config setting.
-    helper = new EsriTestHelper(TestType.LEGACY_SINGLE_URL_CONFIG_SETTING);
+    helper =
+        new EsriTestHelper(
+            TestType.LEGACY_SINGLE_URL_CONFIG_SETTING, instanceOf(ObjectMapper.class));
     ObjectNode addressJson = Json.newObject();
     addressJson.put("street", "380 New York St");
     Optional<FindAddressCandidatesResponse> optionalResponse =
@@ -66,7 +70,7 @@ public class RealEsriClientTest {
 
   @Test
   public void fetchAddressSuggestionsHavingLine2Populated() throws Exception {
-    helper = new EsriTestHelper(TestType.STANDARD_WITH_LINE_2);
+    helper = new EsriTestHelper(TestType.STANDARD_WITH_LINE_2, instanceOf(ObjectMapper.class));
     ObjectNode addressJson = Json.newObject();
     addressJson.put("street", "380 New York St");
     addressJson.put("line2", "Apt 123");
@@ -80,7 +84,7 @@ public class RealEsriClientTest {
 
   @Test
   public void fetchAddressSuggestionsWithNoCandidates() throws Exception {
-    helper = new EsriTestHelper(TestType.NO_CANDIDATES);
+    helper = new EsriTestHelper(TestType.NO_CANDIDATES, instanceOf(ObjectMapper.class));
     ObjectNode addressJson = Json.newObject();
     addressJson.put("street", "380 New York St");
     Optional<FindAddressCandidatesResponse> optionalResponse =
@@ -91,7 +95,7 @@ public class RealEsriClientTest {
 
   @Test
   public void fetchAddressSuggestionsWithError() throws Exception {
-    helper = new EsriTestHelper(TestType.ERROR);
+    helper = new EsriTestHelper(TestType.ERROR, instanceOf(ObjectMapper.class));
     ObjectNode addressJson = Json.newObject();
     addressJson.put("street", "380 New York St");
     Optional<FindAddressCandidatesResponse> optionalResponse =
@@ -103,7 +107,7 @@ public class RealEsriClientTest {
   public void fetchAddressSuggestionsMultipleUrls() throws Exception {
     // TestType.MULTIPLE_ENDPOINTS configures the test web server with multi endpoints
     // that each return different numbers of results
-    helper = new EsriTestHelper(TestType.MULTIPLE_ENDPOINTS);
+    helper = new EsriTestHelper(TestType.MULTIPLE_ENDPOINTS, instanceOf(ObjectMapper.class));
     ObjectNode addressJson = Json.newObject();
     addressJson.put("street", "380 New York St");
     Optional<FindAddressCandidatesResponse> optionalResponse =
@@ -119,7 +123,7 @@ public class RealEsriClientTest {
 
   @Test
   public void fetchServiceAreaFeatures() throws Exception {
-    helper = new EsriTestHelper(TestType.SERVICE_AREA_VALIDATION);
+    helper = new EsriTestHelper(TestType.SERVICE_AREA_VALIDATION, instanceOf(ObjectMapper.class));
     Optional<JsonNode> optionalResponse =
         helper
             .getClient()
@@ -136,7 +140,8 @@ public class RealEsriClientTest {
 
   @Test
   public void fetchServiceAreaFeaturesWithError() throws Exception {
-    helper = new EsriTestHelper(TestType.SERVICE_AREA_VALIDATION_ERROR);
+    helper =
+        new EsriTestHelper(TestType.SERVICE_AREA_VALIDATION_ERROR, instanceOf(ObjectMapper.class));
     Optional<JsonNode> maybeResp =
         helper
             .getClient()
@@ -164,7 +169,11 @@ public class RealEsriClientTest {
 
     var client =
         new RealEsriClient(
-            mockSettingsManifest, mockClock, mockEsriServiceAreaValidationConfig, mockWsClient);
+            mockSettingsManifest,
+            mockClock,
+            mockEsriServiceAreaValidationConfig,
+            mockWsClient,
+            instanceOf(ObjectMapper.class));
 
     assertThat(client.ESRI_FIND_ADDRESS_CANDIDATES_URLS.size())
         .isEqualTo(testData.expectedUrlCount());

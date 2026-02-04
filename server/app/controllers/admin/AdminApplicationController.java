@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
 import models.ApplicationModel;
+import models.LifecycleStage;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
@@ -61,14 +62,12 @@ import services.statuses.StatusDefinitions;
 import services.statuses.StatusNotFoundException;
 import services.statuses.StatusService;
 import views.ApplicantUtils;
-import views.admin.programs.ProgramApplicationListView;
-import views.admin.programs.ProgramApplicationListView.RenderFilterParams;
 import views.admin.programs.ProgramApplicationTableView;
+import views.admin.programs.ProgramApplicationTableView.RenderFilterParams;
 import views.admin.programs.ProgramApplicationView;
 
 /** Controller for admins viewing applications to programs. */
 public final class AdminApplicationController extends CiviFormController {
-  private static final int PAGE_SIZE = 10;
   private static final int PAGE_SIZE_BULK_STATUS = 100;
 
   private static final String REDIRECT_URI_KEY = "redirectUri";
@@ -76,7 +75,6 @@ public final class AdminApplicationController extends CiviFormController {
   private final ApplicantService applicantService;
   private final PdfExporterService pdfExporterService;
   private final ProgramAdminApplicationService programAdminApplicationService;
-  private final ProgramApplicationListView applicationListView;
   private final ProgramApplicationView applicationView;
   private final ProgramService programService;
   private final CsvExporterService exporterService;
@@ -86,8 +84,8 @@ public final class AdminApplicationController extends CiviFormController {
   private final MessagesApi messagesApi;
   private final DateConverter dateConverter;
   private final StatusService statusService;
-  private final SettingsManifest settingsManifest;
   private final ProgramApplicationTableView tableView;
+  private final SettingsManifest settingsManifest;
 
   public enum RelativeTimeOfDay {
     UNKNOWN,
@@ -105,7 +103,6 @@ public final class AdminApplicationController extends CiviFormController {
       FormFactory formFactory,
       JsonExporterService jsonExporterService,
       PdfExporterService pdfExporterService,
-      ProgramApplicationListView applicationListView,
       ProgramApplicationView applicationView,
       ProgramAdminApplicationService programAdminApplicationService,
       ProfileUtils profileUtils,
@@ -114,12 +111,11 @@ public final class AdminApplicationController extends CiviFormController {
       @Now Provider<LocalDateTime> nowProvider,
       VersionRepository versionRepository,
       StatusService statusService,
-      SettingsManifest settingsManifest,
-      ProgramApplicationTableView tableView) {
+      ProgramApplicationTableView tableView,
+      SettingsManifest settingsManifest) {
     super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
     this.applicantService = checkNotNull(applicantService);
-    this.applicationListView = checkNotNull(applicationListView);
     this.applicationView = checkNotNull(applicationView);
     this.programAdminApplicationService = checkNotNull(programAdminApplicationService);
     this.nowProvider = checkNotNull(nowProvider);
@@ -130,8 +126,8 @@ public final class AdminApplicationController extends CiviFormController {
     this.messagesApi = checkNotNull(messagesApi);
     this.dateConverter = checkNotNull(dateConverter);
     this.statusService = checkNotNull(statusService);
-    this.settingsManifest = checkNotNull(settingsManifest);
     this.tableView = checkNotNull(tableView);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /** Download a JSON file containing all applications to all versions of the specified program. */
@@ -145,6 +141,10 @@ public final class AdminApplicationController extends CiviFormController {
       Optional<String> applicationStatus,
       Optional<String> ignoreFilters)
       throws ProgramNotFoundException {
+    if (settingsManifest.getRemoveDownloadForProgramAdminsEnabled(request)
+        && profileUtils.currentUserProfile(request).isOnlyProgramAdmin()) {
+      return unauthorized();
+    }
     final ProgramDefinition program;
 
     try {
@@ -168,6 +168,7 @@ public final class AdminApplicationController extends CiviFormController {
                           parseDateTimeFromQuery(dateConverter, untilDate, RelativeTimeOfDay.END))
                       .build())
               .setApplicationStatus(applicationStatus)
+              .setLifecycleStages(ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
               .build();
     }
 
@@ -176,8 +177,7 @@ public final class AdminApplicationController extends CiviFormController {
         jsonExporterService.export(
             program,
             SubmitTimeSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
-            filters,
-            settingsManifest.getMultipleFileUploadEnabled(request));
+            filters);
     return ok(json)
         .as(Http.MimeTypes.JSON)
         .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
@@ -194,6 +194,10 @@ public final class AdminApplicationController extends CiviFormController {
       Optional<String> applicationStatus,
       Optional<String> ignoreFilters)
       throws ProgramNotFoundException {
+    if (settingsManifest.getRemoveDownloadForProgramAdminsEnabled(request)
+        && profileUtils.currentUserProfile(request).isOnlyProgramAdmin()) {
+      return unauthorized();
+    }
     boolean shouldApplyFilters = ignoreFilters.orElse("").isEmpty();
     try {
       SubmittedApplicationFilter filters = SubmittedApplicationFilter.EMPTY;
@@ -210,14 +214,14 @@ public final class AdminApplicationController extends CiviFormController {
                             parseDateTimeFromQuery(dateConverter, untilDate, RelativeTimeOfDay.END))
                         .build())
                 .setApplicationStatus(applicationStatus)
+                .setLifecycleStages(
+                    ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
                 .build();
       }
       ProgramDefinition program = programService.getFullProgramDefinition(programId);
       checkProgramAdminAuthorization(request, program.adminName()).join();
       String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
-      String csv =
-          exporterService.getProgramAllVersionsCsv(
-              programId, filters, settingsManifest.getMultipleFileUploadEnabled(request));
+      String csv = exporterService.getProgramAllVersionsCsv(programId, filters);
       return ok(csv)
           .as(Http.MimeTypes.BINARY)
           .withHeader(
@@ -240,14 +244,11 @@ public final class AdminApplicationController extends CiviFormController {
         .map(
             s -> {
               try {
-                switch (relativeTimeOfDay) {
-                  case START:
-                    return dateConverter.parseIso8601DateToStartOfLocalDateInstant(s);
-                  case END:
-                    return dateConverter.parseIso8601DateToEndOfLocalDateInstant(s);
-                  default:
-                    return dateConverter.parseIso8601DateToStartOfLocalDateInstant(s);
-                }
+                return switch (relativeTimeOfDay) {
+                  case START -> dateConverter.parseIso8601DateToStartOfLocalDateInstant(s);
+                  case END -> dateConverter.parseIso8601DateToEndOfLocalDateInstant(s);
+                  default -> dateConverter.parseIso8601DateToStartOfLocalDateInstant(s);
+                };
               } catch (DateTimeParseException e) {
                 throw new BadRequestException("Malformed query param");
               }
@@ -268,9 +269,7 @@ public final class AdminApplicationController extends CiviFormController {
             .setUntilTime(parseDateTimeFromQuery(dateConverter, untilDate, RelativeTimeOfDay.END))
             .build();
     String filename = String.format("demographics-%s.csv", nowProvider.get());
-    String csv =
-        exporterService.getDemographicsCsv(
-            submitTimeFilter, /* isMultipleFileUploadEnabled= */ false);
+    String csv = exporterService.getDemographicsCsv(submitTimeFilter);
     return ok(csv)
         .as(Http.MimeTypes.BINARY)
         .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
@@ -280,6 +279,10 @@ public final class AdminApplicationController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result download(Http.Request request, long programId, long applicationId)
       throws ProgramNotFoundException {
+    if (settingsManifest.getRemoveDownloadForProgramAdminsEnabled(request)
+        && profileUtils.currentUserProfile(request).isOnlyProgramAdmin()) {
+      return unauthorized();
+    }
     ProgramDefinition program = programService.getFullProgramDefinition(programId);
     try {
       checkProgramAdminAuthorization(request, program.adminName()).join();
@@ -348,6 +351,7 @@ public final class AdminApplicationController extends CiviFormController {
             statusService.lookupActiveStatusDefinitions(programName),
             noteMaybe,
             program.hasEligibilityEnabled(),
+            profileUtils.currentUserProfile(request),
             request));
   }
 
@@ -496,6 +500,7 @@ public final class AdminApplicationController extends CiviFormController {
                         parseDateTimeFromQuery(dateConverter, untilDate, RelativeTimeOfDay.END))
                     .build())
             .setApplicationStatus(applicationStatus)
+            .setLifecycleStages(ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
             .build();
 
     final ProgramDefinition program;
@@ -510,46 +515,20 @@ public final class AdminApplicationController extends CiviFormController {
         statusService.lookupActiveStatusDefinitions(program.adminName());
 
     CiviFormProfile profile = profileUtils.currentUserProfile(request);
-
-    if (settingsManifest.getBulkStatusUpdateEnabled(request)) {
-      var paginationSpec =
-          new PageNumberPaginationSpec(
-              PAGE_SIZE_BULK_STATUS,
-              page.orElse(1),
-              PageNumberPaginationSpec.OrderByEnum.SUBMIT_TIME);
-      PaginationResult<ApplicationModel> applications =
-          programService.getSubmittedProgramApplicationsAllVersions(
-              programId, paginationSpec, filters);
-      return ok(
-          tableView.render(
-              request,
-              profile,
-              program,
-              activeStatusDefinitions,
-              getAllApplicationStatusesForProgram(program.id()),
-              paginationSpec,
-              applications,
-              RenderFilterParams.builder()
-                  .setSearch(search)
-                  .setFromDate(fromDate)
-                  .setUntilDate(untilDate)
-                  .setSelectedApplicationStatus(applicationStatus)
-                  .build(),
-              showDownloadModal,
-              message));
-    }
     var paginationSpec =
         new PageNumberPaginationSpec(
-            PAGE_SIZE, page.orElse(1), PageNumberPaginationSpec.OrderByEnum.SUBMIT_TIME);
+            PAGE_SIZE_BULK_STATUS,
+            page.orElse(1),
+            PageNumberPaginationSpec.OrderByEnum.SUBMIT_TIME);
     PaginationResult<ApplicationModel> applications =
         programService.getSubmittedProgramApplicationsAllVersions(
             programId, paginationSpec, filters);
     return ok(
-        applicationListView.render(
+        tableView.render(
             request,
             profile,
             program,
-            activeStatusDefinitions.getDefaultStatus(),
+            activeStatusDefinitions,
             getAllApplicationStatusesForProgram(program.id()),
             paginationSpec,
             applications,
@@ -559,8 +538,8 @@ public final class AdminApplicationController extends CiviFormController {
                 .setUntilDate(untilDate)
                 .setSelectedApplicationStatus(applicationStatus)
                 .build(),
-            selectedApplicationUri,
-            showDownloadModal));
+            showDownloadModal,
+            message));
   }
 
   /**

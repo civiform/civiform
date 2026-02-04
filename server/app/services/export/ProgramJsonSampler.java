@@ -13,6 +13,7 @@ import repository.ApplicationStatusesRepository;
 import services.DeploymentType;
 import services.Path;
 import services.export.JsonExporterService.ApplicationExportData;
+import services.export.QuestionJsonSampler.SampleDataContext;
 import services.export.enums.RevisionState;
 import services.export.enums.SubmitterType;
 import services.program.ProgramDefinition;
@@ -47,12 +48,12 @@ public final class ProgramJsonSampler {
    * Samples JSON for a {@link ProgramDefinition} with fake data, appropriate for previews of what
    * the API response looks like.
    */
-  public String getSampleJson(
-      ProgramDefinition programDefinition, boolean multipleFileUploadEnabled) {
+  public String getSampleJson(ProgramDefinition programDefinition) {
     ApplicationExportData.Builder jsonExportData =
         ApplicationExportData.builder()
             // Customizable program-specific API fields
             .setAdminName(programDefinition.adminName())
+            .setApplicationNote(Optional.empty())
             .setStatus(
                 applicationStatusesRepository
                     .lookupActiveStatusDefinitions(programDefinition.adminName())
@@ -60,6 +61,7 @@ public final class ProgramJsonSampler {
                     .stream()
                     .findFirst()
                     .map(Status::statusText))
+            .setStatusLastModifiedTime(Optional.empty())
             .setProgramId(deploymentType.isDev() ? 789L : programDefinition.id())
             // Fields with arbitrary data.
             .setApplicantId(123L)
@@ -77,12 +79,14 @@ public final class ProgramJsonSampler {
     ImmutableList<QuestionDefinition> questionDefinitions =
         programDefinition.streamQuestionDefinitions().collect(toImmutableList());
 
+    SampleDataContext sampleDataContext = new SampleDataContext();
+
     for (QuestionDefinition questionDefinition : questionDefinitions) {
       @SuppressWarnings("unchecked")
       ImmutableMap<Path, Optional<?>> questionEntries =
           questionJsonSamplerFactory
               .create(questionDefinition.getQuestionType())
-              .getSampleJsonEntries(questionDefinition, multipleFileUploadEnabled);
+              .getSampleJsonEntries(questionDefinition, sampleDataContext);
 
       jsonExportData.addApplicationEntries(questionEntries);
     }

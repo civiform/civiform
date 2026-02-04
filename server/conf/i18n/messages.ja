@@ -10,12 +10,6 @@
 
 # The text on the button an applicant clicks to log out of their session.
 button.logout=ログアウト
-#  This appears before applicants select their preferred language.
-label.selectLanguage=使用する言語をお選びください。
-button.untranslatedSubmit=送信
-# Text on a link that gives more information about CiviForm. "CiviForm" is the app name and should
-# not be translated.
-footer.aboutCiviform=CiviForm の概要
 # Message displayed before the support email address in the page footer for applicants.
 footer.supportLinkDescription=テクニカル サポートのお問い合わせ:
 # Text in the footer telling users that this is an official website of the specified Civic entity.
@@ -25,6 +19,8 @@ footer.returnToTop=ページ上部に戻る
 # A message in the footer directing users to technical support. The placeholder is a link to
 # send an email to CiviForm technical support.
 footer.technicalSupport=テクニカル サポート: {0}
+# A message in the footer directing users to technical support. The placeholder is an email.
+footer.technicalSupport.v2=テクニカル サポートへのお問い合わせ: Email {0}
 # Placeholder message when an applicant clicked the "Continue as Guest".
 # This should be consistent with button.guestLogin.
 guest=ゲスト
@@ -36,6 +32,10 @@ label.languageSr=言語を選択
 header.menu=メニュー
 # Message for guest users to end their session. Technically this logs out the user from the guest profile, but we use different phrasing in order to not imply that they are currently logged in from a product perspective.
 header.endSession=セッションを終了
+# Message for screen readers as part of aria label to let user know about an informational alert.
+heading.informationAriaLabelPrefix=参考情報: {0}
+# Message for screen readers as part of the aria label to let user know they completed an action successfully.
+heading.successAriaLabelPrefix=成功: {0}
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
 toast.sessionEnded=セッションは終了しました。
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
@@ -46,21 +46,17 @@ header.userName={0} としてログイン中
 validation.isRequired=この質問は必須です。
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=入力が正しくありません。
-# Error message announced to screen reader when there are errors on the current page.
-validation.errorAnnouncementSr=フォームにエラーがあります。エラーを修正してから続行してください。
-# Message displayed at the top of a question page denoting fields with a * are required.
-content.requiredFieldsAnnotation=Note:* の項目は必須です。
 content.requiredFieldsNote=Note:{0} の項目は必須です。
 # Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
 content.requiredFieldsNoteNorthStar=アスタリスク（{0}）が付いている項目は必須です。
 content.optional=（任意）
-# Message displayed below "Choose File" button to say that on the phone users can use their camera.
-content.mobileFileUploadHelp=スマートフォンの場合は、[ファイルを選択] でスマートフォンのカメラを使用してドキュメントをアップロードすることもできます。
 toast.errorMessageOutline=エラー: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=閉じる
 # Button text that will navigate the applicant to a page where they can review previous answers
 button.review=確認
+# Button text that will go back to the previous page.
+button.goBack=戻る
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=新しいタブで開く
 # Aria-label for the primary navigation
@@ -69,31 +65,27 @@ label.primaryNavigation=メイン ナビゲーション
 label.agencyIdentifier=代理店 ID
 # Aria-label for guest session alert
 label.guestSessionAlert=ゲスト セッション情報アラート
+# Link to skip to the main content of the page
+link.skipToMainContent=スキップしてメイン コンテンツに移動
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
-# This is a title for the login page
-title.login=ログイン
-# Prompt for applicant to log in, input is the full civic entity name.
-content.loginPrompt={0} アカウントでログインしてください
 # The text on the button an applicant clicks to create an account.
 button.createAnAccount=アカウントを作成する
+# The text on the button in the login drop down an applicant clicks to log in to their session.
+button.applicantLogin=応募者ログイン
+# The text on the button in the login drop down an admin clicks to log in to their session.
+button.adminLogin=管理者ログイン
 # The text on the button an applicant clicks to log in to their session.
 button.login=ログイン
-# Prompt for applicant to create a new account or become a guest
-content.alternativeLoginPrompt=アカウントをお持ちでない場合
+# The text on the button an applicant clicks to sign in to their session.
+button.signIn=ログイン
 # The text between creating a new account, and becoming a guest
 content.or=または
 # The text on the button for applicants to create a new account.
 button.createAccount=アカウントを作成
-# The text on the button for guests to log in to their session.
-button.guestLogin=ゲストとして続行
-# Prompt for whem applicant account login is disabled. Replaces loginPrompt and alternativeLoginPrompt.
-content.loginDisabledPrompt=アカウントへのログインは現在無効です
-# The words leading up to the admin login anchor
-content.adminLoginPrompt=その他の情報
 # Asking whether the user is an administrator for the program
 content.adminFooterPrompt=管理者の場合
 # The text on the anchor for admins to log in to their session.
@@ -103,8 +95,6 @@ link.adminLogin=管理者ログイン
 # PROGRAM FORM - contains text shown when filling out an application form. #
 #--------------------------------------------------------------------------#
 
-# The text displayed when a file has already been uploaded and the name is being displayed.
-input.fileAlreadyUploaded=アップロード済みのファイル: {0}
 # Hint placed above file input for questions which accept a single file.
 input.singleFileUploadHint=1 個のファイルを選択
 # Hint placed above file input for questions which accept multiple, but not unlimited, files. {0} contains a number,
@@ -112,10 +102,6 @@ input.singleFileUploadHint=1 個のファイルを選択
 input.multipleFileUploadHint=ファイルを選択（最大 {0} 個）
 # Hint placed above file inputs which accept any number of files.
 input.unlimitedFileUploadHint=ファイルを選択（複数可）
-# The text on the button an applicant clicks to delete an uploaded file.
-button.deleteFile=削除
-# The text on the button an applicant clicks to skip uploading a new file while there is already an uploaded file.
-button.keepFile=続行
 # The button text for saving the current applicant-entered data and continuing to the next screen in the form.
 button.nextScreen=保存して次へ
 # The button text for navigating to the previous screen in the form.
@@ -123,43 +109,37 @@ button.previousScreen=前へ
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=戻る
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.reviewAndExit=確認して終了
-# The text on the button an applicant clicks to skip uploading a file.
-button.skipFileUpload=スキップ
+button.reviewAndExit=確認して送信
 # The current screen the user is on ({0}) out of the number of total screens in the application.
 content.blockProgress={0}/{1}
-# A message on a section indicating how many questions of the total have been answered by the applicant.
-content.blockProgressFull={0}/{1} 回答済み
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=申請の進行状況
 # Heading on the application review page. The page shows all the answers the user inputted.
 heading.reviewAndSubmit=確認と送信
-# Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
-label.blockIndexLabel={0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
 toast.localeNotSupported=申し訳ございませんが、このプログラムでは、選択された言語の翻訳は完全ではありません。
-# A link that logs out a guest user after they submit an application.
-link.allDone=終了する
 # A link that appears next to the create account button that offers applicants the option to not create an account right now.
 link.applyToAnotherProgram=別のプログラムに申請する
-# A link that offers applicants the option to create an account.
-link.createAccountOrSignIn=アカウントを作成またはログイン
+# Displayed in breadcrumbs to link back to the main entry point of the applicant's portal. In effect a shortening of "Homepage".
+link.home=ホーム
+# Displayed in breadcrumbs to indicate this is an application of the supplied program name.
+link.applicationForProgram={0}の申請
 # Anchor which when clicked removes a file the user has previously uploaded.
 link.removeFile=ファイルを削除
-# The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
-modal.errorSaving.review.title=このページの質問はまだ完了していません。このまま離れて、確認を開始しますか？
-# The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
-modal.errorSaving.previous.title=このページの質問はまだ完了していません。このまま離れて、前のページに移動しますか？
-# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the application review page.
-modal.errorSaving.review.content=入力内容にエラーがあります。このまま移動せずに回答を修正しますか？または回答を保存せずに確認ページに移動しますか？
-# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the previous page of the application.
-modal.errorSaving.previous.content=入力内容にエラーがあります。このまま移動せずに回答を修正しますか？または回答を保存せずに前の質問ページに移動しますか？
-# Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the application review page.
-modal.errorSaving.review.noSaveButton=保存せずに確認ページに移動
-# Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the previous page in the application.
-modal.errorSaving.previous.noSaveButton=保存せずに前の質問に移動
-# Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
-modal.errorSaving.stayAndFixButton=このまま回答を修正する
+# Screen reader text for a link which when clicked removes a file the user has previously uploaded. {0} is the file name.
+link.removeFileSr={0} ファイルを削除
+# Title of a pop-up informing the user that there were errors in the information they inputted. (new version for North Star)
+modal.errorSaving.title=このページの回答に修正が必要なものがあります
+# Text of a pop-up informing the user that continuing to the review page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
+modal.errorSaving.content.review=申請のこのページにエラーがあるか、一部のフィールドが空白のままになっています。エラーを修正せずにこのまま確認ページに進むと、このページに入力された情報は失われます。
+# Text of a pop-up informing the user that continuing to the previous page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
+modal.errorSaving.content.previous=申請のこのページにエラーがあるか、一部のフィールドが空白のままになっています。エラーを修正せずにこのまま前のページに戻ると、このページに入力された情報は失われます。
+# Text of button that discards all the information the user has inputted and navigates to the application review page. (new version for North Star)
+modal.errorSaving.continueButton.review=保存せずに確認ページに進む
+# Text of button that discards all the information the user has inputted and navigates to the application preview page. (new version for North Star)
+modal.errorSaving.continueButton.previous=保存せずに前のページに戻る
+# Text of button that shows the previous inputted information and asks to fix the errors with it. (new version for North Star)
+modal.errorSaving.fixButton=このページで回答を修正する
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -167,45 +147,35 @@ modal.errorSaving.stayAndFixButton=このまま回答を修正する
 
 # The text on the button an applicant clicks to apply to a specific program.
 button.apply=申請
-# The text read for screen readers.
-button.applySr={0} に申請
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=編集
-# The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
-button.editSr={0} に送信した申請を編集
-# The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
-button.continueSr={0} への申請を続行
-# The text on the button an applicant clicks to start filling out a pre-screener form.
-button.startHere=ここから開始
+button.startSurvey=アンケートを開始
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=確認して申請
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
 button.viewAndApplySr=確認して {0} に申請
+# The text on a button to view program on a new tab. This is used for external programs.
+button.viewInNewTab=新しいタブで表示
+# The screen reader text on a button to view program on a new tab. The variable represents the program name. This is used for external programs.
+button.viewInNewTabSr=新しいタブで {0} を表示
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=申請に進む
-# The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
-button.startHereCommonIntakeSr={0} を入力してここから開始
-# The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
-button.editCommonIntakeSr={0} の送信済み情報を編集
-# The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
-button.continueCommonIntakeSr={0} の入力を続ける
-# Text describing the date the application was last submitted.
-content.submittedDate={0} に送信済み
 # Text for applicants to understand the section is for finding programs
 content.findPrograms=プログラムを探す
-# Long form description of the CiviForm site shown to the applicant.
-content.findProgramsDescription=CiviForm は、{0} で対象となり得るプログラムを探すことができます。下記の申請を選択して始めましょう。
-# Title for programs page when applicant is not logged in
-content.saveTimeServices=プログラムやサービスの申請時間を短縮
-# Main home page heading
-heading.homepage=さまざまなプログラムへの申請を 1 か所で
-# Long form description of the site shown to the applicant when they are not logged in.
-# {0} represents the authentication provider's name
-content.guestDescription={0} アカウントにログインするか、アカウントを作成すると、同じ内容を再度入力することなくプログラムに申し込めます。また、申請内容はいつでも編集でき、申請状況の確認も可能です。
+# Main home page heading, updated to be more generic
+heading.homepage.v2=行政サービスをオンラインで申請する
 # Main home page intro text
-content.homepageIntro=育児、食べ物、輸送、ユーティリティなどに関する支援を受けられます。
+content.homepageIntro=食料、交通、育児、公共料金などに関する支援を受けるには、以下のオプションのいずれかをクリックしてください。一度に申請できるプログラムは 1 つのみです。
+# Main home page intro text, updated to be more generic
+content.homepageIntro.v2=利用できるサービスを探すCiviForm では、入力済みの情報を再利用することで、申請をよりスムーズに進められるようにします。
 # The label for the program filter buttons
 label.programFilters=プログラム フィルタ
+# The label for the program filter checkboxes
+label.programFilters.v2=必要な支援
+# The button to apply program filters
+button.applySelections=選択内容を適用
+# The button to clear program filter selections
+button.clearSelections=選択内容を消去
 # Link text to read more about a program.
 link.programDetails=プログラムの詳細
 # The same text, read for screen readers.
@@ -214,16 +184,6 @@ link.programDetailsSr={0} のプログラム詳細を新しいタブで開く
 title.programs=プログラムとサービス
 # The title for the section in the list of programs that contains the pre-screener form and should be started first.
 title.getStartedSection=始める
-# The title for the section in the list of programs that contains all regular, non-pre-screener programs.
-title.allProgramsSection=すべてのプログラム（{0}）
-# For the badge on the program list index denoting the current status of an application
-title.status=ステータス
-# Subtitle for the list of programs with draft applications
-title.inProgressProgramsUpdated=進行中
-# Subtitle for the list of programs for which the applicant has no draft applications
-title.activeProgramsUpdated=未着手
-# Title of the section on the home page with the benefits finder form.
-title.benefitsFinderSection.v2=サービスを探す
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=申請一覧（{0}）
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
@@ -233,17 +193,9 @@ title.otherProgramsSection.v2=その他のプログラムとサービス（{0}�
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=プログラムとサービス（{0}）
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=利用可能なプログラムとサービス
+title.availableProgramsSection=プログラムとサービス
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=選択内容に一致するプログラム（{0}）
-# A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
-title.programSectionCompleted=完了したセクション
-# Subtitle for the list of programs for which the applicant has already submitted an application
-title.submittedPrograms=送信済み
-# Alert banner when an application was successfully saved, with the ID of the application.
-toast.applicationSaved=申請は正常に保存されました（申請 ID {0}）
-# Alert banner when an application was already completed
-toast.programCompleted=すでに申請が完了しています。
 # Informational tag on an in-progress application card
 label.inProgress=未送信
 # Informational tag on a submitted application card. Used when the date of submission is unknown.
@@ -252,19 +204,17 @@ label.submitted=送信済み
 label.submittedOn={0}に送信済み
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
 label.statusOn={1}に{0}
+# Title of the external program modal that opens when a user clicks on an external program card.
+title.externalProgramModal=外部サイトへ移動します
+# Content of the external program modal that opens when a user clicks on an external program card.
+content.externalProgramModal=詳細の確認や申請を行うには、[続行] をクリックしてプログラムのウェブサイトへ移動してください
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
 #------------------------------------------------------------------------------------------------------#
 
-# Message that appears when a user attempts to delete an account and it fails.
-banner.acctDeleteError=このアカウントは削除できません。
-# Reason included with the account delete error, which explains the account can't be deleted due to applications the client has open
-banner.acctDeleteErrorReason=進行中の申請があるため、このアカウントは削除できません。
 # Message when information about a client, like their name or contact information is updated.
 banner.clientInfoUpdated=クライアント情報が更新されました。
-# Message when a client account for a user is successfully deleted, with the name of the client substituted in
-banner.clientAcctDeleted=「{0}」のクライアント アカウントが削除されました。
 # Message when a user successfully creates a client account.
 banner.newClientCreated=新規クライアントを作成しました。
 # Banner at the top of the page with the name of the client substituted in when viewing an application.
@@ -275,24 +225,16 @@ banner.viewApplication={0} の申請中です。別のクライアントを申�
 button.addNewClient=クライアントを新規追加
 # Button that brings the user back to the list of their clients.
 button.backToClientList=クライアント リストに戻る
-# Button that allows the user to navigate back to the edit page after they click to delete a client and get an error.
-button.backToEditing=編集に戻る
 # Button that allows the user to cancel the progress they make on adding or editing a client.
 button.cancel=キャンセル
 # Button that allows the user to clear any search parameters they have already entered.
 button.clearSearch=検索をクリア
-# Button for a user to delete their client's account
-button.deleteAcct=アカウントを削除
-# Button option when asked if the user is sure they want to delete an account.
-button.keepAcct=アカウントを保持
 # Button to navigate to the next page.
 button.nextPage=次へ
 # Button to save information that has been entered.
 button.save=保存
 # Button to execute a search to filter a client list.
 button.search=検索
-# Button to select a client.
-button.select=選択
 # Button to start an application on behalf of a client.
 button.startApp=申請を開始
 # Button to view the applications belonging to an applicant.
@@ -308,18 +250,6 @@ content.emailTooltip=メールアドレスを追加すると、クライアン�
 content.numberOfAppSubmitted={0} 件申請済み
 # Shows that a single application has been submitted on behalf of the client.
 content.oneAppSubmitted=1 件申請済み
-# Some explanation text on the confirmation modal when deleting a client.
-content.warning=このクライアントのために送信された申請はないため、失われる申請はありません。
-# Shows there is no email address connected to the account.
-content.noEmailAddress=（メールアドレスがありません）
-# The status of an organization member when they have been enrolled but have never logged into CiviForm.
-content.notLoggedIn=未ログイン
-# The status of an organization member when they have logged in but haven't applied on behalf of a client.
-content.noApplications=ログイン済み（申請未送信）
-# The status of an organization member showing the date of the last application that they submitted for a client.
-content.lastApplicationDate=直近で {0} に申請送信済み
-# Confirmation modal text when the user tries to delete a client account.
-dialog.deleteConfirmation=このクライアントのアカウントを削除してもよろしいですか？
 
 # Header for the page with the Organization Members table.
 header.acctSettings=アカウント設定
@@ -366,10 +296,7 @@ label.searchByDob=生年月日で検索
 label.searchByName=名前で検索
 # The label above the input field for the year of the client birth date.
 label.year=年
-# Label showing the user when there is no name
-label.unnamedUser=名前のないユーザー
 
-link.edit=編集
 # Link to change the client that the trusted intermediary is applying for.
 link.selectNewClient=クライアントを新規選択
 
@@ -407,8 +334,6 @@ button.start=開始
 # A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
 toast.applicationOutOfDate=申請が更新されました。続行するには、確認して質問に回答してください
 
-# Help text at the top of the review page instructing applicants with how to start applying for programs.
-content.reviewPageIntro=以下の手順を選択して申請を開始してください。保存して、いつでも作業に戻ることができます。
 # Text shown next to a question indicating that due to it, the application does not qualify or is not eligible.
 content.doesNotQualify=資格がありません
 # The text that appears next to an answered question that the applicant can click on to modify the response.
@@ -424,7 +349,7 @@ ariaLabel.answer={0} に回答
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit={0} を編集
 # Title for the summary of the pre-screener page
-title.commonIntakeSummary=資格要件に関する事前チェックの概要
+title.preScreenerSummary=資格要件に関する事前チェックの概要
 # Heading content at the top of the review page, where applicants can start answering questions.
 title.getStarted=さっそく始めましょう。
 title.programSummary=プログラム申請の概要
@@ -435,6 +360,14 @@ title.programSummary=プログラム申請の概要
 
 # The HTML page title for the program overview page.  The {0} is the program name.
 title.programOverview={0} - プログラムの概要
+# Heading for the section of the program overview page that contains the application steps.
+heading.applicationSteps=申請方法
+# Top-level heading for the program overview page.  The {0} is the program name.
+heading.programOverview={0} プログラムへの申請
+# The text on the button that takes users to the account creation form.
+link.createAccountFromOverview=アカウントを作成して申請を開始
+# The link that directs users to the start of the application without creating an account.
+link.startAsGuest=ゲストとして申請を開始
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
@@ -442,16 +375,11 @@ title.programOverview={0} - プログラムの概要
 
 # Tab title for ineligible page
 title.ineligible=対象外のプログラム
-# Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
-title.applicantNotEligible=以下の質問への回答から、{0} の対象ではありません。
-# Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
-title.applicantNotEligibleTi=以下の質問への回答から、クライアントは {0} の対象ではありません。
 # Section heading
 heading.eligibilityCriteria=資格要件の詳細
 # Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
 content.eligibilityCriteria=資格要件については {0} をご覧ください
-# Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
-content.eligibilityCriteria.v2=このプログラムの資格規定の詳細確認、またはプログラム チームに直接問い合わせるには、{0} をご確認ください。
+content.eligibilityCriteria.v3=このプログラムの資格規則の詳細、またはプログラム チームへの直接のお問い合わせについては、{0} をご覧ください（新しいタブで開きます）。
 # Text shown to explain what the user can do since they are not eligible for the program with their current answers.
 content.changeAnswersForEligibility=前のページに戻って回答を編集するか、別のプログラムに申請してください。
 # Text shown on a webpage when the applicant is ineligible for a program.
@@ -460,10 +388,6 @@ content.changeAnswersForEligibility.v2=回答に誤りがあったと思われ�
 button.goBackAndEdit=戻って編集
 # Clicking this button returns the user to the program summary page, where they can edit their responses.
 button.editMyResponses=回答を編集
-# Toast message that shows that a client is likely eligible for a program, when someone else is filling out the application on a client''s behalf.
-toast.mayQualifyTi=回答から、クライアントは {0} の対象となる可能性があります。続行するには、この申請の入力を続けます。
-# Toast message that shows that an applicant is likely eligible for a program, based on their responses.
-toast.mayQualify=回答から、{0} の対象となる可能性があります。続行するには、この申請の入力を続けます。
 # Tag on the top of a program card, that lets the applicant know they may qualify for the program, based on their responses in other programs.
 tag.mayQualify=対象の可能性あり
 # Tag on the top of a program card, that lets the person know their client may qualify for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
@@ -472,10 +396,6 @@ tag.mayQualifyTi=クライアントに対象の可能性あり
 tag.mayNotQualify=対象外の可能性
 # Tag on the top of a program card, that lets the person know their client is likely not eligible for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
 tag.mayNotQualifyTi=クライアントは対象外の可能性
-# Toast message that shows that an applicant may not be eligible for a program, based on their responses.
-toast.mayNotQualify=回答から、{0} の対象とならない可能性があります。入力情報に変更がある場合は、回答を編集して申請を続けることができます。
-# Toast message that shows that a client may not be eligible for a program, when someone else is filling out the application on a client''s behalf.
-toast.mayNotQualifyTi=回答から、クライアントは {0} の対象ではない可能性があります。クライアントの情報に変更がある場合は、回答を編集して申請を続けることができます。
 
 # Error when there was an exception while submitting the application
 banner.errorSavingApplication=申請の保存中にエラーが発生しました
@@ -524,6 +444,15 @@ alert.eligibility_ti_fastforwarded_not_eligible_title=クライアントは、�
 # Alert text when TI client may not be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_not_eligible_text=新しい質問または更新された質問により、クライアントの回答や資格に影響がある可能性があります。以下の質問をすべてご確認ください。
 
+# Alert on the program overview page letting the user know that they will likely be eligible for the program.
+alert.likelyEligible=あなたは、別の申請に対する回答から判断すると、このプログラムに申請できる可能性があります。
+# Alert on the program overview page letting the user know that they will likely NOT be eligible for the program.
+alert.likelyIneligible=あなたは、別の申請に対する回答から判断すると、このプログラムには申請できない可能性があります。
+# Alert on the program overview page letting a trusted intermediary know that their client will likely be eligible for the program.
+alert.clientLikelyEligible=あなたのクライアントは、別の申請に対する回答から判断すると、このプログラムに申請できる可能性があります。
+# Alert on the program overview page letting a trusted intermediary know that their client will likely NOT be eligible for the program.
+alert.clientLikelyIneligible=あなたのクライアントは、別の申請に対する回答から判断すると、このプログラムには申請できない可能性があります。
+
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
 #---------------------------------------------------------------------------------------------#
@@ -534,41 +463,38 @@ title.applicationConfirmation=申請の確認
 content.confirmed={0} への申請ありがとうございます。申請を受け付けました。お客様の申請 ID は {1} です。
 # Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
 title.createAnAccount=アカウントを作成またはログイン
+# The title of a pop-up informing an applicant to sign in before continuing with the application
+title.signInModal=アカウントでログイン
+# The text of a pop-up informing an applicant to sign in so they can access the application later before continuing with the application
+content.signInModal=アカウントを作成すると、申請のステータスを確認 / 変更したり、他のプログラムにすぐに申請したりできます。
 
-# Shown to applicants to encourage login; {0} represents the authentication provider's name
-content.pleaseCreateAccount=情報を保存するには、{0} アカウントにログインするか、アカウントを作成します。今後の申請のためにいつでも戻ることができます。まだアカウントをお持ちでない場合は、ログインページから登録すると、一度入力したデータを保持できるようになります。
-# A message to show on the login prompt modal that encourages users to log in before applying to other programs.
-content.generalLoginModalPrompt=アカウントにログインしていません。アカウントがない場合は、申請の編集、申請状況の確認、他のプログラムへの迅速な申請はできません。
 # A message to show on the login prompt modal that encourages users to log in before applying to a program from the programs index page.
 content.initialLoginModalPrompt=続行する前に {0} アカウントにログインするか、アカウントを作成してください。同じ情報を再度入力することなく、複数のプログラムに申請できるようになります。また、申請内容の編集や申請状況の確認も可能です。
 # A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=アカウントなしで続行する
-title.commonIntakeConfirmation=対象の可能性があるプログラム
-# Title on the page after a trusted intermediary has successfully filled out the common intake form.
-title.commonIntakeConfirmationTi=クライアントに対象の可能性があるプログラム
+title.preScreenerConfirmation=対象の可能性があるプログラム
+# Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
+title.preScreenerConfirmationTi=クライアントに対象の可能性があるプログラム
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
-content.commonIntakeConfirmation=[プログラムに申請] をクリックしてオンライン申請で申請した場合、これらのプログラムに登録できる場合があります。
+content.preScreenerConfirmation=[プログラムに申請] をクリックしてオンライン申請で申請した場合、これらのプログラムに登録できる場合があります。
 # A message explaining that the applicant may be eligible for the following list of programs.
-content.commonIntakeConfirmation.v2=回答によると、以下のプログラムの対象となる可能性があります。
+content.preScreenerConfirmation.v2=回答によると、以下のプログラムの対象となる可能性があります。
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
-content.commonIntakeConfirmationTi=[プログラムに申請] をクリックしてオンライン申請で申請した場合、クライアントはこれらのプログラムに登録できる場合があります。
+content.preScreenerConfirmationTi=[プログラムに申請] をクリックしてオンライン申請で申請した場合、クライアントはこれらのプログラムに登録できる場合があります。
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
-content.commonIntakeConfirmationTi.v2=回答によると、クライアントは以下のプログラムの対象となる可能性があります。
+content.preScreenerConfirmationTi.v2=回答によると、クライアントは以下のプログラムの対象となる可能性があります。
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
-content.commonIntakeNoMatchingPrograms=事前チェックでは、現時点で対象となる可能性のあるプログラムが見つかりませんでした。ただし、[プログラムに申請] をクリックすることで、いつでもプログラムに申請できます。{0} にアクセスしてその他のプログラムを表示することも可能です
+content.preScreenerNoMatchingPrograms=事前チェックでは、現時点で対象となる可能性のあるプログラムが見つかりませんでした。ただし、[プログラムに申請] をクリックすることで、いつでもプログラムに申請できます。{0} にアクセスしてその他のプログラムを表示することも可能です
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
-content.commonIntakeNoMatchingProgramsTi=事前チェックでは、現時点でクライアントが対象となる可能性のあるプログラムが見つかりませんでした。ただし、[プログラムに申請] をクリックすることで、いつでもプログラムに申請できます。{0} にアクセスしてその他のプログラムを表示することも可能です
-# A message explaining a second option when there are no eligible programs, which is to edit your responses.
-content.commonIntakeNoMatchingProgramsNextStep=前のページに戻って、回答を編集することもできます。
+content.preScreenerNoMatchingProgramsTi=事前チェックでは、現時点でクライアントが対象となる可能性のあるプログラムが見つかりませんでした。ただし、[プログラムに申請] をクリックすることで、いつでもプログラムに申請できます。{0} にアクセスしてその他のプログラムを表示することも可能です
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=あなたが興味を持ちそうなその他のプログラム
 # Button on the "Application Submitted" page. Clicking it downloads the user's application.
 button.downloadApplication=申請内容をダウンロード
-button.downloadPdf=PDF をダウンロード
 # A button prompting users to apply to programs.
 button.applyToPrograms=プログラムに申請
 # Heading above a section showing the user's name, confirmation number, and date
-heading.yourSubmissionInformation=送信情報
+heading.yourSubmissionInformation=申請の詳細
 # Text above the name of the person who submitted this application
 heading.applicantName=この申請の送信者
 # Text above the confirmation number of the application
@@ -583,12 +509,20 @@ content.youCanPrint=この確認書は記録用に印刷できます。
 heading.nextSteps=次の手順
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted={0} の申請を送信しました
+#  Information "alert"  title for programs that require an account to apply
+alert.createAccountForLoginOnly=後でアプリケーションにアクセスするには、アカウントを作成する必要があります
 # Informational "alert" title to encourage the user to create an account
-alert.createAccount=アカウントを作成して申請情報を保存できます
+alert.createAccount=後から申請にアクセスするには、アカウントを作成してください
 # Description text in an alert that explains how creating an account can help the user
-alert.createAccountDescription=アカウントを使用して再度ログインし、申請状況を確認したり、他のプログラムへの申請時間を短縮したりできます。
+alert.createAccountDescription=アカウントに情報を保存すると、申請のステータスを確認したり、他のプログラムにすぐに申請したりできます。
+# Informational alert to let the user know there are no additonal programs for them to start an application for at this time.
+alert.noProgramsAvailable=現時点で利用可能なすべてのプログラムへの申し込みが開始または送信されています。
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=既存のアカウントにログイン
+# Informational "alert" title to push user to login as the program is only for logged in user
+alert.loginOnly=このプログラムに応募するには、ログインする必要があります
+# Description text in an alert that explains why the user must log in to apply for the program
+alert.loginOnlyDescription=このアプリケーションを続行するには、ログインまたはアカウントを作成してください。
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -611,6 +545,82 @@ content.disabledProgramInfo=申し訳ございませんが、アクセスしよ�
 # Button text on a button that takes the user back to the home page.
 button.homePage=ホームページに戻る
 
+#--------------------------------------------------------------------------------------------------------------#
+# ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Navigation link to go back to editing the program screen. {0} is the screen title, such as "Your Household"
+link.backToEditProgramBlock={0}の編集に戻る
+
+# Long form description for configuring a visibility condition and how it can be used to show or hide a screen for applicants filling out an application form with multiple screens.
+content.predicateVisibilityDescription=前の画面の質問への回答に基づいて、この画面を応募者に対して表示または非表示にするタイミングを設定します。
+# Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
+content.predicateEligibilityDescription=この画面の質問への回答に基づいて、応募者がプログラムの資格を満たすかどうかを判断する適格性条件を追加します。最低要件を満たさない応募者は、アプリケーションの提出がブロックされます。これはプログラム設定で変更できます。
+# Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
+link.programSettings=プログラム設定
+
+# Text that precedes select option dropdowns for a form to configure screen visibility conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
+content.predicateScreenIs=画面は
+# Text that precedes a select option dropdown for a form to configure applicant eligibility conditions. The full sentence reads "Applicant is eligible if any/all conditions are true:"
+content.predicateApplicantIsEligible=応募者は以下の場合に資格があります
+# Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
+content.predicateConditionsAreTrue=条件が真である場合：
+# Text that shows on the eligibility predicate screen when no eligibility conditions are set.
+content.predicateEligibilityNullState=Applicant is always eligible.
+# Text that shows on the visibility predicate screen when no visibility conditions are set.
+content.predicateVisibilityNullState=This screen is always shown.
+
+# Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
+content.predicateConditionIsTrueIf=条件は以下の場合に真です
+# Text that is appended to the end of a header describing a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
+content.predicateSubconditionsAreTrue=サブ条件が真である場合：
+
+# Label for select option dropdown to choose a question
+label.predicateQuestion=質問
+# Label for a select option dropdown to choose a field to use within a question, such as "first name", "email", "date", etc.
+label.predicateField=フィールド
+# Label for a select option dropdown to choose a state for a logical condition, such as "is equal to", "is one of", "is later than", etc.
+label.predicateState=状態
+# Label for an input field to enter a value or multiple values.
+label.predicateValue=値
+# Placeholder text for select option dropdown
+option.selectPlaceholder=- 選択 -
+# Hint text for providing multiple values in a single input field
+content.multipleValuesInputHint=コンマで区切られた値のリストを入力してください。例：「item1,item2,item3」。
+# Text between two input fields that represent a range. For example, "between input1 and input2".
+content.and=および
+
+# Button to append form fields for configuring a new condition
+button.predicateAddCondition=条件を追加
+# Button to remove a condition from the form
+button.predicateDeleteCondition=条件を削除
+# Button to remove all conditions from the form
+button.predicateDeleteAllConditions=Delete all conditions
+# Link to append form fields for configuring a new sub-condition within a condition
+link.predicateAddSubcondition=サブ条件を追加
+# Link to remove a sub-condition from the form
+link.predicateDeleteSubcondition=サブ条件を削除
+# Link to go back to the top of the page
+link.backToTop=トップに戻る
+# Button to save the visibility or eligibility predicate and return to editing the program.
+button.saveAndExit=保存して終了
+
+# Confirmation dialog shown to admin for deleting all conditions in the predicate edit view
+confirm.deleteAllConditions=Are you sure you would like to delete all conditions?
+# Confirmation dialog shown to admin for deleting a condition in the predicate edit view
+confirm.deleteSingleCondition=Are you sure you would like to delete this condition?
+# Dialog to warn admin that a deletion action cannot be undone
+confirm.actionNotReversable=This action cannot be undone.
+
+# Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
+alert.predicateNoAvailableQuestionsVisibility=この画面の表示条件を設定するために使用できる、前の画面の質問はありません。
+# Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
+alert.predicateNoAvailableQuestionsEligibility=この画面には、適格性条件を設定するために使用できる質問がありません。
+
+# Label for textarea where admins can enter a message to show to applicants who are deemed ineligible based on the eligibility conditions set.
+label.predicateEligibilityMessageField=Display message shown to ineligible applicants
+# Help text for a textarea input explaining that markdown is supported.
+content.markdownSupported=Markdown is supported
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -664,10 +674,8 @@ placeholder.noDropdownSelection=次のいずれかを選択してください。
 # PHONE QUESTION - text shown when answering a question where a user must select an option for country and enter phone number. #
 #------------------------------------------------------------------------------------------------------------------------------#
 
-label.countryCode=国
 label.phoneNumber=電話番号を入力
 validation.phoneNumberRequired=電話番号は必須です
-validation.phoneCountryCodeRequired=国の選択は必須です
 validation.phoneNumberMustContainNumbersOnly=電話番号に数字以外の文字は使用できません
 validation.invalidPhoneNumberProvided=この電話番号は無効です
 validation.phoneMustBeLocalToCountry=ご入力の電話番号は選択された国の番号ではありません
@@ -677,6 +685,21 @@ validation.phoneMustBeLocalToCountry=ご入力の電話番号は選択された�
 #----------------------------------------------------------------------------------------------------------#
 
 validation.invalidDateFormat=正しい形式で日付を入力してください
+# Date cannot be over specified years in past.
+validation.dateBeyondAllowablePast=過去 {0} 年以内の日付を入力してください
+# Date cannot be over specified years in future.
+validation.dateBeyondAllowableFuture=今後 {0} 年未満の日付を入力してください
+# Valdation error shown when the user enters a date in the past but the question requires a date later than the current date.
+validation.futureDateRequired=今日より後の日付を入力してください
+# Valdation error shown when the user enters a date that is earlier than the minimum allowed date.
+validation.dateTooFarInPast={0} より後の日付を入力してください
+# Validation error shown when the user enters a date in the future but the question requires a date earlier than the current date.
+validation.pastDateRequired=今日より前の日付を入力してください
+# Validation error shown when the user enters a date that is later than the maximum allowed date.
+validation.dateTooFarInFuture={0} より前の日付を入力してください
+# Validation error shown when the user enters a date that is before or after the allowed date range.
+validation.dateNotInRange={0} から {1} の間の日付を入力してください
+validation.currentDateRequired=今日の日付を入力してください
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - 1 月
 # A month option when selecting a specific date from a dropdown menu.
@@ -737,7 +760,6 @@ placeholder.entityName={0} の名前
 validation.fileRequired=ファイルを選択してください。
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=ファイルが大きすぎます。{0} MB 未満のファイルを選択してください。
-button.chooseFile=ファイルを選択
 # Text shown on a tag while a file is uploading.
 label.uploading=アップロード中
 # Label applied to a list of uploaded files
@@ -750,7 +772,9 @@ label.uploadedFiles=アップロードしたファイル
 # Validation errors that appear if a user enters an answer that is too long or too short.
 validation.idTooLong={0} 文字以内にしてください。
 validation.idTooShort={0} 文字以上にしてください。
+# Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=数字のみにする必要があります。
+validation.numberRequired.v2=0から9の数字のみを含める必要があります。
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
@@ -771,13 +795,6 @@ label.lastName=姓
 label.middleName=ミドルネーム
 # Label for name suffix field in name question
 label.nameSuffix=サフィックス
-
-# Placeholder text - this is shown inside the input box, before a user enters an answer.
-placeholder.firstName=名
-placeholder.lastName=姓
-placeholder.middleName=ミドルネーム
-# Placeholder for name suffix field in name question
-placeholder.nameSuffix=サフィックス
 
 # Option Junior for the name suffix dropdown
 option.junior=Jr.
@@ -816,6 +833,121 @@ validation.textTooLong={0} 文字以内にしてください。
 validation.textTooShort={0} 文字以上にしてください。
 
 #---------------------------------------------------------------------#
+# YES/NO QUESTION - text specific to yes/no questions. #
+#---------------------------------------------------------------------#
+
+option.yes=はい
+option.no=いいえ
+option.notSure=わからない
+option.maybe=おそらく
+
+#-------------------------------------------------------------#
+# MAP QUESTION - text specific to map questions.              #
+#-------------------------------------------------------------#
+
+# Text for map question apply filters button
+map.applyFiltersButtonText=フィルターを適用
+# Aria label for next page pagination button
+map.ariaLabelNextPage=マップ上の場所の次のページへ移動
+# Aria label for pagination list
+map.ariaLabelPaginationList=マップ上の場所のページネーション
+# Aria label for previous page pagination button
+map.ariaLabelPreviousPage=マップ上の場所の前のページへ移動
+# Header for the section showing available locations
+map.availableLocations=利用可能な場所
+# Legend text for the map filters section
+map.filterLegendText=フィルター
+# Aria label for pagination buttons
+map.goToPage=マップ上の場所のページ{0}へ移動
+# Link text for location details URLs
+map.locationLinkText=さらに詳細を表示
+# The screen reader text on a link to view more details for a location. The variable represents the location name.
+map.locationLinkTextSr={0}のさらに詳細を表示
+# Text showing the count of displayed locations, with placeholders for current count and total count
+map.locationsCount=Displaying {0} to {1} of {2} locations
+# Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
+map.locationsSelectedCount=最大{1}カ所のうち、{0}カ所を選択しています。
+# Alt text for map region
+map.mapRegionAltText=場所を表示するインタラクティブマップ
+# Text for map question selected button in popups
+map.mapSelectedButtonText=選択済み
+# Message displayed when filter results return no locations
+map.noResultsFound=結果が見つかりませんでした。フィルターの調整をお試しください。
+# Message displayed when no locations have been selected yet
+map.noSelectionsMessage=場所が選択されていません。
+# Sr only message displayed when page has changed
+map.paginationStatus={1}ページ中{0}ページを表示しています。
+# Text for map question reset filters button
+map.resetFiltersButtonText=フィルターをクリア
+# Heading for the section showing selected locations
+map.selectedLocationsHeading=選択された場所
+# Placeholder text for map question select button in popups
+map.selectLocationButtonText=場所を選択
+# Text showing the maximum number of locations that can be selected, with a placeholder for that number
+map.selectLocations=最大{0}カ所を選択
+# Placeholder text for map question select option dropdown
+map.selectOptionPlaceholderText=- 選択 -
+# Button text to switch from list view to map view on mobile
+map.switchToMapView=マップ表示に切り替える
+# Button text to switch from map view to list view on mobile
+map.switchToListView=リスト表示に切り替える
+# Screen reader text announcing that the view has been switched to map view
+map.switchToMapViewSr=表示がマップに切り替わりました
+# Screen reader text announcing that the view has been switched to list view
+map.switchToListViewSr=表示がリストに切り替わりました
+# Error message that indicates the applicant has selected too many locations
+map.validation.tooManySelections=最大で{0}カ所を選択してください。
+# Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
+map.geoJsonErrorText = 申し訳ありませんが、この質問は現在表示できません。お手数ですが、後ほどこのアプリケーションに戻って再度お試しください。それまでの間、{0}または{1}に戻っていただければ、正しい方向へご案内します。
+map.contactUs = お問い合わせ
+map.homepage = ホームページ
+# screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
+map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a different location, please unselect at least one of the locations you have chosen.
+
+#---------------------------------------------------------------------------#
+# MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
+#---------------------------------------------------------------------------#
+
+# Button for adding a filter
+map.addFilterButton=フィルターを追加
+# Subtitle text for adding filters
+map.addFiltersSubtitle=応募者が利用できるように、最大6個のフィルターを選択してください。
+# Title for filters section
+map.addFiltersTitle=フィルター
+# Button for adding a tag
+map.addTagButton=タグを追加
+# Subtitle text for adding a tag
+map.addTagSubtitle=選択したキーが特定の値と一致する特定の場所に表示されるタグを追加します。応募者がこれらの場所の少なくとも1つを選択した場合、任意で選択済み場所エリアにアラートを表示します。
+# Title for tag section
+map.addTagTitle=タグ
+# Label for display name field
+map.displayNameLabel=表示名
+# Label for key field
+map.keyLabel=キー
+# Error message when a configured key is not found in the GeoJSON data
+map.keyNotFoundError=エラー：キーが見つかりませんでした。別のキーを選択してください。
+# Help text for location address field
+map.locationAddressHelpText=場所の住所を表すキーを選択してください。
+# Label for location address key field
+map.locationAddressLabel=住所キー
+# Help text for location details URL field
+map.locationDetailsUrlHelpText=場所の詳細URLを表すキーを選択してください。
+# Label for location detail URL key field
+map.locationDetailsUrlLabel=さらに詳細を表示 URLキー
+# Help text for location name field
+map.locationNameHelpText=場所の名前を表すキーを選択してください。
+# Label for location name key field
+map.locationNameLabel=名前キー
+# Label for maximum number of locations field
+map.maxLocationSelectionsLabel=最大場所選択数
+# Label for setting text field
+map.settingTextLabel=アラートテキスト
+# Label for value field
+map.valueLabel=値
+# Text on a grey square that indicates where a map will appear once a question has been published
+map.mapPreviewText=ここにマップが表示されます
+
+#---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
 #---------------------------------------------------------------------#
 
@@ -836,7 +968,7 @@ error.internalServerTitle.v2=エラーが発生しました
 # The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=申し訳ございません。システムに内部エラーが発生しました。
 # Additional information about the error that is shown to the user in small font
-error.internalServerDescription=エラー ID {0} を記載のうえ、%s のテクニカル サポートまでお問い合わせください。
+error.internalServerDescription=エラー ID {0} を記載のうえ、{1} のテクニカル サポートまでお問い合わせください。
 # A button redirecting the user to the homepage
 error.internalServerHomeButton=ホームページにアクセス
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
@@ -870,8 +1002,6 @@ email.tiApplicationUpdateBody=プログラム {1} の申請者 {0} のステー�
 #------------------------------------------------------------------------------#
 
 banner.title=これは政府の公式ウェブサイトです。
-# Text on a banner at the top of the page telling users this is an official government website
-banner.northStarTitle=米国政府の公式ウェブサイト
 banner.link=見分け方はこちら
 banner.govWebsiteSectionHeader=公式ウェブサイトは .gov を使用しています
 banner.govWebsiteSectionContent=ウェブサイト アドレスの末尾が .gov の場合、米国の公的政府機関のサイトです。
@@ -891,9 +1021,21 @@ banner.notForProductionBannerLine2=プログラムやサービスに申請する
 # GUEST BANNER - alert explaining that user is logged in as a guest #
 #------------------------------------------------------------------------------#
 # A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
-banner.guestBannerText=ゲストとして申請しています。申請が終了したら、{0} してデータを保護します。
+banner.guestBannerText=申請が終了したら、{0}してデータを保護します。
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=セッションを終了
+# A message letting the user know how long their session will last before they are logged out automatically. The placeholder will be a phrase like "2 hours and 30 minutes" or "30 minutes".
+banner.sessionExpiration=セッション開始から{0}後にセッションは自動的に期限切れになるため、進行状況を失わないように、それまでにログインまたはアプリケーションを提出してください。
+# Phrases that combine hours and minutes for the session expiration message.
+banner.hourAndMinutes=1時間{0}分
+banner.hourAndMinute=1時間1分
+banner.hoursAndMinutes={0}時間{1}分
+banner.hoursAndMinute={0}時間1分
+# Amount of time in hours or minutes for the session expiration message.
+banner.minutes={0}分
+banner.hours={0}時間
+banner.hour=1時間
+banner.minute=1分
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
@@ -901,6 +1043,21 @@ banner.endYourSession=セッションを終了
 #  are seeded into the database, since these will be admin defined in the future #
 #------------------------------------------------------------------------------#
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# An aria-label for screen readers that helps provide context for the category tags.
 # A tag used to filter the list of programs down to those that are related to childcare.
 category.tag.childcare=育児
 
@@ -928,6 +1085,9 @@ category.tag.housing=住宅
 # A tag used to filter the list of programs down to those that are related to the Internet.
 category.tag.internet=インターネット
 
+# A tag used to filter the list of programs down to those that are related to the military.
+category.tag.military=軍人
+
 # A tag used to filter the list of programs down to those that are related to training.
 category.tag.training=トレーニング
 
@@ -936,3 +1096,34 @@ category.tag.transportation=輸送
 
 # A tag used to filter the list of programs down to those that are related to utilities.
 category.tag.utilities=ユーティリティ
+
+# A tag used to filter the list of programs down to those that are related to military veterans.
+category.tag.veteran=退役軍人
+
+
+ariaLabel.categories=カテゴリ
+
+#------------------------------------------------------------------------------#
+#  Session timeout messages                                                    #
+#------------------------------------------------------------------------------#
+
+# Title of the warning modal that appears when the user has been inactive for a while
+session.inactivity.warning.title=操作のないセッションの警告
+
+# Message shown in a modal asking the user if they want to extend their session due to inactivity
+session.inactivity.warning.message=セッションはしばらく操作が行われていないため、まもなく期限切れになります。セッションを延長しますか？
+
+# Title of a modal dialog displayed when a user's session is about to expire due to session length limit
+session.length.warning.title=長すぎるセッションの警告
+
+# Message shown in a modal warning the user their session will end soon due to session length limit
+session.length.warning.message=セッションは長すぎるため、まもなく期限切れになります。必要であれば、作業を保存してログインし直してください。
+
+# Text on a button that allows users to extend their session when shown timeout warnings
+session.extend.button=セッションを延長
+
+# Success message shown when the user's session is successfully extended after clicking the extend button
+session.extended.success=セッションは正常に延長されました
+
+# Error message shown when there was a problem extending the user's session
+session.extended.error=セッションを延長できませんでした

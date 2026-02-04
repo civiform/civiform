@@ -37,13 +37,17 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import models.AccountModel;
+import models.ApplicantModel;
+import models.ApplicationModel;
 import models.ApplicationStep;
 import models.CategoryModel;
 import models.DisplayMode;
+import models.LifecycleStage;
 import models.ProgramNotificationPreference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.Environment;
+import play.i18n.Messages;
 import repository.CategoryRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
@@ -85,16 +89,16 @@ import services.statuses.StatusService;
  */
 public final class DevDatabaseSeedTask {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(DevDatabaseSeedTask.class);
+  private static final Logger logger = LoggerFactory.getLogger(DevDatabaseSeedTask.class);
   private static final int MAX_RETRIES = 10;
 
   private final QuestionService questionService;
   private final ProgramService programService;
   private final StatusService statusService;
-  private final Environment environment;
   private final VersionRepository versionRepository;
   private final CategoryRepository categoryRepository;
   private final Database database;
+  private final CategoryTranslationFileParser categoryTranslationFileParser;
 
   @Inject
   public DevDatabaseSeedTask(
@@ -103,14 +107,14 @@ public final class DevDatabaseSeedTask {
       StatusService statusService,
       VersionRepository versionRepository,
       CategoryRepository categoryRepository,
-      Environment environment) {
+      CategoryTranslationFileParser categoryTranslationFileParser) {
     this.questionService = checkNotNull(questionService);
     this.statusService = checkNotNull(statusService);
     this.versionRepository = checkNotNull(versionRepository);
     this.categoryRepository = checkNotNull(categoryRepository);
     this.programService = checkNotNull(programService);
     this.database = DB.getDefault();
-    this.environment = checkNotNull(environment);
+    this.categoryTranslationFileParser = checkNotNull(categoryTranslationFileParser);
   }
 
   /**
@@ -134,7 +138,7 @@ public final class DevDatabaseSeedTask {
     ImmutableList.Builder<QuestionDefinition> questionDefinitions = ImmutableList.builder();
     for (QuestionDefinition questionDefinition : sampleQuestionDefinitions) {
       if (existingSampleQuestions.containsKey(questionDefinition.getName())) {
-        LOGGER.info("Sample question \"{}\" exists at server start", questionDefinition.getName());
+        logger.info("Sample question \"{}\" exists at server start", questionDefinition.getName());
         questionDefinitions.add(existingSampleQuestions.get(questionDefinition.getName()));
       } else {
         inSerializableTransaction(
@@ -155,18 +159,21 @@ public final class DevDatabaseSeedTask {
       String errorMessages =
           result.getErrors().stream().map(CiviFormError::message).collect(Collectors.joining(", "));
 
-      LOGGER.error(
+      logger.error(
           String.format(
               "Unable to create sample question \"%s\" due to %s",
               questionDefinition.getName(), errorMessages));
       return Optional.empty();
     } else {
-      LOGGER.info("Sample sample question \"{}\"", questionDefinition.getName());
+      logger.info("Sample sample question \"{}\"", questionDefinition.getName());
       return Optional.of(result.getResult());
     }
   }
 
-  public void insertMinimalSampleProgram(ImmutableList<QuestionDefinition> createdSampleQuestions) {
+  public void insertMinimalSampleProgram(
+      ImmutableList<QuestionDefinition> createdSampleQuestions,
+      Messages messages,
+      boolean enumeratorImprovementsEnabled) {
     try {
       ErrorAnd<ProgramDefinition, CiviFormError> programDefinitionResult =
           programService.createProgramDefinition(
@@ -176,16 +183,19 @@ public final class DevDatabaseSeedTask {
               "display description",
               "short description",
               /* defaultConfirmationMessage= */ "",
-              /* externalLink= */ "https://github.com/civiform/civiform",
+              /* externalLink= */ "",
               DisplayMode.PUBLIC.getValue(),
               ImmutableList.of(
                   ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS.getValue()),
               /* eligibilityIsGating= */ true,
+              /* loginOnly= */ false,
               /* programType= */ ProgramType.DEFAULT,
               ImmutableList.of(),
               /* categoryIds= */ ImmutableList.of(),
               /* applicationSteps= */ ImmutableList.of(
-                  new ApplicationStep("step 1 title", "step 1 description")));
+                  new ApplicationStep("step 1 title", "step 1 description")),
+              messages,
+              enumeratorImprovementsEnabled);
       if (programDefinitionResult.isError()) {
         throw new RuntimeException(programDefinitionResult.getErrors().toString());
       }
@@ -199,7 +209,11 @@ public final class DevDatabaseSeedTask {
       programService.updateBlock(programId, blockId, blockForm).getResult();
 
       long nameQuestionId = getCreatedId(NAME_QUESTION_DEFINITION, createdSampleQuestions);
-      programService.addQuestionsToBlock(programId, blockId, ImmutableList.of(nameQuestionId));
+      programService.addQuestionsToBlock(
+          programId,
+          blockId,
+          ImmutableList.of(nameQuestionId),
+          /* enumeratorImprovementsEnabled= */ false);
       programService.setProgramQuestionDefinitionOptionality(
           programId, blockId, nameQuestionId, true);
 
@@ -213,7 +227,9 @@ public final class DevDatabaseSeedTask {
   }
 
   public void insertComprehensiveSampleProgram(
-      ImmutableList<QuestionDefinition> createdSampleQuestions) {
+      ImmutableList<QuestionDefinition> createdSampleQuestions,
+      Messages messages,
+      boolean enumeratorImprovementsEnabled) {
     try {
       ErrorAnd<ProgramDefinition, CiviFormError> programDefinitionResult =
           programService.createProgramDefinition(
@@ -223,16 +239,19 @@ public final class DevDatabaseSeedTask {
               "display description",
               "short description",
               /* defaultConfirmationMessage= */ "",
-              "https://github.com/civiform/civiform",
+              "",
               DisplayMode.PUBLIC.getValue(),
               ImmutableList.of(
                   ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS.getValue()),
               /* eligibilityIsGating= */ true,
+              /* loginOnly= */ false,
               /* programType= */ ProgramType.DEFAULT,
               ImmutableList.of(),
               /* categoryIds= */ ImmutableList.of(),
               /* applicationSteps= */ ImmutableList.of(
-                  new ApplicationStep("step 1 title", "step 1 description")));
+                  new ApplicationStep("step 1 title", "step 1 description")),
+              messages,
+              enumeratorImprovementsEnabled);
       if (programDefinitionResult.isError()) {
         throw new RuntimeException(programDefinitionResult.getErrors().toString());
       }
@@ -267,10 +286,17 @@ public final class DevDatabaseSeedTask {
               getCreatedId(CURRENCY_QUESTION_DEFINITION, createdSampleQuestions),
               getCreatedId(DATE_QUESTION_DEFINITION, createdSampleQuestions),
               getCreatedId(DROPDOWN_QUESTION_DEFINITION, createdSampleQuestions),
-              getCreatedId(PHONE_QUESTION_DEFINITION, createdSampleQuestions)));
+              getCreatedId(PHONE_QUESTION_DEFINITION, createdSampleQuestions)),
+          /* enumeratorImprovementsEnabled= */ false);
 
       blockId =
-          programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
+          programService
+              .addBlockToProgram(
+                  programId, Optional.empty(), messages, enumeratorImprovementsEnabled)
+              .getResult()
+              .maybeAddedBlock()
+              .get()
+              .id();
       blockForm.setName("Screen 2");
       blockForm.setDescription("one of each question type - part 2");
       programService.updateBlock(programId, blockId, blockForm);
@@ -282,20 +308,32 @@ public final class DevDatabaseSeedTask {
               getCreatedId(ID_QUESTION_DEFINITION, createdSampleQuestions),
               getCreatedId(NAME_QUESTION_DEFINITION, createdSampleQuestions),
               getCreatedId(NUMBER_QUESTION_DEFINITION, createdSampleQuestions),
-              getCreatedId(TEXT_QUESTION_DEFINITION, createdSampleQuestions)));
+              getCreatedId(TEXT_QUESTION_DEFINITION, createdSampleQuestions)),
+          /* enumeratorImprovementsEnabled= */ false);
 
       blockId =
-          programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
+          programService
+              .addBlockToProgram(
+                  programId, Optional.of(true), messages, enumeratorImprovementsEnabled)
+              .getResult()
+              .maybeAddedBlock()
+              .get()
+              .id();
       blockForm.setName("enumerator");
       blockForm.setDescription("this is for an enumerator");
       programService.updateBlock(programId, blockId, blockForm);
       long enumeratorId = getCreatedId(ENUMERATOR_QUESTION_DEFINITION, createdSampleQuestions);
-      programService.addQuestionsToBlock(programId, blockId, ImmutableList.of(enumeratorId));
+      programService.addQuestionsToBlock(
+          programId,
+          blockId,
+          ImmutableList.of(enumeratorId),
+          /* enumeratorImprovementsEnabled= */ false);
       // Create repeated screens based on enumerator.
       long enumeratorBlockId = blockId;
       blockId =
           programService
-              .addRepeatedBlockToProgram(programId, enumeratorBlockId)
+              .addRepeatedBlockToProgram(
+                  programId, enumeratorBlockId, messages, enumeratorImprovementsEnabled)
               .getResult()
               .maybeAddedBlock()
               .get()
@@ -313,20 +351,36 @@ public final class DevDatabaseSeedTask {
               questionService
                   .create(dateEnumeratedQuestionDefinition(enumeratorId))
                   .getResult()
-                  .getId()));
+                  .getId()),
+          /* enumeratorImprovementsEnabled= */ false);
 
       blockId =
-          programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
+          programService
+              .addBlockToProgram(
+                  programId, Optional.empty(), messages, enumeratorImprovementsEnabled)
+              .getResult()
+              .maybeAddedBlock()
+              .get()
+              .id();
       blockForm.setName("Screen 3");
       blockForm.setDescription("Random information");
       programService.updateBlock(programId, blockId, blockForm);
       long radioButtonQuestionId =
           getCreatedId(RADIO_BUTTON_QUESTION_DEFINITION, createdSampleQuestions);
       programService.addQuestionsToBlock(
-          programId, blockId, ImmutableList.of(radioButtonQuestionId));
+          programId,
+          blockId,
+          ImmutableList.of(radioButtonQuestionId),
+          /* enumeratorImprovementsEnabled= */ false);
 
       blockId =
-          programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
+          programService
+              .addBlockToProgram(
+                  programId, Optional.empty(), messages, enumeratorImprovementsEnabled)
+              .getResult()
+              .maybeAddedBlock()
+              .get()
+              .id();
       blockForm.setName("Screen with Predicate");
       blockForm.setDescription("May be hidden");
       programService.updateBlock(programId, blockId, blockForm);
@@ -335,7 +389,8 @@ public final class DevDatabaseSeedTask {
           programId,
           blockId,
           ImmutableList.of(
-              getCreatedId(DATE_PREDICATE_QUESTION_DEFINITION, createdSampleQuestions)));
+              getCreatedId(DATE_PREDICATE_QUESTION_DEFINITION, createdSampleQuestions)),
+          /* enumeratorImprovementsEnabled= */ false);
       // Add a predicate based on the "favorite season" radio button question in Block 3
       LeafOperationExpressionNode operation =
           LeafOperationExpressionNode.create(
@@ -350,12 +405,22 @@ public final class DevDatabaseSeedTask {
 
       // Add file upload as optional to make local testing easier.
       blockId =
-          programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
+          programService
+              .addBlockToProgram(
+                  programId, Optional.empty(), messages, enumeratorImprovementsEnabled)
+              .getResult()
+              .maybeAddedBlock()
+              .get()
+              .id();
       blockForm.setName("file upload");
       blockForm.setDescription("this is for file upload");
       programService.updateBlock(programId, blockId, blockForm);
       long fileQuestionId = getCreatedId(FILE_UPLOAD_QUESTION_DEFINITION, createdSampleQuestions);
-      programService.addQuestionsToBlock(programId, blockId, ImmutableList.of(fileQuestionId));
+      programService.addQuestionsToBlock(
+          programId,
+          blockId,
+          ImmutableList.of(fileQuestionId),
+          /* enumeratorImprovementsEnabled= */ false);
       programService.setProgramQuestionDefinitionOptionality(
           programId, blockId, fileQuestionId, true);
 
@@ -372,8 +437,7 @@ public final class DevDatabaseSeedTask {
 
   /** Seeds the predefined program categories from the category translation files. */
   public List<CategoryModel> seedProgramCategories() {
-    CategoryTranslationFileParser parser = new CategoryTranslationFileParser(environment);
-    List<CategoryModel> categories = parser.createCategoryModelList();
+    List<CategoryModel> categories = categoryTranslationFileParser.createCategoryModelList();
 
     List<CategoryModel> dbCategories = new ArrayList<>();
     categories.forEach(
@@ -393,13 +457,13 @@ public final class DevDatabaseSeedTask {
 
   private void inSerializableTransaction(Runnable fn, int tryCount) {
     Transaction transaction =
-        database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
+        database.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE));
 
     try {
       fn.run();
       transaction.commit();
     } catch (NonUniqueResultException | SerializableConflictException | RollbackException e) {
-      LOGGER.warn("Database seed transaction failed: {}", e);
+      logger.warn("Database seed transaction failed: {}", e);
 
       if (tryCount > MAX_RETRIES) {
         throw new RuntimeException(e);
@@ -420,6 +484,43 @@ public final class DevDatabaseSeedTask {
       if (transaction.isActive()) {
         transaction.end();
       }
+    }
+  }
+
+  /** Seed the specified program with {@code count} number of empty applications. */
+  public void seedApplications(String programSlug, int count) {
+    try {
+      // Find the program by slug
+      long programId = programService.getActiveProgramId(programSlug).toCompletableFuture().join();
+      ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
+
+      for (int i = 0; i < count; i++) {
+        inSerializableTransaction(
+            () -> {
+              // Create a new guest applicant for each application
+              ApplicantModel applicant = new ApplicantModel();
+              applicant.save();
+
+              // Create guest account
+              AccountModel account = new AccountModel();
+              account.save();
+
+              applicant.setAccount(account);
+              applicant.save();
+
+              account.setApplicants(ImmutableList.of(applicant));
+              account.save();
+
+              // Create the application
+              ApplicationModel.create(
+                  applicant, programDefinition.toProgram(), LifecycleStage.ACTIVE);
+            },
+            1);
+      }
+      logger.info("Created {} applications for program \"{}\"", count, programSlug);
+    } catch (ProgramNotFoundException e) {
+      logger.error("Program not found: {}", programSlug, e);
+      throw new RuntimeException("Program not found: " + programSlug, e);
     }
   }
 

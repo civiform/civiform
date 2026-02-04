@@ -101,7 +101,7 @@ public class CurrencyTest {
     static TestData create(
         String userInput, String prettyString, double dollars, String dollarsString, long cents) {
       return new AutoValue_CurrencyTest_TestData(
-          userInput, prettyString, dollars, dollarsString, Long.valueOf(cents));
+          userInput, prettyString, dollars, dollarsString, cents);
     }
 
     abstract String userInput();
@@ -112,6 +112,6 @@ public class CurrencyTest {
 
     abstract String dollarsString();
 
-    abstract Long cents();
+    abstract long cents();
   }
 }

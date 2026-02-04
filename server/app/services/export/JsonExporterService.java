@@ -65,13 +65,12 @@ public final class JsonExporterService {
   public String export(
       ProgramDefinition programDefinition,
       SubmitTimeSequentialAccessPaginationSpec paginationSpec,
-      SubmittedApplicationFilter filters,
-      boolean multipleFileUploadEnabled) {
+      SubmittedApplicationFilter filters) {
     PaginationResult<ApplicationModel> paginationResult =
         programService.getSubmittedProgramApplicationsAllVersions(
             programDefinition.id(), paginationSpec, filters);
 
-    return exportPage(programDefinition, paginationResult, multipleFileUploadEnabled);
+    return exportPage(programDefinition, paginationResult);
   }
 
   /**
@@ -83,9 +82,7 @@ public final class JsonExporterService {
    * @return a JSON string representing a list of applications
    */
   public String exportPage(
-      ProgramDefinition programDefinition,
-      PaginationResult<ApplicationModel> paginationResult,
-      boolean multipleFileUploadEnabled) {
+      ProgramDefinition programDefinition, PaginationResult<ApplicationModel> paginationResult) {
     ImmutableList<ApplicationModel> applications = paginationResult.getPageContents();
 
     ImmutableMap<Long, ProgramDefinition> programDefinitionsForAllVersions =
@@ -115,7 +112,7 @@ public final class JsonExporterService {
       ImmutableMap<Path, Optional<?>> questionEntries =
           presenterFactory
               .create(applicantQuestion.getType())
-              .getAllJsonEntries(applicantQuestion.getQuestion(), multipleFileUploadEnabled);
+              .getAllJsonEntries(applicantQuestion.getQuestion());
       entriesBuilder.putAll(questionEntries);
     }
     CfJsonDocumentContext template = new CfJsonDocumentContext();
@@ -131,9 +128,7 @@ public final class JsonExporterService {
             .map(
                 app ->
                     buildApplicationExportData(
-                        app,
-                        programDefinitionsForAllVersions.get(app.getProgram().id),
-                        multipleFileUploadEnabled))
+                        app, programDefinitionsForAllVersions.get(app.getProgram().id)))
             .collect(
                 Collectors.collectingAndThen(
                     ImmutableList.toImmutableList(),
@@ -165,9 +160,7 @@ public final class JsonExporterService {
   }
 
   private ApplicationExportData buildApplicationExportData(
-      ApplicationModel application,
-      ProgramDefinition programDefinition,
-      boolean multipleFileUploadEnabled) {
+      ApplicationModel application, ProgramDefinition programDefinition) {
     ImmutableMap.Builder<Path, Optional<?>> entriesBuilder = ImmutableMap.builder();
     applicantService
         .getReadOnlyApplicantProgramService(application, programDefinition)
@@ -180,9 +173,7 @@ public final class JsonExporterService {
               // the json entries for any Question in one line.
               @SuppressWarnings("unchecked")
               ImmutableMap<Path, Optional<?>> questionEntries =
-                  presenterFactory
-                      .create(aq.getType())
-                      .getAllJsonEntries(aq.getQuestion(), multipleFileUploadEnabled);
+                  presenterFactory.create(aq.getType()).getAllJsonEntries(aq.getQuestion());
               entriesBuilder.putAll(questionEntries);
             });
 
@@ -211,6 +202,8 @@ public final class JsonExporterService {
                 .orElse(EMPTY_VALUE))
         .setSubmitTime(application.getSubmitTime())
         .setStatus(application.getLatestStatus())
+        .setStatusLastModifiedTime(application.getStatusLastModifiedTime())
+        .setApplicationNote(application.getLatestNote())
         .setRevisionState(toRevisionState(application.getLifecycleStage()))
         // TODO(#9212): There should never be duplicate entries because question paths should be
         // unique, but due to #9212 there sometimes are. They point at the same location in the
@@ -253,6 +246,23 @@ public final class JsonExporterService {
             status -> jsonApplication.putString(statusPath, status),
             () -> jsonApplication.putNull(statusPath));
 
+    Path notePath = Path.create("application_note");
+    applicationExportData
+        .applicationNote()
+        .ifPresentOrElse(
+            applicationNote -> jsonApplication.putString(notePath, applicationNote),
+            () -> jsonApplication.putNull(notePath));
+
+    Path statusLastModiedTimePath = Path.create("status_last_modified_time");
+    applicationExportData
+        .statusLastModifiedTime()
+        .ifPresentOrElse(
+            statusLastModifiedTime ->
+                jsonApplication.putString(
+                    statusLastModiedTimePath,
+                    dateConverter.renderDateTimeIso8601ExtendedOffset(statusLastModifiedTime)),
+            () -> jsonApplication.putNull(statusLastModiedTimePath));
+
     exportApplicationEntriesToJsonApplication(
         jsonApplication, applicationExportData.applicationEntries());
     return jsonApplication;
@@ -266,12 +276,12 @@ public final class JsonExporterService {
       var maybeJsonValue = entry.getValue();
       if (maybeJsonValue.isEmpty()) {
         jsonApplication.putNull(path);
-      } else if (maybeJsonValue.get() instanceof String) {
-        jsonApplication.putString(path, (String) maybeJsonValue.get());
-      } else if (maybeJsonValue.get() instanceof Long) {
-        jsonApplication.putLong(path, (Long) maybeJsonValue.get());
-      } else if (maybeJsonValue.get() instanceof Double) {
-        jsonApplication.putDouble(path, (Double) maybeJsonValue.get());
+      } else if (maybeJsonValue.get() instanceof String str) {
+        jsonApplication.putString(path, str);
+      } else if (maybeJsonValue.get() instanceof Long l) {
+        jsonApplication.putLong(path, l);
+      } else if (maybeJsonValue.get() instanceof Double d) {
+        jsonApplication.putDouble(path, d);
       } else if (instanceOfNonEmptyImmutableListOfString(maybeJsonValue.get())) {
         @SuppressWarnings("unchecked")
         ImmutableList<String> list = (ImmutableList<String>) maybeJsonValue.get();
@@ -307,15 +317,13 @@ public final class JsonExporterService {
   }
 
   private static RevisionState toRevisionState(LifecycleStage lifecycleStage) {
-    switch (lifecycleStage) {
-      case ACTIVE:
-        return RevisionState.CURRENT;
-      case OBSOLETE:
-        return RevisionState.OBSOLETE;
-      default:
-        throw new NotImplementedException(
-            "Revision state not supported for LifeCycleStage." + lifecycleStage.name());
-    }
+    return switch (lifecycleStage) {
+      case ACTIVE -> RevisionState.CURRENT;
+      case OBSOLETE -> RevisionState.OBSOLETE;
+      default ->
+          throw new NotImplementedException(
+              "Revision state not supported for LifeCycleStage." + lifecycleStage.name());
+    };
   }
 
   @AutoValue
@@ -340,7 +348,11 @@ public final class JsonExporterService {
 
     public abstract Instant submitTime();
 
+    public abstract Optional<String> applicationNote();
+
     public abstract Optional<String> status();
+
+    public abstract Optional<Instant> statusLastModifiedTime();
 
     public abstract RevisionState revisionState();
 
@@ -374,6 +386,10 @@ public final class JsonExporterService {
       public abstract Builder setSubmitTime(Instant submitTimeOpt);
 
       public abstract Builder setStatus(Optional<String> status);
+
+      public abstract Builder setStatusLastModifiedTime(Optional<Instant> statusLastModifiedTime);
+
+      public abstract Builder setApplicationNote(Optional<String> applicationNote);
 
       public abstract Builder setRevisionState(RevisionState revisionState);
 

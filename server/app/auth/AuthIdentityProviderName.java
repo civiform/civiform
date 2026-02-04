@@ -13,6 +13,8 @@ public enum AuthIdentityProviderName {
   GENERIC_OIDC_APPLICANT("generic-oidc"),
   LOGIN_GOV_APPLICANT("login-gov"),
   AUTH0_APPLICANT("auth0"),
+  KEYCLOAK_ADMIN("keycloak-admin"),
+  KEYCLOAK_APPLICANT("keycloak-applicant"),
   DISABLED_APPLICANT("disabled");
 
   public static final String AUTH_APPLICANT_CONFIG_PATH = "civiform_applicant_idp";

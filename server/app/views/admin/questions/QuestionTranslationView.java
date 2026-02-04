@@ -1,10 +1,13 @@
 package views.admin.questions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.div;
+import static j2html.TagCreator.input;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.FormTag;
 import java.util.Locale;
@@ -14,8 +17,11 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import services.LocalizedStrings;
 import services.TranslationLocales;
+import services.question.MapSettingType;
 import services.question.QuestionOption;
+import services.question.QuestionSetting;
 import services.question.types.EnumeratorQuestionDefinition;
+import services.question.types.MapQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import views.HtmlBundle;
@@ -40,7 +46,7 @@ public final class QuestionTranslationView extends TranslationFormView {
   }
 
   public Content render(Http.Request request, Locale locale, QuestionDefinition question) {
-    return render(request, locale, question, Optional.empty());
+    return render(request, locale, question, /* message= */ Optional.empty());
   }
 
   public Content renderErrors(
@@ -66,7 +72,12 @@ public final class QuestionTranslationView extends TranslationFormView {
         ImmutableList.<DomContent>builder()
             .add(
                 questionTextFields(
-                    question, locale, question.getQuestionText(), question.getQuestionHelpText()));
+                    question, locale, question.getQuestionText(), question.getQuestionHelpText()))
+            .add(
+                input()
+                    .isHidden()
+                    .withName("concurrencyToken")
+                    .withValue(question.getConcurrencyToken().map(String::valueOf).orElse("")));
     Optional<DomContent> questionTypeSpecificContent =
         getQuestionTypeSpecificContent(question, locale);
     if (questionTypeSpecificContent.isPresent()) {
@@ -98,6 +109,8 @@ public final class QuestionTranslationView extends TranslationFormView {
   private Optional<DomContent> getQuestionTypeSpecificContent(
       QuestionDefinition question, Locale toUpdate) {
     switch (question.getQuestionType()) {
+      case YES_NO:
+        return Optional.of(div("Yes/No question options are pre-translated.").withClass("mb-4"));
       case CHECKBOX: // fallthrough intended
       case DROPDOWN: // fallthrough intended
       case RADIO_BUTTON:
@@ -106,6 +119,10 @@ public final class QuestionTranslationView extends TranslationFormView {
       case ENUMERATOR:
         EnumeratorQuestionDefinition enumerator = (EnumeratorQuestionDefinition) question;
         return enumeratorQuestionFields(enumerator.getEntityType(), toUpdate);
+      case MAP:
+        MapQuestionDefinition mapQuestionDefinition = (MapQuestionDefinition) question;
+        return mapQuestionFields(
+            mapQuestionDefinition.getQuestionSettings().orElse(ImmutableSet.of()), toUpdate);
       case ADDRESS: // fallthrough intended
       case CURRENCY: // fallthrough intended
       case FILEUPLOAD: // fallthrough intended
@@ -200,5 +217,54 @@ public final class QuestionTranslationView extends TranslationFormView {
                 .setMarkdownLinkText("see how it works")
                 .getTextareaTag(),
             entityType));
+  }
+
+  private Optional<DomContent> mapQuestionFields(
+      ImmutableSet<QuestionSetting> settings, Locale toUpdate) {
+    if (settings.isEmpty()) {
+      return Optional.empty();
+    }
+
+    ImmutableList.Builder<DomContent> settingFieldsBuilder = ImmutableList.builder();
+    settings.forEach(
+        setting -> {
+          if (setting.settingType().equals(MapSettingType.LOCATION_FILTER_GEO_JSON_KEY)) {
+            LocalizedStrings localizedStrings =
+                setting.localizedSettingDisplayName().orElse(LocalizedStrings.of());
+            settingFieldsBuilder.add(
+                fieldWithDefaultLocaleTextHint(
+                    FieldWithLabel.input()
+                        .setFieldName("filters[]")
+                        .setLabelText("Filter display name")
+                        .setValue(localizedStrings.maybeGet(toUpdate).orElse(""))
+                        .getInputTag(),
+                    localizedStrings));
+          }
+
+          if (setting.settingType().equals(MapSettingType.LOCATION_TAG_GEO_JSON_KEY)) {
+            LocalizedStrings localizedDisplayNameStrings =
+                setting.localizedSettingDisplayName().orElse(LocalizedStrings.of());
+            LocalizedStrings localizedTextStrings =
+                setting.localizedSettingText().orElse(LocalizedStrings.of());
+            settingFieldsBuilder.add(
+                fieldWithDefaultLocaleTextHint(
+                    FieldWithLabel.input()
+                        .setFieldName("tagDisplayName")
+                        .setLabelText("Tag display name")
+                        .setValue(localizedDisplayNameStrings.maybeGet(toUpdate).orElse(""))
+                        .getInputTag(),
+                    localizedDisplayNameStrings));
+            settingFieldsBuilder.add(
+                fieldWithDefaultLocaleTextHint(
+                    FieldWithLabel.textArea()
+                        .setFieldName("tagText")
+                        .setLabelText("Tag text")
+                        .setValue(localizedTextStrings.maybeGet(toUpdate).orElse(""))
+                        .getTextareaTag(),
+                    localizedTextStrings));
+          }
+        });
+
+    return Optional.of(fieldSetForFields(legend("Settings"), settingFieldsBuilder.build()));
   }
 }

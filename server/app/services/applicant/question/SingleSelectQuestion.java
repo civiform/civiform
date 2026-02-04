@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
+import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
@@ -18,7 +19,7 @@ import services.question.types.MultiOptionQuestionDefinition;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public final class SingleSelectQuestion extends Question {
+public final class SingleSelectQuestion extends AbstractQuestion {
 
   // Stores the value, loading and caching it on first access.
   private Optional<Optional<LocalizedQuestionOption>> selectedOptionValueCache;
@@ -35,8 +36,40 @@ public final class SingleSelectQuestion extends Question {
 
   @Override
   protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
-    // Only one selection is possible - there is no admin-configured validation.
-    return ImmutableMap.of();
+    return ImmutableMap.of(applicantQuestion.getContextualizedPath(), validateInput());
+  }
+
+  /** Validates that a present value represents one of the Question options. */
+  private ImmutableSet<ValidationErrorMessage> validateInput() {
+    // Check if the value is answered at all.
+    // A missing value is a valid value, the required-property checker will
+    // separately determine if it is otherwise allowed to be missing.
+    boolean hasValue = applicantQuestion.getApplicantData().hasPath(getSelectionPath());
+    if (!hasValue) {
+      return ImmutableSet.of();
+    }
+
+    // Get the value as the type we desire, this ignores non-long values.
+    Optional<Long> optionalSelectedValue = getSelectedOptionId();
+    if (optionalSelectedValue.isEmpty()) {
+      // The value exists but is not a Long as required.
+      return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.INVALID_INPUT));
+    }
+
+    Long selectedValue = optionalSelectedValue.get();
+
+    // Validate the long is in the set of allowed Question options that are displayable to
+    // applicants.
+    // This prevents submission of options that have been removed/hidden by admins.
+    boolean validSelection =
+        getQuestionDefinition().getDisplayableOptions().stream()
+            .anyMatch(o -> selectedValue.equals(o.id()));
+
+    if (!validSelection) {
+      return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.INVALID_INPUT));
+    }
+
+    return ImmutableSet.of();
   }
 
   public boolean hasValue() {
@@ -104,6 +137,16 @@ public final class SingleSelectQuestion extends Question {
   /** Get options in the specified locale. */
   public ImmutableList<LocalizedQuestionOption> getOptions(Locale locale) {
     return getQuestionDefinition().getOptionsForLocaleOrDefault(locale);
+  }
+
+  /** Get displayable options in the applicant's preferred locale. */
+  public ImmutableList<LocalizedQuestionOption> getDisplayableOptions() {
+    return getDisplayableOptions(applicantQuestion.getApplicantData().preferredLocale());
+  }
+
+  /** Get displayable options in the specified locale. */
+  public ImmutableList<LocalizedQuestionOption> getDisplayableOptions(Locale locale) {
+    return getQuestionDefinition().getDisplayableOptionsForLocaleOrDefault(locale);
   }
 
   @Override

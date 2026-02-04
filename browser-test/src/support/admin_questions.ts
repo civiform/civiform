@@ -1,6 +1,11 @@
-import {expect} from '@playwright/test'
-import {ElementHandle, Page} from 'playwright'
-import {dismissModal, waitForAnyModal, waitForPageJsLoad} from './wait'
+import {expect} from './civiform_fixtures'
+import {ElementHandle, Page} from '@playwright/test'
+import {
+  dismissModal,
+  waitForAnyModal,
+  waitForAnyModalLocator,
+  waitForPageJsLoad,
+} from './wait'
 
 type QuestionOption = {
   adminName: string
@@ -9,6 +14,7 @@ type QuestionOption = {
 
 type QuestionParams = {
   questionName: string
+  optionTextToExclude?: string[]
   minNum?: number | null
   maxNum?: number | null
   maxFiles?: number | null
@@ -23,6 +29,33 @@ type QuestionParams = {
   universal?: boolean
   primaryApplicantInfo?: boolean // Ignored if there isn't one for the question type
   markdown?: boolean
+  minDateType?: string | null
+  maxDateType?: string | null
+  minDateDay?: number | null
+  minDateMonth?: number | null
+  minDateYear?: number | null
+  maxDateDay?: number | null
+  maxDateMonth?: number | null
+  maxDateYear?: number | null
+  // Map question parameters
+  geoJsonEndpoint?: string
+  maxLocationSelections?: string
+  locationNameKey?: string
+  locationAddressKey?: string
+  locationDetailsUrlKey?: string
+  filters?: Array<{key?: string | null; displayName?: string | null}> | null
+  tag?: {
+    key?: string | null
+    displayName?: string | null
+    value?: string | null
+    text?: string | null
+  }
+  displayMode?: QuestionDisplayMode | null
+}
+
+export enum QuestionDisplayMode {
+  VISIBLE = 'Visible',
+  HIDDEN = 'Hidden',
 }
 
 // Should match the fieldName set in PrimaryApplicantInfoTag.java
@@ -47,14 +80,15 @@ export enum QuestionType {
   DROPDOWN = 'dropdown',
   EMAIL = 'email',
   ID = 'id',
+  MAP = 'map',
   NAME = 'name',
   NUMBER = 'number',
   RADIO = 'radio',
   TEXT = 'text',
+  YES_NO = 'yes-no',
   ENUMERATOR = 'enumerator',
   FILE_UPLOAD = 'file-upload',
 }
-/* eslint-enable */
 
 export class AdminQuestions {
   public page!: Page
@@ -112,7 +146,7 @@ export class AdminQuestions {
   async expectAdminQuestionsPageWithSuccessToast(successText: string) {
     const toastContainer = await this.page.innerHTML('#toast-container')
 
-    expect(toastContainer).toContain('bg-emerald-200')
+    expect(toastContainer).toContain('bg-cf-toast-success')
     expect(toastContainer).toContain(successText)
     await this.expectAdminQuestionsPage()
   }
@@ -169,6 +203,7 @@ export class AdminQuestions {
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
     universal = false,
+    displayMode = null,
   }: QuestionParams) {
     // This function should only be called on question create/edit page.
     await this.page.fill('label:has-text("Question text")', questionText ?? '')
@@ -190,13 +225,28 @@ export class AdminQuestions {
     if (universal) {
       await this.clickUniversalToggle()
     }
+
+    if (displayMode != null) {
+      await this.selectDisplayMode(displayMode)
+    }
   }
 
   async selectExportOption(exportOption: string) {
     if (!exportOption) {
       throw new Error('A non-empty export option must be provided')
     }
-    await this.page.check(this.selectorForExportOption(exportOption))
+
+    await this.page
+      .getByRole('radio', {name: exportOption, exact: true})
+      .check()
+  }
+
+  async selectDisplayMode(displayMode: QuestionDisplayMode | null) {
+    if (displayMode == null) {
+      throw new Error('A non-empty displayMode option must be provided')
+    }
+
+    await this.page.getByRole('radio', {name: displayMode}).check()
   }
 
   async updateQuestionText(updateText: string) {
@@ -268,7 +318,9 @@ export class AdminQuestions {
     expect(programReferencesText).toContain(expectedProgramReferencesText)
   }
 
-  async clickOnProgramReferencesModal(questionName: string) {
+  async clickOnProgramReferencesModal(
+    questionName: string,
+  ): Promise<ElementHandle<HTMLElement>> {
     await this.page.click(
       this.selectProgramReferencesFromRow(questionName) + ' a',
     )
@@ -420,8 +472,8 @@ export class AdminQuestions {
       this.selectWithinQuestionTableRow(questionName, ':text("Archive")'),
     )
     if (expectModal) {
-      const modal = await waitForAnyModal(this.page)
-      expect(await modal.innerText()).toContain(
+      const modal = await waitForAnyModalLocator(this.page)
+      await expect(modal).toContainText(
         'This question cannot be archived since there are still programs using it',
       )
       await dismissModal(this.page)
@@ -515,77 +567,102 @@ export class AdminQuestions {
     await this.expectDraftQuestionExist(questionName, newQuestionText)
   }
 
-  async addQuestionForType(type: QuestionType, questionName: string) {
+  async addQuestionForType(
+    type: QuestionType,
+    questionName: string,
+    questionText?: string,
+    questionOptions?: {adminName: string; text: string}[],
+  ) {
     switch (type) {
       case QuestionType.ADDRESS:
         await this.addAddressQuestion({
           questionName,
+          questionText: questionText,
         })
         break
       case QuestionType.CHECKBOX:
         await this.addCheckboxQuestion({
           questionName,
-          options: [
-            {adminName: 'op1_admin', text: 'op1'},
-            {adminName: 'op2_admin', text: 'op2'},
-            {adminName: 'op3_admin', text: 'op3'},
-            {adminName: 'op4_admin', text: 'op4'},
-          ],
+          options: questionOptions
+            ? questionOptions
+            : [
+                {adminName: 'op1_admin', text: 'op1'},
+                {adminName: 'op2_admin', text: 'op2'},
+                {adminName: 'op3_admin', text: 'op3'},
+                {adminName: 'op4_admin', text: 'op4'},
+              ],
+          questionText: questionText,
         })
         break
       case QuestionType.CURRENCY:
         await this.addCurrencyQuestion({
           questionName,
+          questionText: questionText,
         })
         break
       case QuestionType.DATE:
-        await this.addDateQuestion({questionName})
+        await this.addDateQuestion({questionName, questionText: questionText})
+        break
+      case QuestionType.MAP:
+        await this.addMapQuestion({questionName, questionText: questionText})
         break
       case QuestionType.DROPDOWN:
         await this.addDropdownQuestion({
           questionName,
-          options: [
-            {adminName: 'op1_admin', text: 'op1'},
-            {adminName: 'op2_admin', text: 'op2'},
-            {adminName: 'op3_admin', text: 'op3'},
-          ],
+          options: questionOptions
+            ? questionOptions
+            : [
+                {adminName: 'op1_admin', text: 'op1'},
+                {adminName: 'op2_admin', text: 'op2'},
+                {adminName: 'op3_admin', text: 'op3'},
+              ],
+          questionText: questionText,
         })
         break
       case QuestionType.EMAIL:
-        await this.addEmailQuestion({questionName})
+        await this.addEmailQuestion({questionName, questionText: questionText})
         break
       case QuestionType.ID:
-        await this.addIdQuestion({questionName})
+        await this.addIdQuestion({questionName, questionText: questionText})
         break
       case QuestionType.NAME:
-        await this.addNameQuestion({questionName})
+        await this.addNameQuestion({questionName, questionText: questionText})
         break
       case QuestionType.NUMBER:
         await this.addNumberQuestion({
           questionName,
+          questionText: questionText,
         })
         break
       case QuestionType.RADIO:
         await this.addRadioButtonQuestion({
           questionName,
-          options: [
-            {adminName: 'one_admin', text: 'one'},
-            {adminName: 'two_admin', text: 'two'},
-            {adminName: 'three_admin', text: 'three'},
-          ],
+          options: questionOptions
+            ? questionOptions
+            : [
+                {adminName: 'one_admin', text: 'one'},
+                {adminName: 'two_admin', text: 'two'},
+                {adminName: 'three_admin', text: 'three'},
+              ],
+          questionText: questionText,
         })
         break
       case QuestionType.TEXT:
-        await this.addTextQuestion({questionName})
+        await this.addTextQuestion({questionName, questionText: questionText})
+        break
+      case QuestionType.YES_NO:
+        await this.addYesNoQuestion({questionName, questionText: questionText})
         break
       case QuestionType.ENUMERATOR:
         await this.addEnumeratorQuestion({
           questionName,
+          questionText: questionText,
         })
         break
       case QuestionType.FILE_UPLOAD:
         await this.addFileUploadQuestion({
           questionName,
+          questionText: questionText,
         })
         break
       default:
@@ -691,6 +768,14 @@ export class AdminQuestions {
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
     universal = false,
     primaryApplicantInfo = false,
+    minDateType = null,
+    maxDateType = null,
+    minDateDay = null,
+    minDateMonth = null,
+    minDateYear = null,
+    maxDateDay = null,
+    maxDateMonth = null,
+    maxDateYear = null,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -714,10 +799,143 @@ export class AdminQuestions {
       )
     }
 
+    if (minDateType != null) {
+      await this.page.selectOption('#min-date-type', {value: minDateType})
+    }
+    if (maxDateType != null) {
+      await this.page.selectOption('#max-date-type', {value: maxDateType})
+    }
+    if (minDateDay != null) {
+      await this.page.fill('#min-custom-date-day', String(minDateDay))
+    }
+    if (minDateMonth != null) {
+      await this.page.selectOption('#min-custom-date-month', {
+        value: String(minDateMonth),
+      })
+    }
+    if (minDateYear != null) {
+      await this.page.fill('#min-custom-date-year', String(minDateYear))
+    }
+    if (maxDateDay != null) {
+      await this.page.fill('#max-custom-date-day', String(maxDateDay))
+    }
+    if (maxDateMonth != null) {
+      await this.page.fill('#max-custom-date-month', String(maxDateMonth))
+    }
+    if (maxDateYear != null) {
+      await this.page.fill('#max-custom-date-year', String(maxDateYear))
+    }
+
     await this.clickSubmitButtonAndNavigate('Create')
 
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
 
+    await this.expectDraftQuestionExist(questionName, questionText)
+  }
+
+  async addMapQuestion({
+    questionName,
+    description = 'map description',
+    questionText = 'map question text',
+    helpText = 'map question help text',
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+    exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    universal = false,
+    geoJsonEndpoint = 'http://mock-web-services:8000/geojson/data',
+    maxLocationSelections = '1',
+    locationNameKey = 'name',
+    locationAddressKey = 'address',
+    locationDetailsUrlKey = 'website',
+    filters = null,
+    tag = {},
+  }: QuestionParams) {
+    await this.gotoAdminQuestionsPage()
+    await this.page.click('#create-question-button')
+    await this.page.click('#create-map-question')
+    await waitForPageJsLoad(this.page)
+    await this.fillInQuestionBasics({
+      questionName,
+      description,
+      questionText,
+      helpText,
+      enumeratorName,
+      exportOption,
+      universal,
+    })
+
+    // Fill in GeoJSON endpoint and trigger change event
+    const geoJsonInput = this.page.getByLabel('GeoJSON endpoint')
+    const htmxResponsePromise = this.page.waitForResponse(
+      '**/admin/geoJson/hx/getData',
+    )
+    await geoJsonInput.fill(geoJsonEndpoint)
+    await geoJsonInput.dispatchEvent('change')
+    await htmxResponsePromise
+
+    // Set max location selections
+    if (maxLocationSelections != null) {
+      await this.page
+        .getByLabel('Maximum location selections')
+        .fill(maxLocationSelections)
+    }
+
+    // Configure location settings
+    await this.page
+      .getByLabel('Name key')
+      .selectOption({value: locationNameKey})
+    await this.page
+      .getByLabel('Address key')
+      .selectOption({value: locationAddressKey})
+    await this.page
+      .getByLabel('View more details URL key')
+      .selectOption({value: locationDetailsUrlKey})
+
+    // Configure filters if provided
+    if (filters != null) {
+      for (let i = 0; i < filters.length; i++) {
+        await this.page.getByRole('button', {name: 'Add filter'}).click()
+
+        const filter = filters[i]
+        if (filter.key != null) {
+          await this.page
+            .locator('select[name^="filters["]')
+            .nth(i)
+            .selectOption({value: filter.key})
+        }
+        if (filter.displayName != null) {
+          await this.page
+            .locator('input[name*="displayName"]')
+            .nth(i)
+            .fill(filter.displayName)
+        }
+      }
+    }
+
+    // Configure tag if provided
+    if (tag != null) {
+      await this.page.getByRole('button', {name: 'Add tag'}).click()
+      if (tag.key != null) {
+        await this.page
+          .locator('select[name^="filters["]')
+          .nth(0)
+          .selectOption({value: tag.key})
+      }
+      if (tag.displayName != null) {
+        await this.page
+          .locator('input[name*="displayName"]')
+          .nth(0)
+          .fill(tag.displayName)
+      }
+      if (tag.value != null) {
+        await this.page.locator('input[name*="value"]').nth(0).fill(tag.value)
+      }
+      if (tag.text != null) {
+        await this.page.locator('input[name*="text"]').nth(0).fill(tag.text)
+      }
+    }
+
+    await this.clickSubmitButtonAndNavigate('Create')
+    await this.expectAdminQuestionsPageWithCreateSuccessToast()
     await this.expectDraftQuestionExist(questionName, questionText)
   }
 
@@ -1196,6 +1414,70 @@ export class AdminQuestions {
     }
   }
 
+  async addYesNoQuestion({
+    questionName,
+    optionTextToExclude = [],
+    description = 'yes/no description',
+    questionText = 'yes/no question text',
+    helpText = 'yes/no question help text',
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+    exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    markdown = false,
+  }: QuestionParams) {
+    await this.createYesNoQuestion({
+      questionName,
+      optionTextToExclude,
+      description,
+      questionText,
+      helpText,
+      enumeratorName,
+      exportOption,
+    })
+
+    await this.expectAdminQuestionsPageWithCreateSuccessToast()
+
+    await this.expectDraftQuestionExist(questionName, questionText, markdown)
+  }
+
+  async createYesNoQuestion(
+    {
+      questionName,
+      optionTextToExclude = [],
+      description = 'yes/no description',
+      questionText = 'yes/no question text',
+      helpText = 'yes/no question help text',
+      enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+      exportOption = AdminQuestions.NO_EXPORT_OPTION,
+      universal = false,
+    }: QuestionParams,
+    clickSubmit = true,
+  ) {
+    await this.gotoAdminQuestionsPage()
+
+    await this.page.click('#create-question-button')
+    await this.page.click('#create-yes_no-question')
+    await waitForPageJsLoad(this.page)
+
+    for (let i = 0; i < optionTextToExclude.length; i++) {
+      const checkboxId = optionTextToExclude[i].toLowerCase().replace(/ /g, '-')
+      await this.page.click(`label[for="${checkboxId}"]`)
+    }
+
+    await this.fillInQuestionBasics({
+      questionName,
+      description,
+      questionText,
+      helpText,
+      enumeratorName,
+      exportOption,
+      universal,
+    })
+
+    if (clickSubmit) {
+      await this.clickSubmitButtonAndNavigate('Create')
+    }
+  }
+
   async addTextQuestion({
     questionName,
     description = 'text description',
@@ -1207,6 +1489,7 @@ export class AdminQuestions {
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
     universal = false,
     markdown = false,
+    displayMode = null,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -1222,6 +1505,7 @@ export class AdminQuestions {
       enumeratorName,
       exportOption,
       universal,
+      displayMode,
     })
 
     if (minNum != null) {
@@ -1375,28 +1659,13 @@ export class AdminQuestions {
     deleteEntityButtonText: string
     addEntityButtonText: string
   }) {
-    // Fix me! ESLint: playwright/prefer-web-first-assertions
-    // Directly switching to the best practice method fails
-    // because of a locator stict mode violation. That is it
-    // returns multiple elements.
-    //
-    // Recommended prefer-web-first-assertions fix:
-    // await expect(this.page.locator('.cf-entity-name-input label')).toHaveText(
-    //   entityNameInputLabelText,
-    // )
-    // await expect(this.page.locator('.cf-enumerator-delete-button')).toHaveText(
-    //   deleteEntityButtonText,
-    // )
-    // await expect(this.page.locator('#enumerator-field-add-button')).toHaveText(
-    //   addEntityButtonText,
-    // )
-    expect(await this.page.innerText('.cf-entity-name-input label')).toBe(
-      entityNameInputLabelText,
-    )
-    expect(await this.page.innerText('.cf-enumerator-delete-button')).toBe(
-      deleteEntityButtonText,
-    )
-    expect(await this.page.innerText('#enumerator-field-add-button')).toBe(
+    await expect(
+      this.page.locator('.cf-entity-name-input label:visible'),
+    ).toHaveText(entityNameInputLabelText)
+    await expect(
+      this.page.locator('.cf-enumerator-delete-button:visible'),
+    ).toHaveText(deleteEntityButtonText)
+    await expect(this.page.locator('#enumerator-field-add-button')).toHaveText(
       addEntityButtonText,
     )
   }
@@ -1417,25 +1686,18 @@ export class AdminQuestions {
   }
 
   async expectPreviewOptions(options: string[]) {
-    const optionElements = Array.from(
-      await this.page.$$('#sample-question .cf-multi-option-question-option'),
+    const optionLocator = this.page.locator(
+      '#sample-question .cf-multi-option-question-option',
     )
-    const existingOptions = await Promise.all(
-      optionElements.map((el) => {
-        return (el as ElementHandle<HTMLElement>).innerText()
-      }),
-    )
-    expect(existingOptions).toEqual(options)
+    await expect(optionLocator).toHaveText(options, {useInnerText: true})
   }
 
   async expectPreviewOptionsWithMarkdown(options: string[]) {
-    const optionElements = Array.from(
-      await this.page.$$('#sample-question .cf-multi-option-value'),
+    const optionLocator = this.page.locator(
+      '#sample-question .cf-multi-option-value',
     )
-    const existingOptions = await Promise.all(
-      optionElements.map((el) => {
-        return (el as ElementHandle<HTMLElement>).innerHTML()
-      }),
+    const existingOptions = await optionLocator.evaluateAll((elements) =>
+      elements.map((el) => el.innerHTML),
     )
     expect(existingOptions).toEqual(options)
   }
@@ -1496,5 +1758,13 @@ export class AdminQuestions {
   /** Clicks on the questions sorting dropdown and selects the specified sortOption. The sortOption should match the value of the desired option. */
   async sortQuestions(sortOption: string) {
     return this.page.locator('#question-bank-sort').selectOption(sortOption)
+  }
+
+  async expectDisplayModeCheck(displayMode: QuestionDisplayMode) {
+    const selectedOption = this.page
+      .getByRole('group', {name: 'Display Mode'})
+      .getByRole('radio', {name: displayMode})
+
+    await expect(selectedOption).toBeChecked()
   }
 }

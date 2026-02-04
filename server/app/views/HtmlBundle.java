@@ -10,6 +10,7 @@ import static j2html.TagCreator.header;
 import static j2html.TagCreator.html;
 import static j2html.TagCreator.link;
 import static j2html.TagCreator.main;
+import static j2html.TagCreator.script;
 import static j2html.TagCreator.title;
 
 import com.google.common.base.Strings;
@@ -33,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.BundledAssetsFinder;
 import views.components.Modal;
 import views.components.ToastMessage;
 import views.style.BaseStyles;
@@ -41,11 +43,11 @@ import views.style.BaseStyles;
 public final class HtmlBundle {
   private static final Logger logger = LoggerFactory.getLogger(HtmlBundle.class);
 
-  private static final String USWDS_FILEPATH = "dist/uswds.bundle";
   private String pageTitle;
   private String language = "en";
   private Optional<String> faviconURL = Optional.empty();
   private JsBundle jsBundle = null;
+  private BundledAssetsFinder bundledAssetsFinder = null;
 
   private Optional<DivTag> pageNotProductionBannerTag = Optional.empty();
   private final ArrayList<String> bodyStyles = new ArrayList<>();
@@ -59,14 +61,13 @@ public final class HtmlBundle {
   private final ArrayList<String> mainStyles = new ArrayList<>();
   private final ArrayList<MetaTag> metadata = new ArrayList<>();
   private final ArrayList<Modal> modals = new ArrayList<>();
+  private final ArrayList<DivTag> uswdsModals = new ArrayList<>();
   private final ArrayList<LinkTag> stylesheets = new ArrayList<>();
   private final ArrayList<ToastMessage> toastMessages = new ArrayList<>();
-  private final ViewUtils viewUtils;
   private final Http.RequestHeader request;
 
-  public HtmlBundle(Http.RequestHeader request, ViewUtils viewUtils) {
+  public HtmlBundle(Http.RequestHeader request) {
     this.request = checkNotNull(request);
-    this.viewUtils = checkNotNull(viewUtils);
   }
 
   /**
@@ -108,11 +109,6 @@ public final class HtmlBundle {
     return this;
   }
 
-  public HtmlBundle addHeaderStyles(String... styles) {
-    headerStyles.addAll(Arrays.asList(styles));
-    return this;
-  }
-
   public HtmlBundle addMainContent(Tag... tags) {
     mainContent.addAll(Arrays.asList(tags));
     return this;
@@ -138,6 +134,15 @@ public final class HtmlBundle {
     return this;
   }
 
+  public HtmlBundle addUswdsModals(DivTag... modalTags) {
+    return addUswdsModals(Arrays.asList(modalTags));
+  }
+
+  public HtmlBundle addUswdsModals(Collection<DivTag> modalTags) {
+    uswdsModals.addAll(modalTags);
+    return this;
+  }
+
   public HtmlBundle addModals(Modal... modalTags) {
     return addModals(Arrays.asList(modalTags));
   }
@@ -152,6 +157,11 @@ public final class HtmlBundle {
     return this;
   }
 
+  public HtmlBundle setBundledAssetsFinder(BundledAssetsFinder bundledAssetsFinder) {
+    this.bundledAssetsFinder = bundledAssetsFinder;
+    return this;
+  }
+
   public Http.RequestHeader getRequest() {
     return request;
   }
@@ -162,10 +172,6 @@ public final class HtmlBundle {
 
   public String getTitle() {
     return pageTitle;
-  }
-
-  public String getFavicon() {
-    return faviconURL.orElse("");
   }
 
   public HtmlBundle setLanguage(String lang) {
@@ -188,8 +194,12 @@ public final class HtmlBundle {
     BodyTag bodyTag = j2html.TagCreator.body();
 
     pageNotProductionBannerTag.ifPresent(bodyTag::with);
+    bodyTag.with(renderHeader(), renderMain(), renderModals());
 
-    bodyTag.with(renderHeader(), renderMain(), renderModals(), renderFooter());
+    Optional<DivTag> uswdsModal = renderUswdsModals();
+    uswdsModal.ifPresent(bodyTag::with);
+
+    bodyTag.with(renderFooter());
 
     if (bodyStyles.size() > 0) {
       bodyTag.withClasses(bodyStyles.toArray(new String[0]));
@@ -202,11 +212,18 @@ public final class HtmlBundle {
     if (jsBundle == null) {
       throw new IllegalStateException("JS bundle must be set for every page.");
     }
+
+    String jsBundlePath =
+        switch (jsBundle) {
+          case ADMIN -> bundledAssetsFinder.getAdminJsBundle();
+          case APPLICANT -> bundledAssetsFinder.getApplicantJsBundle();
+        };
+
     ImmutableList<ScriptTag> scripts =
         ImmutableList.<ScriptTag>builder()
             .addAll(footerScripts)
-            .add(viewUtils.makeLocalJsTag(jsBundle.getJsPath()))
-            .add(viewUtils.makeLocalJsTag(USWDS_FILEPATH))
+            .add(script().withSrc(jsBundlePath).withType("module"))
+            .add(script().withSrc(bundledAssetsFinder.getUswdsJsBundle()).withType("module"))
             .build();
     FooterTag footerTag = footer().with(footerContent).with(CspUtil.applyCsp(request, scripts));
 
@@ -237,11 +254,11 @@ public final class HtmlBundle {
         .condWith(
             faviconURL.isPresent(),
             link().withRel("icon").withHref(faviconURL.orElse("")),
-            link().withRel("apple-touch-icon").withHref("/apple-touch-icon.png"),
-            link().withRel("apple-touch-icon-precomposed.png").withHref("/apple-touch-icon.png"))
+            link().withRel("apple-touch-icon").withHref(faviconURL.orElse("")),
+            link().withRel("apple-touch-icon-precomposed.png").withHref(faviconURL.orElse("")))
         .with(metadata)
-        .with(stylesheets)
-        .with(CspUtil.applyCsp(request, headScripts));
+        .with(CspUtil.applyCsp(request, headScripts))
+        .with(CspUtil.applyCspToStyles(request, stylesheets));
   }
 
   private HeaderTag renderHeader() {
@@ -264,6 +281,12 @@ public final class HtmlBundle {
     }
 
     return mainTag;
+  }
+
+  private Optional<DivTag> renderUswdsModals() {
+    return uswdsModals.size() > 0
+        ? Optional.of(div().withId("uswds-modal-container").with(uswdsModals))
+        : Optional.empty();
   }
 
   private DivTag renderModals() {
@@ -292,7 +315,7 @@ public final class HtmlBundle {
   private static class HtmlBundleContent implements Content {
     HtmlTag bundleContent;
 
-    public HtmlBundleContent(HtmlTag bundleContent) {
+    HtmlBundleContent(HtmlTag bundleContent) {
       this.bundleContent = bundleContent;
     }
 

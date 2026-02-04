@@ -3,12 +3,15 @@ package models;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import auth.oidc.IdTokens;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Test;
 import repository.AccountRepository;
@@ -160,5 +163,94 @@ public class AccountModelTest extends ResetPostgres {
     assertThat(accountModel.getActiveSession("session1")).isEmpty();
     assertThat(accountModel.getActiveSession("session2")).isPresent();
     assertThat(accountModel.getActiveSession("session3")).isPresent();
+  }
+
+  @Test
+  public void getActiveSessions_returnsAllActiveSessions() {
+    AccountModel accountModel = new AccountModel();
+    accountModel.addActiveSession("session1", CLOCK);
+    accountModel.addActiveSession("session2", CLOCK);
+
+    Map<String, SessionDetails> activeSessions = accountModel.getActiveSessions();
+
+    assertThat(activeSessions).containsKeys("session1", "session2");
+  }
+
+  @Test
+  public void getActiveSessions_returnsEmptyMapWhenNoActiveSessions() {
+    AccountModel accountModel = new AccountModel();
+
+    Map<String, SessionDetails> activeSessions = accountModel.getActiveSessions();
+
+    assertThat(activeSessions).isEmpty();
+  }
+
+  @Test
+  public void lastActivityTimeGetsUpdatedOnAccountActivity() {
+    AccountModel userAccount = new AccountModel();
+    Instant currentActivityTime = userAccount.getLastActivityTime();
+    userAccount.setTiNote("Interested in Childcare");
+    userAccount.save();
+    assertThat(userAccount.getLastActivityTime()).isNotEqualTo(currentActivityTime);
+  }
+
+  @Test
+  public void lastActivityTimeGetsUpdatedOnAccountSave() throws InterruptedException {
+    AccountModel userAccount = new AccountModel();
+    Instant currentActivityTime = userAccount.getLastActivityTime();
+    TimeUnit.MILLISECONDS.sleep(5);
+    userAccount.save();
+    assertThat(userAccount.getLastActivityTime()).isNotEqualTo(currentActivityTime);
+  }
+
+  @Test
+  public void getApplicantDisplayName_getsOldest() {
+    ApplicantModel applicantOlder = new ApplicantModel();
+    applicantOlder.setUserName("Older Applicant");
+    applicantOlder.save();
+    // Overwrite the automatically set time.
+    applicantOlder.setWhenCreated(Instant.EPOCH);
+    applicantOlder.save();
+
+    ApplicantModel applicantNewer = new ApplicantModel();
+    applicantNewer.setUserName("Newer Applicant");
+    applicantNewer.save();
+    // Overwrite the automatically set time.
+    applicantNewer.setWhenCreated(Instant.ofEpochSecond(60));
+    applicantNewer.save();
+
+    AccountModel account = new AccountModel();
+    // Put Older second to check that the order doesn't matter
+    account.setApplicants(ImmutableList.of(applicantNewer, applicantOlder));
+    account.save();
+
+    // Display name order is reversed.
+    assertThat(account.getApplicantDisplayName()).isEqualTo("Applicant, Older");
+  }
+
+  @Test
+  public void representativeApplicant() {
+    ApplicantModel applicantOlder = new ApplicantModel();
+    applicantOlder.setUserName("Older Applicant");
+    applicantOlder.save();
+    // Overwrite the automatically set time.
+    applicantOlder.setWhenCreated(Instant.EPOCH);
+    applicantOlder.save();
+
+    ApplicantModel applicantNewer = new ApplicantModel();
+    applicantNewer.setUserName("Newer Applicant");
+    applicantNewer.save();
+    // Overwrite the automatically set time.
+    applicantNewer.setWhenCreated(Instant.ofEpochSecond(60));
+    applicantNewer.save();
+
+    AccountModel account = new AccountModel();
+    // Put Older second to check that the order doesn't matter
+    account.setApplicants(ImmutableList.of(applicantNewer, applicantOlder));
+    account.save();
+
+    Optional<ApplicantModel> optionalGot = account.representativeApplicant();
+    assertThat(optionalGot).isPresent();
+    assertThat(optionalGot.get().id).isEqualTo(applicantOlder.id);
   }
 }

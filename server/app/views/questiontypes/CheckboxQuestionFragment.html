@@ -7,11 +7,9 @@
   class="cf-question-checkbox cf-applicant-question-field"
   th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
   data-testid="questionRoot"
+  th:aria-labelledby="|${questionId}-title ${questionId}-description|"
 >
-  <fieldset
-    class="usa-fieldset"
-    th:aria-describedby="${questionId} + '-description'"
-  >
+  <fieldset class="usa-fieldset">
     <!--/* Title and Help Text */-->
     <div
       th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
@@ -19,7 +17,7 @@
 
     <!--/* Display errors */-->
     <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${multiSelectQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams})}"
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${multiSelectQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams}, ${questionId})}"
     ></div>
 
     <!--/* Hidden input that we have checked to allow clearing data from a multi-select question */-->
@@ -32,24 +30,26 @@
     />
     <!--/* Render each checkbox option */-->
     <div
-      class="usa-checkbox cf-multi-option-question-option"
+      class="usa-checkbox cf-multi-option-question-option position-relative"
       th:each="option,iterator: ${multiSelectQuestion.getOptions()}"
-      th:with="inputId='checkbox-' + ${question.getContextualizedPath()} + '-' + ${option.id()}"
+      th:with="inputId='checkbox-' + ${question.getContextualizedPath()} + '-' + ${option.id()},ariaLabelForNewTabs=#{link.opensNewTabSr}"
     >
       <input
-        class="usa-checkbox__input usa-checkbox__input--tile"
+        class="usa-checkbox__input usa-checkbox__input--tile cf-checkbox-question-input"
         th:id="${inputId}"
         th:value="${option.id()}"
         th:name="${multiSelectQuestion.getSelectionPathAsArray()}"
         th:checked="${multiSelectQuestion.optionIsSelected(option)}"
         type="checkbox"
+        th:aria-describedby="${hasErrors} ? ' ' + ${questionId} + '-error' : ''"
+        th:aria-invalid="${hasErrors}"
         th:aria-required="${!question.isOptional()}"
         th:autofocus="${questionRendererParams.autofocusFirstError() && iterator.index == 0}"
       />
       <label
         class="usa-checkbox__label maxw-mobile-lg cf-radio-option cf-multi-option-value"
         th:for="${inputId}"
-        th:utext="${option.formattedOptionText()}"
+        th:utext="${option.formattedOptionText(ariaLabelForNewTabs)}"
       ></label>
     </div>
   </fieldset>

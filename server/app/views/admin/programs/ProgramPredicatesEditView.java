@@ -31,6 +31,7 @@ import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
+import services.program.predicate.PredicateUseCase;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import views.HtmlBundle;
@@ -44,7 +45,6 @@ import views.components.Icons;
 import views.components.LinkElement;
 import views.components.LinkElement.IconPosition;
 import views.components.TextFormatter;
-import views.components.ToastMessage;
 import views.style.ReferenceClasses;
 
 /** Renders a page for editing predicates of a block in a program. */
@@ -53,12 +53,6 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
   private final AdminLayout layout;
   private static final String ELIGIBILITY_MESSAGE_FORM_ID = "eligibility-message-form";
   private final FormFactory formFactory;
-
-  // The functionality type of the predicate editor.
-  public enum ViewType {
-    ELIGIBILITY,
-    VISIBILITY
-  }
 
   @Inject
   public ProgramPredicatesEditView(
@@ -90,14 +84,13 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
       ProgramDefinition programDefinition,
       BlockDefinition blockDefinition,
       ImmutableList<QuestionDefinition> predicateQuestions,
-      ViewType type) {
+      PredicateUseCase predicateUseCase) {
 
     // This render code is used to render eligibility and visibility predicate editors.
-    // The following vars set the per-type visual and url values and the rest lays things out
+    // The following vars set the per-use case visual and url values and the rest lays things out
     // identically for the most part.
 
-    final String predicateTypeNameTitleCase;
-    final String h2CurrentCondition;
+    final String predicateUseCaseNameTitleCase;
     final DivTag existingPredicateDisplay;
     final String textNewCondition;
     final String textNoAvailableQuestions;
@@ -106,16 +99,17 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
     final String configureNewPredicateUrl;
     final boolean hasExistingPredicate;
 
-    switch (type) {
-      case ELIGIBILITY:
-        predicateTypeNameTitleCase = "Eligibility";
-        h2CurrentCondition = "Current eligibility condition";
+    switch (predicateUseCase) {
+      case ELIGIBILITY -> {
+        predicateUseCaseNameTitleCase = "Eligibility";
         textNewCondition =
-            "You can select the questions you would like to add eligibility conditions to. When"
-                + " you create an eligibility condition, it replaces the present one.";
+            """
+            You can select the questions you would like to add eligibility conditions to. When
+             you create an eligibility condition, it replaces the present one:""";
         textNoAvailableQuestions =
-            "There are no available questions with which to set an eligibility condition for this"
-                + " screen.";
+            """
+            There are no available questions with which to set an eligibility condition for this
+             screen.""";
         hasExistingPredicate = blockDefinition.eligibilityDefinition().isPresent();
         existingPredicateDisplay =
             blockDefinition
@@ -126,8 +120,23 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
                         div()
                             .with(
                                 renderExistingPredicate(
-                                    blockDefinition.name(), pred, predicateQuestions)))
-                .orElse(div("This screen is always eligible."));
+                                    programDefinition.id(),
+                                    blockDefinition.id(),
+                                    blockDefinition.name(),
+                                    pred,
+                                    predicateQuestions,
+                                    predicateUseCase,
+                                    /* includeEditFooter= */ false,
+                                    /* expanded= */ true,
+                                    settingsManifest.getExpandedFormLogicEnabled(request))))
+                .orElse(
+                    div()
+                        .with(
+                            renderEmptyPredicate(
+                                predicateUseCase,
+                                programDefinition.id(),
+                                blockDefinition.id(),
+                                /* includeEditFooter= */ false)));
         removePredicateUrl =
             routes.AdminProgramBlockPredicatesController.destroyEligibility(
                     programDefinition.id(), blockDefinition.id())
@@ -140,13 +149,12 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
             routes.AdminProgramBlockPredicatesController.configureNewEligibilityPredicate(
                     programDefinition.id(), blockDefinition.id())
                 .url();
-        break;
-      case VISIBILITY:
-        predicateTypeNameTitleCase = "Visibility";
-        h2CurrentCondition = "Current visibility condition";
+      }
+      case VISIBILITY -> {
+        predicateUseCaseNameTitleCase = "Visibility";
         textNewCondition =
             "You can select the questions you would like to add visibility conditions to. When you"
-                + " create a visibility condition, it replaces the present one.";
+                + " create a visibility condition, it replaces the present one:";
         textNoAvailableQuestions =
             "There are no available questions with which to set a visibility condition for this"
                 + " screen.";
@@ -156,8 +164,26 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
                 .visibilityPredicate()
                 .map(
                     pred ->
-                        renderExistingPredicate(blockDefinition.name(), pred, predicateQuestions))
-                .orElse(div("This screen is always shown."));
+                        div()
+                            .with(
+                                renderExistingPredicate(
+                                    programDefinition.id(),
+                                    blockDefinition.id(),
+                                    blockDefinition.name(),
+                                    pred,
+                                    predicateQuestions,
+                                    predicateUseCase,
+                                    /* includeEditFooter= */ false,
+                                    /* expanded= */ true,
+                                    settingsManifest.getExpandedFormLogicEnabled(request))))
+                .orElse(
+                    div()
+                        .with(
+                            renderEmptyPredicate(
+                                predicateUseCase,
+                                programDefinition.id(),
+                                blockDefinition.id(),
+                                /* includeEditFooter= */ false)));
         removePredicateUrl =
             routes.AdminProgramBlockPredicatesController.destroyVisibility(
                     programDefinition.id(), blockDefinition.id())
@@ -170,15 +196,15 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
             routes.AdminProgramBlockPredicatesController.configureNewVisibilityPredicate(
                     programDefinition.id(), blockDefinition.id())
                 .url();
-        break;
-      default:
-        throw new IllegalArgumentException(
-            String.format("Predicate type %s is unsupported.", type));
+      }
+      default ->
+          throw new IllegalArgumentException(
+              String.format("Predicate use case %s is unsupported.", predicateUseCase));
     }
     InputTag csrfTag = makeCsrfTokenInputTag(request);
 
     String title =
-        String.format("%s condition for %s", predicateTypeNameTitleCase, blockDefinition.name());
+        String.format("%s condition for %s", predicateUseCaseNameTitleCase, blockDefinition.name());
     String removePredicateFormId = String.format("form-%s", UUID.randomUUID());
     FormTag removePredicateForm =
         form(csrfTag)
@@ -189,7 +215,7 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
                 submitButton(
                         String.format(
                             "Remove existing %s condition",
-                            predicateTypeNameTitleCase.toLowerCase(Locale.ROOT)))
+                            predicateUseCaseNameTitleCase.toLowerCase(Locale.ROOT)))
                     .withClasses(ButtonStyles.SOLID_BLUE)
                     .withForm(removePredicateFormId)
                     .withCondDisabled(!hasExistingPredicate));
@@ -209,14 +235,11 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
                     .setIcon(Icons.ARROW_LEFT, IconPosition.START)
                     .setText(String.format("Back to edit %s", blockDefinition.name()))
                     .asAnchorText())
-            .with(
-                div()
-                    .with(h1(title).withClasses("font-bold", "text-xl"))
-                    .with(div(textNewCondition).withClasses("mb-2")))
             // Show the current predicate.
             .with(
                 div()
-                    .with(h2(h2CurrentCondition).withClasses("font-semibold", "text-lg"))
+                    .with(h1(title).withClasses("font-bold", "text-xl"))
+                    .with(div(textNewCondition).withClasses("mb-4"))
                     .with(existingPredicateDisplay.withClasses(ReferenceClasses.PREDICATE_DISPLAY)))
             .with(
                 div(
@@ -224,15 +247,15 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
                             "edit-condition-button",
                             String.format(
                                 "Edit existing %s condition",
-                                predicateTypeNameTitleCase.toLowerCase(Locale.ROOT)),
+                                predicateUseCaseNameTitleCase.toLowerCase(Locale.ROOT)),
                             configureExistingPredicateUrl)
                         .withCondDisabled(!hasExistingPredicate)
                         .withClasses(ButtonStyles.SOLID_BLUE)))
             // Show the control to remove the current predicate.
             .with(removePredicateForm)
-            // Show the eligibility message field, if the eligibility msg feature flag is on.
+            // Show the eligibility message field, if it is eligibility condition page.
             .condWith(
-                settingsManifest.getCustomizedEligibilityMessageEnabled(request),
+                predicateUseCase == PredicateUseCase.ELIGIBILITY,
                 createEligibilityMessageForm(request, blockDefinition, programDefinition))
             // Show all available questions that predicates can be made for, for this block.
             .with(
@@ -266,14 +289,7 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
                     ImmutableList.of(ProgramHeaderButton.EDIT_PROGRAM_DETAILS),
                     request),
                 content);
-
-    Http.Flash flash = request.flash();
-    if (flash.get("error").isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.errorNonLocalized(flash.get("error").get()));
-    } else if (flash.get("success").isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.success(flash.get("success").get()));
-    }
-
+    addSuccessAndErrorToasts(htmlBundle, request.flash());
     return layout.renderCentered(htmlBundle);
   }
 
@@ -303,11 +319,11 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
                 .with(
                     div()
                         .with(
-                            TextFormatter.formatText(
+                            TextFormatter.formatTextForAdmins(
                                 questionDefinition.getQuestionText().getDefault()))
                         .withClasses("font-bold"),
                     div()
-                        .with(TextFormatter.formatText(questionHelpText))
+                        .with(TextFormatter.formatTextForAdmins(questionHelpText))
                         .withClasses("mt-1", "text-sm"),
                     div(String.format("Admin ID: %s", questionDefinition.getName()))
                         .withClasses("mt-1", "text-sm")));

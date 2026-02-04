@@ -11,6 +11,7 @@ import com.google.auto.value.AutoValue;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.time.Instant;
@@ -26,6 +27,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import models.ApiBridgeConfigurationModel;
+import models.ApiBridgeConfigurationModel.ApiBridgeDefinition;
 import models.ApplicationStep;
 import models.CategoryModel;
 import models.DisplayMode;
@@ -84,6 +87,10 @@ public abstract class ProgramDefinition {
   /** The program's display mode. */
   @JsonProperty("displayMode")
   public abstract DisplayMode displayMode();
+
+  /** If the program is for logged in applicants only. */
+  @JsonProperty("loginOnly")
+  public abstract boolean loginOnly();
 
   /** The notification preferences for this program. */
   @JsonProperty("notificationPreferences")
@@ -158,6 +165,9 @@ public abstract class ProgramDefinition {
   @JsonProperty("applicationSteps")
   public abstract ImmutableList<ApplicationStep> applicationSteps();
 
+  @JsonProperty("bridgeDefinitions")
+  public abstract ImmutableMap<String, ApiBridgeDefinition> bridgeDefinitions();
+
   /**
    * Returns a program definition with block definitions such that each enumerator block is
    * immediately followed by all of its repeated and nested repeated blocks. This method should be
@@ -188,7 +198,7 @@ public abstract class ProgramDefinition {
     ImmutableList.Builder<BlockDefinition> blockDefinitionBuilder = ImmutableList.builder();
     for (BlockDefinition blockDefinition : currentLevel) {
       blockDefinitionBuilder.add(blockDefinition);
-      if (blockDefinition.isEnumerator()) {
+      if (blockDefinition.hasEnumeratorQuestion()) {
         blockDefinitionBuilder.addAll(
             orderBlockDefinitionsInner(getBlockDefinitionsForEnumerator(blockDefinition.id())));
       }
@@ -224,7 +234,7 @@ public abstract class ProgramDefinition {
       }
 
       // Push this enumerator block's id
-      if (blockDefinition.isEnumerator()) {
+      if (blockDefinition.hasEnumeratorQuestion() || blockDefinition.getIsEnumerator()) {
         enumeratorIds.push(blockDefinition.id());
       }
     }
@@ -255,6 +265,42 @@ public abstract class ProgramDefinition {
       }
     }
     return true;
+  }
+
+  /** Returns true if block has any questions used by an api bridge configuration */
+  public boolean blockHasQuestionsUsedByApiBridge(Long blockId)
+      throws ProgramBlockDefinitionNotFoundException {
+    ImmutableList<String> questionNamesUsedByBridges =
+        bridgeDefinitions().values().stream()
+            .flatMap(x -> Stream.concat(x.inputFields().stream(), x.outputFields().stream()))
+            .map(ApiBridgeConfigurationModel.ApiBridgeDefinitionItem::questionName)
+            .distinct()
+            .collect(ImmutableList.toImmutableList());
+
+    ImmutableList<String> allQuestionsNamesUsedByBlock =
+        getBlockDefinition(blockId).programQuestionDefinitions().stream()
+            .map(x -> x.getQuestionDefinition().getQuestionNameKey())
+            .collect(ImmutableList.toImmutableList());
+
+    return questionNamesUsedByBridges.stream().anyMatch(allQuestionsNamesUsedByBlock::contains);
+  }
+
+  /** Returns true if any question id in the list is used by an api bridge configuration */
+  public boolean isQuestionsListUsedByApiBridge(ImmutableList<Long> questionIds) {
+    ImmutableList<String> questionNamesUsedByBridges =
+        bridgeDefinitions().values().stream()
+            .flatMap(x -> Stream.concat(x.inputFields().stream(), x.outputFields().stream()))
+            .map(ApiBridgeConfigurationModel.ApiBridgeDefinitionItem::questionName)
+            .distinct()
+            .collect(ImmutableList.toImmutableList());
+
+    ImmutableList<String> allQuestionsNamesUsedByProgram =
+        getAllQuestions().stream()
+            .filter(x -> questionIds.contains(x.getId()))
+            .map(x -> x.getQuestionNameKey())
+            .collect(ImmutableList.toImmutableList());
+
+    return questionNamesUsedByBridges.stream().anyMatch(allQuestionsNamesUsedByProgram::contains);
   }
 
   /**
@@ -369,7 +415,7 @@ public abstract class ProgramDefinition {
     int endIndex = startIndex + 1;
 
     // Early return for non-enumerator blocks
-    if (!blockDefinition.isEnumerator()) {
+    if (!blockDefinition.hasEnumeratorQuestion()) {
       return BlockSlice.create(startIndex, endIndex);
     }
 
@@ -384,7 +430,7 @@ public abstract class ProgramDefinition {
         break;
       }
       // Add nested enumerators into the set of enumerators
-      if (current.isEnumerator()) {
+      if (current.hasEnumeratorQuestion()) {
         enumeratorIds.add(current.id());
       }
       endIndex++;
@@ -576,7 +622,9 @@ public abstract class ProgramDefinition {
     return blockDefinitions().stream()
         .anyMatch(
             blockDefinition ->
-                blockDefinition.id() == enumeratorId && blockDefinition.isEnumerator());
+                blockDefinition.id() == enumeratorId
+                    && (blockDefinition.getIsEnumerator()
+                        || blockDefinition.hasEnumeratorQuestion()));
   }
 
   /**
@@ -767,8 +815,8 @@ public abstract class ProgramDefinition {
   }
 
   @JsonIgnore
-  public boolean isCommonIntakeForm() {
-    return this.programType() == ProgramType.COMMON_INTAKE_FORM;
+  public boolean isPreScreenerForm() {
+    return this.programType() == ProgramType.PRE_SCREENER_FORM;
   }
 
   /**
@@ -784,6 +832,22 @@ public abstract class ProgramDefinition {
         .flatMap(ImmutableList::stream)
         .map(ProgramQuestionDefinition::getQuestionDefinition)
         .filter(question -> !question.getPrimaryApplicantInfoTags().isEmpty())
+        .collect(toImmutableList());
+  }
+
+  /**
+   * Get a list of all {@link QuestionDefinition} in the program. Requires a fully hydrated
+   * ProgramDefinition with all questions.
+   *
+   * @return List of all questions in program softed by question name.
+   */
+  @JsonIgnore
+  public ImmutableList<QuestionDefinition> getAllQuestions() {
+    return blockDefinitions().stream()
+        .map(BlockDefinition::programQuestionDefinitions)
+        .flatMap(ImmutableList::stream)
+        .map(ProgramQuestionDefinition::getQuestionDefinition)
+        .sorted((q1, q2) -> q1.getName().compareToIgnoreCase(q2.getName()))
         .collect(toImmutableList());
   }
 
@@ -846,6 +910,9 @@ public abstract class ProgramDefinition {
     @JsonProperty("eligibilityIsGating")
     public abstract Builder setEligibilityIsGating(boolean eligibilityIsGating);
 
+    @JsonProperty("loginOnly")
+    public abstract Builder setLoginOnly(boolean loginOnly);
+
     @JsonProperty("acls")
     public abstract Builder setAcls(ProgramAcls programAcls);
 
@@ -858,6 +925,10 @@ public abstract class ProgramDefinition {
 
     @JsonProperty("applicationSteps")
     public abstract Builder setApplicationSteps(ImmutableList<ApplicationStep> applicationSteps);
+
+    @JsonProperty("bridgeDefinitions")
+    public abstract Builder setBridgeDefinitions(
+        ImmutableMap<String, ApiBridgeDefinition> bridgeDefinitions);
 
     public abstract Builder setSummaryImageFileKey(Optional<String> fileKey);
 

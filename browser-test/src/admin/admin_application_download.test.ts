@@ -1,19 +1,133 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {
+  disableFeatureFlag,
+  enableFeatureFlag,
   isLocalDevEnvironment,
   loginAsAdmin,
+  loginAsCiviformAndProgramAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
   logout,
-  seedQuestions,
   waitForPageJsLoad,
 } from '../support'
 
+test.describe('Program admin download button visibility and endpoint access', () => {
+  const programName = 'download-visibility-program'
+  const downloadFlag = 'remove_download_for_program_admins_enabled'
+  const adminFlag = 'allow_civiform_admin_access_programs'
+
+  test(
+    downloadFlag,
+    async ({page, adminPrograms, seeding, applicantQuestions}) => {
+      let programId: number
+      let applicationId: number
+
+      async function expectDownloadButtonsAndEndpoints(enabled: boolean) {
+        const count = enabled ? 1 : 0
+        await adminPrograms.viewApplications(programName)
+        await expect(page.getByRole('button', {name: 'Download'})).toHaveCount(
+          count,
+        )
+        await adminPrograms.viewApplicationForApplicant('smith, sarah')
+        await expect(
+          page.getByRole('button', {name: 'Export to PDF'}),
+        ).toHaveCount(count)
+
+        const endpoints = [
+          `/admin/programs/${programId}/applications/all`,
+          `/admin/programs/${programId}/applications/allJson`,
+          `/admin/programs/${programId}/applications/${applicationId}/download`,
+        ]
+        for (const endpoint of endpoints) {
+          const code = enabled ? 200 : 401
+          const response = await page.request.get(endpoint)
+          expect(
+            response?.status(),
+            `${endpoint} returned HTTP ${response.status()}`,
+          ).toEqual(code)
+        }
+      }
+
+      await test.step('Setup', async () => {
+        await seeding.seedQuestions()
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.editProgramBlock(programName, 'dummy description', [
+          'Sample Name Question',
+        ])
+
+        const pattern = /\/admin\/programs\/(?<id>[0-9]*)\/*/
+        programId = parseInt(page.url().match(pattern)?.groups?.id || '-1')
+        expect(programId).toBeGreaterThan(0)
+
+        await adminPrograms.publishProgram(programName)
+        await logout(page)
+
+        await loginAsTestUser(page)
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerNameQuestion('sarah', 'smith')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.submitFromReviewPage()
+        applicationId = parseInt(
+          (await adminPrograms.getApplicationId()) || '-1',
+        )
+        expect(applicationId).toBeGreaterThan(0)
+        await logout(page)
+      })
+
+      await test.step('Flag disabled - program admin - buttons present & endpoints enabled', async () => {
+        await disableFeatureFlag(page, downloadFlag)
+        await loginAsProgramAdmin(page)
+        await expectDownloadButtonsAndEndpoints(true)
+        await logout(page)
+      })
+
+      await test.step('Flag disabled - civiform admin - buttons present', async () => {
+        await disableFeatureFlag(page, downloadFlag)
+        await enableFeatureFlag(page, adminFlag)
+        await loginAsCiviformAndProgramAdmin(page)
+        await expectDownloadButtonsAndEndpoints(true)
+        await logout(page)
+      })
+
+      await test.step('Flag disabled - dual admin - buttons present', async () => {
+        await disableFeatureFlag(page, downloadFlag)
+        await loginAsCiviformAndProgramAdmin(page)
+        await expectDownloadButtonsAndEndpoints(true)
+        await logout(page)
+      })
+
+      await test.step('Flag enabled - program admin - buttons removed', async () => {
+        await enableFeatureFlag(page, downloadFlag)
+        await loginAsProgramAdmin(page)
+        await expectDownloadButtonsAndEndpoints(false)
+        await logout(page)
+      })
+
+      await test.step('Flag enabled - civiform admin - buttons present', async () => {
+        await enableFeatureFlag(page, downloadFlag)
+        await enableFeatureFlag(page, adminFlag)
+        await loginAsCiviformAndProgramAdmin(page)
+        await expectDownloadButtonsAndEndpoints(true)
+        await logout(page)
+      })
+
+      await test.step('Flag enabled - dual admin - buttons present', async () => {
+        await enableFeatureFlag(page, downloadFlag)
+        await loginAsCiviformAndProgramAdmin(page)
+        await expectDownloadButtonsAndEndpoints(true)
+        await logout(page)
+      })
+    },
+  )
+})
+
 test.describe('csv export for multioption question', () => {
-  test.beforeEach(async ({page}) => {
-    await seedQuestions(page)
+  test.beforeEach(async ({page, seeding}) => {
+    await seeding.seedQuestions()
     await page.goto('/')
   })
+
   test('multioption csv into its own column', async ({
     page,
     adminQuestions,
@@ -23,6 +137,7 @@ test.describe('csv export for multioption question', () => {
     const noApplyFilters = false
 
     const programName = 'Checkbox question program for export'
+
     await test.step('Setup program with multioption question', async () => {
       await loginAsAdmin(page)
       await adminQuestions.createCheckboxQuestion(
@@ -53,7 +168,7 @@ test.describe('csv export for multioption question', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Jane', 'Doe')
       await applicantQuestions.answerCheckboxQuestion(['blue', 'red'])
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Applicant submits answers from review page.
       await applicantQuestions.submitFromReviewPage()
@@ -86,14 +201,14 @@ test.describe('csv export for multioption question', () => {
     })
 
     await test.step('Test user - Submit updated application', async () => {
-      await applicantQuestions.clickApplyProgramButton(programName)
+      await applicantQuestions.applyProgram(programName)
       await page.click('text="Continue"')
       await waitForPageJsLoad(page)
 
       await applicantQuestions.answerNameQuestion('John', 'Do')
       await applicantQuestions.answerCheckboxQuestion(['black', 'green'])
-      await applicantQuestions.clickNext()
-      await page.click('text="Submit"')
+      await applicantQuestions.clickContinue()
+      await page.click('text="Submit application"')
       await logout(page)
     })
 
@@ -143,8 +258,8 @@ test.describe('csv export for multioption question', () => {
 })
 
 test.describe('csv json pdf download test- two applications', () => {
-  test.beforeEach(async ({page}) => {
-    await seedQuestions(page)
+  test.beforeEach(async ({page, seeding}) => {
+    await seeding.seedQuestions()
     await page.goto('/')
   })
 
@@ -154,6 +269,7 @@ test.describe('csv json pdf download test- two applications', () => {
     adminPrograms,
     applicantQuestions,
   }) => {
+    await enableFeatureFlag(page, 'name_suffix_dropdown_enabled')
     test.slow()
 
     const noApplyFilters = false
@@ -211,11 +327,15 @@ test.describe('csv json pdf download test- two applications', () => {
 
       // Applicant fills out first application block.
       await applicantQuestions.answerNameQuestion('sarah', 'smith')
-      await applicantQuestions.answerDropdownQuestion('op2')
-      await applicantQuestions.answerDateQuestion('2021-05-10')
+      await applicantQuestions.answerDropdownQuestion('op2', 1)
+      await applicantQuestions.answerMemorableDateQuestion(
+        '2021',
+        '05 - May',
+        '10',
+      )
       await applicantQuestions.answerCurrencyQuestion('1000')
       await applicantQuestions.answerCheckboxQuestion(['blue'])
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Applicant submits answers from review page.
       await applicantQuestions.submitFromReviewPage()
@@ -267,12 +387,16 @@ test.describe('csv json pdf download test- two applications', () => {
       // Apply to the program again, this time a different user
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Gus', 'Guest')
-      await applicantQuestions.answerDropdownQuestion('op2')
-      await applicantQuestions.answerDateQuestion('1990-01-01')
+      await applicantQuestions.answerDropdownQuestion('op2', 1)
+      await applicantQuestions.answerMemorableDateQuestion(
+        '1990',
+        '01 - January',
+        '01',
+      )
       await applicantQuestions.answerCurrencyQuestion('2000')
       await applicantQuestions.answerNumberQuestion('1600')
       await applicantQuestions.answerCheckboxQuestion(['red'])
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
       await applicantQuestions.submitFromReviewPage()
       await applicantQuestions.returnToProgramsFromSubmissionPage()
 
@@ -281,7 +405,7 @@ test.describe('csv json pdf download test- two applications', () => {
       // Edit one answer on the application to prevent a duplicate exception
       await applicantQuestions.clickEdit()
       await applicantQuestions.answerNumberQuestion('1500')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
       await applicantQuestions.submitFromReviewPage()
       await logout(page)
     })
@@ -385,6 +509,7 @@ test.describe('csv json pdf download test- two applications', () => {
 
       const pdfFile = await adminPrograms.getApplicationPdf()
       expect(pdfFile.length).toBeGreaterThan(1)
+      await page.getByRole('link', {name: 'Back'}).click()
       await logout(page)
     })
 

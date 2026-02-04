@@ -2,11 +2,20 @@ package views.admin.questions;
 
 import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.input;
+import static j2html.TagCreator.label;
+import static j2html.TagCreator.legend;
+import static j2html.TagCreator.p;
+import static j2html.TagCreator.rawHtml;
+import static j2html.TagCreator.span;
+import static j2html.TagCreator.strong;
+import static j2html.TagCreator.text;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import forms.AddressQuestionForm;
+import forms.DateQuestionForm;
 import forms.EnumeratorQuestionForm;
 import forms.FileUploadQuestionForm;
 import forms.IdQuestionForm;
@@ -16,18 +25,30 @@ import forms.QuestionForm;
 import forms.TextQuestionForm;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FieldsetTag;
+import j2html.tags.specialized.InputTag;
+import j2html.tags.specialized.LabelTag;
 import java.util.Optional;
 import java.util.OptionalLong;
 import play.i18n.Messages;
+import play.mvc.Http.Request;
 import services.LocalizedStrings;
 import services.MessageKey;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
+import services.question.YesNoQuestionOption;
+import services.question.types.DateQuestionDefinition.DateValidationOption;
+import services.question.types.DateQuestionDefinition.DateValidationOption.DateType;
+import services.settings.SettingsManifest;
 import views.ViewUtils;
+import views.admin.BaseView;
+import views.admin.BaseViewModel;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
+import views.components.SelectWithLabel;
 import views.style.AdminStyles;
+import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
@@ -35,9 +56,7 @@ import views.style.StyleUtils;
 public final class QuestionConfig {
 
   private static final String INNER_DIV_CLASSES =
-      StyleUtils.joinStyles(
-          "border", "bg-gray-100",
-          "p-4", "m-4");
+      StyleUtils.joinStyles("border", "bg-gray-100", "p-4", "m-4", "border-gray-200");
 
   private static final String OUTER_DIV_CLASSES = StyleUtils.joinStyles("w-full", "pt-0", "-mt-4");
 
@@ -46,7 +65,10 @@ public final class QuestionConfig {
   private QuestionConfig() {}
 
   public static Optional<DivTag> buildQuestionConfig(
-      QuestionForm questionForm, Messages messages, boolean multipleFileUpload) {
+      QuestionForm questionForm,
+      Messages messages,
+      SettingsManifest settingsManifest,
+      Request request) {
     QuestionConfig config = new QuestionConfig();
     switch (questionForm.getQuestionType()) {
       case ADDRESS:
@@ -75,6 +97,11 @@ public final class QuestionConfig {
             config.addTextQuestionConfig((TextQuestionForm) questionForm).getContainer());
       case PHONE:
         return Optional.of(config.addPhoneConfig().getContainer());
+      case YES_NO:
+        return Optional.of(
+            config
+                .addDefaultYesNoQuestionFields((MultiOptionQuestionForm) questionForm)
+                .getContainer());
       case DROPDOWN: // fallthrough to RADIO_BUTTON
       case RADIO_BUTTON:
         return Optional.of(
@@ -82,20 +109,27 @@ public final class QuestionConfig {
                 .addMultiOptionQuestionFields((MultiOptionQuestionForm) questionForm, messages)
                 .getContainer());
       case FILEUPLOAD:
-        return multipleFileUpload
-            ? Optional.of(
-                config
-                    .addFileUploadQuestionFields((FileUploadQuestionForm) questionForm)
-                    .getContainer())
-            : Optional.empty();
+        return Optional.of(
+            config
+                .addFileUploadQuestionFields((FileUploadQuestionForm) questionForm)
+                .getContainer());
+      case DATE:
+        return Optional.of(
+            config.addDateQuestionConfig((DateQuestionForm) questionForm, messages).getContainer());
+      case MAP: // fallthrough intended - MAP question configuration is handled in
+        // QuestionEditView.getQuestionConfig
       case CURRENCY: // fallthrough intended - no options
       case NAME: // fallthrough intended - no options
-      case DATE: // fallthrough intended
       case EMAIL: // fallthrough intended
       case STATIC:
       default:
         return Optional.empty();
     }
+  }
+
+  public static <TModel extends BaseViewModel> Optional<DivTag> buildQuestionConfigUsingThymeleaf(
+      Request request, BaseView<TModel> view, TModel model) {
+    return Optional.of(new QuestionConfig().addConfig(request, view, model).getContainer());
   }
 
   private QuestionConfig addPhoneConfig() {
@@ -189,6 +223,89 @@ public final class QuestionConfig {
             .setMin(OptionalLong.of(1))
             .getNumberTag());
     return this;
+  }
+
+  private QuestionConfig addDateQuestionConfig(
+      DateQuestionForm dateQuestionForm, Messages messages) {
+    DateType minDateType = dateQuestionForm.getMinDateType().orElse(DateType.ANY);
+    DateType maxDateType = dateQuestionForm.getMaxDateType().orElse(DateType.ANY);
+    DivTag minDateSelectInput =
+        new SelectWithLabel()
+            .setId("min-date-type")
+            .setFieldName("minDateType")
+            .setLabelText("Start date")
+            .setOptions(dateValidationOptions(/* anyDateOptionLabel= */ "Any past date"))
+            .setValue(minDateType.toString())
+            .setRequired(true)
+            .getSelectTag();
+    DivTag maxDateSelectInput =
+        new SelectWithLabel()
+            .setId("max-date-type")
+            .setFieldName("maxDateType")
+            .setLabelText("End date")
+            .setOptions(dateValidationOptions(/* anyDateOptionLabel= */ "Any future date"))
+            .setValue(maxDateType.toString())
+            .setRequired(true)
+            .getSelectTag();
+
+    FieldsetTag minCustomDatePicker =
+        ViewUtils.makeMemorableDate(
+                /* hideDateComponent= */ !minDateType.equals(DateType.CUSTOM),
+                dateQuestionForm.getMinCustomDay().orElse(""),
+                dateQuestionForm.getMinCustomMonth().orElse(""),
+                dateQuestionForm.getMinCustomYear().orElse(""),
+                "min-custom-date",
+                "minCustomDay",
+                "minCustomMonth",
+                "minCustomYear",
+                /* showError= */ false,
+                /* showRequired= */ true,
+                Optional.of(messages))
+            .withClass("pb-2");
+    FieldsetTag maxCustomDatePicker =
+        ViewUtils.makeMemorableDate(
+                /* hideDateComponent= */ !maxDateType.equals(DateType.CUSTOM),
+                dateQuestionForm.getMaxCustomDay().orElse(""),
+                dateQuestionForm.getMaxCustomMonth().orElse(""),
+                dateQuestionForm.getMaxCustomYear().orElse(""),
+                "max-custom-date",
+                "maxCustomDay",
+                "maxCustomMonth",
+                "maxCustomYear",
+                /* showError= */ false,
+                /* showRequired= */ true,
+                Optional.of(messages))
+            .withClass("pb-2");
+
+    content
+        .with(
+            legend("Validation parameters").withClass(BaseStyles.INPUT_LABEL),
+            p().withClasses("px-1", "pb-2", "text-sm", "text-gray-600")
+                .with(
+                    span("Set the parameters for allowable values for this date question below.")))
+        .with(minDateSelectInput, minCustomDatePicker, maxDateSelectInput, maxCustomDatePicker);
+    return this;
+  }
+
+  private ImmutableList<SelectWithLabel.OptionValue> dateValidationOptions(
+      String anyDateOptionLabel) {
+    return ImmutableList.<SelectWithLabel.OptionValue>builder()
+        .add(
+            SelectWithLabel.OptionValue.builder()
+                .setLabel(anyDateOptionLabel)
+                .setValue(DateValidationOption.DateType.ANY.toString())
+                .build())
+        .add(
+            SelectWithLabel.OptionValue.builder()
+                .setLabel("Current date of application")
+                .setValue(DateValidationOption.DateType.APPLICATION_DATE.toString())
+                .build())
+        .add(
+            SelectWithLabel.OptionValue.builder()
+                .setLabel("Custom date")
+                .setValue(DateValidationOption.DateType.CUSTOM.toString())
+                .build())
+        .build();
   }
 
   /**
@@ -321,6 +438,7 @@ public final class QuestionConfig {
                       optionIndex,
                       multiOptionQuestionForm.getOptionAdminNames().get(i),
                       multiOptionQuestionForm.getOptions().get(i),
+                      /* displayInAnswerOptions= */ Optional.of(true),
                       LocalizedStrings.DEFAULT_LOCALE)),
               messages,
               /* isForNewOption= */ false));
@@ -336,6 +454,7 @@ public final class QuestionConfig {
                       optionIndex,
                       multiOptionQuestionForm.getNewOptionAdminNames().get(i),
                       multiOptionQuestionForm.getNewOptions().get(i),
+                      /* displayInAnswerOptions= */ Optional.of(true),
                       LocalizedStrings.DEFAULT_LOCALE)),
               messages,
               /* isForNewOption= */ true));
@@ -358,6 +477,178 @@ public final class QuestionConfig {
     return this;
   }
 
+  private QuestionConfig addDefaultYesNoQuestionFields(
+      MultiOptionQuestionForm multiOptionQuestionForm) {
+    Preconditions.checkState(
+        multiOptionQuestionForm.getOptionIds().size()
+            == multiOptionQuestionForm.getOptions().size(),
+        "Options and Option indexes need to be the same size.");
+    ImmutableList.Builder<DivTag> optionsBuilder = ImmutableList.builder();
+    if (multiOptionQuestionForm.getOptions().size() == 0) {
+      optionsBuilder.add(
+          div()
+              .with(
+                  label()
+                      .withText("Select answer options")
+                      .withData("testId", "yes-no-options-label")
+                      .with(ViewUtils.requiredQuestionIndicator())
+                      .withClasses("text-sm", "font-medium", "text-gray-700")));
+      optionsBuilder.add(
+          yesNoOptionQuestionField(
+              Optional.of(
+                  LocalizedQuestionOption.create(
+                      /* id= */ YesNoQuestionOption.YES.getId(),
+                      /* order= */ 0,
+                      /* adminName= */ YesNoQuestionOption.YES.getAdminName(),
+                      /* optionText= */ "Yes",
+                      /* displayInAnswerOptions= */ Optional.of(true),
+                      LocalizedStrings.DEFAULT_LOCALE))));
+      optionsBuilder.add(
+          yesNoOptionQuestionField(
+              Optional.of(
+                  LocalizedQuestionOption.create(
+                      /* id= */ YesNoQuestionOption.NO.getId(),
+                      /* order= */ 1,
+                      /* adminName= */ YesNoQuestionOption.NO.getAdminName(),
+                      /* optionText= */ "No",
+                      /* displayInAnswerOptions= */ Optional.of(true),
+                      LocalizedStrings.DEFAULT_LOCALE))));
+      optionsBuilder.add(
+          yesNoOptionQuestionField(
+              Optional.of(
+                  LocalizedQuestionOption.create(
+                      /* id= */ YesNoQuestionOption.NOT_SURE.getId(),
+                      /* order= */ 2,
+                      /* adminName= */ YesNoQuestionOption.NOT_SURE.getAdminName(),
+                      /* optionText= */ "Not sure",
+                      /* displayInAnswerOptions= */ Optional.of(true),
+                      LocalizedStrings.DEFAULT_LOCALE))));
+      optionsBuilder.add(
+          yesNoOptionQuestionField(
+              Optional.of(
+                  LocalizedQuestionOption.create(
+                      /* id= */ YesNoQuestionOption.MAYBE.getId(),
+                      /* order= */ 3,
+                      /* adminName= */ YesNoQuestionOption.MAYBE.getAdminName(),
+                      /* optionText= */ "Maybe",
+                      /* displayInAnswerOptions= */ Optional.of(true),
+                      LocalizedStrings.DEFAULT_LOCALE))));
+    } else {
+      for (int i = 0; i < multiOptionQuestionForm.getOptions().size(); i++) {
+        optionsBuilder.add(
+            yesNoOptionQuestionField(
+                Optional.of(
+                    LocalizedQuestionOption.create(
+                        multiOptionQuestionForm.getOptionIds().get(i),
+                        i,
+                        multiOptionQuestionForm.getOptionAdminNames().get(i),
+                        multiOptionQuestionForm.getOptions().get(i),
+                        /* displayInAnswerOptions= */ Optional.of(
+                            multiOptionQuestionForm
+                                .getDisplayedOptionIds()
+                                .contains(multiOptionQuestionForm.getOptionIds().get(i))),
+                        LocalizedStrings.DEFAULT_LOCALE))));
+      }
+    }
+    content.with(optionsBuilder.build());
+    return this;
+  }
+
+  private static DivTag yesNoOptionQuestionField(Optional<LocalizedQuestionOption> existingOption) {
+    String adminName = existingOption.map(LocalizedQuestionOption::adminName).get();
+
+    // Hidden inputs allow Play's form binding to submit the input value, while we show static text
+    // to the admin.
+    InputTag optionAdminNameHidden =
+        input().withName("optionAdminNames[]").withValue(adminName).withClasses("display-none");
+    InputTag optionIdsHiddenInput =
+        input()
+            .withName("optionIds[]")
+            .withValue(String.valueOf(existingOption.get().id()))
+            .withClasses("display-none");
+    InputTag optionTextHiddenInput =
+        input()
+            .withName("options[]")
+            .withValue(existingOption.map(LocalizedQuestionOption::optionText).get())
+            .withClasses("display-none");
+
+    DivTag adminNameDiv = div(strong("Admin ID: "), text(adminName));
+    DivTag optionTextDiv =
+        div(
+            strong("Option text: "),
+            text(existingOption.map(LocalizedQuestionOption::optionText).get()));
+
+    boolean isRequiredOption = YesNoQuestionOption.getRequiredAdminNames().contains(adminName);
+
+    boolean isChecked =
+        existingOption.get().displayInAnswerOptions().isPresent()
+            && existingOption.get().displayInAnswerOptions().get();
+
+    String ariaLabel =
+        String.format(
+            "Admin ID: %s. Option text: %s.",
+            existingOption.map(LocalizedQuestionOption::adminName).get(),
+            existingOption.map(LocalizedQuestionOption::optionText).get());
+    LabelTag label =
+        label()
+            .with(div().with(adminNameDiv, optionTextDiv).withClasses("flex-column"))
+            .withFor(adminName)
+            .attr("aria-label", ariaLabel)
+            .withClasses("usa-checkbox__label", "margin-top-0", "flex", "flex-align-center");
+
+    // Checkbox for selecting whether to display the option to the applicant.
+    // Value is set to the ID because falsy checkbox values get discarded on form
+    // submission.
+    InputTag checkboxInput =
+        input()
+            .withId(existingOption.map(LocalizedQuestionOption::adminName).get())
+            .withType("checkbox")
+            .withName("displayedOptionIds[]")
+            .withValue(Long.toString(existingOption.get().id()))
+            .withClasses("usa-checkbox__input");
+
+    // Apply disabled and checked for required options
+    if (isRequiredOption) {
+      checkboxInput.attr("checked", "checked").attr("disabled", "disabled");
+    } else {
+      checkboxInput.withCondChecked(isChecked);
+    }
+
+    DivTag checkboxWithLabels =
+        div()
+            .with(checkboxInput, label)
+            .withClasses(
+                "usa-checkbox",
+                "flex-align-center",
+                "border-width-1px",
+                "border-base",
+                "radius-md",
+                "grid-row",
+                "items-center",
+                "padding-1",
+                "margin-1");
+
+    DivTag container =
+        div()
+            .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION, "grid", "items-center")
+            .with(
+                optionIdsHiddenInput,
+                optionAdminNameHidden,
+                optionTextHiddenInput,
+                checkboxWithLabels);
+
+    // Add extra hidden input for required options to ensure value is submitted
+    if (isRequiredOption) {
+      container.with(
+          input()
+              .withType("hidden")
+              .withName("displayedOptionIds[]")
+              .withValue(Long.toString(existingOption.get().id())));
+    }
+
+    return container;
+  }
+
   /**
    * Creates two number input fields, where an admin can specify the min and max number of choices
    * allowed for multi-select questions.
@@ -376,6 +667,12 @@ public final class QuestionConfig {
             .setMin(OptionalLong.of(1L))
             .setValue(multiOptionForm.getMaxChoicesAllowed())
             .getNumberTag());
+    return this;
+  }
+
+  private <TModel extends BaseViewModel> QuestionConfig addConfig(
+      Request request, BaseView<TModel> view, TModel model) {
+    content.with(rawHtml(view.render(request, model)));
     return this;
   }
 
@@ -402,6 +699,10 @@ public final class QuestionConfig {
         .with(
             div()
                 .withClasses(OUTER_DIV_CLASSES)
-                .with(content.withId("question-settings").withClasses(INNER_DIV_CLASSES)));
+                .with(
+                    content
+                        .withId("question-settings")
+                        .attr("data-testid", "question-settings")
+                        .withClasses(INNER_DIV_CLASSES)));
   }
 }

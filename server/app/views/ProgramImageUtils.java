@@ -29,10 +29,7 @@ public final class ProgramImageUtils {
    *     card we show to applicants and false if this image will be shown on its own.
    */
   public Optional<ImgTag> createProgramImage(
-      ProgramDefinition program,
-      Locale preferredLocale,
-      boolean isWithinProgramCard,
-      boolean isProgramFilteringEnabled) {
+      ProgramDefinition program, Locale preferredLocale, boolean isWithinProgramCard) {
     if (program.summaryImageFileKey().isEmpty()) {
       return Optional.empty();
     }
@@ -43,13 +40,8 @@ public final class ProgramImageUtils {
 
     String styleClasses = StyleUtils.joinStyles("w-full", "aspect-video", "object-cover");
     if (isWithinProgramCard) {
-      if (isProgramFilteringEnabled) {
-        // Round all corners when showing the image in context of a program card with filtering.
-        styleClasses = StyleUtils.joinStyles(styleClasses, "rounded-lg");
-      } else {
-        // Only round the bottom corners when showing the image in context of a program card.
-        styleClasses = StyleUtils.joinStyles(styleClasses, "rounded-b-lg");
-      }
+      // Round all corners when showing the image in context of a program card with filtering.
+      styleClasses = StyleUtils.joinStyles(styleClasses, "rounded-lg");
     }
 
     return Optional.of(

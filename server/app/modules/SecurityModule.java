@@ -14,11 +14,14 @@ import auth.CiviFormSessionStoreFactory;
 import auth.FakeAdminClient;
 import auth.GuestClient;
 import auth.ProfileFactory;
+import auth.ProfileUtils;
 import auth.Role;
 import auth.oidc.admin.AdfsClientProvider;
+import auth.oidc.admin.KeycloakAdminClientProvider;
 import auth.oidc.applicant.Auth0ClientProvider;
 import auth.oidc.applicant.GenericOidcClientProvider;
 import auth.oidc.applicant.IdcsClientProvider;
+import auth.oidc.applicant.KeycloakApplicantClientProvider;
 import auth.oidc.applicant.LoginGovClientProvider;
 import auth.saml.LoginRadiusClientProvider;
 import com.google.common.collect.ImmutableMap;
@@ -70,7 +73,10 @@ public class SecurityModule extends AbstractModule {
     // After logging in you are redirected to '/', and auth autorenews.
     CallbackController callbackController = new CallbackController();
     callbackController.setDefaultUrl(routes.HomeController.index().url());
-    callbackController.setRenewSession(true);
+    // Since we use a cookie-backed session store in CiviFormSessionStoreFactory rather than
+    // server-side sessions, this prevents errors showing up in the log about
+    // being unable to renew the session.
+    callbackController.setRenewSession(false);
     bind(CallbackController.class).toInstance(callbackController);
 
     // you can logout by hitting the logout endpoint, you'll be redirected to root page.
@@ -98,20 +104,26 @@ public class SecurityModule extends AbstractModule {
         AuthIdentityProviderName.adminIdentityProviderfromConfig(config);
 
     switch (idpName) {
-      case ADFS_ADMIN:
+      case ADFS_ADMIN -> {
         bind(IndirectClient.class)
             .annotatedWith(AdminAuthClient.class)
             .toProvider(AdfsClientProvider.class);
         logger.info("Using ADFS for admin auth provider");
-        break;
-      case GENERIC_OIDC_ADMIN:
+      }
+      case GENERIC_OIDC_ADMIN -> {
         bind(IndirectClient.class)
             .annotatedWith(AdminAuthClient.class)
             .toProvider(auth.oidc.admin.GenericOidcClientProvider.class);
         logger.info("Using Generic OIDC for admin auth provider");
-        break;
-      default:
-        throw new ConfigurationException("Unable to create admin identity provider: " + idpName);
+      }
+      case KEYCLOAK_ADMIN -> {
+        bind(IndirectClient.class)
+            .annotatedWith(AdminAuthClient.class)
+            .toProvider(KeycloakAdminClientProvider.class);
+        logger.info("Using Keycloak for admin auth provider");
+      }
+      default ->
+          throw new ConfigurationException("Unable to create admin identity provider: " + idpName);
     }
   }
 
@@ -120,45 +132,56 @@ public class SecurityModule extends AbstractModule {
         AuthIdentityProviderName.applicantIdentityProviderfromConfig(config);
 
     switch (idpName) {
-      case DISABLED_APPLICANT:
+      case DISABLED_APPLICANT -> {
         bind(IndirectClient.class)
             .annotatedWith(ApplicantAuthClient.class)
             .toProvider(Providers.of(null));
         logger.info("No applicant auth provider");
-        break;
-      case LOGIN_RADIUS_APPLICANT:
+      }
+      case LOGIN_RADIUS_APPLICANT -> {
         bind(IndirectClient.class)
             .annotatedWith(ApplicantAuthClient.class)
             .toProvider(LoginRadiusClientProvider.class);
         logger.info("Using Login Radius for applicant auth provider");
-        break;
-      case IDCS_APPLICANT:
+      }
+      case IDCS_APPLICANT -> {
         bind(IndirectClient.class)
             .annotatedWith(ApplicantAuthClient.class)
             .toProvider(IdcsClientProvider.class);
         logger.info("Using IDCS for applicant auth provider");
-        break;
-      case GENERIC_OIDC_APPLICANT:
+      }
+      case GENERIC_OIDC_APPLICANT -> {
         bind(IndirectClient.class)
             .annotatedWith(ApplicantAuthClient.class)
             .toProvider(GenericOidcClientProvider.class);
         logger.info("Using generic OIDC for applicant auth provider");
-        break;
-      case LOGIN_GOV_APPLICANT:
+      }
+      case LOGIN_GOV_APPLICANT -> {
         bind(IndirectClient.class)
             .annotatedWith(ApplicantAuthClient.class)
             .toProvider(LoginGovClientProvider.class);
         logger.info("Using login.gov PKCE OIDC for applicant auth provider");
-        break;
-      case AUTH0_APPLICANT:
+      }
+      case AUTH0_APPLICANT -> {
         bind(IndirectClient.class)
             .annotatedWith(ApplicantAuthClient.class)
             .toProvider(Auth0ClientProvider.class);
         logger.info("Using Auth0 for applicant auth provider");
-        break;
-      default:
-        logger.info("No provider specified for for applicants");
+      }
+      case KEYCLOAK_APPLICANT -> {
+        bind(IndirectClient.class)
+            .annotatedWith(ApplicantAuthClient.class)
+            .toProvider(KeycloakApplicantClientProvider.class);
+        logger.info("Using Keycloak for applicant auth provider");
+      }
+      default -> logger.info("No provider specified for for applicants");
     }
+  }
+
+  @Provides
+  @Singleton
+  protected CiviFormLogoutLogic civiFormLogoutLogic(ProfileUtils profileUtils) {
+    return new CiviFormLogoutLogic(checkNotNull(profileUtils));
   }
 
   @Provides
@@ -285,7 +308,9 @@ public class SecurityModule extends AbstractModule {
 
         // Having ROLE_TI authorizes a profile as TI.
         Authorizers.TI.toString(),
-        new RequireAllRolesAuthorizer(Role.ROLE_TI.toString()));
+        new RequireAllRolesAuthorizer(Role.ROLE_TI.toString()),
+        Authorizers.TI_OR_CIVIFORM_ADMIN.toString(),
+        new RequireAnyRoleAuthorizer(Role.ROLE_TI.toString(), Role.ROLE_CIVIFORM_ADMIN.toString()));
   }
 
   // This provider is consumed by play-pac4j to get the app's security configuration.
@@ -296,13 +321,14 @@ public class SecurityModule extends AbstractModule {
       Clients clients,
       ImmutableMap<String, Authorizer> authorizors,
       CiviFormHttpActionAdapter civiFormHttpActionAdapter,
-      CiviFormSessionStoreFactory civiFormSessionStoreFactory) {
+      CiviFormSessionStoreFactory civiFormSessionStoreFactory,
+      CiviFormLogoutLogic civiformLogoutLogic) {
     Config config = new Config();
     config.setClients(clients);
     config.setAuthorizers(authorizors);
     config.setHttpActionAdapter(civiFormHttpActionAdapter);
     config.setSessionStoreFactory(civiFormSessionStoreFactory);
-    config.setLogoutLogic(new CiviFormLogoutLogic());
+    config.setLogoutLogic(civiformLogoutLogic);
     return config;
   }
 }

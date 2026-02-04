@@ -25,7 +25,7 @@ import repository.PersistedDurableJobRepository;
  */
 public abstract class AbstractJobScheduler {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(AbstractJobScheduler.class);
+  private static final Logger logger = LoggerFactory.getLogger(AbstractJobScheduler.class);
   private static final int SCHEDULER_ATTEMPTS = 5;
 
   private final Clock clock;
@@ -58,7 +58,7 @@ public abstract class AbstractJobScheduler {
   public synchronized void scheduleJobs() {
     for (DurableJobRegistry.RegisteredJob registeredJob : durableJobRegistry.getRecurringJobs()) {
       if (registeredJob.getRecurringJobExecutionTimeResolver().isEmpty()) {
-        LOGGER.error(
+        logger.error(
             "JobScheduler_SchedulingError No RecurringJobExecutionTimeResolver registered with {}",
             registeredJob.getJobName());
         continue;
@@ -95,14 +95,14 @@ public abstract class AbstractJobScheduler {
       // Re-fetch upon each attempt so the transaction prevents duplicates.
 
       if (!persistedDurableJobRepository
-          .findScheduledJob(newJob.getJobName(), newJob.getExecutionTime())
+          .findScheduledRecurringJob(newJob.getJobName())
           .isPresent()) {
         newJob.save(transaction);
         transaction.commit();
       }
     } catch (OptimisticLockException e) {
       if (remainingAttempts > 0) {
-        LOGGER.warn(
+        logger.warn(
             "JobScheduler_SchedulingError OptimisticLockException scheduling {} with {} remaining"
                 + " attempts",
             newJob.getJobName(),
@@ -113,7 +113,7 @@ public abstract class AbstractJobScheduler {
         Thread.sleep(new Random().nextInt(/* bound= */ 100));
         tryScheduleRecurringJob(newJob, remainingAttempts--);
       } else {
-        LOGGER.error(
+        logger.error(
             "JobScheduler_SchedulingError OptimisticLockException scheduling {}, no attempts"
                 + " remaining!",
             newJob.getJobName());

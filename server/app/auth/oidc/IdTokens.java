@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 /** Class that manages the mapping between a jsonb db column and a Java Map. */
 public final class IdTokens {
-  private static final Logger LOGGER = LoggerFactory.getLogger(IdTokens.class);
+  private static final Logger logger = LoggerFactory.getLogger(IdTokens.class);
 
   @JsonProperty("idTokens")
   private Map<String, String> idTokens;
@@ -67,7 +67,7 @@ public final class IdTokens {
                 return isExpired(jwt, clock);
               } catch (ParseException e) {
                 // Aggressively remove flawed tokens.
-                LOGGER.warn("Purged ID token that could not be parsed as a JWT.");
+                logger.warn("Purged ID token that could not be parsed as a JWT.");
                 return true;
               }
             });
@@ -80,14 +80,14 @@ public final class IdTokens {
 
       if (expirationTime == null) {
         // Aggressively remove flawed tokens.
-        LOGGER.warn("Could not find expiration time claim in JWT; expiring anyway.");
+        logger.warn("Could not find expiration time claim in JWT; expiring anyway.");
         return true;
       }
 
       return expirationTime.toInstant().isBefore(clock.instant());
     } catch (ParseException e) {
       // Aggressively remove flawed tokens.
-      LOGGER.warn("Could not parse JWT for claims to find expiration time; expiring anyway.");
+      logger.warn("Could not parse JWT for claims to find expiration time; expiring anyway.");
       return true;
     }
   }

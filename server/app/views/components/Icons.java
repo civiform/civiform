@@ -1,5 +1,6 @@
 package views.components;
 
+import java.util.Locale;
 import java.util.Optional;
 import services.question.types.QuestionType;
 
@@ -55,16 +56,6 @@ public enum Icons {
           + " 15.93C12.64 16.67 11.35 16.67 10.61 15.93L8.48 13.8L6.34 15.93C5.99 16.29 5.51"
           + " 16.49 5 16.5V13C5 12.45 5.45 12 6 12H18C18.55 12 19 12.45 19 13V16.5Z"),
 
-  // Check Circle https://fonts.google.com/icons?selected=Material+Symbols+Outlined:check_circle
-  CHECK_CIRCLE(
-      48,
-      "M21.05 33.1 35.2 18.95l-2.3-2.25-11.85 11.85-6-6-2.25 2.25ZM24 44q-4.1"
-          + " 0-7.75-1.575-3.65-1.575-6.375-4.3-2.725-2.725-4.3-6.375Q4 28.1 4 24q0-4.15 1.575-7.8"
-          + " 1.575-3.65 4.3-6.35 2.725-2.7 6.375-4.275Q19.9 4 24 4q4.15 0 7.8 1.575 3.65 1.575"
-          + " 6.35 4.275 2.7 2.7 4.275 6.35Q44 19.85 44 24q0 4.1-1.575 7.75-1.575 3.65-4.275"
-          + " 6.375t-6.35 4.3Q28.15 44 24 44Zm0-3q7.1 0 12.05-4.975Q41 31.05 41"
-          + " 24q0-7.1-4.95-12.05Q31.1 7 24 7q-7.05 0-12.025 4.95Q7 16.9 7 24q0 7.05 4.975"
-          + " 12.025Q16.95 41 24 41Zm0-17Z"),
   CHECK(960, "M378 810 154 586l43-43 181 181 384-384 43 43-427 427Z"),
   // Check Box
   CHECKBOX(
@@ -136,8 +127,7 @@ public enum Icons {
           + " 8.8-10.85Q16.7 8 24 8q7.3 0 13.2 4.15Q43.1 16.3 46 23q-2.9 6.7-8.8 10.85Q31.3 38 24"
           + " 38Zm0-15Zm0 12q6.05 0 11.125-3.275T42.85 23q-2.65-5.45-7.725-8.725Q30.05 11 24"
           + " 11t-11.125 3.275Q7.8 17.55 5.1 23q2.7 5.45 7.775 8.725Q17.95 35 24 35Z"),
-  // Used in Answer ->
-  ARROW_FORWARD(20, "m10 16-1.062-1.062 4.187-4.188H4v-1.5h9.125L8.938 5.062 10 4l6 6Z"),
+
   // Email
   EMAIL(
       24,
@@ -198,20 +188,14 @@ public enum Icons {
           + " 12.583Q7.562 12.583 7.562 12.583Q7.562 12.583 7.562 12.583Q7.562 12.583 7.562"
           + " 12.583Q7.562 12.583 7.562 12.583Q7.562 12.583 7.562 12.583Q7.562 12.583 7.562"
           + " 12.583Q7.562 12.583 7.562 12.583Q7.562 12.583 7.562 12.583Z"),
-  // Help https://fonts.google.com/icons?icon.query=help (icon labeld "Help")
-  HELP(
-      48,
-      "M24.2 35.65q.8 0 1.35-.55t.55-1.35q0-.8-.55-1.35t-1.35-.55q-.8 0-1.35.55t-.55 1.35q0 .8.55"
-          + " 1.35t1.35.55Zm-1.75-7.3h2.95q0-1.3.325-2.375T27.75 23.5q1.55-1.3"
-          + " 2.2-2.55.65-1.25.65-2.75 0-2.65-1.725-4.25t-4.575-1.6q-2.45 0-4.325 1.225T17.25"
-          + " 16.95l2.65 1q.55-1.4 1.65-2.175 1.1-.775 2.6-.775 1.7 0 2.75.925t1.05 2.375q0"
-          + " 1.1-.65 2.075-.65.975-1.9 2.025-1.5 1.3-2.225 2.575-.725 1.275-.725 3.375ZM24"
-          + " 44q-4.1 0-7.75-1.575-3.65-1.575-6.375-4.3-2.725-2.725-4.3-6.375Q4 28.1 4 24q0-4.15"
-          + " 1.575-7.8 1.575-3.65 4.3-6.35 2.725-2.7 6.375-4.275Q19.9 4 24 4q4.15 0 7.8 1.575"
-          + " 3.65 1.575 6.35 4.275 2.7 2.7 4.275 6.35Q44 19.85 44 24q0 4.1-1.575 7.75-1.575"
-          + " 3.65-4.275 6.375t-6.35 4.3Q28.15 44 24 44Zm0-3q7.1 0 12.05-4.975Q41 31.05 41"
-          + " 24q0-7.1-4.95-12.05Q31.1 7 24 7q-7.05 0-12.025 4.95Q7 16.9 7 24q0 7.05 4.975"
-          + " 12.025Q16.95 41 24 41Zm0-17Z"),
+
+  // Icon of a person with a checkmark that is used to show that a screen has eligibility conditions
+  HOW_TO_REG(
+      24,
+      "M11 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0-6c1.1 0 2 .9 2 2s-.9 2-2"
+          + " 2-2-.9-2-2 .9-2 2-2zM5 18c.2-.63 2.57-1.68"
+          + " 4.96-1.94l2.04-2c-.39-.04-.68-.06-1-.06-2.67 0-8 1.34-8 4v2h9l-2-2H5zm15.6-5.5l-5.13"
+          + " 5.17-2.07-2.08L12 17l3.47 3.5L22 13.91z"),
   // Badge
   ID(
       24,
@@ -234,6 +218,11 @@ public enum Icons {
       "M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5"
           + " 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm40-80h480L570-480"
           + " 450-320l-90-120-120 160Zm-40 80v-560 560Z"),
+  // USWDS icon
+  LABEL(
+      24,
+      "M17.63 5.84C17.27 5.33 16.67 5 16 5L5 5.01C3.9 5.01 3 5.9 3 7v10c0 1.1.9 1.99 2 1.99L16"
+          + " 19c.67 0 1.27-.33 1.63-.84L22 12l-4.37-6.16z"),
   LANGUAGE(
       20,
       "M10 18.333Q8.292 18.333 6.771 17.677Q5.25 17.021 4.115 15.885Q2.979 14.75 2.323"
@@ -259,6 +248,11 @@ public enum Icons {
           + " 10.812Q16.583 10.417 16.583 9.979Q16.583 9.562 16.542 9.167Q16.5 8.771 16.396"
           + " 8.396H13.646Q13.708 8.938 13.74 9.302Q13.771 9.667 13.771 9.979Q13.771 10.312 13.74"
           + " 10.677Q13.708 11.042 13.646 11.583Z"),
+  // USWDS icon
+  LAUNCH(
+      24,
+      "M19 19H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83"
+          + " 9.83 1.41 1.41L19 6.41V10h2V3h-7z"),
   // Note that this icon is not from Google, but, rather, from USWDS.  It is part of the banner
   // component.
   LOCK(
@@ -277,6 +271,11 @@ public enum Icons {
           + " 8.396 4.958Q8.396 4.292 8.875 3.813Q9.354 3.333 10.021 3.333Q10.688 3.333 11.167"
           + " 3.813Q11.646 4.292 11.646 4.958Q11.646 5.625 11.167 6.104Q10.688 6.583 10.021"
           + " 6.583Z"),
+  MAP(
+      24,
+      "m20.5 3-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9"
+          + " 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6"
+          + " 2.11V19z"),
   // Person
   NAME(
       24,
@@ -332,18 +331,7 @@ public enum Icons {
           + "  s10.318,23,23,23c4.761,0,9.298-1.436,13.177-4.162l13.661,14.208c0.571,0.593,1.339,0.92,2.162,0.92"
           + "  c0.779,0,1.518-0.297,2.079-0.837C56.255,54.982,56.293,53.08,55.146,51.887z"
           + " M23.984,6c9.374,0,17,7.626,17,17s-7.626,17-17,17 s-17-7.626-17-17S14.61,6,23.984,6z"),
-  SETTINGS(
-      960,
-      "m388 976-20-126q-19-7-40-19t-37-25l-118 54-93-164 108-79q-2-9-2.5-20.5T185 576q0-9"
-          + " .5-20.5T188 535L80 456l93-164 118 54q16-13 37-25t40-18l20-127h184l20 126q19 7 40.5"
-          + " 18.5T669 346l118-54 93 164-108 77q2 10 2.5 21.5t.5 21.5q0 10-.5 21t-2.5 21l108 78-93"
-          + " 164-118-54q-16 13-36.5 25.5T592 850l-20 126H388Zm92-270q54 0"
-          + " 92-38t38-92q0-54-38-92t-92-38q-54 0-92 38t-38 92q0 54 38 92t92 38Zm0-60q-29"
-          + " 0-49.5-20.5T410 576q0-29 20.5-49.5T480 506q29 0 49.5 20.5T550 576q0 29-20.5 49.5T480"
-          + " 646Zm0-70Zm-44 340h88l14-112q33-8 62.5-25t53.5-41l106 46 40-72-94-69q4-17"
-          + " 6.5-33.5T715 576q0-17-2-33.5t-7-33.5l94-69-40-72-106 46q-23-26-52-43.5T538"
-          + " 348l-14-112h-88l-14 112q-34 7-63.5 24T306 414l-106-46-40 72 94 69q-4 17-6.5 33.5T245"
-          + " 576q0 17 2.5 33.5T254 643l-94 69 40 72 106-46q24 24 53.5 41t62.5 25l14 112Z"),
+
   // Radio Button Checked
   RADIO_BUTTON(
       24,
@@ -386,13 +374,7 @@ public enum Icons {
           + " 3.65-4.275 6.375t-6.35 4.3Q28.15 44 24 44Zm.05-3q7.05 0 12-4.975T41"
           + " 23.95q0-7.05-4.95-12T24 7q-7.05 0-12.025 4.95Q7 16.9 7 24q0 7.05 4.975 12.025Q16.95"
           + " 41 24.05 41ZM24 24Z"),
-  WARNING(
-      20,
-      "M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742"
-          + " 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012"
-          + " 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"),
 
-  ACCORDION_BUTTON(24, "M19 9l-7 7-7-7"),
   ARROW_UPWARD(48, "M22.5 40V13.7L10.1 26.1 8 24 24 8l16 16-2.1 2.1-12.4-12.4V40Z"),
   ARROW_DOWNWARD(48, "M24 40 8 24l2.1-2.1 12.4 12.4V8h3v26.3l12.4-12.4L40 24Z"),
   KEYBOARD_ARROW_UP("0 -960 960 960", "M480-528 296-344l-56-56 240-240 240 240-56 56-184-184Z"),
@@ -417,15 +399,18 @@ public enum Icons {
           + " 1.2.175t.9.625l2.85 3.8q.4.45.55.975.15.525.15 1.275V39q0 1.2-.9"
           + " 2.1-.9.9-2.1.9Zm.85-30.7H38.1L36.3 9H11.65Zm-.85 3V39h30V14.3Zm13.5 20.2h3V24.45l4.3"
           + " 4.3 2-2-7.8-7.8-7.8 7.8 2 2 4.3-4.3ZM9 39h30H9Z"),
-  VISIBILITY(
-      48,
-      "M24 31.5q3.55 0 6.025-2.475Q32.5 26.55 32.5 23q0-3.55-2.475-6.025Q27.55 14.5 24 14.5q-3.55"
-          + " 0-6.025 2.475Q15.5 19.45 15.5 23q0 3.55 2.475 6.025Q20.45 31.5 24 31.5Zm0-2.9q-2.35"
-          + " 0-3.975-1.625T18.4 23q0-2.35 1.625-3.975T24 17.4q2.35 0 3.975 1.625T29.6 23q0"
-          + " 2.35-1.625 3.975T24 28.6Zm0 9.4q-7.3 0-13.2-4.15Q4.9 29.7 2 23q2.9-6.7"
-          + " 8.8-10.85Q16.7 8 24 8q7.3 0 13.2 4.15Q43.1 16.3 46 23q-2.9 6.7-8.8 10.85Q31.3 38 24"
-          + " 38Zm0-15Zm0 12q6.05 0 11.125-3.275T42.85 23q-2.65-5.45-7.725-8.725Q30.05 11 24"
-          + " 11t-11.125 3.275Q7.8 17.55 5.1 23q2.7 5.45 7.775 8.725Q17.95 35 24 35Z"),
+
+  VISIBILITY_OFF(
+      24,
+      "M12 6c3.79 0 7.17 2.13 8.82 5.5-.59 1.22-1.42 2.27-2.41 3.12l1.41 1.41c1.39-1.23 2.49-2.77"
+          + " 3.18-4.53C21.27 7.11 17 4 12 4c-1.27 0-2.49.2-3.64.57l1.65 1.65C10.66 6.09 11.32 6 12"
+          + " 6zm-1.07 1.14L13 9.21c.57.25 1.03.71 1.28 1.28l2.07 2.07c.08-.34.14-.7.14-1.07C16.5"
+          + " 9.01 14.48 7 12 7c-.37 0-.72.05-1.07.14zM2.01 3.87l2.68 2.68C3.06 7.83 1.77 9.53 1"
+          + " 11.5 2.73 15.89 7 19 12 19c1.52 0 2.98-.29 4.32-.82l3.42 3.42 1.41-1.41L3.42 2.45"
+          + " 2.01 3.87zm7.5 7.5l2.61 2.61c-.04.01-.08.02-.12.02-1.38 0-2.5-1.12-2.5-2.5"
+          + " 0-.05.01-.08.01-.13zm-3.4-3.4l1.75 1.75c-.23.55-.36 1.15-.36 1.78 0 2.48 2.02 4.5 4.5"
+          + " 4.5.63 0 1.23-.13 1.77-.36l.98.98c-.88.24-1.8.38-2.75.38-3.79"
+          + " 0-7.17-2.13-8.82-5.5.7-1.43 1.72-2.61 2.93-3.53z"),
   CLOSE(
       48,
       "m12.45 37.65-2.1-2.1L21.9 24 10.35 12.45l2.1-2.1L24 21.9l11.55-11.55 2.1 2.1L26.1 24l11.55"
@@ -469,63 +454,73 @@ public enum Icons {
    * Tailwind classes like any other element.
    */
   public static SvgTag questionTypeSvg(QuestionType type) {
-    Icons icon;
-    switch (type) {
-      case ADDRESS:
-        icon = Icons.ADDRESS;
-        break;
-      case CHECKBOX:
-        icon = Icons.CHECKBOX;
-        break;
-      case CURRENCY:
-        return svg(Icons.CURRENCY)
-            .attr("fill", "none")
-            .attr("stroke-linecap", "round")
-            .attr("stroke-linejoin", "round")
-            .attr("stroke-width", "2");
-      case DATE:
-        icon = Icons.DATE;
-        break;
-      case DROPDOWN:
-        icon = Icons.DROPDOWN;
-        break;
-      case EMAIL:
-        icon = Icons.EMAIL;
-        break;
-      case FILEUPLOAD:
-        icon = Icons.FILEUPLOAD;
-        break;
-      case ID:
-        icon = Icons.ID;
-        break;
-      case NAME:
-        icon = Icons.NAME;
-        break;
-      case NUMBER:
-        icon = Icons.NUMBER;
-        break;
-      case RADIO_BUTTON:
-        icon = Icons.RADIO_BUTTON;
-        break;
-      case ENUMERATOR:
-        icon = Icons.ENUMERATOR;
-        break;
-      case STATIC:
-        return svg(Icons.ANNOTATION)
-            .attr("fill", "none")
-            .attr("stroke-linecap", "round")
-            .attr("stroke-linejoin", "round")
-            .attr("stroke-width", "2");
-      case TEXT:
-        icon = Icons.TEXT;
-        break;
-      case PHONE:
-        icon = Icons.PHONE;
-        break;
-      default: // fall through
-        icon = Icons.UNKNOWN;
+    Icons icon = getIconTypeFromQuestionType(type);
+    SvgTag iconSvg = svg(icon);
+
+    if (type == QuestionType.CURRENCY) {
+      iconSvg
+          .attr("fill", "none")
+          .attr("stroke-linecap", "round")
+          .attr("stroke-linejoin", "round")
+          .attr("stroke-width", "2");
+    } else if (type == QuestionType.STATIC) {
+      iconSvg
+          .attr("fill", "none")
+          .attr("stroke-linecap", "round")
+          .attr("stroke-linejoin", "round")
+          .attr("stroke-width", "2");
     }
-    return svg(icon);
+
+    return iconSvg;
+  }
+
+  /**
+   * This method creates a svg tag with an id. The reason for creating an id is to reuse the svg
+   * using the <use></> tag in the questionTypeSvgLink() method below.
+   */
+  public static SvgTag questionTypeSvgWithId(QuestionType type) {
+    Icons icon = getIconTypeFromQuestionType(type);
+    return questionTypeSvg(type).withId(makeSvgLinkId(icon));
+  }
+
+  /** Generate the HTML ID for the icon */
+  private static String makeSvgLinkId(Icons icon) {
+    return String.format("svg-link-%s", icon.name().toLowerCase(Locale.ROOT));
+  }
+
+  /**
+   * This method makes use of a previously created svg with the help of <use></use> tag. To know
+   * more about use tag - https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/use
+   * Once the svg tag is created with an id, the <use></use> tag can reuse the svg by adding a href
+   * to the original svg's id.
+   */
+  public static SvgTag questionTypeSvgLink(QuestionType type) {
+    Icons icon = getIconTypeFromQuestionType(type);
+    return new SvgTag().with(new UseTag().attr("href", "#" + makeSvgLinkId(icon)));
+  }
+
+  /** Maps a question type to an icon type */
+  private static Icons getIconTypeFromQuestionType(QuestionType type) {
+    return switch (type) {
+      case ADDRESS -> Icons.ADDRESS;
+      case CHECKBOX -> Icons.CHECKBOX;
+      case CURRENCY -> Icons.CURRENCY;
+      case DATE -> Icons.DATE;
+      case DROPDOWN -> Icons.DROPDOWN;
+      case EMAIL -> Icons.EMAIL;
+      case FILEUPLOAD -> Icons.FILEUPLOAD;
+      case ID -> Icons.ID;
+      case MAP -> Icons.MAP;
+      case NAME -> Icons.NAME;
+      case NUMBER -> Icons.NUMBER;
+      case RADIO_BUTTON -> Icons.RADIO_BUTTON;
+      case ENUMERATOR -> Icons.ENUMERATOR;
+      case STATIC -> Icons.ANNOTATION;
+      case TEXT -> Icons.TEXT;
+      case PHONE -> Icons.PHONE;
+      case YES_NO -> Icons.RADIO_BUTTON;
+      default -> Icons.UNKNOWN;
+    };
   }
 
   public String getViewBox() {

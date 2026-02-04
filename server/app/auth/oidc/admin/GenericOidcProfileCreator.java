@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * provider.
  */
 public class GenericOidcProfileCreator extends CiviformOidcProfileCreator {
-  private static final Logger LOGGER = LoggerFactory.getLogger(GenericOidcProfileCreator.class);
+  private static final Logger logger = LoggerFactory.getLogger(GenericOidcProfileCreator.class);
   private String groupsAttributeName;
   private String adminGroupName;
 
@@ -48,8 +48,7 @@ public class GenericOidcProfileCreator extends CiviformOidcProfileCreator {
       return ImmutableSet.of(Role.ROLE_CIVIFORM_ADMIN);
     }
     if (isTrustedIntermediary(profile)) {
-      // Give ROLE_APPLICANT in addition to ROLE_TI so that the TI can perform applicant actions.
-      return ImmutableSet.of(Role.ROLE_APPLICANT, Role.ROLE_TI);
+      return ImmutableSet.of(Role.ROLE_TI);
     }
     return ImmutableSet.of(Role.ROLE_PROGRAM_ADMIN);
   }
@@ -58,11 +57,11 @@ public class GenericOidcProfileCreator extends CiviformOidcProfileCreator {
     @SuppressWarnings("unchecked")
     List<String> groups = (List) profile.getAttribute(this.groupsAttributeName);
     if (groups == null) {
-      LOGGER.info("No groups found in OIDC profile.");
+      logger.info("No groups found in OIDC profile.");
       return false;
     }
     if (!groups.contains(this.adminGroupName)) {
-      LOGGER.info(
+      logger.info(
           "List of groups ({}) doesn't include adminGroupName: {}.", groups, this.adminGroupName);
     }
     return groups.contains(this.adminGroupName);

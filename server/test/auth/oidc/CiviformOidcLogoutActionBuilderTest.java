@@ -19,6 +19,9 @@ import com.typesafe.config.ConfigFactory;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import models.AccountModel;
@@ -58,7 +61,8 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
   @Before
   public void setup() {
     oidcConfig = CfTestHelpers.getOidcConfiguration(oidcHost, oidcPort);
-    civiFormProfileData = new CiviFormProfileData(accountId);
+    Clock clock = Clock.fixed(Instant.ofEpochSecond(10), ZoneOffset.UTC);
+    civiFormProfileData = new CiviFormProfileData(accountId, clock);
 
     // Build and serialize a minimal JWT as an id token.
     JWTClaimsSet claimsSet = new JWTClaimsSet.Builder().build();
@@ -194,5 +198,125 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
     // Check the value of the custom parameter.
     assertThat(queryParamValue(locationUri, "custom_target_url_parameter_name"))
         .hasValue(targetUrl);
+  }
+
+  @Test
+  public void testBuilderLogsOutIfIdTokensIsNull() throws URISyntaxException {
+    // Enable enhanced logout for admins.
+    Config civiformConfig =
+        ConfigFactory.parseMap(ImmutableMap.of("admin_oidc_enhanced_logout_enabled", "true"));
+
+    // Set up an admin account
+    AccountModel account = new AccountModel();
+    account.setGlobalAdmin(true);
+    // Explicitly set tokens Null to test behavior.
+    IdTokens idTokens = null;
+    account.setIdTokens(idTokens);
+    when(accountRepository.lookupAccount(accountId)).thenReturn(Optional.of(account));
+    Provider<AccountRepository> accountRepositoryProvider = () -> accountRepository;
+
+    OidcClientProviderParams params =
+        OidcClientProviderParams.create(civiformConfig, profileFactory, accountRepositoryProvider);
+    CiviformOidcLogoutActionBuilder builder =
+        new CiviformOidcLogoutActionBuilder(
+            oidcConfig, clientId, params, IdentityProviderType.ADMIN_IDENTITY_PROVIDER);
+
+    Optional<RedirectionAction> logoutAction =
+        builder.getLogoutAction(
+            new CallContext(getWebContext(), sessionStore), civiFormProfileData, targetUrl);
+
+    assertThat(logoutAction).isNotEmpty();
+    assertThat(logoutAction.get().getCode()).isEqualTo(302);
+
+    String location = ((FoundAction) logoutAction.get()).getLocation();
+    assertThat(location).isNotEmpty();
+    URI locationUri = new URI(location);
+    assertThat(locationUri.getHost()).isEqualTo(oidcHost);
+    assertThat(locationUri.getPort()).isEqualTo(oidcPort);
+    assertThat(locationUri.getPath()).isEqualTo("/session/end");
+
+    assertThat(queryParamValue(locationUri, "client_id")).hasValue(clientId);
+    assertThat(queryParamValue(locationUri, "post_logout_redirect_uri")).hasValue(targetUrl);
+
+    // No Serialized Tokens since token is null
+    Optional<String> serializedToken = queryParamValue(locationUri, "id_token_hint");
+    assertThat(serializedToken).isEmpty();
+  }
+
+  @Test
+  public void testBuilderLogsOutIfIdTokenNotFoundForAccount() throws URISyntaxException {
+    // Enable enhanced logout for admins.
+    Config civiformConfig =
+        ConfigFactory.parseMap(ImmutableMap.of("admin_oidc_enhanced_logout_enabled", "true"));
+
+    // Set up an admin account
+    AccountModel account = new AccountModel();
+    account.setGlobalAdmin(true);
+    // Assign token to session different from session being logged out to force an empty lookup.
+    IdTokens idTokens = new IdTokens(ImmutableMap.of("some_session_id", idToken));
+    account.setIdTokens(idTokens);
+    when(accountRepository.lookupAccount(accountId)).thenReturn(Optional.of(account));
+    Provider<AccountRepository> accountRepositoryProvider = () -> accountRepository;
+
+    OidcClientProviderParams params =
+        OidcClientProviderParams.create(civiformConfig, profileFactory, accountRepositoryProvider);
+    CiviformOidcLogoutActionBuilder builder =
+        new CiviformOidcLogoutActionBuilder(
+            oidcConfig, clientId, params, IdentityProviderType.ADMIN_IDENTITY_PROVIDER);
+
+    Optional<RedirectionAction> logoutAction =
+        builder.getLogoutAction(
+            new CallContext(getWebContext(), sessionStore), civiFormProfileData, targetUrl);
+
+    assertThat(logoutAction).isNotEmpty();
+    assertThat(logoutAction.get().getCode()).isEqualTo(302);
+
+    String location = ((FoundAction) logoutAction.get()).getLocation();
+    assertThat(location).isNotEmpty();
+    URI locationUri = new URI(location);
+    assertThat(locationUri.getHost()).isEqualTo(oidcHost);
+    assertThat(locationUri.getPort()).isEqualTo(oidcPort);
+    assertThat(locationUri.getPath()).isEqualTo("/session/end");
+
+    assertThat(queryParamValue(locationUri, "client_id")).hasValue(clientId);
+    assertThat(queryParamValue(locationUri, "post_logout_redirect_uri")).hasValue(targetUrl);
+
+    // No Serialized Tokens since token not found for account.
+    Optional<String> serializedToken = queryParamValue(locationUri, "id_token_hint");
+    assertThat(serializedToken).isEmpty();
+  }
+
+  @Test
+  public void testBuilderLogsOutIfAccountIsNotFound() throws URISyntaxException {
+    // Enable enhanced logout for admins.
+    Config civiformConfig =
+        ConfigFactory.parseMap(ImmutableMap.of("admin_oidc_enhanced_logout_enabled", "true"));
+
+    // Return empty account on lookup.
+    when(accountRepository.lookupAccount(accountId)).thenReturn(Optional.empty());
+    Provider<AccountRepository> accountRepositoryProvider = () -> accountRepository;
+
+    OidcClientProviderParams params =
+        OidcClientProviderParams.create(civiformConfig, profileFactory, accountRepositoryProvider);
+    CiviformOidcLogoutActionBuilder builder =
+        new CiviformOidcLogoutActionBuilder(
+            oidcConfig, clientId, params, IdentityProviderType.ADMIN_IDENTITY_PROVIDER);
+
+    Optional<RedirectionAction> logoutAction =
+        builder.getLogoutAction(
+            new CallContext(getWebContext(), sessionStore), civiFormProfileData, targetUrl);
+
+    assertThat(logoutAction).isNotEmpty();
+    assertThat(logoutAction.get().getCode()).isEqualTo(302);
+
+    String location = ((FoundAction) logoutAction.get()).getLocation();
+    assertThat(location).isNotEmpty();
+    URI locationUri = new URI(location);
+    assertThat(locationUri.getHost()).isEqualTo(oidcHost);
+    assertThat(locationUri.getPort()).isEqualTo(oidcPort);
+    assertThat(locationUri.getPath()).isEqualTo("/session/end");
+
+    assertThat(queryParamValue(locationUri, "client_id")).hasValue(clientId);
+    assertThat(queryParamValue(locationUri, "post_logout_redirect_uri")).hasValue(targetUrl);
   }
 }

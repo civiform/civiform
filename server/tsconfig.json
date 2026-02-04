@@ -1,17 +1,23 @@
 {
   "extends": "@tsconfig/recommended/tsconfig.json",
   "compilerOptions": {
-    "lib": ["es2019", "dom"],
-    // While we support only latest browsers (chrome, firefox, safari, edge)
-    // we can't use ES2015+ or above because it breaks unit tests. We have
-    // security unit tests which use webdriver which in turn uses HtmlUnitDriver
-    // to evalute html and that thing doesn't support modern JS.
-    "target": "es5",
+    "lib": ["es2022", "dom"],
+    "target": "es2022",
+    // Improve module compatibility with modern bundlers like Webpack.
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    // Allow importing JSON and other non-TS assets if needed.
+    "resolveJsonModule": true,
     "sourceMap": true,
     "mapRoot": "/assets/javascripts",
     "sourceRoot": "/assets/javascripts",
     "baseUrl": "./",
-    "strict": true
+    "paths": {
+      "@/*": ["app/assets/javascripts/*"],
+      "@pages/*": ["app/assets/javascripts/pages/*"]
+    },
+    "strict": true,
+    "types": ["vitest"]
   },
-  "include": ["app/assets/javascripts/*"]
+  "include": ["app/assets/javascripts/**/*.ts"]
 }

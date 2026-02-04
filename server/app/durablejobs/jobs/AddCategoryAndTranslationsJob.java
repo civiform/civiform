@@ -16,28 +16,29 @@ import models.CategoryModel;
 import models.PersistedDurableJobModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.Environment;
 import repository.CategoryRepository;
 import services.LocalizedStrings;
 
 /* Iterates through all categories and ensures translations aren't missing. */
 public final class AddCategoryAndTranslationsJob extends DurableJob {
-  private static final Logger LOGGER = LoggerFactory.getLogger(AddCategoryAndTranslationsJob.class);
-  private static final ObjectMapper objectMapper = new ObjectMapper();
+  private static final Logger logger = LoggerFactory.getLogger(AddCategoryAndTranslationsJob.class);
 
   private final CategoryRepository categoryRepository;
-  private final Environment environment;
   private final PersistedDurableJobModel persistedDurableJobModel;
+  private final ObjectMapper mapper;
   private final Database database;
+  private final CategoryTranslationFileParser categoryTranslationFileParser;
 
   public AddCategoryAndTranslationsJob(
       CategoryRepository categoryRepository,
-      Environment environment,
-      PersistedDurableJobModel persistedDurableJobModel) {
+      PersistedDurableJobModel persistedDurableJobModel,
+      ObjectMapper mapper,
+      CategoryTranslationFileParser categoryTranslationFileParser) {
     this.categoryRepository = checkNotNull(categoryRepository);
-    this.environment = checkNotNull(environment);
     this.persistedDurableJobModel = persistedDurableJobModel;
+    this.mapper = checkNotNull(mapper);
     this.database = DB.getDefault();
+    this.categoryTranslationFileParser = checkNotNull(categoryTranslationFileParser);
   }
 
   @Override
@@ -47,15 +48,12 @@ public final class AddCategoryAndTranslationsJob extends DurableJob {
 
   @Override
   public void run() {
-    LOGGER.info("Starting job to update categories with translations.");
+    logger.info("Starting job to update categories with translations.");
     int errorCount = 0;
     try (Transaction jobTransaction = database.beginTransaction()) {
       try {
-        // Parse messages files for most up to date translations
-        CategoryTranslationFileParser messagesFileParser =
-            new CategoryTranslationFileParser(environment);
         List<CategoryModel> categoriesFromMessagesFile =
-            messagesFileParser.createCategoryModelList();
+            categoryTranslationFileParser.createCategoryModelList();
 
         // Iterate through categories from the messages files and compare with categories in the DB
         for (CategoryModel messageFileCategory : categoriesFromMessagesFile) {
@@ -67,31 +65,31 @@ public final class AddCategoryAndTranslationsJob extends DurableJob {
           LocalizedStrings fileTranslations = messageFileCategory.getLocalizedName();
           // Update the database if the translations in the messages file differs
           if (!dbTranslations.equals(fileTranslations)) {
-            LOGGER.info("Translations mismatch for category ID: {}", dbCategory.id);
+            logger.info("Translations mismatch for category ID: {}", dbCategory.id);
             try (Transaction stepTransaction = database.beginTransaction(TxScope.mandatory())) {
               JsonNode localizedNameToSet =
-                  objectMapper.readTree(objectMapper.writeValueAsString(fileTranslations));
+                  mapper.readTree(mapper.writeValueAsString(fileTranslations));
               categoryRepository.updateCategoryLocalizedName(
                   dbCategory.id, localizedNameToSet.toString());
 
               stepTransaction.commit();
-              LOGGER.debug("Translation change. Updated database.");
+              logger.debug("Translation change. Updated database.");
             } catch (JsonProcessingException e) {
               errorCount++;
-              LOGGER.error(e.getMessage(), e);
+              logger.error(e.getMessage(), e);
             }
           }
         }
       } catch (RuntimeException e) {
         errorCount++;
-        LOGGER.error(e.getMessage(), e);
+        logger.error(e.getMessage(), e);
       }
 
       if (errorCount == 0) {
-        LOGGER.info("Finished adding and updating translations for categories.");
+        logger.info("Finished adding and updating translations for categories.");
         jobTransaction.commit();
       } else {
-        LOGGER.error(
+        logger.error(
             "Failed to update categories and their translations. See previous logs for"
                 + " failures. Total failures: {0}",
             errorCount);

@@ -1,39 +1,24 @@
 package controllers.applicant;
 
 import auth.CiviFormProfile;
-import auth.ProfileFactory;
 import com.google.common.collect.ImmutableList;
-import io.prometheus.client.Counter;
 import java.util.Optional;
 import play.api.mvc.Call;
 
 /**
- * Class that computes routes for applicant actions. The route for an applicant may be different
- * from that for a TI taking action on behalf of an applicant.
+ * Class that computes routes for applicant actions.
+ *
+ * <p>Routes for TIs and CiviForm Admins previewing programs will differ from Applicants, they will
+ * contain the applicants ID in the route.
+ *
+ * <p>Applicants store their ID in their profile (which is not managed here).
  */
 public final class ApplicantRoutes {
-  private static final Counter APPLICANT_ID_IN_PROFILE_COUNT =
-      Counter.build()
-          .name("applicant_id_in_profile")
-          .help("Count of profiles that contain applicant id")
-          .labelNames("existence")
-          .register();
-
   // There are two cases where we want to use the URL that contains the applicant id:
   // - TIs performing actions on behalf of applicants.
-  // - The applicant has a profile that does /not/ (yet) include the applicant id.
-  //   This case will eventually go away once existing profiles have expired and been replaced.
+  // - CiviForm Admins previewing a program.
   private boolean includeApplicantIdInRoute(CiviFormProfile profile) {
-    boolean isTi = profile.isTrustedIntermediary();
-    boolean applicantIdInProfile =
-        profile.getProfileData().containsAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
-
-    // Count the occurrences so we know when it is safe to remove the special-case code for
-    // migration.
-    String existence = applicantIdInProfile ? "present" : "absent";
-    APPLICANT_ID_IN_PROFILE_COUNT.labels(existence).inc();
-
-    return isTi || !applicantIdInProfile;
+    return profile.isTrustedIntermediary() || profile.isCiviFormAdmin();
   }
 
   /**
@@ -63,8 +48,36 @@ public final class ApplicantRoutes {
     return controllers.applicant.routes.ApplicantProgramsController.show(String.valueOf(programId));
   }
 
+  /**
+   * Returns the program overview page
+   *
+   * @param programSlug - slug of the program to view
+   * @return Route for the program view action
+   */
+  public Call show(String programSlug) {
+    return controllers.applicant.routes.ApplicantProgramsController.show(programSlug);
+  }
+
+  /**
+   * Returns the program overview page
+   *
+   * @param profile - Profile corresponding to the logged-in user (applicant or TI).
+   * @param applicantId - ID of applicant for whom the action should be performed.
+   * @param programSlug - slug of the program to view
+   * @return Route for the program view action
+   */
+  public Call show(CiviFormProfile profile, long applicantId, String programSlug) {
+    if (includeApplicantIdInRoute(profile)) {
+      return controllers.applicant.routes.ApplicantProgramsController.showWithApplicantId(
+          applicantId, programSlug);
+    } else {
+      return routes.ApplicantProgramsController.show(programSlug);
+    }
+  }
+
   public Call edit(long programId) {
-    return routes.ApplicantProgramsController.edit(programId);
+    return routes.ApplicantProgramsController.edit(
+        Long.toString(programId), /* isFromUrlCall= */ false);
   }
 
   /**
@@ -78,9 +91,9 @@ public final class ApplicantRoutes {
   public Call edit(CiviFormProfile profile, long applicantId, long programId) {
     if (includeApplicantIdInRoute(profile)) {
       return controllers.applicant.routes.ApplicantProgramsController.editWithApplicantId(
-          applicantId, programId);
+          applicantId, Long.toString(programId), /* isFromUrlCall= */ false);
     } else {
-      return routes.ApplicantProgramsController.edit(programId);
+      return edit(programId);
     }
   }
 
@@ -93,11 +106,12 @@ public final class ApplicantRoutes {
    * @return Route for the applicant review action
    */
   public Call review(CiviFormProfile profile, long applicantId, long programId) {
+    String programIdStr = Long.toString(programId);
     if (includeApplicantIdInRoute(profile)) {
-      return routes.ApplicantProgramReviewController.reviewWithApplicantId(applicantId, programId);
-    } else {
-      return routes.ApplicantProgramReviewController.review(programId);
+      return routes.ApplicantProgramReviewController.reviewWithApplicantId(
+          applicantId, programIdStr, /* isFromUrlCall= */ false);
     }
+    return routes.ApplicantProgramReviewController.review(programIdStr, /* isFromUrlCall= */ false);
   }
 
   /**
@@ -108,7 +122,8 @@ public final class ApplicantRoutes {
    * @return Route for the applicant review action
    */
   public Call review(long programId) {
-    return routes.ApplicantProgramReviewController.review(programId);
+    return routes.ApplicantProgramReviewController.review(
+        Long.toString(programId), /* isFromUrlCall= */ false);
   }
 
   /**
@@ -143,12 +158,13 @@ public final class ApplicantRoutes {
       long programId,
       String blockId,
       Optional<String> questionName) {
+    String programIdStr = Long.toString(programId);
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.editWithApplicantId(
-          applicantId, programId, blockId, questionName);
-    } else {
-      return routes.ApplicantProgramBlocksController.edit(programId, blockId, questionName);
+          applicantId, programIdStr, blockId, questionName, /* isFromUrlCall= */ false);
     }
+    return routes.ApplicantProgramBlocksController.edit(
+        programIdStr, blockId, questionName, /* isFromUrlCall= */ false);
   }
 
   /**
@@ -158,7 +174,11 @@ public final class ApplicantRoutes {
    * @return Route for the applicant block edit action
    */
   public Call blockEdit(long programId) {
-    return routes.ApplicantProgramBlocksController.edit(programId, "1", Optional.empty());
+    return routes.ApplicantProgramBlocksController.edit(
+        Long.toString(programId),
+        /* blockId= */ "1",
+        /* questionName= */ Optional.empty(),
+        /* isFromUrlCall= */ false);
   }
 
   /**
@@ -177,12 +197,13 @@ public final class ApplicantRoutes {
       long programId,
       String blockId,
       Optional<String> questionName) {
+    String programIdStr = Long.toString(programId);
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.reviewWithApplicantId(
-          applicantId, programId, blockId, questionName);
-    } else {
-      return routes.ApplicantProgramBlocksController.review(programId, blockId, questionName);
+          applicantId, programIdStr, blockId, questionName, /* isFromUrlCall= */ false);
     }
+    return routes.ApplicantProgramBlocksController.review(
+        programIdStr, blockId, questionName, /* isFromUrlCall= */ false);
   }
 
   /**
@@ -269,13 +290,13 @@ public final class ApplicantRoutes {
       long programId,
       int previousBlockIndex,
       boolean inReview) {
+    String programIdStr = Long.toString(programId);
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.previousWithApplicantId(
-          applicantId, programId, previousBlockIndex, inReview);
-    } else {
-      return routes.ApplicantProgramBlocksController.previous(
-          programId, previousBlockIndex, inReview);
+          applicantId, programIdStr, previousBlockIndex, inReview, /* isFromUrlCall= */ false);
     }
+    return routes.ApplicantProgramBlocksController.previous(
+        programIdStr, previousBlockIndex, inReview, /* isFromUrlCall= */ false);
   }
 
   /**
@@ -290,12 +311,13 @@ public final class ApplicantRoutes {
    */
   public Call addFile(
       CiviFormProfile profile, long applicantId, long programId, String blockId, boolean inReview) {
+    String programIdStr = Long.toString(programId);
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.addFileWithApplicantId(
-          applicantId, programId, blockId, inReview);
-    } else {
-      return routes.ApplicantProgramBlocksController.addFile(programId, blockId, inReview);
+          applicantId, programIdStr, blockId, inReview, /* isFromUrlCall= */ false);
     }
+    return routes.ApplicantProgramBlocksController.addFile(
+        programIdStr, blockId, inReview, /* isFromUrlCall= */ false);
   }
 
   /**
@@ -315,48 +337,13 @@ public final class ApplicantRoutes {
       String blockId,
       String fileKey,
       boolean inReview) {
+    String programIdStr = Long.toString(programId);
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.removeFileWithApplicantId(
-          applicantId, programId, blockId, fileKey, inReview);
-    } else {
-      return routes.ApplicantProgramBlocksController.removeFile(
-          programId, blockId, fileKey, inReview);
+          applicantId, programIdStr, blockId, fileKey, inReview, /* isFromUrlCall= */ false);
     }
-  }
-
-  /**
-   * Returns the route corresponding to the applicant update file action.
-   *
-   * @param profile - Profile corresponding to the logged-in user (applicant or TI).
-   * @param applicantId - ID of applicant for whom the action should be performed.
-   * @param programId - ID of program to review
-   * @param blockId - ID of the block containing file upload question
-   * @param inReview - true if executing the review action (as opposed to edit)
-   * @param applicantRequestedAction - the page the applicant would like to see after the updates
-   *     are made
-   * @return Route for the applicant update file action
-   */
-  public Call updateFile(
-      CiviFormProfile profile,
-      long applicantId,
-      long programId,
-      String blockId,
-      boolean inReview,
-      ApplicantRequestedAction applicantRequestedAction) {
-    if (includeApplicantIdInRoute(profile)) {
-      return routes.ApplicantProgramBlocksController.updateFileWithApplicantId(
-          applicantId,
-          programId,
-          blockId,
-          inReview,
-          new ApplicantRequestedActionWrapper(applicantRequestedAction));
-    } else {
-      return routes.ApplicantProgramBlocksController.updateFile(
-          programId,
-          blockId,
-          inReview,
-          new ApplicantRequestedActionWrapper(applicantRequestedAction));
-    }
+    return routes.ApplicantProgramBlocksController.removeFile(
+        programIdStr, blockId, fileKey, inReview, /* isFromUrlCall= */ false);
   }
 
   /**

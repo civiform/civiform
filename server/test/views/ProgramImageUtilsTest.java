@@ -31,10 +31,7 @@ public class ProgramImageUtilsTest extends ResetPostgres {
 
     Optional<ImgTag> result =
         programImageUtils.createProgramImage(
-            program,
-            Locale.getDefault(),
-            /* isWithinProgramCard= */ true,
-            /* isProgramFilteringEnabled= */ false);
+            program, Locale.getDefault(), /* isWithinProgramCard= */ true);
 
     assertThat(result).isEmpty();
   }
@@ -49,10 +46,7 @@ public class ProgramImageUtilsTest extends ResetPostgres {
 
     Optional<ImgTag> result =
         programImageUtils.createProgramImage(
-            program,
-            Locale.getDefault(),
-            /* isWithinProgramCard= */ true,
-            /* isProgramFilteringEnabled= */ false);
+            program, Locale.getDefault(), /* isWithinProgramCard= */ true);
 
     assertThat(result).isEmpty();
   }
@@ -67,10 +61,7 @@ public class ProgramImageUtilsTest extends ResetPostgres {
 
     Optional<ImgTag> result =
         programImageUtils.createProgramImage(
-            program,
-            Locale.getDefault(),
-            /* isWithinProgramCard= */ true,
-            /* isProgramFilteringEnabled= */ false);
+            program, Locale.getDefault(), /* isWithinProgramCard= */ true);
 
     assertThat(result).isNotEmpty();
   }
@@ -85,10 +76,7 @@ public class ProgramImageUtilsTest extends ResetPostgres {
 
     Optional<ImgTag> result =
         programImageUtils.createProgramImage(
-            program,
-            Locale.getDefault(),
-            /* isWithinProgramCard= */ true,
-            /* isProgramFilteringEnabled= */ false);
+            program, Locale.getDefault(), /* isWithinProgramCard= */ true);
 
     assertThat(result).isNotEmpty();
     String renderedImage = result.get().render();
@@ -107,10 +95,7 @@ public class ProgramImageUtilsTest extends ResetPostgres {
 
     Optional<ImgTag> result =
         programImageUtils.createProgramImage(
-            program,
-            Locale.CHINESE,
-            /* isWithinProgramCard= */ true,
-            /* isProgramFilteringEnabled= */ false);
+            program, Locale.CHINESE, /* isWithinProgramCard= */ true);
 
     assertThat(result).isNotEmpty();
     String renderedImage = result.get().render();
@@ -130,10 +115,7 @@ public class ProgramImageUtilsTest extends ResetPostgres {
 
     Optional<ImgTag> result =
         programImageUtils.createProgramImage(
-            program,
-            Locale.CHINESE,
-            /* isWithinProgramCard= */ true,
-            /* isProgramFilteringEnabled= */ false);
+            program, Locale.CHINESE, /* isWithinProgramCard= */ true);
 
     assertThat(result).isNotEmpty();
     String renderedImage = result.get().render();

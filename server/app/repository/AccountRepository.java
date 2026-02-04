@@ -27,6 +27,8 @@ import models.AccountModel;
 import models.ApplicantModel;
 import models.SessionLifecycle;
 import models.TrustedIntermediaryGroupModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import services.CiviFormError;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
@@ -40,25 +42,33 @@ import services.ti.NotEligibleToBecomeTiError;
  * ApplicantModel}.
  */
 public final class AccountRepository {
+  private static final Logger logger = LoggerFactory.getLogger(AccountRepository.class);
   private static final QueryProfileLocationBuilder queryProfileLocationBuilder =
       new QueryProfileLocationBuilder("AccountRepository");
 
   private final Database database;
-  private final DatabaseExecutionContext executionContext;
+  private final TransactionManager transactionManager;
+  private final DatabaseExecutionContext dbExecutionContext;
   private final Clock clock;
   private final SettingsManifest settingsManifest;
   private final SessionLifecycle sessionLifecycle;
 
   @Inject
   public AccountRepository(
-      DatabaseExecutionContext executionContext, Clock clock, SettingsManifest settingsManifest) {
+      DatabaseExecutionContext dbExecutionContext, Clock clock, SettingsManifest settingsManifest) {
     this.database = DB.getDefault();
-    this.executionContext = checkNotNull(executionContext);
+    this.transactionManager = new TransactionManager();
+    this.dbExecutionContext = checkNotNull(dbExecutionContext);
     this.clock = clock;
     this.settingsManifest = checkNotNull(settingsManifest);
-    // TODO(#9460): make the session duration configurable.
-    // For now, we set the duration to Auth0s default of 10 hours.
-    this.sessionLifecycle = new SessionLifecycle(clock, Duration.ofHours(10));
+
+    int sessionDurationMinutes =
+        settingsManifest
+            .getMaximumSessionDurationMinutes()
+            // Default to 10 hours if not configured.
+            .orElse(600);
+    this.sessionLifecycle =
+        new SessionLifecycle(clock, Duration.ofMinutes(Long.valueOf(sessionDurationMinutes)));
   }
 
   public CompletionStage<Set<ApplicantModel>> listApplicants() {
@@ -69,7 +79,7 @@ public final class AccountRepository {
                 .setLabel("ApplicantModel.findSet")
                 .setProfileLocation(queryProfileLocationBuilder.create("listApplicants"))
                 .findSet(),
-        executionContext);
+        dbExecutionContext);
   }
 
   public CompletionStage<Optional<ApplicantModel>> lookupApplicant(long id) {
@@ -81,7 +91,7 @@ public final class AccountRepository {
                 .setLabel("ApplicantModel.findById")
                 .setProfileLocation(queryProfileLocationBuilder.create("lookupApplicant"))
                 .findOneOrEmpty(),
-        executionContext);
+        dbExecutionContext);
   }
 
   public Optional<AccountModel> lookupAccountByAuthorityId(String authorityId) {
@@ -108,6 +118,19 @@ public final class AccountRepository {
         .findOneOrEmpty();
   }
 
+  public List<AccountModel> lookupAccountByEmailCaseInsensitive(String emailAddress) {
+    checkNotNull(emailAddress);
+    checkArgument(!emailAddress.isEmpty());
+    return database
+        .find(AccountModel.class)
+        .where()
+        .ieq("email_address", emailAddress)
+        .setLabel("AccountModel.findByEmail")
+        .setProfileLocation(
+            queryProfileLocationBuilder.create("lookupAccountByEmailCaseInsensitive"))
+        .findList();
+  }
+
   public CompletionStage<Optional<AccountModel>> lookupAccountByEmailAsync(String emailAddress) {
     if (emailAddress == null) {
       return CompletableFuture.failedStage(new NullPointerException());
@@ -124,7 +147,7 @@ public final class AccountRepository {
                 .setLabel("AccountModel.findByEmail")
                 .setProfileLocation(queryProfileLocationBuilder.create("lookupAccountByEmailAsync"))
                 .findOneOrEmpty(),
-        executionContext);
+        dbExecutionContext);
   }
 
   /**
@@ -134,21 +157,27 @@ public final class AccountRepository {
    * we create one.
    */
   private ApplicantModel getOrCreateApplicant(AccountModel account) {
-    Optional<ApplicantModel> applicantOpt =
-        account.getApplicants().stream().max(Comparator.comparing(ApplicantModel::getWhenCreated));
-    return applicantOpt.orElseGet(() -> new ApplicantModel().setAccount(account).saveAndReturn());
+    return transactionManager.executeWithRetry(
+        () -> {
+          Optional<ApplicantModel> applicantOpt =
+              account.getApplicants().stream()
+                  .max(Comparator.comparing(ApplicantModel::getWhenCreated));
+          return applicantOpt.orElseGet(
+              () -> new ApplicantModel().setAccount(account).saveAndReturn());
+        });
   }
 
   public CompletionStage<Optional<ApplicantModel>> lookupApplicantByAuthorityId(
       String authorityId) {
     return supplyAsync(
         () -> lookupAccountByAuthorityId(authorityId).map(this::getOrCreateApplicant),
-        executionContext);
+        dbExecutionContext);
   }
 
   public CompletionStage<Optional<ApplicantModel>> lookupApplicantByEmail(String emailAddress) {
     return supplyAsync(
-        () -> lookupAccountByEmail(emailAddress).map(this::getOrCreateApplicant), executionContext);
+        () -> lookupAccountByEmail(emailAddress).map(this::getOrCreateApplicant),
+        dbExecutionContext);
   }
 
   public CompletionStage<Void> insertApplicant(ApplicantModel applicant) {
@@ -157,7 +186,7 @@ public final class AccountRepository {
           database.insert(applicant);
           return null;
         },
-        executionContext);
+        dbExecutionContext);
   }
 
   public CompletionStage<Void> updateApplicant(ApplicantModel applicant) {
@@ -166,7 +195,7 @@ public final class AccountRepository {
           database.update(applicant);
           return null;
         },
-        executionContext);
+        dbExecutionContext);
   }
 
   public void updateTiClient(
@@ -220,29 +249,43 @@ public final class AccountRepository {
         .findOneOrEmpty();
   }
 
-  /** Merge the older applicant data into the newer applicant, and set both to the given account. */
-  public CompletionStage<ApplicantModel> mergeApplicants(
-      ApplicantModel left, ApplicantModel right, AccountModel account) {
+  /**
+   * Merge the older applicant data into the newer applicant, and set both to the given account.
+   *
+   * @return The updated newer applicant.
+   */
+  public CompletionStage<ApplicantModel> mergeApplicantsOlderIntoNewer(
+      ApplicantModel applicant1, ApplicantModel applicant2, AccountModel account) {
     return supplyAsync(
-        () -> {
-          left.setAccount(account).save();
-          right.setAccount(account).save();
-          return mergeApplicants(left, right).saveAndReturn();
-        },
-        executionContext);
+        () ->
+            transactionManager.execute(
+                () -> {
+                  applicant1.setAccount(account).save();
+                  applicant2.setAccount(account).save();
+                  return mergeApplicantsOlderIntoNewer(applicant1, applicant2).saveAndReturn();
+                }),
+        dbExecutionContext);
   }
 
-  /** Merge the applicant data from older applicant into the newer applicant. */
-  private ApplicantModel mergeApplicants(ApplicantModel left, ApplicantModel right) {
-    if (left.getWhenCreated().isAfter(right.getWhenCreated())) {
-      ApplicantModel tmp = left;
-      left = right;
-      right = tmp;
+  /**
+   * Merge the applicant data from the older applicant into the newer applicant.
+   *
+   * @return The updated newer applicant.
+   */
+  private ApplicantModel mergeApplicantsOlderIntoNewer(
+      ApplicantModel applicant1, ApplicantModel applicant2) {
+    ApplicantModel older = applicant1;
+    ApplicantModel newer = applicant2;
+    if (applicant1.getWhenCreated().isAfter(applicant2.getWhenCreated())) {
+      newer = applicant1;
+      older = applicant2;
     }
-    // At this point, "left" is older, "right" is newer, we will merge "left" into "right", because
-    // the newer applicant is always preferred when more than one applicant matches an account.
-    right.getApplicantData().mergeFrom(left.getApplicantData());
-    return right;
+    // The newer applicant is always preferred when more than one applicant
+    // matches an account; merge the older one into it, preferring data in the
+    //  newer one.
+
+    newer.getApplicantData().mergeFrom(older.getApplicantData());
+    return newer;
   }
 
   public List<TrustedIntermediaryGroupModel> listTrustedIntermediaryGroups() {
@@ -262,11 +305,14 @@ public final class AccountRepository {
   }
 
   public void deleteTrustedIntermediaryGroup(long id) {
-    Optional<TrustedIntermediaryGroupModel> tiGroup = getTrustedIntermediaryGroup(id);
-    if (tiGroup.isEmpty()) {
-      throw new NoSuchTrustedIntermediaryGroupError();
-    }
-    database.delete(tiGroup.get());
+    transactionManager.executeWithRetry(
+        () -> {
+          Optional<TrustedIntermediaryGroupModel> tiGroup = getTrustedIntermediaryGroup(id);
+          if (tiGroup.isEmpty()) {
+            throw new NoSuchTrustedIntermediaryGroupError();
+          }
+          database.delete(tiGroup.get());
+        });
   }
 
   public Optional<TrustedIntermediaryGroupModel> getTrustedIntermediaryGroup(long id) {
@@ -284,26 +330,29 @@ public final class AccountRepository {
    * signs in for the first time.
    */
   public void addTrustedIntermediaryToGroup(long id, String emailAddress) {
-    Optional<TrustedIntermediaryGroupModel> tiGroup = getTrustedIntermediaryGroup(id);
-    if (tiGroup.isEmpty()) {
-      throw new NoSuchTrustedIntermediaryGroupError();
-    }
-    Optional<AccountModel> accountMaybe = lookupAccountByEmail(emailAddress);
-    AccountModel account =
-        accountMaybe.orElseGet(
-            () -> {
-              AccountModel a = new AccountModel();
-              a.setEmailAddress(emailAddress);
-              a.save();
-              return a;
-            });
+    transactionManager.execute(
+        () -> {
+          Optional<TrustedIntermediaryGroupModel> tiGroup = getTrustedIntermediaryGroup(id);
+          if (tiGroup.isEmpty()) {
+            throw new NoSuchTrustedIntermediaryGroupError();
+          }
+          Optional<AccountModel> accountMaybe = lookupAccountByEmail(emailAddress);
+          AccountModel account =
+              accountMaybe.orElseGet(
+                  () -> {
+                    AccountModel a = new AccountModel();
+                    a.setEmailAddress(emailAddress);
+                    a.save();
+                    return a;
+                  });
 
-    if (account.getGlobalAdmin() || !account.getAdministeredProgramNames().isEmpty()) {
-      throw new NotEligibleToBecomeTiError();
-    }
+          if (account.getGlobalAdmin() || !account.getAdministeredProgramNames().isEmpty()) {
+            throw new NotEligibleToBecomeTiError();
+          }
 
-    account.setMemberOfGroup(tiGroup.get());
-    account.save();
+          account.setMemberOfGroup(tiGroup.get());
+          account.save();
+        });
   }
 
   public void removeTrustedIntermediaryFromGroup(long id, long accountId) {
@@ -350,25 +399,27 @@ public final class AccountRepository {
   public Long createNewApplicantForTrustedIntermediaryGroup(
       TiClientInfoForm form, TrustedIntermediaryGroupModel tiGroup) {
     AccountModel newAccount = new AccountModel();
-    if (!Strings.isNullOrEmpty(form.getEmailAddress())) {
-      if (lookupAccountByEmail(form.getEmailAddress()).isPresent()) {
+    String formEmail = form.getEmailAddress();
+    if (!Strings.isNullOrEmpty(formEmail)) {
+      if (lookupAccountByEmail(formEmail).isPresent()) {
         throw new EmailAddressExistsException();
       }
-      newAccount.setEmailAddress(form.getEmailAddress());
+      newAccount.setEmailAddress(formEmail);
     }
-    newAccount.setManagedByGroup(tiGroup);
-    newAccount.setTiNote(form.getTiNote());
-    newAccount.save();
-    ApplicantModel applicant = new ApplicantModel();
-    applicant.setAccount(newAccount);
+    newAccount.setManagedByGroup(tiGroup).setTiNote(form.getTiNote()).save();
+
+    ApplicantModel applicant =
+        new ApplicantModel()
+            .setAccount(newAccount)
+            .setDateOfBirth(form.getDob())
+            .setEmailAddress(formEmail)
+            .setPhoneNumber(form.getPhoneNumber());
+
     applicant.setUserName(
         form.getFirstName(),
         Optional.ofNullable(form.getMiddleName()),
         Optional.ofNullable(form.getLastName()),
         Optional.ofNullable(form.getNameSuffix()));
-    applicant.setDateOfBirth(form.getDob());
-    applicant.setEmailAddress(form.getEmailAddress());
-    applicant.setPhoneNumber(form.getPhoneNumber());
     applicant.save();
     return applicant.id;
   }
@@ -386,23 +437,37 @@ public final class AccountRepository {
       return Optional.empty();
     }
 
-    Optional<AccountModel> maybeAccount = lookupAccountByEmail(accountEmail);
+    List<AccountModel> accounts = lookupAccountByEmailCaseInsensitive(accountEmail);
+
+    Optional<AccountModel> maybeAccount;
+
+    if (accounts.size() == 1) {
+      // unique user found.
+      maybeAccount = Optional.of(accounts.get(0));
+    } else if (accounts.size() > 1) {
+      // more than one result: fallback to exact-match search to be safe
+      maybeAccount = lookupAccountByEmail(accountEmail);
+    } else {
+      maybeAccount = Optional.empty();
+    }
+
     if (maybeAccount.isEmpty()) {
       return Optional.of(
           CiviFormError.of(
               String.format(
-                  "Cannot add %s as a Program Admin because they do not have an admin account."
-                      + " Have the user log in as admin on the home page, then they can be added"
-                      + " as a Program Admin.",
+                  "Cannot add %s as a Program Admin because they haven't previously logged into"
+                      + " CiviForm. Have the user log in, then add them as a Program Admin. After"
+                      + " they've been added, they will need refresh their browser see the programs"
+                      + " they've been assigned to.",
                   accountEmail)));
-    } else {
-      maybeAccount.ifPresent(
-          account -> {
-            account.addAdministeredProgram(program);
-            account.save();
-          });
-      return Optional.empty();
     }
+
+    maybeAccount.ifPresent(
+        account -> {
+          account.addAdministeredProgram(program);
+          account.save();
+        });
+    return Optional.empty();
   }
 
   /**
@@ -444,6 +509,7 @@ public final class AccountRepository {
 
   /** Delete guest accounts that have no data and were created before the provided maximum age. */
   public int deleteUnusedGuestAccounts(int minAgeInDays) {
+    // TODO(#12167): Handle that Accounts can have multiple Applicants.
     String sql =
         "WITH unused_accounts AS ( "
             + "  SELECT applicants.account_id AS account_id, applicants.id AS applicant_id "
@@ -483,6 +549,13 @@ public final class AccountRepository {
     if (settingsManifest.getSessionReplayProtectionEnabled()) {
       // For now, we set the duration to Auth0s default of 10 hours.
       account.removeExpiredActiveSessions(sessionLifecycle);
+      if (!account.getActiveSession(sessionId).isPresent()) {
+        logger.warn(
+            "Session ID not found in account when adding ID token. Adding new session for account"
+                + " with ID: {}",
+            account.id);
+        account.addActiveSession(sessionId, clock);
+      }
       account.storeIdTokenInActiveSession(sessionId, idToken);
     }
 

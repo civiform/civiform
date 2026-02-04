@@ -1,5 +1,6 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {loginAsAdmin, validateScreenshot} from '../support'
+import {ProgramVisibility} from '../support/admin_programs'
 
 test.describe('Managing API keys', () => {
   test('Creates, views and retires new API key', async ({
@@ -7,8 +8,11 @@ test.describe('Managing API keys', () => {
     adminApiKeys,
     adminPrograms,
   }) => {
-    const programName = 'Api using program'
-    const programDescription = 'This program uses the API.'
+    const internalProgramName = 'Api using program'
+    const internalProgramDescription = 'This program uses the API.'
+    const externalProgramName = 'External Program'
+    const externalProgramDescription =
+      'This is an external program that should not appear in API key creation.'
 
     await loginAsAdmin(page)
 
@@ -17,23 +21,50 @@ test.describe('Managing API keys', () => {
       await validateScreenshot(page, 'new-api-key-no-programs')
     })
 
-    await test.step('Add and publish program', async () => {
-      await adminPrograms.addProgram(
-        programName,
-        programDescription,
-        'https://usa.gov',
+    await test.step('Add external program only', async () => {
+      await adminPrograms.addExternalProgram(
+        externalProgramName,
+        externalProgramDescription,
+        'https://external.gov',
+        ProgramVisibility.PUBLIC,
       )
+    })
 
+    await test.step('Validate new api key page still shows no programs', async () => {
+      await adminApiKeys.gotoNewApiKeyPage()
+      await expect(page.getByText(externalProgramName)).toBeHidden()
+      await expect(
+        page.getByText(
+          'You must create and publish a program before creating an API Key',
+        ),
+      ).toBeVisible()
+    })
+
+    await test.step('Add and publish default program', async () => {
+      await adminPrograms.addProgram(internalProgramName, {
+        description: internalProgramDescription,
+      })
       await adminPrograms.publishAllDrafts()
     })
 
-    await test.step('Validate new api key page', async () => {
+    await test.step('Validate external programs do not appear in API key form', async () => {
       await adminApiKeys.gotoNewApiKeyPage()
-      await validateScreenshot(page, 'new-api-key-page')
+
+      await expect(
+        page.getByRole('checkbox', {name: 'api-using-program'}),
+      ).toBeVisible()
+      await expect(
+        page.getByRole('checkbox', {name: 'external-program'}),
+      ).toBeHidden()
+      await validateScreenshot(page, 'new-api-key-page-with-programs')
     })
 
     await test.step('Submit key creation request with invalid fields', async () => {
       await adminApiKeys.submitInvalidApiKeyRequest()
+
+      await expect(
+        page.getByRole('checkbox', {name: 'external-program'}),
+      ).toBeHidden()
       await validateScreenshot(page, 'api-key-index-page-invalid')
     })
 

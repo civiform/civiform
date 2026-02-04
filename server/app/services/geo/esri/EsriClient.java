@@ -3,6 +3,7 @@ package services.geo.esri;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
@@ -30,10 +31,11 @@ import services.geo.esri.models.FindAddressCandidatesResponse;
 
 /** An abstract class for working with external Esri services. */
 public abstract class EsriClient {
-  final Clock clock;
-  final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
-
+  private final Clock clock;
+  private final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+  protected final ObjectMapper mapper;
 
   private static final Histogram ESRI_LOOKUP_TIME =
       Histogram.build()
@@ -48,9 +50,13 @@ public abstract class EsriClient {
           .labelNames("type")
           .register();
 
-  public EsriClient(Clock clock, EsriServiceAreaValidationConfig esriServiceAreaValidationConfig) {
+  public EsriClient(
+      Clock clock,
+      EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
+      ObjectMapper mapper) {
     this.clock = checkNotNull(clock);
     this.esriServiceAreaValidationConfig = checkNotNull(esriServiceAreaValidationConfig);
+    this.mapper = checkNotNull(mapper);
   }
 
   /**

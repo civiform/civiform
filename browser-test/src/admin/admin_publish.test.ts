@@ -1,5 +1,5 @@
 import {test, expect} from '../support/civiform_fixtures'
-import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
+import {loginAsAdmin, validateScreenshot} from '../support'
 import {ProgramVisibility} from '../support/admin_programs'
 
 test.describe(
@@ -18,13 +18,9 @@ test.describe(
       await loginAsAdmin(page)
 
       // Create a hidden program with no questions
-      await adminPrograms.addProgram(
-        hiddenProgramNoQuestions,
-        'program description',
-        'short program description',
-        'https://usa.gov',
-        ProgramVisibility.HIDDEN,
-      )
+      await adminPrograms.addProgram(hiddenProgramNoQuestions, {
+        visibility: ProgramVisibility.HIDDEN,
+      })
 
       // Create a new question referenced by a program.
       await adminQuestions.addAddressQuestion({questionName, questionText})
@@ -70,7 +66,7 @@ test.describe(
 )
 
 test.describe(
-  'publishing all programs with disabled programs feature flag on',
+  'publish all programs -- disabled programs',
   {tag: ['@in-development']},
   () => {
     test('shows programs and questions that will be publised in the modal, including disabled programs', async ({
@@ -84,7 +80,6 @@ test.describe(
       const questionText = 'admin-publish-test-address-q'
       // adminPrograms.createNewVersion implicitly updates the question text to be suffixed with " new version".
       const draftQuestionText = `${questionText} new version`
-      await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
 
       await test.step('Log in as a civiform admin and create a public program and a disabled program', async () => {
         await loginAsAdmin(page)
@@ -129,7 +124,7 @@ test.describe(
   },
 )
 
-test.describe('publishing all programs with universal questions feature flag on', () => {
+test.describe('publish all programs -- universal questions', () => {
   test('shows a modal with information about universal questions', async ({
     page,
     adminPrograms,
@@ -176,13 +171,14 @@ test.describe('publishing all programs with universal questions feature flag on'
 
     await test.step('Trigger the modal', async () => {
       await adminPrograms.gotoAdminProgramsPage()
-      await page.click('#publish-all-programs-modal-button')
 
-      expect(await page.innerText('#publish-all-programs-modal')).toContain(
+      await page.locator('#publish-all-programs-modal-button').click()
+
+      await expect(page.locator('#publish-all-programs-modal')).toContainText(
         'program one (Publicly visible) - Contains all universal questions',
       )
 
-      expect(await page.innerText('#publish-all-programs-modal')).toContain(
+      await expect(page.locator('#publish-all-programs-modal')).toContainText(
         'program two (Publicly visible) - Contains 1 of 2 universal questions',
       )
 

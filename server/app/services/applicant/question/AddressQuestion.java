@@ -21,7 +21,7 @@ import services.question.types.AddressQuestionDefinition;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public final class AddressQuestion extends Question {
+public final class AddressQuestion extends AbstractQuestion {
   private static final String PO_BOX_REGEX =
       "(?i)(.*(P(OST|.)?\\s*((O(FF(ICE)?)?)?.?\\s*(B(IN|OX|.?)))+)).*";
 
@@ -210,9 +210,11 @@ public final class AddressQuestion extends Question {
       return serviceAreaValue;
     }
 
-    return applicantQuestion
-        .getApplicantData()
-        .readServiceAreaList(getServiceAreasPath().safeWithoutArrayReference());
+    serviceAreaValue =
+        applicantQuestion
+            .getApplicantData()
+            .readServiceAreaList(getServiceAreasPath().safeWithoutArrayReference());
+    return serviceAreaValue;
   }
 
   public AddressQuestionDefinition getQuestionDefinition() {

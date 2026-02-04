@@ -3,6 +3,7 @@ package forms;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
+import java.util.UUID;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
@@ -14,6 +15,7 @@ public class TextQuestionFormTest {
 
   @Test
   public void getBuilder_returnsCompleteBuilder() throws Exception {
+    UUID initialToken = UUID.randomUUID();
     TextQuestionForm form = new TextQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
@@ -21,6 +23,7 @@ public class TextQuestionFormTest {
     form.setQuestionHelpText("");
     form.setMinLength("4");
     form.setMaxLength("6");
+    form.setConcurrencyToken(initialToken);
     QuestionDefinitionBuilder builder = form.getBuilder();
 
     TextQuestionDefinition expected =
@@ -32,6 +35,7 @@ public class TextQuestionFormTest {
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(
                     TextQuestionDefinition.TextValidationPredicates.create(4, 6))
+                .setConcurrencyToken(initialToken)
                 .build());
 
     QuestionDefinition actual = builder.build();
@@ -41,6 +45,7 @@ public class TextQuestionFormTest {
 
   @Test
   public void getBuilder_withQdConstructor_returnsCompleteBuilder() throws Exception {
+    UUID initialToken = UUID.randomUUID();
     TextQuestionDefinition originalQd =
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -50,6 +55,7 @@ public class TextQuestionFormTest {
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(
                     TextQuestionDefinition.TextValidationPredicates.create(4, 6))
+                .setConcurrencyToken(initialToken)
                 .build());
 
     TextQuestionForm form = new TextQuestionForm(originalQd);
@@ -62,6 +68,7 @@ public class TextQuestionFormTest {
 
   @Test
   public void getBuilder_emptyStringMinMax_noPredicateSet() throws Exception {
+    UUID initialToken = UUID.randomUUID();
     TextQuestionForm form = new TextQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
@@ -69,6 +76,7 @@ public class TextQuestionFormTest {
     form.setQuestionHelpText("");
     form.setMinLength("");
     form.setMaxLength("");
+    form.setConcurrencyToken(initialToken);
     QuestionDefinitionBuilder builder = form.getBuilder();
 
     TextQuestionDefinition expected =
@@ -78,6 +86,7 @@ public class TextQuestionFormTest {
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
+                .setConcurrencyToken(initialToken)
                 .build());
 
     QuestionDefinition actual = builder.build();

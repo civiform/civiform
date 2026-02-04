@@ -13,11 +13,15 @@ import {
   waitForPageJsLoad,
   AdminSettings,
 } from '.'
+import {BridgeDiscoveryPage} from '../page/admin/api_bridge/bridge_discovery_page'
 import {AdminApiKeys} from './admin_api_keys'
 import {AdminProgramMigration} from './admin_program_migration'
 import {ApplicantProgramList} from './applicant_program_list'
+import {ApplicantProgramOverview} from './applicant_program_overview'
+import {Seeding} from './seeding'
 
 type CiviformFixtures = {
+  bridgeDiscoveryPage: BridgeDiscoveryPage
   adminApiKeys: AdminApiKeys
   adminPrograms: AdminPrograms
   adminQuestions: AdminQuestions
@@ -30,11 +34,17 @@ type CiviformFixtures = {
   adminSettings: AdminSettings
   applicantFileQuestion: ApplicantFileQuestion
   applicantProgramList: ApplicantProgramList
+  applicantProgramOverview: ApplicantProgramOverview
   tiDashboard: TIDashboard
   adminTiGroups: AdminTIGroups
+  seeding: Seeding
 }
 
 export const test = base.extend<CiviformFixtures>({
+  bridgeDiscoveryPage: async ({page}, use) => {
+    await use(new BridgeDiscoveryPage(page))
+  },
+
   adminApiKeys: async ({page, request}, use) => {
     await use(new AdminApiKeys(page, request))
   },
@@ -83,12 +93,24 @@ export const test = base.extend<CiviformFixtures>({
     await use(new ApplicantProgramList(page))
   },
 
+  applicantProgramOverview: async ({page}, use) => {
+    await use(new ApplicantProgramOverview(page))
+  },
+
   tiDashboard: async ({page}, use) => {
     await use(new TIDashboard(page))
   },
 
   adminTiGroups: async ({page}, use) => {
     await use(new AdminTIGroups(page))
+  },
+
+  // This doesn't use the {page} variable directly, but it needs to be here so that Playwright
+  // creates the fixtures in the correct order. Without the {page} variable this gets created
+  // before the "page" fixture so any seeding gets cleared right immediately.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  seeding: async ({page, request}, use) => {
+    await use(new Seeding(request))
   },
 
   page: async ({page, request}, use) => {
@@ -99,9 +121,7 @@ export const test = base.extend<CiviformFixtures>({
     })
 
     // BeforeEach
-    await test.step('Clear database', async () => {
-      await request.post('/dev/seed/clear')
-    })
+    await new Seeding(request).clearDatabase()
 
     await test.step('Go to home page before test starts', async () => {
       await page.goto('/programs')

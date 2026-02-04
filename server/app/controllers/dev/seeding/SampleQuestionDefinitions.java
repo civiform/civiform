@@ -2,7 +2,9 @@ package controllers.dev.seeding;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import play.i18n.Lang;
 import services.LocalizedStrings;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
@@ -13,6 +15,7 @@ import services.question.types.EmailQuestionDefinition;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.IdQuestionDefinition;
+import services.question.types.MapQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
 import services.question.types.NameQuestionDefinition;
@@ -33,8 +36,20 @@ public final class SampleQuestionDefinitions {
           QuestionDefinitionConfig.builder()
               .setName("Sample Address Question")
               .setDescription("description")
-              .setQuestionText(LocalizedStrings.withDefaultValue("What is your address?"))
-              .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+              .setQuestionText(
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("en-US").toLocale(),
+                          "What is your address?",
+                          Lang.forCode("ar").toLocale(),
+                          "ما هو عنوانك؟?")))
+              .setQuestionHelpText(
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("en-US").toLocale(),
+                          "help text",
+                          Lang.forCode("ar").toLocale(),
+                          "نص المساعدة")))
               .build());
 
   private static final QuestionDefinitionConfig CHECKBOX_QUESTION_DEFINITION_CONFIG =
@@ -42,18 +57,53 @@ public final class SampleQuestionDefinitions {
           .setName("Sample Checkbox Question")
           .setDescription("description")
           .setQuestionText(
-              LocalizedStrings.withDefaultValue(
-                  "Which of the following kitchen instruments do you own?"))
-          .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+              LocalizedStrings.of(
+                  ImmutableMap.of(
+                      Lang.forCode("en-US").toLocale(),
+                      "Which of the following kitchen instruments do you own?",
+                      Lang.forCode("ar").toLocale(),
+                      "أي من أدوات المطبخ التالية تملكها؟")))
+          .setQuestionHelpText(
+              LocalizedStrings.of(
+                  ImmutableMap.of(
+                      Lang.forCode("en-US").toLocale(),
+                      "help text",
+                      Lang.forCode("ar").toLocale(),
+                      "نص المساعدة")))
           .build();
 
   private static final ImmutableList<QuestionOption> CHECKBOX_QUESTION_OPTIONS =
       ImmutableList.of(
-          QuestionOption.create(1L, 1L, "toaster", LocalizedStrings.withDefaultValue("Toaster")),
           QuestionOption.create(
-              2L, 2L, "pepper_grinder", LocalizedStrings.withDefaultValue("Pepper Grinder")),
+              1L,
+              1L,
+              "toaster",
+              LocalizedStrings.of(
+                  ImmutableMap.of(
+                      Lang.forCode("en-US").toLocale(),
+                      "Toaster",
+                      Lang.forCode("ar").toLocale(),
+                      "محمصة الخبز"))),
           QuestionOption.create(
-              3L, 3L, "garlic_press", LocalizedStrings.withDefaultValue("Garlic Press")));
+              2L,
+              2L,
+              "pepper_grinder",
+              LocalizedStrings.of(
+                  ImmutableMap.of(
+                      Lang.forCode("en-US").toLocale(),
+                      "Pepper Grinder",
+                      Lang.forCode("ar").toLocale(),
+                      "مطحنة الفلفل"))),
+          QuestionOption.create(
+              3L,
+              3L,
+              "garlic_press",
+              LocalizedStrings.of(
+                  ImmutableMap.of(
+                      Lang.forCode("en-US").toLocale(),
+                      "Garlic Press",
+                      Lang.forCode("ar").toLocale(),
+                      "عصارة الثوم"))));
 
   @VisibleForTesting
   public static final MultiOptionQuestionDefinition CHECKBOX_QUESTION_DEFINITION =
@@ -69,8 +119,19 @@ public final class SampleQuestionDefinitions {
               .setName("Sample Currency Question")
               .setDescription("description")
               .setQuestionText(
-                  LocalizedStrings.withDefaultValue("How much should a scoop of ice cream cost?"))
-              .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("en-US").toLocale(),
+                          "How much should a scoop of ice cream cost?",
+                          Lang.forCode("ar").toLocale(),
+                          "كم ينبغي أن يكون سعر مغرفة الآيس كريم؟")))
+              .setQuestionHelpText(
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("en-US").toLocale(),
+                          "help text",
+                          Lang.forCode("ar").toLocale(),
+                          "نص المساعدة")))
               .build());
 
   private static final QuestionDefinitionConfig DROPDOWN_QUESTION_CONFIG =
@@ -78,9 +139,19 @@ public final class SampleQuestionDefinitions {
           .setName("Sample Dropdown Question")
           .setDescription("select your favorite ice cream flavor")
           .setQuestionText(
-              LocalizedStrings.withDefaultValue(
-                  "Select your favorite ice cream flavor from the following"))
-          .setQuestionHelpText(LocalizedStrings.withDefaultValue("this is sample help text"))
+              LocalizedStrings.of(
+                  ImmutableMap.of(
+                      Lang.forCode("en-US").toLocale(),
+                      "Select your favorite ice cream flavor from the following",
+                      Lang.forCode("ar").toLocale(),
+                      "اختر نكهة الآيس كريم المفضلة لديك من التالي")))
+          .setQuestionHelpText(
+              LocalizedStrings.of(
+                  ImmutableMap.of(
+                      Lang.forCode("en-US").toLocale(),
+                      "this is sample help text",
+                      Lang.forCode("ar").toLocale(),
+                      "هذه هي عينة مساعدة النص")))
           .build();
   private static final ImmutableList<QuestionOption> DROPDOWN_QUESTION_OPTIONS =
       ImmutableList.of(
@@ -102,8 +173,20 @@ public final class SampleQuestionDefinitions {
           QuestionDefinitionConfig.builder()
               .setName("Sample Email Question")
               .setDescription("description")
-              .setQuestionText(LocalizedStrings.withDefaultValue("What is your email?"))
-              .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+              .setQuestionText(
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("en-US").toLocale(),
+                          "What is your email?",
+                          Lang.forCode("ar").toLocale(),
+                          "ما هو بريدك الالكتروني؟")))
+              .setQuestionHelpText(
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("en-US").toLocale(),
+                          "help text",
+                          Lang.forCode("ar").toLocale(),
+                          "نص المساعدة")))
               .setUniversal(true)
               .setPrimaryApplicantInfoTags(ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_EMAIL))
               .build());
@@ -116,9 +199,20 @@ public final class SampleQuestionDefinitions {
               .setDescription("description")
               .setQuestionText(
                   LocalizedStrings.withDefaultValue("List all members of your household."))
-              .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+              .setQuestionHelpText(
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("en-US").toLocale(),
+                          "help text",
+                          Lang.forCode("ar").toLocale(),
+                          "نص المساعدة")))
               .build(),
-          LocalizedStrings.withDefaultValue("household member"));
+          LocalizedStrings.of(
+              ImmutableMap.of(
+                  Lang.forCode("en-US").toLocale(),
+                  "household member",
+                  Lang.forCode("ar").toLocale(),
+                  "عضو في الأسرة")));
 
   @VisibleForTesting
   public static final FileUploadQuestionDefinition FILE_UPLOAD_QUESTION_DEFINITION =
@@ -127,8 +221,19 @@ public final class SampleQuestionDefinitions {
               .setName("Sample File Upload Question")
               .setDescription("description")
               .setQuestionText(
-                  LocalizedStrings.withDefaultValue("Upload anything from your computer"))
-              .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("en-US").toLocale(),
+                          "Upload anything from your computer",
+                          Lang.forCode("ar").toLocale(),
+                          "تحميل أي شيء من جهاز الكمبيوتر الخاص بك")))
+              .setQuestionHelpText(
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("en-US").toLocale(),
+                          "help text",
+                          Lang.forCode("ar").toLocale(),
+                          "نص المساعدة")))
               .build());
 
   @VisibleForTesting
@@ -138,8 +243,41 @@ public final class SampleQuestionDefinitions {
               .setName("Sample ID Question")
               .setDescription("description")
               .setQuestionText(
-                  LocalizedStrings.withDefaultValue("What is your driver's license ID?"))
-              .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("en-US").toLocale(),
+                          "What is your driver's license ID?",
+                          Lang.forCode("ar").toLocale(),
+                          "ما هو رقم رخصة القيادة الخاصة بك؟")))
+              .setQuestionHelpText(
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("en-US").toLocale(),
+                          "help text",
+                          Lang.forCode("ar").toLocale(),
+                          "نص المساعدة")))
+              .build());
+
+  @VisibleForTesting
+  public static final MapQuestionDefinition MAP_QUESTION_DEFINITION =
+      new MapQuestionDefinition(
+          QuestionDefinitionConfig.builder()
+              .setName("Sample Map Question")
+              .setDescription("description")
+              .setQuestionText(
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("en-US").toLocale(),
+                          "Select locations",
+                          Lang.forCode("ar").toLocale(),
+                          "حدد المواقع")))
+              .setQuestionHelpText(
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("en-US").toLocale(),
+                          "help text",
+                          Lang.forCode("ar").toLocale(),
+                          "نص المساعدة")))
               .build());
 
   @VisibleForTesting
@@ -148,8 +286,20 @@ public final class SampleQuestionDefinitions {
           QuestionDefinitionConfig.builder()
               .setName("Sample Name Question")
               .setDescription("description")
-              .setQuestionText(LocalizedStrings.withDefaultValue("What is your name?"))
-              .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+              .setQuestionText(
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("en-US").toLocale(),
+                          "What is your name?",
+                          Lang.forCode("ar").toLocale(),
+                          "ما اسمك؟")))
+              .setQuestionHelpText(
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("en-US").toLocale(),
+                          "help text",
+                          Lang.forCode("ar").toLocale(),
+                          "نص المساعدة")))
               .setUniversal(true)
               .setPrimaryApplicantInfoTags(ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_NAME))
               .build());
@@ -160,16 +310,40 @@ public final class SampleQuestionDefinitions {
           QuestionDefinitionConfig.builder()
               .setName("Sample Number Question")
               .setDescription("description")
-              .setQuestionText(LocalizedStrings.withDefaultValue("How many pets do you have?"))
-              .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+              .setQuestionText(
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("en-US").toLocale(),
+                          "How many pets do you have?",
+                          Lang.forCode("ar").toLocale(),
+                          "كم عدد الحيوانات الأليفة لديك؟")))
+              .setQuestionHelpText(
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("en-US").toLocale(),
+                          "help text",
+                          Lang.forCode("ar").toLocale(),
+                          "نص المساعدة")))
               .build());
 
   private static final QuestionDefinitionConfig RADIO_BUTTON_QUESTION_CONFIG =
       QuestionDefinitionConfig.builder()
           .setName("Sample Radio Button Question")
           .setDescription("favorite season in the year")
-          .setQuestionText(LocalizedStrings.withDefaultValue("What is your favorite season?"))
-          .setQuestionHelpText(LocalizedStrings.withDefaultValue("this is sample help text"))
+          .setQuestionText(
+              LocalizedStrings.of(
+                  ImmutableMap.of(
+                      Lang.forCode("en-US").toLocale(),
+                      "What is your favorite season?",
+                      Lang.forCode("ar").toLocale(),
+                      "ما هو موسمك المفضل؟")))
+          .setQuestionHelpText(
+              LocalizedStrings.of(
+                  ImmutableMap.of(
+                      Lang.forCode("en-US").toLocale(),
+                      "this is sample help text",
+                      Lang.forCode("ar").toLocale(),
+                      "هذه هي عينة مساعدة النص")))
           .build();
 
   private static final ImmutableList<QuestionOption> RADIO_BUTTON_QUESTION_OPTIONS =
@@ -195,13 +369,25 @@ public final class SampleQuestionDefinitions {
               .setName("Sample Static Content Question")
               .setDescription("description")
               .setQuestionText(
-                  LocalizedStrings.withDefaultValue(
-                      "Hi I'm a block of static text. \n"
-                          + " * Welcome to this __test program__.\n"
-                          + " * It contains one of every question type. \n\n"
-                          + "## What are the eligibility requirements? \n"
-                          + "Please go [here](https://www.example.com) for more information"))
-              .setQuestionHelpText(LocalizedStrings.withDefaultValue(""))
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("en-US").toLocale(),
+                          """
+                          Hi I'm a block of static text.
+                           * Welcome to this __test program__.
+                           * It contains one of every question type.
+
+                          _What are_ the eligibility requirements?
+                          Please go [here](https://www.example.com) for more information""",
+                          Lang.forCode("ar").toLocale(),
+                          """
+                           مرحبًا، أنا كتلة من النص الثابت.
+                            * مرحبا بكم في هذا برنامج الاختبار
+                            * يحتوي على سؤال واحد من كل نوع.
+
+                          ## ما هي متطلبات الأهلية؟
+                          يرجى الذهاب إلى [نا](https://www.example.com) لمزيد من المعلومات
+                          """)))
               .build());
 
   @VisibleForTesting
@@ -210,8 +396,20 @@ public final class SampleQuestionDefinitions {
           QuestionDefinitionConfig.builder()
               .setName("Sample Text Question")
               .setDescription("description")
-              .setQuestionText(LocalizedStrings.withDefaultValue("What is your favorite color?"))
-              .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+              .setQuestionText(
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("en-US").toLocale(),
+                          "What is your favorite color?",
+                          Lang.forCode("ar").toLocale(),
+                          "ما هو لونك المفضل؟")))
+              .setQuestionHelpText(
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("en-US").toLocale(),
+                          "help text",
+                          Lang.forCode("ar").toLocale(),
+                          "نص المساعدة")))
               .build());
 
   @VisibleForTesting
@@ -220,8 +418,20 @@ public final class SampleQuestionDefinitions {
           QuestionDefinitionConfig.builder()
               .setName("Sample Phone Question")
               .setDescription("description")
-              .setQuestionText(LocalizedStrings.withDefaultValue("what is your phone number"))
-              .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+              .setQuestionText(
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("en-US").toLocale(),
+                          "what is your phone number",
+                          Lang.forCode("ar").toLocale(),
+                          "ما هو رقم هاتفك؟")))
+              .setQuestionHelpText(
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("en-US").toLocale(),
+                          "help text",
+                          Lang.forCode("ar").toLocale(),
+                          "نص المساعدة")))
               .setUniversal(true)
               .setPrimaryApplicantInfoTags(ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_PHONE))
               .build());
@@ -232,8 +442,20 @@ public final class SampleQuestionDefinitions {
           QuestionDefinitionConfig.builder()
               .setName("Sample Date Question")
               .setDescription("description")
-              .setQuestionText(LocalizedStrings.withDefaultValue("When is your birthday?"))
-              .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+              .setQuestionText(
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("en-US").toLocale(),
+                          "When is your birthday?",
+                          Lang.forCode("ar").toLocale(),
+                          "متى يحين عيد ميلادك؟")))
+              .setQuestionHelpText(
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("en-US").toLocale(),
+                          "help text",
+                          Lang.forCode("ar").toLocale(),
+                          "نص المساعدة")))
               .setUniversal(true)
               .setPrimaryApplicantInfoTags(ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_DOB))
               .build());
@@ -243,8 +465,20 @@ public final class SampleQuestionDefinitions {
           QuestionDefinitionConfig.builder()
               .setName("Sample Predicate Date Question")
               .setDescription("description")
-              .setQuestionText(LocalizedStrings.withDefaultValue("When is your birthday?"))
-              .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+              .setQuestionText(
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("en-US").toLocale(),
+                          "When is your birthday?",
+                          Lang.forCode("ar").toLocale(),
+                          "متى يحين عيد ميلادك؟")))
+              .setQuestionHelpText(
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("en-US").toLocale(),
+                          "help text",
+                          Lang.forCode("ar").toLocale(),
+                          "نص المساعدة")))
               .build());
 
   private static final QuestionDefinitionConfig.Builder
@@ -293,13 +527,16 @@ public final class SampleQuestionDefinitions {
       case ENUMERATOR -> ENUMERATOR_QUESTION_DEFINITION.withPopulatedTestId();
       case FILEUPLOAD -> FILE_UPLOAD_QUESTION_DEFINITION.withPopulatedTestId();
       case ID -> ID_QUESTION_DEFINITION.withPopulatedTestId();
+      case MAP -> MAP_QUESTION_DEFINITION.withPopulatedTestId();
       case NAME -> NAME_QUESTION_DEFINITION.withPopulatedTestId();
       case NUMBER -> NUMBER_QUESTION_DEFINITION.withPopulatedTestId();
       case RADIO_BUTTON -> RADIO_BUTTON_QUESTION_DEFINITION.withPopulatedTestId();
       case STATIC -> STATIC_CONTENT_QUESTION_DEFINITION.withPopulatedTestId();
       case TEXT -> TEXT_QUESTION_DEFINITION.withPopulatedTestId();
       case PHONE -> PHONE_QUESTION_DEFINITION.withPopulatedTestId();
-      case NULL_QUESTION -> new NullQuestionDefinition(1);
+        // Fall through to Null Question for now since Yes/No is not fully implemented.
+        // TODO(#10800): Create a Yes/No question instead.
+      case YES_NO, NULL_QUESTION -> new NullQuestionDefinition(1);
     };
   }
 }

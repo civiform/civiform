@@ -2,7 +2,6 @@ package services.applicant.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
@@ -14,9 +13,6 @@ import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import play.i18n.Lang;
-import play.i18n.Messages;
-import play.i18n.MessagesApi;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.MessageKey;
@@ -54,13 +50,11 @@ public class IdQuestionTest extends ResetPostgres {
 
   private ApplicantModel applicant;
   private ApplicantData applicantData;
-  private Messages messages;
 
   @Before
   public void setUp() {
     applicant = new ApplicantModel();
     applicantData = applicant.getApplicantData();
-    messages = instanceOf(MessagesApi.class).preferred(ImmutableList.of(Lang.defaultLang()));
   }
 
   @Test

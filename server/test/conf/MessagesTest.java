@@ -1,9 +1,7 @@
 package conf;
 
-import static com.google.auto.common.MoreStreams.toImmutableList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableList;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,7 +10,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -25,7 +22,6 @@ import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import services.MessageKey;
 
 /**
  * Tests that the messages files are in sync. Reads in the keys from the primary language file,
@@ -47,13 +43,16 @@ public class MessagesTest {
 
   private static final String EN_US_LANGUAGE_FILE_PATH = PREFIX_PATH + EN_US_LANGUAGE_FILE_NAME;
 
+  private static final String LOW_RIGHT_DOUBLE_QUOTATION_MARK = "\u201E";
+  private static final String LEFT_DOUBLE_QUOTATION_MARK = "\u201C";
+
   // Check for prohibited characters, such as smart quotes, that may have been added by mistake by
   // Excel or Sheets
   private static final Set<String> PROHIBITED_CHARACTERS =
       Set.of(
           // "Smart quotes"
           "\u2019", // RIGHT SINGLE QUOTATION MARK
-          "\u201C", // LEFT DOUBLE QUOTATION MARK
+          LEFT_DOUBLE_QUOTATION_MARK,
           "\u201D" // RIGHT DOUBLE QUOTATION MARK
           );
 
@@ -112,7 +111,7 @@ public class MessagesTest {
     Map<String, String> entriesInPrimaryLanguageFile = entriesInFile(PRIMARY_LANGUAGE_FILE_PATH);
 
     assertThat(entriesInPrimaryLanguageFile)
-        .withFailMessage("Prohibited characters found in primary language file..")
+        .withFailMessage("Prohibited characters found in primary language file.")
         .allSatisfy(
             (key, value) -> {
               assertThat(key).doesNotContain(PROHIBITED_CHARACTERS);
@@ -126,23 +125,29 @@ public class MessagesTest {
       String foreignLanguageFile) throws Exception {
     Map<String, String> entriesInforeignLanguageFile = entriesInFile(foreignLanguageFile);
 
-    assertThat(entriesInforeignLanguageFile)
-        .withFailMessage("Prohibited characters found in " + foreignLanguageFile + ".")
-        .allSatisfy(
-            (key, value) -> {
-              assertThat(key).doesNotContain(PROHIBITED_CHARACTERS);
-              assertThat(value).doesNotContain(PROHIBITED_CHARACTERS);
-            });
-  }
+    for (Map.Entry<String, String> entry : entriesInforeignLanguageFile.entrySet()) {
+      String key = (String) entry.getKey();
+      String value = (String) entry.getValue();
 
-  @Test
-  public void messageKeyValuesAndMessagesFileKeysAreIdentical() throws Exception {
-    Set<String> keysInPrimaryFile = keysInFile(PRIMARY_LANGUAGE_FILE_PATH);
-
-    ImmutableList<String> messageKeys =
-        Arrays.stream(MessageKey.values()).map(MessageKey::getKeyName).collect(toImmutableList());
-
-    assertThat(keysInPrimaryFile).containsExactlyInAnyOrderElementsOf(messageKeys);
+      assertThat(key).doesNotContain(PROHIBITED_CHARACTERS);
+      for (String prohibitedChar : PROHIBITED_CHARACTERS) {
+        if (value.contains(prohibitedChar)) {
+          // German language has a different set of quotes, so we expect to see the left
+          // quote, but want to make sure the low right quote is also present.
+          if (foreignLanguageFile.endsWith("de")) {
+            if (value.contains(LEFT_DOUBLE_QUOTATION_MARK)
+                && value.contains(LOW_RIGHT_DOUBLE_QUOTATION_MARK)) {
+              continue;
+            }
+          }
+          assertThat(value)
+              .withFailMessage(
+                  String.format(
+                      "Value for key '%s' contains prohibited character '%s'", key, prohibitedChar))
+              .doesNotContain(PROHIBITED_CHARACTERS);
+        }
+      }
+    }
   }
 
   private static Set<String> keysInFile(String filePath) throws Exception {

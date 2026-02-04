@@ -119,18 +119,16 @@ public final class ReportingRepository {
 
   private static double getSecondsFromPgIntervalRowValue(SqlRow row, String key) {
     Object interval =
-        checkNotNull(
-            row.get(key),
-            String.format("Expected SqlRow to have key %s but not found in %s", key, row));
+        checkNotNull(row.get(key), "Expected SqlRow to have key %s but not found in %s", key, row);
 
-    if (!(interval instanceof PGInterval)) {
+    if (!(interval instanceof PGInterval pgInterval)) {
       throw new IllegalStateException(
           String.format(
               "Expected value at %s in SqlRow to be a PgInterval but got %s: %s",
               key, interval.getClass().getName(), interval));
     }
 
-    return intervalToSeconds((PGInterval) interval);
+    return intervalToSeconds(pgInterval);
   }
 
   private static final long SECONDS_PER_YEAR = 31556926L;

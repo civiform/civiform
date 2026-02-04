@@ -1,5 +1,5 @@
-import {assertNotNull} from './util'
-import {isFileTooLarge} from './file_upload_util'
+import {assertNotNull} from '@/util'
+import {isFileTooLarge} from '@/file_upload_util'
 
 /** Scripts for controlling the admin program image upload page. */
 class AdminProgramImage {

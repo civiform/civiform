@@ -18,6 +18,7 @@ import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
+import services.program.ProgramType;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -63,10 +64,7 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
                         .filter(program -> authorizedPrograms.contains(program.adminName()))
                         .map(p -> buildCardData(p, civiformProfile))
                         .sorted(ProgramCardFactory.programTypeThenLastModifiedThenNameComparator())
-                        .map(
-                            cardData ->
-                                programCardFactory.renderCard(
-                                    cardData, /* showCategories= */ false))));
+                        .map(cardData -> programCardFactory.renderCard(cardData, request))));
 
     HtmlBundle htmlBundle = layout.getBundle(request).setTitle(title).addMainContent(contentDiv);
     return layout.renderCentered(htmlBundle);
@@ -74,15 +72,21 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
 
   private ProgramCardFactory.ProgramCardData buildCardData(
       ProgramDefinition activeProgram, Optional<CiviFormProfile> profile) {
+    ImmutableList.Builder<ButtonTag> actionsBuilder = ImmutableList.builder();
+
+    ProgramType programType = activeProgram.programType();
+    if (programType.equals(ProgramType.DEFAULT)
+        || programType.equals(ProgramType.PRE_SCREENER_FORM)) {
+      actionsBuilder.add(renderShareLink(activeProgram));
+      actionsBuilder.add(renderViewApplicationsLink(activeProgram));
+    }
+
     return ProgramCardFactory.ProgramCardData.builder()
         .setActiveProgram(
             Optional.of(
                 ProgramCardData.ProgramRow.builder()
                     .setProgram(activeProgram)
-                    .setRowActions(
-                        ImmutableList.of(
-                            renderShareLink(activeProgram),
-                            renderViewApplicationsLink(activeProgram)))
+                    .setRowActions(actionsBuilder.build())
                     .setExtraRowActions(ImmutableList.of())
                     .build()))
         .setIsCiviFormAdmin(profile.isPresent() && profile.get().isCiviFormAdmin())
@@ -99,11 +103,11 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
                 /* untilDate= */ Optional.empty(),
                 /* applicationStatus= */ Optional.empty(),
                 /* selectedApplicationUri= */ Optional.empty(),
-                /* showDownloadModal */ Optional.empty(),
+                /* showDownloadModal= */ Optional.empty(),
                 /* message= */ Optional.empty())
             .url();
 
-    String buttonText = activeProgram.isCommonIntakeForm() ? "Forms" : "Applications";
+    String buttonText = activeProgram.isPreScreenerForm() ? "Forms" : "Applications";
     ButtonTag button =
         makeSvgTextButton(buttonText, Icons.TEXT_SNIPPET).withClass(ButtonStyles.CLEAR_WITH_ICON);
     return asRedirectElement(button, viewApplicationsLink);

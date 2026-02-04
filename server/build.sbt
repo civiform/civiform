@@ -1,4 +1,3 @@
-import WebAssetsBundler.autoImport.bundleWebAssets
 import sbt.internal.io.Source
 import play.sbt.PlayImport.PlayKeys.playRunHooks
 import com.typesafe.sbt.web.SbtWeb
@@ -13,7 +12,7 @@ lazy val root = (project in file("."))
   .settings(
     name := """civiform-server""",
     version := "0.0.1",
-    crossScalaVersions := Seq("2.13.15", "3.3.3"),
+    crossScalaVersions := Seq("2.13.18", "3.3.3"),
     scalaVersion := crossScalaVersions.value.head,
     maintainer := "uat-public-contact@google.com",
     libraryDependencies ++= Seq(
@@ -24,39 +23,39 @@ lazy val root = (project in file("."))
       javaJdbc,
       javaWs,
       // Collections
-      "com.google.guava" % "guava" % "33.4.0-jre",
+      "com.google.guava" % "guava" % "33.5.0-jre",
       "com.google.auto" % "auto-common" % "1.2.2",
 
       // JSON libraries
-      "com.jayway.jsonpath" % "json-path" % "2.9.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.18.2",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.18.2",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.18.2",
-      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.18.2",
+      "com.jayway.jsonpath" % "json-path" % "2.10.0",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.21.0",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.21.0",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.21.0",
+      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.21.0",
       "com.google.inject.extensions" % "guice-assistedinject" % "6.0.0",
 
       // Templating
       "com.j2html" % "j2html" % "1.6.0",
       "org.thymeleaf" % "thymeleaf" % "3.1.3.RELEASE",
-      "org.commonmark" % "commonmark" % "0.24.0",
-      "org.commonmark" % "commonmark-ext-autolink" % "0.24.0",
+      "org.commonmark" % "commonmark" % "0.27.1",
+      "org.commonmark" % "commonmark-ext-autolink" % "0.27.1",
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.29.43",
-      "software.amazon.awssdk" % "ses" % "2.29.43",
+      "software.amazon.awssdk" % "s3" % "2.41.15",
+      "software.amazon.awssdk" % "ses" % "2.41.15",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.14.2",
-      "com.azure" % "azure-storage-blob" % "12.29.0",
+      "com.azure" % "azure-identity" % "1.18.1",
+      "com.azure" % "azure-storage-blob" % "12.32.0",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.25.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.60.0",
 
       // Database and database testing libraries
-      "org.postgresql" % "postgresql" % "42.7.4",
-      "com.google.cloud.sql" % "postgres-socket-factory" % "1.21.0",
-      "com.h2database" % "h2" % "2.3.232" % Test,
+      "org.postgresql" % "postgresql" % "42.7.9",
+      "com.google.cloud.sql" % "postgres-socket-factory" % "1.28.0",
+      "com.h2database" % "h2" % "2.4.240" % Test,
 
       // Metrics collection and export for Prometheus
       "io.github.jyllands-posten" %% "play-prometheus-filters" % "1.0.2",
@@ -65,69 +64,81 @@ lazy val root = (project in file("."))
       "pl.pragmatists" % "JUnitParams" % "1.1.1" % Test,
 
       // Testing libraries
-      "org.assertj" % "assertj-core" % "3.26.3" % Test,
+      "org.assertj" % "assertj-core" % "3.27.7" % Test,
       "org.mockito" % "mockito-inline" % "5.2.0",
-      "org.assertj" % "assertj-core" % "3.26.3" % Test,
+
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
-      "com.google.guava" % "guava-testlib" % "33.4.0-jre" % Test,
+      "com.google.guava" % "guava-testlib" % "33.5.0-jre" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
-      "jakarta.xml.bind" % "jakarta.xml.bind-api" % "4.0.2",
-      "jakarta.activation" % "jakarta.activation-api" % "2.1.3",
-      "org.glassfish.jaxb" % "jaxb-runtime" % "4.0.5",
+      "jakarta.xml.bind" % "jakarta.xml.bind-api" % "4.0.4",
+      "jakarta.activation" % "jakarta.activation-api" % "2.1.4",
+      "org.glassfish.jaxb" % "jaxb-runtime" % "4.0.6",
+
+      // Code autogeneration
+      "org.projectlombok" % "lombok" % "1.18.42",
 
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
-      "org.pac4j" %% "play-pac4j" % "12.0.0-PLAY3.0",
-      "org.pac4j" % "pac4j-core" % "6.1.0",
+      "org.pac4j" %% "play-pac4j" % "13.0.2-PLAY3.0",
+      "org.pac4j" % "pac4j-core" % "6.3.1",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "6.1.0",
+      "org.pac4j" % "pac4j-http" % "6.3.1",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "6.1.0",
+      "org.pac4j" % "pac4j-oidc" % "6.3.1",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "6.1.0",
+      "org.pac4j" % "pac4j-saml" % "6.3.1",
 
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.13.0",
 
       // Autovalue
-      "com.google.auto.value" % "auto-value-annotations" % "1.11.0",
-      "com.google.auto.value" % "auto-value" % "1.11.0",
+      "com.google.auto.value" % "auto-value-annotations" % "1.11.1",
+      "com.google.auto.value" % "auto-value" % "1.11.1",
 
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.36.0",
-      "org.checkerframework" % "dataflow-errorprone" % "3.48.3",
+      "com.google.errorprone" % "error_prone_core" % "2.42.0",
+      "org.checkerframework" % "dataflow-errorprone" % "3.53.0",
 
       // Apache libraries for export
-      "org.apache.commons" % "commons-csv" % "1.12.0",
-      "commons-validator" % "commons-validator" % "1.9.0",
+      "org.apache.commons" % "commons-csv" % "1.14.1",
+      "commons-validator" % "commons-validator" % "1.10.1",
 
       // pdf library for export
-      "com.itextpdf" % "itextpdf" % "5.5.13.4",
+      "com.itextpdf" % "itextpdf" % "5.5.13.5",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.52",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.22",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.7",
 
       // Apache libraries for testing subnets
-      "commons-net" % "commons-net" % "3.11.1",
+      "commons-net" % "commons-net" % "3.12.0",
 
       // Url detector for program descriptions.
       "com.linkedin.urls" % "url-detector" % "0.1.17",
 
-      // Override defaul Play logback version. We need to use logback
+      // Override default Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.5.12",
+      "ch.qos.logback" % "logback-classic" % "1.5.26",
 
       // Swagger 2.0 Dependencies
-      "io.swagger" % "swagger-core" % "1.6.14" exclude ("javax.validation", "validation-api"),
-      "io.swagger" % "swagger-parser" % "1.0.72",
+      "io.swagger" % "swagger-core" % "1.6.16" exclude (
+        "javax.validation",
+        "validation-api"
+      ),
+      "io.swagger" % "swagger-parser" % "1.0.75",
 
       // OpenAPI 3.x Dependencies
-      "io.swagger.core.v3" % "swagger-core" % "2.2.27",
-      "io.swagger.parser.v3" % "swagger-parser" % "2.1.24"
+      "io.swagger.core.v3" % "swagger-core" % "2.2.42",
+      "io.swagger.parser.v3" % "swagger-parser" % "2.1.37",
+
+      // JSON Schema validation
+      "com.networknt" % "json-schema-validator" % "2.0.1",
+
+      // Logstash to write JSON formatted log lines with logback
+      "net.logstash.logback" % "logstash-logback-encoder" % "8.1"
     ),
     javacOptions ++= {
       val defaultCompilerOptions = Seq(
@@ -148,34 +159,35 @@ lazy val root = (project in file("."))
 
       // Disable errorprone checking if the DISABLE_ERRORPRONE environment variable
       // is set to true
-      val errorProneCompilerOptions = Option(System.getenv("DISABLE_ERRORPRONE"))
-        .filter(_ != "true")
-        .map(_ =>
-          Seq(
-            // Turn off the AutoValueSubclassLeaked error since the generated
-            // code contains it - we can't control that.
-            "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF -XepDisableWarningsInGeneratedCode -Xep:WildcardImport:ERROR -Xep:CatchingUnchecked:ERROR -Xep:ThrowsUncheckedException:ERROR",
-            "--should-stop=ifError=FLOW",
-            "-Werror"
+      val errorProneCompilerOptions =
+        Option(sys.env.getOrElse("DISABLE_ERRORPRONE", "false"))
+          .filter(_ != "true")
+          .map(_ =>
+            Seq(
+              // Turn off the AutoValueSubclassLeaked error since the generated
+              // code contains it - we can't control that.
+              "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF -XepDisableWarningsInGeneratedCode -Xep:WildcardImport:ERROR -Xep:CatchingUnchecked:ERROR -Xep:ThrowsUncheckedException:ERROR",
+              "--should-stop=ifError=FLOW",
+              "-Werror"
+            )
           )
-        )
-        .getOrElse(Seq.empty)
+          .getOrElse(Seq.empty)
 
       defaultCompilerOptions ++ errorProneCompilerOptions
     },
 
     // Documented at https://github.com/sbt/zinc/blob/c18637c1b30f8ab7d1f702bb98301689ec75854b/internal/compiler-interface/src/main/contraband/incremental.contra
-    // Recompile everything if >30% files have changed, to help avoid infinate
+    // Recompile everything if >30% files have changed, to help avoid infinite
     // incremental compilation.
     // (but still allow some incremental building for speed.)
     incOptions := incOptions.value.withRecompileAllFraction(.3),
     // After 2 transitive steps, do more aggressive invalidation
     // https://github.com/sbt/zinc/issues/911
     incOptions := incOptions.value.withTransitiveStep(2),
-    pipelineStages := Seq(bundleWebAssets, digest, gzip), // plugins to use for assets
-    // Enable digest for local dev so that files can be served çached improving
+    pipelineStages := Seq(digest, gzip), // plugins to use for assets
+    // Enable digest for local dev so that files can be served cached improving
     // page speed and also browser tests speed.
-    Assets / pipelineStages := Seq(bundleWebAssets, digest, gzip),
+    Assets / pipelineStages := Seq(digest, gzip),
 
     // Allow tests to print to stdout when running in forking mode (default)
     Test / outputStrategy := Some(StdoutOutput),
@@ -252,10 +264,10 @@ lazy val root = (project in file("."))
 jacocoReportSettings := JacocoReportSettings()
   .withFormats(JacocoReportFormats.HTML, JacocoReportFormats.XML)
 
-jacocoExcludes := Seq("views*", "*Routes*")
+jacocoExcludes := Seq("views*", "*Routes*", "services/settings/SettingsManifest")
 jacocoDirectory := baseDirectory.value / "code-coverage"
 
-// Include North Star HTML files when running 'sbt dist' when building the prod image.
+// Include Thymeleaf HTML files when running 'sbt dist' when building the prod image.
 // We need these in order for Thymeleaf to be able to use them for templating.
 Universal / mappings ++= {
   val viewsDir = baseDirectory.value / "app" / "views"
@@ -295,11 +307,22 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.18.2",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.18.2",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.18.2"
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.21.0",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.21.0",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.21"
 )
+
+// Play run hooks only run when the app starts with sbt run (dev/test). They
+// are not called when the app is precompiled with sbt dist (prod).
 playRunHooks += TailwindBuilder(baseDirectory.value)
+playRunHooks ++= {
+  if (sys.env.getOrElse("USE_BUNDLER_DEV_SERVER", "true").toBoolean) {
+    Seq(BundlerDevServer(baseDirectory.value))
+  } else {
+    Seq(BundledAssetBuilder(baseDirectory.value))
+  }
+}
+
 // Reload when the build.sbt file changes.
 Global / onChangedBuildSource := ReloadOnSourceChanges
 // uncomment to show debug logging.

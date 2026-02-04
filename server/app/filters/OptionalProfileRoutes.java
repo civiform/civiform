@@ -10,7 +10,12 @@ import play.mvc.Http.RequestHeader;
 final class OptionalProfileRoutes {
 
   public static ImmutableList<String> routes =
-      ImmutableList.of("/", "/programs", "/applicants/programs");
+      ImmutableList.of(
+          "/",
+          "/programs",
+          "/applicants/programs",
+          "/error",
+          controllers.routes.SupportController.handleUnsupportedBrowser().url());
 
   public static boolean anyMatch(RequestHeader requestHeader) {
     String path = requestHeader.path();

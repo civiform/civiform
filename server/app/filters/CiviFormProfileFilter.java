@@ -11,10 +11,12 @@ import controllers.routes;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
+import javax.inject.Provider;
 import org.apache.pekko.stream.Materializer;
 import play.mvc.Filter;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.routing.Router;
 
 /**
  * Ensures that user-facing requests have a CiviFormProfile by redirecting to create a guest session
@@ -22,11 +24,14 @@ import play.mvc.Result;
  */
 public final class CiviFormProfileFilter extends Filter {
   private final ProfileUtils profileUtils;
+  private final Provider<Router> routerProvider;
 
   @Inject
-  public CiviFormProfileFilter(Materializer mat, ProfileUtils profileUtils) {
+  public CiviFormProfileFilter(
+      Materializer mat, ProfileUtils profileUtils, Provider<Router> routerProvider) {
     super(mat);
     this.profileUtils = checkNotNull(profileUtils);
+    this.routerProvider = checkNotNull(routerProvider);
   }
 
   /**
@@ -34,7 +39,8 @@ public final class CiviFormProfileFilter extends Filter {
    *
    * <ul>
    *   <li>The request is for a user-facing route
-   *   <li>The request is not for the homepage (/ or /programs)
+   *   <li>The request is not for the homepage (/ or /programs) or error page (/error)
+   *   <li>The request is for a route that exists (won't result in a 404)
    *   <li>The request uses the `GET` or `HEAD` method (POST cannot be redirected back to the
    *       original URI)
    *   <li>The session associated with the request does not contain a pac4j user profile
@@ -43,6 +49,7 @@ public final class CiviFormProfileFilter extends Filter {
   private boolean shouldRedirect(Http.RequestHeader requestHeader) {
     return NonUserRoutes.noneMatch(requestHeader)
         && OptionalProfileRoutes.noneMatch(requestHeader)
+        && routerProvider.get().route(requestHeader).isPresent()
         && !requestHeader.path().startsWith("/callback")
         // TODO(#8504) extend to all HTTP methods
         && (requestHeader.method().equals("GET") || requestHeader.method().equals("HEAD"))

@@ -3,17 +3,14 @@ package views.admin.programs;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.text;
 
-import auth.CiviFormProfile;
-import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import controllers.admin.NorthStarProgramCardPreviewController;
+import controllers.admin.ProgramCardPreviewController;
 import controllers.admin.routes;
 import forms.admin.ProgramImageDescriptionForm;
 import j2html.tags.specialized.ATag;
@@ -22,9 +19,6 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.InputTag;
-import j2html.tags.specialized.LiTag;
-import java.time.ZoneId;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
@@ -36,29 +30,22 @@ import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
-import services.AlertType;
 import services.LocalizedStrings;
-import services.MessageKey;
-import services.applicant.ApplicantPersonalInfo;
-import services.applicant.ApplicantService;
 import services.cloud.PublicFileNameFormatter;
 import services.cloud.PublicStorageClient;
 import services.cloud.StorageUploadRequest;
 import services.program.ProgramDefinition;
-import services.settings.SettingsManifest;
 import views.AlertComponent;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.ViewUtils;
 import views.admin.AdminLayout;
 import views.admin.AdminLayoutFactory;
-import views.applicant.ProgramCardViewRenderer;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.components.Modal;
-import views.components.ToastMessage;
 import views.fileupload.FileUploadViewStrategy;
 import views.style.StyleUtils;
 
@@ -72,19 +59,15 @@ public final class ProgramImageView extends BaseHtmlView {
   private static final String PAGE_TITLE = "Image upload";
   private static final String DELETE_IMAGE_BUTTON_TEXT = "Delete image";
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ProgramImageView.class);
+  private static final Logger logger = LoggerFactory.getLogger(ProgramImageView.class);
 
   private final AdminLayout layout;
   private final String baseUrl;
   private final FormFactory formFactory;
   private final FileUploadViewStrategy fileUploadViewStrategy;
   private final MessagesApi messagesApi;
-  private final ProfileUtils profileUtils;
-  private final ProgramCardViewRenderer programCardViewRenderer;
   private final PublicStorageClient publicStorageClient;
-  private final ZoneId zoneId;
-  private final SettingsManifest settingsManifest;
-  private final NorthStarProgramCardPreviewController northStarProgramCardPreviewController;
+  private final ProgramCardPreviewController programCardPreviewController;
 
   @Inject
   public ProgramImageView(
@@ -93,24 +76,15 @@ public final class ProgramImageView extends BaseHtmlView {
       FormFactory formFactory,
       FileUploadViewStrategy fileUploadViewStrategy,
       MessagesApi messagesApi,
-      ProfileUtils profileUtils,
-      ProgramCardViewRenderer programCardViewRenderer,
       PublicStorageClient publicStorageClient,
-      ZoneId zoneId,
-      SettingsManifest settingsManifest,
-      NorthStarProgramCardPreviewController northStarProgramCardPreviewController) {
+      ProgramCardPreviewController programCardPreviewController) {
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.formFactory = checkNotNull(formFactory);
     this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
     this.messagesApi = checkNotNull(messagesApi);
-    this.profileUtils = checkNotNull(profileUtils);
-    this.programCardViewRenderer = checkNotNull(programCardViewRenderer);
     this.publicStorageClient = checkNotNull(publicStorageClient);
-    this.zoneId = checkNotNull(zoneId);
-    this.settingsManifest = checkNotNull(settingsManifest);
-    this.northStarProgramCardPreviewController =
-        checkNotNull(northStarProgramCardPreviewController);
+    this.programCardPreviewController = checkNotNull(programCardPreviewController);
   }
 
   /**
@@ -151,20 +125,15 @@ public final class ProgramImageView extends BaseHtmlView {
         div().withClasses("grid", "grid-cols-2", "gap-10", "w-full");
     formsAndCurrentCardContainer.with(formsContainer);
 
-    if (settingsManifest.getNorthStarApplicantUi(request)) {
-      DivTag cardPreview;
-      try {
-        String content =
-            northStarProgramCardPreviewController.cardPreview(request, programDefinition.id());
-        cardPreview = div(rawHtml(content));
-      } catch (InterruptedException | ExecutionException e) {
-        LOGGER.error("Error generating card preview: " + e.getLocalizedMessage());
-        cardPreview = div(text("Error generating card preview")).withClass("text-center");
-      }
-      formsAndCurrentCardContainer.with(cardPreview);
-    } else {
-      formsAndCurrentCardContainer.with(renderCurrentProgramCard(request, programDefinition));
+    DivTag cardPreview;
+    try {
+      String content = programCardPreviewController.cardPreview(request, programDefinition.id());
+      cardPreview = div(rawHtml(content));
+    } catch (InterruptedException | ExecutionException e) {
+      logger.error("Error generating card preview: " + e.getLocalizedMessage());
+      cardPreview = div(text("Error generating card preview")).withClass("text-center");
     }
+    formsAndCurrentCardContainer.with(cardPreview);
 
     mainContent.with(titleContainer, formsAndCurrentCardContainer);
 
@@ -175,36 +144,24 @@ public final class ProgramImageView extends BaseHtmlView {
             .addMainContent(div().with(backButton, mainContent))
             .addModals(deleteImageModal);
 
-    // TODO(#6593): Write a helper method for this toast display logic.
-    Http.Flash flash = request.flash();
-    if (flash.get("success").isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.success(flash.get("success").get()));
-    } else if (flash.get("error").isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.errorNonLocalized(flash.get("error").get()));
-    }
-
+    addSuccessAndErrorToasts(htmlBundle, request.flash());
     return layout.renderCentered(htmlBundle);
   }
 
   private ATag createBackButton(
       ProgramDefinition programDefinition, ProgramEditStatus programEditStatus) {
-    String backTarget;
-    switch (programEditStatus) {
-      case EDIT:
-        backTarget = routes.AdminProgramBlocksController.index(programDefinition.id()).url();
-        break;
-      case CREATION:
-      case CREATION_EDIT:
-        // By the time we're in the image view, the program has been created so the new status is
-        // CREATION_EDIT.
-        backTarget =
-            routes.AdminProgramController.edit(
-                    programDefinition.id(), ProgramEditStatus.CREATION_EDIT.name())
-                .url();
-        break;
-      default:
-        throw new IllegalStateException("All cases should be handled above");
-    }
+    String backTarget =
+        switch (programEditStatus) {
+          case EDIT -> routes.AdminProgramBlocksController.index(programDefinition.id()).url();
+          case CREATION, CREATION_EDIT ->
+              // By the time we're in the image view, the program has been created so the new status
+              // is
+              // CREATION_EDIT.
+              routes.AdminProgramController.edit(
+                      programDefinition.id(), ProgramEditStatus.CREATION_EDIT.name())
+                  .url();
+          default -> throw new IllegalStateException("All cases should be handled above");
+        };
 
     return new LinkElement()
         .setHref(backTarget)
@@ -243,11 +200,8 @@ public final class ProgramImageView extends BaseHtmlView {
 
     return div()
         .with(
-            AlertComponent.renderSlimAlert(
-                AlertType.INFO,
-                "Note: Image description is required before uploading an image.",
-                /* hidden= */ false,
-                "mb-2"))
+            AlertComponent.renderSlimInfoAlert(
+                "Note: Image description is required before uploading an image.", "mb-2"))
         .with(
             form()
                 .withId(IMAGE_DESCRIPTION_FORM_ID)
@@ -341,50 +295,6 @@ public final class ProgramImageView extends BaseHtmlView {
         .localizedSummaryImageDescription()
         .map(LocalizedStrings::getDefault)
         .orElse("");
-  }
-
-  private DivTag renderCurrentProgramCard(Http.Request request, ProgramDefinition program) {
-    DivTag currentProgramCardSection =
-        div().withClass("mx-auto").with(h2("What the applicant will see").withClasses("mb-4"));
-
-    Optional<CiviFormProfile> profile = profileUtils.optionalCurrentUserProfile(request);
-    Long applicantId;
-    try {
-      applicantId = profile.get().getApplicant().get().id;
-    } catch (NoSuchElementException | ExecutionException | InterruptedException e) {
-      return currentProgramCardSection.with(
-          p("Applicant preview can't be rendered: Applicant ID for admin couldn't be fetched."));
-    }
-
-    Messages messages = messagesApi.preferred(request);
-    // We don't need to fill in any applicant data besides the program information since this is
-    // just for a card preview.
-    ApplicantService.ApplicantProgramData card =
-        ApplicantService.ApplicantProgramData.builder(program).build();
-
-    LiTag programCard =
-        programCardViewRenderer.createProgramCard(
-            request,
-            messages,
-            // An admin *does* have an associated applicant account, so consider them logged in so
-            // that the "Apply" button on the preview card takes them to the full program preview.
-            ApplicantPersonalInfo.ApplicantType.LOGGED_IN,
-            card,
-            Optional.of(applicantId),
-            messages.lang().toLocale(),
-            MessageKey.BUTTON_APPLY,
-            MessageKey.BUTTON_APPLY_SR,
-            /* nestedUnderSubheading= */ false,
-            layout.getBundle(request),
-            profile,
-            zoneId,
-            /* isInMyApplicationsSection= */ false);
-    return currentProgramCardSection.with(programCard);
-    // Note: The "Program details" link inside the card preview will not work if the admin hasn't
-    // provided a custom external link. This is because the default "Program details" link redirects
-    // to ApplicantProgramsController#showWithApplicantId, which only allows access to the published
-    // versions of programs. When editing a program image, the program is in *draft* form and has a
-    // different ID, so ApplicantProgramsController prevents access.
   }
 
   private Modal createDeleteImageModal(

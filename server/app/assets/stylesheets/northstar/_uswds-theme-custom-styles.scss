@@ -21,6 +21,18 @@ See the radio-option below as an example.
 
 @use 'uswds-core' as *;
 
+// Hide usa-modal elements until USWDS wraps them in usa-modal-wrapper.
+// This prevents a flash of the modal content on page load.
+.usa-modal:not(.usa-modal-wrapper .usa-modal) {
+  display: none;
+}
+
+// Prevents improper scaling on mobile devices
+body,
+html {
+  overflow-x: hidden;
+}
+
 .cf-alert {
   margin: 0 auto;
 }
@@ -29,11 +41,36 @@ See the radio-option below as an example.
   font-weight: font-weight('bold');
 }
 
+// -- start
+// Backwards compatible step for migrating tailwind to keep some SVGs correctly
+// sized. This is shared in admin and applicant sides so until we rewrite SVG
+// support or migrate the admin we'll use the same settings from tailwind.
+svg {
+  &.w-auto {
+    width: auto;
+  }
+  &.h-5 {
+    height: 1.25rem;
+  }
+}
+// -- end
+
+/* Override margin values to support RTL languages. */
+.usa-identifier__logos {
+  margin-right: 0;
+  margin-inline-end: 1rem;
+}
+
+.cf-header-logo {
+  padding-inline-end: 1rem;
+}
+
 /* Rather than having a focus outline around the checkbox or radio button,
 it is around the label */
 .usa-checkbox__input:focus + [class*='__label']::before,
 .usa-radio__input:focus + [class*='__label']::before {
-  outline: none;
+  outline: 2px solid rgba(0, 0, 0, 0);
+  outline-offset: 2px;
 }
 
 .cf-radio-option:focus-within,
@@ -41,6 +78,37 @@ it is around the label */
 .usa-radio__input:focus + [class*='__label'] {
   @include u-border('blue-40v');
   @include u-border('05');
+}
+
+/* By default, the USWDS checkbox input element is positioned off-screen and the label
+ is styled to look like a checkbox.  This causes a problem with screen reader
+ linear navigation because the screen reader navigation outline (different than focus outline)
+ does not show.  These styles set that navigation outline around the label yet make it invisible
+ when the screen reader linear navigation isn't being used.*/
+.usa-checkbox__input {
+  @include u-left('auto');
+  opacity: 0;
+}
+
+// Category filters on applicant home page
+[id^='ns-check-category-'] {
+  @include u-top(1);
+  width: 95%;
+  height: 85%;
+}
+
+// Checkboxes in the checkbox and map question types in the applicant form
+.cf-checkbox-question-input,
+.cf-location-checkbox-input {
+  @include u-height('full');
+  @include u-width('full');
+  @include u-maxw('mobile-lg');
+}
+
+/* Style aria-disabled checkboxes to appear disabled */
+.cf-location-checkbox-input[aria-disabled='true'] + label {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /*
@@ -62,10 +130,27 @@ it is around the label */
 }
 
 /*
- * Less padding when there is an error, since we add a border and still want the inputs to line up.
+ * Add padding to the left of the group question when there is an error
+ * to make room for the error border.
+ */
+[class^='cf-question'].cf-question-field-with-error {
+  @include u-padding-left('105');
+}
+
+/*
+ * Less padding when there is a field-level error, since we add a border and
+ * still want the inputs to line up.
  */
 .cf-applicant-question-field.cf-question-field-with-error {
   @include u-padding-left('105');
+}
+
+/*
+ *Ensure the focus outline is offset from the red error border
+ * of the input group, for greater accessibility.
+ */
+.usa-input-group--error > .usa-input:focus {
+  outline-offset: units(1);
 }
 
 /**
@@ -88,11 +173,11 @@ it is around the label */
   padding: 0px;
 }
 
-.cf-north-star-enumerator-field {
+.cf-enumerator-field {
   @include u-padding-y('105');
 }
 
-.cf-north-star-enumerator-field:last-child {
+.cf-enumerator-field:last-child {
   @include u-padding-bottom(0);
 }
 
@@ -102,6 +187,34 @@ it is around the label */
 
 .content {
   @include u-margin-y('105');
+}
+
+// When a section follows breadcrumbs it'll add a larger top margin than what
+// we want
+.usa-breadcrumb + section {
+  @include u-margin-top('105');
+}
+
+// Remove top margin from h2 headings in .usa-prose on the home page because we
+// usually get enough spacing from the margin below section cards and add spacing below.
+.usa-prose > h2.cf-below-cards {
+  @include u-margin-top(0);
+  @include u-margin-bottom(3);
+}
+
+// Remove top margin from section elements in .usa-prose on the home page
+// because we sometimes get enough spacing from the margin below section cards.
+.usa-prose section.cf-below-cards {
+  @include u-margin-top(0);
+}
+
+// Tailwind removes list style from unordered and ordered lists.
+ul.usa-list {
+  list-style-type: disc;
+}
+
+ol.usa-list {
+  list-style-type: decimal;
 }
 
 .content-spacing {
@@ -127,11 +240,17 @@ it is around the label */
 }
 
 .section-bottom {
-  @include u-margin-bottom(1);
+  @include u-margin-bottom(3);
 }
 
-.padding-section-large {
-  @include u-padding(4);
+.double-section-bottom {
+  @include u-margin-bottom(6);
+}
+
+// For the applicant home page container. The bottom spacing is provided by the cards.
+.padding-section-large-three-sides {
+  @include u-padding-top(4);
+  @include u-padding-x(4);
 }
 
 .container {
@@ -230,21 +349,30 @@ it is around the label */
   }
 }
 
+// Styles the header to be vertically aligned
+.usa-header--basic .usa-nav-container {
+  align-items: center;
+}
+
 // Styles common to tablet and mobile
 @media (max-width: 63.9em) {
+  // Hide the logo on mobile and tablet
+  .cf-header-logo {
+    display: none;
+  }
+
   .usa-nav .usa-button,
   .usa-nav span {
     margin-top: 8px;
+  }
+
+  .usa-nav .grid-row * {
+    width: 100%;
   }
 }
 
 // Styles for mobile
 @media (max-width: 47.9em) {
-  // Hide the logo on mobile
-  .cf-header-logo {
-    display: none;
-  }
-
   // Use a single column on mobile
   .grid-container {
     grid-template-columns: 1fr;
@@ -281,11 +409,6 @@ h1.usa-step-indicator__heading {
   line-height: inherit;
 }
 
-.cf-program-card-image {
-  height: 162px;
-  align-self: stretch;
-}
-
 .usa-footer__primary-content .usa-footer__primary-link {
   text-decoration: underline;
 }
@@ -307,6 +430,11 @@ h1.usa-step-indicator__heading {
   max-width: 480px;
 }
 
+// Custom gap for use on flexbox since there isn't one currently defined in default USWDS utility classes.
+.cf-flex-gap {
+  gap: units(1);
+}
+
 // Let the body expand to fill the entire viewport
 body {
   display: flex;
@@ -319,20 +447,22 @@ main {
   flex: 1 0 auto;
 }
 
+// Mobile
+.cf-program-card-group .usa-card {
+  @include grid-col(12);
+}
+
 // Tablet: Program card grid has 2 columns
 @media (min-width: 40em) {
-  .cf-program-card-group {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    margin-left: -0.5rem;
-    margin-right: -0.5rem;
+  .cf-program-card-group .usa-card {
+    @include grid-col(6);
   }
 }
 
 // Desktop: Program card grid has 3 columns
 @media (min-width: 64em) {
-  .cf-program-card-group {
-    grid-template-columns: 1fr 1fr 1fr;
+  .cf-program-card-group .usa-card {
+    @include grid-col(4);
   }
 }
 
@@ -363,6 +493,15 @@ main {
   gap: units(1);
 }
 
+.failed-state {
+  border-radius: 2px;
+  background: var(--theme-color-error-lighter, #f4e3db);
+  @include u-padding-y(0.5);
+  @include u-padding-x(1);
+  align-items: center;
+  gap: units(1);
+}
+
 .cf-eligible-tag {
   @include u-font('sans', 'xs');
 }
@@ -387,4 +526,362 @@ main {
 
 .tag-submitted {
   background: var(--State-tokens-info-info-light, #99deea);
+}
+
+.cf-wrap-anywhere {
+  overflow-wrap: anywhere;
+}
+
+// Custom styling to make the usa-language component work with buttons rather than anchors
+.usa-language__submenu-item {
+  &:focus {
+    outline-offset: units('neg-05');
+  }
+
+  &:hover {
+    color: color('white');
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  button {
+    all: unset;
+    color: color('white');
+    display: block;
+    line-height: line-height($theme-navigation-font-family, 3);
+    padding: 0;
+    padding: units(1);
+    text-decoration: none;
+    display: block;
+    width: 100%;
+  }
+}
+
+// Add white border to login dropdown options specifically
+.usa-language__submenu {
+  border-width: 0.05rem;
+  border-color: color('white');
+}
+
+[dir='rtl'] {
+  .usa-button:not(.margin-left-0, .cf-apply-button) {
+    margin-right: 0px;
+    margin-left: 0.5rem;
+  }
+
+  /* Make the checkbox appear to the right of the label in RTL languages. */
+  .usa-checkbox__label::before {
+    position: absolute;
+    display: inline-block;
+    margin-inline-end: 10px;
+    right: 8px;
+  }
+
+  .usa-checkbox__label {
+    padding-inline-start: 40px;
+  }
+
+  .usa-logo {
+    margin-inline-start: 16px;
+  }
+
+  .usa-banner__inner {
+    padding-inline-start: 16px;
+  }
+
+  .usa-banner__button {
+    margin-inline-start: 0.5rem;
+  }
+
+  .usa-banner__icon {
+    margin-inline-end: 0.5rem;
+  }
+
+  .usa-input-prefix + input {
+    padding-inline-start: 2.5rem;
+  }
+
+  // -- start
+  /* Make the info/alert icons appear to the right of the label in RTL languages. */
+  .usa-alert__body::before {
+    display: inline-block;
+    right: 1rem;
+  }
+
+  .usa-site-alert--slim .usa-alert__body::before {
+    right: 1.625rem;
+  }
+
+  .usa-alert:not(.usa-alert--warning, .usa-alert--success) {
+    border-left-width: 0px;
+    border-right-width: 8px;
+    border-right-color: color($theme-color-info);
+  }
+
+  .usa-alert--warning {
+    border-left-width: 0px;
+    border-right-width: 8px;
+    border-right-color: color($theme-color-warning);
+  }
+
+  .usa-alert--success {
+    border-left-width: 0px;
+    border-right-width: 8px;
+    border-right-color: color($theme-color-success);
+  }
+
+  .usa-alert .usa-alert__heading,
+  .usa-alert .usa-alert__text,
+  .usa-alert .grid-row,
+  .usa-alert p,
+  .usa-alert .usa-list {
+    margin-inline-start: 2.5rem;
+  }
+
+  // Prevent extra padding from getting added between list marker and paragraph
+  .usa-alert li p {
+    margin-inline-start: 0rem;
+  }
+
+  .usa-alert .usa-alert__body .usa-list {
+    padding-inline-start: 2ch;
+  }
+
+  .usa-alert .usa-button {
+    margin-right: 0px;
+  }
+
+  .usa-process-list__item::before {
+    right: 0rem;
+  }
+
+  .usa-process-list__item {
+    padding-right: calc(calc(2.5rem / 2 - 0.25rem) * 2);
+  }
+
+  .usa-process-list {
+    padding-right: 20px;
+  }
+  // -- end
+
+  .usa-radio__label::before {
+    display: inline-block;
+    right: 1rem;
+  }
+
+  .usa-radio__label > div,
+  .usa-radio__label > p {
+    margin-inline-start: 2.5rem;
+  }
+
+  .usa-radio__input {
+    position: fixed;
+  }
+
+  #summary-multiline-list {
+    margin: 0;
+    text-align: left;
+    padding-left: 0;
+  }
+
+  .summary-answer {
+    text-align: left;
+  }
+
+  /* Prevent `position: absolute` from breaking CSS when usa-sr-only elements are focused on when rendering rtl. */
+  .usa-sr-only {
+    position: fixed;
+  }
+
+  /* Make numbered text render correctly in rtl. */
+  .usa-step-indicator__total-steps {
+    unicode-bidi: plaintext;
+  }
+
+  /* Flip the breadcrumb arrow image so it points the correct direction for rtl. */
+  .usa-breadcrumb__link::before {
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+  }
+
+  .usa-modal,
+  .usa-modal-content {
+    text-align: right;
+  }
+
+  .usa-modal__close {
+    margin-left: 0;
+  }
+
+  // Styles for RTL on desktop
+  @media (min-width: 64em) {
+    .usa-banner__inner {
+      padding-inline-start: 2rem;
+    }
+  }
+
+  // Styles for RTL on mobile
+  @media (max-width: 47.9em) {
+    .usa-breadcrumb__list {
+      padding-inline-start: 2ex;
+    }
+  }
+}
+
+// Custom height for map question map container
+@include at-media('desktop') {
+  .cf-map-container {
+    min-height: 698px;
+  }
+}
+
+.cf-map-container {
+  min-height: 400px;
+}
+
+.maplibregl-popup-content {
+  padding: 0 !important;
+  width: 320px;
+}
+
+.maplibregl-popup-close-button {
+  color: color('blue-60v');
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  font-weight: 700;
+}
+
+// Ensure MapLibre attribution links are underlined and styled consistently for accessibility
+.maplibregl-ctrl-attrib a {
+  text-decoration: underline !important;
+  color: color('blue-60v') !important;
+}
+
+// Map question filtering - hide filtered out locations
+.cf-filter-hidden {
+  display: none;
+}
+
+// Map question pagination - hide locations not on current page
+.cf-pagination-hidden {
+  display: none;
+}
+
+// Map question tag alert - display when tagged locations are selected
+.cf-map-question-tag-alert-hidden {
+  display: none;
+}
+
+// Map question responsive behavior
+@include at-media-max('tablet') {
+  .cf-toggle-hidden {
+    display: none;
+  }
+}
+
+@include at-media('tablet') {
+  .toggle-buttons-container {
+    display: none;
+  }
+
+  // Ensure components are always visible on tablet and above when cf-toggle-hidden is present
+  .cf-map-container.cf-toggle-hidden,
+  .cf-locations-list.cf-toggle-hidden,
+  .cf-location-count.cf-toggle-hidden {
+    display: block;
+  }
+
+  .cf-pagination.cf-toggle-hidden {
+    display: flex;
+  }
+}
+
+.usa-button.cf-apply-filters-button,
+.usa-button.cf-reset-filters-button {
+  margin-top: 0.5rem;
+}
+
+// Custom pagination item for higher accessibility standards than USWDS default
+.usa-pagination__item.cf-pagination-item {
+  height: 2.75rem;
+  min-width: 2.75rem;
+}
+
+.usa-button.usa-button--secondary.cf-select-location-button-clicked {
+  background-color: color('primary-darker');
+
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    margin-right: 0.25rem;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E")
+      no-repeat center;
+    background-size: contain;
+  }
+}
+
+/* When a file is being uploaded... */
+.cf-file-uploading {
+  /* Show the file uploading tag */
+  .cf-file-uploading-tag {
+    display: inline-block;
+  }
+
+  /* Apply disabled styling to any interactive elements */
+  .cf-disable-when-uploading {
+    @include u-bg('white');
+    @include u-text('base-light');
+    @include u-border('base-light');
+    @include u-border('1px');
+    pointer-events: none;
+    cursor: default;
+  }
+}
+
+// Toast notification styles
+// If you make any changes here, you should also update the toast styles in
+// admin/app/assets/stylesheets/northstar/_uswds-theme-custom-styles.scss
+.cf-toast-container {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 1.5rem;
+}
+
+.cf-toast-message {
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgba(0, 0, 0, 0.1); // tailwind shadow-lg
+  color: color('gray-cool-70');
+  transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bg-cf-toast-alert {
+  background-color: #e5e7eb; // Tailwind gray-200
+}
+
+.bg-cf-toast-error {
+  background-color: #f87171; // Tailwind red-400
+}
+
+.bg-cf-toast-success {
+  background-color: #a7f3d0; // Tailwind green-200
+}
+
+.bg-cf-toast-warning {
+  background-color: color('yellow-10v');
+}
+
+.opacity-40:hover {
+  opacity: 1;
+}
+
+// Remove focus outline from main content when focused via skip navigation
+// The tabindex is set for skip nav accessibility, but the outline is visually distracting
+main#main-content {
+  outline: none;
 }

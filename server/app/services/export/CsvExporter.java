@@ -32,7 +32,7 @@ import services.program.ProgramDefinition;
  * CSVPrinter} to be closed.
  */
 public final class CsvExporter implements AutoCloseable {
-  private static final Logger LOGGER = LoggerFactory.getLogger(CsvExporter.class);
+  private static final Logger logger = LoggerFactory.getLogger(CsvExporter.class);
   private final String EMPTY_VALUE = "";
 
   private final ImmutableList<Column> columns;
@@ -52,7 +52,7 @@ public final class CsvExporter implements AutoCloseable {
         CSVFormat.DEFAULT
             .builder()
             .setHeader(columns.stream().map(Column::header).toArray(String[]::new))
-            .build();
+            .get();
     this.printer = new CSVPrinter(writer, format);
   }
 
@@ -68,13 +68,13 @@ public final class CsvExporter implements AutoCloseable {
             .getAllQuestions()
             .collect(
                 ImmutableMap.toImmutableMap(
-                    aq -> aq.getContextualizedPath(),
+                    ApplicantQuestion::getContextualizedPath,
                     Function.identity(),
                     // TODO(#9212): There should never be duplicate entries because question paths
                     // should be unique, but due to #9212 there sometimes are. They point at the
                     // same location in the applicant data so it doesn't matter which one we keep.
                     (existing, replacement) -> {
-                      LOGGER.warn(
+                      logger.warn(
                           "Duplicate questions with path '{}', which may be resulting in data"
                               + " loss.",
                           existing.getContextualizedPath());
@@ -83,29 +83,21 @@ public final class CsvExporter implements AutoCloseable {
 
     for (Column column : columns) {
       switch (column.columnType()) {
-        case APPLICANT_ANSWER:
-          printer.print(getValueFromQuestionMap(column, questionMap));
-          break;
-        case APPLICANT_ID:
-          printer.print(application.getApplicant().id);
-          break;
-        case APPLICATION_ID:
-          printer.print(application.id);
-          break;
-        case LANGUAGE:
-          printer.print(application.getApplicantData().preferredLocale().toLanguageTag());
-          break;
-        case CREATE_TIME:
-          printer.print(dateConverter.renderDateTimeDataOnly(application.getCreateTime()));
-          break;
-        case SUBMIT_TIME:
+        case APPLICANT_ANSWER -> printer.print(getValueFromQuestionMap(column, questionMap));
+        case APPLICANT_ID -> printer.print(application.getApplicant().id);
+        case APPLICATION_ID -> printer.print(application.id);
+        case LANGUAGE ->
+            printer.print(application.getApplicantData().preferredLocale().toLanguageTag());
+        case CREATE_TIME ->
+            printer.print(dateConverter.renderDateTimeDataOnly(application.getCreateTime()));
+        case SUBMIT_TIME -> {
           if (application.getSubmitTime() == null) {
             printer.print(EMPTY_VALUE);
           } else {
             printer.print(dateConverter.renderDateTimeDataOnly(application.getSubmitTime()));
           }
-          break;
-        case TI_EMAIL_OPAQUE:
+        }
+        case TI_EMAIL_OPAQUE -> {
           if (secret.isBlank()) {
             throw new RuntimeException("Secret not present, but opaque ID requested.");
           }
@@ -114,46 +106,40 @@ public final class CsvExporter implements AutoCloseable {
                   .getSubmitterEmail()
                   .map(email -> opaqueIdentifier(secret, email))
                   .orElse(EMPTY_VALUE));
-          break;
-        case TI_EMAIL:
-          printer.print(application.getSubmitterEmail().orElse(EMPTY_VALUE));
-          break;
-        case SUBMITTER_TYPE:
-          // The field on the application is called `submitter_email`, but it's only ever used to
-          // store the TI's email, never the applicant's.
-          // TODO(#5325): Rename the `submitter_email` database field to `ti_email` and move the
-          // submitter_type logic upstream.
-          printer.print(
-              application.getSubmitterEmail().isPresent()
-                  ? SubmitterType.TRUSTED_INTERMEDIARY.toString()
-                  : SubmitterType.APPLICANT.toString());
-          break;
-        case PROGRAM:
-          printer.print(programDefinition.adminName());
-          break;
-        case TI_ORGANIZATION:
-          printer.print(
-              application
-                  .getApplicant()
-                  .getAccount()
-                  .getManagedByGroup()
-                  .map(TrustedIntermediaryGroupModel::getName)
-                  .orElse(EMPTY_VALUE));
-          break;
-        case OPAQUE_ID:
+        }
+        case TI_EMAIL -> printer.print(application.getSubmitterEmail().orElse(EMPTY_VALUE));
+        case SUBMITTER_TYPE ->
+            // The field on the application is called `submitter_email`, but it's only ever used to
+            // store the TI's email, never the applicant's.
+            // TODO(#5325): Rename the `submitter_email` database field to `ti_email` and move the
+            // submitter_type logic upstream.
+            printer.print(
+                application.getSubmitterEmail().isPresent()
+                    ? SubmitterType.TRUSTED_INTERMEDIARY.toString()
+                    : SubmitterType.APPLICANT.toString());
+        case PROGRAM -> printer.print(programDefinition.adminName());
+        case TI_ORGANIZATION ->
+            printer.print(
+                application
+                    .getApplicant()
+                    .getAccount()
+                    .getManagedByGroup()
+                    .map(TrustedIntermediaryGroupModel::getName)
+                    .orElse(EMPTY_VALUE));
+        case OPAQUE_ID -> {
           if (secret.isEmpty()) {
             throw new RuntimeException("Secret not present, but opaque ID requested.");
           }
           printer.print(opaqueIdentifier(secret, application.getApplicant().id));
-          break;
-        case APPLICANT_OPAQUE:
+        }
+        case APPLICANT_OPAQUE -> {
           if (secret.isEmpty()) {
             throw new RuntimeException("Secret not present, but opaque applicant data requested.");
           }
           // We still hash the empty value.
           printer.print(opaqueIdentifier(secret, getValueFromQuestionMap(column, questionMap)));
-          break;
-        case ELIGIBILITY_STATUS:
+        }
+        case ELIGIBILITY_STATUS -> {
           if (optionalEligibilityStatus.isPresent()) {
             String eligibilityText =
                 optionalEligibilityStatus.get() ? "Meets eligibility" : "Doesn't meet eligibility";
@@ -161,13 +147,18 @@ public final class CsvExporter implements AutoCloseable {
           } else {
             printer.print(EMPTY_VALUE);
           }
-          break;
-        case STATUS_TEXT:
-          printer.print(application.getLatestStatus().orElse(EMPTY_VALUE));
-          break;
-        case ADMIN_NOTE:
-          printer.print(application.getLatestNote().orElse(EMPTY_VALUE));
-          break;
+        }
+        case STATUS_TEXT -> printer.print(application.getLatestStatus().orElse(EMPTY_VALUE));
+        case ADMIN_NOTE -> printer.print(application.getLatestNote().orElse(EMPTY_VALUE));
+        case STATUS_LAST_MODIFIED_TIME -> {
+          if (application.getStatusLastModifiedTime().isEmpty()) {
+            printer.print(EMPTY_VALUE);
+          } else {
+            printer.print(
+                dateConverter.renderDateTimeDataOnly(
+                    application.getStatusLastModifiedTime().get()));
+          }
+        }
       }
     }
 

@@ -4,10 +4,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers.Labels;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import controllers.FlashKey;
 import forms.ProgramQuestionDefinitionOptionalityForm;
+import forms.QuestionForm;
+import forms.QuestionFormBuilder;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.StringJoiner;
 import javax.inject.Inject;
 import models.QuestionModel;
 import org.pac4j.play.java.Secure;
@@ -17,8 +21,11 @@ import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
+import services.CiviFormError;
+import services.ErrorAnd;
 import services.program.BlockDefinition;
 import services.program.CantAddQuestionToBlockException;
+import services.program.IllegalApiBridgeStateException;
 import services.program.IllegalPredicateOrderingException;
 import services.program.InvalidQuestionPositionException;
 import services.program.ProgramBlockDefinitionNotFoundException;
@@ -28,32 +35,47 @@ import services.program.ProgramQuestionDefinition;
 import services.program.ProgramQuestionDefinitionInvalidException;
 import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.program.ProgramService;
+import services.question.QuestionService;
+import services.question.ReadOnlyQuestionService;
+import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.QuestionNotFoundException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.EnumeratorQuestionDefinition;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import views.admin.programs.ProgramBlocksView;
+import views.admin.questions.QuestionEditView;
 import views.components.ProgramQuestionBank;
+import views.components.ToastMessage;
 
 /** Controller for admins editing questions on a screen (block) of a program. */
 public class AdminProgramBlockQuestionsController extends Controller {
 
   private final ProgramService programService;
+  private final QuestionService questionService;
   private final VersionRepository versionRepository;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
   private final SettingsManifest settingsManifest;
+  private final QuestionEditView questionEditView;
 
   @Inject
   public AdminProgramBlockQuestionsController(
       ProgramService programService,
+      QuestionService questionService,
       VersionRepository versionRepository,
       FormFactory formFactory,
       RequestChecker requestChecker,
-      SettingsManifest settingsManifest) {
+      SettingsManifest settingsManifest,
+      QuestionEditView questionEditView) {
     this.programService = checkNotNull(programService);
+    this.questionService = checkNotNull(questionService);
     this.versionRepository = checkNotNull(versionRepository);
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.questionEditView = checkNotNull(questionEditView);
   }
 
   /** POST endpoint for adding one or more questions to a screen. */
@@ -81,7 +103,13 @@ public class AdminProgramBlockQuestionsController extends Controller {
     ImmutableList<Long> latestQuestionIds = idBuilder.build();
 
     try {
-      programService.addQuestionsToBlock(programId, blockId, latestQuestionIds);
+      // we pass down the boolean here instead of the entire request because it simplifies
+      // DevDatabaseSeedTask
+      programService.addQuestionsToBlock(
+          programId,
+          blockId,
+          latestQuestionIds,
+          settingsManifest.getEnumeratorImprovementsEnabled(request));
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
@@ -97,15 +125,89 @@ public class AdminProgramBlockQuestionsController extends Controller {
             controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId).url()));
   }
 
+  /** POST endpoint for creating a new enumerator question and adding it to a screen. */
+  @Secure(authorizers = Labels.CIVIFORM_ADMIN)
+  public Result createEnumerator(Request request, long programId, long blockId) {
+    requestChecker.throwIfProgramNotDraft(programId);
+
+    // Create the new enumerator question in the same way as in AdminQuestionController#create.
+    QuestionForm questionForm;
+    try {
+      questionForm =
+          QuestionFormBuilder.createFromRequest(request, formFactory, QuestionType.ENUMERATOR);
+    } catch (InvalidQuestionTypeException e) {
+      return badRequest(e.getMessage());
+    }
+
+    QuestionDefinition questionDefinition;
+    try {
+      questionDefinition = questionForm.getBuilder().build();
+    } catch (UnsupportedQuestionTypeException e) {
+      // Valid question type that is not yet fully supported.
+      return badRequest(e.getMessage());
+    }
+
+    ErrorAnd<QuestionDefinition, CiviFormError> result = questionService.create(questionDefinition);
+    if (result.isError()) {
+      ToastMessage errorMessage = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
+      ReadOnlyQuestionService roService =
+          questionService.getReadOnlyQuestionService().toCompletableFuture().join();
+      ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions =
+          roService.getUpToDateEnumeratorQuestions();
+      // TODO(#12004): render the Program Blocks View with the form inputs so far and the error
+      // messages
+      // instead of going to the new question form.
+      return ok(
+          questionEditView.renderNewQuestionForm(
+              request, questionForm, enumeratorQuestionDefinitions, errorMessage));
+    }
+
+    QuestionDefinition createdQuestionDefinition;
+
+    try {
+      createdQuestionDefinition = result.getResult();
+    } catch (RuntimeException e) {
+      return internalServerError("Problem getting the newly-created question definition.");
+    }
+
+    ImmutableList<Long> latestQuestionIds = ImmutableList.of(createdQuestionDefinition.getId());
+
+    try {
+      programService.addQuestionsToBlock(
+          programId,
+          blockId,
+          latestQuestionIds,
+          settingsManifest.getEnumeratorImprovementsEnabled(request));
+    } catch (ProgramNotFoundException e) {
+      return notFound(String.format("Program ID %d not found.", programId));
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
+    } catch (QuestionNotFoundException e) {
+      return notFound(String.format("Question IDs %s not found", latestQuestionIds));
+    } catch (CantAddQuestionToBlockException e) {
+      return notFound(e.externalMessage());
+    }
+
+    // TODO(#12006): Rather than reloading the whole page,
+    //  use HTMX to replace the form with the question card.
+    return redirect(
+        controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId).url());
+  }
+
   /** POST endpoint for removing a question from a screen. */
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
-  public Result destroy(long programId, long blockDefinitionId, long questionDefinitionId) {
+  public Result delete(
+      Request request, long programId, long blockDefinitionId, long questionDefinitionId) {
     requestChecker.throwIfProgramNotDraft(programId);
 
     try {
       programService.removeQuestionsFromBlock(
-          programId, blockDefinitionId, ImmutableList.of(questionDefinitionId));
-    } catch (IllegalPredicateOrderingException e) {
+          programId,
+          blockDefinitionId,
+          ImmutableList.of(questionDefinitionId),
+          settingsManifest,
+          request);
+    } catch (IllegalPredicateOrderingException | IllegalApiBridgeStateException e) {
       return redirect(
               controllers.admin.routes.AdminProgramBlocksController.edit(
                   programId, blockDefinitionId))
@@ -248,5 +350,13 @@ public class AdminProgramBlockQuestionsController extends Controller {
 
     return redirect(
         controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockDefinitionId));
+  }
+
+  protected String joinErrors(ImmutableSet<CiviFormError> errors) {
+    StringJoiner messageJoiner = new StringJoiner(". ", "", ".");
+    for (CiviFormError e : errors) {
+      messageJoiner.add(e.message());
+    }
+    return messageJoiner.toString();
   }
 }

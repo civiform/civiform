@@ -1,5 +1,5 @@
-import MarkdownIt = require('markdown-it')
-import DOMPurify = require('dompurify')
+import MarkdownIt from 'markdown-it'
+import DOMPurify from 'dompurify'
 
 /** @fileoverview Collection of generic util functions used throughout the
  * codebase.
@@ -31,7 +31,7 @@ export function addEventListenerToElements<K extends keyof HTMLElementEventMap>(
  * that 100% should be there. This function helps to assert that value is not
  * null or fail quickly if those expectations are false.
  *
- * See TypeScirpt best practices for recommendations for when to use
+ * See TypeScript best practices for recommendations for when to use
  * assertNotNull vs non-null operator `!`:
  * https://github.com/civiform/civiform/wiki/Development-standards#assertnotnull-vs-non-null-expression
  *
@@ -84,8 +84,8 @@ export function formatText(text: string): string {
 
   let parsedHtml = md.render(text)
   // Format lists
-  parsedHtml = parsedHtml.split('<ul>').join('<ul class="list-disc mx-8">')
-  parsedHtml = parsedHtml.split('<ol>').join('<ol class="list-decimal mx-8">')
+  parsedHtml = parsedHtml.split('<ul>').join('<ul class="usa-list margin-r-4">')
+  parsedHtml = parsedHtml.split('<ol>').join('<ol class="usa-list margin-r-4">')
   // Format links
   parsedHtml = parsedHtml
     .split('href')

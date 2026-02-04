@@ -33,11 +33,15 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import javax.inject.Inject;
+import models.GeoJsonDataModel;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import repository.GeoJsonDataRepository;
 import services.applicant.question.Scalar;
 import services.geo.esri.EsriServiceAreaValidationConfig;
 import services.geo.esri.EsriServiceAreaValidationOption;
+import services.geojson.Feature;
+import services.geojson.FeatureCollection;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
@@ -54,6 +58,7 @@ import services.program.predicate.PredicateValue;
 import services.question.QuestionOption;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.MapQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
@@ -95,15 +100,18 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
 
   private final AdminLayout layout;
   private final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
+  private final GeoJsonDataRepository geoJsonDataRepository;
 
   @Inject
   public ProgramPredicateConfigureView(
       AdminLayoutFactory layoutFactory,
       EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
-      SettingsManifest settingsManifest) {
+      SettingsManifest settingsManifest,
+      GeoJsonDataRepository geoJsonDataRepository) {
     super(settingsManifest);
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
     this.esriServiceAreaValidationConfig = checkNotNull(esriServiceAreaValidationConfig);
+    this.geoJsonDataRepository = checkNotNull(geoJsonDataRepository);
   }
 
   public Content renderNewVisibility(
@@ -184,42 +192,36 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
     final Optional<PredicateDefinition> existingPredicate;
 
     switch (type) {
-      case ELIGIBILITY:
-        {
-          typeDisplayName = "eligibility";
-          existingPredicate =
-              forceNew
-                  ? Optional.empty()
-                  : blockDefinition.eligibilityDefinition().map(EligibilityDefinition::predicate);
-          formActionUrl =
-              routes.AdminProgramBlockPredicatesController.updateEligibility(
-                      programDefinition.id(), blockDefinition.id())
-                  .url();
-          editPredicateUrl =
-              routes.AdminProgramBlockPredicatesController.editEligibility(
-                      programDefinition.id(), blockDefinition.id())
-                  .url();
-          break;
-        }
-      case VISIBILITY:
-        {
-          typeDisplayName = "visibility";
-          existingPredicate = forceNew ? Optional.empty() : blockDefinition.visibilityPredicate();
-          formActionUrl =
-              routes.AdminProgramBlockPredicatesController.updateVisibility(
-                      programDefinition.id(), blockDefinition.id())
-                  .url();
-          editPredicateUrl =
-              routes.AdminProgramBlockPredicatesController.editVisibility(
-                      programDefinition.id(), blockDefinition.id())
-                  .url();
-          break;
-        }
-      default:
-        {
-          throw new IllegalArgumentException(
-              String.format("Unknown predicate view type: %s", type));
-        }
+      case ELIGIBILITY -> {
+        typeDisplayName = "eligibility";
+        existingPredicate =
+            forceNew
+                ? Optional.empty()
+                : blockDefinition.eligibilityDefinition().map(EligibilityDefinition::predicate);
+        formActionUrl =
+            routes.AdminProgramBlockPredicatesController.updateEligibility(
+                    programDefinition.id(), blockDefinition.id())
+                .url();
+        editPredicateUrl =
+            routes.AdminProgramBlockPredicatesController.editEligibility(
+                    programDefinition.id(), blockDefinition.id())
+                .url();
+      }
+      case VISIBILITY -> {
+        typeDisplayName = "visibility";
+        existingPredicate = forceNew ? Optional.empty() : blockDefinition.visibilityPredicate();
+        formActionUrl =
+            routes.AdminProgramBlockPredicatesController.updateVisibility(
+                    programDefinition.id(), blockDefinition.id())
+                .url();
+        editPredicateUrl =
+            routes.AdminProgramBlockPredicatesController.editVisibility(
+                    programDefinition.id(), blockDefinition.id())
+                .url();
+      }
+      default -> {
+        throw new IllegalArgumentException(String.format("Unknown predicate view type: %s", type));
+      }
     }
 
     DivTag content =
@@ -374,25 +376,16 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
   private static ImmutableList<PredicateExpressionNode> getExistingAndNodes(
       PredicateDefinition existingPredicate) {
     PredicateDefinition.PredicateFormat format = existingPredicate.predicateFormat();
-    switch (format) {
-      case SINGLE_QUESTION:
-        {
-          return ImmutableList.of(
+    return switch (format) {
+      case SINGLE_CONDITION ->
+          ImmutableList.of(
               PredicateExpressionNode.create(
                   AndNode.create(ImmutableList.of(existingPredicate.rootNode()))));
-        }
-
-      case OR_OF_SINGLE_LAYER_ANDS:
-        {
-          return existingPredicate.rootNode().getOrNode().children();
-        }
-
-      default:
-        {
+      case MULTIPLE_CONDITIONS -> existingPredicate.rootNode().getOrNode().children();
+      default ->
           throw new IllegalArgumentException(
               String.format("Unrecognized predicate format: %s", format));
-        }
-    }
+    };
   }
 
   private static ImmutableMap<Long, LeafExpressionNode> getOneRowOfLeafNodes(
@@ -420,7 +413,7 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
       container.with(
           div(
                   div()
-                      .with(TextFormatter.formatText(qd.getQuestionText().getDefault()))
+                      .with(TextFormatter.formatTextForAdmins(qd.getQuestionText().getDefault()))
                       .withClasses(
                           BaseStyles.INPUT,
                           "text-gray-500",
@@ -494,11 +487,11 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
                 .with(
                     div()
                         .with(
-                            TextFormatter.formatText(
+                            TextFormatter.formatTextForAdmins(
                                 questionDefinition.getQuestionText().getDefault()))
                         .withClasses("font-bold"),
                     div()
-                        .with(TextFormatter.formatText(questionHelpText))
+                        .with(TextFormatter.formatTextForAdmins(questionHelpText))
                         .withClasses("mt-1", "text-sm"),
                     div(String.format("Admin ID: %s", questionDefinition.getName()))
                         .withClasses("mt-1", "text-sm")));
@@ -705,8 +698,10 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
       // choose from instead of a freeform text field. Not only is it a better UX, but we store the
       // ID of the options rather than the display strings since the option display strings are
       // localized.
+      // Only show options that are displayable to applicants (displayInAnswerOptions=true).
+      // This ensures eligibility/visibility conditions only use options that admins have enabled.
       ImmutableList<QuestionOption> options =
-          ((MultiOptionQuestionDefinition) questionDefinition).getOptions();
+          ((MultiOptionQuestionDefinition) questionDefinition).getDisplayableOptions();
 
       ImmutableSet<String> currentlyCheckedValues =
           assertLeafOperationNode(maybeLeafNode)
@@ -737,6 +732,9 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
       }
 
       return valueField.withData("question-id", String.valueOf(questionDefinition.getId()));
+    } else if (questionDefinition.getQuestionType().equals(QuestionType.MAP)) {
+      return createMapQuestionValueField(
+          (MapQuestionDefinition) questionDefinition, groupId, maybeLeafNode);
     }
 
     Optional<LeafOperationExpressionNode> maybeLeafOperationNode =
@@ -772,6 +770,62 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
                         .setDisabled(hasOneValue)
                         .addReferenceClass(ReferenceClasses.PREDICATE_VALUE_INPUT)
                         .getInputTag()));
+  }
+
+  private DivTag createMapQuestionValueField(
+      MapQuestionDefinition questionDefinition,
+      int groupId,
+      Optional<LeafExpressionNode> maybeLeafNode) {
+    DivTag valueField = div();
+
+    // For map questions, provide a list of feature IDs to choose from.
+    // Extract the feature IDs from the GeoJSON data associated with this map question.
+    String geoJsonEndpoint = questionDefinition.getMapValidationPredicates().geoJsonEndpoint();
+    GeoJsonDataModel geoJsonDataModel =
+        geoJsonDataRepository
+            .getMostRecentGeoJsonDataRowForEndpoint(geoJsonEndpoint)
+            .toCompletableFuture()
+            .join()
+            .orElse(null);
+    FeatureCollection geoJson = geoJsonDataModel != null ? geoJsonDataModel.getGeoJson() : null;
+
+    if (geoJson == null) {
+      return valueField
+          .withData("question-id", String.valueOf(questionDefinition.getId()))
+          .with(
+              div("No map data available for this question.")
+                  .withClasses("text-gray-500", "italic"));
+    }
+
+    ImmutableSet<String> currentlyCheckedValues =
+        assertLeafOperationNode(maybeLeafNode)
+            .map(LeafOperationExpressionNode::comparedValue)
+            .map(PredicateValue::value)
+            .map(
+                value ->
+                    Splitter.on(", ")
+                        .splitToStream(value.substring(1, value.length() - 1))
+                        .map(item -> item.replaceAll("\"", ""))
+                        .collect(ImmutableSet.toImmutableSet()))
+            .orElse(ImmutableSet.of());
+
+    for (Feature feature : geoJson.features()) {
+      String featureId = feature.id();
+      boolean isChecked = currentlyCheckedValues.contains(featureId);
+
+      LabelTag optionCheckbox =
+          FieldWithLabel.checkbox()
+              .setFieldName(
+                  String.format(
+                      "group-%d-question-%d-predicateValues[]",
+                      groupId, questionDefinition.getId()))
+              .setValue(featureId)
+              .setLabelText(featureId)
+              .setChecked(isChecked)
+              .getCheckboxTag();
+      valueField.with(optionCheckbox);
+    }
+    return valueField.withData("question-id", String.valueOf(questionDefinition.getId()));
   }
 
   @Override

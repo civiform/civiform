@@ -18,7 +18,7 @@ import services.question.types.NameQuestionDefinition;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public final class NameQuestion extends Question {
+public final class NameQuestion extends AbstractQuestion {
 
   private Optional<String> firstNameValue;
   private Optional<String> middleNameValue;

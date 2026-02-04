@@ -1,7 +1,8 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   enableFeatureFlag,
-  isHermeticTestEnvironment,
+  isLocalDevEnvironment,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
@@ -13,6 +14,10 @@ import {
 } from '../support'
 
 test.describe('create and edit predicates', () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'expanded_form_logic_enabled')
+  })
+
   test('add a hide predicate', async ({
     page,
     adminQuestions,
@@ -23,7 +28,8 @@ test.describe('create and edit predicates', () => {
     await loginAsAdmin(page)
 
     // Add a program with two screens
-    await adminQuestions.addTextQuestion({questionName: 'hide-predicate-q'})
+    const hideQuestionName = 'hide-predicate-q'
+    await adminQuestions.addTextQuestion({questionName: hideQuestionName})
     await adminQuestions.addTextQuestion({
       questionName: 'hide-other-q',
       description: 'desc',
@@ -35,13 +41,19 @@ test.describe('create and edit predicates', () => {
     await adminPrograms.editProgramBlockUsingSpec(programName, {
       name: 'Screen 1',
       description: 'first screen',
-      questions: [{name: 'hide-predicate-q'}],
+      questions: [{name: hideQuestionName}],
     })
     await adminPrograms.addProgramBlockUsingSpec(programName, {
       name: 'Screen 2',
       description: 'screen with predicate',
       questions: [{name: 'hide-other-q'}],
     })
+
+    // Validate empty state without predicate
+    await adminPrograms.goToBlockInProgram(programName, 'Screen 2')
+    expect(await page.innerText('#visibility-predicate')).toContain(
+      'This screen is always shown',
+    )
 
     // Edit predicate for second block
     await adminPrograms.goToEditBlockVisibilityPredicatePage(
@@ -53,7 +65,7 @@ test.describe('create and edit predicates', () => {
     await validateToastMessage(page, 'Please select a question')
 
     await adminPredicates.addPredicates({
-      questionName: 'hide-predicate-q',
+      questionName: hideQuestionName,
       action: 'hidden if',
       scalar: 'text',
       operator: 'is equal to',
@@ -63,6 +75,41 @@ test.describe('create and edit predicates', () => {
       'Screen 2 is hidden if "hide-predicate-q" text is equal to "hide me"',
     )
     await validateScreenshot(page, 'hide-predicate')
+
+    // Verify block with predicate display
+    await adminPrograms.goToBlockInProgram(programName, 'Screen 2')
+    await validateScreenshot(
+      page.locator('#visibility-predicate'),
+      'block-hide-predicate-collapsed',
+    )
+    await adminPredicates.expandPredicateDisplay('visibility')
+    await validateScreenshot(
+      page.locator('#visibility-predicate'),
+      'block-hide-predicate-expanded',
+    )
+
+    // Visit block with question in predicate
+    await adminPrograms.goToBlockInProgram(programName, 'Screen 1')
+    // Verify question visibility accordion is shown
+    await adminPrograms.expectQuestionCardWithLabel(
+      hideQuestionName,
+      'This question shows or hides screens',
+    )
+    const visibilityContentId = hideQuestionName + '-visibility-content'
+    await expect(page.locator('#' + visibilityContentId)).toBeHidden()
+    await validateScreenshot(
+      page.locator('#' + hideQuestionName + '-visibility-accordion'),
+      'question-card-with-hide-predicate-collapsed',
+    )
+    // Expand accordion and verify it displays the block containing the predicate
+    await page
+      .locator('button[aria-controls="' + visibilityContentId + '"]')
+      .click()
+    await expect(page.locator('#' + visibilityContentId)).toBeVisible()
+    await expect(page.locator('#' + visibilityContentId)).toContainText(
+      'Screen 2',
+    )
+    await validateScreenshot(page, 'question-card-with-hide-predicate')
 
     // Publish the program
     await adminPrograms.publishProgram(programName)
@@ -74,26 +121,26 @@ test.describe('create and edit predicates', () => {
 
     // Initially fill out the first screen so that the next screen will be shown
     await applicantQuestions.answerTextQuestion('show me')
-    await applicantQuestions.clickNext()
+    await applicantQuestions.clickContinue()
 
     // Fill out the second screen
     await applicantQuestions.answerTextQuestion(
       'will be hidden and not submitted',
     )
-    await applicantQuestions.clickNext()
+    await applicantQuestions.clickContinue()
 
     // We should be on the review page, with an answer to Screen 2's question
-    expect(await page.innerText('#application-summary')).toContain(
+    await applicantQuestions.expectQuestionExistsOnReviewPage(
       'conditional question',
     )
 
     // Return to the first screen and answer it so that the second screen is hidden
     await page.click('text=Edit') // first screen edit
     await applicantQuestions.answerTextQuestion('hide me')
-    await applicantQuestions.clickNext()
+    await applicantQuestions.clickContinue()
 
     // We should be on the review page
-    expect(await page.innerText('#application-summary')).not.toContain(
+    await applicantQuestions.expectQuestionDoesNotExistOnReviewPage(
       'conditional question',
     )
     await applicantQuestions.submitFromReviewPage()
@@ -104,11 +151,9 @@ test.describe('create and edit predicates', () => {
     await adminPrograms.viewApplications(programName)
     await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
 
-    const applicationText = await adminPrograms
-      .applicationFrameLocator()
-      .locator('#application-view')
-      .innerText()
-    expect(applicationText).not.toContain('Screen 2')
+    expect(await page.innerHTML('#application-view')).not.toContain('Screen 2')
+
+    await page.getByRole('link', {name: 'Back'}).click()
   })
 
   test('add a show predicate', async ({
@@ -121,8 +166,9 @@ test.describe('create and edit predicates', () => {
     await loginAsAdmin(page)
 
     // Add a program with two screens
+    const showQuestionName = 'show-predicate-q'
     await adminQuestions.addTextQuestion({
-      questionName: 'show-predicate-q',
+      questionName: showQuestionName,
       description: 'desc',
       questionText: 'text [markdown](example.com) *question*',
       helpText: '**bolded**',
@@ -139,7 +185,7 @@ test.describe('create and edit predicates', () => {
     await adminPrograms.editProgramBlockUsingSpec(programName, {
       name: 'Screen 1',
       description: 'first screen',
-      questions: [{name: 'show-predicate-q'}],
+      questions: [{name: showQuestionName}],
     })
     await adminPrograms.addProgramBlockUsingSpec(programName, {
       name: 'Screen 2',
@@ -147,13 +193,19 @@ test.describe('create and edit predicates', () => {
       questions: [{name: 'show-other-q'}],
     })
 
+    // Validate empty state without predicate
+    await adminPrograms.goToBlockInProgram(programName, 'Screen 2')
+    expect(await page.innerText('#visibility-predicate')).toContain(
+      'This screen is always shown',
+    )
+
     // Edit predicate for second screen
     await adminPrograms.goToEditBlockVisibilityPredicatePage(
       programName,
       'Screen 2',
     )
     await adminPredicates.addPredicates({
-      questionName: 'show-predicate-q',
+      questionName: showQuestionName,
       action: 'shown if',
       scalar: 'text',
       operator: 'is equal to',
@@ -163,6 +215,36 @@ test.describe('create and edit predicates', () => {
       'Screen 2 is shown if "show-predicate-q" text is equal to "show me"',
     )
     await validateScreenshot(page, 'show-predicate')
+
+    // Verify block with predicate display
+    await adminPrograms.goToBlockInProgram(programName, 'Screen 2')
+    await validateScreenshot(
+      page.locator('#visibility-predicate'),
+      'block-show-predicate-collapsed',
+    )
+    await adminPredicates.expandPredicateDisplay('visibility')
+    await validateScreenshot(
+      page.locator('#visibility-predicate'),
+      'block-show-predicate-expanded',
+    )
+
+    // Visit block with question in predicate
+    await adminPrograms.goToBlockInProgram(programName, 'Screen 1')
+    // Verify question visibility accordion is shown
+    await adminPrograms.expectQuestionCardWithLabel(
+      showQuestionName,
+      'This question shows or hides screens',
+    )
+    const visibilityContentId = showQuestionName + '-visibility-content'
+    await expect(page.locator('#' + visibilityContentId)).toBeHidden()
+    // Expand accordion and verify it displays the block containing the predicate
+    await page
+      .locator('button[aria-controls="' + visibilityContentId + '"]')
+      .click()
+    await expect(page.locator('#' + visibilityContentId)).toBeVisible()
+    await expect(page.locator('#' + visibilityContentId)).toContainText(
+      'Screen 2',
+    )
 
     // Publish the program
     await adminPrograms.publishProgram(programName)
@@ -174,29 +256,29 @@ test.describe('create and edit predicates', () => {
 
     // Initially fill out the first screen so that the next screen will be hidden
     await applicantQuestions.answerTextQuestion('hide next screen')
-    await applicantQuestions.clickNext()
+    await applicantQuestions.clickContinue()
 
     // We should be on the review page, with no Screen 2 questions shown. We should
     // be able to submit the application
-    expect(await page.innerText('#application-summary')).not.toContain(
+    await applicantQuestions.expectQuestionDoesNotExistOnReviewPage(
       'conditional question',
     )
-    expect((await page.innerText('.cf-submit-button')).toLowerCase()).toContain(
-      'submit',
-    )
+    await expect(
+      page.getByRole('button', {name: 'Submit application'}),
+    ).toBeVisible()
 
     // Return to the first screen and answer it so that the second screen is shown
     await page.click('text=Edit') // first screen edit
     await applicantQuestions.answerTextQuestion('show me')
-    await applicantQuestions.clickNext()
+    await applicantQuestions.clickContinue()
 
     // The second screen should now appear, and we must fill it out
     await applicantQuestions.answerTextQuestion('hello world!')
-    await applicantQuestions.clickNext()
+    await applicantQuestions.clickContinue()
     await validateScreenshot(page, 'program-summary-page')
 
     // We should be on the review page
-    expect(await page.innerText('#application-summary')).toContain(
+    await applicantQuestions.expectQuestionExistsOnReviewPage(
       'conditional question',
     )
     await applicantQuestions.submitFromReviewPage()
@@ -207,12 +289,11 @@ test.describe('create and edit predicates', () => {
     await adminPrograms.viewApplications(programName)
 
     await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
-    expect(
-      await adminPrograms
-        .applicationFrameLocator()
-        .locator('#application-view')
-        .innerText(),
-    ).toContain('Screen 2')
+    expect(await page.locator('#application-view').innerText()).toContain(
+      'Screen 2',
+    )
+
+    await page.getByRole('link', {name: 'Back'}).click()
   })
 
   test('add an eligibility predicate', async ({
@@ -223,7 +304,6 @@ test.describe('create and edit predicates', () => {
     adminPredicates,
   }) => {
     await loginAsAdmin(page)
-
     // Add a program with two screens
     await adminQuestions.addTextQuestion({
       questionName: 'eligibility-predicate-q',
@@ -241,6 +321,12 @@ test.describe('create and edit predicates', () => {
       description: 'first screen',
       questions: [{name: 'eligibility-predicate-q'}],
     })
+
+    // Validate empty state without predicate
+    await adminPrograms.goToBlockInProgram(programName, 'Screen 1')
+    expect(await page.innerText('#eligibility-predicate')).toContain(
+      'This screen does not have any eligibility conditions',
+    )
 
     // Edit predicate for second screen
     await adminPrograms.goToEditBlockEligibilityPredicatePage(
@@ -304,12 +390,19 @@ test.describe('create and edit predicates', () => {
     await adminPredicates.clickSaveConditionButton()
 
     await adminPredicates.expectPredicateDisplayTextContains(
-      'Screen 1 is eligible if "eligibility-predicate-q" text is equal to "eligible"',
+      'Applicant is eligible if "eligibility-predicate-q" text is equal to "eligible"',
     )
     await validateScreenshot(page, 'eligibility-predicate')
 
     await page.click(`a:has-text("Back")`)
-    await validateScreenshot(page, 'block-settings-page')
+
+    // Verify block with predicate display
+    await adminPrograms.goToBlockInProgram(programName, 'Screen 1')
+    await adminPredicates.expandPredicateDisplay('eligibility')
+    await validateScreenshot(
+      page.locator('#eligibility-predicate'),
+      'block-eligibility-predicate',
+    )
 
     // Publish the program
     await adminPrograms.publishProgram(programName)
@@ -321,28 +414,27 @@ test.describe('create and edit predicates', () => {
 
     // Initially fill out the first screen so that it is ineligible
     await applicantQuestions.answerTextQuestion('ineligble')
-    await applicantQuestions.clickNext()
+    await applicantQuestions.clickContinue()
     await applicantQuestions.expectIneligiblePage()
     await validateScreenshot(page, 'ineligible')
 
-    // Begin waiting for the popup before clicking the link, otherwise
-    // the popup may fire before the wait is registered, causing the test to flake.
-    const popupPromise = page.waitForEvent('popup')
-    await page.click('text=program details')
-    const popup = await popupPromise
-    const popupURL = await popup.evaluate('location.href')
+    // Verify that the program details link goes to the program overview page
+    const programDetailsURL = page.getByRole('link', {name: 'program details'})
 
-    // Verify if the program details page Url to be the external link"
-    expect(popupURL).toMatch('https://www.usa.gov/')
+    await expect(programDetailsURL).toHaveAttribute(
+      'href',
+      '/programs/create-eligibility-predicate',
+    )
+
     // Return to the screen and fill it out to be eligible.
     await page.goBack()
     await applicantQuestions.answerTextQuestion('eligible')
-    await applicantQuestions.clickNext()
+    await applicantQuestions.clickContinue()
 
     // We should be on the review page, and able to submit the application
-    expect((await page.innerText('.cf-submit-button')).toLowerCase()).toContain(
-      'submit',
-    )
+    await expect(
+      page.getByRole('button', {name: 'Submit application'}),
+    ).toBeVisible()
     await applicantQuestions.submitFromReviewPage()
 
     // Visit the program admin page and assert the question is shown
@@ -351,12 +443,11 @@ test.describe('create and edit predicates', () => {
     await adminPrograms.viewApplications(programName)
 
     await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
-    expect(
-      await adminPrograms
-        .applicationFrameLocator()
-        .locator('#application-view')
-        .innerText(),
-    ).toContain('Screen 1')
+    expect(await page.locator('#application-view').innerText()).toContain(
+      'Screen 1',
+    )
+
+    await page.getByRole('link', {name: 'Back'}).click()
   })
 
   test('suffix cannot be added as an eligibility predicate for name question', async ({
@@ -390,12 +481,13 @@ test.describe('create and edit predicates', () => {
     })
 
     await test.step('name suffix is not visible to be selected as a value', async () => {
-      await page.click(`.cf-scalar-select`)
-
-      await page.getByText('first name').isVisible()
-      await page.getByText('middle name').isVisible()
-      await page.getByText('last name').isVisible()
-      await page.getByText('name suffix').isHidden()
+      const dropdown = page.locator('.cf-scalar-select').getByRole('combobox')
+      await expect(dropdown.locator('option')).toHaveText([
+        '', // This accounts for the hidden, empty placeholder option
+        'first name',
+        'middle name',
+        'last name',
+      ])
     })
   })
 
@@ -406,7 +498,6 @@ test.describe('create and edit predicates', () => {
     adminPredicates,
   }) => {
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'customized_eligibility_message_enabled')
     const programName = 'Test eligibility message field availbale to use'
     const firstScreen = 'Screen 1'
     const secondScreen = 'Screen 2'
@@ -441,8 +532,8 @@ test.describe('create and edit predicates', () => {
         programName,
         firstScreen,
       )
-      await page.getByLabel('Eligibility message').isVisible()
-      await page.getByText('Markdown is supported').isVisible()
+      await expect(page.getByLabel('Eligibility message')).toBeVisible()
+      await expect(page.getByText('Markdown is supported')).toBeVisible()
     })
 
     await test.step('Eligibility message field gets updated', async () => {
@@ -458,7 +549,7 @@ test.describe('create and edit predicates', () => {
   })
 
   // TODO(https://github.com/civiform/civiform/issues/4167): Enable integration testing of ESRI functionality
-  if (isHermeticTestEnvironment()) {
+  if (isLocalDevEnvironment()) {
     test('add a service area validation predicate', async ({
       page,
       adminQuestions,
@@ -587,7 +678,9 @@ test.describe('create and edit predicates', () => {
     await validateScreenshot(
       page.locator('.predicate-config-form'),
       'operator-help-text',
-      /* fullPage= */ false,
+      {
+        fullPage: false,
+      },
     )
   })
 
@@ -659,12 +752,14 @@ test.describe('create and edit predicates', () => {
       },
     )
 
-    let predicateDisplay = await page.innerText('.cf-display-predicate')
     await validateScreenshot(
       page,
       'eligibility-predicates-multi-values-multi-questions-predicate-saved',
     )
-    expect(predicateDisplay).toContain('Screen 1 is eligible if any of:')
+    let predicateDisplay = await page.innerText('.cf-display-predicate')
+    expect(predicateDisplay).toContain(
+      'Applicant is eligible if any of the following is true:',
+    )
     expect(predicateDisplay).toContain(
       '"currency-question" currency is less than $10.00',
     )
@@ -757,7 +852,9 @@ test.describe('create and edit predicates', () => {
       page,
       'visibility-predicates-multi-values-multi-questions-predicate-saved',
     )
-    expect(predicateDisplay).toContain('Screen 2 is hidden if any of:')
+    expect(predicateDisplay).toContain(
+      'Screen 2 is hidden if any of the following is true:',
+    )
     expect(predicateDisplay).toContain(
       '"currency-question" currency is less than $10.00',
     )
@@ -1136,146 +1233,194 @@ test.describe('create and edit predicates', () => {
     await test.step('Apply screen 1', async () => {
       // "hidden" first name is not allowed.
       await applicantQuestions.answerNameQuestion('hidden', 'next', 'screen')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerNameQuestion('show', 'next', 'screen')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
     })
 
     await test.step('Apply screen 2', async () => {
       // "blue" or "green" are allowed.
       await applicantQuestions.answerTextQuestion('red')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerTextQuestion('blue')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
     })
 
     await test.step('Apply screen 3', async () => {
       // 42 is allowed.
       await applicantQuestions.answerNumberQuestion('1')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerNumberQuestion('42')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
     })
 
     await test.step('Apply screen 4', async () => {
       // 123 or 456 are allowed.
       await applicantQuestions.answerNumberQuestion('11111')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerNumberQuestion('123')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
     })
 
     await test.step('Apply screen 5', async () => {
       // Greater than 100.01 is allowed
       await applicantQuestions.answerCurrencyQuestion('100.01')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerCurrencyQuestion('100.02')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
     })
 
     await test.step('Apply screen 6', async () => {
       // Earlier than 2021-01-01 is allowed
-      await applicantQuestions.answerDateQuestion('2021-01-01')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.answerMemorableDateQuestion(
+        '2021',
+        '01 - January',
+        '01',
+      )
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectReviewPage()
       await page.goBack()
-      await applicantQuestions.answerDateQuestion('2020-12-31')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.answerMemorableDateQuestion(
+        '2020',
+        '12 - December',
+        '31',
+      )
+      await applicantQuestions.clickContinue()
     })
 
     await test.step('Apply screen 7', async () => {
       // On or later than 2023-01-01 is allowed
-      await applicantQuestions.answerDateQuestion('2022-12-31')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.answerMemorableDateQuestion(
+        '2022',
+        '12 - December',
+        '31',
+      )
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectReviewPage()
       await page.goBack()
-      await applicantQuestions.answerDateQuestion('2023-01-01')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.answerMemorableDateQuestion(
+        '2023',
+        '01 - January',
+        '01',
+      )
+      await applicantQuestions.clickContinue()
     })
 
     await test.step('Apply screen 8', async () => {
       // Age greater than 90 is allowed
-      await applicantQuestions.answerDateQuestion('2022-12-31')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.answerMemorableDateQuestion(
+        '2022',
+        '12 - December',
+        '31',
+      )
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectReviewPage()
       await page.goBack()
-      await applicantQuestions.answerDateQuestion('1930-01-01')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.answerMemorableDateQuestion(
+        '1930',
+        '01 - January',
+        '01',
+      )
+      await applicantQuestions.clickContinue()
     })
 
     await test.step('Apply screen 9', async () => {
       // Age less than 50.5 is allowed
-      await applicantQuestions.answerDateQuestion('1930-12-31')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.answerMemorableDateQuestion(
+        '1930',
+        '12 - December',
+        '31',
+      )
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectReviewPage()
       await page.goBack()
-      await applicantQuestions.answerDateQuestion('2022-01-01')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.answerMemorableDateQuestion(
+        '2022',
+        '01 - January',
+        '01',
+      )
+      await applicantQuestions.clickContinue()
     })
 
     await test.step('Apply screen 10', async () => {
       // Age between 1 and 90 is allowed
-      await applicantQuestions.answerDateQuestion('1920-12-31')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.answerMemorableDateQuestion(
+        '1920',
+        '12 - December',
+        '31',
+      )
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectReviewPage()
       await page.goBack()
-      await applicantQuestions.answerDateQuestion('2000-01-01')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.answerMemorableDateQuestion(
+        '2000',
+        '01 - January',
+        '01',
+      )
+      await applicantQuestions.clickContinue()
     })
 
     await test.step('Apply screen 11', async () => {
       // "dog" or "cat" are allowed.
       await applicantQuestions.answerCheckboxQuestion(['rabbit'])
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerCheckboxQuestion(['cat'])
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
     })
 
     await test.step('Apply screen 12', async () => {
       // number between 10 and 20 is allowed
       await applicantQuestions.answerNumberQuestion('5')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerNumberQuestion('15')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
     })
 
     await test.step('Apply screen 13', async () => {
       // date between 2020-05-20 and 2024-05-20 is allowed
-      await applicantQuestions.answerDateQuestion('2019-01-01')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.answerMemorableDateQuestion(
+        '2019',
+        '01 - January',
+        '01',
+      )
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectReviewPage()
       await page.goBack()
-      await applicantQuestions.answerDateQuestion('2022-05-20')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.answerMemorableDateQuestion(
+        '2022',
+        '05 - May',
+        '20',
+      )
+      await applicantQuestions.clickContinue()
     })
 
     await test.step('Apply screen 14', async () => {
       // currency between 4.25 and 9.99 is allowed
       await applicantQuestions.answerCurrencyQuestion('2.00')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectReviewPage()
       await page.goBack()
       await applicantQuestions.answerCurrencyQuestion('5.50')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
     })
 
     await test.step('Apply screen 15', async () => {
       await applicantQuestions.answerTextQuestion('last one!')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
     })
 
     // We should now be on the summary page
@@ -1629,13 +1774,13 @@ test.describe('create and edit predicates', () => {
     await test.step('Apply screen 1', async () => {
       // "hidden" first name is not allowed.
       await applicantQuestions.answerNameQuestion('hidden', 'next', 'screen')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectIneligiblePage()
       await applicantQuestions.expectIneligibleQuestion('name question text')
       await applicantQuestions.expectIneligibleQuestionsCount(1)
       await page.goBack()
       await applicantQuestions.answerNameQuestion('show', 'next', 'screen')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
       await validateScreenshot(page, 'toast-message-may-qualify')
       await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
     })
@@ -1643,39 +1788,39 @@ test.describe('create and edit predicates', () => {
     await test.step('Apply screen 2', async () => {
       // "blue" or "green" are allowed.
       await applicantQuestions.answerTextQuestion('red')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectIneligiblePage()
       await applicantQuestions.expectIneligibleQuestion('text question text')
       await applicantQuestions.expectIneligibleQuestionsCount(1)
       await page.goBack()
       await applicantQuestions.answerTextQuestion('blue')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
     })
 
     await test.step('Apply screen 3', async () => {
       // 42 is allowed.
       await applicantQuestions.answerNumberQuestion('1')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectIneligiblePage()
       await applicantQuestions.expectIneligibleQuestion('number question text')
       await applicantQuestions.expectIneligibleQuestionsCount(1)
       await page.goBack()
       await applicantQuestions.answerNumberQuestion('42')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
     })
 
     await test.step('Apply screen 4', async () => {
       // 123 or 456 are allowed.
       await applicantQuestions.answerNumberQuestion('11111')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectIneligiblePage()
       await applicantQuestions.expectIneligibleQuestion('number question text')
       await applicantQuestions.expectIneligibleQuestionsCount(1)
       await page.goBack()
       await applicantQuestions.answerNumberQuestion('123')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
 
       await applicantQuestions.clickReview()
@@ -1687,7 +1832,7 @@ test.describe('create and edit predicates', () => {
     await test.step('Apply screen 5', async () => {
       // Greater than 100.01 is allowed
       await applicantQuestions.answerCurrencyQuestion('100.01')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectIneligiblePage()
       await applicantQuestions.expectIneligibleQuestion(
         'currency question text',
@@ -1695,76 +1840,116 @@ test.describe('create and edit predicates', () => {
       await applicantQuestions.expectIneligibleQuestionsCount(1)
       await page.goBack()
       await applicantQuestions.answerCurrencyQuestion('100.02')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
     })
 
     await test.step('Apply screen 6', async () => {
       // Earlier than 2021-01-01 is allowed
-      await applicantQuestions.answerDateQuestion('2021-01-01')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.answerMemorableDateQuestion(
+        '2021',
+        '01 - January',
+        '01',
+      )
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectIneligiblePage()
       await applicantQuestions.expectIneligibleQuestion('date question text')
       await applicantQuestions.expectIneligibleQuestionsCount(1)
       await page.goBack()
-      await applicantQuestions.answerDateQuestion('2020-12-31')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.answerMemorableDateQuestion(
+        '2020',
+        '12 - December',
+        '31',
+      )
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
     })
 
     await test.step('Apply screen 7', async () => {
       // On or later than 2023-01-01 is allowed
-      await applicantQuestions.answerDateQuestion('2022-12-31')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.answerMemorableDateQuestion(
+        '2022',
+        '12 - December',
+        '31',
+      )
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectIneligiblePage()
       await applicantQuestions.expectIneligibleQuestion('date question text')
       await applicantQuestions.expectIneligibleQuestionsCount(1)
       await page.goBack()
-      await applicantQuestions.answerDateQuestion('2023-01-01')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.answerMemorableDateQuestion(
+        '2023',
+        '01 - January',
+        '01',
+      )
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
     })
 
     await test.step('Apply screen 8', async () => {
       // Age greater than 90 is allowed
-      await applicantQuestions.answerDateQuestion('2022-12-31')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.answerMemorableDateQuestion(
+        '2022',
+        '12 - December',
+        '31',
+      )
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectIneligiblePage()
       await applicantQuestions.expectIneligibleQuestion('date question text')
       await applicantQuestions.expectIneligibleQuestionsCount(1)
       await page.goBack()
-      await applicantQuestions.answerDateQuestion('1930-01-01')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.answerMemorableDateQuestion(
+        '1930',
+        '01 - January',
+        '01',
+      )
+      await applicantQuestions.clickContinue()
     })
 
     await test.step('Apply screen 9', async () => {
       // Age less than 50.5 is allowed
-      await applicantQuestions.answerDateQuestion('1930-12-31')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.answerMemorableDateQuestion(
+        '1930',
+        '12 - December',
+        '31',
+      )
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectIneligiblePage()
       await applicantQuestions.expectIneligibleQuestion('date question text')
       await applicantQuestions.expectIneligibleQuestionsCount(1)
       await page.goBack()
-      await applicantQuestions.answerDateQuestion('2022-01-01')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.answerMemorableDateQuestion(
+        '2022',
+        '01 - January',
+        '01',
+      )
+      await applicantQuestions.clickContinue()
     })
 
     await test.step('Apply screen 10', async () => {
       // Age between 1 and 90 is allowed
-      await applicantQuestions.answerDateQuestion('1920-12-31')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.answerMemorableDateQuestion(
+        '1920',
+        '12 - December',
+        '31',
+      )
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectIneligiblePage()
       await applicantQuestions.expectIneligibleQuestion('date question text')
       await applicantQuestions.expectIneligibleQuestionsCount(1)
       await page.goBack()
-      await applicantQuestions.answerDateQuestion('2000-01-01')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.answerMemorableDateQuestion(
+        '2000',
+        '01 - January',
+        '01',
+      )
+      await applicantQuestions.clickContinue()
     })
 
     await test.step('Apply screen 11', async () => {
       // "dog" or "cat" are allowed.
       await applicantQuestions.answerCheckboxQuestion(['rabbit'])
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectIneligiblePage()
       await applicantQuestions.expectIneligibleQuestion(
         'checkbox question text',
@@ -1779,37 +1964,45 @@ test.describe('create and edit predicates', () => {
         'checkbox question text',
       )
       await applicantQuestions.answerCheckboxQuestion(['cat'])
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
     })
 
     await test.step('Apply screen 12', async () => {
       // Age between 1 and 90 is allowed
       await applicantQuestions.answerNumberQuestion('5')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectIneligiblePage()
       await applicantQuestions.expectIneligibleQuestion('number question text')
       await applicantQuestions.expectIneligibleQuestionsCount(1)
       await page.goBack()
       await applicantQuestions.answerNumberQuestion('15')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
     })
 
     await test.step('Apply screen 13', async () => {
       // date between 2020-05-20 and 2024-05-20 is allowed
-      await applicantQuestions.answerDateQuestion('2019-01-01')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.answerMemorableDateQuestion(
+        '2019',
+        '01 - January',
+        '01',
+      )
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectIneligiblePage()
       await applicantQuestions.expectIneligibleQuestion('date question text')
       await applicantQuestions.expectIneligibleQuestionsCount(1)
       await page.goBack()
-      await applicantQuestions.answerDateQuestion('2022-05-20')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.answerMemorableDateQuestion(
+        '2022',
+        '05 - May',
+        '20',
+      )
+      await applicantQuestions.clickContinue()
     })
 
     await test.step('Apply screen 14', async () => {
       // currency between 4.25 and 9.99 is allowed
       await applicantQuestions.answerCurrencyQuestion('2.00')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
       await applicantQuestions.expectIneligiblePage()
       await applicantQuestions.expectIneligibleQuestion(
         'currency question text',
@@ -1817,7 +2010,7 @@ test.describe('create and edit predicates', () => {
       await applicantQuestions.expectIneligibleQuestionsCount(1)
       await page.goBack()
       await applicantQuestions.answerCurrencyQuestion('5.50')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
     })
 
     // We should now be on the review page with a completed form and no banner should show.
@@ -1886,17 +2079,17 @@ test.describe('create and edit predicates', () => {
 
     // 'Hidden' name is ineligible
     await applicantQuestions.answerNameQuestion('hidden', 'next', 'screen')
-    await applicantQuestions.clickNext()
+    await applicantQuestions.clickContinue()
     await applicantQuestions.expectIneligiblePage()
     await applicantQuestions.expectIneligibleQuestionsCount(1)
     await applicantQuestions.clickGoBackAndEditOnIneligiblePage()
 
     // Less than or equal to 100.01 is ineligible
-    await applicantQuestions.answerQuestionFromReviewPage(
+    await applicantQuestions.editQuestionFromReviewPage(
       'currency question text',
     )
     await applicantQuestions.answerCurrencyQuestion('100.01')
-    await applicantQuestions.clickNext()
+    await applicantQuestions.clickContinue()
 
     await applicantQuestions.expectIneligiblePage()
     await applicantQuestions.expectIneligibleQuestionsCount(2)

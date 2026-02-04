@@ -30,23 +30,35 @@ test.describe('Text question for applicant flow', () => {
     test('validate screenshot', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
 
-      await validateScreenshot(page, 'text')
+      await test.step('Screenshot without errors', async () => {
+        await validateScreenshot(page.getByTestId('questionRoot'), 'text', {
+          fullPage: false,
+        })
+      })
+
+      await test.step('Screenshot with errors', async () => {
+        await applicantQuestions.clickContinue()
+        await validateScreenshot(
+          page.getByTestId('questionRoot'),
+          'text-errors',
+          {fullPage: false},
+        )
+      })
     })
 
-    test('validate screenshot with errors', async ({
+    test('has no accessiblity violations', async ({
       page,
       applicantQuestions,
     }) => {
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.clickNext()
 
-      await validateScreenshot(page, 'text-errors')
+      await validateAccessibility(page)
     })
 
     test('with text submits successfully', async ({applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('I love CiviForm!')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       await applicantQuestions.submitFromReviewPage()
     })
@@ -57,13 +69,12 @@ test.describe('Text question for applicant flow', () => {
     }) => {
       await applicantQuestions.applyProgram(programName)
 
-      // Click next without inputting anything
-      await applicantQuestions.clickNext()
+      // Click "Continue" without inputting anything
+      await applicantQuestions.clickContinue()
 
-      const textId = '.cf-question-text'
-      expect(await page.innerText(textId)).toContain(
-        'This question is required.',
-      )
+      await expect(
+        page.getByText('Must contain at least 5 characters.'),
+      ).toBeVisible()
     })
 
     test('with too short text does not submit', async ({
@@ -72,12 +83,11 @@ test.describe('Text question for applicant flow', () => {
     }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('hi')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      const textId = '.cf-question-text'
-      expect(await page.innerText(textId)).toContain(
-        'Must contain at least 5 characters.',
-      )
+      await expect(
+        page.getByText('Must contain at least 5 characters.'),
+      ).toBeVisible()
     })
 
     test('with too long text does not submit', async ({
@@ -88,12 +98,11 @@ test.describe('Text question for applicant flow', () => {
       await applicantQuestions.answerTextQuestion(
         'A long string that exceeds the character limit',
       )
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      const textId = '.cf-question-text'
-      expect(await page.innerText(textId)).toContain(
-        'Must contain at most 20 characters.',
-      )
+      await expect(
+        page.getByText('Must contain at most 20 characters.'),
+      ).toBeVisible()
     })
 
     test('hitting enter on text does not trigger submission', async ({
@@ -110,14 +119,14 @@ test.describe('Text question for applicant flow', () => {
       await expect(page.locator('input[type=text]')).toBeVisible()
 
       // Check that pressing Enter on button works.
-      await page.focus('button:has-text("Save and next")')
+      await page.focus('button:has-text("Continue")')
       await page.keyboard.press('Enter')
       await applicantQuestions.expectReviewPage()
 
       // Go back to question and ensure that "Review" button is also clickable
       // via Enter.
       await applicantQuestions.clickEdit()
-      await page.focus('text="Review"')
+      await page.focus('text="Review and submit"')
       await page.keyboard.press('Enter')
       await applicantQuestions.expectReviewPage()
     })
@@ -156,13 +165,13 @@ test.describe('Text question for applicant flow', () => {
         // 10k characters + extra characters that should be trimmed
         largeString + 'xxxxxxx',
       )
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Scroll to bottom so end of text is in view.
       await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
 
       // Should display answered question with "x"s cut off from the end.
-      await validateScreenshot(page, 'text-max')
+      await validateScreenshot(page.locator('main'), 'text-max')
 
       // Form should submit with partial text entry.
       await applicantQuestions.submitFromReviewPage()
@@ -204,7 +213,7 @@ test.describe('Text question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('I love CiviForm!', 0)
       await applicantQuestions.answerTextQuestion('You love CiviForm!', 1)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       await applicantQuestions.submitFromReviewPage()
     })
@@ -215,7 +224,7 @@ test.describe('Text question for applicant flow', () => {
       // Only answer second question. First is optional.
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('You love CiviForm!', 1)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       await applicantQuestions.submitFromReviewPage()
     })
@@ -230,7 +239,7 @@ test.describe('Text question for applicant flow', () => {
         0,
       )
       await applicantQuestions.answerTextQuestion('You love CiviForm!', 1)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       const textId = '.cf-question-text'
       expect(await page.innerText(textId)).toContain(
@@ -248,7 +257,7 @@ test.describe('Text question for applicant flow', () => {
         'A long string that exceeds the character limit',
         1,
       )
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       const textId = `.cf-question-text >> nth=1`
       expect(await page.innerText(textId)).toContain(

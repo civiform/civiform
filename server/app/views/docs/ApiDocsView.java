@@ -1,6 +1,7 @@
 package views.docs;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.aside;
 import static j2html.TagCreator.b;
 import static j2html.TagCreator.blockquote;
@@ -11,12 +12,14 @@ import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
 import static j2html.TagCreator.label;
+import static j2html.TagCreator.li;
 import static j2html.TagCreator.option;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.pre;
 import static j2html.TagCreator.select;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
+import static j2html.TagCreator.ul;
 import static services.export.JsonPrettifier.asPrettyJsonString;
 
 import auth.CiviFormProfile;
@@ -44,7 +47,6 @@ import services.export.ProgramJsonSampler;
 import services.program.ProgramDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
-import services.settings.SettingsManifest;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -53,6 +55,8 @@ import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.components.AccordionFactory;
 import views.components.LinkElement;
+import views.style.AdminStyles;
+import views.style.BaseStyles;
 import views.style.StyleUtils;
 
 // TODO: If we're being strict about code organization, access to the ProgramJsonSampler and
@@ -69,7 +73,6 @@ public class ApiDocsView extends BaseHtmlView {
   private final AdminLayout authenticatedlayout;
   private final ProgramJsonSampler programJsonSampler;
   private final ExportServiceRepository exportServiceRepository;
-  private final SettingsManifest settingsManifest;
 
   @Inject
   public ApiDocsView(
@@ -77,14 +80,12 @@ public class ApiDocsView extends BaseHtmlView {
       BaseHtmlLayout unauthenticatedlayout,
       AdminLayoutFactory layoutFactory,
       ProgramJsonSampler programJsonSampler,
-      ExportServiceRepository exportServiceRepository,
-      SettingsManifest settingsManifest) {
+      ExportServiceRepository exportServiceRepository) {
     this.profileUtils = profileUtils;
     this.unauthenticatedlayout = unauthenticatedlayout;
     this.authenticatedlayout = layoutFactory.getLayout(NavPage.API_DOCS);
     this.programJsonSampler = programJsonSampler;
     this.exportServiceRepository = exportServiceRepository;
-    this.settingsManifest = settingsManifest;
   }
 
   public Content render(
@@ -92,9 +93,17 @@ public class ApiDocsView extends BaseHtmlView {
       String selectedProgramSlug,
       Optional<ProgramDefinition> programDefinition,
       ImmutableSet<String> allProgramSlugs) {
+    BaseHtmlLayout layout;
 
-    BaseHtmlLayout layout =
-        isAuthenticatedAdmin(request) ? authenticatedlayout : unauthenticatedlayout;
+    Optional<CiviFormProfile> currentUserProfile = profileUtils.optionalCurrentUserProfile(request);
+    if (currentUserProfile.isPresent()
+        && (currentUserProfile.get().isCiviFormAdmin()
+            || currentUserProfile.get().isProgramAdmin())) {
+      layout = authenticatedlayout.setAdminType(currentUserProfile.get());
+    } else {
+      // CiviFormProfileFilter does not apply to API docs views, so there may be no profile
+      layout = unauthenticatedlayout;
+    }
 
     HtmlBundle bundle =
         layout
@@ -146,6 +155,7 @@ public class ApiDocsView extends BaseHtmlView {
                 div()
                     .withClasses("items-center", "mx-6", "my-8")
                     .with(h1("API documentation"))
+                    .with(buildTabs())
                     .with(
                         p().withClasses("my-2")
                             .with(
@@ -180,9 +190,7 @@ public class ApiDocsView extends BaseHtmlView {
 
       AsideTag rightSide = aside().withClasses("w-full flex-grow");
       rightSide.with(h2("API response preview").withClasses("pl-4"));
-      rightSide.with(
-          apiResponseSampleDiv(
-              programDefinition.get(), settingsManifest.getMultipleFileUploadEnabled(request)));
+      rightSide.with(apiResponseSampleDiv(programDefinition.get()));
 
       fullProgramDiv.with(leftSide);
       fullProgramDiv.with(rightSide);
@@ -192,18 +200,38 @@ public class ApiDocsView extends BaseHtmlView {
     return divTag;
   }
 
-  private DivTag apiResponseSampleDiv(
-      ProgramDefinition programDefinition, boolean multipleFileUploadEnabled) {
+  private DivTag buildTabs() {
+    return div(ul(
+                li(a("API documentation")
+                        .withHref(controllers.docs.routes.ApiDocsController.index().url()))
+                    .withClasses("border-b-2", AdminStyles.LINK_SELECTED, "mx-0"),
+                li(a("API Schema Viewer")
+                        .withHref(
+                            controllers.docs.routes.OpenApiSchemaController.getSchemaUI(
+                                    /* programSlug= */ "",
+                                    /* stage= */ Optional.empty(),
+                                    /* openApiVersion= */ Optional.empty())
+                                .url()))
+                    .withClasses(AdminStyles.LINK_NOT_SELECTED))
+            .withClasses("flex", "gap-4"))
+        .withClasses("my-4", BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT);
+  }
+
+  private DivTag apiResponseSampleDiv(ProgramDefinition programDefinition) {
     DivTag apiResponseSampleDiv = div();
-    String fullJsonResponsePreview =
-        programJsonSampler.getSampleJson(programDefinition, multipleFileUploadEnabled);
+    String fullJsonResponsePreview = programJsonSampler.getSampleJson(programDefinition);
     String fullJsonResponsePreviewPretty = asPrettyJsonString(fullJsonResponsePreview);
 
     apiResponseSampleDiv.with(
         pre(code(fullJsonResponsePreviewPretty))
-            .withStyle("max-width: 100ch;")
             .withClasses(
-                "m-4", "p-2", "rounded-lg", "bg-slate-200", "break-words", "whitespace-pre-wrap"));
+                "m-4",
+                "p-2",
+                "rounded-lg",
+                "bg-slate-200",
+                "break-words",
+                "whitespace-pre-wrap",
+                "max-w-2/3"));
 
     return apiResponseSampleDiv;
   }
@@ -271,7 +299,7 @@ public class ApiDocsView extends BaseHtmlView {
           (MultiOptionQuestionDefinition) questionDefinition;
 
       Stream<DomContent> currentOptionElements =
-          asCommaSeparatedCodeElementStream(multiOptionQD.getOptionAdminNames());
+          asCommaSeparatedCodeElementStream(multiOptionQD.getDisplayableOptionAdminNames());
 
       Stream<DomContent> allPossibleOptionElements =
           asCommaSeparatedCodeElementStream(
@@ -307,14 +335,6 @@ public class ApiDocsView extends BaseHtmlView {
     return code(text).withClass(CODE_STYLES);
   }
 
-  private boolean isAuthenticatedAdmin(Http.Request request) {
-    // CiviFormProfileFilter does not apply to API docs views, so there may be no profile
-    Optional<CiviFormProfile> currentUserProfile = profileUtils.optionalCurrentUserProfile(request);
-    return currentUserProfile.isPresent()
-        && (currentUserProfile.get().isCiviFormAdmin()
-            || currentUserProfile.get().isProgramAdmin());
-  }
-
   private DivTag getNotes(Http.Request request) {
     String apiDocsLink = controllers.docs.routes.ApiDocsController.index().absoluteURL(request);
 
@@ -337,16 +357,7 @@ public class ApiDocsView extends BaseHtmlView {
                     ", with anyone who needs to see API docs. It is accessible without logging in,"
                         + " so they do not need to be a CiviForm Admin or Program Admin to view"
                         + " this page.")),
-        p().withClasses("my-2")
-            .with(
-                text(
-                    "Note: These API docs do not currently support enumerator or repeated"
-                        + " questions. See GitHub Issue "),
-                new LinkElement()
-                    .setHref("https://github.com/civiform/civiform/issues/5238")
-                    .setText("#5238")
-                    .asAnchorText(),
-                text(" for progress on this.")));
+        p().withClasses("my-2"));
 
     return AccordionFactory.buildAccordion(
         Optional.of("How does this work?"), Optional.of(notesTag));

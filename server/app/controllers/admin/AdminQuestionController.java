@@ -5,20 +5,26 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.Authorizers;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import controllers.CiviFormController;
 import controllers.FlashKey;
 import forms.EnumeratorQuestionForm;
+import forms.MapFilterForm;
+import forms.MapQuestionForm;
 import forms.MultiOptionQuestionForm;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import models.ConcurrentUpdateException;
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
 import play.libs.concurrent.ClassLoaderExecutionContext;
+import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
@@ -27,18 +33,25 @@ import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.question.QuestionOption;
 import services.question.QuestionService;
+import services.question.QuestionSetting;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.EnumeratorQuestionDefinition;
+import services.question.types.MapQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
+import views.admin.questions.MapQuestionSettingsFiltersListPartialView;
+import views.admin.questions.MapQuestionSettingsFiltersListPartialViewModel;
+import views.admin.questions.MapQuestionSettingsFiltersPartialView;
+import views.admin.questions.MapQuestionSettingsFiltersPartialViewModel;
 import views.admin.questions.QuestionEditView;
 import views.admin.questions.QuestionsListView;
+import views.components.TextFormatter;
 import views.components.ToastMessage;
 
 /** Controller for handling methods for admins managing questions. */
@@ -49,6 +62,9 @@ public final class AdminQuestionController extends CiviFormController {
   private final FormFactory formFactory;
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
 
+  private final MapQuestionSettingsFiltersPartialView mapQuestionSettingsFiltersPartialView;
+  private final MapQuestionSettingsFiltersListPartialView mapQuestionSettingsFiltersListPartialView;
+
   @Inject
   public AdminQuestionController(
       ProfileUtils profileUtils,
@@ -57,6 +73,8 @@ public final class AdminQuestionController extends CiviFormController {
       QuestionsListView listView,
       QuestionEditView editView,
       FormFactory formFactory,
+      MapQuestionSettingsFiltersPartialView mapQuestionSettingsFiltersPartialView,
+      MapQuestionSettingsFiltersListPartialView mapQuestionSettingsFiltersListPartialView,
       ClassLoaderExecutionContext classLoaderExecutionContext) {
     super(profileUtils, versionRepository);
     this.service = checkNotNull(service);
@@ -64,6 +82,8 @@ public final class AdminQuestionController extends CiviFormController {
     this.editView = checkNotNull(editView);
     this.formFactory = checkNotNull(formFactory);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
+    this.mapQuestionSettingsFiltersPartialView = mapQuestionSettingsFiltersPartialView;
+    this.mapQuestionSettingsFiltersListPartialView = mapQuestionSettingsFiltersListPartialView;
   }
 
   /**
@@ -71,13 +91,55 @@ public final class AdminQuestionController extends CiviFormController {
    * the current draft version if any.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public CompletionStage<Result> index(Request request) {
+  public CompletionStage<Result> index(Request request, Optional<String> filter) {
     return service
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService ->
-                ok(listView.render(readOnlyService.getActiveAndDraftQuestions(), request)),
+                ok(
+                    listView.render(
+                        readOnlyService.getActiveAndDraftQuestions(),
+                        filter.map(TextFormatter::sanitizeHtml),
+                        request)),
             classLoaderExecutionContext.current());
+  }
+
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result addMapQuestionFilter(Request request) {
+    MapFilterForm form = formFactory.form(MapFilterForm.class).bindFromRequest(request).get();
+
+    // Count existing filters to determine the index for the new filter
+    long currentFilterIndex = form.getFilters().size();
+
+    List<String> possibleKeysList = form.getParsedPossibleKeys();
+
+    return ok(mapQuestionSettingsFiltersPartialView.render(
+            request,
+            new MapQuestionSettingsFiltersPartialViewModel(possibleKeysList, currentFilterIndex)))
+        .as(Http.MimeTypes.HTML);
+  }
+
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result deleteMapQuestionFilter(Request request) {
+    MapFilterForm form = formFactory.form(MapFilterForm.class).bindFromRequest(request).get();
+
+    // Get the index of the filter to delete from the request
+    String filterIndexStr = request.body().asFormUrlEncoded().get("filterIndex")[0];
+    int filterIndexToDelete = Integer.parseInt(filterIndexStr);
+
+    // Remove the filter at the specified index
+    List<MapQuestionForm.Setting> filters = form.getFilters();
+    if (filterIndexToDelete >= 0 && filterIndexToDelete < filters.size()) {
+      filters.remove(filterIndexToDelete);
+    }
+
+    // Get possible keys list
+    List<String> possibleKeysList = form.getParsedPossibleKeys();
+
+    // Re-render all filters with updated indices
+    return ok(mapQuestionSettingsFiltersListPartialView.render(
+            request, new MapQuestionSettingsFiltersListPartialViewModel(possibleKeysList, filters)))
+        .as(Http.MimeTypes.HTML);
   }
 
   /**
@@ -127,7 +189,6 @@ public final class AdminQuestionController extends CiviFormController {
             .toCompletableFuture()
             .join()
             .getUpToDateEnumeratorQuestions();
-
     try {
       return ok(
           editView.renderNewQuestionForm(
@@ -178,7 +239,7 @@ public final class AdminQuestionController extends CiviFormController {
     String successMessage = String.format("question %s created", questionForm.getQuestionName());
     String redirectUrl =
         questionForm.getRedirectUrl().isEmpty()
-            ? routes.AdminQuestionController.index().url()
+            ? routes.AdminQuestionController.index(Optional.empty()).url()
             : questionForm.getRedirectUrl();
     return withSuccessMessage(redirect(redirectUrl), successMessage);
   }
@@ -191,7 +252,7 @@ public final class AdminQuestionController extends CiviFormController {
     } catch (InvalidUpdateException e) {
       return badRequest("Failed to restore question.");
     }
-    return redirect(routes.AdminQuestionController.index());
+    return redirect(routes.AdminQuestionController.index(Optional.empty()));
   }
 
   /** POST endpoint for archiving a question so it will not be carried over to a new version. */
@@ -202,7 +263,7 @@ public final class AdminQuestionController extends CiviFormController {
     } catch (InvalidUpdateException e) {
       return badRequest("Failed to archive question.");
     }
-    return redirect(routes.AdminQuestionController.index());
+    return redirect(routes.AdminQuestionController.index(Optional.empty()));
   }
 
   /** POST endpoint for discarding a draft for a question. */
@@ -213,7 +274,7 @@ public final class AdminQuestionController extends CiviFormController {
     } catch (InvalidUpdateException e) {
       return badRequest("Failed to discard draft question.");
     }
-    return redirect(routes.AdminQuestionController.index());
+    return redirect(routes.AdminQuestionController.index(Optional.empty()));
   }
 
   /**
@@ -240,15 +301,21 @@ public final class AdminQuestionController extends CiviFormController {
                       .getActiveAndDraftQuestions()
                       .getDraftQuestionDefinition(questionDefinition.getName());
               if (possibleDraft.isPresent() && possibleDraft.get().getId() != id) {
-                return redirect(routes.AdminQuestionController.edit(possibleDraft.get().getId()));
+                return redirect(routes.AdminQuestionController.edit(possibleDraft.get().getId()))
+                    .flashing(request.flash().data());
               }
 
               Optional<QuestionDefinition> maybeEnumerationQuestion =
                   maybeGetEnumerationQuestion(readOnlyService, questionDefinition);
               try {
+                Optional<ToastMessage> message =
+                    request
+                        .flash()
+                        .get(FlashKey.CONCURRENT_UPDATE)
+                        .map(m -> ToastMessage.errorNonLocalized(m));
                 return ok(
                     editView.renderEditQuestionForm(
-                        request, questionDefinition, maybeEnumerationQuestion));
+                        request, questionDefinition, maybeEnumerationQuestion, message));
               } catch (InvalidQuestionTypeException e) {
                 return badRequest(
                     invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));
@@ -294,6 +361,14 @@ public final class AdminQuestionController extends CiviFormController {
     } catch (InvalidUpdateException e) {
       // Ill-formed update request.
       return badRequest(e.toString());
+    } catch (ConcurrentUpdateException e) {
+      // If there was a concurrent update, load a fresh edit form so the admin sees the concurrently
+      // made changes.
+      return redirect(routes.AdminQuestionController.edit(id))
+          .flashing(
+              FlashKey.CONCURRENT_UPDATE,
+              "The question was updated by another user while the edit page was open in your"
+                  + " browser. Please try your edits again.");
     }
 
     if (errorAndUpdatedQuestionDefinition.isError()) {
@@ -313,7 +388,8 @@ public final class AdminQuestionController extends CiviFormController {
     }
 
     String successMessage = String.format("question %s updated", questionForm.getQuestionName());
-    return withSuccessMessage(redirect(routes.AdminQuestionController.index()), successMessage);
+    return withSuccessMessage(
+        redirect(routes.AdminQuestionController.index(Optional.empty())), successMessage);
   }
 
   private Result withSuccessMessage(Result result, String message) {
@@ -382,6 +458,24 @@ public final class AdminQuestionController extends CiviFormController {
           (MultiOptionQuestionDefinition) currentQuestionDefinition,
           updatedQuestionOptions);
     }
+
+    if (questionForm instanceof MapQuestionForm) {
+      final ImmutableSet<QuestionSetting> updatedQuestionSettings;
+      try {
+        updatedQuestionSettings =
+            updatedQuestionDefinitionBuilder
+                .build()
+                .getQuestionSettings()
+                .orElse(ImmutableSet.of());
+      } catch (UnsupportedQuestionTypeException e) {
+        // Impossible - we checked the type above.
+        throw new RuntimeException(e);
+      }
+      updateDefaultLocalizationForSettings(
+          updatedQuestionDefinitionBuilder,
+          (MapQuestionDefinition) currentQuestionDefinition,
+          updatedQuestionSettings);
+    }
   }
 
   /** Update the default locale text for an enumerator question's entity type name. */
@@ -422,6 +516,7 @@ public final class AdminQuestionController extends CiviFormController {
         newOptionsListBuilder.add(
             maybeExistingOptionWithSameId.get().toBuilder()
                 .setDisplayOrder(updatedQuestionOption.displayOrder())
+                .setDisplayInAnswerOptions(updatedQuestionOption.displayInAnswerOptions())
                 .build());
       } else if (maybeExistingOptionWithSameId.isPresent()) {
         // If there's an existing option with the same ID but different text, then use it
@@ -431,6 +526,7 @@ public final class AdminQuestionController extends CiviFormController {
             maybeExistingOptionWithSameId.get().toBuilder()
                 .setDisplayOrder(updatedQuestionOption.displayOrder())
                 .setOptionText(updatedQuestionOptionText)
+                .setDisplayInAnswerOptions(updatedQuestionOption.displayInAnswerOptions())
                 .build());
       } else {
         // If there wasn't an option with the same ID, treat it as a new
@@ -440,6 +536,89 @@ public final class AdminQuestionController extends CiviFormController {
     }
 
     updatedQuestionDefinitionBuilder.setQuestionOptions(newOptionsListBuilder.build());
+  }
+
+  /** Update the default locale text only for a question's settings. */
+  private void updateDefaultLocalizationForSettings(
+      QuestionDefinitionBuilder updatedQuestionDefinitionBuilder,
+      MapQuestionDefinition currentQuestionDefinition,
+      ImmutableSet<QuestionSetting> updatedQuestionSettings) {
+
+    ImmutableSet<QuestionSetting> existingSettings =
+        currentQuestionDefinition.getQuestionSettings().orElse(ImmutableSet.of());
+    ImmutableSet.Builder<QuestionSetting> newSettingsListBuilder = ImmutableSet.builder();
+
+    for (QuestionSetting updatedQuestionSetting : updatedQuestionSettings) {
+      // Find an existing setting with the same key and type
+      Optional<QuestionSetting> maybeExistingSettingWithSameKey =
+          existingSettings.stream()
+              .filter(
+                  existingSetting ->
+                      existingSetting.settingKey().equals(updatedQuestionSetting.settingKey())
+                          && existingSetting
+                              .settingType()
+                              .equals(updatedQuestionSetting.settingType()))
+              .findFirst();
+
+      if (maybeExistingSettingWithSameKey.isPresent()) {
+        QuestionSetting existingSetting = maybeExistingSettingWithSameKey.get();
+
+        // Handle localizedSettingDisplayName
+        Optional<LocalizedStrings> updatedDisplayName =
+            updatedQuestionSetting.localizedSettingDisplayName();
+        Optional<LocalizedStrings> localizedDisplayName;
+        if (updatedDisplayName.isPresent()) {
+          LocalizedStrings existingDisplayName =
+              existingSetting.localizedSettingDisplayName().orElse(LocalizedStrings.of());
+          if (existingSetting.localizedSettingDisplayName().isPresent()
+              && existingDisplayName.getDefault().equals(updatedDisplayName.get().getDefault())) {
+            // If the default text hasn't changed, preserve all translations
+            localizedDisplayName = Optional.of(existingDisplayName);
+          } else {
+            // If the default text changed, update it but preserve other translations
+            localizedDisplayName =
+                Optional.of(
+                    existingDisplayName.updateTranslation(
+                        LocalizedStrings.DEFAULT_LOCALE, updatedDisplayName.get().getDefault()));
+          }
+        } else {
+          localizedDisplayName = existingSetting.localizedSettingDisplayName();
+        }
+
+        // Handle localizedSettingText
+        Optional<LocalizedStrings> updatedText = updatedQuestionSetting.localizedSettingText();
+        Optional<LocalizedStrings> localizedText;
+        if (updatedText.isPresent()) {
+          LocalizedStrings existingText =
+              existingSetting.localizedSettingText().orElse(LocalizedStrings.of());
+          if (existingSetting.localizedSettingText().isPresent()
+              && existingText.getDefault().equals(updatedText.get().getDefault())) {
+            // If the default text hasn't changed, preserve all translations
+            localizedText = Optional.of(existingText);
+          } else {
+            // If the default text changed, update it but preserve other translations
+            localizedText =
+                Optional.of(
+                    existingText.updateTranslation(
+                        LocalizedStrings.DEFAULT_LOCALE, updatedText.get().getDefault()));
+          }
+        } else {
+          localizedText = existingSetting.localizedSettingText();
+        }
+
+        newSettingsListBuilder.add(
+            existingSetting.toBuilder()
+                .setLocalizedSettingDisplayName(localizedDisplayName)
+                .setLocalizedSettingText(localizedText)
+                .setSettingValue(updatedQuestionSetting.settingValue())
+                .build());
+      } else {
+        // If there's no existing setting with the same key, treat it as a new setting
+        newSettingsListBuilder.add(updatedQuestionSetting);
+      }
+    }
+
+    updatedQuestionDefinitionBuilder.setQuestionSettings(newSettingsListBuilder.build());
   }
 
   private String invalidQuestionTypeMessage(String questionType) {

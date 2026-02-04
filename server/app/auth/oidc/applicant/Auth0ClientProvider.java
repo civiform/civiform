@@ -4,7 +4,7 @@ import auth.oidc.CiviformOidcLogoutActionBuilder;
 import auth.oidc.OidcClientProviderParams;
 import com.google.inject.Inject;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.util.Optional;
 import org.pac4j.oidc.client.OidcClient;
 
@@ -34,9 +34,9 @@ public class Auth0ClientProvider extends GenericOidcClientProvider {
     // Instead, we need to set it to /v2/logout ourselves:
     // https://auth0.com/docs/api/authentication#logout
     try {
-      URL discoveryUri = new URL(getDiscoveryURI());
-      return Optional.of(new URL(discoveryUri, "/v2/logout").toString());
-    } catch (MalformedURLException e) {
+      URI discoveryUri = URI.create(getDiscoveryURI());
+      return Optional.of(discoveryUri.resolve("/v2/logout").toURL().toString());
+    } catch (MalformedURLException | IllegalArgumentException e) {
       throw new IllegalArgumentException("Unparseable discovery URI used for applicant OIDC", e);
     }
   }

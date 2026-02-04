@@ -50,6 +50,14 @@ public abstract class BlockDefinition {
   public abstract String name();
 
   /**
+   * Uneditable name prefix of a Block used to show admins where the repeated entity name will be
+   * inserted.
+   */
+  @JsonInclude(Include.NON_EMPTY)
+  @JsonProperty("namePrefix")
+  public abstract Optional<String> namePrefix();
+
+  /**
    * A human readable description of the Block. The description is only visible to the admin so is
    * not localized.
    */
@@ -68,19 +76,28 @@ public abstract class BlockDefinition {
   public abstract Optional<LocalizedStrings> localizedEligibilityMessage();
 
   /**
-   * An enumerator block definition is a block definition that contains a {@link QuestionDefinition}
-   * that is of type {@link QuestionType#ENUMERATOR}. Enumerator questions provide a variable list
-   * of user-defined identifiers for some repeated entity. Examples of repeated entities could be
-   * household members, vehicles, jobs, etc.
-   *
-   * <p>An enumerator block can only have one question, and it must be {@link
-   * QuestionType#ENUMERATOR}.
+   * An enumerator block definition is a block definition that will eventually contain a {@link
+   * QuestionDefinition} that is of type {@link QuestionType#ENUMERATOR}, but may not yet have an
+   * enumerator question set up. Enumerator questions provide a variable list of user-defined
+   * identifiers for some repeated entity. Examples of repeated entities could be household members,
+   * vehicles, jobs, etc.
    *
    * @return true if this block definition is an enumerator.
    */
+  @JsonInclude(Include.NON_EMPTY)
+  @JsonProperty("isEnumerator")
+  public abstract Optional<Boolean> isEnumerator();
+
+  /**
+   * Checks if this block definition contains an enumerator question. In most cases, this method is
+   * used to verify that a block is a functional enumerator block since an enumerator block can only
+   * have one question, and it must be {@link QuestionType#ENUMERATOR}.
+   *
+   * @return true if this block definition has an enumerator question.
+   */
   @JsonIgnore
   @Memoized
-  public boolean isEnumerator() {
+  public boolean hasEnumeratorQuestion() {
     // Though `anyMatch` is used here, enumerator block definitions should only ever have a single
     // question, which is an enumerator question.
     return programQuestionDefinitions().stream()
@@ -111,7 +128,7 @@ public abstract class BlockDefinition {
 
   @JsonIgnore
   public EnumeratorQuestionDefinition getEnumerationQuestionDefinition() {
-    if (isEnumerator()) {
+    if (hasEnumeratorQuestion()) {
       return (EnumeratorQuestionDefinition) getQuestionDefinition(0);
     }
     throw new RuntimeException(
@@ -235,6 +252,16 @@ public abstract class BlockDefinition {
     return programQuestionDefinitions().size();
   }
 
+  @JsonIgnore
+  public boolean getIsEnumerator() {
+    return isEnumerator().orElse(false);
+  }
+
+  @JsonIgnore
+  public String getFullName() {
+    return namePrefix().orElse("") + name();
+  }
+
   /**
    * Returns true if any of the question definitions in this block are QuestionType.NULL_QUESTION
    */
@@ -256,6 +283,9 @@ public abstract class BlockDefinition {
     @JsonProperty("name")
     public abstract Builder setName(String value);
 
+    @JsonProperty("namePrefix")
+    public abstract Builder setNamePrefix(Optional<String> value);
+
     @JsonProperty("description")
     public abstract Builder setDescription(String value);
 
@@ -274,6 +304,9 @@ public abstract class BlockDefinition {
 
     @JsonProperty("hidePredicate")
     public abstract Builder setVisibilityPredicate(Optional<PredicateDefinition> predicate);
+
+    @JsonProperty("isEnumerator")
+    public abstract Builder setIsEnumerator(Optional<Boolean> isEnumerator);
 
     public Builder setVisibilityPredicate(PredicateDefinition predicate) {
       return this.setVisibilityPredicate(Optional.of(predicate));

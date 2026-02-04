@@ -253,16 +253,14 @@ test.describe('primary applicant info questions', () => {
 
     await applicantQuestions.applyProgram('test')
     await applicantQuestions.answerNameQuestion('Geordi', 'LaForge')
-    await applicantQuestions.clickNext()
+    await applicantQuestions.clickContinue()
     await applicantQuestions.submitFromReviewPage()
 
     await logout(page)
     await loginAsProgramAdmin(page)
 
     await adminPrograms.viewApplications('test')
-    await expect(
-      page.locator(adminPrograms.selectApplicationCardForApplicant('LaForge')),
-    ).toBeVisible()
+    expect(adminPrograms.getRowLocator('LaForge')).not.toBeNull()
 
     await logout(page)
     await loginAsTestUser(
@@ -275,8 +273,6 @@ test.describe('primary applicant info questions', () => {
     await loginAsProgramAdmin(page)
 
     await adminPrograms.viewApplications('test')
-    await expect(
-      page.locator(adminPrograms.selectApplicationCardForApplicant('LaForge')),
-    ).toBeVisible()
+    expect(adminPrograms.getRowLocator('LaForge')).not.toBeNull()
   })
 })

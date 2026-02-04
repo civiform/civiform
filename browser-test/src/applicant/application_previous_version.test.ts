@@ -33,8 +33,8 @@ test.describe('view an application in an older version', () => {
     // Submit an application to the program
     await applicantQuestions.applyProgram(programName)
     await applicantQuestions.answerTextQuestion('some text')
-    await applicantQuestions.clickNext()
-    await applicantQuestions.submitFromReviewPage()
+    await applicantQuestions.clickContinue()
+    await applicantQuestions.clickSubmitApplication()
 
     await logout(page)
     await loginAsProgramAdmin(page)
@@ -47,7 +47,7 @@ test.describe('view an application in an older version', () => {
       questionName,
       'some text',
     )
-
+    await page.getByRole('link', {name: 'Back'}).click()
     await logout(page)
     await loginAsAdmin(page)
 

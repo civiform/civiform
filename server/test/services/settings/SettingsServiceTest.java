@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 import models.SettingsGroupModel;
 import org.junit.Before;
 import org.junit.Test;
+import play.Environment;
 import play.mvc.Http;
 import repository.ResetPostgres;
 import repository.SettingsGroupRepository;
@@ -25,6 +26,7 @@ public class SettingsServiceTest extends ResetPostgres {
 
   public static final String TEST_AUTHORITY_ID = "test-id";
   private SettingsService settingsService;
+  private SettingsGroupRepository repo;
   private static ImmutableMap<String, String> TEST_SETTINGS =
       ImmutableMap.of(
           "TEST_BOOL",
@@ -128,7 +130,9 @@ public class SettingsServiceTest extends ResetPostgres {
     when(testProfile.getAuthorityId())
         .thenReturn(CompletableFuture.completedFuture(TEST_AUTHORITY_ID));
 
-    settingsService = new SettingsService(instanceOf(SettingsGroupRepository.class), testManifest);
+    repo = instanceOf(SettingsGroupRepository.class);
+    repo.clearCurrentSettingsCache();
+    settingsService = new SettingsService(repo, testManifest, instanceOf(Environment.class));
   }
 
   @Test
@@ -175,6 +179,7 @@ public class SettingsServiceTest extends ResetPostgres {
 
   @Test
   public void updateSettings_newSettingsAreTheSame_doesNotinsertANewSettingsGroup() {
+    createTestSettings();
     var initialSettings = settingsService.loadSettings().toCompletableFuture().join().get();
 
     assertThat(settingsService.updateSettings(initialSettings, testProfile).updated()).isFalse();

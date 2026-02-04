@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 /**
@@ -31,7 +31,6 @@ class AzureDeleteController {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   attemptDelete(azblob: any) {
     const blockBlobUrl = this.getBlockBlobUrl(azblob)
     if (!blockBlobUrl) {
@@ -42,7 +41,6 @@ class AzureDeleteController {
     blockBlobUrl.delete(azblob.Aborter.none)
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private getBlockBlobUrl(azblob: any) {
     const searchParams = new URLSearchParams(document.location.search)
     const blockBlobUrlString = searchParams.get('blockBlobUrlString')

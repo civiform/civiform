@@ -1,4 +1,4 @@
-import {Page} from 'playwright'
+import {Page} from '@playwright/test'
 import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminQuestions,
@@ -33,20 +33,19 @@ test.describe('Static text question for applicant flow', () => {
     )
   })
 
-  test('displays static text', async ({applicantQuestions}) => {
+  test('parses markdown', async ({page, applicantQuestions}) => {
     await applicantQuestions.applyProgram(programName)
-    await applicantQuestions.seeStaticQuestion(staticText)
+    await validateScreenshot(
+      page.getByTestId('staticQuestionRoot'),
+      'markdown-text',
+      {fullPage: false},
+    )
+    await verifyMarkdownHtml(page)
   })
 
   test('has no accessiblity violations', async ({page, applicantQuestions}) => {
     await applicantQuestions.applyProgram(programName)
     await validateAccessibility(page)
-  })
-
-  test('parses markdown', async ({page, applicantQuestions}) => {
-    await applicantQuestions.applyProgram(programName)
-    await validateScreenshot(page, 'markdown-text')
-    await verifyMarkdownHtml(page)
   })
 })
 
@@ -77,16 +76,16 @@ async function verifyMarkdownHtml(page: Page) {
     '<p>Hello, I am some static text!<br>',
   )
   expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
-    '<a href="https://www.example.com" class="text-blue-900 font-bold opacity-75 underline hover:opacity-100" target="_blank" aria-label="opens in a new tab" rel="nofollow noopener noreferrer">This is a link<svg',
+    '<a href="https://www.example.com" class="usa-link usa-link--external" target="_blank" aria-label="This is a link, opens in a new tab" rel="nofollow noopener noreferrer">This is a link</a>',
   )
   expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
-    '<ul class="list-disc mx-8"><li>Item 1</li><li>Item 2<br>&nbsp;</li></ul>',
+    '<ul class="usa-list margin-r-4"><li>Item 1</li><li>Item 2<br>&nbsp;</li></ul>',
   )
   expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
     '<p>There are some empty lines below this that should be preserved<br>&nbsp;</p>\n<p>&nbsp;</p>',
   )
   expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
-    '<p>This link should be autodetected: <a href="https://www.example.com" class="text-blue-900 font-bold opacity-75 underline hover:opacity-100" target="_blank" aria-label="opens in a new tab" rel="nofollow noopener noreferrer">https://www.example.com<svg',
+    '<p>This link should be autodetected: <a href="https://www.example.com" class="usa-link usa-link--external" target="_blank" aria-label="https://www.example.com, opens in a new tab" rel="nofollow noopener noreferrer">https://www.example.com</a>',
   )
   expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
     '<strong>Last line of content should be bold</strong>',

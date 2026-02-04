@@ -1,5 +1,5 @@
 import {test} from '../support/civiform_fixtures'
-import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
+import {loginAsAdmin, validateScreenshot} from '../support'
 
 test.describe('view program references from question view', () => {
   test('shows no results for an unreferenced question', async ({
@@ -62,7 +62,7 @@ test.describe('view program references from question view', () => {
       await adminQuestions.gotoAdminQuestionsPage()
       await adminQuestions.expectQuestionProgramReferencesText({
         questionName,
-        expectedProgramReferencesText: 'Added to 2 programs.',
+        expectedProgramReferencesText: 'Added to 2 programs in use.',
         version: 'draft',
       })
 
@@ -99,7 +99,7 @@ test.describe('view program references from question view', () => {
       await adminQuestions.expectQuestionProgramReferencesText({
         questionName,
         expectedProgramReferencesText:
-          'Used in 1 program.\n\nAdded to 1 program.\n\nRemoved from 1 program.',
+          'Used in 1 program.\n\nAdded to 1 program in use.\n\nRemoved from 1 program.',
         version: 'active',
       })
 
@@ -120,7 +120,6 @@ test.describe('view program references from question view', () => {
     adminQuestions,
     adminPrograms,
   }) => {
-    await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
     const programName = 'Program name'
     const disabledProgramName = 'Disabled program name'
     const questionName = 'question-references-q'

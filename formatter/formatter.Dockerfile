@@ -1,10 +1,10 @@
-# syntax=docker/dockerfile:1
+# syntax=docker/dockerfile:1@sha256:b6afd42430b15f2d2a4c5a02b919e98a525b785b1aaff16747d2f623364e39b6
 # The eclipse-temurin image and the standard openJDK11 fails to run on M1 Macs because it is incompatible with ARM architecture. This
 # workaround uses an aarch64 (arm64) image instead when an optional platform argument is set to arm64.
 # Docker's BuildKit skips unused stages so the image for the platform that isn't used will not be built.
 
-FROM eclipse-temurin:17.0.13_11-jdk-alpine AS amd64
-FROM bellsoft/liberica-openjdk-alpine:17.0.13-12 AS arm64
+FROM eclipse-temurin:17.0.17_10-jdk-alpine@sha256:eaf56b7430cee6c93871106367715e2675192093d8f67dbbdbe07136f7cfae60 AS amd64
+FROM bellsoft/liberica-openjdk-alpine:17.0.16-12@sha256:ed3d715eb5d00e7929d47b3bd4c4b872d773dc4830cf34222ccc9ab3ab1c9a84 AS arm64
 
 FROM ${TARGETARCH}
 
@@ -18,7 +18,7 @@ RUN wget $JAVA_FORMATTER_URL -O /fmt.jar && \
 # Below we pre-install nodejs depdendencies for various
 # TS codebases we have. We need all dependencies in order to
 # run type-based checks with eslint. For each directory that
-# contains package.json we run npm install and save resulted `node_modules`
+# contains package.json we run `npm ci` and save resulted `node_modules`
 # directory as volume.
 ENV FORMATTER_DIR=/code/formatter
 ENV BROWSER_TEST_DIR=/code/browser-test
@@ -30,11 +30,11 @@ COPY browser-test/package.json browser-test/package-lock.json $BROWSER_TEST_DIR/
 COPY server/package.json server/package-lock.json $SERVER_DIR/
 
 RUN cd $FORMATTER_DIR && \
-    npm install && \
+    npm ci && \
     cd $BROWSER_TEST_DIR && \
-    npm install && \
+    npm ci && \
     cd $SERVER_DIR && \
-    npm install
+    npm ci
 
 WORKDIR $SERVER_DIR
 

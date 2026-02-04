@@ -17,7 +17,7 @@
 
   <!--/* Display errors */-->
   <div
-    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams})}"
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams}, ${questionId})}"
   ></div>
 
   <input
@@ -30,7 +30,7 @@
     th:id="${inputId}"
     th:name="${emailQuestion.getEmailPath()}"
     th:value="${emailQuestion.getEmailValue().orElse('')}"
-    th:aria-describedby="${questionId} + '-description'"
+    th:aria-describedby="${questionId} + '-description' + (${hasErrors} ? ' ' + ${questionId} + '-error' : '')"
     th:aria-required="${!question.isOptional()}"
     th:aria-invalid="${hasErrors}"
     th:autofocus="${questionRendererParams.autofocusFirstError()}"

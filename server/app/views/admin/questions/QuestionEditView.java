@@ -16,6 +16,8 @@ import static j2html.TagCreator.strong;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import controllers.geojson.routes;
+import forms.MapQuestionForm;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
 import j2html.tags.DomContent;
@@ -25,13 +27,16 @@ import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.FormTag;
 import java.util.Locale;
 import java.util.Optional;
+import models.QuestionDisplayMode;
 import models.QuestionTag;
+import modules.ThymeleafModule;
+import org.thymeleaf.TemplateEngine;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
-import services.AlertType;
+import repository.GeoJsonDataRepository;
 import services.export.CsvExporterService;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionService;
@@ -48,7 +53,6 @@ import views.ViewUtils;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
-import views.applicant.ApplicantFileUploadRenderer;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
@@ -64,31 +68,40 @@ import views.style.StyleUtils;
 public final class QuestionEditView extends BaseHtmlView {
   private final AdminLayout layout;
   private final Messages messages;
-  private final ApplicantFileUploadRenderer applicantFileUploadRenderer;
   private final QuestionService questionService;
   private final SettingsManifest settingsManifest;
-  private final QuestionPreview questionPreview;
+  private final ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
+  private final TemplateEngine templateEngine;
+  private final GeoJsonDataRepository geoJsonDataRepository;
 
   private static final String NO_ENUMERATOR_DISPLAY_STRING = "does not repeat";
   private static final String NO_ENUMERATOR_ID_STRING = "";
   private static final String QUESTION_NAME_FIELD = "questionName";
   private static final String QUESTION_ENUMERATOR_FIELD = "enumeratorId";
 
+  private enum FormMode {
+    CREATE,
+    EDIT,
+    VIEW
+  }
+
   @Inject
   public QuestionEditView(
       AdminLayoutFactory layoutFactory,
       MessagesApi messagesApi,
-      ApplicantFileUploadRenderer applicantFileUploadRenderer,
       QuestionService questionService,
-      QuestionPreview questionPreview,
-      SettingsManifest settingsManifest) {
+      SettingsManifest settingsManifest,
+      TemplateEngine templateEngine,
+      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
+      GeoJsonDataRepository geoJsonDataRepository) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     // Use the default language for CiviForm, since this is an admin view and not applicant-facing.
     this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
-    this.applicantFileUploadRenderer = checkNotNull(applicantFileUploadRenderer);
     this.questionService = checkNotNull(questionService);
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.questionPreview = checkNotNull(questionPreview);
+    this.templateEngine = checkNotNull(templateEngine);
+    this.playThymeleafContextFactory = checkNotNull(playThymeleafContextFactory);
+    this.geoJsonDataRepository = checkNotNull(geoJsonDataRepository);
   }
 
   /** Render a fresh New Question Form. */
@@ -138,11 +151,12 @@ public final class QuestionEditView extends BaseHtmlView {
         request, formContent, questionType, title, /* modal= */ Optional.empty());
   }
 
-  /** Render a fresh Edit Question Form. */
+  /** Render a fresh Edit Question Form with errors. */
   public Content renderEditQuestionForm(
       Request request,
       QuestionDefinition questionDefinition,
-      Optional<QuestionDefinition> maybeEnumerationQuestionDefinition)
+      Optional<QuestionDefinition> maybeEnumerationQuestionDefinition,
+      Optional<ToastMessage> message)
       throws InvalidQuestionTypeException {
     QuestionForm questionForm = QuestionFormBuilder.create(questionDefinition);
     return renderEditQuestionForm(
@@ -150,7 +164,7 @@ public final class QuestionEditView extends BaseHtmlView {
         questionDefinition.getId(),
         questionForm,
         maybeEnumerationQuestionDefinition,
-        Optional.empty());
+        message);
   }
 
   /** Render a Edit Question form with errors. */
@@ -184,8 +198,8 @@ public final class QuestionEditView extends BaseHtmlView {
                         id,
                         questionForm,
                         maybeEnumerationQuestionDefinition,
-                        request,
-                        unsetUniversalModal)
+                        unsetUniversalModal,
+                        request)
                     .with(makeCsrfTokenInputTag(request)));
 
     message
@@ -209,7 +223,8 @@ public final class QuestionEditView extends BaseHtmlView {
         String.format("View %s question", questionType.toString().toLowerCase(Locale.ROOT));
 
     SelectWithLabel enumeratorOption =
-        enumeratorOptionsFromMaybeEnumerationQuestionDefinition(maybeEnumerationQuestionDefinition);
+        enumeratorOptionsFromMaybeEnumerationQuestionDefinition(
+            maybeEnumerationQuestionDefinition, FormMode.VIEW);
     DivTag formContent =
         buildQuestionContainer(title)
             .with(buildReadOnlyQuestionForm(questionForm, enumeratorOption, request));
@@ -222,22 +237,15 @@ public final class QuestionEditView extends BaseHtmlView {
       Request request, DivTag formContent, QuestionType type, String title, Optional<Modal> modal) {
     DivTag previewContent;
 
-    if (settingsManifest.getNorthStarApplicantUi(request)) {
-      // TODO(#7266): If the admin UI uses Thymeleaf, we can directly embed North Star Thymeleaf
-      // fragments without using HTMX
-      previewContent =
-          div()
-              .attr("hx-swap", "outerHTML")
-              .attr(
-                  "hx-get",
-                  controllers.admin.routes.NorthStarQuestionPreviewController.sampleQuestion(
-                      type.getLabel()))
-              .attr("hx-trigger", "load");
-    } else {
-      previewContent =
-          questionPreview.renderQuestionPreview(
-              type, messages, applicantFileUploadRenderer, request);
-    }
+    // TODO(#7266): If the admin UI uses Thymeleaf, we can directly embed Thymeleaf
+    // fragments without using HTMX
+    previewContent =
+        div()
+            .attr("hx-swap", "outerHTML")
+            .attr(
+                "hx-get",
+                controllers.admin.routes.QuestionPreviewController.sampleQuestion(type.getLabel()))
+            .attr("hx-trigger", "load");
 
     HtmlBundle htmlBundle =
         layout.getBundle(request).setTitle(title).addMainContent(formContent, previewContent);
@@ -266,6 +274,7 @@ public final class QuestionEditView extends BaseHtmlView {
   private DivTag buildQuestionContainer(String title) {
     return div()
         .withId("question-form")
+        .attr("hx-ext", "response-targets")
         .withClasses(
             "border-gray-400",
             "border-r",
@@ -308,7 +317,7 @@ public final class QuestionEditView extends BaseHtmlView {
             questionForm, enumeratorQuestionDefinitions);
     String cancelUrl = questionForm.getRedirectUrl();
     if (Strings.isNullOrEmpty(cancelUrl)) {
-      cancelUrl = controllers.admin.routes.AdminQuestionController.index().url();
+      cancelUrl = controllers.admin.routes.AdminQuestionController.index(Optional.empty()).url();
     }
     FormTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOptions, true, request);
     formTag
@@ -332,10 +341,11 @@ public final class QuestionEditView extends BaseHtmlView {
       long id,
       QuestionForm questionForm,
       Optional<QuestionDefinition> maybeEnumerationQuestionDefinition,
-      Request request,
-      Modal unsetUniversalModal) {
+      Modal unsetUniversalModal,
+      Request request) {
     SelectWithLabel enumeratorOption =
-        enumeratorOptionsFromMaybeEnumerationQuestionDefinition(maybeEnumerationQuestionDefinition);
+        enumeratorOptionsFromMaybeEnumerationQuestionDefinition(
+            maybeEnumerationQuestionDefinition, FormMode.EDIT);
     FormTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOption, false, request);
     formTag.withAction(
         controllers.admin.routes.AdminQuestionController.update(
@@ -395,6 +405,10 @@ public final class QuestionEditView extends BaseHtmlView {
                     .isHidden()
                     .withName(QuestionForm.REDIRECT_URL_PARAM)
                     .withValue(questionForm.getRedirectUrl()),
+                input()
+                    .isHidden()
+                    .withName("concurrencyToken")
+                    .withValue(questionForm.getConcurrencyToken()),
                 requiredFieldsExplanationContent());
     formTag.with(
         h2("Visible to applicants").withClasses("py-2", "mt-6", "font-semibold"),
@@ -456,10 +470,28 @@ public final class QuestionEditView extends BaseHtmlView {
             .getTextareaTag(),
         enumeratorOptions.setDisabled(!forCreate).getSelectTag());
 
+    if (questionType.equals(QuestionType.MAP)) {
+      formTag.with(
+          FieldWithLabel.input()
+              .setFieldName("geoJsonEndpoint")
+              .setId("geoJsonURL")
+              .setLabelText("GeoJSON Endpoint URL")
+              .setSubLabelText("URL must be entered in order to configure question settings below.")
+              .setValue(((MapQuestionForm) questionForm).getGeoJsonEndpoint())
+              .setRequired(true)
+              // GeoJSON endpoint can only be added upon question creation
+              .setReadOnly(!forCreate)
+              .setAttribute("hx-post", routes.GeoJsonApiController.hxGetData().url())
+              .setAttribute("hx-target", "#geoJsonOutput")
+              .setAttribute("hx-target-error", "#geoJsonURL-errors")
+              .setAttribute("hx-swap", "outerHTML")
+              .setAttribute("hx-trigger", "input changed delay:300ms")
+              .getInputTag());
+    }
+
     ImmutableList.Builder<DomContent> questionSettingsContentBuilder = ImmutableList.builder();
     Optional<DivTag> questionConfig =
-        QuestionConfig.buildQuestionConfig(
-            questionForm, messages, settingsManifest.getMultipleFileUploadEnabled(request));
+        getQuestionConfig(questionForm, messages, settingsManifest, request);
     if (questionConfig.isPresent()) {
       questionSettingsContentBuilder.add(questionConfig.get());
     }
@@ -474,6 +506,10 @@ public final class QuestionEditView extends BaseHtmlView {
       questionSettingsContentBuilder.add(buildDemographicFields(questionForm, submittable));
     }
 
+    if (settingsManifest.getApiBridgeEnabled(request)) {
+      questionSettingsContentBuilder.add(buildDisplayModeFields(questionForm, submittable));
+    }
+
     ImmutableList<DomContent> questionSettingsContent = questionSettingsContentBuilder.build();
     if (!questionSettingsContent.isEmpty()) {
       formTag
@@ -482,6 +518,42 @@ public final class QuestionEditView extends BaseHtmlView {
     }
 
     return formTag;
+  }
+
+  private Optional<DivTag> getQuestionConfig(
+      QuestionForm questionForm,
+      Messages messages,
+      SettingsManifest settingsManifest,
+      Request request) {
+    if (questionForm.getQuestionType().equals(QuestionType.MAP)) {
+      ImmutableList<String> possibleKeys =
+          geoJsonDataRepository
+              .getMostRecentGeoJsonDataRowForEndpoint(
+                  ((MapQuestionForm) questionForm).getGeoJsonEndpoint())
+              .join()
+              .map(geoJsonDataModel -> geoJsonDataModel.getGeoJson().getPossibleKeys())
+              .orElse(ImmutableList.of());
+
+      return QuestionConfig.buildQuestionConfigUsingThymeleaf(
+          request,
+          new MapQuestionSettingsPartialView(
+              templateEngine, playThymeleafContextFactory, settingsManifest),
+          getMapQuestionSettingsPartialViewModel((MapQuestionForm) questionForm, possibleKeys));
+    }
+    return QuestionConfig.buildQuestionConfig(questionForm, messages, settingsManifest, request);
+  }
+
+  private static MapQuestionSettingsPartialViewModel getMapQuestionSettingsPartialViewModel(
+      MapQuestionForm mapQuestionForm, ImmutableList<String> possibleKeys) {
+
+    return new MapQuestionSettingsPartialViewModel(
+        mapQuestionForm.getMaxLocationSelections(),
+        mapQuestionForm.getLocationName(),
+        mapQuestionForm.getLocationAddress(),
+        mapQuestionForm.getLocationDetailsUrl(),
+        mapQuestionForm.getFilters(),
+        mapQuestionForm.getLocationTag(),
+        possibleKeys);
   }
 
   private DomContent buildUniversalQuestion(QuestionForm questionForm) {
@@ -556,24 +628,21 @@ public final class QuestionEditView extends BaseHtmlView {
                                           primaryApplicantInfoTag.getDisplayName()))))
                       .condWith(
                           !differentQuestionHasTag,
-                          AlertComponent.renderSlimAlert(
-                              AlertType.INFO,
+                          AlertComponent.renderSlimInfoAlert(
                               nonUniversalAlertText,
                               /* hidden= */ questionForm.isUniversal(),
                               "cf-pai-not-universal-alert",
                               "usa-alert-remove-top-margin"))
                       .condWith(
                           differentQuestionHasTag,
-                          AlertComponent.renderSlimAlert(
-                              AlertType.INFO,
+                          AlertComponent.renderSlimInfoAlert(
                               alreadySetAlertText,
                               /* hidden= */ !questionForm.isUniversal(),
                               "cf-pai-tag-set-alert",
                               "usa-alert-remove-top-margin"))
                       .condWith(
                           differentQuestionHasTag,
-                          AlertComponent.renderSlimAlert(
-                              AlertType.INFO,
+                          AlertComponent.renderSlimInfoAlert(
                               nonUniversalAlreadySetAlertText,
                               /* hidden= */ questionForm.isUniversal(),
                               "cf-pai-tag-set-not-universal-alert",
@@ -631,6 +700,39 @@ public final class QuestionEditView extends BaseHtmlView {
             span("."));
   }
 
+  /** Generates a radio button list with the {@link QuestionDisplayMode} options. */
+  private DomContent buildDisplayModeFields(QuestionForm questionForm, boolean submittable) {
+    QuestionDisplayMode displayMode = questionForm.getDisplayMode();
+
+    return fieldset()
+        .with(
+            legend("Display Mode")
+                .with(ViewUtils.requiredQuestionIndicator())
+                .withClass(BaseStyles.INPUT_LABEL),
+            p().withClasses("px-1", "pb-2", "text-sm", "text-gray-600")
+                .with(span("This controls whether or not the question is visible to Applicants.")),
+            FieldWithLabel.radio()
+                .setDisabled(!submittable)
+                .setAriaRequired(true)
+                .setFieldName("displayMode")
+                .setLabelText(
+                    String.format(
+                        "%s - Shown to Applicants", QuestionDisplayMode.VISIBLE.getLabel()))
+                .setValue(QuestionDisplayMode.VISIBLE.getValue())
+                .setChecked(displayMode == QuestionDisplayMode.VISIBLE)
+                .getRadioTag(),
+            FieldWithLabel.radio()
+                .setDisabled(!submittable)
+                .setAriaRequired(true)
+                .setFieldName("displayMode")
+                .setLabelText(
+                    String.format(
+                        "%s - Not shown to Applicants", QuestionDisplayMode.HIDDEN.getLabel()))
+                .setValue(QuestionDisplayMode.HIDDEN.getValue())
+                .setChecked(displayMode == QuestionDisplayMode.HIDDEN)
+                .getRadioTag());
+  }
+
   /**
    * Generate a {@link SelectWithLabel} enumerator selector with all the available enumerator
    * question definitions.
@@ -657,7 +759,8 @@ public final class QuestionEditView extends BaseHtmlView {
             .build();
     return enumeratorOptions(
         options,
-        questionForm.getEnumeratorId().map(String::valueOf).orElse(NO_ENUMERATOR_ID_STRING));
+        questionForm.getEnumeratorId().map(String::valueOf).orElse(NO_ENUMERATOR_ID_STRING),
+        FormMode.CREATE);
   }
 
   /**
@@ -665,7 +768,7 @@ public final class QuestionEditView extends BaseHtmlView {
    * question definition if available, or with just the no-enumerator option.
    */
   private SelectWithLabel enumeratorOptionsFromMaybeEnumerationQuestionDefinition(
-      Optional<QuestionDefinition> maybeEnumerationQuestionDefinition) {
+      Optional<QuestionDefinition> maybeEnumerationQuestionDefinition, FormMode formMode) {
     String enumeratorName =
         maybeEnumerationQuestionDefinition
             .map(QuestionDefinition::getName)
@@ -680,17 +783,19 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setLabel(enumeratorName)
                 .setValue(enumeratorId)
                 .build()),
-        enumeratorId);
+        enumeratorId,
+        formMode);
   }
 
   private SelectWithLabel enumeratorOptions(
-      ImmutableList<SelectWithLabel.OptionValue> options, String selected) {
+      ImmutableList<SelectWithLabel.OptionValue> options, String selected, FormMode formMode) {
     return new SelectWithLabel()
         .setId("question-enumerator-select")
         .setFieldName(QUESTION_ENUMERATOR_FIELD)
         .setLabelText("Question enumerator")
         .setOptions(options)
         .setValue(selected)
+        .setReadOnly(formMode.equals(FormMode.EDIT))
         .setRequired(true);
   }
 

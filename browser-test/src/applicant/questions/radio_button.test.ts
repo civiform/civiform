@@ -7,10 +7,67 @@ import {
   logout,
   validateAccessibility,
   validateScreenshot,
+  selectApplicantLanguage,
 } from '../../support'
 
 test.describe('Radio button question for applicant flow', () => {
-  test.describe('single radio button question with north star flag disabled', () => {
+  test.describe('single radio button question', () => {
+    const programName = 'Test program for single radio button'
+
+    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+      await setUpForSingleQuestion(
+        programName,
+        page,
+        adminQuestions,
+        adminPrograms,
+      )
+    })
+
+    test('validate screenshot', async ({page, applicantQuestions}) => {
+      await applicantQuestions.applyProgram(programName)
+
+      await test.step('Screenshot without errors', async () => {
+        await validateScreenshot(
+          page.getByTestId('questionRoot'),
+          'radio-button',
+          {fullPage: false},
+        )
+      })
+
+      await test.step('Screenshot with errors', async () => {
+        await applicantQuestions.clickContinue()
+        await validateScreenshot(
+          page.getByTestId('questionRoot'),
+          'radio-button-errors',
+          {fullPage: false},
+        )
+      })
+    })
+
+    test('has no accessiblity violations', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+
+      await validateAccessibility(page)
+    })
+
+    test('renders correctly right to left', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+      await selectApplicantLanguage(page, 'ar')
+      await validateScreenshot(
+        page.getByTestId('questionRoot'),
+        'radio-options-right-to-left',
+        {fullPage: false, mobileScreenshot: true},
+      )
+    })
+  })
+
+  test.describe('single radio button question', () => {
     const programName = 'Test program for single radio button'
 
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
@@ -65,30 +122,14 @@ test.describe('Radio button question for applicant flow', () => {
       await adminQuestions.expectPreviewOptions(['Sample question option'])
     })
 
-    test('validate screenshot', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName)
-
-      await validateScreenshot(page, 'radio-button')
-    })
-
-    test('validate screenshot with errors', async ({
-      page,
-      applicantQuestions,
-    }) => {
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.clickNext()
-
-      await validateScreenshot(page, 'radio-button-errors')
-    })
-
     test('with selection submits successfully', async ({
       applicantQuestions,
     }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerRadioButtonQuestion('matcha')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.expectReviewPage()
     })
 
     test('with empty selection does not submit', async ({
@@ -98,7 +139,7 @@ test.describe('Radio button question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
 
       // Click next without inputting anything
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       const radioButtonId = '.cf-question-radio'
       expect(await page.innerText(radioButtonId)).toContain(
@@ -106,6 +147,7 @@ test.describe('Radio button question for applicant flow', () => {
       )
       expect(await page.innerHTML(radioButtonId)).toContain('autofocus')
     })
+
     test('markdown applied to options shows in preview', async ({
       page,
       adminQuestions,
@@ -135,7 +177,11 @@ test.describe('Radio button question for applicant flow', () => {
         '<p><a class="text-blue-600 hover:text-blue-500 underline" target="_blank" href="https://www.orange.com">orange</a></p>\n',
         '<p><a class="text-blue-600 hover:text-blue-500 underline" target="_blank" href="https://www.blue.com">https://www.blue.com</a></p>\n',
       ])
-      await validateScreenshot(page, 'radio-button-options-with-markdown')
+      await validateScreenshot(
+        page.getByTestId('questionRoot'),
+        'radio-button-options-with-markdown',
+        {fullPage: false},
+      )
     })
 
     test('options with long text render correctly', async ({
@@ -161,7 +207,11 @@ test.describe('Radio button question for applicant flow', () => {
         },
         /* clickSubmit= */ false,
       )
-      await validateScreenshot(page, 'radio-options-long-text-preview')
+      await validateScreenshot(
+        page.getByTestId('questionRoot'),
+        'radio-options-long-text-preview',
+        {fullPage: false},
+      )
       await adminQuestions.clickSubmitButtonAndNavigate('Create')
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['long-option-test'],
@@ -170,7 +220,11 @@ test.describe('Radio button question for applicant flow', () => {
       await logout(page)
 
       await applicantQuestions.applyProgram(longTextProgramName)
-      await validateScreenshot(page, 'radio-options-long-text-applicant')
+      await validateScreenshot(
+        page.getByTestId('questionRoot'),
+        'radio-options-long-text-applicant',
+        {fullPage: false},
+      )
     })
   })
 
@@ -189,7 +243,7 @@ test.describe('Radio button question for applicant flow', () => {
         ],
       })
 
-      await adminQuestions.addCheckboxQuestion({
+      await adminQuestions.addRadioButtonQuestion({
         questionName: 'fave-vacation-q',
         options: [
           {adminName: 'beach_admin', text: 'beach'},
@@ -217,9 +271,9 @@ test.describe('Radio button question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerRadioButtonQuestion('matcha')
       await applicantQuestions.answerRadioButtonQuestion('mountains')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.expectReviewPage()
     })
 
     test('with unanswered optional question submits successfully', async ({
@@ -228,9 +282,9 @@ test.describe('Radio button question for applicant flow', () => {
       // Only answer second question. First is optional.
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerRadioButtonQuestion('matcha')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.expectReviewPage()
     })
 
     test('has no accessiblity violations', async ({

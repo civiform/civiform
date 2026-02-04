@@ -1,6 +1,10 @@
 package controllers.admin;
 
+import static j2html.TagCreator.join;
+import static j2html.TagCreator.strong;
+
 import com.google.common.collect.ImmutableList;
+import j2html.tags.UnescapedText;
 import java.util.Optional;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
@@ -12,33 +16,59 @@ public final class PredicateUtils {
   public static ReadablePredicate getReadablePredicateDescription(
       String blockName,
       PredicateDefinition predicate,
-      ImmutableList<QuestionDefinition> questionDefinitions) {
-    switch (predicate.predicateFormat()) {
-      case SINGLE_QUESTION:
-        return ReadablePredicate.create(
-            /* heading= */ predicate.toDisplayString(blockName, questionDefinitions),
-            /* conditionList= */ Optional.empty());
-      case OR_OF_SINGLE_LAYER_ANDS:
-        String headingPrefix = blockName + " is " + predicate.action().toDisplayString();
-        ImmutableList<PredicateExpressionNode> andNodes =
-            predicate.rootNode().getOrNode().children();
-        if (andNodes.size() == 1) {
-          return ReadablePredicate.create(
-              /* heading= */ headingPrefix
-                  + " "
-                  + andNodes.get(0).getAndNode().toDisplayString(questionDefinitions),
-              /* conditionList= */ Optional.empty());
-        } else {
-          String heading = headingPrefix + " any of:";
-          ImmutableList<String> conditionList =
-              andNodes.stream()
-                  .map(andNode -> andNode.getAndNode().toDisplayString(questionDefinitions))
-                  .collect(ImmutableList.toImmutableList());
-          return ReadablePredicate.create(heading, Optional.of(conditionList));
-        }
-      default:
-        throw new IllegalStateException(
-            String.format("Predicate format [%s] not handled", predicate.predicateFormat().name()));
-    }
+      ImmutableList<QuestionDefinition> questionDefinitions,
+      boolean expandedFormLogicEnabled) {
+    String headingSuffix =
+        expandedFormLogicEnabled ? "conditions are true:" : "of the following is true:";
+    return switch (predicate.predicateFormat()) {
+      case SINGLE_CONDITION ->
+          ReadablePredicate.create(
+              /* heading= */ predicate.toDisplayString(blockName, questionDefinitions),
+              /* formattedHtmlHeading= */ predicate.toDisplayFormattedHtml(
+                  blockName, questionDefinitions),
+              /* conditionList= */ Optional.empty(),
+              /* formattedHtmlConditionList= */ Optional.empty());
+      case MULTIPLE_CONDITIONS -> {
+        String headingPrefix =
+            predicate.getPredicateSubject(blockName)
+                + " is "
+                + predicate.action().toDisplayString();
+        UnescapedText formattedHtmlHeadingPrefix =
+            join(
+                predicate.getPredicateSubject(blockName),
+                "is",
+                predicate.action().toDisplayFormattedHtml());
+        ImmutableList<PredicateExpressionNode> childNodes = predicate.rootNode().getChildren();
+        String rootNodeTypeDisplay = predicate.rootNode().getType().toDisplayString();
+        String heading = headingPrefix + " " + rootNodeTypeDisplay + " " + headingSuffix;
+        UnescapedText formattedHtmlHeading =
+            join(formattedHtmlHeadingPrefix, strong(rootNodeTypeDisplay), headingSuffix);
+        ImmutableList<String> conditionList =
+            childNodes.stream()
+                .map(childNode -> childNode.toDisplayString(questionDefinitions))
+                .collect(ImmutableList.toImmutableList());
+        ImmutableList<UnescapedText> formattedHtmlConditionList =
+            childNodes.stream()
+                .map(childNode -> childNode.toDisplayFormattedHtml(questionDefinitions))
+                .collect(ImmutableList.toImmutableList());
+        yield ReadablePredicate.create(
+            heading,
+            formattedHtmlHeading,
+            Optional.of(conditionList),
+            Optional.of(formattedHtmlConditionList));
+      }
+    };
+  }
+
+  /** Join HTML components with delimiter inserted between components. */
+  public static UnescapedText joinUnescapedText(
+      ImmutableList<UnescapedText> components, String delimiter) {
+    return components.stream()
+        .reduce(
+            new UnescapedText(""),
+            (first, second) -> {
+              // Only insert delimiter when at least 2 elements are present
+              return first.toString().isEmpty() ? second : join(first, delimiter, second);
+            });
   }
 }

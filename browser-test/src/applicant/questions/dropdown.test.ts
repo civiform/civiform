@@ -22,7 +22,29 @@ test.describe('Dropdown question for applicant flow', () => {
       )
     })
 
-    test('Updates options in preview', async ({page, adminQuestions}) => {
+    test('validate screenshot', async ({page, applicantQuestions}) => {
+      await applicantQuestions.applyProgram(programName)
+
+      await test.step('Screenshot without errors', async () => {
+        await validateScreenshot(page.getByTestId('questionRoot'), 'dropdown', {
+          fullPage: false,
+        })
+        await validateAccessibility(page)
+      })
+
+      await test.step('Screenshot with errors', async () => {
+        await applicantQuestions.clickContinue()
+        await validateScreenshot(
+          page.getByTestId('questionRoot'),
+          'dropdown-errors',
+          {fullPage: false},
+        )
+        await validateAccessibility(page)
+      })
+    })
+
+    // TODO(#7892): When admin console supports dropdown previews, unskip this test
+    test.skip('Updates options in preview', async ({page, adminQuestions}) => {
       await loginAsAdmin(page)
 
       await adminQuestions.createDropdownQuestion(
@@ -65,44 +87,22 @@ test.describe('Dropdown question for applicant flow', () => {
       await adminQuestions.expectPreviewOptions(['Sample question option\n'])
     })
 
-    test('validate screenshot', async ({page, applicantQuestions}) => {
+    test('attempts to submit', async ({applicantQuestions, page}) => {
       await applicantQuestions.applyProgram(programName)
 
-      await validateScreenshot(page, 'dropdown')
-    })
+      await test.step('with no selection does not submit', async () => {
+        // Click next without selecting anything
+        await applicantQuestions.clickContinue()
 
-    test('validate screenshot with errors', async ({
-      page,
-      applicantQuestions,
-    }) => {
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.clickNext()
+        await expect(page.getByText('This question is required.')).toBeVisible()
+      })
 
-      await validateScreenshot(page, 'dropdown-errors')
-    })
+      await test.step('with selected option submits successfully', async () => {
+        await applicantQuestions.answerDropdownQuestion('green')
+        await applicantQuestions.clickContinue()
 
-    test('with selected option submits successfully', async ({
-      applicantQuestions,
-    }) => {
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerDropdownQuestion('green')
-      await applicantQuestions.clickNext()
-
-      await applicantQuestions.submitFromReviewPage()
-    })
-
-    test('with no selection does not submit', async ({
-      page,
-      applicantQuestions,
-    }) => {
-      await applicantQuestions.applyProgram(programName)
-      // Click next without selecting anything.
-      await applicantQuestions.clickNext()
-
-      const dropdownId = '.cf-question-dropdown'
-      expect(await page.innerText(dropdownId)).toContain(
-        'This question is required.',
-      )
+        await applicantQuestions.expectReviewPage()
+      })
     })
   })
 
@@ -149,9 +149,9 @@ test.describe('Dropdown question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerDropdownQuestion('beach', 0)
       await applicantQuestions.answerDropdownQuestion('blue', 1)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.expectReviewPage()
     })
 
     test('with unanswered optional question submits successfully', async ({
@@ -160,12 +160,12 @@ test.describe('Dropdown question for applicant flow', () => {
       // Only answer second question. First is optional.
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerDropdownQuestion('red', 1)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.expectReviewPage()
     })
 
-    test('has no accessibility violations', async ({
+    test('has no accessiblity violations', async ({
       page,
       applicantQuestions,
     }) => {

@@ -115,7 +115,7 @@ public final class JsonPathPredicateGenerator {
   private JsonPathPredicate formatAgePredicate(LeafOperationExpressionNode node)
       throws InvalidPredicateException {
     switch (node.operator()) {
-      case AGE_BETWEEN:
+      case AGE_BETWEEN -> {
         // Value is stored as "[18, 30]"
         String arrayString = node.comparedValue().value();
         ImmutableList<Long> ageRange =
@@ -133,8 +133,8 @@ public final class JsonPathPredicateGenerator {
                 dateConverter.getDateTimestampFromAge(ageRange.get(0)),
                 dateConverter.getDateTimestampFromAge(ageRange.get(1)),
                 node.scalar().name().toLowerCase(Locale.ROOT)));
-      case AGE_OLDER_THAN:
-      case AGE_YOUNGER_THAN:
+      }
+      case AGE_OLDER_THAN, AGE_YOUNGER_THAN -> {
         return JsonPathPredicate.create(
             String.format(
                 "%s[?(%s %s @.%s)]",
@@ -143,9 +143,10 @@ public final class JsonPathPredicateGenerator {
                     Double.parseDouble(node.comparedValue().value())),
                 node.operator().toJsonPathOperator(),
                 node.scalar().name().toLowerCase(Locale.ROOT)));
-      default:
-        throw new InvalidPredicateException(
-            String.format("Expecting an age predicate but instead received %s", node.operator()));
+      }
+      default ->
+          throw new InvalidPredicateException(
+              String.format("Expecting an age predicate but instead received %s", node.operator()));
     }
   }
 
@@ -170,7 +171,7 @@ public final class JsonPathPredicateGenerator {
             node.scalar().name().toLowerCase(Locale.ROOT)));
   }
 
-  private Path getPath(LeafExpressionNode node) throws InvalidPredicateException {
+  public Path getPath(LeafExpressionNode node) throws InvalidPredicateException {
     if (!questionsById.containsKey(node.questionId())) {
       // This means a predicate was incorrectly configured - we are depending upon a question that
       // does not appear anywhere in this program.
@@ -224,5 +225,9 @@ public final class JsonPathPredicateGenerator {
     }
 
     return predicateContext;
+  }
+
+  public QuestionDefinition getQuestionDefinition(long questionId) {
+    return questionsById.get(questionId);
   }
 }

@@ -615,8 +615,7 @@ public class CfJsonDocumentContext {
 
   @Override
   public boolean equals(@Nullable Object object) {
-    if (object instanceof CfJsonDocumentContext) {
-      CfJsonDocumentContext that = (CfJsonDocumentContext) object;
+    if (object instanceof CfJsonDocumentContext that) {
       // Need to compare the JSON strings rather than the DocumentContexts themselves since
       // DocumentContext does not override equals.
       return jsonData.jsonString().equals(that.jsonData.jsonString());
@@ -657,7 +656,8 @@ public class CfJsonDocumentContext {
           }
         } else {
           try {
-            if (!this.read(path, Object.class).equals(entry.getValue())) {
+            Optional<Object> value = this.read(path, Object.class);
+            if (value.isEmpty() || !value.get().equals(entry.getValue())) {
               pathsRemoved.add(path);
             }
           } catch (JsonPathTypeMismatchException e) {

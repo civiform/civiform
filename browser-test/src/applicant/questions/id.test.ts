@@ -25,40 +25,41 @@ test.describe('Id question for applicant flow', () => {
     test('validate screenshot', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
 
-      await validateScreenshot(page, 'id')
+      await test.step('Screenshot without errors', async () => {
+        await validateScreenshot(page.getByTestId('questionRoot'), 'id', {
+          fullPage: false,
+        })
+      })
+
+      await test.step('Screenshot with errors', async () => {
+        // Do not fill in the question
+        await applicantQuestions.clickContinue()
+        await validateScreenshot(
+          page.getByTestId('questionRoot'),
+          'id-errors',
+          {fullPage: false},
+        )
+      })
     })
 
-    test('validate screenshot with errors', async ({
-      page,
-      applicantQuestions,
-    }) => {
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.clickNext()
-
-      await validateScreenshot(page, 'id-errors')
-    })
-
-    test('with id submits successfully', async ({applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerIdQuestion('12345')
-      await applicantQuestions.clickNext()
-
-      await applicantQuestions.submitFromReviewPage()
-    })
-
-    test('with empty id does not submit', async ({
-      page,
-      applicantQuestions,
-    }) => {
+    test('attempts to submit', async ({applicantQuestions, page}) => {
       await applicantQuestions.applyProgram(programName)
 
-      // Click next without inputting anything
-      await applicantQuestions.clickNext()
+      await test.step('with empty id does not submit', async () => {
+        // Click "Continue" without inputting anything
+        await applicantQuestions.clickContinue()
 
-      const identificationId = '.cf-question-id'
-      expect(await page.innerText(identificationId)).toContain(
-        'This question is required.',
-      )
+        await expect(
+          page.getByText('Error: Must contain at least 5 characters.'),
+        ).toBeVisible()
+      })
+
+      await test.step('with id submits successfully', async () => {
+        await applicantQuestions.answerIdQuestion('12345')
+        await applicantQuestions.clickContinue()
+
+        await applicantQuestions.expectReviewPage()
+      })
     })
 
     test('with too short id does not submit', async ({
@@ -67,12 +68,11 @@ test.describe('Id question for applicant flow', () => {
     }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('123')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      const identificationId = '.cf-question-id'
-      expect(await page.innerText(identificationId)).toContain(
-        'Must contain at least 5 characters.',
-      )
+      await expect(
+        page.getByText('Error: Must contain at least 5 characters.'),
+      ).toBeVisible()
     })
 
     test('with too long id does not submit', async ({
@@ -81,12 +81,11 @@ test.describe('Id question for applicant flow', () => {
     }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('123456')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      const identificationId = '.cf-question-id'
-      expect(await page.innerText(identificationId)).toContain(
-        'Must contain at most 5 characters.',
-      )
+      await expect(
+        page.getByText('Error: Must contain at most 5 characters.'),
+      ).toBeVisible()
     })
 
     test('with non-numeric characters does not submit', async ({
@@ -95,12 +94,11 @@ test.describe('Id question for applicant flow', () => {
     }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('abcde')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      const identificationId = '.cf-question-id'
-      expect(await page.innerText(identificationId)).toContain(
-        'Must contain only numbers.',
-      )
+      await expect(
+        page.getByText('Error: Must contain only numbers.'),
+      ).toBeVisible()
     })
   })
 
@@ -135,9 +133,9 @@ test.describe('Id question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('12345', 0)
       await applicantQuestions.answerIdQuestion('67890', 1)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.expectReviewPage()
     })
 
     test('with unanswered optional question submits successfully', async ({
@@ -146,9 +144,9 @@ test.describe('Id question for applicant flow', () => {
       // Only answer second question. First is optional.
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('67890', 1)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.expectReviewPage()
     })
 
     test('with first invalid does not submit', async ({
@@ -158,12 +156,11 @@ test.describe('Id question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('abcde', 0)
       await applicantQuestions.answerIdQuestion('67890', 1)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      const identificationId = '.cf-question-id'
-      expect(await page.innerText(identificationId)).toContain(
-        'Must contain only numbers.',
-      )
+      await expect(
+        page.getByText('Error: Must contain only numbers.'),
+      ).toBeVisible()
     })
 
     test('with second invalid does not submit', async ({
@@ -173,12 +170,11 @@ test.describe('Id question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('67890', 0)
       await applicantQuestions.answerIdQuestion('abcde', 1)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      const identificationId = `.cf-question-id >> nth=1`
-      expect(await page.innerText(identificationId)).toContain(
-        'Must contain only numbers.',
-      )
+      await expect(
+        page.getByText('Error: Must contain only numbers.'),
+      ).toBeVisible()
     })
 
     test('has no accessiblity violations', async ({

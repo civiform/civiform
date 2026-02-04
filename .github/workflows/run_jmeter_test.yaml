@@ -12,6 +12,10 @@ on:
         description: 'The url to run the load tests for. Defaults to staging-aws.civiform.dev'
         default: staging-aws.civiform.dev
 
+      num_users:
+        description: 'The number of users to run the tests with. Defaults to 10.'
+        default: '10'
+
       output_file_type:
         description: 'The type of the file to output. Defaults to jtl'
         type: choice
@@ -23,9 +27,10 @@ on:
       test_to_run:
         description: 'The load test to run from load-test/'
         type: choice
-        default: applicant_submit_application
+        default: applicant_submit_comprehensive_sample_program
         options:
-        - applicant_submit_application
+        - applicant_submit_comprehensive_sample_program
+        - applicant_submit_minimal_sample_program
         - applicant_landing_page
         - ti_landing_page
         
@@ -36,17 +41,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
         with:
           ref: ${{ github.event.inputs.branch_name }}
       - name: JMeter Test - ${{ github.event.inputs.test_to_run }}
-        uses: QAInsights/PerfAction@v5.6.2
+        uses: QAInsights/PerfAction@d16221318a6d261b1546b9dec9c0bb1739e3d480 # v5.6.3
         with:
           test-plan-path: load-test/${{ github.event.inputs.test_to_run }}.jmx
-          args: -JciviformUrl=${{ github.event.inputs.civiform_url }}
+          args: -JciviformUrl=${{ github.event.inputs.civiform_url }} -Jusers=${{ github.event.inputs.num_users }}
           results-file: result.${{ github.event.inputs.output_file_type }}
       - name: Upload Results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: jmeter-results
           path: result.${{ github.event.inputs.output_file_type }}

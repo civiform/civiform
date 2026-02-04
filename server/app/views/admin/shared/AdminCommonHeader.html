@@ -1,0 +1,103 @@
+<!--/*@thymesVar id="adminCommonHeader" type="views.admin.shared.AdminCommonHeader"*/-->
+<th:block xmlns:cf="https://civiform.us/2024/html/icon">
+  <div class="usa-overlay"></div>
+
+  <header class="usa-header usa-header--basic">
+    <div class="usa-nav-container bg-white">
+      <div class="usa-navbar">
+        <div class="usa-logo">
+          <em class="usa-logo__text">
+            <a href="/" title="CiviForm">
+              <img
+                alt="PLACEHOLDER IMAGE"
+                src="/assets/Images/civiform-logo.png"
+                class="cf-admin-header-logo"
+              />
+            </a>
+          </em>
+        </div>
+        <button type="button" class="usa-menu-btn">Menu</button>
+      </div>
+
+      <nav aria-label="Primary navigation" class="usa-nav">
+        <button type="button" class="usa-nav__close">
+          <img src="/assets/Images/uswds/close.svg" role="img" alt="Close" />
+        </button>
+        <ul class="usa-nav__primary usa-accordion">
+          <th:block
+            th:insert="~{::createPrimaryItem(${adminCommonHeader.showProgramsUrl()}, ${adminCommonHeader.programsUrl()}, 'PROGRAMS', 'Programs')}"
+          />
+          <th:block
+            th:insert="~{::createPrimaryItem(${adminCommonHeader.showQuestionsUrl()}, ${adminCommonHeader.questionsUrl()}, 'QUESTIONS', 'Questions')}"
+          />
+          <th:block
+            th:insert="~{::createPrimaryItem(${adminCommonHeader.showIntermediaryUrl()}, ${adminCommonHeader.intermediaryUrl()}, 'INTERMEDIARIES', 'Intermediaries')}"
+          />
+          <th:block
+            th:insert="~{::createPrimaryItem(${adminCommonHeader.showReportingUrl()}, ${adminCommonHeader.reportingUrl()}, 'REPORTING', 'Reporting')}"
+          />
+
+          <li
+            class="usa-nav__primary-item"
+            th:href="${adminCommonHeader.showApi()}"
+          >
+            <button
+              type="button"
+              aria-expanded="false"
+              aria-controls="admin-api-nav-item"
+              class="usa-accordion__button usa-nav__link"
+              th:classappend="${adminCommonHeader.isApiPage()} ? 'usa-current' : ''"
+            >
+              <span>API</span>
+            </button>
+            <ul id="admin-api-nav-item" class="usa-nav__submenu" hidden="">
+              <th:block
+                th:insert="~{::createSubMenuItem(${adminCommonHeader.showApiKeysUrl()}, ${adminCommonHeader.apiKeysUrl()}, 'API_KEYS', 'API Keys')}"
+              />
+              <th:block
+                th:insert="~{::createSubMenuItem(${adminCommonHeader.showApiDocsUrl()}, ${adminCommonHeader.apiDocsUrl()}, 'API_DOCS', 'Documentation')}"
+              />
+              <th:block
+                th:insert="~{::createSubMenuItem(${adminCommonHeader.showApiBridgeDiscoveryUrl()}, ${adminCommonHeader.apiBridgeDiscoveryUrl()}, 'API_BRIDGE_DISCOVERY', 'Bridge Discovery')}"
+              />
+            </ul>
+          </li>
+
+          <th:block
+            th:insert="~{::createPrimaryItem(${adminCommonHeader.showSettingsUrl()}, ${adminCommonHeader.settingsUrl()}, 'SETTINGS', 'Settings')}"
+          />
+
+          <li class="usa-nav__primary-item">
+            <a
+              th:href="${adminCommonHeader.logoutUrl()}"
+              class="usa-button"
+              id="logout-button"
+              >Logout</a
+            >
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+</th:block>
+
+<th:block th:fragment="createPrimaryItem(show, url, expected, title)">
+  <li class="usa-nav__primary-item" th:if="${show}">
+    <a
+      th:href="${url}"
+      class="usa-nav__link"
+      th:classappend="${adminCommonHeader.activeNavPage().name() == expected} ? 'usa-current' : ''"
+      th:text="${title}"
+    ></a>
+  </li>
+</th:block>
+
+<th:block th:fragment="createSubMenuItem(show, url, expected, title)">
+  <li
+    class="usa-nav__submenu-item"
+    th:if="${show}"
+    th:classappend="${adminCommonHeader.activeNavPage().name() == expected} ? 'text-bold' : ''"
+  >
+    <a th:href="${url}" th:text="${title}"></a>
+  </li>
+</th:block>

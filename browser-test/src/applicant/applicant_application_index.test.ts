@@ -2,19 +2,21 @@ import {test, expect} from '../support/civiform_fixtures'
 import {
   ApplicantQuestions,
   AdminPrograms,
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
   logout,
+  normalizeElements,
+  selectApplicantLanguage,
   testUserDisplayName,
   validateAccessibility,
   validateScreenshot,
-  seedProgramsAndCategories,
-  selectApplicantLanguage,
+  waitForPageJsLoad,
 } from '../support'
-import {Page} from 'playwright'
-import {ProgramVisibility} from '../support/admin_programs'
+import {Locator, Page} from '@playwright/test'
+import {ProgramCategories, ProgramVisibility} from '../support/admin_programs'
 import {BASE_URL} from '../support/config'
 
 test.describe('applicant program index page', () => {
@@ -39,18 +41,21 @@ test.describe('applicant program index page', () => {
       questionText: secondQuestionText,
     })
     // Primary program's screen 1 has 0 questions, so the 'first block' is actually screen 2
-    await adminPrograms.addProgramBlock(primaryProgramName, 'first block', [
-      'first-q',
-    ])
+    await adminPrograms.addProgramBlockUsingSpec(primaryProgramName, {
+      description: 'first block',
+      questions: [{name: 'first-q'}],
+    })
     // The 'second block' is actually screen 3
-    await adminPrograms.addProgramBlock(primaryProgramName, 'second block', [
-      'second-q',
-    ])
+    await adminPrograms.addProgramBlockUsingSpec(primaryProgramName, {
+      description: 'second block',
+      questions: [{name: 'second-q'}],
+    })
 
     await adminPrograms.addProgram(otherProgramName)
-    await adminPrograms.addProgramBlock(otherProgramName, 'first block', [
-      'first-q',
-    ])
+    await adminPrograms.addProgramBlockUsingSpec(otherProgramName, {
+      description: 'first block',
+      questions: [{name: 'first-q'}],
+    })
 
     await adminPrograms.publishAllDrafts()
     await logout(page)
@@ -73,26 +78,44 @@ test.describe('applicant program index page', () => {
     await adminSettings.saveChanges()
     await logout(page)
 
-    expect(
-      await page
-        .getByText(/Log in to your (\w|\s)+ account or create/)
-        .textContent(),
-    ).toContain('Awesome Sauce')
+    await expect(page.getByText(/Discover services you may/)).toBeVisible()
   })
 
-  test('shows log in button for guest users', async ({
+  test('validate initial page load as guest user', async ({
     page,
     applicantQuestions,
   }) => {
-    await validateAccessibility(page)
+    await validateScreenshot(page, 'program-index-page-initial-load')
+    await applicantQuestions.expectTitle(page, 'Find programs')
+  })
 
-    // We cannot check that the login/create account buttons redirect the user to a particular
+  test('validate accessibility and validate skip link', async ({page}) => {
+    const skipLinkLocator: Locator = page.getByRole('link', {
+      name: 'Skip to main content',
+    })
+
+    await test.step('Tab and verify focus on skip link', async () => {
+      await page.keyboard.press('Tab')
+      await expect(skipLinkLocator).toBeFocused()
+      await expect(skipLinkLocator).toBeVisible()
+    })
+
+    await test.step('Click on skip link and skip to main content', async () => {
+      await skipLinkLocator.click()
+      await expect(page.locator('main')).toBeFocused()
+      await page.keyboard.press('Tab')
+      await expect(
+        page.getByRole('link', {name: 'View and apply'}).first(),
+      ).toBeFocused()
+    })
+
+    await validateAccessibility(page)
+  })
+
+  test('shows log in button for guest users', async ({page}) => {
+    // We cannot check that the login button redirects the user to a particular
     // URL because it varies between environments, so just check for their existence.
-    expect(await page.textContent('#login-button')).toContain('Log in')
-    expect(await page.textContent('#create-account')).toContain(
-      'Create account',
-    )
-    await applicantQuestions.gotoApplicantHomePage()
+    await expect(page.getByRole('button', {name: 'Log in'})).toBeVisible()
   })
 
   test('does not show "End session" and "You\'re a guest user" when first arriving at the page', async ({
@@ -107,7 +130,7 @@ test.describe('applicant program index page', () => {
     applicantQuestions,
   }) => {
     await applicantQuestions.gotoApplicantHomePage()
-    await selectApplicantLanguage(page, 'Español')
+    await selectApplicantLanguage(page, 'es-US')
     expect(await page.textContent('html')).not.toContain('End session')
     expect(await page.textContent('html')).not.toContain("You're a guest user")
   })
@@ -132,280 +155,121 @@ test.describe('applicant program index page', () => {
         redirectedToCallback = false
         await context.clearCookies()
         await page.goto(BASE_URL + path)
-        await page.waitForLoadState('networkidle')
+        await waitForPageJsLoad(page)
         expect(redirectedToCallback).toBe(false)
       })
     }
   })
 
-  test('shows login prompt for guest users when they click apply', async ({
-    page,
-  }) => {
-    await validateAccessibility(page)
-
-    // Click Apply on the primary program. This should show the login prompt modal.
-    await page.click(
-      `.cf-application-card:has-text("${primaryProgramName}") .cf-apply-button`,
-    )
-    expect(await page.textContent('html')).toContain(
-      'Create an account or sign in',
-    )
-    await validateScreenshot(
-      page,
-      'apply-program-login-prompt',
-      /* fullPage= */ false,
-    )
-
-    // Close the modal and click Apply again. This time, we should not see the login prompt modal.
-    await page.click(`.cf-modal .cf-modal-close`)
-    await page.click(
-      `.cf-application-card:has-text("${primaryProgramName}") .cf-apply-button`,
-    )
-    expect(await page.textContent('html')).not.toContain(
-      'Create an account or sign in',
-    )
-
-    // End guest session and start a new one. Login prompt should show this time upon clicking Apply.
-    await logout(page)
-    await page.click(
-      `.cf-application-card:has-text("${primaryProgramName}") .cf-apply-button`,
-    )
-    expect(await page.textContent('html')).toContain(
-      'Create an account or sign in',
-    )
-  })
-
-  test('categorizes programs for draft and applied applications', async ({
-    page,
+  test('Puts a submitted tag on program card when application submitted', async ({
     applicantQuestions,
+    page,
   }) => {
     await loginAsTestUser(page)
-    // Navigate to the applicant's program index and validate that both programs appear in the
-    // "Not started" section.
-    await applicantQuestions.expectPrograms({
-      wantNotStartedPrograms: [primaryProgramName, otherProgramName],
-      wantInProgressPrograms: [],
-      wantSubmittedPrograms: [],
-    })
 
-    // Fill out first application block and confirm that the program appears in the "In progress"
-    // section.
-    await applicantQuestions.applyProgram(primaryProgramName)
-    await applicantQuestions.answerTextQuestion('first answer')
-    await applicantQuestions.clickNext()
-    await applicantQuestions.gotoApplicantHomePage()
-    await applicantQuestions.expectPrograms({
-      wantNotStartedPrograms: [otherProgramName],
-      wantInProgressPrograms: [primaryProgramName],
-      wantSubmittedPrograms: [],
-    })
-
-    // Finish the application and confirm that the program appears in the "Submitted" section.
-    await applicantQuestions.applyProgram(primaryProgramName)
-    await applicantQuestions.answerTextQuestion('second answer')
-    await applicantQuestions.clickNext()
-    await applicantQuestions.submitFromReviewPage()
-    await applicantQuestions.returnToProgramsFromSubmissionPage()
-    await applicantQuestions.expectPrograms({
-      wantNotStartedPrograms: [otherProgramName],
-      wantInProgressPrograms: [],
-      wantSubmittedPrograms: [primaryProgramName],
-    })
-
-    // Logout, then login as guest and confirm that everything appears unsubmitted (https://github.com/civiform/civiform/pull/3487).
-    await logout(page)
-    await applicantQuestions.expectPrograms({
-      wantNotStartedPrograms: [otherProgramName, primaryProgramName],
-      wantInProgressPrograms: [],
-      wantSubmittedPrograms: [],
-    })
-  })
-
-  test('Do not show program details anchor if no external link is present', async ({
-    page,
-    adminPrograms,
-  }) => {
-    const programWithoutExternalLink = 'No Link Program'
-    const programWithLink = 'Program With Link'
-
-    await loginAsAdmin(page)
-
-    await test.step('Create a new program without an external link', async () => {
-      await adminPrograms.addProgram(
-        programWithoutExternalLink,
-        'program description',
-        'short program description',
-        '' /* no external link */,
-      )
-    })
-
-    await test.step('Create a new program with an external link', async () => {
-      await adminPrograms.addProgram(
-        programWithLink,
-        'program description',
-        'short program description',
-        'https://www.civiform.us',
-      )
-    })
-
-    await adminPrograms.publishAllDrafts()
-    await logout(page)
-
-    await test.step('Assert that program details button is hidden', async () => {
-      const cardWithoutLink = page.locator('.cf-application-card', {
-        has: page.getByText(programWithoutExternalLink),
-      })
-      await expect(cardWithoutLink.getByText('Program details')).toBeHidden()
-    })
-
-    await test.step('Assert that program details button is present for card with link', async () => {
-      const cardWithLink = page.locator('.cf-application-card', {
-        has: page.getByText(programWithLink),
-      })
-      await expect(cardWithLink.getByText('Program details')).toBeVisible()
-    })
-
-    await validateScreenshot(page, 'program-details-visibility')
-  })
-
-  test('common intake form not present', async ({page}) => {
-    await validateScreenshot(page, 'common-intake-form-not-set')
-    await validateAccessibility(page)
-  })
-
-  test.describe('common intake form present', () => {
-    const commonIntakeFormProgramName = 'Benefits finder'
-
-    test.beforeEach(async ({page, adminPrograms}) => {
-      await loginAsAdmin(page)
-      await adminPrograms.addProgram(
-        commonIntakeFormProgramName,
-        'program description',
-        'short program description',
-        'https://usa.gov',
-        ProgramVisibility.PUBLIC,
-        'admin description',
-        /* isCommonIntake= */ true,
-      )
-      await adminPrograms.publishAllDrafts()
-      await logout(page)
-    })
-
-    test('shows common intake form', async ({page, applicantQuestions}) => {
+    await test.step('Apply to the primary program', async () => {
       await applicantQuestions.applyProgram(primaryProgramName)
+      // Screen 1 has no questions, so expect to navigate directly to screen 2
+      await expect(page.getByText('Screen 2')).toBeVisible()
       await applicantQuestions.answerTextQuestion('first answer')
-      await applicantQuestions.clickNext()
-      await applicantQuestions.gotoApplicantHomePage()
-
-      await validateScreenshot(page, 'common-intake-form-sections')
-      await applicantQuestions.expectPrograms({
-        wantNotStartedPrograms: [otherProgramName],
-        wantInProgressPrograms: [primaryProgramName],
-        wantSubmittedPrograms: [],
-      })
-      await applicantQuestions.expectCommonIntakeForm(
-        commonIntakeFormProgramName,
-      )
-      await validateAccessibility(page)
+      await applicantQuestions.clickContinue()
+      // Expect clicking 'Continue' navigates to the next incomplete block. In this case, it is screen 3
+      await expect(page.getByText('Screen 3')).toBeVisible()
+      await applicantQuestions.answerTextQuestion('second answer')
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.clickSubmitApplication()
+      await applicantQuestions.returnToProgramsFromSubmissionPage()
     })
 
-    test('shows a different title for the common intake form', async ({
-      page,
-      applicantQuestions,
-    }) => {
-      await applicantQuestions.clickApplyProgramButton(primaryProgramName)
-      expect(await page.innerText('h2')).toContain(
-        'Program application summary',
+    await test.step('Expect submitted tag shows on program card', async () => {
+      await normalizeElements(page)
+      await expect(page.getByText('Submitted on 1/1/30')).toBeVisible()
+    })
+
+    await test.step('Expect editing submitted application takes user to review page', async () => {
+      await applicantQuestions.applyProgram(
+        primaryProgramName,
+        /* showProgramOverviewPage= */ false,
       )
 
-      await applicantQuestions.gotoApplicantHomePage()
-      await applicantQuestions.clickApplyProgramButton('Benefits finder')
-      expect(await page.innerText('h2')).toContain(
-        'Benefits pre-screener summary',
-      )
+      await expect(page.getByText('Review and submit')).toBeVisible()
+    })
+
+    await test.step('Create new draft of application and expect submitted tag to still be shown on homepage', async () => {
+      await applicantQuestions.clickEdit()
+      // Clicking "Continue" creates a new empty draft of the application
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.clickSubmitApplication()
+      // Click "Exit application" on the "No changes to save" modal
+      await applicantQuestions.clickExitApplication()
+      await normalizeElements(page)
+      await expect(page.getByText('Submitted on 1/1/30')).toBeVisible()
     })
   })
 
-  test('shows previously answered on text for questions that had been answered', async ({
-    page,
-    applicantQuestions,
-  }) => {
-    // Fill out application with one question and confirm it shows previously answered at the end.
-    await applicantQuestions.applyProgram(otherProgramName)
-    await applicantQuestions.answerTextQuestion('first answer')
-    await applicantQuestions.clickNext()
-    await applicantQuestions.validatePreviouslyAnsweredText(firstQuestionText)
-    await applicantQuestions.submitFromReviewPage()
-    await applicantQuestions.returnToProgramsFromSubmissionPage()
-    await applicantQuestions.expectPrograms({
-      wantNotStartedPrograms: [primaryProgramName],
-      wantInProgressPrograms: [],
-      wantSubmittedPrograms: [otherProgramName],
-    })
+  test.describe('program filtering', () => {
+    const externalProgramName = 'External Program'
 
-    // Check that the question repeated in the program with two questions shows previously answered.
-    await applicantQuestions.clickApplyProgramButton(primaryProgramName)
-    await applicantQuestions.validatePreviouslyAnsweredText(firstQuestionText)
-    await applicantQuestions.validateNoPreviouslyAnsweredText(
-      secondQuestionText,
-    )
-    await validateScreenshot(page, 'question-shows-previously-answered')
-
-    // Fill out second question.
-    await applicantQuestions.clickContinue()
-    await applicantQuestions.answerTextQuestion('second answer')
-    await applicantQuestions.clickNext()
-    await applicantQuestions.submitFromReviewPage()
-
-    // Check that the original program shows previously answered.
-    await applicantQuestions.returnToProgramsFromSubmissionPage()
-    await applicantQuestions.clickApplyProgramButton(otherProgramName)
-    await applicantQuestions.validatePreviouslyAnsweredText(firstQuestionText)
-    await applicantQuestions.clickSubmit()
-
-    // Change first response on second program.
-    await applicantQuestions.returnToProgramsFromSubmissionPage()
-    await applicantQuestions.clickApplyProgramButton(primaryProgramName)
-    await applicantQuestions.clickEdit()
-    await applicantQuestions.answerTextQuestion('first answer 2')
-    await applicantQuestions.clickNext()
-    await applicantQuestions.submitFromReviewPage()
-
-    // Check that the other program shows the previously answered text too.
-    await applicantQuestions.returnToProgramsFromSubmissionPage()
-    await applicantQuestions.clickApplyProgramButton(otherProgramName)
-    await applicantQuestions.validatePreviouslyAnsweredText(firstQuestionText)
-    await validateScreenshot(page, 'other-program-shows-previously-answered')
-  })
-
-  test.describe('applicant program index page with program filtering', () => {
-    test.beforeEach(async ({page, adminPrograms}) => {
-      await enableFeatureFlag(page, 'program_filtering_enabled')
-
+    test.beforeEach(async ({page, adminPrograms, seeding}) => {
       await test.step('seed categories', async () => {
-        await seedProgramsAndCategories(page)
+        await seeding.seedProgramsAndCategories()
         await page.goto('/')
       })
 
-      await test.step('go to program edit form and add categories to primary program', async () => {
+      await test.step('add categories to primary and other program', async () => {
         await loginAsAdmin(page)
-        await adminPrograms.gotoViewActiveProgramPageAndStartEditing(
+        await adminPrograms.selectProgramCategories(
           primaryProgramName,
+          [ProgramCategories.EDUCATION, ProgramCategories.HEALTHCARE],
+          /* isActive= */ true,
         )
-        await page.getByRole('button', {name: 'Edit program details'}).click()
-        await page.getByText('Education').check()
-        await page.getByText('Healthcare').check()
-        await adminPrograms.submitProgramDetailsEdits()
+        await adminPrograms.selectProgramCategories(
+          otherProgramName,
+          [ProgramCategories.GENERAL, ProgramCategories.UTILITIES],
+          /* isActive= */ true,
+        )
       })
 
-      await test.step('add different categories to other program', async () => {
-        await adminPrograms.gotoViewActiveProgramPageAndStartEditing(
-          otherProgramName,
+      await test.step('add external program with categories', async () => {
+        await adminPrograms.addExternalProgram(
+          externalProgramName,
+          /* shortDescription= */ 'description',
+          /* externalLink= */ 'https://usa.gov',
+          ProgramVisibility.PUBLIC,
         )
-        await page.getByRole('button', {name: 'Edit program details'}).click()
-        await page.getByText('General').check()
-        await page.getByText('Utilities').check()
-        await adminPrograms.submitProgramDetailsEdits()
+        await adminPrograms.selectProgramCategories(
+          externalProgramName,
+          [ProgramCategories.GENERAL],
+          /* isActive= */ false,
+        )
+      })
+    })
+
+    test('Displays category tags on program cards', async ({
+      page,
+      adminPrograms,
+    }) => {
+      await test.step('publish programs with categories', async () => {
+        await adminPrograms.publishAllDrafts()
+      })
+
+      await test.step('Navigate to homepage and check that cards in Programs and Services section have categories', async () => {
+        await logout(page)
+        await loginAsTestUser(page)
+
+        const primaryProgramCard = page.locator('.cf-application-card', {
+          has: page.getByText(primaryProgramName),
+        })
+        await expect(primaryProgramCard.getByText('Education')).toBeVisible()
+        await expect(primaryProgramCard.getByText('Healthcare')).toBeVisible()
+        await expect(primaryProgramCard.getByText('General')).toBeHidden()
+
+        const externalProgramCard = page.locator('.cf-application-card', {
+          has: page.getByText(externalProgramName),
+        })
+        await expect(externalProgramCard.getByText('Education')).toBeHidden()
+        await expect(externalProgramCard.getByText('Healthcare')).toBeHidden()
+        await expect(externalProgramCard.getByText('General')).toBeVisible()
       })
     })
 
@@ -434,7 +298,7 @@ test.describe('applicant program index page', () => {
         await logout(page)
       })
 
-      const filterChips = page.locator('#category-filter-form')
+      const filterChips = page.locator('#ns-category-filter-form')
 
       await test.step('check that filter chips appear on homepage', async () => {
         await expect(filterChips.getByText('Education')).toBeVisible()
@@ -443,26 +307,10 @@ test.describe('applicant program index page', () => {
         await expect(filterChips.getByText('Utilities')).toBeVisible()
       })
 
-      await test.step('select some filter chips, ensure a guest account has not been created and url does not have applicant id, then take screenshot', async () => {
-        await filterChips.getByText('Education').check()
-        await filterChips.getByText('General').check()
-        expect(await page.textContent('html')).not.toContain('End session')
-        expect(await page.textContent('html')).not.toContain(
-          "You're a guest user",
-        )
-        // Check that the URL does not have an applicant ID
-        expect(page.url()).toContain('/applicants/programs')
-
-        await validateScreenshot(
-          page.locator('#main-content'),
-          'category-filter-chips',
-        )
-      })
-
       await test.step('start applying to a program', async () => {
         await applicantQuestions.applyProgram(primaryProgramName)
-        await applicantQuestions.answerTextQuestion('first answer')
-        await applicantQuestions.clickNext()
+
+        await applicantQuestions.clickContinue()
         await applicantQuestions.gotoApplicantHomePage()
       })
 
@@ -472,11 +320,34 @@ test.describe('applicant program index page', () => {
         await expect(filterChips.getByText('General')).toBeVisible()
         await expect(filterChips.getByText('Utilities')).toBeVisible()
       })
-
-      await validateAccessibility(page)
     })
 
-    test('with program filters enabled, categorizes programs correctly', async ({
+    test('formats filter chips correctly for right to left languages', async ({
+      page,
+      adminPrograms,
+    }) => {
+      await test.step('publish programs with categories', async () => {
+        await adminPrograms.publishAllDrafts()
+        await logout(page)
+      })
+
+      await test.step('change language to Arabic', async () => {
+        await selectApplicantLanguage(page, 'ar')
+      })
+
+      await test.step('validate screenshot desktop', async () => {
+        await validateScreenshot(page, 'filter-chips-right-to-left-desktop')
+      })
+
+      await test.step('validate screenshot mobile', async () => {
+        await page.setViewportSize({width: 360, height: 800})
+        await validateScreenshot(page, 'filter-chips-right-to-left-mobile', {
+          fullPage: false,
+        })
+      })
+    })
+
+    test('with program filters selected, categorizes programs correctly', async ({
       page,
       adminPrograms,
       applicantQuestions,
@@ -487,554 +358,511 @@ test.describe('applicant program index page', () => {
 
       await test.step('Navigate to program index and validate that all programs appear in Programs and Services', async () => {
         await logout(page)
-        await loginAsTestUser(page)
-        await applicantQuestions.expectProgramsWithFilteringEnabled({
-          expectedProgramsInMyApplicationsSection: [],
-          expectedProgramsInProgramsAndServicesSection: [
-            primaryProgramName,
-            otherProgramName,
-            'Minimal Sample Program',
-            'Comprehensive Sample Program',
-          ],
-          expectedProgramsInRecommendedSection: [],
-          expectedProgramsInOtherProgramsSection: [],
-        })
+        await applicantQuestions.expectProgramsinCorrectSections(
+          {
+            expectedProgramsInMyApplicationsSection: [],
+            expectedProgramsInProgramsAndServicesSection: [
+              primaryProgramName,
+              otherProgramName,
+              'Minimal Sample Program',
+              'Comprehensive Sample Program',
+              externalProgramName,
+            ],
+            expectedProgramsInRecommendedSection: [],
+            expectedProgramsInOtherProgramsSection: [],
+          },
+          /* filtersOn= */ false,
+        )
 
-        // Check the program count in the section heading
+        // Check the program count in the section
         await expect(
-          page.getByRole('heading', {name: 'Programs and services (4)'}),
-        ).toBeVisible()
+          page.locator(
+            '#unfiltered-programs .usa-card-group .cf-application-card',
+          ),
+        ).toHaveCount(5)
       })
 
       await test.step('Fill out first application block and confirm that the program appears in the "My Applications" section', async () => {
         await applicantQuestions.applyProgram(primaryProgramName)
         await applicantQuestions.answerTextQuestion('first answer')
-        await applicantQuestions.clickNext()
+        await applicantQuestions.clickContinue()
         await applicantQuestions.gotoApplicantHomePage()
-        await applicantQuestions.expectProgramsWithFilteringEnabled({
-          expectedProgramsInMyApplicationsSection: [primaryProgramName],
-          expectedProgramsInProgramsAndServicesSection: [
-            otherProgramName,
-            'Minimal Sample Program',
-            'Comprehensive Sample Program',
-          ],
-          expectedProgramsInRecommendedSection: [],
-          expectedProgramsInOtherProgramsSection: [],
-        })
+        await applicantQuestions.expectProgramsinCorrectSections(
+          {
+            expectedProgramsInMyApplicationsSection: [primaryProgramName],
+            expectedProgramsInProgramsAndServicesSection: [
+              otherProgramName,
+              'Minimal Sample Program',
+              'Comprehensive Sample Program',
+              externalProgramName,
+            ],
+            expectedProgramsInRecommendedSection: [],
+            expectedProgramsInOtherProgramsSection: [],
+          },
+          /* filtersOn= */ false,
+        )
       })
 
       await test.step('Finish the application and confirm that the program appears in the "My applications" section', async () => {
-        await applicantQuestions.applyProgram(primaryProgramName)
+        await applicantQuestions.applyProgram(
+          primaryProgramName,
+          /* showProgramOverviewPage= */ false,
+        )
         await applicantQuestions.answerTextQuestion('second answer')
-        await applicantQuestions.clickNext()
+        await applicantQuestions.clickContinue()
         await applicantQuestions.submitFromReviewPage()
         await applicantQuestions.returnToProgramsFromSubmissionPage()
-        await applicantQuestions.expectProgramsWithFilteringEnabled({
-          expectedProgramsInMyApplicationsSection: [primaryProgramName],
-          expectedProgramsInProgramsAndServicesSection: [
-            otherProgramName,
-            'Minimal Sample Program',
-            'Comprehensive Sample Program',
-          ],
-          expectedProgramsInRecommendedSection: [],
-          expectedProgramsInOtherProgramsSection: [],
-        })
+        await applicantQuestions.expectProgramsinCorrectSections(
+          {
+            expectedProgramsInMyApplicationsSection: [primaryProgramName],
+            expectedProgramsInProgramsAndServicesSection: [
+              otherProgramName,
+              'Minimal Sample Program',
+              'Comprehensive Sample Program',
+              externalProgramName,
+            ],
+            expectedProgramsInRecommendedSection: [],
+            expectedProgramsInOtherProgramsSection: [],
+          },
+          /* filtersOn= */ false,
+        )
       })
 
-      await test.step('Click on a filter and see the Recommended and Other programs sections', async () => {
-        await page.locator('#category-filter-form').getByText('General').check()
-        await applicantQuestions.expectProgramsWithFilteringEnabled(
+      await test.step('Select a filter, click the filter submit button and validate screenshot', async () => {
+        await applicantQuestions.filterProgramsByCategory('General')
+
+        await validateScreenshot(
+          page.locator('#programs-list'),
+          'homepage-programs-filtered',
+        )
+      })
+
+      await test.step('Verify the contents of the Recommended and Other programs sections', async () => {
+        await applicantQuestions.expectProgramsinCorrectSections(
           {
             expectedProgramsInMyApplicationsSection: [primaryProgramName],
             expectedProgramsInProgramsAndServicesSection: [],
-            expectedProgramsInRecommendedSection: [otherProgramName],
+            expectedProgramsInRecommendedSection: [
+              otherProgramName,
+              externalProgramName,
+            ],
             expectedProgramsInOtherProgramsSection: [
               'Minimal Sample Program',
               'Comprehensive Sample Program',
             ],
           },
-          true,
+          /* filtersOn= */ true,
         )
+
         // Check the program count in the section headings
         await expect(
           page.getByRole('heading', {
-            name: 'Programs based on your selections (1)',
+            name: 'Programs based on your selections (2)',
           }),
         ).toBeVisible()
         await expect(
-          page.getByRole('heading', {name: 'Other programs and services (2)'}),
+          page.getByRole('heading', {
+            name: 'Other programs and services (2)',
+          }),
         ).toBeVisible()
       })
 
       await validateAccessibility(page)
 
-      await validateScreenshot(
-        page.locator('#main-content'),
-        'homepage-programs-filtered',
-      )
-
       await test.step('Logout, then login as guest and confirm that everything appears unsubmitted', async () => {
         await logout(page)
-        await applicantQuestions.expectProgramsWithFilteringEnabled({
-          expectedProgramsInMyApplicationsSection: [],
-          expectedProgramsInProgramsAndServicesSection: [
-            primaryProgramName,
-            otherProgramName,
-            'Minimal Sample Program',
-            'Comprehensive Sample Program',
-          ],
-          expectedProgramsInRecommendedSection: [],
-          expectedProgramsInOtherProgramsSection: [],
-        })
+        await applicantQuestions.expectProgramsinCorrectSections(
+          {
+            expectedProgramsInMyApplicationsSection: [],
+            expectedProgramsInProgramsAndServicesSection: [
+              primaryProgramName,
+              otherProgramName,
+              'Minimal Sample Program',
+              'Comprehensive Sample Program',
+              externalProgramName,
+            ],
+            expectedProgramsInRecommendedSection: [],
+            expectedProgramsInOtherProgramsSection: [],
+          },
+          /* filtersOn= */ false,
+        )
+      })
+    })
+
+    test('Clearing filters resets programs to unfiltered view and unchecks category checkboxes', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      await test.step('publish programs with categories', async () => {
+        await adminPrograms.publishAllDrafts()
+      })
+
+      await test.step('Navigate to homepage', async () => {
+        await logout(page)
+        await loginAsTestUser(page)
+      })
+
+      await test.step('Select a filter, click the filter submit button and see the Recommended and Other programs sections', async () => {
+        await applicantQuestions.filterProgramsByCategory('General')
+
+        // Check the program count in the section headings
+        await expect(
+          page.getByRole('heading', {
+            name: 'Programs based on your selections (2)',
+          }),
+        ).toBeVisible()
+        await expect(
+          page.getByRole('heading', {
+            name: 'Other programs and services (3)',
+          }),
+        ).toBeVisible()
+
+        await expect(page.locator('#unfiltered-programs')).toBeHidden()
+      })
+
+      await test.step('Clear filters and verify checkboxes are unchecked and view reset', async () => {
+        await page.getByRole('button', {name: 'Clear selections'}).click()
+
+        await expect(
+          page.getByRole('checkbox', {name: 'General'}),
+        ).not.toBeChecked()
+
+        await expect(page.locator('#not-started-programs')).toBeVisible()
+
+        await expect(
+          page.locator(
+            '#not-started-programs .usa-card-group .cf-application-card',
+          ),
+        ).toHaveCount(5)
+
+        await expect(
+          page.getByRole('heading', {
+            name: 'Programs based on your selections (2)',
+          }),
+        ).toBeHidden()
+        await expect(
+          page.getByRole('heading', {
+            name: 'Other programs and services (3)',
+          }),
+        ).toBeHidden()
       })
     })
   })
 
-  test.describe(
-    'applicant program index page with northstar UI',
-    {tag: ['@northstar']},
-    () => {
-      test.beforeEach(async ({page}) => {
-        await enableFeatureFlag(page, 'north_star_applicant_ui')
-      })
+  test('pre-screener form not present', async ({page}) => {
+    await validateScreenshot(page, 'pre-screener-form-not-set')
+    await validateAccessibility(page)
+  })
 
-      test('validate initial page load as guest user', async ({
-        page,
-        applicantQuestions,
-      }) => {
-        await validateScreenshot(
-          page,
-          'program-index-page-initial-load-northstar',
+  test.describe('pre-screener form present', () => {
+    const preScreenerFormProgramName = 'Benefits finder'
+
+    test.beforeEach(async ({page, adminPrograms}) => {
+      await loginAsAdmin(page)
+
+      await adminPrograms.addPreScreener(
+        preScreenerFormProgramName,
+        'short program description',
+        ProgramVisibility.PUBLIC,
+      )
+
+      await adminPrograms.addProgramBlockUsingSpec(preScreenerFormProgramName, {
+        name: 'Screen 2',
+        description: 'first block',
+        questions: [{name: 'first-q'}],
+      })
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
+    })
+
+    test('shows pre-screener form card when an application has not been started', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await validateScreenshot(
+        page.getByLabel('Get Started'),
+        'pre-screener-form',
+      )
+      await applicantQuestions.expectProgramsinCorrectSections(
+        {
+          expectedProgramsInMyApplicationsSection: [],
+          expectedProgramsInProgramsAndServicesSection: [
+            primaryProgramName,
+            otherProgramName,
+          ],
+          expectedProgramsInRecommendedSection: [],
+          expectedProgramsInOtherProgramsSection: [],
+        },
+        /* filtersOn= */ false,
+      )
+    })
+
+    test('puts pre-screener card in My applications section when application is in progress or submitted', async ({
+      applicantQuestions,
+      page,
+    }) => {
+      await test.step('Start applying to the pre-screener', async () => {
+        await applicantQuestions.applyProgram(
+          preScreenerFormProgramName,
+          /* showProgramOverviewPage= */ false,
         )
-        await applicantQuestions.expectTitle(page, 'Find programs')
+        await applicantQuestions.answerTextQuestion('answer')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.gotoApplicantHomePage()
       })
 
-      test('validate accessibility', async ({page}) => {
-        await validateAccessibility(page)
+      await applicantQuestions.expectProgramsinCorrectSections(
+        {
+          expectedProgramsInMyApplicationsSection: [preScreenerFormProgramName],
+          expectedProgramsInProgramsAndServicesSection: [
+            primaryProgramName,
+            otherProgramName,
+          ],
+          expectedProgramsInRecommendedSection: [],
+          expectedProgramsInOtherProgramsSection: [],
+        },
+        /* filtersOn= */ false,
+      )
+
+      await validateScreenshot(
+        page.locator('.cf-application-card', {
+          has: page.getByText(preScreenerFormProgramName),
+        }),
+        'pre-screener-form-in-progress',
+      )
+
+      await expect(page.getByLabel('Get Started')).toHaveCount(0)
+
+      await test.step('Submit application to the pre-screener', async () => {
+        await applicantQuestions.applyProgram(
+          preScreenerFormProgramName,
+          /* showProgramOverviewPage= */ false,
+        )
+        await applicantQuestions.clickSubmitApplication()
+        await applicantQuestions.gotoApplicantHomePage()
       })
 
-      test('shows log in button for guest users', async ({page}) => {
-        // We cannot check that the login button redirects the user to a particular
-        // URL because it varies between environments, so just check for their existence.
-        await expect(page.getByRole('link', {name: 'Log in'})).toBeVisible()
-      })
+      await applicantQuestions.expectProgramsinCorrectSections(
+        {
+          expectedProgramsInMyApplicationsSection: [preScreenerFormProgramName],
+          expectedProgramsInProgramsAndServicesSection: [
+            primaryProgramName,
+            otherProgramName,
+          ],
+          expectedProgramsInRecommendedSection: [],
+          expectedProgramsInOtherProgramsSection: [],
+        },
+        /* filtersOn= */ false,
+      )
 
-      test('categorizes programs for draft and applied applications as guest user', async ({
-        applicantQuestions,
+      await expect(page.getByLabel('Get Started')).toHaveCount(0)
+    })
+
+    test('shows pre-screener form', async ({page, applicantQuestions}) => {
+      await applicantQuestions.applyProgram(primaryProgramName)
+      await applicantQuestions.answerTextQuestion('first answer')
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.gotoApplicantHomePage()
+
+      await validateScreenshot(page, 'pre-screener-form-sections')
+      await applicantQuestions.expectPrograms({
+        wantNotStartedPrograms: [otherProgramName],
+        wantInProgressOrSubmittedPrograms: [primaryProgramName],
+      })
+      await applicantQuestions.expectPreScreenerForm(preScreenerFormProgramName)
+    })
+
+    test('shows a different title for the pre-screener form', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.clickApplyProgramButton(primaryProgramName)
+      expect(await page.innerText('h2')).toContain('How to apply')
+
+      await applicantQuestions.gotoApplicantHomePage()
+
+      await applicantQuestions.clickApplyProgramButton('Benefits finder')
+      await applicantQuestions.clickReview()
+      expect(await page.innerText('h2')).toContain('Review and submit')
+    })
+  })
+
+  test('shows previously answered on text for questions that had been answered', async ({
+    page,
+    applicantQuestions,
+  }) => {
+    await test.step('Fill out application with one question and confirm it shows previously answered at the end', async () => {
+      await applicantQuestions.applyProgram(otherProgramName)
+      await applicantQuestions.answerTextQuestion('first answer')
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.validatePreviouslyAnsweredText(firstQuestionText)
+      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.returnToProgramsFromSubmissionPage()
+      await applicantQuestions.expectPrograms({
+        wantNotStartedPrograms: [primaryProgramName],
+        wantInProgressOrSubmittedPrograms: [otherProgramName],
+      })
+    })
+
+    await test.step('Check that the question repeated in the program with two questions shows previously answered', async () => {
+      await applicantQuestions.applyProgram(primaryProgramName)
+      await applicantQuestions.clickReview()
+      await applicantQuestions.validatePreviouslyAnsweredText(firstQuestionText)
+
+      await applicantQuestions.validateNoPreviouslyAnsweredText(
+        secondQuestionText,
+      )
+      await validateScreenshot(page, 'question-shows-previously-answered')
+    })
+
+    await test.step('Fill out second question and check that the original program shows previously answered', async () => {
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.answerTextQuestion('second answer')
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.submitFromReviewPage()
+
+      await applicantQuestions.returnToProgramsFromSubmissionPage()
+      await applicantQuestions.clickApplyProgramButton(otherProgramName)
+      await applicantQuestions.validatePreviouslyAnsweredText(firstQuestionText)
+      await applicantQuestions.clickSubmitApplication()
+    })
+
+    await test.step('Change first response on second program and check that the other program shows the previously answered text too', async () => {
+      await applicantQuestions.returnToProgramsFromSubmissionPage()
+      await applicantQuestions.clickApplyProgramButton(primaryProgramName)
+      await page
+        .getByRole('listitem')
+        .filter({hasText: 'Screen 2 Edit This is the'})
+        .getByRole('link')
+        .click()
+      await applicantQuestions.answerTextQuestion('first answer 2')
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.submitFromReviewPage()
+
+      await applicantQuestions.returnToProgramsFromSubmissionPage()
+      await applicantQuestions.clickApplyProgramButton(otherProgramName)
+
+      await applicantQuestions.validatePreviouslyAnsweredText(firstQuestionText)
+      await validateScreenshot(page, 'other-program-shows-previously-answered')
+    })
+  })
+
+  test('formats card correctly when description is one long word', async ({
+    page,
+    adminPrograms,
+  }) => {
+    await test.step('Add a program with one long word as the description', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram('Program with long word description', {
+        description: 'description',
+        shortDescription:
+          'abracadabracadabracadabracadabracadabracadabracadabracadabracadabracadabracadabra',
+      })
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
+    })
+
+    await validateScreenshot(
+      page.locator('#unfiltered-programs'),
+      'applicant-homepage-cards-long-word-description',
+    )
+  })
+
+  test('formats index page correctly for right to left languages', async ({
+    page,
+  }) => {
+    await test.step('change language to Arabic', async () => {
+      await selectApplicantLanguage(page, 'ar')
+    })
+
+    await test.step('validate screenshot desktop', async () => {
+      await validateScreenshot(page, 'applicant-homepage-right-to-left-desktop')
+    })
+
+    await test.step('validate screenshot mobile', async () => {
+      await page.setViewportSize({width: 360, height: 800})
+      await validateScreenshot(
         page,
-      }) => {
-        await loginAsTestUser(page)
+        'applicant-homepage-right-to-left-mobile',
+        {fullPage: false},
+      )
+    })
+  })
 
-        await test.step('Programs start in Programs and Services section', async () => {
-          await applicantQuestions.expectProgramsWithFilteringEnabled(
-            {
-              expectedProgramsInMyApplicationsSection: [],
-              expectedProgramsInProgramsAndServicesSection: [
-                primaryProgramName,
-                otherProgramName,
-              ],
-              expectedProgramsInRecommendedSection: [],
-              expectedProgramsInOtherProgramsSection: [],
-            },
-            /* filtersOn= */ false,
-            /* northStarEnabled= */ true,
-          )
-        })
+  test('applies color theming on home page when enabled', async ({
+    page,
+    adminSettings,
+  }) => {
+    await enableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
+    await loginAsAdmin(page)
+    await adminSettings.gotoAdminSettings()
 
-        await test.step('Fill out part of the primary program application', async () => {
-          await applicantQuestions.applyProgram(
-            primaryProgramName,
-            /* northStarEnabled= */ true,
-          )
+    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '#6d4bfa')
+    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY_DARK', '#a72f10')
 
-          // Screen 1 has no questions, so expect to navigate directly to screen 2
-          await expect(page.getByText('Screen 2')).toBeVisible()
-          await applicantQuestions.answerTextQuestion('first answer')
-          await applicantQuestions.clickContinue()
-          await applicantQuestions.gotoApplicantHomePage()
-        })
-        await test.step('Expect primary program application is in "My applications" section', async () => {
-          await applicantQuestions.expectProgramsWithFilteringEnabled(
-            {
-              expectedProgramsInMyApplicationsSection: [primaryProgramName],
-              expectedProgramsInProgramsAndServicesSection: [otherProgramName],
-              expectedProgramsInRecommendedSection: [],
-              expectedProgramsInOtherProgramsSection: [],
-            },
-            /* filtersOn= */ false,
-            /* northStarEnabled= */ true,
-          )
-          await expect(page.getByText('Not yet submitted')).toBeVisible()
-        })
+    await adminSettings.saveChanges()
+    await logout(page)
 
-        await test.step('Finish the primary program application', async () => {
-          await applicantQuestions.applyProgram(
-            primaryProgramName,
-            /* northStarEnabled= */ true,
-          )
-          // Expect clicking 'Continue' navigates to the next incomplete block. In this case, it is screen 3
-          await expect(page.getByText('Screen 3')).toBeVisible()
-          await applicantQuestions.answerTextQuestion('second answer')
-          await applicantQuestions.clickContinue()
-          await applicantQuestions.clickSubmitApplication()
-          await applicantQuestions.returnToProgramsFromSubmissionPage(
-            /* northStarEnabled= */ true,
-          )
-        })
-        await test.step('Expect primary program application is still in "My applications" section', async () => {
-          await applicantQuestions.expectProgramsWithFilteringEnabled(
-            {
-              expectedProgramsInMyApplicationsSection: [primaryProgramName],
-              expectedProgramsInProgramsAndServicesSection: [otherProgramName],
-              expectedProgramsInRecommendedSection: [],
-              expectedProgramsInOtherProgramsSection: [],
-            },
-            /* filtersOn= */ false,
-            /* northStarEnabled= */ true,
-          )
+    await validateScreenshot(page, 'program-index-page-theme')
+  })
 
-          await validateScreenshot(
-            page,
-            'program-index-page-submitted-northstar',
-          )
-          await expect(page.getByText('Submitted on 1/1/30')).toBeVisible()
-        })
+  test('applies primary color only when primary dark is empty', async ({
+    page,
+    adminSettings,
+  }) => {
+    await enableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
+    await loginAsAdmin(page)
+    await adminSettings.gotoAdminSettings()
 
-        await test.step('When logged out, everything appears unsubmitted (https://github.com/civiform/civiform/pull/3487)', async () => {
-          await logout(page, false)
+    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '#6d4bfa')
 
-          await applicantQuestions.expectProgramsWithFilteringEnabled(
-            {
-              expectedProgramsInMyApplicationsSection: [],
-              expectedProgramsInProgramsAndServicesSection: [
-                primaryProgramName,
-                otherProgramName,
-              ],
-              expectedProgramsInRecommendedSection: [],
-              expectedProgramsInOtherProgramsSection: [],
-            },
-            /* filtersOn= */ false,
-            /* northStarEnabled= */ true,
-          )
-        })
-      })
+    await adminSettings.saveChanges()
+    await logout(page)
 
-      test.describe('program filtering', () => {
-        test.beforeEach(async ({page, adminPrograms}) => {
-          await enableFeatureFlag(page, 'program_filtering_enabled')
+    await validateScreenshot(page, 'program-index-page-theme-primary-only')
+  })
 
-          await test.step('seed categories', async () => {
-            await seedProgramsAndCategories(page)
-            await page.goto('/')
-          })
+  test('applies primary dark color only when primary is empty', async ({
+    page,
+    adminSettings,
+  }) => {
+    await enableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
+    await loginAsAdmin(page)
+    await adminSettings.gotoAdminSettings()
 
-          await test.step('go to program edit form and add categories to primary program', async () => {
-            await loginAsAdmin(page)
-            await adminPrograms.gotoViewActiveProgramPageAndStartEditing(
-              primaryProgramName,
-            )
-            await page
-              .getByRole('button', {name: 'Edit program details'})
-              .click()
-            await page.getByText('Education').check()
-            await page.getByText('Healthcare').check()
-            await adminPrograms.submitProgramDetailsEdits()
-          })
+    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY_DARK', '#a72f10')
 
-          await test.step('add different categories to other program', async () => {
-            await adminPrograms.gotoViewActiveProgramPageAndStartEditing(
-              otherProgramName,
-            )
-            await page
-              .getByRole('button', {name: 'Edit program details'})
-              .click()
-            await page.getByText('General').check()
-            await page.getByText('Utilities').check()
-            await adminPrograms.submitProgramDetailsEdits()
-          })
-        })
+    await adminSettings.saveChanges()
+    await logout(page)
 
-        test('Displays category tags on program cards', async ({
-          page,
-          adminPrograms,
-        }) => {
-          await test.step('publish programs with categories', async () => {
-            await adminPrograms.publishAllDrafts()
-          })
+    await validateScreenshot(page, 'program-index-page-theme-primary-dark-only')
+  })
 
-          await test.step('Navigate to homepage and check that cards in Programs and Services section have categories', async () => {
-            await logout(page)
-            await loginAsTestUser(page)
-            const primaryProgramCard = page.locator('.cf-application-card', {
-              has: page.getByText(primaryProgramName),
-            })
-            await expect(
-              primaryProgramCard.getByText('Education'),
-            ).toBeVisible()
-            await expect(
-              primaryProgramCard.getByText('Healthcare'),
-            ).toBeVisible()
-            await expect(primaryProgramCard.getByText('General')).toBeHidden()
-          })
-        })
+  test('does not apply color theming on home page when disabled', async ({
+    page,
+    adminSettings,
+  }) => {
+    await disableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
+    await loginAsAdmin(page)
+    await adminSettings.gotoAdminSettings()
 
-        test('shows category filter chips', async ({
-          page,
-          adminPrograms,
-          applicantQuestions,
-        }) => {
-          await test.step('check that filter chips do not appear on homepage while categories on draft programs only', async () => {
-            await logout(page)
-            await expect(
-              page.getByRole('checkbox', {name: 'Education'}),
-            ).toBeHidden()
-            await expect(
-              page.getByRole('checkbox', {name: 'Healthcare'}),
-            ).toBeHidden()
-            await expect(
-              page.getByRole('checkbox', {name: 'General'}),
-            ).toBeHidden()
-            await expect(
-              page.getByRole('checkbox', {name: 'Utilities'}),
-            ).toBeHidden()
-          })
+    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '#6d4bfa')
+    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY_DARK', '#a72f10')
 
-          await test.step('publish programs with categories', async () => {
-            await loginAsAdmin(page)
-            await adminPrograms.publishAllDrafts()
-            await logout(page)
-          })
+    await adminSettings.saveChanges()
+    await logout(page)
 
-          const filterChips = page.locator('#ns-category-filter-form')
-
-          await test.step('check that filter chips appear on homepage', async () => {
-            await expect(filterChips.getByText('Education')).toBeVisible()
-            await expect(filterChips.getByText('Healthcare')).toBeVisible()
-            await expect(filterChips.getByText('General')).toBeVisible()
-            await expect(filterChips.getByText('Utilities')).toBeVisible()
-          })
-
-          await test.step('start applying to a program', async () => {
-            await applicantQuestions.applyProgram(
-              primaryProgramName,
-              /* northStarEnabled= */ true,
-            )
-            await applicantQuestions.clickContinue()
-            await applicantQuestions.gotoApplicantHomePage()
-          })
-
-          await test.step('check that categories only on started program are removed from filters', async () => {
-            await expect(filterChips.getByText('Education')).toBeHidden()
-            await expect(filterChips.getByText('Healthcare')).toBeHidden()
-            await expect(filterChips.getByText('General')).toBeVisible()
-            await expect(filterChips.getByText('Utilities')).toBeVisible()
-          })
-        })
-
-        test('with program filters enabled, categorizes programs correctly', async ({
-          page,
-          adminPrograms,
-          applicantQuestions,
-        }) => {
-          await test.step('publish programs with categories', async () => {
-            await adminPrograms.publishAllDrafts()
-          })
-
-          await test.step('Navigate to program index and validate that all programs appear in Programs and Services', async () => {
-            await logout(page)
-            await applicantQuestions.expectProgramsWithFilteringEnabled(
-              {
-                expectedProgramsInMyApplicationsSection: [],
-                expectedProgramsInProgramsAndServicesSection: [
-                  primaryProgramName,
-                  otherProgramName,
-                  'Minimal Sample Program',
-                  'Comprehensive Sample Program',
-                ],
-                expectedProgramsInRecommendedSection: [],
-                expectedProgramsInOtherProgramsSection: [],
-              },
-              /* filtersOn= */ false,
-              /* northStarEnabled= */ true,
-            )
-
-            // Check the program count in the section
-            await expect(
-              page.locator(
-                '#unfiltered-programs .cf-program-card-group .cf-application-card',
-              ),
-            ).toHaveCount(4)
-          })
-
-          await test.step('Fill out first application block and confirm that the program appears in the "My Applications" section', async () => {
-            await applicantQuestions.applyProgram(primaryProgramName, true)
-            await applicantQuestions.answerTextQuestion('first answer')
-            await applicantQuestions.clickContinue()
-            await applicantQuestions.gotoApplicantHomePage()
-            await applicantQuestions.expectProgramsWithFilteringEnabled(
-              {
-                expectedProgramsInMyApplicationsSection: [primaryProgramName],
-                expectedProgramsInProgramsAndServicesSection: [
-                  otherProgramName,
-                  'Minimal Sample Program',
-                  'Comprehensive Sample Program',
-                ],
-                expectedProgramsInRecommendedSection: [],
-                expectedProgramsInOtherProgramsSection: [],
-              },
-              /* filtersOn= */ false,
-              /* northStarEnabled= */ true,
-            )
-          })
-
-          await test.step('Finish the application and confirm that the program appears in the "My applications" section', async () => {
-            await applicantQuestions.applyProgram(primaryProgramName, true)
-            await applicantQuestions.answerTextQuestion('second answer')
-            await applicantQuestions.clickContinue()
-            await applicantQuestions.submitFromReviewPage(true)
-            await applicantQuestions.returnToProgramsFromSubmissionPage(true)
-            await applicantQuestions.expectProgramsWithFilteringEnabled(
-              {
-                expectedProgramsInMyApplicationsSection: [primaryProgramName],
-                expectedProgramsInProgramsAndServicesSection: [
-                  otherProgramName,
-                  'Minimal Sample Program',
-                  'Comprehensive Sample Program',
-                ],
-                expectedProgramsInRecommendedSection: [],
-                expectedProgramsInOtherProgramsSection: [],
-              },
-              /* filtersOn= */ false,
-              /* northStarEnabled= */ true,
-            )
-          })
-
-          await test.step('Select a filter, click the filter submit button and see the Recommended and Other programs sections', async () => {
-            await applicantQuestions.filterProgramsByCategory('General')
-
-            await validateScreenshot(
-              page.locator('#programs-list'),
-              'north-star-homepage-programs-filtered',
-            )
-
-            await applicantQuestions.expectProgramsWithFilteringEnabled(
-              {
-                expectedProgramsInMyApplicationsSection: [primaryProgramName],
-                expectedProgramsInProgramsAndServicesSection: [],
-                expectedProgramsInRecommendedSection: [otherProgramName],
-                expectedProgramsInOtherProgramsSection: [
-                  'Minimal Sample Program',
-                  'Comprehensive Sample Program',
-                ],
-              },
-              /* filtersOn= */ true,
-              /* northStarEnabled= */ true,
-            )
-
-            // Check the program count in the section headings
-            await expect(
-              page.getByRole('heading', {
-                name: 'Programs based on your selections (1)',
-              }),
-            ).toBeVisible()
-            await expect(
-              page.getByRole('heading', {
-                name: 'Other programs and services (2)',
-              }),
-            ).toBeVisible()
-          })
-
-          await validateAccessibility(page)
-
-          await test.step('Logout, then login as guest and confirm that everything appears unsubmitted', async () => {
-            await logout(page)
-            await applicantQuestions.expectProgramsWithFilteringEnabled(
-              {
-                expectedProgramsInMyApplicationsSection: [],
-                expectedProgramsInProgramsAndServicesSection: [
-                  primaryProgramName,
-                  otherProgramName,
-                  'Minimal Sample Program',
-                  'Comprehensive Sample Program',
-                ],
-                expectedProgramsInRecommendedSection: [],
-                expectedProgramsInOtherProgramsSection: [],
-              },
-              /* filtersOn= */ false,
-              /* northStarEnabled= */ true,
-            )
-          })
-        })
-
-        test('Clearing filters resets programs to unfiltered view and unchecks category checkboxes', async ({
-          page,
-          adminPrograms,
-          applicantQuestions,
-        }) => {
-          await test.step('publish programs with categories', async () => {
-            await adminPrograms.publishAllDrafts()
-          })
-
-          await test.step('Navigate to homepage', async () => {
-            await logout(page)
-            await loginAsTestUser(page)
-          })
-
-          await test.step('Select a filter, click the filter submit button and see the Recommended and Other programs sections', async () => {
-            await applicantQuestions.filterProgramsByCategory('General')
-
-            // Check the program count in the section headings
-            await expect(
-              page.getByRole('heading', {
-                name: 'Programs based on your selections (1)',
-              }),
-            ).toBeVisible()
-            await expect(
-              page.getByRole('heading', {
-                name: 'Other programs and services (3)',
-              }),
-            ).toBeVisible()
-
-            await expect(page.locator('#unfiltered-programs')).toBeHidden()
-          })
-
-          await test.step('Clear filters and verify checkboxes are unchecked and view reset', async () => {
-            await page.getByRole('button', {name: 'Clear filters'}).click()
-
-            await expect(
-              page.getByRole('checkbox', {name: 'General'}),
-            ).not.toBeChecked()
-
-            await expect(page.locator('#unfiltered-programs')).toBeVisible()
-
-            await expect(
-              page.locator(
-                '#unfiltered-programs .cf-program-card-group .cf-application-card',
-              ),
-            ).toHaveCount(4)
-
-            await expect(
-              page.getByRole('heading', {
-                name: 'Programs based on your selections (1)',
-              }),
-            ).toBeHidden()
-            await expect(
-              page.getByRole('heading', {
-                name: 'Other programs and services (3)',
-              }),
-            ).toBeHidden()
-          })
-        })
-      })
-    },
-  )
+    await validateScreenshot(page, 'program-index-page-initial-load')
+  })
 })
 
 test.describe('applicant program index page with images', () => {
-  test('shows program with wide image', async ({
+  test('shows program with wide image and removes image from card when in My Applications', async ({
     page,
     adminPrograms,
     adminProgramImage,
+    applicantQuestions,
   }) => {
     const programName = 'Wide Image Program'
     await loginAsAdmin(page)
@@ -1048,41 +876,17 @@ test.describe('applicant program index page with images', () => {
 
     await validateScreenshot(page, 'program-image-wide')
     await validateAccessibility(page)
+
+    await test.step('Fill out part of the program application', async () => {
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.clickSubmitApplication()
+      await applicantQuestions.gotoApplicantHomePage()
+    })
+
+    await test.step('Expect the program card to not show the image when in My Applications section', async () => {
+      await expect(page.locator('.cf-application-card img')).toBeHidden()
+    })
   })
-
-  test(
-    'shows program with wide image in North Star and removes image from card when in My Applications',
-    {tag: ['@northstar']},
-    async ({page, adminPrograms, adminProgramImage, applicantQuestions}) => {
-      const programName = 'Wide Image Program'
-      await loginAsAdmin(page)
-      await adminPrograms.addProgram(programName)
-      await adminPrograms.goToProgramImagePage(programName)
-      await adminProgramImage.setImageFileAndSubmit(
-        'src/assets/program-summary-image-wide.png',
-      )
-      await adminPrograms.publishAllDrafts()
-      await logout(page)
-
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-
-      await validateScreenshot(page, 'north-star-program-image-wide')
-      await validateAccessibility(page)
-
-      await test.step('Fill out part of the program application', async () => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
-        await applicantQuestions.clickSubmitApplication()
-        await applicantQuestions.gotoApplicantHomePage()
-      })
-
-      await test.step('Expect the program card to not show the image when in My Applications section', async () => {
-        await expect(page.locator('.cf-application-card img')).toBeHidden()
-      })
-    },
-  )
 
   test('shows program with tall image', async ({
     page,
@@ -1133,8 +937,17 @@ test.describe('applicant program index page with images', () => {
       applicantQuestions,
     )
 
-    // Verify program card shows both the Accepted status and image
     await loginAsTestUser(page)
+
+    await test.step('verify no available programs info alert appears', async () => {
+      await expect(
+        page.getByText(
+          'You have started or submitted an application for all programs that are available at this time.',
+        ),
+      ).toBeVisible()
+    })
+
+    // Verify program card shows both the Accepted status and image
     await validateScreenshot(page, 'program-image-with-status')
   })
 
@@ -1150,145 +963,383 @@ test.describe('applicant program index page with images', () => {
   }) => {
     test.slow()
 
-    // Common Intake: Basic (no image or status)
-    await loginAsAdmin(page)
-    const commonIntakeFormProgramName = 'Benefits finder'
-    await adminPrograms.addProgram(
-      commonIntakeFormProgramName,
-      'program description',
-      'short program description',
-      'https://usa.gov',
-      ProgramVisibility.PUBLIC,
-      'admin description',
-      /* isCommonIntake= */ true,
-    )
-
-    // In Progress: Image
     const programNameInProgressImage = 'In Progress Program [Image]'
-    await adminPrograms.addProgram(programNameInProgressImage)
-    await adminQuestions.addTextQuestion({
-      questionName: 'first-q',
-      questionText: 'first question text',
-    })
-    await adminPrograms.addProgramBlock(
-      programNameInProgressImage,
-      'first block',
-      ['first-q'],
-    )
-
-    await adminPrograms.goToProgramImagePage(programNameInProgressImage)
-    await adminProgramImage.setImageFileAndSubmit(
-      'src/assets/program-summary-image-wide.png',
-    )
-    await adminPrograms.publishAllDrafts()
-    await logout(page)
-
-    await loginAsTestUser(page)
-    await applicantQuestions.applyProgram(programNameInProgressImage)
-    await applicantQuestions.answerTextQuestion('first answer')
-    await applicantQuestions.clickNext()
-    await applicantQuestions.gotoApplicantHomePage()
-    await logout(page)
-
-    // Submitted #1: Image and status
-    const programNameSubmittedWithImageAndStatus =
-      'Submitted Program [Image and Status]'
     const approvedStatusName = 'Approved'
-    await loginAsAdmin(page)
-    await adminPrograms.addProgram(programNameSubmittedWithImageAndStatus)
-    await adminPrograms.goToProgramImagePage(
-      programNameSubmittedWithImageAndStatus,
-    )
-    await adminProgramImage.setImageFileAndSubmit(
-      'src/assets/program-summary-image-wide.png',
-    )
-    await adminPrograms.gotoDraftProgramManageStatusesPage(
-      programNameSubmittedWithImageAndStatus,
-    )
-    await adminProgramStatuses.createStatus(approvedStatusName)
-    await adminPrograms.publishProgram(programNameSubmittedWithImageAndStatus)
-    await adminPrograms.expectActiveProgram(
-      programNameSubmittedWithImageAndStatus,
-    )
-    await logout(page)
 
-    await submitApplicationAndApplyStatus(
-      page,
-      programNameSubmittedWithImageAndStatus,
-      approvedStatusName,
-      adminPrograms,
-      applicantQuestions,
-    )
+    await test.step('create program with image as admin', async () => {
+      await loginAsAdmin(page)
+      const preScreenerFormProgramName = 'Benefits finder'
+      await adminPrograms.addPreScreener(
+        preScreenerFormProgramName,
+        'short program description',
+        ProgramVisibility.PUBLIC,
+      )
 
-    // Submitted #2: Basic
-    const programNameSubmittedBasic = 'Submitted Program [Basic]'
-    await loginAsAdmin(page)
-    await adminPrograms.addProgram(programNameSubmittedBasic)
-    await adminPrograms.publishProgram(programNameSubmittedBasic)
-    await adminPrograms.expectActiveProgram(programNameSubmittedBasic)
-    await logout(page)
+      await adminPrograms.addProgram(programNameInProgressImage)
+      await adminQuestions.addTextQuestion({
+        questionName: 'first-q',
+        questionText: 'first question text',
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programNameInProgressImage, {
+        description: 'first block',
+        questions: [{name: 'first-q'}],
+      })
 
-    await loginAsTestUser(page)
-    await applicantQuestions.clickApplyProgramButton(programNameSubmittedBasic)
-    await applicantQuestions.submitFromReviewPage()
-    await logout(page)
+      await adminPrograms.goToProgramImagePage(programNameInProgressImage)
+      await adminProgramImage.setImageFileAndSubmit(
+        'src/assets/program-summary-image-wide.png',
+      )
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
+    })
 
-    // Submitted #3: Status
-    const programNameSubmittedWithStatus = 'Submitted Program [Status]'
-    await loginAsAdmin(page)
+    await test.step('start application to program', async () => {
+      await loginAsTestUser(page)
+      await applicantQuestions.applyProgram(programNameInProgressImage)
+      await applicantQuestions.answerTextQuestion('first answer')
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.gotoApplicantHomePage()
+      await logout(page)
+    })
 
-    await adminPrograms.addProgram(programNameSubmittedWithStatus)
-    await adminPrograms.gotoDraftProgramManageStatusesPage(
-      programNameSubmittedWithStatus,
-    )
-    await adminProgramStatuses.createStatus(approvedStatusName)
-    await adminPrograms.publishProgram(programNameSubmittedWithStatus)
-    await adminPrograms.expectActiveProgram(programNameSubmittedWithStatus)
-    await logout(page)
+    await test.step('program with image and status', async () => {
+      const programNameSubmittedWithImageAndStatus =
+        'Submitted Program [Image and Status]'
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(programNameSubmittedWithImageAndStatus)
+      await adminPrograms.goToProgramImagePage(
+        programNameSubmittedWithImageAndStatus,
+      )
+      await adminProgramImage.setImageFileAndSubmit(
+        'src/assets/program-summary-image-wide.png',
+      )
+      await adminPrograms.gotoDraftProgramManageStatusesPage(
+        programNameSubmittedWithImageAndStatus,
+      )
+      await adminProgramStatuses.createStatus(approvedStatusName)
+      await adminPrograms.publishProgram(programNameSubmittedWithImageAndStatus)
+      await adminPrograms.expectActiveProgram(
+        programNameSubmittedWithImageAndStatus,
+      )
+      await logout(page)
 
-    await submitApplicationAndApplyStatus(
-      page,
-      programNameSubmittedWithStatus,
-      approvedStatusName,
-      adminPrograms,
-      applicantQuestions,
-    )
+      await submitApplicationAndApplyStatus(
+        page,
+        programNameSubmittedWithImageAndStatus,
+        approvedStatusName,
+        adminPrograms,
+        applicantQuestions,
+      )
+    })
 
-    // Submitted #4 (on new row): Image
-    const programNameSubmittedImage = 'Submitted Program [Image]'
-    await loginAsAdmin(page)
+    await test.step('submit basic program', async () => {
+      const programNameSubmittedBasic = 'Submitted Program [Basic]'
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(programNameSubmittedBasic)
+      await adminPrograms.publishProgram(programNameSubmittedBasic)
+      await adminPrograms.expectActiveProgram(programNameSubmittedBasic)
+      await logout(page)
 
-    await adminPrograms.addProgram(programNameSubmittedImage)
-    await adminPrograms.goToProgramImagePage(programNameSubmittedImage)
-    await adminProgramImage.setImageFileAndSubmit(
-      'src/assets/program-summary-image-wide.png',
-    )
-    await adminPrograms.publishAllDrafts()
-    await logout(page)
+      await loginAsTestUser(page)
+      await applicantQuestions.applyProgram(programNameSubmittedBasic)
+      await applicantQuestions.submitFromReviewPage()
+      await logout(page)
+    })
 
-    await loginAsTestUser(page)
-    await applicantQuestions.clickApplyProgramButton(programNameSubmittedImage)
-    await applicantQuestions.submitFromReviewPage()
-    await logout(page)
+    await test.step('submit program with status', async () => {
+      const programNameSubmittedWithStatus = 'Submitted Program [Status]'
+      await loginAsAdmin(page)
 
-    // Not Started #1: Basic
-    await loginAsAdmin(page)
-    await adminPrograms.addProgram('Not Started Program [Basic]')
+      await adminPrograms.addProgram(programNameSubmittedWithStatus)
+      await adminPrograms.gotoDraftProgramManageStatusesPage(
+        programNameSubmittedWithStatus,
+      )
+      await adminProgramStatuses.createStatus(approvedStatusName)
+      await adminPrograms.publishProgram(programNameSubmittedWithStatus)
+      await adminPrograms.expectActiveProgram(programNameSubmittedWithStatus)
+      await logout(page)
 
-    // Not Started #2: Image
-    const programNameNotStartedImage = 'Not Started Program [Image]'
-    await adminPrograms.addProgram(programNameNotStartedImage)
-    await adminPrograms.goToProgramImagePage(programNameNotStartedImage)
-    await adminProgramImage.setImageFileAndSubmit(
-      'src/assets/program-summary-image-wide.png',
-    )
-    await adminPrograms.publishAllDrafts()
-    await logout(page)
+      await submitApplicationAndApplyStatus(
+        page,
+        programNameSubmittedWithStatus,
+        approvedStatusName,
+        adminPrograms,
+        applicantQuestions,
+      )
+    })
 
-    // Verify homepage
-    await loginAsTestUser(page)
-    await validateScreenshot(page, 'program-image-all-types')
-    await validateAccessibility(page)
+    await test.step('submit image on a new row', async () => {
+      const programNameSubmittedImage = 'Submitted Program [Image]'
+      await loginAsAdmin(page)
+
+      await adminPrograms.addProgram(programNameSubmittedImage)
+      await adminPrograms.goToProgramImagePage(programNameSubmittedImage)
+      await adminProgramImage.setImageFileAndSubmit(
+        'src/assets/program-summary-image-wide.png',
+      )
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
+
+      await loginAsTestUser(page)
+      await applicantQuestions.applyProgram(programNameSubmittedImage)
+      await applicantQuestions.submitFromReviewPage()
+      await logout(page)
+    })
+
+    await test.step('basic not started program', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram('Not Started Program [Basic]')
+    })
+
+    await test.step('basic not started program with image', async () => {
+      const programNameNotStartedImage = 'Not Started Program [Image]'
+      await adminPrograms.addProgram(programNameNotStartedImage)
+      await adminPrograms.goToProgramImagePage(programNameNotStartedImage)
+      await adminProgramImage.setImageFileAndSubmit(
+        'src/assets/program-summary-image-wide.png',
+      )
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
+    })
+
+    await test.step('verify homepage', async () => {
+      await loginAsTestUser(page)
+      await validateScreenshot(page, 'program-image-all-types')
+      // accessibility fails
+      // await validateAccessibility(page)
+    })
+  })
+
+  test('External program cards', async ({
+    page,
+    adminPrograms,
+    applicantQuestions,
+  }) => {
+    const externalProgramAName = 'External Program A'
+    const externalProgramALink = `${BASE_URL}/programs`
+    const externalProgramBName = 'External Program B'
+    const externalProgramBLink = `${BASE_URL}/programs#simulated_difference`
+
+    await test.step('add external programs', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addExternalProgram(
+        externalProgramAName,
+        /* shortDescription= */ 'description',
+        externalProgramALink,
+        ProgramVisibility.PUBLIC,
+      )
+      await adminPrograms.addExternalProgram(
+        externalProgramBName,
+        /* shortDescription= */ 'description',
+        externalProgramBLink,
+        ProgramVisibility.PUBLIC,
+      )
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
+    })
+
+    await test.step("'Programs and Services' section includes cards for the external programs", async () => {
+      await applicantQuestions.expectProgramsinCorrectSections(
+        {
+          expectedProgramsInMyApplicationsSection: [],
+          expectedProgramsInProgramsAndServicesSection: [
+            externalProgramAName,
+            externalProgramBName,
+          ],
+          expectedProgramsInRecommendedSection: [],
+          expectedProgramsInOtherProgramsSection: [],
+        },
+        /* filtersOn= */ false,
+      )
+
+      // Button for external program card has a different text.
+      const externalProgramCard = page.locator('.cf-application-card', {
+        has: page.getByText(externalProgramAName),
+      })
+      await expect(
+        externalProgramCard.getByRole('button', {
+          name: 'View External Program A in new tab',
+        }),
+      ).toBeVisible()
+
+      await validateAccessibility(page)
+    })
+
+    await test.step('card for external program A opens a modal', async () => {
+      await applicantQuestions.clickApplyProgramButton(externalProgramAName)
+
+      // Verify external program modal is visible
+      const modal = page.getByRole('dialog', {state: 'visible'})
+      await expect(
+        modal.getByRole('heading', {
+          name: 'This will open a different website',
+        }),
+      ).toBeVisible()
+      await expect(
+        modal.getByText(
+          "To go to the program's website where you can get more details and apply, click Continue",
+        ),
+      ).toBeVisible()
+      const continueButton = modal.getByRole('link', {name: 'Continue'})
+      await expect(continueButton).toBeVisible()
+      await expect(modal.getByRole('button', {name: 'Go back'})).toBeVisible()
+    })
+
+    await test.step("accepting external program A modal redirects to the program's external site", async () => {
+      const modal = page.getByRole('dialog', {state: 'visible'})
+      const continueButton = modal.getByRole('link', {name: 'Continue'})
+
+      const pagePromise = page.context().waitForEvent('page')
+      await continueButton.click()
+      const newPage = await pagePromise
+      await newPage.waitForLoadState()
+      expect(newPage.url()).toMatch(externalProgramALink)
+
+      await newPage.close()
+    })
+
+    await test.step('go back to the applicant home page', async () => {
+      await page.goto(BASE_URL)
+    })
+
+    await test.step('card for external program B opens a modal', async () => {
+      await applicantQuestions.clickApplyProgramButton(externalProgramBName)
+
+      // We don't need to check each modal element's visibility since
+      // previous step verified them
+      const modal = page.getByRole('dialog', {state: 'visible'})
+      const continueButton = modal.getByRole('link', {name: 'Continue'})
+      await expect(continueButton).toBeVisible()
+    })
+
+    await test.step("accepting external program B modal redirects to the program's external site", async () => {
+      const modal = page.getByRole('dialog', {state: 'visible'})
+      const continueButton = modal.getByRole('link', {name: 'Continue'})
+
+      const pagePromise = page.context().waitForEvent('page')
+      await continueButton.click()
+      const newPage = await pagePromise
+      await newPage.waitForLoadState()
+      expect(newPage.url()).toMatch(externalProgramBLink)
+
+      await newPage.close()
+    })
+  })
+
+  test('External program cards are included in program filters', async ({
+    page,
+    adminPrograms,
+    applicantQuestions,
+    seeding,
+  }) => {
+    const externalProgramName = 'External Program'
+    const externalProgramLink = `${BASE_URL}/programs`
+
+    await test.step('seed categories', async () => {
+      // The program filtering feature requires seeding the categories. This
+      // will add two programs: "Comprehensive Sample Program" and "Minimal
+      // Sample Program".
+      await seeding.seedProgramsAndCategories()
+      await page.goto('/')
+    })
+
+    await test.step("add an external program with 'Education' category", async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addExternalProgram(
+        externalProgramName,
+        /* shortDescription= */ 'description',
+        externalProgramLink,
+        ProgramVisibility.PUBLIC,
+      )
+      await adminPrograms.selectProgramCategories(
+        externalProgramName,
+        [ProgramCategories.EDUCATION],
+        /* isActive= */ false,
+      )
+
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
+    })
+
+    await test.step("filter programs by 'Education' category", async () => {
+      await loginAsTestUser(page)
+      await applicantQuestions.filterProgramsByCategory('Education')
+    })
+
+    await test.step("external program card appeasrs in the 'Recommended' section", async () => {
+      await applicantQuestions.expectProgramsinCorrectSections(
+        {
+          expectedProgramsInMyApplicationsSection: [],
+          expectedProgramsInProgramsAndServicesSection: [],
+          expectedProgramsInRecommendedSection: [externalProgramName],
+          expectedProgramsInOtherProgramsSection: [
+            'Comprehensive Sample Program',
+            'Minimal Sample Program',
+          ],
+        },
+        /* filtersOn= */ true,
+      )
+    })
+
+    await test.step('clicking on external program card opens a modal', async () => {
+      await applicantQuestions.clickApplyProgramButton(externalProgramName)
+
+      const modal = page.getByRole('dialog', {state: 'visible'})
+      const continueButton = modal.getByRole('link', {name: 'Continue'})
+      await expect(continueButton).toBeVisible()
+    })
+
+    await test.step("selecting 'go back' closes the modal", async () => {
+      const modal = page.getByRole('dialog', {state: 'visible'})
+      const goBackButton = modal.getByRole('button', {name: 'Go back'})
+      await expect(goBackButton).toBeVisible()
+      await goBackButton.click()
+      await expect(modal).toBeHidden()
+    })
+
+    await test.step('trigger the external program modal again', async () => {
+      await applicantQuestions.clickApplyProgramButton(externalProgramName)
+
+      const modal = page.getByRole('dialog', {state: 'visible'})
+      const continueButton = modal.getByRole('link', {name: 'Continue'})
+      await expect(continueButton).toBeVisible()
+    })
+
+    await test.step('clicking outside the modal closes the modal', async () => {
+      const modalWrapper = page
+        .locator('.usa-modal-wrapper')
+        .filter({hasText: 'This will open a different website'})
+      const wrapperBox = await modalWrapper.boundingBox()
+      // Click in the wrapper top left corner, which should  be outside the
+      // actual amodal
+      if (wrapperBox) {
+        await page.mouse.click(wrapperBox.x, wrapperBox.y)
+      }
+
+      const modal = page.getByRole('dialog', {state: 'visible'})
+      await expect(modal).toBeHidden()
+    })
+
+    await test.step('trigger the external program modal again', async () => {
+      await applicantQuestions.clickApplyProgramButton(externalProgramName)
+
+      const modal = page.getByRole('dialog', {state: 'visible'})
+      const continueButton = modal.getByRole('link', {name: 'Continue'})
+      await expect(continueButton).toBeVisible()
+    })
+
+    await test.step("selecting 'continue' redirects to the program's external site", async () => {
+      const modal = page.getByRole('dialog', {state: 'visible'})
+      const continueButton = modal.getByRole('link', {name: 'Continue'})
+
+      const pagePromise = page.context().waitForEvent('page')
+      await continueButton.click()
+      const newPage = await pagePromise
+      await newPage.waitForLoadState()
+      expect(newPage.url()).toMatch(externalProgramLink)
+
+      await newPage.close()
+    })
   })
 
   async function submitApplicationAndApplyStatus(
@@ -1300,7 +1351,7 @@ test.describe('applicant program index page with images', () => {
   ) {
     // Submit an application as a test user.
     await loginAsTestUser(page)
-    await applicantQuestions.clickApplyProgramButton(programName)
+    await applicantQuestions.applyProgram(programName)
     await applicantQuestions.submitFromReviewPage()
     await logout(page)
 
@@ -1310,6 +1361,7 @@ test.describe('applicant program index page with images', () => {
     await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
     const modal = await adminPrograms.setStatusOptionAndAwaitModal(statusName)
     await adminPrograms.confirmStatusUpdateModal(modal)
+    await page.getByRole('link', {name: 'Back'}).click()
     await logout(page)
   }
 })

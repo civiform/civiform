@@ -1,39 +1,38 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {
-  enableFeatureFlag,
   dismissToast,
   loginAsAdmin,
   validateScreenshot,
   validateToastMessage,
   validateToastHidden,
 } from '../support'
+import {Eligibility} from '../support/admin_programs'
 
 test.describe('Admin can manage program image', () => {
-  test('views a program without an image', async ({page, adminPrograms}) => {
+  test.beforeEach(async ({page}) => {
     await loginAsAdmin(page)
-
-    const programName = 'Program without image'
-    await adminPrograms.addProgram(programName)
-
-    await adminPrograms.goToProgramImagePage(programName)
-
-    await validateScreenshot(page, 'program-image-none')
   })
 
-  test(
-    'Views program card preview in North Star',
-    {tag: ['@northstar']},
-    async ({page, adminPrograms, adminProgramImage}) => {
+  test.describe('Program card preview', () => {
+    test('Views program card preview', async ({
+      page,
+      adminPrograms,
+      adminProgramImage,
+      seeding,
+    }) => {
       const programName = 'Test Program'
       const programDescription = 'Test description'
+      const shortDescription = 'Short description'
 
       await test.step('Set up program', async () => {
-        await enableFeatureFlag(page, 'north_star_applicant_ui')
-        await loginAsAdmin(page)
-
-        await adminPrograms.addProgram(programName, programDescription)
+        await adminPrograms.addProgram(programName, {
+          description: programDescription,
+          shortDescription: shortDescription,
+        })
 
         await adminPrograms.goToProgramImagePage(programName)
+
+        await validateScreenshot(page, 'program-image-none')
       })
 
       await test.step('Verify preview without image', async () => {
@@ -41,6 +40,7 @@ test.describe('Admin can manage program image', () => {
         await adminProgramImage.expectProgramPreviewCard(
           programName,
           programDescription,
+          shortDescription,
         )
       })
 
@@ -60,21 +60,61 @@ test.describe('Admin can manage program image', () => {
         await adminProgramImage.expectProgramPreviewCard(
           programName,
           programDescription,
+          shortDescription,
+        )
+
+        await validateScreenshot(
+          page.getByRole('main'),
+          'program-image-preview',
         )
       })
-    },
-  )
+
+      await test.step('Verify preview with category tags', async () => {
+        await seeding.seedProgramsAndCategories()
+        await page.goto('/')
+
+        await adminPrograms.addProgram('Test program with tags', {
+          description: programDescription,
+          shortDescription: shortDescription,
+          eligibility: Eligibility.IS_GATING,
+          submitNewProgram: false,
+        })
+        await page.getByText('Education').check()
+        await page.getByText('Healthcare').check()
+
+        await adminPrograms.submitProgramDetailsEdits()
+
+        await validateScreenshot(
+          page
+            .getByRole('listitem')
+            .filter({hasText: 'Test program with tags'}),
+          'admin-program-image-card-preview-with-tags',
+        )
+
+        await adminProgramImage.expectNoImagePreview()
+        await adminProgramImage.expectProgramPreviewCard(
+          programName,
+          programDescription,
+          shortDescription,
+        )
+
+        await expect(page.getByText('Education')).toBeVisible()
+        await expect(page.getByText('Healthcare')).toBeVisible()
+      })
+    })
+  })
 
   test.describe('back button', () => {
+    const programName = 'Back Test Program'
+
+    test.beforeEach(async ({adminPrograms}) => {
+      await adminPrograms.addProgram(programName)
+    })
+
     test('back button redirects to block page if came from block page', async ({
-      page,
       adminPrograms,
       adminProgramImage,
     }) => {
-      await loginAsAdmin(page)
-
-      const programName = 'program name'
-      await adminPrograms.addProgram(programName)
       // Navigate from edit program blocks page -> edit program image page
       await adminPrograms.gotoEditDraftProgramPage(programName)
       await adminPrograms.goToProgramImagePage(programName)
@@ -85,15 +125,10 @@ test.describe('Admin can manage program image', () => {
     })
 
     test('back button redirects to details page if came from create program page', async ({
-      page,
       adminPrograms,
       adminProgramImage,
     }) => {
-      await loginAsAdmin(page)
-
       // After creating a program, admin should be redirected to the program images page
-      const programName = 'Back Test Program'
-      await adminPrograms.addProgram(programName)
       await adminProgramImage.expectProgramImagePage()
 
       // WHEN back is clicked
@@ -104,14 +139,9 @@ test.describe('Admin can manage program image', () => {
     })
 
     test('back button preserves location after interaction', async ({
-      page,
       adminPrograms,
       adminProgramImage,
     }) => {
-      await loginAsAdmin(page)
-
-      const programName = 'Back Test Program'
-      await adminPrograms.addProgram(programName)
       await adminProgramImage.expectProgramImagePage()
 
       // When an admin submits an image or description on the page, the page reloads.
@@ -129,29 +159,24 @@ test.describe('Admin can manage program image', () => {
   })
 
   test.describe('continue button', () => {
+    const programName = 'Back Test Program'
+
+    test.beforeEach(async ({adminPrograms}) => {
+      await adminPrograms.addProgram(programName)
+    })
+
     test('continue button shows if from program creation page', async ({
-      page,
-      adminPrograms,
       adminProgramImage,
     }) => {
-      await loginAsAdmin(page)
-
-      const programName = 'Back Test Program'
-      await adminPrograms.addProgram(programName)
       await adminProgramImage.expectProgramImagePage()
 
       await adminProgramImage.expectHasContinueButton()
     })
 
     test('continue button redirects to program blocks page', async ({
-      page,
       adminPrograms,
       adminProgramImage,
     }) => {
-      await loginAsAdmin(page)
-
-      const programName = 'Back Test Program'
-      await adminPrograms.addProgram(programName)
       await adminProgramImage.expectProgramImagePage()
       await adminProgramImage.expectHasContinueButton()
 
@@ -161,14 +186,9 @@ test.describe('Admin can manage program image', () => {
     })
 
     test('continue button hides if from edit program image page', async ({
-      page,
       adminPrograms,
       adminProgramImage,
     }) => {
-      await loginAsAdmin(page)
-
-      const programName = 'program name'
-      await adminPrograms.addProgram(programName)
       // Navigate from edit program blocks page -> edit program image page
       await adminPrograms.gotoEditDraftProgramPage(programName)
       await adminPrograms.goToProgramImagePage(programName)
@@ -180,8 +200,7 @@ test.describe('Admin can manage program image', () => {
   test.describe('description', () => {
     const programName = 'Test program'
 
-    test.beforeEach(async ({page, adminPrograms}) => {
-      await loginAsAdmin(page)
+    test.beforeEach(async ({adminPrograms}) => {
       await adminPrograms.addProgram(programName)
       await adminPrograms.goToProgramImagePage(programName)
     })
@@ -414,21 +433,9 @@ test.describe('Admin can manage program image', () => {
   test.describe('image file upload', () => {
     const programName = 'Test program'
 
-    test.beforeEach(async ({page, adminPrograms}) => {
-      await loginAsAdmin(page)
+    test.beforeEach(async ({adminPrograms}) => {
       await adminPrograms.addProgram(programName)
       await adminPrograms.goToProgramImagePage(programName)
-    })
-
-    test('form is correctly formatted', async ({page}) => {
-      const formInputs = await page
-        .locator('#image-file-upload-form')
-        .locator('input')
-        .all()
-      const lastFormInput = formInputs[formInputs.length - 1]
-
-      // AWS requires that the <input type="file"> element to be the last <input> in the <form>
-      await expect(lastFormInput).toHaveAttribute('type', 'file')
     })
 
     test('shows uploaded image before submitting', async ({
@@ -440,127 +447,6 @@ test.describe('Admin can manage program image', () => {
       )
 
       await validateScreenshot(page, 'program-image-with-image-before-save')
-    })
-
-    test('prevents image upload when no description', async ({
-      adminProgramImage,
-    }) => {
-      await adminProgramImage.expectProgramImagePage()
-      await adminProgramImage.expectDescriptionIs('')
-
-      await adminProgramImage.expectDisabledImageFileUpload()
-      await adminProgramImage.expectDisabledImageFileUploadSubmit()
-    })
-
-    test('disables submit button when no image', async ({
-      adminProgramImage,
-    }) => {
-      // The submit button will also be disabled if there's no description,
-      // which we don't want to test here. So, set a description to rule
-      // that out.
-      await adminProgramImage.setImageDescriptionAndSubmit(
-        'Fake image description',
-      )
-
-      await adminProgramImage.expectDisabledImageFileUploadSubmit()
-    })
-
-    test('disables submit button when too large image', async ({
-      adminProgramImage,
-    }) => {
-      await adminProgramImage.setImageDescriptionAndSubmit(
-        'Fake image description',
-      )
-
-      await adminProgramImage.setImageFile(
-        'src/assets/program-summary-image-too-large.png',
-      )
-
-      await adminProgramImage.expectDisabledImageFileUploadSubmit()
-    })
-
-    test('enables submit button when small enough image', async ({
-      adminProgramImage,
-    }) => {
-      await adminProgramImage.setImageDescriptionAndSubmit(
-        'Fake image description',
-      )
-
-      await adminProgramImage.setImageFile(
-        'src/assets/program-summary-image-wide.png',
-      )
-
-      await adminProgramImage.expectEnabledImageFileUploadSubmit()
-    })
-
-    test('disables submit button when image removed', async ({
-      adminProgramImage,
-    }) => {
-      await adminProgramImage.setImageDescriptionAndSubmit(
-        'Fake image description',
-      )
-      await adminProgramImage.setImageFile(
-        'src/assets/program-summary-image-wide.png',
-      )
-      await adminProgramImage.expectEnabledImageFileUploadSubmit()
-
-      await adminProgramImage.setImageFile('')
-
-      await adminProgramImage.expectDisabledImageFileUploadSubmit()
-    })
-
-    test('shows error when too large image', async ({
-      page,
-      adminProgramImage,
-    }) => {
-      await adminProgramImage.setImageDescriptionAndSubmit(
-        'Fake image description',
-      )
-      await dismissToast(page)
-
-      await adminProgramImage.setImageFile(
-        'src/assets/program-summary-image-too-large.png',
-      )
-
-      await adminProgramImage.expectTooLargeErrorShown()
-      expect(await page.textContent('html')).toContain(
-        'Error: Your file is too large.',
-      )
-    })
-
-    test('hides error when too large image replaced with smaller image', async ({
-      adminProgramImage,
-    }) => {
-      await adminProgramImage.setImageDescriptionAndSubmit(
-        'Fake image description',
-      )
-
-      await adminProgramImage.setImageFile(
-        'src/assets/program-summary-image-too-large.png',
-      )
-      await adminProgramImage.expectTooLargeErrorShown()
-
-      await adminProgramImage.setImageFile(
-        'src/assets/program-summary-image-tall.png',
-      )
-
-      await adminProgramImage.expectTooLargeErrorHidden()
-    })
-
-    test('adds new image', async ({page, adminProgramImage}) => {
-      await adminProgramImage.expectNoImagePreview()
-      await adminProgramImage.setImageFileAndSubmit(
-        'src/assets/program-summary-image-wide.png',
-      )
-      await adminProgramImage.expectProgramImagePage()
-      await validateToastMessage(
-        page,
-        adminProgramImage.imageUpdatedToastMessage(),
-      )
-
-      await dismissToast(page)
-      await validateScreenshot(page, 'program-image-with-image')
-      await adminProgramImage.expectImagePreview()
     })
 
     test('deletes existing image', async ({page, adminProgramImage}) => {

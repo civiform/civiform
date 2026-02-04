@@ -33,10 +33,12 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
+import models.AccountModel;
 import models.ApplicantModel;
 import models.ApplicationEventModel;
 import models.ApplicationModel;
 import models.DisplayMode;
+import models.EligibilityDetermination;
 import models.LifecycleStage;
 import models.ProgramModel;
 import models.ProgramNotificationPreference;
@@ -64,6 +66,7 @@ import services.MessageKey;
 import services.Path;
 import services.PhoneValidationResult;
 import services.PhoneValidationUtils;
+import services.apibridge.ApiBridgeProcessor;
 import services.applicant.ApplicantPersonalInfo.Representation;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ApplicationNotEligibleException;
@@ -87,12 +90,13 @@ import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.program.ProgramType;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
 import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
-import views.applicant.AddressCorrectionBlockView;
+import views.applicant.addresscorrection.AddressCorrectionBlockView;
 
 /**
  * The service responsible for accessing the Applicant resource. Applicants can view program
@@ -118,6 +122,7 @@ public final class ApplicantService {
   private final String baseUrl;
   private final boolean isStaging;
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
+  private final SettingsManifest settingsManifest;
   private final String stagingProgramAdminNotificationMailingList;
   private final String stagingTiNotificationMailingList;
   private final String stagingApplicantNotificationMailingList;
@@ -125,7 +130,7 @@ public final class ApplicantService {
   private final EsriClient esriClient;
   private final MessagesApi messagesApi;
   private final Database database;
-  private final SettingsManifest settingsManifest;
+  private final ApiBridgeProcessor apiBridgeProcessor;
 
   @Inject
   public ApplicantService(
@@ -146,6 +151,7 @@ public final class ApplicantService {
       ServiceAreaUpdateResolver serviceAreaUpdateResolver,
       EsriClient esriClient,
       MessagesApi messagesApi,
+      ApiBridgeProcessor apiBridgeProcessor,
       SettingsManifest settingsManifest) {
     this.applicationEventRepository = checkNotNull(applicationEventRepository);
     this.applicationRepository = checkNotNull(applicationRepository);
@@ -161,10 +167,10 @@ public final class ApplicantService {
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.serviceAreaUpdateResolver = checkNotNull(serviceAreaUpdateResolver);
     this.messagesApi = checkNotNull(messagesApi);
-    this.settingsManifest = checkNotNull(settingsManifest);
 
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.isStaging = checkNotNull(deploymentType).isStaging();
+    this.settingsManifest = checkNotNull(settingsManifest);
     this.stagingProgramAdminNotificationMailingList =
         checkNotNull(configuration).getString("staging_program_admin_notification_mailing_list");
     this.stagingTiNotificationMailingList =
@@ -173,6 +179,7 @@ public final class ApplicantService {
         checkNotNull(configuration).getString("staging_applicant_notification_mailing_list");
     this.esriClient = checkNotNull(esriClient);
     this.database = DB.getDefault();
+    this.apiBridgeProcessor = checkNotNull(apiBridgeProcessor);
   }
 
   /** Create a new {@link ApplicantModel}. */
@@ -276,7 +283,8 @@ public final class ApplicantService {
       String blockId,
       ImmutableMap<String, String> updateMap,
       boolean addressServiceAreaValidationEnabled,
-      boolean forceUpdate) {
+      boolean forceUpdate,
+      boolean apiBridgeEnabled) {
     ImmutableSet<Update> updates =
         updateMap.entrySet().stream()
             .map(entry -> Update.create(Path.create(entry.getKey()), entry.getValue()))
@@ -300,7 +308,8 @@ public final class ApplicantService {
         updateMap,
         updates,
         addressServiceAreaValidationEnabled,
-        forceUpdate);
+        forceUpdate,
+        apiBridgeEnabled);
   }
 
   private CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
@@ -310,7 +319,8 @@ public final class ApplicantService {
       ImmutableMap<String, String> updateMap,
       ImmutableSet<Update> updates,
       boolean addressServiceAreaValidationEnabled,
-      boolean forceUpdate) {
+      boolean forceUpdate,
+      boolean apiBridgeEnabled) {
     CompletableFuture<Optional<ApplicantModel>> applicantCompletableFuture =
         accountRepository.lookupApplicant(applicantId).toCompletableFuture();
 
@@ -342,8 +352,29 @@ public final class ApplicantService {
               }
               Block blockBeforeUpdate = maybeBlockBeforeUpdate.get();
 
-              if (addressServiceAreaValidationEnabled
-                  && blockBeforeUpdate.getLeafAddressNodeServiceAreaIds().isPresent()) {
+              boolean shouldCheckServiceAreaValidation =
+                  addressServiceAreaValidationEnabled
+                      && blockBeforeUpdate.getLeafAddressNodeServiceAreaIds().isPresent();
+
+              Optional<ApplicantQuestion> maybeAddressQuestion =
+                  blockBeforeUpdate.getAddressQuestionWithCorrectionEnabled();
+              if (maybeAddressQuestion.isPresent()) {
+                AddressQuestion addressQuestion =
+                    maybeAddressQuestion.get().createAddressQuestion();
+                // Only check service area validation if
+                //  1. The address has changed from the previously corrected one
+                //  2. This is the applicant's first time filling out the question and it has not
+                // yet gone through correction
+                // In case 2 we still need to pass the question through the
+                // serviceAreaUpdateResolver so that it can return an empty serviceAreaUpdate which
+                // is expected in the rest of the logic
+                shouldCheckServiceAreaValidation =
+                    shouldCheckServiceAreaValidation
+                        && (addressQuestion.hasChanges(updateMap)
+                            || addressQuestion.needsAddressCorrection());
+              }
+
+              if (shouldCheckServiceAreaValidation) {
                 return serviceAreaUpdateResolver
                     .getServiceAreaUpdate(blockBeforeUpdate, updateMap)
                     .thenComposeAsync(
@@ -354,7 +385,8 @@ public final class ApplicantService {
                               programDefinition,
                               updates,
                               serviceAreaUpdate,
-                              forceUpdate);
+                              forceUpdate,
+                              apiBridgeEnabled);
                         },
                         classLoaderExecutionContext.current());
               }
@@ -365,7 +397,8 @@ public final class ApplicantService {
                   programDefinition,
                   updates,
                   Optional.empty(),
-                  forceUpdate);
+                  forceUpdate,
+                  apiBridgeEnabled);
             },
             classLoaderExecutionContext.current())
         .thenCompose(
@@ -381,7 +414,8 @@ public final class ApplicantService {
       ProgramDefinition programDefinition,
       ImmutableSet<Update> updates,
       Optional<ServiceAreaUpdate> serviceAreaUpdate,
-      boolean forceUpdate) {
+      boolean forceUpdate,
+      boolean apiBridgeEnabled) {
     UpdateMetadata updateMetadata = UpdateMetadata.create(programDefinition.id(), clock.millis());
     ImmutableMap<Path, String> failedUpdates;
     try {
@@ -407,6 +441,24 @@ public final class ApplicantService {
     Optional<Block> blockMaybe =
         roApplicantProgramService.getActiveBlock(blockBeforeUpdate.getId());
     if (forceUpdate || (blockMaybe.isPresent() && !blockMaybe.get().hasErrors())) {
+
+      if (apiBridgeEnabled) {
+        return apiBridgeProcessor
+            .callApiBridgeEndpoints(
+                applicant.getApplicantData(), programDefinition.bridgeDefinitions())
+            .thenComposeAsync(
+                updatedApplicantData -> {
+                  applicant.setApplicantData(updatedApplicantData);
+
+                  return accountRepository
+                      .updateApplicant(applicant)
+                      .thenApplyAsync(
+                          (finishedSaving) -> roApplicantProgramService,
+                          classLoaderExecutionContext.current());
+                },
+                classLoaderExecutionContext.current());
+      }
+
       return accountRepository
           .updateApplicant(applicant)
           .thenApplyAsync(
@@ -429,32 +481,67 @@ public final class ApplicantService {
    */
   public CompletionStage<ApplicationModel> submitApplication(
       long applicantId, long programId, CiviFormProfile submitterProfile, Request request) {
-    if (submitterProfile.isTrustedIntermediary()) {
-      return getReadOnlyApplicantProgramService(applicantId, programId)
-          .thenCompose(ro -> validateApplicationForSubmission(ro, programId))
-          .thenComposeAsync(
-              v -> submitterProfile.getAccount(), classLoaderExecutionContext.current())
-          .thenComposeAsync(
-              tiAccount ->
-                  submitApplication(
-                      applicantId,
-                      programId,
-                      // /* tiSubmitterEmail= */
-                      // If the TI is submitting for themselves, don't set the tiSubmitterEmail. See
-                      // #5325 for more.
-                      tiAccount.ownedApplicantIds().contains(applicantId)
-                          ? Optional.empty()
-                          : Optional.of(tiAccount.getEmailAddress()),
-                      request),
-              classLoaderExecutionContext.current());
-    }
+    try {
+      ProgramDefinition pd = programService.getFullProgramDefinition(programId);
+      if (submitterProfile.isTrustedIntermediary()) {
+        return getReadOnlyApplicantProgramService(applicantId, programId)
+            .thenCompose(
+                ro ->
+                    validateApplicationForSubmission(ro, programId)
+                        .thenComposeAsync(
+                            v -> submitterProfile.getAccount(),
+                            classLoaderExecutionContext.current())
+                        .thenComposeAsync(
+                            tiAccount -> {
+                              EligibilityDetermination eligibilityDetermination =
+                                  calculateEligibilityDetermination(pd, ro);
+                              return submitApplication(
+                                  applicantId,
+                                  programId,
+                                  // /* tiSubmitterEmail= */
+                                  // If the TI is submitting for themselves, don't set the
+                                  // tiSubmitterEmail. See #5325 for more.
+                                  tiAccount.ownedApplicantIds().contains(applicantId)
+                                      ? Optional.empty()
+                                      : Optional.of(tiAccount.getEmailAddress()),
+                                  eligibilityDetermination,
+                                  request);
+                            },
+                            classLoaderExecutionContext.current()));
+      }
 
-    return getReadOnlyApplicantProgramService(applicantId, programId)
-        .thenCompose(ro -> validateApplicationForSubmission(ro, programId))
-        .thenCompose(
-            v ->
-                submitApplication(
-                    applicantId, programId, /* tiSubmitterEmail= */ Optional.empty(), request));
+      return getReadOnlyApplicantProgramService(applicantId, programId)
+          .thenCompose(
+              ro ->
+                  validateApplicationForSubmission(ro, programId)
+                      .thenCompose(
+                          v -> {
+                            EligibilityDetermination eligibilityDetermination =
+                                calculateEligibilityDetermination(pd, ro);
+                            return submitApplication(
+                                applicantId,
+                                programId,
+                                /* tiSubmitterEmail= */ Optional.empty(),
+                                eligibilityDetermination,
+                                request);
+                          }));
+    } catch (ProgramNotFoundException e) {
+      throw new RuntimeException("Could not find program.", e);
+    }
+  }
+
+  public EligibilityDetermination calculateEligibilityDetermination(
+      ProgramDefinition programDefinition,
+      ReadOnlyApplicantProgramService readOnlyApplicantProgramService) {
+    if (programDefinition.hasEligibilityEnabled()) {
+      if (readOnlyApplicantProgramService.isApplicationNotEligible()) {
+        return EligibilityDetermination.INELIGIBLE;
+      } else {
+        return EligibilityDetermination.ELIGIBLE;
+      }
+    } else {
+      return EligibilityDetermination.NO_ELIGIBILITY_CRITERIA;
+    }
   }
 
   /**
@@ -512,7 +599,7 @@ public final class ApplicantService {
                             .forEach(
                                 tag -> {
                                   switch (tag) {
-                                    case APPLICANT_NAME:
+                                    case APPLICANT_NAME -> {
                                       applicant.setFirstName(
                                           applicantData
                                               .readString(path.join(Scalar.FIRST_NAME))
@@ -531,28 +618,23 @@ public final class ApplicantService {
                                           applicantData
                                               .readString(path.join(Scalar.NAME_SUFFIX))
                                               .orElse(""));
-                                      break;
-                                    case APPLICANT_EMAIL:
-                                      applicant.setEmailAddress(
-                                          applicantData
-                                              .readString(path.join(Scalar.EMAIL))
-                                              .orElse(""));
-                                      break;
-                                    case APPLICANT_PHONE:
-                                      // Country code is set automatically by setPhoneNumber
-                                      applicant.setPhoneNumber(
-                                          applicantData
-                                              .readString(path.join(Scalar.PHONE_NUMBER))
-                                              .orElse(""));
-                                      break;
-                                    case APPLICANT_DOB:
-                                      applicant.setDateOfBirth(
-                                          applicantData
-                                              .readDate(path.join(Scalar.DATE))
-                                              .orElse(null));
-                                      break;
-                                    default:
-                                      break;
+                                    }
+                                    case APPLICANT_EMAIL ->
+                                        applicant.setEmailAddress(
+                                            applicantData
+                                                .readString(path.join(Scalar.EMAIL))
+                                                .orElse(""));
+                                    case APPLICANT_PHONE ->
+                                        // Country code is set automatically by setPhoneNumber
+                                        applicant.setPhoneNumber(
+                                            applicantData
+                                                .readString(path.join(Scalar.PHONE_NUMBER))
+                                                .orElse(""));
+                                    case APPLICANT_DOB ->
+                                        applicant.setDateOfBirth(
+                                            applicantData
+                                                .readDate(path.join(Scalar.DATE))
+                                                .orElse(null));
                                   }
                                 });
                       });
@@ -564,10 +646,14 @@ public final class ApplicantService {
 
   @VisibleForTesting
   CompletionStage<ApplicationModel> submitApplication(
-      long applicantId, long programId, Optional<String> tiSubmitterEmail, Request request) {
+      long applicantId,
+      long programId,
+      Optional<String> tiSubmitterEmail,
+      EligibilityDetermination eligibilityDetermination,
+      Request request) {
     CompletableFuture<Optional<ApplicationModel>> applicationFuture =
         applicationRepository
-            .submitApplication(applicantId, programId, tiSubmitterEmail)
+            .submitApplication(applicantId, programId, tiSubmitterEmail, eligibilityDetermination)
             .thenComposeAsync(
                 application -> savePrimaryApplicantInfoAnswers(application),
                 classLoaderExecutionContext.current())
@@ -590,7 +676,6 @@ public final class ApplicantService {
               applicationStatusesRepository.lookupActiveStatusDefinitions(programName);
           Optional<StatusDefinitions.Status> maybeDefaultStatus =
               activeStatusDefinitions.getDefaultStatus();
-
           CompletableFuture<ApplicationEventModel> updateStatusFuture =
               maybeDefaultStatus
                   .map(status -> setApplicationStatus(application, status).toCompletableFuture())
@@ -652,10 +737,7 @@ public final class ApplicantService {
                             notifyProgramAdminsFuture,
                             notifyApplicantFuture,
                             notifyTiSubmitterFuture,
-                            updateStoredFileAclsForSubmit(
-                                    applicantId,
-                                    programId,
-                                    settingsManifest.getMultipleFileUploadEnabled(request))
+                            updateStoredFileAclsForSubmit(applicantId, programId)
                                 .toCompletableFuture())
                         .thenApplyAsync(
                             (ignoreVoid) -> application, classLoaderExecutionContext.current());
@@ -667,16 +749,12 @@ public final class ApplicantService {
 
   public Optional<ImmutableSet<String>> getApplicantEmails(
       ApplicantPersonalInfo applicantPersonalInfo) {
-    switch (applicantPersonalInfo.getType()) {
-      case LOGGED_IN:
-        return applicantPersonalInfo.loggedIn().email();
-      case TI_PARTIALLY_CREATED:
-        return applicantPersonalInfo.tiPartiallyCreated().email();
-      case GUEST:
-        return applicantPersonalInfo.guest().email();
-      default:
-        return Optional.empty();
-    }
+    return switch (applicantPersonalInfo.getType()) {
+      case LOGGED_IN -> applicantPersonalInfo.loggedIn().email();
+      case TI_PARTIALLY_CREATED -> applicantPersonalInfo.tiPartiallyCreated().email();
+      case GUEST -> applicantPersonalInfo.guest().email();
+      default -> Optional.empty();
+    };
   }
 
   /**
@@ -714,15 +792,14 @@ public final class ApplicantService {
    * When an application is submitted, we store the name of its program in the ACLs for each file in
    * the application.
    */
-  private CompletionStage<Void> updateStoredFileAclsForSubmit(
-      long applicantId, long programId, boolean multipleFileUploadEnabled) {
+  private CompletionStage<Void> updateStoredFileAclsForSubmit(long applicantId, long programId) {
     CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
         programService.getFullProgramDefinitionAsync(programId).toCompletableFuture();
 
     CompletableFuture<List<StoredFileModel>> storedFilesFuture =
         getReadOnlyApplicantProgramService(applicantId, programId)
             .thenApplyAsync(
-                applicantService -> applicantService.getStoredFileKeys(multipleFileUploadEnabled),
+                applicantService -> applicantService.getStoredFileKeys(),
                 classLoaderExecutionContext.current())
             .thenComposeAsync(
                 storedFileRepository::lookupFiles, classLoaderExecutionContext.current())
@@ -971,16 +1048,11 @@ public final class ApplicantService {
     return accountRepository
         .lookupAccountByEmailAsync(tiEmail)
         .thenApplyAsync(
-            account -> {
-              if (account.isEmpty()) {
-                return Optional.empty();
-              }
-              // There's really only one applicant per account. See notes in Account.java.
-              Optional<ApplicantModel> applicant = account.get().newestApplicant();
-              return applicant
-                  .map(ApplicantModel::getApplicantData)
-                  .map(ApplicantData::preferredLocale);
-            },
+            account ->
+                account
+                    .flatMap(AccountModel::representativeApplicant)
+                    .map(ApplicantModel::getApplicantData)
+                    .map(ApplicantData::preferredLocale),
             classLoaderExecutionContext.current());
   }
 
@@ -1046,7 +1118,7 @@ public final class ApplicantService {
               ImmutableSet<ApplicationModel> applications = applicationsFuture.join();
               logDuplicateDrafts(applications);
               return relevantProgramsForApplicantInternal(
-                  activeProgramDefinitions, applications, allPrograms, request);
+                  activeProgramDefinitions, applications, allPrograms);
             },
             classLoaderExecutionContext.current());
   }
@@ -1055,7 +1127,6 @@ public final class ApplicantService {
    * Get all active programs that are publicly visible, as if it was a brand new guest account, but
    * without requiring the account to be created yet.
    *
-   * @param request - The request object from loading the page
    * @return - CompletionStage of the relevant programs
    */
   public CompletionStage<ApplicationPrograms> relevantProgramsWithoutApplicant(Request request) {
@@ -1068,7 +1139,7 @@ public final class ApplicantService {
                   .filter(pdef -> pdef.displayMode().equals(DisplayMode.PUBLIC))
                   .collect(ImmutableList.toImmutableList());
           return relevantProgramsForApplicantInternal(
-              activeProgramDefinitions, ImmutableSet.of(), activeProgramDefinitions, request);
+              activeProgramDefinitions, ImmutableSet.of(), activeProgramDefinitions);
         },
         classLoaderExecutionContext.current());
   }
@@ -1082,7 +1153,7 @@ public final class ApplicantService {
    * @return All unsubmitted programs that are appropriate to serve to an applicant and that they
    *     may be eligible for. Includes programs with matching eligibility criteria or no eligibility
    *     criteria.
-   *     <p>Does not include the Common Intake Form.
+   *     <p>Does not include the Pre-Screener Form.
    *     <p>"Appropriate programs" those returned by {@link #relevantProgramsForApplicant(long,
    *     auth.CiviFormProfile)}.
    */
@@ -1099,7 +1170,7 @@ public final class ApplicantService {
                     // Return all programs the user is eligible for, or that have no
                     // eligibility conditions.
                     .filter(programData -> programData.isProgramMaybeEligible().orElse(true))
-                    .filter(programData -> !programData.program().isCommonIntakeForm())
+                    .filter(programData -> !programData.program().isPreScreenerForm())
                     .collect(ImmutableList.toImmutableList()),
             classLoaderExecutionContext.current());
   }
@@ -1131,11 +1202,19 @@ public final class ApplicantService {
         : Optional.empty();
   }
 
+  /**
+   * Returns the program ID from the applicant's latest active or draft application for the
+   * specified program slug if one exists, or empty otherwise.
+   */
+  public CompletionStage<Optional<Long>> getLatestProgramId(String programSlug, long applicantId) {
+    return applicationRepository.getLatestProgramId(
+        applicantId, programSlug, ImmutableSet.of(LifecycleStage.ACTIVE, LifecycleStage.DRAFT));
+  }
+
   private ApplicationPrograms relevantProgramsForApplicantInternal(
       ImmutableList<ProgramDefinition> activePrograms,
       ImmutableSet<ApplicationModel> applications,
-      ImmutableList<ProgramDefinition> allPrograms,
-      Request request) {
+      ImmutableList<ProgramDefinition> allPrograms) {
     // Use ImmutableMap.copyOf rather than the collector to guard against cases where the
     // provided active programs contains duplicate entries with the same adminName. In this
     // case, the ImmutableMap collector would throw since ImmutableMap builders don't allow
@@ -1181,16 +1260,15 @@ public final class ApplicantService {
     mostRecentApplicationsByProgram.forEach(
         (programName, appByStage) -> {
           Optional<ApplicationModel> maybeDraftApp =
-              appByStage.getOrDefault(LifecycleStage.DRAFT, Optional.empty());
+              appByStage.getOrDefault(LifecycleStage.DRAFT, /* defaultValue= */ Optional.empty());
           Optional<ApplicationModel> maybeSubmittedApp =
-              appByStage.getOrDefault(LifecycleStage.ACTIVE, Optional.empty());
+              appByStage.getOrDefault(LifecycleStage.ACTIVE, /* defaultValue= */ Optional.empty());
           Optional<Instant> latestSubmittedApplicationTime =
               maybeSubmittedApp.map(ApplicationModel::getSubmitTime);
           if (maybeDraftApp.isPresent()) {
             ApplicationModel draftApp = maybeDraftApp.get();
             ProgramDefinition programDefinition =
-                getProgramDefinitionForDraftApplication(
-                    allPrograms, draftApp.getProgram().id, request);
+                getProgramDefinitionForDraftApplication(allPrograms, draftApp.getProgram().id);
 
             ApplicantProgramData.Builder applicantProgramDataBuilder =
                 ApplicantProgramData.builder(programDefinition)
@@ -1201,8 +1279,8 @@ public final class ApplicantService {
             applicantProgramDataBuilder.setIsProgramMaybeEligible(
                 getApplicantMayBeEligibleStatus(draftApp.getApplicant(), programDefinition));
 
-            if (programDefinition.isCommonIntakeForm()) {
-              relevantPrograms.setCommonIntakeForm(applicantProgramDataBuilder.build());
+            if (programDefinition.isPreScreenerForm()) {
+              relevantPrograms.setPreScreenerForm(applicantProgramDataBuilder.build());
             } else {
               inProgressPrograms.add(applicantProgramDataBuilder.build());
             }
@@ -1280,9 +1358,12 @@ public final class ApplicantService {
                 getApplicantMayBeEligibleStatus(applicant, program));
           }
 
-          if (program.isCommonIntakeForm()) {
-            relevantPrograms.setCommonIntakeForm(applicantProgramDataBuilder.build());
-          } else {
+          ProgramType programType = program.programType();
+          if (programType.equals(ProgramType.PRE_SCREENER_FORM)) {
+            relevantPrograms.setPreScreenerForm(applicantProgramDataBuilder.build());
+          } else if (programType.equals(ProgramType.DEFAULT)
+              || (programType.equals(ProgramType.EXTERNAL)
+                  && settingsManifest.getExternalProgramCardsEnabled())) {
             unappliedPrograms.add(applicantProgramDataBuilder.build());
           }
         });
@@ -1299,29 +1380,27 @@ public final class ApplicantService {
    * programId.
    */
   private ProgramDefinition getProgramDefinitionForDraftApplication(
-      ImmutableList<ProgramDefinition> programList, long programId, Request request) {
+      ImmutableList<ProgramDefinition> programList, long programId) {
 
-    if (settingsManifest.getFastforwardEnabled(request)) {
-      // Check if the draft application is using the latest version of the program. If it
-      // is not, load the latest version of the program instead since we want to base this
-      // list off of current programs.
-      Optional<Long> latestProgramId = programRepository.getMostRecentActiveProgramId(programId);
+    // Check if the draft application is using the latest version of the program. If it
+    // is not, load the latest version of the program instead since we want to base this
+    // list off of current programs.
+    Optional<Long> latestProgramId = programRepository.getMostRecentActiveProgramId(programId);
 
-      if (latestProgramId.isPresent() && latestProgramId.get() != programId) {
-        Optional<ProgramDefinition> programDefinitionOptional =
-            programList.stream().filter(p -> p.id() == latestProgramId.get()).findFirst();
+    if (latestProgramId.isPresent() && latestProgramId.get() != programId) {
+      Optional<ProgramDefinition> programDefinitionOptional =
+          programList.stream().filter(p -> p.id() == latestProgramId.get()).findFirst();
 
-        if (programDefinitionOptional.isPresent()) {
-          return programDefinitionOptional.get();
-        }
+      if (programDefinitionOptional.isPresent()) {
+        return programDefinitionOptional.get();
+      }
 
-        try {
-          // Didn't find it in the list we already had, so go fetch it
-          return programService.getFullProgramDefinition(latestProgramId.get());
-        } catch (ProgramNotFoundException e) {
-          throw new RuntimeException(
-              String.format("Can't find program id: %s", latestProgramId.get()), e);
-        }
+      try {
+        // Didn't find it in the list we already had, so go fetch it
+        return programService.getFullProgramDefinition(latestProgramId.get());
+      } catch (ProgramNotFoundException e) {
+        throw new RuntimeException(
+            String.format("Can't find program id: %s", latestProgramId.get()), e);
       }
     }
 
@@ -1439,7 +1518,7 @@ public final class ApplicantService {
     public abstract static class Builder {
       protected abstract Builder setProgram(ProgramDefinition v);
 
-      public abstract Builder setCurrentApplicationProgramId(Long programId);
+      public abstract Builder setCurrentApplicationProgramId(long programId);
 
       abstract Builder setIsProgramMaybeEligible(Optional<Boolean> v);
 
@@ -1626,64 +1705,55 @@ public final class ApplicantService {
         applicantData.maybeDelete(update.path());
       } else {
         switch (type) {
-          case PHONE_NUMBER:
+          case PHONE_NUMBER -> {
             try {
               applicantData.putPhoneNumber(currentPath, update.value());
             } catch (IllegalArgumentException e) {
               failedUpdatesBuilder.put(currentPath, update.value());
             }
-            break;
-          case CURRENCY_CENTS:
+          }
+          case CURRENCY_CENTS -> {
             try {
               applicantData.putCurrencyDollars(currentPath, update.value());
             } catch (IllegalArgumentException e) {
               failedUpdatesBuilder.put(currentPath, update.value());
             }
-            break;
-          case DATE:
+          }
+          case DATE -> {
             try {
               applicantData.putDate(currentPath, update.value());
             } catch (DateTimeException e) {
               failedUpdatesBuilder.put(currentPath, update.value());
             }
-            break;
-          case LIST_OF_STRINGS:
-          case STRING:
-            applicantData.putString(currentPath, update.value());
-            break;
-          case LONG:
+          }
+          case LIST_OF_STRINGS, STRING -> applicantData.putString(currentPath, update.value());
+          case LONG -> {
             try {
               applicantData.putLong(currentPath, update.value());
             } catch (NumberFormatException e) {
               failedUpdatesBuilder.put(currentPath, update.value());
             }
-            break;
-          case DOUBLE:
+          }
+          case DOUBLE -> {
             try {
               applicantData.putDouble(currentPath, update.value());
             } catch (NumberFormatException e) {
               failedUpdatesBuilder.put(currentPath, update.value());
             }
-            break;
-          case SERVICE_AREA:
+          }
+          case SERVICE_AREA -> {
             // service areas get updated below
-            break;
-          default:
-            throw new UnsupportedScalarTypeException(type);
+          }
+          default -> throw new UnsupportedScalarTypeException(type);
         }
       }
     }
 
-    if (serviceAreaUpdate.isPresent() && serviceAreaUpdate.get().value().size() > 0) {
-      applicantData.putServiceAreaInclusionEntities(
-          serviceAreaUpdate
-              .get()
-              .path()
-              .parentPath()
-              .join(Scalar.SERVICE_AREAS.name())
-              .asArrayElement(),
-          serviceAreaUpdate.get().value());
-    }
+    serviceAreaUpdate.ifPresent(
+        areaUpdate ->
+            applicantData.putServiceAreaInclusionEntities(
+                areaUpdate.path().parentPath().join(Scalar.SERVICE_AREAS.name()).asArrayElement(),
+                areaUpdate.value()));
 
     // Write metadata for all questions in the block, regardless of whether they were blank or not.
     block.getQuestions().stream()
@@ -1715,10 +1785,10 @@ public final class ApplicantService {
   @AutoValue
   public abstract static class ApplicationPrograms {
     /**
-     * Common Intake Form, if it exists, is populated only here and not in inProgress, submitted, or
-     * unapplied regardless of its application status.
+     * Pre-Screener Form, if it exists and hasn't been submitted, is populated here and not in
+     * inProgress or unapplied, regardless of its application status.
      */
-    public abstract Optional<ApplicantProgramData> commonIntakeForm();
+    public abstract Optional<ApplicantProgramData> preScreenerForm();
 
     public abstract ImmutableList<ApplicantProgramData> inProgress();
 
@@ -1744,7 +1814,7 @@ public final class ApplicantService {
 
     @AutoValue.Builder
     abstract static class Builder {
-      abstract Builder setCommonIntakeForm(ApplicantProgramData value);
+      abstract Builder setPreScreenerForm(ApplicantProgramData value);
 
       abstract Builder setInProgress(ImmutableList<ApplicantProgramData> value);
 
@@ -1760,13 +1830,30 @@ public final class ApplicantService {
       ImmutableList.Builder<ApplicantProgramData> allPrograms =
           new ImmutableList.Builder<ApplicantProgramData>();
 
-      if (commonIntakeForm().isPresent()) {
-        allPrograms.add(commonIntakeForm().get());
+      if (preScreenerForm().isPresent()) {
+        allPrograms.add(preScreenerForm().get());
       }
       allPrograms.addAll(inProgress());
       allPrograms.addAll(submitted());
       allPrograms.addAll(unapplied());
       return allPrograms.build();
+    }
+
+    /**
+     * Returns all programs that are in progress, including the Pre-Screener Form, which usually is
+     * not included in the inProgress list.
+     */
+    public ImmutableList<ApplicantProgramData> inProgressIncludingPreScreener() {
+      ImmutableList.Builder<ApplicantProgramData> inProgress =
+          new ImmutableList.Builder<ApplicantProgramData>();
+
+      preScreenerForm()
+          .flatMap(ApplicantProgramData::latestApplicationLifecycleStage)
+          .filter(stage -> stage.equals(LifecycleStage.DRAFT))
+          .ifPresent(programData -> inProgress.add(preScreenerForm().get()));
+
+      inProgress.addAll(inProgress());
+      return inProgress.build();
     }
   }
 
@@ -1909,39 +1996,36 @@ public final class ApplicantService {
    * formdata
    */
   public CompletionStage<ImmutableMap<String, String>> resetAddressCorrectionWhenAddressChanged(
-      long applicantId, long programId, String blockId, ImmutableMap<String, String> formData) {
-    return getReadOnlyApplicantProgramService(applicantId, programId)
-        .thenComposeAsync(
-            roApplicantProgramService -> {
-              Optional<Block> blockMaybe = roApplicantProgramService.getActiveBlock(blockId);
+      long programId,
+      Optional<Block> blockMaybe,
+      String blockId,
+      ImmutableMap<String, String> formData) {
 
-              if (blockMaybe.isEmpty()) {
-                return CompletableFuture.failedFuture(
-                    new ProgramBlockNotFoundException(programId, blockId));
-              }
+    if (blockMaybe.isEmpty()) {
+      return CompletableFuture.failedFuture(new ProgramBlockNotFoundException(programId, blockId));
+    }
 
-              Optional<ApplicantQuestion> addressQuestionMaybe =
-                  blockMaybe.get().getAddressQuestionWithCorrectionEnabled();
+    Optional<ApplicantQuestion> addressQuestionMaybe =
+        blockMaybe.get().getAddressQuestionWithCorrectionEnabled();
 
-              if (addressQuestionMaybe.isEmpty()) {
-                return CompletableFuture.completedFuture(formData);
-              }
+    if (addressQuestionMaybe.isEmpty()) {
+      return CompletableFuture.completedFuture(formData);
+    }
 
-              AddressQuestion addressQuestion = addressQuestionMaybe.get().createAddressQuestion();
+    AddressQuestion addressQuestion = addressQuestionMaybe.get().createAddressQuestion();
 
-              if (addressQuestion.hasChanges(formData)) {
-                return CompletableFuture.completedFuture(
-                    new ImmutableMap.Builder<String, String>()
-                        .putAll(formData)
-                        .put(addressQuestion.getCorrectedPath().toString(), "")
-                        .put(addressQuestion.getLatitudePath().toString(), "")
-                        .put(addressQuestion.getLongitudePath().toString(), "")
-                        .put(addressQuestion.getWellKnownIdPath().toString(), "")
-                        .build());
-              }
+    if (addressQuestion.hasChanges(formData)) {
+      return CompletableFuture.completedFuture(
+          new ImmutableMap.Builder<String, String>()
+              .putAll(formData)
+              .put(addressQuestion.getCorrectedPath().toString(), "")
+              .put(addressQuestion.getLatitudePath().toString(), "")
+              .put(addressQuestion.getLongitudePath().toString(), "")
+              .put(addressQuestion.getWellKnownIdPath().toString(), "")
+              .build());
+    }
 
-              return CompletableFuture.completedFuture(formData);
-            });
+    return CompletableFuture.completedFuture(formData);
   }
 
   /**
@@ -1950,42 +2034,37 @@ public final class ApplicantService {
    * calculate the country code.
    */
   public CompletionStage<ImmutableMap<String, String>> setPhoneCountryCode(
-      long applicantId, long programId, String blockId, ImmutableMap<String, String> formData) {
-    return getReadOnlyApplicantProgramService(applicantId, programId)
-        .thenComposeAsync(
-            roApplicantProgramService -> {
-              Optional<Block> blockMaybe = roApplicantProgramService.getActiveBlock(blockId);
+      long programId,
+      Optional<Block> blockMaybe,
+      String blockId,
+      ImmutableMap<String, String> formData) {
 
-              if (blockMaybe.isEmpty()) {
-                return CompletableFuture.failedFuture(
-                    new ProgramBlockNotFoundException(programId, blockId));
-              }
+    if (blockMaybe.isEmpty()) {
+      return CompletableFuture.failedFuture(new ProgramBlockNotFoundException(programId, blockId));
+    }
 
-              // Get a writeable map so the existing paths can be replaced
-              Map<String, String> newFormData = new java.util.HashMap<>(formData);
+    // Get a writeable map so the existing paths can be replaced
+    Map<String, String> newFormData = new java.util.HashMap<>(formData);
 
-              for (ApplicantQuestion applicantQuestion : blockMaybe.get().getQuestions()) {
-                if (applicantQuestion.getType() != QuestionType.PHONE) {
-                  continue;
-                }
+    for (ApplicantQuestion applicantQuestion : blockMaybe.get().getQuestions()) {
+      if (applicantQuestion.getType() != QuestionType.PHONE) {
+        continue;
+      }
 
-                PhoneQuestion phoneQuestion = applicantQuestion.createPhoneQuestion();
+      PhoneQuestion phoneQuestion = applicantQuestion.createPhoneQuestion();
 
-                Optional<String> phoneNumber =
-                    Optional.of(newFormData.get(phoneQuestion.getPhoneNumberPath().toString()));
+      Optional<String> phoneNumber =
+          Optional.of(newFormData.get(phoneQuestion.getPhoneNumberPath().toString()));
 
-                PhoneValidationResult result =
-                    PhoneValidationUtils.determineCountryCode(phoneNumber);
+      PhoneValidationResult result = PhoneValidationUtils.determineCountryCode(phoneNumber);
 
-                if (result.isValid()) {
-                  newFormData.put(
-                      phoneQuestion.getCountryCodePath().toString(),
-                      result.getCountryCode().orElse(""));
-                }
-              }
+      if (result.isValid()) {
+        newFormData.put(
+            phoneQuestion.getCountryCodePath().toString(), result.getCountryCode().orElse(""));
+      }
+    }
 
-              return CompletableFuture.completedFuture(ImmutableMap.copyOf(newFormData));
-            });
+    return CompletableFuture.completedFuture(ImmutableMap.copyOf(newFormData));
   }
 
   /**
@@ -1994,60 +2073,56 @@ public final class ApplicantService {
    * differences are not reflected in the database.
    */
   public CompletionStage<ImmutableMap<String, String>> cleanDateQuestions(
-      long applicantId, long programId, String blockId, ImmutableMap<String, String> formData) {
-    return getReadOnlyApplicantProgramService(applicantId, programId)
-        .thenComposeAsync(
-            roApplicantProgramService -> {
-              Optional<Block> blockMaybe = roApplicantProgramService.getActiveBlock(blockId);
+      long programId,
+      Optional<Block> blockMaybe,
+      String blockId,
+      ImmutableMap<String, String> formData) {
 
-              if (blockMaybe.isEmpty()) {
-                return CompletableFuture.failedFuture(
-                    new ProgramBlockNotFoundException(programId, blockId));
-              }
+    if (blockMaybe.isEmpty()) {
+      return CompletableFuture.failedFuture(new ProgramBlockNotFoundException(programId, blockId));
+    }
 
-              // Get a writeable map so the existing paths can be replaced
-              Map<String, String> newFormData = new java.util.HashMap<>(formData);
+    // Get a writeable map so the existing paths can be replaced
+    Map<String, String> newFormData = new java.util.HashMap<>(formData);
 
-              for (ApplicantQuestion applicantQuestion : blockMaybe.get().getQuestions()) {
-                if (applicantQuestion.getType() != QuestionType.DATE) {
-                  continue;
-                }
+    for (ApplicantQuestion applicantQuestion : blockMaybe.get().getQuestions()) {
+      if (applicantQuestion.getType() != QuestionType.DATE) {
+        continue;
+      }
 
-                DateQuestion dateQuestion = applicantQuestion.createDateQuestion();
+      DateQuestion dateQuestion = applicantQuestion.createDateQuestion();
 
-                String singleDateValue = formData.get(dateQuestion.getDatePath().toString());
-                String yearValue = formData.get(dateQuestion.getYearPath().toString());
-                String monthValue = formData.get(dateQuestion.getMonthPath().toString());
-                String dayValue = formData.get(dateQuestion.getDayPath().toString());
-                // Whether at least one of the three values is present and non-empty.
-                boolean hasMemorableDateValue =
-                    !(yearValue == null || yearValue.isEmpty())
-                        || !(monthValue == null || monthValue.isEmpty())
-                        || !(dayValue == null || dayValue.isEmpty());
+      String singleDateValue = formData.get(dateQuestion.getDatePath().toString());
+      String yearValue = formData.get(dateQuestion.getYearPath().toString());
+      String monthValue = formData.get(dateQuestion.getMonthPath().toString());
+      String dayValue = formData.get(dateQuestion.getDayPath().toString());
+      // Whether at least one of the three values is present and non-empty.
+      boolean hasMemorableDateValue =
+          !(yearValue == null || yearValue.isEmpty())
+              || !(monthValue == null || monthValue.isEmpty())
+              || !(dayValue == null || dayValue.isEmpty());
 
-                // If the value in the single input is not present or empty, and there is at least
-                // one memorable date value, convert to a date.
-                if ((singleDateValue == null || singleDateValue.isEmpty())
-                    && hasMemorableDateValue) {
-                  // Note: If a memorable date input value is not present, replace it with a
-                  // placeholder. This will fail to parse as a date without throwing a
-                  // NullPointerException when building the date string.
-                  String dateString =
-                      String.format(
-                          "%s-%s-%s",
-                          yearValue,
-                          monthValue == null ? "" : Strings.padStart(monthValue, 2, '0'),
-                          dayValue == null ? "" : Strings.padStart(dayValue, 2, '0'));
-                  newFormData.put(dateQuestion.getDatePath().toString(), dateString);
-                }
-                // Remove the 3 individual paths, so they won't be stored.
-                newFormData.remove(dateQuestion.getYearPath().toString());
-                newFormData.remove(dateQuestion.getMonthPath().toString());
-                newFormData.remove(dateQuestion.getDayPath().toString());
-              }
+      // If the value in the single input is not present or empty, and there is at least
+      // one memorable date value, convert to a date.
+      if ((singleDateValue == null || singleDateValue.isEmpty()) && hasMemorableDateValue) {
+        // Note: If a memorable date input value is not present, replace it with a
+        // placeholder. This will fail to parse as a date without throwing a
+        // NullPointerException when building the date string.
+        String dateString =
+            String.format(
+                "%s-%s-%s",
+                yearValue,
+                monthValue == null ? "" : Strings.padStart(monthValue, 2, '0'),
+                dayValue == null ? "" : Strings.padStart(dayValue, 2, '0'));
+        newFormData.put(dateQuestion.getDatePath().toString(), dateString);
+      }
+      // Remove the 3 individual paths, so they won't be stored.
+      newFormData.remove(dateQuestion.getYearPath().toString());
+      newFormData.remove(dateQuestion.getMonthPath().toString());
+      newFormData.remove(dateQuestion.getDayPath().toString());
+    }
 
-              return CompletableFuture.completedFuture(ImmutableMap.copyOf(newFormData));
-            });
+    return CompletableFuture.completedFuture(ImmutableMap.copyOf(newFormData));
   }
 
   /**

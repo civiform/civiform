@@ -94,7 +94,7 @@ public class AzurePublicStorage extends PublicStorageClient {
             .setAccountName(accountName)
             .setContainerName(containerName)
             .setBlobUrl(client.getBlobUrl(fileName))
-            .setSasToken(client.getSasToken(fileName, Optional.empty()))
+            .setSasToken(client.getSasToken(fileName, /* originalFileName= */ Optional.empty()))
             .setSuccessActionRedirect(successRedirectActionLink);
     return builder.build();
   }

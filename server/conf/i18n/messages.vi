@@ -10,12 +10,6 @@
 
 # The text on the button an applicant clicks to log out of their session.
 button.logout=Đăng xuất
-#  This appears before applicants select their preferred language.
-label.selectLanguage=Vui lòng chọn ngôn ngữ bạn ưa dùng.
-button.untranslatedSubmit=Gửi
-# Text on a link that gives more information about CiviForm. "CiviForm" is the app name and should
-# not be translated.
-footer.aboutCiviform=Giới thiệu về CiviForm
 # Message displayed before the support email address in the page footer for applicants.
 footer.supportLinkDescription=Để được hỗ trợ kỹ thuật, hãy liên hệ
 # Text in the footer telling users that this is an official website of the specified Civic entity.
@@ -25,6 +19,8 @@ footer.returnToTop=Quay lại đầu trang
 # A message in the footer directing users to technical support. The placeholder is a link to
 # send an email to CiviForm technical support.
 footer.technicalSupport=Để được hỗ trợ kỹ thuật: {0}
+# A message in the footer directing users to technical support. The placeholder is an email.
+footer.technicalSupport.v2=Để được hỗ trợ kỹ thuật, vui lòng gửi email tới {0}
 # Placeholder message when an applicant clicked the "Continue as Guest".
 # This should be consistent with button.guestLogin.
 guest=Khách
@@ -36,6 +32,10 @@ label.languageSr=Chọn một ngôn ngữ
 header.menu=Trình đơn
 # Message for guest users to end their session. Technically this logs out the user from the guest profile, but we use different phrasing in order to not imply that they are currently logged in from a product perspective.
 header.endSession=Kết thúc phiên truy cập
+# Message for screen readers as part of aria label to let user know about an informational alert.
+heading.informationAriaLabelPrefix=Thông tin bạn cần biết: {0}
+# Message for screen readers as part of the aria label to let user know they completed an action successfully.
+heading.successAriaLabelPrefix=Thành công: {0}
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
 toast.sessionEnded=Phiên của bạn đã kết thúc.
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
@@ -46,21 +46,17 @@ header.userName=Đã đăng nhập bằng {0}
 validation.isRequired=Đây là câu hỏi bắt buộc.
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=Vui lòng nhập thông tin hợp lệ.
-# Error message announced to screen reader when there are errors on the current page.
-validation.errorAnnouncementSr=Có lỗi trong biểu mẫu. Vui lòng khắc phục trước khi tiếp tục.
-# Message displayed at the top of a question page denoting fields with a * are required.
-content.requiredFieldsAnnotation=Lưu ý: Các trường có dấu * là bắt buộc.
 content.requiredFieldsNote=Lưu ý: Các trường có gắn dấu {0} là trường bắt buộc.
 # Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
 content.requiredFieldsNoteNorthStar=Các trường bắt buộc được đánh dấu bằng dấu hoa thị ({0}).
 content.optional=(không bắt buộc)
-# Message displayed below "Choose File" button to say that on the phone users can use their camera.
-content.mobileFileUploadHelp=Trên điện thoại của bạn? Tính năng "Chọn tệp" cũng cho phép bạn sử dụng camera của điện thoại để tải tài liệu lên.
 toast.errorMessageOutline=Lỗi: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=Đóng
 # Button text that will navigate the applicant to a page where they can review previous answers
 button.review=Xem lại
+# Button text that will go back to the previous page.
+button.goBack=Quay lại
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=mở trong một thẻ mới
 # Aria-label for the primary navigation
@@ -69,31 +65,27 @@ label.primaryNavigation=Điều hướng chính
 label.agencyIdentifier=Mã nhận dạng đại lý
 # Aria-label for guest session alert
 label.guestSessionAlert=Cảnh báo thông tin phiên khách
+# Link to skip to the main content of the page
+link.skipToMainContent=Chuyển đến nội dung chính
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
-# This is a title for the login page
-title.login=Đăng nhập
-# Prompt for applicant to log in, input is the full civic entity name.
-content.loginPrompt=Vui lòng đăng nhập bằng tài khoản {0} của bạn
 # The text on the button an applicant clicks to create an account.
 button.createAnAccount=Tạo tài khoản
+# The text on the button in the login drop down an applicant clicks to log in to their session.
+button.applicantLogin=Đăng nhập của ứng viên
+# The text on the button in the login drop down an admin clicks to log in to their session.
+button.adminLogin=Đăng nhập của quản trị viên
 # The text on the button an applicant clicks to log in to their session.
 button.login=Đăng nhập
-# Prompt for applicant to create a new account or become a guest
-content.alternativeLoginPrompt=Bạn không có tài khoản?
+# The text on the button an applicant clicks to sign in to their session.
+button.signIn=Đăng nhập
 # The text between creating a new account, and becoming a guest
 content.or=hoặc
 # The text on the button for applicants to create a new account.
 button.createAccount=Tạo tài khoản
-# The text on the button for guests to log in to their session.
-button.guestLogin=Tiếp tục với tư cách khách
-# Prompt for whem applicant account login is disabled. Replaces loginPrompt and alternativeLoginPrompt.
-content.loginDisabledPrompt=Tính năng đăng nhập vào tài khoản đang bị vô hiệu hóa
-# The words leading up to the admin login anchor
-content.adminLoginPrompt=Bạn muốn thực hiện thao tác khác?
 # Asking whether the user is an administrator for the program
 content.adminFooterPrompt=Bạn có phải là quản trị viên không?
 # The text on the anchor for admins to log in to their session.
@@ -103,8 +95,6 @@ link.adminLogin=Đăng nhập với tư cách quản trị viên
 # PROGRAM FORM - contains text shown when filling out an application form. #
 #--------------------------------------------------------------------------#
 
-# The text displayed when a file has already been uploaded and the name is being displayed.
-input.fileAlreadyUploaded=Tệp đã tải lên: {0}
 # Hint placed above file input for questions which accept a single file.
 input.singleFileUploadHint=Chọn tệp
 # Hint placed above file input for questions which accept multiple, but not unlimited, files. {0} contains a number,
@@ -112,10 +102,6 @@ input.singleFileUploadHint=Chọn tệp
 input.multipleFileUploadHint=Chọn một hoặc nhiều tệp (tối đa là {0})
 # Hint placed above file inputs which accept any number of files.
 input.unlimitedFileUploadHint=Chọn một hoặc nhiều tệp
-# The text on the button an applicant clicks to delete an uploaded file.
-button.deleteFile=Xoá
-# The text on the button an applicant clicks to skip uploading a new file while there is already an uploaded file.
-button.keepFile=Tiếp tục
 # The button text for saving the current applicant-entered data and continuing to the next screen in the form.
 button.nextScreen=Lưu và tiếp tục
 # The button text for navigating to the previous screen in the form.
@@ -123,43 +109,37 @@ button.previousScreen=Trước
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=Quay lại
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.reviewAndExit=Xem lại và thoát
-# The text on the button an applicant clicks to skip uploading a file.
-button.skipFileUpload=Bỏ qua
+button.reviewAndExit=Xem lại và gửi
 # The current screen the user is on ({0}) out of the number of total screens in the application.
 content.blockProgress={0}/{1}
-# A message on a section indicating how many questions of the total have been answered by the applicant.
-content.blockProgressFull={0} trong tổng số {1} câu hỏi đã hoàn thành
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=Tiến trình đăng ký
 # Heading on the application review page. The page shows all the answers the user inputted.
 heading.reviewAndSubmit=Xem lại và gửi
-# Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
-label.blockIndexLabel={0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
 toast.localeNotSupported=Rất tiếc, chương trình này chưa được dịch hoàn toàn sang ngôn ngữ bạn ưa dùng.
-# A link that logs out a guest user after they submit an application.
-link.allDone=Tôi đã hoàn thành
 # A link that appears next to the create account button that offers applicants the option to not create an account right now.
 link.applyToAnotherProgram=Đăng ký một chương trình khác
-# A link that offers applicants the option to create an account.
-link.createAccountOrSignIn=Tạo tài khoản hoặc đăng nhập
+# Displayed in breadcrumbs to link back to the main entry point of the applicant's portal. In effect a shortening of "Homepage".
+link.home=Trang chủ
+# Displayed in breadcrumbs to indicate this is an application of the supplied program name.
+link.applicationForProgram=Đơn đăng ký tham gia {0}
 # Anchor which when clicked removes a file the user has previously uploaded.
 link.removeFile=Xoá tệp
-# The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
-modal.errorSaving.review.title=Bạn chưa trả lời hết các câu hỏi trên trang này. Bạn vẫn muốn rời đi và bắt đầu đánh giá?
-# The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
-modal.errorSaving.previous.title=Bạn chưa trả lời hết các câu hỏi trên trang này. Bạn vẫn muốn rời đi và quay lại trang trước?
-# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the application review page.
-modal.errorSaving.review.content=Đã xảy ra một số lỗi với thông tin bạn đã điền. Bạn muốn tiếp tục chỉnh sửa câu trả lời hay chuyển đến trang đánh giá mà không lưu câu trả lời?
-# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the previous page of the application.
-modal.errorSaving.previous.content=Đã xảy ra một số lỗi với thông tin bạn đã điền. Bạn muốn tiếp tục chỉnh sửa câu trả lời hay chuyển đến trang câu hỏi trước đó mà không lưu câu trả lời?
-# Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the application review page.
-modal.errorSaving.review.noSaveButton=Tiếp tục chuyển đến trang đánh giá mà không lưu
-# Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the previous page in the application.
-modal.errorSaving.previous.noSaveButton=Tiếp tục chuyển đến trang câu hỏi trước đó mà không lưu
-# Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
-modal.errorSaving.stayAndFixButton=Tiếp tục chỉnh sửa câu trả lời
+# Screen reader text for a link which when clicked removes a file the user has previously uploaded. {0} is the file name.
+link.removeFileSr=Xoá tệp {0}
+# Title of a pop-up informing the user that there were errors in the information they inputted. (new version for North Star)
+modal.errorSaving.title=Cần sửa một số câu trả lời trên trang này
+# Text of a pop-up informing the user that continuing to the review page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
+modal.errorSaving.content.review=Trang này trên đơn đăng ký của bạn có chứa một số lỗi hoặc bỏ trống một số trường. Nếu bạn chuyển đến trang xem lại mà không sửa những lỗi đó, mọi thông tin bạn nhập trên trang này sẽ không được lưu.
+# Text of a pop-up informing the user that continuing to the previous page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
+modal.errorSaving.content.previous=Trang này trên đơn đăng ký của bạn có chứa một số lỗi hoặc bỏ trống một số trường. Nếu bạn quay lại trang trước mà không sửa những lỗi đó, mọi thông tin bạn nhập trên trang này sẽ không được lưu.
+# Text of button that discards all the information the user has inputted and navigates to the application review page. (new version for North Star)
+modal.errorSaving.continueButton.review=Chuyển đến trang xem lại mà không lưu
+# Text of button that discards all the information the user has inputted and navigates to the application preview page. (new version for North Star)
+modal.errorSaving.continueButton.previous=Quay lại trang trước mà không lưu
+# Text of button that shows the previous inputted information and asks to fix the errors with it. (new version for North Star)
+modal.errorSaving.fixButton=Ở lại trang này và sửa các câu trả lời
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -167,45 +147,35 @@ modal.errorSaving.stayAndFixButton=Tiếp tục chỉnh sửa câu trả lời
 
 # The text on the button an applicant clicks to apply to a specific program.
 button.apply=Đăng ký
-# The text read for screen readers.
-button.applySr=Đăng ký {0}
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=Chỉnh sửa
-# The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
-button.editSr=Chỉnh sửa đơn đăng ký đã gửi cho {0}
-# The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
-button.continueSr=Tiếp tục đăng ký {0}
-# The text on the button an applicant clicks to start filling out a pre-screener form.
-button.startHere=Bắt đầu tại đây
+button.startSurvey=Bắt đầu khảo sát
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=Xem và đăng ký
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
 button.viewAndApplySr=Xem và đăng ký {0}
+# The text on a button to view program on a new tab. This is used for external programs.
+button.viewInNewTab=Xem trong thẻ mới
+# The screen reader text on a button to view program on a new tab. The variable represents the program name. This is used for external programs.
+button.viewInNewTabSr=Xem {0} trong thẻ mới
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Tiếp tục chuyển đến đơn đăng ký
-# The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
-button.startHereCommonIntakeSr=Bắt đầu tại đây bằng cách điền vào {0}
-# The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
-button.editCommonIntakeSr=Chỉnh sửa thông tin đã gửi cho {0}
-# The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
-button.continueCommonIntakeSr=Tiếp tục điền vào {0}
-# Text describing the date the application was last submitted.
-content.submittedDate=Đã gửi {0}
 # Text for applicants to understand the section is for finding programs
 content.findPrograms=Tìm chương trình
-# Long form description of the CiviForm site shown to the applicant.
-content.findProgramsDescription=CiviForm giúp bạn tìm được những chương trình mà bạn có thể đủ điều kiện tham gia trong {0}. Hãy chọn một đơn đăng ký dưới đây để bắt đầu.
-# Title for programs page when applicant is not logged in
-content.saveTimeServices=Tiết kiệm thời gian đăng ký các chương trình và dịch vụ
-# Main home page heading
-heading.homepage=Đăng ký nhiều chương trình tại một nơi
-# Long form description of the site shown to the applicant when they are not logged in.
-# {0} represents the authentication provider's name
-content.guestDescription=Hãy đăng nhập vào tài khoản {0} của bạn hoặc tạo một tài khoản rồi đăng ký tham gia các chương trình mà không cần phải nhập lại cùng một thông tin. Bạn cũng có thể chỉnh sửa đơn đăng ký bất cứ lúc nào và kiểm tra trạng thái của đơn đăng ký.
+# Main home page heading, updated to be more generic
+heading.homepage.v2=Nộp đơn trực tuyến xin tham gia các chương trình của chính phủ
 # Main home page intro text
-content.homepageIntro=Nhận trợ giúp về chăm sóc trẻ em, thực phẩm, phương tiện đi lại, dịch vụ điện nước và nhiều dịch vụ khác.
+content.homepageIntro=Để được trợ giúp về thực phẩm, phương tiện đi lại, dịch vụ chăm sóc trẻ em, tiện ích và nhiều dịch vụ khác, hãy nhấp vào một trong các lựa chọn sau. Mỗi lần, bạn chỉ có thể đăng ký một chương trình.
+# Main home page intro text, updated to be more generic
+content.homepageIntro.v2=Tìm hiểu những dịch vụ bạn có thể đủ tiêu chuẩn nhận. CiviForm sẽ tái sử dụng thông tin bạn cung cấp để giúp bạn nhận được các dịch vụ nhanh hơn.
 # The label for the program filter buttons
 label.programFilters=Bộ lọc chương trình
+# The label for the program filter checkboxes
+label.programFilters.v2=Bạn muốn nhận dịch vụ trợ giúp nào?
+# The button to apply program filters
+button.applySelections=Áp dụng các lựa chọn
+# The button to clear program filter selections
+button.clearSelections=Xoá các lựa chọn
 # Link text to read more about a program.
 link.programDetails=Chi tiết chương trình
 # The same text, read for screen readers.
@@ -214,16 +184,6 @@ link.programDetailsSr=Thông tin chi tiết về chương trình {0}, mở trong
 title.programs=Chương trình và dịch vụ
 # The title for the section in the list of programs that contains the pre-screener form and should be started first.
 title.getStartedSection=Bắt đầu
-# The title for the section in the list of programs that contains all regular, non-pre-screener programs.
-title.allProgramsSection=Tất cả các chương trình ({0})
-# For the badge on the program list index denoting the current status of an application
-title.status=Trạng thái
-# Subtitle for the list of programs with draft applications
-title.inProgressProgramsUpdated=Đang diễn ra
-# Subtitle for the list of programs for which the applicant has no draft applications
-title.activeProgramsUpdated=Chưa bắt đầu
-# Title of the section on the home page with the benefits finder form.
-title.benefitsFinderSection.v2=Tìm dịch vụ
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=Đơn đăng ký của tôi ({0})
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
@@ -233,17 +193,9 @@ title.otherProgramsSection.v2=Chương trình và dịch vụ khác ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Chương trình và dịch vụ ({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=Các chương trình và dịch vụ có sẵn
+title.availableProgramsSection=Chương trình và dịch vụ
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=Các chương trình dựa trên lựa chọn của bạn ({0})
-# A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
-title.programSectionCompleted=Mục đã hoàn thành
-# Subtitle for the list of programs for which the applicant has already submitted an application
-title.submittedPrograms=Đã gửi
-# Alert banner when an application was successfully saved, with the ID of the application.
-toast.applicationSaved=Đã lưu thành công đơn đăng ký: mã đơn đăng ký {0}
-# Alert banner when an application was already completed
-toast.programCompleted=Đăng ký thành công.
 # Informational tag on an in-progress application card
 label.inProgress=Chưa nộp
 # Informational tag on a submitted application card. Used when the date of submission is unknown.
@@ -252,19 +204,17 @@ label.submitted=Đã nộp
 label.submittedOn=Đã nộp vào {0}
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
 label.statusOn={0} vào {1}
+# Title of the external program modal that opens when a user clicks on an external program card.
+title.externalProgramModal=Thao tác này sẽ mở một trang web khác
+# Content of the external program modal that opens when a user clicks on an external program card.
+content.externalProgramModal=Nếu muốn biết thêm chi tiết và nộp đơn, hãy nhấp vào Tiếp tục để truy cập trang web của chương trình
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
 #------------------------------------------------------------------------------------------------------#
 
-# Message that appears when a user attempts to delete an account and it fails.
-banner.acctDeleteError=Không xoá được tài khoản này.
-# Reason included with the account delete error, which explains the account can't be deleted due to applications the client has open
-banner.acctDeleteErrorReason=Không xoá được tài khoản này vì nó hiện có các đơn đăng ký đang mở.
 # Message when information about a client, like their name or contact information is updated.
 banner.clientInfoUpdated=Đã cập nhật thành công thông tin khách hàng.
-# Message when a client account for a user is successfully deleted, with the name of the client substituted in
-banner.clientAcctDeleted=Đã xoá thành công tài khoản khách hàng của "{0}".
 # Message when a user successfully creates a client account.
 banner.newClientCreated=Đã tạo thành công hồ sơ khách hàng mới.
 # Banner at the top of the page with the name of the client substituted in when viewing an application.
@@ -275,24 +225,16 @@ banner.viewApplication=Bạn đang đăng ký cho {0}. Bạn đang định đăn
 button.addNewClient=Thêm khách hàng mới
 # Button that brings the user back to the list of their clients.
 button.backToClientList=Quay lại danh sách khách hàng
-# Button that allows the user to navigate back to the edit page after they click to delete a client and get an error.
-button.backToEditing=Tiếp tục chỉnh sửa
 # Button that allows the user to cancel the progress they make on adding or editing a client.
 button.cancel=Huỷ
 # Button that allows the user to clear any search parameters they have already entered.
 button.clearSearch=Xoá nội dung tìm kiếm
-# Button for a user to delete their client's account
-button.deleteAcct=Xoá tài khoản
-# Button option when asked if the user is sure they want to delete an account.
-button.keepAcct=Giữ lại tài khoản
 # Button to navigate to the next page.
 button.nextPage=Tiếp theo
 # Button to save information that has been entered.
 button.save=Lưu
 # Button to execute a search to filter a client list.
 button.search=Tìm kiếm
-# Button to select a client.
-button.select=Chọn
 # Button to start an application on behalf of a client.
 button.startApp=Bắt đầu đơn đăng ký
 # Button to view the applications belonging to an applicant.
@@ -308,18 +250,6 @@ content.emailTooltip=Thêm địa chỉ email để khách hàng tự động nh
 content.numberOfAppSubmitted=Đã gửi {0} đơn đăng ký
 # Shows that a single application has been submitted on behalf of the client.
 content.oneAppSubmitted=Đã gửi 1 đơn đăng ký
-# Some explanation text on the confirmation modal when deleting a client.
-content.warning=Không có đơn đăng ký nào được gửi cho khách hàng này nên sẽ không có đơn đăng ký nào bị mất.
-# Shows there is no email address connected to the account.
-content.noEmailAddress=(không có địa chỉ email)
-# The status of an organization member when they have been enrolled but have never logged into CiviForm.
-content.notLoggedIn=Chưa đăng nhập
-# The status of an organization member when they have logged in but haven't applied on behalf of a client.
-content.noApplications=Đã đăng nhập nhưng chưa gửi đơn đăng ký nào
-# The status of an organization member showing the date of the last application that they submitted for a client.
-content.lastApplicationDate=Đơn đăng ký gần đây nhất được gửi vào ngày {0}
-# Confirmation modal text when the user tries to delete a client account.
-dialog.deleteConfirmation=Bạn có chắc chắn muốn xoá tài khoản của khách hàng này không?
 
 # Header for the page with the Organization Members table.
 header.acctSettings=Cài đặt tài khoản
@@ -366,10 +296,7 @@ label.searchByDob=Tìm theo ngày sinh
 label.searchByName=Tìm theo tên
 # The label above the input field for the year of the client birth date.
 label.year=Năm
-# Label showing the user when there is no name
-label.unnamedUser=Người dùng chưa được đặt tên
 
-link.edit=Chỉnh sửa
 # Link to change the client that the trusted intermediary is applying for.
 link.selectNewClient=Chọn một khách hàng mới
 
@@ -407,8 +334,6 @@ button.start=Bắt đầu
 # A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
 toast.applicationOutOfDate=Ứng dụng này đã có bản cập nhật. Vui lòng xem và trả lời các câu hỏi để tiếp tục
 
-# Help text at the top of the review page instructing applicants with how to start applying for programs.
-content.reviewPageIntro=Chọn một bước bên dưới để bắt đầu quá trình đăng ký. Bạn có thể lưu và quay lại bất kỳ lúc nào.
 # Text shown next to a question indicating that due to it, the application does not qualify or is not eligible.
 content.doesNotQualify=Không đủ tiêu chuẩn
 # The text that appears next to an answered question that the applicant can click on to modify the response.
@@ -424,7 +349,7 @@ ariaLabel.answer=Câu trả lời {0}
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=Chỉnh sửa {0}
 # Title for the summary of the pre-screener page
-title.commonIntakeSummary=Tóm tắt sàng lọc sơ bộ về lợi ích
+title.preScreenerSummary=Tóm tắt sàng lọc sơ bộ về lợi ích
 # Heading content at the top of the review page, where applicants can start answering questions.
 title.getStarted=Hãy bắt đầu.
 title.programSummary=Tóm tắt dữ liệu đăng ký tham gia chương trình
@@ -435,6 +360,14 @@ title.programSummary=Tóm tắt dữ liệu đăng ký tham gia chương trình
 
 # The HTML page title for the program overview page.  The {0} is the program name.
 title.programOverview={0} — Tổng quan về chương trình
+# Heading for the section of the program overview page that contains the application steps.
+heading.applicationSteps=Cách đăng ký
+# Top-level heading for the program overview page.  The {0} is the program name.
+heading.programOverview=Đăng ký chương trình {0}
+# The text on the button that takes users to the account creation form.
+link.createAccountFromOverview=Bắt đầu đăng ký bằng việc tạo tài khoản
+# The link that directs users to the start of the application without creating an account.
+link.startAsGuest=Bắt đầu đăng ký với tư cách khách
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
@@ -442,16 +375,11 @@ title.programOverview={0} — Tổng quan về chương trình
 
 # Tab title for ineligible page
 title.ineligible=Không đủ điều kiện tham gia chương trình
-# Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
-title.applicantNotEligible=Dựa trên câu trả lời của bạn cho các câu hỏi sau, bạn có thể không đủ tiêu chuẩn tham gia {0}.
-# Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
-title.applicantNotEligibleTi=Dựa trên câu trả lời của bạn cho các câu hỏi sau, khách hàng của bạn có thể không đủ tiêu chuẩn tham gia {0}.
 # Section heading
 heading.eligibilityCriteria=Tìm hiểu thêm về điều kiện
 # Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
 content.eligibilityCriteria=Để biết điều kiện tham gia, vui lòng tham khảo {0}
-# Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
-content.eligibilityCriteria.v2=Để tìm hiểu thêm các quy định về điều kiện tham gia chương trình này hoặc liên hệ trực tiếp với đội ngũ của chương trình, vui lòng xem {0}.
+content.eligibilityCriteria.v3=Để tìm hiểu thêm các quy định về điều kiện tham gia chương trình này hoặc liên hệ trực tiếp với đội ngũ chương trình, vui lòng xem {0} (mở trong một thẻ mới).
 # Text shown to explain what the user can do since they are not eligible for the program with their current answers.
 content.changeAnswersForEligibility=Bạn có thể quay lại trang trước để chỉnh sửa câu trả lời của mình. Hoặc đăng ký tham gia một chương trình khác.
 # Text shown on a webpage when the applicant is ineligible for a program.
@@ -460,10 +388,6 @@ content.changeAnswersForEligibility.v2=Nếu cho rằng đã có sai sót, bạn
 button.goBackAndEdit=Quay lại và chỉnh sửa
 # Clicking this button returns the user to the program summary page, where they can edit their responses.
 button.editMyResponses=Chỉnh sửa câu trả lời của tôi
-# Toast message that shows that a client is likely eligible for a program, when someone else is filling out the application on a client''s behalf.
-toast.mayQualifyTi=Dựa trên câu trả lời của bạn, khách hàng của bạn có thể đủ tiêu chuẩn tham gia {0}. Để tiếp tục, hãy tiếp tục điền vào đơn đăng ký.
-# Toast message that shows that an applicant is likely eligible for a program, based on their responses.
-toast.mayQualify=Dựa trên câu trả lời của bạn, bạn có thể đủ tiêu chuẩn tham gia {0}. Để tiếp tục, hãy tiếp tục điền vào đơn đăng ký.
 # Tag on the top of a program card, that lets the applicant know they may qualify for the program, based on their responses in other programs.
 tag.mayQualify=Bạn có thể đủ tiêu chuẩn
 # Tag on the top of a program card, that lets the person know their client may qualify for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
@@ -472,10 +396,6 @@ tag.mayQualifyTi=Khách hàng của bạn có thể đủ tiêu chuẩn
 tag.mayNotQualify=Bạn có thể không đủ tiêu chuẩn
 # Tag on the top of a program card, that lets the person know their client is likely not eligible for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
 tag.mayNotQualifyTi=Khách hàng của bạn có thể không đủ tiêu chuẩn
-# Toast message that shows that an applicant may not be eligible for a program, based on their responses.
-toast.mayNotQualify=Dựa trên câu trả lời của bạn, bạn có thể không đủ tiêu chuẩn tham gia {0}. Nếu thông tin của bạn đã thay đổi, bạn có thể chỉnh sửa câu trả lời rồi sau đó tiếp tục điền vào đơn đăng ký.
-# Toast message that shows that a client may not be eligible for a program, when someone else is filling out the application on a client''s behalf.
-toast.mayNotQualifyTi=Dựa trên câu trả lời của bạn, khách hàng của bạn có thể không đủ tiêu chuẩn tham gia {0}. Nếu thông tin của khách hàng của bạn đã thay đổi, bạn có thể chỉnh sửa câu trả lời rồi sau đó tiếp tục điền vào đơn đăng ký.
 
 # Error when there was an exception while submitting the application
 banner.errorSavingApplication=Lỗi khi lưu đơn đăng ký
@@ -524,6 +444,15 @@ alert.eligibility_ti_fastforwarded_not_eligible_title=Khách hàng của bạn c
 # Alert text when TI client may not be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_not_eligible_text=Những câu hỏi mới hoặc câu hỏi mới được cập nhật có thể ảnh hưởng đến câu trả lời hoặc tình trạng đủ điều kiện của khách hàng của bạn. Vui lòng xem lại tất cả các câu hỏi dưới đây.
 
+# Alert on the program overview page letting the user know that they will likely be eligible for the program.
+alert.likelyEligible=Bạn có khả năng đủ điều kiện tham gia chương trình này dựa trên các câu trả lời cho một đơn đăng ký khác.
+# Alert on the program overview page letting the user know that they will likely NOT be eligible for the program.
+alert.likelyIneligible=Có thể bạn không đủ điều kiện tham gia chương trình này dựa trên các câu trả lời cho một đơn đăng ký khác.
+# Alert on the program overview page letting a trusted intermediary know that their client will likely be eligible for the program.
+alert.clientLikelyEligible=Khách của bạn có khả năng đủ điều kiện tham gia chương trình này dựa trên các câu trả lời cho một đơn đăng ký khác.
+# Alert on the program overview page letting a trusted intermediary know that their client will likely NOT be eligible for the program.
+alert.clientLikelyIneligible=Có thể khách của bạn không đủ điều kiện tham gia chương trình này dựa trên các câu trả lời cho một đơn đăng ký khác.
+
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
 #---------------------------------------------------------------------------------------------#
@@ -534,41 +463,38 @@ title.applicationConfirmation=Xác nhận đơn đăng ký
 content.confirmed=Cảm ơn bạn đã đăng ký tham gia {0}. Chúng tôi đã nhận được đơn đăng ký của bạn và mã đơn đăng ký là {1}.
 # Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
 title.createAnAccount=Tạo tài khoản hoặc đăng nhập
+# The title of a pop-up informing an applicant to sign in before continuing with the application
+title.signInModal=Đăng nhập bằng tài khoản
+# The text of a pop-up informing an applicant to sign in so they can access the application later before continuing with the application
+content.signInModal=Sau khi tạo tài khoản, bạn sẽ có thể nhanh chóng kiểm tra trạng thái của đơn đăng ký, sửa thông tin trên đơn, cũng như đăng ký các chương trình khác.
 
-# Shown to applicants to encourage login; {0} represents the authentication provider's name
-content.pleaseCreateAccount=Nếu bây giờ bạn đăng nhập vào tài khoản của thành phố, thông tin của bạn sẽ được lưu lại và bạn có thể trở lại bất cứ lúc nào để hoàn tất các đơn đăng ký sau này. Nếu chưa có tài khoản, bạn có thể đăng ký ở trang đăng nhập. Dữ liệu bạn đã nhập sẽ không bị mất.
-# A message to show on the login prompt modal that encourages users to log in before applying to other programs.
-content.generalLoginModalPrompt=Bạn chưa đăng nhập vào tài khoản nào. Nếu không đăng nhập vào tài khoản, bạn sẽ không thể chỉnh sửa đơn đăng ký, kiểm tra trạng thái của đơn đăng ký, hoặc đăng ký tham gia các chương trình khác một cách nhanh chóng.
 # A message to show on the login prompt modal that encourages users to log in before applying to a program from the programs index page.
 content.initialLoginModalPrompt=Trước khi tiếp tục, hãy đăng nhập vào tài khoản {0} của bạn hoặc tạo một tài khoản. Bạn sẽ có thể đăng ký nhiều chương trình mà không cần phải nhập lại cùng một thông tin. Bạn cũng có thể chỉnh sửa đơn đăng ký và kiểm tra trạng thái của đơn đăng ký.
 # A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=Tiếp tục mà không dùng tài khoản
-title.commonIntakeConfirmation=Chương trình bạn có thể đủ tiêu chuẩn tham gia
-# Title on the page after a trusted intermediary has successfully filled out the common intake form.
-title.commonIntakeConfirmationTi=Chương trình khách hàng của bạn có thể đủ tiêu chuẩn tham gia
+title.preScreenerConfirmation=Chương trình bạn có thể đủ tiêu chuẩn tham gia
+# Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
+title.preScreenerConfirmationTi=Chương trình khách hàng của bạn có thể đủ tiêu chuẩn tham gia
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
-content.commonIntakeConfirmation=Bạn có thể đăng ký tham gia các chương trình này nếu đăng ký thông qua đơn đăng ký trực tuyến bằng cách nhấp vào ''Đăng ký tham gia chương trình''.
+content.preScreenerConfirmation=Bạn có thể đăng ký tham gia các chương trình này nếu đăng ký thông qua đơn đăng ký trực tuyến bằng cách nhấp vào ''Đăng ký tham gia chương trình''.
 # A message explaining that the applicant may be eligible for the following list of programs.
-content.commonIntakeConfirmation.v2=Dựa trên câu trả lời của bạn, bạn có thể đủ điều kiện tham gia các chương trình sau:
+content.preScreenerConfirmation.v2=Dựa trên câu trả lời của bạn, bạn có thể đủ điều kiện tham gia các chương trình sau:
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
-content.commonIntakeConfirmationTi=Khách hàng của bạn có thể đăng ký tham gia các chương trình này nếu bạn đăng ký thông qua đơn đăng ký trực tuyến bằng cách nhấp vào ''Đăng ký tham gia chương trình''.
+content.preScreenerConfirmationTi=Khách hàng của bạn có thể đăng ký tham gia các chương trình này nếu bạn đăng ký thông qua đơn đăng ký trực tuyến bằng cách nhấp vào ''Đăng ký tham gia chương trình''.
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
-content.commonIntakeConfirmationTi.v2=Dựa trên câu trả lời của bạn, khách hàng của bạn có thể đủ điều kiện tham gia các chương trình sau:
+content.preScreenerConfirmationTi.v2=Dựa trên câu trả lời của bạn, khách hàng của bạn có thể đủ điều kiện tham gia các chương trình sau:
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
-content.commonIntakeNoMatchingPrograms=Trình sàng lọc sơ bộ không thể tìm thấy những chương trình mà bạn có thể đủ tiêu chuẩn tham gia vào lúc này. Tuy nhiên, bạn có thể đăng ký tham gia chương trình bất cứ lúc nào bằng cách nhấp vào ''Đăng ký tham gia chương trình''. Hoặc để xem thêm chương trình, bạn có thể truy cập {0}
+content.preScreenerNoMatchingPrograms=Trình sàng lọc sơ bộ không thể tìm thấy những chương trình mà bạn có thể đủ tiêu chuẩn tham gia vào lúc này. Tuy nhiên, bạn có thể đăng ký tham gia chương trình bất cứ lúc nào bằng cách nhấp vào ''Đăng ký tham gia chương trình''. Hoặc để xem thêm chương trình, bạn có thể truy cập {0}
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
-content.commonIntakeNoMatchingProgramsTi=Trình sàng lọc sơ bộ không thể tìm thấy những chương trình mà khách hàng của bạn có thể đủ tiêu chuẩn tham gia vào lúc này. Tuy nhiên, bạn có thể đăng ký tham gia chương trình bất cứ lúc nào bằng cách nhấp vào ''Đăng ký tham gia chương trình''. Hoặc để xem thêm chương trình, bạn có thể truy cập {0}
-# A message explaining a second option when there are no eligible programs, which is to edit your responses.
-content.commonIntakeNoMatchingProgramsNextStep=Bạn cũng có thể quay lại trang trước để chỉnh sửa câu trả lời của mình.
+content.preScreenerNoMatchingProgramsTi=Trình sàng lọc sơ bộ không thể tìm thấy những chương trình mà khách hàng của bạn có thể đủ tiêu chuẩn tham gia vào lúc này. Tuy nhiên, bạn có thể đăng ký tham gia chương trình bất cứ lúc nào bằng cách nhấp vào ''Đăng ký tham gia chương trình''. Hoặc để xem thêm chương trình, bạn có thể truy cập {0}
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Các chương trình khác bạn có thể quan tâm
 # Button on the "Application Submitted" page. Clicking it downloads the user's application.
 button.downloadApplication=Tải đơn đăng ký của bạn xuống
-button.downloadPdf=Tải bản PDF xuống
 # A button prompting users to apply to programs.
 button.applyToPrograms=Đăng ký chương trình
 # Heading above a section showing the user's name, confirmation number, and date
-heading.yourSubmissionInformation=Thông tin bạn đã gửi
+heading.yourSubmissionInformation=Thông tin trên đơn đăng ký của bạn
 # Text above the name of the person who submitted this application
 heading.applicantName=Người gửi đơn này
 # Text above the confirmation number of the application
@@ -583,12 +509,20 @@ content.youCanPrint=Bạn có thể in bản xác nhận này để lưu hồ s�
 heading.nextSteps=Tôi cần làm gì tiếp theo?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=Bạn đã gửi đơn đăng ký {0}
+#  Information "alert"  title for programs that require an account to apply
+alert.createAccountForLoginOnly=Để truy cập đơn đăng ký của bạn sau này, bạn phải tạo một tài khoản
 # Informational "alert" title to encourage the user to create an account
-alert.createAccount=Tạo tài khoản để lưu thông tin đơn đăng ký của bạn
+alert.createAccount=Tạo tài khoản để bạn có thể truy cập vào đơn đăng ký sau này
 # Description text in an alert that explains how creating an account can help the user
-alert.createAccountDescription=Sử dụng một tài khoản để đăng nhập lại nhằm kiểm tra trạng thái đơn đăng ký của bạn và tiết kiệm thời gian khi đăng ký các chương trình khác.
+alert.createAccountDescription=Sau khi lưu thông tin vào một tài khoản, bạn sẽ có thể nhanh chóng kiểm tra trạng thái của đơn đăng ký, cũng như đăng ký các chương trình khác.
+# Informational alert to let the user know there are no additonal programs for them to start an application for at this time.
+alert.noProgramsAvailable=Bạn đã bắt đầu hoặc đã nộp đơn đăng ký tham gia tất cả các chương trình hiện có.
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=Đăng nhập vào tài khoản hiện có
+# Informational "alert" title to push user to login as the program is only for logged in user
+alert.loginOnly=Bạn phải đăng nhập để nộp đơn cho chương trình này
+# Description text in an alert that explains why the user must log in to apply for the program
+alert.loginOnlyDescription=Vui lòng đăng nhập hoặc tạo tài khoản để tiếp tục đơn đăng ký này.
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -611,6 +545,82 @@ content.disabledProgramInfo=Chúng tôi lấy làm tiếc vì chương trình b�
 # Button text on a button that takes the user back to the home page.
 button.homePage=Quay lại trang chủ
 
+#--------------------------------------------------------------------------------------------------------------#
+# ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Navigation link to go back to editing the program screen. {0} is the screen title, such as "Your Household"
+link.backToEditProgramBlock=Quay lại chỉnh sửa {0}
+
+# Long form description for configuring a visibility condition and how it can be used to show or hide a screen for applicants filling out an application form with multiple screens.
+content.predicateVisibilityDescription=Cấu hình thời điểm màn hình này được hiển thị hoặc ẩn đối với ứng viên dựa trên câu trả lời cho các câu hỏi ở các màn hình trước.
+# Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
+content.predicateEligibilityDescription=Thêm các điều kiện xét duyệt để xác định xem ứng viên có đủ tiêu chuẩn tham gia chương trình hay không dựa trên câu trả lời cho các câu hỏi trên màn hình này. Những ứng viên không đáp ứng các yêu cầu tối thiểu sẽ bị chặn không cho nộp đơn đăng ký. Bạn có thể thay đổi điều này trong
+# Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
+link.programSettings=cài đặt chương trình
+
+# Text that precedes select option dropdowns for a form to configure screen visibility conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
+content.predicateScreenIs=Màn hình
+# Text that precedes a select option dropdown for a form to configure applicant eligibility conditions. The full sentence reads "Applicant is eligible if any/all conditions are true:"
+content.predicateApplicantIsEligible=Ứng viên đủ điều kiện nếu
+# Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
+content.predicateConditionsAreTrue=các điều kiện là đúng:
+# Text that shows on the eligibility predicate screen when no eligibility conditions are set.
+content.predicateEligibilityNullState=Applicant is always eligible.
+# Text that shows on the visibility predicate screen when no visibility conditions are set.
+content.predicateVisibilityNullState=This screen is always shown.
+
+# Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
+content.predicateConditionIsTrueIf=Điều kiện là đúng nếu
+# Text that is appended to the end of a header describing a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
+content.predicateSubconditionsAreTrue=các điều kiện phụ là đúng:
+
+# Label for select option dropdown to choose a question
+label.predicateQuestion=Câu hỏi
+# Label for a select option dropdown to choose a field to use within a question, such as "first name", "email", "date", etc.
+label.predicateField=Trường dữ liệu
+# Label for a select option dropdown to choose a state for a logical condition, such as "is equal to", "is one of", "is later than", etc.
+label.predicateState=Trạng thái
+# Label for an input field to enter a value or multiple values.
+label.predicateValue=(Các) giá trị
+# Placeholder text for select option dropdown
+option.selectPlaceholder=- Chọn -
+# Hint text for providing multiple values in a single input field
+content.multipleValuesInputHint=Nhập danh sách các giá trị được phân tách bằng dấu phẩy. Ví dụ: "mục1,mục2,mục3".
+# Text between two input fields that represent a range. For example, "between input1 and input2".
+content.and=và
+
+# Button to append form fields for configuring a new condition
+button.predicateAddCondition=Thêm điều kiện
+# Button to remove a condition from the form
+button.predicateDeleteCondition=Xóa điều kiện
+# Button to remove all conditions from the form
+button.predicateDeleteAllConditions=Delete all conditions
+# Link to append form fields for configuring a new sub-condition within a condition
+link.predicateAddSubcondition=Thêm điều kiện phụ
+# Link to remove a sub-condition from the form
+link.predicateDeleteSubcondition=Xóa điều kiện phụ
+# Link to go back to the top of the page
+link.backToTop=Quay về đầu trang
+# Button to save the visibility or eligibility predicate and return to editing the program.
+button.saveAndExit=Lưu và thoát
+
+# Confirmation dialog shown to admin for deleting all conditions in the predicate edit view
+confirm.deleteAllConditions=Are you sure you would like to delete all conditions?
+# Confirmation dialog shown to admin for deleting a condition in the predicate edit view
+confirm.deleteSingleCondition=Are you sure you would like to delete this condition?
+# Dialog to warn admin that a deletion action cannot be undone
+confirm.actionNotReversable=This action cannot be undone.
+
+# Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
+alert.predicateNoAvailableQuestionsVisibility=Không có câu hỏi nào ở các màn hình trước để dùng thiết lập điều kiện hiển thị cho màn hình này.
+# Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
+alert.predicateNoAvailableQuestionsEligibility=Không có câu hỏi nào trên màn hình này để dùng thiết lập điều kiện xét duyệt.
+
+# Label for textarea where admins can enter a message to show to applicants who are deemed ineligible based on the eligibility conditions set.
+label.predicateEligibilityMessageField=Display message shown to ineligible applicants
+# Help text for a textarea input explaining that markdown is supported.
+content.markdownSupported=Markdown is supported
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -664,10 +674,8 @@ placeholder.noDropdownSelection=Chọn một phương án:
 # PHONE QUESTION - text shown when answering a question where a user must select an option for country and enter phone number. #
 #------------------------------------------------------------------------------------------------------------------------------#
 
-label.countryCode=Quốc gia
 label.phoneNumber=Nhập số điện thoại
 validation.phoneNumberRequired=Bạn phải điền số điện thoại
-validation.phoneCountryCodeRequired=Bạn phải chọn quốc gia
 validation.phoneNumberMustContainNumbersOnly=Số điện thoại không được chứa các ký tự không phải là số
 validation.invalidPhoneNumberProvided=Số điện thoại này không hợp lệ
 validation.phoneMustBeLocalToCountry=Số điện thoại bạn đã cung cấp không thuộc quốc gia này
@@ -677,6 +685,21 @@ validation.phoneMustBeLocalToCountry=Số điện thoại bạn đã cung cấp 
 #----------------------------------------------------------------------------------------------------------#
 
 validation.invalidDateFormat=Hãy nhập ngày theo đúng định dạng
+# Date cannot be over specified years in past.
+validation.dateBeyondAllowablePast=Vui lòng nhập một ngày trong vòng {0} năm qua
+# Date cannot be over specified years in future.
+validation.dateBeyondAllowableFuture=Vui lòng nhập một ngày trong vòng {0} năm tới
+# Valdation error shown when the user enters a date in the past but the question requires a date later than the current date.
+validation.futureDateRequired=Ngày phải sau ngày hôm nay
+# Valdation error shown when the user enters a date that is earlier than the minimum allowed date.
+validation.dateTooFarInPast=Ngày phải sau ngày {0}
+# Validation error shown when the user enters a date in the future but the question requires a date earlier than the current date.
+validation.pastDateRequired=Ngày phải trước ngày hôm nay
+# Validation error shown when the user enters a date that is later than the maximum allowed date.
+validation.dateTooFarInFuture=Ngày phải trước ngày {0}
+# Validation error shown when the user enters a date that is before or after the allowed date range.
+validation.dateNotInRange=Ngày phải nằm trong khoảng từ ngày {0} đến {1}
+validation.currentDateRequired=Vui lòng nhập ngày hôm nay
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 — Tháng 1
 # A month option when selecting a specific date from a dropdown menu.
@@ -737,7 +760,6 @@ placeholder.entityName=Tên {0}
 validation.fileRequired=Vui lòng chọn một tệp.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Tệp của bạn quá lớn. Vui lòng chọn tệp có kích thước dưới {0} MB.
-button.chooseFile=Chọn tệp
 # Text shown on a tag while a file is uploading.
 label.uploading=Đang tải lên
 # Label applied to a list of uploaded files
@@ -750,7 +772,9 @@ label.uploadedFiles=Tệp đã tải lên
 # Validation errors that appear if a user enters an answer that is too long or too short.
 validation.idTooLong=Chỉ được dài tối đa {0} ký tự.
 validation.idTooShort=Phải có ít nhất {0} ký tự.
+# Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=Chỉ được chứa chữ số.
+validation.numberRequired.v2=Chỉ được chứa các số từ 0 đến 9.
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
@@ -771,13 +795,6 @@ label.lastName=Họ
 label.middleName=Tên đệm
 # Label for name suffix field in name question
 label.nameSuffix=Hậu tố
-
-# Placeholder text - this is shown inside the input box, before a user enters an answer.
-placeholder.firstName=Tên
-placeholder.lastName=Họ
-placeholder.middleName=Tên đệm
-# Placeholder for name suffix field in name question
-placeholder.nameSuffix=Hậu tố
 
 # Option Junior for the name suffix dropdown
 option.junior=Jr.
@@ -816,6 +833,121 @@ validation.textTooLong=Chỉ được dài tối đa {0} ký tự.
 validation.textTooShort=Phải có ít nhất {0} ký tự.
 
 #---------------------------------------------------------------------#
+# YES/NO QUESTION - text specific to yes/no questions. #
+#---------------------------------------------------------------------#
+
+option.yes=Có
+option.no=Không
+option.notSure=Không chắc
+option.maybe=Có thể
+
+#-------------------------------------------------------------#
+# MAP QUESTION - text specific to map questions.              #
+#-------------------------------------------------------------#
+
+# Text for map question apply filters button
+map.applyFiltersButtonText=Áp dụng bộ lọc
+# Aria label for next page pagination button
+map.ariaLabelNextPage=Đi tới trang kế tiếp của các vị trí trên bản đồ
+# Aria label for pagination list
+map.ariaLabelPaginationList=Phân trang cho các vị trí trên bản đồ
+# Aria label for previous page pagination button
+map.ariaLabelPreviousPage=Đi tới trang trước của các vị trí trên bản đồ
+# Header for the section showing available locations
+map.availableLocations=Các vị trí hiện có
+# Legend text for the map filters section
+map.filterLegendText=Bộ lọc
+# Aria label for pagination buttons
+map.goToPage=Đi tới trang {0} của các vị trí trên bản đồ
+# Link text for location details URLs
+map.locationLinkText=Xem thêm chi tiết
+# The screen reader text on a link to view more details for a location. The variable represents the location name.
+map.locationLinkTextSr=Xem thêm chi tiết cho {0}
+# Text showing the count of displayed locations, with placeholders for current count and total count
+map.locationsCount=Displaying {0} to {1} of {2} locations
+# Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
+map.locationsSelectedCount=Đã chọn {0} trên {1} vị trí tối đa.
+# Alt text for map region
+map.mapRegionAltText=Bản đồ tương tác hiển thị các vị trí
+# Text for map question selected button in popups
+map.mapSelectedButtonText=Đã chọn
+# Message displayed when filter results return no locations
+map.noResultsFound=Không tìm thấy kết quả. Vui lòng thử điều chỉnh bộ lọc của bạn.
+# Message displayed when no locations have been selected yet
+map.noSelectionsMessage=Chưa chọn địa điểm nào.
+# Sr only message displayed when page has changed
+map.paginationStatus=Hiện đang hiển thị trang {0} trên {1}.
+# Text for map question reset filters button
+map.resetFiltersButtonText=Xóa bộ lọc
+# Heading for the section showing selected locations
+map.selectedLocationsHeading=Địa điểm đã chọn
+# Placeholder text for map question select button in popups
+map.selectLocationButtonText=Chọn vị trí
+# Text showing the maximum number of locations that can be selected, with a placeholder for that number
+map.selectLocations=Chọn tối đa {0} vị trí
+# Placeholder text for map question select option dropdown
+map.selectOptionPlaceholderText=- Chọn -
+# Button text to switch from list view to map view on mobile
+map.switchToMapView=Chuyển sang chế độ xem bản đồ
+# Button text to switch from map view to list view on mobile
+map.switchToListView=Chuyển sang chế độ xem danh sách
+# Screen reader text announcing that the view has been switched to map view
+map.switchToMapViewSr=Đã chuyển sang chế độ xem bản đồ
+# Screen reader text announcing that the view has been switched to list view
+map.switchToListViewSr=Đã chuyển sang chế độ xem danh sách
+# Error message that indicates the applicant has selected too many locations
+map.validation.tooManySelections=Vui lòng chọn tối đa {0} vị trí.
+# Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
+map.geoJsonErrorText = Rất tiếc, chúng tôi không thể hiển thị câu hỏi này vào lúc này. Vui lòng thử quay lại đơn đăng ký này vào lúc khác. Trong thời gian chờ đợi, vui lòng quay lại {0} hoặc {1} và chúng tôi sẽ hướng dẫn bạn.
+map.contactUs = liên hệ với chúng tôi
+map.homepage = trang chủ
+# screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
+map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a different location, please unselect at least one of the locations you have chosen.
+
+#---------------------------------------------------------------------------#
+# MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
+#---------------------------------------------------------------------------#
+
+# Button for adding a filter
+map.addFilterButton=Thêm bộ lọc
+# Subtitle text for adding filters
+map.addFiltersSubtitle=Chọn tối đa sáu bộ lọc để hiển thị cho ứng viên.
+# Title for filters section
+map.addFiltersTitle=Bộ lọc
+# Button for adding a tag
+map.addTagButton=Thêm tag
+# Subtitle text for adding a tag
+map.addTagSubtitle=Thêm một tag để hiển thị trên các vị trí nhất định khi một khóa được chọn khớp với một giá trị nhất định. Khi ứng viên chọn ít nhất một trong các vị trí này, có thể hiển thị một cảnh báo trong khu vực Vị trí đã chọn.
+# Title for tag section
+map.addTagTitle=Tag
+# Label for display name field
+map.displayNameLabel=Tên hiển thị
+# Label for key field
+map.keyLabel=Khóa
+# Error message when a configured key is not found in the GeoJSON data
+map.keyNotFoundError=Lỗi: Không tìm thấy khóa. Vui lòng chọn một khóa khác.
+# Help text for location address field
+map.locationAddressHelpText=Chọn khóa đại diện cho địa chỉ vị trí.
+# Label for location address key field
+map.locationAddressLabel=Khóa địa chỉ
+# Help text for location details URL field
+map.locationDetailsUrlHelpText=Chọn khóa đại diện cho URL chi tiết vị trí.
+# Label for location detail URL key field
+map.locationDetailsUrlLabel=Khóa URL xem thêm chi tiết
+# Help text for location name field
+map.locationNameHelpText=Chọn khóa đại diện cho tên vị trí.
+# Label for location name key field
+map.locationNameLabel=Khóa tên
+# Label for maximum number of locations field
+map.maxLocationSelectionsLabel=Số vị trí được chọn tối đa
+# Label for setting text field
+map.settingTextLabel=Văn bản cảnh báo
+# Label for value field
+map.valueLabel=Giá trị
+# Text on a grey square that indicates where a map will appear once a question has been published
+map.mapPreviewText=Bản đồ sẽ hiển thị ở đây
+
+#---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
 #---------------------------------------------------------------------#
 
@@ -836,7 +968,7 @@ error.internalServerTitle.v2=Đã xảy ra lỗi
 # The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=Rất tiếc, đã xảy ra lỗi hệ thống nội bộ.
 # Additional information about the error that is shown to the user in small font
-error.internalServerDescription=Vui lòng liên hệ với bộ phận hỗ trợ kỹ thuật để được trợ giúp theo địa chỉ %s và cung cấp mã lỗi này {0}.
+error.internalServerDescription=Vui lòng liên hệ với bộ phận hỗ trợ kỹ thuật để được trợ giúp theo địa chỉ {0} và cung cấp mã lỗi này {1}.
 # A button redirecting the user to the homepage
 error.internalServerHomeButton=Truy cập trang chủ
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
@@ -870,8 +1002,6 @@ email.tiApplicationUpdateBody=Trạng thái của người đăng ký {0} trong 
 #------------------------------------------------------------------------------#
 
 banner.title=Đây là một trang web chính thức của chính phủ.
-# Text on a banner at the top of the page telling users this is an official government website
-banner.northStarTitle=Một trang web chính thức của chính phủ Hoa Kỳ
 banner.link=Sau đây là cách giúp bạn biết đâu là trang web chính thức của chính phủ
 banner.govWebsiteSectionHeader=Các trang web chính thức sử dụng tên miền .gov
 banner.govWebsiteSectionContent=Những địa chỉ trang web có đuôi .gov là địa chỉ trang web thuộc về các tổ chức chính thức của chính phủ tại Hoa Kỳ.
@@ -891,9 +1021,21 @@ banner.notForProductionBannerLine2=Để đăng ký một chương trình hoặc
 # GUEST BANNER - alert explaining that user is logged in as a guest #
 #------------------------------------------------------------------------------#
 # A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
-banner.guestBannerText=Bạn đang đăng ký với tư cách là khách. Sau khi đăng ký xong, hãy {0} để bảo vệ dữ liệu của bạn.
+banner.guestBannerText=Sau khi đăng ký, hãy {0} để bảo vệ dữ liệu của bạn.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=kết thúc phiên của bạn
+# A message letting the user know how long their session will last before they are logged out automatically. The placeholder will be a phrase like "2 hours and 30 minutes" or "30 minutes".
+banner.sessionExpiration=Phiên của bạn sẽ tự động hết hạn sau {0} kể từ khi bắt đầu phiên nên bạn vui lòng đăng nhập hoặc nộp đơn đăng ký trước thời điểm đó để tránh mất tiến trình.
+# Phrases that combine hours and minutes for the session expiration message.
+banner.hourAndMinutes=1 giờ {0} phút
+banner.hourAndMinute=1 giờ 1 phút
+banner.hoursAndMinutes={0} giờ {1} phút
+banner.hoursAndMinute={0} giờ 1 phút
+# Amount of time in hours or minutes for the session expiration message.
+banner.minutes={0} phút
+banner.hours={0} giờ
+banner.hour=1 giờ
+banner.minute=1 phút
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
@@ -901,6 +1043,21 @@ banner.endYourSession=kết thúc phiên của bạn
 #  are seeded into the database, since these will be admin defined in the future #
 #------------------------------------------------------------------------------#
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# An aria-label for screen readers that helps provide context for the category tags.
 # A tag used to filter the list of programs down to those that are related to childcare.
 category.tag.childcare=Dịch vụ chăm sóc trẻ em
 
@@ -928,6 +1085,9 @@ category.tag.housing=Nhà ở
 # A tag used to filter the list of programs down to those that are related to the Internet.
 category.tag.internet=Internet
 
+# A tag used to filter the list of programs down to those that are related to the military.
+category.tag.military=Quân đội
+
 # A tag used to filter the list of programs down to those that are related to training.
 category.tag.training=Đào tạo
 
@@ -936,3 +1096,34 @@ category.tag.transportation=Vận tải
 
 # A tag used to filter the list of programs down to those that are related to utilities.
 category.tag.utilities=Dịch vụ tiện ích
+
+# A tag used to filter the list of programs down to those that are related to military veterans.
+category.tag.veteran=Cựu chiến binh
+
+
+ariaLabel.categories=Danh mục
+
+#------------------------------------------------------------------------------#
+#  Session timeout messages                                                    #
+#------------------------------------------------------------------------------#
+
+# Title of the warning modal that appears when the user has been inactive for a while
+session.inactivity.warning.title=Cảnh báo về phiên không hoạt động
+
+# Message shown in a modal asking the user if they want to extend their session due to inactivity
+session.inactivity.warning.message=Phiên của bạn sẽ sớm hết hạn do không hoạt động. Bạn có muốn gia hạn phiên của mình không?
+
+# Title of a modal dialog displayed when a user's session is about to expire due to session length limit
+session.length.warning.title=Cảnh báo về thời lượng phiên
+
+# Message shown in a modal warning the user their session will end soon due to session length limit
+session.length.warning.message=Phiên của bạn sắp hết hạn do giới hạn thời lượng. Vui lòng lưu thông tin bạn đã điền và đăng nhập lại nếu cần.
+
+# Text on a button that allows users to extend their session when shown timeout warnings
+session.extend.button=Gia hạn phiên
+
+# Success message shown when the user's session is successfully extended after clicking the extend button
+session.extended.success=Đã gia hạn phiên thành công
+
+# Error message shown when there was a problem extending the user's session
+session.extended.error=Không gia hạn được phiên

@@ -88,6 +88,13 @@ function get_modified_scss_files() {
   ) | grep -E ".+\.(scss)$" || true
 }
 
+function get_modified_sql_files() {
+  (
+    get_tracked_modified_files
+    get_untracked_files
+  ) | grep -E ".+\.(sql)$"
+}
+
 # Returns list of files that should be formatted by prettier
 function get_modified_prettier_files() {
   (
@@ -131,7 +138,8 @@ else
   # The prettier_file_list array should not be surrounded by quotes, in this case
   # we want word splitting to occur so prettier will operate in each file. If
   # quoted it gets treated as a single path.
-  npx prettier \
+  npx --silent \
+    prettier \
     --write \
     --config ../.prettierrc.js \
     --ignore-path ../.prettierignore \
@@ -152,24 +160,53 @@ else
   # prefixing each line itself which is why this sed command is needed.
   eslint_app_file_list="$(printf "%s" "${modified_ts}" | (grep -E "^server/app" || true) | sed 's/^/ ..\//' | tr -d '\n')"
   eslint_browsertest_file_list="$(printf "%s" "${modified_ts}" | (grep -E "^browser-test" || true) | sed 's/^/ ..\//' | tr -d '\n')"
+  eslint_mockwebservices_file_list="$(printf "%s" "${modified_ts}" | (grep -E "^mock-web-services" || true) | sed 's/^/ ..\//' | tr -d '\n')"
 
-  cd server
-  npm install --silent
+  if [[ -z "${eslint_app_file_list}" ]]; then
+    echo "No modified files for /server. Skipping eslint."
+  else
+    echo "Run eslint on /server"
+    cd server
+    npm ci --silent
 
-  # The eslint_app_file_list array should not be surrounded by quotes, in this case
-  # we want word splitting to occur so eslint will operate in each file. If
-  # quoted it gets treated as a single path.
-  npx eslint --fix ${eslint_app_file_list[@]}
+    # The eslint_app_file_list array should not be surrounded by quotes, in this case
+    # we want word splitting to occur so eslint will operate in each file. If
+    # quoted it gets treated as a single path.
+    npx --silent eslint --fix ${eslint_app_file_list[@]}
 
-  cd ../browser-test
-  npm install --silent
+    cd ..
+  fi
 
-  # The eslint_browsertest_file_list array should not be surrounded by quotes, in this case
-  # we want word splitting to occur so eslint will operate in each file. If
-  # quoted it gets treated as a single path.
-  npx eslint --fix ${eslint_browsertest_file_list[@]}
+  if [[ -z "${eslint_mockwebservices_file_list}" ]]; then
+    echo "No modified files for /mock-web-services. Skipping eslint."
+  else
+    echo "Run eslint on /mock-web-services"
+    cd mock-web-services
+    npm ci --silent
 
-  cd ..
+    # The eslint_app_file_list array should not be surrounded by quotes, in this case
+    # we want word splitting to occur so eslint will operate in each file. If
+    # quoted it gets treated as a single path.
+    npx --silent eslint --fix ${eslint_mockwebservices_file_list[@]}
+
+    cd ..
+  fi
+
+  if [[ -z "${eslint_browsertest_file_list}" ]]; then
+    echo "No modified files for /browser-test. Skipping eslint."
+  else
+    echo "Run eslint on /browser-test"
+    cd browser-test
+    npm ci --silent
+
+    # The eslint_browsertest_file_list array should not be surrounded by quotes, in this case
+    # we want word splitting to occur so eslint will operate in each file. If
+    # quoted it gets treated as a single path.
+    npx --silent eslint --fix ${eslint_browsertest_file_list[@]}
+
+    cd ..
+  fi
+
   echo 'Done formatting with eslint'
 fi
 
@@ -189,7 +226,35 @@ else
     --in-place \
     --exclude env-var-docs/venv \
     --exclude mock-web-services/.venv \
-    "${modified_py[@]}"
+    ${modified_py[@]}
+fi
+
+# get modified sql files and prefix each with "../" so they are a relative path from the formatter
+mapfile -t modified_sql < <(get_modified_sql_files | sed 's|^|../|')
+
+if [[ -z "${modified_sql}" ]]; then
+  echo 'No modified sql files found'
+else
+  cd formatter
+  echo 'Start format sql'
+
+  for filepath in "${modified_sql[@]}"; do
+    # We don't want to modify sql files created prior to the sql formatter being
+    # added. Skip files 1.sql through 91.sql. Realistically these excluded files
+    # would only be included if someone modifies them, but just adding this as an
+    # secondary safety check.
+    #
+    # If this repository ever has a new project or database that also numbers sql
+    # files this way we will need to modified this handle it, but the likelihood
+    # of that seems low so we can deal with it later if it becomes an issue.
+    number="$(basename "${filepath}" .sql)"
+
+    if [[ "${number}" =~ ^[0-9]+$ ]] && ((${number} >= 1 && ${number} <= 91)); then
+      continue
+    fi
+
+    npx --silent sql-formatter --config ./.sql-formatter.json --fix "${filepath}"
+  done
 fi
 
 echo "Done formatting"

@@ -3,6 +3,7 @@ package forms;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
+import java.util.UUID;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.question.types.IdQuestionDefinition;
@@ -14,11 +15,13 @@ public class IdQuestionFormTest {
 
   @Test
   public void getBuilder_returnsCompleteBuilder() throws Exception {
+    UUID initialToken = UUID.randomUUID();
     IdQuestionForm form = new IdQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
     form.setQuestionText("What is the question text?");
     form.setQuestionHelpText("");
+    form.setConcurrencyToken(initialToken);
     form.setMinLength("4");
     form.setMaxLength("6");
     QuestionDefinitionBuilder builder = form.getBuilder();
@@ -30,6 +33,7 @@ public class IdQuestionFormTest {
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
+                .setConcurrencyToken(initialToken)
                 .setValidationPredicates(IdQuestionDefinition.IdValidationPredicates.create(4, 6))
                 .build());
 
@@ -47,6 +51,7 @@ public class IdQuestionFormTest {
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
+                .setConcurrencyToken(UUID.randomUUID())
                 .setValidationPredicates(IdQuestionDefinition.IdValidationPredicates.create(4, 6))
                 .build());
 
@@ -60,11 +65,13 @@ public class IdQuestionFormTest {
 
   @Test
   public void getBuilder_emptyStringMinMax_noPredicateSet() throws Exception {
+    UUID initialToken = UUID.randomUUID();
     IdQuestionForm form = new IdQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
     form.setQuestionText("What is the question text?");
     form.setQuestionHelpText("");
+    form.setConcurrencyToken(initialToken);
     form.setMinLength("");
     form.setMaxLength("");
     QuestionDefinitionBuilder builder = form.getBuilder();
@@ -76,6 +83,7 @@ public class IdQuestionFormTest {
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
+                .setConcurrencyToken(initialToken)
                 .build());
 
     QuestionDefinition actual = builder.build();

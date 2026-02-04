@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -55,12 +56,23 @@ public final class DateConverter {
   }
 
   /**
+   * Parses a string containing a ISO-8601 date-time with the offset and zone if available (i.e.
+   * "YYYY-MM-DDThh:mm:ssZ") and converts it to an {@link LocalDateTime}
+   *
+   * @throws DateTimeParseException if dateString is not well-formed.
+   */
+  public LocalDateTime parseIso8601DateToLocalDateTime(String dateString) {
+    return LocalDateTime.parse(dateString, DateTimeFormatter.ISO_DATE_TIME);
+  }
+
+  /**
    * Parses string day, month and year and converts them to a {@link LocalDate}
    *
    * @throws DateTimeParseException if conjoined date string is not well-formed.
    */
   public LocalDate parseDayMonthYearToLocalDate(String day, String month, String year) {
     day = day.length() == 1 ? "0" + day : day; // The day needs to be 2 digits
+    month = month.length() == 1 ? "0" + month : month; // The month needs to be 2 digits
     return parseIso8601DateToLocalDate(year + "-" + month + "-" + day);
   }
 
@@ -87,6 +99,34 @@ public final class DateConverter {
    */
   public Instant parseIso8601DateToEndOfLocalDateInstant(String dateString) {
     return parseIso8601DateToLocalDate(dateString).atTime(LocalTime.MAX).atZone(zoneId).toInstant();
+  }
+
+  /**
+   * Parses a string containing an ISO-8601 date-time and converts it to an {@link Instant}.
+   *
+   * <p>This method handles three parsing scenarios in order of preference: 1) Full ISO-8601 string
+   * with timezone information (e.g., "2023-12-25T10:30:00Z") 2) ISO-8601 date-time without timezone
+   * (e.g., "2023-12-25T10:30:00"), converted using the configured local zone 3) ISO-8601 date only
+   * (e.g., "2023-12-25"), defaulting to start of day in local timezone
+   *
+   * @param dateString the ISO-8601 formatted date string to parse
+   * @return {@link Instant} representing the parsed date-time in the appropriate timezone
+   * @throws DateTimeParseException if dateString cannot be parsed in any of the supported formats
+   */
+  public Instant parseIso8601DateToLocalDateTimeInstant(String dateString) {
+    // Parse as complete ISO-8601 instant with timezone info
+    try {
+      return Instant.parse(dateString);
+    } catch (DateTimeParseException instantParseException) {
+      // Parse as local date-time and apply configured timezone
+      try {
+        LocalDateTime localDateTime = parseIso8601DateToLocalDateTime(dateString);
+        return localDateTime.atZone(zoneId).toInstant();
+      } catch (DateTimeParseException localDateTimeParseException) {
+        // Parse as date-only and default to start of day
+        return parseIso8601DateToStartOfLocalDateInstant(dateString);
+      }
+    }
   }
 
   /** Formats an {@link Instant} to a human-readable date and time in the local time zone. */

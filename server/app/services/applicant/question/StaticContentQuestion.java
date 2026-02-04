@@ -15,7 +15,7 @@ import views.components.TextFormatter;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public final class StaticContentQuestion extends Question {
+public final class StaticContentQuestion extends AbstractQuestion {
 
   StaticContentQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
@@ -41,11 +41,11 @@ public final class StaticContentQuestion extends Question {
     return ImmutableList.of();
   }
 
-  public String getFormattedTextForRendering(String ariaLabel) {
-    return TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
+  public String getFormattedTextForRendering(String ariaLabelForNewTabs) {
+    return TextFormatter.formatTextToSanitizedHTML(
         applicantQuestion.getQuestionText(),
         /* preserveEmptyLines= */ true,
         /* addRequiredIndicator= */ false,
-        ariaLabel);
+        ariaLabelForNewTabs);
   }
 }

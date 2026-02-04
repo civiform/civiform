@@ -3,11 +3,13 @@ package modules;
 import annotations.BindingAnnotations;
 import annotations.BindingAnnotations.RecurringJobsProviderName;
 import annotations.BindingAnnotations.StartupJobsProviderName;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Provides;
 import com.typesafe.config.Config;
+import controllers.dev.seeding.CategoryTranslationFileParser;
 import durablejobs.DurableJobName;
 import durablejobs.DurableJobRegistry;
 import durablejobs.JobExecutionTimeResolver;
@@ -17,12 +19,14 @@ import durablejobs.RecurringJobScheduler;
 import durablejobs.StartupDurableJobRunner;
 import durablejobs.StartupJobScheduler;
 import durablejobs.jobs.AddCategoryAndTranslationsJob;
-import durablejobs.jobs.AddOperatorToLeafAddressServiceAreaJob;
-import durablejobs.jobs.ConvertAddressServiceAreaToArrayJob;
+import durablejobs.jobs.CalculateEligibilityDeterminationJob;
+import durablejobs.jobs.MapRefreshJob;
 import durablejobs.jobs.OldJobCleanupJob;
 import durablejobs.jobs.ReportingDashboardMonthlyRefreshJob;
+import durablejobs.jobs.SetIsEnumeratorOnBlocksWithEnumeratorQuestionJob;
 import durablejobs.jobs.UnusedAccountCleanupJob;
 import durablejobs.jobs.UnusedProgramImagesCleanupJob;
+import durablejobs.jobs.UpdateLastActivityTimeForAccounts;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Random;
@@ -30,28 +34,34 @@ import models.JobType;
 import org.apache.pekko.actor.ActorSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.Environment;
 import play.api.db.evolutions.ApplicationEvolutions;
+import play.cache.AsyncCacheApi;
 import repository.AccountRepository;
 import repository.CategoryRepository;
+import repository.GeoJsonDataRepository;
 import repository.PersistedDurableJobRepository;
+import repository.ProgramRepository;
 import repository.ReportingRepository;
 import repository.VersionRepository;
 import scala.concurrent.ExecutionContext;
+import services.applicant.ApplicantService;
 import services.cloud.PublicStorageClient;
+import services.geojson.GeoJsonClient;
+import services.program.ProgramService;
+import services.settings.SettingsManifest;
 
 /**
  * Configures {@link durablejobs.DurableJob}s with their {@link DurableJobName} and, if they are
  * recurring, their {@link JobExecutionTimeResolver}.
  */
 public final class DurableJobModule extends AbstractModule {
-  private static final Logger LOGGER = LoggerFactory.getLogger(DurableJobModule.class);
+  private static final Logger logger = LoggerFactory.getLogger(DurableJobModule.class);
 
   @Override
   protected void configure() {
     // Binding the scheduler class as an eager singleton runs the constructor
     // at server start time.
-    LOGGER.trace("Module Started");
+    logger.trace("Module Started");
     bind(DurableJobRunnerScheduler.class).asEagerSingleton();
   }
 
@@ -72,16 +82,16 @@ public final class DurableJobModule extends AbstractModule {
         ApplicationEvolutions applicationEvolutions,
         ActorSystem actorSystem,
         Config config,
-        ExecutionContext executionContext,
+        ExecutionContext scalaExecutionContext,
         RecurringDurableJobRunner recurringDurableJobRunner,
         RecurringJobScheduler recurringJobScheduler,
         StartupDurableJobRunner startupDurableJobRunner,
         StartupJobScheduler startupJobScheduler) {
-      LOGGER.trace("DurableJobRunnerScheduler - Started");
+      logger.trace("DurableJobRunnerScheduler - Started");
       int pollIntervalSeconds = config.getInt("durable_jobs.poll_interval_seconds");
 
       if (applicationEvolutions.upToDate()) {
-        LOGGER.trace("DurableJobRunnerScheduler - Task Start");
+        logger.trace("DurableJobRunnerScheduler - Task Start");
 
         // Run startup jobs. These jobs must complete before the application can start serving
         // pages.
@@ -101,10 +111,10 @@ public final class DurableJobModule extends AbstractModule {
                   recurringJobScheduler.scheduleJobs();
                   recurringDurableJobRunner.runJobs();
                 },
-                executionContext);
-        LOGGER.trace("DurableJobRunnerScheduler - Task End");
+                scalaExecutionContext);
+        logger.trace("DurableJobRunnerScheduler - Task End");
       } else {
-        LOGGER.trace("Evolutions Not Ready");
+        logger.trace("Evolutions Not Ready");
       }
     }
   }
@@ -113,11 +123,16 @@ public final class DurableJobModule extends AbstractModule {
   @RecurringJobsProviderName
   public DurableJobRegistry provideRecurringDurableJobRegistry(
       AccountRepository accountRepository,
+      ApplicantService applicantService,
+      ProgramService programService,
       @BindingAnnotations.Now Provider<LocalDateTime> nowProvider,
       PersistedDurableJobRepository persistedDurableJobRepository,
       PublicStorageClient publicStorageClient,
       ReportingRepository reportingRepository,
-      VersionRepository versionRepository) {
+      VersionRepository versionRepository,
+      Config config,
+      GeoJsonDataRepository geoJsonDataRepository,
+      GeoJsonClient geoJsonClient) {
     var durableJobRegistry = new DurableJobRegistry();
 
     durableJobRegistry.register(
@@ -149,24 +164,37 @@ public final class DurableJobModule extends AbstractModule {
                 publicStorageClient, versionRepository, persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.ThirdOfMonth2Am());
 
+    durableJobRegistry.register(
+        DurableJobName.CALCULATE_ELIGIBILITY_DETERMINATION_JOB,
+        JobType.RECURRING,
+        persistedDurableJob ->
+            new CalculateEligibilityDeterminationJob(
+                applicantService, programService, persistedDurableJob),
+        new RecurringJobExecutionTimeResolvers.Sunday2Am());
+
+    if (config.getBoolean("map_question_enabled")
+        && config.getBoolean("durable_jobs.map_refresh")) {
+      durableJobRegistry.register(
+          DurableJobName.REFRESH_MAP_DATA,
+          JobType.RECURRING,
+          persistedDurableJobModel ->
+              new MapRefreshJob(persistedDurableJobModel, geoJsonDataRepository, geoJsonClient),
+          new RecurringJobExecutionTimeResolvers.EveryThirtyMinutes());
+    }
+
     return durableJobRegistry;
   }
 
   @Provides
   @StartupJobsProviderName
   public DurableJobRegistry provideStartupDurableJobRegistry(
-      CategoryRepository categoryRepository, Environment environment) {
+      CategoryRepository categoryRepository,
+      ProgramRepository programRepository,
+      AsyncCacheApi programCache,
+      SettingsManifest settingsManifest,
+      CategoryTranslationFileParser categoryTranslationFileParser,
+      Provider<ObjectMapper> mapperProvider) {
     var durableJobRegistry = new DurableJobRegistry();
-
-    durableJobRegistry.registerStartupJob(
-        DurableJobName.ADD_OPERATOR_TO_LEAF_ADDRESS_SERVICE_AREA,
-        JobType.RUN_ONCE,
-        persistedDurableJob -> new AddOperatorToLeafAddressServiceAreaJob(persistedDurableJob));
-
-    durableJobRegistry.registerStartupJob(
-        DurableJobName.CONVERT_ADDRESS_SERVICE_AREA_TO_ARRAY,
-        JobType.RUN_ONCE,
-        persistedDurableJob -> new ConvertAddressServiceAreaToArrayJob(persistedDurableJob));
 
     // TODO(#8833): Remove job from registry once all category translations are in.
     durableJobRegistry.registerStartupJob(
@@ -174,7 +202,22 @@ public final class DurableJobModule extends AbstractModule {
         JobType.RUN_ON_EACH_STARTUP,
         persistedDurableJob ->
             new AddCategoryAndTranslationsJob(
-                categoryRepository, environment, persistedDurableJob));
+                categoryRepository,
+                persistedDurableJob,
+                mapperProvider.get(),
+                categoryTranslationFileParser));
+
+    durableJobRegistry.registerStartupJob(
+        DurableJobName.UPDATE_LAST_ACTIVITY_TIME_FOR_ACCOUNTS_20250825,
+        JobType.RUN_ONCE,
+        UpdateLastActivityTimeForAccounts::new);
+
+    durableJobRegistry.registerStartupJob(
+        DurableJobName.SET_IS_ENUMERATOR_ON_BLOCKS_WITH_ENUMERATOR_QUESTION_20260106,
+        JobType.RUN_ONCE,
+        persistedDurableJob ->
+            new SetIsEnumeratorOnBlocksWithEnumeratorQuestionJob(
+                persistedDurableJob, programRepository, programCache, settingsManifest));
 
     return durableJobRegistry;
   }

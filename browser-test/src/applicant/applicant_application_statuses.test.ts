@@ -1,4 +1,4 @@
-import {test} from '../support/civiform_fixtures'
+import {test, expect} from '../support/civiform_fixtures'
 import {
   loginAsAdmin,
   loginAsProgramAdmin,
@@ -7,6 +7,7 @@ import {
   testUserDisplayName,
   validateAccessibility,
   validateScreenshot,
+  normalizeElements,
 } from '../support'
 
 test.describe('with program statuses', () => {
@@ -26,7 +27,7 @@ test.describe('with program statuses', () => {
 
       // Submit an application as a test user so that we can navigate back to the applications page.
       await loginAsTestUser(page)
-      await applicantQuestions.clickApplyProgramButton(programName)
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.submitFromReviewPage()
       await logout(page)
 
@@ -37,13 +38,24 @@ test.describe('with program statuses', () => {
       const modal =
         await adminPrograms.setStatusOptionAndAwaitModal(approvedStatusName)
       await adminPrograms.confirmStatusUpdateModal(modal)
+      await page.getByRole('link', {name: 'Back'}).click()
       await logout(page)
     },
   )
 
-  test('displays status and passes accessibility checks', async ({page}) => {
-    await loginAsTestUser(page)
-    await validateAccessibility(page)
-    await validateScreenshot(page, 'program-list-with-status')
+  test.describe('application status', () => {
+    test('submitted with admin status only shows admin status', async ({
+      page,
+    }) => {
+      await loginAsTestUser(page)
+
+      const locator = page.locator('.cf-application-card')
+      await normalizeElements(page)
+      await expect(locator.getByText('Submitted on 1/1/30')).toBeHidden()
+      await expect(locator.getByText(approvedStatusName)).toBeVisible()
+
+      await validateScreenshot(locator, 'program-card-with-status')
+      await validateAccessibility(page)
+    })
   })
 })

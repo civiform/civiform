@@ -25,17 +25,29 @@ test.describe('phone question for applicant flow', () => {
     test('validate screenshot', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
 
-      await validateScreenshot(page, 'phone')
+      await test.step('Screenshot without errors', async () => {
+        await validateScreenshot(page.getByTestId('questionRoot'), 'phone', {
+          fullPage: false,
+        })
+      })
+
+      await test.step('Screenshot with errors', async () => {
+        await applicantQuestions.clickContinue()
+        await validateScreenshot(
+          page.getByTestId('questionRoot'),
+          'phone-errors',
+          {fullPage: false},
+        )
+      })
     })
 
-    test('validate screenshot with errors', async ({
+    test('has no accessiblity violations', async ({
       page,
       applicantQuestions,
     }) => {
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.clickNext()
 
-      await validateScreenshot(page, 'phone-errors')
+      await validateAccessibility(page)
     })
 
     test('with phone submits successfully', async ({
@@ -44,10 +56,10 @@ test.describe('phone question for applicant flow', () => {
     }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('4256373270')
-      await validateScreenshot(page, 'phone-format-usa')
-      await applicantQuestions.clickNext()
+      await validateScreenshot(page.locator('main'), 'phone-format-usa')
+      await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.expectReviewPage()
     })
 
     test('with canada phone submits successfully', async ({
@@ -57,10 +69,10 @@ test.describe('phone question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('2507274212')
 
-      await validateScreenshot(page, 'phone-format-ca')
+      await validateScreenshot(page.locator('main'), 'phone-format-ca')
 
-      await applicantQuestions.clickNext()
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.expectReviewPage()
     })
 
     test('with empty phone does not submit', async ({
@@ -70,7 +82,7 @@ test.describe('phone question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
 
       // Click next without inputting anything
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       const textId = '.cf-question-phone'
       expect(await page.innerText(textId)).toContain('Phone number is required')
@@ -80,7 +92,7 @@ test.describe('phone question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('1234567890')
 
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       const countryCodeId = '.cf-question-phone'
       expect(await page.innerText(countryCodeId)).toContain(
@@ -92,7 +104,7 @@ test.describe('phone question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('5553231234')
 
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
       const countryCodeId = '.cf-question-phone'
       expect(await page.innerText(countryCodeId)).toContain(
         'This phone number is invalid',
@@ -106,7 +118,7 @@ test.describe('phone question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('123###1212')
 
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
       const countryCodeId = '.cf-question-phone'
       expect(await page.innerText(countryCodeId)).toContain(
         'This phone number is invalid',
@@ -120,7 +132,7 @@ test.describe('phone question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('123###1212121')
 
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
       const countryCodeId = '.cf-question-phone'
       expect(await page.innerText(countryCodeId)).toContain(
         'This phone number is invalid',
@@ -134,7 +146,7 @@ test.describe('phone question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('615974')
 
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
       const countryCodeId = '.cf-question-phone'
       expect(await page.innerText(countryCodeId)).toContain(
         'Phone number is required',
@@ -155,25 +167,17 @@ test.describe('phone question for applicant flow', () => {
       await expect(page.locator('input[type=text]')).toBeVisible()
 
       // Check that pressing Enter on button works.
-      await page.focus('button:has-text("Save and next")')
+      // await page.focus('button:has-text("Save and next")')
+      await page.focus('button:has-text("Continue")')
       await page.keyboard.press('Enter')
       await applicantQuestions.expectReviewPage()
 
       // Go back to question and ensure that "Review" button is also clickable
       // via Enter.
       await applicantQuestions.clickEdit()
-      await page.focus('text="Review"')
+      await page.focus('text="Review and submit"')
       await page.keyboard.press('Enter')
       await applicantQuestions.expectReviewPage()
-    })
-
-    test('has no accessiblity violations', async ({
-      page,
-      applicantQuestions,
-    }) => {
-      await applicantQuestions.applyProgram(programName)
-
-      await validateAccessibility(page)
     })
   })
 
@@ -208,9 +212,9 @@ test.describe('phone question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('2507274212', 0)
       await applicantQuestions.answerPhoneQuestion('4256373270', 1)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.expectReviewPage()
     })
 
     test('with unanswered optional question submits successfully', async ({
@@ -219,9 +223,9 @@ test.describe('phone question for applicant flow', () => {
       // Only answer second question. First is optional.
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('4256373270', 1)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.expectReviewPage()
     })
 
     test('with first invalid does not submit', async ({
@@ -231,14 +235,9 @@ test.describe('phone question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('1234567320', 0)
       await applicantQuestions.answerPhoneQuestion('4256373270', 1)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      const locatorId = '[name="applicant.firstphoneq.phone_number"]'
-      const parentElement = page.locator(locatorId).locator('..')
-
-      expect(await parentElement.innerText()).toContain(
-        'This phone number is invalid',
-      )
+      await expect(page.getByText('This phone number is invalid')).toBeVisible()
     })
 
     test('with second invalid does not submit', async ({
@@ -248,7 +247,7 @@ test.describe('phone question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('4256373270', 0)
       await applicantQuestions.answerPhoneQuestion('1234567320', 1)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       const textId = `.cf-question-phone >> nth=1`
       expect(await page.innerText(textId)).toContain(

@@ -1,5 +1,5 @@
-import {expect} from '@playwright/test'
-import {Page} from 'playwright'
+import {expect} from './civiform_fixtures'
+import {Page} from '@playwright/test'
 import {waitForPageJsLoad} from './wait'
 
 type ProgramStatusTranslationParams = {
@@ -7,6 +7,36 @@ type ProgramStatusTranslationParams = {
   statusText: string
   // Undefined implies that no email input is expected to be present.
   statusEmail?: string
+}
+
+type ProgramTranslationParams = {
+  name: string
+  description?: string
+  blockName: string
+  blockDescription: string
+  statuses: ProgramStatusTranslationParams[]
+  confirmationMsg?: string
+  shortDescription: string
+  applicationStepTitle?: string
+  applicationStepDescription?: string
+  blockEligibilityMsg?: string
+  programType?: string
+}
+
+/**
+ * List of fields in the program translation form. This list is not exhaustive,
+ * as fields are added when needed by a test.
+ */
+export enum FormField {
+  PROGRAM_NAME = 'Program name',
+  PROGRAM_DESCRIPTION = 'Program description',
+  CONFIRMATION_MESSAGE = 'Custom confirmation screen message',
+  SHORT_DESCRIPTION = 'Short program description',
+  // Application step fields now use simplified labels within their section
+  APPLICATION_STEP_ONE_TITLE = 'Title',
+  APPLICATION_STEP_ONE_DESCRIPTION = 'Description',
+  SCREEN_NAME = 'Screen name',
+  SCREEN_DESCRIPTION = 'Screen description',
 }
 
 export class AdminTranslations {
@@ -23,28 +53,29 @@ export class AdminTranslations {
 
   async editProgramTranslations({
     name,
-    description,
+    description = '',
     blockName,
     blockDescription,
     statuses = [],
+    confirmationMsg = '',
     shortDescription = 'short desc',
     applicationStepTitle = 'step one title',
     applicationStepDescription = 'step one description',
     blockEligibilityMsg = '',
-  }: {
-    name: string
-    description: string
-    blockName: string
-    blockDescription: string
-    statuses: ProgramStatusTranslationParams[]
-    shortDescription: string
-    applicationStepTitle: string
-    applicationStepDescription: string
-    blockEligibilityMsg?: string
-  }) {
+    programType = 'default',
+  }: ProgramTranslationParams) {
     await this.page.fill('text=Program name', name)
-    await this.page.fill('text=Program description', description)
+
+    if (description != '') {
+      await this.page.fill('text=Program description', description)
+    }
     await this.page.fill('text=Short program description', shortDescription)
+    if (confirmationMsg != '') {
+      await this.page.fill(
+        'text=Custom confirmation screen message',
+        confirmationMsg,
+      )
+    }
 
     for (const status of statuses) {
       await this.page.fill(
@@ -65,11 +96,18 @@ export class AdminTranslations {
       }
     }
 
-    await this.page.fill('text=Application step 1 title', applicationStepTitle)
-    await this.page.fill(
-      'text=Application step 1 description',
-      applicationStepDescription,
-    )
+    if (programType === 'default') {
+      // Application step fields are within the "Application step 1" fieldset section
+      const applicationStepSection = this.page.locator(
+        'fieldset:has-text("Application step 1")',
+      )
+      await applicationStepSection
+        .getByRole('textbox', {name: 'Title'})
+        .fill(applicationStepTitle)
+      await applicationStepSection
+        .getByRole('textbox', {name: 'Description'})
+        .fill(applicationStepDescription)
+    }
 
     await this.page.fill('text=Screen name', blockName)
     await this.page.fill('text=Screen description', blockDescription)
@@ -86,26 +124,32 @@ export class AdminTranslations {
 
   async expectProgramTranslation({
     expectProgramName,
-    expectProgramDescription,
-    expectProgramShortDescription = 'short description',
+    expectProgramDescription = '',
+    expectProgramShortDescription,
     expectApplicationStepTitle = 'step one title',
     expectApplicationStepDescription = 'step one description',
+    programType = 'default',
   }: {
     expectProgramName: string
-    expectProgramDescription: string
+    expectProgramDescription?: string
     expectProgramShortDescription: string
-    expectApplicationStepTitle: string
-    expectApplicationStepDescription: string
+    expectApplicationStepTitle?: string
+    expectApplicationStepDescription?: string
+    programType?: string
   }) {
     const programNameValue = this.page.getByLabel('Program name')
     await expect(programNameValue).toHaveValue(expectProgramName)
 
-    const programDescriptionValue = this.page.getByLabel(
-      'Program description',
-      {exact: true},
-    )
-    await expect(programDescriptionValue).toHaveValue(expectProgramDescription)
+    if (expectProgramDescription !== '') {
+      const programDescriptionValue = this.page.getByRole('textbox', {
+        name: 'Program description',
+        exact: true,
+      })
 
+      await expect(programDescriptionValue).toHaveValue(
+        expectProgramDescription,
+      )
+    }
     const programShortDescriptionValue = this.page.getByLabel(
       'Short program description',
     )
@@ -113,25 +157,42 @@ export class AdminTranslations {
       expectProgramShortDescription,
     )
 
-    const applicationStepTitleValue = this.page.getByLabel(
-      'Application step 1 title',
-    )
-    await expect(applicationStepTitleValue).toHaveValue(
-      expectApplicationStepTitle,
-    )
-    const applicationStepDescriptionValue = this.page.getByLabel(
-      'Application step 1 description',
-    )
-    await expect(applicationStepDescriptionValue).toHaveValue(
-      expectApplicationStepDescription,
-    )
+    if (programType === 'default') {
+      // Application step fields are within the "Application step 1" fieldset section
+      const applicationStepSection = this.page.locator(
+        'fieldset:has-text("Application step 1")',
+      )
+      const applicationStepTitleValue = applicationStepSection.getByRole(
+        'textbox',
+        {name: 'Title'},
+      )
+      await expect(applicationStepTitleValue).toHaveValue(
+        expectApplicationStepTitle,
+      )
+      const applicationStepDescriptionValue = applicationStepSection.getByRole(
+        'textbox',
+        {name: 'Description'},
+      )
+      await expect(applicationStepDescriptionValue).toHaveValue(
+        expectApplicationStepDescription,
+      )
+    }
+  }
+
+  async expectFormFieldVisible(formField: FormField) {
+    await expect(
+      this.page.getByRole('textbox', {name: formField, exact: true}),
+    ).toBeVisible()
+  }
+
+  async expectFormFieldHidden(formField: FormField) {
+    await expect(this.page.locator(`:has-text("${formField}: ")`)).toBeHidden()
   }
 
   async expectNoProgramStatusTranslations() {
-    // Fix me! ESLint: playwright/prefer-web-first-assertions
-    expect(await this.page.isVisible(':has-text("Application status: ")')).toBe(
-      false,
-    )
+    await expect(
+      this.page.locator(':has-text("Application status: ")'),
+    ).toBeHidden()
   }
 
   async expectProgramStatusTranslationWithEmail({
@@ -161,14 +222,12 @@ export class AdminTranslations {
     configuredStatusText: string
     expectStatusText: string
   }) {
-    const statusTextValue = await this.page.inputValue(
-      this.statusNameFieldSelector(configuredStatusText),
-    )
-    expect(statusTextValue).toEqual(expectStatusText)
-    const isStatusEmailVisible = await this.page.isVisible(
-      this.statusEmailFieldSelector(configuredStatusText),
-    )
-    expect(isStatusEmailVisible).toBe(false)
+    await expect(
+      this.page.locator(this.statusNameFieldSelector(configuredStatusText)),
+    ).toHaveValue(expectStatusText)
+    await expect(
+      this.page.locator(this.statusEmailFieldSelector(configuredStatusText)),
+    ).toBeHidden()
   }
 
   /**
@@ -218,22 +277,26 @@ export class AdminTranslations {
     helpText: string,
     configText: string[] = [],
   ) {
-    await this.page.fill('text=Question text', text)
-    await this.page.fill('text=Question help text', helpText)
+    await this.page.getByRole('textbox', {name: 'Question text'}).fill(text)
+    await this.page
+      .getByRole('textbox', {name: 'Question help text'})
+      .fill(helpText)
 
     // If there are multi-option inputs to translate, fill them in
     // with the provided translations in configText
-    const optionInputs = await this.page.$$('[name="options[]"]')
-    for (let index = 0; index < optionInputs.length; index++) {
-      await optionInputs[index].fill(configText[index])
+    const optionInputs = this.page.locator('[name="options[]"]')
+    const optionCount = await optionInputs.count()
+
+    for (let index = 0; index < optionCount; index++) {
+      await optionInputs.nth(index).fill(configText[index])
     }
 
-    const enumeratorInput = await this.page.$('[name="entityType"]')
-    if (enumeratorInput) {
+    const enumeratorInput = this.page.locator('[name="entityType"]')
+    if ((await enumeratorInput.count()) > 0) {
       await enumeratorInput.fill(configText[0])
     }
 
-    await this.page.click('#update-localizations-button')
+    await this.page.getByRole('button', {name: 'Save'}).click()
     await waitForPageJsLoad(this.page)
   }
 

@@ -30,11 +30,11 @@ abstract class FormattedPredicateValue {
   }
 
   private static FormattedPredicateValue createEmpty() {
-    return create(Optional.empty(), Optional.empty());
+    return create(/* mainValue= */ Optional.empty(), /* secondValue= */ Optional.empty());
   }
 
   private static FormattedPredicateValue createSingleValue(String value) {
-    return create(Optional.of(value), Optional.empty());
+    return create(/* mainValue= */ Optional.of(value), /* secondValue= */ Optional.empty());
   }
 
   private static FormattedPredicateValue createWithSecondValue(
@@ -54,48 +54,50 @@ abstract class FormattedPredicateValue {
     ScalarType scalarType = leafNode.scalar().toScalarType();
     String value = leafNode.comparedValue().value();
     OperatorRightHandType predicateType = leafNode.comparedValue().type();
-    switch (scalarType) {
-      case CURRENCY_CENTS:
+    return switch (scalarType) {
+      case CURRENCY_CENTS -> {
         if (predicateType == OperatorRightHandType.PAIR_OF_LONGS) {
-          return parsePairValue(value).map(FormattedPredicateValue::formatCurrency);
+          yield parsePairValue(value).map(FormattedPredicateValue::formatCurrency);
         }
-        return createSingleValue(formatCurrency(value));
-      case DATE:
+        yield createSingleValue(formatCurrency(value));
+      }
+      case DATE -> {
         if (predicateType == OperatorRightHandType.LIST_OF_LONGS) {
           // Backwards compatibility for the original implementation of the AGE_BETWEEN operator
           // (https://github.com/civiform/civiform/pull/4428) which stored the values as a
           // LIST_OF_LONGS with exactly two values instead of PAIR_OF_LONGS
           if (leafNode.operator() == Operator.AGE_BETWEEN) {
-            return parsePairValue(value);
+            yield parsePairValue(value);
           }
-          return createSingleValue(formatListOfLongs(value));
+          yield createSingleValue(formatListOfLongs(value));
         }
         if (predicateType == OperatorRightHandType.PAIR_OF_LONGS) {
-          return parsePairValue(value);
+          yield parsePairValue(value);
         }
         if (predicateType == OperatorRightHandType.LONG
             || predicateType == OperatorRightHandType.DOUBLE) {
-          return createSingleValue(value);
+          yield createSingleValue(value);
         }
         if (predicateType == OperatorRightHandType.PAIR_OF_DATES) {
-          return parsePairValue(value).map(FormattedPredicateValue::formatDate);
+          yield parsePairValue(value).map(FormattedPredicateValue::formatDate);
         }
 
-        return createSingleValue(formatDate(value));
-      case LONG:
+        yield createSingleValue(formatDate(value));
+      }
+      case LONG -> {
         if (predicateType == OperatorRightHandType.LIST_OF_LONGS) {
-          return createSingleValue(formatListOfLongs(value));
+          yield createSingleValue(formatListOfLongs(value));
         }
         if (predicateType == OperatorRightHandType.PAIR_OF_LONGS) {
-          return parsePairValue(value);
+          yield parsePairValue(value);
         }
 
-        return createSingleValue(value);
-      case LIST_OF_STRINGS:
-      case STRING:
+        yield createSingleValue(value);
+      }
+      case LIST_OF_STRINGS, STRING -> {
         if (predicateType == OperatorRightHandType.LIST_OF_STRINGS) {
           // Lists of strings are serialized as JSON arrays e.g. "[\"one\", \"two\"]"
-          return createSingleValue(
+          yield createSingleValue(
               Splitter.on(", ")
                   // Remove opening and closing brackets
                   .splitToStream(value.substring(1, value.length() - 1))
@@ -105,10 +107,11 @@ abstract class FormattedPredicateValue {
                   .collect(Collectors.joining(",")));
         }
 
-        return createSingleValue(leafNode.comparedValue().valueWithoutSurroundingQuotes());
-      default:
-        throw new RuntimeException(String.format("Unknown scalar type: %s", scalarType));
-    }
+        yield createSingleValue(leafNode.comparedValue().valueWithoutSurroundingQuotes());
+      }
+      default ->
+          throw new RuntimeException(String.format("Unsupported scalar type: %s", scalarType));
+    };
   }
 
   private static FormattedPredicateValue parsePairValue(String value) {

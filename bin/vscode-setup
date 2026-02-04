@@ -2,7 +2,7 @@
 
 # DOC: Setup for editing the application using VSCode, by generating a pom.xml.
 # This allows VSCode IDE features to find Java imports for symbols and code
-# compleation.  Needs to be rerun when dependancies are changed.
+# completion.  Needs to be rerun when dependencies are changed.
 
 source bin/lib.sh
 docker::set_project_name_dev

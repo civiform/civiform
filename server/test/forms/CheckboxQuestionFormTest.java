@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
+import java.util.UUID;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.question.QuestionOption;
@@ -17,6 +18,7 @@ public class CheckboxQuestionFormTest {
 
   @Test
   public void getBuilder_returnsCompleteBuilder() throws UnsupportedQuestionTypeException {
+    UUID initialToken = UUID.randomUUID();
     CheckboxQuestionForm form = new CheckboxQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
@@ -26,6 +28,7 @@ public class CheckboxQuestionFormTest {
     form.setOptions(ImmutableList.of("cat", "dog", "rabbit"));
     form.setOptionAdminNames(ImmutableList.of("cat admin", "dog admin", "rabbit admin"));
     form.setOptionIds(ImmutableList.of(1L, 2L, 3L));
+    form.setConcurrencyToken(initialToken);
     QuestionDefinitionBuilder builder = form.getBuilder();
 
     QuestionDefinitionConfig config =
@@ -34,6 +37,7 @@ public class CheckboxQuestionFormTest {
             .setDescription("description")
             .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
             .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+            .setConcurrencyToken(initialToken)
             .build();
 
     ImmutableList<QuestionOption> questionOptions =
@@ -56,6 +60,7 @@ public class CheckboxQuestionFormTest {
             .setDescription("description")
             .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
             .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+            .setConcurrencyToken(UUID.randomUUID())
             .build();
 
     ImmutableList<QuestionOption> questionOptions =

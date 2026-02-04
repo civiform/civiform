@@ -2,6 +2,10 @@ package controllers.applicant;
 
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+import static play.inject.Bindings.bind;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.FOUND;
 import static play.mvc.Http.Status.NOT_FOUND;
@@ -12,6 +16,7 @@ import static play.test.Helpers.stubMessagesApi;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
+import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import controllers.WithMockedProfiles;
 import java.util.HashMap;
@@ -28,15 +33,23 @@ import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import play.i18n.MessagesApi;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
 import services.Path;
 import services.applicant.ApplicantData;
+import services.applicant.ApplicantService;
+import services.monitoring.MonitoringMetricCounters;
 import services.question.QuestionAnswerer;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import support.ProgramBuilder;
+import views.applicant.disabled.ApplicantDisabledProgramView;
+import views.applicant.programindex.FilteredProgramsViewPartial;
+import views.applicant.programindex.ProgramIndexView;
 
 public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
@@ -44,13 +57,46 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   private ApplicantModel applicantWithoutProfile;
   private ApplicantProgramsController controller;
   private VersionRepository versionRepository;
+  private SettingsManifest settingsManifest;
 
   @Before
   public void setUp() {
     resetDatabase();
-    controller = instanceOf(ApplicantProgramsController.class);
+
     currentApplicant = createApplicantWithMockedProfile();
     applicantWithoutProfile = createApplicant();
+
+    settingsManifest = mock(SettingsManifest.class);
+    controller =
+        new ApplicantProgramsController(
+            instanceOf(ClassLoaderExecutionContext.class),
+            instanceOf(ApplicantService.class),
+            instanceOf(MessagesApi.class),
+            instanceOf(ApplicantDisabledProgramView.class),
+            instanceOf(ProfileUtils.class),
+            instanceOf(VersionRepository.class),
+            instanceOf(ProgramSlugHandler.class),
+            instanceOf(ApplicantRoutes.class),
+            settingsManifest,
+            instanceOf(ProgramIndexView.class),
+            instanceOf(FilteredProgramsViewPartial.class),
+            instanceOf(MonitoringMetricCounters.class));
+  }
+
+  /**
+   * Calls the controller's edit method with configurable settings.
+   *
+   * @param isProgramSlugEnabled whether the program slug URLs feature should be enabled
+   * @param isFromUrlCall whether the call was made directly from the URL route
+   * @param programParam the program parameter (either a program ID or program slug depending on
+   *     context)
+   * @return the Result from the controller's edit method
+   */
+  Result callEdit(Boolean isProgramSlugEnabled, Boolean isFromUrlCall, String programParam) {
+    Request request = fakeRequestBuilder().build();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(isProgramSlugEnabled);
+
+    return controller.edit(request, programParam, isFromUrlCall).toCompletableFuture().join();
   }
 
   @Test
@@ -99,7 +145,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
-    assertThat(result.charset()).hasValue("utf-8");
+    // North Star views use .as(Http.MimeTypes.HTML) which doesn't set charset
     assertThat(contentAsString(result)).doesNotContain("program-card");
   }
 
@@ -118,7 +164,11 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("one");
     assertThat(contentAsString(result)).contains("two");
-    assertThat(contentAsString(result)).doesNotContain("three");
+    // Check that program "three" doesn't appear as a program card.
+    // Use a more specific pattern to avoid false positives from CSS class names
+    // like "padding-section-large-three-sides" which contain "three".
+    assertThat(contentAsString(result)).doesNotContain(">three</");
+    assertThat(contentAsString(result)).doesNotContain("/programs/three");
   }
 
   @Test
@@ -133,7 +183,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void test_deduplicate_inProgressPrograms() {
+  public void test_deduplicate_inProgressProgram() {
     versionRepository = instanceOf(VersionRepository.class);
     String programName = "In Progress Program";
     ProgramModel program = resourceCreator().insertActiveProgram(programName);
@@ -151,10 +201,10 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
             .join();
 
     assertThat(result.status()).isEqualTo(OK);
-    // A program's name appears in the index view page content 2 times:
+    // In North Star, a program's name appears in the index view page content 2 times:
     //  1) Program card title
     //  2) Apply button aria-label
-    // If it appears 6 times, that means there is a duplicate of the program.
+    // If it appears more times, that means there is a duplicate of the program.
     assertThat(numberOfSubstringsInString(contentAsString(result), programName)).isEqualTo(2);
   }
 
@@ -178,13 +228,14 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
             .join();
 
     assertThat(result.status()).isEqualTo(OK);
+    // North Star uses program slug in URL instead of program ID
     assertThat(contentAsString(result))
-        .contains(routes.ApplicantProgramsController.show(String.valueOf(program.id)).url());
+        .contains(routes.ApplicantProgramsController.show(program.getSlug()).url());
   }
 
   @Test
-  public void indexWithApplicantId_withCommonIntakeform_includesStartHereButtonWithRedirect() {
-    ProgramModel program = resourceCreator().insertActiveCommonIntakeForm("benefits");
+  public void indexWithApplicantId_withPreScreenerform_includesStartHereButtonWithRedirect() {
+    ProgramModel program = resourceCreator().insertActivePreScreenerForm("benefits");
 
     Result result =
         controller
@@ -193,8 +244,14 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
             .join();
 
     assertThat(result.status()).isEqualTo(OK);
+    // Unstarted pre-screener forms use the edit URL with program ID
+    // (not the show URL with slug) to skip the program overview page.
+    // For regular applicants (non-TI), the URL doesn't include the applicant ID prefix.
     assertThat(contentAsString(result))
-        .contains(routes.ApplicantProgramsController.show(String.valueOf(program.id)).url());
+        .contains(
+            routes.ApplicantProgramsController.edit(
+                    String.valueOf(program.id), /* isFromUrlCall= */ false)
+                .url());
   }
 
   @Test
@@ -234,6 +291,54 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void indexWithApplicantId_withMeasurementId_includesGoogleTagManager() {
+    SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
+    when(spySettingsManifest.getMeasurementId()).thenReturn(Optional.of("abcdef"));
+
+    setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));
+
+    // Must get the controller after settings the extra injector binding
+    ApplicantProgramsController controller = instanceOf(ApplicantProgramsController.class);
+
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "true").build();
+
+    Result result =
+        controller
+            .indexWithApplicantId(request, currentApplicant.id, ImmutableList.of())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result))
+        .contains("https://www.googletagmanager.com/gtag/js?id=abcdef");
+  }
+
+  @Test
+  public void indexWithApplicantId_withoutMeasurementId_includesGoogleTagManager() {
+
+    SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
+    when(spySettingsManifest.getMeasurementId()).thenReturn(Optional.empty());
+
+    setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));
+
+    // Must get the controller after settings the extra injector binding
+    ApplicantProgramsController controller = instanceOf(ApplicantProgramsController.class);
+
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "true").build();
+
+    Result result =
+        controller
+            .indexWithApplicantId(request, currentApplicant.id, ImmutableList.of())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).doesNotContain("https://www.googletagmanager.com/gtag/js");
+  }
+
+  @Test
   public void indexWithoutApplicantId_showsAllPubliclyVisiblePrograms_doesNotShowEndSession() {
     // We don't want to provide a profile when ProfileUtils functions are called
     resetMocks();
@@ -252,29 +357,24 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     String content = contentAsString(result);
     assertThat(result.status()).isEqualTo(OK);
+    // North Star uses program slug in URL instead of program ID
     assertThat(content)
-        .contains(routes.ApplicantProgramsController.show(String.valueOf(activeProgram.id)).url());
+        .contains(routes.ApplicantProgramsController.show(activeProgram.getSlug()).url());
     assertThat(content)
-        .doesNotContain(
-            routes.ApplicantProgramsController.show(String.valueOf(disabledProgram.id)).url());
-    assertThat(content)
-        .doesNotContain(
-            routes.ApplicantProgramsController.show(String.valueOf(hiddenInIndexProgram.id)).url());
+        .doesNotContain(routes.ApplicantProgramsController.show(disabledProgram.getSlug()).url());
     assertThat(content)
         .doesNotContain(
-            routes.ApplicantProgramsController.show(String.valueOf(tiOnlyProgram.id)).url());
+            routes.ApplicantProgramsController.show(hiddenInIndexProgram.getSlug()).url());
+    assertThat(content)
+        .doesNotContain(routes.ApplicantProgramsController.show(tiOnlyProgram.getSlug()).url());
     assertThat(content).doesNotContain("End session");
     assertThat(content).doesNotContain("You're a guest user");
   }
 
   @Test
-  // Tests the behavior of the `show()` method when the parameter contains an alphanumeric value,
-  // representing a program slug.
-  public void show_withStringProgramParam_showsByProgramSlug() {
+  public void show_withStringProgramParam_showsProgramOverview() {
     ProgramModel program = resourceCreator().insertActiveProgram("program");
 
-    // Set preferred locale so that browser doesn't get redirected to set it. This way we get a
-    // meaningful redirect location.
     currentApplicant.getApplicantData().setPreferredLocale(Locale.US);
     currentApplicant.save();
 
@@ -282,9 +382,10 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     Result result =
         controller.show(fakeRequest(), alphaNumProgramParam).toCompletableFuture().join();
 
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation())
-        .contains(routes.ApplicantProgramReviewController.review(program.id).url());
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    String content = contentAsString(result);
+    assertThat(content).contains("<title>program - Program Overview</title>");
   }
 
   @Test
@@ -295,8 +396,36 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void showWithApplicantId_withProgramIdRedirects() {
+    Result result =
+        controller.showWithApplicantId(fakeRequest(), 1, "123").toCompletableFuture().join();
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
+  public void showWithApplicantId_withStringProgramParam_showsProgramOverview() {
+    ProgramModel program = resourceCreator().insertActiveProgram("program");
+
+    currentApplicant.getApplicantData().setPreferredLocale(Locale.US);
+    currentApplicant.save();
+
+    String alphaNumProgramParam = program.getSlug();
+    Result result =
+        controller
+            .showWithApplicantId(fakeRequest(), currentApplicant.id, alphaNumProgramParam)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    String content = contentAsString(result);
+    assertThat(content).contains("<title>program - Program Overview</title>");
+  }
+
+  @Test
   public void showInfoDisabledProgram() {
-    ProgramModel disabledProgram = resourceCreator.insertActiveDisabledProgram("disabledProgram");
+    resourceCreator.insertActiveDisabledProgram("disabledProgram");
 
     Map<String, String> flashData = new HashMap<>();
     flashData.put("redirected-from-program-slug", "disabledProgram");
@@ -308,10 +437,67 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_differentApplicant_redirectsToHome() {
+  public void edit_whenFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
+    ProgramModel program = ProgramBuilder.newActiveProgram().build();
+    String programId = String.valueOf(program.id);
+
+    Request request = fakeRequestBuilder().build();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    Result result =
+        controller.edit(request, programId, /* isFromUrlCall= */ true).toCompletableFuture().join();
+
+    // Redirects to home since program IDs are not supported when feature is enabled and program
+    // param expects a program slug
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
+  public void edit_redirectToOtherUrl() {
+    ProgramModel program = ProgramBuilder.newActiveProgram().build();
+    String programId = String.valueOf(program.id);
+
     Result result =
         controller
-            .editWithApplicantId(fakeRequest(), currentApplicant.id + 1, 1L)
+            .edit(fakeRequest(), programId, /* isFromUrlCall= */ true)
+            .toCompletableFuture()
+            .join();
+
+    // Successfully redirects to another route, which redirect to various routes. Thus, here we
+    // only check the redirect happens and we make the final route check in other tests.
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+  }
+
+  @Test
+  public void editWithApplicanId_whenFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
+    ProgramModel program = ProgramBuilder.newActiveProgram().build();
+    String programId = String.valueOf(program.id);
+
+    Request request = fakeRequestBuilder().build();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    Result result =
+        controller
+            .editWithApplicantId(request, currentApplicant.id, programId, /* isFromUrlCall= */ true)
+            .toCompletableFuture()
+            .join();
+
+    // Redirects to home since program IDs are not supported when feature is enabled and program
+    // param expects a program slug
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
+  public void editWithApplicantId_whenDifferentApplicant_redirectsToHome() {
+    Result result =
+        controller
+            .editWithApplicantId(
+                fakeRequest(),
+                currentApplicant.id + 1,
+                Long.toString(1L),
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -319,10 +505,14 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_applicantWithoutProfile_redirectsToHome() {
+  public void editWithApplicantId_whenApplicantWithoutProfile_redirectsToHome() {
     Result result =
         controller
-            .editWithApplicantId(fakeRequest(), applicantWithoutProfile.id, 1L)
+            .editWithApplicantId(
+                fakeRequest(),
+                applicantWithoutProfile.id,
+                Long.toString(1L),
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -330,11 +520,15 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_applicantAccessToDraftProgram_redirectsToHome() {
+  public void editWithApplicantId_whenApplicantAccessToDraftProgram_redirectsToHome() {
     ProgramModel draftProgram = ProgramBuilder.newDraftProgram().build();
     Result result =
         controller
-            .editWithApplicantId(fakeRequest(), currentApplicant.id, draftProgram.id)
+            .editWithApplicantId(
+                fakeRequest(),
+                currentApplicant.id,
+                Long.toString(draftProgram.id),
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 
@@ -343,13 +537,17 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_civiformAdminAccessToDraftProgram_isOk() {
+  public void editWithApplicantId_whenCiviformAdminAccessToDraftProgram_success() {
     AccountModel adminAccount = createGlobalAdminWithMockedProfile();
-    long adminApplicantId = adminAccount.newestApplicant().orElseThrow().id;
+    long adminApplicantId = adminAccount.representativeApplicant().orElseThrow().id;
     ProgramModel draftProgram = ProgramBuilder.newDraftProgram().build();
     Result result =
         controller
-            .editWithApplicantId(fakeRequest(), adminApplicantId, draftProgram.id)
+            .editWithApplicantId(
+                fakeRequest(),
+                adminApplicantId,
+                Long.toString(draftProgram.id),
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 
@@ -357,10 +555,14 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_invalidProgram_returnsBadRequest() {
+  public void editWithApplicantId_whenInvalidProgram_error() {
     Result result =
         controller
-            .editWithApplicantId(fakeRequest(), currentApplicant.id, 9999L)
+            .editWithApplicantId(
+                fakeRequest(),
+                currentApplicant.id,
+                Long.toString(9999L),
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 
@@ -368,11 +570,15 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_applicantAccessToObsoleteProgram_isOk() {
+  public void editWithApplicantId_whenApplicantAccessToObsoleteProgram_success() {
     ProgramModel obsoleteProgram = ProgramBuilder.newObsoleteProgram("name").build();
     Result result =
         controller
-            .editWithApplicantId(fakeRequest(), currentApplicant.id, obsoleteProgram.id)
+            .editWithApplicantId(
+                fakeRequest(),
+                currentApplicant.id,
+                Long.toString(obsoleteProgram.id),
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 
@@ -380,7 +586,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_withNewProgram_redirectsToFirstBlock() {
+  public void editWithApplicantId_whenNewProgram_redirectsToFirstBlock() {
     ProgramModel program =
         ProgramBuilder.newActiveProgram()
             .withBlock()
@@ -389,7 +595,11 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     Result result =
         controller
-            .editWithApplicantId(fakeRequest(), currentApplicant.id, program.id)
+            .editWithApplicantId(
+                fakeRequest(),
+                currentApplicant.id,
+                Long.toString(program.id),
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 
@@ -397,12 +607,15 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     assertThat(result.redirectLocation())
         .hasValue(
             routes.ApplicantProgramBlocksController.edit(
-                    program.id, "1", /* questionName= */ Optional.empty())
+                    Long.toString(program.id),
+                    "1",
+                    /* questionName= */ Optional.empty(),
+                    /* isFromUrlCall= */ false)
                 .url());
   }
 
   @Test
-  public void edit_redirectsToFirstIncompleteBlock() {
+  public void editWithApplicantId_whenIncompleteBlocks_redirectsToFirstIncompleteBlock() {
     QuestionDefinition colorQuestion =
         testQuestionBank().textApplicantFavoriteColor().getQuestionDefinition();
     ProgramModel program =
@@ -421,7 +634,11 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     Result result =
         controller
-            .editWithApplicantId(fakeRequest(), currentApplicant.id, program.id)
+            .editWithApplicantId(
+                fakeRequest(),
+                currentApplicant.id,
+                Long.toString(program.id),
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 
@@ -429,32 +646,230 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     assertThat(result.redirectLocation())
         .hasValue(
             routes.ApplicantProgramBlocksController.edit(
-                    program.id, "2", /* questionName= */ Optional.empty())
+                    Long.toString(program.id),
+                    "2",
+                    /* questionName= */ Optional.empty(),
+                    /* isFromUrlCall= */ false)
                 .url());
-  }
-
-  @Test
-  public void hxFilter_isOk() {
-    Result result =
-        controller.hxFilter(fakeRequest(), ImmutableList.of()).toCompletableFuture().join();
-
-    assertThat(result.status()).isEqualTo(OK);
   }
 
   // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Should redirect to
   //  end of program submission.
   @Ignore
-  public void edit_whenNoMoreIncompleteBlocks_redirectsToListOfPrograms() {
+  public void editWithApplicantId_whenNoMoreIncompleteBlocks_redirectsToListOfPrograms() {
     ProgramModel program = resourceCreator().insertActiveProgram("My Program");
 
     Result result =
         controller
-            .editWithApplicantId(fakeRequest(), currentApplicant.id, program.id)
+            .editWithApplicantId(
+                fakeRequest(),
+                currentApplicant.id,
+                Long.toString(program.id),
+                /* isFromUrlCall= */ false)
             .toCompletableFuture()
             .join();
 
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
         .hasValue(routes.ApplicantProgramsController.index(ImmutableList.of()).url());
+  }
+
+  @Test
+  public void hxFilter_isOk() {
+    Result result =
+        controller.hxFilter(fakeRequest(), ImmutableList.of(), "").toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void
+      showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithSingleHoursAndMinutes() {
+    SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
+    when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
+    when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(90));
+
+    setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));
+
+    // Must get the controller after settings the extra injector binding
+    ApplicantProgramsController controller = instanceOf(ApplicantProgramsController.class);
+
+    ProgramModel program = resourceCreator().insertActiveProgram("program");
+
+    String alphaNumProgramParam = program.getSlug();
+    Result result =
+        controller
+            .showWithApplicantId(fakeRequest(), currentApplicant.id, alphaNumProgramParam)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    String content = contentAsString(result);
+    assertThat(content)
+        .contains("Your session will automatically expire after 1 hour and 30 minutes");
+  }
+
+  @Test
+  public void
+      showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithHoursAndMinutes() {
+    SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
+    when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
+    when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(130));
+
+    setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));
+
+    // Must get the controller after settings the extra injector binding
+    ApplicantProgramsController controller = instanceOf(ApplicantProgramsController.class);
+
+    ProgramModel program = resourceCreator().insertActiveProgram("program");
+
+    String alphaNumProgramParam = program.getSlug();
+    Result result =
+        controller
+            .showWithApplicantId(fakeRequest(), currentApplicant.id, alphaNumProgramParam)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    String content = contentAsString(result);
+    assertThat(content)
+        .contains("Your session will automatically expire after 2 hours and 10 minutes");
+  }
+
+  @Test
+  public void
+      showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithSingleMinute() {
+    SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
+    when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
+    when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(1));
+
+    setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));
+
+    // Must get the controller after settings the extra injector binding
+    ApplicantProgramsController controller = instanceOf(ApplicantProgramsController.class);
+
+    ProgramModel program = resourceCreator().insertActiveProgram("program");
+
+    String alphaNumProgramParam = program.getSlug();
+    Result result =
+        controller
+            .showWithApplicantId(fakeRequest(), currentApplicant.id, alphaNumProgramParam)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    String content = contentAsString(result);
+    assertThat(content).contains("Your session will automatically expire after 1 minute");
+  }
+
+  @Test
+  public void
+      showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithMultipleMinutes() {
+    SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
+    when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
+    when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(5));
+
+    setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));
+
+    // Must get the controller after settings the extra injector binding
+    ApplicantProgramsController controller = instanceOf(ApplicantProgramsController.class);
+
+    ProgramModel program = resourceCreator().insertActiveProgram("program");
+
+    String alphaNumProgramParam = program.getSlug();
+    Result result =
+        controller
+            .showWithApplicantId(fakeRequest(), currentApplicant.id, alphaNumProgramParam)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    String content = contentAsString(result);
+    assertThat(content).contains("Your session will automatically expire after 5 minutes");
+  }
+
+  @Test
+  public void
+      showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithMultipleHoursAndSingleMinute() {
+    SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
+    when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
+    when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(121));
+
+    setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));
+
+    // Must get the controller after settings the extra injector binding
+    ApplicantProgramsController controller = instanceOf(ApplicantProgramsController.class);
+
+    ProgramModel program = resourceCreator().insertActiveProgram("program");
+
+    String alphaNumProgramParam = program.getSlug();
+    Result result =
+        controller
+            .showWithApplicantId(fakeRequest(), currentApplicant.id, alphaNumProgramParam)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    String content = contentAsString(result);
+    assertThat(content)
+        .contains("Your session will automatically expire after 2 hours and 1 minute");
+  }
+
+  @Test
+  public void showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithOneHour() {
+    SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
+    when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
+    when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(60));
+
+    setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));
+
+    // Must get the controller after settings the extra injector binding
+    ApplicantProgramsController controller = instanceOf(ApplicantProgramsController.class);
+
+    ProgramModel program = resourceCreator().insertActiveProgram("program");
+
+    String alphaNumProgramParam = program.getSlug();
+    Result result =
+        controller
+            .showWithApplicantId(fakeRequest(), currentApplicant.id, alphaNumProgramParam)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    String content = contentAsString(result);
+    assertThat(content).contains("Your session will automatically expire after 1 hour");
+  }
+
+  @Test
+  public void
+      showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithMultipleHours() {
+    SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
+    when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
+    when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(120));
+
+    setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));
+
+    // Must get the controller after settings the extra injector binding
+    ApplicantProgramsController controller = instanceOf(ApplicantProgramsController.class);
+
+    ProgramModel program = resourceCreator().insertActiveProgram("program");
+
+    String alphaNumProgramParam = program.getSlug();
+    Result result =
+        controller
+            .showWithApplicantId(fakeRequest(), currentApplicant.id, alphaNumProgramParam)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    String content = contentAsString(result);
+    assertThat(content).contains("Your session will automatically expire after 2 hours");
   }
 }

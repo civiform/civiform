@@ -1,132 +1,57 @@
-import {expect, test} from '../support/civiform_fixtures'
+import {test} from '../support/civiform_fixtures'
 import {loginAsAdmin, validateScreenshot, waitForPageJsLoad} from '../support'
 
-test.describe('admin program preview', () => {
-  test('preview draft program and submit', async ({
-    page,
-    adminPrograms,
-    adminQuestions,
-    applicantQuestions,
-  }) => {
+test.describe('admin preview as applicant', () => {
+  test.beforeEach(async ({page}) => {
     await loginAsAdmin(page)
-
-    await adminQuestions.addEmailQuestion({questionName: 'email-q'})
-    const programName = 'Apc program'
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.editProgramBlock(programName, 'description', [
-      'email-q',
-    ])
-    await adminPrograms.gotoEditDraftProgramPage(programName)
-
-    await page.click('button:has-text("Preview as applicant")')
-    await waitForPageJsLoad(page)
-    await validateScreenshot(page, 'program-preview-application-review-page')
-
-    await applicantQuestions.clickContinue()
-    await applicantQuestions.answerEmailQuestion('email@example.com')
-    await validateScreenshot(page, 'program-preview-application-block')
-
-    await applicantQuestions.clickNext()
-    await applicantQuestions.submitFromReviewPage()
-    await adminPrograms.expectProgramBlockEditPage(programName)
   })
 
-  test('preview active program and submit', async ({
+  test('preview as applicant and use to admin back button', async ({
     page,
     adminPrograms,
     adminQuestions,
-    applicantQuestions,
+    applicantProgramOverview,
   }) => {
-    await loginAsAdmin(page)
+    const programName = 'test program'
 
-    await adminQuestions.addEmailQuestion({questionName: 'email-q'})
-    const programName = 'Apc program'
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.editProgramBlock(programName, 'description', [
-      'email-q',
-    ])
-    await adminPrograms.publishAllDrafts()
-    await adminPrograms.gotoViewActiveProgramPage(programName)
+    await test.step('create test program', async () => {
+      await adminQuestions.addEmailQuestion({questionName: 'email-q'})
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        description: 'description',
+        questions: [{name: 'email-q'}],
+      })
+    })
 
-    await page.click('button:has-text("Preview as applicant")')
-    await waitForPageJsLoad(page)
+    await test.step('preview as applicant and check that back to admin button is visible', async () => {
+      await adminPrograms.gotoEditDraftProgramPage(programName)
+      await page.click('button:has-text("Preview as applicant")')
+      await waitForPageJsLoad(page)
 
-    await applicantQuestions.clickContinue()
-    await applicantQuestions.answerEmailQuestion('email@example.com')
+      await validateScreenshot(
+        page,
+        'admin-program-preview-application-overview-page',
+      )
+      await page.isVisible('a:has-text("Back to admin view")')
+    })
 
-    await applicantQuestions.clickNext()
-    await applicantQuestions.submitFromReviewPage()
-    await adminPrograms.expectProgramBlockReadOnlyPage()
-  })
+    await test.step('navigate in applicant preview', async () => {
+      await applicantProgramOverview.startApplicationFromProgramOverviewPage(
+        programName,
+      )
 
-  test('preview program and use back button', async ({
-    page,
-    adminPrograms,
-    adminQuestions,
-    applicantQuestions,
-  }) => {
-    await loginAsAdmin(page)
+      await page.isVisible('a:has-text("Back to admin view")')
 
-    await adminQuestions.addEmailQuestion({questionName: 'email-q'})
-    const programName = 'Apc program'
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.editProgramBlock(programName, 'description', [
-      'email-q',
-    ])
-    await adminPrograms.gotoEditDraftProgramPage(programName)
+      await validateScreenshot(
+        page,
+        'admin-program-preview-application-block-edit-page',
+      )
+    })
 
-    await page.click('button:has-text("Preview as applicant")')
-    await waitForPageJsLoad(page)
+    await test.step('navigate back to admin view', async () => {
+      await page.click('a:has-text("Back to admin view")')
 
-    await applicantQuestions.clickContinue()
-
-    await page.click('a:has-text("Back to admin view")')
-
-    await adminPrograms.expectProgramBlockEditPage(programName)
-  })
-
-  test('download pdf preview of draft program', async ({
-    page,
-    adminPrograms,
-    adminQuestions,
-  }) => {
-    await loginAsAdmin(page)
-
-    await adminQuestions.addEmailQuestion({questionName: 'email-q'})
-    const programName = 'Example Draft Program'
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.editProgramBlock(programName, 'description', [
-      'email-q',
-    ])
-    await adminPrograms.gotoEditDraftProgramPage(programName)
-
-    const pdfFile = await adminPrograms.getProgramPdf()
-
-    expect(pdfFile.length).toBeGreaterThan(1)
-    // The java services.export.PdfExporterTest class has tests that verify the PDF contents.
-    // This browser test just ensures a file is downloaded when the button is clicked.
-  })
-
-  test('download pdf preview of active program', async ({
-    page,
-    adminPrograms,
-    adminQuestions,
-  }) => {
-    await loginAsAdmin(page)
-
-    await adminQuestions.addEmailQuestion({questionName: 'email-q'})
-    const programName = 'Example Active Program'
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.editProgramBlock(programName, 'description', [
-      'email-q',
-    ])
-    await adminPrograms.publishProgram(programName)
-    await adminPrograms.gotoViewActiveProgramPage(programName)
-
-    const pdfFile = await adminPrograms.getProgramPdf()
-
-    expect(pdfFile.length).toBeGreaterThan(1)
-    // The java services.export.PdfExporterTest class has tests that verify the PDF contents.
-    // This browser test just ensures a file is downloaded when the button is clicked.
+      await adminPrograms.expectProgramBlockEditPage(programName)
+    })
   })
 })

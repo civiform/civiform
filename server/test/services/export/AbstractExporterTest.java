@@ -10,6 +10,7 @@ import junitparams.converters.Nullable;
 import models.AccountModel;
 import models.ApplicantModel;
 import models.ApplicationModel;
+import models.ApplicationStep;
 import models.LifecycleStage;
 import models.ProgramModel;
 import models.QuestionModel;
@@ -27,6 +28,7 @@ import services.applications.ProgramAdminApplicationService;
 import services.geo.ServiceAreaInclusion;
 import services.program.EligibilityDefinition;
 import services.program.IllegalPredicateOrderingException;
+import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNeedsABlockException;
 import services.program.ProgramNotFoundException;
@@ -38,6 +40,7 @@ import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
 import services.question.QuestionAnswerer;
+import services.question.YesNoQuestionOption;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
@@ -57,6 +60,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   // and the creation time to a PST time to test both cases.
   public static final Instant FAKE_CREATE_TIME = Instant.parse("2022-04-09T10:07:02.00Z");
   public static final Instant FAKE_SUBMIT_TIME = Instant.parse("2022-12-09T10:30:30.00Z");
+  public static final Instant FAKE_STATUS_MODIFIED_TIME = Instant.parse("2022-12-10T10:30:30.00Z");
 
   protected ProgramAdminApplicationService programAdminApplicationService;
   private static ProgramService programService;
@@ -95,71 +99,71 @@ public abstract class AbstractExporterTest extends ResetPostgres {
             .getQuestionDefinition()
             .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH);
     switch (questionType) {
-      case ADDRESS:
-        QuestionAnswerer.answerAddressQuestion(
-            applicantDataOne, answerPath, "street st", "apt 100", "city", "AB", "54321");
+      case ADDRESS ->
+          QuestionAnswerer.answerAddressQuestion(
+              applicantDataOne, answerPath, "street st", "apt 100", "city", "AB", "54321");
+
         // applicant two did not answer this question.
-        break;
-      case CHECKBOX:
+      case CHECKBOX -> {
         QuestionAnswerer.answerMultiSelectQuestion(applicantDataOne, answerPath, 0, 1L);
         QuestionAnswerer.answerMultiSelectQuestion(applicantDataOne, answerPath, 1, 2L);
         // applicant two did not answer this question.
-        break;
-      case CURRENCY:
-        QuestionAnswerer.answerCurrencyQuestion(applicantDataOne, answerPath, "1,234.56");
-        break;
-      case DATE:
-        QuestionAnswerer.answerDateQuestion(applicantDataOne, answerPath, "1980-01-01");
+      }
+      case CURRENCY ->
+          QuestionAnswerer.answerCurrencyQuestion(applicantDataOne, answerPath, "1,234.56");
+      case DATE -> QuestionAnswerer.answerDateQuestion(applicantDataOne, answerPath, "1980-01-01");
+
         // applicant two did not answer this question.
-        break;
-      case DROPDOWN:
-        QuestionAnswerer.answerSingleSelectQuestion(applicantDataOne, answerPath, 2L);
+      case DROPDOWN ->
+          QuestionAnswerer.answerSingleSelectQuestion(applicantDataOne, answerPath, 2L);
+
         // applicant two did not answer this question.
-        break;
-      case EMAIL:
-        QuestionAnswerer.answerEmailQuestion(applicantDataOne, answerPath, "one@example.com");
+      case EMAIL ->
+          QuestionAnswerer.answerEmailQuestion(applicantDataOne, answerPath, "one@example.com");
+
         // applicant two did not answer this question.
-        break;
-      case FILEUPLOAD:
-        QuestionAnswerer.answerFileQuestion(applicantDataOne, answerPath, "my-file-key");
+      case FILEUPLOAD ->
+          QuestionAnswerer.answerFileQuestion(applicantDataOne, answerPath, "my-file-key");
+
         // applicant two did not answer this question.
-        break;
-      case ID:
+      case ID -> {
         QuestionAnswerer.answerIdQuestion(applicantDataOne, answerPath, "012");
         QuestionAnswerer.answerIdQuestion(applicantDataTwo, answerPath, "123");
-        break;
-      case NAME:
+      }
+      case NAME -> {
         QuestionAnswerer.answerNameQuestion(
             applicantDataOne, answerPath, "Alice", "M", "Appleton", "Jr");
         QuestionAnswerer.answerNameQuestion(
             applicantDataTwo, answerPath, "Bob", "M", "Baker", "Sr");
-        break;
-      case NUMBER:
-        QuestionAnswerer.answerNumberQuestion(applicantDataOne, answerPath, "123456");
+      }
+      case NUMBER -> QuestionAnswerer.answerNumberQuestion(applicantDataOne, answerPath, "123456");
+
         // applicant two did not answer this question.
-        break;
-      case RADIO_BUTTON:
-        QuestionAnswerer.answerSingleSelectQuestion(applicantDataOne, answerPath, 1L);
+      case RADIO_BUTTON ->
+          QuestionAnswerer.answerSingleSelectQuestion(applicantDataOne, answerPath, 1L);
+
         // applicant two did not answer this question.
-        break;
-      case ENUMERATOR:
-        QuestionAnswerer.answerEnumeratorQuestion(
-            applicantDataOne, answerPath, ImmutableList.of("item1", "item2"));
+      case ENUMERATOR ->
+          QuestionAnswerer.answerEnumeratorQuestion(
+              applicantDataOne, answerPath, ImmutableList.of("item1", "item2"));
+
         // applicant two did not answer this question.
-        break;
-      case TEXT:
-        QuestionAnswerer.answerTextQuestion(
-            applicantDataOne, answerPath, "Some Value \" containing ,,, special characters");
+      case TEXT ->
+          QuestionAnswerer.answerTextQuestion(
+              applicantDataOne, answerPath, "Some Value \" containing ,,, special characters");
+
         // applicant two did not answer this question.
-        break;
-      case PHONE:
-        QuestionAnswerer.answerPhoneQuestion(applicantDataOne, answerPath, "US", "(615) 757-1010");
-        break;
-      case STATIC:
+      case PHONE ->
+          QuestionAnswerer.answerPhoneQuestion(
+              applicantDataOne, answerPath, "US", "(615) 757-1010");
+      case YES_NO -> QuestionAnswerer.answerSingleSelectQuestion(applicantDataOne, answerPath, 1L);
+      case STATIC -> {
         // Do nothing.
-        break;
-      case NULL_QUESTION:
+      }
+        // TODO(#11007): Allow export of Map question data.
+      case MAP, NULL_QUESTION -> {
         // Do nothing.
+      }
     }
   }
 
@@ -232,6 +236,12 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       programAdminApplicationService.setNote(
           application, ApplicationEventDetails.NoteEvent.create(note), admin);
     }
+    application.save();
+    application.refresh();
+
+    application.setStatusLastModifiedTimeForTest(FAKE_STATUS_MODIFIED_TIME);
+    application.save();
+
     application.refresh();
     return application;
   }
@@ -250,7 +260,13 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   }
 
   protected void createFakeProgram() {
-    ProgramBuilder fakeProgram = ProgramBuilder.newActiveProgram("Fake Program", "Test program");
+    ProgramBuilder fakeProgram =
+        ProgramBuilder.newActiveProgram("Fake Program", "Test program")
+            .withApplicationSteps(
+                ImmutableList.of(
+                    new ApplicationStep("introduction", "step 1 description"),
+                    new ApplicationStep("fill basic", "step 2 description")));
+
     for (int i = 0; i < fakeQuestions.size(); i++) {
       int screenNumber = i + 1;
       fakeProgram
@@ -635,7 +651,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         ProgramModel program, QuestionModel questionToRemove)
         throws ProgramNotFoundException,
             ProgramNeedsABlockException,
-            IllegalPredicateOrderingException {
+            IllegalPredicateOrderingException,
+            ProgramBlockDefinitionNotFoundException {
       ProgramDefinition draft = programService.newDraftOf(program.id);
       var blockToDelete =
           draft.blockDefinitions().stream()
@@ -1213,6 +1230,25 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
+    FakeApplicationFiller answerYesNoQuestion(
+        QuestionModel question, YesNoQuestionOption optionId) {
+      return answerYesNoQuestion(question, null, optionId);
+    }
+
+    FakeApplicationFiller answerYesNoQuestion(
+        QuestionModel question, String repeatedEntityName, YesNoQuestionOption optionId) {
+      var repeatedEntity =
+          Optional.ofNullable(repeatedEntityName).flatMap(name -> getHouseholdMemberEntity(name));
+      Path answerPath =
+          question
+              .getQuestionDefinition()
+              .getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
+      ApplicantData applicantData = applicant.getApplicantData();
+      QuestionAnswerer.answerSingleSelectQuestion(applicantData, answerPath, optionId.getId());
+      applicant.save();
+      return this;
+    }
+
     FakeApplicationFiller submit() {
       application = new ApplicationModel(applicant, program, LifecycleStage.ACTIVE);
       application.setApplicantData(applicant.getApplicantData());
@@ -1224,6 +1260,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       // the value, manually set createTime and save and refresh the application.
       application.setCreateTimeForTest(this.createTime);
       application.setSubmitTimeForTest(this.submitTime);
+      application.setStatusLastModifiedTimeForTest(this.createTime);
       application.save();
 
       return this;

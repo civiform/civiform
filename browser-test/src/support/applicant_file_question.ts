@@ -1,14 +1,15 @@
-import {expect} from '@playwright/test'
-import {Page} from 'playwright'
+import {expect} from './civiform_fixtures'
+import {Page} from '@playwright/test'
 
 /** Class for working with the file upload question that applicants see. */
 export class ApplicantFileQuestion {
   private fileSelectionErrorLocator = '#cf-fileupload-required-error'
   private fileTooLargeErrorLocator = '#cf-fileupload-too-large-error'
   private continueButtonLocator = '#fileupload-continue-button'
+  private continueFormLocator = '#cf-fileupload-continue-form'
   private skipButtonLocator = '#fileupload-skip-button'
   private deleteButtonLocator = '#fileupload-delete-button'
-  private uploadedFilesLocator = '#cf-fileupload-uploaded-files'
+  private questionErrorLocator = '.cf-question-error-message'
 
   private page!: Page
 
@@ -16,28 +17,28 @@ export class ApplicantFileQuestion {
     this.page = page
   }
 
-  async expectFileSelectionErrorShown() {
-    const error = this.page.locator(this.fileSelectionErrorLocator)
-    expect(await error?.isHidden()).toEqual(false)
+  async expectQuestionErrorShown() {
+    await expect(this.page.locator(this.questionErrorLocator)).toBeVisible()
+  }
+
+  async expectQuestionErrorHidden() {
+    await expect(this.page.locator(this.questionErrorLocator)).toBeHidden()
   }
 
   async expectFileSelectionErrorHidden() {
-    const error = this.page.locator(this.fileSelectionErrorLocator)
-    expect(await error?.isHidden()).toEqual(true)
+    await expect(this.page.locator(this.fileSelectionErrorLocator)).toBeHidden()
   }
 
   async expectFileTooLargeErrorShown() {
-    const error = this.page.locator(this.fileTooLargeErrorLocator)
-    expect(await error?.isHidden()).toEqual(false)
+    await expect(this.page.locator(this.fileTooLargeErrorLocator)).toBeVisible()
   }
 
   async expectFileTooLargeErrorHidden() {
-    const error = this.page.locator(this.fileTooLargeErrorLocator)
-    expect(await error?.isHidden()).toEqual(true)
+    await expect(this.page.locator(this.fileTooLargeErrorLocator)).toBeHidden()
   }
 
   async expectFileNameDisplayed(fileName: string) {
-    expect(await this.page.innerHTML('body')).toContain(fileName)
+    await expect(this.page.locator('body')).toContainText(fileName)
   }
 
   async expectFileNameCount(fileName: string, count: number) {
@@ -50,11 +51,11 @@ export class ApplicantFileQuestion {
   }
 
   async expectHasSkipButton() {
-    expect(await this.page.locator(this.skipButtonLocator).count()).toEqual(1)
+    await expect(this.page.locator(this.skipButtonLocator)).toBeVisible()
   }
 
   async expectNoSkipButton() {
-    expect(await this.page.locator(this.skipButtonLocator).count()).toEqual(0)
+    await expect(this.page.locator(this.skipButtonLocator)).toBeHidden()
   }
 
   async expectFileInputEnabled() {
@@ -74,15 +75,20 @@ export class ApplicantFileQuestion {
   }
 
   async expectHasContinueButton() {
-    expect(await this.page.locator(this.continueButtonLocator).count()).toEqual(
-      1,
-    )
+    await expect(this.page.locator(this.continueButtonLocator)).toBeVisible()
   }
 
   async expectNoContinueButton() {
-    expect(await this.page.locator(this.continueButtonLocator).count()).toEqual(
-      0,
-    )
+    await expect(this.page.locator(this.continueButtonLocator)).toBeHidden()
+  }
+
+  // The Continue button has form="cf-fileupload-continue-form".
+  async expectHasContinueForm() {
+    await expect(this.page.locator(this.continueFormLocator)).toBeAttached()
+  }
+
+  async expectNoContinueForm() {
+    await expect(this.page.locator(this.continueFormLocator)).not.toBeAttached()
   }
 
   async clickContinue() {
@@ -90,11 +96,11 @@ export class ApplicantFileQuestion {
   }
 
   async expectHasDeleteButton() {
-    expect(await this.page.locator(this.deleteButtonLocator).count()).toEqual(1)
+    await expect(this.page.locator(this.deleteButtonLocator)).toBeVisible()
   }
 
   async expectNoDeleteButton() {
-    expect(await this.page.locator(this.deleteButtonLocator).count()).toEqual(0)
+    await expect(this.page.locator(this.deleteButtonLocator)).toBeHidden()
   }
 
   async clickDelete() {

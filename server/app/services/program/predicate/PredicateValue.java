@@ -1,18 +1,24 @@
 package services.program.predicate;
 
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static j2html.TagCreator.join;
+import static j2html.TagCreator.strong;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import controllers.admin.PredicateUtils;
+import j2html.tags.UnescapedText;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -105,33 +111,76 @@ public abstract class PredicateValue {
   public String toDisplayString(QuestionDefinition question) {
     /* Special handling of "simple" question types, EG non-multivalued questions. */
 
+    return toDisplayStringInternal(
+        question,
+        /* formatter= */ str -> str, // Don't apply extra formating
+        /* aggregator= */ collection -> String.join(" and ", collection));
+  }
+
+  /**
+   * Returns the value in a formatted, human-readable HTML format.
+   *
+   * <ul>
+   *   <li>Currency: $1000.23, $3.00
+   *   <li>Dates: yyyy-MM-dd
+   *   <li>User entered strings: Always quoted, including in lists
+   *   <li>Question defined strings: as defined in the default locale, unquoted
+   *   <li>Lists: bracketed - [1, 2, 3] ["Charles", "Jane"] [Option1, Option2]
+   * </ul>
+   *
+   * @param question the question the predicate is applied to.
+   */
+  public UnescapedText toDisplayFormattedHtml(QuestionDefinition question) {
+    return toDisplayStringInternal(
+        question,
+        PredicateValue::formatDisplayHtml,
+        collection -> PredicateUtils.joinUnescapedText(collection, "and"));
+  }
+
+  /**
+   * Generalized string creator to represent the predicate that allows for customization.
+   *
+   * @param formatter formats the String value into the templated type.
+   * @param aggregator collects multiple templated items into a single representation of the
+   *     templates type.
+   */
+  private <T> T toDisplayStringInternal(
+      QuestionDefinition question,
+      Function<String, T> formatter,
+      Function<ImmutableList<T>, T> aggregator) {
+    /* Special handling of "simple" question types, EG non-multivalued questions. */
+
     // Currency is stored as cents and displayed as dollars/cents with 2 cent digits.
     if (question.getQuestionType().equals(QuestionType.CURRENCY)) {
       if (type() == OperatorRightHandType.PAIR_OF_LONGS) {
-        return splitListString(value())
-            .map(PredicateValue::formatCurrencyString)
-            .collect(Collectors.joining(" and "));
+        return aggregator.apply(
+            splitListString(value())
+                .map(PredicateValue::displayCurrencyString)
+                .map(formatter)
+                .collect(toImmutableList()));
       }
-      return formatCurrencyString(value());
+      return formatter.apply(displayCurrencyString(value()));
     }
 
     if (type() == OperatorRightHandType.DATE) {
-      return formatDateString(value());
+      return formatter.apply(displayDateString(value()));
     }
 
     if (type() == OperatorRightHandType.PAIR_OF_DATES) {
-      return splitListString(value())
-          .map(PredicateValue::formatDateString)
-          .collect(Collectors.joining(" and "));
+      return aggregator.apply(
+          splitListString(value())
+              .map(PredicateValue::displayDateString)
+              .map(formatter)
+              .collect(toImmutableList()));
     }
 
     if (type() == OperatorRightHandType.PAIR_OF_LONGS) {
-      return splitListString(value()).collect(Collectors.joining(" and "));
+      return aggregator.apply(splitListString(value()).map(formatter).collect(toImmutableList()));
     }
 
     // For all other "simple" questions use the stored value directly.
     if (!question.getQuestionType().isMultiOptionType()) {
-      return value();
+      return formatter.apply(value());
     }
 
     // For multi option questions the value ids are stored in the database, so we need to convert
@@ -141,12 +190,13 @@ public abstract class PredicateValue {
     // evaluation.
     MultiOptionQuestionDefinition multiOptionQuestion = (MultiOptionQuestionDefinition) question;
     if (type() == OperatorRightHandType.LIST_OF_STRINGS) {
-      return splitListString(value())
-          .map(id -> parseMultiOptionIdToText(multiOptionQuestion, id))
-          .collect(toImmutableList())
-          .toString();
+      return formatter.apply(
+          splitListString(value())
+              .map(id -> parseMultiOptionIdToText(multiOptionQuestion, id))
+              .collect(toImmutableList())
+              .toString());
     }
-    return parseMultiOptionIdToText(multiOptionQuestion, value());
+    return formatter.apply(parseMultiOptionIdToText(multiOptionQuestion, value()));
   }
 
   /**
@@ -169,18 +219,38 @@ public abstract class PredicateValue {
     return String.valueOf(value.atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli());
   }
 
-  private static String formatCurrencyString(String value) {
+  private static String displayCurrencyString(String value) {
     long storedCents = Long.parseLong(value);
     long dollars = storedCents / 100;
     long cents = storedCents % 100;
     return String.format("$%d.%02d", dollars, cents);
   }
 
-  private static String formatDateString(String value) {
+  private String toValueString(String value, QuestionType questionType) {
+    value = value.trim();
+    if (ImmutableList.of(
+                OperatorRightHandType.LONG,
+                OperatorRightHandType.PAIR_OF_LONGS,
+                OperatorRightHandType.LIST_OF_LONGS)
+            .contains(type())
+        && questionType.equals(QuestionType.CURRENCY)) {
+      return displayCurrencyString(value).replace("$", "");
+    } else if (type().equals(OperatorRightHandType.DATE)
+        || type().equals(OperatorRightHandType.PAIR_OF_DATES)) {
+      return displayDateString(value);
+    }
+    return value.replace("\"", "");
+  }
+
+  private static String displayDateString(String value) {
     return Instant.ofEpochMilli(Long.parseLong(value))
         .atZone(ZoneId.systemDefault())
         .toLocalDate()
         .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+  }
+
+  private static UnescapedText formatDisplayHtml(String value) {
+    return join(strong(value));
   }
 
   /**
@@ -204,5 +274,49 @@ public abstract class PredicateValue {
    */
   public String valueWithoutSurroundingQuotes() {
     return type() == OperatorRightHandType.STRING ? value().replace("\"", "") : value();
+  }
+
+  /**
+   * Converts this PredicateValue to a {@link SelectedValue} for use in the admin expanded predicate
+   * view. Type conversions are as follows:
+   *
+   * <ul>
+   *   <li>STRING, LONG, DOUBLE, DATE, SERVICE_AREA -> SINGLE
+   *   <li>PAIR_OF_LONGS, PAIR_OF_DATES -> PAIR
+   *   <li>LIST_OF_LONGS, LIST_OF_STRINGS -> MULTIPLE
+   * </ul>
+   */
+  public SelectedValue toSelectedValue(QuestionType questionType) {
+    SelectedValue selectedValue = SelectedValue.single("");
+    switch (type()) {
+      case DATE, DOUBLE, LONG, SERVICE_AREA, STRING -> {
+        return SelectedValue.single(toValueString(value(), questionType));
+      }
+      case PAIR_OF_LONGS, PAIR_OF_DATES -> {
+        // Pairs map to operators where we expect exactly two values (e.g. BETWEEN)
+        // Order matters, and we want to allow for repetition, so use a list here.
+        ImmutableList<String> values =
+            splitListString(value())
+                .map(value -> toValueString(value, questionType))
+                .collect(toImmutableList());
+        checkState(values.size() == 2, "Expected exactly two values for %s PredicateValue", type());
+        selectedValue =
+            SelectedValue.pair(new SelectedValue.ValuePair(values.get(0), values.get(1)));
+      }
+      case LIST_OF_STRINGS, LIST_OF_LONGS -> {
+        // Lists map to multiple-value question types (e.g. checkboxes).
+        // Order doesn't matter and we want unique values, so use a set.
+        ImmutableSet<String> values =
+            splitListString(value())
+                .map(value -> toValueString(value, questionType))
+                .collect(ImmutableSet.toImmutableSet());
+        selectedValue = SelectedValue.multiple(values);
+      }
+      default -> {
+        throw new IllegalArgumentException(
+            String.format("Unsupported PredicateValue type: %s", type()));
+      }
+    }
+    return selectedValue;
   }
 }

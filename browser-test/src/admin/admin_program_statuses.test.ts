@@ -5,7 +5,7 @@ import {
   validateScreenshot,
   validateToastMessage,
 } from '../support'
-import {waitForAnyModal} from '../support/wait'
+import {waitForAnyModalLocator} from '../support/wait'
 
 test.describe('modify program statuses', () => {
   test.beforeEach(async ({page}) => {
@@ -38,8 +38,8 @@ test.describe('modify program statuses', () => {
     test('renders create new status modal', async ({page}) => {
       await page.click('button:has-text("Create a new status")')
 
-      const modal = await waitForAnyModal(page)
-      expect(await modal.innerText()).toContain('Create a new status')
+      const modal = await waitForAnyModalLocator(page)
+      await expect(modal).toContainText('Create a new status')
       await validateScreenshot(page, 'create-new-status-modal')
     })
 
@@ -159,11 +159,10 @@ test.describe('modify program statuses', () => {
         expectEmailExists: false,
       })
       await adminProgramStatuses.expectStatusNotExists(secondStatusName)
-      const emailWarningVisible =
-        await adminProgramStatuses.emailTranslationWarningIsVisible(
-          'Updated status name',
-        )
-      expect(emailWarningVisible).toBe(false)
+      await adminProgramStatuses.expectEmailTranslationWarningVisibility(
+        'Updated status name',
+        false,
+      )
     })
 
     test('edits an existing status, configures email, and deletes the configured email', async ({
@@ -182,11 +181,11 @@ test.describe('modify program statuses', () => {
         statusName: firstStatusName,
         expectedEmailBody: 'An email body',
       })
-      const emailWarningVisible =
-        await adminProgramStatuses.emailTranslationWarningIsVisible(
-          firstStatusName,
-        )
-      expect(emailWarningVisible).toBe(true)
+
+      await adminProgramStatuses.expectEmailTranslationWarningVisibility(
+        firstStatusName,
+        true,
+      )
 
       // Edit the configured email.
       await adminProgramStatuses.editStatus(firstStatusName, {

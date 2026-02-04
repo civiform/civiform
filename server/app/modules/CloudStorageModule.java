@@ -3,7 +3,6 @@ package modules;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import play.Environment;
@@ -12,16 +11,18 @@ import services.cloud.PublicStorageClient;
 import services.cloud.StorageServiceName;
 import services.cloud.aws.AwsApplicantStorage;
 import services.cloud.aws.AwsPublicStorage;
-import services.cloud.aws.AwsS3Client;
-import services.cloud.aws.AwsS3ClientWrapper;
+import services.cloud.aws.AwsStorageUtils;
 import services.cloud.azure.AzureApplicantStorage;
 import services.cloud.azure.AzurePublicStorage;
-import views.BaseHtmlView;
-import views.applicant.ApplicantProgramBlockEditView;
-import views.applicant.ApplicantProgramBlockEditViewFactory;
-import views.fileupload.AwsFileUploadViewStrategy;
+import services.cloud.gcp.GcpApplicantStorage;
+import services.cloud.gcp.GcpPublicStorage;
+import services.cloud.gcp.GcpStorageUtils;
+import services.cloud.generic_s3.AbstractS3StorageUtils;
+import services.cloud.generic_s3.GenericS3Client;
+import services.cloud.generic_s3.GenericS3ClientWrapper;
 import views.fileupload.AzureFileUploadViewStrategy;
 import views.fileupload.FileUploadViewStrategy;
+import views.fileupload.GenericS3FileUploadViewStrategy;
 
 /** Configures and initializes the classes for interacting with file storage backends. */
 public class CloudStorageModule extends AbstractModule {
@@ -45,22 +46,25 @@ public class CloudStorageModule extends AbstractModule {
     }
 
     switch (storageServiceName) {
-      case AWS_S3:
+      case S3, AWS_S3 -> {
+        bind(AbstractS3StorageUtils.class).to(AwsStorageUtils.class);
         bind(ApplicantStorageClient.class).to(AwsApplicantStorage.class);
         bind(PublicStorageClient.class).to(AwsPublicStorage.class);
-        bind(FileUploadViewStrategy.class).to(AwsFileUploadViewStrategy.class);
-        bind(AwsS3ClientWrapper.class).to(AwsS3Client.class);
-        break;
-      case AZURE_BLOB:
+        bind(FileUploadViewStrategy.class).to(GenericS3FileUploadViewStrategy.class);
+        bind(GenericS3ClientWrapper.class).to(GenericS3Client.class);
+      }
+      case GCP_S3 -> {
+        bind(AbstractS3StorageUtils.class).to(GcpStorageUtils.class);
+        bind(ApplicantStorageClient.class).to(GcpApplicantStorage.class);
+        bind(PublicStorageClient.class).to(GcpPublicStorage.class);
+        bind(FileUploadViewStrategy.class).to(GenericS3FileUploadViewStrategy.class);
+        bind(GenericS3ClientWrapper.class).to(GenericS3Client.class);
+      }
+      case AZURE_BLOB -> {
         bind(ApplicantStorageClient.class).to(AzureApplicantStorage.class);
         bind(PublicStorageClient.class).to(AzurePublicStorage.class);
         bind(FileUploadViewStrategy.class).to(AzureFileUploadViewStrategy.class);
-        break;
+      }
     }
-
-    install(
-        new FactoryModuleBuilder()
-            .implement(BaseHtmlView.class, ApplicantProgramBlockEditView.class)
-            .build(ApplicantProgramBlockEditViewFactory.class));
   }
 }

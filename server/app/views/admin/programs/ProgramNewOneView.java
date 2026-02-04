@@ -9,6 +9,7 @@ import forms.ProgramForm;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import models.ProgramNotificationPreference;
+import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import repository.AccountRepository;
@@ -31,8 +32,9 @@ public final class ProgramNewOneView extends ProgramFormBuilder {
       Config configuration,
       SettingsManifest settingsManifest,
       AccountRepository accountRepository,
-      CategoryRepository categoryRepository) {
-    super(configuration, settingsManifest, accountRepository, categoryRepository);
+      CategoryRepository categoryRepository,
+      MessagesApi messagesApi) {
+    super(configuration, settingsManifest, accountRepository, categoryRepository, messagesApi);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
   }
 
@@ -44,7 +46,8 @@ public final class ProgramNewOneView extends ProgramFormBuilder {
     // an unset checkbox value is not included in the POST at all, so there's nothing to
     // override the value the constructor initializes and set it back to an empty array.
     programForm.setNotificationPreferences(ProgramNotificationPreference.getDefaultsForForm());
-    return render(request, programForm, Optional.empty(), Optional.empty());
+    return render(
+        request, programForm, /* toastMessage= */ Optional.empty(), /* modal= */ Optional.empty());
   }
 
   /**
@@ -52,21 +55,21 @@ public final class ProgramNewOneView extends ProgramFormBuilder {
    * pre-populated based on the content of programForm.
    */
   public Content render(Request request, ProgramForm programForm, ToastMessage toastMessage) {
-    return render(request, programForm, Optional.of(toastMessage), Optional.empty());
+    return render(request, programForm, Optional.of(toastMessage), /* modal= */ Optional.empty());
   }
 
   /**
    * Renders the create form with a modal that confirms whether or not the user wants to change
-   * which program is set to be the common intake form. Fields are pre-populated based on the
-   * content of programForm.
+   * which program is set to be the pre-screener form. Fields are pre-populated based on the content
+   * of programForm.
    */
-  public Content renderChangeCommonIntakeConfirmation(
-      Request request, ProgramForm programForm, String existingCommonIntakeFormDisplayName) {
+  public Content renderChangePreScreenerConfirmation(
+      Request request, ProgramForm programForm, String existingPreScreenerFormDisplayName) {
     return render(
         request,
         programForm,
-        Optional.empty(),
-        Optional.of(buildConfirmCommonIntakeChangeModal(existingCommonIntakeFormDisplayName)));
+        /* toastMessage= */ Optional.empty(),
+        Optional.of(buildConfirmPreScreenerChangeModal(existingPreScreenerFormDisplayName)));
   }
 
   private Content render(
@@ -79,7 +82,7 @@ public final class ProgramNewOneView extends ProgramFormBuilder {
     DivTag contentDiv =
         div(
                 renderHeader(title),
-                buildProgramForm(request, programForm, ProgramEditStatus.CREATION)
+                buildProgramForm(programForm, ProgramEditStatus.CREATION)
                     .with(makeCsrfTokenInputTag(request))
                     .withAction(controllers.admin.routes.AdminProgramController.create().url()))
             .withClasses("mx-4", "my-12", "flex", "flex-col");

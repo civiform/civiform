@@ -25,17 +25,20 @@ test.describe('Email question for applicant flow', () => {
     test('validate screenshot', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
 
-      await validateScreenshot(page, 'email')
-    })
+      await test.step('Screenshot without errors', async () => {
+        await validateScreenshot(page.getByTestId('questionRoot'), 'email', {
+          fullPage: false,
+        })
+      })
 
-    test('validate screenshot with errors', async ({
-      page,
-      applicantQuestions,
-    }) => {
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.clickNext()
-
-      await validateScreenshot(page, 'email-errors')
+      await test.step('Screenshot with errors', async () => {
+        await applicantQuestions.clickContinue()
+        await validateScreenshot(
+          page.getByTestId('questionRoot'),
+          'email-errors',
+          {fullPage: false},
+        )
+      })
     })
 
     test('with email input submits successfully', async ({
@@ -43,7 +46,7 @@ test.describe('Email question for applicant flow', () => {
     }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerEmailQuestion('my_email@civiform.gov')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       await applicantQuestions.submitFromReviewPage()
     })
@@ -53,14 +56,20 @@ test.describe('Email question for applicant flow', () => {
       applicantQuestions,
     }) => {
       await applicantQuestions.applyProgram(programName)
-      // Click next without inputting anything.
-      await applicantQuestions.clickNext()
+      // Click "Continue" without inputting anything.
+      await applicantQuestions.clickContinue()
 
-      const emailId = '.cf-question-email'
-      expect(await page.innerText(emailId)).toContain(
-        'This question is required.',
-      )
-      expect(await page.innerHTML(emailId)).toContain('autofocus')
+      await expect(page.getByText('This question is required.')).toBeVisible()
+      expect(await page.innerHTML('.cf-question-email')).toContain('autofocus')
+    })
+
+    test('has no accessiblity violations', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+
+      await validateAccessibility(page)
     })
   })
 
@@ -91,9 +100,9 @@ test.describe('Email question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerEmailQuestion('your_email@civiform.gov', 0)
       await applicantQuestions.answerEmailQuestion('my_email@civiform.gov', 1)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.expectReviewPage()
     })
 
     test('with unanswered optional question submits successfully', async ({
@@ -102,9 +111,9 @@ test.describe('Email question for applicant flow', () => {
       // Only answer second question. First is optional.
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerEmailQuestion('my_email@civiform.gov', 1)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.expectReviewPage()
     })
 
     test('has no accessiblity violations', async ({

@@ -2,7 +2,10 @@ package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertThrows;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import io.ebean.DataIntegrityException;
 import java.util.Locale;
@@ -20,15 +23,19 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionDefinitionConfig;
 import services.question.types.TextQuestionDefinition;
+import support.TestQuestionBank;
 
 public class QuestionRepositoryTest extends ResetPostgres {
-
+  private static final TestQuestionBank disconnectedQuestionBank =
+      new TestQuestionBank(/* canSave= */ false);
   private QuestionRepository repo;
+  private TransactionManager transactionManager;
   private VersionRepository versionRepo;
 
   @Before
   public void setupQuestionRepository() {
     repo = instanceOf(QuestionRepository.class);
+    transactionManager = instanceOf(TransactionManager.class);
     versionRepo = instanceOf(VersionRepository.class);
   }
 
@@ -191,21 +198,12 @@ public class QuestionRepositoryTest extends ResetPostgres {
 
   @Test
   public void insertQuestion() {
-    QuestionDefinition questionDefinition =
-        new TextQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName("question")
-                .setDescription("applicant's name")
-                .setQuestionText(LocalizedStrings.of(Locale.US, "What is your name?"))
-                .setQuestionHelpText(LocalizedStrings.empty())
-                .build());
-    QuestionModel question = new QuestionModel(questionDefinition);
-
-    repo.insertQuestion(question).toCompletableFuture().join();
-
-    long id = question.id;
+    repo.insertQuestion(disconnectedQuestionBank.nameApplicantName()).toCompletableFuture().join();
+    long id = testQuestionBank.nameApplicantName().id;
     QuestionModel q = repo.lookupQuestion(id).toCompletableFuture().join().get();
+
     assertThat(q.id).isEqualTo(id);
+    assertThat(q.getConcurrencyToken()).isNotNull();
   }
 
   @Test
@@ -221,8 +219,9 @@ public class QuestionRepositoryTest extends ResetPostgres {
     QuestionModel question = new QuestionModel(questionDefinition);
 
     repo.insertQuestionSync(question);
+    QuestionModel q = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
 
-    assertThat(repo.lookupQuestion(question.id).toCompletableFuture().join()).hasValue(question);
+    assertThat(q).isEqualTo(question);
   }
 
   @Test
@@ -241,28 +240,88 @@ public class QuestionRepositoryTest extends ResetPostgres {
 
   @Test
   public void updateQuestion() throws UnsupportedQuestionTypeException {
-    QuestionModel question = resourceCreator.insertQuestion();
-    QuestionDefinition questionDefinition = question.getQuestionDefinition();
-    questionDefinition =
-        new QuestionDefinitionBuilder(questionDefinition).setDescription("new description").build();
+    QuestionModel initialQuestion = resourceCreator.insertQuestion();
+    QuestionDefinition initialQuestionDefinition = initialQuestion.getQuestionDefinition();
+    initialQuestionDefinition =
+        new QuestionDefinitionBuilder(initialQuestionDefinition)
+            .setDescription("new description")
+            .build();
 
-    repo.updateQuestion(new QuestionModel(questionDefinition)).toCompletableFuture().join();
+    repo.updateQuestion(new QuestionModel(initialQuestionDefinition)).toCompletableFuture().join();
+    QuestionModel retrievedQuestion =
+        repo.lookupQuestion(initialQuestion.id).toCompletableFuture().join().get();
+    QuestionDefinition retrievedQuestionDefinition = retrievedQuestion.getQuestionDefinition();
 
-    QuestionModel q = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
-    assertThat(q.getQuestionDefinition()).isEqualTo(questionDefinition);
+    // assert concurrency token has changed
+    assertThat(retrievedQuestionDefinition.getConcurrencyToken().get())
+        .isNotEqualTo(initialQuestionDefinition.getConcurrencyToken().get());
+
+    // assert other fields are equal via a QuestionDefinition with a matching token
+    QuestionDefinition initialQuestionDefinitionWithMatchingToken =
+        new QuestionDefinitionBuilder(initialQuestionDefinition)
+            .setConcurrencyToken(retrievedQuestion.getConcurrencyToken())
+            .build();
+    assertThat(retrievedQuestionDefinition).isEqualTo(initialQuestionDefinitionWithMatchingToken);
   }
 
   @Test
   public void updateQuestionSync() throws UnsupportedQuestionTypeException {
-    QuestionModel question = resourceCreator.insertQuestion();
-    QuestionDefinition questionDefinition = question.getQuestionDefinition();
-    questionDefinition =
-        new QuestionDefinitionBuilder(questionDefinition).setDescription("new description").build();
+    QuestionModel initialQuestion = resourceCreator.insertQuestion();
+    QuestionDefinition initialQuestionDefinition = initialQuestion.getQuestionDefinition();
+    initialQuestionDefinition =
+        new QuestionDefinitionBuilder(initialQuestionDefinition)
+            .setDescription("new description")
+            .build();
 
-    repo.updateQuestionSync(new QuestionModel(questionDefinition));
+    repo.updateQuestionSync(new QuestionModel(initialQuestionDefinition));
+    QuestionModel retrievedQuestion =
+        repo.lookupQuestion(initialQuestion.id).toCompletableFuture().join().get();
+    QuestionDefinition retrievedQuestionDefinition = retrievedQuestion.getQuestionDefinition();
 
-    QuestionModel q = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
-    assertThat(q.getQuestionDefinition()).isEqualTo(questionDefinition);
+    // assert concurrency token has changed
+    assertThat(retrievedQuestionDefinition.getConcurrencyToken().get())
+        .isNotEqualTo(initialQuestionDefinition.getConcurrencyToken().get());
+
+    // assert other fields are equal via a QuestionDefinition with a matching token
+    QuestionDefinition initialQuestionDefinitionWithMatchingToken =
+        new QuestionDefinitionBuilder(initialQuestionDefinition)
+            .setConcurrencyToken(retrievedQuestion.getConcurrencyToken())
+            .build();
+    assertThat(retrievedQuestionDefinition).isEqualTo(initialQuestionDefinitionWithMatchingToken);
+  }
+
+  @Test
+  public void createOrUpdateDraft_creatingDraftEnumeratorPreservesDraftRepeatedQuestions()
+      throws UnsupportedQuestionTypeException {
+    QuestionModel enumeratorQuestion = testQuestionBank.enumeratorApplicantHouseholdMembers();
+    QuestionModel repeatedQuestion = testQuestionBank.idRepeatedHouseholdMemberId();
+
+    // Create new draft of repeated question and publish it
+    QuestionDefinition firstRepeatedQuestionUpdate =
+        new QuestionDefinitionBuilder(repeatedQuestion.getQuestionDefinition())
+            .setDescription("update 1")
+            .build();
+    repo.createOrUpdateDraft(firstRepeatedQuestionUpdate);
+    versionRepo.publishNewSynchronizedVersion();
+
+    // Create new draft of repeated question
+    QuestionDefinition secondRepeatedQuestionUpdate =
+        new QuestionDefinitionBuilder(repeatedQuestion.getQuestionDefinition())
+            .setDescription("update 2")
+            .build();
+    QuestionModel secondRepeatedQuestion = repo.createOrUpdateDraft(secondRepeatedQuestionUpdate);
+
+    // Create draft of enumerator question
+    QuestionDefinition enumeratorQuestionUpdate =
+        new QuestionDefinitionBuilder(enumeratorQuestion.getQuestionDefinition())
+            .setDescription("updated")
+            .build();
+    repo.createOrUpdateDraft(enumeratorQuestionUpdate);
+
+    secondRepeatedQuestion.refresh();
+
+    assertThat(secondRepeatedQuestion.getQuestionDefinition().getDescription())
+        .isEqualTo(secondRepeatedQuestionUpdate.getDescription());
   }
 
   @Test
@@ -433,6 +492,33 @@ public class QuestionRepositoryTest extends ResetPostgres {
                 .getQuestionTags()
                 .contains(PrimaryApplicantInfoTag.APPLICANT_PHONE.getQuestionTag()))
         .isFalse();
+  }
+
+  @Test
+  public void bulkCreateQuestions_withoutTransaction_throws() {
+    Exception e =
+        assertThrows(
+            IllegalStateException.class, () -> repo.bulkCreateQuestions(ImmutableList.of()));
+
+    assertThat(e)
+        .hasMessageContaining("bulkCreateQuestions must be called from within a transaction");
+  }
+
+  @Test
+  public void bulkCreateQuestions_createsAllQuestions() {
+    ImmutableList<QuestionDefinition> questionsToSave =
+        ImmutableList.of(
+            disconnectedQuestionBank.nameApplicantName().getQuestionDefinition(),
+            disconnectedQuestionBank.addressApplicantAddress().getQuestionDefinition());
+
+    ImmutableMap<String, QuestionDefinition> savedQuestions =
+        transactionManager.execute(
+            () -> {
+              return repo.bulkCreateQuestions(questionsToSave);
+            });
+
+    assertThat(savedQuestions).hasSize(2);
+    assertThat(repo.listQuestions().toCompletableFuture().join()).hasSize(2);
   }
 
   private QuestionDefinition addTagToDefinition(QuestionModel question)

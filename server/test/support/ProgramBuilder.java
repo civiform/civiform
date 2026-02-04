@@ -2,9 +2,11 @@ package support;
 
 import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import models.ApiBridgeConfigurationModel;
 import models.ApplicationStep;
 import models.CategoryModel;
 import models.DisplayMode;
@@ -28,14 +30,7 @@ import services.question.types.AddressQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.statuses.StatusDefinitions;
 
-/**
- * The ProgramBuilder can only be used by tests that have a database available because the programs
- * it builds are versioned with the version table, and are persisted in the database.
- *
- * <p>If any tests need to use the ProgramBuilder without a database, new `public static
- * ProgramBuilder newProgram` methods can be added to create programs that are not versioned, and do
- * not get persisted to the database.
- */
+/** Use a ProgramBuilder to create a ProgramModel for testing. */
 public class ProgramBuilder {
 
   private static final BlockDefinition EMPTY_FIRST_BLOCK =
@@ -52,14 +47,49 @@ public class ProgramBuilder {
   long programDefinitionId;
   ProgramDefinition.Builder builder;
   AtomicInteger numBlocks = new AtomicInteger(0);
+  // Whether this {@link ProgramBuilder} has been & should be persisted to the database.
+  boolean persisted = true;
 
   private ProgramBuilder(long programDefinitionId, ProgramDefinition.Builder builder) {
     this.programDefinitionId = programDefinitionId;
     this.builder = builder;
   }
 
+  private ProgramBuilder(
+      long programDefinitionId, ProgramDefinition.Builder builder, boolean persisted) {
+    this.programDefinitionId = programDefinitionId;
+    this.builder = builder;
+    this.persisted = persisted;
+  }
+
   public static void setInjector(Injector i) {
     injector = i;
+  }
+
+  /**
+   * Creates {@link ProgramBuilder} with no versionining or DB persistence. Default values are used
+   * for many lower-touch fields.
+   */
+  public static ProgramBuilder newProgram(String name, Long id) {
+    String description = name + " description";
+
+    ProgramDefinition.Builder builder =
+        ProgramDefinition.builder()
+            .setId(id)
+            .setAdminName(name)
+            .setAdminDescription(description)
+            .setLocalizedName(LocalizedStrings.withDefaultValue(name))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue(description))
+            .setExternalLink("https://www.google.com")
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.DEFAULT)
+            .setEligibilityIsGating(false)
+            .setLoginOnly(false)
+            .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of())
+            .setBridgeDefinitions(ImmutableMap.of());
+    return new ProgramBuilder(id, builder, /* persisted= */ false);
   }
 
   /**
@@ -71,28 +101,41 @@ public class ProgramBuilder {
   }
 
   /**
-   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} with an empty description, in
-   * draft state.
+   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} with an empty description and
+   * a default short description, in draft state.
    */
   public static ProgramBuilder newDraftProgram(String name) {
-    return newDraftProgram(name, "", DisplayMode.PUBLIC);
+    return newDraftProgram(name, "", "short description", DisplayMode.PUBLIC);
   }
 
   /**
-   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} with an empty description, in
-   * draft state, with disabled visibility.
+   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} with an empty description and
+   * a default short description, in draft state with disabled visibility.
    */
   public static ProgramBuilder newDisabledDraftProgram(String name) {
-    return newDraftProgram(name, "", DisplayMode.DISABLED);
+    return newDraftProgram(name, "", "short description", DisplayMode.DISABLED);
   }
 
+  /**
+   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} with a given description and a
+   * default short description, in draft state.
+   */
   public static ProgramBuilder newDraftProgram(String name, String description) {
-    return newDraftProgram(name, description, DisplayMode.PUBLIC);
+    return newDraftProgram(name, description, "short description", DisplayMode.PUBLIC);
+  }
+
+  /**
+   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} with a given description and a
+   * short description, in draft state.
+   */
+  public static ProgramBuilder newDraftProgram(
+      String name, String description, String shortDescription) {
+    return newDraftProgram(name, description, shortDescription, DisplayMode.PUBLIC);
   }
 
   /** Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in draft state. */
   public static ProgramBuilder newDraftProgram(
-      String name, String description, DisplayMode displayMode) {
+      String name, String description, String shortDescription, DisplayMode displayMode) {
     VersionRepository versionRepository = injector.instanceOf(VersionRepository.class);
     ProgramModel program =
         new ProgramModel(
@@ -100,7 +143,7 @@ public class ProgramBuilder {
             description,
             name,
             description,
-            "short description",
+            shortDescription,
             "",
             "https://usa.gov",
             displayMode.getValue(),
@@ -109,6 +152,7 @@ public class ProgramBuilder {
             versionRepository.getDraftVersionOrCreate(),
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
+            /* loginOnly= */ false,
             new ProgramAcls(),
             /* categories= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
@@ -157,41 +201,15 @@ public class ProgramBuilder {
   }
 
   /**
-   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with a
-   * blank description and disabled.
+   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with
+   * {@link DisplayMode} and a blank description.
    */
-  public static ProgramBuilder newActiveDisabledProgram(String name) {
+  public static ProgramBuilder newActiveProgram(String name, DisplayMode displayMode) {
     return newActiveProgram(
         /* adminName= */ name,
         /* displayName= */ name,
         /* description= */ "",
-        DisplayMode.DISABLED,
-        ProgramType.DEFAULT);
-  }
-
-  /**
-   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with a
-   * blank description and hidden in index.
-   */
-  public static ProgramBuilder newActiveHiddenInIndexProgram(String name) {
-    return newActiveProgram(
-        /* adminName= */ name,
-        /* displayName= */ name,
-        /* description= */ "",
-        DisplayMode.HIDDEN_IN_INDEX,
-        ProgramType.DEFAULT);
-  }
-
-  /**
-   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with a
-   * blank description and visible only to Trusted Intermediaries.
-   */
-  public static ProgramBuilder newActiveTiOnlyProgram(String name) {
-    return newActiveProgram(
-        /* adminName= */ name,
-        /* displayName= */ name,
-        /* description= */ "",
-        DisplayMode.TI_ONLY,
+        displayMode,
         ProgramType.DEFAULT);
   }
 
@@ -211,15 +229,15 @@ public class ProgramBuilder {
 
   /**
    * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with the
-   * type ProgramType.COMMON_INTAKE_FORM.
+   * type ProgramType.PRE_SCREENER_FORM.
    */
-  public static ProgramBuilder newActiveCommonIntakeForm(String name) {
+  public static ProgramBuilder newActivePreScreenerForm(String name) {
     return newActiveProgram(
         /* adminName= */ name,
         /* displayName= */ name,
         /* description= */ "",
         /* displayMode= */ DisplayMode.PUBLIC,
-        ProgramType.COMMON_INTAKE_FORM);
+        ProgramType.PRE_SCREENER_FORM);
   }
 
   /** Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in active state. */
@@ -244,7 +262,7 @@ public class ProgramBuilder {
             /* defaultDisplayName */ displayName,
             /* defaultDisplayDescription */ description,
             /* defaultShortDescription */ "short description",
-            /* defaultConfirmationMessage */ "",
+            /* defaultConfirmationMessage */ "thanks for filling",
             /* externalLink */ "",
             /* displayMode */ displayMode.getValue(),
             /* notificationPreferences */ ImmutableList.of(),
@@ -252,6 +270,7 @@ public class ProgramBuilder {
             /* associatedVersion */ versionRepository.getActiveVersion(),
             /* programType */ programType,
             /* eligibilityIsGating= */ true,
+            /* loginOnly= */ false,
             /* ProgramAcls */ new ProgramAcls(),
             /* categories= */ ImmutableList.of(),
             /* appplicationSteps */ ImmutableList.of(new ApplicationStep("title", "description")));
@@ -283,6 +302,7 @@ public class ProgramBuilder {
             obsoleteVersion,
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
+            /* loginOnly= */ false,
             new ProgramAcls(),
             /* categories= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
@@ -319,6 +339,12 @@ public class ProgramBuilder {
 
   public ProgramBuilder withApplicationSteps(ImmutableList<ApplicationStep> applicationSteps) {
     builder.setApplicationSteps(applicationSteps);
+    return this;
+  }
+
+  public ProgramBuilder withBridgeDefinitions(
+      ImmutableMap<String, ApiBridgeConfigurationModel.ApiBridgeDefinition> bridgeDefinitions) {
+    builder.setBridgeDefinitions(bridgeDefinitions);
     return this;
   }
 
@@ -365,19 +391,38 @@ public class ProgramBuilder {
    */
   public BlockBuilder withBlock() {
     long blockId = Long.valueOf(numBlocks.incrementAndGet());
-    return BlockBuilder.newBlock(this, blockId, "", "", Optional.empty());
+    return BlockBuilder.newBlock(
+        this, blockId, "", "", Optional.empty(), /* isEnumerator= */ Optional.empty());
   }
 
   /** Creates a {@link BlockBuilder} with this {@link ProgramBuilder} with empty description. */
   public BlockBuilder withBlock(String name) {
     long blockId = Long.valueOf(numBlocks.incrementAndGet());
-    return BlockBuilder.newBlock(this, blockId, name, "", Optional.empty());
+    return BlockBuilder.newBlock(
+        this, blockId, name, "", Optional.empty(), /* isEnumerator= */ Optional.empty());
   }
 
   /** Creates a {@link BlockBuilder} with this {@link ProgramBuilder}. */
   public BlockBuilder withBlock(String name, String description) {
     long blockId = Long.valueOf(numBlocks.incrementAndGet());
-    return BlockBuilder.newBlock(this, blockId, name, description, Optional.empty());
+    return BlockBuilder.newBlock(
+        this, blockId, name, description, Optional.empty(), /* isEnumerator= */ Optional.empty());
+  }
+
+  /**
+   * Creates a {@link BlockBuilder} with this {@link ProgramBuilder} with empty name and description
+   * and isEnumerator set to true.
+   */
+  public BlockBuilder withEnumeratorBlock() {
+    long blockId = Long.valueOf(numBlocks.incrementAndGet());
+    return BlockBuilder.newBlock(
+        this,
+        blockId,
+        "",
+        /* namePrefix= */ "",
+        "",
+        Optional.empty(),
+        /* isEnumerator= */ Optional.of(true));
   }
 
   /** Returns the {@link ProgramDefinition} built from this {@link ProgramBuilder}. */
@@ -392,13 +437,14 @@ public class ProgramBuilder {
     if (programDefinition.blockDefinitions().isEmpty()) {
       return withBlock().build();
     }
-
     ProgramModel program = programDefinition.toProgram();
-    program.update();
-    ApplicationStatusesRepository appStatusRepo =
-        injector.instanceOf(ApplicationStatusesRepository.class);
-    appStatusRepo.createOrUpdateStatusDefinitions(
-        programDefinition.adminName(), new StatusDefinitions());
+    if (persisted) {
+      program.update();
+      ApplicationStatusesRepository appStatusRepo =
+          injector.instanceOf(ApplicationStatusesRepository.class);
+      appStatusRepo.createOrUpdateStatusDefinitions(
+          programDefinition.adminName(), new StatusDefinitions());
+    }
     return program;
   }
 
@@ -421,16 +467,41 @@ public class ProgramBuilder {
         long id,
         String name,
         String description,
-        Optional<Long> enumeratorId) {
+        Optional<Long> enumeratorId,
+        Optional<Boolean> isEnumerator) {
       BlockBuilder blockBuilder = new BlockBuilder(programBuilder);
       blockBuilder.blockDefBuilder =
           BlockDefinition.builder()
               .setId(id)
               .setName(name)
+              .setNamePrefix(Optional.of(""))
               .setDescription(description)
               .setLocalizedName(LocalizedStrings.withDefaultValue(name))
               .setLocalizedDescription(LocalizedStrings.withDefaultValue(description))
-              .setEnumeratorId(enumeratorId);
+              .setEnumeratorId(enumeratorId)
+              .setIsEnumerator(isEnumerator);
+      return blockBuilder;
+    }
+
+    private static BlockBuilder newBlock(
+        ProgramBuilder programBuilder,
+        long id,
+        String name,
+        String namePrefix,
+        String description,
+        Optional<Long> enumeratorId,
+        Optional<Boolean> isEnumerator) {
+      BlockBuilder blockBuilder = new BlockBuilder(programBuilder);
+      blockBuilder.blockDefBuilder =
+          BlockDefinition.builder()
+              .setId(id)
+              .setName(name)
+              .setNamePrefix(Optional.of(namePrefix))
+              .setDescription(description)
+              .setLocalizedName(LocalizedStrings.withDefaultValue(name))
+              .setLocalizedDescription(LocalizedStrings.withDefaultValue(description))
+              .setEnumeratorId(enumeratorId)
+              .setIsEnumerator(isEnumerator);
       return blockBuilder;
     }
 
@@ -453,6 +524,12 @@ public class ProgramBuilder {
 
     public BlockBuilder withVisibilityPredicate(PredicateDefinition predicate) {
       blockDefBuilder.setVisibilityPredicate(predicate);
+      return this;
+    }
+
+    public BlockBuilder withEligibilityMessage(String message) {
+      blockDefBuilder.setLocalizedEligibilityMessage(
+          Optional.of(LocalizedStrings.of(Locale.US, message)));
       return this;
     }
 
@@ -557,7 +634,13 @@ public class ProgramBuilder {
     public BlockBuilder withBlock(String name, String description) {
       programBuilder.builder.addBlockDefinition(blockDefBuilder.build());
       long blockId = Long.valueOf(programBuilder.numBlocks.incrementAndGet());
-      return BlockBuilder.newBlock(programBuilder, blockId, name, description, Optional.empty());
+      return BlockBuilder.newBlock(
+          programBuilder,
+          blockId,
+          name,
+          description,
+          Optional.empty(),
+          /* isEnumerator= */ Optional.empty());
     }
 
     /**
@@ -585,14 +668,19 @@ public class ProgramBuilder {
      */
     public BlockBuilder withRepeatedBlock(String name, String description) {
       BlockDefinition thisBlock = blockDefBuilder.build();
-      if (!thisBlock.isEnumerator()) {
+      if (!thisBlock.hasEnumeratorQuestion()) {
         throw new RuntimeException(
             "Cannot create a repeated block if this block is not an enumerator.");
       }
       programBuilder.builder.addBlockDefinition(thisBlock);
       long blockId = Long.valueOf(programBuilder.numBlocks.incrementAndGet());
       return BlockBuilder.newBlock(
-          programBuilder, blockId, name, description, Optional.of(thisBlock.id()));
+          programBuilder,
+          blockId,
+          name,
+          description,
+          Optional.of(thisBlock.id()),
+          /* isEnumerator= */ Optional.empty());
     }
 
     /**
@@ -627,7 +715,12 @@ public class ProgramBuilder {
       programBuilder.builder.addBlockDefinition(thisBlock);
       long blockId = Long.valueOf(programBuilder.numBlocks.incrementAndGet());
       return BlockBuilder.newBlock(
-          programBuilder, blockId, name, description, thisBlock.enumeratorId());
+          programBuilder,
+          blockId,
+          name,
+          description,
+          thisBlock.enumeratorId(),
+          /* isEnumerator= */ Optional.empty());
     }
 
     /**

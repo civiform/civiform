@@ -8,12 +8,14 @@ import auth.controllers.MissingOptionalException;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import jakarta.persistence.EntityNotFoundException;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 import models.AccountModel;
 import models.ApplicantModel;
+import models.SessionDetails;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http.Request;
 import repository.AccountRepository;
@@ -47,7 +49,10 @@ public class CiviFormProfile {
     this.accountRepository = Preconditions.checkNotNull(accountRepository);
   }
 
-  /** Get the latest {@link ApplicantModel} associated with the profile. */
+  /**
+   * Get the {@link ApplicantModel} for the Applicant ID stored in the profileData or fallback to
+   * the oldest Applicant associated with the profile.
+   */
   public CompletableFuture<ApplicantModel> getApplicant() {
     if (profileData.containsAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME)) {
       long applicantId =
@@ -67,13 +72,14 @@ public class CiviFormProfile {
     return this.getAccount()
         .thenApplyAsync(
             (account) ->
-                getApplicantForAccount(account)
+                getOldestApplicantForAccount(account)
                     .orElseThrow(() -> new MissingOptionalException(ApplicantModel.class)),
             classLoaderExecutionContext.current());
   }
 
-  private Optional<ApplicantModel> getApplicantForAccount(AccountModel account) {
-    // Accounts (should) correspond to a single applicant.
+  private Optional<ApplicantModel> getOldestApplicantForAccount(AccountModel account) {
+    // Accounts (should) correspond to a single applicant, but they don't in particular for guests
+    // merged into logged in accounts.
     return account.getApplicants().stream().min(comparing(ApplicantModel::getWhenCreated));
   }
 
@@ -226,6 +232,22 @@ public class CiviFormProfile {
         .thenApplyAsync(AccountModel::getEmailAddress, classLoaderExecutionContext.current());
   }
 
+  /**
+   * Gets the session start time asynchronously.
+   *
+   * @return A CompletableFuture that resolves to an Optional containing the session start time in
+   *     milliseconds, or empty if no active session is found.
+   */
+  public CompletableFuture<Optional<Long>> getSessionStartTime() {
+    return getAccount()
+        .thenApply(
+            account ->
+                account
+                    .getActiveSession(getProfileData().getSessionId())
+                    .map(SessionDetails::getCreationTime)
+                    .map(Instant::toEpochMilli));
+  }
+
   /** Get the profile data. */
   public CiviFormProfileData getProfileData() {
     return this.profileData;
@@ -314,7 +336,7 @@ public class CiviFormProfile {
    */
   void storeApplicantIdInProfile(AccountModel account) {
     Long applicantId =
-        getApplicantForAccount(account)
+        getOldestApplicantForAccount(account)
             .orElseThrow(() -> new MissingOptionalException(ApplicantModel.class))
             .id;
     storeApplicantIdInProfile(applicantId);

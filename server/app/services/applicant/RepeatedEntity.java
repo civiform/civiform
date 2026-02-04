@@ -41,7 +41,7 @@ public abstract class RepeatedEntity {
   }
 
   /** Creates all the non-nested repeated entities associated with the enumerator question. */
-  private static ImmutableList<RepeatedEntity> createRepeatedEntities(
+  public static ImmutableList<RepeatedEntity> createRepeatedEntities(
       Optional<RepeatedEntity> parent,
       EnumeratorQuestionDefinition enumeratorQuestionDefinition,
       Optional<PredicateDefinition> visibility,

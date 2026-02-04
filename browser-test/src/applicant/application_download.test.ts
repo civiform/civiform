@@ -1,16 +1,16 @@
 import {test} from '../support/civiform_fixtures'
 import {
-  enableFeatureFlag,
   loginAsAdmin,
+  loginAsProgramAdmin,
   loginAsTestUser,
   logout,
-  seedQuestions,
 } from '../support'
+import {BASE_URL} from '../support/config'
 
-test.describe('Application PDF download test', () => {
-  test.beforeEach(async ({page}) => {
-    await seedQuestions(page)
-    await page.goto('/')
+test.describe('Applicant application download test', () => {
+  test.beforeEach(async ({page, seeding}) => {
+    await seeding.seedQuestions()
+    await page.goto(BASE_URL)
   })
 
   test('download finished application', async ({
@@ -18,25 +18,23 @@ test.describe('Application PDF download test', () => {
     adminPrograms,
     applicantQuestions,
   }) => {
-    const programName = 'Test program'
-    await test.step('Setup program with exportable feature enabled', async () => {
-      await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'application_exportable')
-      await adminPrograms.addAndPublishProgramWithQuestions(
-        ['Sample Name Question'],
-        programName,
-      )
-      await logout(page)
-    })
+    await loginAsAdmin(page)
 
-    await test.step('Applicant submits and downloads application', async () => {
-      await loginAsTestUser(page)
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerNameQuestion('sarah', 'smith')
-      await applicantQuestions.clickNext()
-      await applicantQuestions.submitFromReviewPage()
-      await applicantQuestions.downloadFromConfirmationPage()
-      await logout(page)
-    })
+    const programName = 'Test program'
+    await adminPrograms.addAndPublishProgramWithQuestions(
+      ['Sample Name Question'],
+      programName,
+    )
+
+    await logout(page)
+    await loginAsTestUser(page)
+    await applicantQuestions.applyProgram(programName)
+    await applicantQuestions.answerNameQuestion('sarah', 'smith')
+    await applicantQuestions.clickContinue()
+    await applicantQuestions.submitFromReviewPage()
+    await applicantQuestions.downloadFromConfirmationPage()
+
+    await logout(page)
+    await loginAsProgramAdmin(page)
   })
 })

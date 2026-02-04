@@ -6,17 +6,28 @@ import static support.FakeRequestBuilder.fakeRequestBuilder;
 import auth.ProfileUtils;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import javax.inject.Provider;
+import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.routing.Router;
 import play.test.WithApplication;
 
 public class CiviFormProfileFilterTest extends WithApplication {
+
+  private ProfileUtils profileUtils;
+  private Provider<Router> routerProvider;
+
+  @Before
+  public void setUp() {
+    profileUtils = instanceOf(ProfileUtils.class);
+    routerProvider = () -> instanceOf(Router.class);
+  }
+
   @Test
   public void testProfileIsCreatedForUserRoute() throws Exception {
-    ProfileUtils profileUtils = instanceOf(ProfileUtils.class);
-    CiviFormProfileFilter filter = new CiviFormProfileFilter(mat, profileUtils);
-
+    CiviFormProfileFilter filter = new CiviFormProfileFilter(mat, profileUtils, routerProvider);
     Http.RequestBuilder request = fakeRequestBuilder().method("GET").uri("/programs/1/review");
 
     CompletionStage<Result> stage =
@@ -38,8 +49,7 @@ public class CiviFormProfileFilterTest extends WithApplication {
 
   @Test
   public void testProfileIsNotCreatedForNonUserRoute() throws Exception {
-    ProfileUtils profileUtils = instanceOf(ProfileUtils.class);
-    CiviFormProfileFilter filter = new CiviFormProfileFilter(mat, profileUtils);
+    CiviFormProfileFilter filter = new CiviFormProfileFilter(mat, profileUtils, routerProvider);
 
     // This is not a user-facing request.
     Http.RequestBuilder request = fakeRequestBuilder().method("GET").uri("/playIndex");
@@ -60,8 +70,7 @@ public class CiviFormProfileFilterTest extends WithApplication {
 
   @Test
   public void testProfileIsNotCreatedForOptionalProfileRoute() throws Exception {
-    ProfileUtils profileUtils = instanceOf(ProfileUtils.class);
-    CiviFormProfileFilter filter = new CiviFormProfileFilter(mat, profileUtils);
+    CiviFormProfileFilter filter = new CiviFormProfileFilter(mat, profileUtils, routerProvider);
 
     // This route may have a profile, but doesn't require one.
     Http.RequestBuilder request = fakeRequestBuilder().method("GET").uri("/programs");
@@ -77,6 +86,27 @@ public class CiviFormProfileFilterTest extends WithApplication {
 
     // Since the request was for a route that may or may not have a profile, we should not get
     // redirected to the GuestClient.
+    assertThat(result.status()).isEqualTo(200);
+  }
+
+  @Test
+  public void testProfileIsNotCreatedFor404s() throws Exception {
+    CiviFormProfileFilter filter = new CiviFormProfileFilter(mat, profileUtils, routerProvider);
+
+    // This route doesn't exist and would result in a 404
+    Http.RequestBuilder request = fakeRequestBuilder().method("GET").uri("/badroute");
+
+    CompletionStage<Result> stage =
+        filter.apply(
+            header -> {
+              return CompletableFuture.completedFuture(play.mvc.Results.ok());
+            },
+            request.build());
+
+    Result result = stage.toCompletableFuture().get();
+
+    // Since the request was for a route that doesn't exist, we should not get redirected to
+    // the GuestClient.
     assertThat(result.status()).isEqualTo(200);
   }
 }

@@ -55,7 +55,7 @@ public class AzurePublicStorageTest extends ResetPostgres {
 
     StorageUploadRequest blobStorageUploadRequest =
         azurePublicStorage.getSignedUploadRequest(
-            TEST_FILE_NAME, /* successActionRedirectUrl= */ "localhost");
+            TEST_FILE_NAME, /* successRedirectActionLink= */ "localhost");
 
     assertThat(blobStorageUploadRequest).isEqualTo(expectedRequest);
   }

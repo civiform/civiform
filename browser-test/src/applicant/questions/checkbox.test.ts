@@ -68,7 +68,7 @@ test.describe('Checkbox question for applicant flow', () => {
     test('validate screenshot', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
 
-      await validateScreenshot(page, 'checkbox')
+      await validateScreenshot(page.locator('main'), 'checkbox')
     })
 
     test('validate screenshot with errors', async ({
@@ -76,9 +76,9 @@ test.describe('Checkbox question for applicant flow', () => {
       applicantQuestions,
     }) => {
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      await validateScreenshot(page, 'checkbox-errors')
+      await validateScreenshot(page.locator('main'), 'checkbox-errors')
     })
 
     test('with single checked box submits successfully', async ({
@@ -86,7 +86,7 @@ test.describe('Checkbox question for applicant flow', () => {
     }) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCheckboxQuestion(['blue'])
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       await applicantQuestions.submitFromReviewPage()
     })
@@ -98,19 +98,18 @@ test.describe('Checkbox question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
 
       // No validation errors on first page load.
-      const checkBoxError = '.cf-applicant-question-errors'
-      await expect(page.locator(checkBoxError)).toBeHidden()
+      await expect(page.locator('.cf-applicant-question-errors')).toBeHidden()
 
-      // Click next without selecting anything.
-      await applicantQuestions.clickNext()
+      // Click "Continue" without selecting anything.
+      await applicantQuestions.clickContinue()
 
       // Check checkbox error and required error are present.
-      await expect(page.locator(checkBoxError)).toBeVisible()
-
-      const checkboxId = '.cf-question-checkbox'
-      expect(await page.innerText(checkboxId)).toContain(
-        'This question is required.',
-      )
+      await expect(
+        page.getByText('Error: Please select at least 1.'),
+      ).toBeVisible()
+      await expect(
+        page.getByText('Error: This question is required.'),
+      ).toBeVisible()
     })
 
     test('with greater than max allowed checked boxes does not submit', async ({
@@ -128,7 +127,7 @@ test.describe('Checkbox question for applicant flow', () => {
         'green',
         'orange',
       ])
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Check error is shown.
       await expect(page.locator(checkBoxError)).toBeVisible()
@@ -163,7 +162,10 @@ test.describe('Checkbox question for applicant flow', () => {
         '<p><a class="text-blue-600 hover:text-blue-500 underline" target="_blank" href="https://www.orange.com">orange</a></p>\n',
         '<p><a class="text-blue-600 hover:text-blue-500 underline" target="_blank" href="https://www.blue.com">https://www.blue.com</a></p>\n',
       ])
-      await validateScreenshot(page, 'checkbox-options-with-markdown')
+      await validateScreenshot(
+        page.locator('main'),
+        'checkbox-options-with-markdown',
+      )
     })
 
     test('options with long text render correctly', async ({
@@ -173,32 +175,41 @@ test.describe('Checkbox question for applicant flow', () => {
       applicantQuestions,
     }) => {
       const longTextProgramName = 'Long text program name'
-      await loginAsAdmin(page)
-      await adminQuestions.createCheckboxQuestion(
-        {
-          questionName: 'long-option-test',
-          questionText: 'Sample question text',
-          helpText: 'Sample question help text',
-          options: [
-            {adminName: 'short_text', text: 'short'},
-            {
-              adminName: 'long_text',
-              text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-            },
-          ],
-        },
-        /* clickSubmit= */ false,
-      )
-      await validateScreenshot(page, 'checkbox-options-long-text-preview')
-      await adminQuestions.clickSubmitButtonAndNavigate('Create')
-      await adminPrograms.addAndPublishProgramWithQuestions(
-        ['long-option-test'],
-        longTextProgramName,
-      )
-      await logout(page)
+
+      await test.step('Create program', async () => {
+        await loginAsAdmin(page)
+        await adminQuestions.createCheckboxQuestion(
+          {
+            questionName: 'long-option-test',
+            questionText: 'Sample question text',
+            helpText: 'Sample question help text',
+            options: [
+              {adminName: 'short_text', text: 'short'},
+              {
+                adminName: 'long_text',
+                text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+              },
+            ],
+          },
+          /* clickSubmit= */ false,
+        )
+        await validateScreenshot(
+          page.locator('main'),
+          'checkbox-options-long-text-preview',
+        )
+        await adminQuestions.clickSubmitButtonAndNavigate('Create')
+        await adminPrograms.addAndPublishProgramWithQuestions(
+          ['long-option-test'],
+          longTextProgramName,
+        )
+        await logout(page)
+      })
 
       await applicantQuestions.applyProgram(longTextProgramName)
-      await validateScreenshot(page, 'checkbox-options-long-text-applicant')
+      await validateScreenshot(
+        page.locator('main'),
+        'checkbox-options-long-text-applicant',
+      )
     })
   })
 
@@ -249,7 +260,7 @@ test.describe('Checkbox question for applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCheckboxQuestion(['blue'])
       await applicantQuestions.answerCheckboxQuestion(['beach'])
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       await applicantQuestions.submitFromReviewPage()
     })
@@ -260,7 +271,7 @@ test.describe('Checkbox question for applicant flow', () => {
       // Only answer required question.
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCheckboxQuestion(['red'])
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       await applicantQuestions.submitFromReviewPage()
     })
@@ -281,7 +292,7 @@ test.describe('Checkbox question for applicant flow', () => {
         'orange',
       ])
       await applicantQuestions.answerCheckboxQuestion(['beach'])
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       await expect(page.locator(checkboxError)).toBeVisible()
     })
@@ -302,7 +313,7 @@ test.describe('Checkbox question for applicant flow', () => {
         'mountains',
         'city',
       ])
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       await expect(page.locator(checkboxError)).toBeVisible()
     })

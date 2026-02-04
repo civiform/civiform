@@ -1,7 +1,7 @@
 // Javascript handling for enumerators
 // This file requires that main.ts is also added to the page.
 
-import {addEventListenerToElements, assertNotNull} from './util'
+import {addEventListenerToElements, assertNotNull} from '@/util'
 
 export function init() {
   updateListeners()
@@ -243,7 +243,7 @@ function addIndexToLabelAndButton(field: Element, index: number) {
  */
 function findEnumeratorFieldDiv(element: HTMLElement) {
   let enumeratorFieldDiv = assertNotNull(element.parentElement)
-  // The parent div may be one level above (for north star), so we check to make sure the class is correct.
+  // The parent div may be one level above, so we check to make sure the class is correct.
   while (
     enumeratorFieldDiv &&
     !enumeratorFieldDiv.classList.contains('cf-enumerator-field')

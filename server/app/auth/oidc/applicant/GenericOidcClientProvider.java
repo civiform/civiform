@@ -31,6 +31,7 @@ public class GenericOidcClientProvider extends OidcClientProvider {
   private static final String NAME_SUFFIX_ATTRIBUTE_CONFIG_NAME = "name_suffix_attribute";
   private static final String EMAIL_ATTRIBUTE_CONFIG_NAME = "email_attribute";
   private static final String LOCALE_ATTRIBUTE_CONFIG_NAME = "locale_attribute";
+  private static final String PHONE_NUMBER_ATTRIBUTE_CONFIG_NAME = "phone_number_attribute";
 
   @Inject
   public GenericOidcClientProvider(OidcClientProviderParams params) {
@@ -61,6 +62,7 @@ public class GenericOidcClientProvider extends OidcClientProvider {
             .setEmail(getConfigurationValueOrThrow(EMAIL_ATTRIBUTE_CONFIG_NAME))
             .setLocale(getConfigurationValue(LOCALE_ATTRIBUTE_CONFIG_NAME))
             .setNames(nameAttrsBuilder.build())
+            .setPhoneNumber(getConfigurationValue(PHONE_NUMBER_ATTRIBUTE_CONFIG_NAME))
             .build();
 
     return new GenericApplicantProfileCreator(config, client, params, standardClaimsAttributeNames);

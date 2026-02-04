@@ -2,9 +2,17 @@ import {test, expect} from '../support/civiform_fixtures'
 import {
   enableFeatureFlag,
   loginAsAdmin,
-  seedProgramsAndCategories,
+  logout,
+  loginAsTestUser,
   validateScreenshot,
+  testUserDisplayName,
+  loginAsProgramAdmin,
 } from '../support'
+import {
+  ProgramCategories,
+  ProgramHeaderButton,
+  ProgramVisibility,
+} from '../support/admin_programs'
 
 test.describe('admin program view page', () => {
   test('view active program shows read only view', async ({
@@ -18,21 +26,23 @@ test.describe('admin program view page', () => {
     await adminPrograms.publishAllDrafts()
     await adminPrograms.gotoViewActiveProgramPage(programName)
     await validateScreenshot(page, 'program-read-only-view')
+    // After publishing, editing is not allowed and text mentions draft mode
+    await expect(page.locator('#eligibility-predicate')).toContainText(
+      'You can change this in the program settings if your program is in draft mode',
+    )
   })
 
   test('view program details shows program categories', async ({
     page,
     adminPrograms,
+    seeding,
   }) => {
     const programName = 'Active Program'
-    await enableFeatureFlag(page, 'program_filtering_enabled')
 
-    await test.step('seed categories', async () => {
-      await seedProgramsAndCategories(page)
-      await page.goto('/')
-    })
+    await seeding.seedProgramsAndCategories()
 
     await test.step('login as admin', async () => {
+      await page.goto('/')
       await loginAsAdmin(page)
     })
 
@@ -47,12 +57,11 @@ test.describe('admin program view page', () => {
     })
 
     await test.step('add two categories', async () => {
-      await page.getByRole('button', {name: 'Edit program'}).click()
-      await page.getByRole('button', {name: 'Edit program details'}).click()
-
-      await page.getByText('Internet').check()
-      await page.getByText('Education').check()
-      await adminPrograms.submitProgramDetailsEdits()
+      await adminPrograms.selectProgramCategories(
+        programName,
+        [ProgramCategories.INTERNET, ProgramCategories.EDUCATION],
+        /* isActive= */ true,
+      )
     })
 
     await test.step('expect to see the two categories on details page', async () => {
@@ -229,7 +238,113 @@ test.describe('admin program view page', () => {
 
     await adminPrograms.gotoViewActiveProgramPageAndStartEditing(programName)
     await adminPrograms.expectProgramBlockEditPage(programName)
+  })
 
-    await validateScreenshot(page, 'view-program-start-editing')
+  test('view external program', async ({page, adminPrograms}) => {
+    await loginAsAdmin(page)
+
+    const programName = 'External Program'
+    await adminPrograms.addExternalProgram(
+      programName,
+      /* shortDescription= */ 'short program description',
+      /* externalLink= */ 'https://usa.gov',
+      /* visibility= */ ProgramVisibility.PUBLIC,
+    )
+
+    // On draft mode, external programs should not have preview and download
+    // header buttons or the block panel.
+    await adminPrograms.gotoEditDraftProgramPage(programName)
+    await adminPrograms.expectProgramHeaderButtonHidden(
+      ProgramHeaderButton.PREVIEW_AS_APPLICANT,
+    )
+    await adminPrograms.expectProgramHeaderButtonHidden(
+      ProgramHeaderButton.DOWNLOAD_PDF_PREVIEW,
+    )
+    await adminPrograms.expectBlockPanelHidden()
+
+    // On active mode, external programs should not have preview and download
+    // header buttons or the block panel
+    await adminPrograms.publishAllDrafts()
+    await adminPrograms.gotoViewActiveProgramPage(programName)
+    await adminPrograms.expectProgramHeaderButtonHidden(
+      ProgramHeaderButton.PREVIEW_AS_APPLICANT,
+    )
+    await adminPrograms.expectProgramHeaderButtonHidden(
+      ProgramHeaderButton.DOWNLOAD_PDF_PREVIEW,
+    )
+    await adminPrograms.expectBlockPanelHidden()
+    await logout(page)
+  })
+
+  test('admin views application with long text answer', async ({
+    page,
+    adminPrograms,
+    adminQuestions,
+    applicantQuestions,
+  }) => {
+    const ProgramWithLongText = 'longTextProgram'
+    const longParagraph =
+      'Fur seals and sea lions make up the family Otariidae. Along with the Phocidae and Odobenidae, ottariids are pinnipeds descending from a common ancestor most closely related to modern bears (as hinted by the subfamily Arctocephalinae, meaning "bear-headed"). The name pinniped refers to mammals with front and rear flippers. Otariids arose about 15-17 million years ago in the Miocene, and were originally land mammals that rapidly diversified and adapted to a marine environment, giving rise to the semiaquatic marine mammals that thrive today. Fur seals and sea lions are closely related and commonly known together as the "eared seals". Until recently, fur seals were all grouped under a single subfamily of Pinnipedia, called the Arctocephalinae, to contrast them with Otariinae – the sea lions – based on the most prominent common feature, namely the coat of dense underfur intermixed with guard hairs. Recent genetic evidence, however, suggests Callorhinus is more closely related to some sea lion species, and the fur seal/sea lion subfamily distinction has been eliminated from many taxonomies. Nonetheless, all fur seals have certain features in common: the fur, generally smaller sizes, farther and longer foraging trips, smaller and more abundant prey items, and greater sexual dimorphism. For these reasons, the distinction remains useful. Fur seals comprise two genera: Callorhinus, and Arctocephalus. Callorhinus is represented by just one species in the Northern Hemisphere, the northern fur seal (Callorhinus ursinus), and Arctocephalus is represented by eight species in the Southern Hemisphere. The southern fur seals comprising the genus Arctocephalus include Antarctic fur seals, Galapagos fur seals, Juan Fernandez fur seals, New Zealand fur seals, brown fur seals, South American fur seals, and subantarctic fur seals.'
+
+    await test.step('create a new program', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(ProgramWithLongText)
+
+      await adminQuestions.addTextQuestion({
+        questionName: 'long-text',
+        questionText: 'long text question',
+      })
+      await adminQuestions.addAddressQuestion({questionName: 'address-1'})
+      await adminQuestions.addDateQuestion({questionName: 'date-2'})
+      await adminQuestions.addEmailQuestion({questionName: 'email-3'})
+
+      await adminPrograms.editProgramBlockUsingSpec(ProgramWithLongText, {
+        name: 'First Block',
+        description: 'First block',
+        questions: [{name: 'long-text', isOptional: false}],
+      })
+
+      await adminPrograms.editProgramBlockUsingSpec(ProgramWithLongText, {
+        name: 'Second Block',
+        description: 'Second block',
+        questions: [
+          {name: 'address-1', isOptional: false},
+          {name: 'date-2', isOptional: false},
+          {name: 'email-3', isOptional: false},
+        ],
+      })
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
+    })
+
+    await test.step('Applicant applies and answers with long text', async () => {
+      await loginAsTestUser(page)
+      await applicantQuestions.applyProgram(ProgramWithLongText)
+      await applicantQuestions.answerTextQuestion(longParagraph)
+      await applicantQuestions.answerAddressQuestion(
+        '1234 St',
+        'Unit B',
+        'Sim',
+        'WA',
+        '54321',
+      )
+      await applicantQuestions.answerMemorableDateQuestion(
+        '2025',
+        '05 - May',
+        '2',
+      )
+      await applicantQuestions.answerEmailQuestion('test@example.com')
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.submitFromReviewPage()
+      await logout(page)
+    })
+
+    await test.step('Admin views applications and verifies answer', async () => {
+      await loginAsProgramAdmin(page)
+      await adminPrograms.viewApplications(ProgramWithLongText)
+      await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
+
+      await validateScreenshot(page, 'admin-view-application-long-text-answer')
+    })
   })
 })

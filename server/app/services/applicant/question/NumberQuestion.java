@@ -14,7 +14,7 @@ import services.question.types.NumberQuestionDefinition;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public final class NumberQuestion extends Question {
+public final class NumberQuestion extends AbstractQuestion {
 
   private Optional<Long> numberValue;
 

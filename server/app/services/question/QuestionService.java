@@ -8,21 +8,29 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import models.GeoJsonDataModel;
 import models.QuestionModel;
 import models.QuestionTag;
 import models.VersionModel;
+import repository.GeoJsonDataRepository;
 import repository.QuestionRepository;
+import repository.TransactionManager;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.DeletionStatus;
 import services.ErrorAnd;
 import services.Path;
+import services.TranslationLocales;
 import services.export.CsvExporterService;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.QuestionNotFoundException;
+import services.question.types.MapQuestionDefinition;
+import services.question.types.MapQuestionDefinition.MapValidationPredicates;
+import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 
 /**
@@ -33,16 +41,21 @@ import services.question.types.QuestionDefinition;
  * that can be collected for a given applicant across all programs.
  */
 public final class QuestionService {
-
   private final QuestionRepository questionRepository;
   private final Provider<VersionRepository> versionRepositoryProvider;
+  private final TransactionManager transactionManager;
+  private final GeoJsonDataRepository geoJsonDataRepository;
 
   @Inject
   public QuestionService(
       QuestionRepository questionRepository,
-      Provider<VersionRepository> versionRepositoryProvider) {
+      Provider<VersionRepository> versionRepositoryProvider,
+      TransactionManager transactionManager,
+      GeoJsonDataRepository geoJsonDataRepository) {
     this.questionRepository = checkNotNull(questionRepository);
     this.versionRepositoryProvider = checkNotNull(versionRepositoryProvider);
+    this.transactionManager = checkNotNull(transactionManager);
+    this.geoJsonDataRepository = checkNotNull(geoJsonDataRepository);
   }
 
   /**
@@ -55,19 +68,32 @@ public final class QuestionService {
    */
   public ErrorAnd<QuestionDefinition, CiviFormError> create(QuestionDefinition questionDefinition) {
     ImmutableSet<CiviFormError> validationErrors = questionDefinition.validate();
-    ImmutableSet<CiviFormError> conflictErrors = checkConflicts(questionDefinition);
-    ImmutableSet<CiviFormError> errors =
-        ImmutableSet.<CiviFormError>builder()
-            .addAll(validationErrors)
-            .addAll(conflictErrors)
-            .build();
-    if (!errors.isEmpty()) {
-      return ErrorAnd.error(errors);
-    }
-    QuestionModel question = new QuestionModel(questionDefinition);
-    question.addVersion(versionRepositoryProvider.get().getDraftVersionOrCreate());
-    questionRepository.insertQuestionSync(question);
-    return ErrorAnd.of(questionRepository.getQuestionDefinition(question));
+
+    return transactionManager.execute(
+        /* synchronousWork= */ () -> {
+          ImmutableSet<CiviFormError> conflictErrors = checkConflicts(questionDefinition);
+          ImmutableSet<CiviFormError> databaseErrors = checkDatabaseErrors(questionDefinition);
+          ImmutableSet<CiviFormError> errors =
+              ImmutableSet.<CiviFormError>builder()
+                  .addAll(validationErrors)
+                  .addAll(conflictErrors)
+                  .addAll(databaseErrors)
+                  .build();
+          if (!errors.isEmpty()) {
+            return ErrorAnd.error(errors);
+          }
+          QuestionModel question = new QuestionModel(questionDefinition);
+          question.addVersion(versionRepositoryProvider.get().getDraftVersionOrCreate());
+          questionRepository.insertQuestionSync(question);
+          return ErrorAnd.of(question.getQuestionDefinition());
+        },
+        /* onSerializationFailure= */ () -> {
+          return ErrorAnd.error(
+              ImmutableSet.of(
+                  CiviFormError.of(
+                      "A question with a conflicting admin name was created at the same time."
+                          + " Please try again")));
+        });
   }
 
   /**
@@ -298,24 +324,24 @@ public final class QuestionService {
     }
 
     switch (questionExportState) {
-      case DEMOGRAPHIC:
+      case DEMOGRAPHIC -> {
         question.removeTag(QuestionTag.DEMOGRAPHIC_PII);
         question.removeTag(QuestionTag.NON_DEMOGRAPHIC);
         question.addTag(QuestionTag.DEMOGRAPHIC);
-        break;
-      case DEMOGRAPHIC_PII:
+      }
+      case DEMOGRAPHIC_PII -> {
         question.removeTag(QuestionTag.DEMOGRAPHIC);
         question.removeTag(QuestionTag.NON_DEMOGRAPHIC);
         question.addTag(QuestionTag.DEMOGRAPHIC_PII);
-        break;
-      case NON_DEMOGRAPHIC:
+      }
+      case NON_DEMOGRAPHIC -> {
         question.removeTag(QuestionTag.DEMOGRAPHIC_PII);
         question.removeTag(QuestionTag.DEMOGRAPHIC);
         question.addTag(QuestionTag.NON_DEMOGRAPHIC);
-        break;
-      default:
-        throw new InvalidUpdateException(
-            String.format("Unknown question export state: %s", questionExportState));
+      }
+      default ->
+          throw new InvalidUpdateException(
+              String.format("Unknown/Unsupported question export state: %s", questionExportState));
     }
     question.save();
   }
@@ -342,6 +368,22 @@ public final class QuestionService {
               Path.create(questionDefinition.getQuestionNameKey()).toString(),
               questionRepository.getQuestionDefinition(conflict).getName());
       return ImmutableSet.of(CiviFormError.of(errorMessage));
+    }
+    return ImmutableSet.of();
+  }
+
+  private ImmutableSet<CiviFormError> checkDatabaseErrors(QuestionDefinition questionDefinition) {
+    if (questionDefinition instanceof MapQuestionDefinition) {
+      Optional<GeoJsonDataModel> maybeGeoJsonData =
+          geoJsonDataRepository
+              .getMostRecentGeoJsonDataRowForEndpoint(
+                  ((MapValidationPredicates) questionDefinition.getValidationPredicates())
+                      .geoJsonEndpoint())
+              .toCompletableFuture()
+              .join();
+      if (maybeGeoJsonData.isEmpty()) {
+        return ImmutableSet.of(CiviFormError.of("Map question must have valid GeoJSON"));
+      }
     }
     return ImmutableSet.of();
   }
@@ -409,5 +451,48 @@ public final class QuestionService {
     return getReadOnlyVersionedQuestionService(
             optionalPreviousVersion.get(), versionRepositoryProvider.get())
         .getAllQuestions();
+  }
+
+  public boolean isTranslationComplete(
+      TranslationLocales translationLocales, QuestionDefinition questionDefinition) {
+    ImmutableList<Locale> supportedLanguages = translationLocales.translatableLocales();
+    if (supportedLanguages.isEmpty()) {
+      return true;
+    }
+
+    for (Locale locale : supportedLanguages) {
+      if (!questionDefinition.getQuestionText().isEmpty()
+          && !questionDefinition.getQuestionText().hasTranslationFor(locale)) {
+        return false;
+      }
+      if (!questionDefinition.getQuestionHelpText().isEmpty()
+          && !questionDefinition.getQuestionHelpText().hasTranslationFor(locale)) {
+        return false;
+      }
+      if (questionDefinition.getQuestionType().isMultiOptionType()) {
+        MultiOptionQuestionDefinition multiOptionQuestionDefinition =
+            (MultiOptionQuestionDefinition) questionDefinition;
+        for (services.question.QuestionOption option : multiOptionQuestionDefinition.getOptions()) {
+          if (!option.optionText().hasTranslationFor(locale)) {
+            return false;
+          }
+        }
+      }
+      if (questionDefinition.getQuestionSettings().isPresent()) {
+        for (QuestionSetting setting : questionDefinition.getQuestionSettings().get()) {
+          if (setting.localizedSettingDisplayName().isPresent()) {
+            if (!setting.localizedSettingDisplayName().get().hasTranslationFor(locale)) {
+              return false;
+            }
+          }
+          if (setting.localizedSettingText().isPresent()) {
+            if (!setting.localizedSettingText().get().hasTranslationFor(locale)) {
+              return false;
+            }
+          }
+        }
+      }
+    }
+    return true;
   }
 }

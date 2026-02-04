@@ -22,10 +22,12 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import play.data.validation.Constraints;
 import services.LocalizedStrings;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
+import services.question.QuestionSetting;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.EnumeratorQuestionDefinition;
@@ -74,6 +76,9 @@ public class QuestionModel extends BaseModel {
   // questionOptions is the current storage column for multi-option questions.
   private @DbJsonB ImmutableList<QuestionOption> questionOptions;
 
+  // questionSettings is a storage column for question-specific settings
+  private @DbJsonB ImmutableSet<QuestionSetting> questionSettings;
+
   private @DbJsonB LocalizedStrings enumeratorEntityType;
 
   private @DbArray List<QuestionTag> questionTags;
@@ -83,6 +88,10 @@ public class QuestionModel extends BaseModel {
 
   /** When the question was last modified. */
   @WhenModified private Instant lastModifiedTime;
+
+  private @Constraints.Required QuestionDisplayMode displayMode;
+
+  private UUID concurrencyToken;
 
   @ManyToMany(mappedBy = "questions")
   @JoinTable(
@@ -106,8 +115,22 @@ public class QuestionModel extends BaseModel {
   }
 
   /** Populates column values from {@link QuestionDefinition}. */
-  @PreUpdate
   @PrePersist
+  public void persistQuestionDefinition() {
+    // Play Ebeans starting at v6.2.0 includes updated Ebeans that fixes a bug we
+    // had relied on to mark the json fields as dirty. We now need to manually
+    // trigger the dirty flag or the @PrePersist/@PreUpdate annotations don't
+    // get triggered.
+    io.ebean.DB.markAsDirty(this);
+    setFieldsFromQuestionDefinition(questionDefinition);
+    // If this is a new model and the concurrency token isn't set, create one.
+    if (this.concurrencyToken == null) {
+      this.concurrencyToken = UUID.randomUUID();
+    }
+  }
+
+  /** Populates column values from {@link QuestionDefinition}. */
+  @PreUpdate
   public void persistChangesToQuestionDefinition() {
     // Play Ebeans starting at v6.2.0 includes updated Ebeans that fixes a bug we
     // had relied on to mark the json fields as dirty. We now need to manually
@@ -115,6 +138,26 @@ public class QuestionModel extends BaseModel {
     // get triggered.
     io.ebean.DB.markAsDirty(this);
     setFieldsFromQuestionDefinition(questionDefinition);
+
+    // Verify the concurrency token is still valid before persisting
+    int numMatchingEntities =
+        this.db()
+            .find(QuestionModel.class)
+            .setLabel("QuestionModel.preUpdate")
+            .where()
+            .eq("id", this.id)
+            .eq("concurrency_token", this.concurrencyToken)
+            .findCount();
+
+    if (numMatchingEntities != 1) {
+      throw new ConcurrentUpdateException(
+          String.format(
+              "A Question with the concurrency_token \"%s\" and id \"%d\" could not be found.",
+              this.concurrencyToken, this.id));
+    }
+
+    // If the concurrency token matches, update it so any concurrent updates fail.
+    this.concurrencyToken = UUID.randomUUID();
   }
 
   /** Populates {@link QuestionDefinition} from column values. */
@@ -142,10 +185,16 @@ public class QuestionModel extends BaseModel {
             .setValidationPredicatesString(validationPredicates)
             .setLastModifiedTime(Optional.ofNullable(lastModifiedTime))
             .setUniversal(questionTags.contains(QuestionTag.UNIVERSAL))
+            .setDisplayMode(displayMode)
             .setPrimaryApplicantInfoTags(getPrimaryApplicantInfoTagsFromQuestionTags(questionTags));
+
+    if (concurrencyToken != null) {
+      builder.setConcurrencyToken(concurrencyToken);
+    }
 
     setEnumeratorEntityType(builder);
     setQuestionOptions(builder);
+    setQuestionSettings(builder);
 
     this.questionDefinition = builder.build();
   }
@@ -184,11 +233,28 @@ public class QuestionModel extends BaseModel {
     }
   }
 
+  /** Add {@link QuestionSetting}s to the builder. */
+  private void setQuestionSettings(QuestionDefinitionBuilder builder)
+      throws InvalidQuestionTypeException {
+    if (!QuestionType.supportsQuestionSettings(QuestionType.of(questionType))) {
+      return;
+    }
+
+    if (questionSettings != null) {
+      builder.setQuestionSettings(questionSettings);
+    }
+  }
+
   private QuestionModel setEnumeratorEntityType(QuestionDefinitionBuilder builder)
       throws InvalidQuestionTypeException {
     if (QuestionType.of(questionType).equals(QuestionType.ENUMERATOR)) {
       builder.setEntityType(enumeratorEntityType);
     }
+    return this;
+  }
+
+  public QuestionModel setConcurrencyToken(UUID concurrencyToken) {
+    this.concurrencyToken = concurrencyToken;
     return this;
   }
 
@@ -200,18 +266,27 @@ public class QuestionModel extends BaseModel {
     if (questionDefinition.isPersisted()) {
       id = questionDefinition.getId();
     }
+    if (questionDefinition.getConcurrencyToken().isPresent()) {
+      concurrencyToken = questionDefinition.getConcurrencyToken().get();
+    }
     enumeratorId = questionDefinition.getEnumeratorId().orElse(null);
     name = questionDefinition.getName();
     description = questionDefinition.getDescription();
     questionText = questionDefinition.getQuestionText();
     questionHelpText = questionDefinition.getQuestionHelpText();
     questionType = questionDefinition.getQuestionType().toString();
+    displayMode = questionDefinition.getDisplayMode();
     validationPredicates = questionDefinition.getValidationPredicatesAsString();
 
     if (questionDefinition.getQuestionType().isMultiOptionType()) {
       MultiOptionQuestionDefinition multiOption =
           (MultiOptionQuestionDefinition) questionDefinition;
       questionOptions = multiOption.getOptions();
+    }
+
+    if (questionDefinition.getQuestionSettings().isPresent()
+        && QuestionType.supportsQuestionSettings(questionDefinition.getQuestionType())) {
+      questionSettings = questionDefinition.getQuestionSettings().get();
     }
 
     if (questionDefinition.getQuestionType().equals(QuestionType.ENUMERATOR)) {
@@ -278,5 +353,18 @@ public class QuestionModel extends BaseModel {
 
   public Optional<Instant> getCreateTime() {
     return Optional.ofNullable(createTime);
+  }
+
+  public UUID getConcurrencyToken() {
+    return this.concurrencyToken;
+  }
+
+  public QuestionDisplayMode getDisplayMode() {
+    return this.displayMode;
+  }
+
+  public QuestionModel setDisplayMode(QuestionDisplayMode displayMode) {
+    this.displayMode = displayMode;
+    return this;
   }
 }

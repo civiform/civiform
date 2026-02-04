@@ -19,6 +19,15 @@ function docker::compose_dev() {
 }
 
 #######################################
+# Runs docker compose with the local development and the keycloak oidc server settings.
+# Arguments:
+#   @: arguments for compose
+#######################################
+function docker::compose_dev_keycloak() {
+  docker compose -f docker-compose.yml -f docker-compose.keycloak.yml -f docker-compose.dev.yml "$@"
+}
+
+#######################################
 # Runs docker compose with the prod image in a dev-like way.
 # Arguments:
 #   @: arguments for compose
@@ -263,7 +272,7 @@ function docker::dev_and_test_server_sbt_command() {
   local server_container_ip=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $server_container_name)
 
   # -Dsbt.offline tells sbt to run in "offline" mode and not re-download dependancies.
-  docker exec -it $server_container_name ./entrypoint.sh -jvm-debug "$server_container_ip:$1" -Dsbt.offline $2
+  docker exec -it $server_container_name ./entrypoint.sh -jvm-debug "$server_container_ip:$1" -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=50000 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.rmi.port=50000 -Djava.rmi.server.hostname=0.0.0.0 -Dsbt.offline $2
 }
 
 #######################################

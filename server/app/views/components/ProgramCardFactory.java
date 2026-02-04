@@ -8,6 +8,7 @@ import static j2html.TagCreator.span;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.ImgTag;
@@ -17,8 +18,10 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
+import play.mvc.Http;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
+import services.settings.SettingsManifest;
 import views.ProgramImageUtils;
 import views.ViewUtils;
 import views.ViewUtils.ProgramDisplayType;
@@ -29,18 +32,24 @@ import views.style.StyleUtils;
 public final class ProgramCardFactory {
   private final ViewUtils viewUtils;
   private final ProgramImageUtils programImageUtils;
+  private final SettingsManifest settingsManifest;
 
   @Inject
-  public ProgramCardFactory(ViewUtils viewUtils, ProgramImageUtils programImageUtils) {
+  public ProgramCardFactory(
+      ViewUtils viewUtils, ProgramImageUtils programImageUtils, SettingsManifest settingsManifest) {
     this.viewUtils = checkNotNull(viewUtils);
     this.programImageUtils = checkNotNull(programImageUtils);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
-  public DivTag renderCard(ProgramCardData cardData, boolean showCategories) {
+  public DivTag renderCard(ProgramCardData cardData, Http.Request request) {
     ProgramDefinition displayProgram = getDisplayProgram(cardData);
 
     String programTitleText = displayProgram.localizedName().getDefault();
-    String programDescriptionText = displayProgram.localizedDescription().getDefault();
+
+    ImmutableList<DomContent> programDescriptionText =
+        ImmutableList.of(span(displayProgram.localizedShortDescription().getDefault()));
+
     String adminNoteText = displayProgram.adminDescription();
     ImmutableList<String> programCategoryNames =
         displayProgram.categories().stream()
@@ -54,7 +63,8 @@ public final class ProgramCardFactory {
               renderProgramRow(
                   cardData.isCiviFormAdmin(),
                   /* isActive= */ false,
-                  cardData.draftProgram().get()));
+                  cardData.draftProgram().get(),
+                  request));
     }
 
     if (cardData.activeProgram().isPresent()) {
@@ -64,6 +74,7 @@ public final class ProgramCardFactory {
                   cardData.isCiviFormAdmin(),
                   /* isActive= */ true,
                   cardData.activeProgram().get(),
+                  request,
                   cardData.draftProgram().isPresent() ? "border-t" : ""));
     }
 
@@ -82,34 +93,28 @@ public final class ProgramCardFactory {
                                 "text-xl"))
                     .with(
                         div()
-                            .with(
-                                TextFormatter.formatText(
-                                    programDescriptionText,
-                                    /* preserveEmptyLines= */ false,
-                                    /* addRequiredIndicator= */ false))
+                            .with(programDescriptionText)
                             .withClasses(
-                                "line-clamp-2", "text-sm", StyleUtils.responsiveLarge("text-base")))
-                    .condWith(
-                        shouldShowCommonIntakeFormIndicator(displayProgram),
-                        div()
-                            .withClasses("text-black", "items-center", "flex", "pt-4")
-                            .with(
-                                Icons.svg(Icons.CHECK)
-                                    .withClasses("inline-block", "ml-3", "mr-2", "w-5", "h-5"))
-                            .with(span("Pre-screener").withClasses("text-base", "font-semibold")))
+                                ReferenceClasses.ADMIN_PROGRAM_CARD_DESCRIPTION,
+                                "line-clamp-2",
+                                "text-sm",
+                                StyleUtils.responsiveLarge("text-base"),
+                                "mb-4"))
+                    .with(getProgramTypeIndicator(displayProgram.programType()))
                     .condWith(
                         !adminNoteText.isBlank(),
                         p().withClasses(
-                                "mb-4",
-                                "pt-4",
-                                "line-clamp-3",
-                                "text-sm",
-                                StyleUtils.responsiveLarge("text-base"))
+                                "line-clamp-3", "text-sm", StyleUtils.responsiveLarge("text-base"))
                             .with(
                                 span("Admin note: ").withClasses("font-semibold"),
                                 span(adminNoteText)))
-                    .condWith(
-                        showCategories,
+                    .with(
+                        p(
+                                span("Visibility state: ").withClasses("font-semibold"),
+                                span(displayProgram.displayMode().visibilityState))
+                            .withClasses(
+                                "text-sm", StyleUtils.responsiveLarge("text-base"), "mb-4"))
+                    .with(
                         p(
                                 span("Categories:  ").withClasses("font-semibold"),
                                 iffElse(
@@ -136,13 +141,11 @@ public final class ProgramCardFactory {
       boolean isCiviFormAdmin,
       boolean isActive,
       ProgramCardData.ProgramRow programRow,
+      Http.Request request,
       String... extraStyles) {
     ProgramDefinition program = programRow.program();
-    String updatedPrefix = "Edited on ";
+    String updatedPrefix = isActive ? "Published on " : "Edited on ";
     Optional<Instant> updatedTime = program.lastModifiedTime();
-    if (isActive) {
-      updatedPrefix = "Published on ";
-    }
 
     int blockCount = program.getBlockCount();
     int questionCount = program.getQuestionCount();
@@ -163,7 +166,15 @@ public final class ProgramCardFactory {
             "ml-2",
             StyleUtils.responsiveXLarge("ml-8"));
 
+    boolean isTranslationManagementImprovementEnabled =
+        settingsManifest.getTranslationManagementImprovementEnabled(request);
+
     return div()
+        // This is used to provide the uniqueness needed for Playwright to locate
+        // the correct element for testing. In the future this should be accounted
+        // for in a way that allows for web first assertions ideally via accessibility
+        // name, but that is a larger change than can be accommodated.
+        .withData("lifecycle-stage", isActive ? "active" : "draft")
         .withClasses(
             "py-7",
             "flex",
@@ -184,7 +195,11 @@ public final class ProgramCardFactory {
                             span(questionCount == 1 ? " question" : " questions"))
                         .condWith(
                             programRow.universalQuestionsText().isPresent(),
-                            p(programRow.universalQuestionsText().orElse("")))),
+                            p(programRow.universalQuestionsText().orElse("")))
+                        .condWith(
+                            programRow.translationCompletionTag().isPresent()
+                                && isTranslationManagementImprovementEnabled,
+                            p(programRow.translationCompletionTag().orElse(badge)))),
             div().withClass("flex-grow"),
             div()
                 .withClasses("flex", "space-x-2", "pr-6", "font-medium")
@@ -205,12 +220,32 @@ public final class ProgramCardFactory {
                                     "absolute",
                                     "right-0",
                                     "w-56",
-                                    "z-50")
+                                    "z-50",
+                                    "border-gray-200")
                                 .with(programRow.extraRowActions()))));
   }
 
-  private boolean shouldShowCommonIntakeFormIndicator(ProgramDefinition displayProgram) {
-    return displayProgram.programType().equals(ProgramType.COMMON_INTAKE_FORM);
+  private DivTag getProgramTypeIndicator(ProgramType programType) {
+    Icons icon;
+    String label;
+    switch (programType) {
+      case PRE_SCREENER_FORM:
+        icon = Icons.CHECK;
+        label = "Pre-Screener";
+        break;
+      case EXTERNAL:
+        icon = Icons.LABEL;
+        label = "External program";
+        break;
+      case DEFAULT:
+      default:
+        return null;
+    }
+
+    return div()
+        .withClasses("text-black", "items-center", "flex", "mb-4")
+        .with(Icons.svg(icon).withClasses("inline-block", "ml-3", "mr-2", "w-5", "h-5"))
+        .with(span(label).withClasses("text-base", "font-semibold"));
   }
 
   private static ProgramDefinition getDisplayProgram(ProgramCardData cardData) {
@@ -229,25 +264,20 @@ public final class ProgramCardFactory {
 
     Optional<ImgTag> image =
         programImageUtils.createProgramImage(
-            program,
-            Locale.getDefault(),
-            /* isWithinProgramCard= */ false,
-            /* isProgramFilteringEnabled= */ false); // Hardcoded to false because
-    // if isWithProgramCard is false, we never reach the code that evaluates
-    // isProgramFilteringEnabled.
+            program, Locale.getDefault(), /* isWithinProgramCard= */ false);
     if (image.isPresent()) {
       return div().withClasses("w-16", "h-9").with(image.get());
-    } else {
-      // Show a grayed-out placeholder image if there's no program image.
-      return div().with(Icons.svg(Icons.IMAGE).withClasses("w-16", "h-9", "text-gray-300"));
     }
+
+    // Show a grayed-out placeholder image if there's no program image.
+    return div().with(Icons.svg(Icons.IMAGE).withClasses("w-16", "h-9", "text-gray-300"));
   }
 
   public static Comparator<ProgramCardData> programTypeThenLastModifiedThenNameComparator() {
     Comparator<ProgramCardData> c =
         Comparator.comparingInt(
             (cardData) ->
-                getDisplayProgram(cardData).programType().equals(ProgramType.COMMON_INTAKE_FORM)
+                getDisplayProgram(cardData).programType().equals(ProgramType.PRE_SCREENER_FORM)
                     ? 0
                     : 1);
     return c.thenComparing(
@@ -291,6 +321,8 @@ public final class ProgramCardFactory {
 
       abstract Optional<String> universalQuestionsText();
 
+      abstract Optional<DomContent> translationCompletionTag();
+
       public static Builder builder() {
         return new AutoValue_ProgramCardFactory_ProgramCardData_ProgramRow.Builder();
       }
@@ -304,6 +336,8 @@ public final class ProgramCardFactory {
         public abstract Builder setExtraRowActions(ImmutableList<ButtonTag> v);
 
         public abstract Builder setUniversalQuestionsText(Optional<String> v);
+
+        public abstract Builder setTranslationCompletionTag(Optional<DomContent> v);
 
         public abstract ProgramRow build();
       }

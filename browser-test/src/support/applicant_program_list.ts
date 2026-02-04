@@ -142,6 +142,38 @@ export class ApplicantProgramList {
       this.getSubmittedTagLocator(cardSectionName, programName),
     ).toContainText('Submitted on')
   }
+
+  /**
+   * Asserts the card heading is visible
+   * @param {String} programName to find
+   */
+  async expectCardHeaderToBeVisible(programName: string) {
+    const cardLocator = this.getCardLocator(
+      CardSectionName.ProgramsAndServices,
+      programName,
+    )
+    const cardHeadingLocator = cardLocator.getByRole('heading', {
+      name: programName,
+    })
+    await expect(cardHeadingLocator).toBeVisible()
+  }
+
+  /**
+   * Asserts the card description is visible
+   * @param {String} programName to find
+   * @param {String} programDescription to find
+   */
+  async expectCardDescriptionToBeVisible(
+    programName: string,
+    programDescription: string,
+  ) {
+    const cardLocator = this.getCardLocator(
+      CardSectionName.ProgramsAndServices,
+      programName,
+    )
+    const cardDescriptionLocator = cardLocator.getByText(programDescription)
+    await expect(cardDescriptionLocator).toBeVisible()
+  }
 }
 
 /**

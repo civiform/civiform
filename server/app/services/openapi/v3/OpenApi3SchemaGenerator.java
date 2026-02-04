@@ -24,10 +24,12 @@ import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
 import services.applicant.question.Scalar;
 import services.export.enums.ApiPathSegment;
+import services.export.enums.RevisionState;
 import services.openapi.AbstractOpenApiSchemaGenerator;
 import services.openapi.DefinitionType;
 import services.openapi.Format;
@@ -79,6 +81,9 @@ public class OpenApi3SchemaGenerator extends AbstractOpenApiSchemaGenerator
                                                   buildApplicationDefinitions(programDefinition))
                                               .addProperty("application_id", new IntegerSchema())
                                               .addProperty(
+                                                  "application_note",
+                                                  new StringSchema().nullable(true))
+                                              .addProperty(
                                                   "create_time",
                                                   new StringSchema().format("date-time"))
                                               .addProperty(
@@ -93,6 +98,11 @@ public class OpenApi3SchemaGenerator extends AbstractOpenApiSchemaGenerator
                                                   new StringSchema().example("CURRENT"))
                                               .addProperty(
                                                   "status", new StringSchema().nullable(true))
+                                              .addProperty(
+                                                  "status_last_modified_time",
+                                                  new StringSchema()
+                                                      .format("date-time")
+                                                      .nullable(true))
                                               .addProperty(
                                                   "submit_time",
                                                   new StringSchema().format("date-time"))
@@ -157,20 +167,40 @@ public class OpenApi3SchemaGenerator extends AbstractOpenApiSchemaGenerator
                                           new QueryParameter()
                                               .name("fromDate")
                                               .description(
-                                                  "An ISO-8601 formatted date (i.e. YYYY-MM-DD)."
-                                                      + " Limits results to applications submitted"
-                                                      + " on or after the provided date, in the"
-                                                      + " CiviForm instance's local time.")
+                                                  "An ISO-8601 formatted date-time with zone id"
+                                                      + " (i.e. YYYY-MM-DDTThh:mm:ssZ). Limits"
+                                                      + " results to applications submitted on or"
+                                                      + " after the provided date. Uses the"
+                                                      + " CiviForm instance's local timezone when"
+                                                      + " no timezone is provided, and the"
+                                                      + " beginning of the day when no time is"
+                                                      + " provided.")
                                               .schema(new StringSchema()))
                                       .addParametersItem(
                                           new QueryParameter()
                                               .name("toDate")
                                               .description(
-                                                  "An ISO-8601 formatted date (i.e. YYYY-MM-DD)."
-                                                      + " Limits results to applications submitted"
-                                                      + " on or after the provided date, in the"
-                                                      + " CiviForm instance's local time.")
+                                                  "An ISO-8601 formatted date-time with zone id"
+                                                      + " (i.e. YYYY-MM-DDTThh:mm:ssZ). Limits"
+                                                      + " results to applications submitted before"
+                                                      + " the provided date. Uses the CiviForm"
+                                                      + " instance's local timezone when no"
+                                                      + " timezone is provided, and the beginning"
+                                                      + " of the day when no time is provided.")
                                               .schema(new StringSchema()))
+                                      .addParametersItem(
+                                          new QueryParameter()
+                                              .name("revisionState")
+                                              .description(
+                                                  "The revision state of applications to include in"
+                                                      + " results. When omitted, applications of"
+                                                      + " all revision states are returned.")
+                                              .schema(
+                                                  new StringSchema()
+                                                      ._enum(
+                                                          Arrays.asList(
+                                                              RevisionState.CURRENT.name(),
+                                                              RevisionState.OBSOLETE.name()))))
                                       .addParametersItem(
                                           new QueryParameter()
                                               .name("pageSize")
@@ -202,7 +232,6 @@ public class OpenApi3SchemaGenerator extends AbstractOpenApiSchemaGenerator
   private ImmutableList<Server> getServers(String path) {
     var result = ImmutableList.<Server>builder();
 
-    // todo gwen: fix
     if (openApiSchemaSettings.allowHttpScheme()) {
       result.add(new Server().url(String.format("http://%s%s", getHostName(), path)));
     }

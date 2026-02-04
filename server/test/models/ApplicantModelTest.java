@@ -2,6 +2,8 @@ package models;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
@@ -78,22 +80,41 @@ public class ApplicantModelTest extends ResetPostgres {
 
   @Test
   public void mergeApplicantData() {
-    ApplicantData data1 = new ApplicantModel().getApplicantData();
     Path foo = Path.create("$.applicant.foo");
-    Path subMapFoo = Path.create("$.applicant.subObject.foo");
-    Path subMapBar = Path.create("$.applicant.subObject.bar");
+    // Children in the 'subObject' json map.
+    Path subObjectFoo = Path.create("$.applicant.subObject.foo");
+    Path subObjectBar = Path.create("$.applicant.subObject.bar");
+    // A list of selections.
+    Path listColor = Path.create("$.applicant.colors");
+
+    // The main data.
+    ApplicantData data1 = new ApplicantModel().getApplicantData();
     data1.putString(foo, "foo");
-    data1.putString(subMapFoo, "also_foo");
+    data1.putString(subObjectFoo, "also_foo");
+    data1.putArray(listColor, Lists.newArrayList("red"));
+
+    // The 'new' data that will be merged from.
     ApplicantData data2 = new ApplicantModel().getApplicantData();
+    // Different value for existing key, won't be copied.
     data2.putString(foo, "bar");
-    data2.putString(subMapBar, "bar");
-    data1.putString(subMapFoo, "also_foo");
+    // Same value as existing value in existing map, will be ignored.
+    data2.putString(subObjectFoo, "also_foo");
+    // New value in new key, will be copied.
+    data2.putString(subObjectBar, "bar");
+    // List values will be added to the existing ones, even duplicates.
+    data2.putArray(listColor, Lists.newArrayList("red", "green"));
 
     List<Path> removedPaths = data1.mergeFrom(data2);
 
+    // The new value was different so it was dropped.
     assertThat(removedPaths).contains(foo);
-    assertThat(removedPaths).doesNotContain(subMapFoo);
-    assertThat(data1.readString(subMapBar)).isNotEmpty();
+    // The new value was the same so it's not considered removed/dropped
+    assertThat(removedPaths).doesNotContain(subObjectFoo);
+    // Assert the expected values are present.
+    assertThat(data1.readString(foo)).hasValue("foo");
+    assertThat(data1.readString(subObjectBar)).hasValue("bar");
+    assertThat(data1.readStringList(listColor).orElse(ImmutableList.of()))
+        .containsExactly("red", "red", "green");
   }
 
   @Test
@@ -151,7 +172,7 @@ public class ApplicantModelTest extends ResetPostgres {
     assertThat(applicant.getFirstName().get()).isEqualTo(firstName);
     assertThat(applicant.getMiddleName().get()).isEqualTo(middleName);
     assertThat(applicant.getLastName().get()).isEqualTo(lastName);
-    assertThat(applicant.getSuffix().isEmpty());
+    assertThat(applicant.getSuffix()).isEmpty();
     assertThat(applicant.getEmailAddress().get()).isEqualTo(emailAddress);
     assertThat(applicant.getCountryCode().get()).isEqualTo(countryCode);
     assertThat(applicant.getPhoneNumber().get()).isEqualTo(phoneNumber);
@@ -180,7 +201,7 @@ public class ApplicantModelTest extends ResetPostgres {
     assertThat(applicant.getFirstName().get()).isEqualTo(firstName);
     assertThat(applicant.getMiddleName().get()).isEqualTo(middleName);
     assertThat(applicant.getLastName().get()).isEqualTo(lastName);
-    assertThat(!applicant.getSuffix().isPresent());
+    assertThat(applicant.getSuffix()).isEmpty();
     assertThat(applicant.getEmailAddress().get()).isEqualTo(emailAddress);
     assertThat(applicant.getCountryCode().get()).isEqualTo(countryCode);
     assertThat(applicant.getPhoneNumber().get()).isEqualTo(phoneNumber);

@@ -20,7 +20,7 @@ import services.question.types.QuestionDefinition;
 public final class ReadOnlyVersionedQuestionServiceImpl implements ReadOnlyQuestionService {
 
   private final ImmutableMap<Long, QuestionDefinition> questionsById;
-  private static final Logger LOGGER =
+  private static final Logger logger =
       LoggerFactory.getLogger(ReadOnlyVersionedQuestionServiceImpl.class);
 
   public ReadOnlyVersionedQuestionServiceImpl(
@@ -67,7 +67,7 @@ public final class ReadOnlyVersionedQuestionServiceImpl implements ReadOnlyQuest
       return questionsById.get(id);
     }
 
-    LOGGER.error("Question not found for ID: {}", id);
+    logger.error("Question not found for ID: {}", id);
     return new NullQuestionDefinition(id);
   }
 }

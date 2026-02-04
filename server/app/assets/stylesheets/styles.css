@@ -27,21 +27,31 @@
     @apply bg-blue-600 border border-transparent text-white font-bold py-2 px-4 rounded;
   }
 
-  /* TODO: Remove these extra USWDS button styles once all our buttons use USWDS classes.
+  /* Counteracts the default button styles above.
+    TODO(#12266): Remove once we get rid of the defaults. */
+  li > #add-block-button, #add-enumerator-block-button {
+    border-radius: 0;
+  }
+
+  /* TODO(#12266): Remove these extra USWDS button styles once all our buttons use USWDS classes.
     Right now, the general button styles above interfere with the USWDS button styles, so
     we have to override them explicitly here. */
   .usa-button {
     @apply py-3 px-5;
   }
 
-  .usa-button:not(.usa-button--outline) {
+  .usa-button:not(.usa-button--outline, .usa-button--base) {
     background-color: #005ea2;
   }
 
   .usa-button.usa-button--outline,
   .usa-button.usa-button--unstyled {
-    background-color: transparent;
+    background-color: white;
     color: #005ea2;
+  }
+
+  .add-map-filter.usa-button.usa-button--outline:disabled {
+    @apply bg-white text-gray-400 border border-gray-400;
   }
 
   .usa-button.usa-modal__close {
@@ -129,28 +139,86 @@
       has-[:checked]:font-semibold has-[:checked]:text-blue-900 flex;
   }
 
-  /* Re-style USWDS file input hint since it has contrast issues with the non-northstar background.
-     This can be removed once we switch to North Star. */
-  .cf-question-fileupload .usa-hint { 
-    color: #1b1b1b;
+  /* The purpose of these classes are to help reduce the page load size cause by duplication of all these on each question. */
+  .question-bank-add-button {
+    font-weight: 600;
+    display: block;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    text-align: center;
+    border-radius: 9999px;
+    border-width: 1px;
+    border-style: solid;
+    color: #113f9f;
+    border-color: #113f9f;
+    background-color: white;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    gap: 0.5rem;
+
+    /* Hover effects */
+    transition: background-color 0.2s ease-in-out;
   }
 
-  .cf-file-uploading-tag {
-    background-color: #fff7bf;
-    color: #594d00;
-    visibility: hidden;
+  .question-bank-add-button:hover {
+    background-color: #e5e7eb;
+  }
+  .question-bank-info-cell {
+    font-weight: bold;
+    align-items: center;
+    color: black;
+    display: flex;
+    flex-direction: row;
   }
 
-  /* If a file is being uploaded, show the file uploading tag... */
-  .cf-file-uploading .cf-file-uploading-tag {
-    visibility: visible;
+  .question-bank-element {
+    width: 100%;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+    border-color: #e2e8f0;
+    border-radius: 0.5rem;
+    border-width: 1px;
+    border-style: solid;
   }
 
-  /* ... and apply disabled styling to any interactive elements. */
-  .cf-file-uploading .cf-disable-when-uploading {
-    @apply bg-white text-gray-400 border border-gray-400;
-    pointer-events: none;
-    cursor: default;
+  .content-div {
+    display: flex;
+    align-items: center;
+    margin-top: 3rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .question-summary {
+    float: right;
+    padding-right: 1rem;
+    padding-left: 1rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  .repeated-disabled-warning {
+    max-width: 365px;
+  }
+
+  .row-element {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    transition: background-color 0.2s ease-in-out;
+  }
+
+  .row-element:hover {
+    background-color: #f7fafc;
+  }
+
+  /* Fix pagination current page button color specificity issue */
+  .usa-pagination .usa-current:visited {
+    color: #fff;
   }
 
 }

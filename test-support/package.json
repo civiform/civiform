@@ -1,6 +1,10 @@
 {
   "type": "module",
   "dependencies": {
-    "oidc-provider": "8.6.0"
+    "oidc-provider": "9.6.0"
+  },
+  "devDependencies": {
+    "eslint-config-prettier": "10.1.8",
+    "globals": "^17.0.0"
   }
 }

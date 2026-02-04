@@ -21,7 +21,7 @@ readonly SNAPSHOT_FOLDER="./browser-test/image_snapshots"
 #######################################
 # Exit if jq query fails or is null
 # Arguments:
-#   last_exit_code - preseverd exit code of jq query
+#   last_exit_code - preserved exit code of jq query
 #   value - value returned from jq query
 #   message - message to print on failure
 #######################################

@@ -23,6 +23,7 @@ import services.applicant.question.DateQuestion;
 import services.applicant.question.EmailQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.applicant.question.IdQuestion;
+import services.applicant.question.MapQuestion;
 import services.applicant.question.MultiSelectQuestion;
 import services.applicant.question.NameQuestion;
 import services.applicant.question.NumberQuestion;
@@ -59,46 +60,33 @@ final class CsvColumnFactory {
     this.exportServiceRepository = checkNotNull(exportServiceRepository);
   }
 
-  Stream<Column> buildColumns(
-      ApplicantQuestion aq, ColumnType columnType, boolean isMultipleFileUploadEnabled) {
-    switch (aq.getType()) {
-      case ADDRESS:
-        return buildColumnsForAddressQuestion(aq.createAddressQuestion(), columnType);
-      case CHECKBOX:
-        return buildColumnsForMultiSelectQuestion(aq.createMultiSelectQuestion(), columnType);
-      case CURRENCY:
-        return buildColumnsForCurrencyQuestion(aq.createCurrencyQuestion(), columnType);
-      case DATE:
-        return buildColumnsForDateQuestion(aq.createDateQuestion(), columnType);
-      case DROPDOWN:
-      case RADIO_BUTTON:
-        return buildColumnsForSingleSelectQuestion(aq.createSingleSelectQuestion(), columnType);
-      case EMAIL:
-        return buildColumnsForEmailQuestion(aq.createEmailQuestion(), columnType);
+  Stream<Column> buildColumns(ApplicantQuestion aq, ColumnType columnType) {
+    return switch (aq.getType()) {
+      case ADDRESS -> buildColumnsForAddressQuestion(aq.createAddressQuestion(), columnType);
+      case CHECKBOX ->
+          buildColumnsForMultiSelectQuestion(aq.createMultiSelectQuestion(), columnType);
+      case CURRENCY -> buildColumnsForCurrencyQuestion(aq.createCurrencyQuestion(), columnType);
+      case DATE -> buildColumnsForDateQuestion(aq.createDateQuestion(), columnType);
+      case DROPDOWN, RADIO_BUTTON, YES_NO ->
+          buildColumnsForSingleSelectQuestion(aq.createSingleSelectQuestion(), columnType);
+      case EMAIL -> buildColumnsForEmailQuestion(aq.createEmailQuestion(), columnType);
         // Enumerator questions themselves are not included in the CSV, but their repeated questions
         // are.
-      case ENUMERATOR:
-        return Stream.empty();
-      case FILEUPLOAD:
-        return buildColumnsForFileUploadQuestion(
-            aq.createFileUploadQuestion(), columnType, isMultipleFileUploadEnabled);
-      case ID:
-        return buildColumnsForIdQuestion(aq.createIdQuestion(), columnType);
-      case NAME:
-        return buildColumnsForNameQuestion(aq.createNameQuestion(), columnType);
-      case NUMBER:
-        return buildColumnsForNumberQuestion(aq.createNumberQuestion(), columnType);
-      case PHONE:
-        return buildColumnsForPhoneQuestion(aq.createPhoneQuestion(), columnType);
+      case ENUMERATOR -> Stream.empty();
+      case FILEUPLOAD ->
+          buildColumnsForFileUploadQuestion(aq.createFileUploadQuestion(), columnType);
+      case ID -> buildColumnsForIdQuestion(aq.createIdQuestion(), columnType);
+      case MAP -> buildColumnsForMapQuestion(aq.createMapQuestion(), columnType);
+      case NAME -> buildColumnsForNameQuestion(aq.createNameQuestion(), columnType);
+      case NUMBER -> buildColumnsForNumberQuestion(aq.createNumberQuestion(), columnType);
+      case PHONE -> buildColumnsForPhoneQuestion(aq.createPhoneQuestion(), columnType);
         // Static content questions are not included in CSV because they do not include an answer
         // from the user.
-      case STATIC:
-        return Stream.empty();
-      case TEXT:
-        return buildColumnsForTextQuestion(aq.createTextQuestion(), columnType);
-      default:
-        throw new RuntimeException(String.format("Unrecognized questionType %s", aq.getType()));
-    }
+      case STATIC -> Stream.empty();
+      case TEXT -> buildColumnsForTextQuestion(aq.createTextQuestion(), columnType);
+      default ->
+          throw new RuntimeException(String.format("Unrecognized questionType %s", aq.getType()));
+    };
   }
 
   private Stream<Column> buildColumnsForAddressQuestion(AddressQuestion q, ColumnType columnType) {
@@ -231,7 +219,7 @@ final class CsvColumnFactory {
   }
 
   private Stream<Column> buildColumnsForFileUploadQuestion(
-      FileUploadQuestion q, ColumnType columnType, boolean isMultipleFileUploadEnabled) {
+      FileUploadQuestion q, ColumnType columnType) {
     String baseUrl = settingsManifest.getBaseUrl().orElse("");
 
     Column fileKeyListColumn =
@@ -240,41 +228,16 @@ final class CsvColumnFactory {
             .setHeader(formatHeader(q.getFileKeyListPath()))
             .setQuestionPath(q.getContextualizedPath())
             .setAnswerExtractor(
-                fuq -> {
-                  FileUploadQuestion innerQ = (FileUploadQuestion) fuq;
-
-                  Stream<String> keyStream =
-                      isMultipleFileUploadEnabled
-                          ? innerQ
-                              .getFileKeyListValue()
-                              .map(ImmutableList::stream)
-                              .orElseGet(Stream::empty)
-                          : innerQ.getFileKeyValue().stream();
-
-                  return keyStream
-                      .map(fileKey -> ExportFormatUtils.formatFileUrlForAdmin(baseUrl, fileKey))
-                      .collect(Collectors.joining(", "));
-                })
-            .build();
-
-    if (isMultipleFileUploadEnabled) {
-      return Stream.of(fileKeyListColumn);
-    }
-
-    Column fileKeyColumn =
-        Column.builder()
-            .setColumnType(columnType)
-            .setHeader(formatHeader(q.getFileKeyPath()))
-            .setQuestionPath(q.getContextualizedPath())
-            .setAnswerExtractor(
                 fuq ->
                     ((FileUploadQuestion) fuq)
-                        .getFileKeyValue()
+                        .getFileKeyListValue()
+                        .map(ImmutableList::stream)
+                        .orElseGet(Stream::empty)
                         .map(fileKey -> ExportFormatUtils.formatFileUrlForAdmin(baseUrl, fileKey))
-                        .orElse(""))
+                        .collect(Collectors.joining(", ")))
             .build();
 
-    return Stream.of(fileKeyColumn, fileKeyListColumn);
+    return Stream.of(fileKeyListColumn);
   }
 
   private Stream<Column> buildColumnsForIdQuestion(IdQuestion q, ColumnType columnType) {
@@ -413,6 +376,16 @@ final class CsvColumnFactory {
             .setHeader(formatHeader(q.getTextPath()))
             .setQuestionPath(q.getContextualizedPath())
             .setAnswerExtractor(tq -> ((TextQuestion) tq).getTextValue().orElse(""))
+            .build());
+  }
+
+  private Stream<Column> buildColumnsForMapQuestion(MapQuestion q, ColumnType columnType) {
+    return Stream.of(
+        Column.builder()
+            .setColumnType(columnType)
+            .setHeader(formatHeader(q.getSelectionPath()))
+            .setQuestionPath(q.getContextualizedPath())
+            .setAnswerExtractor(mq -> String.valueOf(((MapQuestion) mq).getSelectedLocationIds()))
             .build());
   }
 

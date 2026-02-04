@@ -6,6 +6,8 @@ import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.UUID;
+import models.QuestionDisplayMode;
 import models.QuestionModel;
 import models.QuestionTag;
 import services.LocalizedStrings;
@@ -30,6 +32,8 @@ public abstract class QuestionForm {
   private QuestionDefinition qd;
   private String redirectUrl;
   private boolean isUniversal;
+  private UUID concurrencyToken;
+  private QuestionDisplayMode displayMode;
   private ImmutableSet<PrimaryApplicantInfoTag> primaryApplicantInfoTags;
 
   protected QuestionForm() {
@@ -41,7 +45,10 @@ public abstract class QuestionForm {
     questionExportState = Optional.of("");
     redirectUrl = "";
     isUniversal = false;
+    // If we don't get a token from the client, generate one so any updates fail.
+    concurrencyToken = UUID.randomUUID();
     primaryApplicantInfoTags = ImmutableSet.of();
+    displayMode = QuestionDisplayMode.VISIBLE;
   }
 
   protected QuestionForm(QuestionDefinition qd) {
@@ -65,7 +72,9 @@ public abstract class QuestionForm {
     }
 
     isUniversal = qd.isUniversal();
+    concurrencyToken = qd.getConcurrencyToken().orElse(UUID.randomUUID());
     primaryApplicantInfoTags = qd.getPrimaryApplicantInfoTags();
+    displayMode = qd.getDisplayMode();
   }
 
   public final String getQuestionName() {
@@ -88,9 +97,17 @@ public abstract class QuestionForm {
     return enumeratorId;
   }
 
+  public final String getConcurrencyToken() {
+    return concurrencyToken.toString();
+  }
+
   public final void setEnumeratorId(String enumeratorId) {
     this.enumeratorId =
         enumeratorId.isEmpty() ? Optional.empty() : Optional.of(Long.valueOf(enumeratorId));
+  }
+
+  public final void setConcurrencyToken(UUID concurrencyToken) {
+    this.concurrencyToken = concurrencyToken;
   }
 
   public abstract QuestionType getQuestionType();
@@ -109,6 +126,14 @@ public abstract class QuestionForm {
 
   public final void setQuestionHelpText(String questionHelpText) {
     this.questionHelpText = checkNotNull(questionHelpText);
+  }
+
+  public final QuestionDisplayMode getDisplayMode() {
+    return displayMode;
+  }
+
+  public final void setDisplayMode(QuestionDisplayMode displayMode) {
+    this.displayMode = displayMode;
   }
 
   public final String getRedirectUrl() {
@@ -145,6 +170,8 @@ public abstract class QuestionForm {
             .setQuestionText(questionTextMap)
             .setQuestionHelpText(questionHelpTextMap)
             .setUniversal(isUniversal)
+            .setConcurrencyToken(concurrencyToken)
+            .setDisplayMode(displayMode)
             .setPrimaryApplicantInfoTags(primaryApplicantInfoTags);
     return builder;
   }

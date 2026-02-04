@@ -4,6 +4,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import forms.EnumeratorQuestionForm;
 import java.util.OptionalInt;
 import services.MessageKey;
 import services.Path;
@@ -15,7 +16,7 @@ import services.question.types.EnumeratorQuestionDefinition;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public final class EnumeratorQuestion extends Question {
+public final class EnumeratorQuestion extends AbstractQuestion {
 
   EnumeratorQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
@@ -57,11 +58,13 @@ public final class EnumeratorQuestion extends Question {
           ValidationErrorMessage.create(
               MessageKey.ENUMERATOR_VALIDATION_TOO_FEW_ENTITIES, getMinEntities().getAsInt()));
     }
-    if (getMaxEntities().isPresent() && entityNames.size() > getMaxEntities().getAsInt()) {
+    int maxAllowed = getMaxEntities().orElse(EnumeratorQuestionForm.MAX_ENUM_ENTITIES_ALLOWED);
+    if (entityNames.size() > maxAllowed) {
       errorsBuilder.add(
           ValidationErrorMessage.create(
-              MessageKey.ENUMERATOR_VALIDATION_TOO_MANY_ENTITIES, getMaxEntities().getAsInt()));
+              MessageKey.ENUMERATOR_VALIDATION_TOO_MANY_ENTITIES, maxAllowed));
     }
+
     return errorsBuilder.build();
   }
 

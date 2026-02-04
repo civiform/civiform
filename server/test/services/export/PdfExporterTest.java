@@ -15,9 +15,12 @@ import com.itextpdf.text.pdf.parser.PdfTextExtractor;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applications.PdfExporterService;
@@ -26,6 +29,7 @@ import services.program.ProgramDefinition;
 import services.question.QuestionAnswerer;
 import services.question.types.QuestionDefinition;
 
+@RunWith(JUnitParamsRunner.class)
 public class PdfExporterTest extends AbstractExporterTest {
 
   @Before
@@ -385,9 +389,9 @@ public class PdfExporterTest extends AbstractExporterTest {
   public void exportProgram_hasMainProgramInfo() throws IOException {
     PdfExporterService service = instanceOf(PdfExporterService.class);
     ProgramDefinition programDef = fakeProgram.getProgramDefinition();
-
     PdfExporter.InMemoryPdf result =
-        service.generateProgramPreviewPdf(programDef, getFakeQuestionDefinitions());
+        service.generateProgramPreviewPdf(
+            programDef, getFakeQuestionDefinitions(), /* expandedFormLogicEnabled= */ true);
 
     List<String> linesFromPdf = getPdfLines(result);
     assertThat(linesFromPdf).isNotEmpty();
@@ -395,8 +399,29 @@ public class PdfExporterTest extends AbstractExporterTest {
     assertThat(linesFromPdf.get(1)).isEqualTo("Admin name: " + programDef.adminName());
     assertThat(linesFromPdf.get(2))
         .isEqualTo("Admin description: " + programDef.adminDescription());
-    assertThat(linesFromPdf.get(3)).contains("Time of export:");
-    assertThat(linesFromPdf.get(4)).isEqualTo("Origin of export: http://localhost:9000");
+    assertThat(linesFromPdf.get(3))
+        .contains(
+            "Admin short description: " + programDef.localizedShortDescription().getDefault());
+    assertThat(linesFromPdf.get(4))
+        .isEqualTo("Admin long description: " + programDef.localizedDescription().getDefault());
+    assertThat(linesFromPdf.get(5)).contains("Time of export:");
+    assertThat(linesFromPdf.get(6)).isEqualTo("Origin of export: http://localhost:9000");
+    assertThat(linesFromPdf.get(7)).isEqualTo(" ");
+    assertThat(linesFromPdf.get(8)).isEqualTo("Application steps");
+    String step1 =
+        programDef.applicationSteps().get(0).getTitle().getDefault()
+            + " : "
+            + programDef.applicationSteps().get(0).getDescription().getDefault();
+    String step2 =
+        programDef.applicationSteps().get(1).getTitle().getDefault()
+            + " : "
+            + programDef.applicationSteps().get(1).getDescription().getDefault();
+    assertThat(linesFromPdf.get(9)).isEqualTo(step1);
+    assertThat(linesFromPdf.get(10)).isEqualTo(step2);
+    assertThat(linesFromPdf.get(11)).isEqualTo(" ");
+    assertThat(linesFromPdf.get(12)).isEqualTo("Application confirmation message");
+    assertThat(linesFromPdf.get(13))
+        .isEqualTo(programDef.localizedConfirmationMessage().getDefault());
   }
 
   @Test
@@ -405,7 +430,8 @@ public class PdfExporterTest extends AbstractExporterTest {
     ProgramDefinition programDef = fakeProgram.getProgramDefinition();
 
     PdfExporter.InMemoryPdf result =
-        service.generateProgramPreviewPdf(programDef, getFakeQuestionDefinitions());
+        service.generateProgramPreviewPdf(
+            programDef, getFakeQuestionDefinitions(), /* expandedFormLogicEnabled= */ true);
 
     String pdfText = getPdfText(result);
     // For every block (which is every question, since our fake program creates one block per
@@ -462,7 +488,8 @@ public class PdfExporterTest extends AbstractExporterTest {
     ProgramDefinition programDef = fakeProgram.getProgramDefinition();
 
     PdfExporter.InMemoryPdf result =
-        service.generateProgramPreviewPdf(programDef, getFakeQuestionDefinitions());
+        service.generateProgramPreviewPdf(
+            programDef, getFakeQuestionDefinitions(), /* expandedFormLogicEnabled= */ true);
 
     String pdfText = getPdfText(result);
 
@@ -485,29 +512,36 @@ public class PdfExporterTest extends AbstractExporterTest {
   }
 
   @Test
-  public void exportProgram_hasEligibilityPredicate() throws IOException {
+  @Parameters({"true", "false"})
+  public void exportProgram_hasEligibilityPredicate(boolean expandedFormLogicEnabled)
+      throws IOException {
     createFakeProgramWithEligibilityPredicateAndThreeApplications();
 
     PdfExporterService service = instanceOf(PdfExporterService.class);
     ProgramDefinition programDef = fakeProgramWithEligibility.getProgramDefinition();
 
     PdfExporter.InMemoryPdf result =
-        service.generateProgramPreviewPdf(programDef, getFakeQuestionDefinitions());
+        service.generateProgramPreviewPdf(
+            programDef, getFakeQuestionDefinitions(), expandedFormLogicEnabled);
 
     String pdfText = getPdfText(result);
     assertThat(pdfText)
-        .contains("Screen 1 is eligible if \"applicant favorite color\" text is equal to \"blue\"");
+        .contains(
+            "Applicant is eligible if \"applicant favorite color\" text is equal to \"blue\"");
   }
 
   @Test
-  public void exportProgram_hasVisibilityPredicate() throws IOException {
+  @Parameters({"true", "false"})
+  public void exportProgram_hasVisibilityPredicate(boolean expandedFormLogicEnabled)
+      throws IOException {
     createFakeProgramWithVisibilityPredicate();
 
     PdfExporterService service = instanceOf(PdfExporterService.class);
     ProgramDefinition programDef = fakeProgramWithVisibility.getProgramDefinition();
 
     PdfExporter.InMemoryPdf result =
-        service.generateProgramPreviewPdf(programDef, getFakeQuestionDefinitions());
+        service.generateProgramPreviewPdf(
+            programDef, getFakeQuestionDefinitions(), expandedFormLogicEnabled);
 
     String pdfText = getPdfText(result);
     assertThat(pdfText)
@@ -522,7 +556,8 @@ public class PdfExporterTest extends AbstractExporterTest {
     ProgramDefinition programDef = fakeProgramWithEnumerator.getProgramDefinition();
 
     PdfExporter.InMemoryPdf result =
-        service.generateProgramPreviewPdf(programDef, getFakeQuestionDefinitions());
+        service.generateProgramPreviewPdf(
+            programDef, getFakeQuestionDefinitions(), /* expandedFormLogicEnabled= */ true);
 
     String pdfText = getPdfText(result);
     assertThat(pdfText).contains("What is the $this's name?");
@@ -561,97 +596,108 @@ public class PdfExporterTest extends AbstractExporterTest {
   }
 
   public static final String APPLICATION_FIVE_WITHOUT_FILE_STRING =
-      "Optional.empty (558)\n"
-          + "Program Name : Fake Optional Question Program\n"
-          + "Status: none\n"
-          + "Submit Time: 2021/12/31 at 4:00 PM PST\n"
-          + " \n"
-          + "applicant name\n"
-          + "Example Five\n"
-          + "Answered on : 1969-12-31\n"
-          + "applicant file\n"
-          + "-- NO FILE SELECTED --\n"
-          + "Answered on : 1969-12-31\n";
+      """
+      Optional.empty (558)
+      Program Name : Fake Optional Question Program
+      Status: none
+      Submit Time: 2021/12/31 at 4:00 PM PST
+      \s
+      applicant name
+      Example Five
+      Answered on : 1969-12-31
+      applicant file
+      -- NO FILE SELECTED --
+      Answered on : 1969-12-31
+      """;
 
   public static final String APPLICATION_FIVE_STRING_SINGLE_FILE =
-      "Optional.empty (558)\n"
-          + "Program Name : Fake Optional Question Program\n"
-          + "Status: none\n"
-          + "Submit Time: 2021/12/31 at 4:00 PM PST\n"
-          + " \n"
-          + "applicant name\n"
-          + "Example Five\n"
-          + "Answered on : 1969-12-31\n"
-          + "applicant file\n"
-          + "-- my-file-key UPLOADED (click to download) --\n"
-          + "Answered on : 1969-12-31\n";
+      """
+      Optional.empty (558)
+      Program Name : Fake Optional Question Program
+      Status: none
+      Submit Time: 2021/12/31 at 4:00 PM PST
+      \s
+      applicant name
+      Example Five
+      Answered on : 1969-12-31
+      applicant file
+      -- my-file-key UPLOADED (click to download) --
+      Answered on : 1969-12-31
+      """;
 
   public static final String APPLICATION_FIVE_STRING =
-      "Optional.empty (558)\n"
-          + "Program Name : Fake Optional Question Program\n"
-          + "Status: none\n"
-          + "Submit Time: 2021/12/31 at 4:00 PM PST\n"
-          + " \n"
-          + "applicant name\n"
-          + "Example Five\n"
-          + "Answered on : 1969-12-31\n"
-          + "applicant file\n"
-          + "my-file-key-1\n"
-          + "my-file-key-2\n"
-          + "Answered on : 1969-12-31\n";
+      """
+      Optional.empty (558)
+      Program Name : Fake Optional Question Program
+      Status: none
+      Submit Time: 2021/12/31 at 4:00 PM PST
+      \s
+      applicant name
+      Example Five
+      Answered on : 1969-12-31
+      applicant file
+      my-file-key-1
+      my-file-key-2
+      Answered on : 1969-12-31
+      """;
 
   public static final String APPLICATION_ONE_STRING =
-      "Optional.empty (48)\n"
-          + "Program Name : Fake Program\n"
-          + "Status: "
-          + STATUS_VALUE
-          + "\n"
-          + "Submit Time: 2021/12/31 at 4:00 PM PST\n"
-          + " \n"
-          + "applicant address\n"
-          + "street st\n"
-          + "apt 100\n"
-          + "city, AB 54321\n"
-          + "Answered on : 1969-12-31\n"
-          + "applicant birth date\n"
-          + "01/01/1980\n"
-          + "Answered on : 1969-12-31\n"
-          + "applicant email address\n"
-          + "one@example.com\n"
-          + "Answered on : 1969-12-31\n"
-          + "applicant favorite color\n"
-          + "Some Value \" containing ,,, special characters\n"
-          + "Answered on : 1969-12-31\n"
-          + "applicant favorite season\n"
-          + "Winter\n"
-          + "Answered on : 1969-12-31\n"
-          + "applicant file\n"
-          + "-- my-file-key UPLOADED (click to download) --\n"
-          + "Answered on : 1969-12-31\n"
-          + "applicant household members\n"
-          + "item1\n"
-          + "item2\n"
-          + "Answered on : 1969-12-31\n"
-          + "applicant ice cream\n"
-          + "Strawberry\n"
-          + "Answered on : 1969-12-31\n"
-          + "applicant id\n"
-          + "012\n"
-          + "Answered on : 1969-12-31\n"
-          + "applicant monthly income\n"
-          + "1234.56\n"
-          + "Answered on : 1969-12-31\n"
-          + "applicant name\n"
-          + "Alice M Appleton Jr\n"
-          + "Answered on : 1969-12-31\n"
-          + "applicant phone\n"
-          + "+1 615-757-1010\n"
-          + "Answered on : 1969-12-31\n"
-          + "kitchen tools\n"
-          + "Toaster\n"
-          + "Pepper Grinder\n"
-          + "Answered on : 1969-12-31\n"
-          + "number of items applicant can juggle\n"
-          + "123456\n"
-          + "Answered on : 1969-12-31\n";
+      """
+      Optional.empty (48)
+      Program Name : Fake Program
+      Status: \
+      %s
+      Submit Time: 2021/12/31 at 4:00 PM PST
+      \s
+      applicant address
+      street st
+      apt 100
+      city, AB 54321
+      Answered on : 1969-12-31
+      applicant birth date
+      01/01/1980
+      Answered on : 1969-12-31
+      applicant email address
+      one@example.com
+      Answered on : 1969-12-31
+      applicant favorite color
+      Some Value " containing ,,, special characters
+      Answered on : 1969-12-31
+      applicant favorite season
+      Winter
+      Answered on : 1969-12-31
+      applicant file
+      -- my-file-key UPLOADED (click to download) --
+      Answered on : 1969-12-31
+      applicant has a dog
+      Yes
+      Answered on : 1969-12-31
+      applicant household members
+      item1
+      item2
+      Answered on : 1969-12-31
+      applicant ice cream
+      Strawberry
+      Answered on : 1969-12-31
+      applicant id
+      012
+      Answered on : 1969-12-31
+      applicant monthly income
+      1234.56
+      Answered on : 1969-12-31
+      applicant name
+      Alice M Appleton Jr
+      Answered on : 1969-12-31
+      applicant phone
+      +1 615-757-1010
+      Answered on : 1969-12-31
+      kitchen tools
+      Toaster
+      Pepper Grinder
+      Answered on : 1969-12-31
+      number of items applicant can juggle
+      123456
+      Answered on : 1969-12-31
+      """
+          .formatted(STATUS_VALUE);
 }

@@ -122,6 +122,19 @@ public final class RouteExtractor {
   }
 
   /**
+   * The given key's string value.
+   *
+   * @param key Path parameter key name as defined in the routes file.
+   * @return the given key's string value.
+   */
+  public String getParamStringValue(String key) {
+    if (!routeParameters.containsKey(key)) {
+      throw new RuntimeException(String.format("Could not find '%s' in route '%s'", key, path));
+    }
+    return routeParameters.get(key);
+  }
+
+  /**
    * Returns {@code true} if this contains a mapping for the specified key.
    *
    * @param key Path parameter key name as defined in the routes file.

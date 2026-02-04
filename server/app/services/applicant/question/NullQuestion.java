@@ -13,14 +13,14 @@ import services.applicant.ValidationErrorMessage;
  * <p>In normal operation this shouldn't ever be reached, but an occasional gremlin has resulted in
  * the rare instance of a program pointing at an old version of a question.
  */
-public class NullQuestion extends Question {
+public class NullQuestion extends AbstractQuestion {
   NullQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
   }
 
   /**
-   * Question-type specific implementation of {@link Question}. Note that keys with an empty set of
-   * errors will be filtered out by {@link Question} so that calls to isEmpty on the
+   * Question-type specific implementation of {@link AbstractQuestion}. Note that keys with an empty
+   * set of errors will be filtered out by {@link AbstractQuestion} so that calls to isEmpty on the
    * getvalidationErrors result are sufficient to indicate if there any errors.
    */
   @Override

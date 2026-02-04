@@ -2,8 +2,6 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
@@ -66,7 +64,6 @@ import services.statuses.StatusDefinitions.Status;
 import services.statuses.StatusNotFoundException;
 import services.statuses.StatusService;
 import support.ProgramBuilder;
-import views.admin.programs.ProgramApplicationListView;
 import views.admin.programs.ProgramApplicationTableView;
 import views.admin.programs.ProgramApplicationView;
 
@@ -109,7 +106,6 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   private AdminApplicationController controller;
   private ProgramAdminApplicationService programAdminApplicationService;
   private ApplicationStatusesRepository repo;
-  private SettingsManifest settingsManifestMock;
   private ProfileFactory profileFactory;
 
   @Before
@@ -117,7 +113,6 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     controller = instanceOf(AdminApplicationController.class);
     programAdminApplicationService = instanceOf(ProgramAdminApplicationService.class);
     repo = instanceOf(ApplicationStatusesRepository.class);
-    settingsManifestMock = mock(SettingsManifest.class);
     profileFactory = instanceOf(ProfileFactory.class);
   }
 
@@ -170,7 +165,6 @@ public class AdminApplicationControllerTest extends ResetPostgres {
 
     controller = makeNoOpProfileController(/* adminAccount= */ Optional.empty());
     Request request = fakeRequest();
-    when(settingsManifestMock.getBulkStatusUpdateEnabled(request)).thenReturn(true);
 
     ProgramModel program = ProgramBuilder.newActiveProgram().build();
     repo.createOrUpdateStatusDefinitions(
@@ -654,7 +648,6 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   @Test
   public void updateStatuses_emptySendEmail_succeeds() throws Exception {
     // Setup
-    Instant start = Instant.now();
     AccountModel adminAccount = resourceCreator.insertAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
     ProgramModel program = ProgramBuilder.newActiveProgram("test name", "test description").build();
@@ -845,8 +838,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
             adminAccount,
             instanceOf(AccountRepository.class));
     ProfileUtils profileUtilsNoOpTester =
-        new ProfileUtilsNoOpTester(
-            instanceOf(SessionStore.class), instanceOf(ProfileFactory.class), profileTester);
+        new ProfileUtilsNoOpTester(instanceOf(SessionStore.class), profileFactory, profileTester);
     return new AdminApplicationController(
         instanceOf(ProgramService.class),
         instanceOf(ApplicantService.class),
@@ -854,7 +846,6 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         instanceOf(FormFactory.class),
         instanceOf(JsonExporterService.class),
         instanceOf(PdfExporterService.class),
-        instanceOf(ProgramApplicationListView.class),
         instanceOf(ProgramApplicationView.class),
         instanceOf(ProgramAdminApplicationService.class),
         profileUtilsNoOpTester,
@@ -863,8 +854,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         Providers.of(LocalDateTime.now(ZoneId.systemDefault())),
         instanceOf(VersionRepository.class),
         instanceOf(StatusService.class),
-        settingsManifestMock,
-        instanceOf(ProgramApplicationTableView.class));
+        instanceOf(ProgramApplicationTableView.class),
+        instanceOf(SettingsManifest.class));
   }
 
   private List<String> createApplicationList(int count, ProgramModel program) {

@@ -4,10 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Random;
+import models.ApiBridgeConfigurationModel.ApiBridgeDefinition;
+import models.ApiBridgeConfigurationModel.ApiBridgeDefinitionItem;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ProgramRepository;
@@ -84,7 +87,7 @@ public class ProgramModelTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setNotificationPreferences(
                 ImmutableList.of(ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS))
-            .setProgramType(ProgramType.COMMON_INTAKE_FORM)
+            .setProgramType(ProgramType.PRE_SCREENER_FORM)
             .setEligibilityIsGating(false)
             .setAcls(new ProgramAcls(tiOrgList))
             .setLocalizedSummaryImageDescription(
@@ -92,6 +95,8 @@ public class ProgramModelTest extends ResetPostgres {
             .setSummaryImageFileKey(Optional.of("program-card-images/program-1/testFile.png"))
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .setBridgeDefinitions(ImmutableMap.of())
+            .setLoginOnly(true)
             .build();
     ProgramModel program = new ProgramModel(definition);
 
@@ -115,8 +120,7 @@ public class ProgramModelTest extends ResetPostgres {
         .isEqualTo("program-card-images/program-1/testFile.png");
     assertThat(found.getProgramDefinition().blockDefinitions().get(0).name())
         .isEqualTo("First Block");
-    assertThat(found.getProgramDefinition().programType())
-        .isEqualTo(ProgramType.COMMON_INTAKE_FORM);
+    assertThat(found.getProgramDefinition().programType()).isEqualTo(ProgramType.PRE_SCREENER_FORM);
     assertThat(found.getProgramDefinition().eligibilityIsGating()).isEqualTo(false);
     assertThat(found.getProgramDefinition().acls().getTiProgramViewAcls()).contains(1L);
     assertThat(found.getProgramDefinition().acls().getTiProgramViewAcls()).contains(3L);
@@ -126,6 +130,7 @@ public class ProgramModelTest extends ResetPostgres {
         .isEqualTo(LocalizedStrings.of(Locale.US, "title"));
     assertThat(found.getProgramDefinition().applicationSteps().get(0).getDescription())
         .isEqualTo(LocalizedStrings.of(Locale.US, "description"));
+    assertThat(found.getProgramDefinition().loginOnly()).isTrue();
 
     assertThat(
             found
@@ -136,6 +141,8 @@ public class ProgramModelTest extends ResetPostgres {
                 .get(0)
                 .id())
         .isEqualTo(questionDefinition.getId());
+
+    assertThat(found.getProgramDefinition().bridgeDefinitions()).isEmpty();
   }
 
   @Test
@@ -188,9 +195,11 @@ public class ProgramModelTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(false)
+            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .setBridgeDefinitions(ImmutableMap.of())
             .build();
     ProgramModel program = new ProgramModel(definition);
     program.save();
@@ -250,9 +259,11 @@ public class ProgramModelTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(false)
+            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .setBridgeDefinitions(ImmutableMap.of())
             .build();
     ProgramModel program = new ProgramModel(definition);
     program.save();
@@ -264,7 +275,7 @@ public class ProgramModelTest extends ResetPostgres {
     assertThat(block.visibilityPredicate()).hasValue(predicate);
     assertThat(block.eligibilityDefinition()).hasValue(eligibilityDefinition);
     assertThat(block.eligibilityDefinition().get().predicate().predicateFormat())
-        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_CONDITION);
     assertThat(block.optionalPredicate()).isEmpty();
   }
 
@@ -371,9 +382,11 @@ public class ProgramModelTest extends ResetPostgres {
             .setBlockDefinitions(unorderedBlocks)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(false)
+            .setLoginOnly(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
             .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .setBridgeDefinitions(ImmutableMap.of())
             .build();
 
     assertThat(programDefinition.hasOrderedBlockDefinitions()).isFalse();
@@ -382,5 +395,44 @@ public class ProgramModelTest extends ResetPostgres {
     program.save();
 
     assertThat(program.getProgramDefinition().hasOrderedBlockDefinitions()).isTrue();
+  }
+
+  @Test
+  public void bridgeDefinitions_serializedCorrectly() {
+    ImmutableMap<String, ApiBridgeDefinition> bridgeDefinitions =
+        ImmutableMap.of(
+            "admin-name-1",
+            new ApiBridgeDefinition(
+                ImmutableList.of(
+                    new ApiBridgeDefinitionItem("questionName", Scalar.TEXT, "externalName")),
+                ImmutableList.of(
+                    new ApiBridgeDefinitionItem("questionName", Scalar.TEXT, "externalName"))));
+
+    ProgramDefinition definition =
+        ProgramDefinition.builder()
+            .setId(uniqueProgramId)
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
+            .setLocalizedName(LocalizedStrings.of(Locale.US, "ProgramTest"))
+            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
+            .setLocalizedShortDescription(LocalizedStrings.of(Locale.US, "short desc"))
+            .setExternalLink("")
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.DEFAULT)
+            .setEligibilityIsGating(false)
+            .setLoginOnly(false)
+            .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .setBridgeDefinitions(bridgeDefinitions)
+            .build();
+
+    ProgramModel program = new ProgramModel(definition);
+
+    program.save();
+
+    ProgramModel found = repo.lookupProgram(program.id).toCompletableFuture().join().get();
+
+    assertThat(found.getProgramDefinition().bridgeDefinitions()).isEqualTo(bridgeDefinitions);
   }
 }

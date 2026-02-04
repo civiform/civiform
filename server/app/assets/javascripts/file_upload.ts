@@ -1,5 +1,5 @@
-import {addEventListenerToElements, assertNotNull} from './util'
-import {isFileTooLarge} from './file_upload_util'
+import {addEventListenerToElements, assertNotNull} from '@/util'
+import {isFileTooLarge} from '@/file_upload_util'
 
 const UPLOAD_ATTR = 'data-upload-text'
 const UPLOADED_FILE_ATTR = 'data-uploaded-files'
@@ -143,18 +143,19 @@ function onActionButtonClicked(e: Event, blockForm: Element) {
 
   if (fileInput.value != '') {
     modifySuccessActionRedirect(buttonTarget, blockForm)
-  } else {
-    const redirectWithoutFile = buttonTarget.dataset.redirectWithoutFile
-    if (redirectWithoutFile) {
-      // If there's no file uploaded but the button provides a redirect
-      // that can be used even when there's no file, invoke that redirect.
-      // See {@link views.applicant.ApplicantFileUploadRenderer.java}.
-      window.location.href = redirectWithoutFile
-      // This will prevent form submission, which is important because we
-      // don't want to send an empty file to cloud storage providers or
-      // store an empty file key in our database.
-      e.preventDefault()
-    }
+    return
+  }
+
+  const redirectWithoutFile = buttonTarget.dataset.redirectWithoutFile
+  if (redirectWithoutFile) {
+    // If there's no file uploaded but the button provides a redirect
+    // that can be used even when there's no file, invoke that redirect.
+    // See {@link views.applicant.ApplicantFileUploadRenderer.java}.
+    window.location.href = redirectWithoutFile
+    // This will prevent form submission, which is important because we
+    // don't want to send an empty file to cloud storage providers or
+    // store an empty file key in our database.
+    e.preventDefault()
   }
 }
 

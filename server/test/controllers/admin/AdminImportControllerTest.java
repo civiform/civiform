@@ -1,10 +1,6 @@
 package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
@@ -23,26 +19,25 @@ import org.junit.Before;
 import org.junit.Test;
 import play.data.FormFactory;
 import play.mvc.Result;
-import repository.ApplicationStatusesRepository;
 import repository.ProgramRepository;
-import repository.QuestionRepository;
 import repository.ResetPostgres;
 import repository.VersionRepository;
+import services.ErrorAnd;
 import services.migration.ProgramMigrationService;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
 import services.question.types.QuestionDefinition;
-import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
 import views.admin.migration.AdminImportView;
 import views.admin.migration.AdminImportViewPartial;
+import views.admin.migration.AdminProgramImportForm;
 
 public class AdminImportControllerTest extends ResetPostgres {
+  private static final String CREATE_DUPLICATE = "CREATE_DUPLICATE";
+  private static final String OVERWRITE_EXISTING = "OVERWRITE_EXISTING";
   private AdminImportController controller;
-  private final SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
-  private VersionRepository versionRepository;
   private Database database;
 
   @Before
@@ -54,29 +49,14 @@ public class AdminImportControllerTest extends ResetPostgres {
             instanceOf(FormFactory.class),
             instanceOf(ProfileUtils.class),
             instanceOf(ProgramMigrationService.class),
-            mockSettingsManifest,
             instanceOf(VersionRepository.class),
             instanceOf(ProgramRepository.class),
-            instanceOf(QuestionRepository.class),
-            instanceOf(ApplicationStatusesRepository.class),
             instanceOf(ProgramService.class));
     database = DB.getDefault();
-    versionRepository = instanceOf(VersionRepository.class);
-  }
-
-  @Test
-  public void index_migrationNotEnabled_notFound() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(false);
-
-    Result result = controller.index(fakeRequest());
-
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
-    assertThat(contentAsString(result)).contains("import is not enabled");
   }
 
   @Test
   public void index_migrationEnabled_ok() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
     ProgramBuilder.newActiveProgram("active-program-1").build();
     ProgramBuilder.newActiveProgram("active-program-2").build();
     ProgramBuilder.newDraftProgram("draft-program").build();
@@ -88,19 +68,7 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void hxImportProgram_migrationNotEnabled_notFound() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(false);
-
-    Result result = controller.hxImportProgram(fakeRequest());
-
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
-    assertThat(contentAsString(result)).contains("import is not enabled");
-  }
-
-  @Test
   public void hxImportProgram_noRequestBody_redirectsToIndex() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
-
     Result result = controller.hxImportProgram(fakeRequest());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -109,25 +77,6 @@ public class AdminImportControllerTest extends ResetPostgres {
 
   @Test
   public void hxImportProgram_malformattedJson_error() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
-
-    Result result =
-        controller.hxImportProgram(
-            fakeRequestBuilder()
-                .method("POST")
-                .bodyForm(ImmutableMap.of("programJson", "{\"adminName : \"admin-name\"}"))
-                .build());
-
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Error processing JSON");
-    assertThat(contentAsString(result)).contains("JSON is incorrectly formatted");
-  }
-
-  @Test
-  public void hxImportProgram_noDuplicatesEnabled_malformattedJson_error() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
-
     Result result =
         controller.hxImportProgram(
             fakeRequestBuilder()
@@ -142,30 +91,6 @@ public class AdminImportControllerTest extends ResetPostgres {
 
   @Test
   public void hxImportProgram_noTopLevelProgramFieldInJson_error() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
-
-    Result result =
-        controller.hxImportProgram(
-            fakeRequestBuilder()
-                .method("POST")
-                .bodyForm(
-                    ImmutableMap.of(
-                        "programJson",
-                        "{ \"id\" : 32, \"adminName\" : \"admin-name\","
-                            + " \"adminDescription\" : \"description\"}"))
-                .build());
-
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Error processing JSON");
-    assertThat(contentAsString(result))
-        .containsPattern("JSON did not have a top-level .*program.* field");
-  }
-
-  @Test
-  public void hxImportProgram_noDuplicatesEnabled_noTopLevelProgramFieldInJson_error() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
-
     Result result =
         controller.hxImportProgram(
             fakeRequestBuilder()
@@ -185,29 +110,6 @@ public class AdminImportControllerTest extends ResetPostgres {
 
   @Test
   public void hxImportProgram_notEnoughInfoToCreateProgramDef_error() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
-
-    Result result =
-        controller.hxImportProgram(
-            fakeRequestBuilder()
-                .method("POST")
-                .bodyForm(
-                    ImmutableMap.of(
-                        "programJson",
-                        "{ \"program\": { \"adminName\" : \"admin-name\","
-                            + " \"adminDescription\" : \"description\"}}"))
-                .build());
-
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Error processing JSON");
-    assertThat(contentAsString(result)).contains("JSON is incorrectly formatted");
-  }
-
-  @Test
-  public void hxImportProgram_noDuplicatesEnabled_notEnoughInfoToCreateProgramDef_error() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
-
     Result result =
         controller.hxImportProgram(
             fakeRequestBuilder()
@@ -226,34 +128,6 @@ public class AdminImportControllerTest extends ResetPostgres {
 
   @Test
   public void hxImportProgram_programAlreadyExists_error() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
-
-    // save a program
-    controller.hxSaveProgram(
-        fakeRequestBuilder()
-            .method("POST")
-            .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
-            .build());
-
-    // attempt to import the program again
-    Result result =
-        controller.hxImportProgram(
-            fakeRequestBuilder()
-                .method("POST")
-                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
-                .build());
-
-    // see the error
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("This program already exists in our system.");
-    assertThat(contentAsString(result)).contains("Please check your file and and try again.");
-  }
-
-  @Test
-  public void hxImportProgram_noDuplicatesEnabled_programAlreadyExists_error() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
-
     // save a program
     controller.hxSaveProgram(
         fakeRequestBuilder()
@@ -277,8 +151,6 @@ public class AdminImportControllerTest extends ResetPostgres {
 
   @Test
   public void hxImportProgram_negativeBlockId_error() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
-
     // attempt to import a program with a negative block id
     Result result =
         controller.hxImportProgram(
@@ -296,8 +168,6 @@ public class AdminImportControllerTest extends ResetPostgres {
 
   @Test
   public void hxImportProgram_handlesServerError() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
-
     // attempt to import program with bad json - question id in block definition does not match
     // question id on question
     Result result =
@@ -309,14 +179,12 @@ public class AdminImportControllerTest extends ResetPostgres {
 
     // see the error
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("There was an error rendering your program.");
-    assertThat(contentAsString(result)).contains("Please check your data and try again.");
+    assertThat(contentAsString(result)).contains("One or more question errors occured");
+    assertThat(contentAsString(result)).contains("Question ID 2 is not defined");
   }
 
   @Test
   public void hxImportProgram_noDuplicatesNotEnabled_draftsExist_noError() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
-
     // Create a draft program, so that there are unpublished programs
     ProgramBuilder.newDraftProgram("draft-program").build();
 
@@ -337,58 +205,7 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void hxImportProgram_noDuplicatesEnabled_draftProgramExists_error() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
-
-    // Create a draft program, so that there are unpublished programs
-    ProgramBuilder.newDraftProgram("draft-program").build();
-
-    // save a program
-    Result result =
-        controller.hxImportProgram(
-            fakeRequestBuilder()
-                .method("POST")
-                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
-                .build());
-
-    // see the error
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result))
-        .contains("There are draft programs and questions in our system.");
-    assertThat(contentAsString(result)).contains("Please publish all drafts and try again.");
-  }
-
-  @Test
-  public void hxImportProgram_noDuplicatesEnabled_draftQuestionExists_error() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
-
-    // Create a draft question, so there is an unpublished question
-    versionRepository
-        .getDraftVersionOrCreate()
-        .addQuestion(resourceCreator.insertQuestion("draft-question"))
-        .save();
-
-    // save a program
-    Result result =
-        controller.hxImportProgram(
-            fakeRequestBuilder()
-                .method("POST")
-                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
-                .build());
-
-    // see the error
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result))
-        .contains("There are draft programs and questions in our system.");
-    assertThat(contentAsString(result)).contains("Please publish all drafts and try again.");
-  }
-
-  @Test
   public void hxImportProgram_jsonHasAllProgramInfo_resultHasProgramAndQuestionInfo() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
-
     Result result =
         controller.hxImportProgram(
             fakeRequestBuilder()
@@ -400,133 +217,11 @@ public class AdminImportControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).contains("Minimal Sample Program");
     assertThat(contentAsString(result)).contains("minimal-sample-program");
     assertThat(contentAsString(result)).contains("Screen 1");
-    assertThat(contentAsString(result)).contains("Please enter your first and last name");
-  }
-
-  @Test
-  public void
-      hxImportProgram_noDuplicatesEnabled_jsonHasAllProgramInfo_resultHasProgramAndQuestionInfo() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
-
-    Result result =
-        controller.hxImportProgram(
-            fakeRequestBuilder()
-                .method("POST")
-                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
-                .build());
-
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Minimal Sample Program");
-    assertThat(contentAsString(result)).contains("minimal-sample-program");
-    assertThat(contentAsString(result)).contains("Screen 1");
-    assertThat(contentAsString(result)).contains("Please enter your first and last name");
-  }
-
-  @Test
-  public void hxImportProgram_showsWarningAndOverwritesQuestionAdminNamesIfTheyAlreadyExist() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
-
-    // save the program
-    controller.hxSaveProgram(
-        fakeRequestBuilder()
-            .method("POST")
-            .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
-            .build());
-
-    // update the program admin name so we don't receive an error
-    String UPDATED_PROGRAM_JSON_WITH_ONE_QUESTION =
-        PROGRAM_JSON_WITH_ONE_QUESTION.replace(
-            "minimal-sample-program", "minimal-sample-program-new");
-
-    // parse the program for import
-    Result result =
-        controller.hxImportProgram(
-            fakeRequestBuilder()
-                .method("POST")
-                .bodyForm(ImmutableMap.of("programJson", UPDATED_PROGRAM_JSON_WITH_ONE_QUESTION))
-                .build());
-
-    assertThat(result.status()).isEqualTo(OK);
-
-    // warning is shown
-    assertThat(contentAsString(result))
-        .contains("Importing this program will add 1 duplicate question to the question bank.");
-    // question has the new admin name
-    assertThat(contentAsString(result)).contains("Name -_- a");
-    // other information in the question is unchanged
-    assertThat(contentAsString(result)).contains("Please enter your first and last name");
-  }
-
-  @Test
-  public void
-      hxImportProgram_noDuplicatesEnabled_showsWarningAndDoesNotOverwriteQuestionAdminNamesIfTheyAlreadyExist() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
-
-    // save the program
-    controller.hxSaveProgram(
-        fakeRequestBuilder()
-            .method("POST")
-            .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
-            .build());
-
-    // publish the drafts
-    versionRepository.publishNewSynchronizedVersion();
-
-    // update the program admin name so we don't receive an error
-    String UPDATED_PROGRAM_JSON_WITH_ONE_QUESTION =
-        PROGRAM_JSON_WITH_ONE_QUESTION.replace(
-            "minimal-sample-program", "minimal-sample-program-new");
-
-    // parse the program for import
-    Result result =
-        controller.hxImportProgram(
-            fakeRequestBuilder()
-                .method("POST")
-                .bodyForm(ImmutableMap.of("programJson", UPDATED_PROGRAM_JSON_WITH_ONE_QUESTION))
-                .build());
-
-    assertThat(result.status()).isEqualTo(OK);
-
-    // warning is shown
-    assertThat(contentAsString(result))
-        .contains("There is 1 existing question that will appear as draft in the question bank.");
-    // question has the same admin name
-    assertThat(contentAsString(result)).contains("Name");
-    // other information in the question is unchanged
     assertThat(contentAsString(result)).contains("Please enter your first and last name");
   }
 
   @Test
   public void hxSaveProgram_savesTheProgramWithoutQuestions() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
-
-    Result result =
-        controller.hxSaveProgram(
-            fakeRequestBuilder()
-                .method("POST")
-                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITHOUT_QUESTIONS))
-                .build());
-
-    assertThat(result.status()).isEqualTo(OK);
-
-    ProgramDefinition programDefinition =
-        database
-            .find(ProgramModel.class)
-            .where()
-            .eq("name", "no-questions")
-            .findOne()
-            .getProgramDefinition();
-
-    assertThat(programDefinition.externalLink()).isEqualTo("https://www.example.com");
-  }
-
-  @Test
-  public void hxSaveProgram_noDuplicatesEnabled_savesTheProgramWithoutQuestions() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
-
     Result result =
         controller.hxSaveProgram(
             fakeRequestBuilder()
@@ -549,43 +244,6 @@ public class AdminImportControllerTest extends ResetPostgres {
 
   @Test
   public void hxSaveProgram_savesTheProgramWithQuestions() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
-
-    Result result =
-        controller.hxSaveProgram(
-            fakeRequestBuilder()
-                .method("POST")
-                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
-                .build());
-
-    assertThat(result.status()).isEqualTo(OK);
-
-    ProgramDefinition programDefinition =
-        database
-            .find(ProgramModel.class)
-            .where()
-            .eq("name", "minimal-sample-program")
-            .findOne()
-            .getProgramDefinition();
-    QuestionDefinition questionDefinition =
-        database
-            .find(QuestionModel.class)
-            .where()
-            .eq("name", "Name")
-            .findOne()
-            .getQuestionDefinition();
-
-    assertThat(programDefinition.externalLink()).isEqualTo("https://github.com/civiform/civiform");
-    assertThat(questionDefinition.getQuestionText().getDefault())
-        .isEqualTo("Please enter your first and last name");
-    assertThat(programDefinition.getQuestionIdsInProgram()).contains(questionDefinition.getId());
-  }
-
-  @Test
-  public void hxSaveProgram_noDuplicatesEnabled_savesTheProgramWithQuestions() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
-
     Result result =
         controller.hxSaveProgram(
             fakeRequestBuilder()
@@ -618,52 +276,6 @@ public class AdminImportControllerTest extends ResetPostgres {
 
   @Test
   public void hxSaveProgram_handlesNestEnumeratorQuestions() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
-
-    Result result =
-        controller.hxSaveProgram(
-            fakeRequestBuilder()
-                .method("POST")
-                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ENUMERATORS))
-                .build());
-
-    assertThat(result.status()).isEqualTo(OK);
-
-    QuestionDefinition enumeratorQuestionDefinition =
-        database
-            .find(QuestionModel.class)
-            .where()
-            .eq("name", "Sample Enumerator Question")
-            .findOne()
-            .getQuestionDefinition();
-
-    QuestionDefinition nestedEnumeratorQuestionDefinition =
-        database
-            .find(QuestionModel.class)
-            .where()
-            .eq("name", "cats")
-            .findOne()
-            .getQuestionDefinition();
-
-    QuestionDefinition childQuestionDefinition =
-        database
-            .find(QuestionModel.class)
-            .where()
-            .eq("name", "cat-color")
-            .findOne()
-            .getQuestionDefinition();
-
-    assertThat(enumeratorQuestionDefinition.getId())
-        .isEqualTo(nestedEnumeratorQuestionDefinition.getEnumeratorId().get());
-    assertThat(nestedEnumeratorQuestionDefinition.getId())
-        .isEqualTo(childQuestionDefinition.getEnumeratorId().get());
-  }
-
-  @Test
-  public void hxSaveProgram_noDuplicatesEnabled_handlesNestEnumeratorQuestions() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
-
     Result result =
         controller.hxSaveProgram(
             fakeRequestBuilder()
@@ -706,106 +318,6 @@ public class AdminImportControllerTest extends ResetPostgres {
   @Test
   public void hxSaveProgram_savesUpdatedQuestionIdsOnPredicates()
       throws ProgramBlockDefinitionNotFoundException {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
-
-    Result result =
-        controller.hxSaveProgram(
-            fakeRequestBuilder()
-                .method("POST")
-                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_PREDICATES))
-                .build());
-
-    assertThat(result.status()).isEqualTo(OK);
-
-    ProgramDefinition programDefinition =
-        database
-            .find(ProgramModel.class)
-            .where()
-            .eq("name", "visibility-eligibility")
-            .findOne()
-            .getProgramDefinition();
-    Long eligibilityQuestionId =
-        programDefinition
-            .getBlockDefinition(1)
-            .eligibilityDefinition()
-            .get()
-            .predicate()
-            .rootNode()
-            .getOrNode()
-            .children()
-            .get(0)
-            .getAndNode()
-            .children()
-            .get(0)
-            .getLeafOperationNode()
-            .questionId();
-    Long visibilityQuestionId =
-        programDefinition
-            .getBlockDefinition(2)
-            .visibilityPredicate()
-            .get()
-            .rootNode()
-            .getLeafOperationNode()
-            .questionId();
-    Long savedQuestionId =
-        database
-            .find(QuestionModel.class)
-            .where()
-            .eq("name", "id-test")
-            .findOne()
-            .getQuestionDefinition()
-            .getId();
-
-    assertThat(eligibilityQuestionId).isEqualTo(savedQuestionId);
-    assertThat(visibilityQuestionId).isEqualTo(savedQuestionId);
-
-    Long eligibilityInServiceAreaAddressQuestionId =
-        programDefinition
-            .getBlockDefinition(3)
-            .eligibilityDefinition()
-            .get()
-            .predicate()
-            .rootNode()
-            .getLeafAddressNode()
-            .questionId();
-    Long savedInServiceAreaAddressQuestionId =
-        database
-            .find(QuestionModel.class)
-            .where()
-            .eq("name", "Address")
-            .findOne()
-            .getQuestionDefinition()
-            .getId();
-    assertThat(eligibilityInServiceAreaAddressQuestionId)
-        .isEqualTo(savedInServiceAreaAddressQuestionId);
-
-    Long eligibilityNotInServiceAreaAddressQuestionId =
-        programDefinition
-            .getBlockDefinition(4)
-            .eligibilityDefinition()
-            .get()
-            .predicate()
-            .rootNode()
-            .getLeafAddressNode()
-            .questionId();
-    Long savedNotInServiceAreaAddressQuestionId =
-        database
-            .find(QuestionModel.class)
-            .where()
-            .eq("name", "second-address")
-            .findOne()
-            .getQuestionDefinition()
-            .getId();
-    assertThat(eligibilityNotInServiceAreaAddressQuestionId)
-        .isEqualTo(savedNotInServiceAreaAddressQuestionId);
-  }
-
-  @Test
-  public void hxSaveProgram_noDuplicatesEnabled_savesUpdatedQuestionIdsOnPredicates()
-      throws ProgramBlockDefinitionNotFoundException {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
-
     Result result =
         controller.hxSaveProgram(
             fakeRequestBuilder()
@@ -900,33 +412,6 @@ public class AdminImportControllerTest extends ResetPostgres {
 
   @Test
   public void hxSaveProgram_discardsPaiTagsOnImportedQuestions() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
-
-    Result result =
-        controller.hxSaveProgram(
-            fakeRequestBuilder()
-                .method("POST")
-                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_PAI_TAGS))
-                .build());
-
-    assertThat(result.status()).isEqualTo(OK);
-
-    QuestionDefinition questionDefinition =
-        database
-            .find(QuestionModel.class)
-            .where()
-            .eq("name", "dob")
-            .findOne()
-            .getQuestionDefinition();
-
-    assertThat(questionDefinition.getPrimaryApplicantInfoTags()).isEqualTo(ImmutableSet.of());
-  }
-
-  @Test
-  public void hxSaveProgram_noDuplicatesEnabled_discardsPaiTagsOnImportedQuestions() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
-
     Result result =
         controller.hxSaveProgram(
             fakeRequestBuilder()
@@ -949,35 +434,6 @@ public class AdminImportControllerTest extends ResetPostgres {
 
   @Test
   public void hxSaveProgram_preservesUniversalSettingOnImportedQuestions() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
-
-    Result result =
-        controller.hxSaveProgram(
-            fakeRequestBuilder()
-                .method("POST")
-                // Questions must be marked as "universal" before being tagged with a PAI
-                // tag, so we can reuse the PROGRAM_JSON_WITH_PAI_TAGS json
-                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_PAI_TAGS))
-                .build());
-
-    assertThat(result.status()).isEqualTo(OK);
-
-    QuestionDefinition questionDefinition =
-        database
-            .find(QuestionModel.class)
-            .where()
-            .eq("name", "dob")
-            .findOne()
-            .getQuestionDefinition();
-
-    assertThat(questionDefinition.isUniversal()).isTrue();
-  }
-
-  @Test
-  public void hxSaveProgram_noDuplicatesEnabled_preservesUniversalSettingOnImportedQuestions() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
-
     Result result =
         controller.hxSaveProgram(
             fakeRequestBuilder()
@@ -1002,8 +458,6 @@ public class AdminImportControllerTest extends ResetPostgres {
 
   @Test
   public void hxSaveProgram_addsAnEmptyStatus() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
-
     controller.hxSaveProgram(
         fakeRequestBuilder()
             .method("POST")
@@ -1022,25 +476,55 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void hxSaveProgram_noDuplicatesEnabled_addsAnEmptyStatus() {
-    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
-    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
+  public void deserialize_malformedOption_returnsError() {
+    ErrorAnd<ProgramMigrationWrapper, String> deserializeResult =
+        controller.getDeserializeResult(
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(
+                    ImmutableMap.of(
+                        "programJson",
+                        PROGRAM_JSON_WITH_ONE_QUESTION,
+                        AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX + "Name",
+                        "FOO"))
+                .build());
 
-    controller.hxSaveProgram(
-        fakeRequestBuilder()
-            .method("POST")
-            .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
-            .build());
+    assertThat(deserializeResult.isError()).isTrue();
+    assertThat(deserializeResult.getErrors()).hasSize(1);
+    assertThat(deserializeResult.getErrors())
+        .contains(
+            "JSON is incorrectly formatted: No enum constant"
+                + " controllers.admin.ProgramMigrationWrapper.DuplicateQuestionHandlingOption.FOO");
+  }
 
-    StatusDefinitions statusDefinitions =
-        database
-            .find(ApplicationStatusesModel.class)
-            .where()
-            .eq("program_name", "minimal-sample-program")
-            .findOne()
-            .getStatusDefinitions();
+  @Test
+  public void deserialize_multipleOptions_parsesCorrectly() {
+    ErrorAnd<ProgramMigrationWrapper, String> deserializeResult =
+        controller.getDeserializeResult(
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(
+                    ImmutableMap.of(
+                        "programJson",
+                        PROGRAM_JSON_WITH_ONE_QUESTION,
+                        "UnrecognizedPrefix",
+                        OVERWRITE_EXISTING,
+                        AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX + "Name",
+                        OVERWRITE_EXISTING,
+                        AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX + "Text",
+                        CREATE_DUPLICATE))
+                .build());
 
-    assertThat(statusDefinitions.getStatuses()).isEmpty();
+    assertThat(deserializeResult.isError()).isFalse();
+    ImmutableMap<String, ProgramMigrationWrapper.DuplicateQuestionHandlingOption> duplicateOptions =
+        deserializeResult.getResult().getDuplicateQuestionHandlingOptions();
+    assertThat(duplicateOptions).hasSize(2);
+    assertThat(duplicateOptions).containsKey("Name");
+    assertThat(duplicateOptions.get("Name"))
+        .isEqualTo(ProgramMigrationWrapper.DuplicateQuestionHandlingOption.OVERWRITE_EXISTING);
+    assertThat(duplicateOptions).containsKey("Text");
+    assertThat(duplicateOptions.get("Text"))
+        .isEqualTo(ProgramMigrationWrapper.DuplicateQuestionHandlingOption.CREATE_DUPLICATE);
   }
 
   public static final String PROGRAM_JSON_WITHOUT_QUESTIONS =
@@ -1052,6 +536,7 @@ public class AdminImportControllerTest extends ResetPostgres {
               "adminDescription" : "",
               "externalLink" : "https://www.example.com",
               "displayMode" : "PUBLIC",
+              "loginOnly" : false,
               "notificationPreferences" : [ ],
               "localizedName" : {
                 "translations" : {
@@ -1115,7 +600,8 @@ public class AdminImportControllerTest extends ResetPostgres {
                 },
                   "isRequired" : true
                 }
-             }]
+             }],
+             "bridgeDefinitions" : { }
             }
           }
       """;
@@ -1129,6 +615,7 @@ public class AdminImportControllerTest extends ResetPostgres {
               "adminDescription" : "",
               "externalLink" : "https://www.example.com",
               "displayMode" : "PUBLIC",
+              "loginOnly" : false,
               "notificationPreferences" : [ ],
               "localizedName" : {
                 "translations" : {
@@ -1192,7 +679,8 @@ public class AdminImportControllerTest extends ResetPostgres {
                 },
                   "isRequired" : true
                 }
-             }]
+             }],
+             "bridgeDefinitions" : { }
             }
           }
       """;
@@ -1206,6 +694,7 @@ public class AdminImportControllerTest extends ResetPostgres {
               "adminDescription" : "desc",
               "externalLink" : "https://github.com/civiform/civiform",
               "displayMode" : "PUBLIC",
+              "loginOnly" : false,
               "notificationPreferences" : [ ],
               "localizedName" : {
               "translations" : {
@@ -1279,7 +768,21 @@ public class AdminImportControllerTest extends ResetPostgres {
                 },
                   "isRequired" : true
                 }
-             }]
+             }],
+             "bridgeDefinitions" : {
+                 "admin-name-1": {
+                     "inputFields" : [ {
+                         "questionName": "q-name-1",
+                         "questionScalar": "TEXT",
+                         "externalName": "e-name-2"
+                     }],
+                     "outputFields" : [ {
+                         "questionName": "q-name-2",
+                         "questionScalar": "TEXT",
+                         "externalName": "e-name-2"
+                     }]
+                 }
+             }
           },
           "questions" : [ {
               "type" : "name",
@@ -1309,6 +812,7 @@ public class AdminImportControllerTest extends ResetPostgres {
               },
               "id" : 1,
               "universal" : false,
+              "displayMode" : "VISIBLE",
               "primaryApplicantInfoTags" : [ ]
               }
           } ]
@@ -1324,6 +828,7 @@ public class AdminImportControllerTest extends ResetPostgres {
               "adminDescription" : "",
               "externalLink" : "",
               "displayMode" : "PUBLIC",
+              "loginOnly" : false,
               "notificationPreferences" : [ ],
               "localizedName" : {
                 "translations" : {
@@ -1460,7 +965,8 @@ public class AdminImportControllerTest extends ResetPostgres {
                 },
                   "isRequired" : true
                 }
-             }]
+             }],
+             "bridgeDefinitions" : { }
             },
             "questions" : [ {
               "type" : "name",
@@ -1484,6 +990,7 @@ public class AdminImportControllerTest extends ResetPostgres {
                 },
                 "id" : 13,
                 "universal" : true,
+                "displayMode" : "VISIBLE",
                 "primaryApplicantInfoTags" : [ "APPLICANT_NAME" ]
               }
             }, {
@@ -1510,6 +1017,7 @@ public class AdminImportControllerTest extends ResetPostgres {
                 },
                 "id" : 10,
                 "universal" : false,
+                "displayMode" : "VISIBLE",
                 "primaryApplicantInfoTags" : [ ]
               },
               "entityType" : {
@@ -1541,6 +1049,7 @@ public class AdminImportControllerTest extends ResetPostgres {
                 "id" : 94,
                 "enumeratorId" : 10,
                 "universal" : false,
+                "displayMode" : "VISIBLE",
                 "primaryApplicantInfoTags" : [ ]
               },
               "entityType" : {
@@ -1572,6 +1081,7 @@ public class AdminImportControllerTest extends ResetPostgres {
                 "id" : 95,
                 "enumeratorId" : 94,
                 "universal" : false,
+                "displayMode" : "VISIBLE",
                 "primaryApplicantInfoTags" : [ ]
               }
             } ]
@@ -1580,327 +1090,335 @@ public class AdminImportControllerTest extends ResetPostgres {
 
   // Can't use multistring here because of escaped characters in predicates
   public static final String PROGRAM_JSON_WITH_PREDICATES =
-      "{\n"
-          + "  \"program\" : {\n"
-          + "    \"id\" : 1,\n"
-          + "    \"adminName\" : \"visibility-eligibility\",\n"
-          + "    \"adminDescription\" : \"\",\n"
-          + "    \"externalLink\" : \"\",\n"
-          + "    \"displayMode\" : \"PUBLIC\",\n"
-          + "    \"notificationPreferences\" : [ ],\n"
-          + "    \"localizedName\" : {\n"
-          + "      \"translations\" : {\n"
-          + "        \"en_US\" : \"visibility and eligibility test\"\n"
-          + "      },\n"
-          + "      \"isRequired\" : true\n"
-          + "    },\n"
-          + "    \"localizedDescription\" : {\n"
-          + "      \"translations\" : {\n"
-          + "        \"en_US\" : \"visibility and eligibility test\"\n"
-          + "      },\n"
-          + "      \"isRequired\" : true\n"
-          + "    },\n"
-          + "    \"localizedConfirmationMessage\" : {\n"
-          + "      \"translations\" : {\n"
-          + "        \"en_US\" : \"\"\n"
-          + "      },\n"
-          + "      \"isRequired\" : true\n"
-          + "    },\n"
-          + "    \"blockDefinitions\" : [ {\n"
-          + "      \"id\" : 1,\n"
-          + "      \"name\" : \"Screen 1\",\n"
-          + "      \"description\" : \"Screen 1 description\",\n"
-          + "      \"localizedName\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Screen 1\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"localizedDescription\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Screen 1 description\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"repeaterId\" : null,\n"
-          + "      \"hidePredicate\" : null,\n"
-          + "      \"eligibilityDefinition\" : {\n"
-          + "        \"predicate\" : {\n"
-          + "          \"rootNode\" : {\n"
-          + "            \"node\" : {\n"
-          + "              \"type\" : \"or\",\n"
-          + "              \"children\" : [ {\n"
-          + "                \"node\" : {\n"
-          + "                  \"type\" : \"and\",\n"
-          + "                  \"children\" : [ {\n"
-          + "                    \"node\" : {\n"
-          + "                      \"type\" : \"leaf\",\n"
-          + "                      \"questionId\" : 3,\n"
-          + "                      \"scalar\" : \"SELECTIONS\",\n"
-          + "                      \"operator\" : \"ANY_OF\",\n"
-          + "                      \"value\" : {\n"
-          + "                        \"value\" : \"[\\\"0\\\", \\\"9\\\", \\\"11\\\"]\",\n"
-          + "                        \"type\" : \"LIST_OF_STRINGS\"\n"
-          + "                      }\n"
-          + "                    }\n"
-          + "                  }, {\n"
-          + "                    \"node\" : {\n"
-          + "                      \"type\" : \"leaf\",\n"
-          + "                      \"questionId\" : 3,\n"
-          + "                      \"scalar\" : \"SELECTION\",\n"
-          + "                      \"operator\" : \"IN\",\n"
-          + "                      \"value\" : {\n"
-          + "                        \"value\" : \"[\\\"1\\\"]\",\n"
-          + "                        \"type\" : \"LIST_OF_STRINGS\"\n"
-          + "                      }\n"
-          + "                    }\n"
-          + "                  } ]\n"
-          + "                }\n"
-          + "              } ]\n"
-          + "            }\n"
-          + "          },\n"
-          + "          \"action\" : \"ELIGIBLE_BLOCK\"\n"
-          + "        }\n"
-          + "      },\n"
-          + "      \"optionalPredicate\" : null,\n"
-          + "      \"questionDefinitions\" : [ {\n"
-          + "        \"id\" : 3,\n"
-          + "        \"optional\" : false,\n"
-          + "        \"addressCorrectionEnabled\" : false\n"
-          + "      } ]\n"
-          + "    }, {\n"
-          + "      \"id\" : 2,\n"
-          + "      \"name\" : \"Screen 2\",\n"
-          + "      \"description\" : \"Screen 2 description\",\n"
-          + "      \"localizedName\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Screen 2\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"localizedDescription\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Screen 2 description\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"repeaterId\" : null,\n"
-          + "      \"hidePredicate\" : {\n"
-          + "        \"rootNode\" : {\n"
-          + "          \"node\" : {\n"
-          + "            \"type\" : \"leaf\",\n"
-          + "            \"questionId\" : 3,\n"
-          + "            \"scalar\" : \"ID\",\n"
-          + "            \"operator\" : \"EQUAL_TO\",\n"
-          + "            \"value\" : {\n"
-          + "              \"value\" : \"\\\"1\\\"\",\n"
-          + "              \"type\" : \"STRING\"\n"
-          + "            }\n"
-          + "          }\n"
-          + "        },\n"
-          + "        \"action\" : \"HIDE_BLOCK\"\n"
-          + "      },\n"
-          + "      \"optionalPredicate\" : null,\n"
-          + "      \"questionDefinitions\" : [ {\n"
-          + "        \"id\" : 4,\n"
-          + "        \"optional\" : false,\n"
-          + "        \"addressCorrectionEnabled\" : false\n"
-          + "      } ]\n"
-          + "    }, {\n"
-          + "      \"id\" : 3,\n"
-          + "      \"name\" : \"Screen 3\",\n"
-          + "      \"description\" : \"Screen 3 description\",\n"
-          + "      \"localizedName\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Screen 3\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"localizedDescription\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Screen 3 description\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"repeaterId\" : null,\n"
-          + "      \"hidePredicate\" : null,\n"
-          + "      \"eligibilityDefinition\" : {\n"
-          + "        \"predicate\" : {\n"
-          + "          \"rootNode\" : {\n"
-          + "            \"node\" : {\n"
-          + "              \"type\" : \"leafAddressServiceArea\",\n"
-          + "              \"questionId\" : 5,\n"
-          + "              \"serviceAreaId\" : \"Seattle\",\n"
-          + "              \"operator\" : \"IN_SERVICE_AREA\"\n"
-          + "            }\n"
-          + "          },\n"
-          + "          \"action\" : \"ELIGIBLE_BLOCK\"\n"
-          + "        }\n"
-          + "      },\n"
-          + "      \"optionalPredicate\" : null,\n"
-          + "      \"questionDefinitions\" : [ {\n"
-          + "        \"id\" : 5,\n"
-          + "        \"optional\" : false,\n"
-          + "        \"addressCorrectionEnabled\" : true\n"
-          + "      } ]\n"
-          + "    }, {\n"
-          + "      \"id\" : 4,\n"
-          + "      \"name\" : \"Screen 4\",\n"
-          + "      \"description\" : \"Screen 4 description\",\n"
-          + "      \"localizedName\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Screen 4\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"localizedDescription\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Screen 4 description\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"repeaterId\" : null,\n"
-          + "      \"hidePredicate\" : null,\n"
-          + "      \"eligibilityDefinition\" : {\n"
-          + "        \"predicate\" : {\n"
-          + "          \"rootNode\" : {\n"
-          + "            \"node\" : {\n"
-          + "              \"type\" : \"leafAddressServiceArea\",\n"
-          + "              \"questionId\" : 6,\n"
-          + "              \"serviceAreaId\" : \"Seattle\",\n"
-          + "              \"operator\" : \"NOT_IN_SERVICE_AREA\"\n"
-          + "            }\n"
-          + "          },\n"
-          + "          \"action\" : \"ELIGIBLE_BLOCK\"\n"
-          + "        }\n"
-          + "      },\n"
-          + "      \"optionalPredicate\" : null,\n"
-          + "      \"questionDefinitions\" : [ {\n"
-          + "        \"id\" : 6,\n"
-          + "        \"optional\" : false,\n"
-          + "        \"addressCorrectionEnabled\" : true\n"
-          + "      } ]\n"
-          + "    } ],\n"
-          + "    \"programType\" : \"DEFAULT\",\n"
-          + "    \"eligibilityIsGating\" : true,\n"
-          + "    \"acls\" : {\n"
-          + "      \"tiProgramViewAcls\" : [ ]\n"
-          + "    },\n"
-          + "    \"localizedSummaryImageDescription\" : null,\n"
-          + "    \"categories\" : [ ],\n"
-          + "    \"applicationSteps\" : [ {\n"
-          + "      \"title\" : {\n"
-          + "         \"translations\" : {\n"
-          + "           \"en_US\" : \"step one\"\n"
-          + "         },\n"
-          + "         \"isRequired\" : true\n"
-          + "     },\n"
-          + "     \"description\" : {\n"
-          + "        \"translations\" : {\n"
-          + "        \"en_US\" : \"step one\"\n"
-          + "     },\n"
-          + "       \"isRequired\" : true\n"
-          + "     }\n"
-          + "   }]\n"
-          + "  },\n"
-          + "  \"questions\" : [ {\n"
-          + "    \"type\" : \"id\",\n"
-          + "    \"config\" : {\n"
-          + "      \"name\" : \"id-test\",\n"
-          + "      \"description\" : \"\",\n"
-          + "      \"questionText\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Enter a number\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"questionHelpText\" : {\n"
-          + "        \"translations\" : { },\n"
-          + "        \"isRequired\" : false\n"
-          + "      },\n"
-          + "      \"validationPredicates\" : {\n"
-          + "        \"type\" : \"id\",\n"
-          + "        \"minLength\" : null,\n"
-          + "        \"maxLength\" : null\n"
-          + "      },\n"
-          + "      \"id\" : 3,\n"
-          + "      \"universal\" : false,\n"
-          + "      \"primaryApplicantInfoTags\" : [ ]\n"
-          + "    }\n"
-          + "  }, {\n"
-          + "    \"type\" : \"text\",\n"
-          + "    \"config\" : {\n"
-          + "      \"name\" : \"text test\",\n"
-          + "      \"description\" : \"\",\n"
-          + "      \"questionText\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"text test\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"questionHelpText\" : {\n"
-          + "        \"translations\" : { },\n"
-          + "        \"isRequired\" : false\n"
-          + "      },\n"
-          + "      \"validationPredicates\" : {\n"
-          + "        \"type\" : \"text\",\n"
-          + "        \"minLength\" : null,\n"
-          + "        \"maxLength\" : null\n"
-          + "      },\n"
-          + "      \"id\" : 4,\n"
-          + "      \"universal\" : false,\n"
-          + "      \"primaryApplicantInfoTags\" : [ ]\n"
-          + "    }\n"
-          + "  }, {\n"
-          + "    \"type\" : \"address\",\n"
-          + "    \"config\" : {\n"
-          + "      \"name\" : \"Address\",\n"
-          + "      \"description\" : \"\",\n"
-          + "      \"questionText\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"What is your address?\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"questionHelpText\" : {\n"
-          + "        \"translations\" : { },\n"
-          + "        \"isRequired\" : false\n"
-          + "      },\n"
-          + "      \"validationPredicates\" : {\n"
-          + "        \"type\" : \"address\",\n"
-          + "        \"disallowPoBox\" : false\n"
-          + "      },\n"
-          + "      \"id\" : 5,\n"
-          + "      \"universal\" : false,\n"
-          + "      \"primaryApplicantInfoTags\" : [ ]\n"
-          + "    }\n"
-          + "  }, {\n"
-          + "    \"type\" : \"address\",\n"
-          + "    \"config\" : {\n"
-          + "      \"name\" : \"second-address\",\n"
-          + "      \"description\" : \"\",\n"
-          + "      \"questionText\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Second address question\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"questionHelpText\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Second address question\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"validationPredicates\" : {\n"
-          + "        \"type\" : \"address\",\n"
-          + "        \"disallowPoBox\" : false\n"
-          + "      },\n"
-          + "      \"id\" : 6,\n"
-          + "      \"universal\" : false,\n"
-          + "      \"primaryApplicantInfoTags\" : [ ]\n"
-          + "    }\n"
-          + "  } ]\n"
-          + "}";
+      """
+      {
+        "program" : {
+          "id" : 1,
+          "adminName" : "visibility-eligibility",
+          "adminDescription" : "",
+          "externalLink" : "",
+          "displayMode" : "PUBLIC",
+          "loginOnly" : false,
+          "notificationPreferences" : [ ],
+          "localizedName" : {
+            "translations" : {
+              "en_US" : "visibility and eligibility test"
+            },
+            "isRequired" : true
+          },
+          "localizedDescription" : {
+            "translations" : {
+              "en_US" : "visibility and eligibility test"
+            },
+            "isRequired" : true
+          },
+          "localizedConfirmationMessage" : {
+            "translations" : {
+              "en_US" : ""
+            },
+            "isRequired" : true
+          },
+          "blockDefinitions" : [ {
+            "id" : 1,
+            "name" : "Screen 1",
+            "description" : "Screen 1 description",
+            "localizedName" : {
+              "translations" : {
+                "en_US" : "Screen 1"
+              },
+              "isRequired" : true
+            },
+            "localizedDescription" : {
+              "translations" : {
+                "en_US" : "Screen 1 description"
+              },
+              "isRequired" : true
+            },
+            "repeaterId" : null,
+            "hidePredicate" : null,
+            "eligibilityDefinition" : {
+              "predicate" : {
+                "rootNode" : {
+                  "node" : {
+                    "type" : "or",
+                    "children" : [ {
+                      "node" : {
+                        "type" : "and",
+                        "children" : [ {
+                          "node" : {
+                            "type" : "leaf",
+                            "questionId" : 3,
+                            "scalar" : "SELECTIONS",
+                            "operator" : "ANY_OF",
+                            "value" : {
+                              "value" : "[\\"0\\", \\"9\\", \\"11\\"]",
+                              "type" : "LIST_OF_STRINGS"
+                            }
+                          }
+                        }, {
+                          "node" : {
+                            "type" : "leaf",
+                            "questionId" : 3,
+                            "scalar" : "SELECTION",
+                            "operator" : "IN",
+                            "value" : {
+                              "value" : "[\\"1\\"]",
+                              "type" : "LIST_OF_STRINGS"
+                            }
+                          }
+                        } ]
+                      }
+                    } ]
+                  }
+                },
+                "action" : "ELIGIBLE_BLOCK"
+              }
+            },
+            "optionalPredicate" : null,
+            "questionDefinitions" : [ {
+              "id" : 3,
+              "optional" : false,
+              "addressCorrectionEnabled" : false
+            } ]
+          }, {
+            "id" : 2,
+            "name" : "Screen 2",
+            "description" : "Screen 2 description",
+            "localizedName" : {
+              "translations" : {
+                "en_US" : "Screen 2"
+              },
+              "isRequired" : true
+            },
+            "localizedDescription" : {
+              "translations" : {
+                "en_US" : "Screen 2 description"
+              },
+              "isRequired" : true
+            },
+            "repeaterId" : null,
+            "hidePredicate" : {
+              "rootNode" : {
+                "node" : {
+                  "type" : "leaf",
+                  "questionId" : 3,
+                  "scalar" : "ID",
+                  "operator" : "EQUAL_TO",
+                  "value" : {
+                    "value" : "\\"1\\"",
+                    "type" : "STRING"
+                  }
+                }
+              },
+              "action" : "HIDE_BLOCK"
+            },
+            "optionalPredicate" : null,
+            "questionDefinitions" : [ {
+              "id" : 4,
+              "optional" : false,
+              "addressCorrectionEnabled" : false
+            } ]
+          }, {
+            "id" : 3,
+            "name" : "Screen 3",
+            "description" : "Screen 3 description",
+            "localizedName" : {
+              "translations" : {
+                "en_US" : "Screen 3"
+              },
+              "isRequired" : true
+            },
+            "localizedDescription" : {
+              "translations" : {
+                "en_US" : "Screen 3 description"
+              },
+              "isRequired" : true
+            },
+            "repeaterId" : null,
+            "hidePredicate" : null,
+            "eligibilityDefinition" : {
+              "predicate" : {
+                "rootNode" : {
+                  "node" : {
+                    "type" : "leafAddressServiceArea",
+                    "questionId" : 5,
+                    "serviceAreaId" : "Seattle",
+                    "operator" : "IN_SERVICE_AREA"
+                  }
+                },
+                "action" : "ELIGIBLE_BLOCK"
+              }
+            },
+            "optionalPredicate" : null,
+            "questionDefinitions" : [ {
+              "id" : 5,
+              "optional" : false,
+              "addressCorrectionEnabled" : true
+            } ]
+          }, {
+            "id" : 4,
+            "name" : "Screen 4",
+            "description" : "Screen 4 description",
+            "localizedName" : {
+              "translations" : {
+                "en_US" : "Screen 4"
+              },
+              "isRequired" : true
+            },
+            "localizedDescription" : {
+              "translations" : {
+                "en_US" : "Screen 4 description"
+              },
+              "isRequired" : true
+            },
+            "repeaterId" : null,
+            "hidePredicate" : null,
+            "eligibilityDefinition" : {
+              "predicate" : {
+                "rootNode" : {
+                  "node" : {
+                    "type" : "leafAddressServiceArea",
+                    "questionId" : 6,
+                    "serviceAreaId" : "Seattle",
+                    "operator" : "NOT_IN_SERVICE_AREA"
+                  }
+                },
+                "action" : "ELIGIBLE_BLOCK"
+              }
+            },
+            "optionalPredicate" : null,
+            "questionDefinitions" : [ {
+              "id" : 6,
+              "optional" : false,
+              "addressCorrectionEnabled" : true
+            } ]
+          } ],
+          "programType" : "DEFAULT",
+          "eligibilityIsGating" : true,
+          "acls" : {
+            "tiProgramViewAcls" : [ ]
+          },
+          "localizedSummaryImageDescription" : null,
+          "categories" : [ ],
+          "applicationSteps" : [ {
+            "title" : {
+               "translations" : {
+                 "en_US" : "step one"
+               },
+               "isRequired" : true
+           },
+           "description" : {
+              "translations" : {
+              "en_US" : "step one"
+           },
+             "isRequired" : true
+           }
+         }],
+         "bridgeDefinitions" : { }
+        },
+        "questions" : [ {
+          "type" : "id",
+          "config" : {
+            "name" : "id-test",
+            "description" : "",
+            "questionText" : {
+              "translations" : {
+                "en_US" : "Enter a number"
+              },
+              "isRequired" : true
+            },
+            "questionHelpText" : {
+              "translations" : { },
+              "isRequired" : false
+            },
+            "validationPredicates" : {
+              "type" : "id",
+              "minLength" : null,
+              "maxLength" : null
+            },
+            "id" : 3,
+            "universal" : false,
+            "displayMode" : "VISIBLE",
+            "primaryApplicantInfoTags" : [ ]
+          }
+        }, {
+          "type" : "text",
+          "config" : {
+            "name" : "text test",
+            "description" : "",
+            "questionText" : {
+              "translations" : {
+                "en_US" : "text test"
+              },
+              "isRequired" : true
+            },
+            "questionHelpText" : {
+              "translations" : { },
+              "isRequired" : false
+            },
+            "validationPredicates" : {
+              "type" : "text",
+              "minLength" : null,
+              "maxLength" : null
+            },
+            "id" : 4,
+            "universal" : false,
+            "displayMode" : "VISIBLE",
+            "primaryApplicantInfoTags" : [ ]
+          }
+        }, {
+          "type" : "address",
+          "config" : {
+            "name" : "Address",
+            "description" : "",
+            "questionText" : {
+              "translations" : {
+                "en_US" : "What is your address?"
+              },
+              "isRequired" : true
+            },
+            "questionHelpText" : {
+              "translations" : { },
+              "isRequired" : false
+            },
+            "validationPredicates" : {
+              "type" : "address",
+              "disallowPoBox" : false
+            },
+            "id" : 5,
+            "universal" : false,
+            "displayMode" : "VISIBLE",
+            "primaryApplicantInfoTags" : [ ]
+          }
+        }, {
+          "type" : "address",
+          "config" : {
+            "name" : "second-address",
+            "description" : "",
+            "questionText" : {
+              "translations" : {
+                "en_US" : "Second address question"
+              },
+              "isRequired" : true
+            },
+            "questionHelpText" : {
+              "translations" : {
+                "en_US" : "Second address question"
+              },
+              "isRequired" : true
+            },
+            "validationPredicates" : {
+              "type" : "address",
+              "disallowPoBox" : false
+            },
+            "id" : 6,
+            "universal" : false,
+            "displayMode" : "VISIBLE",
+            "primaryApplicantInfoTags" : [ ]
+          }
+        } ]
+      }\
+      """;
 
   public static final String PROGRAM_JSON_WITH_PAI_TAGS =
       """
@@ -1911,6 +1429,7 @@ public class AdminImportControllerTest extends ResetPostgres {
               "adminDescription" : "admin description",
               "externalLink" : "https:usa.gov",
               "displayMode" : "PUBLIC",
+              "loginOnly" : false,
               "notificationPreferences" : [],
               "localizedName" : {
               "translations" : {
@@ -1984,7 +1503,8 @@ public class AdminImportControllerTest extends ResetPostgres {
                 },
                   "isRequired" : true
                 }
-             }]
+             }],
+             "bridgeDefinitions" : { }
           },
           "questions" : [{
               "type" : "date",
@@ -2008,7 +1528,8 @@ public class AdminImportControllerTest extends ResetPostgres {
               },
               "id" : 3,
               "universal" : true,
-              "primaryApplicantInfoTags" : []
+              "displayMode" : "VISIBLE",
+              "primaryApplicantInfoTags" : ["APPLICANT_DOB"]
               }
           }, {
               "type" : "name",
@@ -2032,7 +1553,8 @@ public class AdminImportControllerTest extends ResetPostgres {
               },
               "id" : 4,
               "universal" : true,
-              "primaryApplicantInfoTags" : []
+              "displayMode" : "VISIBLE",
+              "primaryApplicantInfoTags" : ["APPLICANT_NAME"]
               }
           }, {
               "type" : "phone",
@@ -2056,7 +1578,8 @@ public class AdminImportControllerTest extends ResetPostgres {
               },
               "id" : 5,
               "universal" : true,
-              "primaryApplicantInfoTags" : []
+              "displayMode" : "VISIBLE",
+              "primaryApplicantInfoTags" : ["APPLICANT_PHONE"]
               }
           }, {
               "type" : "email",
@@ -2080,7 +1603,8 @@ public class AdminImportControllerTest extends ResetPostgres {
               },
               "id" : 6,
               "universal" : true,
-              "primaryApplicantInfoTags" : []
+              "displayMode" : "VISIBLE",
+              "primaryApplicantInfoTags" : ["APPLICANT_EMAIL"]
               }
           }]
           }
@@ -2095,6 +1619,7 @@ public class AdminImportControllerTest extends ResetPostgres {
           "adminDescription" : "desc",
           "externalLink" : "https://github.com/civiform/civiform",
           "displayMode" : "PUBLIC",
+          "loginOnly" : false,
           "notificationPreferences" : [ ],
           "localizedName" : {
             "translations" : {
@@ -2168,7 +1693,8 @@ public class AdminImportControllerTest extends ResetPostgres {
                 },
                   "isRequired" : true
                 }
-             }]
+             }],
+             "bridgeDefinitions" : { }
         },
         "questions" : [ {
           "type" : "name",
@@ -2198,6 +1724,7 @@ public class AdminImportControllerTest extends ResetPostgres {
             },
             "id" : 1,
             "universal" : false,
+            "displayMode" : "VISIBLE",
             "primaryApplicantInfoTags" : [ ]
           }
         } ]

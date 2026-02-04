@@ -22,7 +22,6 @@ import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TrTag;
 import models.AccountModel;
 import models.TrustedIntermediaryGroupModel;
-import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import views.BaseHtmlView;
@@ -34,7 +33,6 @@ import views.admin.AdminLayoutFactory;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
-import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -58,27 +56,25 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
             .getBundle(request)
             .setTitle(title)
             .addMainContent(
+                div()
+                    .withClasses("my-5")
+                    .with(
+                        layout.createGoBackButton(
+                            routes.TrustedIntermediaryManagementController.index().url(),
+                            "Back to all intermediaries")),
+                renderHeader(tiGroup.getName()),
+                renderSubHeader(tiGroup.getDescription()),
                 div().withClasses("my-5").with(renderAddNewButton(tiGroup, request)),
-                div(
-                    table()
-                        .withClasses("border", "border-gray-300", "shadow-md", "w-full")
-                        .with(renderGroupTableHeader())
-                        .with(
-                            tbody(
-                                each(
-                                    tiGroup.getTrustedIntermediaries(),
-                                    account -> renderTIRow(tiGroup, account, request))))));
-
-    if (request.flash().get(FlashKey.ERROR).isPresent()) {
-      LoggerFactory.getLogger(EditTrustedIntermediaryGroupView.class)
-          .info(request.flash().get(FlashKey.ERROR).get());
-      String error = request.flash().get(FlashKey.ERROR).get();
-      htmlBundle.addToastMessages(
-          ToastMessage.errorNonLocalized(error)
-              .setId("warning-message-ti-form-fill")
-              .setIgnorable(false)
-              .setDuration(0));
-    }
+                table()
+                    .withClasses("border", "border-gray-300", "shadow-md", "w-full")
+                    .with(renderGroupTableHeader())
+                    .with(
+                        tbody(
+                            each(
+                                tiGroup.getTrustedIntermediaries(),
+                                account -> renderTIRow(tiGroup, account, request)))));
+    addToastMessagesOnError(
+        htmlBundle, request.flash(), this.getClass(), "warning-message-ti-form-fill");
 
     return layout.renderCentered(htmlBundle);
   }

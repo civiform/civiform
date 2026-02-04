@@ -15,7 +15,7 @@ import services.question.types.IdQuestionDefinition;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public final class IdQuestion extends Question {
+public final class IdQuestion extends AbstractQuestion {
 
   private Optional<String> idValue;
 

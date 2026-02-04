@@ -7,24 +7,31 @@ import com.google.common.collect.ImmutableList;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.InputTag;
 import java.util.List;
+import java.util.Optional;
 import views.style.StyleUtils;
 
 /** Contains methods for rendering shared question bank UI components. */
 public final class QuestionBank {
 
   public static final DivTag renderFilterAndSort(List<QuestionSortOption> sortOptions) {
-    return div()
-        .withClasses("flex", "items-end", "mb-2")
-        .with(renderFilter(), renderQuestionSortSelect(sortOptions));
+    return renderFilterAndSort(sortOptions, Optional.empty());
   }
 
-  private static final DivTag renderFilter() {
+  public static final DivTag renderFilterAndSort(
+      List<QuestionSortOption> sortOptions, Optional<String> filter) {
+    return div()
+        .withClasses("flex", "items-end", "mb-2")
+        .with(renderFilter(filter), renderQuestionSortSelect(sortOptions));
+  }
+
+  private static final DivTag renderFilter(Optional<String> filter) {
     InputTag filterInput =
         input()
             .withId("question-bank-filter")
             .withType("text")
             .withName("questionFilter")
             .withPlaceholder("Search questions")
+            .withValue(filter.orElse(""))
             .withClasses(
                 "h-10",
                 "px-10",

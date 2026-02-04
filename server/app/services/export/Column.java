@@ -4,7 +4,7 @@ import com.google.auto.value.AutoValue;
 import java.util.Optional;
 import java.util.function.Function;
 import services.Path;
-import services.applicant.question.Question;
+import services.applicant.question.AbstractQuestion;
 import services.export.enums.ColumnType;
 
 /** Represents a data column in a CSV export file. */
@@ -14,7 +14,7 @@ public abstract class Column {
 
   public abstract Optional<Path> questionPath();
 
-  public abstract Optional<Function<Question, String>> answerExtractor();
+  public abstract Optional<Function<AbstractQuestion, String>> answerExtractor();
 
   public abstract ColumnType columnType();
 
@@ -28,7 +28,7 @@ public abstract class Column {
 
     public abstract Builder setQuestionPath(Path questionPath);
 
-    public abstract Builder setAnswerExtractor(Function<Question, String> answerExtractor);
+    public abstract Builder setAnswerExtractor(Function<AbstractQuestion, String> answerExtractor);
 
     public abstract Builder setColumnType(ColumnType columnType);
 

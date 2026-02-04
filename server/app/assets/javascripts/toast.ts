@@ -6,7 +6,7 @@
  *  - dismiss a toast messages based on a user action or after a specified timeout.
  *  - permanently dismiss toast messags (using localStorage)
  */
-import {assertNotNull} from './util'
+import {assertNotNull} from '@/util'
 
 export class ToastController {
   private static readonly CONTAINER_ID = 'toast-container'
@@ -29,12 +29,9 @@ export class ToastController {
     const toastContainer = document.createElement('div')
     toastContainer.setAttribute('id', ToastController.CONTAINER_ID)
     toastContainer.classList.add(
-      'absolute',
-      'hidden',
-      'left-1/2',
-      'top-6',
-      'transform',
-      '-translate-x-1/2',
+      'cf-toast-container',
+      'position-absolute',
+      'display-none',
       'z-100',
     )
     document.body.appendChild(toastContainer)
@@ -52,13 +49,13 @@ export class ToastController {
       // If showing this message is conditioned on a localStorage key, check if the key is stored.
       const keyIsStored =
         localStorage.getItem(message.condOnStorageKey) !== null
-      if (keyIsStored) {
-        // If the key is stored, remove it now and show the message.
-        localStorage.removeItem(message.condOnStorageKey)
-      } else {
-        // If the key is not stored, don't show the message.
+      if (!keyIsStored) {
+        // Don't show the message.
         return
       }
+
+      // Remove the key now and show the message.
+      localStorage.removeItem(message.condOnStorageKey)
     }
 
     const toastMessage = document.createElement('div')
@@ -68,31 +65,20 @@ export class ToastController {
     toastMessage.setAttribute('aria-live', 'polite')
     toastMessage.classList.add(ToastController.MESSAGE_CLASS)
     toastMessage.classList.add(
-      'bg-opacity-90',
-      'duration-300',
-      'flex',
+      'cf-toast-message',
+      'opacity-90',
+      'maxw-mobile-lg',
+      'margin-y-105',
+      'display-flex',
+      'flex-align-center',
       'flex-row',
-      'max-w-md',
-      'px-2',
-      'py-2',
-      'my-3',
-      'relative',
-      'rounded-sm',
-      'shadow-lg',
-      'transition-opacity',
-      'transform',
-      'text-gray-700',
+      'padding-x-1',
+      'padding-y-1',
+      'position-relative',
+      'radius-sm',
     )
 
-    if (message.type === 'alert') {
-      toastMessage.classList.add('bg-gray-200', 'border-gray-300')
-    } else if (message.type === 'error') {
-      toastMessage.classList.add('bg-red-400', 'border-red-500')
-    } else if (message.type === 'success') {
-      toastMessage.classList.add('bg-emerald-200', 'border-emerald-300')
-    } else if (message.type === 'warning') {
-      toastMessage.classList.add('bg-amber-200', 'border-amber-300')
-    }
+    toastMessage.classList.add('bg-cf-toast-' + message.type)
 
     toastMessage.appendChild(ToastController.getToastIcon(message.type))
 
@@ -106,31 +92,34 @@ export class ToastController {
       const dismissButton = document.createElement('div')
       dismissButton.setAttribute('id', message.id + '-dismiss')
       dismissButton.classList.add(
-        'absolute',
-        'font-bold',
-        'pl-6',
+        'text-bold',
+        'padding-left-3',
         'opacity-40',
-        'right-4',
-        'top-2',
         'cursor-pointer',
-        'hover:opacity-100',
+        'margin-left-auto',
+        'display-flex',
+        'flex-align-center',
+        'padding-right-1',
       )
       dismissButton.textContent = 'x'
-      dismissButton.addEventListener('click', ToastController.dismissClicked)
+      dismissButton.addEventListener('click', (event) =>
+        ToastController.dismissClicked(event),
+      )
       toastMessage.appendChild(dismissButton)
-      toastMessage.classList.add('pr-8')
     }
 
     const toastContainer = document.getElementById(ToastController.CONTAINER_ID)
     if (toastContainer) {
       toastContainer.appendChild(toastMessage)
-      toastContainer.classList.remove('hidden')
+      toastContainer.classList.remove('display-none')
       if (message.duration > 0) {
         setTimeout(
-          ToastController.dismissToast,
+          () =>
+            ToastController.dismissToast(
+              message.id,
+              /* dismissClicked = */ false,
+            ),
           message.duration,
-          message.id,
-          /* dismissClicked = */ false,
         )
       }
     }
@@ -138,14 +127,18 @@ export class ToastController {
 
   private static getToastIcon(type: string): Element {
     const svgContainer = document.createElement('div')
-    svgContainer.classList.add('flex-none', 'pr-2')
+    svgContainer.classList.add(
+      'display-flex',
+      'flex-align-center',
+      'padding-right-1',
+    )
 
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
     svg.setAttribute('fill', 'currentColor')
     svg.setAttribute('fill-rule', 'evenodd')
     svg.setAttribute('viewBox', '0 0 20 20')
     svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
-    svg.classList.add('inline-block', 'h-6', 'w-6')
+    svg.classList.add('display-inline-block', 'height-3', 'width-3')
     svgContainer.appendChild(svg)
 
     const svgPath = document.createElementNS(
@@ -210,15 +203,16 @@ export class ToastController {
    *  */
   private static dismissToast(toastId: string, dismissClicked: boolean) {
     const toastMessage = document.getElementById(toastId)
-    if (toastMessage) {
-      if (dismissClicked && toastMessage.getAttribute('ignorable')) {
-        localStorage.setItem(toastId + '-dismissed', 'true')
-      }
-
-      // Dismiss the toast with the given id.
-      toastMessage.classList.add('opacity-0')
-      ToastController.cleanupToast(toastId)
+    if (!toastMessage) {
+      return
     }
+
+    if (dismissClicked && toastMessage.getAttribute('ignorable')) {
+      localStorage.setItem(toastId + '-dismissed', 'true')
+    }
+
+    // Dismiss the toast with the given id.
+    ToastController.cleanupToast(toastId)
   }
 
   /**
@@ -235,7 +229,7 @@ export class ToastController {
     /** Hide toast container if there are no toast messages active. */
     const toastContainer = document.getElementById(ToastController.CONTAINER_ID)
     if (toastContainer && toastContainer.children.length == 0) {
-      toastContainer.classList.add('hidden')
+      toastContainer.classList.add('display-none')
     }
   }
 }

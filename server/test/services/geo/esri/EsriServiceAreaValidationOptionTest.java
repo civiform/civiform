@@ -2,6 +2,7 @@ package services.geo.esri;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -9,10 +10,11 @@ import java.time.Clock;
 import java.time.ZoneId;
 import org.junit.Before;
 import org.junit.Test;
+import play.test.WithApplication;
 import services.geo.AddressLocation;
 import services.geo.ServiceAreaInclusion;
 
-public class EsriServiceAreaValidationOptionTest {
+public class EsriServiceAreaValidationOptionTest extends WithApplication {
   private Config config;
   EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
   private EsriServiceAreaValidationOption esriServiceAreaValidationOption;
@@ -44,7 +46,8 @@ public class EsriServiceAreaValidationOptionTest {
             .setWellKnownId(4326)
             .build();
 
-    client = new FakeEsriClient(clock, esriServiceAreaValidationConfig);
+    client =
+        new FakeEsriClient(clock, esriServiceAreaValidationConfig, instanceOf(ObjectMapper.class));
 
     inclusionGroup =
         client

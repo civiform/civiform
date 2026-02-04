@@ -1,5 +1,5 @@
 import {APIRequestContext, expect} from '@playwright/test'
-import {Page} from 'playwright'
+import {Page} from '@playwright/test'
 import {waitForPageJsLoad} from './wait'
 
 type CreateApiKeyParamsType = {
@@ -157,13 +157,15 @@ export class AdminApiKeys {
   }
 
   async gotoApiKeyIndexPage() {
-    await this.page.click('nav :text("API keys")')
+    await this.page.getByRole('button', {name: 'API', exact: true}).click()
+    await this.page.getByRole('link', {name: 'API Keys'}).click()
     await waitForPageJsLoad(this.page)
     await this.expectApiKeysIndexPage()
   }
 
   async gotoRetiredApiKeyIndexPage() {
-    await this.page.click('nav :text("API keys")')
+    await this.page.getByRole('button', {name: 'API', exact: true}).click()
+    await this.page.getByRole('link', {name: 'API Keys'}).click()
     await waitForPageJsLoad(this.page)
     await this.page.click('a:has-text("Retired")')
     await waitForPageJsLoad(this.page)

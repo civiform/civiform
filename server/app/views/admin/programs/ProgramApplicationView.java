@@ -14,12 +14,12 @@ import static j2html.TagCreator.select;
 import static j2html.TagCreator.span;
 
 import annotations.BindingAnnotations.EnUsLang;
+import auth.CiviFormProfile;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import com.google.inject.Inject;
-import controllers.FlashKey;
 import controllers.admin.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
@@ -44,18 +44,18 @@ import services.applicant.AnswerData;
 import services.applicant.Block;
 import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
-import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.JsBundle;
 import views.ViewUtils;
+import views.admin.AdminLayout;
+import views.admin.AdminLayoutFactory;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.components.Modal;
 import views.components.Modal.Width;
-import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -69,18 +69,18 @@ public final class ProgramApplicationView extends BaseHtmlView {
   public static final String CURRENT_STATUS = "currentStatus";
   public static final String NEW_STATUS = "newStatus";
   public static final String NOTE = "note";
-  private final BaseHtmlLayout layout;
+  private final AdminLayout layout;
   private final Messages enUsMessages;
   private final DateConverter dateConverter;
   private final SettingsManifest settingsManifest;
 
   @Inject
   public ProgramApplicationView(
-      BaseHtmlLayout layout,
+      AdminLayoutFactory layoutFactory,
       @EnUsLang Messages enUsMessages,
       DateConverter dateConverter,
       SettingsManifest settingsManifest) {
-    this.layout = checkNotNull(layout);
+    this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
     this.enUsMessages = checkNotNull(enUsMessages);
     this.dateConverter = checkNotNull(dateConverter);
     this.settingsManifest = checkNotNull(settingsManifest);
@@ -96,8 +96,11 @@ public final class ProgramApplicationView extends BaseHtmlView {
       StatusDefinitions statusDefinitions,
       Optional<String> noteMaybe,
       Boolean hasEligibilityEnabled,
+      CiviFormProfile profile,
       Request request) {
-    String title = "Program application view";
+    boolean showDownloadButton =
+        !(settingsManifest.getRemoveDownloadForProgramAdminsEnabled(request)
+            && profile.isOnlyProgramAdmin());
     ListMultimap<Block, AnswerData> blockToAnswers = ArrayListMultimap.create();
     for (AnswerData answer : answers) {
       Block answerBlock =
@@ -129,9 +132,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .withClasses("px-20")
             .with(
                 h2("Program: " + programName).withClasses("my-4"),
-                settingsManifest.getBulkStatusUpdateEnabled(request)
-                    ? renderBackLink(programId)
-                    : div(),
+                renderBackLink(programId),
                 div()
                     .withClasses(
                         "flex", "flex-wrap", "items-center", "my-4", "gap-2", "justify-between")
@@ -150,7 +151,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
                                     .with(
                                         renderStatusOptionsSelector(application, statusDefinitions),
                                         updateNoteModal.getButton()))
-                            .with(renderDownloadButton(programId, application.id))))
+                            .condWith(
+                                showDownloadButton,
+                                renderDownloadButton(programId, application.id))))
             .with(
                 p(renderSubmitTime(application))
                     .withClasses("text-xs", "text-gray-700", "mb-2", ReferenceClasses.BT_DATE))
@@ -164,8 +167,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
 
     HtmlBundle htmlBundle =
         layout
+            .setAdminType(profile)
             .getBundle(request)
-            .setTitle(title)
+            .setTitle(programName + " - " + applicantNameWithApplicationId)
             .addMainContent(contentDiv)
             // The body and main styles are necessary for modals to appear since they use fixed
             // sizing.
@@ -174,11 +178,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .addModals(updateNoteModal)
             .addModals(statusUpdateConfirmationModals)
             .setJsBundle(JsBundle.ADMIN);
-    Optional<String> maybeSuccessMessage = request.flash().get(FlashKey.SUCCESS);
-    if (maybeSuccessMessage.isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.success(maybeSuccessMessage.get()));
-    }
-    return layout.render(htmlBundle);
+    addToastMessagesOnSuccess(htmlBundle, request.flash());
+    return layout.renderCentered(htmlBundle);
   }
 
   private ATag renderBackLink(Long programId) {
@@ -199,7 +200,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
         .setId("application-table-view-")
         .setHref(backUrl)
         .setText("Back")
-        .setStyles("usa-button")
+        .setStyles(ButtonStyles.SOLID_BLUE_TEXT_SM)
         .asAnchorText();
   }
 
@@ -295,7 +296,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     div(answerData.questionDefinition().getName())
                         .withClasses("text-gray-400", "text-base", "line-clamp-3")))
         .with(p().withClasses("w-8"))
-        .with(answerContent.withClasses("text-gray-700", "text-base", "line-clamp-3"))
+        .with(answerContent.withClasses("text-gray-700", "text-base"))
         .with(p().withClasses("flex-grow"))
         .with(eligibilityAndTimestampDiv);
   }

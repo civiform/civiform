@@ -26,13 +26,14 @@ import java.util.stream.Stream;
 import org.apache.http.client.utils.URIBuilder;
 import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
-import services.AlertType;
 import services.ProgramBlockValidation;
 import services.ProgramBlockValidation.AddQuestionResult;
 import services.ProgramBlockValidationFactory;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
+import services.settings.SettingsManifest;
 import views.AlertComponent;
 import views.ViewUtils;
 import views.style.AdminStyles;
@@ -50,6 +51,8 @@ public final class ProgramQuestionBank {
 
   private final ProgramQuestionBankParams params;
   private final ProgramBlockValidationFactory programBlockValidationFactory;
+  private final SettingsManifest settingsManifest;
+  private final Http.Request request;
 
   /**
    * Possible states of question bank upon rendering. Normally it starts hidden and triggered by
@@ -63,9 +66,13 @@ public final class ProgramQuestionBank {
 
   public ProgramQuestionBank(
       ProgramQuestionBankParams params,
-      ProgramBlockValidationFactory programBlockValidationFactory) {
+      ProgramBlockValidationFactory programBlockValidationFactory,
+      SettingsManifest settingsManifest,
+      Http.Request request) {
     this.params = checkNotNull(params);
     this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
+    this.settingsManifest = checkNotNull(settingsManifest);
+    this.request = checkNotNull(request);
   }
 
   public DivTag getContainer(Visibility questionBankVisibility) {
@@ -148,7 +155,9 @@ public final class ProgramQuestionBank {
                                 div().withClass("flex-grow"),
                                 CreateQuestionButton.renderCreateQuestionButton(
                                     params.questionCreateRedirectUrl(),
-                                    /* isPrimaryButton= */ false)))));
+                                    /* isPrimaryButton= */ false,
+                                    settingsManifest,
+                                    request)))));
 
     // Sort by last modified, since that's the default of the sort by dropdown
     ImmutableList<QuestionDefinition> allQuestions =
@@ -172,11 +181,9 @@ public final class ProgramQuestionBank {
               .withClasses(ReferenceClasses.SORTABLE_QUESTIONS_CONTAINER)
               .with(h2("Universal questions").withClasses(AdminStyles.SEMIBOLD_HEADER))
               .with(
-                  AlertComponent.renderSlimAlert(
-                      AlertType.INFO,
+                  AlertComponent.renderSlimInfoAlert(
                       "We recommend using all universal questions in your program for personal and"
-                          + " contact information questions.",
-                      /* hidden= */ false))
+                          + " contact information questions."))
               .with(each(universalQuestions, qd -> renderQuestionDefinition(qd))));
     }
     contentDiv.with(
@@ -187,6 +194,27 @@ public final class ProgramQuestionBank {
                 !universalQuestions.isEmpty(),
                 h2("All other questions").withClasses(AdminStyles.SEMIBOLD_HEADER))
             .with(each(nonUniversalQuestions, qd -> renderQuestionDefinition(qd))));
+
+    contentDiv.with(
+        div()
+            .with(
+                Icons.questionTypeSvgWithId(QuestionType.ADDRESS),
+                Icons.questionTypeSvgWithId(QuestionType.CURRENCY),
+                Icons.questionTypeSvgWithId(QuestionType.CHECKBOX),
+                Icons.questionTypeSvgWithId(QuestionType.DATE),
+                Icons.questionTypeSvgWithId(QuestionType.DROPDOWN),
+                Icons.questionTypeSvgWithId(QuestionType.EMAIL),
+                Icons.questionTypeSvgWithId(QuestionType.ENUMERATOR),
+                Icons.questionTypeSvgWithId(QuestionType.FILEUPLOAD),
+                Icons.questionTypeSvgWithId(QuestionType.ID),
+                Icons.questionTypeSvgWithId(QuestionType.NAME),
+                Icons.questionTypeSvgWithId(QuestionType.NUMBER),
+                Icons.questionTypeSvgWithId(QuestionType.RADIO_BUTTON),
+                Icons.questionTypeSvgWithId(QuestionType.STATIC),
+                Icons.questionTypeSvgWithId(QuestionType.TEXT),
+                Icons.questionTypeSvgWithId(QuestionType.PHONE),
+                Icons.questionTypeSvgWithId(QuestionType.NULL_QUESTION))
+            .withClass("hidden"));
 
     return questionForm;
   }
@@ -224,13 +252,11 @@ public final class ProgramQuestionBank {
             .withId("question-" + definition.getId())
             .withName("question-" + definition.getId())
             .withValue(definition.getId() + "")
-            .withClasses(
-                ReferenceClasses.ADD_QUESTION_BUTTON,
-                ButtonStyles.OUTLINED_WHITE_WITH_ICON,
-                "h-12");
+            .withClasses(ReferenceClasses.ADD_QUESTION_BUTTON, "question-bank-add-button");
 
     SvgTag icon =
-        Icons.questionTypeSvg(definition.getQuestionType()).withClasses("shrink-0", "h-6", "w-6");
+        Icons.questionTypeSvgLink(definition.getQuestionType())
+            .withClasses("shrink-0", "h-6", "w-6");
 
     // Only show the admin note if it is not empty.
     PTag adminNote =
@@ -244,11 +270,13 @@ public final class ProgramQuestionBank {
             .withClasses("ml-4", "grow")
             .with(
                 div()
-                    .with(TextFormatter.formatText(definition.getQuestionText().getDefault()))
+                    .with(
+                        TextFormatter.formatTextForAdmins(
+                            definition.getQuestionText().getDefault()))
                     .withClasses(
                         ReferenceClasses.ADMIN_QUESTION_TITLE, "font-bold", "w-3/5", "break-all"),
                 div()
-                    .with(TextFormatter.formatText(questionHelpText))
+                    .with(TextFormatter.formatTextForAdmins(questionHelpText))
                     .withClasses("mt-1", "text-sm", "line-clamp-2"),
                 p(String.format("Admin ID: %s", definition.getName()))
                     .withClasses("mt-1", "text-sm"),
@@ -275,7 +303,11 @@ public final class ProgramQuestionBank {
     return params.questions().stream()
         .filter(
             q ->
-                programBlockValidation.canAddQuestion(params.program(), params.blockDefinition(), q)
+                programBlockValidation.canAddQuestion(
+                        params.program(),
+                        params.blockDefinition(),
+                        q,
+                        settingsManifest.getEnumeratorImprovementsEnabled(request))
                     == AddQuestionResult.ELIGIBLE);
   }
 

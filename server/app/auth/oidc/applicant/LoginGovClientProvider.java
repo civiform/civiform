@@ -20,10 +20,14 @@ public final class LoginGovClientProvider extends GenericOidcClientProvider {
   // Login.gov requires a state longer than 22 characters
   static final RandomValueGenerator stateGenerator = new RandomValueGenerator(30);
 
-  private static final StandardClaimsAttributeNames standardClaimsAttributeNames =
+  // Defined here: https://developers.login.gov/attributes
+  static final String PHONE_NUMBER_ATTRIBUTE_NAME = "phone";
+
+  private final StandardClaimsAttributeNames standardClaimsAttributeNames =
       StandardClaimsAttributeNames.builder()
           .setEmail("email")
           .setNames(ImmutableList.of("given_name", "family_name"))
+          .setPhoneNumber(Optional.of(PHONE_NUMBER_ATTRIBUTE_NAME))
           .build();
 
   @Inject

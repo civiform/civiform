@@ -48,7 +48,7 @@ public class ReportingServiceTest extends ResetPostgres {
 
     var parser =
         CSVParser.parse(
-            service.applicationCountsByMonthCsv(), CSVFormat.DEFAULT.builder().setHeader().build());
+            service.applicationCountsByMonthCsv(), CSVFormat.DEFAULT.builder().setHeader().get());
 
     assertThat(parser.getHeaderNames())
         .containsExactly(
@@ -68,8 +68,7 @@ public class ReportingServiceTest extends ResetPostgres {
 
     parser =
         CSVParser.parse(
-            service.applicationCountsByProgramCsv(),
-            CSVFormat.DEFAULT.builder().setHeader().build());
+            service.applicationCountsByProgramCsv(), CSVFormat.DEFAULT.builder().setHeader().get());
     assertThat(parser.getHeaderNames())
         .containsExactly(
             "Program",
@@ -89,7 +88,7 @@ public class ReportingServiceTest extends ResetPostgres {
     parser =
         CSVParser.parse(
             service.applicationsToProgramByMonthCsv("Fake Program B"),
-            CSVFormat.DEFAULT.builder().setHeader().build());
+            CSVFormat.DEFAULT.builder().setHeader().get());
     assertThat(parser.getHeaderNames())
         .containsExactly(
             "Month",

@@ -4,12 +4,12 @@
 
 // TODO(#3994): update Azure storage blob dependency and remove exceptions
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
+
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import {assertNotNull} from './util'
+import {assertNotNull} from '@/util'
+import {BlockBlobClient} from '@azure/storage-blob'
 
 class AzureUploadController {
   private static AZURE_UPLOAD_SELECTOR = '.azure-upload'
@@ -50,10 +50,6 @@ class AzureUploadController {
 
   attemptUpload(event: Event, uploadContainer: HTMLElement | null) {
     event.preventDefault()
-    // This is set by an imported JavaScript Azure blob client.
-    // window["azblob"] was used because the TS compiler complained about using
-    // window.azblob.
-    const azblob = (window as {[key: string]: any})['azblob']
 
     if (uploadContainer == null) {
       throw new Error('Attempted to upload to null container')
@@ -67,6 +63,10 @@ class AzureUploadController {
 
     const redirectUrl = new URL(azureUploadProps.successActionRedirect)
 
+    const fullBlobUrlWithSas = `${azureUploadProps.blobUrl}?${azureUploadProps.sasToken}`
+
+    const blockBlobClient = new BlockBlobClient(fullBlobUrlWithSas)
+
     const options = {
       blobHTTPHeaders: {
         blobContentType: azureUploadProps.file.type,
@@ -74,31 +74,19 @@ class AzureUploadController {
       },
     }
 
-    const blockBlobUrl = azblob.BlockBlobURL.fromBlobURL(
-      new azblob.BlobURL(
-        `${azureUploadProps.blobUrl}?${azureUploadProps.sasToken}`,
-        azblob.StorageURL.newPipeline(new azblob.AnonymousCredential()),
-      ),
-    )
-
-    azblob
-      .uploadBrowserDataToBlockBlob(
-        azblob.Aborter.none,
-        azureUploadProps.file,
-        blockBlobUrl,
-        options,
-      )
-      .then((resp: any, err: any) => {
-        if (err) {
-          throw err
-        }
+    blockBlobClient
+      .uploadData(azureUploadProps.file, options)
+      .then((resp: any) => {
         this.setFileUploadMetadata(
           redirectUrl,
           azureUploadProps,
           resp,
-          blockBlobUrl.url,
+          blockBlobClient.url,
         )
         window.location.replace(redirectUrl.toString())
+      })
+      .catch((err: any) => {
+        throw err
       })
   }
 

@@ -1,5 +1,7 @@
 package services.program.predicate;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -7,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import controllers.admin.PredicateUtils;
+import j2html.tags.UnescapedText;
 import services.question.types.QuestionDefinition;
 
 /**
@@ -47,7 +51,16 @@ public abstract class OrNode implements ConcretePredicateExpressionNode {
 
   @Override
   public String toDisplayString(ImmutableList<QuestionDefinition> questions) {
-    return Joiner.on(" or ")
+    return Joiner.on(" OR ")
         .join(children().stream().map(c -> c.node().toDisplayString(questions)).toArray());
+  }
+
+  @Override
+  public UnescapedText toDisplayFormattedHtml(ImmutableList<QuestionDefinition> questions) {
+    return PredicateUtils.joinUnescapedText(
+        children().stream()
+            .map(c -> c.node().toDisplayFormattedHtml(questions))
+            .collect(toImmutableList()),
+        /* delimiter= */ "OR");
   }
 }

@@ -2,10 +2,12 @@ package modules;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Provides;
 import controllers.AssetsFinder;
 import java.util.Arrays;
@@ -45,12 +47,13 @@ public final class ThymeleafModule extends AbstractModule {
       FileTemplateResolver fileTemplateResolver,
       MessagesApi messagesApi,
       AssetsFinder assetsFinder,
-      Environment environment) {
+      Environment environment,
+      Provider<ObjectMapper> mapperProvider) {
     TemplateEngine templateEngine = new TemplateEngine();
 
     templateEngine.setTemplateResolver(fileTemplateResolver);
     templateEngine.setMessageResolver(new PlayMessageResolver(messagesApi));
-    templateEngine.addDialect(new HtmxDialect(new ObjectMapper()));
+    templateEngine.addDialect(new HtmxDialect(mapperProvider.get()));
     templateEngine.addDialect(new CiviFormProcessorDialect(assetsFinder, environment));
 
     return templateEngine;
@@ -127,6 +130,12 @@ public final class ThymeleafModule extends AbstractModule {
 
     public PlayThymeleafContext create(Http.RequestHeader requestHeader) {
       Locale locale = Locale.forLanguageTag(messagesApi.preferred(requestHeader).lang().code());
+      return new PlayThymeleafContext(locale);
+    }
+
+    @VisibleForTesting
+    public PlayThymeleafContext create() {
+      Locale locale = Locale.getDefault();
       return new PlayThymeleafContext(locale);
     }
   }

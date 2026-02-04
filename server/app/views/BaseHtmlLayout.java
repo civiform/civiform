@@ -6,6 +6,7 @@ import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.header;
 import static j2html.TagCreator.img;
+import static j2html.TagCreator.link;
 import static j2html.TagCreator.meta;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.rawHtml;
@@ -14,10 +15,10 @@ import static j2html.TagCreator.section;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.strong;
 import static j2html.TagCreator.title;
+import static views.BaseHtmlView.getCsrfToken;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import controllers.AssetsFinder;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.HeaderTag;
 import j2html.tags.specialized.ScriptTag;
@@ -28,11 +29,14 @@ import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.MessageKey;
 import services.settings.SettingsManifest;
 import views.components.Icons;
+import views.components.SessionTimeoutModals;
 import views.components.ToastMessage;
+import views.trustedintermediary.ApplicantLayout;
 
 // NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING BaseHtmlLayout
 
@@ -47,12 +51,9 @@ public class BaseHtmlLayout {
   private final String civiformImageTag;
 
   private static final String CIVIFORM_TITLE = "CiviForm";
-  private static final String TAILWIND_COMPILED_FILEPATH = "stylesheets/tailwind";
-  private static final String USWDS_STYLESHEET_FILEPATH = "dist/uswds.min";
-  private static final String USWDS_INIT_FILEPATH = "javascripts/uswds/uswds-init.min";
   private static final String BANNER_TEXT =
       "Do not enter actual or personal data in this demo site";
-  private final AssetsFinder assetsFinder;
+  private final BundledAssetsFinder bundledAssetsFinder;
 
   public final ViewUtils viewUtils;
   protected final SettingsManifest settingsManifest;
@@ -65,21 +66,21 @@ public class BaseHtmlLayout {
       ViewUtils viewUtils,
       SettingsManifest settingsManifest,
       DeploymentType deploymentType,
-      AssetsFinder assetsFinder) {
+      BundledAssetsFinder bundledAssetsFinder) {
     this.viewUtils = checkNotNull(viewUtils);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.measurementId = settingsManifest.getMeasurementId();
 
     this.isDevOrStaging = checkNotNull(deploymentType).isDevOrStaging();
     this.addNoindexMetaTag = settingsManifest.getStagingAddNoindexMetaTag();
-    this.assetsFinder = checkNotNull(assetsFinder);
 
     civiformImageTag = settingsManifest.getCiviformImageTag().get();
+    this.bundledAssetsFinder = checkNotNull(bundledAssetsFinder);
   }
 
   /** Creates a new {@link HtmlBundle} with default css, scripts, and toast messages. */
   public HtmlBundle getBundle(Http.RequestHeader request) {
-    return getBundle(new HtmlBundle(request, viewUtils));
+    return getBundle(new HtmlBundle(request));
   }
 
   /** Get the application feature flags. */
@@ -92,7 +93,7 @@ public class BaseHtmlLayout {
    * should only be used if you know what you're doing.
    *
    * <p>Most of the time you'll want to use {@link views.admin.AdminLayout} or {@link
-   * views.applicant.ApplicantLayout} instead.
+   * ApplicantLayout} instead.
    *
    * <pre>
    *  Example: If we want to add specific styles before the core tailwind styles we
@@ -104,9 +105,15 @@ public class BaseHtmlLayout {
    */
   public HtmlBundle getBundle(HtmlBundle bundle) {
     // Add basic page metadata.
+    bundle.setBundledAssetsFinder(bundledAssetsFinder);
     bundle.addMetadata(
         meta().withName("viewport").withContent("width=device-width, initial-scale=1"));
     bundle.addMetadata(meta().withName("civiform-build-tag").withContent(civiformImageTag));
+    bundle.addMetadata(
+        meta()
+            .withName("htmx-config")
+            .withContent(
+                "{\"inlineStyleNonce\":\"" + CspUtil.getNonce(bundle.getRequest()) + "\"}"));
     if (addNoindexMetaTag) {
       bundle.addMetadata(meta().withName("robots").withContent("noindex"));
     }
@@ -121,11 +128,23 @@ public class BaseHtmlLayout {
       bundle.addToastMessages(privacyBanner);
     }
 
-    bundle.addHeadScripts(viewUtils.makeLocalJsTag(USWDS_INIT_FILEPATH));
+    if (bundledAssetsFinder.useBundlerDevServer()) {
+      bundle.addHeadScripts(
+          script().withSrc(bundledAssetsFinder.viteClientUrl()).withType("module"));
+    }
+
+    bundle.addHeadScripts(
+        script().withSrc(bundledAssetsFinder.getUswdsJsInit()).withType("text/javascript"));
 
     // Add default stylesheets.
-    bundle.addStylesheets(viewUtils.makeLocalCssTag(USWDS_STYLESHEET_FILEPATH));
-    bundle.addStylesheets(viewUtils.makeLocalCssTag(TAILWIND_COMPILED_FILEPATH));
+    bundle.addStylesheets(
+        link().withHref(bundledAssetsFinder.getUswdsStylesheet()).withRel("stylesheet"));
+    bundle.addStylesheets(
+        link().withHref(bundledAssetsFinder.getTailwindStylesheet()).withRel("stylesheet"));
+    if (settingsManifest.getMapQuestionEnabled(bundle.getRequest())) {
+      bundle.addStylesheets(
+          link().withHref(bundledAssetsFinder.getMapLibreGLStylesheet()).withRel("stylesheet"));
+    }
 
     // Add Google analytics scripts.
     measurementId
@@ -135,7 +154,6 @@ public class BaseHtmlLayout {
     // Add the favicon link
     bundle.setFavicon(settingsManifest.getFaviconUrl().get());
     bundle.setJsBundle(getJsBundle());
-
     return bundle;
   }
 
@@ -151,8 +169,18 @@ public class BaseHtmlLayout {
       bundle.setTitle(String.format("%s — %s", currentTitle, getTitleSuffix()));
     }
     // Best practice: add ❤️ every time you touch this file :)
-    bundle.addMetadata(meta().withName("thanks").withContent("Thank you Bion ❤️❤️"));
+    bundle.addMetadata(meta().withName("thanks").withContent("Thank you Bion ❤️❤️❤️"));
     return bundle.render();
+  }
+
+  protected void addSessionTimeoutModals(HtmlBundle bundle, Messages messages) {
+    if (settingsManifest.getSessionTimeoutEnabled(bundle.getRequest())
+        && bundle.getRequest() instanceof Http.Request) {
+      // Add the session timeout modals to the bundle
+      Http.Request request = (Http.Request) bundle.getRequest();
+      String csrfToken = getCsrfToken(request);
+      bundle.addUswdsModals(SessionTimeoutModals.render(messages, csrfToken));
+    }
   }
 
   protected String getTitleSuffix() {
@@ -171,16 +199,16 @@ public class BaseHtmlLayout {
             .isAsync()
             .withType("text/javascript");
     String googleAnalyticsCode =
-        "window.dataLayer = window.dataLayer || [];"
-            + "\nfunction gtag() {"
-            + "\n\tdataLayer.push(arguments);"
-            + "\n}"
-            + "\ngtag('js', new Date());"
-            + "\ngtag('config', '%s');";
-    ScriptTag rawScript =
-        script()
-            .with(rawHtml(String.format(googleAnalyticsCode, trackingTag)))
-            .withType("text/javascript");
+        String.format(
+            """
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+              dataLayer.push(arguments);
+            }
+            gtag('js', new Date());
+            gtag('config', '%s');""",
+            trackingTag);
+    ScriptTag rawScript = script().with(rawHtml(googleAnalyticsCode)).withType("text/javascript");
     return new ImmutableList.Builder<ScriptTag>().add(scriptImport).add(rawScript).build();
   }
 
@@ -259,7 +287,8 @@ public class BaseHtmlLayout {
                             .with(
                                 img()
                                     .withClasses("usa-banner__icon", "usa-media-block__img")
-                                    .withSrc(assetsFinder.path("Images/uswds/icon-dot-gov.svg"))
+                                    .withSrc(
+                                        bundledAssetsFinder.path("Images/uswds/icon-dot-gov.svg"))
                                     .withAlt("")
                                     .attr("role", "img")
                                     .attr("aria-hidden", true),
@@ -295,7 +324,8 @@ public class BaseHtmlLayout {
                             .with(
                                 img()
                                     .withClasses("usa-banner__icon", "usa-media-block__img")
-                                    .withSrc(assetsFinder.path("Images/uswds/icon-https.svg"))
+                                    .withSrc(
+                                        bundledAssetsFinder.path("Images/uswds/icon-https.svg"))
                                     .withAlt("")
                                     .attr("role", "img")
                                     .attr("aria-hidden", true),

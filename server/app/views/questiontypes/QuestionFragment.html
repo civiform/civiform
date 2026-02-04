@@ -1,5 +1,5 @@
 <div
-  th:fragment="applicant-question (question, questionRendererParams, stateAbbreviations)"
+  th:fragment="applicant-question (question, questionRendererParams, stateAbbreviations,enumMaxEntityCount)"
   class="section-internal"
   id="question-fragment"
 >
@@ -37,12 +37,17 @@
     </th:block>
     <th:block th:case="'Enumerator'">
       <div
-        th:replace="~{questiontypes/EnumeratorQuestionFragment :: enumerator(${question})}"
+        th:replace="~{questiontypes/EnumeratorQuestionFragment :: enumerator(${question}, ${enumMaxEntityCount})}"
       ></div>
     </th:block>
     <th:block th:case="'ID'">
       <div
         th:replace="~{questiontypes/IdQuestionFragment :: id(${question}, ${questionRendererParams})}"
+      ></div>
+    </th:block>
+    <th:block th:case="'Map'">
+      <div
+        th:replace="~{questiontypes/MapQuestionFragment :: map(${question}, ${questionRendererParams})}"
       ></div>
     </th:block>
     <th:block th:case="'Name'">
@@ -74,6 +79,13 @@
       <div
         th:replace="~{questiontypes/TextQuestionFragment :: text(${question}, ${questionRendererParams})}"
       ></div>
+    </th:block>
+    <th:block th:case="'Yes/No'">
+      <div th:if="${isYesNoQuestionEnabled}">
+        <div
+          th:replace="~{questiontypes/YesNoQuestionFragment :: yes_no(${question}, ${questionRendererParams})}"
+        ></div>
+      </div>
     </th:block>
   </th:block>
 </div>

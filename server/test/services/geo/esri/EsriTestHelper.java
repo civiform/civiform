@@ -4,11 +4,13 @@
  */
 package services.geo.esri;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static play.mvc.Results.internalServerError;
 import static play.mvc.Results.ok;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -35,21 +37,21 @@ public class EsriTestHelper {
     private final WSClient wsClient;
     private final EsriClient esriClient;
 
-    public ServerSettings(Server server, WSClient wsClient, EsriClient esriClient) {
+    ServerSettings(Server server, WSClient wsClient, EsriClient esriClient) {
       this.server = server;
       this.wsClient = wsClient;
       this.esriClient = esriClient;
     }
 
-    public Server getServer() {
+    Server getServer() {
       return server;
     }
 
-    public WSClient getWsClient() {
+    WSClient getWsClient() {
       return wsClient;
     }
 
-    public EsriClient getEsriClient() {
+    EsriClient getEsriClient() {
       return esriClient;
     }
   }
@@ -94,73 +96,52 @@ public class EsriTestHelper {
   private final Server server;
   private final WSClient ws;
   private final EsriClient client;
+  private final ObjectMapper mapper;
 
-  public EsriTestHelper(TestType testType) {
-    ServerSettings serverSettings;
+  public EsriTestHelper(TestType testType, ObjectMapper mapper) {
+    this.mapper = checkNotNull(mapper);
 
-    switch (testType) {
-      case STANDARD:
-        serverSettings =
-            createServerSettingsThatReturnOk(
-                "/findAddressCandidates", "esri/findAddressCandidates.json");
-        break;
-      case STANDARD_WITH_LINE_2:
-        serverSettings =
-            createServerSettingsThatReturnOk(
-                "/findAddressCandidates", "esri/findAddressCandidatesWithLine2.json");
-        break;
-      case NO_CANDIDATES:
-        serverSettings =
-            createServerSettingsThatReturnOk(
-                "/findAddressCandidates", "esri/findAddressCandidatesNoCandidates.json");
-        break;
-      case EMPTY_RESPONSE:
-        serverSettings =
-            createServerSettingsThatReturnOk(
-                "/findAddressCandidates", "esri/findAddressCandidatesEmptyResponse.json");
-      case ESRI_ERROR_RESPONSE:
-        serverSettings =
-            createServerSettingsThatReturnOk(
-                "/findAddressCandidates", "esri/esriErrorResponse.json");
-        break;
-      case ERROR:
-        serverSettings = createServerSettingsThatReturnError("/findAddressCandidates");
-        break;
-      case SERVICE_AREA_VALIDATION:
-        serverSettings =
-            createServerSettingsThatReturnOk("/query", "esri/serviceAreaFeatures.json");
-        break;
-      case SERVICE_AREA_VALIDATION_NOT_INCLUDED:
-        serverSettings =
-            createServerSettingsThatReturnOk("/query", "esri/serviceAreaFeaturesNotInArea.json");
-        break;
-      case SERVICE_AREA_VALIDATION_NO_FEATURES:
-        serverSettings =
-            createServerSettingsThatReturnOk("/query", "esri/serviceAreaFeaturesNoFeatures.json");
-        break;
-      case SERVICE_AREA_VALIDATION_ERROR:
-        serverSettings = createServerSettingsThatReturnError("/query");
-        break;
-      case LEGACY_SINGLE_URL_CONFIG_SETTING:
-        serverSettings = createServerSettingsUsingOldConfigValueThatReturnOk();
-        break;
-      case MULTIPLE_ENDPOINTS:
-        serverSettings = createServerSettingsThatReturnMultiEndpoints();
-        break;
-      case FAKE:
-        serverSettings = createServerSettingsThatReturnFakeClient();
-        break;
-      default:
-        throw new NotImplementedException(
-            String.format("Could not create EsriTestHelper for TestType: %s", testType));
-    }
+    ServerSettings serverSettings =
+        switch (testType) {
+          case STANDARD ->
+              createServerSettingsThatReturnOk(
+                  "/findAddressCandidates", "esri/findAddressCandidates.json");
+          case STANDARD_WITH_LINE_2 ->
+              createServerSettingsThatReturnOk(
+                  "/findAddressCandidates", "esri/findAddressCandidatesWithLine2.json");
+          case NO_CANDIDATES ->
+              createServerSettingsThatReturnOk(
+                  "/findAddressCandidates", "esri/findAddressCandidatesNoCandidates.json");
+          case EMPTY_RESPONSE ->
+              createServerSettingsThatReturnOk(
+                  "/findAddressCandidates", "esri/findAddressCandidatesEmptyResponse.json");
+          case ESRI_ERROR_RESPONSE ->
+              createServerSettingsThatReturnOk(
+                  "/findAddressCandidates", "esri/esriErrorResponse.json");
+          case ERROR -> createServerSettingsThatReturnError("/findAddressCandidates");
+          case SERVICE_AREA_VALIDATION ->
+              createServerSettingsThatReturnOk("/query", "esri/serviceAreaFeatures.json");
+          case SERVICE_AREA_VALIDATION_NOT_INCLUDED ->
+              createServerSettingsThatReturnOk("/query", "esri/serviceAreaFeaturesNotInArea.json");
+          case SERVICE_AREA_VALIDATION_NO_FEATURES ->
+              createServerSettingsThatReturnOk("/query", "esri/serviceAreaFeaturesNoFeatures.json");
+          case SERVICE_AREA_VALIDATION_ERROR -> createServerSettingsThatReturnError("/query");
+          case LEGACY_SINGLE_URL_CONFIG_SETTING ->
+              createServerSettingsUsingOldConfigValueThatReturnOk();
+          case MULTIPLE_ENDPOINTS -> createServerSettingsThatReturnMultiEndpoints();
+          case FAKE -> createServerSettingsThatReturnFakeClient();
+          default -> {
+            throw new NotImplementedException(
+                String.format("Could not create EsriTestHelper for TestType: %s", testType));
+          }
+        };
 
     server = serverSettings.getServer();
     ws = serverSettings.getWsClient();
     client = serverSettings.getEsriClient();
   }
 
-  private static ServerSettings createServerSettingsThatReturnOk(String endpoint, String resource) {
+  private ServerSettings createServerSettingsThatReturnOk(String endpoint, String resource) {
     Server server =
         Server.forRouter(
             (components) ->
@@ -172,7 +153,8 @@ public class EsriTestHelper {
     WSClient wsClient = play.test.WSTestClient.newClient(server.httpPort());
 
     RealEsriClient esriClient =
-        new RealEsriClient(SETTINGS_MANIFEST, CLOCK, ESRI_SERVICE_AREA_VALIDATION_CONFIG, wsClient);
+        new RealEsriClient(
+            SETTINGS_MANIFEST, CLOCK, ESRI_SERVICE_AREA_VALIDATION_CONFIG, wsClient, mapper);
 
     // overwrite to not include base URL so it uses the mock service
     esriClient.ESRI_FIND_ADDRESS_CANDIDATES_URLS =
@@ -181,7 +163,7 @@ public class EsriTestHelper {
     return new ServerSettings(server, wsClient, esriClient);
   }
 
-  private static ServerSettings createServerSettingsThatReturnError(String endpoint) {
+  private ServerSettings createServerSettingsThatReturnError(String endpoint) {
     Server server =
         Server.forRouter(
             (components) ->
@@ -194,7 +176,8 @@ public class EsriTestHelper {
     WSClient wsClient = play.test.WSTestClient.newClient(server.httpPort());
 
     RealEsriClient esriClient =
-        new RealEsriClient(SETTINGS_MANIFEST, CLOCK, ESRI_SERVICE_AREA_VALIDATION_CONFIG, wsClient);
+        new RealEsriClient(
+            SETTINGS_MANIFEST, CLOCK, ESRI_SERVICE_AREA_VALIDATION_CONFIG, wsClient, mapper);
 
     // overwrite to not include base URL so it uses the mock service
     esriClient.ESRI_FIND_ADDRESS_CANDIDATES_URLS =
@@ -203,7 +186,7 @@ public class EsriTestHelper {
     return new ServerSettings(server, wsClient, esriClient);
   }
 
-  private static ServerSettings createServerSettingsUsingOldConfigValueThatReturnOk() {
+  private ServerSettings createServerSettingsUsingOldConfigValueThatReturnOk() {
     Server server =
         Server.forRouter(
             (components) ->
@@ -222,12 +205,12 @@ public class EsriTestHelper {
 
     RealEsriClient esriClient =
         new RealEsriClient(
-            mockSettingsManifest, CLOCK, ESRI_SERVICE_AREA_VALIDATION_CONFIG, wsClient);
+            mockSettingsManifest, CLOCK, ESRI_SERVICE_AREA_VALIDATION_CONFIG, wsClient, mapper);
 
     return new ServerSettings(server, wsClient, esriClient);
   }
 
-  private static ServerSettings createServerSettingsThatReturnMultiEndpoints() {
+  private ServerSettings createServerSettingsThatReturnMultiEndpoints() {
     Server server =
         Server.forRouter(
             (components) ->
@@ -261,14 +244,14 @@ public class EsriTestHelper {
 
     RealEsriClient esriClient =
         new RealEsriClient(
-            mockSettingsManifest, CLOCK, ESRI_SERVICE_AREA_VALIDATION_CONFIG, wsClient);
+            mockSettingsManifest, CLOCK, ESRI_SERVICE_AREA_VALIDATION_CONFIG, wsClient, mapper);
 
     return new ServerSettings(server, wsClient, esriClient);
   }
 
-  private static ServerSettings createServerSettingsThatReturnFakeClient() {
+  private ServerSettings createServerSettingsThatReturnFakeClient() {
     return new ServerSettings(
-        null, null, new FakeEsriClient(CLOCK, ESRI_SERVICE_AREA_VALIDATION_CONFIG));
+        null, null, new FakeEsriClient(CLOCK, ESRI_SERVICE_AREA_VALIDATION_CONFIG, mapper));
   }
 
   public EsriClient getClient() {

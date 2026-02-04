@@ -11,6 +11,7 @@ import static support.FakeRequestBuilder.fakeRequestBuilder;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -20,15 +21,17 @@ import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.data.FormFactory;
+import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
-import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
 import repository.ProgramRepository;
 import repository.ResetPostgres;
 import repository.VersionRepository;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.program.ProgramType;
 import services.question.QuestionService;
+import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.admin.programs.ProgramEditStatus;
 import views.admin.programs.ProgramIndexView;
@@ -41,6 +44,33 @@ public class AdminProgramControllerTest extends ResetPostgres {
   private AdminProgramController controller;
   private ProgramRepository programRepository;
   private VersionRepository versionRepository;
+
+  private static final String ADMIN_NAME = "internal-program-name";
+  private static final String PROGRAM_NAME = "External program name";
+  private static final String SHORT_DESCRIPTION = "External short program description";
+
+  private static final ImmutableMap<String, String> DEFAULT_FORM_FIELDS =
+      ImmutableMap.of(
+          "adminName", ADMIN_NAME,
+          "adminDescription", "Internal program description",
+          "localizedDisplayName", PROGRAM_NAME,
+          "localizedDisplayDescription", "External program description",
+          "localizedShortDescription", SHORT_DESCRIPTION,
+          "externalLink", "https://external.program.link",
+          "displayMode", DisplayMode.PUBLIC.getValue(),
+          "applicationSteps[0][title]", "step one title",
+          "applicationSteps[0][description]", "step one description");
+
+  private ProgramModel getDraftProgram() {
+    return versionRepository.getDraftVersionOrCreate().getPrograms().get(0);
+  }
+
+  private void assertRedirectsToProgramImagePage(
+      Result result, long programId, ProgramEditStatus status) {
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(routes.AdminProgramImageController.index(programId, status.name()).url());
+  }
 
   @Before
   public void setup() {
@@ -57,7 +87,9 @@ public class AdminProgramControllerTest extends ResetPostgres {
             versionRepository,
             instanceOf(ProfileUtils.class),
             instanceOf(FormFactory.class),
-            instanceOf(RequestChecker.class));
+            instanceOf(RequestChecker.class),
+            instanceOf(MessagesApi.class),
+            instanceOf(SettingsManifest.class));
   }
 
   @Test
@@ -103,286 +135,94 @@ public class AdminProgramControllerTest extends ResetPostgres {
     Result result = controller.create(request);
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("A program URL is required");
+    assertThat(contentAsString(result)).contains("A program slug is required");
     assertThat(contentAsString(result)).contains("New program");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
   }
 
   @Test
-  public void create_showsNewProgramInList() {
-    RequestBuilder requestBuilder =
-        fakeRequestBuilder()
-            .bodyForm(
-                ImmutableMap.of(
-                    "adminName",
-                    "internal-program-name",
-                    "adminDescription",
-                    "Internal program description",
-                    "localizedDisplayName",
-                    "External program name",
-                    "localizedDisplayDescription",
-                    "External program description",
-                    "localizedShortDescription",
-                    "External short program description",
-                    "externalLink",
-                    "https://external.program.link",
-                    "displayMode",
-                    DisplayMode.PUBLIC.getValue(),
-                    "applicationSteps[0][title]",
-                    "step one title",
-                    "applicationSteps[0][description]",
-                    "step one description"));
-
-    controller.create(requestBuilder.build());
+  public void create_showsNewProgramInListWithShortDescription() {
+    controller.create(fakeRequestBuilder().bodyForm(DEFAULT_FORM_FIELDS).build());
 
     Result programDashboardResult = controller.index(fakeRequest());
-    assertThat(contentAsString(programDashboardResult)).contains("External program name");
-    assertThat(contentAsString(programDashboardResult)).contains("External program description");
+    assertThat(contentAsString(programDashboardResult)).contains(PROGRAM_NAME);
+    assertThat(contentAsString(programDashboardResult)).contains(SHORT_DESCRIPTION);
   }
 
   @Test
   public void create_redirectsToProgramImage() {
-    RequestBuilder requestBuilder =
-        fakeRequestBuilder()
-            .bodyForm(
-                ImmutableMap.of(
-                    "adminName",
-                    "internal-program-name",
-                    "adminDescription",
-                    "Internal program description",
-                    "localizedDisplayName",
-                    "External program name",
-                    "localizedDisplayDescription",
-                    "External program description",
-                    "localizedShortDescription",
-                    "External short program description",
-                    "externalLink",
-                    "https://external.program.link",
-                    "displayMode",
-                    DisplayMode.PUBLIC.getValue(),
-                    "applicationSteps[0][title]",
-                    "step one title",
-                    "applicationSteps[0][description]",
-                    "step one description"));
+    Result result = controller.create(fakeRequestBuilder().bodyForm(DEFAULT_FORM_FIELDS).build());
 
-    Result result = controller.create(requestBuilder.build());
-
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    long programId =
-        versionRepository
-            .getDraftVersionOrCreate()
-            .getPrograms()
-            .get(0)
-            .getProgramDefinition()
-            .id();
-    assertThat(result.redirectLocation())
-        .hasValue(
-            routes.AdminProgramImageController.index(programId, ProgramEditStatus.CREATION.name())
-                .url());
+    assertRedirectsToProgramImagePage(result, getDraftProgram().id, ProgramEditStatus.CREATION);
   }
 
   @Test
   public void create_returnsNewProgramWithAcls() {
-    RequestBuilder requestBuilder =
-        fakeRequestBuilder()
-            .bodyForm(
-                ImmutableMap.of(
-                    "adminName",
-                    "internal-program-with-acls",
-                    "adminDescription",
-                    "Internal program description with acls",
-                    "localizedDisplayName",
-                    "External program name with acls",
-                    "localizedDisplayDescription",
-                    "External program description with acls",
-                    "localizedShortDescription",
-                    "External short program description with acls",
-                    "externalLink",
-                    "https://external.program.link",
-                    "displayMode",
-                    DisplayMode.SELECT_TI.getValue(),
-                    "tiGroups[]",
-                    "1",
-                    "applicationSteps[0][title]",
-                    "step one title",
-                    "applicationSteps[0][description]",
-                    "step one description"));
+    Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
+    formData.put("displayMode", DisplayMode.SELECT_TI.getValue());
+    formData.put("tiGroups[]", "1");
 
-    Result result = controller.create(requestBuilder.build());
+    Result result = controller.create(fakeRequestBuilder().bodyForm(formData).build());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
 
     Optional<ProgramModel> newProgram =
         versionRepository.getProgramByNameForVersion(
-            "internal-program-with-acls", versionRepository.getDraftVersionOrCreate());
+            ADMIN_NAME, versionRepository.getDraftVersionOrCreate());
     assertThat(newProgram).isPresent();
     assertThat(newProgram.get().getProgramDefinition().acls().getTiProgramViewAcls())
         .containsExactly(1L);
 
     Result programDashboard = controller.index(fakeRequest());
-    assertThat(contentAsString(programDashboard)).contains("External program name with acls");
-    assertThat(contentAsString(programDashboard))
-        .contains("External program description with acls");
+    assertThat(contentAsString(programDashboard)).contains(PROGRAM_NAME);
+    assertThat(contentAsString(programDashboard)).contains(SHORT_DESCRIPTION);
   }
 
   @Test
   public void create_eligibilityIsGating_false() {
-    RequestBuilder requestBuilder =
-        fakeRequestBuilder()
-            .bodyForm(
-                ImmutableMap.of(
-                    "adminName",
-                    "internal-program-name",
-                    "adminDescription",
-                    "Internal program description",
-                    "localizedDisplayName",
-                    "External program name",
-                    "localizedDisplayDescription",
-                    "External program description",
-                    "localizedShortDescription",
-                    "External short program description",
-                    "externalLink",
-                    "https://external.program.link",
-                    "displayMode",
-                    DisplayMode.PUBLIC.getValue(),
-                    "eligibilityIsGating",
-                    "false",
-                    "applicationSteps[0][title]",
-                    "step one title",
-                    "applicationSteps[0][description]",
-                    "step one description"));
+    Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
+    formData.put("eligibilityIsGating", "false");
 
-    controller.create(requestBuilder.build());
+    controller.create(fakeRequestBuilder().bodyForm(formData).build());
 
-    long programId =
-        versionRepository
-            .getDraftVersionOrCreate()
-            .getPrograms()
-            .get(0)
-            .getProgramDefinition()
-            .id();
-    ProgramModel updatedDraft =
-        programRepository.lookupProgram(programId).toCompletableFuture().join().get();
+    ProgramModel updatedDraft = getDraftProgram();
     assertThat(updatedDraft.getProgramDefinition().eligibilityIsGating()).isFalse();
   }
 
   @Test
   public void create_eligibilityIsGating_true() {
-    RequestBuilder requestBuilder =
-        fakeRequestBuilder()
-            .bodyForm(
-                ImmutableMap.of(
-                    "adminName",
-                    "internal-program-name",
-                    "adminDescription",
-                    "Internal program description",
-                    "localizedDisplayName",
-                    "External program name",
-                    "localizedDisplayDescription",
-                    "External program description",
-                    "localizedShortDescription",
-                    "External short program description",
-                    "externalLink",
-                    "https://external.program.link",
-                    "displayMode",
-                    DisplayMode.PUBLIC.getValue(),
-                    "eligibilityIsGating",
-                    "true",
-                    "applicationSteps[0][title]",
-                    "step one title",
-                    "applicationSteps[0][description]",
-                    "step one description"));
+    Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
+    formData.put("eligibilityIsGating", "true");
 
-    controller.create(requestBuilder.build());
+    controller.create(fakeRequestBuilder().bodyForm(formData).build());
 
-    long programId =
-        versionRepository
-            .getDraftVersionOrCreate()
-            .getPrograms()
-            .get(0)
-            .getProgramDefinition()
-            .id();
-    ProgramModel updatedDraft =
-        programRepository.lookupProgram(programId).toCompletableFuture().join().get();
+    ProgramModel updatedDraft = getDraftProgram();
     assertThat(updatedDraft.getProgramDefinition().eligibilityIsGating()).isTrue();
   }
 
   @Test
   public void create_includesNewAndExistingProgramsInList() {
     ProgramBuilder.newActiveProgram("Existing One").build();
-    RequestBuilder requestBuilder =
-        fakeRequestBuilder()
-            .bodyForm(
-                ImmutableMap.of(
-                    "adminName",
-                    "internal-program-name",
-                    "adminDescription",
-                    "Internal program description",
-                    "localizedDisplayName",
-                    "External program name",
-                    "localizedDisplayDescription",
-                    "External program description",
-                    "localizedShortDescription",
-                    "External short program description",
-                    "externalLink",
-                    "https://external.program.link",
-                    "displayMode",
-                    DisplayMode.PUBLIC.getValue(),
-                    "applicationSteps[0][title]",
-                    "step one title",
-                    "applicationSteps[0][description]",
-                    "step one description"));
 
-    Result result = controller.create(requestBuilder.build());
+    Result result = controller.create(fakeRequestBuilder().bodyForm(DEFAULT_FORM_FIELDS).build());
 
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    long programId =
-        versionRepository
-            .getDraftVersionOrCreate()
-            .getPrograms()
-            .get(0)
-            .getProgramDefinition()
-            .id();
-    assertThat(result.redirectLocation())
-        .hasValue(
-            routes.AdminProgramImageController.index(programId, ProgramEditStatus.CREATION.name())
-                .url());
+    assertRedirectsToProgramImagePage(result, getDraftProgram().id, ProgramEditStatus.CREATION);
 
     Result programDashboard = controller.index(fakeRequest());
     assertThat(contentAsString(programDashboard)).contains("Existing One");
-    assertThat(contentAsString(programDashboard)).contains("External program name");
-    assertThat(contentAsString(programDashboard)).contains("External program description");
+    assertThat(contentAsString(programDashboard)).contains(PROGRAM_NAME);
+    assertThat(contentAsString(programDashboard)).contains(SHORT_DESCRIPTION);
   }
 
   @Test
-  public void create_showsErrorsBeforePromptingUserToConfirmCommonIntakeChange() {
-    ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
-    RequestBuilder requestBuilder =
-        fakeRequestBuilder()
-            .bodyForm(
-                ImmutableMap.of(
-                    "adminName",
-                    "internal-program-name",
-                    "adminDescription",
-                    "Internal program description",
-                    "localizedDisplayName",
-                    "",
-                    "localizedDisplayDescription",
-                    "External program description",
-                    "localizedShortDescription",
-                    "External short program description",
-                    "displayMode",
-                    DisplayMode.PUBLIC.getValue(),
-                    "isCommonIntakeForm",
-                    "true",
-                    "confirmedChangeCommonIntakeForm",
-                    "false",
-                    "applicationSteps[0][title]",
-                    "step one title",
-                    "applicationSteps[0][description]",
-                    "step one description"));
+  public void create_showsErrorsBeforePromptingUserToConfirmPreScreenerChange() {
+    ProgramBuilder.newActivePreScreenerForm("Old pre-screener").build();
+    Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
+    formData.put("localizedDisplayName", ""); // Empty name to force validation error
+    formData.put("programTypeValue", ProgramType.PRE_SCREENER_FORM.getValue());
+    formData.put("confirmedChangePreScreenerForm", "false");
 
-    Result result = controller.create(requestBuilder.build());
+    Result result = controller.create(fakeRequestBuilder().bodyForm(formData).build());
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
@@ -390,133 +230,57 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void create_promptsUserToConfirmCommonIntakeChange() {
-    ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
-    RequestBuilder requestBuilder =
-        fakeRequestBuilder()
-            .bodyForm(
-                ImmutableMap.of(
-                    "adminName",
-                    "internal-program-name",
-                    "adminDescription",
-                    "Internal program description",
-                    "localizedDisplayName",
-                    "External program name",
-                    "localizedDisplayDescription",
-                    "External program description",
-                    "localizedShortDescription",
-                    "External short program description",
-                    "displayMode",
-                    DisplayMode.PUBLIC.getValue(),
-                    "isCommonIntakeForm",
-                    "true",
-                    "confirmedChangeCommonIntakeForm",
-                    "false",
-                    "applicationSteps[0][title]",
-                    "step one title",
-                    "applicationSteps[0][description]",
-                    "step one description"));
+  public void create_promptsUserToConfirmPreScreenerChange() {
+    ProgramBuilder.newActivePreScreenerForm("Old pre-screener").build();
+    Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
+    formData.put("programTypeValue", ProgramType.PRE_SCREENER_FORM.getValue());
+    formData.put("confirmedChangePreScreenerForm", "false");
 
-    Result result = controller.create(requestBuilder.build());
+    Result result = controller.create(fakeRequestBuilder().bodyForm(formData).build());
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("confirm-common-intake-change");
+    assertThat(contentAsString(result)).contains("confirm-pre-screener-change");
   }
 
   @Test
-  public void create_doesNotPromptUserToConfirmCommonIntakeChangeIfNoneExists() {
-    RequestBuilder requestBuilder =
-        fakeRequestBuilder()
-            .bodyForm(
-                ImmutableMap.of(
-                    "adminName",
-                    "internal-program-name",
-                    "adminDescription",
-                    "Internal program description",
-                    "localizedDisplayName",
-                    "External program name",
-                    "localizedDisplayDescription",
-                    "External program description",
-                    "localizedShortDescription",
-                    "External short program description",
-                    "displayMode",
-                    DisplayMode.PUBLIC.getValue(),
-                    "isCommonIntakeForm",
-                    "true",
-                    "confirmedChangeCommonIntakeForm",
-                    "false",
-                    "applicationSteps[0][title]",
-                    "step one title",
-                    "applicationSteps[0][description]",
-                    "step one description"));
+  public void create_doesNotPromptUserToConfirmPreScreenerChangeIfNoneExists() {
+    Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
+    formData.put("programTypeValue", ProgramType.PRE_SCREENER_FORM.getValue());
+    formData.put("confirmedChangePreScreenerForm", "false");
 
-    Result result = controller.create(requestBuilder.build());
+    Result result = controller.create(fakeRequestBuilder().bodyForm(formData).build());
 
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    long programId =
-        versionRepository
-            .getDraftVersionOrCreate()
-            .getPrograms()
-            .get(0)
-            .getProgramDefinition()
-            .id();
-    assertThat(result.redirectLocation())
-        .hasValue(
-            routes.AdminProgramImageController.index(programId, ProgramEditStatus.CREATION.name())
-                .url());
+    assertRedirectsToProgramImagePage(result, getDraftProgram().id, ProgramEditStatus.CREATION);
 
     Result programDashboard = controller.index(fakeRequest());
-    assertThat(contentAsString(programDashboard)).contains("External program name");
-    assertThat(contentAsString(programDashboard)).contains("External program description");
+    assertThat(contentAsString(programDashboard)).contains(PROGRAM_NAME);
+    assertThat(contentAsString(programDashboard)).contains(SHORT_DESCRIPTION);
   }
 
   @Test
-  public void create_allowsChangingCommonIntakeAfterConfirming() {
-    ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
+  public void create_allowsChangingPreScreenerAfterConfirming() {
+    ProgramBuilder.newActivePreScreenerForm("Old pre-screener").build();
 
-    String adminName = "internal-program-name";
-    String programName = "External program name";
-    RequestBuilder requestBuilder =
-        fakeRequestBuilder()
-            .bodyForm(
-                ImmutableMap.of(
-                    "adminName",
-                    adminName,
-                    "adminDescription",
-                    "Internal program description",
-                    "localizedDisplayName",
-                    programName,
-                    "localizedShortDescription",
-                    "External short program description",
-                    "displayMode",
-                    DisplayMode.PUBLIC.getValue(),
-                    "isCommonIntakeForm",
-                    "true",
-                    "confirmedChangeCommonIntakeForm",
-                    "true",
-                    "tiGroups[]",
-                    "1",
-                    "applicationSteps[0][title]",
-                    "step one title",
-                    "applicationSteps[0][description]",
-                    "step one description"));
+    Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
+    formData.put("programTypeValue", ProgramType.PRE_SCREENER_FORM.getValue());
+    formData.put("confirmedChangePreScreenerForm", "true");
+    formData.put("tiGroups[]", "1");
 
-    controller.create(requestBuilder.build());
+    controller.create(fakeRequestBuilder().bodyForm(formData).build());
 
     Optional<ProgramModel> newProgram =
         versionRepository.getProgramByNameForVersion(
-            adminName, versionRepository.getDraftVersionOrCreate());
+            ADMIN_NAME, versionRepository.getDraftVersionOrCreate());
     assertThat(newProgram).isPresent();
-    assertThat(newProgram.get().getProgramDefinition().isCommonIntakeForm()).isTrue();
+    assertThat(newProgram.get().getProgramDefinition().isPreScreenerForm()).isTrue();
 
     Result programDashboard = controller.index(fakeRequest());
-    assertThat(contentAsString(programDashboard)).contains(programName);
+    assertThat(contentAsString(programDashboard)).contains(PROGRAM_NAME);
   }
 
   @Test
   public void edit_withInvalidProgram_throwsProgramNotFoundException() {
     Request request = fakeRequest();
-
     assertThatThrownBy(() -> controller.edit(request, 1L, ProgramEditStatus.EDIT.name()))
         .isInstanceOf(ProgramNotFoundException.class);
   }
@@ -530,7 +294,6 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("test program");
-
     assertThat(contentAsString(result)).contains("Edit program");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
   }
@@ -607,7 +370,6 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void update_nonDraftProgram_throwsException() throws Exception {
     ProgramModel activeProgram =
         ProgramBuilder.newActiveProgram("fakeName", "active description").build();
-
     Request request = fakeRequest();
 
     assertThatThrownBy(
@@ -637,69 +399,38 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void update_overwritesExistingProgram() throws Exception {
     ProgramModel program =
         ProgramBuilder.newDraftProgram("Existing One", "old description").build();
-    RequestBuilder requestBuilder =
-        fakeRequestBuilder()
-            .bodyForm(
-                ImmutableMap.of(
-                    "adminDescription",
-                    "New internal program description",
-                    "localizedDisplayName",
-                    "New external program name",
-                    "localizedDisplayDescription",
-                    "New external program description",
-                    "localizedShortDescription",
-                    "External short program description",
-                    "externalLink",
-                    "https://external.program.link",
-                    "displayMode",
-                    DisplayMode.PUBLIC.getValue(),
-                    "isCommonIntakeForm",
-                    "true",
-                    "tiGroups[]",
-                    "1",
-                    "applicationSteps[0][title]",
-                    "step one title",
-                    "applicationSteps[0][description]",
-                    "step one description"));
-    controller.update(requestBuilder.build(), program.id, ProgramEditStatus.EDIT.name());
 
-    Result indexResult = controller.index(fakeRequest());
-    assertThat(contentAsString(indexResult))
-        .contains(
-            "Create new program", "New external program name", "New external program description");
-    assertThat(contentAsString(indexResult)).doesNotContain("Existing one", "old description");
+    Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
+    formData.put("adminDescription", "New program slug");
+    formData.put("localizedDisplayDescription", "New program description");
+    formData.put("localizedShortDescription", "New external short program description");
+    formData.put("programTypeValue", ProgramType.PRE_SCREENER_FORM.getValue());
+    formData.put("tiGroups[]", "1");
+
+    controller.update(
+        fakeRequestBuilder().bodyForm(formData).build(), program.id, ProgramEditStatus.EDIT.name());
+
+    Result indexResult = controller.index(fakeRequestBuilder().build());
+    String content = contentAsString(indexResult);
+    assertThat(content)
+        .contains("Create new program", PROGRAM_NAME, "New external short program description");
+    assertThat(content).doesNotContain("Existing one", "short description");
   }
 
   @Test
   public void update_statusEdit_redirectsToProgramEditBlocks() throws ProgramNotFoundException {
     ProgramModel program = ProgramBuilder.newDraftProgram("Program", "description").build();
-    RequestBuilder requestBuilder =
-        fakeRequestBuilder()
-            .bodyForm(
-                ImmutableMap.of(
-                    "adminDescription",
-                    "adminDescription",
-                    "localizedDisplayName",
-                    "Program",
-                    "localizedDisplayDescription",
-                    "description",
-                    "localizedShortDescription",
-                    "short description",
-                    "externalLink",
-                    "https://external.program.link",
-                    "displayMode",
-                    DisplayMode.PUBLIC.getValue(),
-                    "isCommonIntakeForm",
-                    "false",
-                    "tiGroups[]",
-                    "1",
-                    "applicationSteps[0][title]",
-                    "step one title",
-                    "applicationSteps[0][description]",
-                    "step one description"));
+    Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
+    formData.put("localizedDisplayDescription", "description");
+    formData.put("localizedShortDescription", "short description");
+    formData.put("programTypeValue", ProgramType.DEFAULT.getValue());
+    formData.put("tiGroups[]", "1");
 
     Result result =
-        controller.update(requestBuilder.build(), program.id, ProgramEditStatus.EDIT.name());
+        controller.update(
+            fakeRequestBuilder().bodyForm(formData).build(),
+            program.id,
+            ProgramEditStatus.EDIT.name());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
@@ -709,114 +440,55 @@ public class AdminProgramControllerTest extends ResetPostgres {
   @Test
   public void update_statusCreation_redirectsToProgramImage() throws ProgramNotFoundException {
     ProgramModel program = ProgramBuilder.newDraftProgram("Program", "description").build();
-    RequestBuilder requestBuilder =
-        fakeRequestBuilder()
-            .bodyForm(
-                ImmutableMap.of(
-                    "adminDescription",
-                    "adminDescription",
-                    "localizedDisplayName",
-                    "Program",
-                    "localizedDisplayDescription",
-                    "description",
-                    "localizedShortDescription",
-                    "short description",
-                    "externalLink",
-                    "https://external.program.link",
-                    "displayMode",
-                    DisplayMode.PUBLIC.getValue(),
-                    "isCommonIntakeForm",
-                    "false",
-                    "tiGroups[]",
-                    "1",
-                    "applicationSteps[0][title]",
-                    "step one title",
-                    "applicationSteps[0][description]",
-                    "step one description"));
+    Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
+    formData.put("localizedDisplayDescription", "description");
+    formData.put("localizedShortDescription", "short description");
+    formData.put("programTypeValue", ProgramType.DEFAULT.getValue());
+    formData.put("tiGroups[]", "1");
 
     Result result =
-        controller.update(requestBuilder.build(), program.id, ProgramEditStatus.CREATION.name());
+        controller.update(
+            fakeRequestBuilder().bodyForm(formData).build(),
+            program.id,
+            ProgramEditStatus.CREATION.name());
 
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation())
-        .hasValue(
-            routes.AdminProgramImageController.index(program.id, ProgramEditStatus.CREATION.name())
-                .url());
+    assertRedirectsToProgramImagePage(result, program.id, ProgramEditStatus.CREATION);
   }
 
   @Test
   public void update_statusCreationEdit_redirectsToProgramImage() throws ProgramNotFoundException {
     ProgramModel program = ProgramBuilder.newDraftProgram("Program", "description").build();
-    RequestBuilder requestBuilder =
-        fakeRequestBuilder()
-            .bodyForm(
-                ImmutableMap.of(
-                    "adminDescription",
-                    "adminDescription",
-                    "localizedDisplayName",
-                    "Program",
-                    "localizedDisplayDescription",
-                    "description",
-                    "localizedShortDescription",
-                    "short description",
-                    "externalLink",
-                    "https://external.program.link",
-                    "displayMode",
-                    DisplayMode.PUBLIC.getValue(),
-                    "isCommonIntakeForm",
-                    "false",
-                    "tiGroups[]",
-                    "1",
-                    "applicationSteps[0][title]",
-                    "step one title",
-                    "applicationSteps[0][description]",
-                    "step one description"));
+    Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
+    formData.put("localizedDisplayDescription", "description");
+    formData.put("localizedShortDescription", "short description");
+    formData.put("programTypeValue", ProgramType.DEFAULT.getValue());
+    formData.put("tiGroups[]", "1");
 
     Result result =
         controller.update(
-            requestBuilder.build(), program.id, ProgramEditStatus.CREATION_EDIT.name());
+            fakeRequestBuilder().bodyForm(formData).build(),
+            program.id,
+            ProgramEditStatus.CREATION_EDIT.name());
 
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation())
-        .hasValue(
-            routes.AdminProgramImageController.index(
-                    program.id, ProgramEditStatus.CREATION_EDIT.name())
-                .url());
+    assertRedirectsToProgramImagePage(result, program.id, ProgramEditStatus.CREATION_EDIT);
   }
 
   @Test
-  public void update_showsErrorsBeforePromptingUserToConfirmCommonIntakeChange() throws Exception {
+  public void update_showsErrorsBeforePromptingUserToConfirmPreScreenerChange() throws Exception {
     ProgramModel program =
         ProgramBuilder.newDraftProgram("Existing One", "old description").build();
-    ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
+    ProgramBuilder.newActivePreScreenerForm("Old pre-screener").build();
 
-    RequestBuilder requestBuilder =
-        fakeRequestBuilder()
-            .bodyForm(
-                ImmutableMap.of(
-                    "adminDescription",
-                    "New internal program description",
-                    "localizedDisplayName",
-                    "",
-                    "localizedDisplayDescription",
-                    "New external program description",
-                    "localizedShortDescription",
-                    "External short program description",
-                    "externalLink",
-                    "https://external.program.link",
-                    "displayMode",
-                    DisplayMode.PUBLIC.getValue(),
-                    "isCommonIntakeForm",
-                    "true",
-                    "confirmedChangeCommonIntakeForm",
-                    "false",
-                    "applicationSteps[0][title]",
-                    "step one title",
-                    "applicationSteps[0][description]",
-                    "step one description"));
+    Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
+    formData.put("localizedDisplayName", ""); // Empty name to force validation error
+    formData.put("programTypeValue", ProgramType.PRE_SCREENER_FORM.getValue());
+    formData.put("confirmedChangePreScreenerForm", "false");
 
     Result result =
-        controller.update(requestBuilder.build(), program.id, ProgramEditStatus.EDIT.name());
+        controller.update(
+            fakeRequestBuilder().bodyForm(formData).build(),
+            program.id,
+            ProgramEditStatus.EDIT.name());
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
@@ -824,126 +496,68 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void update_promptsUserToConfirmCommonIntakeChange() throws Exception {
+  public void update_promptsUserToConfirmPreScreenerChange() throws Exception {
     ProgramModel program =
         ProgramBuilder.newDraftProgram("Existing One", "old description").build();
-    ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
+    ProgramBuilder.newActivePreScreenerForm("Old pre-screener").build();
 
-    RequestBuilder requestBuilder =
-        fakeRequestBuilder()
-            .bodyForm(
-                ImmutableMap.of(
-                    "adminDescription",
-                    "New internal program description",
-                    "localizedDisplayName",
-                    "New external program name",
-                    "localizedDisplayDescription",
-                    "New external program description",
-                    "localizedShortDescription",
-                    "External short program description",
-                    "externalLink",
-                    "https://external.program.link",
-                    "displayMode",
-                    DisplayMode.PUBLIC.getValue(),
-                    "isCommonIntakeForm",
-                    "true",
-                    "confirmedChangeCommonIntakeForm",
-                    "false",
-                    "applicationSteps[0][title]",
-                    "step one title",
-                    "applicationSteps[0][description]",
-                    "step one description"));
+    Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
+    formData.put("programTypeValue", ProgramType.PRE_SCREENER_FORM.getValue());
+    formData.put("confirmedChangePreScreenerForm", "false");
 
     Result result =
-        controller.update(requestBuilder.build(), program.id, ProgramEditStatus.EDIT.name());
+        controller.update(
+            fakeRequestBuilder().bodyForm(formData).build(),
+            program.id,
+            ProgramEditStatus.EDIT.name());
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("confirm-common-intake-change");
+    assertThat(contentAsString(result)).contains("confirm-pre-screener-change");
   }
 
   @Test
-  public void update_doesNotPromptUserToConfirmCommonIntakeChangeIfNoneExists() throws Exception {
+  public void update_doesNotPromptUserToConfirmPreScreenerChangeIfNoneExists() throws Exception {
     ProgramModel program =
         ProgramBuilder.newDraftProgram("Existing One", "old description").build();
 
-    RequestBuilder requestBuilder =
-        fakeRequestBuilder()
-            .bodyForm(
-                ImmutableMap.of(
-                    "adminDescription",
-                    "New internal program description",
-                    "localizedDisplayName",
-                    "New external program name",
-                    "localizedDisplayDescription",
-                    "New external program description",
-                    "localizedShortDescription",
-                    "New short program description",
-                    "externalLink",
-                    "https://external.program.link",
-                    "displayMode",
-                    DisplayMode.PUBLIC.getValue(),
-                    "isCommonIntakeForm",
-                    "true",
-                    "confirmedChangeCommonIntakeForm",
-                    "false",
-                    "applicationSteps[0][title]",
-                    "step one title",
-                    "applicationSteps[0][description]",
-                    "step one description"));
+    Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
+    formData.put("programTypeValue", ProgramType.PRE_SCREENER_FORM.getValue());
+    formData.put("confirmedChangePreScreenerForm", "false");
 
     Result result =
-        controller.update(requestBuilder.build(), program.id, ProgramEditStatus.EDIT.name());
+        controller.update(
+            fakeRequestBuilder().bodyForm(formData).build(),
+            program.id,
+            ProgramEditStatus.EDIT.name());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    long programId =
-        versionRepository
-            .getDraftVersionOrCreate()
-            .getPrograms()
-            .get(0)
-            .getProgramDefinition()
-            .id();
+    long programId = getDraftProgram().id;
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminProgramBlocksController.index(programId).url());
 
     Result redirectResult = controller.index(fakeRequest());
-    assertThat(contentAsString(redirectResult)).contains("New external program name");
+    assertThat(contentAsString(redirectResult)).contains(PROGRAM_NAME);
   }
 
   @Test
-  public void update_allowsChangingCommonIntakeAfterConfirming() throws Exception {
+  public void update_allowsChangingPreScreenerAfterConfirming() throws Exception {
     ProgramModel program =
-        ProgramBuilder.newDraftProgram("Existing One", "old description").build();
-    ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
+        ProgramBuilder.newDraftProgram("Existing One", "old description", "old short description")
+            .build();
+    ProgramBuilder.newActivePreScreenerForm("Old pre-screener").build();
 
-    String newProgramName = "External program name";
-    String newProgramDescription = "External program description";
-    RequestBuilder requestBuilder =
-        fakeRequestBuilder()
-            .bodyForm(
-                ImmutableMap.of(
-                    "adminDescription",
-                    "New internal program description",
-                    "localizedDisplayName",
-                    newProgramName,
-                    "localizedDisplayDescription",
-                    newProgramDescription,
-                    "localizedShortDescription",
-                    "Short program description",
-                    "externalLink",
-                    "https://external.program.link",
-                    "displayMode",
-                    DisplayMode.PUBLIC.getValue(),
-                    "isCommonIntakeForm",
-                    "true",
-                    "confirmedChangeCommonIntakeForm",
-                    "true",
-                    "applicationSteps[0][title]",
-                    "step one title",
-                    "applicationSteps[0][description]",
-                    "step one description"));
+    String newProgramShortDescription = "External program short description";
+
+    Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
+    formData.put("localizedShortDescription", newProgramShortDescription);
+    formData.put("programTypeValue", ProgramType.PRE_SCREENER_FORM.getValue());
+    formData.put("confirmedChangePreScreenerForm", "true");
 
     Result result =
-        controller.update(requestBuilder.build(), program.id, ProgramEditStatus.EDIT.name());
+        controller.update(
+            fakeRequestBuilder().bodyForm(formData).build(),
+            program.id,
+            ProgramEditStatus.EDIT.name());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     Optional<ProgramModel> newProgram =
@@ -954,8 +568,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
         .hasValue(routes.AdminProgramBlocksController.index(newProgram.get().id).url());
 
     Result redirectResult = controller.index(fakeRequest());
-    assertThat(contentAsString(redirectResult)).contains(newProgramName);
-    assertThat(contentAsString(redirectResult)).contains(newProgramDescription);
+    assertThat(contentAsString(redirectResult)).contains(PROGRAM_NAME);
+    assertThat(contentAsString(redirectResult)).contains(newProgramShortDescription);
   }
 
   @Test
@@ -963,29 +577,16 @@ public class AdminProgramControllerTest extends ResetPostgres {
     ProgramModel program = ProgramBuilder.newDraftProgram("one").build();
     assertThat(program.getProgramDefinition().eligibilityIsGating()).isTrue();
 
-    RequestBuilder request =
-        fakeRequestBuilder()
-            .bodyForm(
-                ImmutableMap.of(
-                    "adminDescription",
-                    "adminDescription",
-                    "localizedDisplayName",
-                    "Program",
-                    "localizedDisplayDescription",
-                    "description",
-                    "localizedShortDescription",
-                    "short description",
-                    "externalLink",
-                    "https://external.program.link",
-                    "displayMode",
-                    DisplayMode.PUBLIC.getValue(),
-                    "eligibilityIsGating",
-                    "false",
-                    "applicationSteps[0][title]",
-                    "step one title",
-                    "applicationSteps[0][description]",
-                    "step one description"));
-    Result result = controller.update(request.build(), program.id, ProgramEditStatus.EDIT.name());
+    Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
+    formData.put("localizedDisplayDescription", "description");
+    formData.put("localizedShortDescription", "short description");
+    formData.put("eligibilityIsGating", "false");
+
+    Result result =
+        controller.update(
+            fakeRequestBuilder().bodyForm(formData).build(),
+            program.id,
+            ProgramEditStatus.EDIT.name());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())

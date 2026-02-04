@@ -6,9 +6,7 @@ import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
 import auth.ProfileFactory;
 import auth.Role;
-import io.prometheus.client.Collector.MetricFamilySamples;
-import io.prometheus.client.CollectorRegistry;
-import java.util.Collections;
+import java.time.Clock;
 import java.util.Optional;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
@@ -19,52 +17,37 @@ import repository.ResetPostgres;
 
 @RunWith(JUnitParamsRunner.class)
 public class ApplicantRoutesTest extends ResetPostgres {
-
   private ProfileFactory profileFactory;
-  private static long APPLICANT_ID = 123L;
-  private static long APPLICANT_ACCOUNT_ID = 456L;
-  private static long TI_ACCOUNT_ID = 789L;
-  private static long PROGRAM_ID = 321L;
-  private static String BLOCK_ID = "test_block";
+  private static final long APPLICANT_ID = 123L;
+  private static final long APPLICANT_ACCOUNT_ID = 456L;
+  private static final long TI_ACCOUNT_ID = 789L;
+  private static final long PROGRAM_ID = 321L;
+  private static final String PROGRAM_SLUG = "test-program";
+  private static final String BLOCK_ID = "test_block";
   private static final int CURRENT_BLOCK_INDEX = 7;
+  private Clock clock;
 
-  // Class to hold counter values.
-  static class Counts {
-    double present = 0;
-    double absent = 0;
+  public enum ADMIN_TYPE {
+    TI,
+    CIVIFORM
   }
 
-  private Counts getApplicantIdInProfileCounts() {
-    Counts counts = new Counts();
-    CollectorRegistry registry = CollectorRegistry.defaultRegistry;
-    for (MetricFamilySamples mfs : Collections.list(registry.metricFamilySamples())) {
-      if (mfs.name.equals("applicant_id_in_profile")) {
-        for (MetricFamilySamples.Sample sample : mfs.samples) {
-          if (!sample.name.equals("applicant_id_in_profile_total")) {
-            continue;
-          }
-
-          if (sample.labelValues.contains("present")) {
-            counts.present = sample.value;
-          } else if (sample.labelValues.contains("absent")) {
-            counts.absent = sample.value;
-          }
-        }
-      }
-    }
-    return counts;
+  private static String getRoleForAdmin(ADMIN_TYPE adminType) {
+    return switch (adminType) {
+      case TI -> Role.ROLE_TI.toString();
+      case CIVIFORM -> Role.ROLE_CIVIFORM_ADMIN.toString();
+    };
   }
 
   @Before
   public void setup() {
     profileFactory = instanceOf(ProfileFactory.class);
+    clock = Clock.systemUTC();
   }
 
   @Test
   public void testIndexRoute_forApplicantWithIdInProfile_newSchemaEnabled() {
-    Counts before = getApplicantIdInProfileCounts();
-
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.addAttribute(
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
@@ -72,188 +55,112 @@ public class ApplicantRoutesTest extends ResetPostgres {
 
     assertThat(new ApplicantRoutes().index(applicantProfile, APPLICANT_ID).url())
         .isEqualTo("/programs");
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present + 1);
-    assertThat(after.absent).isEqualTo(before.absent);
   }
 
   @Test
-  public void testIndexRoute_forApplicantWithoutIdInProfile() {
-    Counts before = getApplicantIdInProfileCounts();
+  @Parameters({"TI", "CIVIFORM"})
+  public void testIndexRoute_forAdminTypes(ADMIN_TYPE adminType) {
+    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
 
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
-    profileData.addRole(Role.ROLE_APPLICANT.toString());
-    profileData.removeAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
-    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
-
-    String expectedIndexUrl = String.format("/applicants/%d/programs", APPLICANT_ID);
-    assertThat(new ApplicantRoutes().index(applicantProfile, APPLICANT_ID).url())
-        .isEqualTo(expectedIndexUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present);
-    assertThat(after.absent).isEqualTo(before.absent + 1);
-  }
-
-  @Test
-  public void testIndexRoute_forTrustedIntermediary() {
-    Counts before = getApplicantIdInProfileCounts();
-
-    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID);
-    profileData.addRole(Role.ROLE_TI.toString());
-    CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
+    profileData.addRole(getRoleForAdmin(adminType));
+    CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedIndexUrl = String.format("/applicants/%d/programs", APPLICANT_ID);
-    assertThat(new ApplicantRoutes().index(tiProfile, APPLICANT_ID).url())
+    assertThat(new ApplicantRoutes().index(adminProfile, APPLICANT_ID).url())
         .isEqualTo(expectedIndexUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present);
-    assertThat(after.absent).isEqualTo(before.absent + 1);
   }
 
   @Test
   public void testShowRoute_withoutApplicant() {
-    Counts before = getApplicantIdInProfileCounts();
-
     String expectedShowUrl = String.format("/programs/%d", PROGRAM_ID);
     assertThat(new ApplicantRoutes().show(PROGRAM_ID).url()).isEqualTo(expectedShowUrl);
+  }
 
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present);
-    assertThat(after.absent).isEqualTo(before.absent);
+  @Test
+  public void testShowRoute_withoutApplicantWithProgramSlug() {
+    String expectedShowUrl = String.format("/programs/%s", PROGRAM_SLUG);
+    assertThat(new ApplicantRoutes().show(PROGRAM_SLUG).url()).isEqualTo(expectedShowUrl);
+  }
+
+  @Test
+  @Parameters({"TI", "CIVIFORM"})
+  public void testShowRoute_forAdminTypesWithProgramSlug(ADMIN_TYPE adminType) {
+    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
+
+    profileData.addRole(getRoleForAdmin(adminType));
+    CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedEditUrl =
+        String.format("/applicants/%d/programs/%s", APPLICANT_ID, PROGRAM_SLUG);
+    assertThat(new ApplicantRoutes().show(adminProfile, APPLICANT_ID, PROGRAM_SLUG).url())
+        .isEqualTo(expectedEditUrl);
   }
 
   @Test
   public void testEditRoute_forApplicantWithIdInProfile_newSchemaEnabled() {
-    Counts before = getApplicantIdInProfileCounts();
-
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.addAttribute(
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
 
-    String expectedEditUrl = String.format("/programs/%d/edit", PROGRAM_ID);
+    String expectedEditUrl = String.format("/programs/%d/edit?isFromUrlCall=false", PROGRAM_ID);
     assertThat(new ApplicantRoutes().edit(applicantProfile, APPLICANT_ID, PROGRAM_ID).url())
         .isEqualTo(expectedEditUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present + 1);
-    assertThat(after.absent).isEqualTo(before.absent);
   }
 
   @Test
-  public void testEditRoute_forApplicantWithoutIdInProfile() {
-    Counts before = getApplicantIdInProfileCounts();
+  @Parameters({"TI", "CIVIFORM"})
+  public void testEditRoute_forAdminTypes(ADMIN_TYPE adminType) {
+    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
 
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
-    profileData.addRole(Role.ROLE_APPLICANT.toString());
-    profileData.removeAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
-    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
-
-    String expectedEditUrl =
-        String.format("/applicants/%d/programs/%d/edit", APPLICANT_ID, PROGRAM_ID);
-    assertThat(new ApplicantRoutes().edit(applicantProfile, APPLICANT_ID, PROGRAM_ID).url())
-        .isEqualTo(expectedEditUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present);
-    assertThat(after.absent).isEqualTo(before.absent + 1);
-  }
-
-  @Test
-  public void testEditRoute_forTrustedIntermediary() {
-    Counts before = getApplicantIdInProfileCounts();
-
-    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID);
-    profileData.addRole(Role.ROLE_TI.toString());
-    CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
+    profileData.addRole(getRoleForAdmin(adminType));
+    CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedEditUrl =
-        String.format("/applicants/%d/programs/%d/edit", APPLICANT_ID, PROGRAM_ID);
-    assertThat(new ApplicantRoutes().edit(tiProfile, APPLICANT_ID, PROGRAM_ID).url())
+        String.format(
+            "/applicants/%d/programs/%d/edit?isFromUrlCall=false", APPLICANT_ID, PROGRAM_ID);
+    assertThat(new ApplicantRoutes().edit(adminProfile, APPLICANT_ID, PROGRAM_ID).url())
         .isEqualTo(expectedEditUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present);
-    assertThat(after.absent).isEqualTo(before.absent + 1);
   }
 
   @Test
   public void testReviewRoute_forApplicantWithIdInProfile_newSchemaEnabled() {
-    Counts before = getApplicantIdInProfileCounts();
-
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.addAttribute(
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
 
-    String expectedReviewUrl = String.format("/programs/%d/review", PROGRAM_ID);
+    String expectedReviewUrl = String.format("/programs/%d/review?isFromUrlCall=false", PROGRAM_ID);
     assertThat(new ApplicantRoutes().review(applicantProfile, APPLICANT_ID, PROGRAM_ID).url())
         .isEqualTo(expectedReviewUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present + 1);
-    assertThat(after.absent).isEqualTo(before.absent);
   }
 
   @Test
-  public void testReviewRoute_forApplicantWithoutIdInProfile() {
-    Counts before = getApplicantIdInProfileCounts();
+  @Parameters({"TI", "CIVIFORM"})
+  public void testReviewRoute_forAdminTypes(ADMIN_TYPE adminType) {
+    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
 
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
-    profileData.addRole(Role.ROLE_APPLICANT.toString());
-    profileData.removeAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
-    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
-
-    String expectedReviewUrl =
-        String.format("/applicants/%d/programs/%d/review", APPLICANT_ID, PROGRAM_ID);
-    assertThat(new ApplicantRoutes().review(applicantProfile, APPLICANT_ID, PROGRAM_ID).url())
-        .isEqualTo(expectedReviewUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present);
-    assertThat(after.absent).isEqualTo(before.absent + 1);
-  }
-
-  @Test
-  public void testReviewRoute_forTrustedIntermediary() {
-    Counts before = getApplicantIdInProfileCounts();
-
-    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID);
-    profileData.addRole(Role.ROLE_TI.toString());
-    CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
+    profileData.addRole(getRoleForAdmin(adminType));
+    CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedReviewUrl =
-        String.format("/applicants/%d/programs/%d/review", APPLICANT_ID, PROGRAM_ID);
-    assertThat(new ApplicantRoutes().review(tiProfile, APPLICANT_ID, PROGRAM_ID).url())
+        String.format(
+            "/applicants/%d/programs/%d/review?isFromUrlCall=false", APPLICANT_ID, PROGRAM_ID);
+    assertThat(new ApplicantRoutes().review(adminProfile, APPLICANT_ID, PROGRAM_ID).url())
         .isEqualTo(expectedReviewUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present);
-    assertThat(after.absent).isEqualTo(before.absent + 1);
   }
 
   @Test
   public void testReviewRoute_withoutApplicant() {
-    Counts before = getApplicantIdInProfileCounts();
-
-    String expectedShowUrl = String.format("/programs/%d/review", PROGRAM_ID);
+    String expectedShowUrl = String.format("/programs/%d/review?isFromUrlCall=false", PROGRAM_ID);
     assertThat(new ApplicantRoutes().review(PROGRAM_ID).url()).isEqualTo(expectedShowUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present);
-    assertThat(after.absent).isEqualTo(before.absent);
   }
 
   @Test
   public void testSubmitRoute_forApplicantWithIdInProfile_newSchemaEnabled() {
-    Counts before = getApplicantIdInProfileCounts();
-
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.addAttribute(
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
@@ -262,192 +169,99 @@ public class ApplicantRoutesTest extends ResetPostgres {
     String expectedSubmitUrl = String.format("/programs/%d/submit", PROGRAM_ID);
     assertThat(new ApplicantRoutes().submit(applicantProfile, APPLICANT_ID, PROGRAM_ID).url())
         .isEqualTo(expectedSubmitUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present + 1);
-    assertThat(after.absent).isEqualTo(before.absent);
   }
 
   @Test
-  public void testSubmitRoute_forApplicantWithoutIdInProfile() {
-    Counts before = getApplicantIdInProfileCounts();
+  @Parameters({"TI", "CIVIFORM"})
+  public void testSubmitRoute_forAdminTypes(ADMIN_TYPE adminType) {
+    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
 
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
-    profileData.addRole(Role.ROLE_APPLICANT.toString());
-    profileData.removeAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
-    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
-
-    String expectedSubmitUrl =
-        String.format("/applicants/%d/programs/%d/submit", APPLICANT_ID, PROGRAM_ID);
-    assertThat(new ApplicantRoutes().submit(applicantProfile, APPLICANT_ID, PROGRAM_ID).url())
-        .isEqualTo(expectedSubmitUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present);
-    assertThat(after.absent).isEqualTo(before.absent + 1);
-  }
-
-  @Test
-  public void testSubmitRoute_forTrustedIntermediary() {
-    Counts before = getApplicantIdInProfileCounts();
-
-    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID);
-    profileData.addRole(Role.ROLE_TI.toString());
-    CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
+    profileData.addRole(getRoleForAdmin(adminType));
+    CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedSubmitUrl =
         String.format("/applicants/%d/programs/%d/submit", APPLICANT_ID, PROGRAM_ID);
-    assertThat(new ApplicantRoutes().submit(tiProfile, APPLICANT_ID, PROGRAM_ID).url())
+    assertThat(new ApplicantRoutes().submit(adminProfile, APPLICANT_ID, PROGRAM_ID).url())
         .isEqualTo(expectedSubmitUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present);
-    assertThat(after.absent).isEqualTo(before.absent + 1);
   }
 
   @Test
   public void testBlockEditRoute_forApplicantWithIdInProfile_newSchemaEnabled() {
-    Counts before = getApplicantIdInProfileCounts();
-
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.addAttribute(
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedBlockEditUrl =
-        String.format("/programs/%d/blocks/%s/edit", PROGRAM_ID, BLOCK_ID);
+        String.format("/programs/%d/blocks/%s/edit?isFromUrlCall=false", PROGRAM_ID, BLOCK_ID);
     assertThat(
             new ApplicantRoutes()
                 .blockEdit(applicantProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, Optional.empty())
                 .url())
         .isEqualTo(expectedBlockEditUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present + 1);
-    assertThat(after.absent).isEqualTo(before.absent);
   }
 
   @Test
-  public void testBlockEditRoute_forApplicantWithoutIdInProfile() {
-    Counts before = getApplicantIdInProfileCounts();
+  @Parameters({"TI", "CIVIFORM"})
+  public void testBlockEditRoute_forAdminTypes(ADMIN_TYPE adminType) {
+    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
 
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
-    profileData.addRole(Role.ROLE_APPLICANT.toString());
-    profileData.removeAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
-    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
-
-    String expectedBlockEditUrl =
-        String.format(
-            "/applicants/%d/programs/%d/blocks/%s/edit", APPLICANT_ID, PROGRAM_ID, BLOCK_ID);
-    assertThat(
-            new ApplicantRoutes()
-                .blockEdit(applicantProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, Optional.empty())
-                .url())
-        .isEqualTo(expectedBlockEditUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present);
-    assertThat(after.absent).isEqualTo(before.absent + 1);
-  }
-
-  @Test
-  public void testBlockEditRoute_forTrustedIntermediary() {
-    Counts before = getApplicantIdInProfileCounts();
-
-    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID);
-    profileData.addRole(Role.ROLE_TI.toString());
-    CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
+    profileData.addRole(getRoleForAdmin(adminType));
+    CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedBlockEditUrl =
         String.format(
-            "/applicants/%d/programs/%d/blocks/%s/edit", APPLICANT_ID, PROGRAM_ID, BLOCK_ID);
+            "/applicants/%d/programs/%d/blocks/%s/edit?isFromUrlCall=false",
+            APPLICANT_ID, PROGRAM_ID, BLOCK_ID);
     assertThat(
             new ApplicantRoutes()
-                .blockEdit(tiProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, Optional.empty())
+                .blockEdit(adminProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, Optional.empty())
                 .url())
         .isEqualTo(expectedBlockEditUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present);
-    assertThat(after.absent).isEqualTo(before.absent + 1);
   }
 
   @Test
   public void testBlockReviewRoute_forApplicantWithIdInProfile_newSchemaEnabled() {
-    Counts before = getApplicantIdInProfileCounts();
-
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.addAttribute(
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedBlockReviewUrl =
-        String.format("/programs/%d/blocks/%s/review", PROGRAM_ID, BLOCK_ID);
+        String.format("/programs/%d/blocks/%s/review?isFromUrlCall=false", PROGRAM_ID, BLOCK_ID);
     assertThat(
             new ApplicantRoutes()
                 .blockReview(applicantProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, Optional.empty())
                 .url())
         .isEqualTo(expectedBlockReviewUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present + 1);
-    assertThat(after.absent).isEqualTo(before.absent);
   }
 
   @Test
-  public void testBlockReviewRoute_forApplicantWithoutIdInProfile() {
-    Counts before = getApplicantIdInProfileCounts();
+  @Parameters({"TI", "CIVIFORM"})
+  public void testBlockReviewRoute_forAdminTypes(ADMIN_TYPE adminType) {
+    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
 
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
-    profileData.addRole(Role.ROLE_APPLICANT.toString());
-    profileData.removeAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
-    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
-
-    String expectedBlockReviewUrl =
-        String.format(
-            "/applicants/%d/programs/%d/blocks/%s/review", APPLICANT_ID, PROGRAM_ID, BLOCK_ID);
-    assertThat(
-            new ApplicantRoutes()
-                .blockReview(applicantProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, Optional.empty())
-                .url())
-        .isEqualTo(expectedBlockReviewUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present);
-    assertThat(after.absent).isEqualTo(before.absent + 1);
-  }
-
-  @Test
-  public void testBlockReviewRoute_forTrustedIntermediary() {
-    Counts before = getApplicantIdInProfileCounts();
-
-    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID);
-    profileData.addRole(Role.ROLE_TI.toString());
-    CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
+    profileData.addRole(getRoleForAdmin(adminType));
+    CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedBlockReviewUrl =
         String.format(
-            "/applicants/%d/programs/%d/blocks/%s/review", APPLICANT_ID, PROGRAM_ID, BLOCK_ID);
+            "/applicants/%d/programs/%d/blocks/%s/review?isFromUrlCall=false",
+            APPLICANT_ID, PROGRAM_ID, BLOCK_ID);
     assertThat(
             new ApplicantRoutes()
-                .blockReview(tiProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, Optional.empty())
+                .blockReview(adminProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, Optional.empty())
                 .url())
         .isEqualTo(expectedBlockReviewUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present);
-    assertThat(after.absent).isEqualTo(before.absent + 1);
   }
 
   @Test
   @Parameters({"true", "false"})
   public void testBlockEditOrBlockReviewRoute_forApplicantWithIdInProfile_newSchemaEnabled(
       String inReview) {
-    Counts before = getApplicantIdInProfileCounts();
-
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.addAttribute(
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
@@ -456,70 +270,35 @@ public class ApplicantRoutesTest extends ResetPostgres {
     boolean inReviewBoolean = Boolean.parseBoolean(inReview);
     String expectedUrl =
         String.format(
-            "/programs/%d/blocks/%s/%s", PROGRAM_ID, BLOCK_ID, inReviewBoolean ? "review" : "edit");
+            "/programs/%d/blocks/%s/%s?isFromUrlCall=false",
+            PROGRAM_ID, BLOCK_ID, inReviewBoolean ? "review" : "edit");
     assertThat(
             new ApplicantRoutes()
                 .blockEditOrBlockReview(
                     applicantProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, inReviewBoolean)
                 .url())
         .isEqualTo(expectedUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present + 1);
-    assertThat(after.absent).isEqualTo(before.absent);
   }
 
   @Test
-  @Parameters({"true", "false"})
-  public void testBlockEditOrBlockReviewRoute_forApplicantWithoutIdInProfile(String inReview) {
-    Counts before = getApplicantIdInProfileCounts();
+  @Parameters({"TI, true", "TI, false", "CIVIFORM, true", "CIVIFORM, false"})
+  public void testBlockReviewRoute_forAdminTypes(ADMIN_TYPE adminType, String inReview) {
+    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
 
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
-    profileData.addRole(Role.ROLE_APPLICANT.toString());
-    profileData.removeAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
-    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+    profileData.addRole(getRoleForAdmin(adminType));
+    CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     boolean inReviewBoolean = Boolean.parseBoolean(inReview);
     String expectedBlockReviewUrl =
         String.format(
-            "/applicants/%d/programs/%d/blocks/%s/%s",
+            "/applicants/%d/programs/%d/blocks/%s/%s?isFromUrlCall=false",
             APPLICANT_ID, PROGRAM_ID, BLOCK_ID, inReviewBoolean ? "review" : "edit");
     assertThat(
             new ApplicantRoutes()
                 .blockEditOrBlockReview(
-                    applicantProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, inReviewBoolean)
+                    adminProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, inReviewBoolean)
                 .url())
         .isEqualTo(expectedBlockReviewUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present);
-    assertThat(after.absent).isEqualTo(before.absent + 1);
-  }
-
-  @Test
-  @Parameters({"true", "false"})
-  public void testBlockReviewRoute_forTrustedIntermediary(String inReview) {
-    Counts before = getApplicantIdInProfileCounts();
-
-    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID);
-    profileData.addRole(Role.ROLE_TI.toString());
-    CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
-
-    boolean inReviewBoolean = Boolean.parseBoolean(inReview);
-    String expectedBlockReviewUrl =
-        String.format(
-            "/applicants/%d/programs/%d/blocks/%s/%s",
-            APPLICANT_ID, PROGRAM_ID, BLOCK_ID, inReviewBoolean ? "review" : "edit");
-    assertThat(
-            new ApplicantRoutes()
-                .blockEditOrBlockReview(
-                    tiProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, inReviewBoolean)
-                .url())
-        .isEqualTo(expectedBlockReviewUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present);
-    assertThat(after.absent).isEqualTo(before.absent + 1);
   }
 
   @Test
@@ -531,9 +310,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   })
   public void testConfirmAddressRoute_forApplicantWithIdInProfile_newSchemaEnabled(
       String inReview, String applicantRequestedAction) {
-    Counts before = getApplicantIdInProfileCounts();
-
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.addAttribute(
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
@@ -554,27 +331,25 @@ public class ApplicantRoutesTest extends ResetPostgres {
                     ApplicantRequestedAction.valueOf(applicantRequestedAction))
                 .url())
         .isEqualTo(expectedConfirmAddressUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present + 1);
-    assertThat(after.absent).isEqualTo(before.absent);
   }
 
   @Test
   @Parameters({
-    "true, PREVIOUS_BLOCK",
-    "false, REVIEW_PAGE",
-    "true, NEXT_BLOCK",
-    "false, NEXT_BLOCK",
+    "TI, true, PREVIOUS_BLOCK",
+    "TI, false, REVIEW_PAGE",
+    "TI, true, NEXT_BLOCK",
+    "TI, false, NEXT_BLOCK",
+    "CIVIFORM, true, PREVIOUS_BLOCK",
+    "CIVIFORM, false, REVIEW_PAGE",
+    "CIVIFORM, true, NEXT_BLOCK",
+    "CIVIFORM, false, NEXT_BLOCK"
   })
-  public void testConfirmAddressRoute_forApplicantWithoutIdInProfile(
-      String inReview, String applicantRequestedAction) {
-    Counts before = getApplicantIdInProfileCounts();
+  public void testConfirmAddressRoute_forAdminTypes(
+      ADMIN_TYPE adminType, String inReview, String applicantRequestedAction) {
+    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
 
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
-    profileData.addRole(Role.ROLE_APPLICANT.toString());
-    profileData.removeAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
-    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+    profileData.addRole(getRoleForAdmin(adminType));
+    CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedConfirmAddressUrl =
         String.format(
@@ -583,7 +358,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
     assertThat(
             new ApplicantRoutes()
                 .confirmAddress(
-                    applicantProfile,
+                    adminProfile,
                     APPLICANT_ID,
                     PROGRAM_ID,
                     BLOCK_ID,
@@ -591,55 +366,13 @@ public class ApplicantRoutesTest extends ResetPostgres {
                     ApplicantRequestedAction.valueOf(applicantRequestedAction))
                 .url())
         .isEqualTo(expectedConfirmAddressUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present);
-    assertThat(after.absent).isEqualTo(before.absent + 1);
-  }
-
-  @Test
-  @Parameters({
-    "true, PREVIOUS_BLOCK",
-    "false, REVIEW_PAGE",
-    "true, NEXT_BLOCK",
-    "false, NEXT_BLOCK",
-  })
-  public void testConfirmAddressRoute_forTrustedIntermediary(
-      String inReview, String applicantRequestedAction) {
-    Counts before = getApplicantIdInProfileCounts();
-
-    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID);
-    profileData.addRole(Role.ROLE_TI.toString());
-    CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
-
-    String expectedConfirmAddressUrl =
-        String.format(
-            "/applicants/%d/programs/%d/blocks/%s/confirmAddress/%s/%s",
-            APPLICANT_ID, PROGRAM_ID, BLOCK_ID, inReview, applicantRequestedAction);
-    assertThat(
-            new ApplicantRoutes()
-                .confirmAddress(
-                    tiProfile,
-                    APPLICANT_ID,
-                    PROGRAM_ID,
-                    BLOCK_ID,
-                    Boolean.valueOf(inReview),
-                    ApplicantRequestedAction.valueOf(applicantRequestedAction))
-                .url())
-        .isEqualTo(expectedConfirmAddressUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present);
-    assertThat(after.absent).isEqualTo(before.absent + 1);
   }
 
   @Test
   @Parameters({"true", "false"})
   public void testPreviousOrReviewRoute_forApplicantWithIdInProfile_newSchemaEnabled(
       String inReview) {
-    Counts before = getApplicantIdInProfileCounts();
-
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.addAttribute(
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
@@ -647,7 +380,8 @@ public class ApplicantRoutesTest extends ResetPostgres {
 
     String expectedPreviousUrl =
         String.format(
-            "/programs/%d/blocks/%d/previous/%s", PROGRAM_ID, CURRENT_BLOCK_INDEX - 1, inReview);
+            "/programs/%d/blocks/%d/previous/%s?isFromUrlCall=false",
+            PROGRAM_ID, CURRENT_BLOCK_INDEX - 1, inReview);
     assertThat(
             new ApplicantRoutes()
                 .blockPreviousOrReview(
@@ -658,81 +392,43 @@ public class ApplicantRoutesTest extends ResetPostgres {
                     Boolean.valueOf(inReview))
                 .url())
         .isEqualTo(expectedPreviousUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present + 1);
-    assertThat(after.absent).isEqualTo(before.absent);
   }
 
   @Test
-  @Parameters({"true", "false"})
-  public void testPreviousOrReviewRoute_forApplicantWithoutIdInProfile(String inReview) {
-    Counts before = getApplicantIdInProfileCounts();
+  @Parameters({"TI, true", "TI, false", "CIVIFORM, true", "CIVIFORM, false"})
+  public void testPreviousOrReviewRoute_forAdminTypes(ADMIN_TYPE adminType, String inReview) {
+    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
 
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
-    profileData.addRole(Role.ROLE_APPLICANT.toString());
-    profileData.removeAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
-    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+    profileData.addRole(getRoleForAdmin(adminType));
+    CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedPreviousUrl =
         String.format(
-            "/applicants/%d/programs/%d/blocks/%d/previous/%s",
+            "/applicants/%d/programs/%d/blocks/%d/previous/%s?isFromUrlCall=false",
             APPLICANT_ID, PROGRAM_ID, CURRENT_BLOCK_INDEX - 1, inReview);
     assertThat(
             new ApplicantRoutes()
                 .blockPreviousOrReview(
-                    applicantProfile,
+                    adminProfile,
                     APPLICANT_ID,
                     PROGRAM_ID,
                     CURRENT_BLOCK_INDEX,
                     Boolean.valueOf(inReview))
                 .url())
         .isEqualTo(expectedPreviousUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present);
-    assertThat(after.absent).isEqualTo(before.absent + 1);
-  }
-
-  @Test
-  @Parameters({"true", "false"})
-  public void testPreviousOrReviewRoute_forTrustedIntermediary(String inReview) {
-    Counts before = getApplicantIdInProfileCounts();
-
-    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID);
-    profileData.addRole(Role.ROLE_TI.toString());
-    CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
-
-    String expectedPreviousUrl =
-        String.format(
-            "/applicants/%d/programs/%d/blocks/%d/previous/%s",
-            APPLICANT_ID, PROGRAM_ID, CURRENT_BLOCK_INDEX - 1, inReview);
-    assertThat(
-            new ApplicantRoutes()
-                .blockPreviousOrReview(
-                    tiProfile,
-                    APPLICANT_ID,
-                    PROGRAM_ID,
-                    CURRENT_BLOCK_INDEX,
-                    Boolean.valueOf(inReview))
-                .url())
-        .isEqualTo(expectedPreviousUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present);
-    assertThat(after.absent).isEqualTo(before.absent + 1);
   }
 
   @Test
   public void testPreviousOrReviewRoute_currentBlockIndexOne_returnsPreviousBlock() {
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.addAttribute(
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedPreviousUrl =
-        String.format("/programs/%d/blocks/%d/previous/%s", PROGRAM_ID, 0, false);
+        String.format(
+            "/programs/%d/blocks/%d/previous/%s?isFromUrlCall=false", PROGRAM_ID, 0, false);
     assertThat(
             new ApplicantRoutes()
                 .blockPreviousOrReview(
@@ -747,13 +443,13 @@ public class ApplicantRoutesTest extends ResetPostgres {
 
   @Test
   public void testPreviousOrReviewRoute_currentBlockIndexZero_returnsReviewUrl() {
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.addAttribute(
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
 
-    String expectedReviewUrl = String.format("/programs/%d/review", PROGRAM_ID);
+    String expectedReviewUrl = String.format("/programs/%d/review?isFromUrlCall=false", PROGRAM_ID);
 
     assertThat(
             new ApplicantRoutes()
@@ -769,13 +465,13 @@ public class ApplicantRoutesTest extends ResetPostgres {
 
   @Test
   public void testPreviousOrReviewRoute_currentBlockIndexNegativeOne_returnsReviewUrl() {
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.addAttribute(
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
 
-    String expectedReviewUrl = String.format("/programs/%d/review", PROGRAM_ID);
+    String expectedReviewUrl = String.format("/programs/%d/review?isFromUrlCall=false", PROGRAM_ID);
 
     assertThat(
             new ApplicantRoutes()
@@ -787,212 +483,5 @@ public class ApplicantRoutesTest extends ResetPostgres {
                     /* inReview= */ false)
                 .url())
         .isEqualTo(expectedReviewUrl);
-  }
-
-  @Test
-  @Parameters({
-    "true, PREVIOUS_BLOCK",
-    "false, REVIEW_PAGE",
-    "true, NEXT_BLOCK",
-    "false, NEXT_BLOCK",
-  })
-  public void testUpdateFileRoute_forApplicantWithIdInProfile_newSchemaEnabled(
-      String inReview, String applicantRequestedAction) {
-    Counts before = getApplicantIdInProfileCounts();
-
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
-    profileData.addRole(Role.ROLE_APPLICANT.toString());
-    profileData.addAttribute(
-        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
-    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
-
-    String expectedUpdateFileUrl =
-        String.format(
-            "/programs/%d/blocks/%s/updateFile/%s/%s",
-            PROGRAM_ID, BLOCK_ID, inReview, applicantRequestedAction);
-    assertThat(
-            new ApplicantRoutes()
-                .updateFile(
-                    applicantProfile,
-                    APPLICANT_ID,
-                    PROGRAM_ID,
-                    BLOCK_ID,
-                    Boolean.valueOf(inReview),
-                    ApplicantRequestedAction.valueOf(applicantRequestedAction))
-                .url())
-        .isEqualTo(expectedUpdateFileUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present + 1);
-    assertThat(after.absent).isEqualTo(before.absent);
-  }
-
-  @Test
-  @Parameters({
-    "true, REVIEW_PAGE",
-    "false, REVIEW_PAGE",
-    "true, NEXT_BLOCK",
-    "false, NEXT_BLOCK",
-  })
-  public void testUpdateFileRoute_forApplicantWithoutIdInProfile(
-      String inReview, String applicantRequestedAction) {
-    Counts before = getApplicantIdInProfileCounts();
-
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
-    profileData.addRole(Role.ROLE_APPLICANT.toString());
-    profileData.removeAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
-    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
-
-    String expectedUpdateFileUrl =
-        String.format(
-            "/applicants/%d/programs/%d/blocks/%s/updateFile/%s/%s",
-            APPLICANT_ID, PROGRAM_ID, BLOCK_ID, inReview, applicantRequestedAction);
-    assertThat(
-            new ApplicantRoutes()
-                .updateFile(
-                    applicantProfile,
-                    APPLICANT_ID,
-                    PROGRAM_ID,
-                    BLOCK_ID,
-                    Boolean.valueOf(inReview),
-                    ApplicantRequestedAction.valueOf(applicantRequestedAction))
-                .url())
-        .isEqualTo(expectedUpdateFileUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present);
-    assertThat(after.absent).isEqualTo(before.absent + 1);
-  }
-
-  @Test
-  @Parameters({
-    "true, PREVIOUS_BLOCK",
-    "false, PREVIOUS_BLOCK",
-    "true, REVIEW_PAGE",
-    "false, NEXT_BLOCK",
-  })
-  public void testUpdateFileRoute_forTrustedIntermediary(
-      String inReview, String applicantRequestedAction) {
-    Counts before = getApplicantIdInProfileCounts();
-
-    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID);
-    profileData.addRole(Role.ROLE_TI.toString());
-    CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
-
-    String expectedUpdateFileUrl =
-        String.format(
-            "/applicants/%d/programs/%d/blocks/%s/updateFile/%s/%s",
-            APPLICANT_ID, PROGRAM_ID, BLOCK_ID, inReview, applicantRequestedAction);
-    assertThat(
-            new ApplicantRoutes()
-                .updateFile(
-                    tiProfile,
-                    APPLICANT_ID,
-                    PROGRAM_ID,
-                    BLOCK_ID,
-                    Boolean.valueOf(inReview),
-                    ApplicantRequestedAction.valueOf(applicantRequestedAction))
-                .url())
-        .isEqualTo(expectedUpdateFileUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present);
-    assertThat(after.absent).isEqualTo(before.absent + 1);
-  }
-
-  @Test
-  @Parameters({"true, REVIEW_PAGE", "false, REVIEW_PAGE", "true, NEXT_BLOCK", "false, NEXT_BLOCK"})
-  public void testUpdateBlockRoute_forApplicantWithIdInProfile_newSchemaEnabled(
-      String inReview, String applicantRequestedAction) {
-    Counts before = getApplicantIdInProfileCounts();
-
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
-    profileData.addRole(Role.ROLE_APPLICANT.toString());
-    profileData.addAttribute(
-        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
-    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
-
-    String expectedUpdateBlockUrl =
-        String.format(
-            "/programs/%d/blocks/%s/%s/%s",
-            PROGRAM_ID, BLOCK_ID, inReview, applicantRequestedAction);
-    assertThat(
-            new ApplicantRoutes()
-                .updateBlock(
-                    applicantProfile,
-                    APPLICANT_ID,
-                    PROGRAM_ID,
-                    BLOCK_ID,
-                    Boolean.valueOf(inReview),
-                    ApplicantRequestedAction.valueOf(applicantRequestedAction))
-                .url())
-        .isEqualTo(expectedUpdateBlockUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present + 1);
-    assertThat(after.absent).isEqualTo(before.absent);
-  }
-
-  @Test
-  @Parameters({"true, REVIEW_PAGE", "false, REVIEW_PAGE", "true, NEXT_BLOCK", "false, NEXT_BLOCK"})
-  public void testUpdateBlockRoute_forApplicantWithoutIdInProfile(
-      String inReview, String applicantRequestedAction) {
-    Counts before = getApplicantIdInProfileCounts();
-
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
-    profileData.addRole(Role.ROLE_APPLICANT.toString());
-    profileData.removeAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
-    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
-
-    String expectedUpdateBlockUrl =
-        String.format(
-            "/applicants/%d/programs/%d/blocks/%s/%s/%s",
-            APPLICANT_ID, PROGRAM_ID, BLOCK_ID, inReview, applicantRequestedAction);
-    assertThat(
-            new ApplicantRoutes()
-                .updateBlock(
-                    applicantProfile,
-                    APPLICANT_ID,
-                    PROGRAM_ID,
-                    BLOCK_ID,
-                    Boolean.valueOf(inReview),
-                    ApplicantRequestedAction.valueOf(applicantRequestedAction))
-                .url())
-        .isEqualTo(expectedUpdateBlockUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present);
-    assertThat(after.absent).isEqualTo(before.absent + 1);
-  }
-
-  @Test
-  @Parameters({"true, REVIEW_PAGE", "false, REVIEW_PAGE", "true, NEXT_BLOCK", "false, NEXT_BLOCK"})
-  public void testUpdateBlockRoute_forTrustedIntermediary(
-      String inReview, String applicantRequestedAction) {
-    Counts before = getApplicantIdInProfileCounts();
-
-    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID);
-    profileData.addRole(Role.ROLE_TI.toString());
-    CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
-
-    String expectedUpdateBlockUrl =
-        String.format(
-            "/applicants/%d/programs/%d/blocks/%s/%s/%s",
-            APPLICANT_ID, PROGRAM_ID, BLOCK_ID, inReview, applicantRequestedAction);
-    assertThat(
-            new ApplicantRoutes()
-                .updateBlock(
-                    tiProfile,
-                    APPLICANT_ID,
-                    PROGRAM_ID,
-                    BLOCK_ID,
-                    Boolean.valueOf(inReview),
-                    ApplicantRequestedAction.valueOf(applicantRequestedAction))
-                .url())
-        .isEqualTo(expectedUpdateBlockUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present);
-    assertThat(after.absent).isEqualTo(before.absent + 1);
   }
 }

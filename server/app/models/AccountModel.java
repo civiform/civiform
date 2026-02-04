@@ -3,15 +3,17 @@ package models;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import auth.oidc.IdTokens;
-import autovalue.shaded.com.google.common.base.Strings;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import io.ebean.annotation.DbArray;
 import io.ebean.annotation.DbJsonB;
+import io.ebean.annotation.WhenModified;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -63,6 +65,12 @@ public class AccountModel extends BaseModel {
   @DbJsonB(name = "active_sessions")
   private Map<String, SessionDetails> activeSessions = new HashMap<>();
 
+  @WhenModified private Instant lastActivityTime;
+
+  public Instant getLastActivityTime() {
+    return lastActivityTime;
+  }
+
   private String tiNote;
 
   public AccountModel setTiNote(String tiNote) {
@@ -83,8 +91,18 @@ public class AccountModel extends BaseModel {
     return applicants;
   }
 
-  public Optional<ApplicantModel> newestApplicant() {
-    return applicants.stream().max(Comparator.comparing(ApplicantModel::getWhenCreated));
+  /**
+   * Returns the representative applicant for the Account.
+   *
+   * <p>Accounts can have multiple Applicants because Guest applicants are merged into an existing
+   * Account when they log in. The Oldest Applicant is used to consolidate the users data as it
+   * contains the most longevity.
+   *
+   * <p>More info:
+   * https://github.com/civiform/civiform/wiki/System-Design-Backend-Data-Model#applicant
+   */
+  public Optional<ApplicantModel> representativeApplicant() {
+    return applicants.stream().min(Comparator.comparing(ApplicantModel::getWhenCreated));
   }
 
   public AccountModel setApplicants(List<ApplicantModel> applicants) {
@@ -183,14 +201,18 @@ public class AccountModel extends BaseModel {
   }
 
   /**
-   * Returns the name, as a string, of the most-recently created Applicant associated with this
-   * Account. Or the email if no name is associated with the applicant. There is no particular
-   * reason for an Account to have more than one Applicant - this was a capability we built but did
-   * not use - so the ordering is somewhat arbitrary / unnecessary.
+   * Returns the name, as a string, of the oldest created Applicant associated with this Account. Or
+   * the email if no name is associated with the applicant.
+   *
+   * <p>Accounts can have multiple Applicants because Guest applicants are merged into an existing
+   * Account when they log in. The Oldest Applicant is used to consolidate the users data as it
+   * contains the most longevity.
+   *
+   * <p>More info:
+   * https://github.com/civiform/civiform/wiki/System-Design-Backend-Data-Model#applicant
    */
   public String getApplicantDisplayName() {
-    return this.getApplicants().stream()
-        .max(Comparator.comparing(ApplicantModel::getWhenCreated))
+    return representativeApplicant()
         .map(u -> u.getApplicantDisplayName().orElse("<Unnamed User>"))
         .orElse("<Unnamed User>");
   }
@@ -216,6 +238,16 @@ public class AccountModel extends BaseModel {
   /** Remove the given session. */
   public void removeActiveSession(String sessionId) {
     activeSessions.remove(sessionId);
+  }
+
+  /** Clear all active sessions. */
+  public void clearActiveSessions() {
+    activeSessions.clear();
+  }
+
+  /** Returns all active sessions. */
+  public Map<String, SessionDetails> getActiveSessions() {
+    return activeSessions;
   }
 
   /** Removes any sessions that have exceeded the given max session length. */

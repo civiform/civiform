@@ -1,6 +1,6 @@
 <!--/* TODO(#7080): Refactor Enumerator question to use HTMX instead of relying on TS and DOM templates. */-->
 <div
-  th:fragment="enumerator(question)"
+  th:fragment="enumerator(question,enumMaxEntityCount)"
   th:with="enumeratorQuestion=${question.createEnumeratorQuestion()},
              questionId=${'id-' + #strings.randomAlphanumeric(8)},
              questionErrors=${enumeratorQuestion.getValidationErrors().get(question.getContextualizedPath())},
@@ -9,6 +9,7 @@
   class="cf-question-enumerator cf-applicant-question-field"
   th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
   data-testid="questionRoot"
+  th:aria-labelledby="|${questionId}-title ${questionId}-description|"
 >
   <fieldset
     class="usa-fieldset"
@@ -21,7 +22,7 @@
 
     <!--/* Display question level errors */-->
     <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams})}"
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams}, ${questionId})}"
     ></div>
 
     <div
@@ -58,9 +59,11 @@
         th:text="#{button.addEntity(${enumeratorQuestion.getEntityType()})}"
         id="enumerator-field-add-button"
         th:attr="data-min-entities=${enumeratorQuestion.getMinEntities().isPresent() ? enumeratorQuestion.getMinEntities().getAsInt() : ''},
-                data-max-entities=${enumeratorQuestion.getMaxEntities().isPresent() ? enumeratorQuestion.getMaxEntities().getAsInt() : ''}"
+                data-max-entities=${enumeratorQuestion.getMaxEntities().isPresent() ? enumeratorQuestion.getMaxEntities().getAsInt() : enumMaxEntityCount}"
         type="button"
         class="usa-button usa-button--outline margin-top-105"
+        th:aria-describedby="${hasErrors} ? ' ' + ${questionId} + '-error' : ''"
+        th:aria-invalid="${hasErrors}"
       ></button>
     </div>
   </fieldset>
@@ -69,7 +72,7 @@
 <!--/* Renders a single enumerator field (label, input, and remove button). This is used to render existing entities, and as a template used in TS to render a newly added entity.  */-->
 <div
   th:fragment="enumeratorField(fieldId, inputId, path, existingEntity, visibleIndex, deleteButtonId, hidden)"
-  class="cf-enumerator-field cf-north-star-enumerator-field maxw-mobile-lg"
+  class="cf-enumerator-field maxw-mobile-lg"
   th:classappend="${hidden ? 'hidden' : ''}"
   th:id="${fieldId}"
   th:with="indexString=${visibleIndex == -1 ? '' : ' #' + visibleIndex}"
@@ -83,12 +86,16 @@
     <input
       type="text"
       class="usa-input margin-y-1"
+      th:classappend="${hasErrors ? 'usa-input--error' : ''}"
       maxlength="10000"
       th:id="${inputId}"
       th:value="${existingEntity}"
       th:name="${path}"
       th:disabled="${hidden}"
       th:attr="data-entity-input=${!hidden ? 'true' : null}"
+      th:aria-describedby="${hasErrors} ? ' ' + ${questionId} + '-error' : ''"
+      th:aria-invalid="${hasErrors}"
+      th:aria-required="${!question.isOptional()}"
     />
     <!--/* TODO(#7166): Load the errors for the field properly. For now this is a placeholder div so TS won't error */-->
     <div th:id="${inputId + '-errors'}"></div>

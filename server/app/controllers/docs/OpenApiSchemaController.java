@@ -6,14 +6,15 @@ import static play.mvc.Results.internalServerError;
 import static play.mvc.Results.notFound;
 import static play.mvc.Results.ok;
 
+import auth.Authorizers;
+import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.LifecycleStage;
-import modules.ThymeleafModule;
+import org.pac4j.play.java.Secure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.thymeleaf.TemplateEngine;
 import play.mvc.Http;
 import play.mvc.Result;
 import services.DeploymentType;
@@ -25,40 +26,35 @@ import services.program.ProgramDefinition;
 import services.program.ProgramDraftNotFoundException;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
-import views.CspUtil;
+import views.docs.SchemaView;
 
 /** This handles endpoints related to serving openapi schema data */
 public final class OpenApiSchemaController {
-  private final TemplateEngine templateEngine;
-  private final ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
   private final ProgramService programService;
   private final SettingsManifest settingsManifest;
   private final DeploymentType deploymentType;
+  private final SchemaView schemaView;
   private static final Logger logger = LoggerFactory.getLogger(OpenApiSchemaController.class);
 
   @Inject
   public OpenApiSchemaController(
-      TemplateEngine templateEngine,
-      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       ProgramService programService,
       SettingsManifest settingsManifest,
-      DeploymentType deploymentType) {
-    this.templateEngine = checkNotNull(templateEngine);
-    this.playThymeleafContextFactory = checkNotNull(playThymeleafContextFactory);
+      DeploymentType deploymentType,
+      SchemaView schemaView) {
     this.programService = checkNotNull(programService);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.deploymentType = checkNotNull(deploymentType);
+    this.schemaView = checkNotNull(schemaView);
   }
 
   /** Endpoint to return the generated openapi schema */
+  @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result getSchemaByProgramSlug(
       Http.Request request,
       String programSlug,
       Optional<String> stage,
       Optional<String> openApiVersion) {
-    if (!settingsManifest.getApiGeneratedDocsEnabled(request)) {
-      return notFound("API Docs are not enabled.");
-    }
 
     LifecycleStage lifecycleStage =
         stage
@@ -66,7 +62,9 @@ public final class OpenApiSchemaController {
             .orElse(LifecycleStage.ACTIVE);
 
     Optional<ProgramDefinition> optionalProgramDefinition =
-        getProgramDefinition(programSlug, lifecycleStage);
+        programService.getAllNonExternalProgramSlugs().contains(programSlug)
+            ? getProgramDefinition(programSlug, lifecycleStage)
+            : Optional.empty();
 
     if (optionalProgramDefinition.isEmpty()) {
       return notFound("No program found");
@@ -126,35 +124,57 @@ public final class OpenApiSchemaController {
   /** Get either the IT email address or the support email address */
   private String getEmailAddress(Http.Request request) {
     Optional<String> contactEmailAddress =
-        settingsManifest.getItEmailAddress(request).isPresent()
-                && !settingsManifest.getItEmailAddress(request).get().isBlank()
-            ? settingsManifest.getItEmailAddress(request)
+        settingsManifest.getItEmailAddress().isPresent()
+                && !settingsManifest.getItEmailAddress().get().isBlank()
+            ? settingsManifest.getItEmailAddress()
             : settingsManifest.getSupportEmailAddress(request);
     return contactEmailAddress.orElse("");
   }
 
   /** Render the swagger ui to view the select swagger/openapi */
+  @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result getSchemaUI(
       Http.Request request,
       String programSlug,
       Optional<String> stage,
       Optional<String> openApiVersion) {
-    if (!settingsManifest.getApiGeneratedDocsEnabled(request)) {
-      return notFound("API Docs are not enabled.");
+
+    ImmutableSet<String> allNonExternalProgramSlugs =
+        programService.getAllNonExternalProgramSlugs();
+
+    if (programSlug.isEmpty() || !allNonExternalProgramSlugs.contains(programSlug)) {
+      programSlug = allNonExternalProgramSlugs.stream().findFirst().orElse("");
+    }
+
+    // This will only happen if there are no programs at all in the system
+    if (programSlug.isEmpty()) {
+      return ok("Please add a program.");
     }
 
     try {
       String url =
-          routes.OpenApiSchemaController.getSchemaByProgramSlug(programSlug, stage, openApiVersion)
+          routes.OpenApiSchemaController.getSchemaByProgramSlug(
+                  programSlug,
+                  Optional.of(stage.orElse(LifecycleStage.ACTIVE.getValue())),
+                  Optional.of(openApiVersion.orElse(OpenApiVersion.OPENAPI_V3_0.toString())))
               .url();
-      ThymeleafModule.PlayThymeleafContext context = playThymeleafContextFactory.create(request);
 
-      context.setVariable("apiUrl", url);
-      context.setVariable("cspNonce", CspUtil.getNonce(request));
+      SchemaView.Form form = new SchemaView.Form(programSlug, stage, openApiVersion);
 
-      return ok(templateEngine.process("docs/SchemaViewTemplate", context)).as("text/html");
+      return ok(schemaView.render(request, form, url, allNonExternalProgramSlugs));
     } catch (RuntimeException ex) {
       return internalServerError();
     }
+  }
+
+  /** Redirect to the swagger ui to view the select swagger/openapi */
+  @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
+  public Result getSchemaUIRedirect(
+      Http.Request request,
+      Optional<String> programSlug,
+      Optional<String> stage,
+      Optional<String> openApiVersion) {
+
+    return getSchemaUI(request, programSlug.orElse(""), stage, openApiVersion);
   }
 }

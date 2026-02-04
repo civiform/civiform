@@ -14,6 +14,7 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.ApplicantModel;
 import models.DisplayMode;
+import org.apache.commons.lang3.StringUtils;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
@@ -24,9 +25,10 @@ import services.applicant.ApplicantService;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.ApplicantService.ApplicationPrograms;
 import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import services.settings.SettingsManifest;
-import views.applicant.NorthStarProgramOverviewView;
+import services.program.ProgramType;
+import views.applicant.programoverview.ProgramOverviewView;
 
 /** Class for showing program view based on program slug. */
 public final class ProgramSlugHandler {
@@ -37,8 +39,7 @@ public final class ProgramSlugHandler {
   private final ProgramService programService;
   private final LanguageUtils languageUtils;
   private final ApplicantRoutes applicantRoutes;
-  private final SettingsManifest settingsManifest;
-  private final NorthStarProgramOverviewView northStarProgramOverviewView;
+  private final ProgramOverviewView programOverviewView;
   private final MessagesApi messagesApi;
 
   @Inject
@@ -49,8 +50,7 @@ public final class ProgramSlugHandler {
       ProgramService programService,
       LanguageUtils languageUtils,
       ApplicantRoutes applicantRoutes,
-      SettingsManifest settingsManifest,
-      NorthStarProgramOverviewView northStarProgramOverviewView,
+      ProgramOverviewView programOverviewView,
       MessagesApi messagesApi) {
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.applicantService = checkNotNull(applicantService);
@@ -58,8 +58,7 @@ public final class ProgramSlugHandler {
     this.programService = checkNotNull(programService);
     this.languageUtils = checkNotNull(languageUtils);
     this.applicantRoutes = checkNotNull(applicantRoutes);
-    this.settingsManifest = checkNotNull(settingsManifest);
-    this.northStarProgramOverviewView = checkNotNull(northStarProgramOverviewView);
+    this.programOverviewView = checkNotNull(programOverviewView);
     this.messagesApi = checkNotNull(messagesApi);
   }
 
@@ -87,44 +86,132 @@ public final class ProgramSlugHandler {
                             request.session().adding(REDIRECT_TO_SESSION_KEY, request.uri())));
               }
 
-              return getProgramVersionForApplicant(applicantId, programSlug, request)
-                  .thenComposeAsync(
-                      (Optional<ProgramDefinition> programForExistingApplication) -> {
-                        // Check to see if the applicant already has an application
-                        // for this program, redirect to program version associated
-                        // with that application if so.
-                        if (programForExistingApplication.isPresent()) {
-                          long programId = programForExistingApplication.get().id();
-                          return CompletableFuture.completedFuture(
-                              redirectToReviewPage(
-                                  controller,
-                                  programId,
-                                  applicantId,
-                                  programSlug,
-                                  request,
-                                  profile));
-                        } else {
-                          return programService
-                              .getActiveFullProgramDefinitionAsync(programSlug)
-                              .thenApply(
-                                  activeProgramDefinition ->
-                                      redirectToOverviewOrReviewPage(
-                                          controller,
-                                          request,
-                                          programSlug,
-                                          profile,
-                                          applicantId,
-                                          activeProgramDefinition))
-                              .exceptionally(
-                                  ex ->
-                                      controller
-                                          .notFound(ex.getMessage())
-                                          .removingFromSession(request, REDIRECT_TO_SESSION_KEY));
-                        }
-                      },
-                      classLoaderExecutionContext.current());
+              return showProgramWithApplicantId(
+                  controller, request, programSlug, applicantId, profile);
             },
             classLoaderExecutionContext.current());
+  }
+
+  public CompletionStage<Result> showProgramPreview(
+      CiviFormController controller, Http.Request request, String programSlug) {
+    CiviFormProfile profile = profileUtils.currentUserProfile(request);
+
+    return profile
+        .getApplicant()
+        .thenComposeAsync(
+            (ApplicantModel applicant) -> {
+              CompletionStage<ProgramDefinition> programDefinitionStage =
+                  programService.getActiveOrDraftFullProgramDefinitionAsync(programSlug);
+              return programDefinitionStage
+                  .thenApply(
+                      activeOrDraftProgramDefinition ->
+                          redirectToOverviewOrReviewPage(
+                              controller,
+                              request,
+                              programSlug,
+                              profile,
+                              applicant.id,
+                              activeOrDraftProgramDefinition,
+                              null))
+                  .exceptionally(
+                      ex ->
+                          Results.notFound(ex.getMessage())
+                              .removingFromSession(request, REDIRECT_TO_SESSION_KEY));
+            },
+            classLoaderExecutionContext.current());
+  }
+
+  public CompletionStage<Result> showProgramWithApplicantId(
+      CiviFormController controller,
+      Http.Request request,
+      String programSlug,
+      Long applicantId,
+      CiviFormProfile profile) {
+    return applicantService
+        .relevantProgramsForApplicant(applicantId, profile, request)
+        .thenComposeAsync(
+            (ApplicationPrograms relevantPrograms) -> {
+              // Check to see if the applicant already has an application
+              // for this program, redirect to program version associated
+              // with that application if so.
+              Optional<ProgramDefinition> programForExistingApplication =
+                  relevantPrograms.inProgress().stream()
+                      .map(ApplicantProgramData::program)
+                      .filter(program -> program.slug().equals(programSlug))
+                      .findFirst();
+
+              CompletionStage<ProgramDefinition> programDefinitionStage;
+
+              if (programForExistingApplication.isPresent()) {
+                long programId = programForExistingApplication.get().id();
+                programDefinitionStage = programService.getFullProgramDefinitionAsync(programId);
+              } else {
+                programDefinitionStage =
+                    programService.getActiveFullProgramDefinitionAsync(programSlug);
+              }
+              return programDefinitionStage
+                  .thenApply(
+                      activeProgramDefinition ->
+                          redirectToOverviewOrReviewPage(
+                              controller,
+                              request,
+                              programSlug,
+                              profile,
+                              applicantId,
+                              activeProgramDefinition,
+                              relevantPrograms))
+                  .exceptionally(
+                      ex ->
+                          controller
+                              .notFound(ex.getMessage())
+                              .removingFromSession(request, REDIRECT_TO_SESSION_KEY));
+            },
+            classLoaderExecutionContext.current());
+  }
+
+  /**
+   * Resolves a program parameter to a program ID, handling both program slugs and numeric IDs.
+   *
+   * @param programParam The program parameter (either slug or numeric ID)
+   * @param applicantId The applicant ID for slug resolution
+   * @param isFromUrlCall Whether this call originated from a URL
+   * @param programSlugUrlEnabled Whether program slug URLs feature is enabled
+   * @return CompletionStage containing the resolved program ID
+   */
+  public CompletionStage<Long> resolveProgramParam(
+      String programParam, Long applicantId, Boolean isFromUrlCall, Boolean programSlugUrlEnabled) {
+    if (programSlugUrlEnabled && isFromUrlCall) {
+      if (StringUtils.isNumeric(programParam)) {
+        // This should have been previously handled by the caller, since we don't support program
+        // ids (numeric) when feature is enabled and call comes directly from the URL
+        throw new IllegalStateException(
+            "Numeric program parameter should have been handled by the caller");
+      }
+      return getLatestProgramId(programParam, applicantId);
+    }
+
+    try {
+      Long programId = Long.parseLong(programParam);
+      return CompletableFuture.completedFuture(programId);
+    } catch (NumberFormatException e) {
+      throw new RuntimeException(
+          String.format("Could not parse value from '%s' to a numeric value", programParam));
+    }
+  }
+
+  /**
+   * Returns the program ID from the applicant's latest application if one exists, otherwise returns
+   * the currently active program version ID.
+   */
+  public CompletionStage<Long> getLatestProgramId(String programSlug, long applicantId) {
+    return applicantService
+        .getLatestProgramId(programSlug, applicantId)
+        .thenCompose(
+            programId -> {
+              return programId.isPresent()
+                  ? CompletableFuture.completedFuture(programId.get())
+                  : programService.getActiveProgramId(programSlug);
+            });
   }
 
   private Result redirectToOverviewOrReviewPage(
@@ -133,22 +220,57 @@ public final class ProgramSlugHandler {
       String programSlug,
       CiviFormProfile profile,
       long applicantId,
-      ProgramDefinition activeProgramDefinition) {
-    return settingsManifest.getNorthStarApplicantUi(request)
-            && activeProgramDefinition.displayMode()
-                != DisplayMode.DISABLED // If the program is disabled,
-        // redirect to review page because that will trigger the ProgramDisabledAction.
-        ? Results.ok(
-                northStarProgramOverviewView.render(
-                    messagesApi.preferred(request),
-                    request,
-                    applicantId,
-                    ApplicantPersonalInfo.ofGuestUser(),
-                    profile,
-                    activeProgramDefinition))
-            .as("text/html")
-        : redirectToReviewPage(
-            controller, activeProgramDefinition.id(), applicantId, programSlug, request, profile);
+      ProgramDefinition activeProgramDefinition,
+      ApplicationPrograms relevantPrograms) {
+    // External programs don't have an overview or review page
+    if (activeProgramDefinition.programType().equals(ProgramType.EXTERNAL)) {
+      return Results.badRequest(new ProgramNotFoundException(programSlug).getMessage());
+    }
+
+    // For pre-screener forms, redirect to the first block edit page
+    if (activeProgramDefinition.programType().equals(ProgramType.PRE_SCREENER_FORM)) {
+      return Results.redirect(
+              applicantRoutes.edit(profile, applicantId, activeProgramDefinition.id()))
+          .flashing(FlashKey.REDIRECTED_FROM_PROGRAM_SLUG, programSlug)
+          // If we had a redirectTo session key that redirected us here, remove it so that it
+          // doesn't get used again.
+          .removingFromSession(request, REDIRECT_TO_SESSION_KEY);
+    }
+
+    CompletableFuture<ApplicantPersonalInfo> applicantPersonalInfo =
+        applicantService.getPersonalInfo(applicantId).toCompletableFuture();
+
+    Optional<ApplicantProgramData> optionalProgramData = Optional.empty();
+
+    if (relevantPrograms != null) {
+      // If the program doesn't have any applications yet, find the program data
+      // for the program that we're trying to show so that we can check isProgramMaybeEligible.
+      optionalProgramData =
+          relevantPrograms.unapplied().stream()
+              .filter(
+                  (ApplicantProgramData applicantProgramData) ->
+                      applicantProgramData.programId() == activeProgramDefinition.id())
+              .findFirst();
+    }
+
+    // If the program is disabled, redirect to review page which will trigger the
+    // ProgramDisabledAction. Otherwise, always show the program overview.
+    if (activeProgramDefinition.displayMode() == DisplayMode.DISABLED) {
+      return redirectToReviewPage(
+          controller, activeProgramDefinition.id(), applicantId, programSlug, request, profile);
+    }
+
+    return Results.ok(
+            programOverviewView.render(
+                messagesApi.preferred(request),
+                request,
+                applicantId,
+                applicantPersonalInfo.join(),
+                profile,
+                activeProgramDefinition,
+                optionalProgramData))
+        .as("text/html")
+        .removingFromSession(request, REDIRECT_TO_SESSION_KEY);
   }
 
   private Result redirectToReviewPage(
@@ -164,21 +286,5 @@ public final class ProgramSlugHandler {
         // If we had a redirectTo session key that redirected us here, remove it so that it doesn't
         // get used again.
         .removingFromSession(request, REDIRECT_TO_SESSION_KEY);
-  }
-
-  private CompletionStage<Optional<ProgramDefinition>> getProgramVersionForApplicant(
-      long applicantId, String programSlug, Http.Request request) {
-    // Find all applicant's DRAFT applications for programs of the same slug
-    // redirect to the newest program version with a DRAFT application.
-    CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request);
-    return applicantService
-        .relevantProgramsForApplicant(applicantId, requesterProfile, request)
-        .thenApplyAsync(
-            (ApplicationPrograms relevantPrograms) ->
-                relevantPrograms.inProgress().stream()
-                    .map(ApplicantProgramData::program)
-                    .filter(program -> program.slug().equals(programSlug))
-                    .findFirst(),
-            classLoaderExecutionContext.current());
   }
 }

@@ -4,6 +4,7 @@ import com.google.auto.value.AutoValue;
 import java.util.Optional;
 import play.i18n.Messages;
 import services.cloud.StorageUploadRequest;
+import services.geojson.FeatureCollection;
 
 /** Contains necessary parameters for an applicant question renderer to render a question. */
 @AutoValue
@@ -61,19 +62,20 @@ public abstract class ApplicantQuestionRendererParams {
   public static Builder builder() {
     return new AutoValue_ApplicantQuestionRendererParams.Builder()
         .setAutofocus(AutoFocusTarget.NONE)
-        .setErrorDisplayMode(ErrorDisplayMode.DISPLAY_ERRORS)
-        .setMultipleFileUploadEnabled(false);
+        .setErrorDisplayMode(ErrorDisplayMode.DISPLAY_ERRORS);
   }
 
   public abstract Messages messages();
+
+  public abstract Optional<FeatureCollection> geoJson();
 
   public abstract Optional<StorageUploadRequest> signedFileUploadRequest();
 
   public abstract Optional<Boolean> isNameSuffixEnabled();
 
-  public abstract ErrorDisplayMode errorDisplayMode();
+  public abstract Optional<Boolean> isYesNoQuestionEnabled();
 
-  public abstract boolean multipleFileUploadEnabled();
+  public abstract ErrorDisplayMode errorDisplayMode();
 
   public boolean shouldShowErrors() {
     return ErrorDisplayMode.shouldShowErrors(errorDisplayMode());
@@ -116,11 +118,13 @@ public abstract class ApplicantQuestionRendererParams {
 
     public abstract Builder setIsNameSuffixEnabled(boolean isNameSuffixEnabled);
 
+    public abstract Builder setIsYesNoQuestionEnabled(boolean isYesNoQuestionEnabled);
+
     public abstract Builder setErrorDisplayMode(ErrorDisplayMode errorDisplayMode);
 
     public abstract Builder setAutofocus(AutoFocusTarget autofocus);
 
-    public abstract Builder setMultipleFileUploadEnabled(boolean multipleFileUploadEnabled);
+    public abstract Builder setGeoJson(FeatureCollection geoJson);
 
     public abstract ApplicantQuestionRendererParams build();
   }

@@ -1,5 +1,8 @@
 package services.program.predicate;
 
+import static j2html.TagCreator.join;
+import static j2html.TagCreator.strong;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -7,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import j2html.tags.UnescapedText;
 import java.util.Optional;
 import services.applicant.question.Scalar;
 import services.question.types.QuestionDefinition;
@@ -83,6 +87,27 @@ public abstract class LeafOperationExpressionNode implements LeafExpressionNode 
     return question.isEmpty()
         ? phrase
         : String.format("\"%s\" %s", question.get().getName(), phrase);
+  }
+
+  /**
+   * Displays a formatted, human-readable representation of this expression in HTML, in the format
+   * "<strong>[question name]'s</strong> [scalar] [operator] <strong>[value]</strong>". For example:
+   * "<strong>home address's</strong> city is one of <strong>["Seattle", "Tacoma"]</strong>".
+   */
+  @Override
+  public UnescapedText toDisplayFormattedHtml(ImmutableList<QuestionDefinition> questions) {
+    Optional<QuestionDefinition> question =
+        questions.stream().filter(q -> q.getId() == questionId()).findFirst();
+    UnescapedText displayValue =
+        question
+            .map(q -> comparedValue().toDisplayFormattedHtml(q))
+            .orElseGet(() -> join(strong(comparedValue().value())));
+    UnescapedText phrase =
+        join(scalar().toDisplayString(), operator().toDisplayString(), displayValue);
+
+    return question.isEmpty()
+        ? phrase
+        : join(strong(String.format("\"%s\"", question.get().getName())), phrase);
   }
 
   public static Builder builder() {

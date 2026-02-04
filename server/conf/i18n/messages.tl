@@ -10,12 +10,6 @@
 
 # The text on the button an applicant clicks to log out of their session.
 button.logout=Mag-logout
-#  This appears before applicants select their preferred language.
-label.selectLanguage=Pakipili ang iyong gustong wika.
-button.untranslatedSubmit=Isumite
-# Text on a link that gives more information about CiviForm. "CiviForm" is the app name and should
-# not be translated.
-footer.aboutCiviform=Tungkol sa CiviForm
 # Message displayed before the support email address in the page footer for applicants.
 footer.supportLinkDescription=Para sa suporta na pang teknikal, tawagan
 # Text in the footer telling users that this is an official website of the specified Civic entity.
@@ -25,6 +19,8 @@ footer.returnToTop=Bumalik sa itaas
 # A message in the footer directing users to technical support. The placeholder is a link to
 # send an email to CiviForm technical support.
 footer.technicalSupport=Para sa technical support: {0}
+# A message in the footer directing users to technical support. The placeholder is an email.
+footer.technicalSupport.v2=Para sa technical support: Mag-email sa {0}
 # Placeholder message when an applicant clicked the "Continue as Guest".
 # This should be consistent with button.guestLogin.
 guest=Bisita
@@ -36,6 +32,10 @@ label.languageSr=Pumili ng wika
 header.menu=Menu
 # Message for guest users to end their session. Technically this logs out the user from the guest profile, but we use different phrasing in order to not imply that they are currently logged in from a product perspective.
 header.endSession=Tapusin ang session
+# Message for screen readers as part of aria label to let user know about an informational alert.
+heading.informationAriaLabelPrefix=Para sa iyong impormasyon: {0}
+# Message for screen readers as part of the aria label to let user know they completed an action successfully.
+heading.successAriaLabelPrefix=Tagumpay: {0}
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
 toast.sessionEnded=Natapos na ang iyong session.
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
@@ -46,21 +46,17 @@ header.userName=Nakalog-in bilang {0}
 validation.isRequired=Ang tanong na ito ay kinakailangan.
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=Maaari lamang ay maglagay ng halaga para sa bawat linya.
-# Error message announced to screen reader when there are errors on the current page.
-validation.errorAnnouncementSr=May mga error sa form. Ayusin ang mga iyon bago magpatuloy.
-# Message displayed at the top of a question page denoting fields with a * are required.
-content.requiredFieldsAnnotation=Tandaan: Kinakailangan ang mga field na may *.
 content.requiredFieldsNote=Tandaan: Nire-require ang mga field na may markang {0}.
 # Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
 content.requiredFieldsNoteNorthStar=Minamarkahan ng asterisk ({0}) ang mga nire-require na field.
 content.optional=(opsyonal)
-# Message displayed below "Choose File" button to say that on the phone users can use their camera.
-content.mobileFileUploadHelp=Ginagamit ang iyong telepono? Binibigyang-daan ka rin ng "Pumili ng File" na gamitin ang camera ng iyong telepono para mag-upload ng mga dokumento.
 toast.errorMessageOutline=Error: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=Isara
 # Button text that will navigate the applicant to a page where they can review previous answers
 button.review=Pagsusuri
+# Button text that will go back to the previous page.
+button.goBack=Bumalik
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=magbubukas sa bagong tab
 # Aria-label for the primary navigation
@@ -69,31 +65,27 @@ label.primaryNavigation=Pangunahing navigation
 label.agencyIdentifier=Identifier ng ahensya,
 # Aria-label for guest session alert
 label.guestSessionAlert=Alerto ng impormasyon ng session ng bisita
+# Link to skip to the main content of the page
+link.skipToMainContent=Lumaktaw sa pangunahing content
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
-# This is a title for the login page
-title.login=Mag log in
-# Prompt for applicant to log in, input is the full civic entity name.
-content.loginPrompt=Maari lamang maglog-in gamit ang inyong account sa Lungsod ng {0}
 # The text on the button an applicant clicks to create an account.
 button.createAnAccount=Gumawa ng account
+# The text on the button in the login drop down an applicant clicks to log in to their session.
+button.applicantLogin=Log in ng aplikante
+# The text on the button in the login drop down an admin clicks to log in to their session.
+button.adminLogin=Log in ng Administrator
 # The text on the button an applicant clicks to log in to their session.
 button.login=Maglog-in
-# Prompt for applicant to create a new account or become a guest
-content.alternativeLoginPrompt=Walang account?
+# The text on the button an applicant clicks to sign in to their session.
+button.signIn=Mag-sign in
 # The text between creating a new account, and becoming a guest
 content.or=o
 # The text on the button for applicants to create a new account.
 button.createAccount=Gumawa ng account
-# The text on the button for guests to log in to their session.
-button.guestLogin=Magpatuloy bilang panauhin
-# Prompt for whem applicant account login is disabled. Replaces loginPrompt and alternativeLoginPrompt.
-content.loginDisabledPrompt=Kasalukuyang naka-disable ang pag-log in sa account
-# The words leading up to the admin login anchor
-content.adminLoginPrompt=Naghahanap ng iba?
 # Asking whether the user is an administrator for the program
 content.adminFooterPrompt=Isa ka bang administrator?
 # The text on the anchor for admins to log in to their session.
@@ -103,8 +95,6 @@ link.adminLogin=Admin login
 # PROGRAM FORM - contains text shown when filling out an application form. #
 #--------------------------------------------------------------------------#
 
-# The text displayed when a file has already been uploaded and the name is being displayed.
-input.fileAlreadyUploaded=Na-upload na ang file: {0}
 # Hint placed above file input for questions which accept a single file.
 input.singleFileUploadHint=Pumili ng file
 # Hint placed above file input for questions which accept multiple, but not unlimited, files. {0} contains a number,
@@ -112,10 +102,6 @@ input.singleFileUploadHint=Pumili ng file
 input.multipleFileUploadHint=Pumili ng isa o higit pang file (maximum na {0})
 # Hint placed above file inputs which accept any number of files.
 input.unlimitedFileUploadHint=Pumili ng isa o higit pang file
-# The text on the button an applicant clicks to delete an uploaded file.
-button.deleteFile=Burahin
-# The text on the button an applicant clicks to skip uploading a new file while there is already an uploaded file.
-button.keepFile=Ipagpatuloy
 # The button text for saving the current applicant-entered data and continuing to the next screen in the form.
 button.nextScreen=Susunod
 # The button text for navigating to the previous screen in the form.
@@ -123,43 +109,37 @@ button.previousScreen=Nakaraang
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=Bumalik
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.reviewAndExit=Suriin at umalis
-# The text on the button an applicant clicks to skip uploading a file.
-button.skipFileUpload=Laktawan
+button.reviewAndExit=Suriin at isumite
 # The current screen the user is on ({0}) out of the number of total screens in the application.
 content.blockProgress={0} sa {1}
-# A message on a section indicating how many questions of the total have been answered by the applicant.
-content.blockProgressFull={0} sa {1} ang natapos
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=Pag-usad ng aplikasyon
 # Heading on the application review page. The page shows all the answers the user inputted.
 heading.reviewAndSubmit=Suriin at isumite
-# Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
-label.blockIndexLabel={0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
 toast.localeNotSupported=Pasensya na, hindi ganap na nakasalin ang program na ito sa iyong mas gustong wika.
-# A link that logs out a guest user after they submit an application.
-link.allDone=Ako ay tapos na
 # A link that appears next to the create account button that offers applicants the option to not create an account right now.
 link.applyToAnotherProgram=Mag-aplay sa ibang programa
-# A link that offers applicants the option to create an account.
-link.createAccountOrSignIn=Gumawa ng account o magsign-in
+# Displayed in breadcrumbs to link back to the main entry point of the applicant's portal. In effect a shortening of "Homepage".
+link.home=Home
+# Displayed in breadcrumbs to indicate this is an application of the supplied program name.
+link.applicationForProgram=Application para sa {0}
 # Anchor which when clicked removes a file the user has previously uploaded.
 link.removeFile=Alisin ang file
-# The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
-modal.errorSaving.review.title=Hindi kumpleto ang mga tanong sa page na ito. Gusto mo pa rin bang umalis at simulan ang pagsusuri?
-# The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
-modal.errorSaving.previous.title=Hindi kumpleto ang mga tanong sa page na ito. Gusto mo pa rin bang umalis at pumunta sa nakaraang page?
-# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the application review page.
-modal.errorSaving.review.content=May ilang error sa impormasyong inilagay mo. Gusto mo bang manatili at ayusin ang iyong mga sagot, o pumunta sa page ng pagsusuri nang hindi sine-save ang mga sagot mo?
-# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the previous page of the application.
-modal.errorSaving.previous.content=May ilang error sa impormasyong inilagay mo. Gusto mo bang manatili at ayusin ang mga sagot mo, o pumunta sa nakaraang page ng tanong nang hindi sine-save ang iyong mga sagot?
-# Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the application review page.
-modal.errorSaving.review.noSaveButton=Magpatuloy sa page ng pagsusuri nang hindi nagse-save
-# Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the previous page in the application.
-modal.errorSaving.previous.noSaveButton=Magpatuloy sa nakaraang mga tanong nang hindi nagse-save
-# Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
-modal.errorSaving.stayAndFixButton=Manatili at ayusin ang iyong mga sagot
+# Screen reader text for a link which when clicked removes a file the user has previously uploaded. {0} is the file name.
+link.removeFileSr=Alisin ang file na {0}
+# Title of a pop-up informing the user that there were errors in the information they inputted. (new version for North Star)
+modal.errorSaving.title=Kailangang ayusin ang ilang sagot sa page na ito
+# Text of a pop-up informing the user that continuing to the review page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
+modal.errorSaving.content.review=May ilang error o ilang field na naiwang blangko sa page na ito sa iyong aplikasyon. Kung magpapatuloy ka sa page ng pagsusuri, hindi mase-save ang anumang impormasyong inilagay sa page na ito hanggang sa ayusin ang mga error.
+# Text of a pop-up informing the user that continuing to the previous page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
+modal.errorSaving.content.previous=May ilang error o ilang field na naiwang blangko sa page na ito sa iyong aplikasyon. Kung magpapatuloy ka sa nakaraang page, hindi mase-save ang anumang impormasyong inilagay sa page na ito hanggang sa ayusin ang mga error.
+# Text of button that discards all the information the user has inputted and navigates to the application review page. (new version for North Star)
+modal.errorSaving.continueButton.review=Pumunta sa page ng pagsusuri nang hindi nagse-save
+# Text of button that discards all the information the user has inputted and navigates to the application preview page. (new version for North Star)
+modal.errorSaving.continueButton.previous=Pumunta sa nakaraang page nang hindi nagse-save
+# Text of button that shows the previous inputted information and asks to fix the errors with it. (new version for North Star)
+modal.errorSaving.fixButton=Manatili rito at ayusin ang iyong mga sagot
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -167,45 +147,35 @@ modal.errorSaving.stayAndFixButton=Manatili at ayusin ang iyong mga sagot
 
 # The text on the button an applicant clicks to apply to a specific program.
 button.apply=Mag-aplay
-# The text read for screen readers.
-button.applySr=Mag-aplay sa {0}
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=I-edit
-# The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
-button.editSr=I-edit ang isinumiteng aplikasyon sa {0}
-# The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
-button.continueSr=Ipagpatuloy ang aplikasyon sa {0}
-# The text on the button an applicant clicks to start filling out a pre-screener form.
-button.startHere=Magsimula rito
+button.startSurvey=Simulan ang survey
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=Tingnan at mag-apply
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
 button.viewAndApplySr=Tingnan at mag-apply sa {0}
+# The text on a button to view program on a new tab. This is used for external programs.
+button.viewInNewTab=Tingnan sa bagong tab
+# The screen reader text on a button to view program on a new tab. The variable represents the program name. This is used for external programs.
+button.viewInNewTabSr=Tingnan ang {0} sa bagong tab
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Magpatuloy sa application
-# The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
-button.startHereCommonIntakeSr=Magsimula rito sa pamamagitan ng pagsasagot sa {0}
-# The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
-button.editCommonIntakeSr=I-edit ang isinumiteng impormasyon para sa {0}
-# The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
-button.continueCommonIntakeSr=Ipagpatuloy ang pagsasagot ng {0}
-# Text describing the date the application was last submitted.
-content.submittedDate=Isinumite noong {0}
 # Text for applicants to understand the section is for finding programs
 content.findPrograms=Maghanap ng mga program
-# Long form description of the CiviForm site shown to the applicant.
-content.findProgramsDescription=Matutulungan ka ng CiviForm na humanap ng mga programa kung saan posibleng kwalipikado ka sa {0}. Magsimula sa pamamagitan ng pagpili ng aplikasyon sa ibaba.
-# Title for programs page when applicant is not logged in
-content.saveTimeServices=Makatipid ng oras sa pag-apply sa mga programa at serbisyo
-# Main home page heading
-heading.homepage=Mag-apply sa mga programa sa iisang lugar
-# Long form description of the site shown to the applicant when they are not logged in.
-# {0} represents the authentication provider's name
-content.guestDescription=Mag-log in sa iyong {0} account o gumawa ng account at mag-apply sa mga programa nang hindi kinakailangang ilagay ulit ang parehong impormasyon. Puwede ka ring mag-edit ng mga aplikasyon anumang oras at tumingin sa mga status ng iyong aplikasyon.
+# Main home page heading, updated to be more generic
+heading.homepage.v2=Mag-apply para sa mga programa ng pamahalaan online
 # Main home page intro text
-content.homepageIntro=Humingi ng tulong sa pag-aalaga ng bata, pagkain, transportasyon, mga utility, at higit pa.
+content.homepageIntro=Para makakuha ng tulong sa pagkain, transportasyon, pangangalaga sa bata, utility, at higit pa, i-click ang isa sa mga opsyon sa ibaba. Puwede kang mag-apply sa isang programa sa bawat pagkakataon.
+# Main home page intro text, updated to be more generic
+content.homepageIntro.v2=Tuklasin ang mga serbisyo kung saan posibleng kwalipikado ka. Ginagamit ulit ng CiviForm ang iyong impormasyon para matulungan kang mas mabilis na makuha ang mga ito.
 # The label for the program filter buttons
 label.programFilters=Mga filter ng programa
+# The label for the program filter checkboxes
+label.programFilters.v2=Sa aling bagay mo gustong makakuha ng tulong?
+# The button to apply program filters
+button.applySelections=I-apply ang mga napili
+# The button to clear program filter selections
+button.clearSelections=I-clear ang mga napili
 # Link text to read more about a program.
 link.programDetails=Mga detalya ng programa
 # The same text, read for screen readers.
@@ -214,16 +184,6 @@ link.programDetailsSr=Mga detalye ng programa para sa {0}, bubukas sa bagong tab
 title.programs=Mga programa at mga serbisyo
 # The title for the section in the list of programs that contains the pre-screener form and should be started first.
 title.getStartedSection=Magsimula
-# The title for the section in the list of programs that contains all regular, non-pre-screener programs.
-title.allProgramsSection=Lahat ng programa ({0})
-# For the badge on the program list index denoting the current status of an application
-title.status=Status
-# Subtitle for the list of programs with draft applications
-title.inProgressProgramsUpdated=Kasalukuyang ginagawa
-# Subtitle for the list of programs for which the applicant has no draft applications
-title.activeProgramsUpdated=Hindi sinimulan
-# Title of the section on the home page with the benefits finder form.
-title.benefitsFinderSection.v2=Maghanap ng mga serbisyo
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=Mga aplikasyon ko ({0})
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
@@ -233,17 +193,9 @@ title.otherProgramsSection.v2=Iba pang programa at serbisyo ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Mga programa at serbisyo ({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=Mga available na programa at serbisyo
+title.availableProgramsSection=Mga programa at serbisyo
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=Mga programa batay sa mga pinili mo ({0})
-# A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
-title.programSectionCompleted=Natapos na ang seksyon
-# Subtitle for the list of programs for which the applicant has already submitted an application
-title.submittedPrograms=Isinumite
-# Alert banner when an application was successfully saved, with the ID of the application.
-toast.applicationSaved=Successfully saved application: Matagumpay na nai-save ang aplikasyon: ID ng aplikasyon {0}
-# Alert banner when an application was already completed
-toast.programCompleted=Nakumpleto na ang aplikasyon.
 # Informational tag on an in-progress application card
 label.inProgress=Hindi pa naisumite
 # Informational tag on a submitted application card. Used when the date of submission is unknown.
@@ -252,19 +204,17 @@ label.submitted=Naisumite
 label.submittedOn=Naisumite noong {0}
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
 label.statusOn={0} noong {1}
+# Title of the external program modal that opens when a user clicks on an external program card.
+title.externalProgramModal=Magbubukas ito ng ibang website
+# Content of the external program modal that opens when a user clicks on an external program card.
+content.externalProgramModal=Para pumunta sa website ng programa kung saan makakakuha ka ng higit pang detalye at makakapag-apply ka, i-click ang Magpatuloy
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
 #------------------------------------------------------------------------------------------------------#
 
-# Message that appears when a user attempts to delete an account and it fails.
-banner.acctDeleteError=Hindi made-delete ang account na ito.
-# Reason included with the account delete error, which explains the account can't be deleted due to applications the client has open
-banner.acctDeleteErrorReason=Hindi made-delete ang account na ito dahil mayroon itong mga nakabukas na application.
 # Message when information about a client, like their name or contact information is updated.
 banner.clientInfoUpdated=Matagumpay na na-update ang impormasyon ng kliyente.
-# Message when a client account for a user is successfully deleted, with the name of the client substituted in
-banner.clientAcctDeleted=Matagumpay na na-delete ang account ng kliyente para sa "{0}."
 # Message when a user successfully creates a client account.
 banner.newClientCreated=Matagumpay na nakagawa ng bagong kliyente.
 # Banner at the top of the page with the name of the client substituted in when viewing an application.
@@ -275,24 +225,16 @@ banner.viewApplication=Nag-a-apply ka para sa {0}. Sinusubukan mo bang mag-apply
 button.addNewClient=Magdagdag ng bagong kliyente
 # Button that brings the user back to the list of their clients.
 button.backToClientList=Bumalik sa listahan ng kliyente
-# Button that allows the user to navigate back to the edit page after they click to delete a client and get an error.
-button.backToEditing=Bumalik sa pag-edit
 # Button that allows the user to cancel the progress they make on adding or editing a client.
 button.cancel=Kanselahin
 # Button that allows the user to clear any search parameters they have already entered.
 button.clearSearch=I-clear ang paghahanap
-# Button for a user to delete their client's account
-button.deleteAcct=I-delete ang account
-# Button option when asked if the user is sure they want to delete an account.
-button.keepAcct=Panatilihin ang account
 # Button to navigate to the next page.
 button.nextPage=Susunod
 # Button to save information that has been entered.
 button.save=I-save
 # Button to execute a search to filter a client list.
 button.search=Maghanap
-# Button to select a client.
-button.select=Piliin
 # Button to start an application on behalf of a client.
 button.startApp=Magsimula ng application
 # Button to view the applications belonging to an applicant.
@@ -308,18 +250,6 @@ content.emailTooltip=Magdagdag ng email address para awtomatikong makatanggap an
 content.numberOfAppSubmitted={0} (na) application ang naisumite
 # Shows that a single application has been submitted on behalf of the client.
 content.oneAppSubmitted=1 aplikasyon ang naisumite
-# Some explanation text on the confirmation modal when deleting a client.
-content.warning=Walang application na naisumite para sa kliyenteng ito, kaya walang mawawalang application.
-# Shows there is no email address connected to the account.
-content.noEmailAddress=(walang email address)
-# The status of an organization member when they have been enrolled but have never logged into CiviForm.
-content.notLoggedIn=Hindi pa naka-log in
-# The status of an organization member when they have logged in but haven't applied on behalf of a client.
-content.noApplications=Naka-log in, walang isinumiteng aplikasyon
-# The status of an organization member showing the date of the last application that they submitted for a client.
-content.lastApplicationDate=Huling nagsumite ng aplikasyon noong {0}
-# Confirmation modal text when the user tries to delete a client account.
-dialog.deleteConfirmation=Sigurado ka bang gusto mong i-delete ang account ng kliyenteng ito?
 
 # Header for the page with the Organization Members table.
 header.acctSettings=Mga setting ng account
@@ -366,10 +296,7 @@ label.searchByDob=Maghanap ayon sa petsa ng kapanganakan
 label.searchByName=Maghanap ayon sa (mga) pangalan
 # The label above the input field for the year of the client birth date.
 label.year=Taon
-# Label showing the user when there is no name
-label.unnamedUser=Walang pangalang user
 
-link.edit=I-edit
 # Link to change the client that the trusted intermediary is applying for.
 link.selectNewClient=Pumili ng bagong kliyente
 
@@ -407,8 +334,6 @@ button.start=Magsimula
 # A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
 toast.applicationOutOfDate=Nagkaroon ng update sa application, pakisuri at sagutan ang mga sagot para magpatuloy
 
-# Help text at the top of the review page instructing applicants with how to start applying for programs.
-content.reviewPageIntro=Pumili ng hakbang sa ibaba para simulan ang iyong aplikasyon. Puwede kang mag-save at bumalik anumang oras.
 # Text shown next to a question indicating that due to it, the application does not qualify or is not eligible.
 content.doesNotQualify=Hindi kwalipikado
 # The text that appears next to an answered question that the applicant can click on to modify the response.
@@ -424,7 +349,7 @@ ariaLabel.answer=Sagot {0}
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=I-edit {0}
 # Title for the summary of the pre-screener page
-title.commonIntakeSummary=Buod ng pre-screener para sa mga benepisyo
+title.preScreenerSummary=Buod ng pre-screener para sa mga benepisyo
 # Heading content at the top of the review page, where applicants can start answering questions.
 title.getStarted=Magsimula na tayo
 title.programSummary=Buod ng application para sa programa
@@ -435,6 +360,14 @@ title.programSummary=Buod ng application para sa programa
 
 # The HTML page title for the program overview page.  The {0} is the program name.
 title.programOverview={0} - Pangkalahatang-ideya sa Programa
+# Heading for the section of the program overview page that contains the application steps.
+heading.applicationSteps=Paano mag-apply
+# Top-level heading for the program overview page.  The {0} is the program name.
+heading.programOverview=Mag-apply sa programang {0}
+# The text on the button that takes users to the account creation form.
+link.createAccountFromOverview=Simulan ang pag-apply nang gumagamit ng account
+# The link that directs users to the start of the application without creating an account.
+link.startAsGuest=Simulan ang pag-apply bilang bisita
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
@@ -442,16 +375,11 @@ title.programOverview={0} - Pangkalahatang-ideya sa Programa
 
 # Tab title for ineligible page
 title.ineligible=Hindi kwalipikado para sa program
-# Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
-title.applicantNotEligible=Batay sa iyong mga sagot sa mga sumusunod na tanong, posibleng hindi ka kwalipikado para sa {0}.
-# Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
-title.applicantNotEligibleTi=Batay sa iyong mga sagot sa mga sumusunod na tanong, posibleng hindi kwalipikado ang client mo para sa {0}.
 # Section heading
 heading.eligibilityCriteria=Higit pa tungkol sa mga requirement sa pagiging kwalipikado
 # Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
 content.eligibilityCriteria=Para sa mga pamantayan sa pagiging kwalipikado, sumangguni sa {0}
-# Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
-content.eligibilityCriteria.v2=Para matuto pa tungkol sa mga panuntunan sa pagiging kwalipikado ng programang ito o direktang makipag-ugnayan sa programa, pakitingnan ang {0}.
+content.eligibilityCriteria.v3=Para matuto pa tungkol sa mga panuntunan sa pagiging kwalipikado ng programang ito o para direktang makipag-ugnayan sa team ng programa, basahin ang {0} (bubukas sa bagong tab).
 # Text shown to explain what the user can do since they are not eligible for the program with their current answers.
 content.changeAnswersForEligibility=Puwede kang bumalik sa nakaraang page para i-edit ang iyong mga sagot. O mag-apply sa isa pang programa.
 # Text shown on a webpage when the applicant is ineligible for a program.
@@ -460,10 +388,6 @@ content.changeAnswersForEligibility.v2=Kung sa tingin mo ay may mali, puwede kan
 button.goBackAndEdit=Bumalik at i-edit
 # Clicking this button returns the user to the program summary page, where they can edit their responses.
 button.editMyResponses=I-edit ang mga sagot ko
-# Toast message that shows that a client is likely eligible for a program, when someone else is filling out the application on a client''s behalf.
-toast.mayQualifyTi=Batay sa iyong mga tugon, posibleng kwalipikado ang iyong kliyente para sa {0}. Para magpatuloy, patuloy na punan ang application.
-# Toast message that shows that an applicant is likely eligible for a program, based on their responses.
-toast.mayQualify=Batay sa iyong mga tugon, posibleng kwalipikado ka para sa {0}. Para magpatuloy, patuloy na punan ang application.
 # Tag on the top of a program card, that lets the applicant know they may qualify for the program, based on their responses in other programs.
 tag.mayQualify=Posibleng kwalipikado ka
 # Tag on the top of a program card, that lets the person know their client may qualify for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
@@ -472,10 +396,6 @@ tag.mayQualifyTi=Posibleng kwalipikado ang iyong kliyente
 tag.mayNotQualify=Posibleng hindi ka kwalipikado
 # Tag on the top of a program card, that lets the person know their client is likely not eligible for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
 tag.mayNotQualifyTi=Posibleng hindi kwalipikado ang iyong kliyente
-# Toast message that shows that an applicant may not be eligible for a program, based on their responses.
-toast.mayNotQualify=Batay sa iyong mga tugon, posibleng hindi ka kwalipikado para sa {0}. Kung nagbago ang iyong impormasyon, puwede mong i-edit ang iyong mga sagot at pagkatapos ay magpatuloy sa application.
-# Toast message that shows that a client may not be eligible for a program, when someone else is filling out the application on a client''s behalf.
-toast.mayNotQualifyTi=Batay sa iyong mga tugon, posibleng hindi kwalipikado ang kliyente mo para sa {0}. Kung nagbago ang iyong impormasyon ng kliyente, puwede mong i-edit ang iyong mga sagot at pagkatapos ay magpatuloy sa application.
 
 # Error when there was an exception while submitting the application
 banner.errorSavingApplication=Nagka-error sa pag-save ng application
@@ -524,6 +444,15 @@ alert.eligibility_ti_fastforwarded_not_eligible_title=Posibleng hindi na kwalipi
 # Alert text when TI client may not be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_not_eligible_text=Posibleng may mga bago o na-update na tanong na nakakaapekto sa mga sagot o pagiging kwalipikado ng kliyente mo. Pakisuri ang lahat ng tanong sa ibaba.
 
+# Alert on the program overview page letting the user know that they will likely be eligible for the program.
+alert.likelyEligible=Malamang na kwalipikado ka sa programang ito batay sa mga sagot sa ibang pag-apply.
+# Alert on the program overview page letting the user know that they will likely NOT be eligible for the program.
+alert.likelyIneligible=Posibleng hindi ka maging kwalipikado para sa programang ito batay sa mga sagot sa ibang pag-apply.
+# Alert on the program overview page letting a trusted intermediary know that their client will likely be eligible for the program.
+alert.clientLikelyEligible=Malamang na kwalipikado ang kliyente mo sa programang ito batay sa mga sagot sa ibang pag-apply.
+# Alert on the program overview page letting a trusted intermediary know that their client will likely NOT be eligible for the program.
+alert.clientLikelyIneligible=Posibleng hindi maging kwalipikado ang kliyente mo para sa programang ito batay sa mga sagot sa ibang pag-apply.
+
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
 #---------------------------------------------------------------------------------------------#
@@ -534,41 +463,38 @@ title.applicationConfirmation=Pagkumpirma ng aplikasyon
 content.confirmed=Salamat sa pag-aplay sa {0}.  Ang inyong aplikasyon ay natanggap na, at ang ID ng application ninyo ay {1}.
 # Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
 title.createAnAccount=Gumawa ng account o magsign-in
+# The title of a pop-up informing an applicant to sign in before continuing with the application
+title.signInModal=Mag-sign in gamit ang account
+# The text of a pop-up informing an applicant to sign in so they can access the application later before continuing with the application
+content.signInModal=Magagawa mong tingnan ang status ng isang aplikasyon, gumawa ng mga pagbabago rito, at mabilis na mag-apply sa ibang programa kapag gumawa ka ng account.
 
-# Shown to applicants to encourage login; {0} represents the authentication provider's name
-content.pleaseCreateAccount=Kung kayo ay magsign-in ngayon sa isang account ng lungsod, ang inyong impormasyon ay maitatabi at maaring balikan anumang oras upang makumpleto ang mga aplikasyon sa hinaharap. Kung kayo ay wala pang account, pahihintulutan kayo ng pahina ng log-in upang makapagrehistro. Hindi kayo mawawalan ng anumang data na inyo nang nailagay.
-# A message to show on the login prompt modal that encourages users to log in before applying to other programs.
-content.generalLoginModalPrompt=Hindi ka naka-log in sa isang account. Hindi mo magagawang mabilis na mag-edit ng aplikasyon, tingnan ang status ng iyong aplikasyon, o mag-apply para sa iba pang programa nang walang account.
 # A message to show on the login prompt modal that encourages users to log in before applying to a program from the programs index page.
 content.initialLoginModalPrompt=Bago ka magpatuloy, mag-log in sa iyong {0} account o gumawa ng account. Makakapag-apply ka para sa maraming programa nang hindi kinakailangang ilagay ulit ang parehong impormasyon. Puwede ka ring mag-edit ng mga aplikasyon at tumingin ng mga status ng iyong aplikasyon.
 # A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=Magpatuloy nang walang account
-title.commonIntakeConfirmation=Mga programa kung saan puwede kang maging kwalipikado
-# Title on the page after a trusted intermediary has successfully filled out the common intake form.
-title.commonIntakeConfirmationTi=Mga programa kung saan puwedeng maging kwalipikado ang kliyente mo
+title.preScreenerConfirmation=Mga programa kung saan puwede kang maging kwalipikado
+# Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
+title.preScreenerConfirmationTi=Mga programa kung saan puwedeng maging kwalipikado ang kliyente mo
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
-content.commonIntakeConfirmation=Posibleng makapag-enroll ka sa mga programang ito kung mag-a-apply ka sa pamamagitan ng online na aplikasyon sa pamamagitan ng pag-click sa "Mag-apply sa mga programa."
+content.preScreenerConfirmation=Posibleng makapag-enroll ka sa mga programang ito kung mag-a-apply ka sa pamamagitan ng online na aplikasyon sa pamamagitan ng pag-click sa "Mag-apply sa mga programa."
 # A message explaining that the applicant may be eligible for the following list of programs.
-content.commonIntakeConfirmation.v2=Batay sa iyong mga sagot, posibleng kwalipikado ka sa mga sumusunod na programa:
+content.preScreenerConfirmation.v2=Batay sa iyong mga sagot, posibleng kwalipikado ka sa mga sumusunod na programa:
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
-content.commonIntakeConfirmationTi=Posibleng makapag-enroll ang kliyente mo sa mga programang ito kung mag-a-apply ka sa pamamagitan ng online na aplikasyon sa pamamagitan ng pag-click sa "Mag-apply sa mga programa."
+content.preScreenerConfirmationTi=Posibleng makapag-enroll ang kliyente mo sa mga programang ito kung mag-a-apply ka sa pamamagitan ng online na aplikasyon sa pamamagitan ng pag-click sa "Mag-apply sa mga programa."
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
-content.commonIntakeConfirmationTi.v2=Batay sa iyong mga sagot, posbileng kwalipikado ang kliyente mo sa mga sumusunod na programa:
+content.preScreenerConfirmationTi.v2=Batay sa iyong mga sagot, posbileng kwalipikado ang kliyente mo sa mga sumusunod na programa:
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
-content.commonIntakeNoMatchingPrograms=Hindi makahanap ang pre-screener ng mga programa kung saan puwede kang maging kwalipikado sa panahong ito. Pero puwede kang mag-apply sa mga programa anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tumingin ng mga karagdagang programa, puwede kang pumunta sa {0}
+content.preScreenerNoMatchingPrograms=Hindi makahanap ang pre-screener ng mga programa kung saan puwede kang maging kwalipikado sa panahong ito. Pero puwede kang mag-apply sa mga programa anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tumingin ng mga karagdagang programa, puwede kang pumunta sa {0}
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
-content.commonIntakeNoMatchingProgramsTi=Hindi makahanap ang pre-screener ng mga programa kung saan puwedeng maging kwalipikado ang kliyente mo sa panahong ito. Pero puwede kang mag-apply sa mga programa anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tumingin ng mga karagdagang programa, puwede kang pumunta sa {0}
-# A message explaining a second option when there are no eligible programs, which is to edit your responses.
-content.commonIntakeNoMatchingProgramsNextStep=Puwede ka ring bumalik sa nakaraang page para i-edit ang iyong mga sagot.
+content.preScreenerNoMatchingProgramsTi=Hindi makahanap ang pre-screener ng mga programa kung saan puwedeng maging kwalipikado ang kliyente mo sa panahong ito. Pero puwede kang mag-apply sa mga programa anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tumingin ng mga karagdagang programa, puwede kang pumunta sa {0}
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Ibang programang posibleng kainteresan mo
 # Button on the "Application Submitted" page. Clicking it downloads the user's application.
 button.downloadApplication=I-download ang iyong application
-button.downloadPdf=I-download ang PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=Mag-apply sa mga programa
 # Heading above a section showing the user's name, confirmation number, and date
-heading.yourSubmissionInformation=Impormasyon ng iyong pagsusumite
+heading.yourSubmissionInformation=Ang mga detalye ng iyong aplikasyon
 # Text above the name of the person who submitted this application
 heading.applicantName=Sino ang nagsumite ng aplikasyong ito
 # Text above the confirmation number of the application
@@ -583,12 +509,20 @@ content.youCanPrint=Puwede mong i-print ang kumpirmasyong ito para sa iyong mga 
 heading.nextSteps=Ano ang mga susunod na hakbang ko?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=Isinumite mo ang iyong aplikasyon sa {0}
+#  Information "alert"  title for programs that require an account to apply
+alert.createAccountForLoginOnly=Para ma-access ang aplikasyon mo sa ibang pagkakataon, dapat kang gumawa ng account
 # Informational "alert" title to encourage the user to create an account
-alert.createAccount=Gumawa ng account para i-save ang impormasyon ng iyong aplikasyon
+alert.createAccount=Para i-access ang iyong aplikasyon sa ibang pagkakataon, gumawa ng account
 # Description text in an alert that explains how creating an account can help the user
-alert.createAccountDescription=Gumamit ng account para mag-log in ulit para tingnan ang status ng iyong aplikasyon at makatipid ng oras sa pag-apply sa iba pang programa.
+alert.createAccountDescription=Magagawa mong tingnan ang status ng iyong aplikasyon at mabilis na mag-apply sa ibang programa kapag na-save mo ang impormasyon mo sa isang account.
+# Informational alert to let the user know there are no additonal programs for them to start an application for at this time.
+alert.noProgramsAvailable=Nagsimula o nagsumite ka ng application para sa lahat ng programang available sa panahong ito.
 # Hyperlink to log in to an existing account
-content.loginToExistingAccount=Mag-log in sa kasalukuyang account
+content.loginToExistingAccount=Mag-sign in sa kasalukuyang account
+# Informational "alert" title to push user to login as the program is only for logged in user
+alert.loginOnly=Dapat kang mag-log in para mag-apply sa programang ito
+# Description text in an alert that explains why the user must log in to apply for the program
+alert.loginOnlyDescription=Mangyaring mag-log in o gumawa ng account para makapagpatuloy sa aplikasyong ito.
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -611,6 +545,82 @@ content.disabledProgramInfo=Pasensya na, na-disable ang program na sinusubukan m
 # Button text on a button that takes the user back to the home page.
 button.homePage=Bumalik sa homepage
 
+#--------------------------------------------------------------------------------------------------------------#
+# ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Navigation link to go back to editing the program screen. {0} is the screen title, such as "Your Household"
+link.backToEditProgramBlock=Bumalik sa pag-edit {0}
+
+# Long form description for configuring a visibility condition and how it can be used to show or hide a screen for applicants filling out an application form with multiple screens.
+content.predicateVisibilityDescription=I-configure kung kailang ipapakita o itatago ang screen na ito para sa mga aplikante batay sa mga sagot sa mga tanong sa mga naunang screen.
+# Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
+content.predicateEligibilityDescription=Magdagdag ng mga kondisyon sa pagiging karapat-dapat para matukoy kung kwalipikado ang isang aplikante para sa programa batay sa mga sagot sa mga tanong sa screen na ito. Haharangin ang pagsusumite ng aplikasyon ng mga aplikanteng hindi nakakatugon sa minimum na kinakailangan. Mababago mo ito sa
+# Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
+link.programSettings=settings ng program
+
+# Text that precedes select option dropdowns for a form to configure screen visibility conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
+content.predicateScreenIs=Ang screen ay
+# Text that precedes a select option dropdown for a form to configure applicant eligibility conditions. The full sentence reads "Applicant is eligible if any/all conditions are true:"
+content.predicateApplicantIsEligible=Karapat-dapat ang aplikante kung
+# Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
+content.predicateConditionsAreTrue=totoo ang mga kondisyon:
+# Text that shows on the eligibility predicate screen when no eligibility conditions are set.
+content.predicateEligibilityNullState=Applicant is always eligible.
+# Text that shows on the visibility predicate screen when no visibility conditions are set.
+content.predicateVisibilityNullState=This screen is always shown.
+
+# Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
+content.predicateConditionIsTrueIf=Totoo ang kondisyon kung
+# Text that is appended to the end of a header describing a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
+content.predicateSubconditionsAreTrue=totoo ang mga sub-kondisyon:
+
+# Label for select option dropdown to choose a question
+label.predicateQuestion=Tanong
+# Label for a select option dropdown to choose a field to use within a question, such as "first name", "email", "date", etc.
+label.predicateField=Field
+# Label for a select option dropdown to choose a state for a logical condition, such as "is equal to", "is one of", "is later than", etc.
+label.predicateState=Katayuan
+# Label for an input field to enter a value or multiple values.
+label.predicateValue=(Mga) value
+# Placeholder text for select option dropdown
+option.selectPlaceholder=- Pumili -
+# Hint text for providing multiple values in a single input field
+content.multipleValuesInputHint=Maglagay ng listahan ng mga comma-seperated value. Halimbawa, "item1,item2,item3".
+# Text between two input fields that represent a range. For example, "between input1 and input2".
+content.and=at
+
+# Button to append form fields for configuring a new condition
+button.predicateAddCondition=Magdagdag ng kondisyon
+# Button to remove a condition from the form
+button.predicateDeleteCondition=I-delete ang kondisyon
+# Button to remove all conditions from the form
+button.predicateDeleteAllConditions=Delete all conditions
+# Link to append form fields for configuring a new sub-condition within a condition
+link.predicateAddSubcondition=Magdagdag ng sub-kondisyon
+# Link to remove a sub-condition from the form
+link.predicateDeleteSubcondition=I-delete ang sub-kondisyon
+# Link to go back to the top of the page
+link.backToTop=Bumalik sa itaas
+# Button to save the visibility or eligibility predicate and return to editing the program.
+button.saveAndExit=I-save at mag-exit
+
+# Confirmation dialog shown to admin for deleting all conditions in the predicate edit view
+confirm.deleteAllConditions=Are you sure you would like to delete all conditions?
+# Confirmation dialog shown to admin for deleting a condition in the predicate edit view
+confirm.deleteSingleCondition=Are you sure you would like to delete this condition?
+# Dialog to warn admin that a deletion action cannot be undone
+confirm.actionNotReversable=This action cannot be undone.
+
+# Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
+alert.predicateNoAvailableQuestionsVisibility=Walang mga available na tanong sa mga naunang screen kung saan magtatakda ng kondisyon sa visibility para sa screen na ito.
+# Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
+alert.predicateNoAvailableQuestionsEligibility=Walang mga available na tanong sa screen na ito kung saan magtatakda ng kondisyon sa pagiging karapat-dapat.
+
+# Label for textarea where admins can enter a message to show to applicants who are deemed ineligible based on the eligibility conditions set.
+label.predicateEligibilityMessageField=Display message shown to ineligible applicants
+# Help text for a textarea input explaining that markdown is supported.
+content.markdownSupported=Markdown is supported
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -664,10 +674,8 @@ placeholder.noDropdownSelection=Pumili ng opsyon:
 # PHONE QUESTION - text shown when answering a question where a user must select an option for country and enter phone number. #
 #------------------------------------------------------------------------------------------------------------------------------#
 
-label.countryCode=Bansa
 label.phoneNumber=Ilagay ang Numero ng telepono
 validation.phoneNumberRequired=Kinakailangan ang numero ng telepono
-validation.phoneCountryCodeRequired=Dapat piliin ang bansa
 validation.phoneNumberMustContainNumbersOnly=Hindi puwedeng maglaman ng mga character na hindi numero ang numero ng telepono
 validation.invalidPhoneNumberProvided=Invalid ang numero ng telepono na ito
 validation.phoneMustBeLocalToCountry=Hindi nabibilang sa bansa ang ibinigay mong numero ng telepono
@@ -677,6 +685,21 @@ validation.phoneMustBeLocalToCountry=Hindi nabibilang sa bansa ang ibinigay mong
 #----------------------------------------------------------------------------------------------------------#
 
 validation.invalidDateFormat=Maglagay ng petsa sa tamang format
+# Date cannot be over specified years in past.
+validation.dateBeyondAllowablePast=Maglagay ng petsa sa loob ng nakaraang {0} (na) taon
+# Date cannot be over specified years in future.
+validation.dateBeyondAllowableFuture=Maglagay ng petsa na hindi lalampas sa {0} (na) taon sa hinaharap
+# Valdation error shown when the user enters a date in the past but the question requires a date later than the current date.
+validation.futureDateRequired=Pagkatapos dapat ng petsa ngayong araw ang petsang ito
+# Valdation error shown when the user enters a date that is earlier than the minimum allowed date.
+validation.dateTooFarInPast=Pagkatapos dapat ng {0} ang petsang ito
+# Validation error shown when the user enters a date in the future but the question requires a date earlier than the current date.
+validation.pastDateRequired=Dapat mauna ang petsang ito kaysa sa petsa ngayong araw
+# Validation error shown when the user enters a date that is later than the maximum allowed date.
+validation.dateTooFarInFuture=Dapat mauna ang petsang ito kaysa sa {0}
+# Validation error shown when the user enters a date that is before or after the allowed date range.
+validation.dateNotInRange=Nasa pagitan dapat ng {0} at {1} ang petsa
+validation.currentDateRequired=Ilagay ang petsa ngayon
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - Enero
 # A month option when selecting a specific date from a dropdown menu.
@@ -737,7 +760,6 @@ placeholder.entityName={0} Palayaw
 validation.fileRequired=Maaari lamang ay pumili ng file.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Masyadong malaki ang iyong file. Pumili ng file na wala pang {0} MB.
-button.chooseFile=Pumili ng File
 # Text shown on a tag while a file is uploading.
 label.uploading=Ina-upload
 # Label applied to a list of uploaded files
@@ -750,7 +772,9 @@ label.uploadedFiles=Mga Na-upload na File
 # Validation errors that appear if a user enters an answer that is too long or too short.
 validation.idTooLong=Dapat ay naglalaman ng hindi hihigit sa {0} na mga character.
 validation.idTooShort=Dapat ay naglalaman ng hindi bababa sa {0} na mga character.
+# Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=Dapat ay naglalaman lamang ng mga numero.
+validation.numberRequired.v2=Dapat maglaman lamang ng mga numerong 0-9.
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
@@ -771,13 +795,6 @@ label.lastName=Apelyido
 label.middleName=Gitnang pangalan
 # Label for name suffix field in name question
 label.nameSuffix=Suffix
-
-# Placeholder text - this is shown inside the input box, before a user enters an answer.
-placeholder.firstName=Pangalan
-placeholder.lastName=Apelyido
-placeholder.middleName=Gitnang pangalan
-# Placeholder for name suffix field in name question
-placeholder.nameSuffix=Suffix
 
 # Option Junior for the name suffix dropdown
 option.junior=Jr.
@@ -816,6 +833,121 @@ validation.textTooLong=Dapat ay naglalaman ng hindi hihigit sa {0} na mga charac
 validation.textTooShort=Dapat ay naglalaman ng hindi bababa sa {0} na mga character.
 
 #---------------------------------------------------------------------#
+# YES/NO QUESTION - text specific to yes/no questions. #
+#---------------------------------------------------------------------#
+
+option.yes=Oo
+option.no=Hindi
+option.notSure=Hindi sigurado
+option.maybe=Siguro
+
+#-------------------------------------------------------------#
+# MAP QUESTION - text specific to map questions.              #
+#-------------------------------------------------------------#
+
+# Text for map question apply filters button
+map.applyFiltersButtonText=Mag-apply ng mga filter
+# Aria label for next page pagination button
+map.ariaLabelNextPage=Pumunta sa susunod na page ng mga lokasyon sa mapa
+# Aria label for pagination list
+map.ariaLabelPaginationList=Pahinasyon para sa mga lokasyon sa mapa
+# Aria label for previous page pagination button
+map.ariaLabelPreviousPage=Pumunta sa nakaraang page ng mga lokasyon sa mapa
+# Header for the section showing available locations
+map.availableLocations=Mga available na lokasyon
+# Legend text for the map filters section
+map.filterLegendText=Mga filter
+# Aria label for pagination buttons
+map.goToPage=Pumunta sa page {0} ng mga lokasyon sa mapa
+# Link text for location details URLs
+map.locationLinkText=Tingnan ang higit pang detalye
+# The screen reader text on a link to view more details for a location. The variable represents the location name.
+map.locationLinkTextSr=Tingnan ang higit pang detalye para sa {0}
+# Text showing the count of displayed locations, with placeholders for current count and total count
+map.locationsCount=Displaying {0} to {1} of {2} locations
+# Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
+map.locationsSelectedCount={0} sa {1} na maximum na lokasyon ang napili.
+# Alt text for map region
+map.mapRegionAltText=Interactive na mapa na nagpapakita ng mga lokasyon
+# Text for map question selected button in popups
+map.mapSelectedButtonText=Napili
+# Message displayed when filter results return no locations
+map.noResultsFound=Walang nakitang mga resulta. Pakisubukang ayusin ang mga filter mo.
+# Message displayed when no locations have been selected yet
+map.noSelectionsMessage=Walang piniling lokasyon.
+# Sr only message displayed when page has changed
+map.paginationStatus=Ipinapakita ngayon ang page {0} ng {1}.
+# Text for map question reset filters button
+map.resetFiltersButtonText=I-clear ang mga filter
+# Heading for the section showing selected locations
+map.selectedLocationsHeading=Mga piniling lokasyon
+# Placeholder text for map question select button in popups
+map.selectLocationButtonText=Pumili ng lokasyon
+# Text showing the maximum number of locations that can be selected, with a placeholder for that number
+map.selectLocations=Pumili ng hanggang {0} na lokasyon
+# Placeholder text for map question select option dropdown
+map.selectOptionPlaceholderText=- Pumili -
+# Button text to switch from list view to map view on mobile
+map.switchToMapView=Lumipat sa view ng mapa
+# Button text to switch from map view to list view on mobile
+map.switchToListView=Lumipat sa view ng listahan
+# Screen reader text announcing that the view has been switched to map view
+map.switchToMapViewSr=Inillipat na ang view sa mapa
+# Screen reader text announcing that the view has been switched to list view
+map.switchToListViewSr=Inilipat na ang view sa listahan
+# Error message that indicates the applicant has selected too many locations
+map.validation.tooManySelections=Mangyaring pumili ng hindi hihigit sa {0} na lokasyon.
+# Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
+map.geoJsonErrorText = Ikinalulungkot namin na hindi namin maipakita ang tanong na ito sa ngayon. Pakisubukang bumalik sa aplikasyong ito sa ibang pagkakataon. Pansamantala, bumalik sa {0} o {1} at ituturo ka namin sa tamang direksyon.
+map.contactUs = makipag-ugnayan sa amin
+map.homepage = homepage
+# screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
+map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a different location, please unselect at least one of the locations you have chosen.
+
+#---------------------------------------------------------------------------#
+# MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
+#---------------------------------------------------------------------------#
+
+# Button for adding a filter
+map.addFilterButton=Magdagdag ng filter
+# Subtitle text for adding filters
+map.addFiltersSubtitle=Pumili ng hanggang anim na filter para gawing available sa mga aplikante.
+# Title for filters section
+map.addFiltersTitle=Mga filter
+# Button for adding a tag
+map.addTagButton=Magdagdag ng tag
+# Subtitle text for adding a tag
+map.addTagSubtitle=Magdagdag ng tag na ipapakita sa mga partikular na lokasyon kung saan tumutugma ang napiling key sa partikular na value. Kapag pumili ang aplikante ng kahit isa sa mga lokasyong ito, opsyonal na magpakita ng alerto sa lugar ng Mga Piniling Lokasyon.
+# Title for tag section
+map.addTagTitle=Tag
+# Label for display name field
+map.displayNameLabel=Pangalan na ipapakita
+# Label for key field
+map.keyLabel=Key
+# Error message when a configured key is not found in the GeoJSON data
+map.keyNotFoundError=Error: Hindi nakita ang key. Mangyaring pumili ng ibang key.
+# Help text for location address field
+map.locationAddressHelpText=Piliin kung aling key ang kumakatawan sa address ng lokasyon.
+# Label for location address key field
+map.locationAddressLabel=Key ng address
+# Help text for location details URL field
+map.locationDetailsUrlHelpText=Piliin kung aling key ang kumakatawan sa URL ng mga detalye ng lokasyon.
+# Label for location detail URL key field
+map.locationDetailsUrlLabel=URL key para sa tingnan ang higit pang detalye 
+# Help text for location name field
+map.locationNameHelpText=Piliin kung aling key ang kumakatawan sa pangalan ng lokasyon.
+# Label for location name key field
+map.locationNameLabel=Key ng pangalan
+# Label for maximum number of locations field
+map.maxLocationSelectionsLabel=Maximum na pagpili ng lokasyon
+# Label for setting text field
+map.settingTextLabel=Text ng alerto
+# Label for value field
+map.valueLabel=Value
+# Text on a grey square that indicates where a map will appear once a question has been published
+map.mapPreviewText=Ipapakita ang mapa dito
+
+#---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
 #---------------------------------------------------------------------#
 
@@ -836,7 +968,7 @@ error.internalServerTitle.v2=Nagkaroon ng error
 # The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=Pasensya na, nagkaroon ng internal error sa aming system.
 # Additional information about the error that is shown to the user in small font
-error.internalServerDescription=Makipag-ugnayan sa technical support para sa tulong sa %s at isama itong error ID na {0}
+error.internalServerDescription=Makipag-ugnayan sa technical support para sa tulong sa {0} at isama itong error ID na {1}
 # A button redirecting the user to the homepage
 error.internalServerHomeButton=Pumunta sa homepage
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
@@ -870,8 +1002,6 @@ email.tiApplicationUpdateBody=Ang status para sa aplikanteng si {0} sa programan
 #------------------------------------------------------------------------------#
 
 banner.title=Isa itong opisyal na website ng pamahalaan.
-# Text on a banner at the top of the page telling users this is an official government website
-banner.northStarTitle=Opisyal na website ng pamahalaan ng United States
 banner.link=Ganito mo malalaman
 banner.govWebsiteSectionHeader=Gumagamit ang mga opisyal na website ng .gov
 banner.govWebsiteSectionContent=Ang mga address ng website na nagtatapos sa .gov ay pagmamay-ari ng mga opisyal na organisasyon ng pamahalaan sa United States.
@@ -891,9 +1021,21 @@ banner.notForProductionBannerLine2=Para mag-apply sa isang program o serbisyo, p
 # GUEST BANNER - alert explaining that user is logged in as a guest #
 #------------------------------------------------------------------------------#
 # A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
-banner.guestBannerText=Nag-a-apply ka bilang bisita. Pagkatapos mong mag-apply, {0} para protektahan ang data mo.
+banner.guestBannerText=Pagkatapos mong mag-apply, {0} para protektahan ang iyong data.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=tapusin ang session mo
+# A message letting the user know how long their session will last before they are logged out automatically. The placeholder will be a phrase like "2 hours and 30 minutes" or "30 minutes".
+banner.sessionExpiration=Awtomatikong mag-e-expire ang session mo pagkatapos ng {0} mula sa simula ng session mo, kaya paki-log in o isumite ang aplikasyon mo bago ang oras na iyon para maiwasang mawala ang iyong progreso.
+# Phrases that combine hours and minutes for the session expiration message.
+banner.hourAndMinutes=1 na oras at {0} na minuto
+banner.hourAndMinute=1 na oras at 1 na minuto
+banner.hoursAndMinutes={0} na oras at {1} na minuto
+banner.hoursAndMinute={0} na oras at 1 na minuto
+# Amount of time in hours or minutes for the session expiration message.
+banner.minutes={0} na minuto
+banner.hours={0} na oras
+banner.hour=1 na oras
+banner.minute=1 na minuto
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
@@ -901,6 +1043,21 @@ banner.endYourSession=tapusin ang session mo
 #  are seeded into the database, since these will be admin defined in the future #
 #------------------------------------------------------------------------------#
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# An aria-label for screen readers that helps provide context for the category tags.
 # A tag used to filter the list of programs down to those that are related to childcare.
 category.tag.childcare=Pangangalaga ng Bata
 
@@ -928,6 +1085,9 @@ category.tag.housing=Pabahay
 # A tag used to filter the list of programs down to those that are related to the Internet.
 category.tag.internet=Internet
 
+# A tag used to filter the list of programs down to those that are related to the military.
+category.tag.military=Militar
+
 # A tag used to filter the list of programs down to those that are related to training.
 category.tag.training=Pagsasanay
 
@@ -936,3 +1096,34 @@ category.tag.transportation=Transportasyon
 
 # A tag used to filter the list of programs down to those that are related to utilities.
 category.tag.utilities=Mga Utility
+
+# A tag used to filter the list of programs down to those that are related to military veterans.
+category.tag.veteran=Beterano
+
+
+ariaLabel.categories=Mga Kategorya
+
+#------------------------------------------------------------------------------#
+#  Session timeout messages                                                    #
+#------------------------------------------------------------------------------#
+
+# Title of the warning modal that appears when the user has been inactive for a while
+session.inactivity.warning.title=Babala sa Kawalan ng Aktibidad ng Session
+
+# Message shown in a modal asking the user if they want to extend their session due to inactivity
+session.inactivity.warning.message=Mag-e-expire ang iyong session dahil sa kawalan ng aktibidad. Gusto mo bang i-extend ang iyong session?
+
+# Title of a modal dialog displayed when a user's session is about to expire due to session length limit
+session.length.warning.title=Babala sa Tagal ng Session
+
+# Message shown in a modal warning the user their session will end soon due to session length limit
+session.length.warning.message=Malapit nang mag-expire ang iyong session dahil sa tagal. I-save ang iyong gawa at mag-log in ulit kung kailangan.
+
+# Text on a button that allows users to extend their session when shown timeout warnings
+session.extend.button=I-extend ang Session
+
+# Success message shown when the user's session is successfully extended after clicking the extend button
+session.extended.success=Na-extend na ang session
+
+# Error message shown when there was a problem extending the user's session
+session.extended.error=Hindi na-extend ang session

@@ -15,6 +15,7 @@ import models.ApplicantModel;
 import models.ApplicationModel;
 import models.ApplicationStep;
 import models.DisplayMode;
+import models.EligibilityDetermination;
 import models.LifecycleStage;
 import models.ProgramModel;
 import models.VersionModel;
@@ -49,7 +50,10 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     ProgramModel program = createDraftProgram("Program");
 
     ApplicationModel appOne =
-        repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
+        repo.submitApplication(
+                applicant, program, Optional.empty(), EligibilityDetermination.NOT_COMPUTED)
+            .toCompletableFuture()
+            .join();
     Instant initialSubmitTime = appOne.getSubmitTime();
 
     ApplicationModel appTwoDraft =
@@ -66,7 +70,10 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     // Submit another application for the same program and applicant, but update the applicantData
     // object so it is not detected as a duplicate.
     applicant.getApplicantData().putString(Path.create("text"), "text");
-    repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
+    repo.submitApplication(
+            applicant, program, Optional.empty(), EligibilityDetermination.NOT_COMPUTED)
+        .toCompletableFuture()
+        .join();
 
     assertThat(
             repo.getApplication(appOne.id).toCompletableFuture().join().get().getLifecycleStage())
@@ -98,10 +105,16 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     repo.createOrUpdateDraft(applicant1, program1).toCompletableFuture().join();
 
     ApplicationModel app2 =
-        repo.submitApplication(applicant2, program2, Optional.empty()).toCompletableFuture().join();
+        repo.submitApplication(
+                applicant2, program2, Optional.empty(), EligibilityDetermination.NOT_COMPUTED)
+            .toCompletableFuture()
+            .join();
     Instant appTwoInitialSubmitTime = app2.getSubmitTime();
 
-    repo.submitApplication(applicant1, program1, Optional.empty()).toCompletableFuture().join();
+    repo.submitApplication(
+            applicant1, program1, Optional.empty(), EligibilityDetermination.NOT_COMPUTED)
+        .toCompletableFuture()
+        .join();
 
     assertThat(app2.getSubmitTime()).isEqualTo(appTwoInitialSubmitTime);
     assertThat(app2.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
@@ -142,7 +155,8 @@ public class ApplicationRepositoryTest extends ResetPostgres {
 
     assertThatThrownBy(
             () ->
-                repo.submitApplication(applicant, program, Optional.empty())
+                repo.submitApplication(
+                        applicant, program, Optional.empty(), EligibilityDetermination.NOT_COMPUTED)
                     .toCompletableFuture()
                     .join())
         .isInstanceOf(RuntimeException.class)
@@ -166,11 +180,32 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void submitApplication_updatesAccountLastActivityTime() {
+    ApplicantModel applicant = saveApplicant("Alice");
+    ProgramModel program = createActiveProgram("Program");
+
+    Instant activitytimeBeforeUpdate = applicant.getAccount().getLastActivityTime();
+    ApplicationModel app =
+        repo.submitApplication(
+                applicant, program, Optional.empty(), EligibilityDetermination.NOT_COMPUTED)
+            .toCompletableFuture()
+            .join();
+    app.refresh();
+
+    // Check if the account activity time has changed
+    Instant activitytimeAfterUpdate = applicant.getAccount().getLastActivityTime();
+    assertThat(activitytimeAfterUpdate).isNotEqualTo(activitytimeBeforeUpdate);
+  }
+
+  @Test
   public void submitApplication_noDrafts() {
     ApplicantModel applicant = saveApplicant("Alice");
     ProgramModel program = createDraftProgram("Program");
     ApplicationModel app =
-        repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
+        repo.submitApplication(
+                applicant, program, Optional.empty(), EligibilityDetermination.NOT_COMPUTED)
+            .toCompletableFuture()
+            .join();
     assertThat(repo.getApplication(app.id).toCompletableFuture().join().get().getLifecycleStage())
         .isEqualTo(LifecycleStage.ACTIVE);
   }
@@ -180,14 +215,31 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     ApplicantModel applicant = saveApplicant("Alice");
     ProgramModel program = createDraftProgram("Program");
 
-    repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
+    repo.submitApplication(
+            applicant, program, Optional.empty(), EligibilityDetermination.NOT_COMPUTED)
+        .toCompletableFuture()
+        .join();
     assertThatThrownBy(
             () ->
-                repo.submitApplication(applicant, program, Optional.empty())
+                repo.submitApplication(
+                        applicant, program, Optional.empty(), EligibilityDetermination.NOT_COMPUTED)
                     .toCompletableFuture()
                     .join())
         .cause()
         .isInstanceOf(DuplicateApplicationException.class);
+  }
+
+  @Test
+  public void submitApplication_eligibilityDeterminationDefaultNotComputed() {
+    ApplicantModel applicant = saveApplicant("Alice");
+    ProgramModel program = createDraftProgram("Program");
+    ApplicationModel application =
+        repo.submitApplication(
+                applicant, program, Optional.empty(), EligibilityDetermination.NOT_COMPUTED)
+            .toCompletableFuture()
+            .join();
+    assertThat(application.getEligibilityDetermination())
+        .isEqualTo(EligibilityDetermination.NOT_COMPUTED);
   }
 
   private ApplicationModel createSubmittedAppAtInstant(
@@ -358,6 +410,138 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void getLatestProgramId_whenNoMatchingApplicantId() throws Exception {
+    ProgramModel program = createDraftProgram("Program");
+    program.getSlug();
+    program.save();
+
+    Long nonExistentApplicantId = 999L;
+    Optional<Long> result =
+        repo.getLatestProgramId(
+                nonExistentApplicantId,
+                program.getSlug(),
+                ImmutableSet.of(
+                    LifecycleStage.DRAFT, LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
+            .toCompletableFuture()
+            .get();
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void getLatestProgramId_whenNoMatchingProgramSlug() throws Exception {
+    ApplicantModel applicant = saveApplicant("TestApplicant");
+
+    String nonExistentProgramSlug = "non-existent-slug";
+    Optional<Long> result =
+        repo.getLatestProgramId(
+                applicant.id,
+                nonExistentProgramSlug,
+                ImmutableSet.of(
+                    LifecycleStage.DRAFT, LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
+            .toCompletableFuture()
+            .get();
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void getLatestProgramId() {
+    ProgramModel programX = createActiveProgram("Program X");
+    programX.getSlug();
+    programX.save();
+    ProgramModel programY = createActiveProgram("Program Y");
+    programY.getSlug();
+    programY.save();
+
+    ApplicantModel applicant = saveApplicant("Applicant");
+    ApplicationModel activeApplicationX =
+        ApplicationModel.create(applicant, programX, LifecycleStage.ACTIVE);
+    activeApplicationX.save();
+    ApplicationModel draftApplicationX =
+        ApplicationModel.create(applicant, programX, LifecycleStage.DRAFT);
+    draftApplicationX.save();
+    ApplicationModel draftApplicationY =
+        ApplicationModel.create(applicant, programY, LifecycleStage.DRAFT);
+    draftApplicationY.save();
+
+    Optional<Long> result =
+        repo.getLatestProgramId(
+                applicant.id,
+                programX.getSlug(),
+                ImmutableSet.of(LifecycleStage.ACTIVE, LifecycleStage.DRAFT))
+            .toCompletableFuture()
+            .join();
+    assertThat(result).isPresent();
+    assertThat(result.get()).isEqualTo(programX.id);
+
+    result =
+        repo.getLatestProgramId(
+                applicant.id, programY.getSlug(), ImmutableSet.of(LifecycleStage.DRAFT))
+            .toCompletableFuture()
+            .join();
+    assertThat(result).isPresent();
+    assertThat(result.get()).isEqualTo(programY.id);
+  }
+
+  @Test
+  public void getLatestProgramId_whenProgramVersionChanges() {
+    // Create the first version of a program
+    ProgramModel programV1 = createActiveProgram("Program");
+    programV1.getSlug();
+    programV1.save();
+
+    // Create an active application for the first version program
+    ApplicantModel applicant = saveApplicant("Applicant");
+    ApplicationModel activeApplication =
+        ApplicationModel.create(applicant, programV1, LifecycleStage.ACTIVE);
+    activeApplication.save();
+
+    // Latest program id is from application for program v1
+    Optional<Long> result =
+        repo.getLatestProgramId(
+                applicant.id,
+                programV1.getSlug(),
+                ImmutableSet.of(LifecycleStage.ACTIVE, LifecycleStage.DRAFT))
+            .toCompletableFuture()
+            .join();
+    assertThat(result).isPresent();
+    assertThat(result.get()).isEqualTo(programV1.id);
+
+    // Create a new version of the program
+    ProgramModel programV2 = createActiveProgram("Program");
+    programV2.getSlug();
+    programV2.save();
+    assertThat(programV1.id).isNotEqualTo(programV2.id);
+    assertThat(programV1.getSlug()).isEqualTo(programV2.getSlug());
+
+    // Latest program id is from application for program v1
+    result =
+        repo.getLatestProgramId(
+                applicant.id,
+                programV1.getSlug(),
+                ImmutableSet.of(LifecycleStage.ACTIVE, LifecycleStage.DRAFT))
+            .toCompletableFuture()
+            .join();
+    assertThat(result).isPresent();
+    assertThat(result.get()).isEqualTo(programV1.id);
+
+    // Create a draft application for the new program version
+    ApplicationModel draftApplication =
+        ApplicationModel.create(applicant, programV2, LifecycleStage.ACTIVE);
+    draftApplication.save();
+
+    // Latest program id is from application for program v2
+    result =
+        repo.getLatestProgramId(
+                applicant.id,
+                programV1.getSlug(),
+                ImmutableSet.of(LifecycleStage.ACTIVE, LifecycleStage.DRAFT))
+            .toCompletableFuture()
+            .join();
+    assertThat(result).isPresent();
+    assertThat(result.get()).isEqualTo(programV2.id);
+  }
+
+  @Test
   public void updateDraftApplicationProgram_updatesExistingDraft() {
     ApplicantModel applicant = saveApplicant("Alice");
     ProgramModel programV1 = createActiveProgram("Program");
@@ -374,6 +558,26 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     // Reload the application and check that it points to program v2
     application = repo.getApplication(application.id).toCompletableFuture().join().get();
     assertThat(application.getProgram().id).isEqualTo(programV2.id);
+  }
+
+  @Test
+  public void updateDraftApplicationProgram_updatesAccountLastActivityTime() {
+    ApplicantModel applicant = saveApplicant("Alice");
+    Instant activitytimeBeforeUpdate = applicant.getAccount().getLastActivityTime();
+    ProgramModel programV1 = createActiveProgram("Program");
+
+    // Check the application points to program v1
+    ApplicationModel application =
+        repo.createOrUpdateDraft(applicant, programV1).toCompletableFuture().join();
+    assertThat(application.getProgram().id).isEqualTo(programV1.id);
+
+    // Update the application program v2
+    ProgramModel programV2 = createActiveProgram("Program");
+    repo.updateDraftApplicationProgram(applicant.id, programV2.id);
+
+    // Check if the account activity time has changed
+    Instant activitytimeAfterUpdate = applicant.getAccount().getLastActivityTime();
+    assertThat(activitytimeAfterUpdate).isNotEqualTo(activitytimeBeforeUpdate);
   }
 
   @Test
@@ -431,6 +635,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
             version,
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
+            /* loginOnly= */ false,
             new ProgramAcls(),
             /* categories= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));

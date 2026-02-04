@@ -1,11 +1,10 @@
 import {test, expect} from '../support/civiform_fixtures'
-import {Page} from 'playwright'
+import {Page} from '@playwright/test'
 import {
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
   logout,
-  enableFeatureFlag,
   waitForPageJsLoad,
   testUserDisplayName,
   supportsEmailInspection,
@@ -23,7 +22,6 @@ test.describe('with program statuses', () => {
 
   test.beforeEach(
     async ({page, adminPrograms, adminProgramStatuses, applicantQuestions}) => {
-      await enableFeatureFlag(page, 'bulk_status_update_enabled')
       await loginAsAdmin(page)
 
       await adminPrograms.addProgram(programName)
@@ -37,7 +35,7 @@ test.describe('with program statuses', () => {
 
       // Submit an application as a test user so that we can navigate back to the applications page.
       await loginAsTestUser(page)
-      await applicantQuestions.clickApplyProgramButton(programName)
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.submitFromReviewPage()
       await logout(page)
       await loginAsProgramAdmin(page)
@@ -50,8 +48,8 @@ test.describe('with program statuses', () => {
     adminPrograms,
   }) => {
     // Default page shows all applications.
-    await adminPrograms.expectApplicationCountForBulkStatus(1)
-    await adminPrograms.expectApplicationHasStatusStringForBulkStatus(
+    await adminPrograms.expectApplicationCount(1)
+    await adminPrograms.expectApplicationHasStatusString(
       testUserDisplayName(),
       'None',
     )
@@ -59,27 +57,20 @@ test.describe('with program statuses', () => {
     await page.locator('#bulk-status-selector').selectOption('Approved')
     await page.getByRole('button', {name: 'Status change'}).click()
     await waitForPageJsLoad(page)
-    await adminPrograms.expectApplicationHasStatusStringForBulkStatus(
+    await adminPrograms.expectApplicationHasStatusString(
       testUserDisplayName(),
       approvedStatusName,
     )
   })
+
   test('if more than 100 applications, only the first page of applications undergo status update', async ({
     page,
     adminPrograms,
-    applicantQuestions,
     adminProgramMigration,
+    seeding,
   }) => {
-    test.slow()
-    // There is already 1 application from the beforeEach, so apply 105 more times.
-    for (let i = 0; i < 105; i++) {
-      await logout(page)
-
-      // Submit an application as a guest.
-      await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantQuestions.submitFromReviewPage()
-    }
-    const id = await adminPrograms.getApplicationId()
+    // There is already 1 application from the beforeEach, so create 105 more using bulk seeding.
+    await seeding.seedApplications(programName, 105)
 
     await logout(page)
     await loginAsProgramAdmin(page)
@@ -95,25 +86,28 @@ test.describe('with program statuses', () => {
       'usa-alert--info',
     )
 
+    const applicationRows = page
+      .getByRole('row')
+      .filter({hasText: /Guest \(\d+\)/})
+
     for (let i = 0; i < 100; i++) {
-      await adminPrograms.expectApplicationHasStatusStringForBulkStatus(
-        `Guest (${id - i})`,
-        approvedStatusName,
-      )
+      await expect(applicationRows.nth(i)).toContainText(approvedStatusName)
     }
     await page.locator('.usa-pagination__button:has-text("2")').click()
     // last applicant
-    await adminPrograms.expectApplicationHasStatusStringForBulkStatus(
+    await adminPrograms.expectApplicationHasStatusString(
       testUserDisplayName(),
       'None',
     )
   })
 })
+
 test.describe('when email is configured for the status and applicant, a checkbox is shown to notify the applicant', () => {
   const programWithStatusesName = 'Test program with email statuses'
   const emailStatusName = 'Email status'
   const emailBody = 'Some email content'
   const noEmailStatusName = 'No email status'
+
   test.beforeEach(
     async ({page, adminPrograms, applicantQuestions, adminProgramStatuses}) => {
       await setupProgramsWithStatuses(
@@ -122,12 +116,11 @@ test.describe('when email is configured for the status and applicant, a checkbox
         applicantQuestions,
         adminProgramStatuses,
       )
-      // enable bulk status feature flag
-      await enableFeatureFlag(page, 'bulk_status_update_enabled')
       await loginAsProgramAdmin(page)
       await adminPrograms.viewApplications(programWithStatusesName)
     },
   )
+
   test('choosing not to notify applicants changes status and does not send email', async ({
     page,
     adminPrograms,
@@ -142,7 +135,7 @@ test.describe('when email is configured for the status and applicant, a checkbox
     await page.getByRole('button', {name: 'Status change'}).click()
     await waitForPageJsLoad(page)
 
-    await adminPrograms.expectApplicationHasStatusStringForBulkStatus(
+    await adminPrograms.expectApplicationHasStatusString(
       testUserDisplayName(),
       emailStatusName,
     )
@@ -170,7 +163,7 @@ test.describe('when email is configured for the status and applicant, a checkbox
     await page.getByRole('button', {name: 'Status change'}).click()
     await waitForPageJsLoad(page)
 
-    await adminPrograms.expectApplicationHasStatusStringForBulkStatus(
+    await adminPrograms.expectApplicationHasStatusString(
       testUserDisplayName(),
       emailStatusName,
     )
@@ -184,6 +177,7 @@ test.describe('when email is configured for the status and applicant, a checkbox
       )
     }
   })
+
   const setupProgramsWithStatuses = async (
     page: Page,
     adminPrograms: AdminPrograms,
@@ -206,14 +200,14 @@ test.describe('when email is configured for the status and applicant, a checkbox
     })
 
     await test.step('submit an application as a guest', async () => {
-      await applicantQuestions.clickApplyProgramButton(programWithStatusesName)
+      await applicantQuestions.applyProgram(programWithStatusesName)
       await applicantQuestions.submitFromReviewPage()
       await logout(page)
     })
 
     await test.step('submit an application as a logged in user', async () => {
       await loginAsTestUser(page)
-      await applicantQuestions.clickApplyProgramButton(programWithStatusesName)
+      await applicantQuestions.applyProgram(programWithStatusesName)
       await applicantQuestions.submitFromReviewPage()
       await logout(page)
     })

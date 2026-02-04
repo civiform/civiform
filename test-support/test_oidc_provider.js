@@ -112,8 +112,9 @@ const configuration = {
 
         // Include if 'phone' scope is requested
         if (scope.includes('phone')) {
+          // Per OIDC spec the phone number is in E.164 format
           // Using area code 253 so that it passes the phone validation
-          claims.phone_number = '2538675309';
+          claims.phone_number = '+12538675309';
           claims.phone_number_verified = true;
         }
 
@@ -160,9 +161,13 @@ oidc.Client.Schema.prototype.invalidate = function invalidate(message, code) {
   orig.call(this, message)
 }
 
-process.on('SIGINT', () => {
-  console.info('Interrupted')
-  process.exit(0)
+// Docker sends a SIGTERM, but handle them all just in case
+const signals = ['SIGTERM', 'SIGINT', 'SIGQUIT', 'SIGHUP']
+signals.forEach(signal => {
+  process.on(signal, () => {
+    console.info(`${signal} received. Shutting down.`)
+    process.exit(0)
+  })
 })
 
 // This will print any server errors out. Otherwise there's no visibility into what's going on.

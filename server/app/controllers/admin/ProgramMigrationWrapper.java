@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 
@@ -44,12 +45,19 @@ public final class ProgramMigrationWrapper {
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   private ImmutableList<QuestionDefinition> questions;
 
+  /**
+   * A map of question admin names that already exist in the question bank to how that imported
+   * question should be handled during import.
+   */
+  private ImmutableMap<String, DuplicateQuestionHandlingOption> duplicateQuestionHandlingOptions;
+
   @JsonCreator
   public ProgramMigrationWrapper(
       @JsonProperty("program") ProgramDefinition program,
       @JsonProperty("questions") ImmutableList<QuestionDefinition> questions) {
     this.program = program;
     this.questions = questions;
+    this.duplicateQuestionHandlingOptions = ImmutableMap.of();
   }
 
   public ProgramDefinition getProgram() {
@@ -66,5 +74,30 @@ public final class ProgramMigrationWrapper {
 
   public void setQuestions(ImmutableList<QuestionDefinition> questions) {
     this.questions = questions;
+  }
+
+  public ImmutableMap<String, DuplicateQuestionHandlingOption>
+      getDuplicateQuestionHandlingOptions() {
+    return duplicateQuestionHandlingOptions;
+  }
+
+  public void setDuplicateQuestionHandlingOptions(
+      ImmutableMap<String, DuplicateQuestionHandlingOption> duplicateQuestionHandlingOptions) {
+    this.duplicateQuestionHandlingOptions = duplicateQuestionHandlingOptions;
+  }
+
+  /** Enum representing the options for handling duplicate questions during program import. */
+  public enum DuplicateQuestionHandlingOption {
+    /** Reuse the existing question definition in the question bank. */
+    USE_EXISTING,
+
+    /**
+     * Create a new question with the same definition as the imported one. A unique admin name is
+     * guaranteed.
+     */
+    CREATE_DUPLICATE,
+
+    /** Create a draft of the existing question with the imported definition. */
+    OVERWRITE_EXISTING,
   }
 }

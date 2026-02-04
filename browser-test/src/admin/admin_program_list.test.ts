@@ -1,13 +1,19 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {
   AdminPrograms,
-  enableFeatureFlag,
   isLocalDevEnvironment,
-  seedProgramsAndCategories,
   loginAsAdmin,
+  loginAsProgramAdmin,
+  logout,
   validateScreenshot,
 } from '../support'
-import {ProgramVisibility} from '../support/admin_programs'
+import {
+  ProgramAction,
+  ProgramCategories,
+  ProgramExtraAction,
+  ProgramLifecycle,
+  ProgramVisibility,
+} from '../support/admin_programs'
 
 test.describe('Program list page.', () => {
   test('view draft program', async ({page, adminPrograms}) => {
@@ -16,7 +22,10 @@ test.describe('Program list page.', () => {
     const programName = 'Test program'
     await adminPrograms.addProgram(programName)
     await adminPrograms.gotoAdminProgramsPage()
-    await validateScreenshot(page, 'program-list-one-draft-program')
+
+    const programCard = page.locator('.cf-admin-program-card').first()
+    await expect(programCard.getByText('Draft')).toBeVisible()
+    await expect(programCard.getByText('Active')).toBeHidden()
   })
 
   test('view active program', async ({page, adminPrograms}) => {
@@ -26,6 +35,18 @@ test.describe('Program list page.', () => {
     await adminPrograms.addProgram(programName)
     await adminPrograms.publishAllDrafts()
     await adminPrograms.gotoAdminProgramsPage()
+
+    const programCard = page.locator('.cf-admin-program-card').first()
+    await expect(programCard.getByText('Draft')).toBeHidden()
+    await expect(programCard.getByText('Active')).toBeVisible()
+
+    await test.step('check that program visibility is displayed', async () => {
+      await expect(
+        programCard.getByText('Visibility state: Public'),
+      ).toBeVisible()
+    })
+
+    // full page screenshot
     await validateScreenshot(page, 'program-list-one-active-program')
   })
 
@@ -42,36 +63,74 @@ test.describe('Program list page.', () => {
 
     await adminPrograms.createNewVersion(programName)
     await adminPrograms.gotoAdminProgramsPage()
-    await validateScreenshot(page, 'program-list-active-and-draft-versions')
+
+    const programCard = page.locator('.cf-admin-program-card').first()
+    await expect(programCard.getByText('Draft')).toBeVisible()
+    await expect(programCard.getByText('Active')).toBeVisible()
   })
 
-  test('view program with categories', async ({page, adminPrograms}) => {
-    await enableFeatureFlag(page, 'program_filtering_enabled')
-    const programName = 'Program with Categories'
-
-    await test.step('seed categories', async () => {
-      await seedProgramsAndCategories(page)
-      await page.goto('/')
-    })
+  test('view program with description', async ({page, adminPrograms}) => {
+    const programName = 'Program With Short Description'
+    const programLongDescription =
+      'A very very very very very very long description'
+    const programShortDescription = 'A short description'
 
     await test.step('create new program', async () => {
       await loginAsAdmin(page)
-      await adminPrograms.addProgram(programName)
+      await adminPrograms.addProgram(programName, {
+        description: programLongDescription,
+        shortDescription: programShortDescription,
+      })
+    })
+
+    await test.step('check that short description is shown', async () => {
+      await adminPrograms.gotoAdminProgramsPage()
+      const firstProgramCard = page.locator('.cf-admin-program-card').first()
+      const firstProgramDesc = firstProgramCard.locator(
+        '.cf-program-description',
+      )
+      await expect(
+        firstProgramDesc.getByText(programShortDescription),
+      ).toBeVisible()
+      await expect(
+        firstProgramDesc.locator(`text=${programLongDescription}`),
+      ).toHaveCount(0) // long description should not be shown
+    })
+  })
+
+  test('view program with categories', async ({
+    page,
+    adminPrograms,
+    seeding,
+  }) => {
+    const programName = 'Program with Categories'
+    const programLongDescription =
+      'A very very very very very very long description'
+    const programShortDescription = 'A very short description'
+
+    await seeding.seedProgramsAndCategories()
+
+    await test.step('create new program', async () => {
+      await page.goto('/')
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(programName, {
+        description: programLongDescription,
+        shortDescription: programShortDescription,
+      })
     })
 
     await test.step('check that categories show as "None"', async () => {
       await adminPrograms.gotoAdminProgramsPage()
-      const firstProgram = page.locator('.cf-admin-program-card').first()
-      await expect(firstProgram.getByText('Categories: None')).toBeVisible()
+      const firstProgramCard = page.locator('.cf-admin-program-card').first()
+      await expect(firstProgramCard.getByText('Categories: None')).toBeVisible()
     })
 
     await test.step('add two categories', async () => {
-      await adminPrograms.gotoEditDraftProgramPage(programName)
-      await page.getByRole('button', {name: 'Edit program details'}).click()
-
-      await page.getByText('Internet').check()
-      await page.getByText('Education').check()
-      await adminPrograms.submitProgramDetailsEdits()
+      await adminPrograms.selectProgramCategories(
+        programName,
+        [ProgramCategories.INTERNET, ProgramCategories.EDUCATION],
+        /* isActive= */ false,
+      )
     })
 
     await test.step('check that selected categories show on program card', async () => {
@@ -82,11 +141,9 @@ test.describe('Program list page.', () => {
       await expect(
         programCard.getByText('Categories: Education, Internet'),
       ).toBeVisible()
-      await validateScreenshot(
-        programCard,
-        'program-list-with-categories',
-        false,
-      )
+      await validateScreenshot(programCard, 'program-list-with-categories', {
+        fullPage: false,
+      })
     })
   })
 
@@ -94,22 +151,38 @@ test.describe('Program list page.', () => {
     page,
     adminPrograms,
   }) => {
-    await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
     await loginAsAdmin(page)
 
+    const activeElementClassList =
+      'text-blue-600 hover:text-blue-500 inline-flex items-center m-2 border-blue-400 border-b-2'
+    const inactiveElementClassList =
+      'text-blue-600 hover:text-blue-500 inline-flex items-center m-2'
     const publicProgram = 'List test public program'
     const disabledProgram = 'List test disabled program'
     await adminPrograms.addProgram(publicProgram)
     await adminPrograms.addDisabledProgram(disabledProgram)
 
+    // in use programs
     await expectProgramListElements(adminPrograms, [publicProgram])
-    await validateScreenshot(page, 'program-list-in-use-tab')
+    await expect(page.getByRole('link', {name: 'In use'})).toHaveClass(
+      activeElementClassList,
+    )
+    await expect(page.getByRole('link', {name: 'Disabled'})).toHaveClass(
+      inactiveElementClassList,
+    )
+
+    // disabled programs
     await expectProgramListElements(
       adminPrograms,
       [disabledProgram],
       /* isProgramDisabled = */ true,
     )
-    await validateScreenshot(page, 'program-list-disabled-tab')
+    await expect(page.getByRole('link', {name: 'In use'})).toHaveClass(
+      inactiveElementClassList,
+    )
+    await expect(page.getByRole('link', {name: 'Disabled'})).toHaveClass(
+      activeElementClassList,
+    )
   })
 
   test('sorts by last updated, preferring draft over active', async ({
@@ -145,31 +218,44 @@ test.describe('Program list page.', () => {
     ])
   })
 
-  test('shows which program is the common intake when enabled', async ({
+  test('shows program type indicator in card', async ({
     page,
     adminPrograms,
   }) => {
     await loginAsAdmin(page)
 
-    const programOne = 'List test program one'
-    const programTwo = 'List test program two'
-    await adminPrograms.addProgram(programOne)
-    await adminPrograms.addProgram(
-      programTwo,
-      'program description',
+    const program = 'Program'
+    const preScreenerProgram = 'Pre screener program'
+    const externalProgram = 'External'
+    await adminPrograms.addProgram(program)
+
+    await adminPrograms.addPreScreener(
+      preScreenerProgram,
+      'short program description',
+      ProgramVisibility.PUBLIC,
+    )
+    await adminPrograms.addExternalProgram(
+      externalProgram,
       'short program description',
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
-      'admin description',
-      /* isCommonIntake= */ true,
     )
 
-    await expectProgramListElements(adminPrograms, [programTwo, programOne])
+    // Pre-screener program should always be first. Then, order is by last modified.
+    await expectProgramListElements(adminPrograms, [
+      preScreenerProgram,
+      externalProgram,
+      program,
+    ])
 
-    await validateScreenshot(page, 'intake-form-indicator')
+    const firstProgramCard = page.locator('.cf-admin-program-card').first()
+    await expect(firstProgramCard.getByText('Pre-screener')).toBeVisible()
+
+    const secondProgramCard = page.locator('.cf-admin-program-card').nth(1)
+    await expect(secondProgramCard.getByText('External program')).toBeVisible()
   })
 
-  test('shows information about universal questions when the flag is enabled and at least one universal question is set', async ({
+  test('shows information about universal questions when at least one universal question is set', async ({
     page,
     adminPrograms,
     adminQuestions,
@@ -192,11 +278,6 @@ test.describe('Program list page.', () => {
       'universal questions',
     )
 
-    await validateScreenshot(
-      page,
-      'program-list-view-no-universal-questions-text',
-    )
-
     // Create a universal question
     const textQuestion = 'text'
     await adminQuestions.addTextQuestion({
@@ -207,10 +288,31 @@ test.describe('Program list page.', () => {
     expect(await page.innerText('.cf-admin-program-card')).toContain(
       'universal questions',
     )
-    await validateScreenshot(
-      page,
-      'program-list-view-with-universal-questions-text',
+  })
+
+  test('external program does not show information about universal questions', async ({
+    page,
+    adminPrograms,
+    adminQuestions,
+  }) => {
+    await loginAsAdmin(page)
+
+    // Create an external program and a universal question
+    await adminPrograms.addExternalProgram(
+      'External program',
+      'short program description',
+      'https://usa.gov',
+      ProgramVisibility.PUBLIC,
     )
+    await adminQuestions.addTextQuestion({
+      questionName: 'text question',
+      universal: true,
+    })
+
+    await adminPrograms.gotoAdminProgramsPage()
+
+    const programCard = page.locator('.cf-admin-program-card').first()
+    await expect(programCard).not.toContainText('universal questions')
   })
 
   async function expectProgramListElements(
@@ -278,7 +380,11 @@ test.describe('Program list page.', () => {
     expect(await page.innerText(publishProgramOneModal)).not.toContain(
       'Warning: This program does not use all recommended universal questions.',
     )
-    await validateScreenshot(page, 'publish-single-program-modal-no-warning')
+
+    await validateScreenshot(
+      page.locator(publishProgramOneModal),
+      'publish-single-program-modal-no-warning',
+    )
     // Dismiss the modal
     await adminQuestions.clickSubmitButtonAndNavigate('Cancel')
 
@@ -294,7 +400,10 @@ test.describe('Program list page.', () => {
     expect(await page.innerText(publishProgramOneModal)).toContain(
       'Warning: This program does not use all recommended universal questions.',
     )
-    await validateScreenshot(page, 'publish-single-program-modal-with-warning')
+    await validateScreenshot(
+      page.locator(publishProgramOneModal),
+      'publish-single-program-modal-with-warning',
+    )
     // Dismiss the modal
     await adminQuestions.clickSubmitButtonAndNavigate('Cancel')
 
@@ -314,6 +423,46 @@ test.describe('Program list page.', () => {
     await adminPrograms.expectActiveProgram(programOne)
   })
 
+  test('publishing an external program shows a modal without conditional warning about universal questions', async ({
+    page,
+    adminPrograms,
+    adminQuestions,
+  }) => {
+    await loginAsAdmin(page)
+
+    // Create an external program and a universal question
+    const externalProgramName = 'External Program'
+    await adminPrograms.addExternalProgram(
+      externalProgramName,
+      'short program description',
+      'https://usa.gov',
+      ProgramVisibility.PUBLIC,
+    )
+    await adminQuestions.addTextQuestion({
+      questionName: 'text question',
+      universal: true,
+    })
+
+    // Trigger the publish modal for the external program
+    await adminPrograms.gotoAdminProgramsPage()
+    const publishButton = adminPrograms.getProgramAction(
+      externalProgramName,
+      ProgramLifecycle.DRAFT,
+      ProgramAction.PUBLISH,
+    )
+    await publishButton.click()
+
+    // Verify modal does not show universal question warning, since they are not
+    //  applicable to external programs
+    const publishExternalProgramModal = '#publish-modal-external-program'
+    expect(await page.innerText(publishExternalProgramModal)).toContain(
+      'Are you sure you want to publish External Program?',
+    )
+    expect(await page.innerText(publishExternalProgramModal)).not.toContain(
+      'Warning: This program does not use all recommended universal questions.',
+    )
+  })
+
   test('program list has current image', async ({
     page,
     adminPrograms,
@@ -330,18 +479,8 @@ test.describe('Program list page.', () => {
     await adminPrograms.publishAllDrafts()
     await adminPrograms.gotoAdminProgramsPage()
 
-    await validateScreenshot(page, 'program-list')
-  })
-
-  test('program list with no image', async ({page, adminPrograms}) => {
-    await loginAsAdmin(page)
-
-    const programName = 'No Image Program'
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.publishAllDrafts()
-    await adminPrograms.gotoAdminProgramsPage()
-
-    await validateScreenshot(page, 'program-list-no-image')
+    const programCard = page.locator('.cf-admin-program-card').first()
+    await validateScreenshot(programCard, 'program-list')
   })
 
   test('program list with new image in draft', async ({
@@ -366,7 +505,8 @@ test.describe('Program list page.', () => {
 
     // Verify that the new image is shown in the Draft row
     // and a gray placeholder image icon is shown in the Active row.
-    await validateScreenshot(page, 'program-list-with-new-draft-image')
+    const programCard = page.locator('.cf-admin-program-card').first()
+    await validateScreenshot(programCard, 'program-list-with-new-draft-image')
   })
 
   // This test is flaky in staging prober tests, so only run it locally and on
@@ -395,8 +535,9 @@ test.describe('Program list page.', () => {
       )
       await adminPrograms.gotoAdminProgramsPage()
 
+      const programCard = page.locator('.cf-admin-program-card').first()
       await validateScreenshot(
-        page,
+        programCard,
         'program-list-with-different-active-and-draft-images',
       )
     })
@@ -422,8 +563,9 @@ test.describe('Program list page.', () => {
     await adminPrograms.gotoAdminProgramsPage()
 
     // Verify that the current image is shown twice, in both the Active row and Draft row
+    const programCard = page.locator('.cf-admin-program-card').first()
     await validateScreenshot(
-      page,
+      programCard,
       'program-list-with-same-active-and-draft-image',
     )
   })
@@ -437,6 +579,93 @@ test.describe('Program list page.', () => {
     const programName = 'Test program'
     await adminPrograms.addProgram(programName)
     await adminPrograms.gotoAdminProgramsPage()
-    await page.getByText('Import existing program').isVisible()
+    await expect(page.getByText('Import existing program')).toBeVisible()
+  })
+
+  test('external program card actions', async ({page, adminPrograms}) => {
+    const externalProgram = 'External'
+
+    await test.step('add external program as a CiviForm admin', async () => {
+      await loginAsAdmin(page)
+
+      await adminPrograms.addExternalProgram(
+        externalProgram,
+        'short program description',
+        'https://usa.gov',
+        ProgramVisibility.PUBLIC,
+      )
+      await expectProgramListElements(adminPrograms, [externalProgram])
+    })
+
+    await test.step(
+      'verify program card for external program on draft mode ' +
+        'in CiviForm admin panel',
+      async () => {
+        await adminPrograms.expectProgramActionsVisible(
+          externalProgram,
+          ProgramLifecycle.DRAFT,
+          [ProgramAction.PUBLISH, ProgramAction.EDIT],
+          [ProgramExtraAction.MANAGE_TRANSLATIONS],
+        )
+        await adminPrograms.expectProgramActionsHidden(
+          externalProgram,
+          ProgramLifecycle.DRAFT,
+          [],
+          [
+            ProgramExtraAction.MANAGE_ADMINS,
+            ProgramExtraAction.MANAGE_APPLICATIONS,
+            ProgramExtraAction.EXPORT,
+          ],
+        )
+      },
+    )
+
+    await test.step(
+      'verify program card for external program on active mode ' +
+        'in CiviForm admin panel',
+      async () => {
+        await adminPrograms.publishProgram(externalProgram)
+        await adminPrograms.expectProgramActionsVisible(
+          externalProgram,
+          ProgramLifecycle.ACTIVE,
+          [ProgramAction.VIEW],
+          [ProgramExtraAction.EDIT],
+        )
+        await adminPrograms.expectProgramActionsHidden(
+          externalProgram,
+          ProgramLifecycle.ACTIVE,
+          [ProgramAction.SHARE],
+          [
+            ProgramExtraAction.MANAGE_ADMINS,
+            ProgramExtraAction.VIEW_APPLICATIONS,
+            ProgramExtraAction.EXPORT,
+          ],
+        )
+
+        await logout(page)
+      },
+    )
+
+    await test.step(
+      'verify program card for external program on active mode ' +
+        'in Program admin panel',
+      async () => {
+        await loginAsProgramAdmin(page)
+
+        // All actions for program admins are hidden
+        await adminPrograms.expectProgramActionsVisible(
+          externalProgram,
+          ProgramLifecycle.ACTIVE,
+          [],
+          [],
+        )
+        await adminPrograms.expectProgramActionsHidden(
+          externalProgram,
+          ProgramLifecycle.ACTIVE,
+          [ProgramAction.SHARE, ProgramAction.VIEW_APPLICATIONS],
+          [],
+        )
+      },
+    )
   })
 })

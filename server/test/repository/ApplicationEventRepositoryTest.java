@@ -44,7 +44,8 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
             .build();
     ApplicationEventModel event =
         new ApplicationEventModel(application, Optional.of(actor), details);
-    ApplicationEventModel insertedEvent = repo.insertSync(event);
+    ApplicationEventModel insertedEvent = repo.insertAndRefreshSync(event);
+
     // Generated values.
     assertThat(insertedEvent.id).isNotNull();
     assertThat(insertedEvent.getCreateTime()).isAfter(startInstant);
@@ -83,6 +84,27 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     assertThat(insertedEvent.getCreator()).isEqualTo(Optional.empty());
     assertThat(insertedEvent.getDetails()).isEqualTo(details);
     assertThat(insertedEvent.getEventType()).isEqualTo(ApplicationEventDetails.Type.STATUS_CHANGE);
+  }
+
+  @Test
+  public void insertStatusEvents_updatesAccountLastActivityTime() {
+    ProgramModel program = resourceCreator.insertActiveProgram("Program");
+    ApplicantModel applicant1 = resourceCreator.insertApplicantWithAccount();
+    Instant activitytimeBeforeUpdate = applicant1.getAccount().getLastActivityTime();
+    ApplicationModel application1 = resourceCreator.insertActiveApplication(applicant1, program);
+    ApplicationEventDetails initialStatus =
+        ApplicationEventDetails.builder()
+            .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
+            .setStatusEvent(
+                StatusEvent.builder().setStatusText("Status").setEmailSent(true).build())
+            .build();
+    repo.insertStatusEvents(
+        ImmutableList.of(application1), Optional.empty(), initialStatus.statusEvent().get());
+
+    // check if accounts table is updated
+    applicant1.getAccount().refresh();
+    Instant activitytimeAfterUpdate = applicant1.getAccount().getLastActivityTime();
+    assertThat(activitytimeAfterUpdate).isNotEqualTo(activitytimeBeforeUpdate);
   }
 
   @Test
@@ -141,13 +163,18 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     application1.refresh();
     assertThat(application1.getLatestStatus().get()).isEqualTo("Status");
     assertThat(application2.getLatestStatus().get()).isEqualTo("Status");
+    assertThat(application1.getStatusLastModifiedTime().get())
+        .isEqualTo(insertedEvent1.getCreateTime());
+    // in case of bulk updates, the first event's status update time is set to the rest of the
+    // events
+    assertThat(application2.getStatusLastModifiedTime().get())
+        .isEqualTo(insertedEvent1.getCreateTime());
   }
 
   @Test
   public void insertStatusEvents_changeApplicationStatus_succeeds() {
-    // For  application1, we will change the status from "Status" to "Denied".
+    // For application1, we will change the status from "Status" to "Denied".
     // For application2, we will change the status from "Status" to no status.
-    Instant startInstant = Instant.now();
     ProgramModel program = resourceCreator.insertActiveProgram("Program");
     AccountModel actor = resourceCreator.insertAccount();
     ApplicantModel applicant1 = resourceCreator.insertApplicantWithAccount();
@@ -213,8 +240,12 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
 
     application2.refresh();
     application1.refresh();
+
     assertThat(application1.getLatestStatus().get()).isEqualTo("Denied");
+    assertThat(application1.getStatusLastModifiedTime().get())
+        .isEqualTo(insertedEventFor1.get(0).getCreateTime());
     assertThat(application2.getLatestStatus()).isEmpty();
+    assertThat(application2.getStatusLastModifiedTime()).isEmpty();
   }
 
   @Test
@@ -234,12 +265,12 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
 
     ApplicationEventModel event1 =
         new ApplicationEventModel(application, Optional.of(actor), details);
-    ApplicationEventModel insertedEvent1 = repo.insertSync(event1);
+    ApplicationEventModel insertedEvent1 = repo.insertAndRefreshSync(event1);
 
     ApplicationEventModel event2 =
         new ApplicationEventModel(application, Optional.of(actor), details);
 
-    ApplicationEventModel insertedEvent2 = repo.insertSync(event2);
+    ApplicationEventModel insertedEvent2 = repo.insertAndRefreshSync(event2);
 
     // Evaluate.
     assertThat(insertedEvent1.id).isNotEqualTo(insertedEvent2.id);
@@ -270,7 +301,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
             .build();
     ApplicationEventModel event =
         new ApplicationEventModel(application, Optional.of(actor), details);
-    repo.insertSync(event);
+    repo.insertAndRefreshSync(event);
 
     // Execute
     ImmutableList<ApplicationEventModel> gotEvents =
@@ -296,11 +327,13 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     // Setup
     Instant startInstant = Instant.now();
     ProgramModel program = resourceCreator.insertActiveProgram("Program");
-    AccountModel actor = resourceCreator.insertAccount();
+    AccountModel admin = resourceCreator.insertAccount();
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+
+    Instant activitytimeBeforeUpdate = applicant.getAccount().getLastActivityTime();
     ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
 
-    repo.insertNoteEvent(application, ApplicationEventDetails.NoteEvent.create("some note"), actor);
+    repo.insertNoteEvent(application, ApplicationEventDetails.NoteEvent.create("some note"), admin);
 
     // Execute
     ImmutableList<ApplicationEventModel> applicationEvents =
@@ -316,6 +349,10 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     // Data is stored in application as well
     assertThat(application.getLatestNote()).isNotEmpty();
     assertThat(application.getLatestNote().get()).isEqualTo("some note");
+    // Check if activity time is updated in Accounts
+    applicant.getAccount().refresh();
+    Instant activitytimeAfterUpdate = applicant.getAccount().getLastActivityTime();
+    assertThat(activitytimeAfterUpdate).isNotEqualTo(activitytimeBeforeUpdate);
   }
 
   @Test

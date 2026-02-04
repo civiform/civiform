@@ -1,4 +1,5 @@
-import {addEventListenerToElements, assertNotNull, formatTextHtml} from './util'
+import {describe, it, expect, beforeEach, afterEach} from 'vitest'
+import {addEventListenerToElements, assertNotNull, formatTextHtml} from '@/util'
 
 describe('addEventListenerToElements', () => {
   let container: HTMLElement
@@ -69,7 +70,7 @@ describe('formatTextHtml', () => {
     const text =
       'this is some _text_ with __markdown__ and a [link](https://www.example.com)'
     expect(formatTextHtml(text).innerHTML).toContain(
-      '<p>this is some <em>text</em> with <strong>markdown</strong> and a <a href="https://www.example.com" target="_blank" class="text-blue-600 hover:text-blue-500 underline">link</a></p>',
+      '<p>this is some <em>text</em> with <strong>markdown</strong> and a <a class="text-blue-600 hover:text-blue-500 underline" target="_blank" href="https://www.example.com">link</a></p>',
     )
   })
 
@@ -84,7 +85,7 @@ describe('formatTextHtml', () => {
     const text =
       'here is a url https://www.example.com and an email test@example.com'
     expect(formatTextHtml(text).innerHTML).toContain(
-      '<p>here is a url <a href="https://www.example.com" target="_blank" class="text-blue-600 hover:text-blue-500 underline">https://www.example.com</a> and an email <a href="mailto:test@example.com" target="_blank" class="text-blue-600 hover:text-blue-500 underline">test@example.com</a></p>',
+      '<p>here is a url <a class="text-blue-600 hover:text-blue-500 underline" target="_blank" href="https://www.example.com">https://www.example.com</a> and an email <a class="text-blue-600 hover:text-blue-500 underline" target="_blank" href="mailto:test@example.com">test@example.com</a></p>',
     )
   })
 
@@ -92,14 +93,14 @@ describe('formatTextHtml', () => {
     const olText =
       'here is some markdown with an unordered list:\n - item one\n - item two\n - item 3'
     expect(formatTextHtml(olText).innerHTML).toContain(
-      '<p>here is some markdown with an unordered list:&nbsp;</p>\n<ul class="list-disc mx-8">\n<li>item one&nbsp;</li>\n<li>item two&nbsp;</li>\n<li>item 3</li>\n</ul>\n',
+      '<p>here is some markdown with an unordered list:&nbsp;</p>\n<ul class="usa-list margin-r-4">\n<li>item one&nbsp;</li>\n<li>item two&nbsp;</li>\n<li>item 3</li>\n</ul>\n',
     )
   })
 
   it('adds formatting to links', () => {
     const text = 'here is markdown with a [link](https://www.example.com)'
     expect(formatTextHtml(text).innerHTML).toContain(
-      '<p>here is markdown with a <a href="https://www.example.com" target="_blank" class="text-blue-600 hover:text-blue-500 underline">link</a></p>',
+      '<p>here is markdown with a <a class="text-blue-600 hover:text-blue-500 underline" target="_blank" href="https://www.example.com">link</a></p>',
     )
   })
 

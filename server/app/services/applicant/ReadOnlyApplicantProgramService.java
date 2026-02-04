@@ -98,6 +98,13 @@ public final class ReadOnlyApplicantProgramService {
     return programDefinition.localizedDescription().getOrDefault(applicantData.preferredLocale());
   }
 
+  /** Returns the program short description, localized to the applicant's preferred locale. */
+  public String getProgramShortDescription() {
+    return programDefinition
+        .localizedShortDescription()
+        .getOrDefault(applicantData.preferredLocale());
+  }
+
   /** Returns the ID of the program. */
   public Long getProgramId() {
     return this.programDefinition.id();
@@ -117,22 +124,19 @@ public final class ReadOnlyApplicantProgramService {
   }
 
   /** Get the string identifiers for all stored files for this application. */
-  public ImmutableList<String> getStoredFileKeys(boolean multipleUploadsEnabled) {
+  public ImmutableList<String> getStoredFileKeys() {
     return getAllActiveBlocks().stream()
         .filter(Block::isFileUpload)
         .flatMap(block -> block.getQuestions().stream())
         .filter(ApplicantQuestion::isAnswered)
         .filter(ApplicantQuestion::isFileUploadQuestion)
         .map(ApplicantQuestion::createFileUploadQuestion)
-        .flatMap(question -> getFileKeyValues(question, multipleUploadsEnabled))
+        .flatMap(ReadOnlyApplicantProgramService::getFileKeyValues)
         .collect(ImmutableList.toImmutableList());
   }
 
-  private static Stream<String> getFileKeyValues(
-      FileUploadQuestion question, boolean multipleUploadsEnabled) {
-    return multipleUploadsEnabled
-        ? question.getFileKeyListValue().orElseGet(() -> ImmutableList.<String>of()).stream()
-        : question.getFileKeyValue().stream();
+  private static Stream<String> getFileKeyValues(FileUploadQuestion question) {
+    return question.getFileKeyListValue().orElseGet(ImmutableList::of).stream();
   }
 
   /**
@@ -265,6 +269,11 @@ public final class ReadOnlyApplicantProgramService {
     return hasAnsweredEligibilityQuestions() && hasGatingEligibilityEnabledOrEligible();
   }
 
+  /** Returns whether the program is available to only logged-in users. */
+  public boolean isProgramOnlyForLoggedInApplicants() {
+    return programDefinition.loginOnly();
+  }
+
   /** Returns whether eligibility is gating or the application is eligible. */
   private boolean hasGatingEligibilityEnabledOrEligible() {
     if (programDefinition.eligibilityIsGating()) {
@@ -395,7 +404,7 @@ public final class ReadOnlyApplicantProgramService {
   public ImmutableList<AnswerData> getSummaryDataAllQuestions() {
     ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
     ImmutableList<Block> blocks = getBlocks((block) -> true);
-    addDataToBuilder(blocks, builder, /* showAnswerText */ true);
+    addDataToBuilder(blocks, builder, /* showAnswerText= */ true);
     return builder.build();
   }
 
@@ -470,8 +479,18 @@ public final class ReadOnlyApplicantProgramService {
 
           if (fileUploadQuestion.getFileKeyListValue().isPresent()) {
             ImmutableList<String> fileKeys = fileUploadQuestion.getFileKeyListValue().get();
+            Optional<ImmutableList<String>> originalFileNamesOptional =
+                fileUploadQuestion.getOriginalFileNameListValue();
+            ImmutableList<String> storageFileNames;
+            // Only Azure deployments store OriginalFilenames, for all other deployments, the
+            // filename is stored in the
+            // filekey.
+            storageFileNames =
+                originalFileNamesOptional.isPresent() ? originalFileNamesOptional.get() : fileKeys;
             fileNames =
-                fileKeys.stream().map(FileUploadQuestion::getFileName).collect(toImmutableList());
+                storageFileNames.stream()
+                    .map(FileUploadQuestion::getFileName)
+                    .collect(toImmutableList());
             encodedFileKeys =
                 fileKeys.stream()
                     .map((fileKey) -> URLEncoder.encode(fileKey, StandardCharsets.UTF_8))
@@ -495,6 +514,7 @@ public final class ReadOnlyApplicantProgramService {
                 .setIsAnswered(isAnswered)
                 .setIsEligible(isEligible)
                 .setEligibilityIsGating(programDefinition.eligibilityIsGating())
+                .setLoginOnly(programDefinition.loginOnly())
                 .setAnswerText(answerText)
                 .setEncodedFileKey(encodedFileKey)
                 .setEncodedFileKeys(encodedFileKeys)
@@ -559,7 +579,7 @@ public final class ReadOnlyApplicantProgramService {
       }
 
       // For an enumeration block definition, build blocks for its repeated questions
-      if (blockDefinition.isEnumerator()) {
+      if (blockDefinition.hasEnumeratorQuestion()) {
         // Get all the repeated entities enumerated by this enumerator question.
         EnumeratorQuestionDefinition enumeratorQuestionDefinition =
             blockDefinition.getEnumerationQuestionDefinition();
@@ -616,14 +636,11 @@ public final class ReadOnlyApplicantProgramService {
 
   private boolean evaluateVisibility(Block block, PredicateDefinition predicate) {
     boolean evaluation = evaluatePredicate(block, predicate);
-    switch (predicate.action()) {
-      case HIDE_BLOCK:
-        return !evaluation;
-      case SHOW_BLOCK:
-        return evaluation;
-      default:
-        return true;
-    }
+    return switch (predicate.action()) {
+      case HIDE_BLOCK -> !evaluation;
+      case SHOW_BLOCK -> evaluation;
+      default -> true;
+    };
   }
 
   private boolean evaluatePredicate(Block block, PredicateDefinition predicate) {

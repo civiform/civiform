@@ -18,7 +18,7 @@ abstract class BaseAzureBlobStorageClient implements AzureBlobStorageClientInter
                         // and passed along, more info on the headers:
                         // https://docs.microsoft.com/en-us/rest/api/storageservices/put-blob
                         .setAllowedHeaders(
-                            "content-type,x-ms-blob-type,x-ms-client-request-id,x-ms-version,x-ms-blob-content-type,x-ms-blob-content-disposition")
+                            "content-type,x-ms-blob-type,x-ms-client-request-id,x-ms-version,x-ms-blob-content-type,x-ms-blob-content-disposition,x-ms-useragent")
                         .setAllowedMethods("GET,PUT,OPTIONS")
                         .setMaxAgeInSeconds(500)));
     blobServiceClient.setProperties(properties);

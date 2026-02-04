@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.ProgramAcls;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.errorprone.annotations.Keep;
 import io.ebean.annotation.DbArray;
 import io.ebean.annotation.DbJson;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import models.ApiBridgeConfigurationModel.ApiBridgeDefinition;
 import play.data.validation.Constraints;
 import services.LocalizedStrings;
 import services.program.BlockDefinition;
@@ -64,6 +66,9 @@ public class ProgramModel extends BaseModel {
 
   /** The program's display mode. */
   @Constraints.Required private String displayMode;
+
+  /** If the program is for logged in applicants only. */
+  @Constraints.Required private Boolean loginOnly;
 
   /** The notification preferences for this program */
   @Constraints.Required
@@ -127,6 +132,8 @@ public class ProgramModel extends BaseModel {
    */
   @DbJsonB private ImmutableList<ApplicationStep> applicationSteps;
 
+  @DbJsonB private ImmutableMap<String, ApiBridgeDefinition> bridgeDefinitions;
+
   @ManyToMany(mappedBy = "programs")
   @JoinTable(
       name = "versions_programs",
@@ -165,7 +172,7 @@ public class ProgramModel extends BaseModel {
   }
 
   public ProgramModel(ProgramDefinition definition) {
-    this(definition, Optional.empty());
+    this(definition, /* version= */ Optional.empty());
   }
 
   public ProgramModel(ProgramDefinition definition, VersionModel version) {
@@ -184,15 +191,21 @@ public class ProgramModel extends BaseModel {
     this.localizedConfirmationMessage = definition.localizedConfirmationMessage();
     this.blockDefinitions = definition.blockDefinitions();
     this.displayMode = definition.displayMode().getValue();
+    this.loginOnly = definition.loginOnly();
     this.notificationPreferences = new ArrayList<>(definition.notificationPreferences());
     this.programType = definition.programType();
     this.eligibilityIsGating = definition.eligibilityIsGating();
     this.acls = definition.acls();
-    this.categories = definition.categories();
+
+    // Ebeans needs to manage the collection so add categories instead of
+    // creating a new array instance
+    this.categories.addAll(definition.categories());
+
     this.localizedSummaryImageDescription =
         definition.localizedSummaryImageDescription().orElse(null);
     this.summaryImageFileKey = definition.summaryImageFileKey().orElse(null);
     this.applicationSteps = definition.applicationSteps();
+    this.bridgeDefinitions = definition.bridgeDefinitions();
 
     orderBlockDefinitionsBeforeUpdate();
 
@@ -219,6 +232,7 @@ public class ProgramModel extends BaseModel {
       VersionModel associatedVersion,
       ProgramType programType,
       boolean eligibilityIsGating,
+      boolean loginOnly,
       ProgramAcls programAcls,
       ImmutableList<CategoryModel> categories,
       ImmutableList<ApplicationStep> applicationSteps) {
@@ -238,9 +252,15 @@ public class ProgramModel extends BaseModel {
     this.versions.add(associatedVersion);
     this.programType = programType;
     this.eligibilityIsGating = eligibilityIsGating;
+    this.loginOnly = loginOnly;
     this.acls = programAcls;
-    this.categories = categories;
+
+    // Ebeans needs to manage the collection so add categories instead of
+    // creating a new array instance
+    this.categories.addAll(categories);
+
     this.applicationSteps = applicationSteps;
+    this.bridgeDefinitions = ImmutableMap.of();
   }
 
   /** Populates column values from {@link ProgramDefinition} */
@@ -259,12 +279,19 @@ public class ProgramModel extends BaseModel {
     notificationPreferences = new ArrayList<>(programDefinition.notificationPreferences());
     programType = programDefinition.programType();
     eligibilityIsGating = programDefinition.eligibilityIsGating();
+    loginOnly = programDefinition.loginOnly();
     acls = programDefinition.acls();
     localizedSummaryImageDescription =
         programDefinition.localizedSummaryImageDescription().orElse(null);
     summaryImageFileKey = programDefinition.summaryImageFileKey().orElse(null);
-    categories = programDefinition.categories();
+
+    // Ebeans needs to manage the collection. Behavior differs in the @PreUpdate
+    // from the constructors. Here we do create a new list instead of clearing
+    // and adding them so Ebeans can correctly see state changes to the entity.
+    // Yes, it's very confusing and poorly documented.
+    categories = new ArrayList<>(programDefinition.categories());
     applicationSteps = programDefinition.applicationSteps();
+    bridgeDefinitions = programDefinition.bridgeDefinitions();
 
     orderBlockDefinitionsBeforeUpdate();
   }
@@ -290,9 +317,11 @@ public class ProgramModel extends BaseModel {
             .setLastModifiedTime(lastModifiedTime)
             .setProgramType(programType)
             .setEligibilityIsGating(eligibilityIsGating)
+            .setLoginOnly(loginOnly)
             .setAcls(acls)
             .setCategories(ImmutableList.copyOf(categories))
-            .setApplicationSteps(ImmutableList.copyOf(applicationSteps));
+            .setApplicationSteps(ImmutableList.copyOf(applicationSteps))
+            .setBridgeDefinitions(ImmutableMap.copyOf(bridgeDefinitions));
 
     setLocalizedConfirmationMessage(builder);
     setLocalizedSummaryImageDescription(builder);

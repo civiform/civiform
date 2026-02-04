@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
+import java.util.UUID;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.question.QuestionOption;
@@ -17,11 +18,13 @@ public class RadioButtonQuestionFormTest {
 
   @Test
   public void getBuilder_returnsCompleteBuilder() throws UnsupportedQuestionTypeException {
+    UUID initialToken = UUID.randomUUID();
     RadioButtonQuestionForm form = new RadioButtonQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
     form.setQuestionText("What is the question text?");
     form.setQuestionHelpText("help text");
+    form.setConcurrencyToken(initialToken);
     // Unique field
     form.setOptions(ImmutableList.of("cat", "dog", "rabbit"));
     form.setOptionAdminNames(ImmutableList.of("cat admin", "dog admin", "rabbit admin"));
@@ -34,6 +37,7 @@ public class RadioButtonQuestionFormTest {
             .setDescription("description")
             .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
             .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+            .setConcurrencyToken(initialToken)
             .build();
 
     ImmutableList<QuestionOption> questionOptions =
@@ -56,6 +60,7 @@ public class RadioButtonQuestionFormTest {
             .setDescription("description")
             .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
             .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+            .setConcurrencyToken(UUID.randomUUID())
             .build();
 
     ImmutableList<QuestionOption> questionOptions =

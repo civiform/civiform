@@ -12,8 +12,8 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import models.ApplicantModel;
 import services.Path;
+import services.applicant.question.AbstractQuestion;
 import services.applicant.question.ApplicantQuestion;
-import services.applicant.question.Question;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.predicate.LeafAddressServiceAreaExpressionNode;
@@ -105,9 +105,11 @@ public final class Block {
     return repeatedEntity;
   }
 
-  /** This block is an enumerator block if its {@link BlockDefinition} is an enumerator. */
+  /**
+   * This block is an enumerator block if its {@link BlockDefinition} has an enumerator question.
+   */
   public boolean isEnumerator() {
-    return blockDefinition.isEnumerator();
+    return blockDefinition.hasEnumeratorQuestion();
   }
 
   /** Get the enumerator {@link ApplicantQuestion} for this enumerator block. */
@@ -180,6 +182,10 @@ public final class Block {
     return questionsMemo.get();
   }
 
+  public boolean hasMapQuestion() {
+    return getQuestions().stream().anyMatch(question -> question.getType() == QuestionType.MAP);
+  }
+
   public ApplicantQuestion getQuestion(Long id) throws QuestionNotFoundException {
     return getQuestions().stream()
         .filter(question -> question.getQuestionDefinition().getId() == id)
@@ -249,7 +255,10 @@ public final class Block {
     return isAnswered() && !hasErrors();
   }
 
-  /** A block is answered if all of its {@link ApplicantQuestion}s {@link Question#isAnswered()}. */
+  /**
+   * A block is answered if all of its {@link ApplicantQuestion}s {@link
+   * AbstractQuestion#isAnswered()}.
+   */
   private boolean isAnswered() {
     return getQuestions().stream().allMatch(ApplicantQuestion::isAnswered);
   }
@@ -328,8 +337,7 @@ public final class Block {
 
   @Override
   public boolean equals(@Nullable Object object) {
-    if (object instanceof Block) {
-      Block that = (Block) object;
+    if (object instanceof Block that) {
       return this.id.equals(that.id)
           && this.blockDefinition.equals(that.blockDefinition)
           && this.applicantData.equals(that.applicantData);

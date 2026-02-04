@@ -54,7 +54,7 @@ public final class ActiveAndDraftPrograms {
    */
   public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsynced(
       VersionRepository repository) {
-    return new ActiveAndDraftPrograms(repository, Optional.empty(), allProgramTypes);
+    return new ActiveAndDraftPrograms(repository, /* service= */ Optional.empty(), allProgramTypes);
   }
 
   /**
@@ -65,7 +65,9 @@ public final class ActiveAndDraftPrograms {
   public static ActiveAndDraftPrograms buildDisabledProgramsFromCurrentVersionsUnsynced(
       VersionRepository repository) {
     return new ActiveAndDraftPrograms(
-        repository, Optional.empty(), EnumSet.of(ActiveAndDraftProgramsType.DISABLED));
+        repository,
+        /* service= */ Optional.empty(),
+        EnumSet.of(ActiveAndDraftProgramsType.DISABLED));
   }
 
   /**
@@ -76,7 +78,18 @@ public final class ActiveAndDraftPrograms {
   public static ActiveAndDraftPrograms buildInUseProgramFromCurrentVersionsUnsynced(
       VersionRepository repository) {
     return new ActiveAndDraftPrograms(
-        repository, Optional.empty(), EnumSet.of(ActiveAndDraftProgramsType.IN_USE));
+        repository, /* service= */ Optional.empty(), EnumSet.of(ActiveAndDraftProgramsType.IN_USE));
+  }
+
+  /**
+   * Queries the existing active and draft versions of non-disabled programs and builds a
+   * snapshotted view of the program state. These programs will include the question definition,
+   * since ProgramService is provided.
+   */
+  public static ActiveAndDraftPrograms buildInUseProgramFromCurrentVersionsSynced(
+      ProgramService service, VersionRepository repository) {
+    return new ActiveAndDraftPrograms(
+        repository, Optional.of(service), EnumSet.of(ActiveAndDraftProgramsType.IN_USE));
   }
 
   private ImmutableMap<String, ProgramDefinition> mapNameToProgramWithFilter(
@@ -228,6 +241,15 @@ public final class ActiveAndDraftPrograms {
     }
 
     return versionedByName.get(name).second();
+  }
+
+  // This method will now attempt to get the draft, and if not present, the active.
+  public Optional<ProgramDefinition> getDraftOrActiveProgramDefinition(String name) {
+    Optional<ProgramDefinition> draftProgram = getDraftProgramDefinition(name);
+    if (draftProgram.isPresent()) {
+      return draftProgram;
+    }
+    return getActiveProgramDefinition(name);
   }
 
   /** Returns the most recent version of the specified program, which may be active or a draft. */

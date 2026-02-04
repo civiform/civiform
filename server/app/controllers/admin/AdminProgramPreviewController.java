@@ -3,12 +3,10 @@ package controllers.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
-import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import controllers.CiviFormController;
-import controllers.applicant.ApplicantRoutes;
+import controllers.applicant.ProgramSlugHandler;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.mvc.Call;
@@ -21,13 +19,15 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.QuestionService;
+import services.settings.SettingsManifest;
 
 /** Controller for admins previewing a program as an applicant. */
 public final class AdminProgramPreviewController extends CiviFormController {
-  private final ApplicantRoutes applicantRoutes;
   private final PdfExporterService pdfExporterService;
   private final ProgramService programService;
   private final QuestionService questionService;
+  private final ProgramSlugHandler programSlugHandler;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public AdminProgramPreviewController(
@@ -36,12 +36,14 @@ public final class AdminProgramPreviewController extends CiviFormController {
       ProgramService programService,
       QuestionService questionService,
       VersionRepository versionRepository,
-      ApplicantRoutes applicantRoutes) {
+      ProgramSlugHandler programSlugHandler,
+      SettingsManifest settingsManifest) {
     super(profileUtils, versionRepository);
-    this.applicantRoutes = checkNotNull(applicantRoutes);
     this.pdfExporterService = checkNotNull(pdfExporterService);
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
+    this.programSlugHandler = checkNotNull(programSlugHandler);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /**
@@ -49,14 +51,8 @@ public final class AdminProgramPreviewController extends CiviFormController {
    * can preview the program.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result preview(Request request, long programId) {
-    CiviFormProfile profile = profileUtils.currentUserProfile(request);
-
-    try {
-      return redirect(applicantRoutes.review(profile, profile.getApplicant().get().id, programId));
-    } catch (ExecutionException | InterruptedException e) {
-      throw new RuntimeException(e);
-    }
+  public CompletionStage<Result> preview(Request request, String programSlug) {
+    return programSlugHandler.showProgramPreview(this, request, programSlug);
   }
 
   /**
@@ -73,7 +69,9 @@ public final class AdminProgramPreviewController extends CiviFormController {
             roQuestionService -> {
               PdfExporter.InMemoryPdf pdf =
                   pdfExporterService.generateProgramPreviewPdf(
-                      program, roQuestionService.getAllQuestions());
+                      program,
+                      roQuestionService.getAllQuestions(),
+                      settingsManifest.getExpandedFormLogicEnabled(request));
               return ok(pdf.getByteArray())
                   .as("application/pdf")
                   .withHeader(

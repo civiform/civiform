@@ -14,9 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: check out ${{ env.GITHUB_REF }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
 
       - name: Build test container
         env:
@@ -27,11 +27,17 @@ jobs:
         env:
           DOCKER_BUILDKIT: 1
         run: bin/build-dev-oidc
+
+      - name: Build mock-web-services
+        env:
+          DOCKER_BUILDKIT: 1
+        run: bin/build-mock-web-services
+
       - name: Run tests
         run: bin/run-test-ci
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
@@ -45,9 +51,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: check out ${{ env.GITHUB_REF }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
 
       - name: Build test container
         env:
@@ -95,10 +101,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: check out ${{ env.GITHUB_REF }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
 
       - name: Build test app container
         env:
@@ -118,13 +124,6 @@ jobs:
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USER_NAME }}
         run: bin/build-dev-oidc
-
-      - name: Build localstack
-        env:
-          DOCKER_BUILDKIT: 1
-          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USER_NAME }}
-        run: bin/build-localstack-env
 
       - name: Build mock-web-services
         env:
@@ -160,27 +159,27 @@ jobs:
       # We want this for aws and azure so we have access to what happened in failed tests.
       - name: Upload image diff outputs
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: image diff output directory (${{ matrix.cloud }}) - shard-${{ matrix.shard_number }}-run-${{ github.run_attempt }}
           retention-days: 3
           path: browser-test/diff_output
 
-      # We only want updated snapshots for aws. Otherwise we'll hit conflicts if both aws and azure 
+      # We only want updated snapshots for aws. Otherwise we'll hit conflicts if both aws and azure
       # attempt to update the same images
       - name: Upload updated snapshots
         if: ${{ matrix.cloud == 'aws' && failure() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: updated snapshots output directory (${{ matrix.cloud }}) - shard-${{ matrix.shard_number }}-run-${{ github.run_attempt }}
           retention-days: 3
           path: browser-test/updated_snapshots
 
-      # Upload Playwright trace files and recorded videos. We want this for aws and azure so we 
+      # Upload Playwright trace files and recorded videos. We want this for aws and azure so we
       # have access to what happened in failed tests.
       - name: Upload test videos on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: tests videos (${{ matrix.cloud }}) - shard-${{ matrix.shard_number }}-run-${{ github.run_attempt }}
           retention-days: 3
@@ -196,9 +195,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: check out ${{ env.GITHUB_REF }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
 
       - name: Build prod container
         env:
@@ -217,4 +216,3 @@ jobs:
       - name: Print logs on failure
         if: failure()
         run: docker compose logs
-

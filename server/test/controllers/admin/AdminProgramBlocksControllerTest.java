@@ -117,6 +117,28 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void create_withProgram_andEnumeratorBlockType_addsBothEnumeratorAndRepeatedBlocks() {
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
+    Request request =
+        fakeRequestBuilder().bodyForm(ImmutableMap.of("blockType", "ENUMERATOR")).build();
+    Result result = controller.create(request, program.id);
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    // Ensures we're redirected to the newly created repeated block rather than the last
+    // block in the program (see issue #1885).
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.AdminProgramBlocksController.edit(program.id, /* blockDefinitionId= */ 3L)
+                .url());
+
+    program.refresh();
+    var blockDefinitions = program.getProgramDefinition().blockDefinitions();
+    assertThat(blockDefinitions).hasSize(3);
+    assertThat(blockDefinitions.get(1).getIsEnumerator()).isEqualTo(true);
+    assertThat(blockDefinitions.get(2).isRepeated()).isEqualTo(true);
+  }
+
+  @Test
   public void show_withNoneActiveProgram_throwsNotViewableException() throws Exception {
     ProgramModel program = ProgramBuilder.newDraftProgram("test program").build();
 
@@ -277,15 +299,15 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void destroy_withInvalidProgram_notFound() {
-    assertThatThrownBy(() -> controller.destroy(/* programId= */ 1L, /* blockId= */ 1L))
+  public void delete_withInvalidProgram_notFound() {
+    assertThatThrownBy(() -> controller.delete(/* programId= */ 1L, /* blockId= */ 1L))
         .isInstanceOf(NotChangeableException.class);
   }
 
   @Test
-  public void destroy_programWithTwoBlocks_redirects() {
+  public void delete_programWithTwoBlocks_redirects() {
     ProgramModel program = ProgramBuilder.newDraftProgram().withBlock().withBlock().build();
-    Result result = controller.destroy(program.id, /* blockId= */ 1L);
+    Result result = controller.delete(program.id, /* blockId= */ 1L);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
@@ -293,9 +315,9 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void destroy_lastBlock_notFound() {
+  public void delete_lastBlock_notFound() {
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
-    Result result = controller.destroy(program.id, /* blockId= */ 1L);
+    Result result = controller.delete(program.id, /* blockId= */ 1L);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }

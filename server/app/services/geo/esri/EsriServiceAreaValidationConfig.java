@@ -118,7 +118,8 @@ public final class EsriServiceAreaValidationConfig {
       mapBuilder.put(ids.get(i), option);
     }
 
-    return esriServiceAreaValidationMap = mapBuilder.build();
+    esriServiceAreaValidationMap = mapBuilder.build();
+    return esriServiceAreaValidationMap;
   }
 
   /**

@@ -1,4 +1,4 @@
-import {addEventListenerToElements, assertNotNull} from './util'
+import {addEventListenerToElements, assertNotNull} from '@/util'
 
 /** Supports the CiviForm Admin system-wide settings page. */
 class AdminSettingsController {

@@ -2,7 +2,6 @@ import {test} from '../support/civiform_fixtures'
 import {
   ApplicantQuestions,
   ClientInformation,
-  enableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
   loginAsTrustedIntermediary,
@@ -22,14 +21,9 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
 
     // Create a hidden program
     const programName = 'Hidden program'
-    const programDescription = 'Description'
-    await adminPrograms.addProgram(
-      programName,
-      programDescription,
-      'Short description',
-      'https://usa.gov',
-      ProgramVisibility.HIDDEN,
-    )
+    await adminPrograms.addProgram(programName, {
+      visibility: ProgramVisibility.HIDDEN,
+    })
     await adminPrograms.publishAllDrafts()
 
     // Login as applicant
@@ -45,29 +39,27 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
   test('create a public program, verify applicants can see it on the home page', async ({
     page,
     adminPrograms,
+    applicantProgramList,
   }) => {
     await loginAsAdmin(page)
 
     const programName = 'Public program'
-    const programDescription = 'Description'
-    await adminPrograms.addProgram(
-      programName,
-      programDescription,
-      'Short description',
-      'https://usa.gov',
-      ProgramVisibility.PUBLIC,
-    )
+    const programShortDescription = 'Short Description'
+    await adminPrograms.addProgram(programName, {
+      shortDescription: programShortDescription,
+    })
     await adminPrograms.publishAllDrafts()
 
     // Login as applicant
     await logout(page)
 
     // Verify applicants can now see the program
-    const applicantQuestions = new ApplicantQuestions(page)
-    await applicantQuestions.expectProgramPublic(
+    await applicantProgramList.expectCardHeaderToBeVisible(programName)
+    await applicantProgramList.expectCardDescriptionToBeVisible(
       programName,
-      programDescription,
+      programShortDescription,
     )
+
     await validateScreenshot(page, 'program-visibility-public')
   })
 
@@ -75,18 +67,16 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     page,
     tiDashboard,
     adminPrograms,
+    applicantProgramList,
   }) => {
     await loginAsAdmin(page)
 
     const programName = 'TI-only program'
-    const programDescription = 'Description'
-    await adminPrograms.addProgram(
-      programName,
-      programDescription,
-      'Short description',
-      'https://usa.gov',
-      ProgramVisibility.TI_ONLY,
-    )
+    const programShortDescription = 'Short description'
+    await adminPrograms.addProgram(programName, {
+      shortDescription: programShortDescription,
+      visibility: ProgramVisibility.TI_ONLY,
+    })
     await adminPrograms.publishAllDrafts()
 
     // Login as applicant, verify program is hidden
@@ -112,10 +102,14 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     await tiDashboard.createClient(client)
     await tiDashboard.expectDashboardContainClient(client)
     await tiDashboard.clickOnViewApplications()
-    await applicantQuestions.expectProgramPublic(
+
+    // Verify applicants can now see the program
+    await applicantProgramList.expectCardHeaderToBeVisible(programName)
+    await applicantProgramList.expectCardDescriptionToBeVisible(
       programName,
-      programDescription,
+      programShortDescription,
     )
+
     await validateScreenshot(page, 'program-visibility-ti-only-visible-to-ti')
   })
 
@@ -124,6 +118,7 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     tiDashboard,
     adminPrograms,
     adminTiGroups,
+    applicantProgramList,
   }) => {
     await loginAsAdmin(page)
     await adminTiGroups.gotoAdminTIPage()
@@ -139,17 +134,12 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
 
     await loginAsAdmin(page)
     const programName = 'Select TI program'
-    const programDescription = 'Description'
-    await adminPrograms.addProgram(
-      programName,
-      programDescription,
-      'Short description',
-      'https://usa.gov',
-      ProgramVisibility.SELECT_TI,
-      'admin description',
-      /* isCommonIntake= */ false,
-      'groupTwo',
-    )
+    const programShortDescription = 'Short description'
+    await adminPrograms.addProgram(programName, {
+      shortDescription: programShortDescription,
+      visibility: ProgramVisibility.SELECT_TI,
+      selectedTI: 'groupTwo',
+    })
     await adminPrograms.publishAllDrafts()
 
     // Login as applicant, verify program is hidden
@@ -192,10 +182,14 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     await tiDashboard.createClient(clientTwo)
     await tiDashboard.expectDashboardContainClient(clientTwo)
     await tiDashboard.clickOnViewApplications()
-    await applicantQuestions.expectProgramPublic(
+
+    // Verify applicants can now see the program
+    await applicantProgramList.expectCardHeaderToBeVisible(programName)
+    await applicantProgramList.expectCardDescriptionToBeVisible(
       programName,
-      programDescription,
+      programShortDescription,
     )
+
     await validateScreenshot(page, 'program-visibility-for-selected-tis')
   })
 
@@ -204,6 +198,7 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     tiDashboard,
     adminPrograms,
     adminTiGroups,
+    applicantProgramList,
   }) => {
     await loginAsAdmin(page)
     await adminTiGroups.gotoAdminTIPage()
@@ -219,17 +214,12 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
 
     await loginAsAdmin(page)
     const programName = 'Select TI to TI Only'
-    const programDescription = 'Description'
-    await adminPrograms.addProgram(
-      programName,
-      programDescription,
-      'Short description',
-      'https://usa.gov',
-      ProgramVisibility.SELECT_TI,
-      'admin description',
-      /* isCommonIntake= */ false,
-      'groupTwo',
-    )
+    const programShortDescription = 'Short description'
+    await adminPrograms.addProgram(programName, {
+      shortDescription: programShortDescription,
+      visibility: ProgramVisibility.SELECT_TI,
+      selectedTI: 'groupTwo',
+    })
     await adminPrograms.publishAllDrafts()
 
     // Login as applicant, verify program is hidden
@@ -274,10 +264,14 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
 
     await tiDashboard.expectDashboardContainClient(client)
     await tiDashboard.clickOnViewApplications()
-    await applicantQuestions.expectProgramPublic(
+
+    // Verify applicants can now see the program
+    await applicantProgramList.expectCardHeaderToBeVisible(programName)
+    await applicantProgramList.expectCardDescriptionToBeVisible(
       programName,
-      programDescription,
+      programShortDescription,
     )
+
     await validateScreenshot(
       page,
       'program-visibility-changes-all-ti-can-see-program',
@@ -291,19 +285,13 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     applicantQuestions,
   }) => {
     const programName = 'Disabled program'
-    await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
 
     await test.step('login as a CiviForm admin and publish a disabled program', async () => {
       await loginAsAdmin(page)
 
-      const programDescription = 'Description'
-      await adminPrograms.addProgram(
-        programName,
-        programDescription,
-        'Short description',
-        'https://usa.gov',
-        ProgramVisibility.DISABLED,
-      )
+      await adminPrograms.addProgram(programName, {
+        visibility: ProgramVisibility.DISABLED,
+      })
       await adminPrograms.publishAllDrafts()
     })
 

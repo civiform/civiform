@@ -73,12 +73,14 @@ public final class QuestionAnswerer {
     applicantData.putString(contextualizedPath.join(Scalar.FILE_KEY), fileKey);
   }
 
+  // Will set the given file key in the applicant data under the FILE_KEY_LIST scalar.
   public static void answerFileQuestionWithMultipleUpload(
       ApplicantData applicantData, Path contextualizedPath, int index, String fileKey) {
     applicantData.putString(
         contextualizedPath.join(Scalar.FILE_KEY_LIST + Path.ARRAY_SUFFIX).atIndex(index), fileKey);
   }
 
+  // Will set the given file keys in the applicant data under the FILE_KEY_LIST scalar.
   public static void answerFileQuestionWithMultipleUpload(
       ApplicantData applicantData, Path contextualizedPath, ImmutableList<String> fileKeys) {
     for (int i = 0; i < fileKeys.size(); i++) {
@@ -88,10 +90,44 @@ public final class QuestionAnswerer {
     }
   }
 
+  // Will set the given original file name in the applicant data under the ORIGINAL_FILE_NAME_LIST
+  // scalar.
+  public static void answerFileQuestionWithMultipleUploadOriginalNames(
+      ApplicantData applicantData, Path contextualizedPath, int index, String originalName) {
+    applicantData.putString(
+        contextualizedPath.join(Scalar.ORIGINAL_FILE_NAME_LIST + Path.ARRAY_SUFFIX).atIndex(index),
+        originalName);
+  }
+
+  // Will set the given original file names in the applicant data under the ORIGINAL_FILE_NAME_LIST
+  // scalar.
+  public static void answerFileQuestionWithMultipleUploadOriginalNames(
+      ApplicantData applicantData, Path contextualizedPath, ImmutableList<String> originalNames) {
+    for (int i = 0; i < originalNames.size(); i++) {
+      applicantData.putString(
+          contextualizedPath.join(Scalar.ORIGINAL_FILE_NAME_LIST + Path.ARRAY_SUFFIX).atIndex(i),
+          originalNames.get(i));
+    }
+  }
+
   public static void answerMultiSelectQuestion(
       ApplicantData applicantData, Path contextualizedPath, int index, long value) {
     applicantData.putLong(
         contextualizedPath.join(Scalar.SELECTIONS + Path.ARRAY_SUFFIX).atIndex(index), value);
+  }
+
+  public static void answerMapQuestion(
+      ApplicantData applicantData,
+      Path contextualizedPath,
+      int index,
+      String locationId,
+      String locationName) {
+    // Map questions expect JSON format with featureId and locationName fields
+    String locationJson =
+        String.format("{\"featureId\":\"%s\",\"locationName\":\"%s\"}", locationId, locationName);
+    applicantData.putString(
+        contextualizedPath.join(Scalar.SELECTIONS + Path.ARRAY_SUFFIX).atIndex(index),
+        locationJson);
   }
 
   public static void answerNameQuestion(
@@ -119,8 +155,13 @@ public final class QuestionAnswerer {
   }
 
   public static void answerSingleSelectQuestion(
+      ApplicantData applicantData, Path contextualizedPath, String value) {
+    applicantData.putString(contextualizedPath.join(Scalar.SELECTION), value);
+  }
+
+  public static void answerSingleSelectQuestion(
       ApplicantData applicantData, Path contextualizedPath, long value) {
-    applicantData.putLong(contextualizedPath.join(Scalar.SELECTION), value);
+    applicantData.putString(contextualizedPath.join(Scalar.SELECTION), String.valueOf(value));
   }
 
   public static void answerIdQuestion(

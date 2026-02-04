@@ -57,6 +57,11 @@ public final class ProfileFactory {
     this.settingsManifest = Preconditions.checkNotNull(settingsManifest);
   }
 
+  @VisibleForTesting
+  Clock getClock() {
+    return clock;
+  }
+
   public CiviFormProfileData createNewApplicant() {
     CiviFormProfileData profileData = create(new Role[] {Role.ROLE_APPLICANT});
 
@@ -97,9 +102,7 @@ public final class ProfileFactory {
             account -> {
               account.setGlobalAdmin(true);
               maybeAuthorityId.ifPresent(account::setAuthorityId);
-              if (settingsManifest.getSessionReplayProtectionEnabled()) {
-                account.addActiveSession(profileData.getSessionId(), clock);
-              }
+              addActiveSession(account, profileData);
               account.save();
             })
         .join();
@@ -136,13 +139,8 @@ public final class ProfileFactory {
     return p;
   }
 
-  @VisibleForTesting
-  public CiviFormProfile wrap(AccountModel account) {
-    return wrapProfileData(new CiviFormProfileData(account.id));
-  }
-
   public CiviFormProfile wrap(ApplicantModel applicant) {
-    CiviFormProfileData profileData = new CiviFormProfileData(applicant.getAccount().id);
+    CiviFormProfileData profileData = new CiviFormProfileData(applicant.getAccount().id, clock);
     CiviFormProfile profile = wrapProfileData(profileData);
     profile.getAccount().thenAccept(account -> profile.storeApplicantIdInProfile(account)).join();
     return profile;
@@ -173,6 +171,7 @@ public final class ProfileFactory {
                                   .getShallowProgramDefinition(program)));
               account.setEmailAddress(String.format("fake-local-admin-%d@example.com", account.id));
               account.setAuthorityId(generateFakeAdminAuthorityId());
+              addActiveSession(account, p);
               account.save();
             })
         .join();
@@ -201,6 +200,7 @@ public final class ProfileFactory {
                                   .get()
                                   .getShallowProgramDefinition(program)));
               account.setEmailAddress(String.format("fake-local-admin-%d@example.com", account.id));
+              addActiveSession(account, p);
               account.save();
             })
         .join();
@@ -235,6 +235,7 @@ public final class ProfileFactory {
             account -> {
               account.setAuthorityId(generateFakeAdminAuthorityId());
               account.setEmailAddress(email);
+              addActiveSession(account, tiProfileData);
               account.save();
               accountRepository.addTrustedIntermediaryToGroup(group.id, email);
             })
@@ -247,6 +248,12 @@ public final class ProfileFactory {
     accountRepository.updateApplicant(tiApplicant);
 
     return tiProfileData;
+  }
+
+  private void addActiveSession(AccountModel account, CiviFormProfileData profileData) {
+    if (settingsManifest.getSessionReplayProtectionEnabled()) {
+      account.addActiveSession(profileData.getSessionId(), clock);
+    }
   }
 
   private static String generateFakeAdminAuthorityId() {

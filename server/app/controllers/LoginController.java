@@ -63,7 +63,7 @@ public class LoginController extends Controller {
 
   public Result applicantLogin(Http.Request request, Optional<String> redirectTo) {
     if (redirectTo.isEmpty()) {
-      return login(request, applicantClient);
+      return login(request, applicantClient).removingFromSession(request, REDIRECT_TO_SESSION_KEY);
     }
     return login(request, applicantClient)
         .addingToSession(request, REDIRECT_TO_SESSION_KEY, redirectTo.get());
@@ -91,9 +91,9 @@ public class LoginController extends Controller {
       return badRequest("Login not configured.");
     }
     PlayWebContext webContext = new PlayWebContext(request);
-    if (client instanceof OidcClient) {
+    if (client instanceof OidcClient oidcClient) {
       webContext.setRequestAttribute(
-          OidcConfiguration.SCOPE, ((OidcClient) client).getConfiguration().getScope());
+          OidcConfiguration.SCOPE, oidcClient.getConfiguration().getScope());
     }
     try {
       Optional<RedirectionAction> redirectMaybe =

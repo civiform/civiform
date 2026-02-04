@@ -1,0 +1,114 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="layoutParams" type="views.admin.shared.LayoutParams"*/-->
+<!doctype html>
+<html lang="en-US" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title
+      th:text="${#strings.isEmpty(templateGlobals.pageTitle()) ? 'CiviForm' : templateGlobals.pageTitle() + ' - CiviForm'}"
+    >
+    </title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="civiform-build-tag"
+      th:content="${layoutParams.civiformImageTag()}"
+    />
+    <meta
+      th:if="${layoutParams.addNoIndexMetaTag()}"
+      name="robots"
+      content="noindex"
+    />
+    <meta
+      name="htmx-config"
+      th:content='|{"inlineStyleNonce":"${templateGlobals.cspNonce()}"}|'
+    />
+
+    <link rel="icon" th:href="${layoutParams.favicon()}" />
+
+    <!--/* Stylesheets to be added */-->
+    <link
+      th:each="stylesheet: ${layoutParams.stylesheets()}"
+      th:nonce="${templateGlobals.cspNonce()}"
+      th:href="${stylesheet}"
+      type="text/css"
+      rel="stylesheet"
+    />
+    <!--/* Scripts to be added before body content. Keep these to a minimum  */-->
+    <script
+      th:each="script: ${layoutParams.headScripts()}"
+      th:nonce="${templateGlobals.cspNonce()}"
+      th:src="${script.src()}"
+      th:type="${script.type()}"
+      th:async="${script.async()}"
+      th:defer="${script.defer()}"
+      th:integrity="${script.integrity()}"
+      th:id="${script.id()}"
+    ></script>
+  </head>
+
+  <!--/* Body sets HTMX header so the CSRF token is always there */-->
+  <body th:hx-headers='|{"CSRF-TOKEN":"${templateGlobals.csrfToken()}"}|'>
+    <th:block th:insert="~{admin/shared/Banner}"></th:block>
+
+    <div class="bg-white maxw-full margin-x-auto desktop-lg:maxw-desktop-lg">
+      <!--/* Header navigation */-->
+      <th:block th:insert="~{admin/shared/AdminCommonHeader}"></th:block>
+
+      <!--/* Main */-->
+      <div class="grid-container bg-white" data-testid="page-content">
+        <div
+          class="grid-row"
+          th:classappend="${layoutParams.layoutType().name() == 'CONTENT_WITH_LEFT_SIDEBAR'} ? 'desktop:flex-row-reverse' : ''"
+        >
+          <main
+            id="main-content"
+            class="grid-col"
+            th:classappend="${layoutParams.layoutType().name() != 'CONTENT_ONLY'} ? 'desktop:grid-col-8' : ''"
+          >
+            <h1 th:text="${templateGlobals.pageTitle()}"></h1>
+
+            <th:block
+              th:insert="~{${layoutParams.pageTemplate()} :: content}"
+            ></th:block>
+          </main>
+
+          <!--/* Optional sidebar. */-->
+          <aside
+            id="sidebar"
+            class="grid-col desktop:grid-col-4"
+            th:if="${layoutParams.layoutType().name() != 'CONTENT_ONLY'}"
+          >
+            <th:block
+              th:insert="~{${layoutParams.pageTemplate()} :: sidebar} ?: ~{}"
+            ></th:block>
+          </aside>
+        </div>
+      </div>
+
+      <!--/* Footer */-->
+      <th:block th:insert="~{admin/shared/Footer}"></th:block>
+
+      <!--/* Google Tag Manager */-->
+      <th:block
+        th:insert="~{components/GoogleTagManagerFragment :: tagManager(${layoutParams.measurementId()}, ${templateGlobals.cspNonce()})}"
+      ></th:block>
+
+      <!--/* Scripts to be added at the end */-->
+      <script
+        th:each="script: ${layoutParams.bodyScripts()}"
+        th:nonce="${templateGlobals.cspNonce()}"
+        th:src="${script.src()}"
+        th:type="${script.type()}"
+        th:async="${script.async()}"
+        th:defer="${script.defer()}"
+        th:integrity="${script.integrity()}"
+        th:id="${script.id()}"
+      ></script>
+
+      <!--/* Optional page specific scripts. These should be load last. */-->
+      <th:block
+        th:insert="~{${layoutParams.pageTemplate()} :: scripts} ?: ~{}"
+      ></th:block>
+    </div>
+  </body>
+</html>

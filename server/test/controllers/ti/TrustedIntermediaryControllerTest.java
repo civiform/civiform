@@ -137,6 +137,8 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                     "clientMiddle",
                     "lastName",
                     "clientLast",
+                    "nameSuffix",
+                    "Jr.",
                     "dob",
                     "2022-07-18",
                     "emailAddress",
@@ -166,6 +168,8 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                     "clientMiddle",
                     "lastName",
                     "clientLast",
+                    "nameSuffix",
+                    "Jr.",
                     "dob",
                     "2022-07-07",
                     "emailAddress",
@@ -186,7 +190,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     // assert ti notes
     assertThat(accountFinal.getTiNote()).isEqualTo("unitTest");
 
-    ApplicantModel applicantModel = accountFinal.newestApplicant().get();
+    ApplicantModel applicantModel = accountFinal.representativeApplicant().get();
     // assert dob,name,phone
     assertThat(applicantModel.getDateOfBirth().get().toString()).isEqualTo("2022-07-07");
     assertThat(applicantModel.getFirstName().get()).isEqualTo("clientFirst");
@@ -216,6 +220,8 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                     "clientMiddle",
                     "lastName",
                     "clientLast",
+                    "nameSuffix",
+                    "Jr.",
                     "dob",
                     "",
                     "emailAddress",

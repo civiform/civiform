@@ -14,8 +14,7 @@ import services.question.types.FileUploadQuestionDefinition;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public final class FileUploadQuestion extends Question {
-
+public final class FileUploadQuestion extends AbstractQuestion {
   // This value is serving double duty as a singleton load of the value.
   // This value is an optional of an optional because not all questions are file upload questions,
   // and if they are this value could still not be set.
@@ -37,7 +36,11 @@ public final class FileUploadQuestion extends Question {
 
   @Override
   public ImmutableList<Path> getAllPaths() {
-    return ImmutableList.of(getFileKeyPath(), getFileKeyListPath());
+    return ImmutableList.of(
+        getFileKeyPath(),
+        getFileKeyListPath(),
+        getOriginalFileNamePath(),
+        getOriginalFileNameListPath());
   }
 
   public ValidationErrorMessage fileRequiredMessage() {
@@ -57,6 +60,10 @@ public final class FileUploadQuestion extends Question {
 
   public Optional<ImmutableList<String>> getFileKeyListValue() {
     return applicantQuestion.getApplicantData().readStringList(getFileKeyListPath());
+  }
+
+  public Optional<String> getFileKeyValueForIndex(int index) {
+    return applicantQuestion.getApplicantData().readString(getFileKeyListPathForIndex(index));
   }
 
   /**
@@ -88,6 +95,31 @@ public final class FileUploadQuestion extends Question {
     return originalFileNameValueCache.get();
   }
 
+  /*
+   * Returns the stored original filenames, if they exist in storage.
+   */
+  public Optional<ImmutableList<String>> getOriginalFileNameListValue() {
+    return applicantQuestion.getApplicantData().readStringList(getOriginalFileNameListPath());
+  }
+
+  /*
+   * Returns the stored original filename for the given index, if the data exists in storage.
+   */
+  public Optional<String> getOriginalFileNameValueForIndex(int index) {
+    Optional<String> originalFileName =
+        applicantQuestion.getApplicantData().readString(getOriginalFileNameListPathForIndex(index));
+    return originalFileName;
+  }
+
+  /*
+   * Returns the filename stored at the given index, will search for a value to return from
+   * the original filename column first, and if none is found, then it will return the filekey.
+   */
+  public Optional<String> getFileNameForIndex(int index) {
+    Optional<String> fileNameOptional = getOriginalFileNameValueForIndex(index);
+    return fileNameOptional.isPresent() ? fileNameOptional : getFileKeyValueForIndex(index);
+  }
+
   public FileUploadQuestionDefinition getQuestionDefinition() {
     return (FileUploadQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
@@ -110,6 +142,18 @@ public final class FileUploadQuestion extends Question {
 
   public Path getOriginalFileNamePath() {
     return applicantQuestion.getContextualizedPath().join(Scalar.ORIGINAL_FILE_NAME);
+  }
+
+  public Path getOriginalFileNameListPath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.ORIGINAL_FILE_NAME_LIST);
+  }
+
+  public Path getOriginalFileNameListPathForIndex(int index) {
+    return applicantQuestion
+        .getContextualizedPath()
+        .join(Scalar.ORIGINAL_FILE_NAME_LIST)
+        .asArrayElement()
+        .atIndex(index);
   }
 
   public Optional<String> getFilename() {

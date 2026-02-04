@@ -3,17 +3,11 @@ package controllers.admin;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
-import static play.test.Helpers.contentAsString;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 import static support.cloud.FakePublicStorageClient.FAKE_BUCKET_NAME;
 
-import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
@@ -25,7 +19,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import play.data.FormFactory;
 import play.mvc.Http;
-import play.mvc.Http.RequestHeader;
 import play.mvc.Result;
 import repository.ResetPostgres;
 import repository.VersionRepository;
@@ -49,9 +42,6 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   @Before
   public void setup() {
     programService = instanceOf(ProgramService.class);
-    CiviFormProfile profile = mock(CiviFormProfile.class);
-    ProfileUtils profileUtils = mock(ProfileUtils.class);
-    when(profileUtils.currentUserProfile(any(RequestHeader.class))).thenReturn(profile);
     controller =
         new AdminProgramImageController(
             new FakePublicStorageClient(),
@@ -61,20 +51,6 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
             instanceOf(FormFactory.class),
             instanceOf(ProfileUtils.class),
             instanceOf(VersionRepository.class));
-  }
-
-  @Test
-  public void index_ok_get() throws ProgramNotFoundException {
-    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
-
-    Result result =
-        controller.index(
-            fakeRequestBuilder().method("GET").build(),
-            program.id,
-            ProgramEditStatus.CREATION.name());
-
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Image upload");
   }
 
   @Test
@@ -99,24 +75,6 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
                     Long.MAX_VALUE,
                     ProgramEditStatus.CREATION.name()))
         .isInstanceOf(NotChangeableException.class);
-  }
-
-  @Test
-  public void index_programHasDescription_displayed() throws ProgramNotFoundException {
-    ProgramModel program =
-        ProgramBuilder.newDraftProgram("test name")
-            .setLocalizedSummaryImageDescription(
-                LocalizedStrings.of(Locale.US, "fake summary description"))
-            .build();
-
-    Result result =
-        controller.index(
-            fakeRequestBuilder().method("GET").build(),
-            program.id,
-            ProgramEditStatus.CREATION.name());
-
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("fake summary description");
   }
 
   @Test

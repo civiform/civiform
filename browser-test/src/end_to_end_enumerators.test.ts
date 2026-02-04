@@ -2,13 +2,14 @@ import {test, expect} from './support/civiform_fixtures'
 import {
   AdminPrograms,
   AdminQuestions,
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
   validateScreenshot,
   waitForPageJsLoad,
 } from './support'
-import {Page} from 'playwright'
+import {Locator, Page} from '@playwright/test'
 
 test.describe('End to end enumerator test', () => {
   const programName = 'Ete enumerator program'
@@ -28,12 +29,8 @@ test.describe('End to end enumerator test', () => {
         await waitForPageJsLoad(page)
       })
 
-      await test.step('Click add button and verify we get entity row and delete button', async () => {
+      await test.step('Click add button and verify we get entity row and delete button and preview values update', async () => {
         await page.click('button:text("Add Sample repeated entity type")')
-        await validateScreenshot(page, 'enumerator-field')
-      })
-
-      await test.step('Update text when configuring question and ensure preview values update', async () => {
         await page.fill('text=Repeated Entity Type', 'New entity type')
         await validateScreenshot(page, 'enumerator-type-set')
       })
@@ -75,6 +72,20 @@ test.describe('End to end enumerator test', () => {
       )
     })
 
+    test('validate successful navigation', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+
+      await applicantQuestions.answerNameQuestion('Porky', 'Pig')
+      await applicantQuestions.clickContinue()
+
+      await applicantQuestions.addEnumeratorAnswer('Bugs')
+      const enumInput = page.getByRole('textbox', {name: 'Entity name #1'})
+      await expect(enumInput).toHaveValue('Bugs')
+    })
+
     test('has no accessibility violations', async ({
       page,
       applicantQuestions,
@@ -82,7 +93,7 @@ test.describe('End to end enumerator test', () => {
       await applicantQuestions.applyProgram(programName)
 
       await applicantQuestions.answerNameQuestion('Porky', 'Pig')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Check that we are on the enumerator page
       await expect(page.locator('.cf-question-enumerator')).toBeVisible()
@@ -104,31 +115,6 @@ test.describe('End to end enumerator test', () => {
       await validateAccessibility(page)
     })
 
-    test('validate screenshot', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName)
-
-      await applicantQuestions.answerNameQuestion('Porky', 'Pig')
-      await applicantQuestions.clickNext()
-
-      await applicantQuestions.addEnumeratorAnswer('Bugs')
-
-      await validateScreenshot(page, 'enumerator')
-    })
-
-    test('validate screenshot with errors', async ({
-      page,
-      applicantQuestions,
-    }) => {
-      await applicantQuestions.applyProgram(programName)
-
-      await applicantQuestions.answerNameQuestion('Porky', 'Pig')
-      await applicantQuestions.clickNext()
-
-      // Click next without adding an enumerator
-      await applicantQuestions.clickNext()
-      await validateScreenshot(page, 'enumerator-errors')
-    })
-
     test('Renders the correct indexes for labels and buttons', async ({
       page,
       applicantQuestions,
@@ -137,13 +123,12 @@ test.describe('End to end enumerator test', () => {
 
       // Fill in name question
       await applicantQuestions.answerNameQuestion('Porky', 'Pig')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Put some things in the enumerator question, they should be numbered in order
       await applicantQuestions.addEnumeratorAnswer('Bugs')
       await applicantQuestions.addEnumeratorAnswer('Daffy')
       await applicantQuestions.addEnumeratorAnswer('Goofy')
-      await validateScreenshot(page, 'enumerator-indexes-with-multiple-fileds')
 
       // Remove the middle entry, the remaining entries should re-index
       await applicantQuestions.deleteEnumeratorEntityByIndex(1)
@@ -158,34 +143,34 @@ test.describe('End to end enumerator test', () => {
 
       // Fill in name question
       await applicantQuestions.answerNameQuestion('Porky', 'Pig')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Put in two things in the enumerator question
       await applicantQuestions.addEnumeratorAnswer('Bugs')
       await applicantQuestions.addEnumeratorAnswer('Daffy')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // FIRST REPEATED ENTITY
       // Answer name
       await applicantQuestions.answerNameQuestion('Bugs', 'Bunny')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Put one thing in the nested enumerator for enum one
       await applicantQuestions.addEnumeratorAnswer('Cartoon Character')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Answer the nested repeated question
       await applicantQuestions.answerNumberQuestion('100')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // SECOND REPEATED ENTITY
       // Answer name
       await applicantQuestions.answerNameQuestion('Daffy', 'Duck')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Put an empty answer in the nested enumerator for enum two.
       await applicantQuestions.addEnumeratorAnswer('')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Oops! Can't have blank lines.
       // Verify that the error message is visible.
@@ -193,10 +178,10 @@ test.describe('End to end enumerator test', () => {
         page.locator('.cf-applicant-question-errors:visible'),
       ).toContainText('Error: Please enter a value for each line.')
       // Put two things in the nested enumerator for enum two
-      await applicantQuestions.deleteEnumeratorEntityByIndex(1)
+      await applicantQuestions.deleteEnumeratorEntity('')
       await applicantQuestions.addEnumeratorAnswer('Banker')
       await applicantQuestions.addEnumeratorAnswer('Banker')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Oops! Can't have duplicates.
       // Verify that the error message is visible.
@@ -206,96 +191,92 @@ test.describe('End to end enumerator test', () => {
 
       // Remove one of the 'Banker' entries and add 'Painter'.
       // the value attribute of the inputs isn't set, so we're clicking the second one.
-      await applicantQuestions.deleteEnumeratorEntityByIndex(2)
+      await applicantQuestions.deleteEnumeratorEntityByIndex(1)
       await applicantQuestions.addEnumeratorAnswer('Painter')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Answer two nested repeated text questions
       await applicantQuestions.answerNumberQuestion('31')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
       await applicantQuestions.answerNumberQuestion('12')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Make sure the enumerator answers are in the review page
-      await expect(page.locator('#application-summary')).toContainText(
+      await expect(page.locator('.application-summary')).toContainText(
         'Porky Pig',
       )
-      await expect(page.locator('#application-summary')).toContainText(
+      await expect(page.locator('.application-summary')).toContainText(
         'Bugs Bunny',
       )
-      await expect(page.locator('#application-summary')).toContainText(
+      await expect(page.locator('.application-summary')).toContainText(
         'Cartoon Character',
       )
-      await expect(page.locator('#application-summary')).toContainText('100')
-      await expect(page.locator('#application-summary')).toContainText(
+      await expect(page.locator('.application-summary')).toContainText('100')
+      await expect(page.locator('.application-summary')).toContainText(
         'Daffy Duck',
       )
-      await expect(page.locator('#application-summary')).toContainText('Banker')
-      await expect(page.locator('#application-summary')).toContainText(
+      await expect(page.locator('.application-summary')).toContainText('Banker')
+      await expect(page.locator('.application-summary')).toContainText(
         'Painter',
       )
-      await expect(page.locator('#application-summary')).toContainText('31')
-      await expect(page.locator('#application-summary')).toContainText('12')
+      await expect(page.locator('.application-summary')).toContainText('31')
+      await expect(page.locator('.application-summary')).toContainText('12')
 
       // Go back to delete enumerator answers
-      await page.click(
-        '.cf-applicant-summary-row:has(div:has-text("Household members")) a:has-text("Edit")',
-      )
+      await applicantQuestions.editQuestionFromReviewPage('Household members')
       await waitForPageJsLoad(page)
 
       await applicantQuestions.deleteEnumeratorEntity('Bugs')
       // Submit the answers by clicking next, and then go to review page.
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Make sure that the removed enumerator is not present in the review page
-      await expect(page.locator('#application-summary')).toContainText(
+      await expect(page.locator('.application-summary')).toContainText(
         'Porky Pig',
       )
-      await expect(page.locator('#application-summary')).not.toContainText(
+      await expect(page.locator('.application-summary')).not.toContainText(
         'Bugs Bunny',
       )
-      await expect(page.locator('#application-summary')).not.toContainText(
+      await expect(page.locator('.application-summary')).not.toContainText(
         'Cartoon Character',
       )
-      await expect(page.locator('#application-summary')).not.toContainText(
+      await expect(page.locator('.application-summary')).not.toContainText(
         '100',
       )
 
       // Go back and add an enumerator answer.
-      await page.click(
-        '.cf-applicant-summary-row:has(div:has-text("Household members")) a:has-text("Edit")',
-      )
+      await applicantQuestions.editQuestionFromReviewPage('Household members')
       await waitForPageJsLoad(page)
       await applicantQuestions.addEnumeratorAnswer('Tweety')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
       await applicantQuestions.answerNameQuestion('Tweety', 'Bird')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
       await applicantQuestions.clickReview()
 
       // Review page should contain Daffy Duck and newly added Tweety Bird.
-      await expect(page.locator('#application-summary')).toContainText(
+      await expect(page.locator('.application-summary')).toContainText(
         'Porky Pig',
       )
-      await expect(page.locator('#application-summary')).toContainText(
+      await expect(page.locator('.application-summary')).toContainText(
         'Tweety Bird',
       )
-      await expect(page.locator('#application-summary')).toContainText(
+      await expect(page.locator('.application-summary')).toContainText(
         'Daffy Duck',
       )
-      await expect(page.locator('#application-summary')).toContainText('Banker')
-      await expect(page.locator('#application-summary')).toContainText(
+      await expect(page.locator('.application-summary')).toContainText('Banker')
+      await expect(page.locator('.application-summary')).toContainText(
         'Painter',
       )
-      await expect(page.locator('#application-summary')).toContainText('31')
-      await expect(page.locator('#application-summary')).toContainText('12')
+      await expect(page.locator('.application-summary')).toContainText('31')
+      await expect(page.locator('.application-summary')).toContainText('12')
       // // Review page should not contain deleted enumerator info for Bugs Bunny.
-      await expect(page.locator('#application-summary')).not.toContainText(
+      await expect(page.locator('.application-summary')).not.toContainText(
         'Bugs Bunny',
       )
-      await expect(page.locator('#application-summary')).not.toContainText(
+      await expect(page.locator('.application-summary')).not.toContainText(
         'Cartoon Character',
       )
-      await expect(page.locator('#application-summary')).not.toContainText(
+      await expect(page.locator('.application-summary')).not.toContainText(
         '100',
       )
 
@@ -310,7 +291,7 @@ test.describe('End to end enumerator test', () => {
         await applicantQuestions.applyProgram(programName)
 
         await applicantQuestions.answerNameQuestion('Porky', 'Pig')
-        await applicantQuestions.clickNext()
+        await applicantQuestions.clickContinue()
       })
 
       await test.step('Add button is disabled when the maximum number of entities is entered', async () => {
@@ -325,8 +306,8 @@ test.describe('End to end enumerator test', () => {
       })
 
       await test.step('Add button is still disabled after navigating away and back', async () => {
-        await applicantQuestions.clickNext()
-        await applicantQuestions.clickPrevious()
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.clickBack()
 
         await expect(
           page.locator('#enumerator-field-add-button'),
@@ -354,8 +335,8 @@ test.describe('End to end enumerator test', () => {
       })
 
       await test.step('Add button is still enabled after navigating away and back', async () => {
-        await applicantQuestions.clickNext()
-        await applicantQuestions.clickPrevious()
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.clickBack()
 
         await expect(page.locator('#enumerator-field-add-button')).toBeEnabled()
       })
@@ -369,7 +350,7 @@ test.describe('End to end enumerator test', () => {
       })
 
       await test.step('Add button is still disabled after trying to save', async () => {
-        await applicantQuestions.clickNext()
+        await applicantQuestions.clickContinue()
 
         // Error shows because of the empty entity
         await expect(
@@ -382,6 +363,36 @@ test.describe('End to end enumerator test', () => {
       })
     })
 
+    test('Applicant cannot enter more than 50 entities for enums without max count', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+
+      // Fill in name question
+      await applicantQuestions.answerNameQuestion('Porky', 'Pig')
+      await applicantQuestions.clickContinue()
+
+      // Put in two things in the enumerator question
+      await applicantQuestions.addEnumeratorAnswer('Bugs')
+      await applicantQuestions.addEnumeratorAnswer('Daffy')
+      await applicantQuestions.clickContinue()
+
+      // REPEATED ENTITY
+      // Answer name
+      await applicantQuestions.answerNameQuestion('Bugs', 'Bunny')
+      await applicantQuestions.clickContinue()
+
+      // Put 50 things in the nested enumerator for enum one
+      for (let i = 1; i <= 50; i++) {
+        await applicantQuestions.addEnumeratorAnswer('Cartoon Character')
+      }
+
+      await expect(page.locator('#enumerator-field-add-button')).toBeDisabled()
+
+      await logout(page)
+    })
+
     test('Applicant can navigate to previous blocks', async ({
       page,
       applicantQuestions,
@@ -390,49 +401,49 @@ test.describe('End to end enumerator test', () => {
 
       // Fill in name question
       await applicantQuestions.answerNameQuestion('Porky', 'Pig')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Put in two things in the enumerator question
       await applicantQuestions.addEnumeratorAnswer('Bugs')
       await applicantQuestions.addEnumeratorAnswer('Daffy')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // REPEATED ENTITY
       // Answer name
       await applicantQuestions.answerNameQuestion('Bugs', 'Bunny')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Put one thing in the nested enumerator for enum one
       await applicantQuestions.addEnumeratorAnswer('Cartoon Character')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Answer the nested repeated question
       await applicantQuestions.answerNumberQuestion('100')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Check previous navigation works
       // Click previous and see number question
-      await applicantQuestions.clickPrevious()
+      await applicantQuestions.clickBack()
       await applicantQuestions.checkNumberQuestionValue('100')
 
       // Click previous and see enumerator question
-      await applicantQuestions.clickPrevious()
+      await applicantQuestions.clickBack()
       await applicantQuestions.checkEnumeratorAnswerValue(
         'Cartoon Character',
         1,
       )
 
       // Click previous and see name question
-      await applicantQuestions.clickPrevious()
+      await applicantQuestions.clickBack()
       await applicantQuestions.checkNameQuestionValue('Bugs', 'Bunny')
 
       // Click previous and see enumerator question
-      await applicantQuestions.clickPrevious()
-      await applicantQuestions.checkEnumeratorAnswerValue('Daffy', 2)
+      await applicantQuestions.clickBack()
       await applicantQuestions.checkEnumeratorAnswerValue('Bugs', 1)
+      await applicantQuestions.checkEnumeratorAnswerValue('Daffy', 2)
 
       // Click previous and see name question
-      await applicantQuestions.clickPrevious()
+      await applicantQuestions.clickBack()
       await applicantQuestions.checkNameQuestionValue('Porky', 'Pig')
 
       await logout(page)
@@ -614,4 +625,174 @@ test.describe('End to end enumerator test', () => {
       await logout(page)
     })
   }
+})
+
+test.describe('End to end enumerator test with enumerators feature flag on', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(page, 'enumerator_improvements_enabled')
+  })
+
+  test.describe('Admin', () => {
+    test.beforeEach(async ({page, adminPrograms}) => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram('Enumerator test program')
+    })
+
+    test('can add an enumerator block and a repeated block to a program at once from the program block edit page', async ({
+      page,
+      adminPrograms,
+    }) => {
+      const blockPanel = page.getByTestId('block-panel-edit')
+
+      await test.step('Go to the program block edit page', async () => {
+        await adminPrograms.gotoEditDraftProgramPage('Enumerator test program')
+      })
+
+      let initialBlockCount: number
+      let enumeratorBlockLink: Locator
+
+      await test.step('Record how many blocks are present in the block order panel', async () => {
+        initialBlockCount = await page
+          .getByRole('link', {name: /^Screen /})
+          .count()
+      })
+
+      await test.step('Click "Add screen" button and check that the dropdown appears', async () => {
+        await page.getByRole('button', {name: 'Add screen'}).first().click()
+        const addScreenDropdown = page
+          .getByRole('list')
+          .filter({has: page.getByRole('button', {name: 'Add repeated set'})})
+        await expect(addScreenDropdown).toBeVisible()
+      })
+
+      await test.step('Click "Add repeated set" button', async () => {
+        await page.getByRole('button', {name: 'Add repeated set'}).click()
+        await waitForPageJsLoad(page)
+      })
+
+      await test.step('Validate that two new blocks appear in the block order panel', async () => {
+        const newBlockCount = await page
+          .getByRole('link', {name: /Screen /})
+          .count()
+        expect(newBlockCount).toBe(initialBlockCount + 2)
+      })
+
+      await test.step('Validate that the current block is the newly-created repeated block', async () => {
+        const currentBlockTitle = blockPanel.getByText(
+          '[parent label] - Screen 3 (repeated from 2)',
+        )
+        await expect(currentBlockTitle).toBeVisible()
+      })
+
+      await test.step('Validate that the enumerator block says repeated set', async () => {
+        enumeratorBlockLink = page
+          .getByRole('link', {name: /Screen /})
+          .nth(initialBlockCount) // zero-indexed
+
+        await expect(
+          enumeratorBlockLink.getByText('Repeated set'),
+        ).toBeVisible()
+      })
+
+      await test.step('Click on the enumerator block in the block order panel', async () => {
+        await enumeratorBlockLink.click()
+        await waitForPageJsLoad(page)
+      })
+
+      await test.step('Validate that "Repeated set creation method" radio buttons are visible', async () => {
+        await expect(
+          blockPanel.getByRole('group', {name: 'Repeated set creation method'}),
+        ).toBeVisible()
+        await expect(
+          blockPanel.getByRole('radio', {name: 'Create new'}),
+        ).toBeVisible()
+        await expect(
+          blockPanel.getByRole('radio', {name: 'Choose existing'}),
+        ).toBeVisible()
+      })
+
+      await test.step('Validate the "Create new repeated set" text is visible', async () => {
+        await expect(
+          blockPanel.getByText('Create new repeated set'),
+        ).toBeVisible()
+      })
+
+      await test.step('Validate that "Create repeated set" button is visible', async () => {
+        await expect(
+          blockPanel.getByRole('button', {name: 'Create repeated set'}),
+        ).toBeVisible()
+      })
+
+      await test.step('Validate that questions section is not visible', async () => {
+        await expect(blockPanel.locator('#questions-section')).toBeHidden()
+      })
+
+      await test.step('Validate that "Add a question" button is not visible', async () => {
+        await expect(
+          blockPanel.getByRole('button', {name: 'Add a question'}),
+        ).toBeHidden()
+      })
+
+      await test.step('Take a screenshot of the block panel', async () => {
+        await validateScreenshot(blockPanel, 'enumerator-block-panel', {
+          fullPage: false,
+        })
+      })
+    })
+
+    test('can create a new enumerator question from the Program Block Edit page and add that question to the block', async ({
+      page,
+      adminPrograms,
+    }) => {
+      const blockPanel = page.getByTestId('block-panel-edit')
+
+      await test.step('Go to the program block edit page', async () => {
+        await adminPrograms.gotoEditDraftProgramPage('Enumerator test program')
+      })
+
+      await test.step('Add a new repeated set', async () => {
+        await page.getByRole('button', {name: 'Add screen'}).first().click()
+        await page.getByRole('button', {name: 'Add repeated set'}).click()
+        await waitForPageJsLoad(page)
+      })
+
+      await test.step('Select the repeated set block from the block order panel', async () => {
+        await page.getByRole('link', {name: 'Screen 2'}).click()
+        await waitForPageJsLoad(page)
+      })
+
+      await test.step('Fill out the new enumerator question form and submit it', async () => {
+        await blockPanel
+          .getByRole('textbox', {name: 'Listed entity'})
+          .fill('Pets')
+        await blockPanel
+          .getByRole('textbox', {name: 'Question text'})
+          .fill('List the names of your pets.')
+        await blockPanel
+          .getByRole('textbox', {name: 'Repeated set admin ID'})
+          .fill('pets enumerator')
+        await blockPanel.getByRole('textbox', {name: 'Hint text'}).fill('Hint')
+        await blockPanel
+          .getByRole('button', {name: 'Create repeated set'})
+          .click()
+        await waitForPageJsLoad(page)
+      })
+
+      await test.step('Validate that the new question card is now visible on the enumerator block', async () => {
+        await expect(
+          blockPanel
+            .getByTestId('question-div')
+            .getByText('List the names of your pets.'),
+        ).toBeVisible()
+      })
+
+      await test.step('Check that the new question is now on the question list page', async () => {
+        await page.getByRole('link', {name: 'Questions'}).click()
+        await expect(
+          page.getByRole('heading', {name: 'All questions'}),
+        ).toBeVisible()
+        await expect(page.getByText('Admin ID: pets enumerator')).toBeVisible()
+      })
+    })
+  })
 })

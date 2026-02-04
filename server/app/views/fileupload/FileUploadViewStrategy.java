@@ -31,7 +31,6 @@ import services.applicant.question.FileUploadQuestion;
 import services.cloud.StorageUploadRequest;
 import views.AlertComponent;
 import views.CspUtil;
-import views.applicant.ApplicantFileUploadRenderer;
 import views.style.ReferenceClasses;
 
 /**
@@ -172,5 +171,9 @@ public abstract class FileUploadViewStrategy {
    */
   public abstract String getMultiFileUploadFormClass();
 
+  /**
+   * Internal method returns extra script tags needed to support file upload from the client.
+   * Invoked by the method footerTags() in this file.
+   */
   protected abstract ImmutableList<ScriptTag> extraScriptTags();
 }

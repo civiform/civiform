@@ -51,7 +51,7 @@ public final class ExportServiceRepository {
             .stream()
             .map(sqlRow -> sqlRow.getString("admin_name"))
             .collect(ImmutableList.toImmutableList());
-    if (allOptions.size() < 1) {
+    if (allOptions.isEmpty()) {
       throw new RuntimeException("Draft questions cannot be exported");
     }
     return allOptions;

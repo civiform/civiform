@@ -1,20 +1,25 @@
 package support;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.dev.seeding.CategoryTranslationFileParser;
 import io.ebean.DB;
 import io.ebean.Database;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import models.AccountModel;
 import models.ApiKeyModel;
 import models.ApplicantModel;
 import models.ApplicationModel;
 import models.CategoryModel;
+import models.DisplayMode;
+import models.GeoJsonDataModel;
 import models.LifecycleStage;
 import models.Models;
 import models.ProgramModel;
@@ -23,8 +28,12 @@ import models.TrustedIntermediaryGroupModel;
 import play.Environment;
 import play.Mode;
 import play.inject.Injector;
+import repository.DatabaseExecutionContext;
 import services.LocalizedStrings;
+import services.ObjectMapperSingleton;
 import services.apikey.ApiKeyService;
+import services.geojson.FeatureCollection;
+import services.program.ProgramType;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
 import services.question.types.TextQuestionDefinition;
@@ -58,6 +67,10 @@ public class ResourceCreator {
     apiKey.save();
 
     return apiKey;
+  }
+
+  public void setLastActivityTimeToNull() {
+    database.sqlUpdate("UPDATE accounts SET last_activity_time=NULL;").execute();
   }
 
   public void truncateTables() {
@@ -97,8 +110,8 @@ public class ResourceCreator {
     return enumQuestion;
   }
 
-  public QuestionModel insertEnumQuestion(String enumName, QuestionModel question) {
-    QuestionDefinition enumDefinition =
+  public QuestionModel insertNestedEnumQuestion(String enumName, QuestionModel question) {
+    QuestionDefinition nestedEnumDefinition =
         new services.question.types.EnumeratorQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName(enumName)
@@ -108,7 +121,7 @@ public class ResourceCreator {
                 .setEnumeratorId(Optional.of(question.id))
                 .build(),
             LocalizedStrings.empty());
-    QuestionModel enumQuestion = new QuestionModel(enumDefinition);
+    QuestionModel enumQuestion = new QuestionModel(nestedEnumDefinition);
     enumQuestion.save();
     return enumQuestion;
   }
@@ -133,23 +146,27 @@ public class ResourceCreator {
   }
 
   public ProgramModel insertActiveDisabledProgram(String name) {
-    return ProgramBuilder.newActiveDisabledProgram(name).build();
+    return ProgramBuilder.newActiveProgram(name, DisplayMode.DISABLED).build();
   }
 
   public ProgramModel insertActiveTiOnlyProgram(String name) {
-    return ProgramBuilder.newActiveTiOnlyProgram(name).build();
+    return ProgramBuilder.newActiveProgram(name, DisplayMode.TI_ONLY).build();
   }
 
   public ProgramModel insertActiveHiddenInIndexProgram(String name) {
-    return ProgramBuilder.newActiveHiddenInIndexProgram(name).build();
+    return ProgramBuilder.newActiveProgram(name, DisplayMode.HIDDEN_IN_INDEX).build();
   }
 
   public ProgramModel insertActiveProgram(Locale locale, String name) {
     return ProgramBuilder.newActiveProgram().withLocalizedName(locale, name).build();
   }
 
-  public ProgramModel insertActiveCommonIntakeForm(String name) {
-    return ProgramBuilder.newActiveCommonIntakeForm(name).build();
+  public ProgramModel insertActivePreScreenerForm(String name) {
+    return ProgramBuilder.newActivePreScreenerForm(name).build();
+  }
+
+  public ProgramModel insertActiveExternalProgram(String name) {
+    return ProgramBuilder.newActiveProgram().withProgramType(ProgramType.EXTERNAL).build();
   }
 
   public ProgramModel insertDraftProgram(String name) {
@@ -158,10 +175,6 @@ public class ResourceCreator {
 
   public ApplicationModel insertActiveApplication(ApplicantModel applicant, ProgramModel program) {
     return ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE);
-  }
-
-  public ApplicationModel insertDraftApplication(ApplicantModel applicant, ProgramModel program) {
-    return ApplicationModel.create(applicant, program, LifecycleStage.DRAFT);
   }
 
   public ApplicationModel insertApplication(
@@ -194,10 +207,26 @@ public class ResourceCreator {
     return category;
   }
 
+  public GeoJsonDataModel insertGeoJsonData(DatabaseExecutionContext dbExecutionContext)
+      throws IOException {
+    ObjectMapper objectMapper = ObjectMapperSingleton.instance();
+    FeatureCollection sampleData =
+        objectMapper.readValue(
+            getClass().getResourceAsStream("/geojson/sample_locations.json"),
+            FeatureCollection.class);
+
+    GeoJsonDataModel geoJsonData = new GeoJsonDataModel();
+    geoJsonData.setGeoJson(sampleData);
+    geoJsonData.setEndpoint("http://mock-web-services:8000/geojson/data");
+    geoJsonData.setConfirmTime(Instant.now());
+    CompletableFuture.runAsync(geoJsonData::save, dbExecutionContext).join();
+    return geoJsonData;
+  }
+
   public ImmutableList<CategoryModel> insertCategoriesFromParser() {
-    CategoryTranslationFileParser parser =
-        new CategoryTranslationFileParser(new Environment(Mode.PROD));
-    List<CategoryModel> parsedCategories = parser.createCategoryModelList();
+    CategoryTranslationFileParser parser = injector.instanceOf(CategoryTranslationFileParser.class);
+    List<CategoryModel> parsedCategories =
+        parser.createCategoryModelList(new Environment(Mode.PROD));
     ImmutableList.Builder<CategoryModel> savedCategoriesBuilder =
         ImmutableList.<CategoryModel>builder();
 

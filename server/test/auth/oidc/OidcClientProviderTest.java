@@ -115,7 +115,10 @@ public class OidcClientProviderTest extends ResetPostgres {
 
     OidcClient client = oidcClientProvider.get();
 
-    assertThat(client.getCallbackUrl()).isEqualTo(c.get("base_url") + "/callback");
+    // name is indirectly referenced which triggers error-prone for an unused
+    // var. Reference it here in a redundant manner to not otherwise
+    // have to suppress the warning completely.
+    assertThat(client.getCallbackUrl()).as(name).isEqualTo(c.get("base_url") + "/callback");
     assertThat(client.getName()).isEqualTo("OidcClient");
 
     OidcConfiguration client_config = client.getConfiguration();
@@ -173,6 +176,7 @@ public class OidcClientProviderTest extends ResetPostgres {
   @Test
   @TestCaseName("{index} {0} config get() should return null config")
   @Parameters(method = "provideConfigsForInvalidConfig")
+  @SuppressWarnings("unused") // name is only used in TestCaseName.
   public void get_invalidConfig(String name, ImmutableMap<String, String> c) {
     Config bad_secret_config = ConfigFactory.parseMap(c);
     assertThatThrownBy(

@@ -3,15 +3,14 @@
   th:with="dateQuestion=${question.createDateQuestion()},
            fieldErrors=${dateQuestion.getValidationErrors().get(dateQuestion.getDatePath())},
            questionErrors=${dateQuestion.getValidationErrors().get(question.getContextualizedPath())},
-           hasErrors=${questionRendererParams.shouldShowErrors() && !dateQuestion.getValidationErrors().isEmpty()}"
+           hasErrors=${questionRendererParams.shouldShowErrors() && !dateQuestion.getValidationErrors().isEmpty()},
+           questionId=${'id-' + #strings.randomAlphanumeric(8)}"
   class="cf-question-date cf-applicant-question-field"
   th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
   data-testid="questionRoot"
+  th:aria-labelledby="|${questionId}-title ${questionId}-description|"
 >
-  <fieldset
-    class="usa-fieldset"
-    th:with="questionId=${'id-' + #strings.randomAlphanumeric(8)}"
-  >
+  <fieldset class="usa-fieldset">
     <!--/* Title and Help Text */-->
     <div
       th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
@@ -20,13 +19,13 @@
     <!--/* Display errors */-->
     <th:block th:if="${fieldErrors == null || fieldErrors.isEmpty()}">
       <div
-        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams})}"
+        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams}, ${questionId})}"
       ></div>
     </th:block>
     <!--/* Display error messages for the shared date path. We actually use 3 different paths for
     inputs, but all errors are reported on the date path. */-->
     <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams}, ${questionId})}"
     ></div>
 
     <div class="usa-memorable-date">
@@ -37,7 +36,11 @@
       >
         <label class="usa-label" th:for="${monthId}">
           <span th:text="#{label.month}"></span>
-          <span th:if="${!question.isOptional()}" class="usa-hint--required">
+          <span
+            th:if="${!question.isOptional()}"
+            class="usa-hint--required"
+            th:aria-hidden="true"
+          >
             *</span
           >
         </label>
@@ -47,8 +50,9 @@
           th:id="${monthId}"
           th:name="${dateQuestion.getMonthPath()}"
           th:with="value=${dateQuestion.getMonthValue().orElse('')}"
-          th:aria-describedby="${questionId} + '-description'"
+          th:aria-describedby="${questionId} + '-description' + (${hasErrors} ? ' ' + ${questionId} + '-error' : '')"
           th:autofocus="${questionRendererParams.autofocusFirstError()}"
+          th:aria-required="${!question.isOptional()}"
         >
           <option value th:text="#{placeholder.memorableDate}"></option>
           <option
@@ -120,20 +124,25 @@
       >
         <label class="usa-label" th:for="${dayId}">
           <span th:text="#{label.day}"></span>
-          <span th:if="${!question.isOptional()}" class="usa-hint--required">
+          <span
+            th:if="${!question.isOptional()}"
+            class="usa-hint--required"
+            th:aria-hidden="true"
+          >
             *</span
           >
         </label>
         <input
           class="usa-input"
           th:classappend="${hasErrors ? 'usa-input--error' : ''}"
-          th:aria-describedby="${questionId} + '-description'"
+          th:aria-describedby="${questionId} + '-description' + (${hasErrors} ? ' ' + ${questionId} + '-error' : '')"
           th:id="${dayId}"
           th:name="${dateQuestion.getDayPath()}"
           maxlength="2"
           pattern="[0-9]*"
           inputmode="numeric"
           th:value="${dateQuestion.getDayValue().orElse('')}"
+          th:aria-required="${!question.isOptional()}"
         />
       </div>
       <!--/* Year input */-->
@@ -143,14 +152,18 @@
       >
         <label class="usa-label" th:for="${yearId}">
           <span th:text="#{label.year}"></span>
-          <span th:if="${!question.isOptional()}" class="usa-hint--required">
+          <span
+            th:if="${!question.isOptional()}"
+            class="usa-hint--required"
+            th:aria-hidden="true"
+          >
             *</span
           >
         </label>
         <input
           class="usa-input"
           th:classappend="${hasErrors ? 'usa-input--error' : ''}"
-          th:aria-describedby="${questionId} + '-description'"
+          th:aria-describedby="${questionId} + '-description' + (${hasErrors} ? ' ' + ${questionId} + '-error' : '')"
           th:id="${yearId}"
           th:name="${dateQuestion.getYearPath()}"
           minlength="4"
@@ -158,6 +171,7 @@
           pattern="[0-9]*"
           inputmode="numeric"
           th:value="${dateQuestion.getYearValue().orElse('')}"
+          th:aria-required="${!question.isOptional()}"
         />
       </div>
     </div>

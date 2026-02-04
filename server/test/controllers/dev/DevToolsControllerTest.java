@@ -45,17 +45,12 @@ public class DevToolsControllerTest {
     assertThat(contentAsString(result)).doesNotContain("comprehensive-sample-program");
 
     // Seed the fake data.
-    result = controller.seedPrograms();
+    result = controller.seedPrograms(fakeRequest());
     assertThat(result.redirectLocation()).hasValue(routes.DevToolsController.index().url());
     assertThat(result.flash().get(FlashKey.SUCCESS)).hasValue("The database has been seeded");
     result = controller.index(fakeRequest());
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).doesNotContain("comprehensive-sample-program");
-
-    // Go to seed data display page.
-    result = controller.data(fakeRequest());
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("comprehensive-sample-program");
 
     // Clear the data.
     result = controller.clear();
@@ -83,7 +78,7 @@ public class DevToolsControllerTest {
     assertThat(contentAsString(result)).doesNotContain("comprehensive-sample-program");
 
     // Seed the fake data.
-    result = controller.seedPrograms();
+    result = controller.seedPrograms(fakeRequest());
     assertThat(result.redirectLocation()).hasValue(routes.DevToolsController.index().url());
     assertThat(result.flash().get(FlashKey.SUCCESS)).hasValue("The database has been seeded");
     result = controller.index(fakeRequest());

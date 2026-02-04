@@ -6,6 +6,7 @@ import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import controllers.CiviFormController;
 import controllers.FlashKey;
@@ -20,6 +21,7 @@ import models.ProgramTab;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
+import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
@@ -32,6 +34,7 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
 import services.question.QuestionService;
+import services.settings.SettingsManifest;
 import views.admin.programs.ProgramEditStatus;
 import views.admin.programs.ProgramIndexView;
 import views.admin.programs.ProgramMetaDataEditView;
@@ -48,6 +51,8 @@ public final class AdminProgramController extends CiviFormController {
   private final ProgramMetaDataEditView editView;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
+  private final MessagesApi messagesApi;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public AdminProgramController(
@@ -59,7 +64,9 @@ public final class AdminProgramController extends CiviFormController {
       VersionRepository versionRepository,
       ProfileUtils profileUtils,
       FormFactory formFactory,
-      RequestChecker requestChecker) {
+      RequestChecker requestChecker,
+      MessagesApi messagesApi,
+      SettingsManifest settingsManifest) {
     super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
@@ -68,6 +75,8 @@ public final class AdminProgramController extends CiviFormController {
     this.editView = checkNotNull(editView);
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
+    this.messagesApi = checkNotNull(messagesApi);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /**
@@ -79,7 +88,7 @@ public final class AdminProgramController extends CiviFormController {
     Optional<CiviFormProfile> profileMaybe = profileUtils.optionalCurrentUserProfile(request);
     return ok(
         listView.render(
-            programService.getInUseActiveAndDraftProgramsWithoutQuestionLoad(),
+            programService.getInUseActiveAndDraftPrograms(),
             questionService.getReadOnlyQuestionServiceSync(),
             request,
             ProgramTab.IN_USE,
@@ -132,20 +141,23 @@ public final class AdminProgramController extends CiviFormController {
             ImmutableList.copyOf(programData.getNotificationPreferences()),
             ImmutableList.copyOf(programData.getCategories()),
             ImmutableList.copyOf(programData.getTiGroups()),
-            applicationSteps);
+            applicationSteps,
+            ImmutableMap.of(),
+            programData.getProgramType());
     if (!errors.isEmpty()) {
       ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(errors));
       return ok(newOneView.render(request, programData, message));
     }
 
-    // If the user needs to confirm that they want to change the common intake form from a different
+    // If the user needs to confirm that they want to change the pre-screener form from a different
     // program to this one, show the confirmation dialog.
-    if (programData.getIsCommonIntakeForm() && !programData.getConfirmedChangeCommonIntakeForm()) {
-      Optional<ProgramDefinition> maybeCommonIntakeForm = programService.getCommonIntakeForm();
-      if (maybeCommonIntakeForm.isPresent()) {
+    if (programData.getProgramType().equals(ProgramType.PRE_SCREENER_FORM)
+        && !programData.getConfirmedChangePreScreenerForm()) {
+      Optional<ProgramDefinition> maybePreScreenerForm = programService.getPreScreenerForm();
+      if (maybePreScreenerForm.isPresent()) {
         return ok(
-            newOneView.renderChangeCommonIntakeConfirmation(
-                request, programData, maybeCommonIntakeForm.get().localizedName().getDefault()));
+            newOneView.renderChangePreScreenerConfirmation(
+                request, programData, maybePreScreenerForm.get().localizedName().getDefault()));
       }
     }
 
@@ -161,12 +173,13 @@ public final class AdminProgramController extends CiviFormController {
             programData.getDisplayMode(),
             ImmutableList.copyOf(programData.getNotificationPreferences()),
             programData.getEligibilityIsGating(),
-            programData.getIsCommonIntakeForm()
-                ? ProgramType.COMMON_INTAKE_FORM
-                : ProgramType.DEFAULT,
+            programData.getLoginOnly(),
+            programData.getProgramType(),
             ImmutableList.copyOf(programData.getTiGroups()),
             ImmutableList.copyOf(programData.getCategories()),
-            applicationSteps);
+            applicationSteps,
+            messagesApi.preferred(request),
+            settingsManifest.getEnumeratorImprovementsEnabled(request));
     // There shouldn't be any errors since we already validated the program, but check for errors
     // again just in case.
     if (result.isError()) {
@@ -272,26 +285,28 @@ public final class AdminProgramController extends CiviFormController {
             programData.getNotificationPreferences(),
             ImmutableList.copyOf(programData.getCategories()),
             ImmutableList.copyOf(programData.getTiGroups()),
-            applicationSteps);
+            applicationSteps,
+            programData.getProgramType());
     if (!validationErrors.isEmpty()) {
       ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(validationErrors));
       return ok(
           editView.render(request, programDefinition, programEditStatus, programData, message));
     }
 
-    // If the user needs to confirm that they want to change the common intake form from a different
+    // If the user needs to confirm that they want to change the pre-screener form from a different
     // program to this one, show the confirmation dialog.
-    if (programData.getIsCommonIntakeForm() && !programData.getConfirmedChangeCommonIntakeForm()) {
-      Optional<ProgramDefinition> maybeCommonIntakeForm = programService.getCommonIntakeForm();
-      if (maybeCommonIntakeForm.isPresent()
-          && !maybeCommonIntakeForm.get().adminName().equals(programDefinition.adminName())) {
+    if (programData.getProgramType().equals(ProgramType.PRE_SCREENER_FORM)
+        && !programData.getConfirmedChangePreScreenerForm()) {
+      Optional<ProgramDefinition> maybePreScreenerForm = programService.getPreScreenerForm();
+      if (maybePreScreenerForm.isPresent()
+          && !maybePreScreenerForm.get().adminName().equals(programDefinition.adminName())) {
         return ok(
-            editView.renderChangeCommonIntakeConfirmation(
+            editView.renderChangePreScreenerConfirmation(
                 request,
                 programDefinition,
                 programEditStatus,
                 programData,
-                maybeCommonIntakeForm.get().localizedName().getDefault()));
+                maybePreScreenerForm.get().localizedName().getDefault()));
       }
     }
 
@@ -307,7 +322,8 @@ public final class AdminProgramController extends CiviFormController {
         programData.getDisplayMode(),
         programData.getNotificationPreferences(),
         programData.getEligibilityIsGating(),
-        programData.getIsCommonIntakeForm() ? ProgramType.COMMON_INTAKE_FORM : ProgramType.DEFAULT,
+        programData.getLoginOnly(),
+        programData.getProgramType(),
         ImmutableList.copyOf(programData.getTiGroups()),
         ImmutableList.copyOf(programData.getCategories()),
         ImmutableList.copyOf(applicationSteps));

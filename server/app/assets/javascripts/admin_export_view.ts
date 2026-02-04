@@ -1,4 +1,4 @@
-import {assertNotNull} from './util'
+import {assertNotNull} from '@/util'
 
 class AdminExportView {
   // These values should be kept in sync with views/admin/migration/AdminExportView.java.

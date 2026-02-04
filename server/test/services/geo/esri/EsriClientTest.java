@@ -2,12 +2,14 @@ package services.geo.esri;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import org.junit.After;
 import org.junit.Test;
+import play.test.WithApplication;
 import services.Address;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
@@ -16,7 +18,7 @@ import services.geo.ServiceAreaState;
 import services.geo.esri.EsriTestHelper.TestType;
 import services.geo.esri.models.Attributes;
 
-public class EsriClientTest {
+public class EsriClientTest extends WithApplication {
   private EsriTestHelper helper;
 
   @After
@@ -28,7 +30,7 @@ public class EsriClientTest {
 
   @Test
   public void getServiceAreaInclusionGroup() throws Exception {
-    helper = new EsriTestHelper(TestType.SERVICE_AREA_VALIDATION);
+    helper = new EsriTestHelper(TestType.SERVICE_AREA_VALIDATION, instanceOf(ObjectMapper.class));
     ImmutableList<ServiceAreaInclusion> inclusionList =
         helper
             .getClient()
@@ -45,7 +47,9 @@ public class EsriClientTest {
 
   @Test
   public void getServiceAreaInclusionGroupAreaNotIncluded() throws Exception {
-    helper = new EsriTestHelper(TestType.SERVICE_AREA_VALIDATION_NOT_INCLUDED);
+    helper =
+        new EsriTestHelper(
+            TestType.SERVICE_AREA_VALIDATION_NOT_INCLUDED, instanceOf(ObjectMapper.class));
     ImmutableList<ServiceAreaInclusion> inclusionList =
         helper
             .getClient()
@@ -62,7 +66,9 @@ public class EsriClientTest {
 
   @Test
   public void getServiceAreaInclusionGroupNoFeatures() throws Exception {
-    helper = new EsriTestHelper(TestType.SERVICE_AREA_VALIDATION_NO_FEATURES);
+    helper =
+        new EsriTestHelper(
+            TestType.SERVICE_AREA_VALIDATION_NO_FEATURES, instanceOf(ObjectMapper.class));
     ImmutableList<ServiceAreaInclusion> inclusionList =
         helper
             .getClient()
@@ -79,7 +85,8 @@ public class EsriClientTest {
 
   @Test
   public void getServiceAreaInclusionGroupError() throws Exception {
-    helper = new EsriTestHelper(TestType.SERVICE_AREA_VALIDATION_ERROR);
+    helper =
+        new EsriTestHelper(TestType.SERVICE_AREA_VALIDATION_ERROR, instanceOf(ObjectMapper.class));
     ImmutableList<ServiceAreaInclusion> inclusionList =
         helper
             .getClient()
@@ -96,7 +103,7 @@ public class EsriClientTest {
 
   @Test
   public void getAddressSuggestions() throws Exception {
-    helper = new EsriTestHelper(TestType.STANDARD);
+    helper = new EsriTestHelper(TestType.STANDARD, instanceOf(ObjectMapper.class));
     Address address =
         Address.builder()
             .setStreet("380 New York St")
@@ -122,7 +129,7 @@ public class EsriClientTest {
 
   @Test
   public void getAddressSuggestionsIncludesOriginalAddress() throws Exception {
-    helper = new EsriTestHelper(TestType.STANDARD);
+    helper = new EsriTestHelper(TestType.STANDARD, instanceOf(ObjectMapper.class));
     Address address =
         Address.builder()
             .setStreet("380 New York St")
@@ -145,7 +152,7 @@ public class EsriClientTest {
 
   @Test
   public void getAddressSuggestionsWithNoCandidates() throws Exception {
-    helper = new EsriTestHelper(TestType.NO_CANDIDATES);
+    helper = new EsriTestHelper(TestType.NO_CANDIDATES, instanceOf(ObjectMapper.class));
     Address address =
         Address.builder()
             .setStreet("380 New York St")
@@ -164,7 +171,7 @@ public class EsriClientTest {
 
   @Test
   public void getAddressSuggestionsWithEmptyResponse() throws Exception {
-    helper = new EsriTestHelper(TestType.EMPTY_RESPONSE);
+    helper = new EsriTestHelper(TestType.EMPTY_RESPONSE, instanceOf(ObjectMapper.class));
     Address address =
         Address.builder()
             .setStreet("380 New York St")
@@ -184,7 +191,7 @@ public class EsriClientTest {
 
   @Test
   public void getAddressSuggestionsWithEsriErrorResponse() {
-    helper = new EsriTestHelper(TestType.ESRI_ERROR_RESPONSE);
+    helper = new EsriTestHelper(TestType.ESRI_ERROR_RESPONSE, instanceOf(ObjectMapper.class));
     Address address =
         Address.builder()
             .setStreet("380 New York St")
@@ -204,7 +211,7 @@ public class EsriClientTest {
 
   @Test
   public void getAddressSuggestionsWithError() throws Exception {
-    helper = new EsriTestHelper(TestType.ERROR);
+    helper = new EsriTestHelper(TestType.ERROR, instanceOf(ObjectMapper.class));
     Address address =
         Address.builder()
             .setStreet("380 New York St")

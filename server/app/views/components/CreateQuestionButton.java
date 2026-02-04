@@ -9,7 +9,9 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import java.util.Locale;
+import play.mvc.Http;
 import services.question.types.QuestionType;
+import services.settings.SettingsManifest;
 import views.style.StyleUtils;
 
 /**
@@ -19,7 +21,10 @@ public final class CreateQuestionButton {
 
   /** Renders the "Create new question" button with a dropdown for each question type. */
   public static DivTag renderCreateQuestionButton(
-      String questionCreateRedirectUrl, boolean isPrimaryButton) {
+      String questionCreateRedirectUrl,
+      boolean isPrimaryButton,
+      SettingsManifest settingsManifest,
+      Http.Request request) {
     String parentId = "create-question-button";
     String dropdownId = parentId + "-dropdown";
     ButtonTag createNewQuestionButton =
@@ -31,6 +36,7 @@ public final class CreateQuestionButton {
     DivTag dropdown =
         div()
             .withId(dropdownId)
+            .withData("testId", dropdownId)
             .withClasses(
                 "z-50",
                 "border",
@@ -40,15 +46,19 @@ public final class CreateQuestionButton {
                 "absolute",
                 "ml-3",
                 "mt-1",
-                // add extra padding at the bottom to account for the fact
-                // that question bank is pushed down by the header and its
-                // lower part is always hidden
-                "pb-12",
+                // Small padding at the abottom for visual spacing
+                "pb-3",
                 "hidden");
 
     for (QuestionType type : QuestionType.values()) {
       // Do not attempt to render a null question
       if (type == QuestionType.NULL_QUESTION) {
+        continue;
+      }
+      if (type == QuestionType.YES_NO && !settingsManifest.getYesNoQuestionEnabled()) {
+        continue;
+      }
+      if (type == QuestionType.MAP && !settingsManifest.getMapQuestionEnabled(request)) {
         continue;
       }
 
@@ -67,7 +77,7 @@ public final class CreateQuestionButton {
                   "text-gray-600",
                   StyleUtils.hover("bg-gray-100", "text-gray-800"))
               .with(
-                  Icons.questionTypeSvg(type)
+                  Icons.questionTypeSvgWithId(type)
                       .withClasses("inline-block", "h-6", "w-6", "mr-1", "text-sm"))
               .with(p(type.getLabel()).withClasses("ml-2", "mr-4", "inline", "text-sm"));
       dropdown.with(linkTag);

@@ -22,56 +22,34 @@ test.describe('address applicant flow', () => {
       )
     })
 
-    test('validate screenshot', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName)
-
-      await validateScreenshot(page, 'address')
-    })
-
-    test('validate screenshot with errors', async ({
+    test('with valid address does submit', async ({
       page,
       applicantQuestions,
     }) => {
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.clickNext()
 
-      await validateScreenshot(page, 'address-errors')
-    })
+      await test.step('Validate page', async () => {
+        await expectQuestionHasNoErrors(page, 0)
 
-    test('does not show errors initially', async ({
-      page,
-      applicantQuestions,
-    }) => {
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerAddressQuestion(
-        '1234 St',
-        'Unit B',
-        'Sim',
-        'WA',
-        '54321',
-      )
-      let error = page.locator('.cf-address-street-1-error')
-      await expect(error).toBeHidden()
-      error = page.locator('.cf-address-city-error')
-      await expect(error).toBeHidden()
-      error = page.locator('.cf-address-state-error')
-      await expect(error).toBeHidden()
-      error = page.locator('.cf-address-zip-error')
-      await expect(error).toBeHidden()
-    })
+        await validateScreenshot(page.getByTestId('questionRoot'), 'address', {
+          fullPage: false,
+        })
+        await validateAccessibility(page)
+      })
 
-    test('with valid address does submit', async ({applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerAddressQuestion(
-        '1234 St',
-        'Unit B',
-        'Sim',
-        'WA',
-        '54321',
-      )
-      await applicantQuestions.clickNext()
+      await test.step('Verify user can submit', async () => {
+        await applicantQuestions.answerAddressQuestion(
+          '1234 St',
+          'Unit B',
+          'Sim',
+          'WA',
+          '54321',
+        )
 
-      await applicantQuestions.submitFromReviewPage()
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.submitFromReviewPage()
+        await applicantQuestions.expectConfirmationPage()
+      })
     })
 
     test('with empty address does not submit', async ({
@@ -79,35 +57,74 @@ test.describe('address applicant flow', () => {
       applicantQuestions,
     }) => {
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerAddressQuestion('', '', '', '', '')
-      await applicantQuestions.clickNext()
+      // Answers intentionally left blank
+      await applicantQuestions.clickContinue()
 
-      let error = page.locator('.cf-address-street-1-error')
-      await expect(error).toBeVisible()
-      error = page.locator('.cf-address-city-error')
-      await expect(error).toBeVisible()
-      error = page.locator('.cf-address-state-error')
-      await expect(error).toBeVisible()
-      error = page.locator('.cf-address-zip-error')
-      await expect(error).toBeVisible()
+      await test.step('Validate error state', async () => {
+        await expectQuestionHasGroupErrors(page, 0)
+
+        await validateScreenshot(
+          page.getByTestId('questionRoot'),
+          'address-errors',
+          {
+            fullPage: false,
+          },
+        )
+
+        await validateAccessibility(page)
+      })
     })
 
     test('with invalid address does not submit', async ({
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerAddressQuestion(
-        '1234 St',
-        'Unit B',
-        'Sim',
-        'WA',
-        'notazipcode',
-      )
-      await applicantQuestions.clickNext()
+      await test.step('Fill out form', async () => {
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerAddressQuestion(
+          '1234 St',
+          'Unit B',
+          'Sim',
+          'WA',
+          'notazipcode',
+        )
+        await applicantQuestions.clickContinue()
+      })
 
-      const error = page.locator('.cf-address-zip-error')
-      await expect(error).toBeVisible()
+      await test.step('Confirm aria-invalid applies only to the invalid field', async () => {
+        const addressStreet1 = page.getByRole('textbox', {name: 'Address'})
+        const addressStreet2 = page.getByRole('textbox', {
+          name: 'Apartment, suite, etc. (',
+        })
+        const addressCity = page.getByRole('textbox', {name: 'City'})
+        const addressState = page.getByLabel('State *')
+        const addressZip = page.getByRole('textbox', {name: 'ZIP Code'})
+        await expect(addressStreet1).toHaveAttribute('aria-invalid', 'false')
+        await expect(addressStreet2).toHaveAttribute('aria-invalid', 'false')
+        await expect(addressCity).toHaveAttribute('aria-invalid', 'false')
+        await expect(addressState).toHaveAttribute('aria-invalid', 'false')
+        await expect(addressZip).toHaveAttribute('aria-invalid', 'true')
+      })
+
+      await test.step('Confirm address zip error is visible', async () => {
+        const error = page.locator('.cf-address-zip-error')
+        await expect(error).toBeVisible()
+        await validateAccessibility(page)
+      })
+    })
+
+    test('with partially complete address does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await test.step('Partially fill out form', async () => {
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerAddressQuestion('', '', '', '', '43568')
+        await applicantQuestions.clickContinue()
+      })
+
+      await expectQuestionHasFieldErrorsForAllExceptZip(page, 0)
+      await validateAccessibility(page)
     })
   })
 
@@ -119,9 +136,13 @@ test.describe('address applicant flow', () => {
 
       await adminQuestions.addAddressQuestion({
         questionName: 'address-test-a-q',
+        description: '',
+        questionText: 'Question A',
       })
       await adminQuestions.addAddressQuestion({
         questionName: 'address-test-b-q',
+        description: '',
+        questionText: 'Question B',
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['address-test-a-q', 'address-test-b-q'],
@@ -132,100 +153,94 @@ test.describe('address applicant flow', () => {
     })
 
     test('with valid addresses does submit', async ({applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerAddressQuestion(
-        '1234 St',
-        'Unit B',
-        'Sim',
-        'WA',
-        '54321',
-        0,
-      )
-      await applicantQuestions.answerAddressQuestion(
-        '1234 St',
-        'Unit B',
-        'Sim',
-        'WA',
-        '54321',
-        1,
-      )
-      await applicantQuestions.clickNext()
+      await test.step('Fill out form', async () => {
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerAddressQuestion(
+          '1234 St',
+          'Unit B',
+          'Sim',
+          'WA',
+          '54321',
+          0,
+        )
+        await applicantQuestions.answerAddressQuestion(
+          '1234 St',
+          'Unit B',
+          'Sim',
+          'WA',
+          '54321',
+          1,
+        )
+      })
 
-      await applicantQuestions.submitFromReviewPage()
+      await test.step('Verify user can submit', async () => {
+        await applicantQuestions.clickContinue()
+
+        await applicantQuestions.submitFromReviewPage()
+        await applicantQuestions.expectConfirmationPage()
+      })
     })
 
     test('with first invalid does not submit', async ({
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerAddressQuestion('', '', '', '', '', 0)
-      await applicantQuestions.answerAddressQuestion(
-        '1234 St',
-        'Unit B',
-        'Sim',
-        'WA',
-        '54321',
-        1,
-      )
-      await applicantQuestions.clickNext()
+      await test.step('Fill out form', async () => {
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerAddressQuestion('', '', '', '', '', 0)
+        await applicantQuestions.answerAddressQuestion(
+          '1234 St',
+          'Unit B',
+          'Sim',
+          'WA',
+          '54321',
+          1,
+        )
+        await applicantQuestions.clickContinue()
+      })
 
-      // First question has errors.
-      let error = page.locator('.cf-address-street-1-error >> nth=0')
-      await expect(error).toBeVisible()
-      error = page.locator('.cf-address-city-error >> nth=0')
-      await expect(error).toBeVisible()
-      error = page.locator('.cf-address-state-error >> nth=0')
-      await expect(error).toBeVisible()
-      error = page.locator('.cf-address-zip-error >> nth=0')
-      await expect(error).toBeVisible()
+      // Expect first question has errors since it's not answered
+      await expectQuestionHasGroupErrors(page, 0)
 
-      // Second question has no errors.
-      error = page.locator('.cf-address-street-1-error >> nth=1')
-      await expect(error).toBeHidden()
-      error = page.locator('.cf-address-city-error >> nth=1')
-      await expect(error).toBeHidden()
-      error = page.locator('.cf-address-state-error >> nth=1')
-      await expect(error).toBeHidden()
-      error = page.locator('.cf-address-zip-error >> nth=1')
-      await expect(error).toBeHidden()
+      // Expect second question does NOT have errors since it has a valid answer
+      await expectQuestionHasNoErrors(page, 1)
     })
 
     test('with second invalid does not submit', async ({
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerAddressQuestion(
-        '1234 St',
-        'Unit B',
-        'Sim',
-        'WA',
-        '54321',
-        0,
-      )
-      await applicantQuestions.answerAddressQuestion('', '', '', '', '', 1)
-      await applicantQuestions.clickNext()
+      await test.step('Fill out form', async () => {
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerAddressQuestion(
+          '1234 St',
+          'Unit B',
+          'Sim',
+          'WA',
+          '54321',
+          0,
+        )
+        await applicantQuestions.answerAddressQuestion('', '', '', '', '', 1)
+        await applicantQuestions.clickContinue()
+      })
 
-      // First question has no errors.
-      let error = page.locator('.cf-address-street-1-error >> nth=0')
-      await expect(error).toBeHidden()
-      error = page.locator('.cf-address-city-error >> nth=0')
-      await expect(error).toBeHidden()
-      error = page.locator('.cf-address-state-error >> nth=0')
-      await expect(error).toBeHidden()
-      error = page.locator('.cf-address-zip-error >> nth=0')
-      await expect(error).toBeHidden()
+      // Expect the application did NOT advance to the summary page
+      await expect(page.getByText('1 of 2')).toBeVisible() // Page 1 of 2
+      await expect(page.getByText('Screen 1')).toBeVisible()
+      await expect(page.getByText('Question A')).toBeVisible()
+      await expect(
+        page.locator('[data-testid="questionRoot"]').nth(0),
+      ).toBeVisible()
+      await expect(page.getByText('Question B')).toBeVisible()
+      await expect(
+        page.locator('[data-testid="questionRoot"]').nth(1),
+      ).toBeVisible()
 
-      // Second question has errors.
-      error = page.locator('.cf-address-street-1-error >> nth=1')
-      await expect(error).toBeVisible()
-      error = page.locator('.cf-address-city-error >> nth=1')
-      await expect(error).toBeVisible()
-      error = page.locator('.cf-address-state-error >> nth=1')
-      await expect(error).toBeVisible()
-      error = page.locator('.cf-address-zip-error >> nth=1')
-      await expect(error).toBeVisible()
+      // First question has no errors because it has a valid answer
+      await expectQuestionHasNoErrors(page, 0)
+
+      // Second question has errors because it is not answered
+      await expectQuestionHasGroupErrors(page, 1)
     })
 
     test('has no accessibility violations', async ({
@@ -247,9 +262,11 @@ test.describe('address applicant flow', () => {
 
       await adminQuestions.addAddressQuestion({
         questionName: 'address-test-optional-q',
+        questionText: 'Optional Question',
       })
       await adminQuestions.addAddressQuestion({
         questionName: 'address-test-required-q',
+        questionText: 'Required Question',
       })
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockWithOptional(
@@ -266,82 +283,80 @@ test.describe('address applicant flow', () => {
     test('with valid required address does submit', async ({
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerAddressQuestion(
-        '1234 St',
-        'Unit B',
-        'Sim',
-        'WA',
-        '54321',
-        1,
-      )
-      await applicantQuestions.clickNext()
+      await test.step('Fill out form', async () => {
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerAddressQuestion(
+          '1234 St',
+          'Unit B',
+          'Sim',
+          'WA',
+          '54321',
+          1,
+        )
+      })
 
-      await applicantQuestions.submitFromReviewPage()
+      await test.step('Verify user can submit', async () => {
+        await applicantQuestions.clickContinue()
+
+        await applicantQuestions.submitFromReviewPage()
+        await applicantQuestions.expectConfirmationPage()
+      })
     })
 
     test('with invalid optional address does not submit', async ({
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerAddressQuestion(
-        '1234 St',
-        '',
-        '',
-        '',
-        '',
-        0,
-      )
-      await applicantQuestions.answerAddressQuestion(
-        '1234 St',
-        'Unit B',
-        'Sim',
-        'WA',
-        '54321',
-        1,
-      )
-      await applicantQuestions.clickNext()
+      await test.step('Fill out form', async () => {
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerAddressQuestion(
+          '1234 St',
+          '',
+          '',
+          '',
+          '',
+          0,
+        )
+        await applicantQuestions.answerAddressQuestion(
+          '1234 St',
+          'Unit B',
+          'Sim',
+          'WA',
+          '54321',
+          1,
+        )
+        await applicantQuestions.clickContinue()
+      })
 
-      // First question has errors.
-      let error = page.locator('.cf-address-city-error >> nth=0')
-      await expect(error).toBeVisible()
-      error = page.locator('.cf-address-state-error >> nth=0')
-      await expect(error).toBeVisible()
-      error = page.locator('.cf-address-zip-error >> nth=0')
-      await expect(error).toBeVisible()
+      // Expect the first question has errors except on line 1
+      const questionRoot = page.locator('[data-testid="questionRoot"]').first()
+      await expect(
+        questionRoot.getByText(
+          'Error: Please enter valid street name and number.',
+        ),
+      ).toBeHidden()
+      await expect(
+        questionRoot.getByText('Error: Please enter city.'),
+      ).toBeVisible()
+      await expect(
+        questionRoot.getByText('Error: Please enter state.'),
+      ).toBeVisible()
+      await expect(
+        questionRoot.getByText('Error: Please enter valid 5-digit ZIP code.'),
+      ).toBeVisible()
     })
 
-    test.describe('with invalid required address', () => {
-      test.beforeEach(async ({applicantQuestions}) => {
-        await applicantQuestions.applyProgram(programName)
-        await applicantQuestions.answerAddressQuestion('', '', '', '', '', 1)
-        await applicantQuestions.clickNext()
-      })
+    test('invalid required address', async ({page, applicantQuestions}) => {
+      await applicantQuestions.applyProgram(programName)
 
-      test('does not submit', async ({page}) => {
-        // Second question has errors.
-        let error = page.locator('.cf-address-street-1-error >> nth=1')
-        await expect(error).toBeVisible()
-        error = page.locator('.cf-address-city-error >> nth=1')
-        await expect(error).toBeVisible()
-        error = page.locator('.cf-address-state-error >> nth=1')
-        await expect(error).toBeVisible()
-        error = page.locator('.cf-address-zip-error >> nth=1')
-        await expect(error).toBeVisible()
-      })
+      // Intentionally do not answer any questions
+      await applicantQuestions.clickContinue()
 
-      test('optional has no errors', async ({page}) => {
-        // First question has no errors.
-        let error = page.locator('.cf-address-street-1-error >> nth=0')
-        await expect(error).toBeHidden()
-        error = page.locator('.cf-address-city-error >> nth=0')
-        await expect(error).toBeHidden()
-        error = page.locator('.cf-address-state-error >> nth=0')
-        await expect(error).toBeHidden()
-        error = page.locator('.cf-address-zip-error >> nth=0')
-        await expect(error).toBeHidden()
-      })
+      // First (optional) question has no errors
+      await expectQuestionHasNoErrors(page, 0)
+
+      // Second (required) question has errors since it's not answered
+      await expectQuestionHasGroupErrors(page, 1)
     })
   })
 
@@ -362,5 +377,77 @@ test.describe('address applicant flow', () => {
     )
 
     await logout(page)
+  }
+
+  // index: The index of the question of this type on the page. For example, on a page with 2 address
+  // questions, the top question is index 0. The second question is index 1.
+  async function expectQuestionHasGroupErrors(page: Page, index = 0) {
+    const questionRoot = page.locator('[data-testid="questionRoot"]').nth(index)
+    await expect(
+      questionRoot.getByText('Error: This question is required.'),
+    ).toBeVisible()
+
+    // When all fields are missing, individual field errors should not be shown.
+    await expect(
+      questionRoot.getByText(
+        'Error: Please enter valid street name and number.',
+      ),
+    ).toBeHidden()
+    await expect(
+      questionRoot.getByText('Error: Please enter city.'),
+    ).toBeHidden()
+    await expect(
+      questionRoot.getByText('Error: Please enter state.'),
+    ).toBeHidden()
+    await expect(
+      questionRoot.getByText('Error: Please enter valid 5-digit ZIP code.'),
+    ).toBeHidden()
+  }
+
+  async function expectQuestionHasFieldErrorsForAllExceptZip(
+    page: Page,
+    index = 0,
+  ) {
+    const questionRoot = page.locator('[data-testid="questionRoot"]').nth(index)
+    // When only some fields are missing, individual field errors should not be shown.
+    await expect(
+      questionRoot.getByText(
+        'Error: Please enter valid street name and number.',
+      ),
+    ).toBeVisible()
+    await expect(
+      questionRoot.getByText('Error: Please enter city.'),
+    ).toBeVisible()
+    await expect(
+      questionRoot.getByText('Error: Please enter state.'),
+    ).toBeVisible()
+    // There is a red border on the left because of cf-question-field-with-error
+    await expect(questionRoot.locator('.cf-address-street-1')).toHaveClass(
+      'cf-address-street-1 cf-applicant-question-field cf-question-field-with-error',
+    )
+    // The input box has a red border because of usa-input--error
+    await expect(
+      questionRoot.locator('.cf-address-street-1 input'),
+    ).toHaveClass('usa-input cf-input-large usa-input--error')
+  }
+
+  // index: The index of the question of this type on the page. For example, on a page with 2 address
+  // questions, the top question is index 0. The second question is index 1.
+  async function expectQuestionHasNoErrors(page: Page, index = 0) {
+    const questionRoot = page.locator('[data-testid="questionRoot"]').nth(index)
+    await expect(
+      questionRoot.getByText(
+        'Error: Please enter valid street name and number.',
+      ),
+    ).toBeHidden()
+    await expect(
+      questionRoot.getByText('Error: Please enter city.'),
+    ).toBeHidden()
+    await expect(
+      questionRoot.getByText('Error: Please enter state.'),
+    ).toBeHidden()
+    await expect(
+      questionRoot.getByText('Error: Please enter valid 5-digit ZIP code.'),
+    ).toBeHidden()
   }
 })

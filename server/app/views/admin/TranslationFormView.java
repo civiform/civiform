@@ -121,7 +121,7 @@ public abstract class TranslationFormView extends BaseHtmlView {
                 .with(
                     p("English text:").withClass("font-medium"),
                     div()
-                        .with(TextFormatter.formatText(localizedStrings.getDefault()))
+                        .with(TextFormatter.formatTextForAdmins(localizedStrings.getDefault()))
                         .withClasses("font-sans")));
   }
 
@@ -129,7 +129,7 @@ public abstract class TranslationFormView extends BaseHtmlView {
   protected final FieldsetTag fieldSetForFields(
       LegendTag legendContent, ImmutableList<DomContent> fields) {
     return fieldset()
-        .withClasses("my-4", "pt-1", "pb-2", "px-2", "border")
+        .withClasses("my-4", "pt-1", "pb-2", "px-2", "border", "border-gray-200")
         .with(legendContent, div().withClasses("flex-row", "space-y-4").with(fields));
   }
 }

@@ -5,6 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import forms.EnumeratorQuestionForm;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -164,6 +167,30 @@ public class EnumeratorQuestionTest extends ResetPostgres {
   }
 
   @Test
+  public void withTooManyEntitiesAboveMaxAllowed_hasValidationError() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(
+            enumeratorQuestionDefinition, applicant, applicantData, Optional.empty());
+    List<String> testList = new ArrayList<>();
+    for (int i = 1; i <= EnumeratorQuestionForm.MAX_ENUM_ENTITIES_ALLOWED + 1; i++) {
+      testList.add(String.format("item - %d", i));
+    }
+    QuestionAnswerer.answerEnumeratorQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), ImmutableList.copyOf(testList));
+
+    EnumeratorQuestion enumeratorQuestion = new EnumeratorQuestion(applicantQuestion);
+
+    assertThat(enumeratorQuestion.isAnswered()).isTrue();
+    assertThat(enumeratorQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.of(
+                applicantQuestion.getContextualizedPath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(
+                        MessageKey.ENUMERATOR_VALIDATION_TOO_MANY_ENTITIES, 50))));
+  }
+
+  @Test
   public void withTooFewEntities_hasValidationError() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(
@@ -199,7 +226,6 @@ public class EnumeratorQuestionTest extends ResetPostgres {
     assertThat(enumeratorQuestion.isAnswered()).isTrue();
     assertThat(enumeratorQuestion.getEntityNames()).containsExactly("one", "two", "three");
     assertThat(enumeratorQuestion.getValidationErrors()).isEmpty();
-    assertThat(enumeratorQuestion.getValidationErrors());
   }
 
   @Test

@@ -28,12 +28,14 @@ public final class ApplicationEventRepository {
   private static final QueryProfileLocationBuilder queryProfileLocationBuilder =
       new QueryProfileLocationBuilder("ApplicationEventRepository");
   private final Database database;
-  private final DatabaseExecutionContext executionContext;
+  private final TransactionManager transactionManager;
+  private final DatabaseExecutionContext dbExecutionContext;
 
   @Inject
-  public ApplicationEventRepository(DatabaseExecutionContext executionContext) {
+  public ApplicationEventRepository(DatabaseExecutionContext dbExecutionContext) {
     this.database = checkNotNull(DB.getDefault());
-    this.executionContext = checkNotNull(executionContext);
+    this.transactionManager = new TransactionManager();
+    this.dbExecutionContext = checkNotNull(dbExecutionContext);
   }
 
   /**
@@ -42,7 +44,7 @@ public final class ApplicationEventRepository {
    * will also need an update on the Applications table
    */
   @VisibleForTesting
-  ApplicationEventModel insertSync(ApplicationEventModel event) {
+  ApplicationEventModel insertAndRefreshSync(ApplicationEventModel event) {
     database.insert(event);
     event.refresh();
     return event;
@@ -86,31 +88,37 @@ public final class ApplicationEventRepository {
             .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
             .setStatusEvent(newStatusEvent)
             .build();
-    ApplicationEventModel event = new ApplicationEventModel(application, optionalAdmin, details);
     return supplyAsync(
-        () -> {
-          try (Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
-            insertSync(event);
-            // Saves the latest note on the applications table too.
-            // If the status is removed from an application, then the latest_status column needs
-            // to be set to null to indicate the application has no status and not a status with
-            // empty string.
-            database
-                .update(ApplicationModel.class)
-                .set(
-                    "latest_status",
-                    Strings.isNullOrEmpty(newStatusEvent.statusText())
-                        ? null
-                        : newStatusEvent.statusText())
-                .where()
-                .eq("id", application.id)
-                .update();
-            application.save();
-            transaction.commit();
-          }
-          return event;
-        },
-        executionContext.current());
+        () ->
+            transactionManager.execute(
+                () -> {
+                  ApplicationEventModel event =
+                      new ApplicationEventModel(application, optionalAdmin, details);
+                  insertAndRefreshSync(event);
+                  // Saves the latest note on the applications table too.
+                  // If the status is removed from an application, then the latest_status column
+                  // needs to be set to null to indicate the application has no status and not a
+                  // status with empty string.
+                  database
+                      .update(ApplicationModel.class)
+                      .set(
+                          "latest_status",
+                          Strings.isNullOrEmpty(newStatusEvent.statusText())
+                              ? null
+                              : newStatusEvent.statusText())
+                      .set(
+                          "status_last_modified_time",
+                          Strings.isNullOrEmpty(newStatusEvent.statusText())
+                              ? null
+                              : event.getCreateTime())
+                      .where()
+                      .eq("id", application.id)
+                      .update();
+                  application.save();
+                  application.getApplicant().getAccount().save();
+                  return event;
+                }),
+        dbExecutionContext.current());
   }
 
   /**
@@ -142,7 +150,7 @@ public final class ApplicationEventRepository {
       // Since the Status events models have manyToOne dependency on ApplicationModel,
       // we can insert them only one at a time. To save on transaction cost, we have enabled Batch
       // processing.
-      applicationsStatusEvent.stream().forEach(event -> insertSync(event));
+      applicationsStatusEvent.forEach(this::insertAndRefreshSync);
 
       // Update the Applications table too with one update query.
       database
@@ -152,10 +160,19 @@ public final class ApplicationEventRepository {
               Strings.isNullOrEmpty(newStatusEvent.statusText())
                   ? null
                   : newStatusEvent.statusText())
+          // In case of bulk updates, the first event's status update time is set to the rest of the
+          // events as the difference in event time will be less than a ms.
+          .set(
+              "status_last_modified_time",
+              Strings.isNullOrEmpty(newStatusEvent.statusText())
+                  ? null
+                  : applicationsStatusEvent.get(0).getCreateTime())
           .where()
           .in("id", applicationIds)
           .update();
 
+      // update account's lastActivityTime
+      applications.stream().forEach(app -> app.getApplicant().getAccount().save());
       transaction.commit();
     }
   }
@@ -167,19 +184,20 @@ public final class ApplicationEventRepository {
             .setEventType(ApplicationEventDetails.Type.NOTE_CHANGE)
             .setNoteEvent(note)
             .build();
-    ApplicationEventModel event =
-        new ApplicationEventModel(application, Optional.of(admin), details);
-    try (Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
-      insertSync(event);
-      // save the latest note on the applications table too
-      database
-          .update(ApplicationModel.class)
-          .set("latest_note", note.note())
-          .where()
-          .eq("id", application.id)
-          .update();
-      application.save();
-      transaction.commit();
-    }
+    transactionManager.execute(
+        () -> {
+          ApplicationEventModel event =
+              new ApplicationEventModel(application, Optional.of(admin), details);
+          insertAndRefreshSync(event);
+          // Save the latest note on the applications table too.
+          database
+              .update(ApplicationModel.class)
+              .set("latest_note", note.note())
+              .where()
+              .eq("id", application.id)
+              .update();
+          application.save();
+          application.getApplicant().getAccount().save();
+        });
   }
 }

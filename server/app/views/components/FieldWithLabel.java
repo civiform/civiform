@@ -72,6 +72,7 @@ public class FieldWithLabel {
   private String formId = "";
   private String id = "";
   private String labelText = "";
+  private Optional<String> subLabelText = Optional.empty();
   private Optional<String> autocomplete = Optional.empty();
   protected String placeholderText = "";
   private String screenReaderText = "";
@@ -102,10 +103,10 @@ public class FieldWithLabel {
   private static final int MAX_INPUT_TEXT_LENGTH_DEFAULT = 10000;
 
   private static final class FieldErrorsInfo {
-    public String fieldErrorsId;
-    public boolean hasFieldErrors;
+    String fieldErrorsId;
+    boolean hasFieldErrors;
 
-    public FieldErrorsInfo(String fieldErrorsId, boolean hasFieldErrors) {
+    FieldErrorsInfo(String fieldErrorsId, boolean hasFieldErrors) {
       this.fieldErrorsId = fieldErrorsId;
       this.hasFieldErrors = hasFieldErrors;
     }
@@ -203,6 +204,11 @@ public class FieldWithLabel {
 
   public FieldWithLabel setLabelText(String labelText) {
     this.labelText = labelText;
+    return this;
+  }
+
+  public FieldWithLabel setSubLabelText(String subLabelText) {
+    this.subLabelText = Optional.of(subLabelText);
     return this;
   }
 
@@ -595,14 +601,25 @@ public class FieldWithLabel {
         labelText.isEmpty()
             ? screenReaderText
             : toolTipText.isPresent() ? labelText + " " : labelText;
+
+    // Use the special tooltip-friendly label class when a tooltip is present and we're not using
+    // USWDS
+    String labelClass =
+        labelText.isEmpty()
+            ? "sr-only"
+            : (isUSWDS
+                ? "usa-label mt-0"
+                : (toolTipText.isPresent()
+                    ? BaseStyles.INPUT_LABEL_WITH_TOOLTIP
+                    : BaseStyles.INPUT_LABEL));
+
     return label()
         .withFor(this.id)
         // If the text is screen-reader text, then we want the label to be screen-reader
         // only.
-        .withClass(
-            labelText.isEmpty() ? "sr-only" : (isUSWDS ? "usa-label mt-0" : BaseStyles.INPUT_LABEL))
+        .withClass(labelClass)
         .withText(text)
-        .condWith(required, ViewUtils.requiredQuestionIndicator())
+        .with(ViewUtils.requiredQuestionIndicator(required))
         // The DomContent is evaluated even if the condition is false, so provide
         // some defaults we will never use.
         .condWith(
@@ -632,6 +649,11 @@ public class FieldWithLabel {
 
   private DivTag buildBaseContainer(Tag fieldTag, Tag labelTag, String fieldErrorsId) {
     return div(labelTag)
+        .condWith(
+            subLabelText.isPresent(),
+            TagCreator.p()
+                .withClasses("text-xs", "text-gray-500", "pb-3", "text-base px-1")
+                .with(span(subLabelText.orElse(""))))
         .with(div(fieldTag, buildFieldErrorsTag(fieldErrorsId)).withClasses("flex", "flex-col"))
         .condWith(markdownSupported, buildMarkdownIndicator())
         .withClasses(

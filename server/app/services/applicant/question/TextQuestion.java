@@ -14,7 +14,7 @@ import services.question.types.TextQuestionDefinition;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public final class TextQuestion extends Question {
+public final class TextQuestion extends AbstractQuestion {
 
   private Optional<String> textValue;
 

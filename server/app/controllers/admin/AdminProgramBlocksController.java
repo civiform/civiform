@@ -16,12 +16,14 @@ import org.pac4j.play.java.Secure;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.data.FormFactory;
+import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.program.BlockDefinition;
+import services.program.IllegalApiBridgeStateException;
 import services.program.IllegalPredicateOrderingException;
 import services.program.ProgramBlockAdditionResult;
 import services.program.ProgramBlockDefinitionNotFoundException;
@@ -32,6 +34,8 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
+import services.settings.SettingsManifest;
+import views.admin.programs.BlockType;
 import views.admin.programs.ProgramBlocksView;
 import views.components.ToastMessage;
 
@@ -44,6 +48,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
   private final QuestionService questionService;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
+  private final MessagesApi messagesApi;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public AdminProgramBlocksController(
@@ -53,7 +59,9 @@ public final class AdminProgramBlocksController extends CiviFormController {
       FormFactory formFactory,
       RequestChecker requestChecker,
       ProfileUtils profileUtils,
-      VersionRepository versionRepository) {
+      VersionRepository versionRepository,
+      MessagesApi messagesApi,
+      SettingsManifest settingsManifest) {
     super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
@@ -61,6 +69,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
     this.readOnlyView = checkNotNull(programBlockViewFactory.create(ACTIVE));
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
+    this.messagesApi = checkNotNull(messagesApi);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /**
@@ -115,19 +125,41 @@ public final class AdminProgramBlocksController extends CiviFormController {
   public Result create(Request request, long programId) {
     requestChecker.throwIfProgramNotDraft(programId);
 
+    DynamicForm formData = formFactory.form().bindFromRequest(request);
+
     Optional<Long> enumeratorId =
-        Optional.ofNullable(
-                formFactory
-                    .form()
-                    .bindFromRequest(request)
-                    .get(ProgramBlocksView.ENUMERATOR_ID_FORM_FIELD))
+        Optional.ofNullable(formData.get(ProgramBlocksView.ENUMERATOR_ID_FORM_FIELD))
             .map(Long::valueOf);
+
+    Optional<BlockType> blockType =
+        Optional.ofNullable(formData.get(ProgramBlocksView.BLOCK_TYPE_FORM_FIELD))
+            .flatMap(
+                s -> {
+                  try {
+                    return Optional.of(BlockType.valueOf(s));
+                  } catch (IllegalArgumentException e) {
+                    return Optional.empty();
+                  }
+                });
+
     try {
       ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result;
       if (enumeratorId.isPresent()) {
-        result = programService.addRepeatedBlockToProgram(programId, enumeratorId.get());
+        result =
+            programService.addRepeatedBlockToProgram(
+                programId,
+                enumeratorId.get(),
+                messagesApi.preferred(request),
+                settingsManifest.getEnumeratorImprovementsEnabled(request));
       } else {
-        result = programService.addBlockToProgram(programId);
+        result =
+            programService.addBlockToProgram(
+                programId,
+                BlockType.ENUMERATOR.equals(blockType.orElse(null))
+                    ? Optional.of(true)
+                    : Optional.empty(),
+                messagesApi.preferred(request),
+                settingsManifest.getEnumeratorImprovementsEnabled(request));
       }
       ProgramDefinition program = result.getResult().program();
       BlockDefinition block =
@@ -138,7 +170,25 @@ public final class AdminProgramBlocksController extends CiviFormController {
         ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
         return renderEditViewWithMessage(request, program, block, Optional.of(message));
       }
-      return redirect(routes.AdminProgramBlocksController.edit(programId, block.id()).url());
+
+      long addedBlockId = block.id();
+
+      // If it's an enumerator, also add the first repeated block.
+      if (BlockType.ENUMERATOR.equals(blockType.orElse(null))) {
+        result =
+            programService.addRepeatedBlockToProgram(
+                programId,
+                addedBlockId,
+                messagesApi.preferred(request),
+                settingsManifest.getEnumeratorImprovementsEnabled(request));
+        if (result.isError()) {
+          ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
+          return renderEditViewWithMessage(request, program, block, Optional.of(message));
+        }
+        addedBlockId++;
+      }
+
+      return redirect(routes.AdminProgramBlocksController.edit(programId, addedBlockId).url());
     } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
       return notFound(e.toString());
     } catch (ProgramBlockDefinitionNotFoundException e) {
@@ -227,15 +277,17 @@ public final class AdminProgramBlocksController extends CiviFormController {
 
   /** POST endpoint for deleting a screen (block) for the program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result destroy(long programId, long blockId) {
+  public Result delete(long programId, long blockId) {
     requestChecker.throwIfProgramNotDraft(programId);
 
     try {
       programService.deleteBlock(programId, blockId);
-    } catch (IllegalPredicateOrderingException e) {
+    } catch (IllegalPredicateOrderingException | IllegalApiBridgeStateException e) {
       return redirect(routes.AdminProgramBlocksController.edit(programId, blockId))
           .flashing(FlashKey.ERROR, e.getLocalizedMessage());
-    } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
+    } catch (ProgramNotFoundException
+        | ProgramNeedsABlockException
+        | ProgramBlockDefinitionNotFoundException e) {
       return notFound(e.toString());
     }
     return redirect(routes.AdminProgramBlocksController.index(programId));
@@ -256,7 +308,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
             block,
             message,
             roQuestionService.getUpToDateQuestions(),
-            ImmutableList.of()));
+            ImmutableList.of(),
+            messagesApi.preferred(request)));
   }
 
   private Result renderReadOnlyViewWithMessage(
@@ -270,7 +323,13 @@ public final class AdminProgramBlocksController extends CiviFormController {
 
     return ok(
         readOnlyView.render(
-            request, program, block, Optional.empty(), allQuestions, allPreviousVersionQuestions));
+            request,
+            program,
+            block,
+            /* message= */ Optional.empty(),
+            allQuestions,
+            allPreviousVersionQuestions,
+            messagesApi.preferred(request)));
   }
 
   private Result renderEditViewWithMessage(
@@ -294,7 +353,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
               blockDefinition.programQuestionDefinitions(),
               message,
               roQuestionService.getUpToDateQuestions(),
-              ImmutableList.of()));
+              ImmutableList.of(),
+              messagesApi.preferred(request)));
     } catch (ProgramBlockDefinitionNotFoundException e) {
       return notFound(e.toString());
     }

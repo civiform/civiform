@@ -36,7 +36,7 @@ public class FileUploadViewStrategyTest {
   private final Messages messages =
       stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));
 
-  private class StubViewStrategy extends FileUploadViewStrategy {
+  private static class StubViewStrategy extends FileUploadViewStrategy {
     @Override
     public ImmutableList<InputTag> additionalFileUploadFormInputs(
         Optional<StorageUploadRequest> request) {

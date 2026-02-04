@@ -176,7 +176,8 @@ public class FieldWithLabelTest {
     FieldWithLabel fieldWithLabel = FieldWithLabel.number().setId("field-id");
     String rendered = fieldWithLabel.getNumberTag().render();
 
-    assertThat(rendered).doesNotContain("aria-");
+    assertThat(rendered)
+        .containsPattern("<div id=\"field-id-errors\" class=\"[^\"]*hidden[^\"]*\">");
   }
 
   @Test
@@ -337,5 +338,60 @@ public class FieldWithLabelTest {
             "<a href=\"https://www.example.com\" target=\"_blank\" rel=\"noopener noreferrer\""
                 + " class=\"text-blue-600 hover:text-blue-500 inline-flex items-center\">click here"
                 + " for details</a>");
+  }
+
+  @Test
+  public void renderFieldWithGenericLabel_usesInputLabelClass() {
+    FieldWithLabel fieldWithLabel =
+        FieldWithLabel.input()
+            .setId("test-id")
+            .setFieldName("test-field")
+            .setLabelText("Test Label");
+
+    String rendered = fieldWithLabel.getInputTag().render();
+
+    // Should use the regular INPUT_LABEL class which includes pointer-events-none
+    assertThat(rendered).contains("pointer-events-none");
+    assertThat(rendered).contains("text-gray-600");
+    assertThat(rendered).contains("text-base");
+  }
+
+  @Test
+  public void renderFieldWithSubLabel_hasSubLabel() {
+    FieldWithLabel fieldWithLabel =
+        FieldWithLabel.input()
+            .setId("test-id")
+            .setFieldName("test-field")
+            .setLabelText("Test Label")
+            .setSubLabelText("sub test");
+
+    String rendered = fieldWithLabel.getInputTag().render();
+
+    // Should use the regular INPUT_LABEL class which includes pointer-events-none
+    assertThat(rendered)
+        .contains(
+            "<p class=\"text-xs text-gray-500 pb-3 text-base px-1\"><span>sub test</span></p>");
+  }
+
+  @Test
+  public void renderFieldWithLabelWithTooltip_usesTooltipLabelClass() {
+    FieldWithLabel fieldWithLabel =
+        FieldWithLabel.input()
+            .setId("test-id")
+            .setFieldName("test-field")
+            .setLabelText("Test Label")
+            .setToolTipText("Tooltip info")
+            .setToolTipIcon(Icons.INFO);
+
+    String rendered = fieldWithLabel.getInputTag().render();
+
+    // Should use the INPUT_LABEL_WITH_TOOLTIP class which does NOT include pointer-events-none
+    assertThat(rendered).contains("text-gray-600");
+    assertThat(rendered).contains("text-base");
+    assertThat(rendered).doesNotContain("pointer-events-none");
+
+    // Should contain tooltip content
+    assertThat(rendered).contains("Tooltip info");
+    assertThat(rendered).contains(Icons.INFO.path);
   }
 }

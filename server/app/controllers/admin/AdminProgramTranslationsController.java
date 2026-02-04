@@ -12,10 +12,14 @@ import forms.translation.ProgramTranslationForm;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
+import models.ProgramModel;
 import org.pac4j.play.java.Secure;
+import parsers.LargeFormUrlEncodedBodyParser;
 import play.data.FormFactory;
+import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.ProgramRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
@@ -33,6 +37,7 @@ import views.components.ToastMessage;
 public class AdminProgramTranslationsController extends CiviFormController {
 
   private final ProgramService service;
+  private final ProgramRepository programRepository;
   private final ProgramTranslationView translationView;
   private final FormFactory formFactory;
   private final TranslationLocales translationLocales;
@@ -43,6 +48,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
   public AdminProgramTranslationsController(
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
+      ProgramRepository programRepository,
       ProgramService service,
       ProgramTranslationView translationView,
       FormFactory formFactory,
@@ -50,6 +56,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
       StatusService statusService) {
     super(profileUtils, versionRepository);
     this.service = checkNotNull(service);
+    this.programRepository = checkNotNull(programRepository);
     this.translationView = checkNotNull(translationView);
     this.formFactory = checkNotNull(formFactory);
     this.translationLocales = checkNotNull(translationLocales);
@@ -87,7 +94,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(Http.Request request, String programName, String locale)
       throws ProgramNotFoundException {
-    ProgramDefinition program = getDraftProgramDefinition(programName);
+    ProgramDefinition program = getDraftAndActiveProgramDefinition(programName);
     Optional<Locale> maybeLocaleToEdit = translationLocales.fromLanguageTag(locale);
     Optional<ToastMessage> errorMessage =
         request.flash().get(FlashKey.ERROR).map(m -> ToastMessage.errorNonLocalized(m));
@@ -109,14 +116,26 @@ public class AdminProgramTranslationsController extends CiviFormController {
             errorMessage));
   }
 
-  private ProgramDefinition getDraftProgramDefinition(String programName) {
-    return service
-        .getActiveAndDraftPrograms()
-        .getDraftProgramDefinition(programName)
-        .orElseThrow(
-            () ->
-                new BadRequestException(
-                    String.format("No draft found for program: \"%s\"", programName)));
+  private ProgramDefinition getDraftAndActiveProgramDefinition(String programName)
+      throws ProgramNotFoundException {
+    Optional<ProgramDefinition> optionalProgram =
+        service.getActiveAndDraftPrograms().getDraftOrActiveProgramDefinition(programName);
+    if (optionalProgram.isPresent()) {
+      ProgramDefinition program = optionalProgram.get();
+      Optional<ProgramModel> existingDraft =
+          versionRepository.getProgramByNameForVersion(
+              service.getFullProgramDefinition(program.id()).adminName(),
+              versionRepository.getDraftVersionOrCreate());
+      if (!existingDraft.isPresent()) {
+        // If there isn't a draft version of the program, create one.
+        programRepository.createOrUpdateDraft(
+            service.getFullProgramDefinition(program.id()).toProgram());
+      }
+      return program;
+    } else {
+      throw new BadRequestException(
+          String.format("No draft or active found for program: \"%s\"", programName));
+    }
   }
 
   /**
@@ -128,9 +147,14 @@ public class AdminProgramTranslationsController extends CiviFormController {
    *     same {@link ProgramTranslationView} with error messages
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  // Adding our custom large body parser. The introduction of the eligibility message
+  // translations has resulted in the occasional exception if the program has a large
+  // number of them. This is a band-aid to allow them to be saved right now, the
+  // ultimate solution is to redesign this form
+  @BodyParser.Of(LargeFormUrlEncodedBodyParser.class)
   public Result update(Http.Request request, String programName, String locale)
       throws ProgramNotFoundException {
-    ProgramDefinition program = getDraftProgramDefinition(programName);
+    ProgramDefinition program = getDraftAndActiveProgramDefinition(programName);
     Optional<Locale> maybeLocaleToUpdate = translationLocales.fromLanguageTag(locale);
     StatusDefinitions currentStatusDefinitions =
         statusService.lookupActiveStatusDefinitions(programName);

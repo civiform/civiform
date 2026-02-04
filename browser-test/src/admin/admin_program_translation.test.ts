@@ -1,6 +1,5 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {
-  enableFeatureFlag,
   loginAsAdmin,
   logout,
   loginAsTestUser,
@@ -9,6 +8,8 @@ import {
   validateToastMessage,
 } from '../support'
 import {BASE_URL} from '../support/config'
+import {ProgramVisibility} from '../support/admin_programs'
+import {FormField} from '../support/admin_translations'
 
 test.describe('Admin can manage program translations', () => {
   test('page layout screenshot', async ({
@@ -82,12 +83,12 @@ test.describe('Admin can manage program translations', () => {
 
     // View the applicant program page in Spanish and check that the translations are present
     await logout(page)
-    await selectApplicantLanguage(page, 'Español')
+    await selectApplicantLanguage(page, 'es-US')
     const cardText = await page.innerText(
       '.cf-application-card:has-text("' + publicName + '")',
     )
     expect(cardText).toContain('Spanish name')
-    expect(cardText).toContain('Spanish description')
+    expect(cardText).toContain('Short Spanish desc')
   })
 
   test('creates a program with statuses and adds translations for program statuses', async ({
@@ -208,6 +209,76 @@ test.describe('Admin can manage program translations', () => {
     })
   })
 
+  test('Pre-screener form translations', async ({
+    page,
+    adminPrograms,
+    adminTranslations,
+  }) => {
+    const programName = 'Pre-screener program'
+
+    await test.step('Add a pre-screener program', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addPreScreener(
+        programName,
+        'short description',
+        ProgramVisibility.PUBLIC,
+      )
+    })
+
+    await test.step('Open translations page and verify fields', async () => {
+      await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+      await adminTranslations.selectLanguage('Spanish')
+
+      await adminTranslations.expectFormFieldVisible(FormField.PROGRAM_NAME)
+      await adminTranslations.expectFormFieldVisible(
+        FormField.CONFIRMATION_MESSAGE,
+      )
+      await adminTranslations.expectFormFieldVisible(
+        FormField.SHORT_DESCRIPTION,
+      )
+      await adminTranslations.expectFormFieldVisible(FormField.SCREEN_NAME)
+      await adminTranslations.expectFormFieldVisible(
+        FormField.SCREEN_DESCRIPTION,
+      )
+
+      await adminTranslations.expectFormFieldHidden(
+        FormField.PROGRAM_DESCRIPTION,
+      )
+      await adminTranslations.expectFormFieldHidden(
+        FormField.APPLICATION_STEP_ONE_TITLE,
+      )
+      await adminTranslations.expectFormFieldHidden(
+        FormField.APPLICATION_STEP_ONE_DESCRIPTION,
+      )
+    })
+
+    await test.step('Update translations', async () => {
+      await adminTranslations.editProgramTranslations({
+        name: 'Spanish name',
+        shortDescription: 'Spanish description',
+        blockName: 'Spanish block name - bloque uno',
+        blockDescription: 'Spanish block description',
+        statuses: [],
+        programType: 'pre-screener',
+      })
+    })
+
+    await test.step('Verify translations in translations page', async () => {
+      await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+      await adminTranslations.selectLanguage('Spanish')
+      await adminTranslations.expectBlockTranslations(
+        'Spanish block name - bloque uno',
+        'Spanish block description',
+      )
+
+      await adminTranslations.expectProgramTranslation({
+        expectProgramName: 'Spanish name',
+        expectProgramShortDescription: 'Spanish description',
+        programType: 'pre-screener',
+      })
+    })
+  })
+
   test('creates a program with summary image description and adds translations', async ({
     page,
     adminPrograms,
@@ -232,7 +303,7 @@ test.describe('Admin can manage program translations', () => {
     await adminTranslations.selectLanguage('Spanish')
     await adminTranslations.editProgramTranslations({
       name: 'Spanish name',
-      description: 'Spanish description',
+      shortDescription: 'Spanish description',
       blockName: 'Spanish block name',
       blockDescription: 'Spanish block description',
       statuses: [],
@@ -272,7 +343,7 @@ test.describe('Admin can manage program translations', () => {
     await adminTranslations.selectLanguage('Spanish')
     await adminTranslations.editProgramTranslations({
       name: 'Spanish name',
-      description: 'Spanish description',
+      shortDescription: 'Spanish description',
       blockName: 'Spanish block name',
       blockDescription: 'Spanish block description',
       statuses: [],
@@ -314,7 +385,7 @@ test.describe('Admin can manage program translations', () => {
     await adminTranslations.selectLanguage('Spanish')
     await adminTranslations.editProgramTranslations({
       name: 'Spanish name',
-      description: 'Spanish description',
+      shortDescription: 'Spanish description',
       blockName: 'Spanish block name',
       blockDescription: 'Spanish block description',
       statuses: [],
@@ -335,65 +406,6 @@ test.describe('Admin can manage program translations', () => {
     await adminTranslations.expectNoProgramImageDescription()
   })
 
-  test(
-    'Add translations for block name and description',
-    {tag: ['@northstar']},
-    async ({
-      page,
-      adminPrograms,
-      adminQuestions,
-      adminTranslations,
-      applicantQuestions,
-    }) => {
-      await loginAsAdmin(page)
-
-      await adminQuestions.addTextQuestion({questionName: 'text-question'})
-
-      const programName = 'Program with blocks'
-      await adminPrograms.addProgram(programName)
-      await adminPrograms.editProgramBlockUsingSpec(programName, {
-        name: 'Screen 1',
-        description: 'first screen',
-        questions: [{name: 'text-question'}],
-      })
-
-      await test.step('Update translations', async () => {
-        await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
-        await adminTranslations.selectLanguage('Spanish')
-        await adminTranslations.editProgramTranslations({
-          name: 'Spanish name',
-          description: 'Spanish description',
-          blockName: 'Spanish block name - bloque uno',
-          blockDescription: 'Spanish block description',
-          statuses: [],
-        })
-      })
-
-      await test.step('Verify translations in translations page', async () => {
-        await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
-        await adminTranslations.selectLanguage('Spanish')
-        await adminTranslations.expectBlockTranslations(
-          'Spanish block name - bloque uno',
-          'Spanish block description',
-        )
-      })
-
-      await test.step('Publish and verify in the applicant experience', async () => {
-        await adminPrograms.publishProgram(programName)
-
-        await logout(page)
-        await enableFeatureFlag(page, 'north_star_applicant_ui')
-        await selectApplicantLanguage(page, 'Español')
-
-        await applicantQuestions.clickApplyProgramButton('Spanish name')
-
-        await expect(
-          page.getByText('Spanish block name - bloque uno'),
-        ).toBeVisible()
-      })
-    },
-  )
-
   test('Add translation for block name, description and eligibility message', async ({
     page,
     adminPrograms,
@@ -403,7 +415,6 @@ test.describe('Admin can manage program translations', () => {
     applicantQuestions,
   }) => {
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'customized_eligibility_message_enabled')
 
     const questionName = 'eligibility-question-q'
     const eligibilityMsg = 'Cutomized eligibility mesage'
@@ -437,7 +448,7 @@ test.describe('Admin can manage program translations', () => {
         value: 'eligible',
       })
       await adminPredicates.expectPredicateDisplayTextContains(
-        'Screen 1 is eligible if "eligibility-question-q" text is equal to "eligible"',
+        'Applicant is eligible if "eligibility-question-q" text is equal to "eligible"',
       )
     })
 
@@ -454,7 +465,7 @@ test.describe('Admin can manage program translations', () => {
 
       await adminTranslations.editProgramTranslations({
         name: 'Spanish name',
-        description: 'Spanish description',
+        shortDescription: 'Spanish description',
         blockName: 'Spanish block name - bloque uno',
         blockDescription: 'Spanish block description',
         statuses: [],
@@ -477,10 +488,15 @@ test.describe('Admin can manage program translations', () => {
       await logout(page)
 
       await loginAsTestUser(page)
-      await selectApplicantLanguage(page, 'Español')
-      await applicantQuestions.applyProgram('Spanish name')
+      await selectApplicantLanguage(page, 'es-US')
+      await applicantQuestions.applyProgram(
+        'Spanish name',
+        /* showProgramOverviewPage= */ true,
+        /* translatedOverviewTitle= */ 'Descripción general del programa',
+        /* translatedLinkText= */ 'Comenzar una solicitud',
+      )
       await applicantQuestions.answerTextQuestion('ineligible')
-      await page.click('text="Guardar y continuar"')
+      await page.click('text="Continuar"')
       await validateScreenshot(
         page,
         'ineligible-view-with-translated-eligibility-msg',
@@ -525,88 +541,55 @@ test.describe('Admin can manage program translations', () => {
     })
   })
 
-  test('Add translation for block name, description, when eligibility message is not set', async ({
+  test('External program translations', async ({
     page,
     adminPrograms,
-    adminQuestions,
     adminTranslations,
-    adminPredicates,
-    applicantQuestions,
   }) => {
-    await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'customized_eligibility_message_enabled')
-
-    const questionName = 'eligibility-question-q'
-    const programName = 'Program with blocks'
-    const screenName = 'Screen 1'
-
-    await test.step('Add program and a screen', async () => {
-      await adminQuestions.addTextQuestion({questionName: questionName})
-      await adminQuestions.addTextQuestion({
-        questionName: 'eligibility-other-q',
-        description: 'desc',
-        questionText: 'eligibility question',
-      })
-      await adminPrograms.addProgram(programName)
-      await adminPrograms.editProgramBlockUsingSpec(programName, {
-        name: screenName,
-        description: 'first screen',
-        questions: [{name: questionName}],
-      })
-    })
-
-    await test.step('Add predicate for the screen', async () => {
-      await adminPrograms.goToEditBlockEligibilityPredicatePage(
-        programName,
-        screenName,
-      )
-      await adminPredicates.addPredicates({
-        questionName: questionName,
-        scalar: 'text',
-        operator: 'is equal to',
-        value: 'eligible',
-      })
-      await adminPredicates.expectPredicateDisplayTextContains(
-        'Screen 1 is eligible if "eligibility-question-q" text is equal to "eligible"',
+    await test.step('Add an external program', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addExternalProgram(
+        'External program',
+        'short description',
+        'https://usa.gov',
+        ProgramVisibility.PUBLIC,
       )
     })
 
-    await test.step('Update translations and verify translations in translations page', async () => {
-      await adminPrograms.goToEditBlockEligibilityPredicatePage(
-        programName,
-        screenName,
+    await test.step('Open translations page and verify fields', async () => {
+      await adminPrograms.gotoDraftProgramManageTranslationsPage(
+        'External program',
       )
-
-      await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
       await adminTranslations.selectLanguage('Spanish')
-      await adminTranslations.editProgramTranslations({
-        name: 'Spanish name',
-        description: 'Spanish description',
-        blockName: 'Spanish block name - bloque uno',
-        blockDescription: 'Spanish block description',
-        statuses: [],
-      })
 
-      await test.step('Verify translations in translations page', async () => {
-        await adminTranslations.expectBlockTranslations(
-          'Spanish block name - bloque uno',
-          'Spanish block description',
-        )
-      })
+      await adminTranslations.expectFormFieldVisible(FormField.PROGRAM_NAME)
+      await adminTranslations.expectFormFieldVisible(
+        FormField.SHORT_DESCRIPTION,
+      )
 
-      await test.step('Publish and verify the translation on applicant side', async () => {
-        await adminPrograms.publishProgram(programName)
-        await logout(page)
+      await adminTranslations.expectFormFieldHidden(
+        FormField.PROGRAM_DESCRIPTION,
+      )
+      await adminTranslations.expectFormFieldHidden(
+        FormField.CONFIRMATION_MESSAGE,
+      )
+      await adminTranslations.expectFormFieldHidden(
+        FormField.APPLICATION_STEP_ONE_TITLE,
+      )
+      await adminTranslations.expectFormFieldHidden(
+        FormField.APPLICATION_STEP_ONE_DESCRIPTION,
+      )
+      await adminTranslations.expectFormFieldHidden(FormField.SCREEN_NAME)
+      await adminTranslations.expectFormFieldHidden(
+        FormField.SCREEN_DESCRIPTION,
+      )
 
-        await loginAsTestUser(page)
-        await selectApplicantLanguage(page, 'Español')
-        await applicantQuestions.applyProgram('Spanish name')
-        await applicantQuestions.answerTextQuestion('ineligible')
-        await page.click('text="Guardar y continuar"')
-        await expect(page.locator('main')).not.toContainText(
-          'Spanish block eligibility message',
-        )
-      })
+      await validateScreenshot(
+        page.locator('#program-translation-form'),
+        'external-program-translation',
+      )
     })
+
+    // Updating translation is extensively tested in previous tests
   })
 })
