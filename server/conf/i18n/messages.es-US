@@ -45,7 +45,7 @@ header.userName=Accediste como {0}
 # Error message to answer a required question
 validation.isRequired=Esta pregunta es obligatoria.
 # Error message to fill a required field
-validation.fieldIsRequired=This field is required.
+validation.fieldIsRequired=Este campo es obligatorio.
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=Ingresa una entrada válida.
 content.requiredFieldsNote=Nota: Los campos marcados con un {0} son obligatorios.
