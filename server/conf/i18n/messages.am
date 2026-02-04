@@ -637,7 +637,7 @@ label.predicateEligibilityMessageField=ብቁ ላልሆኑ አመልካቾች �
 content.markdownSupported=Markdown ይደገፋል
 
 # Error message for when the admin leaves a multi-select question blank in admin predicate edit.
-validation.selectionRequired=You must select at least one option.
+validation.selectionRequired=ቢያንስ አንድ አማራጭ መምረጥ አለብዎ
 # Error message for when the admin leaves a question unselected in admin predicate edit.
 validation.questionRequired=You must select a question.
 
