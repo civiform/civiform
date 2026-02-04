@@ -634,7 +634,7 @@ alert.predicateNoAvailableQuestionsEligibility=በዚህ ማያ ገጽ ላይ �
 # Label for textarea where admins can enter a message to show to applicants who are deemed ineligible based on the eligibility conditions set.
 label.predicateEligibilityMessageField=ብቁ ላልሆኑ አመልካቾች የሚታየውን መልዕክት አሳይ
 # Help text for a textarea input explaining that markdown is supported.
-content.markdownSupported=Markdown is supported
+content.markdownSupported=Markdown ይደገፋል
 
 # Error message for when the admin leaves a multi-select question blank in admin predicate edit.
 validation.selectionRequired=You must select at least one option.
