@@ -618,7 +618,7 @@ button.saveAndExit=Guardar y salir
 # Confirmation dialog shown to admin for deleting all conditions in the predicate edit view
 confirm.deleteAllConditions=¿Confirmas que quieres eliminar todas las condiciones?
 # Confirmation dialog shown to admin for deleting a condition in the predicate edit view
-confirm.deleteSingleCondition=Are you sure you would like to delete this condition?
+confirm.deleteSingleCondition=¿Confirmas que quieres eliminar esta condición?
 # Confirmation dialog shown to admin for leaving predicate edit without saving.
 confirm.leaveWithoutSaving=Are you sure you would like to leave?
 # Dialog to warn admin that a deletion action cannot be undone
