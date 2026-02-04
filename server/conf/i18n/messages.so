@@ -632,7 +632,7 @@ alert.predicateNoAvailableQuestionsVisibility=Ma jiraan su''aalo la heli karo oo
 alert.predicateNoAvailableQuestionsEligibility=Ma jiraan wax su''aalo ah oo la heli karo oo ka muuqda shaashaddan oo lagu dejinayo shuruuda u-qalmitaanka.
 
 # Label for textarea where admins can enter a message to show to applicants who are deemed ineligible based on the eligibility conditions set.
-label.predicateEligibilityMessageField=Tus fariinta la tusay codsade aan u qalmin
+label.predicateEligibilityMessageField=Muuji fariinta la tusay codsade aan u qalmin
 # Help text for a textarea input explaining that markdown is supported.
 content.markdownSupported=Markdown is supported
 
