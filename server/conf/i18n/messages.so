@@ -620,7 +620,7 @@ confirm.deleteAllConditions=Ma hubtaa inaad jeclaan lahayd inaad tirtirto dhamma
 # Confirmation dialog shown to admin for deleting a condition in the predicate edit view
 confirm.deleteSingleCondition=Ma hubtaa inaad jeclaan lahayd inaad tirtirto shuruudan?
 # Confirmation dialog shown to admin for leaving predicate edit without saving.
-confirm.leaveWithoutSaving=Are you sure you would like to leave?
+confirm.leaveWithoutSaving=Ma hubtaa inaad jeclaan lahayd inaad ka baxdo?
 # Dialog to warn admin that a deletion action cannot be undone
 confirm.actionNotReversable=This action cannot be undone.
 # Dialog to warn admin that they have unsaved changes in the predicate edit view.
