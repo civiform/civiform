@@ -1192,7 +1192,7 @@ content.timeToCompleteP99=Tiempo para completar (p99)
 # Text on button to download CSV file
 button.downloadCsv=Descargar CSV
 # Caption for the table showing submissions by month
-caption.submissionsByMonth=Submissions by month (all programs)
+caption.submissionsByMonth=Envíos por mes (todos los programas)
 # Column header for month
 content.month=Month
 
