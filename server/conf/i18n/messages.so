@@ -1215,7 +1215,7 @@ reportingProgram.timeToCompleteP25=Waqtiga la dhameynaayo (p25)
 # Column header for median (50th percentile) time to complete
 reportingProgram.medianTimeToComplete=Waqti dhexdhexaad ah oo la dhameystiro
 # Column header for 75th percentile time to complete
-reportingProgram.timeToCompleteP75=Waqtiga la dhameystiraayo (p25)
+reportingProgram.timeToCompleteP75=Waqtiga la dhameystiraayo (p75)
 # Column header for 99th percentile time to complete
 reportingProgram.timeToCompleteP99=Time to complete (p99)
 # Text on button to download CSV file
