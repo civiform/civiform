@@ -706,10 +706,11 @@ public final class ProgramService {
       }
 
       for (BlockDefinition block : programDefinition.blockDefinitions()) {
-        if (isTranslationMissingForLocale(block.localizedName(), locale)
-            || isTranslationMissingForLocale(block.localizedDescription(), locale)) {
+        if (block.localizedName().maybeGet(locale).isEmpty()) {
           return false;
         }
+        // TODO: #9809 the block description translation check should be added back in if/when we
+        // use block descriptions
         if (block.localizedEligibilityMessage().isPresent()) {
           LocalizedStrings localizedEligibilityMessage = block.localizedEligibilityMessage().get();
           if (isTranslationMissingForLocale(localizedEligibilityMessage, locale)) {
