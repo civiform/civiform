@@ -1,5 +1,6 @@
 package auth;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.typesafe.config.Config;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
@@ -100,7 +101,8 @@ public class CiviFormSessionStoreFactory implements SessionStoreFactory {
    * @param playSecret The Play application secret string, or other sufficiently random string.
    * @return A 16-byte AES key
    */
-  private static byte[] deriveAes128Key(String playSecret)
+  @VisibleForTesting
+  static byte[] deriveAes128Key(String playSecret)
       throws NoSuchAlgorithmException, InvalidKeySpecException {
     PBEKeySpec spec =
         new PBEKeySpec(
@@ -126,7 +128,8 @@ public class CiviFormSessionStoreFactory implements SessionStoreFactory {
    * @param playSecret The Play application secret string, or other sufficiently random string.
    * @return A 32-byte AES key
    */
-  private static byte[] deriveLegacyAesKey(String playSecret) {
+  @VisibleForTesting
+  static byte[] deriveLegacyAesKey(String playSecret) {
     Random r = new Random(playSecret.hashCode());
     byte[] aesKey = new byte[32];
     r.nextBytes(aesKey);
