@@ -1207,9 +1207,9 @@ reportingProgram.dataDelay=ውሂብ እስከ አንድ ሰዓት ሊዘገይ 
 # Caption for the table showing submissions by month for a program
 reportingProgram.caption.submissionsByMonth=በወር የተሰደሩ ማመልከቻዎች
 # Column header for month
-reportingProgram.month=Month
+reportingProgram.month=ወር
 # Column header for submissions
-reportingProgram.submissions=Submissions
+reportingProgram.submissions=ማመልከቻዎች
 # Column header for 25th percentile time to complete
 reportingProgram.timeToCompleteP25=Time to complete (p25)
 # Column header for median (50th percentile) time to complete
