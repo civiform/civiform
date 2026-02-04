@@ -1176,7 +1176,7 @@ text.repeatedSet.nestedPrefix=calaamada ilmaha
 #------------------------------------------------------------------------------#
 
 # Caption for the table showing submissions by program
-caption.submissionsByProgram=Submissions by program (all programs)
+caption.submissionsByProgram=Gudbinada barnaamijka (dhammaan barnaamijyada)
 # Column header for program name
 content.program=Program
 # Column header for number of submissions
