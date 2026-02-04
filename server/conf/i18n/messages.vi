@@ -561,9 +561,9 @@ content.predicateVisibilityDescription=Cấu hình thời điểm màn hình nà
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
 content.predicateEligibilityDescription=Thêm các điều kiện xét duyệt để xác định xem ứng viên có đủ tiêu chuẩn tham gia chương trình hay không dựa trên câu trả lời cho các câu hỏi trên màn hình này. Những ứng viên không đáp ứng các yêu cầu tối thiểu sẽ bị chặn không cho nộp đơn đăng ký. Bạn có thể thay đổi điều này trong
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualitifies for the program.
-content.predicateEligibilityDescription.v2=Add eligibility conditions to determine if an applicant qualifies for the program based on responses to questions on this screen.
+content.predicateEligibilityDescription.v2=Thêm các điều kiện hợp lệ để xác định xem người nộp đơn có đủ điều kiện tham gia chương trình hay không dựa trên câu trả lời cho các câu hỏi trên màn hình này.
 # Text informing admins that ineligible applicants will be blocked from submitting an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
-content.blockIneligibleApplicants=Applicants who do not meet the minimum requirements will be blocked from submitting an application. You can change this in the
+content.blockIneligibleApplicants=Người nộp đơn không đáp ứng các yêu cầu tối thiểu sẽ bị chặn không cho nộp đơn. Bạn có thể thay đổi thiết lập này trong
 # Text informing admins that ineligible applicants will still be able to submit an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
 content.allowIneligibleApplicants=Người nộp đơn có thể nộp đơn ngay cả khi họ không đáp ứng được các yêu cầu tối thiểu. Bạn có thể thay đổi thiết lập này trong
 # Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
@@ -620,7 +620,7 @@ confirm.deleteAllConditions=Bạn có chắc chắn muốn xóa tất cả các 
 # Confirmation dialog shown to admin for deleting a condition in the predicate edit view
 confirm.deleteSingleCondition=Bạn có chắc chắn muốn xóa điều kiện này không?
 # Confirmation dialog shown to admin for leaving predicate edit without saving.
-confirm.leaveWithoutSaving=Are you sure you would like to leave?
+confirm.leaveWithoutSaving=Bạn có chắc chắn muốn thoát không?
 # Dialog to warn admin that a deletion action cannot be undone
 confirm.actionNotReversable=Bạn không thể đảo ngược hành động này.
 # Dialog to warn admin that they have unsaved changes in the predicate edit view.
@@ -1167,9 +1167,9 @@ text.repeatedSet=
 # Text letting admins know which block represents the group of screens for nested repeating questions
 text.nestedRepeatedSet=
 # An uneditable prefix for the enumerator screen name representing the repeated object that will be enumerated
-text.repeatedSet.prefix=parent label
+text.repeatedSet.prefix=nhãn chính
 # An uneditable prefix for the enumerator screen name representing the nested repeated object that will be enumerated
-text.repeatedSet.nestedPrefix=child label
+text.repeatedSet.nestedPrefix=nhãn phụ
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #
@@ -1194,7 +1194,7 @@ button.downloadCsv=Tải xuống tập tin CSV
 # Caption for the table showing submissions by month
 caption.submissionsByMonth=Số đơn nộp theo tháng (tất cả các chương trình)
 # Column header for month
-content.month=Month
+content.month=Tháng
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING PROGRAM                                                     #
@@ -1203,20 +1203,20 @@ content.month=Month
 # Heading for the program reporting page
 reportingProgram.heading={0} đang báo cáo
 # Info text about data delay
-reportingProgram.dataDelay=Data may be up to an hour delayed.
+reportingProgram.dataDelay=Dữ liệu có thể bị chậm trễ đến một giờ.
 # Caption for the table showing submissions by month for a program
 reportingProgram.caption.submissionsByMonth=Số đơn nộp theo tháng
 # Column header for month
-reportingProgram.month=Month
+reportingProgram.month=Tháng
 # Column header for submissions
-reportingProgram.submissions=Submissions
+reportingProgram.submissions=Số đơn nộp
 # Column header for 25th percentile time to complete
-reportingProgram.timeToCompleteP25=Time to complete (p25)
+reportingProgram.timeToCompleteP25=Thời gian để điền (trang 25)
 # Column header for median (50th percentile) time to complete
-reportingProgram.medianTimeToComplete=Median time to complete
+reportingProgram.medianTimeToComplete=Thời gian trung bình để điền
 # Column header for 75th percentile time to complete
-reportingProgram.timeToCompleteP75=Time to complete (p75)
+reportingProgram.timeToCompleteP75=Thời gian để điền (trang 75)
 # Column header for 99th percentile time to complete
-reportingProgram.timeToCompleteP99=Time to complete (p99)
+reportingProgram.timeToCompleteP99=Thời gian để điền (trang 99)
 # Text on button to download CSV file
-reportingProgram.downloadCsv=Download CSV
+reportingProgram.downloadCsv=Tải xuống tập tin CSV
