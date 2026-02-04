@@ -1060,7 +1060,9 @@ test.describe('create and edit predicates', () => {
         )
         await expect(errorMessageLocator).toBeVisible()
         await expect(page.locator('.usa-form-group--error')).toBeVisible()
-        await expect(page.getByLabel('Pizza Bagel')).toBeFocused()
+        await expect(
+          page.getByLabel(questionData.multiValueOptions![0].text),
+        ).toBeFocused()
       })
     }
   })
