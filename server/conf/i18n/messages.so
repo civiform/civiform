@@ -1192,7 +1192,7 @@ content.timeToCompleteP99=Waqtiga la dhameystiraayo (p75)
 # Text on button to download CSV file
 button.downloadCsv=Soo deji CSV
 # Caption for the table showing submissions by month
-caption.submissionsByMonth=Submissions by month (all programs)
+caption.submissionsByMonth=Gudbinada bisha (dhammaan barnaamijyada)
 # Column header for month
 content.month=Month
 
