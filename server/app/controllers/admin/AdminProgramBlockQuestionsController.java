@@ -146,9 +146,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
       questionDefinition =
           QuestionDefinition.create(
               questionForm.getQuestionType(),
-              questionForm.getConfigBuilder(),
-              enumeratorForm.getValidationPredicatesString(),
-              ImmutableList.of(),
+              questionForm.getConfigBuilder().build(),
+              questionForm.getQuestionOptions(),
               enumeratorForm.getEntityTypeLocalizedStrings());
     } catch (UnsupportedQuestionTypeException e) {
       // Valid question type that is not yet fully supported.

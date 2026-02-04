@@ -151,6 +151,62 @@ public abstract class QuestionDefinitionConfig {
     @JsonProperty("questionSettings")
     public abstract Builder setQuestionSettings(ImmutableSet<QuestionSetting> questionSettings);
 
+    /**
+     * Parses validation predicates from a serialized string and sets them on the builder. Does
+     * nothing if the string is empty.
+     */
+    public Builder setValidationPredicates(
+        QuestionType questionType, String validationPredicatesString) {
+      if (validationPredicatesString.isEmpty()) {
+        return this;
+      }
+      switch (questionType) {
+        case ADDRESS ->
+            setValidationPredicates(
+                AddressQuestionDefinition.AddressValidationPredicates.parse(
+                    validationPredicatesString));
+        case CHECKBOX ->
+            setValidationPredicates(
+                MultiOptionQuestionDefinition.MultiOptionValidationPredicates.parse(
+                    validationPredicatesString));
+        case DATE ->
+            setValidationPredicates(
+                DateQuestionDefinition.DateValidationPredicates.parse(validationPredicatesString));
+        case FILEUPLOAD ->
+            setValidationPredicates(
+                FileUploadQuestionDefinition.FileUploadValidationPredicates.parse(
+                    validationPredicatesString));
+        case ID ->
+            setValidationPredicates(
+                IdQuestionDefinition.IdValidationPredicates.parse(validationPredicatesString));
+        case MAP ->
+            setValidationPredicates(
+                MapQuestionDefinition.MapValidationPredicates.parse(validationPredicatesString));
+        case NAME ->
+            setValidationPredicates(
+                NameQuestionDefinition.NameValidationPredicates.parse(validationPredicatesString));
+        case NUMBER ->
+            setValidationPredicates(
+                NumberQuestionDefinition.NumberValidationPredicates.parse(
+                    validationPredicatesString));
+        case ENUMERATOR ->
+            setValidationPredicates(
+                EnumeratorQuestionDefinition.EnumeratorValidationPredicates.parse(
+                    validationPredicatesString));
+        case TEXT ->
+            setValidationPredicates(
+                TextQuestionDefinition.TextValidationPredicates.parse(validationPredicatesString));
+        case PHONE ->
+            setValidationPredicates(
+                PhoneQuestionDefinition.PhoneValidationPredicates.parse(
+                    validationPredicatesString));
+        case CURRENCY, DROPDOWN, EMAIL, RADIO_BUTTON, STATIC, YES_NO, NULL_QUESTION -> {
+          // These types don't have custom validation predicates to parse
+        }
+      }
+      return this;
+    }
+
     public abstract QuestionDefinitionConfig build();
   }
 }

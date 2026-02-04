@@ -187,7 +187,7 @@ public final class QuestionDefinitionBuilder {
   }
 
   public QuestionDefinition build() throws UnsupportedQuestionTypeException {
-    return QuestionDefinition.create(
-        questionType, builder, validationPredicatesString, questionOptions, entityType);
+    builder.setValidationPredicates(questionType, validationPredicatesString);
+    return QuestionDefinition.create(questionType, builder.build(), questionOptions, entityType);
   }
 }
