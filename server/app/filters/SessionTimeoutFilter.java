@@ -78,7 +78,7 @@ public class SessionTimeoutFilter extends Filter {
         requestHeader
             .attrs()
             .getOptional(ProfileUtils.CURRENT_USER_PROFILE)
-            .or(() -> Optional.ofNullable(profileUtils.currentUserProfile(requestHeader)));
+            .or(() -> profileUtils.optionalCurrentUserProfile(requestHeader));
 
     if (optionalProfile.isEmpty()) {
       return nextFilter.apply(requestHeader).thenApply(this::clearTimeoutCookie);

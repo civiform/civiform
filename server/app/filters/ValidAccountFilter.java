@@ -56,7 +56,7 @@ public class ValidAccountFilter extends EssentialFilter {
               request
                   .attrs()
                   .getOptional(ProfileUtils.CURRENT_USER_PROFILE)
-                  .or(() -> Optional.ofNullable(profileUtils.currentUserProfile(request)));
+                  .or(() -> profileUtils.optionalCurrentUserProfile(request));
 
           if (profile.isEmpty()) {
             return next.apply(request);
