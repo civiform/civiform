@@ -45,7 +45,7 @@ header.userName=እንደ {0} ሆነው ገብተዋል
 # Error message to answer a required question
 validation.isRequired=ይህ ጥያቄ አስፈላጊ ነው።
 # Error message to fill a required field
-validation.fieldIsRequired=This field is required.
+validation.fieldIsRequired=ይህ መስክ ያስፈልጋል።
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=እባክዎ ትክክለኛ ግብዓት ያስገቡ።
 content.requiredFieldsNote=ማስታወሻ፦ በ {0} ምልክት የተደረገባቸው መስኮች አስፈላጊ ናቸው።
