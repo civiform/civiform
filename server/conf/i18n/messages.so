@@ -45,7 +45,7 @@ header.userName=U soo gal sidii {0}
 # Error message to answer a required question
 validation.isRequired=Su''aashan ayaa loo baahan yahay.
 # Error message to fill a required field
-validation.fieldIsRequired=This field is required.
+validation.fieldIsRequired=Qaybtaan waa muhiim.
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=Fadlan geli qiimaha sadar kasta.
 content.requiredFieldsNote=Fiiro: Qaybaha ku calaamadsan {0} waa loo baahan yahay
