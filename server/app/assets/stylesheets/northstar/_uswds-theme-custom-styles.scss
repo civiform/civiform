@@ -146,11 +146,11 @@ it is around the label */
 }
 
 /*
- * Ensure the focused input is above the error border of the input group
- * so the focus ring has a gap for greater accessibility.
+ *Ensure the focus outline is offset from the red error border
+ * of the input group, for greater accessibility.
  */
 .usa-input-group--error > .usa-input:focus {
-  outline-offset: 8px;
+  outline-offset: units(1);
 }
 
 /**
