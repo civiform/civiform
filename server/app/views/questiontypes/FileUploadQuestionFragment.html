@@ -13,6 +13,12 @@
   <div
     th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextSingleInput(${question}, ${questionId}, ${inputId})}"
   ></div>
+
+  <div class="w-full h-full object-cover">
+    <img
+      th:src="${imagesource}"
+    />
+  </div>
   <div
     class="usa-hint"
     th:with="maxFiles=${question.getQuestionDefinition().getMaxFiles()}"

@@ -1,6 +1,7 @@
 package views.applicant.programindex;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.img;
 import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
 import auth.CiviFormProfile;
@@ -10,11 +11,21 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.applicant.ApplicantRoutes;
+
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.net.URL;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import models.LifecycleStage;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.io.RandomAccessReadBuffer;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.rendering.PDFRenderer;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
 import services.DateConverter;
@@ -25,6 +36,8 @@ import services.cloud.PublicStorageClient;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
 import views.ProgramImageUtils;
+
+import javax.imageio.ImageIO;
 
 /**
  * Factory for creating parameter info for applicant program card sections.
@@ -191,8 +204,34 @@ public final class ProgramCardsSectionParamsFactory {
 
     Optional<String> fileKey = program.summaryImageFileKey();
     if (fileKey.isPresent()) {
-      String imageSourceUrl = publicStorageClient.getPublicDisplayUrl(fileKey.get());
-      cardBuilder.setImageSourceUrl(imageSourceUrl);
+      String source = "";
+
+      String url = publicStorageClient.getPublicDisplayUrl(program.summaryImageFileKey().get());
+      try (InputStream is = new URL(url).openStream()) {
+        // PDFBox 3.x requires wrapping InputStreams into a RandomAccessReadBuffer
+        try (PDDocument document = Loader.loadPDF(RandomAccessReadBuffer.createBufferFromStream(is))) {
+          System.out.println("Successfully loaded PDF from S3. Pages: " + document.getNumberOfPages());
+
+          PDFRenderer renderer = new PDFRenderer(document);
+
+          // 2. Render first page (index 0) at 300 DPI for quality
+          BufferedImage image = renderer.renderImageWithDPI(0, 300);
+
+          // 3. Convert image to Byte Array
+          ByteArrayOutputStream baos = new ByteArrayOutputStream();
+          ImageIO.write(image, "png", baos);
+          byte[] imageBytes = baos.toByteArray();
+
+          // 4. Encode to Base64
+          String base64String = Base64.getEncoder().encodeToString(imageBytes);
+          source = "data:image/png;base64," + base64String;
+          // Proceed to generate HTML image tag as discussed earlier
+        }
+      } catch (Exception e) {
+        System.err.println("Failed to read from S3: " + e.getMessage());
+      }
+
+      cardBuilder.setImageSourceUrl(source);
 
       String altText = ProgramImageUtils.getProgramImageAltText(program, preferredLocale);
       cardBuilder.setAltText(altText);
