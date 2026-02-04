@@ -1188,9 +1188,9 @@ content.medianTimeToComplete=ሜዲያን የማጠናቀቂያ ጊዜ
 # Column header for 75th percentile time to complete
 content.timeToCompleteP75=ማጠናቀቂያ ጊዜ (ገጽ75)
 # Column header for 99th percentile time to complete
-content.timeToCompleteP99=Time to complete (p99)
+content.timeToCompleteP99=ማጠናቀቂያ ጊዜ (ገጽ99)
 # Text on button to download CSV file
-button.downloadCsv=Download CSV
+button.downloadCsv=CSV አውርድ
 # Caption for the table showing submissions by month
 caption.submissionsByMonth=Submissions by month (all programs)
 # Column header for month
