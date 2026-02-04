@@ -1176,7 +1176,7 @@ text.repeatedSet.nestedPrefix=etiqueta secundaria
 #------------------------------------------------------------------------------#
 
 # Caption for the table showing submissions by program
-caption.submissionsByProgram=Submissions by program (all programs)
+caption.submissionsByProgram=Envíos por programa (todos los programas)
 # Column header for program name
 content.program=Program
 # Column header for number of submissions
