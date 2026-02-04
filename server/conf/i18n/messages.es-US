@@ -639,7 +639,7 @@ content.markdownSupported=Se admite Markdown
 # Error message for when the admin leaves a multi-select question blank in admin predicate edit.
 validation.selectionRequired=Debes seleccionar como mínimo una opción.
 # Error message for when the admin leaves a question unselected in admin predicate edit.
-validation.questionRequired=You must select a question.
+validation.questionRequired=Debes seleccionar una pregunta.
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
