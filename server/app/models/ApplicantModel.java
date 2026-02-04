@@ -309,10 +309,7 @@ public class ApplicantModel extends BaseModel {
 
   /** Save in a similar way to {@link CfJsonDocumentContext#putPhoneNumber} */
   public ApplicantModel setPhoneNumber(String phoneNumber) {
-    this.phoneNumber =
-        phoneNumber.isBlank()
-            ? null
-            : phoneNumber.replaceAll("[^0-9]", "");
+    this.phoneNumber = phoneNumber.isBlank() ? null : phoneNumber.replaceAll("[^0-9]", "");
     setCountryCodeFromPhoneNumber();
     return this;
   }
