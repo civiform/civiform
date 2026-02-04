@@ -89,13 +89,13 @@ describe('SessionTimeoutHandler', () => {
     lengthModal.classList.add('is-hidden', 'usa-modal')
     lengthModal.setAttribute('data-modal-type', 'session-length-warning')
 
-    // Create primary button (logout)
-    const logoutButton = document.createElement('button')
-    logoutButton.textContent = 'Logout'
-    logoutButton.classList.add('usa-button')
-    logoutButton.setAttribute('data-modal-primary', '')
-    logoutButton.setAttribute('data-modal-type', 'session-length-warning')
-    lengthModal.appendChild(logoutButton)
+    // Create primary button (login)
+    const loginButton = document.createElement('button')
+    loginButton.textContent = 'Login'
+    loginButton.classList.add('usa-button')
+    loginButton.setAttribute('data-modal-primary', '')
+    loginButton.setAttribute('data-modal-type', 'session-length-warning')
+    lengthModal.appendChild(loginButton)
 
     // Create secondary button (cancel)
     const cancelButton = document.createElement('button')
@@ -493,15 +493,15 @@ describe('SessionTimeoutHandler', () => {
         )
       })
 
-      it('handles logout button click', () => {
+      it('handles login button click', () => {
         SessionTimeoutHandler.init()
 
-        const logoutButton = lengthModal.querySelector(
+        const loginButton = lengthModal.querySelector(
           '[data-modal-primary][data-modal-type="session-length-warning"]',
         ) as HTMLButtonElement
-        logoutButton?.click()
+        loginButton?.click()
 
-        expect(window.location.href).toBe('/logout')
+        expect(window.location.href).toBe('/applicantLogin')
       })
 
       it('handles inactivity cancel button click', () => {
@@ -569,9 +569,9 @@ describe('SessionTimeoutHandler', () => {
       })
 
       it('handles primary button click for session length warning', () => {
-        const logoutSpy = vi.spyOn(
+        const loginSpy = vi.spyOn(
           SessionTimeoutHandler as SessionTimeoutHandlerType,
-          'logout',
+          'login',
         )
         SessionTimeoutHandler.init()
 
@@ -580,7 +580,7 @@ describe('SessionTimeoutHandler', () => {
         ) as HTMLButtonElement
         primaryButton?.click()
 
-        expect(logoutSpy).toHaveBeenCalled()
+        expect(loginSpy).toHaveBeenCalled()
       })
 
       it('handles secondary button click', () => {
