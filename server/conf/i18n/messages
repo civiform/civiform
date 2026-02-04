@@ -1114,7 +1114,8 @@ ariaLabel.categories=Categories
 # Title of the session timeout warning modals
 session.warning.title=Session ending soon
 # Text on a button on a session ending soon modal that gives users the options to save and log in
-session.login.button=Save and log in
+session.login.button.loggedIn=Log in
+session.login.button.guest=Log in or create an account
 # Message shown in a modal asking the user if they want to extend their session due to inactivity
 session.inactivity.warning.message=Your session will expire soon due to inactivity. Would you like to extend your session?
 # Text on a button that allows users to extend their session when shown timeout warnings
@@ -1123,8 +1124,8 @@ session.inactivity.extend.button=Extend Session
 session.extended.success=Session successfully extended
 # Error message shown when there was a problem extending the user's session
 session.extended.error=Failed to extend session
-session.length.warning.message.guest=Your session is about to expire. Please save your work and log in or create an account to continue.
-session.length.warning.message.loggedIn=Your session is about to expire. Please save your work and log back in to continue.
+session.length.warning.message.guest=Your session is about to expire. Please save your work and log in or create an account to continue. You will not lose your progress in the application.
+session.length.warning.message.loggedIn=Your session is about to expire. Please save your work and log back in to continue. You will not lose your progress in the application.
 
 #------------------------------------------------------------------------------#
 #  ADMIN PROGRAM BLOCK EDIT                                                    #
