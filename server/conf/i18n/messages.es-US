@@ -616,7 +616,7 @@ link.backToTop=Volver a la parte superior
 button.saveAndExit=Guardar y salir
 
 # Confirmation dialog shown to admin for deleting all conditions in the predicate edit view
-confirm.deleteAllConditions=Are you sure you would like to delete all conditions?
+confirm.deleteAllConditions=¿Confirmas que quieres eliminar todas las condiciones?
 # Confirmation dialog shown to admin for deleting a condition in the predicate edit view
 confirm.deleteSingleCondition=Are you sure you would like to delete this condition?
 # Confirmation dialog shown to admin for leaving predicate edit without saving.
