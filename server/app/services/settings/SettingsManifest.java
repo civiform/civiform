@@ -1141,6 +1141,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("ADMIN_UI_MIGRATION_SC_ENABLED", request);
   }
 
+  /** (NOT FOR PRODUCTION USE) Enable extended options in the admin UI migration in Thymeleaf. */
+  public boolean getAdminUiMigrationScExtendedEnabled(RequestHeader request) {
+    return getBool("ADMIN_UI_MIGRATION_SC_EXTENDED_ENABLED", request);
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.<String, SettingsSection>builder()
           .put(
@@ -2420,6 +2425,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingDescription.create(
                           "ADMIN_UI_MIGRATION_SC_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enable the admin UI migration in Thymeleaf.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "ADMIN_UI_MIGRATION_SC_EXTENDED_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enable extended options in the admin UI"
+                              + " migration in Thymeleaf.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))
