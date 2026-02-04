@@ -1,0 +1,223 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.dev.AddressCheckerPageViewModel"*/-->
+<th:block th:fragment="content">
+  <!-- Back to dev tools link -->
+  <div class="margin-y-4">
+    <a th:href="${model.backLinkUrl}" class="usa-link">
+      <span class="usa-icon" aria-hidden="true">
+        <!-- USWDS arrow left icon -->
+        <svg class="usa-icon__svg" viewBox="0 0 24 24" width="24" height="24">
+          <path d="M14 7l-5 5 5 5V7z" />
+        </svg>
+      </span>
+      Back to dev tools
+    </a>
+  </div>
+
+  <!-- Current Address Settings -->
+  <section class="bg-base-lightest padding-2 margin-y-4 radius-md">
+    <h2 class="font-sans-lg margin-bottom-1">Current Address Settings</h2>
+    <div>
+      <span class="font-sans-md font-bold">Address Correction: </span>
+      <span
+        th:text="${model.addressCorrectionEnabled} ? 'Enabled' : 'Disabled'"
+      ></span>
+    </div>
+    <div class="margin-top-1">
+      <span class="font-sans-md font-bold">Address Validation: </span>
+      <span
+        th:text="${model.addressValidationEnabled} ? 'Enabled' : 'Disabled'"
+      ></span>
+    </div>
+    <div th:if="${model.findAddressCandidatesUrls.present}">
+      <h3 class="font-sans-md margin-top-2">Find Address Candidates URLs</h3>
+      <ul>
+        <li
+          th:each="url : ${model.findAddressCandidatesUrls.get()}"
+          th:text="${url}"
+        ></li>
+      </ul>
+    </div>
+    <div th:if="${model.addressServiceAreaValidationUrls.present}">
+      <h3 class="font-sans-md margin-top-2">Service Area Validation URLs</h3>
+      <ul>
+        <li
+          th:each="url : ${model.addressServiceAreaValidationUrls.get()}"
+          th:text="${url}"
+        ></li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="grid grid-col-1 tablet:grid-col-2 gap-4">
+    <!-- Address Correction Form -->
+    <div>
+      <th:block
+        th:if="${model.findAddressCandidatesUrls.present} and ${model.findAddressCandidatesUrls.get().size()} > 0 and ${model.addressCorrectionEnabled}"
+      >
+        <h2 class="font-sans-lg">Address Correction Tool</h2>
+        <form
+          method="post"
+          action="/dev/addressChecker/hx/correctAddress"
+          class="usa-form margin-top-2"
+          hx-post="/dev/addressChecker/hx/correctAddress"
+          hx-target="#correctAddressDebugOutput"
+          hx-swap="innerHTML"
+          aria-label="Find Correction Results"
+        >
+          <input
+            type="hidden"
+            name="csrfToken"
+            th:value="${templateGlobals.csrfToken}"
+          />
+          <div class="usa-form-group">
+            <label for="address1" class="usa-label">Address 1</label>
+            <input
+              id="address1"
+              name="address1"
+              class="usa-input"
+              type="text"
+            />
+          </div>
+          <div class="usa-form-group">
+            <label for="address2" class="usa-label">Address 2</label>
+            <input
+              id="address2"
+              name="address2"
+              class="usa-input"
+              type="text"
+            />
+          </div>
+          <div class="usa-form-group">
+            <label for="city" class="usa-label">City</label>
+            <input id="city" name="city" class="usa-input" type="text" />
+          </div>
+          <div class="usa-form-group">
+            <label for="state" class="usa-label">State</label>
+            <input id="state" name="state" class="usa-input" type="text" />
+          </div>
+          <div class="usa-form-group">
+            <label for="zip" class="usa-label">Zip Code</label>
+            <input id="zip" name="zip" class="usa-input" type="text" />
+          </div>
+          <div class="margin-top-2">
+            <button type="submit" class="usa-button">Correct Address</button>
+            <button type="reset" class="usa-button usa-button--outline">
+              Reset
+            </button>
+          </div>
+        </form>
+      </th:block>
+      <th:block
+        th:unless="${model.findAddressCandidatesUrls.present} and ${model.findAddressCandidatesUrls.get().size()} > 0 and ${model.addressCorrectionEnabled}"
+      >
+        <h2 class="font-sans-lg">Cannot show address correction tool</h2>
+        <p>Likely reasons:</p>
+        <ul class="usa-list usa-list--unstyled">
+          <li class="margin-left-2">
+            ESRI_FIND_ADDRESS_CANDIDATES_URLS has no endpoints
+          </li>
+          <li class="margin-left-2">
+            ESRI_ADDRESS_CORRECTION_ENABLED is not enabled
+          </li>
+        </ul>
+      </th:block>
+      <div id="correctAddressDebugOutput"></div>
+    </div>
+
+    <!-- Service Area Validation Form -->
+    <div>
+      <th:block
+        th:if="${model.addressServiceAreaValidationUrls.present} and ${model.addressServiceAreaValidationUrls.get().size()} > 0 and ${model.addressValidationEnabled}"
+      >
+        <h2 class="font-sans-lg">Service Area Validation Tool</h2>
+        <form
+          method="post"
+          action="/dev/addressChecker/hx/checkServiceArea"
+          class="usa-form margin-top-2"
+          hx-post="/dev/addressChecker/hx/checkServiceArea"
+          hx-target="#checkServiceAreaDebugOutput"
+          hx-swap="innerHTML"
+          aria-label="Search Service Area"
+        >
+          <input
+            type="hidden"
+            name="csrfToken"
+            th:value="${templateGlobals.csrfToken}"
+          />
+          <div class="usa-form-group">
+            <label class="usa-label" for="latitude">Latitude/Y</label>
+            <input
+              class="usa-input"
+              id="latitude"
+              name="latitude"
+              type="number"
+              step="any"
+              required
+            />
+          </div>
+          <div class="usa-form-group">
+            <label class="usa-label" for="longitude">Longitude/X</label>
+            <input
+              class="usa-input"
+              id="longitude"
+              name="longitude"
+              type="number"
+              step="any"
+              required
+            />
+          </div>
+          <div class="usa-form-group">
+            <label class="usa-label" for="wellKnownId">Well Known ID</label>
+            <input
+              class="usa-input"
+              id="wellKnownId"
+              name="wellKnownId"
+              type="number"
+              required
+            />
+          </div>
+          <div class="usa-form-group">
+            <label class="usa-label" for="validationOption"
+              >Validation Option</label
+            >
+            <select
+              class="usa-select"
+              id="validationOption"
+              name="validationOption"
+              required
+            >
+              <option value="">Select an option</option>
+              <option
+                th:each="opt : ${validationOptions}"
+                th:value="${opt.value}"
+                th:text="${opt.label}"
+              ></option>
+            </select>
+          </div>
+          <div class="margin-top-2">
+            <button class="usa-button" type="submit">Check Service Area</button>
+            <button class="usa-button usa-button--outline" type="reset">
+              Reset
+            </button>
+          </div>
+        </form>
+      </th:block>
+      <th:block
+        th:unless="${model.addressServiceAreaValidationUrls.present} and ${model.addressServiceAreaValidationUrls.get().size()} > 0 and ${model.addressValidationEnabled}"
+      >
+        <h2 class="font-sans-lg">Cannot show service area validation tool</h2>
+        <p>Likely reasons:</p>
+        <ul class="usa-list usa-list--unstyled">
+          <li class="margin-left-2">
+            ESRI_ADDRESS_SERVICE_AREA_VALIDATION_URLS has no endpoints
+          </li>
+          <li class="margin-left-2">
+            ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED is not enabled
+          </li>
+        </ul>
+      </th:block>
+      <div id="checkServiceAreaDebugOutput"></div>
+    </div>
+  </div>
+</th:block>
