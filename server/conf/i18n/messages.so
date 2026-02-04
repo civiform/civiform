@@ -1167,9 +1167,9 @@ text.repeatedSet=
 # Text letting admins know which block represents the group of screens for nested repeating questions
 text.nestedRepeatedSet=
 # An uneditable prefix for the enumerator screen name representing the repeated object that will be enumerated
-text.repeatedSet.prefix=parent label
+text.repeatedSet.prefix=calaamada waalidka
 # An uneditable prefix for the enumerator screen name representing the nested repeated object that will be enumerated
-text.repeatedSet.nestedPrefix=child label
+text.repeatedSet.nestedPrefix=calaamada ilmaha
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #
