@@ -253,7 +253,7 @@ public enum MessageKey {
   // Session timeout related messages
   SESSION_WARNING_TITLE("session.warning.title"),
   SESSION_INACTIVITY_WARNING_MESSAGE("session.inactivity.warning.message"),
-  SESSION_INACTIVITY_EXTEND_BUTTON("session.inactivity.extend.button"),
+  SESSION_INACTIVITY_EXTEND_BUTTON("session.extend.button"),
   SESSION_LENGTH_WARNING_MESSAGE_LOGGED_IN("session.length.warning.message.loggedIn"),
   SESSION_LOGIN_BUTTON_LOGGED_IN("session.login.button.loggedIn"),
   SESSION_EXTENDED_SUCCESS("session.extended.success"),
