@@ -1215,7 +1215,7 @@ reportingProgram.timeToCompleteP25=Tiempo para completar (p25)
 # Column header for median (50th percentile) time to complete
 reportingProgram.medianTimeToComplete=Tiempo medio para completar
 # Column header for 75th percentile time to complete
-reportingProgram.timeToCompleteP75=Time to complete (p75)
+reportingProgram.timeToCompleteP75=Tiempo para completar (p75)
 # Column header for 99th percentile time to complete
 reportingProgram.timeToCompleteP99=Time to complete (p99)
 # Text on button to download CSV file
