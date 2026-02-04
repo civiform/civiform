@@ -632,7 +632,7 @@ alert.predicateNoAvailableQuestionsVisibility=No hay preguntas disponibles en la
 alert.predicateNoAvailableQuestionsEligibility=En esta pantalla no hay preguntas disponibles con las que establecer una condición de elegibilidad.
 
 # Label for textarea where admins can enter a message to show to applicants who are deemed ineligible based on the eligibility conditions set.
-label.predicateEligibilityMessageField=Display message shown to ineligible applicants
+label.predicateEligibilityMessageField=Mensaje para mostrar a los solicitantes que no cumplen los requisitos
 # Help text for a textarea input explaining that markdown is supported.
 content.markdownSupported=Markdown is supported
 
