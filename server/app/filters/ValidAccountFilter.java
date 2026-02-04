@@ -51,7 +51,12 @@ public class ValidAccountFilter extends EssentialFilter {
             return next.apply(request);
           }
 
-          Optional<CiviFormProfile> profile = profileUtils.optionalCurrentUserProfile(request);
+          // Only get the profile if it doesn't already exist on the request
+          Optional<CiviFormProfile> profile =
+              request
+                  .attrs()
+                  .getOptional(ProfileUtils.CURRENT_USER_PROFILE)
+                  .or(() -> Optional.ofNullable(profileUtils.currentUserProfile(request)));
 
           if (profile.isEmpty()) {
             return next.apply(request);
