@@ -24,8 +24,11 @@
           questionErrorMessageId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-questionError'}"
         >
           <label class="usa-label" th:for="${questionDropdownId}"
-            >[[#{label.predicateQuestion}]]<span class="usa-hint--required"
-              >*</span
+            >[[#{label.predicateQuestion}]]<abbr
+              title="required"
+              class="usa-hint usa-hint--required"
+              aria-hidden="true"
+              >*</abbr
             ></label
           >
           <span
@@ -45,6 +48,7 @@
             th:hx-target="${'#predicate-condition-' + conditionId + '-subcondition-list'}"
             th:aria-invalid="${questionIsInvalid}"
             th:aria-describedby="${questionIsInvalid ? questionErrorMessageId : ''}"
+            aria-required="true"
             hx-swap="outerHTML"
             th:data-should-autofocus="${model.autofocus}"
           >
@@ -66,7 +70,9 @@
             class="usa-form-group cf-predicate-scalar-select tablet:grid-col margin-top-0"
           >
             <label class="usa-label" th:for="${scalarDropDownId}"
-              >[[#{label.predicateField}]]<span class="usa-hint--required"
+              >[[#{label.predicateField}]]<span
+                class="usa-hint usa-hint--required"
+                aria-hidden="true"
                 >*</span
               ></label
             >
@@ -76,6 +82,7 @@
               th:name="${scalarDropDownId}"
               th:data-operator-target-id="${operatorDropdownId}"
               th:disabled="${!model.hasSelectedQuestion}"
+              aria-required="true"
             >
               <option
                 th:selected="${!model.hasSelectedQuestion}"
@@ -95,7 +102,9 @@
             class="usa-form-group cf-predicate-operator-select tablet:grid-col margin-top-0"
           >
             <label class="usa-label" th:for="${operatorDropdownId}"
-              >[[#{label.predicateState}]]<span class="usa-hint--required"
+              >[[#{label.predicateState}]]<span
+                class="usa-hint usa-hint--required"
+                aria-hidden="true"
                 >*</span
               ></label
             >
@@ -106,6 +115,7 @@
               th:disabled="${!model.hasSelectedQuestion}"
               th:data-condition-id="${conditionId}"
               th:data-subcondition-id="${subconditionId}"
+              aria-required="true"
             >
               <option
                 th:selected="${!model.hasSelectedQuestion}"
