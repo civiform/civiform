@@ -240,7 +240,7 @@ button.search=Tìm kiếm
 # Button to start an application on behalf of a client.
 button.startApp=Bắt đầu đơn đăng ký
 # Button to redirect to the login page when the applicant is not logged in for login-only programs.
-button.startAppForLoginOnlyProgram=Sign in to start an application
+button.startAppForLoginOnlyProgram=Đăng nhập để bắt đầu nộp đơn đăng ký
 # Button to view the applications belonging to an applicant.
 button.viewApplications=Xem các đơn đăng ký
 # Button to view and add clients
@@ -565,7 +565,7 @@ content.predicateEligibilityDescription.v2=Add eligibility conditions to determi
 # Text informing admins that ineligible applicants will be blocked from submitting an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
 content.blockIneligibleApplicants=Applicants who do not meet the minimum requirements will be blocked from submitting an application. You can change this in the
 # Text informing admins that ineligible applicants will still be able to submit an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
-content.allowIneligibleApplicants=Applicants can submit an application even if they do not meet the minimum requirements. You can change this in the
+content.allowIneligibleApplicants=Người nộp đơn có thể nộp đơn ngay cả khi họ không đáp ứng được các yêu cầu tối thiểu. Bạn có thể thay đổi thiết lập này trong
 # Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
 link.programSettings=cài đặt chương trình
 
@@ -576,9 +576,9 @@ content.predicateApplicantIsEligible=Ứng viên đủ điều kiện nếu
 # Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
 content.predicateConditionsAreTrue=các điều kiện là đúng:
 # Text that shows on the eligibility predicate screen when no eligibility conditions are set.
-content.predicateEligibilityNullState=Applicant is always eligible.
+content.predicateEligibilityNullState=Người nộp đơn luôn đủ điều kiện.
 # Text that shows on the visibility predicate screen when no visibility conditions are set.
-content.predicateVisibilityNullState=This screen is always shown.
+content.predicateVisibilityNullState=Màn hình này sẽ luôn hiển thị.
 
 # Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
 content.predicateConditionIsTrueIf=Điều kiện là đúng nếu
@@ -616,13 +616,13 @@ link.backToTop=Quay về đầu trang
 button.saveAndExit=Lưu và thoát
 
 # Confirmation dialog shown to admin for deleting all conditions in the predicate edit view
-confirm.deleteAllConditions=Are you sure you would like to delete all conditions?
+confirm.deleteAllConditions=Bạn có chắc chắn muốn xóa tất cả các điều kiện không?
 # Confirmation dialog shown to admin for deleting a condition in the predicate edit view
-confirm.deleteSingleCondition=Are you sure you would like to delete this condition?
+confirm.deleteSingleCondition=Bạn có chắc chắn muốn xóa điều kiện này không?
 # Confirmation dialog shown to admin for leaving predicate edit without saving.
 confirm.leaveWithoutSaving=Are you sure you would like to leave?
 # Dialog to warn admin that a deletion action cannot be undone
-confirm.actionNotReversable=This action cannot be undone.
+confirm.actionNotReversable=Bạn không thể đảo ngược hành động này.
 # Dialog to warn admin that they have unsaved changes in the predicate edit view.
 confirm.unsavedChanges=Bạn có những thay đổi chưa được lưu và chúng sẽ bị mất.
 
@@ -632,14 +632,14 @@ alert.predicateNoAvailableQuestionsVisibility=Không có câu hỏi nào ở cá
 alert.predicateNoAvailableQuestionsEligibility=Không có câu hỏi nào trên màn hình này để dùng thiết lập điều kiện xét duyệt.
 
 # Label for textarea where admins can enter a message to show to applicants who are deemed ineligible based on the eligibility conditions set.
-label.predicateEligibilityMessageField=Display message shown to ineligible applicants
+label.predicateEligibilityMessageField=Thông báo hiển thị cho người nộp đơn không đủ điều kiện
 # Help text for a textarea input explaining that markdown is supported.
 content.markdownSupported=Hỗ trợ ngôn ngữ markdown
 
 # Error message for when the admin leaves a multi-select question blank in admin predicate edit.
-validation.selectionRequired=You must select at least one option.
+validation.selectionRequired=Bạn phải chọn ít nhất một tùy chọn.
 # Error message for when the admin leaves a question unselected in admin predicate edit.
-validation.questionRequired=You must select a question.
+validation.questionRequired=Bạn phải chọn một câu hỏi.
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -883,7 +883,7 @@ map.locationLinkText=Xem thêm chi tiết
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr=Xem thêm chi tiết cho {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
-map.locationsCount=Displaying {0} to {1} of {2} locations
+map.locationsCount=Đang hiển thị {0} đến {1} trong tổng số {2} địa điểm
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount=Đã chọn {0} trên {1} vị trí tối đa.
 # Alt text for map region
@@ -921,7 +921,7 @@ map.geoJsonErrorText = Rất tiếc, chúng tôi không thể hiển thị câu 
 map.contactUs = liên hệ với chúng tôi
 map.homepage = trang chủ
 # screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
-map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a different location, please unselect at least one of the locations you have chosen.
+map.maxLocationsSelectedSr = Bạn đã chọn tối đa {0} địa điểm. Để thêm địa điểm khác, vui lòng bỏ chọn ít nhất một trong các địa điểm mà bạn đã chọn.
 
 #---------------------------------------------------------------------------#
 # MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
@@ -987,7 +987,7 @@ error.internalServerTitle.v2=Đã xảy ra lỗi
 # The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=Rất tiếc, đã xảy ra lỗi hệ thống nội bộ.
 # Additional information about the error that is shown to the user in small font
-error.internalServerDescription=Please contact technical support for assistance at {0} and include this error ID {1}.
+error.internalServerDescription=Vui lòng liên hệ bộ phận hỗ trợ kỹ thuật để được trợ giúp theo số {0} và cung cấp mã lỗi này {1}.
 # A button redirecting the user to the homepage
 error.internalServerHomeButton=Truy cập trang chủ
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
@@ -1176,19 +1176,19 @@ text.repeatedSet.nestedPrefix=child label
 #------------------------------------------------------------------------------#
 
 # Caption for the table showing submissions by program
-caption.submissionsByProgram=Submissions by program (all programs)
+caption.submissionsByProgram=Số đơn nộp theo chương trình (tất cả các chương trình)
 # Column header for program name
-content.program=Program
+content.program=Chương trình
 # Column header for number of submissions
-content.submissions=Submissions
+content.submissions=Số đơn nộp
 # Column header for 25th percentile time to complete
 content.timeToCompleteP25=Thời gian để điền (trang 25)
 # Column header for median (50th percentile) time to complete
-content.medianTimeToComplete=Median time to complete
+content.medianTimeToComplete=Thời gian trung bình để điền
 # Column header for 75th percentile time to complete
 content.timeToCompleteP75=Thời gian để điền (trang 75)
 # Column header for 99th percentile time to complete
-content.timeToCompleteP99=Time to complete (p99)
+content.timeToCompleteP99=Thời gian để điền (trang 99)
 # Text on button to download CSV file
 button.downloadCsv=Tải xuống tập tin CSV
 # Caption for the table showing submissions by month
