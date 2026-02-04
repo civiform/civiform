@@ -1209,7 +1209,7 @@ reportingProgram.caption.submissionsByMonth=Gudbinta bisha
 # Column header for month
 reportingProgram.month=Bisha
 # Column header for submissions
-reportingProgram.submissions=Submissions
+reportingProgram.submissions=Gudbinada
 # Column header for 25th percentile time to complete
 reportingProgram.timeToCompleteP25=Time to complete (p25)
 # Column header for median (50th percentile) time to complete
