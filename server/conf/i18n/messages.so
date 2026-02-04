@@ -1194,7 +1194,7 @@ button.downloadCsv=Soo deji CSV
 # Caption for the table showing submissions by month
 caption.submissionsByMonth=Gudbinada bisha (dhammaan barnaamijyada)
 # Column header for month
-content.month=Month
+content.month=Bisha
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING PROGRAM                                                     #
