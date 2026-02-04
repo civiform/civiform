@@ -1,6 +1,7 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
 import auth.Authorizers.Labels;
 import com.google.common.collect.ImmutableList;
@@ -17,6 +18,7 @@ import models.QuestionModel;
 import org.pac4j.play.java.Secure;
 import play.data.DynamicForm;
 import play.data.FormFactory;
+import play.i18n.MessagesApi;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
@@ -59,6 +61,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
   private final RequestChecker requestChecker;
   private final SettingsManifest settingsManifest;
   private final QuestionEditView questionEditView;
+  private final MessagesApi messagesApi;
+  private final ProgramBlocksView blockEditView;
 
   @Inject
   public AdminProgramBlockQuestionsController(
@@ -68,7 +72,9 @@ public class AdminProgramBlockQuestionsController extends Controller {
       FormFactory formFactory,
       RequestChecker requestChecker,
       SettingsManifest settingsManifest,
-      QuestionEditView questionEditView) {
+      QuestionEditView questionEditView,
+      MessagesApi messagesApi,
+      ProgramBlocksView.Factory programBlockViewFactory) {
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
     this.versionRepository = checkNotNull(versionRepository);
@@ -76,6 +82,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
     this.requestChecker = checkNotNull(requestChecker);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.questionEditView = checkNotNull(questionEditView);
+    this.messagesApi = checkNotNull(messagesApi);
+    this.blockEditView = checkNotNull(programBlockViewFactory.create(DRAFT));
   }
 
   /** POST endpoint for adding one or more questions to a screen. */
@@ -125,9 +133,9 @@ public class AdminProgramBlockQuestionsController extends Controller {
             controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId).url()));
   }
 
-  /** POST endpoint for creating a new enumerator question and adding it to a screen. */
+  /** HTMX POST endpoint for creating a new enumerator question and adding it to a screen. */
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
-  public Result createEnumerator(Request request, long programId, long blockId) {
+  public Result hxCreateEnumerator(Request request, long programId, long blockId) {
     requestChecker.throwIfProgramNotDraft(programId);
 
     // Create the new enumerator question in the same way as in AdminQuestionController#create.
@@ -172,12 +180,26 @@ public class AdminProgramBlockQuestionsController extends Controller {
 
     ImmutableList<Long> latestQuestionIds = ImmutableList.of(createdQuestionDefinition.getId());
 
+    ProgramDefinition programDefinition;
+    BlockDefinition blockDefinition;
+    ProgramQuestionDefinition programQuestionDefinition;
+
     try {
-      programService.addQuestionsToBlock(
-          programId,
-          blockId,
-          latestQuestionIds,
-          settingsManifest.getEnumeratorImprovementsEnabled(request));
+      programDefinition =
+          programService.addQuestionsToBlock(
+              programId,
+              blockId,
+              latestQuestionIds,
+              settingsManifest.getEnumeratorImprovementsEnabled(request));
+      blockDefinition = programDefinition.getBlockDefinition(blockId);
+      programQuestionDefinition =
+          blockDefinition.programQuestionDefinitions().stream()
+              .filter(pqd -> pqd.id() == createdQuestionDefinition.getId())
+              .findFirst()
+              .orElseThrow(
+                  () ->
+                      new ProgramQuestionDefinitionNotFoundException(
+                          programId, blockId, createdQuestionDefinition.getId()));
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
@@ -186,12 +208,25 @@ public class AdminProgramBlockQuestionsController extends Controller {
       return notFound(String.format("Question IDs %s not found", latestQuestionIds));
     } catch (CantAddQuestionToBlockException e) {
       return notFound(e.externalMessage());
+    } catch (ProgramQuestionDefinitionNotFoundException e) {
+      return notFound("ProgramQuestionDefinition not found.");
     }
 
-    // TODO(#12006): Rather than reloading the whole page,
-    //  use HTMX to replace the form with the question card.
-    return redirect(
-        controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId).url());
+    return ok(
+        blockEditView
+            .renderEnumeratorQuestionCardSection(
+                messagesApi.preferred(request),
+                /* optionalQuestionCard= */ Optional.of(
+                    blockEditView.renderQuestion(
+                        /* optionalCsrfTag= */ Optional.empty(),
+                        programDefinition,
+                        blockDefinition,
+                        createdQuestionDefinition,
+                        programQuestionDefinition,
+                        /* questionIndex= */ 0, // Enumerator blocks have only one question
+                        blockDefinition.getQuestionCount(),
+                        request)))
+            .render());
   }
 
   /** POST endpoint for removing a question from a screen. */

@@ -339,6 +339,21 @@ class AdminPrograms {
       })
     }
   }
+
+  static attachEventListenerToHtmxSwap() {
+    document.body.addEventListener('htmx:afterSwap', () => {
+      this.focusOnEnumeratorQuestionSection()
+    })
+  }
+
+  static focusOnEnumeratorQuestionSection() {
+    const enumeratorSectionHeading = document.getElementById(
+      'repeated-set-question-section-heading',
+    )
+    if (enumeratorSectionHeading) {
+      enumeratorSectionHeading.focus()
+    }
+  }
 }
 
 export function init() {
@@ -349,4 +364,5 @@ export function init() {
   AdminPrograms.attachEventListenersToHideEditTiInPublicMode()
   AdminPrograms.attachEventListenersToHideEditTiInTIOnlyMode()
   AdminPrograms.attachEventListenersToHideEditTiInHiddenMode()
+  AdminPrograms.attachEventListenerToHtmxSwap()
 }
