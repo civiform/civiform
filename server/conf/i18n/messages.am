@@ -240,7 +240,7 @@ button.search=ፍለጋ
 # Button to start an application on behalf of a client.
 button.startApp=ማመልከቻ ይጀምሩ
 # Button to redirect to the login page when the applicant is not logged in for login-only programs.
-button.startAppForLoginOnlyProgram=Sign in to start an application
+button.startAppForLoginOnlyProgram=አንድን መተግበሪያ ለመጀመር በመለያ ይግቡ
 # Button to view the applications belonging to an applicant.
 button.viewApplications=መተግበሪያዎችን ይመልከቱ
 # Button to view and add clients
