@@ -578,7 +578,7 @@ content.predicateConditionsAreTrue=las condiciones son verdaderas:
 # Text that shows on the eligibility predicate screen when no eligibility conditions are set.
 content.predicateEligibilityNullState=El solicitante siempre cumple con los requisitos.
 # Text that shows on the visibility predicate screen when no visibility conditions are set.
-content.predicateVisibilityNullState=This screen is always shown.
+content.predicateVisibilityNullState=Esta pantalla siempre se muestra.
 
 # Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
 content.predicateConditionIsTrueIf=La condición es verdadera si
@@ -605,7 +605,7 @@ button.predicateAddCondition=Agregar condición
 # Button to remove a condition from the form
 button.predicateDeleteCondition=Eliminar condición
 # Button to remove all conditions from the form
-button.predicateDeleteAllConditions=Delete all conditions
+button.predicateDeleteAllConditions=Eliminar todas las condiciones
 # Link to append form fields for configuring a new sub-condition within a condition
 link.predicateAddSubcondition=Agregar subcondición
 # Link to remove a sub-condition from the form
