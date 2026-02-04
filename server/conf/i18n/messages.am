@@ -624,7 +624,7 @@ confirm.leaveWithoutSaving=ለቅቀው መውጣት መፈለግዎን እር�
 # Dialog to warn admin that a deletion action cannot be undone
 confirm.actionNotReversable=ይህ ድርጊት ሊቀለበስ አይችልም።
 # Dialog to warn admin that they have unsaved changes in the predicate edit view.
-confirm.unsavedChanges=You have unsaved changes that will be lost.
+confirm.unsavedChanges=ሊጠፉ የሚችሉ ያልተቀመጡ ለውጦች አሉዎት።
 
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsVisibility=ለዚህ ማያ ገጽ የታይነት ሁኔታዎችን ለማዋቀር፣ በቀደሙ ማያ ገጾች ላይ ምንም ዝግጁ ጥያቄዎች የሉም።
