@@ -1188,7 +1188,7 @@ content.medianTimeToComplete=Waqti dhexdhexaad ah oo la dhameystiro
 # Column header for 75th percentile time to complete
 content.timeToCompleteP75=Waqtiga la dhameystiraayo (p25)
 # Column header for 99th percentile time to complete
-content.timeToCompleteP99=Time to complete (p99)
+content.timeToCompleteP99=Waqtiga la dhameystiraayo (p75)
 # Text on button to download CSV file
 button.downloadCsv=Download CSV
 # Caption for the table showing submissions by month
