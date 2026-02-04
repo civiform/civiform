@@ -26,6 +26,9 @@ See the radio-option below as an example.
 @use 'usa-label' as *;
 @use 'usa-error-message' as *;
 
+body {
+  background-color: #f3f3f3;
+}
 
 .usa-prose h1 {
   @include u-text('bold');
@@ -552,3 +555,62 @@ fieldset .usa-error-message {
     }
   }
 }
+
+////
+//details {
+//  summary {
+//    @include u-border-color('base-lightest');
+//    @include u-border('2px');
+//    @include u-bg('base-lightest');
+//    @include u-padding(2);
+//    @include u-margin-top(2);
+//    @include u-font('sans', 'lg');
+//    list-style: none; // Remove default marker
+//    cursor: pointer;
+//    display: flex;
+//    justify-content: space-between;
+//    align-items: center;
+//    //width: 100%;
+//
+//    // Hide default marker in WebKit browsers
+//    &::-webkit-details-marker {
+//      display: none;
+//    }
+//
+//    // Add custom + marker
+//    &::after {
+//      content: '+';
+//      font-size: 1.5em;
+//    }
+//  }
+//
+//  > div {
+//    @include u-border-color('base-lightest');
+//    @include u-border('2px');
+//    @include u-border-top(0);
+//    @include u-padding(2);
+//  }
+//
+//  // Change to - when open
+//  &[open] {
+//    summary::after {
+//      content: '−'; // Using minus sign character
+//    }
+//  }
+//
+//  // Prismjs font-size is too large.
+//  code[class*="language-"],
+//  pre[class*="language-"] {
+//    font-size: 14px !important;
+//  }
+//}
+
+.usa-accordion {
+  // Prismjs font-size is too large.
+  code[class*="language-"],
+  pre[class*="language-"] {
+    font-size: 14px !important;
+  }
+}
+//<details>
+//<div class="border-2px border-base-lightest padding-x-2">

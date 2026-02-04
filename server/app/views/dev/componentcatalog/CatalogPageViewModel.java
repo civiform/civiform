@@ -23,8 +23,6 @@ public record CatalogPageViewModel(String controlName) implements BaseViewModel 
 //          new ControlInfo("AlertControl", "Alert Control", new AlertControl()),
           "button",
           new ControlInfo("ButtonControl", "Button Control", new ButtonControl()),
-//          "heading",
-//          new ControlInfo("HeadingControl", "Heading Control", null),
           "checkbox",
           new ControlInfo("CheckboxControl", "Checkbox Control", new CheckboxControl()),
           "input",
