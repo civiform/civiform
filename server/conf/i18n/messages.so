@@ -624,7 +624,7 @@ confirm.leaveWithoutSaving=Ma hubtaa inaad jeclaan lahayd inaad ka baxdo?
 # Dialog to warn admin that a deletion action cannot be undone
 confirm.actionNotReversable=Ficilkaan dib loogama noqon karo.
 # Dialog to warn admin that they have unsaved changes in the predicate edit view.
-confirm.unsavedChanges=You have unsaved changes that will be lost.
+confirm.unsavedChanges=Waxaa jira isbadelo aan la seyf gareen oo dhumi kara.
 
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsVisibility=Ma jiraan su''aalo la heli karo oo ka muuqda shaashadihii hore oo lagu dejinayo shuruud muujin oo loogu talagalay shaashaddan.
