@@ -1,6 +1,7 @@
 package auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import java.util.Optional;
 import models.ApplicantModel;
@@ -37,10 +38,7 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
     oidcProfile.addAttribute(EMAIL_ATTR, EMAIL1);
   }
 
-  /**
-   * Helper method to create an applicant with an associated account. This follows the pattern from
-   * WithMockedProfiles.
-   */
+  /** Helper method to create an applicant with an associated account. */
   private ApplicantModel createApplicant() {
     ApplicantModel applicant = resourceCreator.insertApplicant();
     applicant.setAccount(resourceCreator.insertAccount());
@@ -67,6 +65,7 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
   @Test
   public void mergeProfiles_noExistingProfile_succeeds() {
     ApplicantModel applicant = createApplicant();
+    Long expectedAccountId = applicant.getAccount().id;
 
     var merged =
         civiFormProfileMerger.mergeProfiles(
@@ -75,7 +74,7 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
             oidcProfile,
             /* mergeFunction= */ (civiFormProfile, profile) -> {
               var profileData = civiFormProfile.orElseThrow().getProfileData();
-              assertThat(profileData.getId()).isEqualTo(applicant.getAccount().id.toString());
+              assertThat(profileData.getId()).isEqualTo(expectedAccountId.toString());
               assertThat(profile).isEqualTo(oidcProfile);
               return userProfile;
             });
@@ -86,6 +85,7 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
   @Test
   public void mergeProfiles_guestProfileWithNoApplications_succeeds() {
     ApplicantModel applicant = createApplicant();
+    Long expectedAccountId = applicant.getAccount().id;
     CiviFormProfile civiFormProfile = profileFactory.wrap(applicant);
 
     var merged =
@@ -93,10 +93,10 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
             Optional.of(applicant),
             Optional.of(civiFormProfile),
             oidcProfile,
-            /* mergeFunction= */ (profileFromMerger, profile) -> {
-              var profileData = profileFromMerger.orElseThrow().getProfileData();
-              assertThat(profileData.getId()).isEqualTo(applicant.getAccount().id.toString());
-              assertThat(profile).isEqualTo(oidcProfile);
+            /* mergeFunction= */ (innerCiviformProfile, innerProfile) -> {
+              assertThat(innerCiviformProfile.orElseThrow().getProfileData().getId())
+                  .isEqualTo(expectedAccountId.toString());
+              assertThat(innerProfile).isEqualTo(oidcProfile);
               return userProfile;
             });
 
@@ -116,10 +116,11 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
             /* applicantInDatabase= */ Optional.empty(),
             Optional.of(civiFormProfile),
             oidcProfile,
-            /* mergeFunction= */ (profileFromMerger, profile) -> {
-              var profileDataFromMerger = profileFromMerger.orElseThrow().getProfileData();
-              assertThat(profileDataFromMerger.getAttribute(EMAIL_ATTR)).isEqualTo(EMAIL2);
-              assertThat(profile).isEqualTo(oidcProfile);
+            /* mergeFunction= */ (innerCiviformProfile, innerProfile) -> {
+              assertThat(
+                      innerCiviformProfile.orElseThrow().getProfileData().getAttribute(EMAIL_ATTR))
+                  .isEqualTo(EMAIL2);
+              assertThat(innerProfile).isEqualTo(oidcProfile);
               return userProfile;
             });
 
@@ -150,17 +151,16 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
     int initialGuestApplicationCount = guestApplicant.getApplications().size();
     assertThat(initialGuestApplicationCount).isEqualTo(1);
 
-    long expectedAccountId = loggedInApplicant.getAccount().id;
+    Long expectedAccountId = loggedInApplicant.getAccount().id;
     var merged =
         civiFormProfileMerger.mergeProfiles(
             Optional.of(loggedInApplicant),
             Optional.of(guestProfile),
             oidcProfile,
-            /* mergeFunction= */ (civiFormProfile, profile) -> {
-              var profileData = civiFormProfile.orElseThrow().getProfileData();
-              assertThat(profileData.getId())
-                  .isEqualTo(loggedInApplicant.getAccount().id.toString());
-              assertThat(profile).isEqualTo(oidcProfile);
+            /* mergeFunction= */ (innerCiviFormProfile, innerProfile) -> {
+              assertThat(innerCiviFormProfile.orElseThrow().getProfileData().getId())
+                  .isEqualTo(expectedAccountId.toString());
+              assertThat(innerProfile).isEqualTo(oidcProfile);
               return userProfile;
             });
 
@@ -186,33 +186,39 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
     // Create a guest applicant with an application
     ApplicantModel guestApplicant = createApplicant();
 
+    // Create a program and application for the guest
+    ProgramDefinition program = ProgramBuilder.newActiveProgram("test-program").buildDefinition();
+    ApplicationModel guestApplication =
+        new ApplicationModel(guestApplicant, program.toProgram(), null);
+    guestApplication.save();
+    guestApplicant.refresh();
+
     // Create profile data for the guest
     CiviFormProfileData guestProfileData = new CiviFormProfileData();
     guestProfileData.setId(guestApplicant.getAccount().id.toString());
     CiviFormProfile guestProfile = profileFactory.wrapProfileData(guestProfileData);
-
     // Count applications before merge
     int initialGuestApplicationCount = guestApplicant.getApplications().size();
     assertThat(initialGuestApplicationCount).isEqualTo(1);
 
     long expectedAccountId = loggedInApplicant.getAccount().id;
-    var merged =
-        civiFormProfileMerger.mergeProfiles(
-            Optional.of(loggedInApplicant),
-            Optional.of(guestProfile),
-            oidcProfile,
-            /* mergeFunction= */ (civiFormProfile, profile) -> {
-              throw new RuntimeException();
-            });
-
-    assertThat(merged).hasValue(userProfile);
+    assertThrows(
+        RuntimeException.class,
+        () ->
+            civiFormProfileMerger.mergeProfiles(
+                Optional.of(loggedInApplicant),
+                Optional.of(guestProfile),
+                oidcProfile,
+                /* mergeFunction= */ (unused, unused2) -> {
+                  throw new RuntimeException();
+                }));
 
     loggedInApplicant.refresh();
     guestApplicant.refresh();
 
     // Both applicants have the same account.
-    // TODO(#11776) This should not be the case when the provided merger throws.
     assertThat(loggedInApplicant.getAccount().id).isEqualTo(expectedAccountId);
+    // TODO(#11776) This should not be the case when the provided merger throws.
     assertThat(guestApplicant.getAccount().id).isEqualTo(expectedAccountId);
   }
 }
