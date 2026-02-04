@@ -576,7 +576,7 @@ content.predicateApplicantIsEligible=አመልካች ብቁ የሚሆነው
 # Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
 content.predicateConditionsAreTrue=ሁኔታዎች እውነት ከሆኑ፦
 # Text that shows on the eligibility predicate screen when no eligibility conditions are set.
-content.predicateEligibilityNullState=Applicant is always eligible.
+content.predicateEligibilityNullState=አመልካች ሁልጊዜም ብቁ ነው።
 # Text that shows on the visibility predicate screen when no visibility conditions are set.
 content.predicateVisibilityNullState=This screen is always shown.
 
