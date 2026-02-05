@@ -7,6 +7,10 @@ enum ProgramType {
   EXTERNAL = 'External program',
 }
 
+interface HtmxDetail {
+  target?: HTMLElement
+}
+
 class AdminPrograms {
   private static PROGRAM_CARDS_SELECTOR = '.cf-admin-program-card'
   private static PROGRAM_LINK_ATTRIBUTE = 'data-copyable-program-link'
@@ -342,7 +346,7 @@ class AdminPrograms {
 
   static attachEventListenerToHtmxSwap() {
     document.body.addEventListener('htmx:afterSwap', (e) => {
-      const targetElement = (e as CustomEvent).detail.target
+      const targetElement = (e as CustomEvent<HtmxDetail>).detail.target
       if (!targetElement) {
         return
       }
