@@ -82,6 +82,15 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   protected ApplicationModel applicationSeven;
   private static ApplicationStatusesRepository appStatusRepo;
 
+  private static final StatusDefinitions.Status defaultStatus =
+      StatusDefinitions.Status.builder()
+          .setStatusText("Under review")
+          .setLocalizedStatusText(LocalizedStrings.of(Locale.US, "Pending"))
+          .setLocalizedEmailBodyText(
+              Optional.of(LocalizedStrings.of(Locale.US, "We are reviewing your application!")))
+          .setDefaultStatus(Optional.of(true))
+          .build();
+
   @Before
   public void setup() {
     programAdminApplicationService = instanceOf(ProgramAdminApplicationService.class);
@@ -280,6 +289,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         new StatusDefinitions()
             .setStatuses(
                 ImmutableList.of(
+                    defaultStatus,
                     Status.builder()
                         .setStatusText(STATUS_VALUE)
                         .setLocalizedStatusText(
