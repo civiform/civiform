@@ -27,6 +27,11 @@
       matchPackageNames: ["com.google.auto.value:{/,}**"],
     },
     {
+      matchPackageNames: ["com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer"],
+      versioning: "loose",
+      allowedVersions: "/^[0-9]{8}\\.[0-9]+$/",
+    },
+    {
       groupName: "awssdk",
       matchPackageNames: ["software.amazon.awssdk:{/,}**"],
       prHeader: "Release Notes: https://github.com/aws/aws-sdk-java-v2/blob/master/CHANGELOG.md"

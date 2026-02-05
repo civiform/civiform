@@ -256,10 +256,6 @@ GET     /programAdmin                                       controllers.admin.Pr
 GET     /download                                           controllers.applicant.UpsellController.download(request: Request, applicationId: Long, applicantId: Long)
 GET     /considerSignIn                                     controllers.applicant.UpsellController.considerRegister(request: Request, applicantId: Long, programId: Long, applicationId: Long, redirectTo: String, submitTime: String)
 
-# User profile pages
-GET     /users/me                                           controllers.ProfileController.myProfile(request: Request)
-GET     /users/:id                                          controllers.ProfileController.profilePage(request: Request, id: Long)
-
 # Authentication callback from local auth - nonfederated.  Requires CSRF token.
 # Provides client name as url parameter.
 GET     /callback                                           controllers.CallbackController.callback(request: Request, client_name: String)
@@ -295,9 +291,9 @@ GET     /dev/seed                                           controllers.dev.DevT
 POST    /dev/seedQuestions                                  controllers.dev.DevToolsController.seedQuestions()
 +nocsrf
 POST    /dev/seedQuestionsHeadless                          controllers.dev.DevToolsController.seedQuestionsHeadless()
-POST    /dev/seedPrograms                                   controllers.dev.DevToolsController.seedPrograms()
+POST    /dev/seedPrograms                                   controllers.dev.DevToolsController.seedPrograms(request: Request)
 +nocsrf
-POST    /dev/seedProgramsHeadless                           controllers.dev.DevToolsController.seedProgramsHeadless()
+POST    /dev/seedProgramsHeadless                           controllers.dev.DevToolsController.seedProgramsHeadless(request: Request)
 +nocsrf
 POST    /dev/seedApplicationsHeadless                       controllers.dev.DevToolsController.seedApplicationsHeadless(request: Request)
 POST    /dev/seed/clear                                     controllers.dev.DevToolsController.clear()

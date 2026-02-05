@@ -42,8 +42,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.41.15",
-      "software.amazon.awssdk" % "ses" % "2.41.15",
+      "software.amazon.awssdk" % "s3" % "2.41.22",
+      "software.amazon.awssdk" % "ses" % "2.41.22",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
@@ -76,9 +76,12 @@ lazy val root = (project in file("."))
       "jakarta.activation" % "jakarta.activation-api" % "2.1.4",
       "org.glassfish.jaxb" % "jaxb-runtime" % "4.0.6",
 
+      // Code autogeneration
+      "org.projectlombok" % "lombok" % "1.18.42",
+
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
-      "org.pac4j" %% "play-pac4j" % "12.0.0-PLAY3.0",
+      "org.pac4j" %% "play-pac4j" % "13.0.2-PLAY3.0",
       "org.pac4j" % "pac4j-core" % "6.3.1",
       // basic http authentication (for the anonymous client)
       "org.pac4j" % "pac4j-http" % "6.3.1",

@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static services.LocalizedStrings.DEFAULT_LOCALE;
 
 import auth.ProgramAcls;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -37,6 +38,7 @@ import models.ProgramNotificationPreference;
 import models.VersionModel;
 import modules.MainModule;
 import org.apache.commons.lang3.StringUtils;
+import play.i18n.Messages;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http.Request;
 import repository.AccountRepository;
@@ -48,6 +50,7 @@ import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
+import services.MessageKey;
 import services.ProgramBlockValidation.AddQuestionResult;
 import services.ProgramBlockValidationFactory;
 import services.TranslationLocales;
@@ -401,7 +404,9 @@ public final class ProgramService {
       ProgramType programType,
       ImmutableList<Long> tiGroups,
       ImmutableList<Long> categoryIds,
-      ImmutableList<ApplicationStep> applicationSteps) {
+      ImmutableList<ApplicationStep> applicationSteps,
+      Messages messages,
+      boolean enumeratorImprovementsEnabled) {
     ImmutableSet<CiviFormError> errors =
         validateProgramDataForCreate(
             adminName,
@@ -423,7 +428,10 @@ public final class ProgramService {
         createEmptyBlockDefinition(
             /* blockId= */ 1,
             /* maybeEnumeratorBlockId= */ Optional.empty(),
-            /* isEnumerator= */ Optional.empty());
+            /* isEnumerator= */ Optional.empty(),
+            /* isNested= */ false,
+            messages,
+            enumeratorImprovementsEnabled);
     if (maybeEmptyBlock.isError()) {
       return ErrorAnd.error(maybeEmptyBlock.getErrors());
     }
@@ -624,6 +632,8 @@ public final class ProgramService {
         programDefinition.toBuilder()
             .setAdminDescription(adminDescription)
             .setLocalizedName(
+                // we use only the localizedName instead of the full name because the prefix is
+                // immutable
                 programDefinition.localizedName().updateTranslation(locale, displayName))
             .setLocalizedDescription(
                 programDefinition
@@ -655,6 +665,25 @@ public final class ProgramService {
             .join());
   }
 
+  /**
+   * Checks if a localized string is missing a required translation for a given locale. A
+   * translation is considered "missing" if a default (English) translation exists, but a non-empty
+   * translation for the specified locale does not. If no default translation exists, translations
+   * for other locales are not required.
+   *
+   * @param localizedStrings The LocalizedStrings to check.
+   * @param locale The locale to check for a translation.
+   * @return true if a translation is required and missing, false otherwise.
+   */
+  private boolean isTranslationMissingForLocale(LocalizedStrings localizedStrings, Locale locale) {
+    // A translation is required only if the default string is non-empty.
+    if (localizedStrings.getDefault().isEmpty()) {
+      return false; // Translation not required, so it's not "missing".
+    }
+    // A translation is required. It's missing if a non-empty string for the locale isn't present.
+    return !localizedStrings.maybeGet(locale).filter(s -> !s.isEmpty()).isPresent();
+  }
+
   public boolean isTranslationComplete(ProgramDefinition programDefinition)
       throws ProgramNotFoundException {
     ImmutableList<Locale> supportedLanguages = translationLocales.translatableLocales();
@@ -670,17 +699,13 @@ public final class ProgramService {
       if (locale.equals(DEFAULT_LOCALE)) {
         continue;
       }
-
       if (programDefinition.localizedName().maybeGet(locale).isEmpty()
-          || programDefinition.localizedDescription().maybeGet(locale).isEmpty()
-          || programDefinition.localizedConfirmationMessage().maybeGet(locale).isEmpty()
+          || isTranslationMissingForLocale(programDefinition.localizedDescription(), locale)
+          || isTranslationMissingForLocale(programDefinition.localizedConfirmationMessage(), locale)
           || programDefinition.localizedShortDescription().maybeGet(locale).isEmpty()
           || (programDefinition.localizedSummaryImageDescription().isPresent()
-              && programDefinition
-                  .localizedSummaryImageDescription()
-                  .get()
-                  .maybeGet(locale)
-                  .isEmpty())) {
+              && isTranslationMissingForLocale(
+                  programDefinition.localizedSummaryImageDescription().get(), locale))) {
         return false;
       }
 
@@ -691,13 +716,14 @@ public final class ProgramService {
       }
 
       for (BlockDefinition block : programDefinition.blockDefinitions()) {
-        if (block.localizedName().maybeGet(locale).isEmpty()
-            || block.localizedDescription().maybeGet(locale).isEmpty()) {
+        if (block.localizedName().maybeGet(locale).isEmpty()) {
           return false;
         }
+        // TODO: #9809 the block description translation check should be added back in if/when we
+        // use block descriptions
         if (block.localizedEligibilityMessage().isPresent()) {
           LocalizedStrings localizedEligibilityMessage = block.localizedEligibilityMessage().get();
-          if (localizedEligibilityMessage.maybeGet(locale).isEmpty()) {
+          if (isTranslationMissingForLocale(localizedEligibilityMessage, locale)) {
             return false;
           }
         }
@@ -707,6 +733,13 @@ public final class ProgramService {
                   translationLocales, question.getQuestionDefinition())) {
             return false;
           }
+        }
+      }
+
+      for (ApplicationStep step : programDefinition.applicationSteps()) {
+        if (step.getTitle().maybeGet(locale).isEmpty()
+            || step.getDescription().maybeGet(locale).isEmpty()) {
+          return false;
         }
       }
     }
@@ -1334,9 +1367,14 @@ public final class ProgramService {
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
   public ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addBlockToProgram(
-      long programId, Optional<Boolean> isEnumerator) throws ProgramNotFoundException {
+      long programId,
+      Optional<Boolean> isEnumerator,
+      Messages messages,
+      boolean enumeratorImprovementsEnabled)
+      throws ProgramNotFoundException {
     try {
-      return addBlockToProgram(programId, Optional.empty(), isEnumerator);
+      return addBlockToProgram(
+          programId, Optional.empty(), isEnumerator, messages, enumeratorImprovementsEnabled);
     } catch (ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(
           "The ProgramBlockDefinitionNotFoundException should never be thrown when the enumerator"
@@ -1359,14 +1397,25 @@ public final class ProgramService {
    *     an enumerator block in the Program.
    */
   public ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addRepeatedBlockToProgram(
-      long programId, long enumeratorBlockId)
+      long programId,
+      long enumeratorBlockId,
+      Messages messages,
+      boolean enumeratorImprovementsEnabled)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     return addBlockToProgram(
-        programId, Optional.of(enumeratorBlockId), /* isEnumerator= */ Optional.empty());
+        programId,
+        Optional.of(enumeratorBlockId),
+        /* isEnumerator= */ Optional.empty(),
+        messages,
+        enumeratorImprovementsEnabled);
   }
 
   private ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addBlockToProgram(
-      long programId, Optional<Long> enumeratorBlockId, Optional<Boolean> isEnumerator)
+      long programId,
+      Optional<Long> enumeratorBlockId,
+      Optional<Boolean> isEnumerator,
+      Messages messages,
+      boolean enumeratorImprovementsEnabled)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     if (enumeratorBlockId.isPresent()
@@ -1376,7 +1425,17 @@ public final class ProgramService {
 
     ErrorAnd<BlockDefinition, CiviFormError> maybeBlockDefinition =
         createEmptyBlockDefinition(
-            getNextBlockId(programDefinition), enumeratorBlockId, isEnumerator);
+            getNextBlockId(programDefinition),
+            enumeratorBlockId,
+            isEnumerator,
+            enumeratorBlockId.isPresent()
+                ? programDefinition
+                    .getBlockDefinition(enumeratorBlockId.get())
+                    .enumeratorId()
+                    .isPresent()
+                : false,
+            messages,
+            enumeratorImprovementsEnabled);
     if (maybeBlockDefinition.isError()) {
       return ErrorAnd.errorAnd(
           maybeBlockDefinition.getErrors(),
@@ -1588,7 +1647,7 @@ public final class ProgramService {
       throw new RuntimeException(
           String.format(
               "Unexpected error: Adding a question to block %s invalidated a predicate",
-              blockDefinition.name()));
+              blockDefinition.getFullName()));
     }
   }
 
@@ -2101,17 +2160,36 @@ public final class ProgramService {
     return errors.build();
   }
 
-  private static ErrorAnd<BlockDefinition, CiviFormError> createEmptyBlockDefinition(
-      long blockId, Optional<Long> maybeEnumeratorBlockId, Optional<Boolean> isEnumerator) {
+  @VisibleForTesting
+  public static ErrorAnd<BlockDefinition, CiviFormError> createEmptyBlockDefinition(
+      long blockId,
+      Optional<Long> maybeEnumeratorBlockId,
+      Optional<Boolean> isEnumerator,
+      boolean isNested,
+      Messages messages,
+      boolean enumeratorImprovementsEnabled) {
     String blockName =
         maybeEnumeratorBlockId.isPresent()
             ? String.format("Screen %d (repeated from %d)", blockId, maybeEnumeratorBlockId.get())
             : String.format("Screen %d", blockId);
     String blockDescription = String.format("Screen %d description", blockId);
+    Optional<String> namePrefix = Optional.empty();
+    if (maybeEnumeratorBlockId.isPresent() && enumeratorImprovementsEnabled) {
+      namePrefix =
+          Optional.of(
+              isNested
+                  ? String.format(
+                      "[%s] - [%s] - ",
+                      messages.at(MessageKey.TEXT_REPEATED_SET_PREFIX.getKeyName()),
+                      messages.at(MessageKey.TEXT_REPEATED_SET_NESTED_PREFIX.getKeyName()))
+                  : String.format(
+                      "[%s] - ", messages.at(MessageKey.TEXT_REPEATED_SET_PREFIX.getKeyName())));
+    }
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
             .setId(blockId)
             .setName(blockName)
+            .setNamePrefix(namePrefix)
             .setDescription(blockDescription)
             .setLocalizedName(LocalizedStrings.withDefaultValue(blockName))
             .setLocalizedDescription(LocalizedStrings.withDefaultValue(blockDescription))

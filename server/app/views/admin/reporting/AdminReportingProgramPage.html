@@ -1,23 +1,28 @@
 <!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
 <!--/*@thymesVar id="model" type="views.admin.reporting.AdminReportingProgramPageViewModel"*/-->
 <th:block th:fragment="content">
-  <h1 th:text="${model.enUSLocalizedProgramName} + ' reporting'"></h1>
+  <h1
+    th:text="${#messages.msg('reportingProgram.heading', model.enUSLocalizedProgramName)}"
+  ></h1>
   <div class="my-8">
-    <p>Data may be up to an hour delayed.</p>
+    <p th:text="#{reportingProgram.dataDelay}"></p>
   </div>
   <div class="grid-container section usa-prose">
     <table class="usa-table">
-      <caption>
-        Submissions by month
-      </caption>
+      <caption
+        th:text="#{reportingProgram.caption.submissionsByMonth}"
+      ></caption>
       <thead>
         <tr>
-          <th scope="col">Month</th>
-          <th scope="col">Submissions</th>
-          <th scope="col">Time to complete (p25)</th>
-          <th scope="col">Median time to complete</th>
-          <th scope="col">Time to complete (p75)</th>
-          <th scope="col">Time to complete (p99)</th>
+          <th scope="col" th:text="#{reportingProgram.month}"></th>
+          <th scope="col" th:text="#{reportingProgram.submissions}"></th>
+          <th scope="col" th:text="#{reportingProgram.timeToCompleteP25}"></th>
+          <th
+            scope="col"
+            th:text="#{reportingProgram.medianTimeToComplete}"
+          ></th>
+          <th scope="col" th:text="#{reportingProgram.timeToCompleteP75}"></th>
+          <th scope="col" th:text="#{reportingProgram.timeToCompleteP99}"></th>
         </tr>
       </thead>
       <tbody>
@@ -47,8 +52,8 @@
     <a
       class="usa-button"
       th:href="${model.getDownloadProgramCsvUrl(model.programSlug)}"
+      th:text="#{reportingProgram.downloadCsv}"
     >
-      Download CSV
     </a>
   </div>
 </th:block>

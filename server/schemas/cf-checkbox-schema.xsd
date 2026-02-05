@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:cf="https://civiform.us/thymeleaf/cf"
+           targetNamespace="https://civiform.us/thymeleaf/cf"
+           elementFormDefault="qualified">
+
+  <xs:import namespace="https://civiform.us/thymeleaf/cf" schemaLocation="common-types.xsd"/>
+
+  <xs:annotation>
+    <xs:documentation>
+      Schema for custom cf:checkbox Thymeleaf tag processor.
+      This provides IDE code completion support for the cf:checkbox element.
+    </xs:documentation>
+  </xs:annotation>
+
+  <!-- Define the checkbox element -->
+  <xs:element name="checkbox">
+    <xs:annotation>
+      <xs:documentation>
+        Custom checkbox button group element that renders a USWDS-compliant checkbox button group.
+        Wraps checkbox options in proper form-group structure with support for validation states,
+        help text, and tile variants.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="item" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:attribute name="id" type="xs:string" use="required">
+        <xs:annotation>
+          <xs:documentation>Unique identifier for the checkbox group (used for error messages and help text association)</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="name" type="xs:string" use="required">
+        <xs:annotation>
+          <xs:documentation>The name attribute for the checkbox button group (used for form submission)</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="label" type="xs:string" use="required">
+        <xs:annotation>
+          <xs:documentation>The label text to display as the fieldset legend</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="help-text" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Optional help text to display below the legend</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="validation-message" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Custom validation error message (defaults to "Validation message" if not provided)</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="required" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Makes the checkbox button group required (any value marks as required)</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="is-valid" type="cf:validationType">
+        <xs:annotation>
+          <xs:documentation>Controls validation state. Set to "false" to show error state</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="tiled" type="cf:booleanType">
+        <xs:annotation>
+          <xs:documentation>Use tile variant for checkbox buttons (default: true)</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="columns" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Number of columns for checkbox layout (e.g., "2", "3")</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="validation-class" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>CSS class for validation styling</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="validation-field" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Field name for validation</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="readonly" type="cf:booleanType">
+        <xs:annotation>
+          <xs:documentation>Make the checkbox group readonly</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="disabled" type="cf:booleanType">
+        <xs:annotation>
+          <xs:documentation>Disable the entire checkbox group</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+
+      <!-- Thymeleaf prefixed versions -->
+      <xs:attribute name="th:id" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Thymeleaf expression for the id attribute</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:name" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Thymeleaf expression for the name attribute</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:label" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Thymeleaf expression for the label text</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:help-text" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Thymeleaf expression for the help text</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:validation-message" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Thymeleaf expression for the validation message</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:required" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Thymeleaf expression for the required attribute</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:is-valid" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Thymeleaf expression for the validation state</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:tiled" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Thymeleaf expression for the tiled attribute</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:columns" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Thymeleaf expression for the columns attribute</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:validation-class" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Thymeleaf expression for the validation class</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:validation-field" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Thymeleaf expression for the validation field</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:readonly" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Thymeleaf expression for the readonly attribute</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:disabled" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Thymeleaf expression for the disabled attribute</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+
+      <!-- Allow any data-* attributes -->
+      <xs:anyAttribute processContents="lax" namespace="##any"/>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Define the item element -->
+  <xs:element name="item">
+    <xs:annotation>
+      <xs:documentation>
+        Individual checkbox button option within a cf:checkbox group.
+        Can contain text content as the label, or use the label attribute.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType mixed="true">
+      <xs:attribute name="id" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Unique identifier for this checkbox button (used for label association)</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="value" type="xs:string" use="required">
+        <xs:annotation>
+          <xs:documentation>The value that will be submitted when this option is selected</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="label" type="xs:string" use="required">
+        <xs:annotation>
+          <xs:documentation>The label text for this checkbox button</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="description" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Optional description text to display below the label</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="selected" type="cf:booleanType">
+        <xs:annotation>
+          <xs:documentation>Pre-select this checkbox button (true, selected, or checked)</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="disabled" type="cf:booleanType">
+        <xs:annotation>
+          <xs:documentation>Disable this checkbox button (true or disabled)</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+
+      <!-- Thymeleaf prefixed versions -->
+      <xs:attribute name="th:id" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Thymeleaf expression for the id attribute</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:value" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Thymeleaf expression for the value attribute</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:label" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Thymeleaf expression for the label text</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:description" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Thymeleaf expression for the description text</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:selected" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Thymeleaf expression for the selected state</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="th:disabled" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Thymeleaf expression for the disabled state</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+
+      <!-- Allow any data-* and th:data-* attributes -->
+      <xs:anyAttribute processContents="lax" namespace="##any"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:simpleType name="validationType">
+    <xs:annotation>
+      <xs:documentation>Validation state type</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="true"/>
+      <xs:enumeration value="false"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>
