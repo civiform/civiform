@@ -38,7 +38,6 @@ import services.DeploymentType;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import services.settings.SettingsService;
-import views.components.SelectWithLabel;
 import views.dev.DevToolsPageView;
 import views.dev.DevToolsPageViewModel;
 import views.dev.DevToolsView;
@@ -107,19 +106,13 @@ public class DevToolsController extends Controller {
    */
   public Result index(Request request) {
     if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
-      ImmutableList<SelectWithLabel.OptionValue> durableJobOptions =
+      ImmutableList<String> durableJobOptions =
           ImmutableList.copyOf(DurableJobName.values()).stream()
-              .map(
-                  val ->
-                      SelectWithLabel.OptionValue.builder()
-                          .setLabel(val.toString())
-                          .setValue(val.toString())
-                          .build())
+              .map(DurableJobName::toString)
               .collect(ImmutableList.toImmutableList());
       String csrfToken = play.filters.csrf.CSRF.getToken(request).map(t -> t.value()).orElse("");
       DevToolsPageViewModel model =
           DevToolsPageViewModel.builder()
-              .maybeFlash(request.flash().get(FlashKey.SUCCESS))
               .seedProgramsUrl(routes.DevToolsController.seedPrograms().url())
               .seedQuestionsUrl(routes.DevToolsController.seedQuestions().url())
               .clearUrl(routes.DevToolsController.clear().url())

@@ -12,37 +12,22 @@
     </div>
 
     <!-- Seed Section -->
-    <div class="grid-row grid-gap margin-top-4">
-      <div class="grid-col-12 usa-prose border border-base-lighter padding-3">
-        <h2 class="usa-heading-lg">Seed</h2>
+    <div class="grid-row grid-gap">
+      <div class="grid-col-12 border border-base-lighter">
+        <h2>Seed</h2>
         <p>Populate or clear sample data</p>
-        <form
-          th:action="${model.seedProgramsUrl}"
-          method="post"
-          class="margin-bottom-2"
-        >
+        <form th:action="${model.seedProgramsUrl}" method="post">
           <button class="usa-button" type="submit">
             Seed sample programs and categories
           </button>
         </form>
-        <form
-          th:action="${model.seedQuestionsUrl}"
-          method="post"
-          class="margin-bottom-2"
-        >
+        <form th:action="${model.seedQuestionsUrl}" method="post">
           <button class="usa-button" type="submit">
             Seed sample questions
           </button>
         </form>
-        <form
-          th:action="${model.clearUrl}"
-          method="post"
-          class="margin-bottom-2"
-        >
-          <button
-            class="usa-button usa-button--secondary bg-red-60"
-            type="submit"
-          >
+        <form th:action="${model.clearUrl}" method="post">
+          <button class="usa-button usa-button--secondary" type="submit">
             Clear entire database (irreversible!)
           </button>
         </form>
@@ -50,24 +35,32 @@
     </div>
 
     <!-- Caching Section -->
-    <div class="grid-row grid-gap margin-top-4">
-      <div class="grid-col-12 usa-prose border border-base-lighter padding-3">
-        <h2 class="usa-heading-lg">Caching</h2>
+    <div class="grid-row grid-gap">
+      <div class="grid-col-12 border border-base-lighter">
+        <h2>Caching</h2>
         <p>Manage or clear cache</p>
         <form th:action="${model.clearCacheUrl}" method="post">
-          <input type="hidden" name="csrfToken" th:value="${model.csrfToken}" />
+          <input
+            type="hidden"
+            name="csrfToken"
+            th:value="${templateGlobals.csrfToken()}"
+          />
           <button class="usa-button" type="submit">💵 Clear cache</button>
         </form>
       </div>
     </div>
 
     <!-- Durable Jobs Section -->
-    <div class="grid-row grid-gap margin-top-4">
-      <div class="grid-col-12 usa-prose border border-base-lighter padding-3">
-        <h2 class="usa-heading-lg">Durable Jobs</h2>
+    <div class="grid-row grid-gap">
+      <div class="grid-col-12 border border-base-lighter">
+        <h2>Durable Jobs</h2>
         <p>Manually run the selected job</p>
         <form th:action="${model.runDurableJobUrl}" method="post">
-          <input type="hidden" name="csrfToken" th:value="${model.csrfToken}" />
+          <input
+            type="hidden"
+            name="csrfToken"
+            th:value="${templateGlobals.csrfToken()}"
+          />
           <label for="durable-job-select">Choose job to run once</label>
           <select
             id="durable-job-select"
@@ -76,8 +69,8 @@
           >
             <option
               th:each="option : ${model.durableJobOptions}"
-              th:value="${option.value}"
-              th:text="${option.label}"
+              th:value="${option}"
+              th:text="${option}"
             ></option>
           </select>
           <button class="usa-button margin-top-1" type="submit">Run job</button>
@@ -86,9 +79,9 @@
     </div>
 
     <!-- Icons Section -->
-    <div class="grid-row grid-gap margin-top-4">
-      <div class="grid-col-12 usa-prose border border-base-lighter padding-3">
-        <h2 class="usa-heading-lg">Icons</h2>
+    <div class="grid-row grid-gap">
+      <div class="grid-col-12 border border-base-lighter">
+        <h2>Icons</h2>
         <p>See all the svg icons in CiviForm</p>
         <a class="usa-button usa-button--outline" th:href="${model.iconsUrl}"
           >View All SVG Icons</a
@@ -97,9 +90,9 @@
     </div>
 
     <!-- Email/Localstack Section (Dev only) -->
-    <div th:if="${model.isDev}" class="grid-row grid-gap margin-top-4">
-      <div class="grid-col-12 usa-prose border border-base-lighter padding-3">
-        <h2 class="usa-heading-lg">Localstack</h2>
+    <div th:if="${model.isDev}" class="grid-row grid-gap">
+      <div class="grid-col-12 border border-base-lighter">
+        <h2>Localstack</h2>
         <p>Open S3 or SES endpoints on localstack</p>
         <a
           class="usa-button usa-button--outline margin-right-1"
@@ -123,9 +116,9 @@
     </div>
 
     <!-- Address Tools Section -->
-    <div class="grid-row grid-gap margin-top-4">
-      <div class="grid-col-12 usa-prose border border-base-lighter padding-3">
-        <h2 class="usa-heading-lg">Address Tools</h2>
+    <div class="grid-row grid-gap">
+      <div class="grid-col-12 border border-base-lighter">
+        <h2>Address Tools</h2>
         <p>View address lookup and eligibility results</p>
         <a
           class="usa-button usa-button--outline"
@@ -136,9 +129,9 @@
     </div>
 
     <!-- Session Tools Section -->
-    <div class="grid-row grid-gap margin-top-4">
-      <div class="grid-col-12 usa-prose border border-base-lighter padding-3">
-        <h2 class="usa-heading-lg">Session Tools</h2>
+    <div class="grid-row grid-gap">
+      <div class="grid-col-12 border border-base-lighter">
+        <h2>Session Tools</h2>
         <p>Inspect the current session</p>
         <a
           class="usa-button usa-button--outline margin-right-1"
