@@ -15,6 +15,7 @@ type ProgramTranslationParams = {
   blockName: string
   blockDescription: string
   statuses: ProgramStatusTranslationParams[]
+  confirmationMsg?: string
   shortDescription: string
   applicationStepTitle?: string
   applicationStepDescription?: string
@@ -56,6 +57,7 @@ export class AdminTranslations {
     blockName,
     blockDescription,
     statuses = [],
+    confirmationMsg = '',
     shortDescription = 'short desc',
     applicationStepTitle = 'step one title',
     applicationStepDescription = 'step one description',
@@ -68,6 +70,12 @@ export class AdminTranslations {
       await this.page.fill('text=Program description', description)
     }
     await this.page.fill('text=Short program description', shortDescription)
+    if (confirmationMsg != '') {
+      await this.page.fill(
+        'text=Custom confirmation screen message',
+        confirmationMsg,
+      )
+    }
 
     for (const status of statuses) {
       await this.page.fill(

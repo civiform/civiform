@@ -43,6 +43,8 @@ import org.mockito.Mockito;
 import play.cache.NamedCacheImpl;
 import play.cache.SyncCacheApi;
 import play.i18n.Lang;
+import play.i18n.Messages;
+import play.i18n.MessagesApi;
 import play.inject.BindingKey;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http.Request;
@@ -86,6 +88,7 @@ public class ProgramServiceTest extends ResetPostgres {
   private TranslationLocales translationLocales;
   private SettingsManifest mockSettingsManifest;
   private final Request fakeRequest = fakeRequestBuilder().build();
+  private Messages messages;
 
   @Before
   public void setProgramServiceImpl() {
@@ -118,6 +121,7 @@ public class ProgramServiceTest extends ResetPostgres {
         testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition();
     categoryRepository = instanceOf(CategoryRepository.class);
     mockSettingsManifest = Mockito.mock(SettingsManifest.class);
+    messages = instanceOf(MessagesApi.class).preferred(ImmutableSet.of(Lang.defaultLang()));
   }
 
   @Test
@@ -273,6 +277,146 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void isTranslationComplete_confirmationMessage_untranslated_returnsFalse()
+      throws Exception {
+    when(translationLocales.translatableLocales()).thenReturn(ImmutableList.of(Locale.CHINESE));
+
+    ProgramModel programModel =
+        ProgramBuilder.newDraftProgram("test program", "description")
+            .withLocalizedName(Locale.CHINESE, "测试项目")
+            .withLocalizedDescription(Locale.CHINESE, "描述")
+            .withLocalizedShortDescription(Locale.CHINESE, "简短描述")
+            // Confirmation message is not translated.
+            .build();
+    ProgramDefinition programDefinition = programModel.getProgramDefinition();
+    // Create an updated LocalizedStrings for the confirmation message that has a non-empty default
+    LocalizedStrings updatedConfirmationMessage =
+        programDefinition
+            .localizedConfirmationMessage()
+            .updateTranslation(DEFAULT_LOCALE, "Default confirmation message");
+
+    // Create a new ProgramDefinition that includes our updated confirmation message
+    programDefinition =
+        programDefinition.toBuilder()
+            .setLocalizedConfirmationMessage(updatedConfirmationMessage)
+            .build();
+    BlockDefinition block = programDefinition.getBlockDefinitionByIndex(0).get();
+    BlockDefinition translatedBlock =
+        block.toBuilder()
+            .setLocalizedName(block.localizedName().updateTranslation(Locale.CHINESE, "屏幕 1"))
+            .setLocalizedDescription(
+                block.localizedDescription().updateTranslation(Locale.CHINESE, "屏幕 1 描述"))
+            .build();
+    programDefinition =
+        programDefinition.toBuilder()
+            .setBlockDefinitions(ImmutableList.of(translatedBlock))
+            .build();
+
+    assertThat(ps.isTranslationComplete(programDefinition)).isFalse();
+  }
+
+  @Test
+  public void isTranslationComplete_confirmationMessage_translated_returnsTrue() throws Exception {
+    when(translationLocales.translatableLocales()).thenReturn(ImmutableList.of(Locale.CHINESE));
+
+    ProgramModel programModel =
+        ProgramBuilder.newDraftProgram("test program", "description")
+            .withLocalizedName(Locale.CHINESE, "测试项目")
+            .withLocalizedDescription(Locale.CHINESE, "描述")
+            .withLocalizedShortDescription(Locale.CHINESE, "简短描述")
+            .withLocalizedConfirmationMessage(Locale.CHINESE, "确认信息")
+            .build();
+    ProgramDefinition programDefinition = programModel.getProgramDefinition();
+    BlockDefinition block = programDefinition.getBlockDefinitionByIndex(0).get();
+    BlockDefinition translatedBlock =
+        block.toBuilder()
+            .setLocalizedName(block.localizedName().updateTranslation(Locale.CHINESE, "屏幕 1"))
+            .setLocalizedDescription(
+                block.localizedDescription().updateTranslation(Locale.CHINESE, "屏幕 1 描述"))
+            .build();
+    ApplicationStep translatedApplicationStep =
+        new ApplicationStep(
+            LocalizedStrings.withDefaultValue("Application step title")
+                .updateTranslation(Locale.CHINESE, "申请步骤"),
+            LocalizedStrings.withDefaultValue("Application step description")
+                .updateTranslation(Locale.CHINESE, "申请步骤说明"));
+    programDefinition =
+        programDefinition.toBuilder()
+            .setBlockDefinitions(ImmutableList.of(translatedBlock))
+            .setApplicationSteps(ImmutableList.of(translatedApplicationStep))
+            .build();
+
+    assertThat(ps.isTranslationComplete(programDefinition)).isTrue();
+  }
+
+  @Test
+  public void isTranslationComplete_blockEligibilityMessage_untranslated_returnsFalse()
+      throws Exception {
+    when(translationLocales.translatableLocales()).thenReturn(ImmutableList.of(Locale.CHINESE));
+    ProgramModel programModel =
+        ProgramBuilder.newDraftProgram("test program", "description")
+            .withLocalizedName(Locale.CHINESE, "测试项目")
+            .withLocalizedDescription(Locale.CHINESE, "描述")
+            .withLocalizedShortDescription(Locale.CHINESE, "简短描述")
+            .withLocalizedConfirmationMessage(Locale.CHINESE, "确认信息")
+            .withBlock("Screen 1", "Screen 1 description")
+            .build();
+    ProgramDefinition programDefinition = programModel.getProgramDefinition();
+    BlockDefinition block = programDefinition.getBlockDefinitionByIndex(0).get();
+    BlockDefinition translatedBlock =
+        block.toBuilder()
+            .setLocalizedName(block.localizedName().updateTranslation(Locale.CHINESE, "屏幕 1"))
+            .setLocalizedDescription(
+                block.localizedDescription().updateTranslation(Locale.CHINESE, "屏幕 1 描述"))
+            .setLocalizedEligibilityMessage(
+                Optional.of(LocalizedStrings.withDefaultValue("eligibility message")))
+            .build();
+    programDefinition =
+        programDefinition.toBuilder()
+            .setBlockDefinitions(ImmutableList.of(translatedBlock))
+            .build();
+    assertThat(ps.isTranslationComplete(programDefinition)).isFalse();
+  }
+
+  @Test
+  public void isTranslationComplete_blockEligibilityMessage_translated_returnsTrue()
+      throws Exception {
+    when(translationLocales.translatableLocales()).thenReturn(ImmutableList.of(Locale.CHINESE));
+    ProgramModel programModel =
+        ProgramBuilder.newDraftProgram("test program", "description")
+            .withLocalizedName(Locale.CHINESE, "测试项目")
+            .withLocalizedDescription(Locale.CHINESE, "描述")
+            .withLocalizedShortDescription(Locale.CHINESE, "简短描述")
+            .withLocalizedConfirmationMessage(Locale.CHINESE, "确认信息")
+            .withBlock("Screen 1", "Screen 1 description")
+            .build();
+    ProgramDefinition programDefinition = programModel.getProgramDefinition();
+    BlockDefinition block = programDefinition.getBlockDefinitionByIndex(0).get();
+    BlockDefinition translatedBlock =
+        block.toBuilder()
+            .setLocalizedName(block.localizedName().updateTranslation(Locale.CHINESE, "屏幕 1"))
+            .setLocalizedDescription(
+                block.localizedDescription().updateTranslation(Locale.CHINESE, "屏幕 1 描述"))
+            .setLocalizedEligibilityMessage(
+                Optional.of(
+                    LocalizedStrings.withDefaultValue("eligibility message")
+                        .updateTranslation(Locale.CHINESE, "合格信息")))
+            .build();
+    ApplicationStep translatedApplicationStep =
+        new ApplicationStep(
+            LocalizedStrings.withDefaultValue("Application step title")
+                .updateTranslation(Locale.CHINESE, "申请步骤"),
+            LocalizedStrings.withDefaultValue("Application step description")
+                .updateTranslation(Locale.CHINESE, "申请步骤说明"));
+    programDefinition =
+        programDefinition.toBuilder()
+            .setBlockDefinitions(ImmutableList.of(translatedBlock))
+            .setApplicationSteps(ImmutableList.of(translatedApplicationStep))
+            .build();
+    assertThat(ps.isTranslationComplete(programDefinition)).isTrue();
+  }
+
+  @Test
   public void isTranslationComplete_complete_returnsTrue() throws Exception {
     when(translationLocales.translatableLocales()).thenReturn(ImmutableList.of(Locale.CHINESE));
 
@@ -292,9 +436,16 @@ public class ProgramServiceTest extends ResetPostgres {
             .setLocalizedDescription(
                 block.localizedDescription().updateTranslation(Locale.CHINESE, "屏幕 1 描述"))
             .build();
+    ApplicationStep translatedApplicationStep =
+        new ApplicationStep(
+            LocalizedStrings.withDefaultValue("Application step title")
+                .updateTranslation(Locale.CHINESE, "申请步骤"),
+            LocalizedStrings.withDefaultValue("Application step description")
+                .updateTranslation(Locale.CHINESE, "申请步骤说明"));
     programDefinition =
         programDefinition.toBuilder()
             .setBlockDefinitions(ImmutableList.of(translatedBlock))
+            .setApplicationSteps(ImmutableList.of(translatedApplicationStep))
             .build();
 
     assertThat(ps.isTranslationComplete(programDefinition)).isTrue();
@@ -343,9 +494,16 @@ public class ProgramServiceTest extends ResetPostgres {
             .setLocalizedDescription(
                 block.localizedDescription().updateTranslation(Locale.CHINESE, "屏幕 1 描述"))
             .build();
+    ApplicationStep translatedApplicationStep =
+        new ApplicationStep(
+            LocalizedStrings.withDefaultValue("Application step title")
+                .updateTranslation(Locale.CHINESE, "申请步骤"),
+            LocalizedStrings.withDefaultValue("Application step description")
+                .updateTranslation(Locale.CHINESE, "申请步骤说明"));
     programDefinition =
         programDefinition.toBuilder()
             .setBlockDefinitions(ImmutableList.of(translatedBlock))
+            .setApplicationSteps(ImmutableList.of(translatedApplicationStep))
             .build();
 
     when(questionService.isTranslationComplete(translationLocales, question)).thenReturn(false);
@@ -378,7 +536,9 @@ public class ProgramServiceTest extends ResetPostgres {
             ProgramType.DEFAULT,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            messages,
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.getResult()).isNotNull();
@@ -404,7 +564,9 @@ public class ProgramServiceTest extends ResetPostgres {
             ProgramType.DEFAULT,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            messages,
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.getResult().notificationPreferences())
@@ -430,7 +592,9 @@ public class ProgramServiceTest extends ResetPostgres {
             ProgramType.DEFAULT,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            messages,
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.getResult().blockDefinitions()).hasSize(1);
@@ -458,7 +622,9 @@ public class ProgramServiceTest extends ResetPostgres {
             ProgramType.DEFAULT,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            messages,
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
@@ -488,7 +654,9 @@ public class ProgramServiceTest extends ResetPostgres {
             ProgramType.DEFAULT,
             /* tiGroup */ ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            messages,
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
@@ -516,7 +684,9 @@ public class ProgramServiceTest extends ResetPostgres {
             ProgramType.DEFAULT,
             /* tiGroup */ ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            messages,
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
@@ -541,7 +711,9 @@ public class ProgramServiceTest extends ResetPostgres {
         ProgramType.DEFAULT,
         ImmutableList.of(),
         /* categoryIds= */ ImmutableList.of(),
-        ImmutableList.of(new ApplicationStep("title", "description")));
+        ImmutableList.of(new ApplicationStep("title", "description")),
+        messages,
+        /* enumeratorImprovementsEnabled= */ false);
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.createProgramDefinition(
@@ -559,7 +731,9 @@ public class ProgramServiceTest extends ResetPostgres {
             ProgramType.DEFAULT,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            messages,
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
@@ -586,7 +760,9 @@ public class ProgramServiceTest extends ResetPostgres {
             ProgramType.DEFAULT,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            messages,
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
@@ -617,7 +793,9 @@ public class ProgramServiceTest extends ResetPostgres {
                 ProgramType.DEFAULT,
                 ImmutableList.of(),
                 /* categoryIds= */ ImmutableList.of(),
-                ImmutableList.of(new ApplicationStep("title", "description")))
+                ImmutableList.of(new ApplicationStep("title", "description")),
+                messages,
+                /* enumeratorImprovementsEnabled= */ false)
             .getResult();
     // Program name here is missing the extra space
     // so that the names are different but the resulting
@@ -643,7 +821,9 @@ public class ProgramServiceTest extends ResetPostgres {
             ProgramType.DEFAULT,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            messages,
+            /* enumeratorImprovementsEnabled= */ false);
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
     assertThat(result.getErrors())
@@ -668,7 +848,9 @@ public class ProgramServiceTest extends ResetPostgres {
             ProgramType.PRE_SCREENER_FORM,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            messages,
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
@@ -693,7 +875,9 @@ public class ProgramServiceTest extends ResetPostgres {
             ProgramType.PRE_SCREENER_FORM,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            messages,
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
@@ -717,7 +901,9 @@ public class ProgramServiceTest extends ResetPostgres {
         ProgramType.PRE_SCREENER_FORM,
         ImmutableList.of(),
         /* categoryIds= */ ImmutableList.of(),
-        ImmutableList.of(new ApplicationStep("title", "description")));
+        ImmutableList.of(new ApplicationStep("title", "description")),
+        messages,
+        /* enumeratorImprovementsEnabled= */ false);
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.createProgramDefinition(
             "name-two",
@@ -734,7 +920,9 @@ public class ProgramServiceTest extends ResetPostgres {
             ProgramType.DEFAULT,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            messages,
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
@@ -758,7 +946,9 @@ public class ProgramServiceTest extends ResetPostgres {
         ProgramType.PRE_SCREENER_FORM,
         ImmutableList.of(),
         /* categoryIds= */ ImmutableList.of(),
-        ImmutableList.of(new ApplicationStep("title", "description")));
+        ImmutableList.of(new ApplicationStep("title", "description")),
+        messages,
+        /* enumeratorImprovementsEnabled= */ false);
 
     Optional<ProgramDefinition> preScreenerForm = ps.getPreScreenerForm();
     assertThat(preScreenerForm).isPresent();
@@ -780,7 +970,9 @@ public class ProgramServiceTest extends ResetPostgres {
             ProgramType.PRE_SCREENER_FORM,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            messages,
+            /* enumeratorImprovementsEnabled= */ false);
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
     assertThat(result.getResult().programType()).isEqualTo(ProgramType.PRE_SCREENER_FORM);
@@ -994,7 +1186,9 @@ public class ProgramServiceTest extends ResetPostgres {
                 ProgramType.DEFAULT,
                 ImmutableList.of(),
                 /* categoryIds= */ ImmutableList.of(),
-                ImmutableList.of(new ApplicationStep("title", "description")))
+                ImmutableList.of(new ApplicationStep("title", "description")),
+                messages,
+                /* enumeratorImprovementsEnabled= */ false)
             .getResult();
     // Program name here is missing the extra space
     // so that the names are different but the resulting
@@ -1451,7 +1645,9 @@ public class ProgramServiceTest extends ResetPostgres {
         ProgramType.PRE_SCREENER_FORM,
         ImmutableList.of(),
         /* categoryIds= */ ImmutableList.of(),
-        ImmutableList.of(new ApplicationStep("title", "description")));
+        ImmutableList.of(new ApplicationStep("title", "description")),
+        messages,
+        /* enumeratorImprovementsEnabled= */ false);
 
     Optional<ProgramDefinition> preScreenerForm = ps.getPreScreenerForm();
     assertThat(preScreenerForm).isPresent();
@@ -1507,7 +1703,9 @@ public class ProgramServiceTest extends ResetPostgres {
             ProgramType.PRE_SCREENER_FORM,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            messages,
+            /* enumeratorImprovementsEnabled= */ false);
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateProgramDefinition(
@@ -1550,7 +1748,9 @@ public class ProgramServiceTest extends ResetPostgres {
             ProgramType.PRE_SCREENER_FORM,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            messages,
+            /* enumeratorImprovementsEnabled= */ false);
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateProgramDefinition(
@@ -2000,7 +2200,12 @@ public class ProgramServiceTest extends ResetPostgres {
   @Test
   public void addBlockToProgram_noProgram_throwsProgramNotFoundException() {
     assertThatThrownBy(
-            () -> ps.addBlockToProgram(/* programId= */ 1L, /* isEnumerator= */ Optional.empty()))
+            () ->
+                ps.addBlockToProgram(
+                    /* programId= */ 1L,
+                    /* isEnumerator= */ Optional.empty(),
+                    messages,
+                    /* enumeratorImprovementsEnabled= */ false))
         .isInstanceOf(ProgramNotFoundException.class)
         .hasMessage("Program not found for ID: 1");
   }
@@ -2011,7 +2216,10 @@ public class ProgramServiceTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram().withBlock("Screen 1").buildDefinition();
     ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
         ps.addBlockToProgram(
-            /* programId= */ programDefinition.id(), /* isEnumerator= */ Optional.empty());
+            /* programId= */ programDefinition.id(),
+            /* isEnumerator= */ Optional.empty(),
+            messages,
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(result.isError()).isFalse();
     assertThat(result.hasResult()).isTrue();
@@ -2044,7 +2252,10 @@ public class ProgramServiceTest extends ResetPostgres {
 
     ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
         ps.addBlockToProgram(
-            /* programId= */ programDefinition.id(), /* isEnumerator= */ Optional.empty());
+            /* programId= */ programDefinition.id(),
+            /* isEnumerator= */ Optional.empty(),
+            messages,
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(result.isError()).isFalse();
     assertThat(result.hasResult()).isTrue();
@@ -2068,7 +2279,10 @@ public class ProgramServiceTest extends ResetPostgres {
 
     ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
         ps.addBlockToProgram(
-            /* programId= */ programDefinition.id(), /* isEnumerator= */ Optional.of(true));
+            /* programId= */ programDefinition.id(),
+            /* isEnumerator= */ Optional.of(true),
+            messages,
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(result.isError()).isFalse();
     assertThat(result.hasResult()).isTrue();
@@ -2096,7 +2310,8 @@ public class ProgramServiceTest extends ResetPostgres {
             .build();
 
     ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
-        ps.addRepeatedBlockToProgram(program.id, 1L);
+        ps.addRepeatedBlockToProgram(
+            program.id, 1L, messages, /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(result.isError()).isFalse();
     assertThat(result.hasResult()).isTrue();
@@ -2148,7 +2363,8 @@ public class ProgramServiceTest extends ResetPostgres {
             .build();
 
     ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
-        ps.addRepeatedBlockToProgram(program.id, 2L);
+        ps.addRepeatedBlockToProgram(
+            program.id, 2L, messages, /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(result.isError()).isFalse();
     assertThat(result.hasResult()).isTrue();
@@ -2189,7 +2405,10 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void addRepeatedBlockToProgram_invalidProgramId_throwsProgramNotFoundException() {
-    assertThatThrownBy(() -> ps.addRepeatedBlockToProgram(1L, 1L))
+    assertThatThrownBy(
+            () ->
+                ps.addRepeatedBlockToProgram(
+                    1L, 1L, messages, /* enumeratorImprovementsEnabled= */ false))
         .isInstanceOf(ProgramNotFoundException.class);
   }
 
@@ -2198,7 +2417,10 @@ public class ProgramServiceTest extends ResetPostgres {
       addRepeatedBlockToProgram_invalidEnumeratorId_throwsProgramBlockDefinitionNotFoundException() {
     ProgramModel program = ProgramBuilder.newActiveProgram().build();
 
-    assertThatThrownBy(() -> ps.addRepeatedBlockToProgram(program.id, 5L))
+    assertThatThrownBy(
+            () ->
+                ps.addRepeatedBlockToProgram(
+                    program.id, 5L, messages, /* enumeratorImprovementsEnabled= */ false))
         .isInstanceOf(ProgramBlockDefinitionNotFoundException.class);
   }
 
@@ -2285,7 +2507,9 @@ public class ProgramServiceTest extends ResetPostgres {
                 ProgramType.DEFAULT,
                 ImmutableList.of(),
                 /* categoryIds= */ ImmutableList.of(),
-                ImmutableList.of(new ApplicationStep("title", "description")))
+                ImmutableList.of(new ApplicationStep("title", "description")),
+                messages,
+                /* enumeratorImprovementsEnabled= */ false)
             .getResult();
     assertThatThrownBy(() -> ps.setBlockQuestions(p.id(), 100L, ImmutableList.of()))
         .isInstanceOf(ProgramBlockDefinitionNotFoundException.class)
@@ -2938,7 +3162,10 @@ public class ProgramServiceTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram().withBlock("Screen 1").buildDefinition();
     ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
         ps.addBlockToProgram(
-            /* programId= */ programDefinition.id(), /* isEnumerator= */ Optional.empty());
+            /* programId= */ programDefinition.id(),
+            /* isEnumerator= */ Optional.empty(),
+            messages,
+            /* enumeratorImprovementsEnabled= */ false);
     Optional<LocalizedStrings> eligibilityMsg =
         Optional.of(LocalizedStrings.of(Locale.US, "custom eligibility message"));
 
@@ -2961,7 +3188,10 @@ public class ProgramServiceTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram().withBlock("Screen 1").buildDefinition();
     ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
         ps.addBlockToProgram(
-            /* programId= */ programDefinition.id(), /* isEnumerator= */ Optional.empty());
+            /* programId= */ programDefinition.id(),
+            /* isEnumerator= */ Optional.empty(),
+            messages,
+            /* enumeratorImprovementsEnabled= */ false);
     Optional<LocalizedStrings> firstEligibilityMsg =
         Optional.of(LocalizedStrings.of(Locale.US, "first custom eligibility message"));
     Optional<LocalizedStrings> secondEligibilityMsg =
@@ -3875,5 +4105,20 @@ public class ProgramServiceTest extends ResetPostgres {
     // Adding an active program doesn't change the result.
     ProgramBuilder.newActiveProgram("another-active-program").buildDefinition();
     assertThat(ps.anyDisabledPrograms()).isTrue();
+  }
+
+  @Test
+  public void createEmptyBlockDefinition_createsExpectedPrefix() {
+    ErrorAnd<BlockDefinition, CiviFormError> result =
+        ps.createEmptyBlockDefinition(
+            1l, Optional.of(2L), Optional.of(true), false, messages, true);
+
+    assertThat(result.getResult().namePrefix().get()).isEqualTo("[parent label] - ");
+
+    ErrorAnd<BlockDefinition, CiviFormError> nestedBlock =
+        ps.createEmptyBlockDefinition(1l, Optional.of(2L), Optional.of(true), true, messages, true);
+
+    assertThat(nestedBlock.getResult().namePrefix().get())
+        .isEqualTo("[parent label] - [child label] - ");
   }
 }

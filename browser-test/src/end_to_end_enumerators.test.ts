@@ -672,21 +672,21 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
       await test.step('Validate that two new blocks appear in the block order panel', async () => {
         const newBlockCount = await page
-          .getByRole('link', {name: /^Screen /})
+          .getByRole('link', {name: /Screen /})
           .count()
         expect(newBlockCount).toBe(initialBlockCount + 2)
       })
 
       await test.step('Validate that the current block is the newly-created repeated block', async () => {
         const currentBlockTitle = blockPanel.getByText(
-          'Screen 3 (repeated from 2)',
+          '[parent label] - Screen 3 (repeated from 2)',
         )
         await expect(currentBlockTitle).toBeVisible()
       })
 
       await test.step('Validate that the enumerator block says repeated set', async () => {
         enumeratorBlockLink = page
-          .getByRole('link', {name: /^Screen /})
+          .getByRole('link', {name: /Screen /})
           .nth(initialBlockCount) // zero-indexed
 
         await expect(
