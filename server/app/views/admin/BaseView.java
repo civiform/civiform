@@ -8,6 +8,7 @@ import org.thymeleaf.TemplateEngine;
 import play.mvc.Http;
 import services.settings.SettingsManifest;
 import views.CspUtil;
+import views.admin.shared.FeatureFlag;
 import views.admin.shared.Footer;
 import views.admin.shared.LayoutParams;
 import views.admin.shared.TemplateGlobals;
@@ -120,6 +121,12 @@ public abstract class BaseView<TModel extends BaseViewModel> {
                 settingsManifest
                     .getSupportEmailAddress(request)
                     .orElse("SUPPORT EMAIL ADDRESS MISSING"))
+            .build());
+
+    context.setVariable(
+        "featureFlag",
+        FeatureFlag.builder()
+            .isExtendedAdminUi(settingsManifest.getAdminUiMigrationScExtendedEnabled(request))
             .build());
 
     // This gives the Thymeleaf template a reference to this view class. Methods can be added
