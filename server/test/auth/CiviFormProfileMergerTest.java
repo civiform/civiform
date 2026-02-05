@@ -177,9 +177,8 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
     assertThat(guestApplicant.getApplications()).hasSize(1);
   }
 
-  // TODO(#11776): Fix this undesired behavior.
   @Test
-  public void mergeProfiles_mergeFunctionThrows_applicantStillMerged() {
+  public void mergeProfiles_mergeFunctionThrows_applicantsNotMerged() {
     // Create the logged-in user's applicant
     ApplicantModel loggedInApplicant = createApplicant();
 
@@ -201,7 +200,8 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
     int initialGuestApplicationCount = guestApplicant.getApplications().size();
     assertThat(initialGuestApplicationCount).isEqualTo(1);
 
-    long expectedAccountId = loggedInApplicant.getAccount().id;
+    long loggedInApplicantId = loggedInApplicant.getAccount().id;
+    long guestApplicantId = guestApplicant.getAccount().id;
     assertThrows(
         RuntimeException.class,
         () ->
@@ -216,9 +216,9 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
     loggedInApplicant.refresh();
     guestApplicant.refresh();
 
-    // Both applicants have the same account.
-    assertThat(loggedInApplicant.getAccount().id).isEqualTo(expectedAccountId);
-    // TODO(#11776) This should not be the case when the provided merger throws.
-    assertThat(guestApplicant.getAccount().id).isEqualTo(expectedAccountId);
+    // The merge was not done due to the exception.
+    // Both applicants have their original IDs.
+    assertThat(loggedInApplicant.getAccount().id).isEqualTo(loggedInApplicantId);
+    assertThat(guestApplicant.getAccount().id).isEqualTo(guestApplicantId);
   }
 }
