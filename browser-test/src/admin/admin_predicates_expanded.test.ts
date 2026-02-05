@@ -8,7 +8,7 @@ import {
   SubconditionSpec,
   SubconditionValue,
 } from '../support/admin_predicates'
-import {assertNotNull} from '../support/helpers'
+import {assertNotNull, isLocalDevEnvironment} from '../support/helpers'
 
 /**
  * Map of question types to that question type's corresponding testing data
@@ -607,12 +607,15 @@ test.describe('create and edit predicates', () => {
 
     await test.step('Create program and add questions', async () => {
       for (const [questionType, questionData] of PROGRAM_SAMPLE_QUESTIONS) {
-        await adminQuestions.addQuestionForType(
-          questionType,
-          questionData.questionName,
-          questionData.questionText,
-          questionData.multiValueOptions,
-        )
+        if (questionType != QuestionType.MAP || isLocalDevEnvironment()) {
+          // Skip MAP question creation in non-local environments
+          await adminQuestions.addQuestionForType(
+            questionType,
+            questionData.questionName,
+            questionData.questionText,
+            questionData.multiValueOptions,
+          )
+        }
       }
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockUsingSpec(programName, {
