@@ -286,6 +286,12 @@ public abstract class AbstractExporterTest extends ResetPostgres {
                             LocalizedStrings.builder()
                                 .setTranslations(ImmutableMap.of(Locale.ENGLISH, STATUS_VALUE))
                                 .build())
+                        .setLocalizedEmailBodyText(
+                            Optional.of(
+                                LocalizedStrings.builder()
+                                    .setTranslations(
+                                        ImmutableMap.of(Locale.ENGLISH, "You are approved"))
+                                    .build()))
                         .build())));
   }
 
