@@ -1186,7 +1186,7 @@ content.timeToCompleteP25=Waqtiga la dhameynaayo (p25)
 # Column header for median (50th percentile) time to complete
 content.medianTimeToComplete=Waqti dhexdhexaad ah oo la dhameystiro
 # Column header for 75th percentile time to complete
-content.timeToCompleteP75=Waqtiga la dhameystiraayo (p25)
+content.timeToCompleteP75=Waqtiga la dhameystiraayo (p75)
 # Column header for 99th percentile time to complete
 content.timeToCompleteP99=Waqtiga la dhameystiraayo (p75)
 # Text on button to download CSV file
