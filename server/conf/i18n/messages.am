@@ -565,7 +565,7 @@ content.predicateEligibilityDescription.v2=በዚህ ገጽ ላይ ላሉ ጥያ
 # Text informing admins that ineligible applicants will be blocked from submitting an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
 content.blockIneligibleApplicants=ዝቅተኛዎቹን መስፈርቶች የማያሟሉ አመልካቾች ማመልከቻ እንዳያስገቡ ይታገዳሉ። እርስዎ ይህን በፕሮግራም ቅንብሮች ውስጥ መለወጥ ይችላሉ
 # Text informing admins that ineligible applicants will still be able to submit an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
-content.allowIneligibleApplicants=አመልካቾች ዝቅተኛውን መስፈርት ባያሟሉም እንኳ ማመልከቻ ማስገባት ይችላሉ። እርስዎ ይህን መቀየር ይችላሉ።
+content.allowIneligibleApplicants=አመልካቾች ዝቅተኛውን መስፈርት ባያሟሉም እንኳ ማመልከቻ ማስገባት ይችላሉ። እርስዎ ይህን በፕሮግራም ቅንብሮች ውስጥ መቀየር ይችላሉ
 # Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
 link.programSettings=ፕሮግራም ቅንብሮች ውስጥ መቀየር ይችላሉ
 
