@@ -1005,6 +1005,12 @@
         "description": "(NOT FOR PRODUCTION USE) Enable the admin UI migration in Thymeleaf.",
         "type": "bool",
         "required": false
+      },
+      "ADMIN_UI_MIGRATION_SC_EXTENDED_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enable extended options in the admin UI migration in Thymeleaf.",
+        "type": "bool",
+        "required": false
       }
     }
   }

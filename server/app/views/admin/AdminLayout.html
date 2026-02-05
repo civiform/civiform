@@ -1,5 +1,6 @@
 <!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
 <!--/*@thymesVar id="layoutParams" type="views.admin.shared.LayoutParams"*/-->
+<!--/*@thymesVar id="featureFlag" type="views.admin.shared.FeatureFlag"*/-->
 <!doctype html>
 <html lang="en-US" xmlns:th="http://www.thymeleaf.org">
   <head>
@@ -48,12 +49,24 @@
 
   <!--/* Body sets HTMX header so the CSRF token is always there */-->
   <body th:hx-headers='|{"CSRF-TOKEN":"${templateGlobals.csrfToken()}"}|'>
-    <th:block th:insert="~{admin/shared/Banner}"></th:block>
+    <th:block
+      th:if="${featureFlag.isExtendedAdminUi()}"
+      th:insert="~{admin/shared/Banner}"
+    ></th:block>
+    <th:block
+      th:unless="${featureFlag.isExtendedAdminUi()}"
+      th:insert="~{admin/shared/TransitionalAdminCommonHeader}"
+    ></th:block>
 
-    <div class="bg-white maxw-full margin-x-auto desktop-lg:maxw-desktop-lg">
+    <div
+      class="bg-white maxw-full margin-x-auto desktop-lg:maxw-desktop-lg"
+      th:classappend="${featureFlag.isExtendedAdminUi()} ? '' : 'padding-top-8 padding-bottom-4'"
+    >
       <!--/* Header navigation */-->
-      <th:block th:insert="~{admin/shared/AdminCommonHeader}"></th:block>
-
+      <th:block
+        th:if="${featureFlag.isExtendedAdminUi()}"
+        th:insert="~{admin/shared/AdminCommonHeader}"
+      ></th:block>
       <!--/* Main */-->
       <div class="grid-container bg-white" data-testid="page-content">
         <div
@@ -86,7 +99,10 @@
       </div>
 
       <!--/* Footer */-->
-      <th:block th:insert="~{admin/shared/Footer}"></th:block>
+      <th:block
+        th:if="${featureFlag.isExtendedAdminUi()}"
+        th:insert="~{admin/shared/Footer}"
+      ></th:block>
 
       <!--/* Google Tag Manager */-->
       <th:block

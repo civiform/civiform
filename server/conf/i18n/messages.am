@@ -44,6 +44,8 @@ header.guestIndicator=እንግዳ ተጠቃሚ ነዎት
 header.userName=እንደ {0} ሆነው ገብተዋል
 # Error message to answer a required question
 validation.isRequired=ይህ ጥያቄ አስፈላጊ ነው።
+# Error message to fill a required field
+validation.fieldIsRequired=ይህ መስክ ያስፈልጋል።
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=እባክዎ ትክክለኛ ግብዓት ያስገቡ።
 content.requiredFieldsNote=ማስታወሻ፦ በ {0} ምልክት የተደረገባቸው መስኮች አስፈላጊ ናቸው።
@@ -237,6 +239,8 @@ button.save=አስቀምጥ
 button.search=ፍለጋ
 # Button to start an application on behalf of a client.
 button.startApp=ማመልከቻ ይጀምሩ
+# Button to redirect to the login page when the applicant is not logged in for login-only programs.
+button.startAppForLoginOnlyProgram=አንድን መተግበሪያ ለመጀመር በመለያ ይግቡ
 # Button to view the applications belonging to an applicant.
 button.viewApplications=መተግበሪያዎችን ይመልከቱ
 # Button to view and add clients
@@ -556,6 +560,12 @@ link.backToEditProgramBlock=ወደ አርትዖት ይመለሱ {0}
 content.predicateVisibilityDescription=በቀዳሚ ማያ ገጾች ላይ ላሉ ጥያቄዎች በሚሰጡ ምላሾች ላይ በመመስረት ይህ ማያ ገጽ ለአመልካቾች መቼ መታየት ወይም መደበቅ እንዳለበት ያዋቅሩ።
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
 content.predicateEligibilityDescription=አንድ አመልካች በዚህ ማያ ገጽ ላይ ላሉ ጥያቄዎች በሚሰጧቸው ምላሾች ላይ በመመስረት ለፕሮግራሙ መስፈርቱን የሚያሟሉ እንደሆነ ለማወቅ የብቁነት መስፈርቶችን ያክሉ። ዝቅተኛውን መስፈርቶች የማያሟሉ አመልካቾች ማመልከቻዎችን እንዳያስገቡ ይታገዳሉ። ይህን በ
+# Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualitifies for the program.
+content.predicateEligibilityDescription.v2=በዚህ ገጽ ላይ ላሉ ጥያቄዎች በሚሰጣቸው ምላሾች መሰረት አንድ አመልካች ለፕሮግራሙ መስፈርቱን የሚያሟላ መሆኑን ለማረጋገጥ የብቁነት መስፈርቶችን ያክሉ።
+# Text informing admins that ineligible applicants will be blocked from submitting an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
+content.blockIneligibleApplicants=ዝቅተኛዎቹን መስፈርቶች የማያሟሉ አመልካቾች ማመልከቻ እንዳያስገቡ ይታገዳሉ። እርስዎ ይህን መለወጥ ይችላሉ
+# Text informing admins that ineligible applicants will still be able to submit an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
+content.allowIneligibleApplicants=አመልካቾች ዝቅተኛውን መስፈርት ባያሟሉም እንኳ ማመልከቻ ማስገባት ይችላሉ። እርስዎ ይህን መቀየር ይችላሉ።
 # Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
 link.programSettings=ፕሮግራም ቅንብሮች ውስጥ መቀየር ይችላሉ
 
@@ -566,9 +576,9 @@ content.predicateApplicantIsEligible=አመልካች ብቁ የሚሆነው
 # Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
 content.predicateConditionsAreTrue=ሁኔታዎች እውነት ከሆኑ፦
 # Text that shows on the eligibility predicate screen when no eligibility conditions are set.
-content.predicateEligibilityNullState=Applicant is always eligible.
+content.predicateEligibilityNullState=አመልካች ሁልጊዜም ብቁ ነው።
 # Text that shows on the visibility predicate screen when no visibility conditions are set.
-content.predicateVisibilityNullState=This screen is always shown.
+content.predicateVisibilityNullState=ይህ ገጽ ሁልጊዜም ይታያል።
 
 # Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
 content.predicateConditionIsTrueIf=ሁኔታ እውነት የሚሆነው
@@ -595,7 +605,7 @@ button.predicateAddCondition=ሁኔታ አክል
 # Button to remove a condition from the form
 button.predicateDeleteCondition=ሁኔታ ደምስስ
 # Button to remove all conditions from the form
-button.predicateDeleteAllConditions=Delete all conditions
+button.predicateDeleteAllConditions=ሁሉንም መስፈርቶች ይደምስሱ
 # Link to append form fields for configuring a new sub-condition within a condition
 link.predicateAddSubcondition=ንዑስ-ሁኔታ አክል
 # Link to remove a sub-condition from the form
@@ -606,11 +616,15 @@ link.backToTop=ወደ ላይ ተመለስ
 button.saveAndExit=አስቀምጥ እና ውጣ
 
 # Confirmation dialog shown to admin for deleting all conditions in the predicate edit view
-confirm.deleteAllConditions=Are you sure you would like to delete all conditions?
+confirm.deleteAllConditions=ሁሉንም መስፈርቶች መደምሰስ መፈለግዎን እርግጠኛ ነዎት?
 # Confirmation dialog shown to admin for deleting a condition in the predicate edit view
-confirm.deleteSingleCondition=Are you sure you would like to delete this condition?
+confirm.deleteSingleCondition=ይህን መስፈርት መደምሰስ መፈለግዎን እርግጠኛ ነዎት?
+# Confirmation dialog shown to admin for leaving predicate edit without saving.
+confirm.leaveWithoutSaving=ለቅቀው መውጣት መፈለግዎን እርግጠኛ ነዎት?
 # Dialog to warn admin that a deletion action cannot be undone
-confirm.actionNotReversable=This action cannot be undone.
+confirm.actionNotReversable=ይህ ድርጊት ሊቀለበስ አይችልም።
+# Dialog to warn admin that they have unsaved changes in the predicate edit view.
+confirm.unsavedChanges=ሊጠፉ የሚችሉ ያልተቀመጡ ለውጦች አሉዎት።
 
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsVisibility=ለዚህ ማያ ገጽ የታይነት ሁኔታዎችን ለማዋቀር፣ በቀደሙ ማያ ገጾች ላይ ምንም ዝግጁ ጥያቄዎች የሉም።
@@ -618,9 +632,14 @@ alert.predicateNoAvailableQuestionsVisibility=ለዚህ ማያ ገጽ የታይ�
 alert.predicateNoAvailableQuestionsEligibility=በዚህ ማያ ገጽ ላይ የብቁነት ሁኔታን ለማዋቀር የሚያገለግሉ ምንም ዝግጁ ጥያቄዎች የሉም።
 
 # Label for textarea where admins can enter a message to show to applicants who are deemed ineligible based on the eligibility conditions set.
-label.predicateEligibilityMessageField=Display message shown to ineligible applicants
+label.predicateEligibilityMessageField=ብቁ ላልሆኑ አመልካቾች የሚታየውን መልዕክት አሳይ
 # Help text for a textarea input explaining that markdown is supported.
-content.markdownSupported=Markdown is supported
+content.markdownSupported=Markdown ይደገፋል
+
+# Error message for when the admin leaves a multi-select question blank in admin predicate edit.
+validation.selectionRequired=ቢያንስ አንድ አማራጭ መምረጥ አለብዎ።
+# Error message for when the admin leaves a question unselected in admin predicate edit.
+validation.questionRequired=አንድ ጥያቄ መምረጥ አለብዎ።
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -864,7 +883,7 @@ map.locationLinkText=ተጨማሪ ዝርዝሮችን ይመልከቱ
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr=ለ{0} ተጨማሪ ዝርዝሮችን ይመልከቱ
 # Text showing the count of displayed locations, with placeholders for current count and total count
-map.locationsCount=Displaying {0} to {1} of {2} locations
+map.locationsCount=ከ {2} አካባቢዎች ከ {0} እስከ {1} በማሳየት ላይ
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount={0} ከ {1} ከፍተኛው የቦታዎች ቁጥር ተመርጧል።
 # Alt text for map region
@@ -902,7 +921,7 @@ map.geoJsonErrorText = ይህን ጥያቄ አሁን ማሳየት ባለመቻ�
 map.contactUs = ያነጋግሩን
 map.homepage = መነሻ ገጽ
 # screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
-map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a different location, please unselect at least one of the locations you have chosen.
+map.maxLocationsSelectedSr = ከፍተኛ {0} አካባቢዎች ተመርጠዋል። ሌላ አካባቢ ለማከል፣ እባክዎ አሁን ከመረጧችው አካባቢዎች ቢያንስ አንዱን ከምርጫ ያውጡ።
 
 #---------------------------------------------------------------------------#
 # MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
@@ -968,7 +987,7 @@ error.internalServerTitle.v2=ስህተት ተከስቷል
 # The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=ይቅርታ፣ በስርዓታችን ውስጥ ውስጣዊ ስህተት ተከስቷል።
 # Additional information about the error that is shown to the user in small font
-error.internalServerDescription=እባክዎ ለእርዳታ {0} ላይ ቴክኒካዊ ድጋፍን ያነጋግሩ እና ይህን የስህተት መታወቂያ {1} ያካትቱ።
+error.internalServerDescription=እባክዎ ድጋፍ ለማግኘት {0}  ላይ የቴክኒክ ድጋፍ ክፍልን ያነጋግሩ እንዲሁም ይህን የስህተት መታወቂያ {1} ያካትቱ።
 # A button redirecting the user to the homepage
 error.internalServerHomeButton=መነሻ ገጽን ይጎብኙ
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
@@ -1043,21 +1062,6 @@ banner.minute=1 ደቂቃ
 #  are seeded into the database, since these will be admin defined in the future #
 #------------------------------------------------------------------------------#
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# An aria-label for screen readers that helps provide context for the category tags.
 # A tag used to filter the list of programs down to those that are related to childcare.
 category.tag.childcare=የልጅ እንክብካቤ
 
@@ -1100,7 +1104,7 @@ category.tag.utilities=መገልገያዎች
 # A tag used to filter the list of programs down to those that are related to military veterans.
 category.tag.veteran=ጡረተኛ ወታደር
 
-
+# An aria-label for screen readers that helps provide context for the category tags.
 ariaLabel.categories=ምድቦች
 
 #------------------------------------------------------------------------------#
@@ -1127,3 +1131,92 @@ session.extended.success=ክፍለ-ጊዜ በተሳካ ሁኔታ ተራዝሟል
 
 # Error message shown when there was a problem extending the user's session
 session.extended.error=ክፍለ-ጊዜን ማራዘም አልተሳካም
+
+#------------------------------------------------------------------------------#
+#  ADMIN PROGRAM BLOCK EDIT                                                    #
+#------------------------------------------------------------------------------#
+
+# Heading for the repeated set creation method radio buttons
+heading.repeatedSet.creationMethod=
+# Option for allowing an admin to create a new repeated set
+option.repeatedSet.createNew=
+# Option for allowing an admin to choose an existing repeated set
+option.repeatedSet.chooseExisting=
+# Label for the new repeated set form
+label.repeatedSet.newSetForm=
+# Label for the text input field asking what type of entity users will be listing (e.g., household members)
+input.repeatedSet.listedEntity=
+# Label for the text input field asking for the admin identifier of the repeated set
+input.repeatedSet.adminId=
+# A text input field asking admins for the text that will prompt applicants to list out the entity
+input.repeatedSet.questionText=
+# A text input field for admins to add a hint that will help applicants decide what entities to list out
+input.repeatedSet.hintText=
+# A form field where admins set the minimum number of entities that applicants must list
+input.repeatedSet.minEntities=
+# A form field where admins set the maximum number of entities that applicants can list
+input.repeatedSet.maxEntities=
+# Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
+alert.repeatedSet.newQuestion=
+# Submission button for creating a new repeated set
+button.repeatedSet.submitNew=
+# Button for admins to add a new repeated set
+button.repeatedSet.addNew=
+# Text letting admins know which block represents the group of screens for repeating questions
+text.repeatedSet=
+# Text letting admins know which block represents the group of screens for nested repeating questions
+text.nestedRepeatedSet=
+# An uneditable prefix for the enumerator screen name representing the repeated object that will be enumerated
+text.repeatedSet.prefix=የወላጅ መሰየሚያ
+# An uneditable prefix for the enumerator screen name representing the nested repeated object that will be enumerated
+text.repeatedSet.nestedPrefix=የልጅ መሰየሚያ
+
+#------------------------------------------------------------------------------#
+#  ADMIN REPORTING                                                             #
+#------------------------------------------------------------------------------#
+
+# Caption for the table showing submissions by program
+caption.submissionsByProgram=በፕሮግራም የተደራጁ ማመልከቻዎች (ሁሉም ፕሮግራሞች)
+# Column header for program name
+content.program=ፕሮግራም
+# Column header for number of submissions
+content.submissions=ማመልከቻዎች
+# Column header for 25th percentile time to complete
+content.timeToCompleteP25=መጨረሻ ጊዜ (ገጽ25)
+# Column header for median (50th percentile) time to complete
+content.medianTimeToComplete=ሜዲያን የማጠናቀቂያ ጊዜ
+# Column header for 75th percentile time to complete
+content.timeToCompleteP75=ማጠናቀቂያ ጊዜ (ገጽ75)
+# Column header for 99th percentile time to complete
+content.timeToCompleteP99=ማጠናቀቂያ ጊዜ (ገጽ99)
+# Text on button to download CSV file
+button.downloadCsv=CSV አውርድ
+# Caption for the table showing submissions by month
+caption.submissionsByMonth=በወር የተደራጁ ማመለክቻዎች (ሁሉም ፕሮግራሞች)
+# Column header for month
+content.month=ወር
+
+#------------------------------------------------------------------------------#
+#  ADMIN REPORTING PROGRAM                                                     #
+#------------------------------------------------------------------------------#
+
+# Heading for the program reporting page
+reportingProgram.heading={0} ሪፖርት በማድረግ ላይ
+# Info text about data delay
+reportingProgram.dataDelay=ውሂብ እስከ አንድ ሰዓት ሊዘገይ ይችላል።
+# Caption for the table showing submissions by month for a program
+reportingProgram.caption.submissionsByMonth=በወር የተደራጁ ማመልከቻዎች
+# Column header for month
+reportingProgram.month=ወር
+# Column header for submissions
+reportingProgram.submissions=ማመልከቻዎች
+# Column header for 25th percentile time to complete
+reportingProgram.timeToCompleteP25=ማጠናቀቂያ ጊዜ (ገጽ25)
+# Column header for median (50th percentile) time to complete
+reportingProgram.medianTimeToComplete=የማጠናቀቂያ ሜዲያን ጊዜ
+# Column header for 75th percentile time to complete
+reportingProgram.timeToCompleteP75=የማጠናቀቂያ ጊዜ (ገጽ75)
+# Column header for 99th percentile time to complete
+reportingProgram.timeToCompleteP99=የማጠአቀቂያ ጊዜ(ገጽ99)
+# Text on button to download CSV file
+reportingProgram.downloadCsv=CSV አውርድ

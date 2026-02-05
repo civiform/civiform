@@ -145,6 +145,14 @@ it is around the label */
   @include u-padding-left('105');
 }
 
+/*
+ *Ensure the focus outline is offset from the red error border
+ * of the input group, for greater accessibility.
+ */
+.usa-input-group--error > .usa-input:focus {
+  outline-offset: units(1);
+}
+
 /**
  * Reduce default padding on labels within question to match spacing mocks.
  */

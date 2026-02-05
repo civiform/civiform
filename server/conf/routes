@@ -256,10 +256,6 @@ GET     /programAdmin                                       controllers.admin.Pr
 GET     /download                                           controllers.applicant.UpsellController.download(request: Request, applicationId: Long, applicantId: Long)
 GET     /considerSignIn                                     controllers.applicant.UpsellController.considerRegister(request: Request, applicantId: Long, programId: Long, applicationId: Long, redirectTo: String, submitTime: String)
 
-# User profile pages
-GET     /users/me                                           controllers.ProfileController.myProfile(request: Request)
-GET     /users/:id                                          controllers.ProfileController.profilePage(request: Request, id: Long)
-
 # Authentication callback from local auth - nonfederated.  Requires CSRF token.
 # Provides client name as url parameter.
 GET     /callback                                           controllers.CallbackController.callback(request: Request, client_name: String)

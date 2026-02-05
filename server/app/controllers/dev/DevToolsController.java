@@ -15,6 +15,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.concurrent.CompletableFuture;
 import models.JobType;
 import models.LifecycleStage;
 import models.Models;
@@ -53,6 +54,8 @@ public class DevToolsController extends Controller {
   private final AsyncCacheApi programDefCache;
   private final AsyncCacheApi versionsByProgramCache;
   private final AsyncCacheApi settingsCache;
+  private final AsyncCacheApi apikeysCache;
+  private final AsyncCacheApi reportingCache;
   private final Clock clock;
   private final TransactionManager transactionManager = new TransactionManager();
   private final FormFactory formFactory;
@@ -72,7 +75,9 @@ public class DevToolsController extends Controller {
       @NamedCache("program") AsyncCacheApi programCache,
       @NamedCache("full-program-definition") AsyncCacheApi programDefCache,
       @NamedCache("program-versions") AsyncCacheApi versionsByProgramCache,
-      @NamedCache("civiform-settings") AsyncCacheApi settingsCache) {
+      @NamedCache("civiform-settings") AsyncCacheApi settingsCache,
+      @NamedCache("api-keys") AsyncCacheApi apikeysCache,
+      @NamedCache("monthly-reporting-data") AsyncCacheApi reportingCache) {
     this.devDatabaseSeedTask = checkNotNull(devDatabaseSeedTask);
     this.view = checkNotNull(view);
     this.database = DB.getDefault();
@@ -84,6 +89,8 @@ public class DevToolsController extends Controller {
     this.programDefCache = checkNotNull(programDefCache);
     this.versionsByProgramCache = checkNotNull(versionsByProgramCache);
     this.settingsCache = checkNotNull(settingsCache);
+    this.apikeysCache = checkNotNull(apikeysCache);
+    this.reportingCache = checkNotNull(reportingCache);
     this.clock = checkNotNull(clock);
     this.formFactory = checkNotNull(formFactory);
     this.messagesApi = checkNotNull(messagesApi);
@@ -266,6 +273,11 @@ public class DevToolsController extends Controller {
     if (settingsManifest.getSettingsCacheEnabled()) {
       settingsCache.removeAll().toCompletableFuture().join();
     }
+
+    CompletableFuture.allOf(
+            apikeysCache.removeAll().toCompletableFuture(),
+            reportingCache.removeAll().toCompletableFuture())
+        .join();
   }
 
   /**
