@@ -28,6 +28,7 @@
     },
     {
       matchPackageNames: ["com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer"],
+      versioning: "loose",
       allowedVersions: "/^[0-9]{8}\\.[0-9]+$/",
     },
     {
