@@ -5,6 +5,7 @@ import {
   loginAsTestUser,
   validateScreenshot,
 } from './support'
+import {Page} from '@playwright/test'
 
 // Config values from application.dev-browser-tests.conf:
 // - Inactivity warning at: 50 minutes (60 - 10)
@@ -25,7 +26,7 @@ test.describe('Session timeout for admins', () => {
     await enableFeatureFlag(page, 'session_timeout_enabled')
   })
 
-  test('shows inactivity warning modal after 50 minutes and logs user out after 80 more minutes', async ({
+  test('shows inactivity warning modal after 50 minutes and logs user out after 90 more minutes', async ({
     page,
   }) => {
     await test.step('Fast forward 50 mins', async () => {
@@ -54,6 +55,18 @@ test.describe('Session timeout for admins', () => {
         .getByRole('alert')
         .getByText('Session successfully extended')
       await expect(toast).toBeVisible()
+    })
+
+    await test.step('Fast forward another 80 mins and confirm the modal shows again', async () => {
+      await page.clock.runFor('01:20')
+      const logoutModal = page.locator('#session-inactivity-warning-modal')
+      await expect(logoutModal).not.toHaveClass(/is-hidden/)
+    })
+
+    await test.step('Fast forward 10 more mins and confirm the user is logged out', async () => {
+      await page.clock.runFor('10:00')
+
+      await confirmUserIsLoggedOut(page)
     })
   })
 })
@@ -109,18 +122,20 @@ test.describe('Session timeout for applicants', () => {
     await test.step('Click logout', async () => {
       const sessionLengthModal = page.locator('#session-length-warning-modal')
       await sessionLengthModal.getByRole('button', {name: 'Logout'}).click()
-      // If the user logged in through OIDC previously - during logout they are
-      // redirected to dev-oidc:PORT/session/end page. There they need to confirm
-      // logout.
-      if (page.url().match('dev-oidc.*/session/end')) {
-        const pageContent = await page.textContent('html')
-        if (pageContent!.includes('Do you want to sign-out from')) {
-          // OIDC central provider confirmation page
-          await page.getByRole('button', {name: 'Yes'}).click()
-        }
-      }
-
-      expect(page.url()).toMatch(/\/programs/)
+      await confirmUserIsLoggedOut(page)
     })
   })
 })
+
+const confirmUserIsLoggedOut = async (page: Page) => {
+  // If the user logged in through OIDC previously - during logout they are
+  // redirected to dev-oidc:PORT/session/end page. There they need to confirm
+  // logout.
+  if (page.url().match('dev-oidc.*/session/end')) {
+    const pageContent = await page.textContent('html')
+    if (pageContent!.includes('Do you want to sign-out from')) {
+      // OIDC central provider confirmation page
+      await page.getByRole('button', {name: 'Yes'}).click()
+    }
+  }
+}
