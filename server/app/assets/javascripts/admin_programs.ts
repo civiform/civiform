@@ -341,8 +341,14 @@ class AdminPrograms {
   }
 
   static attachEventListenerToHtmxSwap() {
-    document.body.addEventListener('htmx:afterSwap', () => {
-      this.focusOnEnumeratorQuestionSection()
+    document.body.addEventListener('htmx:afterSwap', (e) => {
+      const targetElement = (e as CustomEvent).detail.target
+      if (!targetElement) {
+        return
+      }
+      if (targetElement.id === 'enumerator-setup') {
+        this.focusOnEnumeratorQuestionSection()
+      }
     })
   }
 

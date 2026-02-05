@@ -606,7 +606,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .withClasses("my-4")
             .with(div("Questions").withClasses("text-lg", "font-bold", "py-2"));
 
-    ImmutableList<DivTag> questionCards;
     ImmutableList.Builder<DivTag> questionCardsBuilder = ImmutableList.builder();
 
     IntStream.range(0, blockQuestions.size())
@@ -628,8 +627,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                       request));
             });
 
-    questionCards = questionCardsBuilder.build();
-
+    ImmutableList<DivTag> questionCards = questionCardsBuilder.build();
     programQuestions.with(questionCards);
 
     DivTag div = div().withClasses("w-7/12", "py-6", "px-4").withData("testId", "block-panel-edit");
@@ -743,7 +741,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
         .with(
             p(messages.at(MessageKey.HEADING_REPEATED_SET_QUESTION.getKeyName()))
                 .withId("repeated-set-question-section-heading")
-                .withClasses("text-lg", "font-bold", "py-2")
+                .withClasses("text-lg", "font-bold", "margin-bottom-05")
                 .withTabindex(-1),
             p(messages.at(MessageKey.TEXT_REPEATED_SET_QUESTION_DESCRIPTION.getKeyName()))
                 .withClasses("text-base", "text-sm"),
