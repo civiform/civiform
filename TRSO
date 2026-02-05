@@ -1,0 +1,264 @@
+[33m3c2f5ce8c[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mcallajune/address-checker-migration[m[33m, [m[1;31morigin/callajune/address-checker-migration[m[33m)[m HEAD@{0}: checkout: moving from callajune/address-checker-migration to callajune/address-checker-migration
+[33m3c2f5ce8c[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mcallajune/address-checker-migration[m[33m, [m[1;31morigin/callajune/address-checker-migration[m[33m)[m HEAD@{1}: checkout: moving from main to callajune/address-checker-migration
+[33m7ef4d66b6[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{2}: checkout: moving from callajune/address-checker-migration to main
+[33m3c2f5ce8c[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mcallajune/address-checker-migration[m[33m, [m[1;31morigin/callajune/address-checker-migration[m[33m)[m HEAD@{3}: rebase (finish): returning to refs/heads/callajune/address-checker-migration
+[33m3c2f5ce8c[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mcallajune/address-checker-migration[m[33m, [m[1;31morigin/callajune/address-checker-migration[m[33m)[m HEAD@{4}: rebase (continue): Created Thymeleaf/USWDS version of Address Checker tool
+[33m220b61499[m HEAD@{5}: rebase (pick): Created Thymeleaf/USWDS version of Address Checker tool
+[33m7ef4d66b6[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{6}: rebase (start): checkout main
+[33m7ef4d66b6[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{7}: reset: moving to 7ef4d66b6b399d7abfbad970c83d0d21a4f03fb9
+[33m3cc52cb1c[m HEAD@{8}: checkout: moving from calla/dev-tools-i18n to main
+[33mad03ca180[m HEAD@{9}: commit (amend): Internationalize text in Dev Tools page
+[33m6dc9b63b2[m HEAD@{10}: commit (amend): Internationalize text in Dev Tools page
+[33m60188e1bc[m HEAD@{11}: Branch: renamed refs/heads/02-09-internationalize_text_in_dev_tools_page to refs/heads/calla/dev-tools-i18n
+[33m60188e1bc[m HEAD@{13}: checkout: moving from 60188e1bc8d5fc7944535a5434fdf55fe9fe1f3e to 02-09-internationalize_text_in_dev_tools_page
+[33m60188e1bc[m HEAD@{14}: commit: Internationalize text in Dev Tools page
+[33m3cc52cb1c[m HEAD@{15}: checkout: moving from main to 3cc52cb1cfb1c562c9845b9477d16dd16fd71a27
+[33m3cc52cb1c[m HEAD@{16}: pull: Fast-forward
+[33m333b402d7[m HEAD@{17}: checkout: moving from callajune/address-checker-migration to main
+[33m982225636[m HEAD@{18}: checkout: moving from main to callajune/address-checker-migration
+[33m333b402d7[m HEAD@{19}: pull: Fast-forward
+[33m05151e8b7[m HEAD@{20}: checkout: moving from callajune/dev-seed to main
+[33mc44262d34[m HEAD@{21}: commit (amend): Merge branch 'callajune/dev-seed' of https://github.com/civiform/civiform into callajune/dev-seed
+[33m082fefb18[m HEAD@{22}: checkout: moving from callajune/address-checker-migration to callajune/dev-seed
+[33m982225636[m HEAD@{23}: commit (amend): Resolve merge conflicts and finalize merge
+[33m78ce349bf[m HEAD@{24}: checkout: moving from main to callajune/address-checker-migration
+[33mbe85ee223[m HEAD@{25}: checkout: moving from callajune/dev-seed to main
+[33m082fefb18[m HEAD@{26}: commit (amend): Merge branch 'callajune/dev-seed' of https://github.com/civiform/civiform into callajune/dev-seed
+[33m1e819a164[m HEAD@{27}: commit (amend): Merge branch 'callajune/dev-seed' of https://github.com/civiform/civiform into callajune/dev-seed
+[33mf19b672d6[m HEAD@{28}: commit (amend): Merge branch 'callajune/dev-seed' of https://github.com/civiform/civiform into callajune/dev-seed
+[33mb3bf4964b[m HEAD@{29}: commit (amend): Merge branch 'callajune/dev-seed' of https://github.com/civiform/civiform into callajune/dev-seed
+[33m16d5f9e40[m HEAD@{30}: checkout: moving from main to callajune/dev-seed
+[33mbe85ee223[m HEAD@{31}: checkout: moving from callajune/dev-seed to main
+[33m16d5f9e40[m HEAD@{32}: commit (amend): Merge branch 'callajune/dev-seed' of https://github.com/civiform/civiform into callajune/dev-seed
+[33m0d7fd5804[m HEAD@{33}: checkout: moving from callajune/address-checker-migration to callajune/dev-seed
+[33m78ce349bf[m HEAD@{34}: commit (amend): Resolve merge conflicts and finalize merge
+[33m396f211e3[m HEAD@{35}: checkout: moving from main to callajune/address-checker-migration
+[33m39fba5a62[m HEAD@{36}: checkout: moving from gwen/component-catalog-alert to main
+[33md23c687a4[m[33m ([m[1;32mgwen/component-catalog-alert[m[33m)[m HEAD@{37}: reset: moving to HEAD
+[33md23c687a4[m[33m ([m[1;32mgwen/component-catalog-alert[m[33m)[m HEAD@{38}: checkout: moving from callajune/address-checker-migration to gwen/component-catalog-alert
+[33m396f211e3[m HEAD@{39}: commit (amend): Resolve merge conflicts and finalize merge
+[33m20ae9d6ed[m HEAD@{40}: commit (amend): Resolve merge conflicts and finalize merge
+[33m37a756822[m HEAD@{41}: commit (amend): Resolve merge conflicts and finalize merge
+[33m78c4abfa4[m HEAD@{42}: checkout: moving from main to callajune/address-checker-migration
+[33m39fba5a62[m HEAD@{43}: checkout: moving from callajune/dev-seed to main
+[33m0d7fd5804[m HEAD@{44}: checkout: moving from main to callajune/dev-seed
+[33m39fba5a62[m HEAD@{45}: pull: Fast-forward
+[33m28e517d62[m HEAD@{46}: checkout: moving from callajune/dev-seed to main
+[33m0d7fd5804[m HEAD@{47}: commit (amend): Merge branch 'callajune/dev-seed' of https://github.com/civiform/civiform into callajune/dev-seed
+[33m354f1bd18[m HEAD@{48}: commit (amend): Merge branch 'callajune/dev-seed' of https://github.com/civiform/civiform into callajune/dev-seed
+[33mff77640ab[m HEAD@{49}: checkout: moving from main to callajune/dev-seed
+[33m28e517d62[m HEAD@{50}: checkout: moving from callajune/address-checker-migration to main
+[33m78c4abfa4[m HEAD@{51}: commit (amend): Resolve merge conflicts and finalize merge
+[33mfe667dc7b[m HEAD@{52}: commit (amend): Resolve merge conflicts and finalize merge
+[33m6871515d3[m HEAD@{53}: commit (amend): Resolve merge conflicts and finalize merge
+[33m91a84fbe2[m HEAD@{54}: checkout: moving from callajune/dev-seed to callajune/address-checker-migration
+[33mff77640ab[m HEAD@{55}: commit (amend): Merge branch 'callajune/dev-seed' of https://github.com/civiform/civiform into callajune/dev-seed
+[33m235431fe1[m HEAD@{56}: checkout: moving from callajune/address-checker-migration to callajune/dev-seed
+[33m91a84fbe2[m HEAD@{57}: commit (amend): Resolve merge conflicts and finalize merge
+[33mf7dd7ff20[m HEAD@{58}: checkout: moving from main to callajune/address-checker-migration
+[33m24f6b26b8[m HEAD@{59}: checkout: moving from callajune/dev-seed to main
+[33m235431fe1[m HEAD@{60}: commit (amend): Merge branch 'callajune/dev-seed' of https://github.com/civiform/civiform into callajune/dev-seed
+[33med08059b5[m HEAD@{61}: commit (amend): Merge branch 'callajune/dev-seed' of https://github.com/civiform/civiform into callajune/dev-seed
+[33m64e5f9414[m HEAD@{62}: commit (amend): Merge branch 'callajune/dev-seed' of https://github.com/civiform/civiform into callajune/dev-seed
+[33mb5bf85db5[m HEAD@{63}: commit (amend): Merge branch 'callajune/dev-seed' of https://github.com/civiform/civiform into callajune/dev-seed
+[33mb18b225d4[m HEAD@{64}: commit (amend): Merge branch 'callajune/dev-seed' of https://github.com/civiform/civiform into callajune/dev-seed
+[33mff2f6ed11[m HEAD@{65}: commit (amend): Merge branch 'callajune/dev-seed' of https://github.com/civiform/civiform into callajune/dev-seed
+[33maf9aceed1[m HEAD@{66}: pull: Merge made by the 'ort' strategy.
+[33md9ffa038c[m HEAD@{67}: commit (amend): Update browser-test/src/admin/dev_tools.test.ts
+[33m5d14bb182[m HEAD@{68}: pull: Fast-forward
+[33mcfb5918a1[m HEAD@{69}: checkout: moving from main to callajune/dev-seed
+[33m4e0f1eb6e[m HEAD@{70}: pull: Fast-forward
+[33m8fe81f85e[m HEAD@{71}: checkout: moving from callajune/address-checker-migration to main
+[33mf7dd7ff20[m HEAD@{72}: commit (merge): Resolve merge conflicts and finalize merge
+[33m13e51ce43[m HEAD@{73}: commit (amend): Created Thymeleaf/USWDS version of Address Checker tool
+[33m176bab609[m HEAD@{74}: commit (amend): Created Thymeleaf/USWDS version of Address Checker tool
+[33m73731c9a0[m HEAD@{75}: checkout: moving from main to callajune/address-checker-migration
+[33m8fe81f85e[m HEAD@{76}: checkout: moving from callajune/dev-seed to main
+[33mcfb5918a1[m HEAD@{77}: checkout: moving from main to callajune/dev-seed
+[33m8fe81f85e[m HEAD@{78}: pull: Fast-forward
+[33m86dca4a06[m HEAD@{79}: checkout: moving from callajune/dev-seed to main
+[33mcfb5918a1[m HEAD@{80}: rebase (finish): returning to refs/heads/callajune/dev-seed
+[33mcfb5918a1[m HEAD@{81}: reset: moving to origin/callajune/dev-seed
+[33m86dca4a06[m HEAD@{82}: rebase (start): checkout main
+[33m86dca4a06[m HEAD@{83}: checkout: moving from callajune/address-checker-migration to main
+[33m73731c9a0[m HEAD@{84}: commit (amend): Created Thymeleaf/USWDS version of Address Checker tool
+[33m1d428021a[m HEAD@{85}: checkout: moving from callajune/address-checker-migration to callajune/address-checker-migration
+[33m1d428021a[m HEAD@{86}: checkout: moving from main to callajune/address-checker-migration
+[33m86dca4a06[m HEAD@{87}: checkout: moving from callajune/dev-seed to main
+[33mcfb5918a1[m HEAD@{88}: checkout: moving from callajune/dev-seed to callajune/dev-seed
+[33mcfb5918a1[m HEAD@{89}: checkout: moving from main to callajune/dev-seed
+[33m86dca4a06[m HEAD@{90}: checkout: moving from callajune/address-checker-migration to main
+[33m1d428021a[m HEAD@{91}: Branch: renamed refs/heads/02-04-created_thymeleaf_uswds_version_of_address_checker_tool to refs/heads/callajune/address-checker-migration
+[33m1d428021a[m HEAD@{93}: checkout: moving from 1d428021a148ae804ead3d3d2a5f09ab2e63e57e to 02-04-created_thymeleaf_uswds_version_of_address_checker_tool
+[33m1d428021a[m HEAD@{94}: commit: Created Thymeleaf/USWDS version of Address Checker tool
+[33m86dca4a06[m HEAD@{95}: checkout: moving from main to 86dca4a06ee815db1dad37dcebb80299dd1b4d0c
+[33m86dca4a06[m HEAD@{96}: pull: Fast-forward
+[33m1463fcc60[m HEAD@{97}: checkout: moving from callajune/dev-seed to main
+[33mcfb5918a1[m HEAD@{98}: rebase (finish): returning to refs/heads/callajune/dev-seed
+[33mcfb5918a1[m HEAD@{99}: reset: moving to origin/callajune/dev-seed
+[33m1463fcc60[m HEAD@{100}: rebase (start): checkout main
+[33mcfb5918a1[m HEAD@{101}: commit (amend): Merge branch 'main' into callajune/dev-seed
+[33m81631d4b4[m HEAD@{102}: reset: moving to 81631d4b460db0344100ec6c378dc1993cb8899a
+[33m81631d4b4[m HEAD@{103}: pull: Fast-forward
+[33m0ea879d98[m HEAD@{104}: checkout: moving from main to callajune/dev-seed
+[33m7d7852ef7[m HEAD@{105}: checkout: moving from callajune/dev-seed to main
+[33m0ea879d98[m HEAD@{106}: rebase (abort): returning to refs/heads/callajune/dev-seed
+[33m7d7852ef7[m HEAD@{107}: rebase (start): checkout main
+[33m0ea879d98[m HEAD@{108}: commit (amend): Migrate dev seed
+[33m0584b685c[m HEAD@{109}: commit (amend): Migrate dev seed
+[33m29cded49d[m HEAD@{110}: commit (amend): Migrate dev seed
+[33m434e235a4[m HEAD@{111}: commit (amend): Migrate dev seed
+[33m0db9f61fc[m HEAD@{112}: commit (amend): Migrate dev seed
+[33m633a0bf87[m HEAD@{113}: commit (amend): Migrate dev seed
+[33m2c17dbb9b[m HEAD@{114}: commit (amend): Migrate dev seed
+[33m28c431ea9[m HEAD@{115}: checkout: moving from callajune/remove-users to callajune/dev-seed
+[33m3660c7947[m HEAD@{116}: pull: Merge made by the 'ort' strategy.
+[33m014ea9e56[m HEAD@{117}: checkout: moving from 377a3999e47c4e7d930c919a1b796403f727c6a0 to callajune/remove-users
+[33m377a3999e[m HEAD@{118}: rebase (start): checkout main
+[33mbf2ad96bb[m HEAD@{119}: checkout: moving from callajune/remove-users to callajune/remove-users
+[33mbf2ad96bb[m HEAD@{120}: checkout: moving from callajune/dev-seed to callajune/remove-users
+[33m28c431ea9[m HEAD@{121}: Branch: renamed refs/heads/02-03-migrate_dev_seed to refs/heads/callajune/dev-seed
+[33m28c431ea9[m HEAD@{123}: checkout: moving from 28c431ea97570f9b1f10a5f1a020070dce79cb16 to 02-03-migrate_dev_seed
+[33m28c431ea9[m HEAD@{124}: commit: Migrate dev seed
+[33mc916d7334[m HEAD@{125}: checkout: moving from main to c916d73340a27cb0e588b30a74930017805668ef
+[33mc916d7334[m HEAD@{126}: checkout: moving from callajune/remove-users to main
+[33mbf2ad96bb[m HEAD@{127}: pull: Merge made by the 'ort' strategy.
+[33m377a3999e[m HEAD@{128}: reset: moving to 377a3999e47c4e7d930c919a1b796403f727c6a0
+[33m17eec31f9[m HEAD@{129}: reset: moving to 17eec31f9f069927efeb1b6cb585b36fb34677e5
+[33m70c05db19[m HEAD@{130}: Branch: renamed refs/heads/02-03-remove_users_route to refs/heads/callajune/remove-users
+[33m70c05db19[m HEAD@{132}: checkout: moving from 70c05db1985111eaccef2205ca6ff1c686a69f3a to 02-03-remove_users_route
+[33m70c05db19[m HEAD@{133}: commit: Remove users route
+[33m87f699e61[m HEAD@{134}: checkout: moving from callajune/remove-users-id to 87f699e61bb2b89e9465ffb9cca1d878710c2e7e
+[33m87f699e61[m HEAD@{135}: reset: moving to 87f699e61bb2b89e9465ffb9cca1d878710c2e7e
+[33mc41a077b5[m HEAD@{136}: Branch: renamed refs/heads/02-03-remove_users_id to refs/heads/callajune/remove-users-id
+[33mc41a077b5[m HEAD@{138}: checkout: moving from c41a077b577caec56ac13375f4c3b70e8127e83a to 02-03-remove_users_id
+[33mc41a077b5[m HEAD@{139}: commit: remove users/id
+[33mb18fbbffa[m HEAD@{140}: checkout: moving from main to b18fbbffab6a45252d58334df1a78a7ae8a35974
+[33mb18fbbffa[m HEAD@{141}: checkout: moving from callajune/admin-reporting-program-i18n to main
+[33mab8f3f45e[m HEAD@{142}: commit (amend): Move text on admin reporting program page to messages to support i18n
+[33m6d67a6b4a[m HEAD@{143}: checkout: moving from main to callajune/admin-reporting-program-i18n
+[33mb18fbbffa[m HEAD@{144}: checkout: moving from callajune/admin-reporting-program-i18n to main
+[33m6d67a6b4a[m HEAD@{145}: checkout: moving from callajune/admin-reporting-program-i18n to callajune/admin-reporting-program-i18n
+[33m6d67a6b4a[m HEAD@{146}: checkout: moving from main to callajune/admin-reporting-program-i18n
+[33mb18fbbffa[m HEAD@{147}: checkout: moving from callajune/admin-reporting-program-i18n to main
+[33m6d67a6b4a[m HEAD@{148}: commit (amend): Move text on admin reporting program page to messages to support i18n
+[33m6e5b9df14[m HEAD@{149}: Branch: renamed refs/heads/02-03-move_text_on_admin_reporting_program_page_to_messages_to_support_i18n to refs/heads/callajune/admin-reporting-program-i18n
+[33m6e5b9df14[m HEAD@{151}: checkout: moving from 6e5b9df148315f8bbaab32d96ed503c62c4f0dd4 to 02-03-move_text_on_admin_reporting_program_page_to_messages_to_support_i18n
+[33m6e5b9df14[m HEAD@{152}: commit: Move text on admin reporting program page to messages to support i18n
+[33mb18fbbffa[m HEAD@{153}: checkout: moving from main to b18fbbffab6a45252d58334df1a78a7ae8a35974
+[33mb18fbbffa[m HEAD@{154}: pull: Fast-forward
+[33m7a29cad47[m HEAD@{155}: pull: Fast-forward
+[33m202bfa0c0[m HEAD@{156}: checkout: moving from callajune/admin-reporting-show to main
+[33m8adfdffe8[m HEAD@{157}: reset: moving to 8adfdffe828eff43168f047147cdcc90868ec055
+[33mc687d75b0[m HEAD@{158}: commit (amend): Merge branch 'callajune/admin-reporting-show' of https://github.com/civiform/civiform into callajune/admin-reporting-show
+[33m7c2d59624[m HEAD@{159}: checkout: moving from main to callajune/admin-reporting-show
+[33m71121d958[m HEAD@{160}: checkout: moving from callajune/admin-reporting-show to main
+[33m7c2d59624[m HEAD@{161}: pull: Fast-forward
+[33me633032a8[m HEAD@{162}: rebase (finish): returning to refs/heads/callajune/admin-reporting-show
+[33me633032a8[m HEAD@{163}: rebase (start): checkout main
+[33m7c2d59624[m HEAD@{164}: checkout: moving from main to callajune/admin-reporting-show
+[33m71121d958[m HEAD@{165}: checkout: moving from callajune/admin-reporting-show to main
+[33m7c2d59624[m HEAD@{166}: pull: Merge made by the 'ort' strategy.
+[33me633032a8[m HEAD@{167}: reset: moving to e633032a84fe5d2c73be52e22ac8daf008db30f7
+[33m6e85d9f4a[m HEAD@{168}: checkout: moving from main to callajune/admin-reporting-show
+[33m71121d958[m HEAD@{169}: pull: Fast-forward
+[33m5a3aef3d3[m HEAD@{170}: checkout: moving from callajune/admin-reporting-show to main
+[33m6e85d9f4a[m HEAD@{171}: commit (amend): Create Thymeleaf/USWDS version of show program page in admin/reporting
+[33m2b63b2711[m HEAD@{172}: commit (amend): Create Thymeleaf/USWDS version of show program page in admin/reporting
+[33mbf54df6f7[m HEAD@{173}: commit (amend): Create Thymeleaf/USWDS version of show program page in admin/reporting
+[33m772f6e51a[m HEAD@{174}: commit (amend): Create Thymeleaf/USWDS version of show program page in admin/reporting
+[33m564c3b519[m HEAD@{175}: commit (amend): Create Thymeleaf/USWDS version of show program page in admin/reporting
+[33m4ab25966c[m HEAD@{176}: commit (amend): Create Thymeleaf/USWDS version of show program page in admin/reporting
+[33m8ea250ad1[m HEAD@{177}: commit (amend): Create Thymeleaf/USWDS version of show program page in admin/reporting
+[33mbd5f5edf3[m HEAD@{178}: commit (amend): Create Thymeleaf/USWDS version of show program page in admin/reporting
+[33m9055d074d[m HEAD@{179}: commit (amend): Create Thymeleaf/USWDS version of show program page in admin/reporting
+[33me69e0c4cd[m HEAD@{180}: checkout: moving from callajune/admin-reporting-show to callajune/admin-reporting-show
+[33me69e0c4cd[m HEAD@{181}: checkout: moving from callajune/method-name-change to callajune/admin-reporting-show
+[33m153914445[m HEAD@{182}: Branch: renamed refs/heads/01-30-change_method_name to refs/heads/callajune/method-name-change
+[33m153914445[m HEAD@{184}: checkout: moving from 153914445c92dfa1499b6cbffffc96a9586a2541 to 01-30-change_method_name
+[33m153914445[m HEAD@{185}: commit: Change method name
+[33m5a3aef3d3[m HEAD@{186}: checkout: moving from main to 5a3aef3d3980378f191b4021b4ccc601f3664804
+[33m5a3aef3d3[m HEAD@{187}: checkout: moving from callajune/admin-reporting-show to main
+[33me69e0c4cd[m HEAD@{188}: Branch: renamed refs/heads/01-30-create_thymeleaf_uswds_version_of_show_program_page_in_admin_reporting to refs/heads/callajune/admin-reporting-show
+[33me69e0c4cd[m HEAD@{190}: checkout: moving from e69e0c4cddaf0ae9506b8d67d93e67de62af0839 to 01-30-create_thymeleaf_uswds_version_of_show_program_page_in_admin_reporting
+[33me69e0c4cd[m HEAD@{191}: commit: Create Thymeleaf/USWDS version of show program page in admin/reporting
+[33m5a3aef3d3[m HEAD@{192}: checkout: moving from main to 5a3aef3d3980378f191b4021b4ccc601f3664804
+[33m5a3aef3d3[m HEAD@{193}: pull: Fast-forward
+[33m3d989d339[m HEAD@{194}: checkout: moving from callajune/reporting-i18n to main
+[33m5a7c15c1d[m HEAD@{195}: commit (amend): Add text in admin reporting page to i18n messages
+[33m795019e04[m HEAD@{196}: commit (amend): Add text in admin reporting page to i18n messages
+[33m66d63b3c6[m HEAD@{197}: Branch: renamed refs/heads/01-29-add_text_in_admin_reporting_page_to_i18n_messages to refs/heads/callajune/reporting-i18n
+[33m66d63b3c6[m HEAD@{199}: checkout: moving from 66d63b3c6d3ecfb23f7235e2e20335543c02a4c0 to 01-29-add_text_in_admin_reporting_page_to_i18n_messages
+[33m66d63b3c6[m HEAD@{200}: commit: Add text in admin reporting page to i18n messages
+[33m3d989d339[m HEAD@{201}: checkout: moving from main to 3d989d339bfa7acfd422e3fe20db069621d3b7cf
+[33m3d989d339[m HEAD@{202}: pull: Fast-forward
+[33m2f1f55286[m HEAD@{203}: checkout: moving from callajune/admin-reporting to main
+[33mc247eefc3[m HEAD@{204}: commit (amend): Reset conflicted files to match remote branch
+[33mefc22b0b7[m HEAD@{205}: commit (amend): Reset conflicted files to match remote branch
+[33m7bc6c6986[m HEAD@{206}: commit (amend): Reset conflicted files to match remote branch
+[33mb0e5f8367[m HEAD@{207}: commit (merge): Reset conflicted files to match remote branch
+[33m3ca8f11ef[m HEAD@{208}: reset: moving to HEAD
+[33m3ca8f11ef[m HEAD@{209}: pull: updating HEAD
+[33m3ca8f11ef[m HEAD@{210}: pull: updating HEAD
+[33m3ca8f11ef[m HEAD@{211}: pull: updating HEAD
+[33m3ca8f11ef[m HEAD@{212}: pull: updating HEAD
+[33m3ca8f11ef[m HEAD@{213}: reset: moving to HEAD
+[33m3ca8f11ef[m HEAD@{214}: pull: updating HEAD
+[33m3ca8f11ef[m HEAD@{215}: pull: updating HEAD
+[33m3ca8f11ef[m HEAD@{216}: reset: moving to 3ca8f11ef7eba932728adcd8e38b76f2e0eab67b
+[33m82b2f5a33[m HEAD@{217}: commit (amend): Merge branch 'callajune/admin-reporting' of https://github.com/civiform/civiform into callajune/admin-reporting
+[33m504b8e9da[m HEAD@{218}: commit (amend): Merge branch 'callajune/admin-reporting' of https://github.com/civiform/civiform into callajune/admin-reporting
+[33ma146f1368[m HEAD@{219}: commit (amend): Merge branch 'callajune/admin-reporting' of https://github.com/civiform/civiform into callajune/admin-reporting
+[33ma6222cbbb[m HEAD@{220}: commit (amend): Merge branch 'callajune/admin-reporting' of https://github.com/civiform/civiform into callajune/admin-reporting
+[33m94bec49d1[m HEAD@{221}: commit (amend): Merge branch 'callajune/admin-reporting' of https://github.com/civiform/civiform into callajune/admin-reporting
+[33m7dc0a184a[m HEAD@{222}: commit (amend): Merge branch 'callajune/admin-reporting' of https://github.com/civiform/civiform into callajune/admin-reporting
+[33m30cfa7d60[m HEAD@{223}: commit (amend): Merge branch 'callajune/admin-reporting' of https://github.com/civiform/civiform into callajune/admin-reporting
+[33m6970e217d[m HEAD@{224}: commit (amend): Merge branch 'callajune/admin-reporting' of https://github.com/civiform/civiform into callajune/admin-reporting
+[33m17443a94a[m HEAD@{225}: pull: Merge made by the 'ort' strategy.
+[33m7d1f41d7d[m HEAD@{226}: reset: moving to 7d1f41d7d48ded2cef81a1c21750c214e0cc3377
+[33m70ea059ce[m HEAD@{227}: commit (amend): Boilerplate admin reporting page
+[33mfd967a766[m HEAD@{228}: commit (amend): Boilerplate admin reporting page
+[33maea593f36[m HEAD@{229}: commit (amend): Boilerplate admin reporting page
+[33mf05271245[m HEAD@{230}: Branch: renamed refs/heads/01-27-boilerplate_admin_reporting_page to refs/heads/callajune/admin-reporting
+[33mf05271245[m HEAD@{232}: checkout: moving from f05271245adbe394fd64161d25e2781ad42ea26a to 01-27-boilerplate_admin_reporting_page
+[33mf05271245[m HEAD@{233}: commit: Boilerplate admin reporting page
+[33m2441a96b1[m HEAD@{234}: checkout: moving from main to 2441a96b1a8f5f508aa52491392fc2d9e9565637
+[33m2441a96b1[m HEAD@{235}: pull: Fast-forward
+[33m774ed66fd[m HEAD@{236}: pull: Fast-forward
+[33me52a22747[m HEAD@{237}: pull: Fast-forward
+[33mc50e7ea2b[m HEAD@{238}: reset: moving to c50e7ea2b1fb53338bb28d49d8c5747028b52045
+[33mdcd8dcf15[m HEAD@{239}: pull: Fast-forward
+[33m7a693c1dc[m HEAD@{240}: checkout: moving from gwen/select-component to main
+[33m75eb3e9cd[m[33m ([m[1;31morigin/gwen/select-component[m[33m, [m[1;32mgwen/select-component[m[33m)[m HEAD@{241}: checkout: moving from gwen/component-catalog-alert to gwen/select-component
+[33md23c687a4[m[33m ([m[1;32mgwen/component-catalog-alert[m[33m)[m HEAD@{242}: checkout: moving from main to gwen/component-catalog-alert
+[33m7a693c1dc[m HEAD@{243}: pull: Fast-forward
+[33mfc74a42e3[m HEAD@{244}: checkout: moving from callajune/admin-ui-feature-flag to main
+[33m18e9b38c6[m HEAD@{245}: commit (amend): Update server/conf/env-var-docs.json
+[33m88e62f4f4[m HEAD@{246}: reset: moving to 88e62f4f49272872eedff2efa6d17c357bd3c6d7
+[33m404ff39cf[m HEAD@{247}: reset: moving to 404ff39cf9c55106f72f9a6ebe8e469baf8f3eee
+[33mc1084a597[m HEAD@{248}: commit (amend): Add ADMIN_UI_MIGRATION_SC_ENABLED feature flag
+[33m81b5b8e91[m HEAD@{249}: commit (amend): Add ADMIN_UI_MIGRATION_SC_ENABLED feature flag
+[33m1b5366b8b[m HEAD@{250}: commit (amend): Add ADMIN_UI_MIGRATION_SC_ENABLED feature flag
+[33m09ae68ef0[m HEAD@{251}: commit (amend): Add ADMIN_UI_MIGRATION_SC_ENABLED feature flag
+[33m60184c0dc[m HEAD@{252}: reset: moving to 60184c0dc98b6a0982cbc645b515e9c0f36a1393
+[33m90214a858[m HEAD@{253}: commit (amend): Add ADMIN_UI_MIGRATION_SC_ENABLED feature flag
+[33mf2dd19c74[m HEAD@{254}: commit (amend): Add ADMIN_UI_MIGRATION_SC_ENABLED feature flag
+[33m262208762[m HEAD@{255}: Branch: renamed refs/heads/01-20-add_admin_ui_migration_sc_enabled_feature_flag to refs/heads/callajune/admin-ui-feature-flag
+[33m262208762[m HEAD@{257}: checkout: moving from 2622087625cc93858a1eff399c8af97c050cf773 to 01-20-add_admin_ui_migration_sc_enabled_feature_flag
+[33m262208762[m HEAD@{258}: commit: Add ADMIN_UI_MIGRATION_SC_ENABLED feature flag
+[33mbf9933eed[m HEAD@{259}: checkout: moving from main to bf9933eed68b3802da68a85ce63677e6f3029ae9
+[33mbf9933eed[m HEAD@{260}: pull: Fast-forward
+[33m4ff6eec80[m HEAD@{261}: checkout: moving from callajune/dev-seed-data-removal to main
+[33mb25254cb5[m HEAD@{262}: pull: Merge made by the 'ort' strategy.
+[33m4444fbfd2[m HEAD@{263}: commit (amend): Removing dev seed data
+[33m7008ca8ee[m HEAD@{264}: commit (amend): Removing dev seed data
+[33m784d60795[m HEAD@{265}: reset: moving to 784d607954d71b76bd7dde532a20da1bdd9022a7
+[33m5201c4486[m HEAD@{266}: commit (amend): Removing dev seed data
+[33me0929b256[m HEAD@{267}: reset: moving to e0929b25639949a0852eb0e393d04cfb6e73729a
+[33m2a6b7a1a2[m HEAD@{268}: Branch: renamed refs/heads/01-16-removing_dev_seed_data to refs/heads/callajune/dev-seed-data-removal
+[33m2a6b7a1a2[m HEAD@{270}: checkout: moving from 2a6b7a1a278c1339264070e923b740629383ebcf to 01-16-removing_dev_seed_data
+[33m2a6b7a1a2[m HEAD@{271}: commit: Removing dev seed data
+[33m703577705[m HEAD@{272}: checkout: moving from main to 7035777058429624628c0858f6f9f5f07067d4d9
+[33m703577705[m HEAD@{273}: reset: moving to 7035777058429624628c0858f6f9f5f07067d4d9
+[33mf4b5ecf7e[m HEAD@{274}: checkout: moving from main to main
+[33mf4b5ecf7e[m HEAD@{275}: clone: from https://github.com/civiform/civiform

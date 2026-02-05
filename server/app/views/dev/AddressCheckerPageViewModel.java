@@ -1,9 +1,11 @@
 package views.dev;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Map;
 import java.util.Optional;
 import lombok.Builder;
 import lombok.Data;
+import services.geo.esri.EsriServiceAreaValidationOption;
 import views.admin.BaseViewModel;
 
 @Data
@@ -19,4 +21,6 @@ public class AddressCheckerPageViewModel implements BaseViewModel {
   private Optional<ImmutableList<String>> findAddressCandidatesUrls;
   // List of ESRI Address Service Area Validation URLs
   private Optional<ImmutableList<String>> addressServiceAreaValidationUrls;
+  // Map of service area validation config options (id -> option)
+  private Map<String, EsriServiceAreaValidationOption> serviceAreaValidationConfigMap;
 }
