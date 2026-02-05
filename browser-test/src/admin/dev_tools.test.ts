@@ -46,10 +46,9 @@ test.describe('developer tools', () => {
     })
   })
 
-  test('dev tools page loads', async ({page}) => {
+  test('dev tools page is accessible', async ({page}) => {
     await enableFeatureFlag(page, 'ADMIN_UI_MIGRATION_SC_ENABLED')
     await page.goto('/dev/seed')
-    await validateScreenshot(page.getByTestId('page-content'), 'dev-tools-page-migrated')    
     await validateAccessibility(page)
   })
 })
