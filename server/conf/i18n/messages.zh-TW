@@ -1170,6 +1170,10 @@ text.nestedRepeatedSet=
 text.repeatedSet.prefix=父標籤
 # An uneditable prefix for the enumerator screen name representing the nested repeated object that will be enumerated
 text.repeatedSet.nestedPrefix=子標籤
+# Instructions for admins on how to add or change the repeated set question in a program block
+text.repeatedSet.questionDescription=Add a repeated set that will ask residents to add objects or individuals to a list. If a repeated set has already been added and you would like to select a different one, delete the question below.
+# Heading above the repeated set question in the program block editor
+heading.repeatedSet.question=Repeated set question
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #
