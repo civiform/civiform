@@ -81,3 +81,6 @@ dependency-tree.txt
 server/dependency-tree.txt
 dependencies-compile.graphml
 server/dependencies-compile.graphml
+
+# Output of bin/renovate-test
+renovate-debug-output.txt
