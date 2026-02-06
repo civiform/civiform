@@ -9,6 +9,7 @@ import models.AccountModel;
 import models.ApplicantModel;
 import org.pac4j.core.profile.UserProfile;
 import repository.AccountRepository;
+import repository.DatabaseExecutionContext;
 import repository.TransactionManager;
 
 /** Helper class for common {@code UserProfile} merging logic. */
@@ -16,12 +17,16 @@ public final class CiviFormProfileMerger {
 
   private final ProfileFactory profileFactory;
   private final Provider<AccountRepository> applicantRepositoryProvider;
+  private final DatabaseExecutionContext dbExecutionContext;
   private final TransactionManager transactionManager;
 
   public CiviFormProfileMerger(
-      ProfileFactory profileFactory, Provider<AccountRepository> applicantRepositoryProvider) {
+      ProfileFactory profileFactory,
+      Provider<AccountRepository> applicantRepositoryProvider,
+      DatabaseExecutionContext dbExecutionContext) {
     this.profileFactory = profileFactory;
     this.applicantRepositoryProvider = applicantRepositoryProvider;
+    this.dbExecutionContext = dbExecutionContext;
     this.transactionManager = new TransactionManager();
   }
 
@@ -58,8 +63,8 @@ public final class CiviFormProfileMerger {
                     // or otherwise handle it
                     return Optional.of(mergeFunction.apply(applicantProfile, authProviderProfile));
                   });
-              // ,dbExecutionContext
-            })
+            },
+            dbExecutionContext)
         .join();
   }
 

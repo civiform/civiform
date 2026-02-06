@@ -24,6 +24,7 @@ import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
 import org.pac4j.saml.profile.SAML2Profile;
 import repository.AccountRepository;
+import repository.DatabaseExecutionContext;
 import repository.ResetPostgres;
 import support.CfTestHelpers;
 
@@ -62,13 +63,15 @@ public class ProfileMergeTest extends ResetPostgres {
             client,
             OidcClientProviderParams.create(
                 profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)),
-            standardClaimsAttributeNames);
+            standardClaimsAttributeNames,
+            instanceOf(DatabaseExecutionContext.class));
     samlProfileCreator =
         new SamlProfileCreator(
             /* configuration= */ null,
             /* client= */ null,
             profileFactory,
-            CfTestHelpers.userRepositoryProvider(accountRepository));
+            CfTestHelpers.userRepositoryProvider(accountRepository),
+            instanceOf(DatabaseExecutionContext.class));
   }
 
   private OidcProfile createOidcProfile(String email, String issuer, String subject) {

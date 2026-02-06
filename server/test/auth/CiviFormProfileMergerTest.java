@@ -12,6 +12,7 @@ import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.core.profile.UserProfile;
 import org.pac4j.oidc.profile.OidcProfile;
 import repository.AccountRepository;
+import repository.DatabaseExecutionContext;
 import repository.ResetPostgres;
 import services.program.ProgramDefinition;
 import support.ProgramBuilder;
@@ -32,7 +33,9 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
   public void setup() {
     repository = instanceOf(AccountRepository.class);
     profileFactory = instanceOf(ProfileFactory.class);
-    civiFormProfileMerger = new CiviFormProfileMerger(profileFactory, () -> repository);
+    civiFormProfileMerger =
+        new CiviFormProfileMerger(
+            profileFactory, () -> repository, instanceOf(DatabaseExecutionContext.class));
     userProfile = new CommonProfile();
     oidcProfile = new OidcProfile();
     oidcProfile.addAttribute(EMAIL_ATTR, EMAIL1);
