@@ -54,7 +54,24 @@ import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 
-/** A repository object for dealing with versioning of questions and programs. */
+/**
+ * A repository object for dealing with versioning of questions and programs.
+ *
+ * <p><b>IMPORTANT: Caching and BeanCollection Freshness</b>
+ *
+ * <p>When fetching questions or programs for a version, always use the methods in this class
+ * ({@link #getQuestionsForVersion}, {@link #getProgramsForVersion}) rather than calling
+ * {@code VersionModel.getQuestions()} or {@code VersionModel.getPrograms()} directly.
+ *
+ * <p>The reason: Ebean's BeanCollection (the lazy-loaded collection returned by those methods)
+ * can become stale if the VersionModel object was cached elsewhere and the database was modified
+ * since. This can cause missing questions/programs or duplicate entries. The methods in this
+ * class always fetch fresh data from the database by ID when necessary, avoiding this issue.
+ *
+ * <p>For ACTIVE and OBSOLETE versions, results are cached since their question/program
+ * associations are immutable. For DRAFT versions, we always hit the database since drafts can
+ * change.
+ */
 public final class VersionRepository {
 
   private static final Logger logger = LoggerFactory.getLogger(VersionRepository.class);
@@ -182,7 +199,7 @@ public final class VersionRepository {
                   questionRepository.getQuestionDefinition(question).getName());
 
       // Associate any active programs that aren't present in the draft with the draft.
-      getProgramsForVersionWithoutCache(active).stream()
+      getProgramsForVersionWithoutCache(active.id).stream()
           // Exclude programs deleted in the draft.
           .filter(not(programIsDeletedInDraft))
           // Exclude programs that are in the draft already.
@@ -199,7 +216,7 @@ public final class VersionRepository {
           .forEach(draft::addProgram);
 
       // Associate any active questions that aren't present in the draft with the draft.
-      getQuestionsForVersionWithoutCache(active).stream()
+      getQuestionsForVersionWithoutCache(active.id).stream()
           // Exclude questions deleted in the draft.
           .filter(not(questionIsDeletedInDraft))
           // Exclude questions that are in the draft already.
@@ -315,7 +332,7 @@ public final class VersionRepository {
       }
 
       // Move everything we're not publishing right now to the new draft.
-      getProgramsForVersionWithoutCache(existingDraft).stream()
+      getProgramsForVersionWithoutCache(existingDraft.id).stream()
           .filter(
               program ->
                   !programRepository
@@ -327,7 +344,7 @@ public final class VersionRepository {
                 newDraft.addProgram(program);
                 existingDraft.removeProgram(program);
               });
-      getQuestionsForVersionWithoutCache(existingDraft).stream()
+      getQuestionsForVersionWithoutCache(existingDraft.id).stream()
           .filter(
               question ->
                   !questionsToPublishNames.contains(
@@ -569,15 +586,17 @@ public final class VersionRepository {
    * Returns the questions for a version.
    *
    * <p>If the cache is enabled, we will get the data from the cache and set it if it is not
-   * present.
+   * present. When populating the cache with a new version, or pulling a version with caching disabled,
+   * we do not trust the VersionModel is not stale, and using version.refresh() can cause issues if other
+   * threads are using the same reference. So we pull a fresh version from the database by ID.
    */
   public ImmutableList<QuestionModel> getQuestionsForVersion(VersionModel version) {
     // Only set the version cache for active and obsolete versions
     if (settingsManifest.getVersionCacheEnabled() && version.id <= getActiveVersion().id) {
       return questionsByVersionCache.getOrElseUpdate(
-          String.valueOf(version.id), version::getQuestions);
+          String.valueOf(version.id), () -> getQuestionsForVersionWithoutCache(version.id));
     }
-    return getQuestionsForVersionWithoutCache(version);
+    return getQuestionsForVersionWithoutCache(version.id);
   }
 
   /** Returns the questions for a version if the version is present. */
@@ -587,9 +606,28 @@ public final class VersionRepository {
         : ImmutableList.of();
   }
 
-  /** Returns the questions for a version without using the cache. */
-  public ImmutableList<QuestionModel> getQuestionsForVersionWithoutCache(VersionModel version) {
-    return version.getQuestions();
+  /**
+   * Returns the questions for a version without using the cache. Always fetches fresh data from
+   * the database to avoid stale BeanCollection data.
+   *
+   * <p>This method takes a version ID rather than a VersionModel object to make it clear that we
+   * are intentionally fetching fresh data and not relying on the passed object's BeanCollection.
+   * A passed in VersionModel reference may be stale and using version.refresh() can cause issues
+   * if other threads are using the same reference, so we pull a fresh version from the database.
+   */
+  @VisibleForTesting
+  ImmutableList<QuestionModel> getQuestionsForVersionWithoutCache(long versionId) {
+    VersionModel freshVersion =
+        database
+            .find(VersionModel.class)
+            .setId(versionId)
+            .setLabel("VersionModel.findByIdForQuestions")
+            .setProfileLocation(profileLocationBuilder.create("getQuestionsForVersionWithoutCache"))
+            .findOne();
+    if (freshVersion == null) {
+      return ImmutableList.of();
+    }
+    return freshVersion.getQuestions();
   }
 
   /**
@@ -634,15 +672,17 @@ public final class VersionRepository {
    * Returns the programs for a version.
    *
    * <p>If the cache is enabled, we will get the data from the cache and set it if it is not
-   * present.
+   * present. When populating the cache with a new version, or pulling a version with caching disabled,
+   * we do not trust the VersionModel is not stale, and using version.refresh() can cause issues if other
+   * threads are using the same reference. So we pull a fresh version from the database by ID.
    */
   public ImmutableList<ProgramModel> getProgramsForVersion(VersionModel version) {
     // Only set the version cache for active and obsolete versions
     if (settingsManifest.getVersionCacheEnabled() && version.id <= getActiveVersion().id) {
       return programsByVersionCache.getOrElseUpdate(
-          String.valueOf(version.id), version::getPrograms);
+          String.valueOf(version.id), () -> getProgramsForVersionWithoutCache(version.id));
     }
-    return getProgramsForVersionWithoutCache(version);
+    return getProgramsForVersionWithoutCache(version.id);
   }
 
   /** Returns the programs for a version if the version is present. */
@@ -650,9 +690,28 @@ public final class VersionRepository {
     return version.isPresent() ? getProgramsForVersion(version.get()) : ImmutableList.of();
   }
 
-  /** Returns the programs for a version without using the cache. */
-  public ImmutableList<ProgramModel> getProgramsForVersionWithoutCache(VersionModel version) {
-    return version.getPrograms();
+  /**
+   * Returns the programs for a version without using the cache. Always fetches fresh data from the
+   * database to avoid stale BeanCollection data.
+   *
+   * <p>This method takes a version ID rather than a VersionModel object to make it clear that we
+   * are intentionally fetching fresh data and not relying on the passed object's BeanCollection.
+   * A passed in VersionModel reference may be stale and using version.refresh() can cause issues
+   * if other threads are using the same reference, so we pull a fresh version from the database.
+   */
+  @VisibleForTesting
+  ImmutableList<ProgramModel> getProgramsForVersionWithoutCache(long versionId) {
+    VersionModel freshVersion =
+        database
+            .find(VersionModel.class)
+            .setId(versionId)
+            .setLabel("VersionModel.findByIdForPrograms")
+            .setProfileLocation(profileLocationBuilder.create("getProgramsForVersionWithoutCache"))
+            .findOne();
+    if (freshVersion == null) {
+      return ImmutableList.of();
+    }
+    return freshVersion.getPrograms();
   }
 
   /**
@@ -771,13 +830,13 @@ public final class VersionRepository {
         () -> {
           VersionModel activeVersion = getActiveVersion();
           ImmutableList<QuestionDefinition> newActiveQuestions =
-              getQuestionsForVersionWithoutCache(activeVersion).stream()
+              getQuestionsForVersionWithoutCache(activeVersion.id).stream()
                   .map(questionRepository::getQuestionDefinition)
                   .collect(ImmutableList.toImmutableList());
           // Check there aren't any duplicate questions in the new active version
           validateNoDuplicateQuestions(newActiveQuestions);
           ImmutableSet<Long> missingQuestionIds =
-              getProgramsForVersionWithoutCache(activeVersion).stream()
+              getProgramsForVersionWithoutCache(activeVersion.id).stream()
                   .map(
                       program ->
                           programRepository
@@ -795,7 +854,7 @@ public final class VersionRepository {
             return;
           }
           ImmutableSet<Long> programIdsMissingQuestions =
-              getProgramsForVersionWithoutCache(activeVersion).stream()
+              getProgramsForVersionWithoutCache(activeVersion.id).stream()
                   .filter(
                       program ->
                           programRepository

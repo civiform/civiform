@@ -1165,4 +1165,310 @@ public class VersionRepositoryTest extends ResetPostgres {
     ProgramBuilder.newDisabledDraftProgram("disabled-draft-program").build();
     assertThat(versionRepository.anyDisabledPrograms()).isTrue();
   }
+
+  @Test
+  public void getQuestionsForVersion_returnsFreshDataEvenWithStaleVersionObject() {
+    // Disable cache so we test the fresh fetch behavior directly
+    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(false);
+
+    // Create a version and add a question
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
+    QuestionModel firstQuestion = resourceCreator.insertQuestion("first-question");
+    firstQuestion.addVersion(version).save();
+    versionRepository.publishNewSynchronizedVersion();
+    version.refresh();
+
+    // Get a reference to the version that has its BeanCollection loaded
+    VersionModel staleVersion = DB.find(VersionModel.class, version.id);
+    // Force the BeanCollection to load with current data
+    assertThat(staleVersion.getQuestions()).hasSize(1);
+
+    // Add another question directly to the database (simulating concurrent modification)
+    QuestionModel secondQuestion = resourceCreator.insertQuestion("second-question");
+    secondQuestion.addVersion(version).save();
+
+    // The stale version's BeanCollection still shows only 1 question
+    // (BeanCollection doesn't automatically refresh)
+    assertThat(staleVersion.getQuestions()).hasSize(1);
+
+    // But getQuestionsForVersion should return fresh data with 2 questions
+    // because it fetches by ID from the database
+    ImmutableList<QuestionModel> freshQuestions =
+        versionRepository.getQuestionsForVersion(staleVersion);
+    assertThat(freshQuestions).hasSize(2);
+  }
+
+  @Test
+  public void getProgramsForVersion_returnsFreshDataEvenWithStaleVersionObject() {
+    // Disable cache so we test the fresh fetch behavior directly
+    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(false);
+
+    // Create a version and add a program
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
+    resourceCreator.insertDraftProgram("first-program");
+    versionRepository.publishNewSynchronizedVersion();
+    version.refresh();
+
+    // Get a reference to the version that has its BeanCollection loaded
+    VersionModel staleVersion = DB.find(VersionModel.class, version.id);
+    // Force the BeanCollection to load with current data
+    assertThat(staleVersion.getPrograms()).hasSize(1);
+
+    // Add another program directly to the database (simulating concurrent modification)
+    ProgramBuilder.newActiveProgram("second-program").build();
+
+    // The stale version's BeanCollection still shows only 1 program
+    assertThat(staleVersion.getPrograms()).hasSize(1);
+
+    // But getProgramsForVersion should return fresh data with 2 programs
+    // because it fetches by ID from the database
+    ImmutableList<ProgramModel> freshPrograms =
+        versionRepository.getProgramsForVersion(staleVersion);
+    assertThat(freshPrograms).hasSize(2);
+  }
+
+  @Test
+  public void getQuestionsForVersion_cacheIsPopulatedWithFreshData() {
+    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
+
+    // Create a version and add a question
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
+    QuestionModel firstQuestion = resourceCreator.insertQuestion("first-question");
+    firstQuestion.addVersion(version).save();
+    versionRepository.publishNewSynchronizedVersion();
+    version.refresh();
+
+    String versionKey = String.valueOf(version.id);
+
+    // Verify cache is empty
+    assertThat(questionsByVersionCache.get(versionKey).isPresent()).isFalse();
+
+    // Add another question directly to the database
+    QuestionModel secondQuestion = resourceCreator.insertQuestion("second-question");
+    secondQuestion.addVersion(version).save();
+
+    // Get a stale version object (simulating one that was cached elsewhere with stale data)
+    VersionModel staleVersion = DB.find(VersionModel.class, version.id);
+    // Load its BeanCollection BEFORE the second question was visible to this object
+    // (In reality, this simulates a version cached in versionsByProgramCache)
+
+    // Call getQuestionsForVersion - this should populate cache with fresh data
+    ImmutableList<QuestionModel> questions = versionRepository.getQuestionsForVersion(staleVersion);
+
+    // Should have both questions (fresh from DB, not from stale BeanCollection)
+    assertThat(questions).hasSize(2);
+
+    // Cache should also have both questions
+    @SuppressWarnings("unchecked")
+    ImmutableList<QuestionModel> cachedQuestions =
+        (ImmutableList<QuestionModel>) questionsByVersionCache.get(versionKey).get();
+    assertThat(cachedQuestions).hasSize(2);
+  }
+
+  @Test
+  public void getProgramsForVersion_cacheIsPopulatedWithFreshData() {
+    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
+
+    // Create a version and add a program
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
+    resourceCreator.insertDraftProgram("first-program");
+    versionRepository.publishNewSynchronizedVersion();
+    version.refresh();
+
+    String versionKey = String.valueOf(version.id);
+
+    // Verify cache is empty
+    assertThat(programsByVersionCache.get(versionKey).isPresent()).isFalse();
+
+    // Add another program directly to the database
+    ProgramBuilder.newActiveProgram("second-program").build();
+
+    // Get a stale version object
+    VersionModel staleVersion = DB.find(VersionModel.class, version.id);
+
+    // Call getProgramsForVersion - this should populate cache with fresh data
+    ImmutableList<ProgramModel> programs = versionRepository.getProgramsForVersion(staleVersion);
+
+    // Should have both programs (fresh from DB)
+    assertThat(programs).hasSize(2);
+
+    // Cache should also have both programs
+    @SuppressWarnings("unchecked")
+    ImmutableList<ProgramModel> cachedPrograms =
+        (ImmutableList<ProgramModel>) programsByVersionCache.get(versionKey).get();
+    assertThat(cachedPrograms).hasSize(2);
+  }
+
+  @Test
+  public void getQuestionsForVersionWithoutCache_returnsFreshDataFromDatabase() {
+    // Create a version and add a question
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
+    QuestionModel firstQuestion = resourceCreator.insertQuestion("first-question");
+    firstQuestion.addVersion(version).save();
+    versionRepository.publishNewSynchronizedVersion();
+    version.refresh();
+
+    // Get a reference to the version that has its BeanCollection loaded
+    VersionModel staleVersion = DB.find(VersionModel.class, version.id);
+    // Force the BeanCollection to load with current data
+    assertThat(staleVersion.getQuestions()).hasSize(1);
+
+    // Add another question directly to the database (simulating concurrent modification)
+    QuestionModel secondQuestion = resourceCreator.insertQuestion("second-question");
+    secondQuestion.addVersion(version).save();
+
+    // The stale version's BeanCollection still shows only 1 question
+    assertThat(staleVersion.getQuestions()).hasSize(1);
+
+    // But getQuestionsForVersionWithoutCache should return fresh data with 2 questions
+    ImmutableList<QuestionModel> freshQuestions =
+        versionRepository.getQuestionsForVersionWithoutCache(version.id);
+    assertThat(freshQuestions).hasSize(2);
+  }
+
+  @Test
+  public void getProgramsForVersionWithoutCache_returnsFreshDataFromDatabase() {
+    // Create a version and add a program
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
+    resourceCreator.insertDraftProgram("first-program");
+    versionRepository.publishNewSynchronizedVersion();
+    version.refresh();
+
+    // Get a reference to the version that has its BeanCollection loaded
+    VersionModel staleVersion = DB.find(VersionModel.class, version.id);
+    // Force the BeanCollection to load with current data
+    assertThat(staleVersion.getPrograms()).hasSize(1);
+
+    // Add another program directly to the database (simulating concurrent modification)
+    ProgramBuilder.newActiveProgram("second-program").build();
+
+    // The stale version's BeanCollection still shows only 1 program
+    assertThat(staleVersion.getPrograms()).hasSize(1);
+
+    // But getProgramsForVersionWithoutCache should return fresh data with 2 programs
+    ImmutableList<ProgramModel> freshPrograms =
+        versionRepository.getProgramsForVersionWithoutCache(version.id);
+    assertThat(freshPrograms).hasSize(2);
+  }
+
+  @Test
+  public void getQuestionsForVersionWithoutCache_returnsEmptyListForNonexistentVersion() {
+    ImmutableList<QuestionModel> questions =
+        versionRepository.getQuestionsForVersionWithoutCache(999999L);
+    assertThat(questions).isEmpty();
+  }
+
+  @Test
+  public void getProgramsForVersionWithoutCache_returnsEmptyListForNonexistentVersion() {
+    ImmutableList<ProgramModel> programs =
+        versionRepository.getProgramsForVersionWithoutCache(999999L);
+    assertThat(programs).isEmpty();
+  }
+
+  @Test
+  public void getQuestionsForVersion_usesCachedDataOnSubsequentCalls() {
+    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
+
+    // Create and publish a version with a question
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
+    QuestionModel question = resourceCreator.insertQuestion("test-question");
+    question.addVersion(version).save();
+    versionRepository.publishNewSynchronizedVersion();
+    version.refresh();
+
+    String versionKey = String.valueOf(version.id);
+
+    // First call - cache miss, should fetch from DB and cache
+    ImmutableList<QuestionModel> firstResult = versionRepository.getQuestionsForVersion(version);
+    assertThat(firstResult).hasSize(1);
+    assertThat(questionsByVersionCache.get(versionKey).isPresent()).isTrue();
+
+    // Add another question to the database (this would be visible on a fresh fetch)
+    QuestionModel secondQuestion = resourceCreator.insertQuestion("second-question");
+    secondQuestion.addVersion(version).save();
+
+    // Second call - cache hit, should return cached data (still 1 question, not 2)
+    // This is expected behavior: for immutable ACTIVE/OBSOLETE versions, the cache is correct
+    ImmutableList<QuestionModel> secondResult = versionRepository.getQuestionsForVersion(version);
+    assertThat(secondResult).hasSize(1);
+  }
+
+  @Test
+  public void getProgramsForVersion_usesCachedDataOnSubsequentCalls() {
+    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
+
+    // Create and publish a version with a program
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
+    resourceCreator.insertDraftProgram("test-program");
+    versionRepository.publishNewSynchronizedVersion();
+    version.refresh();
+
+    String versionKey = String.valueOf(version.id);
+
+    // First call - cache miss, should fetch from DB and cache
+    ImmutableList<ProgramModel> firstResult = versionRepository.getProgramsForVersion(version);
+    assertThat(firstResult).hasSize(1);
+    assertThat(programsByVersionCache.get(versionKey).isPresent()).isTrue();
+
+    // Add another program to the database
+    ProgramBuilder.newActiveProgram("second-program").build();
+
+    // Second call - cache hit, should return cached data (still 1 program)
+    ImmutableList<ProgramModel> secondResult = versionRepository.getProgramsForVersion(version);
+    assertThat(secondResult).hasSize(1);
+  }
+
+  @Test
+  public void getQuestionsForVersion_draftVersionAlwaysFetchesFreshData() {
+    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
+
+    // Create a draft version with a question
+    VersionModel draft = versionRepository.getDraftVersionOrCreate();
+    QuestionModel firstQuestion = resourceCreator.insertQuestion("first-question");
+    firstQuestion.addVersion(draft).save();
+
+    String draftKey = String.valueOf(draft.id);
+
+    // First call should not cache (it's a draft)
+    ImmutableList<QuestionModel> firstResult = versionRepository.getQuestionsForVersion(draft);
+    assertThat(firstResult).hasSize(1);
+    assertThat(questionsByVersionCache.get(draftKey).isPresent()).isFalse();
+
+    // Add another question
+    QuestionModel secondQuestion = resourceCreator.insertQuestion("second-question");
+    secondQuestion.addVersion(draft).save();
+
+    // Second call should see the new question (fresh fetch, not cached)
+    ImmutableList<QuestionModel> secondResult = versionRepository.getQuestionsForVersion(draft);
+    assertThat(secondResult).hasSize(2);
+
+    // Still not cached
+    assertThat(questionsByVersionCache.get(draftKey).isPresent()).isFalse();
+  }
+
+  @Test
+  public void getProgramsForVersion_draftVersionAlwaysFetchesFreshData() {
+    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
+
+    // Create a draft version with a program
+    VersionModel draft = versionRepository.getDraftVersionOrCreate();
+    resourceCreator.insertDraftProgram("first-program");
+
+    String draftKey = String.valueOf(draft.id);
+
+    // First call should not cache (it's a draft)
+    ImmutableList<ProgramModel> firstResult = versionRepository.getProgramsForVersion(draft);
+    assertThat(firstResult).hasSize(1);
+    assertThat(programsByVersionCache.get(draftKey).isPresent()).isFalse();
+
+    // Add another program
+    resourceCreator.insertDraftProgram("second-program");
+
+    // Second call should see the new program (fresh fetch, not cached)
+    ImmutableList<ProgramModel> secondResult = versionRepository.getProgramsForVersion(draft);
+    assertThat(secondResult).hasSize(2);
+
+    // Still not cached
+    assertThat(programsByVersionCache.get(draftKey).isPresent()).isFalse();
+  }
 }
