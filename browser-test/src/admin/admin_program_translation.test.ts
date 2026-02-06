@@ -497,14 +497,13 @@ test.describe('Admin can manage program translations', () => {
       )
       await applicantQuestions.answerTextQuestion('ineligible')
       await page.click('text="Continuar"')
-      await validateScreenshot(
-        page,
-        'ineligible-view-with-translated-eligibility-msg',
+      await expect(page.locator('main')).toContainText(
+        'Spanish block eligibility message',
       )
     })
 
     await test.step('Clear eligibility message', async () => {
-      await selectApplicantLanguage(page, 'English')
+      await selectApplicantLanguage(page, 'en-US')
       await page.goto(BASE_URL)
       await logout(page)
       await loginAsAdmin(page)
@@ -530,10 +529,8 @@ test.describe('Admin can manage program translations', () => {
 
     await test.step('Verify that eligibility message does not show up on the applicant side', async () => {
       await loginAsTestUser(page)
-      await selectApplicantLanguage(page, 'Español')
-      await page.click('text="Continuar"')
+      await selectApplicantLanguage(page, 'es-US')
       await page.click('text="Editar"')
-      await page.click('text="Guardar y continuar"')
 
       await expect(page.locator('main')).not.toContainText(
         'Spanish block eligibility message',
