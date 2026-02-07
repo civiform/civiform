@@ -1928,8 +1928,14 @@ public final class ProgramService {
       // program definition is not in the cache.
       if (programDef.hasEligibilityEnabled()
           && !programRepository.getFullProgramDefinitionFromCache(p).isPresent()) {
+        // Get the most recent non-draft version for this program. For applicant-facing code,
+        // we want to sync against the active (or obsolete) version, not a draft.
+        long activeVersionId = versionRepository.getActiveVersion().id;
         VersionModel v =
-            programRepository.getVersionsForProgram(p).stream().findAny().orElseThrow();
+            programRepository.getVersionsForProgram(p).stream()
+                .filter(ver -> ver.id <= activeVersionId)
+                .max(Comparator.comparingLong(ver -> ver.id))
+                .orElseThrow();
         ReadOnlyQuestionService questionServiceForVersion = versionToQuestionService.get(v.id);
         if (questionServiceForVersion == null) {
           questionServiceForVersion =
