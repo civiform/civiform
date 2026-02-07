@@ -3,6 +3,7 @@ package repository;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -121,12 +122,49 @@ public final class ProgramRepository {
     return program;
   }
 
+  /**
+   * Returns the versions for a program.
+   *
+   * <p>If the cache is enabled, we will get the data from the cache and set it if it is not
+   * present. When populating the cache, we fetch a fresh ProgramModel by ID to avoid stale
+   * BeanCollection data. We only cache if the program is not in draft (all version IDs <= active
+   * version ID).
+   *
+   * <p>Note: Even if the cache returns a stale version list (missing newer versions), this is safe
+   * because if the program wasn't edited, syncing against any of its versions yields the same
+   * questions. When a program IS edited, a new ProgramModel ID is created, so the old cache entry
+   * is never used.
+   */
   public ImmutableList<VersionModel> getVersionsForProgram(ProgramModel program) {
-    if (settingsManifest.getProgramCacheEnabled()) {
+    // Only use cache when enabled AND no draft version exists (matching lookupProgram behavior)
+    if (settingsManifest.getProgramCacheEnabled()
+        && versionRepository.get().getDraftVersion().isEmpty()) {
       return versionsByProgramCache.getOrElseUpdate(
-          String.valueOf(program.id), program::getVersions);
+          String.valueOf(program.id), () -> getVersionsForProgramWithoutCache(program.id));
     }
-    return program.getVersions();
+    return getVersionsForProgramWithoutCache(program.id);
+  }
+
+  /**
+   * Returns the versions for a program without using the cache. Always fetches fresh data from the
+   * database to avoid stale BeanCollection data.
+   *
+   * <p>This method takes a program ID rather than a ProgramModel object to make it clear that we
+   * are intentionally fetching fresh data and not relying on the passed object's BeanCollection.
+   */
+  @VisibleForTesting
+  ImmutableList<VersionModel> getVersionsForProgramWithoutCache(long programId) {
+    ProgramModel freshProgram =
+        database
+            .find(ProgramModel.class)
+            .setId(programId)
+            .setLabel("ProgramModel.findByIdForVersions")
+            .setProfileLocation(queryProfileLocationBuilder.create("getVersionsForProgramWithoutCache"))
+            .findOne();
+    if (freshProgram == null) {
+      return ImmutableList.of();
+    }
+    return freshProgram.getVersions();
   }
 
   public ImmutableSet<String> getAllProgramNames() {
