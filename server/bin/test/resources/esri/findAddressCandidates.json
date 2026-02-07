@@ -1,0 +1,83 @@
+{
+  "spatialReference": {
+    "wkid": 4326,
+    "latestWkid": 4326
+  },
+  "candidates": [
+    {
+      "address": "Redlands, California, 92373",
+      "location": {
+        "x": -100,
+        "y": 100
+      },
+      "score": 100,
+      "attributes": {
+        "SubAddr": "",
+        "Address": "",
+        "City": "Redlands",
+        "RegionAbbr": "CA",
+        "Postal": "92373"
+      }
+    },
+    {
+      "address": "Address In Area, Redlands, California, 92373",
+      "location": {
+        "x": -100,
+        "y": 100
+      },
+      "score": 100,
+      "attributes": {
+        "SubAddr": "",
+        "Address": "Address In Area",
+        "City": "Redlands",
+        "RegionAbbr": "CA",
+        "Postal": "92373"
+      }
+    },
+    {
+      "address": "Address With No Service Area Features, Redlands, California, 92373",
+      "location": {
+        "x": -101,
+        "y": 101
+      },
+      "score": 100,
+      "attributes": {
+        "SubAddr": "",
+        "Address": "Address With No Service Area Features",
+        "City": "Redlands",
+        "RegionAbbr": "CA",
+        "Postal": "92373"
+      }
+    },
+    {
+      "address": "Address Not In Area, Redlands, California, 92373",
+      "location": {
+        "x": -102,
+        "y": 102
+      },
+      "score": 100,
+      "attributes": {
+        "SubAddr": "",
+        "Address": "Address Not In Area",
+        "City": "Redlands",
+        "RegionAbbr": "CA",
+        "Postal": "92373"
+      }
+    },
+    {
+      "address": "Address Causes Service Area Fetch Error, Redlands, California, 92373",
+      "location": {
+        "x": -103,
+        "y": 103
+      },
+      "score": 100,
+      "attributes": {
+        "SubAddr": "",
+        "Address": "Address Causes Service Area Fetch Error",
+        "City": "Redlands",
+        "RegionAbbr": "CA",
+        "Postal": "92373"
+      }
+    }
+  ]
+}

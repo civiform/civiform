@@ -1,0 +1,231 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.programs.predicates.EditPredicatePageViewModel"*/-->
+
+<th:block th:fragment="content">
+  <th:block
+    th:replace="~{admin/programs/ProgramHeaderFragment :: programHeader(${model.programHeader()})}"
+  ></th:block>
+
+  <div class="padding-x-4 padding-y-3 usa-prose" id="edit-predicate">
+    <a
+      th:href="${model.blockEditUrl()}"
+      th:text="#{link.backToEditProgramBlock(${model.blockName()})}"
+      class="usa-link padding-x-05"
+    ></a>
+
+    <div class="width-mobile-lg">
+      <div
+        class="font-sans-3xs text-uppercase margin-bottom-2"
+        th:text="${model.blockName()}"
+      ></div>
+      <div
+        class="font-alt-lg text-bold margin-bottom-05"
+        th:text="|Edit ${model.predicateUseCase.toDisplayString()} conditions|"
+      ></div>
+      <div class="text-gray-50" th:switch="${model.predicateUseCase.name()}">
+        <p th:case="'VISIBILITY'" class="margin-top-05">
+          [[#{content.predicateVisibilityDescription}]]
+        </p>
+        <p th:case="'ELIGIBILITY'" class="margin-top-05">
+          [[#{content.predicateEligibilityDescription}]]
+          <a
+            th:href="${model.programEditUrl()}"
+            class="usa-link"
+            th:text="#{link.programSettings}"
+          ></a
+          >.
+        </p>
+      </div>
+
+      <form id="predicate-form" class="usa-form">
+        <input
+          type="hidden"
+          th:value="${templateGlobals.csrfToken()}"
+          name="csrfToken"
+        />
+        <!-- Predicate header -->
+        <div
+          class="font-body-xs width-mobile-lg"
+          th:switch="${model.predicateUseCase.name()}"
+        >
+          <div
+            th:id="predicate-operator-node-select"
+            th:attr="hidden=${!model.screenHasPredicates()}"
+          >
+            <p>
+              <th:block th:case="'VISIBILITY'">
+                [[#{content.predicateScreenIs}]]
+                <select
+                  class="usa-select width-15 display-inline-block font-body-xs margin-left-1"
+                  name="predicateAction"
+                >
+                  <option
+                    th:each="action : ${model.visibilityActions()}"
+                    th:text="${action.toDisplayString()}"
+                    th:value="${action.name()}"
+                  ></option>
+                </select>
+              </th:block>
+              <th:block th:case="'ELIGIBILITY'">
+                [[#{content.predicateApplicantIsEligible}]]
+                <input
+                  type="hidden"
+                  name="predicateAction"
+                  th:value="${model.eligibilityAction().name()}"
+                />
+              </th:block>
+
+              <select
+                class="usa-select width-9 display-inline-block font-body-xs margin-x-1"
+                name="root-node-type"
+                id="root-node-type"
+                aria-label="Root condition node type"
+              >
+                <option
+                  th:each="nodeType : ${model.operatorNodeTypes()}"
+                  th:text="${nodeType.toDisplayString()}"
+                  th:value="${nodeType.name()}"
+                  th:selected="${nodeType.equals(model.rootLogicalOperator.toNodeType())}"
+                ></option>
+              </select>
+              [[#{content.predicateConditionsAreTrue}]]
+            </p>
+          </div>
+          <div
+            th:id="predicate-operator-node-select-null-state"
+            th:attr="hidden=${model.screenHasPredicates()}"
+          >
+            <p>
+              <th:block
+                th:if="${model.predicateUseCase.name() == 'VISIBILITY'}"
+              >
+                [[#{content.predicateVisibilityNullState}]]
+              </th:block>
+              <th:block
+                th:if="${model.predicateUseCase.name() == 'ELIGIBILITY'}"
+              >
+                [[#{content.predicateEligibilityNullState}]]
+              </th:block>
+            </p>
+          </div>
+        </div>
+        <th:block th:if="${model.hasAvailableQuestions}">
+          <div
+            th:replace="~{admin/programs/predicates/ConditionListFragment :: conditionList(${model.newConditionList()})}"
+          ></div>
+        </th:block>
+        <th:block th:unless="${model.hasAvailableQuestions}">
+          <div
+            th:replace="~{admin/programs/predicates/PredicateAlertFragment :: noConditionsAlert(${model.predicateUseCase.name()})}"
+          ></div>
+        </th:block>
+        <!-- Eligibility message -->
+        <div
+          th:if="${model.predicateUseCase.name() == 'ELIGIBILITY'}"
+          class="width-mobile-lg padding-top-1"
+        >
+          <div class="border-top border-base-lighter margin-y-2"></div>
+          <div class="usa-form-group padding-top-1">
+            <label
+              class="usa-label"
+              th:for="eligibility-message-textarea"
+              th:text="#{label.predicateEligibilityMessageField}"
+            ></label>
+            <textarea
+              class="usa-textarea margin-y-0"
+              th:id="eligibility-message-textarea"
+              name="eligibilityMessage"
+              th:text="${model.eligibilityMessage}"
+            ></textarea>
+            <div
+              class="display-flex flex-align-center margin-top-05 text-base-dark"
+            >
+              <cf:icon type="legacy-icon-markdown" />
+              <p
+                class="margin-y-0 margin-left-1"
+                th:text="#{content.markdownSupported}"
+              ></p>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="usa-footer__return-to-top">
+      <a href="#" class="padding-x-05" th:text="#{link.backToTop}"></a>
+    </div>
+
+    <div class="border-top border-base-lighter margin-y-2"></div>
+    <div class="grid-container margin-left-0 padding-left-0 padding-top-2">
+      <div class="grid-row flex-align-left">
+        <button
+          id="submit-predicate"
+          type="submit"
+          class="usa-button tablet:grid-col-auto"
+          form="predicate-form"
+          th:hx-post="${model.updatePredicateEndpoint()}"
+          hx-target="#predicate-conditions-list"
+          th:text="#{button.saveAndExit}"
+        ></button>
+        <button
+          id="cancel-predicate-edit"
+          type="submit"
+          class="usa-button usa-button--outline tablet:grid-col-auto"
+          form="predicate-form"
+          th:formaction="${model.blockEditUrl()}"
+          formmethod="get"
+          th:text="#{button.cancel}"
+          th:data-cancel-dialog="#{confirm.leaveWithoutSaving} + '&#10;&#10;' + #{confirm.unsavedChanges}"
+        ></button>
+        <div
+          id="delete-all-conditions-button"
+          class="tablet:grid-col-auto padding-left-4 display-flex justify-center"
+          th:hidden="${!model.screenHasPredicates()}"
+        >
+          <button
+            type="button"
+            class="usa-button usa-button--unstyled zero-top-margin text-secondary-dark"
+            th:with="deleteAllConfirmation=#{confirm.deleteAllConditions} + '&#10;&#10;' + #{confirm.actionNotReversable}"
+            th:hx-confirm="${deleteAllConfirmation}"
+            th:hx-post="${model.hxDeleteAllConditionsEndpoint()}"
+            hx-target="#predicate-conditions-list"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="#b50909"
+              stroke-width="1%"
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              width="24"
+              height="24"
+            >
+              <path
+                d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
+              ></path>
+            </svg>
+            [[#{button.predicateDeleteAllConditions}]]
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</th:block>
+
+<th:block th:fragment="scripts">
+  <!--/* Store the operator scalar map for use on the client */-->
+  <script
+    type="text/javascript"
+    th:nonce="${templateGlobals.cspNonce()}"
+    th:inline="javascript"
+  >
+    window.app = window.app || {}
+    window.app.data = window.app.data || {}
+    window.app.data.predicate = window.app.data.predicate || {}
+    window.app.data.predicate.operator_scalars =
+      /*[[${model.operatorScalarMap()}]]*/ {}
+
+    document.body.addEventListener('htmx:afterSwap', function (event) {
+      window.app.scripts.AdminPredicateEdit.onHtmxAfterSwap(event)
+    })
+  </script>
+</th:block>

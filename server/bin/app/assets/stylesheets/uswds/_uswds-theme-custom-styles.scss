@@ -1,0 +1,443 @@
+/*
+* * * * * ==============================
+* * * * * ==============================
+* * * * * ==============================
+* * * * * ==============================
+========================================
+========================================
+========================================
+----------------------------------------
+USWDS THEME CUSTOM STYLES
+----------------------------------------
+Custom project SASS goes here.
+i.e.
+@include u-padding-right('05');
+----------------------------------------
+To use a USWDS mixin with a USWDS design token,
+do this:  @include <mixin name>('<design-token>')
+See the radio-option below as an example.
+*/
+
+@use 'uswds-core' as *;
+
+.cf-radio-option:focus-within {
+  @include u-border('blue-40v');
+}
+
+// Put the focus outline around the chip instead of the underlying checkbox
+.filter-chip:focus-within {
+  @include u-outline('05');
+  @include u-outline-color('blue-40v');
+  outline-offset: 4px;
+}
+
+// Display a check mark icon on the program filter when it is selected
+[id^='check-category-']:checked ~ label::before {
+  content: '\2713 \fe0e';
+  color: inherit;
+  @include u-margin-right('05');
+}
+
+/*
+ * Make the file input element for program image upload fill the area it's given.
+ * (This overrides the default USWDS style of a max-width of 30rem.)
+ */
+#program-image-upload-file-input .usa-file-input {
+  max-width: none;
+}
+
+.cf-question-error-message {
+  @include u-text('secondary-dark', 'bold');
+  @include u-font('sans', 'xs');
+  @include u-padding-top('05');
+}
+
+.cf-question-field-with-error {
+  @include u-border-left('05', 'secondary-dark');
+}
+
+.cf-applicant-question-field,
+.cf-question-header {
+  @include u-padding-left(2);
+}
+
+// Tailwind removes list style from unordered and ordered lists.
+ul.usa-list {
+  list-style-type: disc;
+}
+
+ol.usa-list {
+  list-style-type: decimal;
+}
+
+/*
+ * Less padding when there is an error, since we add a border and still want the inputs to line up.
+ */
+.cf-applicant-question-field.cf-question-field-with-error {
+  @include u-padding-left('105');
+}
+
+/**
+ * Reduce default padding on labels within question to match spacing mocks.
+ */
+.cf-applicant-question-field .usa-label {
+  @include u-margin-top('105');
+}
+
+/**
+ * Remove top margin because other surrounding elements add this margin.
+ */
+.usa-legend,
+.cf-question-date .usa-memorable-date .usa-form-group,
+.cf-question-config .usa-memorable-date .usa-form-group {
+  margin-top: 0;
+}
+
+/**
+ * The USWDS header doesn't give enough space for the logo and title, so we add some.
+ */
+@media (min-width: 64em) {
+  .usa-header--basic .usa-navbar {
+    width: 50%;
+  }
+
+  .usa-header--basic .usa-nav {
+    @include u-padding-top(4);
+    @include u-padding-bottom(2);
+  }
+}
+
+@media (max-width: 63.9em) {
+  .usa-nav .usa-button,
+  .usa-nav span {
+    margin-top: 8px;
+  }
+}
+
+.usa-header--basic .usa-button {
+  @include u-line-height('sans', 2);
+}
+
+/**
+ * Default form styles add a bottom margin to forms, but we don't want that for the language
+ * selector as it would mess with header styles.
+ */
+
+.usa-header--basic form {
+  @include u-margin-bottom(0);
+}
+
+/**
+ * We use h1 instead of h4 as a progress bar heading for a11y reasons, but we want to keep the
+ * USWDS styles, so we ignore the default line height of h1 elements.
+ */
+h1.usa-step-indicator__heading {
+  line-height: inherit;
+}
+
+/**
+ * USWDS color utils are turned off, so we use the USWDS color manually.
+ * See #7951 for detils
+ */
+.cf-footer-help-links a {
+  @include u-text('base-darkest');
+}
+
+.text-ink {
+  @include u-text('ink');
+}
+
+/**
+ * On tablet and mobile, give each link it's own row. Most of this logic is to make the border
+ * extend the full width of the screen.
+ */
+@media (max-width: 640px) {
+  .cf-footer-help-bar {
+    padding: 0;
+  }
+
+  .cf-footer-help-links {
+    width: 100%;
+  }
+
+  .cf-footer-help-links a {
+    @include u-border-bottom('base', 1px);
+    @include u-padding-x(6);
+    width: 100%;
+  }
+
+  .cf-footer-technical-suppport {
+    @include u-padding-x(6);
+  }
+}
+
+// The following styles support an HTMX request "loading" spinner on buttons.
+@keyframes spinner {
+  0% {
+    transform: translate3d(-50%, -50%, 0) rotate(0deg);
+  }
+  100% {
+    transform: translate3d(-50%, -50%, 0) rotate(360deg);
+  }
+}
+
+// We allow any button with the `htmx-request` class to show a spinner.
+button.usa-button.htmx-request {
+  opacity: 1;
+  position: relative;
+  transition: opacity linear 0.1s;
+  // Make text transparent, so the spinner can show.
+  color: rgba(0, 0, 0, 0);
+
+  &::before {
+    animation: 1.3s linear infinite spinner;
+    // Same as .usa-button (#005ea2), but 1/8 lighter
+    border: solid 3px #2073bc;
+    border-bottom-color: white;
+    border-radius: 50%;
+    content: '';
+    height: 25px;
+    left: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translate3d(-50%, -50%, 0);
+    transform-origin: center;
+    width: 25px;
+    will-change: transform;
+  }
+  // Sometimes, we may also disable the button when the request is pending.
+  // In this case, we should remove default disabled-button styling.
+  &:disabled {
+    box-shadow: inset 0 0 0 2px #005ea2;
+    &:hover {
+      // Make text transparent, so the spinner can show.
+      color: rgba(0, 0, 0, 0);
+      background-color: #005ea2;
+    }
+  }
+}
+
+// Different colors for outlined buttons
+button.usa-button.usa-button--outline.htmx-request,
+button.usa-button.usa-button--unstyled.htmx-request {
+  &::before {
+    // Same as .usa-button--outline (#005ea2), but 7/8 lighter
+    border: solid 3px rgba(0, 94, 162, 0.125);
+    border-bottom-color: #005ea2;
+  }
+  &:disabled:hover {
+    background-color: transparent;
+  }
+}
+
+// Removing padding around the admin header nav items
+.usa-nav__primary > .usa-nav__primary-item > a.cf-admin-heading-nav-item,
+.usa-nav__primary > .usa-nav__primary-item > button.cf-admin-heading-nav-item {
+  padding: 0 1rem;
+}
+
+// Removing padding around the admin header nav items settings icon
+.usa-nav__primary
+  > .usa-nav__primary-item
+  > a.cf-admin-heading-nav-item-settings-icon {
+  padding: 0;
+}
+
+// This keeps the main content visible at reasonable smaller widths so
+// that the admin header does not cover anything. The entire admin site
+// starts to fall apart under 800px. At extreme min widths overlapping
+// may still occur.
+@media (screen and max-width: 800px) {
+  .admin-responsive-main-padding {
+    @include u-padding-top(4);
+  }
+}
+
+.admin-normal-main {
+  @include u-padding-x(4);
+  @include u-padding-y(9);
+  @include u-maxw('widescreen');
+}
+
+.admin-widescreen-main {
+  @include u-padding-y(9);
+  @include u-margin-x(0);
+  @include u-maxw('full');
+}
+
+@media (screen and min-width: 1500px) {
+  .admin-widescreen-main {
+    @include u-margin-x(8);
+  }
+}
+
+// Set the background color to match tailwind bg-gray-900
+// for non-tailwind pages
+.usa-banner.cf-admin-heading-background-color {
+  background-color: rgb(17 24 39);
+}
+
+// Having to override this way due to specificity issues
+.usa-banner__inner.margin-left-0 {
+  margin-left: 0;
+}
+
+// Gradient used in the admin background. USWDS does not have
+// built in gradient utility classes like Tailwind does.
+.body-background-gradient {
+  /* gray-100 -> white -> gray-100 */
+  background-image: linear-gradient(to right, #f3f4f6, #ffffff, #f3f4f6);
+}
+
+// Adds support for the fixed table-layout property
+.table-layout-fixed {
+  table-layout: fixed;
+}
+
+// Set a basic default gap for `display: flex`.
+.display-flex.flex-gap {
+  gap: 1rem;
+}
+
+// Adjust the nav to behave like a tab strip
+.cf-tab-strip {
+  @include u-border-bottom(1px, 'solid', 'base-light');
+  @include u-margin-y(1.5);
+
+  .usa-nav-container {
+    @include u-margin-left(0);
+    @include u-padding-left(0);
+
+    .usa-nav {
+      @include u-padding-left(0);
+      @include u-padding-top(0);
+      @include u-padding-bottom(0.5);
+      @include u-display('flex');
+      justify-content: flex-start;
+    }
+  }
+}
+
+.cf-legacy-program-header {
+  // Set background and text colors to match
+  // tailwind colors for admin program status
+  // pills in non-tailwind pages
+  .cf-background-green-light {
+    background-color: rgb(232, 245, 233);
+  }
+
+  .cf-background-purple-light {
+    background-color: rgb(243, 229, 245);
+  }
+
+  .cf-background-yellow-light {
+    background-color: rgb(255, 239, 201);
+  }
+
+  .cf-text-green {
+    color: rgb(27, 94, 32);
+  }
+
+  .cf-text-purple {
+    color: rgb(74, 20, 140);
+  }
+
+  .cf-text-yellow {
+    color: rgb(107, 75, 0);
+  }
+
+  p.cf-no-margin-padding,
+  .cf-no-margin-padding p {
+    margin: 0px;
+    padding: 0px;
+  }
+
+  // -- start
+  // Backwards compatible step for migrating tailwind to keep some SVGs correctly
+  // sized. This is shared in admin and applicant sides so until we rewrite SVG
+  // support or migrate the admin we'll use the same settings from tailwind.
+  svg.legacy-program-svg {
+    &.w-auto {
+      width: auto;
+    }
+    &.h-5 {
+      height: 1.25rem;
+    }
+    &.h-4\.5 {
+      height: 18px;
+    }
+  }
+  // -- end
+}
+
+.usa-button.usa-button--unstyled.cf-map-question-filter-button {
+  background-color: transparent;
+}
+
+// Backwards compatibility after enabling USWDS to generate it's border options.
+// Remove after admin redesign
+.border-gray-200 {
+  border-color: #e5e7eb;
+}
+
+// Backwards compatibility after enabling USWDS to generate it's border options.
+// Remove after admin redesign
+.border-gray-300 {
+  border-color: #d1d5db;
+}
+
+.usa-form .usa-button.zero-top-margin {
+  margin-top: 0;
+}
+
+// Toast notification styles
+// If you make any changes here, you should also update the toast styles in
+// admin/app/assets/stylesheets/northstar/_uswds-theme-custom-styles.scss
+.cf-toast-container {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 1.5rem;
+}
+
+.cf-toast-message {
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgba(0, 0, 0, 0.1); // tailwind shadow-lg
+  color: color('gray-cool-70');
+  transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bg-cf-toast-alert {
+  background-color: #e5e7eb; // Tailwind gray-200
+}
+
+.bg-cf-toast-error {
+  background-color: #f87171; // Tailwind red-400
+}
+
+.bg-cf-toast-success {
+  background-color: #a7f3d0; // Tailwind emerald-200
+}
+
+.bg-cf-toast-warning {
+  background-color: color('yellow-10v');
+}
+
+.opacity-40:hover {
+  opacity: 1;
+}
+
+.cf-predicate-condition-separator {
+  display: flex;
+  align-items: center;
+  vertical-align: center;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 0 1 100%;
+    border-bottom: 1px dashed #1b1b1b;
+    margin: 0 0.5rem;
+  }
+}
