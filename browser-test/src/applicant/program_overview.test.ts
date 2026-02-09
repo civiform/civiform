@@ -1,6 +1,7 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
   ClientInformation,
+  disableFeatureFlag,
   loginAsAdmin,
   loginAsTrustedIntermediary,
   loginAsTestUser,
@@ -19,6 +20,7 @@ test.describe('Applicant program overview', () => {
   test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
     await test.step('create a new program with one text question', async () => {
       await loginAsAdmin(page)
+      await disableFeatureFlag(page, 'expanded_form_logic_enabled')
       await adminQuestions.addTextQuestion({
         questionName: 'text question',
         questionText: questionText,
