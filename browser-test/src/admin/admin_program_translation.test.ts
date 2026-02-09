@@ -7,7 +7,6 @@ import {
   validateScreenshot,
   validateToastMessage,
 } from '../support'
-import {BASE_URL} from '../support/config'
 import {ProgramVisibility} from '../support/admin_programs'
 import {FormField} from '../support/admin_translations'
 
@@ -504,7 +503,6 @@ test.describe('Admin can manage program translations', () => {
 
     await test.step('Clear eligibility message', async () => {
       await selectApplicantLanguage(page, 'en-US')
-      await page.goto(BASE_URL)
       await logout(page)
       await loginAsAdmin(page)
       await adminPrograms.editProgram(programName)
