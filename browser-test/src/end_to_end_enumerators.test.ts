@@ -762,15 +762,24 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Fill out the new enumerator question form and submit it', async () => {
-        await blockPanel
-          .getByRole('textbox', {name: 'Listed entity'})
-          .fill('Pets')
-        await blockPanel
-          .getByRole('textbox', {name: 'Question text'})
-          .fill('List the names of your pets.')
-        await blockPanel
-          .getByRole('textbox', {name: 'Repeated set admin ID'})
-          .fill('pets enumerator')
+        const listedEntityInput = blockPanel.getByRole('textbox', {
+          name: 'Listed entity',
+        })
+        await expect(listedEntityInput).toHaveAttribute('aria-required', 'true')
+        await listedEntityInput.fill('Pets')
+
+        const questionTextInput = blockPanel.getByRole('textbox', {
+          name: 'Question text',
+        })
+        await expect(questionTextInput).toHaveAttribute('aria-required', 'true')
+        await questionTextInput.fill('List the names of your pets.')
+
+        const adminIdInput = blockPanel.getByRole('textbox', {
+          name: 'Repeated set admin ID',
+        })
+        await expect(adminIdInput).toHaveAttribute('aria-required', 'true')
+        await adminIdInput.fill('pets enumerator')
+
         await blockPanel.getByRole('textbox', {name: 'Hint text'}).fill('Hint')
         await blockPanel
           .getByRole('button', {name: 'Create repeated set'})
