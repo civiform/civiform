@@ -290,8 +290,7 @@ public final class ApplicantService {
             .map(entry -> Update.create(Path.create(entry.getKey()), entry.getValue()))
             .collect(ImmutableSet.toImmutableSet());
 
-    // Ensures updates do not collide with metadata scalars. "keyName[]" collides
-    // with "keyName".
+    // Ensures updates do not collide with metadata scalars. "keyName[]" collides with "keyName".
     boolean updatePathsContainReservedKeys =
         updates.stream()
             .map(Update::path)
@@ -363,12 +362,11 @@ public final class ApplicantService {
                 AddressQuestion addressQuestion =
                     maybeAddressQuestion.get().createAddressQuestion();
                 // Only check service area validation if
-                // 1. The address has changed from the previously corrected one
-                // 2. This is the applicant's first time filling out the question and it has not
+                //  1. The address has changed from the previously corrected one
+                //  2. This is the applicant's first time filling out the question and it has not
                 // yet gone through correction
                 // In case 2 we still need to pass the question through the
-                // serviceAreaUpdateResolver so that it can return an empty serviceAreaUpdate
-                // which
+                // serviceAreaUpdateResolver so that it can return an empty serviceAreaUpdate which
                 // is expected in the rest of the logic
                 shouldCheckServiceAreaValidation =
                     shouldCheckServiceAreaValidation
@@ -841,9 +839,10 @@ public final class ApplicantService {
                 programId,
                 applicationId,
                 /* search= */ Optional.empty(),
+                /* page= */ Optional.empty(),
                 /* fromDate= */ Optional.empty(),
-                /* toDate= */ Optional.empty(),
-                /* selectedApplicationStatus= */ Optional.empty())
+                /* untilDate= */ Optional.empty(),
+                /* applicationStatus= */ Optional.empty())
             .url();
 
     String viewLink =
@@ -1027,10 +1026,8 @@ public final class ApplicantService {
               }
 
               if (!hasAuthorityId && !isManagedByTi) {
-                // The authority ID is the source of truth for whether a user is logged in.
-                // However,
-                // if they were created by a TI, we skip this return and return later on with a
-                // more
+                // The authority ID is the source of truth for whether a user is logged in. However,
+                // if they were created by a TI, we skip this return and return later on with a more
                 // specific oneof value.
                 return ApplicantPersonalInfo.ofGuestUser(builder.build());
               }
@@ -1226,22 +1223,17 @@ public final class ApplicantService {
       ImmutableList<ProgramDefinition> activePrograms,
       ImmutableSet<ApplicationModel> applications,
       ImmutableList<ProgramDefinition> allPrograms) {
-    // Use ImmutableMap.copyOf rather than the collector to guard against cases
-    // where the
-    // provided active programs contains duplicate entries with the same adminName.
-    // In this
-    // case, the ImmutableMap collector would throw since ImmutableMap builders
-    // don't allow
-    // construction where the same key is provided twice. Using Collectors.toMap
-    // would just
+    // Use ImmutableMap.copyOf rather than the collector to guard against cases where the
+    // provided active programs contains duplicate entries with the same adminName. In this
+    // case, the ImmutableMap collector would throw since ImmutableMap builders don't allow
+    // construction where the same key is provided twice. Using Collectors.toMap would just
     // use the last provided key.
     ImmutableMap<String, ProgramDefinition> activeProgramNames =
         ImmutableMap.copyOf(
             activePrograms.stream()
                 .collect(Collectors.toMap(ProgramDefinition::adminName, pdef -> pdef)));
 
-    // When new revisions of Programs are created, they have distinct IDs but retain
-    // the
+    // When new revisions of Programs are created, they have distinct IDs but retain the
     // same adminName. In order to find the most recent draft / active application,
     // we first group by the unique program name rather than the ID.
     Map<String, Map<LifecycleStage, Optional<ApplicationModel>>> mostRecentApplicationsByProgram =
@@ -1305,8 +1297,7 @@ public final class ApplicantService {
             ProgramDefinition applicationProgramVersion =
                 programRepository.getShallowProgramDefinition(maybeSubmittedApp.get().getProgram());
 
-            // Set the current application status by looking at the active statusDefinitions
-            // of the
+            // Set the current application status by looking at the active statusDefinitions of the
             // program
             StatusDefinitions activeStatusDefinitions =
                 applicationStatusesRepository.lookupActiveStatusDefinitions(
@@ -1399,10 +1390,8 @@ public final class ApplicantService {
   private ProgramDefinition getProgramDefinitionForDraftApplication(
       ImmutableList<ProgramDefinition> programList, long programId) {
 
-    // Check if the draft application is using the latest version of the program. If
-    // it
-    // is not, load the latest version of the program instead since we want to base
-    // this
+    // Check if the draft application is using the latest version of the program. If it
+    // is not, load the latest version of the program instead since we want to base this
     // list off of current programs.
     Optional<Long> latestProgramId = programRepository.getMostRecentActiveProgramId(programId);
 
@@ -1608,17 +1597,14 @@ public final class ApplicantService {
       throw new PathNotInBlockException(block.getId(), unknownUpdates.iterator().next().path());
     }
 
-    // Before adding anything, if only metadata is being stored then delete it. We
-    // cannot put an
-    // array of entities at the question path if a JSON object with metadata is
-    // already at that
+    // Before adding anything, if only metadata is being stored then delete it. We cannot put an
+    // array of entities at the question path if a JSON object with metadata is already at that
     // path.
     if (applicantData.readRepeatedEntities(enumeratorPath).isEmpty()) {
       applicantData.maybeDelete(enumeratorPath.withoutArrayReference());
     }
 
-    // Add and change entity names BEFORE deleting, because if deletes happened
-    // first, then changed
+    // Add and change entity names BEFORE deleting, because if deletes happened first, then changed
     // entity names may not match the intended entities.
     for (Update update : addsAndChanges) {
       applicantData.putString(update.path().join(Scalar.ENTITY_NAME), update.value());
@@ -1632,8 +1618,7 @@ public final class ApplicantService {
             .collect(ImmutableList.toImmutableList());
     applicantData.deleteRepeatedEntities(enumeratorPath, deleteIndices);
 
-    // If there are no repeated entities at this point, we still need to save
-    // metadata for this
+    // If there are no repeated entities at this point, we still need to save metadata for this
     // question.
     if (applicantData.maybeClearRepeatedEntities(enumeratorPath)) {
       writeMetadataForPath(enumeratorPath.withoutArrayReference(), applicantData, updateMetadata);
@@ -1666,10 +1651,8 @@ public final class ApplicantService {
       return entityUpdates;
     }
 
-    // Check that the entity updates have unique and consecutive indices. The
-    // indices should be
-    // 0,...N-1 where N is entityUpdates.size() because all entity names are
-    // submitted in the form,
+    // Check that the entity updates have unique and consecutive indices. The indices should be
+    // 0,...N-1 where N is entityUpdates.size() because all entity names are submitted in the form,
     // whether or not they actually changed.
     ImmutableSet<Integer> indices =
         entityUpdates.stream()
@@ -1724,10 +1707,8 @@ public final class ApplicantService {
           block
               .getScalarType(currentPath)
               .orElseThrow(() -> new PathNotInBlockException(block.getId(), currentPath));
-      // An empty update means the applicant doesn't want to store anything. We
-      // already cleared the
-      // multi-select array above in preparation for updates, so do not remove the
-      // path.
+      // An empty update means the applicant doesn't want to store anything. We already cleared the
+      // multi-select array above in preparation for updates, so do not remove the path.
       if (!update.path().isArrayElement() && update.value().isBlank()) {
         applicantData.maybeDelete(update.path());
       } else {
@@ -1782,8 +1763,7 @@ public final class ApplicantService {
                 areaUpdate.path().parentPath().join(Scalar.SERVICE_AREAS.name()).asArrayElement(),
                 areaUpdate.value()));
 
-    // Write metadata for all questions in the block, regardless of whether they
-    // were blank or not.
+    // Write metadata for all questions in the block, regardless of whether they were blank or not.
     block.getQuestions().stream()
         .map(ApplicantQuestion::getContextualizedPath)
         .forEach(path -> writeMetadataForPath(path, applicantData, updateMetadata));
@@ -2130,8 +2110,7 @@ public final class ApplicantService {
               || !(monthValue == null || monthValue.isEmpty())
               || !(dayValue == null || dayValue.isEmpty());
 
-      // If the value in the single input is not present or empty, and there is at
-      // least
+      // If the value in the single input is not present or empty, and there is at least
       // one memorable date value, convert to a date.
       if ((singleDateValue == null || singleDateValue.isEmpty()) && hasMemorableDateValue) {
         // Note: If a memorable date input value is not present, replace it with a
