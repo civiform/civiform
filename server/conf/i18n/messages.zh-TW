@@ -1175,7 +1175,7 @@ text.repeatedSet.questionDescription=Add a repeated set that will ask residents 
 # Heading above the repeated set question in the program block editor
 heading.repeatedSet.question=Repeated set question
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
-description.repeatedSet.listedEntity=Specify the type of individuals or objects an applicant will need to list out. Please add these in the singular form, e.g. "household member" or "income source."
+description.repeatedSet.listedEntity=
 # Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
 description.repeatedSet.adminId=We will auto-generate an ID from the listed entity defined above. Please customize as needed.
 # An informative description above the question text input field to help admins understand what to enter in that field.
