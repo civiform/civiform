@@ -17,6 +17,7 @@ import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
 import repository.AccountRepository;
+import repository.DatabaseExecutionContext;
 import repository.ResetPostgres;
 import support.CfTestHelpers;
 
@@ -57,7 +58,8 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
                         FIRST_NAME_ATTRIBUTE_NAME,
                         MIDDLE_NAME_ATTRIBUTE_NAME,
                         LAST_NAME_ATTRIBUTE_NAME))
-                .build());
+                .build(),
+            instanceOf(DatabaseExecutionContext.class));
   }
 
   // Test for https://github.com/civiform/civiform/issues/8344
@@ -75,7 +77,8 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
                 .setEmail(EMAIL_ATTRIBUTE_NAME)
                 .setLocale(Optional.of(LOCALE_ATTRIBUTE_NAME))
                 .setNames(ImmutableList.of(NAME_ATTRIBUTE))
-                .build());
+                .build(),
+            instanceOf(DatabaseExecutionContext.class));
 
     OidcProfile profile = new OidcProfile();
     profile.addAttribute(EMAIL_ATTRIBUTE_NAME, "foo@bar.com");

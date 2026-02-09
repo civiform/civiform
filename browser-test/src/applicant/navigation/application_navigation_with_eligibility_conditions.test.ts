@@ -3,6 +3,7 @@ import {
   AdminQuestions,
   loginAsAdmin,
   logout,
+  disableFeatureFlag,
   validateAccessibility,
   validateScreenshot,
 } from '../../support'
@@ -18,6 +19,7 @@ test.describe('Applicant navigation flow', () => {
     test.beforeEach(
       async ({page, adminQuestions, adminPredicates, adminPrograms}) => {
         await loginAsAdmin(page)
+        await disableFeatureFlag(page, 'expanded_form_logic_enabled')
 
         await adminQuestions.addNumberQuestion({
           questionName: eligibilityQuestionId,
