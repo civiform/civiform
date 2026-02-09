@@ -1179,9 +1179,9 @@ description.repeatedSet.listedEntity=
 # Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
 description.repeatedSet.adminId=
 # An informative description above the question text input field to help admins understand what to enter in that field.
-description.repeatedSet.questionText=Add text that will prompt applicants to list out the entity defined above.
+description.repeatedSet.questionText=
 # An informative description above the hint text input field to help admins understand what to enter in that field.
-description.repeatedSet.hintText=Add a hint that will help applicants decide what entities to list out.
+description.repeatedSet.hintText=
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #
