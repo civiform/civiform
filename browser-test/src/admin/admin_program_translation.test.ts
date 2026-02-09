@@ -551,18 +551,17 @@ test.describe('Admin can manage program translations', () => {
    })
 
 
-   await test.step('Clear eligibility message', async () => {
-     await selectApplicantLanguage(page, 'en-US')
-     await logout(page)
-     await loginAsAdmin(page)
-     await adminPrograms.editProgram(programName)
-     await adminPrograms.goToEditBlockEligibilityPredicatePage(
-       programName,
-       screenName,
-     )
-     await adminPredicates.updateEligibilityMessage('')
-     await validateToastMessage(page, 'Eligibility message removed.')
-
+    await test.step('Clear eligibility message', async () => {
+      await selectApplicantLanguage(page, 'en-US')
+      await logout(page)
+      await loginAsAdmin(page)
+      await adminPrograms.editProgram(programName)
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        screenName,
+      )
+      await adminPredicates.updateEligibilityMessage('')
+      await validateToastMessage(page, 'Eligibility message removed.')
 
      await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
      await adminTranslations.selectLanguage('Spanish')
