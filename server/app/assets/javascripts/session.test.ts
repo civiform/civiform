@@ -501,7 +501,7 @@ describe('SessionTimeoutHandler', () => {
         ) as HTMLButtonElement
         loginButton?.click()
 
-        expect(window.location.href).toBe('/applicantLogin')
+        expect(window.location.href).toBe('/logBackIn')
       })
 
       it('handles inactivity cancel button click', () => {

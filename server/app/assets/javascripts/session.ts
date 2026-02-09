@@ -373,6 +373,6 @@ export class SessionTimeoutHandler {
    * Initiates login.
    */
   private static login() {
-    window.location.href = '/applicantLogin'
+    window.location.href = '/logBackIn'
   }
 }
