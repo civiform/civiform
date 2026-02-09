@@ -147,6 +147,7 @@ public enum MessageKey {
   HEADER_SEARCH("header.search"),
   HEADING_INFORMATION_ARIA_LABEL_PREFIX("heading.informationAriaLabelPrefix"), // North Star only
   HEADING_REPEATED_SET_CREATION_METHOD("heading.repeatedSet.creationMethod"),
+  HEADING_REPEATED_SET_QUESTION("heading.repeatedSet.question"),
   HEADING_REVIEW_AND_SUBMIT("heading.reviewAndSubmit"), // North Star only
   HEADING_SUCCESS_ARIA_LABEL_PREFIX("heading.successAriaLabelPrefix"), // North Star only
   ID_VALIDATION_NUMBER_REQUIRED("validation.numberRequired"),
@@ -224,6 +225,7 @@ public enum MessageKey {
   TAG_MAY_QUALIFY_TI("tag.mayQualifyTi"),
   TEXT_NESTED_REPEATED_SET("text.nestedRepeatedSet"),
   TEXT_REPEATED_SET("text.repeatedSet"),
+  TEXT_REPEATED_SET_QUESTION_DESCRIPTION("text.repeatedSet.questionDescription"),
   TEXT_REPEATED_SET_PREFIX("text.repeatedSet.prefix"),
   TEXT_REPEATED_SET_NESTED_PREFIX("text.repeatedSet.nestedPrefix"),
   TEXT_VALIDATION_TOO_LONG("validation.textTooLong"),

@@ -10,6 +10,7 @@ import {
   waitForPageJsLoad,
 } from './support'
 import {Locator, Page} from '@playwright/test'
+import {waitForHtmxReady} from './support/wait'
 
 test.describe('End to end enumerator test', () => {
   const programName = 'Ete enumerator program'
@@ -784,15 +785,35 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await blockPanel
           .getByRole('button', {name: 'Create repeated set'})
           .click()
-        await waitForPageJsLoad(page)
+        await waitForHtmxReady(page)
+      })
+
+      const enumeratorQuestionCard = blockPanel
+        .getByTestId('question-div')
+        .getByText('List the names of your pets.')
+
+      await test.step('Validate that focus is sent to the repeated set question section heading', async () => {
+        await expect(
+          blockPanel.getByText('Repeated set question'),
+        ).toBeFocused()
       })
 
       await test.step('Validate that the new question card is now visible on the enumerator block', async () => {
-        await expect(
-          blockPanel
-            .getByTestId('question-div')
-            .getByText('List the names of your pets.'),
-        ).toBeVisible()
+        await expect(enumeratorQuestionCard).toBeVisible()
+      })
+
+      await test.step('Navigate to another block, return and make sure the enumerator question is still visible', async () => {
+        await page
+          .getByRole('link', {
+            name: '[parent label] - Screen 3 (repeated from 2)',
+          })
+          .click()
+        await page.getByRole('link', {name: 'Screen 2'}).click()
+        const currentBlockTitle = blockPanel.getByText('Screen 2', {
+          exact: true,
+        })
+        await expect(currentBlockTitle).toBeVisible()
+        await expect(enumeratorQuestionCard).toBeVisible()
       })
 
       await test.step('Check that the new question is now on the question list page', async () => {
