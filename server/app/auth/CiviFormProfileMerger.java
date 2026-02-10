@@ -71,17 +71,21 @@ public final class CiviFormProfileMerger {
 
     boolean useApplicantModel = optionalApplicantInDatabase.isPresent();
     // If there's no applicant, retain whatever guest data there is, if any.
+    // This represents the user logging in for the first time.
     if (!useApplicantModel) {
       return optionalGuestProfile;
     }
 
     // If there is an applicant, only retain guest information if it has
     // applications. We won't retain question answers, etc if there are none.
+    // This represents a guest logging in to an existing civiform user, and
+    // we only want to retain their data if they took an affirmative action
+    // as the guest to submit data.
     boolean useGuestProfile =
         optionalGuestProfile.isPresent()
             && !optionalGuestProfile.get().getApplicant().join().getApplications().isEmpty();
-    final CiviFormProfile profile;
 
+    final CiviFormProfile profile;
     if (!useGuestProfile) {
       // Easy merge case - we have an existing applicant, but no guest profile (or a guest profile
       // with no applications). This will be the most common.
