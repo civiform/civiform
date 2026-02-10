@@ -41,7 +41,7 @@ public final class DevToolsPageView extends AdminLayoutBaseView<DevToolsPageView
   }
 
   @Override
-  protected String pageTitle() {
+  protected String pageTitle(DevToolsPageViewModel model) {
     return "Dev Tools";
   }
 
