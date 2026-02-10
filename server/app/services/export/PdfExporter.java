@@ -105,7 +105,11 @@ public final class PdfExporter {
             .toCompletableFuture()
             .join();
 
-    ImmutableList<AnswerData> answersOnlyActive = roApplicantService.getSummaryDataOnlyActive();
+    ImmutableList<AnswerData> answersOnlyActive =
+        isAdmin
+            ? roApplicantService.getSummaryDataOnlyActiveForAdmin()
+            : roApplicantService.getSummaryDataOnlyActive();
+
     ImmutableList<AnswerData> answersOnlyHidden = ImmutableList.<AnswerData>of();
     if (isAdmin) {
       answersOnlyHidden = roApplicantService.getSummaryDataOnlyHidden();
