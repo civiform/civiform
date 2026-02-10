@@ -839,10 +839,9 @@ public final class ApplicantService {
                 programId,
                 applicationId,
                 /* search= */ Optional.empty(),
-                /* page= */ Optional.empty(),
                 /* fromDate= */ Optional.empty(),
-                /* untilDate= */ Optional.empty(),
-                /* applicationStatus= */ Optional.empty())
+                /* toDate= */ Optional.empty(),
+                /* selectedApplicationStatus= */ Optional.empty())
             .url();
 
     String viewLink =
