@@ -50,25 +50,44 @@
   <!--/* Body sets HTMX header so the CSRF token is always there */-->
   <body th:hx-headers='|{"CSRF-TOKEN":"${templateGlobals.csrfToken()}"}|'>
     <th:block
-      th:if="${featureFlag.isExtendedAdminUi()}"
+      th:if="${featureFlag.isAdminUiMigrationScExtendedEnabled()}"
       th:insert="~{admin/shared/Banner}"
     ></th:block>
     <th:block
-      th:unless="${featureFlag.isExtendedAdminUi()}"
+      th:unless="${featureFlag.isAdminUiMigrationScExtendedEnabled()}"
       th:insert="~{admin/shared/TransitionalAdminCommonHeader}"
     ></th:block>
 
     <div
       class="bg-white maxw-full margin-x-auto desktop-lg:maxw-desktop-lg"
-      th:classappend="${featureFlag.isExtendedAdminUi()} ? '' : 'padding-top-8 padding-bottom-4'"
+      th:classappend="${featureFlag.isAdminUiMigrationScExtendedEnabled()} ? '' : 'padding-top-8 padding-bottom-4'"
     >
       <!--/* Header navigation */-->
       <th:block
-        th:if="${featureFlag.isExtendedAdminUi()}"
+        th:if="${featureFlag.isAdminUiMigrationScExtendedEnabled()}"
         th:insert="~{admin/shared/AdminCommonHeader}"
       ></th:block>
+
       <!--/* Main */-->
       <div class="grid-container bg-white" data-testid="page-content">
+        <!--/* Heading */-->
+        <section aria-labelledby="sitePageHeading">
+          <h1
+            id="sitePageHeading"
+            th:text="${templateGlobals.pageHeading()}"
+          ></h1>
+          <p
+            th:if="${templateGlobals.pageIntro().isPresent()}"
+            th:text="${templateGlobals.pageIntro().get()}"
+          ></p>
+          <div>
+            <th:block
+              th:insert="~{${layoutParams.pageTemplate()} :: callToAction} ?: ~{}"
+            ></th:block>
+          </div>
+        </section>
+
+        <!--/* Content */-->
         <div
           class="grid-row"
           th:classappend="${layoutParams.layoutType().name() == 'CONTENT_WITH_LEFT_SIDEBAR'} ? 'desktop:flex-row-reverse' : ''"
@@ -78,8 +97,6 @@
             class="grid-col"
             th:classappend="${layoutParams.layoutType().name() != 'CONTENT_ONLY'} ? 'desktop:grid-col-8' : ''"
           >
-            <h1 th:text="${templateGlobals.pageTitle()}"></h1>
-
             <th:block
               th:insert="~{${layoutParams.pageTemplate()} :: content}"
             ></th:block>
@@ -100,7 +117,7 @@
 
       <!--/* Footer */-->
       <th:block
-        th:if="${featureFlag.isExtendedAdminUi()}"
+        th:if="${featureFlag.isAdminUiMigrationScExtendedEnabled()}"
         th:insert="~{admin/shared/Footer}"
       ></th:block>
 

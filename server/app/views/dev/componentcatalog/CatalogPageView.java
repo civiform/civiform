@@ -19,7 +19,7 @@ public class CatalogPageView extends DevLayoutBaseView<CatalogPageViewModel> {
   }
 
   @Override
-  protected String pageTitle() {
+  protected String pageTitle(CatalogPageViewModel model) {
     return "Component Catalog";
   }
 

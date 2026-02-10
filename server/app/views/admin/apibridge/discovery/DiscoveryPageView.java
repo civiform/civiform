@@ -28,7 +28,7 @@ public class DiscoveryPageView extends TransitionalLayoutBaseView<DiscoveryPageV
   }
 
   @Override
-  protected String pageTitle() {
+  protected String pageTitle(DiscoveryPageViewModel model) {
     return "API Bridge Discovery";
   }
 
