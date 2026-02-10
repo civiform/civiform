@@ -82,7 +82,7 @@ public final class CiviFormProfileMerger {
     } else if (useGuestProfile && !useApplicantModel) {
       profile = optionalGuestProfile.get();
     } else {
-      // Merge the two applicants and prefer the newer one.
+      // Merge the two applicants.
       profile =
           mergeApplicantAndGuestProfile(
               optionalApplicantInDatabase.get(), optionalGuestProfile.get());
