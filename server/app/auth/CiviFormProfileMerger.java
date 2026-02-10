@@ -51,7 +51,8 @@ public final class CiviFormProfileMerger {
                     () -> {
                       // Merge the applicant with the guest profile.
                       Optional<CiviFormProfile> applicantProfile =
-                          mergeApplicantAndGuestProfile(optionalApplicantInDatabase, optionalGuestProfile);
+                          mergeApplicantAndGuestProfile(
+                              optionalApplicantInDatabase, optionalGuestProfile);
 
                       // Merge authProviderProfile into the partially merged profile to finish.
                       // Merge function will create a new CiviFormProfile if it doesn't exist,
@@ -85,22 +86,15 @@ public final class CiviFormProfileMerger {
         optionalGuestProfile.isPresent()
             && !optionalGuestProfile.get().getApplicant().join().getApplications().isEmpty();
 
-    final CiviFormProfile profile;
     if (!useGuestProfile) {
       // Easy merge case - we have an existing applicant, but no guest profile (or a guest profile
       // with no applications). This will be the most common.
-      profile = profileFactory.wrap(optionalApplicantInDatabase.get());
-    } else {
-      // Merge the two applicants.
-      profile =
-          mergeApplicantAndGuestProfile(
-              optionalApplicantInDatabase.get(), optionalGuestProfile.get());
+      return Optional.of(profileFactory.wrap(optionalApplicantInDatabase.get()));
     }
-    // Ideally, the applicant id would already be populated in `profile`.
-    // However, there could be profiles in user sessions that were created
-    // before we started populating this info.
-    profile.storeApplicantIdInProfile(optionalApplicantInDatabase.get().id);
-    return Optional.of(profile);
+    // Merge the two applicants.
+    return Optional.of(
+        mergeApplicantAndGuestProfile(
+            optionalApplicantInDatabase.get(), optionalGuestProfile.get()));
   }
 
   private CiviFormProfile mergeApplicantAndGuestProfile(
