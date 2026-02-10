@@ -1077,6 +1077,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("MAP_QUESTION_ENABLED", request);
   }
 
+  /**
+   * Enables new visibility/eligibility condition editing UI and expanded logic capabilities for
+   * admin. Once enabled, please do not disable this flag as it may cause loss of
+   * visibility/eligibility conditions that use the new capabilities.
+   */
+  public boolean getExpandedFormLogicEnabled(RequestHeader request) {
+    return getBool("EXPANDED_FORM_LOGIC_ENABLED", request);
+  }
+
   /** Enables being able to add a new yes/no question. */
   public boolean getYesNoQuestionEnabled() {
     return getBool("YES_NO_QUESTION_ENABLED");
@@ -1110,14 +1119,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** (NOT FOR PRODUCTION USE) Enables changes to support API Bridge */
   public boolean getApiBridgeEnabled(RequestHeader request) {
     return getBool("API_BRIDGE_ENABLED", request);
-  }
-
-  /**
-   * (NOT FOR PRODUCTION USE) Enables new visibility/eligibility condition editing UI and expanded
-   * logic capabilities for admin.
-   */
-  public boolean getExpandedFormLogicEnabled(RequestHeader request) {
-    return getBool("EXPANDED_FORM_LOGIC_ENABLED", request);
   }
 
   /**
@@ -2348,6 +2349,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
+                          "EXPANDED_FORM_LOGIC_ENABLED",
+                          "Enables new visibility/eligibility condition editing UI and expanded"
+                              + " logic capabilities for admin. Once enabled, please do not disable"
+                              + " this flag as it may cause loss of visibility/eligibility"
+                              + " conditions that use the new capabilities.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
                           "YES_NO_QUESTION_ENABLED",
                           "Enables being able to add a new yes/no question.",
                           /* isRequired= */ false,
@@ -2398,13 +2408,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingDescription.create(
                           "API_BRIDGE_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables changes to support API Bridge",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "EXPANDED_FORM_LOGIC_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enables new visibility/eligibility condition"
-                              + " editing UI and expanded logic capabilities for admin.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),

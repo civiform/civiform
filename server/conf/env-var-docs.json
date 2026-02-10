@@ -935,6 +935,12 @@
         "type": "bool",
         "required": false
       },
+      "EXPANDED_FORM_LOGIC_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enables new visibility/eligibility condition editing UI and expanded logic capabilities for admin. Once enabled, please do not disable this flag as it may cause loss of visibility/eligibility conditions that use the new capabilities.",
+        "type": "bool",
+        "required": false
+      },
       "YES_NO_QUESTION_ENABLED": {
         "mode": "ADMIN_READABLE",
         "description": "Enables being able to add a new yes/no question.",
@@ -979,12 +985,6 @@
       "API_BRIDGE_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Enables changes to support API Bridge",
-        "type": "bool",
-        "required": false
-      },
-      "EXPANDED_FORM_LOGIC_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enables new visibility/eligibility condition editing UI and expanded logic capabilities for admin.",
         "type": "bool",
         "required": false
       },
