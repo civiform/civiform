@@ -3,6 +3,7 @@ import {
   AdminPredicates,
   AdminPrograms,
   ApplicantQuestions,
+  disableFeatureFlag,
   enableFeatureFlag,
   isLocalDevEnvironment,
   loginAsAdmin,
@@ -33,6 +34,7 @@ test.describe('hidden questions end to end', () => {
 
       await enableFeatureFlag(page, 'API_BRIDGE_ENABLED')
       await enableFeatureFlag(page, 'ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS')
+      await disableFeatureFlag(page, 'EXPANDED_FORM_LOGIC_ENABLED')
 
       await seeding.seedQuestions()
 
