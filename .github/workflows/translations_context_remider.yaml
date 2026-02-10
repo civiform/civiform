@@ -21,7 +21,9 @@ jobs:
           script: |
             // GitHub username -> Slack user ID mapping
             const slackUserMap = {
-              'tallulahkay': 'U08ELT9CAB0'
+              'tallulahkay': 'U08ELT9CAB0',
+              'fernandez-jack': 'U09HKV8L57V',
+              'melanie-exygy': 'U057V0H2K0W'
             };
 
             const files = await github.rest.pulls.listFiles({
