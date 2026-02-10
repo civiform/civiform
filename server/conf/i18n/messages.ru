@@ -1113,24 +1113,27 @@ ariaLabel.categories=Категории
 
 # Title of the warning modal that appears when the user has been inactive for a while
 session.inactivity.warning.title=Вы слишком долго были неактивны
-
+# Title of the session timeout warning modals
+session.warning.title=Session ending soon
+# Text on a button on a session ending soon modal that gives users the options to save and log in
+session.login.button.loggedIn=Log in
+session.login.button.guest=Log in or create an account
 # Message shown in a modal asking the user if they want to extend their session due to inactivity
 session.inactivity.warning.message=Сеанс скоро закончится. Хотите его продлить?
-
 # Title of a modal dialog displayed when a user's session is about to expire due to session length limit
 session.length.warning.title=Слишком долгий сеанс
-
 # Message shown in a modal warning the user their session will end soon due to session length limit
 session.length.warning.message=Сеанс скоро закончится. Сохраните изменения и, если нужно, заново войдите в аккаунт.
-
 # Text on a button that allows users to extend their session when shown timeout warnings
 session.extend.button=Продлить сеанс
-
 # Success message shown when the user's session is successfully extended after clicking the extend button
 session.extended.success=Сеанс продлен.
-
 # Error message shown when there was a problem extending the user's session
 session.extended.error=Не удалось продлить сеанс.
+# Message shown to guest users warning that their session is about to expire due to session length
+session.length.warning.message.guest=Your session is about to expire. Please save your work and log in or create an account to continue. You will not lose your progress in the application.
+# Message shown to logged-in users warning that their session is about to expire due to session length
+session.length.warning.message.loggedIn=Your session is about to expire. Please save your work and log back in to continue. You will not lose your progress in the application.
 
 #------------------------------------------------------------------------------#
 #  ADMIN PROGRAM BLOCK EDIT                                                    #
