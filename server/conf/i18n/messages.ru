@@ -1160,7 +1160,7 @@ input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
 input.repeatedSet.maxEntities=
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
-alert.repeatedSet.newQuestion=
+alert.repeatedSet.newQuestion=Creating a repeated set will add a new question to the question bank.
 # Submission button for creating a new repeated set
 button.repeatedSet.submitNew=
 # Button for admins to add a new repeated set
@@ -1174,9 +1174,9 @@ text.repeatedSet.prefix=заголовок родительского элеме
 # An uneditable prefix for the enumerator screen name representing the nested repeated object that will be enumerated
 text.repeatedSet.nestedPrefix=заголовок дочернего элемента
 # Instructions for admins on how to add or change the repeated set question in a program block
-text.repeatedSet.questionDescription=Add a repeated set that will ask residents to add objects or individuals to a list. If a repeated set has already been added and you would like to select a different one, delete the question below.
+text.repeatedSet.questionDescription=
 # Heading above the repeated set question in the program block editor
-heading.repeatedSet.question=Repeated set question
+heading.repeatedSet.question=
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
 description.repeatedSet.listedEntity=
 # Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
@@ -1251,23 +1251,23 @@ devtools.seed.programs=
 # Button text to seed sample questions.
 devtools.seed.questions=
 # Button text to clear the entire database (irreversible action).
-devtools.seed.clear=Clear entire database (irreversible!)
+devtools.seed.clear=
 
 # Heading for the caching section of the dev tools page.
 devtools.cache.title=
 # Description for the caching section of the dev tools page.
-devtools.cache.description=Manage or clear cache
+devtools.cache.description=
 # Button text to clear the cache.
 devtools.cache.clear=
 
 # Heading for the durable jobs section of the dev tools page.
 devtools.jobs.title=
 # Description for the durable jobs section of the dev tools page.
-devtools.jobs.description=Manually run the selected job
+devtools.jobs.description=
 # Label for the dropdown to select a durable job to run.
 devtools.jobs.select=
 # Button text to run the selected durable job.
-devtools.jobs.run=Run job
+devtools.jobs.run=
 
 # Heading for the icons section of the dev tools page.
 devtools.icons.title=
@@ -1277,27 +1277,27 @@ devtools.icons.description=
 devtools.icons.view=
 
 # Heading for the Localstack section of the dev tools page.
-devtools.localstack.title=Localstack
+devtools.localstack.title=
 # Description for the Localstack section of the dev tools page.
 devtools.localstack.description=
 # Button text to view SES emails in Localstack.
-devtools.localstack.ses=View SES Emails
+devtools.localstack.ses=
 # Button text to view the S3 private bucket in Localstack.
-devtools.localstack.private=S3 Private Bucket
+devtools.localstack.private=
 # Button text to view the S3 public bucket in Localstack.
 devtools.localstack.public=
 
 # Heading for the address tools section of the dev tools page.
-devtools.address.title=Address Tools
+devtools.address.title=
 # Description for the address tools section of the dev tools page.
-devtools.address.description=View address lookup and eligibility results
+devtools.address.description=
 # Button text to go to the address tools page.
 devtools.address.go=
 
 # Heading for the session tools section of the dev tools page.
-devtools.session.title=Session Tools
+devtools.session.title=
 # Description for the session tools section of the dev tools page.
-devtools.session.description=Inspect the current session
+devtools.session.description=
 # Button text to view the current pac4j profile.
 devtools.session.pac4j=
 # Button text to view the current Play session.
