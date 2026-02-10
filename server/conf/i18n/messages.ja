@@ -1272,7 +1272,7 @@ devtools.jobs.run=Run job
 # Heading for the icons section of the dev tools page.
 devtools.icons.title=Icons
 # Description for the icons section of the dev tools page.
-devtools.icons.description=See all the svg icons in CiviForm
+devtools.icons.description=
 # Button text to view all SVG icons.
 devtools.icons.view=
 
