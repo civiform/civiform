@@ -46,6 +46,8 @@ import services.question.QuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
+import services.statuses.StatusDefinitions;
+import services.statuses.StatusService;
 
 /** PdfExporter is meant to generate PDF files. */
 public final class PdfExporter {
@@ -53,6 +55,7 @@ public final class PdfExporter {
   private final Provider<LocalDateTime> nowProvider;
   private final String baseUrl;
   private final DateConverter dateConverter;
+  private final StatusService statusService;
 
   // A set of fonts that approximate various heading and text sizes to easily create visual
   // hierarchy in the PDF.
@@ -79,11 +82,13 @@ public final class PdfExporter {
       ApplicantService applicantService,
       @Now Provider<LocalDateTime> nowProvider,
       Config configuration,
-      DateConverter dateConverter) {
+      DateConverter dateConverter,
+      StatusService statusService) {
     this.applicantService = checkNotNull(applicantService);
     this.nowProvider = checkNotNull(nowProvider);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.dateConverter = checkNotNull(dateConverter);
+    this.statusService = checkNotNull(statusService);
   }
 
   /**
@@ -100,7 +105,11 @@ public final class PdfExporter {
             .toCompletableFuture()
             .join();
 
-    ImmutableList<AnswerData> answersOnlyActive = roApplicantService.getSummaryDataOnlyActive();
+    ImmutableList<AnswerData> answersOnlyActive =
+        isAdmin
+            ? roApplicantService.getSummaryDataOnlyActiveForAdmin()
+            : roApplicantService.getSummaryDataOnlyActive();
+
     ImmutableList<AnswerData> answersOnlyHidden = ImmutableList.<AnswerData>of();
     if (isAdmin) {
       answersOnlyHidden = roApplicantService.getSummaryDataOnlyHidden();
@@ -352,7 +361,27 @@ public final class PdfExporter {
       document.add(
           new Paragraph(
               programDefinition.localizedConfirmationMessage().getDefault(), SMALL_GRAY_FONT));
+      document.add(Chunk.NEWLINE);
+      document.add(new LineSeparator());
+      document.add(new Paragraph("Statuses", PARAGRAPH_FONT));
+      document.add(Chunk.NEWLINE);
+      StatusDefinitions statusDefinitions =
+          statusService.lookupActiveStatusDefinitions(programDefinition.adminName());
 
+      if (!statusDefinitions.getStatuses().isEmpty()) {
+
+        for (StatusDefinitions.Status status : statusDefinitions.getStatuses()) {
+          if (status.computedDefaultStatus()) {
+            document.add(new Paragraph("(Default status)", SMALL_GRAY_FONT));
+          }
+          document.add(new Paragraph(status.localizedStatusText().getDefault(), PARAGRAPH_FONT));
+          if (status.localizedEmailBodyText().isPresent()) {
+            document.add(
+                new Paragraph(status.localizedEmailBodyText().get().getDefault(), SMALL_GRAY_FONT));
+          }
+          document.add(Chunk.NEWLINE);
+        }
+      }
       for (BlockDefinition block : programDefinition.getNonRepeatedBlockDefinitions()) {
         renderProgramBlock(
             document,
@@ -391,7 +420,6 @@ public final class PdfExporter {
       int indentationLevel,
       boolean expandedFormLogicEnabled)
       throws DocumentException {
-    document.add(Chunk.NEWLINE);
     LineSeparator ls = new LineSeparator();
     ls.setAlignment(Element.ALIGN_RIGHT);
     // Approximately indent the line separator by subtracting 5% of its width per level of

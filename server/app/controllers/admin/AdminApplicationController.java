@@ -345,7 +345,7 @@ public final class AdminApplicationController extends CiviFormController {
             .toCompletableFuture()
             .join();
     ImmutableList<Block> blocks = roApplicantService.getAllActiveBlocks();
-    ImmutableList<AnswerData> answers = roApplicantService.getSummaryDataOnlyActive();
+    ImmutableList<AnswerData> answers = roApplicantService.getSummaryDataOnlyActiveForAdmin();
     Optional<String> noteMaybe = programAdminApplicationService.getNote(application);
 
     return ok(

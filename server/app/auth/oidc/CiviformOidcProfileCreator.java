@@ -25,6 +25,7 @@ import org.pac4j.oidc.profile.creator.OidcProfileCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.AccountRepository;
+import repository.DatabaseExecutionContext;
 import services.settings.SettingsManifest;
 
 /**
@@ -42,12 +43,15 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
   protected final SettingsManifest settingsManifest;
 
   public CiviformOidcProfileCreator(
-      OidcConfiguration configuration, OidcClient client, OidcClientProviderParams params) {
+      OidcConfiguration configuration,
+      OidcClient client,
+      OidcClientProviderParams params,
+      DatabaseExecutionContext dbExecutionContext) {
     super(Preconditions.checkNotNull(configuration), Preconditions.checkNotNull(client));
     this.profileFactory = Preconditions.checkNotNull(params.profileFactory());
     this.accountRepositoryProvider = Preconditions.checkNotNull(params.accountRepositoryProvider());
     this.civiFormProfileMerger =
-        new CiviFormProfileMerger(profileFactory, accountRepositoryProvider);
+        new CiviFormProfileMerger(profileFactory, accountRepositoryProvider, dbExecutionContext);
     this.settingsManifest =
         new SettingsManifest(Preconditions.checkNotNull(params.configuration()));
   }

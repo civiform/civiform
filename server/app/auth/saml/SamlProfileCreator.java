@@ -27,6 +27,7 @@ import org.pac4j.saml.profile.SAML2Profile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.AccountRepository;
+import repository.DatabaseExecutionContext;
 
 public class SamlProfileCreator extends AuthenticatorProfileCreator {
 
@@ -46,12 +47,13 @@ public class SamlProfileCreator extends AuthenticatorProfileCreator {
       SAML2Configuration configuration,
       SAML2Client client,
       ProfileFactory profileFactory,
-      Provider<AccountRepository> applicantRepositoryProvider) {
+      Provider<AccountRepository> applicantRepositoryProvider,
+      DatabaseExecutionContext dbExecutionContext) {
     super();
     this.profileFactory = Preconditions.checkNotNull(profileFactory);
     this.applicantRepositoryProvider = Preconditions.checkNotNull(applicantRepositoryProvider);
     this.civiFormProfileMerger =
-        new CiviFormProfileMerger(profileFactory, applicantRepositoryProvider);
+        new CiviFormProfileMerger(profileFactory, applicantRepositoryProvider, dbExecutionContext);
     this.saml2Client = client;
     this.saml2Configuration = configuration;
   }

@@ -777,13 +777,13 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 label(messages.at(MessageKey.OPTION_REPEATED_SET_CHOOSE_EXISTING.getKeyName()))
                     .withClass("usa-radio__label")
                     .attr("for", "choose-existing"))
-            .withClasses("usa-fieldset"));
+            .withClasses("usa-fieldset", "margin-y-2"));
   }
 
   private FormTag renderNewEnumeratorQuestionForm(
       InputTag csrfTag, Messages messages, Long programId, Long blockId) {
     return form(csrfTag)
-        .withClasses("border", "border-gray-300")
+        .withClasses("usa-summary-box", "bg-white", "border-gray-300", "maxw-mobile-lg")
         .withId("new-enumerator-question-form")
         .attr(
             "hx-post",
@@ -792,42 +792,56 @@ public final class ProgramBlocksView extends ProgramBaseView {
         .attr("hx-target", "#enumerator-setup")
         .attr("hx-swap", "outerHTML show:top")
         .with(
-            p(messages.at(MessageKey.LABEL_NEW_REPEATED_SET_FORM.getKeyName())),
+            p(messages.at(MessageKey.LABEL_NEW_REPEATED_SET_FORM.getKeyName()))
+                .withClasses("base-darkest", "text-lg"),
             FieldWithLabel.input()
                 .setId("listed-entity-input")
                 .setFieldName("entityType")
                 .setLabelText(messages.at(MessageKey.INPUT_LISTED_ENTITY.getKeyName()))
+                .setDescription(messages.at(MessageKey.DESCRIPTION_LISTED_ENTITY.getKeyName()))
+                .setRequired(true)
                 .getUSWDSInputTag(),
             FieldWithLabel.input()
                 .setId("enumerator-admin-id-input")
                 .setFieldName("questionName")
                 .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_ADMIN_ID.getKeyName()))
+                .setDescription(
+                    messages.at(MessageKey.DESCRIPTION_REPEATED_SET_ADMIN_ID.getKeyName()))
+                .setRequired(true)
                 .getUSWDSInputTag(),
             FieldWithLabel.textArea()
                 .setId("question-text-input")
                 .setFieldName("questionText")
                 .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_QUESTION_TEXT.getKeyName()))
+                .setDescription(
+                    messages.at(MessageKey.DESCRIPTION_REPEATED_SET_QUESTION_TEXT.getKeyName()))
+                .setRequired(true)
                 .getUSWDSTextareaTag(),
             FieldWithLabel.textArea()
                 .setId("hint-text-input")
                 .setFieldName("questionHelpText")
                 .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_HINT_TEXT.getKeyName()))
+                .setDescription(
+                    messages.at(MessageKey.DESCRIPTION_REPEATED_SET_HINT_TEXT.getKeyName()))
                 .getUSWDSTextareaTag(),
             FieldWithLabel.number()
                 .setId("min-entity-count-input")
                 .setFieldName("minEntities")
                 .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_MIN_ENTITIES.getKeyName()))
-                .getNumberTag(),
+                .getUSWDSNumberTag(),
             FieldWithLabel.number()
                 .setId("max-entity-count-input")
                 .setFieldName("maxEntities")
                 .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_MAX_ENTITIES.getKeyName()))
-                .getNumberTag(),
-            AlertComponent.renderSlimInfoAlert(
-                messages.at(MessageKey.ALERT_REPEATED_SET_NEW_QUESTION.getKeyName())),
-            submitButton(messages.at(MessageKey.BUTTON_REPEATED_SET_SUBMIT_NEW.getKeyName()))
-                .withId("create-repeated-set-button")
-                .withClasses("usa-button", "usa-button--primary"));
+                .getUSWDSNumberTag(),
+            div(
+                    AlertComponent.renderSlimInfoAlert(
+                        messages.at(MessageKey.ALERT_REPEATED_SET_NEW_QUESTION.getKeyName())),
+                    submitButton(
+                            messages.at(MessageKey.BUTTON_REPEATED_SET_SUBMIT_NEW.getKeyName()))
+                        .withId("create-repeated-set-button")
+                        .withClasses("usa-button", "usa-button--primary", "margin-top-105"))
+                .withClasses("border-top", "border-gray-300", "padding-top-3", "margin-top-3"));
   }
 
   private DivTag renderBlockPanelButtons(

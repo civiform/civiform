@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.FlashKey;
 import controllers.dev.seeding.DevDatabaseSeedTask;
+import durablejobs.DurableJobName;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Transaction;
@@ -29,13 +30,17 @@ import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.i18n.MessagesApi;
 import play.mvc.Controller;
+import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import play.mvc.With;
 import repository.TransactionManager;
+import services.DeploymentType;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import services.settings.SettingsService;
+import views.dev.DevToolsPageView;
+import views.dev.DevToolsPageViewModel;
 import views.dev.DevToolsView;
 
 /** Controller for dev tools. */
@@ -48,6 +53,7 @@ public class DevToolsController extends Controller {
   private final Database database;
   private final SettingsService settingsService;
   private final SettingsManifest settingsManifest;
+  private final DeploymentType deploymentType;
   private final AsyncCacheApi questionsByVersionCache;
   private final AsyncCacheApi programsByVersionCache;
   private final AsyncCacheApi programCache;
@@ -59,15 +65,18 @@ public class DevToolsController extends Controller {
   private final Clock clock;
   private final TransactionManager transactionManager = new TransactionManager();
   private final FormFactory formFactory;
+  private final DevToolsPageView devToolsPageView;
   private final MessagesApi messagesApi;
 
   @Inject
   public DevToolsController(
       DevDatabaseSeedTask devDatabaseSeedTask,
       DevToolsView view,
+      DevToolsPageView devToolsPageView,
       SettingsService settingsService,
       SettingsManifest settingsManifest,
       Clock clock,
+      DeploymentType deploymentType,
       FormFactory formFactory,
       MessagesApi messagesApi,
       @NamedCache("version-questions") AsyncCacheApi questionsByVersionCache,
@@ -92,7 +101,9 @@ public class DevToolsController extends Controller {
     this.apikeysCache = checkNotNull(apikeysCache);
     this.reportingCache = checkNotNull(reportingCache);
     this.clock = checkNotNull(clock);
+    this.deploymentType = checkNotNull(deploymentType);
     this.formFactory = checkNotNull(formFactory);
+    this.devToolsPageView = checkNotNull(devToolsPageView);
     this.messagesApi = checkNotNull(messagesApi);
   }
 
@@ -101,6 +112,30 @@ public class DevToolsController extends Controller {
    * database content and another to clear the database.
    */
   public Result index(Request request) {
+    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+      ImmutableList<String> durableJobOptions =
+          ImmutableList.copyOf(DurableJobName.values()).stream()
+              .map(DurableJobName::toString)
+              .collect(ImmutableList.toImmutableList());
+      String csrfToken = play.filters.csrf.CSRF.getToken(request).map(t -> t.value()).orElse("");
+      DevToolsPageViewModel model =
+          DevToolsPageViewModel.builder()
+              .seedProgramsUrl(routes.DevToolsController.seedPrograms().url())
+              .seedQuestionsUrl(routes.DevToolsController.seedQuestions().url())
+              .clearUrl(routes.DevToolsController.clear().url())
+              .clearCacheUrl(routes.DevToolsController.clearCache().url())
+              .runDurableJobUrl(routes.DevToolsController.runDurableJob().url())
+              .iconsUrl(controllers.dev.routes.IconsController.index().url())
+              .homeUrl(controllers.routes.HomeController.index().url())
+              .addressToolsUrl(controllers.dev.routes.AddressCheckerController.index().url())
+              .sessionProfileUrl(controllers.dev.routes.ProfileController.index().url())
+              .sessionDisplayUrl(controllers.dev.routes.SessionDisplayController.index().url())
+              .durableJobOptions(durableJobOptions)
+              .isDev(deploymentType.isDev())
+              .csrfToken(csrfToken)
+              .build();
+      return ok(devToolsPageView.render(request, model)).as(Http.MimeTypes.HTML);
+    }
     return ok(view.render(request, request.flash().get(FlashKey.SUCCESS)));
   }
 
