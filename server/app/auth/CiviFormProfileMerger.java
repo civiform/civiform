@@ -51,7 +51,8 @@ public final class CiviFormProfileMerger {
                     () -> {
                       // Merge the applicant with the guest profile.
                       Optional<CiviFormProfile> applicantProfile =
-                          mergeApplicantAndGuestProfile(optionalApplicantInDatabase, optionalGuestProfile);
+                          mergeApplicantAndGuestProfile(
+                              optionalApplicantInDatabase, optionalGuestProfile);
 
                       // Merge authProviderProfile into the partially merged profile to finish.
                       // Merge function will create a new CiviFormProfile if it doesn't exist,
@@ -90,10 +91,10 @@ public final class CiviFormProfileMerger {
       // with no applications). This will be the most common.
       return Optional.of(profileFactory.wrap(optionalApplicantInDatabase.get()));
     }
-      // Merge the two applicants.
-          return Optional.of(mergeApplicantAndGuestProfile(
-              optionalApplicantInDatabase.get(), optionalGuestProfile.get());
-    }
+    // Merge the two applicants.
+    return Optional.of(
+        mergeApplicantAndGuestProfile(
+            optionalApplicantInDatabase.get(), optionalGuestProfile.get()));
   }
 
   private CiviFormProfile mergeApplicantAndGuestProfile(
