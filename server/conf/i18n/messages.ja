@@ -1274,7 +1274,7 @@ devtools.icons.title=Icons
 # Description for the icons section of the dev tools page.
 devtools.icons.description=See all the svg icons in CiviForm
 # Button text to view all SVG icons.
-devtools.icons.view=View All SVG Icons
+devtools.icons.view=
 
 # Heading for the Localstack section of the dev tools page.
 devtools.localstack.title=Localstack
@@ -1292,7 +1292,7 @@ devtools.address.title=Address Tools
 # Description for the address tools section of the dev tools page.
 devtools.address.description=View address lookup and eligibility results
 # Button text to go to the address tools page.
-devtools.address.go=Go to address tools
+devtools.address.go=
 
 # Heading for the session tools section of the dev tools page.
 devtools.session.title=Session Tools
