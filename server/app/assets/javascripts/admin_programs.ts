@@ -351,7 +351,11 @@ class AdminPrograms {
         return
       }
       if (targetElement.id === 'enumerator-setup') {
-        this.focusOnEnumeratorQuestionSection()
+        if (document.getElementById('new-enumerator-question-form-errors')) {
+          this.focusOnFirstEnumeratorFormField()
+        } else {
+          this.focusOnEnumeratorQuestionSection()
+        }
       }
     })
   }
@@ -362,6 +366,13 @@ class AdminPrograms {
     )
     if (enumeratorSectionHeading) {
       enumeratorSectionHeading.focus()
+    }
+  }
+
+  static focusOnFirstEnumeratorFormField() {
+    const firstInputField = document.getElementById('listed-entity-input')
+    if (firstInputField) {
+      firstInputField.focus()
     }
   }
 }

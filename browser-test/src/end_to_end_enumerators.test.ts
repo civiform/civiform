@@ -762,31 +762,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await waitForPageJsLoad(page)
       })
 
-      await test.step('Fill out the new enumerator question form and submit it', async () => {
-        const listedEntityInput = blockPanel.getByRole('textbox', {
-          name: 'Listed entity',
-        })
-        await expect(listedEntityInput).toHaveAttribute('aria-required', 'true')
-        await listedEntityInput.fill('Pets')
-
-        const questionTextInput = blockPanel.getByRole('textbox', {
-          name: 'Question text',
-        })
-        await expect(questionTextInput).toHaveAttribute('aria-required', 'true')
-        await questionTextInput.fill('List the names of your pets.')
-
-        const adminIdInput = blockPanel.getByRole('textbox', {
-          name: 'Repeated set admin ID',
-        })
-        await expect(adminIdInput).toHaveAttribute('aria-required', 'true')
-        await adminIdInput.fill('pets enumerator')
-
-        await blockPanel.getByRole('textbox', {name: 'Hint text'}).fill('Hint')
-        await blockPanel
-          .getByRole('button', {name: 'Create repeated set'})
-          .click()
-        await waitForHtmxReady(page)
-      })
+      await fillOutEnumeratorQuestionFormCorrectly(page)
 
       const enumeratorQuestionCard = blockPanel
         .getByTestId('question-div')
@@ -824,5 +800,134 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(page.getByText('Admin ID: pets enumerator')).toBeVisible()
       })
     })
+
+    test('error validation prevents user from submitting an invalid enumerator question form', async ({
+      page,
+      adminPrograms,
+    }) => {
+      const blockPanel = page.getByTestId('block-panel-edit')
+
+      await test.step('Go to the program block edit page', async () => {
+        await adminPrograms.gotoEditDraftProgramPage('Enumerator test program')
+      })
+
+      await test.step('Add a new repeated set', async () => {
+        await page.getByRole('button', {name: 'Add screen'}).first().click()
+        await page.getByRole('button', {name: 'Add repeated set'}).click()
+        await waitForPageJsLoad(page)
+      })
+
+      await test.step('Select the repeated set block from the block order panel', async () => {
+        await page.getByRole('link', {name: 'Screen 2'}).click()
+        await waitForPageJsLoad(page)
+      })
+
+      await test.step('Submit the new enumerator question form without filling out all the required fields', async () => {
+        await blockPanel
+          .getByRole('textbox', {name: 'Listed entity'})
+          .fill('Pets')
+
+        await blockPanel
+          .getByRole('button', {name: 'Create repeated set'})
+          .click()
+        await waitForHtmxReady(page)
+      })
+
+      await test.step('Validate that the form is still visible and previous input is retained', async () => {
+        await expect(
+          blockPanel.locator('#new-enumerator-question-form'),
+        ).toBeVisible()
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'Listed entity'}),
+        ).toHaveValue('Pets')
+      })
+
+      await test.step('Validate that an error alert is shown with the correct error messages', async () => {
+        const errorAlert = blockPanel.getByRole('alert').filter({
+          hasText:
+            'Error: Question text cannot be blank. Administrative identifier cannot be blank.',
+        })
+        await expect(errorAlert).toBeVisible()
+      })
+
+      await fillOutEnumeratorQuestionFormCorrectly(page)
+
+      await test.step('Validate that the new question card is now visible on the enumerator block', async () => {
+        const enumeratorQuestionCard = blockPanel
+          .getByTestId('question-div')
+          .getByText('List the names of your pets.')
+        await expect(enumeratorQuestionCard).toBeVisible()
+      })
+
+      await test.step('Add a new repeated set', async () => {
+        await page.getByRole('button', {name: 'Add screen'}).first().click()
+        await page.getByRole('button', {name: 'Add repeated set'}).click()
+        await waitForPageJsLoad(page)
+      })
+
+      await test.step('Select the repeated set block from the block order panel', async () => {
+        await page.getByRole('link', {name: 'Screen 4'}).click()
+        await waitForPageJsLoad(page)
+      })
+
+      await test.step('Submit the new enumerator question form with a duplicate admin ID', async () => {
+        await blockPanel
+          .getByRole('textbox', {
+            name: 'Repeated set admin ID',
+          })
+          .fill('pets enumerator')
+
+        await blockPanel
+          .getByRole('button', {name: 'Create repeated set'})
+          .click()
+        await waitForHtmxReady(page)
+      })
+
+      await test.step('Verify that an error alert is shown with the duplicate admin ID message', async () => {
+        const errorAlert = blockPanel.getByRole('alert').filter({
+          hasText:
+            "Administrative identifier 'pets enumerator' generates " +
+            "JSON path 'pets_enumerator' which would conflict with " +
+            "the existing question with admin ID 'pets enumerator'.",
+        })
+        await expect(errorAlert).toBeVisible()
+      })
+
+      await test.step('Verify that focus is on the first input field of the enumerator form', async () => {
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'Listed entity'}),
+        ).toBeFocused()
+      })
+    })
+
+    async function fillOutEnumeratorQuestionFormCorrectly(page: Page) {
+      const blockPanel = page.getByTestId('block-panel-edit')
+
+      await test.step('Fill out the new enumerator question form and submit it', async () => {
+        const listedEntityInput = blockPanel.getByRole('textbox', {
+          name: 'Listed entity',
+        })
+        await expect(listedEntityInput).toHaveAttribute('aria-required', 'true')
+        await listedEntityInput.fill('Pets')
+
+        const questionTextInput = blockPanel.getByRole('textbox', {
+          name: 'Question text',
+        })
+        await expect(questionTextInput).toHaveAttribute('aria-required', 'true')
+        await questionTextInput.fill('List the names of your pets.')
+
+        const adminIdInput = blockPanel.getByRole('textbox', {
+          name: 'Repeated set admin ID',
+        })
+        await expect(adminIdInput).toHaveAttribute('aria-required', 'true')
+        await adminIdInput.fill('pets enumerator')
+
+        await blockPanel.getByRole('textbox', {name: 'Hint text'}).fill('Hint')
+        await blockPanel
+          .getByRole('button', {name: 'Create repeated set'})
+          .click()
+        await waitForHtmxReady(page)
+      })
+    }
   })
 })
