@@ -1,5 +1,5 @@
 <!--/*@thymesVar id="dataSecurityBannerEnabled" type="boolean"*/-->
-<th:block th:fragment="pageHeader">
+<th:block th:fragment="pageHeader(showDataSecurityBanner)">
   <div class="sticky top-0 z-50" th:if="${showNotProductionBannerEnabled}">
     <div
       th:replace="~{components/AlertFragment :: alert(alertSettings=${notProductionAlertSettings}, headingLevel='H2')}"
@@ -8,6 +8,9 @@
   <div th:unless="${showNotProductionBannerEnabled}">
     <div th:replace="~{this :: officialGovermentWebsiteBanner}"></div>
   </div>
+  <th:block th:if="${dataSecurityBannerEnabled && showDataSecurityBanner}">
+    <div th:replace="~{this :: dataSecurityBanner}"></div>
+  </th:block>
   <div class="usa-overlay"></div>
   <header class="usa-header usa-header--basic" role="banner">
     <div class="usa-nav-container">
@@ -205,24 +208,26 @@
     </div>
   </div>
 </section>
-<div
-  th:fragment="dataSecurityBanner"
-  th:if="${dataSecurityBannerEnabled}"
-  class="usa-alert usa-alert--info"
-  role="region"
-  th:aria-label="#{label.dataSecurityBannerAlert}"
->
-  <div class="usa-alert__body">
-    <h4
-      class="usa-alert__heading"
-      th:text="#{label.dataSecurityBannerAlert.heading}"
-    ></h4>
-    <p
-      class="usa-alert__text"
-      th:with="moreInfoUrl='<a class=\'usa-link\' href=\'' + ${dataSecurityAlertBannerUrl} + '\'>' + #{banner.dataSecurityAlertText.link} + '</a>'"
-      th:utext="#{banner.dataSecurityAlertText(${moreInfoUrl})}"
-    ></p>
-  </div>
+<div th:fragment="dataSecurityBanner" th:if="${dataSecurityBannerEnabled}">
+  <section
+    class="usa-site-alert usa-site-alert--info usa-site-alert--slim cf-alert"
+    role="region"
+    th:aria-label="#{label.dataSecurityBannerAlert}"
+  >
+    <div class="usa-alert">
+      <div class="usa-alert__body">
+        <h4
+          class="usa-alert__heading"
+          th:text="#{label.dataSecurityBannerAlert.heading}"
+        ></h4>
+        <p
+          class="usa-alert__text"
+          th:with="moreInfoUrl='<a class=\'usa-link\' href=\'' + ${dataSecurityAlertBannerUrl} + '\'>' + #{banner.dataSecurityAlertText.link} + '</a>'"
+          th:utext="#{banner.dataSecurityAlertText(${moreInfoUrl})}"
+        ></p>
+      </div>
+    </div>
+  </section>
 </div>
 <div th:fragment="tiAlert" th:if="${isTrustedIntermediary}">
   <section
