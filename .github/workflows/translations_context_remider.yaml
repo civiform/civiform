@@ -51,7 +51,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "${{ steps.check_messages.outputs.mention }}: *Reminder to update context in Transifex for this PR:*\n<${{ github.event.pull_request.html_url }}|${{ github.event.pull_request.title }}>\n\nThe base messages file was modified. Translation context may need to be added to Transifex."
+                    "text": "${{ steps.check_messages.outputs.mention }}: *Reminder to update translations in Transifex for this PR:*\n<${{ github.event.pull_request.html_url }}|${{ github.event.pull_request.title }}>\n\nThe base messages file was modified. Please:\n1. <https://app.transifex.com/civiform/|Add context> for any new or updated strings in Transifex (add the context string under 'String Instructions')\n2. If you don't want strings to be translated yet, mark them as locked by typing \"locked\" in the Tags field\n\nSee the <https://github.com/civiform/civiform/wiki/Internationalization-(i18n)#adding-new-strings|i18n wiki> for full instructions."
                   }
                 }
               ]
