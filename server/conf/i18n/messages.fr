@@ -1113,24 +1113,27 @@ ariaLabel.categories=Catégories
 
 # Title of the warning modal that appears when the user has been inactive for a while
 session.inactivity.warning.title=Avertissement de session inactive
-
+# Title of the session timeout warning modals
+session.warning.title=Session ending soon
+# Text on a button on a session ending soon modal that gives users the options to save and log in
+session.login.button.loggedIn=Log in
+session.login.button.guest=Log in or create an account
 # Message shown in a modal asking the user if they want to extend their session due to inactivity
 session.inactivity.warning.message=Votre session va bientôt expirer pour cause d''inactivité. Souhaitez-vous prolonger votre session ?
-
 # Title of a modal dialog displayed when a user's session is about to expire due to session length limit
 session.length.warning.title=Avertissement de durée de session
-
 # Message shown in a modal warning the user their session will end soon due to session length limit
 session.length.warning.message=Votre session va bientôt expirer à cause de sa durée. Veuillez enregistrer votre travail et vous reconnecter si nécessaire.
-
 # Text on a button that allows users to extend their session when shown timeout warnings
 session.extend.button=Prolonger la session
-
 # Success message shown when the user's session is successfully extended after clicking the extend button
 session.extended.success=Session prolongée
-
 # Error message shown when there was a problem extending the user's session
 session.extended.error=Échec de la prolongation de la session
+# Message shown to guest users warning that their session is about to expire due to session length
+session.length.warning.message.guest=Your session is about to expire. Please save your work and log in or create an account to continue. You will not lose your progress in the application.
+# Message shown to logged-in users warning that their session is about to expire due to session length
+session.length.warning.message.loggedIn=Your session is about to expire. Please save your work and log back in to continue. You will not lose your progress in the application.
 
 #------------------------------------------------------------------------------#
 #  ADMIN PROGRAM BLOCK EDIT                                                    #
