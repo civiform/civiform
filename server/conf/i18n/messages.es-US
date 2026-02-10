@@ -1243,13 +1243,13 @@ reportingProgram.downloadCsv=Descargar CSV
 devtools.homepage=
 
 # Heading for the seed section of the dev tools page.
-devtools.seed.title=Seed
+devtools.seed.title=
 # Description for the seed section of the dev tools page.
 devtools.seed.description=
 # Button text to seed sample programs and categories.
-devtools.seed.programs=Seed sample programs and categories
+devtools.seed.programs=
 # Button text to seed sample questions.
-devtools.seed.questions=Seed sample questions
+devtools.seed.questions=
 # Button text to clear the entire database (irreversible action).
 devtools.seed.clear=Clear entire database (irreversible!)
 
@@ -1261,16 +1261,16 @@ devtools.cache.description=Manage or clear cache
 devtools.cache.clear=
 
 # Heading for the durable jobs section of the dev tools page.
-devtools.jobs.title=Durable Jobs
+devtools.jobs.title=
 # Description for the durable jobs section of the dev tools page.
-devtools.jobs.description=Manually run the selected job
+devtools.jobs.description=
 # Label for the dropdown to select a durable job to run.
-devtools.jobs.select=Choose job to run once
+devtools.jobs.select=
 # Button text to run the selected durable job.
 devtools.jobs.run=Run job
 
 # Heading for the icons section of the dev tools page.
-devtools.icons.title=Icons
+devtools.icons.title=
 # Description for the icons section of the dev tools page.
 devtools.icons.description=
 # Button text to view all SVG icons.
@@ -1285,7 +1285,7 @@ devtools.localstack.ses=View SES Emails
 # Button text to view the S3 private bucket in Localstack.
 devtools.localstack.private=S3 Private Bucket
 # Button text to view the S3 public bucket in Localstack.
-devtools.localstack.public=S3 Public Bucket
+devtools.localstack.public=
 
 # Heading for the address tools section of the dev tools page.
 devtools.address.title=Address Tools
