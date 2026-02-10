@@ -1243,13 +1243,13 @@ reportingProgram.downloadCsv=Скачать CSV
 devtools.homepage=
 
 # Heading for the seed section of the dev tools page.
-devtools.seed.title=Seed
+devtools.seed.title=
 # Description for the seed section of the dev tools page.
 devtools.seed.description=
 # Button text to seed sample programs and categories.
 devtools.seed.programs=
 # Button text to seed sample questions.
-devtools.seed.questions=Seed sample questions
+devtools.seed.questions=
 # Button text to clear the entire database (irreversible action).
 devtools.seed.clear=Clear entire database (irreversible!)
 
@@ -1265,12 +1265,12 @@ devtools.jobs.title=
 # Description for the durable jobs section of the dev tools page.
 devtools.jobs.description=Manually run the selected job
 # Label for the dropdown to select a durable job to run.
-devtools.jobs.select=Choose job to run once
+devtools.jobs.select=
 # Button text to run the selected durable job.
 devtools.jobs.run=Run job
 
 # Heading for the icons section of the dev tools page.
-devtools.icons.title=Icons
+devtools.icons.title=
 # Description for the icons section of the dev tools page.
 devtools.icons.description=
 # Button text to view all SVG icons.
