@@ -1240,25 +1240,25 @@ reportingProgram.downloadCsv=I-download ang CSV
 #  DEV TOOLS - text for the developer tools page                               #
 #------------------------------------------------------------------------------#
 # The text on the button to go to the home page from the dev tools page.
-devtools.homepage=Home page
+devtools.homepage=
 
 # Heading for the seed section of the dev tools page.
 devtools.seed.title=Seed
 # Description for the seed section of the dev tools page.
 devtools.seed.description=
 # Button text to seed sample programs and categories.
-devtools.seed.programs=Seed sample programs and categories
+devtools.seed.programs=
 # Button text to seed sample questions.
 devtools.seed.questions=Seed sample questions
 # Button text to clear the entire database (irreversible action).
 devtools.seed.clear=Clear entire database (irreversible!)
 
 # Heading for the caching section of the dev tools page.
-devtools.cache.title=Caching
+devtools.cache.title=
 # Description for the caching section of the dev tools page.
 devtools.cache.description=Manage or clear cache
 # Button text to clear the cache.
-devtools.cache.clear=Clear cache
+devtools.cache.clear=
 
 # Heading for the durable jobs section of the dev tools page.
 devtools.jobs.title=Durable Jobs
@@ -1279,7 +1279,7 @@ devtools.icons.view=
 # Heading for the Localstack section of the dev tools page.
 devtools.localstack.title=Localstack
 # Description for the Localstack section of the dev tools page.
-devtools.localstack.description=Open S3 or SES endpoints on localstack
+devtools.localstack.description=
 # Button text to view SES emails in Localstack.
 devtools.localstack.ses=View SES Emails
 # Button text to view the S3 private bucket in Localstack.
@@ -1301,4 +1301,4 @@ devtools.session.description=Inspect the current session
 # Button text to view the current pac4j profile.
 devtools.session.pac4j=
 # Button text to view the current Play session.
-devtools.session.play=View current Play session
+devtools.session.play=
