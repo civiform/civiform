@@ -18,7 +18,7 @@ Key features:
 - Address correction and service area validation
 - Bulk data export with admin-defined privacy settings to preserve applicant privacy
 - Trusted intermediary role to enable community based organizations to manage applications on behalf of clients
-- Recursive data model: admins can define repeated and recursive questions for nested data such as asking for each address for each employer of each member of a household
+- Recursive data model: admins can define repeated and recursive questions for nested data such as asking for each address for each employer or each member of a household
 
 ## Contributing
 
