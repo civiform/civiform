@@ -856,7 +856,7 @@ test.describe('applicant program index page', () => {
     await validateScreenshot(page, 'program-index-page-initial-load')
   })
 
-  test.only('shows data security banner on home page when enabled', async ({
+  test('shows data security banner on home page when enabled', async ({
     page,
   }) => {
     await enableFeatureFlag(page, 'data_security_banner_enabled')
