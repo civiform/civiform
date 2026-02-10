@@ -1245,7 +1245,7 @@ devtools.homepage=Home page
 # Heading for the seed section of the dev tools page.
 devtools.seed.title=Seed
 # Description for the seed section of the dev tools page.
-devtools.seed.description=Populate or clear sample data
+devtools.seed.description=
 # Button text to seed sample programs and categories.
 devtools.seed.programs=Seed sample programs and categories
 # Button text to seed sample questions.
@@ -1272,9 +1272,9 @@ devtools.jobs.run=Run job
 # Heading for the icons section of the dev tools page.
 devtools.icons.title=Icons
 # Description for the icons section of the dev tools page.
-devtools.icons.description=See all the svg icons in CiviForm
+devtools.icons.description=
 # Button text to view all SVG icons.
-devtools.icons.view=View All SVG Icons
+devtools.icons.view=
 
 # Heading for the Localstack section of the dev tools page.
 devtools.localstack.title=Localstack
@@ -1292,13 +1292,13 @@ devtools.address.title=Address Tools
 # Description for the address tools section of the dev tools page.
 devtools.address.description=View address lookup and eligibility results
 # Button text to go to the address tools page.
-devtools.address.go=Go to address tools
+devtools.address.go=
 
 # Heading for the session tools section of the dev tools page.
 devtools.session.title=Session Tools
 # Description for the session tools section of the dev tools page.
 devtools.session.description=Inspect the current session
 # Button text to view the current pac4j profile.
-devtools.session.pac4j=View current pac4j profile
+devtools.session.pac4j=
 # Button text to view the current Play session.
 devtools.session.play=View current Play session
