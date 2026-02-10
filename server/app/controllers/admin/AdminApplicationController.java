@@ -312,6 +312,7 @@ public final class AdminApplicationController extends CiviFormController {
       Optional<String> search,
       Optional<String> fromDate,
       Optional<String> toDate,
+      Optional<Integer> page,
       Optional<String> selectedApplicationStatus)
       throws ProgramNotFoundException {
     ProgramDefinition program = programService.getFullProgramDefinition(programId);
@@ -363,6 +364,7 @@ public final class AdminApplicationController extends CiviFormController {
             search,
             fromDate,
             toDate,
+            page,
             selectedApplicationStatus));
   }
 

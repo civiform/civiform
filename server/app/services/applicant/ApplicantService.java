@@ -841,6 +841,7 @@ public final class ApplicantService {
                 /* search= */ Optional.empty(),
                 /* fromDate= */ Optional.empty(),
                 /* toDate= */ Optional.empty(),
+                /* page= */ Optional.empty(),
                 /* selectedApplicationStatus= */ Optional.empty())
             .url();
 

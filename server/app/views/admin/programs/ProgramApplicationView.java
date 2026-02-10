@@ -101,6 +101,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
       Optional<String> search,
       Optional<String> fromDate,
       Optional<String> toDate,
+      Optional<Integer> page,
       Optional<String> selectedApplicationStatus) {
     boolean showDownloadButton =
         !(settingsManifest.getRemoveDownloadForProgramAdminsEnabled(request)
@@ -136,7 +137,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .withClasses("px-20")
             .with(
                 h2("Program: " + programName).withClasses("my-4"),
-                renderBackLink(programId, search, fromDate, toDate, selectedApplicationStatus),
+                renderBackLink(
+                    programId, search, fromDate, toDate, page, selectedApplicationStatus),
                 div()
                     .withClasses(
                         "flex", "flex-wrap", "items-center", "my-4", "gap-2", "justify-between")
@@ -192,12 +194,13 @@ public final class ProgramApplicationView extends BaseHtmlView {
       Optional<String> search,
       Optional<String> fromDate,
       Optional<String> toDate,
+      Optional<Integer> page,
       Optional<String> selectedApplicationStatus) {
     String backUrl =
         routes.AdminApplicationController.index(
                 programId,
                 search,
-                /* page= */ Optional.empty(),
+                page,
                 fromDate,
                 toDate,
                 selectedApplicationStatus,

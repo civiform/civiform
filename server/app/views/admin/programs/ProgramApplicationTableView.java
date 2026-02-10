@@ -145,6 +145,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                         program,
                         request,
                         filterParams,
+                        Optional.of(paginationSpec.getCurrentPage()),
                         message)
                     .condWith(
                         paginatedApplications.getNumPages() > 1,
@@ -383,6 +384,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
       ProgramDefinition program,
       Http.Request request,
       ProgramApplicationTableView.RenderFilterParams filterParams,
+      Optional<Integer> pageNumber,
       Optional<String> message) {
     boolean hasEligibilityEnabled = program.hasEligibilityEnabled();
     SelectTag dropdownTag =
@@ -436,7 +438,8 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                                 hasEligibilityEnabled,
                                 applicantService.getApplicationEligibilityStatus(
                                     application, program),
-                                filterParams))));
+                                filterParams,
+                                pageNumber))));
     if (displayStatus) {
 
       return div(
@@ -487,7 +490,8 @@ public class ProgramApplicationTableView extends BaseHtmlView {
       Optional<StatusDefinitions.Status> defaultStatus,
       boolean hasEligibilityEnabled,
       Optional<Boolean> maybeEligibilityStatus,
-      ProgramApplicationTableView.RenderFilterParams filterParams) {
+      ProgramApplicationTableView.RenderFilterParams filterParams,
+      Optional<Integer> pageNumber) {
     String applicantNameWithApplicationId =
         String.format(
             "%s (%d)",
@@ -521,7 +525,10 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                     .withId("current-application-selection-" + application.id)
                     .withValue(Long.toString(application.id))
                     .withClasses(BaseStyles.CHECKBOX)))
-        .with(td(renderApplicationLink(applicantNameWithApplicationId, application, filterParams)))
+        .with(
+            td(
+                renderApplicationLink(
+                    applicantNameWithApplicationId, application, filterParams, pageNumber)))
         .condWith(hasEligibilityEnabled, td(eligibilityStatus))
         .condWith(displayStatus, td(applicationStatus))
         .with(td(renderSubmitTime(application)).withClass(ReferenceClasses.BT_DATE))
@@ -531,7 +538,8 @@ public class ProgramApplicationTableView extends BaseHtmlView {
   private ATag renderApplicationLink(
       String text,
       ApplicationModel application,
-      ProgramApplicationTableView.RenderFilterParams filterParams) {
+      ProgramApplicationTableView.RenderFilterParams filterParams,
+      Optional<Integer> pageNumber) {
     String viewLink =
         controllers.admin.routes.AdminApplicationController.show(
                 application.getProgram().id,
@@ -539,6 +547,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                 filterParams.search(),
                 filterParams.fromDate(),
                 filterParams.untilDate(),
+                pageNumber,
                 filterParams.selectedApplicationStatus())
             .url();
 
