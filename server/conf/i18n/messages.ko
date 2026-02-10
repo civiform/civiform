@@ -1113,24 +1113,27 @@ ariaLabel.categories=카테고리
 
 # Title of the warning modal that appears when the user has been inactive for a while
 session.inactivity.warning.title=세션 비활성 경고
-
+# Title of the session timeout warning modals
+session.warning.title=Session ending soon
+# Text on a button on a session ending soon modal that gives users the options to save and log in
+session.login.button.loggedIn=Log in
+session.login.button.guest=Log in or create an account
 # Message shown in a modal asking the user if they want to extend their session due to inactivity
 session.inactivity.warning.message=활동이 없어 세션이 곧 만료됩니다. 세션을 연장하시겠습니까?
-
 # Title of a modal dialog displayed when a user's session is about to expire due to session length limit
 session.length.warning.title=세션 길이 경고
-
 # Message shown in a modal warning the user their session will end soon due to session length limit
 session.length.warning.message=길이 제한으로 인해 세션이 곧 만료됩니다. 작업을 저장하고 필요한 경우 다시 로그인하세요.
-
 # Text on a button that allows users to extend their session when shown timeout warnings
 session.extend.button=세션 연장
-
 # Success message shown when the user's session is successfully extended after clicking the extend button
 session.extended.success=세션이 연장되었습니다
-
 # Error message shown when there was a problem extending the user's session
 session.extended.error=세션을 연장할 수 없습니다
+# Message shown to guest users warning that their session is about to expire due to session length
+session.length.warning.message.guest=Your session is about to expire. Please save your work and log in or create an account to continue. You will not lose your progress in the application.
+# Message shown to logged-in users warning that their session is about to expire due to session length
+session.length.warning.message.loggedIn=Your session is about to expire. Please save your work and log back in to continue. You will not lose your progress in the application.
 
 #------------------------------------------------------------------------------#
 #  ADMIN PROGRAM BLOCK EDIT                                                    #
