@@ -855,6 +855,20 @@ test.describe('applicant program index page', () => {
 
     await validateScreenshot(page, 'program-index-page-initial-load')
   })
+
+  test.only('shows data security banner on home page when enabled', async ({
+    page,
+  }) => {
+    await enableFeatureFlag(page, 'data_security_banner_enabled')
+
+    await page.goto('/')
+    await waitForPageJsLoad(page)
+
+    await validateScreenshot(
+      page.getByRole('region', {name: 'Data security informational alert'}),
+      'data-security-banner',
+    )
+  })
 })
 
 test.describe('applicant program index page with images', () => {

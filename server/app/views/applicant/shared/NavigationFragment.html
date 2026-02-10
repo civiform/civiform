@@ -9,10 +9,6 @@
     <div th:replace="~{this :: officialGovermentWebsiteBanner}"></div>
   </div>
   <div class="usa-overlay"></div>
-  <div
-    th:replace="~{this :: dataSecurityBanner}"
-    th:if="${dataSecurityBannerEnabled}"
-  ></div>
   <header class="usa-header usa-header--basic" role="banner">
     <div class="usa-nav-container">
       <div class="usa-navbar width-full">
@@ -209,27 +205,25 @@
     </div>
   </div>
 </section>
-<section
-  class="usa-site-alert usa-site-alert--emergency"
+<div
   th:fragment="dataSecurityBanner"
   th:if="${dataSecurityBannerEnabled}"
+  class="usa-alert usa-alert--emergency"
   role="region"
   th:aria-label="#{label.dataSecurityBannerAlert}"
 >
-  <div class="usa-alert">
-    <div class="usa-alert__body">
-      <h4
-        class="usa-alert__heading"
-        th:text="#{label.dataSecurityBannerAlert.heading}"
-      ></h4>
-      <p
-        class="usa-alert__text"
-        th:with="moreInfoUrl='<a class=\'usa-link\' href=\'' + ${dataSecurityAlertBannerUrl} + '\'>' + #{banner.dataSecurityAlertText.link} + '</a>'"
-        th:utext="#{banner.dataSecurityAlertText(${moreInfoUrl})}"
-      ></p>
-    </div>
+  <div class="usa-alert__body">
+    <h4
+      class="usa-alert__heading"
+      th:text="#{label.dataSecurityBannerAlert.heading}"
+    ></h4>
+    <p
+      class="usa-alert__text"
+      th:with="moreInfoUrl='<a class=\'usa-link\' href=\'' + ${dataSecurityAlertBannerUrl} + '\'>' + #{banner.dataSecurityAlertText.link} + '</a>'"
+      th:utext="#{banner.dataSecurityAlertText(${moreInfoUrl})}"
+    ></p>
   </div>
-</section>
+</div>
 <div th:fragment="tiAlert" th:if="${isTrustedIntermediary}">
   <section
     class="usa-site-alert usa-site-alert--info usa-site-alert--slim cf-alert"
