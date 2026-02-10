@@ -49,14 +49,9 @@ public final class CiviFormProfileMerger {
             () -> {
               return transactionManager.execute(
                   () -> {
-                    // Merge the applicant, if it exists, with the guest profile.
+                    // Merge the applicant with the guest profile.
                     Optional<CiviFormProfile> applicantProfile =
-                        applicantInDatabase
-                            .map(
-                                applicantModel ->
-                                    mergeApplicantAndGuestProfile(
-                                        applicantModel, existingGuestProfile))
-                            .or(() -> existingGuestProfile);
+                        mergeApplicantAndGuestProfile(applicantInDatabase, existingGuestProfile);
 
                     // Merge authProviderProfile into the partially merged profile to finish.
                     // Merge function will create a new CiviFormProfile if it doesn't exist,
@@ -68,23 +63,36 @@ public final class CiviFormProfileMerger {
         .join();
   }
 
-  private CiviFormProfile mergeApplicantAndGuestProfile(
-      ApplicantModel applicantInDatabase, Optional<CiviFormProfile> optionalGuestProfile) {
-    final CiviFormProfile guestProfile;
-    if (optionalGuestProfile.isEmpty()
-        || optionalGuestProfile.get().getApplicant().join().getApplications().isEmpty()) {
+  private Optional<CiviFormProfile> mergeApplicantAndGuestProfile(
+      Optional<ApplicantModel> optionalApplicantInDatabase,
+      Optional<CiviFormProfile> optionalGuestProfile) {
+    boolean useApplicantModel = optionalApplicantInDatabase.isPresent();
+    boolean useGuestProfile =
+        optionalGuestProfile.isPresent()
+            && !optionalGuestProfile.get().getApplicant().join().getApplications().isEmpty();
+    if (!useApplicantModel && !useGuestProfile) {
+      return Optional.empty();
+    }
+
+    final CiviFormProfile profile;
+    if (useApplicantModel && !useGuestProfile) {
       // Easy merge case - we have an existing applicant, but no guest profile (or a guest profile
       // with no applications). This will be the most common.
-      guestProfile = profileFactory.wrap(applicantInDatabase);
+      profile = profileFactory.wrap(optionalApplicantInDatabase.get());
+    } else if (useGuestProfile && !useApplicantModel) {
+      profile = optionalGuestProfile.get();
     } else {
       // Merge the two applicants and prefer the newer one.
-      guestProfile = mergeApplicantAndGuestProfile(applicantInDatabase, optionalGuestProfile.get());
+      profile =
+          mergeApplicantAndGuestProfile(
+              optionalApplicantInDatabase.get(), optionalGuestProfile.get());
     }
-    // Ideally, the applicant id would already be populated in `guestProfile`. However, there
-    // could be profiles in user sessions that were created before we started populating this
-    // info.
-    guestProfile.storeApplicantIdInProfile(applicantInDatabase.id);
-    return guestProfile;
+    // Ideally, the applicant id would already be populated in `profile`.
+    // However, there could be profiles in user sessions that were created
+    // before we started populating this info.
+    optionalApplicantInDatabase.ifPresent(
+        applicantModel -> profile.storeApplicantIdInProfile(applicantModel.id));
+    return Optional.of(profile);
   }
 
   private CiviFormProfile mergeApplicantAndGuestProfile(
