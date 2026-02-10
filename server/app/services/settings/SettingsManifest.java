@@ -777,6 +777,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("COMMON_INTAKE_MORE_RESOURCES_LINK_HREF", request);
   }
 
+  /** The HREF for providing more information for the data security alert banner. */
+  public Optional<String> getDataSecurityAlertUrl(RequestHeader request) {
+    return getString("DATA_SECURITY_ALERT_URL", request);
+  }
+
   /**
    * The [secret key](http://www.playframework.com/documentation/latest/ApplicationSecret) is used
    * to sign Play's session cookie. This must be changed for production.
@@ -2094,7 +2099,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           /* isRequired= */ false,
                           SettingType.STRING,
                           SettingMode.ADMIN_WRITEABLE,
-                          Pattern.compile("^(http://|https://).+")))))
+                          Pattern.compile("^(http://|https://).+")),
+                      SettingDescription.create(
+                          "DATA_SECURITY_ALERT_URL",
+                          "The HREF for providing more information for the data security alert"
+                              + " banner.",
+                          /* isRequired= */ false,
+                          SettingType.STRING,
+                          SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Observability",
               SettingsSection.create(

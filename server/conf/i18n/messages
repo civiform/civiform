@@ -1061,10 +1061,14 @@ banner.minute=1 minute
 # DATA SECURITY BANNER - alert explaining data protection to users             #
 #------------------------------------------------------------------------------#
 
+# Header for data security banner alert
+label.dataSecurityBannerAlert.heading=Immigrants and refugees are welcome here
 # Aria-label for data security banner alert
 label.dataSecurityBannerAlert=Data security informational alert
-# Text in the data security banner explaining how user data is protected
-banner.dataSecurityAlertText=Your data is encrypted and protected. Your information is only accessible to authorized program administrators.
+# Text in the data security banner explaining how user data is protected - the placeholder says 'here' and is a link to more information
+banner.dataSecurityAlertText=We will not ask about your citizenship or immigration status. You can learn more {0}.
+# Link for more info about the data security banner
+banner.dataSecurityAlertText.link=here
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #

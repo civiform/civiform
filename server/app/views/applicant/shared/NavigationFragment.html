@@ -210,25 +210,23 @@
   </div>
 </section>
 <section
+  class="usa-site-alert usa-site-alert--emergency"
   th:fragment="dataSecurityBanner"
   th:if="${dataSecurityBannerEnabled}"
   role="region"
   th:aria-label="#{label.dataSecurityBannerAlert}"
 >
-  <div
-    class="usa-site-alert usa-site-alert--emergency usa-site-alert--slim cf-alert"
-  >
-    <div class="usa-alert">
-      <div class="usa-alert__body">
-        <p
-          class="usa-sr-only"
-          th:utext="#{heading.informationAriaLabelPrefix('')}"
-        ></p>
-        <p
-          class="usa-alert__text"
-          th:utext="#{banner.dataSecurityAlertText}"
-        ></p>
-      </div>
+  <div class="usa-alert">
+    <div class="usa-alert__body">
+      <h4
+        class="usa-alert__heading"
+        th:text="#{label.dataSecurityBannerAlert.heading}"
+      ></h4>
+      <p
+        class="usa-alert__text"
+        th:with="moreInfoUrl='<a class=\'usa-link\' href=\'' + ${dataSecurityAlertBannerUrl} + '\'>' + #{banner.dataSecurityAlertText.link} + '</a>'"
+        th:utext="#{banner.dataSecurityAlertText(${moreInfoUrl})}"
+      ></p>
     </div>
   </div>
 </section>

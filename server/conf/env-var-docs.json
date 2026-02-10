@@ -681,6 +681,11 @@
           {"val": "https://my-civiform.org", "should_match": true},
           {"val": "my-civiform.org", "should_match": false}
         ]
+      },
+      "DATA_SECURITY_ALERT_URL": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "The HREF for providing more information for the data security alert banner.",
+        "type": "string"
       }
     }
   },

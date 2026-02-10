@@ -129,6 +129,11 @@ public abstract class ApplicantBaseView {
     context.setVariable("tiDashboardHref", getTiDashboardHref());
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
     context.setVariable("logoutLink", logoutLink);
+    if (settingsManifest.getDataSecurityBannerEnabled(request)) {
+      context.setVariable(
+          "dataSecurityAlertBannerUrl",
+          settingsManifest.getDataSecurityAlertUrl(request).orElse(""));
+    }
 
     // Set branding theme colors.
     context.setVariable("themeColorPrimary", THEME_PRIMARY_HEX);
