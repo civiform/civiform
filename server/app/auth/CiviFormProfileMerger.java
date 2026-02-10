@@ -67,8 +67,8 @@ public final class CiviFormProfileMerger {
       Optional<ApplicantModel> optionalApplicantInDatabase,
       Optional<CiviFormProfile> optionalGuestProfile) {
     boolean useApplicantModel = optionalApplicantInDatabase.isPresent();
-    // Only retain any guest information if it has applications. We won't
-    // retain question answers, etc if there are none.
+    // Only retain guest information if it has applications. We won't retain question answers, etc
+    // if there are none.
     boolean useGuestProfile =
         optionalGuestProfile.isPresent()
             && !optionalGuestProfile.get().getApplicant().join().getApplications().isEmpty();
