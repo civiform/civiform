@@ -19,10 +19,13 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.AccountRepository;
+import services.settings.SettingsManifest;
 import services.ti.NoSuchTrustedIntermediaryError;
 import services.ti.NoSuchTrustedIntermediaryGroupError;
 import services.ti.NotEligibleToBecomeTiError;
 import views.admin.ti.EditTrustedIntermediaryGroupView;
+import views.admin.ti.TrustedIntermediaryGroupListPageView;
+import views.admin.ti.TrustedIntermediaryGroupListPageViewModel;
 import views.admin.ti.TrustedIntermediaryGroupListView;
 
 /** Controller for admins to manage trusted intermediaries of programs. */
@@ -31,17 +34,24 @@ public class TrustedIntermediaryManagementController extends Controller {
   private final AccountRepository accountRepository;
   private final FormFactory formFactory;
   private final EditTrustedIntermediaryGroupView editView;
+  private final SettingsManifest settingsManifest;
+  private final TrustedIntermediaryGroupListPageView trustedIntermediaryGroupListPageView;
 
   @Inject
   public TrustedIntermediaryManagementController(
       TrustedIntermediaryGroupListView listView,
       EditTrustedIntermediaryGroupView editView,
       AccountRepository accountRepository,
-      FormFactory formFactory) {
+      FormFactory formFactory,
+      SettingsManifest settingsManifest,
+      TrustedIntermediaryGroupListPageView trustedIntermediaryGroupListPageView) {
     this.listView = Preconditions.checkNotNull(listView);
     this.accountRepository = Preconditions.checkNotNull(accountRepository);
     this.formFactory = Preconditions.checkNotNull(formFactory);
     this.editView = Preconditions.checkNotNull(editView);
+    this.settingsManifest = Preconditions.checkNotNull(settingsManifest);
+    this.trustedIntermediaryGroupListPageView =
+        Preconditions.checkNotNull(trustedIntermediaryGroupListPageView);
   }
 
   /** Return a HTML page displaying all trusted intermediary groups. */
@@ -49,6 +59,43 @@ public class TrustedIntermediaryManagementController extends Controller {
   public Result index(Http.Request request) {
     LoggerFactory.getLogger(TrustedIntermediaryManagementController.class)
         .info(request.flash().data().toString());
+
+    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+      // Gather flash values for sticky form and messages
+      String providedName = request.flash().get(FlashKey.PROVIDED_NAME).orElse("");
+      String providedDescription = request.flash().get(FlashKey.PROVIDED_DESCRIPTION).orElse("");
+      String errorMessage = request.flash().get(FlashKey.ERROR).orElse("");
+      String successMessage = request.flash().get(FlashKey.SUCCESS).orElse("");
+
+      // Get TI groups
+      ImmutableList<TrustedIntermediaryGroupModel> tiGroups =
+          ImmutableList.copyOf(accountRepository.listTrustedIntermediaryGroups());
+
+      // Sort options (as strings, e.g. "tiname-asc", "tiname-desc", etc.)
+      ImmutableList<String> sortOptions =
+          ImmutableList.of("tiname-asc", "tiname-desc", "nummember-asc", "nummember-desc");
+      // Default sort option
+      String selectedSortOption = "tiname-asc";
+      if (request.queryString().containsKey("sort")) {
+        String[] sortParams = request.queryString().get("sort");
+        if (sortParams != null && sortParams.length > 0) {
+          selectedSortOption = sortParams[0];
+        }
+      }
+
+      TrustedIntermediaryGroupListPageViewModel model =
+          TrustedIntermediaryGroupListPageViewModel.builder()
+              .tiGroups(tiGroups)
+              .providedName(providedName)
+              .providedDescription(providedDescription)
+              .errorMessage(errorMessage)
+              .successMessage(successMessage)
+              .sortOptions(sortOptions)
+              .selectedSortOption(selectedSortOption)
+              .build();
+      return ok(trustedIntermediaryGroupListPageView.render(request, model))
+          .as(Http.MimeTypes.HTML);
+    }
     return ok(listView.render(accountRepository.listTrustedIntermediaryGroups(), request));
   }
 

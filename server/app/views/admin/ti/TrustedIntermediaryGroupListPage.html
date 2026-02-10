@@ -1,0 +1,152 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.ti.TrustedIntermediaryGroupListPageViewModel"*/-->
+<th:block th:fragment="content">
+  <div class="usa-section">
+    <div class="grid-container">
+      <h1>Manage trusted intermediaries</h1>
+
+      <!-- Create new TI group form -->
+      <div class="usa-card margin-bottom-4" style="max-width: 32rem">
+        <div class="usa-card__body">
+          <h2>Create new trusted intermediary</h2>
+          <form action="/admin/tiGroups/new" method="post" class="usa-form">
+            <input
+              type="hidden"
+              name="csrfToken"
+              th:value="${templateGlobals.csrfToken}"
+            />
+            <div class="usa-form-group">
+              <label class="usa-label" for="group-name-input">Name</label>
+              <input
+                class="usa-input"
+                id="group-name-input"
+                name="name"
+                type="text"
+                th:value="${model.providedName}"
+                maxlength="100"
+                required
+              />
+            </div>
+            <div class="usa-form-group">
+              <label class="usa-label" for="group-description-input"
+                >Description</label
+              >
+              <input
+                class="usa-input"
+                id="group-description-input"
+                name="description"
+                type="text"
+                th:value="${model.providedDescription}"
+                maxlength="255"
+                required
+              />
+            </div>
+            <button
+              class="usa-button usa-button--primary margin-top-2"
+              type="submit"
+            >
+              Create
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Existing TI groups header and sort -->
+      <div class="display-flex flex-align-end margin-bottom-2">
+        <h2 class="usa-heading-md flex-auto">
+          Existing trusted intermediaries
+        </h2>
+        <form method="get" class="margin-left-2">
+          <label class="usa-label margin-right-1" for="sort-select"
+            >Sort by:</label
+          >
+          <select
+            class="usa-select"
+            id="sort-select"
+            name="sort"
+            th:value="${model.selectedSortOption}"
+          >
+            <option
+              th:each="opt : ${model.sortOptions}"
+              th:value="${opt}"
+              th:text="${opt}"
+              th:selected="${opt == model.selectedSortOption}"
+            ></option>
+          </select>
+          <button
+            class="usa-button usa-button--outline margin-left-1"
+            type="submit"
+          >
+            Sort
+          </button>
+        </form>
+      </div>
+
+      <!-- TI group list table -->
+      <div class="usa-table-container--scrollable">
+        <table class="usa-table usa-table--borderless width-full">
+          <thead>
+            <tr>
+              <th class="width-one-third">Name / Description</th>
+              <th class="width-one-third">Size</th>
+              <th class="width-one-third text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="group : ${model.tiGroups}">
+              <td>
+                <div
+                  class="font-sans-lg text-bold"
+                  th:text="${group.name}"
+                ></div>
+                <div
+                  class="font-sans-3xs text-base-light"
+                  th:text="${group.description}"
+                ></div>
+              </td>
+              <td>
+                <div class="font-sans-md text-bold">
+                  Members:
+                  <span
+                    th:text="${#lists.size(group.trustedIntermediaries)}"
+                  ></span>
+                </div>
+                <div class="font-sans-sm">
+                  Clients: <span th:text="${group.managedAccountsCount}"></span>
+                </div>
+              </td>
+              <td class="text-right">
+                <div
+                  class="display-flex flex-justify-end flex-align-center gap-2"
+                >
+                  <a
+                    th:attr="href='/admin/tiGroups/' + ${group.id} + '/edit'"
+                    class="usa-button usa-button--outline usa-button--small"
+                    >Edit members</a
+                  >
+                  <form
+                    th:attr="action='/admin/tiGroups/' + ${group.id} + '/delete'"
+                    method="post"
+                    style="display: inline"
+                  >
+                    <input
+                      type="hidden"
+                      name="csrfToken"
+                      th:value="${templateGlobals.csrfToken}"
+                    />
+                    <button
+                      class="usa-button usa-button--outline usa-button--small usa-button--danger"
+                      type="submit"
+                    >
+                      Delete
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</th:block>
