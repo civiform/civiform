@@ -22,7 +22,6 @@ import com.google.common.collect.ListMultimap;
 import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.tags.DomContent;
-import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -177,8 +176,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .getBundle(request)
             .setTitle(programName + " - " + applicantNameWithApplicationId)
             .addMainContent(contentDiv)
-            // The body and main styles are necessary for modals to appear since they use
-            // fixed
+            // The body and main styles are necessary for modals to appear since they use fixed
             // sizing.
             .addBodyStyles("flex")
             .addMainStyles("w-screen")
@@ -189,8 +187,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private ATag renderBackLink(
-      Long programId,
+  private DomContent renderBackLink(
+      long programId,
       Optional<String> search,
       Optional<String> fromDate,
       Optional<String> toDate,
@@ -338,8 +336,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                 StyleUtils.focus(BaseStyles.BORDER_CIVIFORM_BLUE));
 
     // Add the options available to the admin.
-    // When no status is currently applied to the application, add a placeholder
-    // option that is
+    // When no status is currently applied to the application, add a placeholder option that is
     // selected.
     dropdownTag.with(
         option(enUsMessages.at(MessageKey.DROPDOWN_PLACEHOLDER.getKeyName()))
@@ -364,10 +361,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
     ButtonTag triggerButton =
         makeSvgTextButton("Edit note", Icons.EDIT).withClasses(ButtonStyles.CLEAR_WITH_ICON);
     String formId = Modal.randomModalId();
-    // No form action or content is rendered since admin_application_view.ts
-    // extracts the values
-    // and calls postMessage rather than attempting a submission. The main frame is
-    // responsible for
+    // No form action or content is rendered since admin_application_view.ts extracts the values
+    // and calls postMessage rather than attempting a submission. The main frame is responsible for
     // constructing a form to update the note.
     FormTag modalContent = form().withId(formId).withClasses("cf-program-admin-edit-note-form");
     modalContent.with(
@@ -409,10 +404,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
     // update.
     String previousStatusDisplay = application.getLatestStatus().orElse("Unset");
     String previousStatusData = application.getLatestStatus().orElse("");
-    // No form action or content is rendered since admin_application_view.ts
-    // extracts the values
-    // and calls postMessage rather than attempting a submission. The main frame is
-    // responsible for
+    // No form action or content is rendered since admin_application_view.ts extracts the values
+    // and calls postMessage rather than attempting a submission. The main frame is responsible for
     // constructing a form to update the status.
     FormTag modalContent =
         form()
@@ -533,8 +526,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
     ImmutableSet.Builder<String> builder = ImmutableSet.builder();
     optionalAccountEmail.ifPresent(builder::add);
     optionalApplicantEmail.ifPresent(builder::add);
-    // Join the emails with " and " if there are two, otherwise just return the
-    // single email.
+    // Join the emails with " and " if there are two, otherwise just return the single email.
     return String.join(" and ", builder.build());
   }
 
