@@ -34,15 +34,15 @@ public final class CiviFormProfileMerger {
    * Performs a three-way merge between an existing applicant in the database, a guest profile in
    * session storage, and an external profile from an external authentication provider
    *
-   * @param applicantInDatabase a potentially existing applicant in the database
-   * @param existingGuestProfile a guest profile from the browser session
+   * @param optionalApplicantInDatabase a potentially existing applicant in the database
+   * @param optionalGuestProfile a guest profile from the browser session
    * @param authProviderProfile profile data from an external auth provider, such as OIDC
    * @param mergeFunction a function that merges an external profile into a Civiform profile, or
    *     provides one if it doesn't exist
    */
   public <T> Optional<UserProfile> mergeProfiles(
-      Optional<ApplicantModel> applicantInDatabase,
-      Optional<CiviFormProfile> existingGuestProfile,
+      Optional<ApplicantModel> optionalApplicantInDatabase,
+      Optional<CiviFormProfile> optionalGuestProfile,
       T authProviderProfile,
       BiFunction<Optional<CiviFormProfile>, T, UserProfile> mergeFunction) {
     return supplyAsync(
@@ -51,7 +51,7 @@ public final class CiviFormProfileMerger {
                     () -> {
                       // Merge the applicant with the guest profile.
                       Optional<CiviFormProfile> applicantProfile =
-                          mergeApplicantAndGuestProfile(applicantInDatabase, existingGuestProfile);
+                          mergeApplicantAndGuestProfile(optionalApplicantInDatabase, optionalGuestProfile);
 
                       // Merge authProviderProfile into the partially merged profile to finish.
                       // Merge function will create a new CiviFormProfile if it doesn't exist,
