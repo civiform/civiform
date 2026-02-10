@@ -1056,6 +1056,7 @@ banner.hours={0} hours
 banner.hour=1 hour
 banner.minute=1 minute
 
+## TEST CHANGE
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
 # Note for developers: these messages aren't used in static text, but instead they #
