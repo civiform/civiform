@@ -72,18 +72,17 @@ public final class CiviFormProfileMerger {
     boolean useGuestProfile =
         optionalGuestProfile.isPresent()
             && !optionalGuestProfile.get().getApplicant().join().getApplications().isEmpty();
+    final CiviFormProfile profile;
+
     if (!useApplicantModel && !useGuestProfile) {
       return Optional.empty();
-    }
-
-    final CiviFormProfile profile;
-    if (useApplicantModel && !useGuestProfile) {
+    } else if (useApplicantModel && !useGuestProfile) {
       // Easy merge case - we have an existing applicant, but no guest profile (or a guest profile
       // with no applications). This will be the most common.
       profile = profileFactory.wrap(optionalApplicantInDatabase.get());
     } else if (useGuestProfile && !useApplicantModel) {
       profile = optionalGuestProfile.get();
-    } else {
+    } else if (useGuestProfile && useApplicantModel) {
       // Merge the two applicants.
       profile =
           mergeApplicantAndGuestProfile(
