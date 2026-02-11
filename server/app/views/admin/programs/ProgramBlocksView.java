@@ -25,6 +25,8 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import controllers.admin.routes;
 import forms.BlockForm;
+import forms.EnumeratorQuestionForm;
+import forms.QuestionForm;
 import j2html.TagCreator;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
@@ -36,7 +38,9 @@ import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.UlTag;
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.OptionalLong;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +48,8 @@ import play.i18n.Messages;
 import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
+import services.AlertType;
+import services.CiviFormError;
 import services.MessageKey;
 import services.ProgramBlockValidationFactory;
 import services.program.BlockDefinition;
@@ -655,7 +661,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
         return div.with(
             renderEnumeratorScreenContent(
                 blockDefinitionHasEnumeratorQuestion,
-                csrfTag,
+                request,
                 messages,
                 program.id(),
                 blockDefinition.id(),
@@ -718,17 +724,20 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
   private DivTag renderEnumeratorScreenContent(
       boolean blockDefinitionHasEnumeratorQuestion,
-      InputTag csrfTag,
+      Request request,
       Messages messages,
       Long programId,
       Long blockId,
       Optional<DivTag> optionalQuestionCard) {
     // If it's an empty enumerator block
     if (!blockDefinitionHasEnumeratorQuestion || optionalQuestionCard.isEmpty()) {
-      FieldsetTag creationMethodRadio = renderCreationMethodRadioButtons(messages);
-      FormTag newEnumeratorQuestionForm =
-          renderNewEnumeratorQuestionForm(csrfTag, messages, programId, blockId);
-      return div().withId("enumerator-setup").with(creationMethodRadio, newEnumeratorQuestionForm);
+      return renderEnumeratorSetupSection(
+          request,
+          messages,
+          programId,
+          blockId,
+          /* optionalQuestionForm= */ Optional.empty(),
+          /* errorMessages= */ ImmutableSet.of());
     } else {
       return renderEnumeratorQuestionCardSection(messages, optionalQuestionCard);
     }
@@ -746,6 +755,20 @@ public final class ProgramBlocksView extends ProgramBaseView {
             p(messages.at(MessageKey.TEXT_REPEATED_SET_QUESTION_DESCRIPTION.getKeyName()))
                 .withClasses("text-base", "text-sm"),
             questionCard);
+  }
+
+  public DivTag renderEnumeratorSetupSection(
+      Request request,
+      Messages messages,
+      Long programId,
+      Long blockId,
+      Optional<EnumeratorQuestionForm> optionalQuestionForm,
+      ImmutableSet<CiviFormError> errorMessages) {
+    return div(
+            renderCreationMethodRadioButtons(messages),
+            renderNewEnumeratorQuestionForm(
+                request, messages, programId, blockId, optionalQuestionForm, errorMessages))
+        .withId("enumerator-setup");
   }
 
   private FieldsetTag renderCreationMethodRadioButtons(Messages messages) {
@@ -781,7 +804,13 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   private FormTag renderNewEnumeratorQuestionForm(
-      InputTag csrfTag, Messages messages, Long programId, Long blockId) {
+      Request request,
+      Messages messages,
+      Long programId,
+      Long blockId,
+      Optional<EnumeratorQuestionForm> optionalQuestionForm,
+      ImmutableSet<CiviFormError> errorMessages) {
+    InputTag csrfTag = makeCsrfTokenInputTag(request);
     return form(csrfTag)
         .withClasses("usa-summary-box", "bg-white", "border-gray-300", "maxw-mobile-lg")
         .withId("new-enumerator-question-form")
@@ -792,12 +821,25 @@ public final class ProgramBlocksView extends ProgramBaseView {
         .attr("hx-target", "#enumerator-setup")
         .attr("hx-swap", "outerHTML show:top")
         .with(
-            p(messages.at(MessageKey.LABEL_NEW_REPEATED_SET_FORM.getKeyName()))
-                .withClasses("base-darkest", "text-lg"),
+            label(messages.at(MessageKey.LABEL_NEW_REPEATED_SET_FORM.getKeyName()))
+                .withClasses("base-darkest", "text-lg")
+                .withFor("new-enumerator-question-form"),
+            AlertComponent.renderFullAlert(
+                    AlertType.ERROR,
+                    /* text= */ "Error: "
+                        + errorMessages.stream()
+                            .map(CiviFormError::message)
+                            .collect(Collectors.joining(".  "))
+                        + ".",
+                    /* title= */ Optional.empty(),
+                    /* hidden= */ errorMessages.isEmpty())
+                .withId("new-enumerator-question-form-errors"),
             FieldWithLabel.input()
                 .setId("listed-entity-input")
                 .setFieldName("entityType")
                 .setLabelText(messages.at(MessageKey.INPUT_LISTED_ENTITY.getKeyName()))
+                .setValue(
+                    optionalQuestionForm.map(EnumeratorQuestionForm::getEntityType).orElse(""))
                 .setDescription(messages.at(MessageKey.DESCRIPTION_LISTED_ENTITY.getKeyName()))
                 .setRequired(true)
                 .getUSWDSInputTag(),
@@ -805,6 +847,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .setId("enumerator-admin-id-input")
                 .setFieldName("questionName")
                 .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_ADMIN_ID.getKeyName()))
+                .setValue(optionalQuestionForm.map(QuestionForm::getQuestionName).orElse(""))
                 .setDescription(
                     messages.at(MessageKey.DESCRIPTION_REPEATED_SET_ADMIN_ID.getKeyName()))
                 .setRequired(true)
@@ -813,6 +856,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .setId("question-text-input")
                 .setFieldName("questionText")
                 .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_QUESTION_TEXT.getKeyName()))
+                .setValue(optionalQuestionForm.map(QuestionForm::getQuestionText).orElse(""))
                 .setDescription(
                     messages.at(MessageKey.DESCRIPTION_REPEATED_SET_QUESTION_TEXT.getKeyName()))
                 .setRequired(true)
@@ -821,6 +865,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .setId("hint-text-input")
                 .setFieldName("questionHelpText")
                 .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_HINT_TEXT.getKeyName()))
+                .setValue(optionalQuestionForm.map(QuestionForm::getQuestionHelpText).orElse(""))
                 .setDescription(
                     messages.at(MessageKey.DESCRIPTION_REPEATED_SET_HINT_TEXT.getKeyName()))
                 .getUSWDSTextareaTag(),
@@ -828,11 +873,19 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .setId("min-entity-count-input")
                 .setFieldName("minEntities")
                 .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_MIN_ENTITIES.getKeyName()))
+                .setValue(
+                    optionalQuestionForm
+                        .map(EnumeratorQuestionForm::getMinEntities)
+                        .orElse(OptionalInt.empty()))
                 .getUSWDSNumberTag(),
             FieldWithLabel.number()
                 .setId("max-entity-count-input")
                 .setFieldName("maxEntities")
                 .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_MAX_ENTITIES.getKeyName()))
+                .setValue(
+                    optionalQuestionForm
+                        .map(EnumeratorQuestionForm::getMaxEntities)
+                        .orElse(OptionalInt.empty()))
                 .getUSWDSNumberTag(),
             div(
                     AlertComponent.renderSlimInfoAlert(
