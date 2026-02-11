@@ -35,7 +35,7 @@ public final class CiviFormProfileMerger {
    * session storage, and data the caller has.
    *
    * <p>The database and guest profile merging are done by this method, and the result is passed to
-   * {@param mergeFunction} to merge with data the caller has such as * authentication provider
+   * {@code mergeFunction} to merge with data the caller has such as an authentication provider
    * profile. This method accepts that as a callback so it can run all the merging in a single
    * transaction.
    *
