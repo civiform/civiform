@@ -3,7 +3,6 @@ package auth.oidc;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static support.FakeRequestBuilder.fakeRequest;
 
 import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
@@ -30,8 +29,8 @@ import org.junit.runner.RunWith;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
-import org.pac4j.play.PlayWebContext;
 import repository.AccountRepository;
+import repository.DatabaseExecutionContext;
 import repository.ResetPostgres;
 import support.CfTestHelpers;
 
@@ -100,7 +99,8 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
             civiformConfig,
             profileFactory,
             CfTestHelpers.userRepositoryProvider(accountRepository)),
-        standardClaimsAttributeNames);
+        standardClaimsAttributeNames,
+        instanceOf(DatabaseExecutionContext.class));
   }
 
   private CiviformOidcProfileCreator getOidcProfileCreator() {
@@ -172,11 +172,10 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
 
   @Test
   public void mergeCiviFormProfile_succeeds_new_user() {
-    PlayWebContext context = new PlayWebContext(fakeRequest());
     CiviformOidcProfileCreator oidcProfileAdapter = getOidcProfileCreator();
     // Execute.
     CiviFormProfileData profileData =
-        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile, context);
+        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile);
 
     // Verify.
     assertThat(profileData).isNotNull();
@@ -200,14 +199,13 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
 
   @Test
   public void mergeCiviFormProfile_existingUser_maintainsExistingData() {
-    PlayWebContext context = new PlayWebContext(fakeRequest());
     CiviformOidcProfileCreator profileCreator = getOidcProfileCreator();
     OidcProfile oidcProfile = makeOidcProfile();
     CiviFormProfileData existingProfileData = profileFactory.createNewApplicant();
     CiviFormProfile existingProfile = profileFactory.wrapProfileData(existingProfileData);
 
     CiviFormProfileData mergedProfileData =
-        profileCreator.mergeCiviFormProfile(Optional.of(existingProfile), oidcProfile, context);
+        profileCreator.mergeCiviFormProfile(Optional.of(existingProfile), oidcProfile);
 
     assertThat(existingProfileData.getSessionId()).isEqualTo(mergedProfileData.getSessionId());
     assertThat(existingProfileData.getId()).isEqualTo(mergedProfileData.getId());
@@ -215,13 +213,12 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
 
   @Test
   public void mergeCiviFormProfile_succeeds_new_user_with_enhanced_logout() {
-    PlayWebContext context = new PlayWebContext(fakeRequest());
     CiviformOidcProfileCreator oidcProfileAdapter =
         getOidcProfileCreatorWithEnhancedLogoutEnabled();
 
     // Execute.
     CiviFormProfileData profileData =
-        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile, context);
+        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile);
 
     // Verify.
     assertThat(profileData).isNotNull();
@@ -259,12 +256,11 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     CiviFormProfileData fakeProfileData = new CiviFormProfileData(123L, clock);
     when(trustedIntermediary.getProfileData()).thenReturn(fakeProfileData);
 
-    PlayWebContext context = new PlayWebContext(fakeRequest());
     CiviformOidcProfileCreator oidcProfileAdapter = getOidcProfileCreator();
 
     // Execute.
     CiviFormProfileData profileData =
-        oidcProfileAdapter.mergeCiviFormProfile(Optional.of(trustedIntermediary), profile, context);
+        oidcProfileAdapter.mergeCiviFormProfile(Optional.of(trustedIntermediary), profile);
 
     // Verify.
     // Profile data should still be present after the no-op merge.
@@ -293,13 +289,12 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     CiviFormProfileData fakeProfileData = new CiviFormProfileData(123L, clock);
     when(trustedIntermediary.getProfileData()).thenReturn(fakeProfileData);
 
-    PlayWebContext context = new PlayWebContext(fakeRequest());
     CiviformOidcProfileCreator oidcProfileAdapter =
         getOidcProfileCreatorWithEnhancedLogoutEnabled();
 
     // Execute.
     CiviFormProfileData profileData =
-        oidcProfileAdapter.mergeCiviFormProfile(Optional.of(trustedIntermediary), profile, context);
+        oidcProfileAdapter.mergeCiviFormProfile(Optional.of(trustedIntermediary), profile);
 
     // Verify.
     // Profile data should still be present after the no-op merge.
@@ -331,14 +326,13 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
   @Parameters(method = "allowedPhoneNumbers")
   public void mergeCiviFormProfile_withPhoneScope_importAllowedPhoneNumber(
       String phoneNumber, String cleanedPhoneNumber) {
-    PlayWebContext context = new PlayWebContext(fakeRequest());
     CiviformOidcProfileCreator oidcProfileAdapter = getOidcProfileCreatorWithPhoneScope();
     // Execute.
 
     profile.addAttribute(PHONE_NUMBER_ATTRIBUTE_NAME, phoneNumber);
 
     CiviFormProfileData profileData =
-        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile, context);
+        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile);
 
     // Verify.
     assertThat(profileData).isNotNull();
@@ -362,13 +356,12 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
   @Parameters(method = "disallowedPhoneNumbers")
   public void mergeCiviFormProfile_withPhoneScope_doesNotImportInvalidPhoneNumber(
       String phoneNumber) {
-    PlayWebContext context = new PlayWebContext(fakeRequest());
     CiviformOidcProfileCreator oidcProfileAdapter = getOidcProfileCreatorWithPhoneScope();
     // Execute.
     profile.addAttribute(PHONE_NUMBER_ATTRIBUTE_NAME, phoneNumber);
 
     CiviFormProfileData profileData =
-        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile, context);
+        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile);
 
     // Verify.
     assertThat(profileData).isNotNull();
@@ -380,8 +373,6 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
 
   @Test
   public void mergeCiviFormProfile_withoutPhoneScope_doesNotImportPhoneNumber() {
-    PlayWebContext context = new PlayWebContext(fakeRequest());
-
     // This does NOT have the phone scope requested
     CiviformOidcProfileCreator oidcProfileAdapter = getOidcProfileCreator();
 
@@ -389,7 +380,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     profile.addAttribute(PHONE_NUMBER_ATTRIBUTE_NAME, PHONE_NUMBER);
 
     CiviFormProfileData profileData =
-        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile, context);
+        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile);
 
     // Verify.
     assertThat(profileData).isNotNull();

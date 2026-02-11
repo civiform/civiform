@@ -7,6 +7,10 @@ enum ProgramType {
   EXTERNAL = 'External program',
 }
 
+interface HtmxDetail {
+  target?: HTMLElement
+}
+
 class AdminPrograms {
   private static PROGRAM_CARDS_SELECTOR = '.cf-admin-program-card'
   private static PROGRAM_LINK_ATTRIBUTE = 'data-copyable-program-link'
@@ -339,6 +343,38 @@ class AdminPrograms {
       })
     }
   }
+
+  static attachEventListenerToHtmxSwap() {
+    document.body.addEventListener('htmx:afterSwap', (e) => {
+      const targetElement = (e as CustomEvent<HtmxDetail>).detail.target
+      if (!targetElement) {
+        return
+      }
+      if (targetElement.id === 'enumerator-setup') {
+        if (document.getElementById('new-enumerator-question-form-errors')) {
+          this.focusOnFirstEnumeratorFormField()
+        } else {
+          this.focusOnEnumeratorQuestionSection()
+        }
+      }
+    })
+  }
+
+  static focusOnEnumeratorQuestionSection() {
+    const enumeratorSectionHeading = document.getElementById(
+      'repeated-set-question-section-heading',
+    )
+    if (enumeratorSectionHeading) {
+      enumeratorSectionHeading.focus()
+    }
+  }
+
+  static focusOnFirstEnumeratorFormField() {
+    const firstInputField = document.getElementById('listed-entity-input')
+    if (firstInputField) {
+      firstInputField.focus()
+    }
+  }
 }
 
 export function init() {
@@ -349,4 +385,5 @@ export function init() {
   AdminPrograms.attachEventListenersToHideEditTiInPublicMode()
   AdminPrograms.attachEventListenersToHideEditTiInTIOnlyMode()
   AdminPrograms.attachEventListenersToHideEditTiInHiddenMode()
+  AdminPrograms.attachEventListenerToHtmxSwap()
 }

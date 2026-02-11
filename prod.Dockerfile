@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1@sha256:b6afd42430b15f2d2a4c5a02b919e98a525b785b1aaff16747d2f623364e39b6
 # For production images, use the adoptium.net official JRE & JDK docker images.
-FROM --platform=linux/amd64 eclipse-temurin:17.0.17_10-jdk-alpine@sha256:eaf56b7430cee6c93871106367715e2675192093d8f67dbbdbe07136f7cfae60 AS stage1
+FROM --platform=linux/amd64 eclipse-temurin:17.0.17_10-jdk-alpine@sha256:e2219a46b9e20e3fe8bb303dd851978bb8f9bfb3c54da19e1ea245e326f3b1f6 AS stage1
 
 ARG SBT_VERSION
 ENV SBT_VERSION="${SBT_VERSION}"
@@ -34,7 +34,7 @@ RUN cd "${PROJECT_LOC}" && \
 
 # This is a common trick to shrink container sizes. We discard everything added
 # during the build phase and use only the inflated artifacts created by sbt dist.
-FROM --platform=linux/amd64 eclipse-temurin:17.0.17_10-jre-alpine@sha256:f57e47e7a78ae1ff5019681d95a4964153b0d1078bdff2a2f288e4a5ee329c14 AS stage2
+FROM --platform=linux/amd64 eclipse-temurin:17.0.17_10-jre-alpine@sha256:71337aec9f5c665b2a6b49baed50251ee9a8fa9995c589a93be8badc85e40551 AS stage2
 COPY --from=stage1 /civiform-server-0.0.1 /civiform-server-0.0.1
 
 # Upgrade packages for stage2 to include latest versions.

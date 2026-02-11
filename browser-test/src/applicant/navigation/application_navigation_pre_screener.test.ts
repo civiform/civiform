@@ -5,6 +5,7 @@ import {
   loginAsAdmin,
   loginAsTestUser,
   loginAsTrustedIntermediary,
+  disableFeatureFlag,
   logout,
   selectApplicantLanguage,
   validateAccessibility,
@@ -25,6 +26,7 @@ test.describe('Applicant navigation flow', () => {
     test.beforeEach(
       async ({page, adminQuestions, adminPredicates, adminPrograms}) => {
         await loginAsAdmin(page)
+        await disableFeatureFlag(page, 'expanded_form_logic_enabled')
 
         // Add questions
         await adminQuestions.addNumberQuestion({

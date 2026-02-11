@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.CiviFormHttpActionAdapter;
+import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -30,6 +31,7 @@ public class LoginControllerTest {
   private SessionStore mockSessionStore;
   private Config config;
   private LoginController controller;
+  private ProfileUtils mockProfileUtils;
 
   @Before
   public void setUp() {
@@ -37,11 +39,17 @@ public class LoginControllerTest {
     mockAdminClient = mock(IndirectClient.class);
     mockHttpActionAdapter = mock(CiviFormHttpActionAdapter.class);
     mockSessionStore = mock(SessionStore.class);
+    mockProfileUtils = mock(ProfileUtils.class);
     config = ConfigFactory.parseMap(ImmutableMap.of("applicant_register_uri", ""));
 
     controller =
         new LoginController(
-            mockAdminClient, mockApplicantClient, mockHttpActionAdapter, mockSessionStore, config);
+            mockAdminClient,
+            mockApplicantClient,
+            mockHttpActionAdapter,
+            mockSessionStore,
+            config,
+            mockProfileUtils);
   }
 
   @Test
@@ -107,7 +115,13 @@ public class LoginControllerTest {
   @Test
   public void applicantLogin_withNoClient_returnsBadRequest() {
     LoginController controllerWithNoClient =
-        new LoginController(mockAdminClient, null, mockHttpActionAdapter, mockSessionStore, config);
+        new LoginController(
+            mockAdminClient,
+            null,
+            mockHttpActionAdapter,
+            mockSessionStore,
+            config,
+            mockProfileUtils);
 
     Http.Request request = fakeRequestBuilder().build();
 
@@ -120,7 +134,12 @@ public class LoginControllerTest {
   public void adminLogin_withNoClient_returnsBadRequest() {
     LoginController controllerWithNoClient =
         new LoginController(
-            null, mockApplicantClient, mockHttpActionAdapter, mockSessionStore, config);
+            null,
+            mockApplicantClient,
+            mockHttpActionAdapter,
+            mockSessionStore,
+            config,
+            mockProfileUtils);
 
     Http.Request request = fakeRequestBuilder().build();
 
@@ -176,7 +195,8 @@ public class LoginControllerTest {
             mockApplicantClient,
             mockHttpActionAdapter,
             mockSessionStore,
-            configWithRegisterUri);
+            configWithRegisterUri,
+            mockProfileUtils);
 
     Http.Request request = fakeRequestBuilder().build();
 

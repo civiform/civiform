@@ -3,6 +3,7 @@ import {
   loginAsAdmin,
   loginAsTestUser,
   logout,
+  disableFeatureFlag,
   validateScreenshot,
   validateAccessibility,
   loginAsTrustedIntermediary,
@@ -17,6 +18,8 @@ test.describe('Ineligible Page Tests', () => {
 
   test.beforeEach(
     async ({page, adminQuestions, adminPrograms, adminPredicates}) => {
+      await disableFeatureFlag(page, 'expanded_form_logic_enabled')
+
       await test.step('Setup: Create program with eligibility condition', async () => {
         await loginAsAdmin(page)
 

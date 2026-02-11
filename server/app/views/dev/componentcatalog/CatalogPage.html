@@ -1,28 +1,26 @@
 <!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
 <!--/*@thymesVar id="model" type="views.dev.componentcatalog.CatalogPageViewModel"*/-->
-<th:block
-  th:fragment="content"
-  xmlns:th="http://www.thymeleaf.org"
-  xmlns:cf="https://civiform.us/thymeleaf/cf"
->
-  <h1 class="text-normal" th:text="${templateGlobals.pageTitle()}"></h1>
-
-  <div class="usa-in-page-nav-container">
-    <aside
-      class="usa-in-page-nav"
-      data-title-text="On this page"
-      data-title-heading-level="h3"
-      data-scroll-offset="0"
-      data-main-content-selector="#in-page-nav-content"
-      data-root-margin="0px 0px 0px 0px"
-      data-threshold="1"
-    ></aside>
-    <div id="in-page-nav-content" class="width-desktop">
-      <h2>Placeholder 1</h2>
-      <h3>Placeholder C</h3>
-      <h3>Placeholder B</h3>
-      <h2>Placeholder 2</h2>
-      <h3>Placeholder A</h3>
-    </div>
+<th:block th:fragment="content" xmlns:th="http://www.thymeleaf.org">
+  <div>
+    <th:block
+      th:insert="~{__${'dev/componentcatalog/fragments/' + model.getTemplateFileName()}__ :: render(${model.getControlModel()})}"
+    ></th:block>
   </div>
+</th:block>
+
+<th:block th:fragment="sidebar">
+  <nav aria-label="Side navigation">
+    <ul class="usa-sidenav">
+      <li
+        class="usa-sidenav__item"
+        th:each="control : ${model.getControlList()}"
+      >
+        <a
+          th:classappend="${control.controlName() == model.controlName()} ? 'usa-current'"
+          th:href="${control.getUrl()}"
+          th:text="${control.label()}"
+        ></a>
+      </li>
+    </ul>
+  </nav>
 </th:block>
