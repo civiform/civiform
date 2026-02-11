@@ -32,7 +32,12 @@ public final class CiviFormProfileMerger {
 
   /**
    * Performs a three-way merge between an existing applicant in the database, a guest profile in
-   * session storage, and an external profile from an external authentication provider
+   * session storage, and data the caller has such as a profile from an external authentication
+   * provider
+   *
+   * <p>The database and guest profile merging are done by this method, and the result is passed to
+   * {@param mergeFunction} to merge with the authentication provider profile. This method accepts
+   * that as a callback so it can run all the merging in a single transaction.
    *
    * @param optionalApplicantInDatabase a potentially existing applicant in the database
    * @param optionalGuestProfile a guest profile from the browser session
@@ -52,9 +57,9 @@ public final class CiviFormProfileMerger {
                           mergeApplicantAndGuestProfile(
                               optionalApplicantInDatabase, optionalGuestProfile);
 
-                      // Merge authProviderProfile into the partially merged profile to finish.
-                      // Merge function will create a new CiviFormProfile if it doesn't exist,
-                      // or otherwise handle it
+                      // Let the caller finish the merge process. The merge
+                      // function will handle the profile missing as
+                      // appropriate.
                       return Optional.of(mergeFunction.apply(optionalApplicantProfile));
                     }),
             dbExecutionContext)
