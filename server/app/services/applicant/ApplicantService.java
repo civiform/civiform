@@ -835,7 +835,15 @@ public final class ApplicantService {
   private void notifyProgramAdmins(
       long applicantId, long programId, long applicationId, String programName) {
     String applicationViewLink =
-        controllers.admin.routes.AdminApplicationController.show(programId, applicationId).url();
+        controllers.admin.routes.AdminApplicationController.show(
+                programId,
+                applicationId,
+                /* search= */ Optional.empty(),
+                /* fromDate= */ Optional.empty(),
+                /* toDate= */ Optional.empty(),
+                /* page= */ Optional.empty(),
+                /* selectedApplicationStatus= */ Optional.empty())
+            .url();
 
     String viewLink =
         baseUrl
