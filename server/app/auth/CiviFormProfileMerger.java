@@ -32,12 +32,12 @@ public final class CiviFormProfileMerger {
 
   /**
    * Performs a three-way merge between an existing applicant in the database, a guest profile in
-   * session storage, and data the caller has such as a profile from an external authentication
-   * provider
+   * session storage, and data the caller has.
    *
    * <p>The database and guest profile merging are done by this method, and the result is passed to
-   * {@param mergeFunction} to merge with the authentication provider profile. This method accepts
-   * that as a callback so it can run all the merging in a single transaction.
+   * {@param mergeFunction} to merge with data the caller has such as * authentication provider
+   * profile. This method accepts that as a callback so it can run all the merging in a single
+   * transaction.
    *
    * @param optionalApplicantInDatabase a potentially existing applicant in the database
    * @param optionalGuestProfile a guest profile from the browser session
