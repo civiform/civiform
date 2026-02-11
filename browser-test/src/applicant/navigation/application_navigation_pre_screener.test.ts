@@ -5,7 +5,6 @@ import {
   loginAsAdmin,
   loginAsTestUser,
   loginAsTrustedIntermediary,
-  disableFeatureFlag,
   logout,
   selectApplicantLanguage,
   validateAccessibility,
@@ -26,7 +25,6 @@ test.describe('Applicant navigation flow', () => {
     test.beforeEach(
       async ({page, adminQuestions, adminPredicates, adminPrograms}) => {
         await loginAsAdmin(page)
-        await disableFeatureFlag(page, 'expanded_form_logic_enabled')
 
         // Add questions
         await adminQuestions.addNumberQuestion({
@@ -58,13 +56,17 @@ test.describe('Applicant navigation flow', () => {
         await adminPrograms.goToEditBlockEligibilityPredicatePage(
           secondProgramName,
           'Screen 1',
+          /* expandedFormLogicEnabled= */ true,
         )
-        await adminPredicates.addPredicates({
-          questionName: 'nav-predicate-number-q',
-          scalar: 'number',
-          operator: 'is equal to',
-          value: secondProgramCorrectAnswer,
-        })
+        await adminPredicates.addPredicates(
+          /* expandedFormLogicEnabled= */ true,
+          {
+            questionName: 'nav-predicate-number-q',
+            scalar: 'number',
+            operator: 'is equal to',
+            value: secondProgramCorrectAnswer,
+          },
+        )
 
         await adminPrograms.publishAllDrafts()
         await logout(page)

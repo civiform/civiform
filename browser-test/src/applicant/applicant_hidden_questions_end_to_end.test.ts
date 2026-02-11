@@ -3,7 +3,6 @@ import {
   AdminPredicates,
   AdminPrograms,
   ApplicantQuestions,
-  disableFeatureFlag,
   enableFeatureFlag,
   isLocalDevEnvironment,
   loginAsAdmin,
@@ -34,7 +33,6 @@ test.describe('hidden questions end to end', () => {
 
       await enableFeatureFlag(page, 'API_BRIDGE_ENABLED')
       await enableFeatureFlag(page, 'ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS')
-      await disableFeatureFlag(page, 'EXPANDED_FORM_LOGIC_ENABLED')
 
       await seeding.seedQuestions()
 
@@ -594,16 +592,20 @@ class AdminActor {
       await this.adminPrograms.goToEditBlockEligibilityPredicatePage(
         this.programName,
         blockName,
+        /* expandedFormLogicEnabled= */ true,
       )
     })
 
     await test.step(`Add eligibility predicate to block ${blockName}`, async () => {
-      await this.adminPredicates.addPredicates({
-        questionName: questionName,
-        scalar: 'text',
-        operator: 'is equal to',
-        value: eligibilityValue,
-      })
+      await this.adminPredicates.addPredicates(
+        /* expandedFormLogicEnabled= */ true,
+        {
+          questionName: questionName,
+          scalar: 'text',
+          operator: 'is equal to',
+          value: eligibilityValue,
+        },
+      )
     })
 
     await this.editProgram()

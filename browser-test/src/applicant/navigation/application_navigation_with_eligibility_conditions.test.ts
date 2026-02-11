@@ -3,7 +3,6 @@ import {
   AdminQuestions,
   loginAsAdmin,
   logout,
-  disableFeatureFlag,
   validateAccessibility,
   validateScreenshot,
 } from '../../support'
@@ -19,7 +18,6 @@ test.describe('Applicant navigation flow', () => {
     test.beforeEach(
       async ({page, adminQuestions, adminPredicates, adminPrograms}) => {
         await loginAsAdmin(page)
-        await disableFeatureFlag(page, 'expanded_form_logic_enabled')
 
         await adminQuestions.addNumberQuestion({
           questionName: eligibilityQuestionId,
@@ -41,13 +39,17 @@ test.describe('Applicant navigation flow', () => {
         await adminPrograms.goToEditBlockEligibilityPredicatePage(
           fullProgramName,
           'Screen 1',
+          /* expandedFormLogicEnabled= */ true,
         )
-        await adminPredicates.addPredicates({
-          questionName: 'nav-predicate-number-q',
-          scalar: 'number',
-          operator: 'is equal to',
-          value: '5',
-        })
+        await adminPredicates.addPredicates(
+          /* expandedFormLogicEnabled= */ true,
+          {
+            questionName: 'nav-predicate-number-q',
+            scalar: 'number',
+            operator: 'is equal to',
+            value: '5',
+          },
+        )
 
         await adminPrograms.addProgramBlock(
           fullProgramName,
@@ -496,13 +498,17 @@ test.describe('Applicant navigation flow', () => {
         await adminPrograms.goToEditBlockEligibilityPredicatePage(
           programName,
           'Screen 1',
+          /* expandedFormLogicEnabled= */ true,
         )
-        await adminPredicates.addPredicates({
-          questionName: questionName,
-          scalar: 'text',
-          operator: 'is equal to',
-          value: 'foo',
-        })
+        await adminPredicates.addPredicates(
+          /* expandedFormLogicEnabled= */ true,
+          {
+            questionName: questionName,
+            scalar: 'text',
+            operator: 'is equal to',
+            value: 'foo',
+          },
+        )
         await adminPrograms.gotoAdminProgramsPage()
         await adminPrograms.publishProgram(programName)
         await logout(page)
