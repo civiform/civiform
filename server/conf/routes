@@ -315,7 +315,8 @@ GET     /dev/feature/:flag/enable                           controllers.dev.Feat
 GET     /dev/profile                                        controllers.dev.ProfileController.index(request: Request)
 GET     /dev/session                                        controllers.dev.SessionDisplayController.index(request: Request)
 
-GET     /dev/component/catalog                              controllers.dev.ComponentCatalogController.index(request: Request)
+GET     /dev/component/catalog                              controllers.dev.ComponentCatalogController.defaultIndex(request: Request)
+GET     /dev/component/catalog/:controlName                 controllers.dev.ComponentCatalogController.controlIndex(request: Request, controlName: String)
 
 ## Prometheus metrics export
 GET     /metrics                                            controllers.monitoring.MetricsController.getMetrics()

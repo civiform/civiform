@@ -9,6 +9,7 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.option;
 import static j2html.TagCreator.select;
+import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -67,8 +68,10 @@ public class ServiceAreaFormPartial extends BaseHtmlView {
                             .isRequired(),
                         label()
                             .with(
-                                div("Validation"),
-                                div("Format: label (attribute=id)").withClasses("italic"))
+                                span("Validation - ")
+                                    .with(
+                                        span(" Format: label (attribute=id)")
+                                            .withClasses("italic")))
                             .withClasses("usa-label")
                             .withFor("validationOption"),
                         select()
