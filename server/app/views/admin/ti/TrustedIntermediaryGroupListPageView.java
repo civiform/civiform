@@ -27,7 +27,7 @@ public final class TrustedIntermediaryGroupListPageView
   }
 
   @Override
-  protected String pageTitle() {
+  protected String pageTitle(TrustedIntermediaryGroupListPageViewModel model) {
     return "Trusted Intermediary Group List";
   }
 

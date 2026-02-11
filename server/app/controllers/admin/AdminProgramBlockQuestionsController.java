@@ -5,14 +5,12 @@ import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
 import auth.Authorizers.Labels;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import controllers.FlashKey;
+import forms.EnumeratorQuestionForm;
 import forms.ProgramQuestionDefinitionOptionalityForm;
-import forms.QuestionForm;
 import forms.QuestionFormBuilder;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.StringJoiner;
 import javax.inject.Inject;
 import models.QuestionModel;
 import org.pac4j.play.java.Secure;
@@ -38,18 +36,14 @@ import services.program.ProgramQuestionDefinitionInvalidException;
 import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.program.ProgramService;
 import services.question.QuestionService;
-import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
-import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import views.admin.programs.ProgramBlocksView;
-import views.admin.questions.QuestionEditView;
 import views.components.ProgramQuestionBank;
-import views.components.ToastMessage;
 
 /** Controller for admins editing questions on a screen (block) of a program. */
 public class AdminProgramBlockQuestionsController extends Controller {
@@ -60,7 +54,6 @@ public class AdminProgramBlockQuestionsController extends Controller {
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
   private final SettingsManifest settingsManifest;
-  private final QuestionEditView questionEditView;
   private final MessagesApi messagesApi;
   private final ProgramBlocksView blockEditView;
 
@@ -72,7 +65,6 @@ public class AdminProgramBlockQuestionsController extends Controller {
       FormFactory formFactory,
       RequestChecker requestChecker,
       SettingsManifest settingsManifest,
-      QuestionEditView questionEditView,
       MessagesApi messagesApi,
       ProgramBlocksView.Factory programBlockViewFactory) {
     this.programService = checkNotNull(programService);
@@ -81,7 +73,6 @@ public class AdminProgramBlockQuestionsController extends Controller {
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.questionEditView = checkNotNull(questionEditView);
     this.messagesApi = checkNotNull(messagesApi);
     this.blockEditView = checkNotNull(programBlockViewFactory.create(DRAFT));
   }
@@ -139,10 +130,11 @@ public class AdminProgramBlockQuestionsController extends Controller {
     requestChecker.throwIfProgramNotDraft(programId);
 
     // Create the new enumerator question in the same way as in AdminQuestionController#create.
-    QuestionForm questionForm;
+    EnumeratorQuestionForm questionForm;
     try {
       questionForm =
-          QuestionFormBuilder.createFromRequest(request, formFactory, QuestionType.ENUMERATOR);
+          (EnumeratorQuestionForm)
+              QuestionFormBuilder.createFromRequest(request, formFactory, QuestionType.ENUMERATOR);
     } catch (InvalidQuestionTypeException e) {
       return badRequest(e.getMessage());
     }
@@ -157,17 +149,16 @@ public class AdminProgramBlockQuestionsController extends Controller {
 
     ErrorAnd<QuestionDefinition, CiviFormError> result = questionService.create(questionDefinition);
     if (result.isError()) {
-      ToastMessage errorMessage = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
-      ReadOnlyQuestionService roService =
-          questionService.getReadOnlyQuestionService().toCompletableFuture().join();
-      ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions =
-          roService.getUpToDateEnumeratorQuestions();
-      // TODO(#12004): render the Program Blocks View with the form inputs so far and the error
-      // messages
-      // instead of going to the new question form.
       return ok(
-          questionEditView.renderNewQuestionForm(
-              request, questionForm, enumeratorQuestionDefinitions, errorMessage));
+          blockEditView
+              .renderEnumeratorSetupSection(
+                  request,
+                  messagesApi.preferred(request),
+                  programId,
+                  blockId,
+                  Optional.of(questionForm),
+                  result.getErrors())
+              .render());
     }
 
     QuestionDefinition createdQuestionDefinition;
@@ -385,13 +376,5 @@ public class AdminProgramBlockQuestionsController extends Controller {
 
     return redirect(
         controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockDefinitionId));
-  }
-
-  protected String joinErrors(ImmutableSet<CiviFormError> errors) {
-    StringJoiner messageJoiner = new StringJoiner(". ", "", ".");
-    for (CiviFormError e : errors) {
-      messageJoiner.add(e.message());
-    }
-    return messageJoiner.toString();
   }
 }

@@ -222,10 +222,10 @@ export class SessionTimeoutHandler {
       `${SessionModalType.LENGTH}-modal`,
     )
     if (lengthModal) {
-      // Handle logout button
-      const logoutButton = lengthModal.querySelector('[data-modal-primary]')
-      logoutButton?.addEventListener('click', () => {
-        this.logout()
+      // Handle login button
+      const loginButton = lengthModal.querySelector('[data-modal-primary]')
+      loginButton?.addEventListener('click', () => {
+        this.login()
       })
 
       // Handle dismiss/close buttons
@@ -367,5 +367,12 @@ export class SessionTimeoutHandler {
    */
   private static logout() {
     window.location.href = '/logout'
+  }
+
+  /**
+   * Initiates login.
+   */
+  private static login() {
+    window.location.href = '/logBackIn'
   }
 }

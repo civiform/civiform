@@ -6,7 +6,7 @@
       <h1>Manage trusted intermediaries</h1>
 
       <!-- Create new TI group form -->
-      <div class="usa-card margin-bottom-4" style="max-width: 32rem">
+      <div class="usa-card" style="max-width: 32rem">
         <div class="usa-card__body">
           <h2>Create new trusted intermediary</h2>
           <form action="/admin/tiGroups/new" method="post" class="usa-form">
@@ -41,10 +41,7 @@
                 required
               />
             </div>
-            <button
-              class="usa-button usa-button--primary margin-top-2"
-              type="submit"
-            >
+            <button class="usa-button usa-button--primary" type="submit">
               Create
             </button>
           </form>
@@ -52,39 +49,33 @@
       </div>
 
       <!-- Existing TI groups header and sort -->
-      <div class="display-flex flex-align-end margin-bottom-2">
-        <h2 class="usa-heading-md flex-auto">
-          Existing trusted intermediaries
-        </h2>
-        <form method="get" class="margin-left-2">
-          <label class="usa-label margin-right-1" for="sort-select"
-            >Sort by:</label
-          >
+      <div>
+        <h2 class="usa-heading-md">Existing trusted intermediaries</h2>
+      </div>
+      <div>
+        <form method="get">
+          <label class="usa-label" for="sort-select">Sort by:</label>
           <select
             class="usa-select"
-            id="sort-select"
+            id="cf-ti-list"
             name="sort"
             th:value="${model.selectedSortOption}"
           >
-            <option
-              th:each="opt : ${model.sortOptions}"
-              th:value="${opt}"
-              th:text="${opt}"
-              th:selected="${opt == model.selectedSortOption}"
-            ></option>
+            <th:block th:each="opt : ${model.sortOptions}">
+              <option
+                th:each="optionValue : ${opt.selectOptions}"
+                th:value="${optionValue.value}"
+                th:text="${optionValue.label}"
+                th:selected="${optionValue.value == model.selectedSortOption}"
+              ></option>
+            </th:block>
           </select>
-          <button
-            class="usa-button usa-button--outline margin-left-1"
-            type="submit"
-          >
-            Sort
-          </button>
         </form>
       </div>
 
       <!-- TI group list table -->
       <div class="usa-table-container--scrollable">
-        <table class="usa-table usa-table--borderless width-full">
+        <table class="usa-table usa-table--borderless width-full cf-ti-sublist">
           <thead>
             <tr>
               <th class="width-one-third">Name / Description</th>
@@ -93,7 +84,11 @@
             </tr>
           </thead>
           <tbody>
-            <tr th:each="group : ${model.tiGroups}">
+            <tr
+              th:each="group : ${model.tiGroups}"
+              class="cf-ti-element"
+              th:attr="data-tiname=${group.name},data-nummember=${#lists.size(group.trustedIntermediaries)}"
+            >
               <td>
                 <div
                   class="font-sans-lg text-bold"
@@ -147,6 +142,20 @@
           </tbody>
         </table>
       </div>
+
+      <script
+        src="/assets/javascripts/admin_trusted_intermediary_list.js"
+      ></script>
+      <script>
+        window.addEventListener('DOMContentLoaded', () => {
+          if (
+            window.civiform &&
+            window.civiform.admin_trusted_intermediary_list
+          ) {
+            window.civiform.admin_trusted_intermediary_list.init()
+          }
+        })
+      </script>
     </div>
   </div>
 </th:block>

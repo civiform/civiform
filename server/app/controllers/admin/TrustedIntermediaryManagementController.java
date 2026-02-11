@@ -27,6 +27,7 @@ import views.admin.ti.EditTrustedIntermediaryGroupView;
 import views.admin.ti.TrustedIntermediaryGroupListPageView;
 import views.admin.ti.TrustedIntermediaryGroupListPageViewModel;
 import views.admin.ti.TrustedIntermediaryGroupListView;
+import views.components.QuestionSortOption;
 
 /** Controller for admins to manage trusted intermediaries of programs. */
 public class TrustedIntermediaryManagementController extends Controller {
@@ -64,16 +65,14 @@ public class TrustedIntermediaryManagementController extends Controller {
       // Gather flash values for sticky form and messages
       String providedName = request.flash().get(FlashKey.PROVIDED_NAME).orElse("");
       String providedDescription = request.flash().get(FlashKey.PROVIDED_DESCRIPTION).orElse("");
-      String errorMessage = request.flash().get(FlashKey.ERROR).orElse("");
-      String successMessage = request.flash().get(FlashKey.SUCCESS).orElse("");
 
       // Get TI groups
       ImmutableList<TrustedIntermediaryGroupModel> tiGroups =
           ImmutableList.copyOf(accountRepository.listTrustedIntermediaryGroups());
 
-      // Sort options (as strings, e.g. "tiname-asc", "tiname-desc", etc.)
-      ImmutableList<String> sortOptions =
-          ImmutableList.of("tiname-asc", "tiname-desc", "nummember-asc", "nummember-desc");
+      // Sort options as QuestionSortOption enums
+      ImmutableList<QuestionSortOption> sortOptions =
+          ImmutableList.of(QuestionSortOption.TI_NAME, QuestionSortOption.TI_NUM_MEMBERS);
       // Default sort option
       String selectedSortOption = "tiname-asc";
       if (request.queryString().containsKey("sort")) {
@@ -88,8 +87,6 @@ public class TrustedIntermediaryManagementController extends Controller {
               .tiGroups(tiGroups)
               .providedName(providedName)
               .providedDescription(providedDescription)
-              .errorMessage(errorMessage)
-              .successMessage(successMessage)
               .sortOptions(sortOptions)
               .selectedSortOption(selectedSortOption)
               .build();
