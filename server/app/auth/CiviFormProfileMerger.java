@@ -3,7 +3,7 @@ package auth;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import java.util.Optional;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 import javax.inject.Provider;
 import models.AccountModel;
 import models.ApplicantModel;
@@ -36,15 +36,13 @@ public final class CiviFormProfileMerger {
    *
    * @param optionalApplicantInDatabase a potentially existing applicant in the database
    * @param optionalGuestProfile a guest profile from the browser session
-   * @param authProviderProfile profile data from an external auth provider, such as OIDC
    * @param mergeFunction a function that merges an external profile into a Civiform profile, or
    *     provides one if it doesn't exist
    */
-  public <T> Optional<UserProfile> mergeProfiles(
+  public Optional<UserProfile> mergeProfiles(
       Optional<ApplicantModel> optionalApplicantInDatabase,
       Optional<CiviFormProfile> optionalGuestProfile,
-      T authProviderProfile,
-      BiFunction<Optional<CiviFormProfile>, T, UserProfile> mergeFunction) {
+      Function<Optional<CiviFormProfile>, UserProfile> mergeFunction) {
     return supplyAsync(
             () ->
                 transactionManager.execute(
@@ -57,8 +55,7 @@ public final class CiviFormProfileMerger {
                       // Merge authProviderProfile into the partially merged profile to finish.
                       // Merge function will create a new CiviFormProfile if it doesn't exist,
                       // or otherwise handle it
-                      return Optional.of(
-                          mergeFunction.apply(optionalApplicantProfile, authProviderProfile));
+                      return Optional.of(mergeFunction.apply(optionalApplicantProfile));
                     }),
             dbExecutionContext)
         .join();

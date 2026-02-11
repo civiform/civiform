@@ -11,6 +11,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
+import java.util.function.Function;
 import javax.inject.Provider;
 import models.ApplicantModel;
 import org.apache.commons.lang3.NotImplementedException;
@@ -204,8 +205,9 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     Optional<CiviFormProfile> guestProfile =
         profileUtils.optionalCurrentUserProfile(callContext.webContext());
 
-    return civiFormProfileMerger.mergeProfiles(
-        existingApplicant, guestProfile, profile, this::mergeCiviFormProfile);
+    Function<Optional<CiviFormProfile>, UserProfile> mergeFunction =
+        (cProfile) -> this.mergeCiviFormProfile(cProfile, profile);
+    return civiFormProfileMerger.mergeProfiles(existingApplicant, guestProfile, mergeFunction);
   }
 
   @VisibleForTesting
