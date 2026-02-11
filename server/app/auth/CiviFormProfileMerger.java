@@ -50,7 +50,7 @@ public final class CiviFormProfileMerger {
                 transactionManager.execute(
                     () -> {
                       // Merge the applicant with the guest profile.
-                      Optional<CiviFormProfile> applicantProfile =
+                      Optional<CiviFormProfile> optionalApplicantProfile =
                           mergeApplicantAndGuestProfile(
                               optionalApplicantInDatabase, optionalGuestProfile);
 
@@ -58,7 +58,7 @@ public final class CiviFormProfileMerger {
                       // Merge function will create a new CiviFormProfile if it doesn't exist,
                       // or otherwise handle it
                       return Optional.of(
-                          mergeFunction.apply(applicantProfile, authProviderProfile));
+                          mergeFunction.apply(optionalApplicantProfile, authProviderProfile));
                     }),
             dbExecutionContext)
         .join();
