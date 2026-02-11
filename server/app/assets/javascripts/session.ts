@@ -175,7 +175,6 @@ export class SessionTimeoutHandler {
           canIgnore: false,
           condOnStorageKey: null,
         })
-        this.pollSession()
       } else {
         const errorText =
           document.getElementById('session-extended-error-text')?.textContent ||
