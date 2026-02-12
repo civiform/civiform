@@ -83,56 +83,81 @@ public final class ButtonElementTagModelProcessor extends AbstractElementModelPr
 
     // Build button attributes
     var buttonAttrs = new BetterLinkedHashMap<String, String>();
-
-    // Attribute: type
-    buttonAttrs.put("type", elementSettings.type().value());
-
-    // Attributer: class
     buttonAttrs.put("class", buttonCssClasses.toString());
 
-    // Attribute: id
-    buttonAttrs.putIf(
-        isNotBlank(elementSettings.id().value()),
-        elementSettings.id().attributeName(),
-        elementSettings.id().value());
-
-    // Attribute: name
-    buttonAttrs.putIf(
-        isNotBlank(elementSettings.name().value()),
-        elementSettings.name().attributeName(),
-        elementSettings.name().value());
-
-    // Attribute: value
-    buttonAttrs.putIf(
-        isNotBlank(elementSettings.value().value()),
-        elementSettings.value().attributeName(),
-        elementSettings.value().value());
-
-    // Attribute: disabled
-    buttonAttrs.put(buildBooleanAttribute("disabled", elementSettings.disabled()));
-
-    // Fill any other data-* and aria-* attributes
-    buttonAttrs.putAll(getDataAndAriaAttributes(elementSettings.attributeMap()));
-
-    // Add opening button tag
-    targetModel.add(
-        modelFactory.createOpenElementTag(
-            "button", buttonAttrs, /* attributeValueQuotes= */ null, /* synthetic= */ false));
-
-    // Add text content, otherwise pass through child elements from the source to the new target
-    if (isNotBlank(elementSettings.text().value())) {
-      targetModel.add(modelFactory.createText(elementSettings.text().value()));
-    } else {
-      // The starting and end numbers are such so that the opening and closing tags of
-      // the source element are skipped.
-      for (int i = 1; i < sourceModel.size() - 1; i++) {
-        targetModel.add(sourceModel.get(i));
+    // Render <a> for type=link, <button> otherwise
+    if ("link".equals(elementSettings.type().value())) {
+      // Use getAttributeInfo for href
+      var hrefInfo = getAttributeInfo(context, tag, "href", "#");
+      String href = hrefInfo.value();
+      // Evaluate Thymeleaf expression if present
+      if (hrefInfo.isThymeleafAttribute() && isNotBlank(href)) {
+        var parser =
+            org.thymeleaf.standard.expression.StandardExpressions.getExpressionParser(
+                context.getConfiguration());
+        var expr = parser.parseExpression(context, href);
+        Object result = expr.execute(context);
+        href = result != null ? result.toString() : "#";
       }
+      buttonAttrs.put("href", href);
+      // Attribute: id
+      buttonAttrs.putIf(
+          isNotBlank(elementSettings.id().value()),
+          elementSettings.id().attributeName(),
+          elementSettings.id().value());
+      // Fill any other data-* and aria-* attributes
+      buttonAttrs.putAll(getDataAndAriaAttributes(elementSettings.attributeMap()));
+      // Add opening <a> tag
+      targetModel.add(
+          modelFactory.createOpenElementTag(
+              "a", buttonAttrs, /* attributeValueQuotes= */ null, /* synthetic= */ false));
+      // Add text content or child elements
+      if (isNotBlank(elementSettings.text().value())) {
+        targetModel.add(modelFactory.createText(elementSettings.text().value()));
+      } else {
+        for (int i = 1; i < sourceModel.size() - 1; i++) {
+          targetModel.add(sourceModel.get(i));
+        }
+      }
+      // Add closing <a> tag
+      targetModel.add(modelFactory.createCloseElementTag("a"));
+    } else {
+      // Attribute: type
+      buttonAttrs.put("type", elementSettings.type().value());
+      // Attribute: id
+      buttonAttrs.putIf(
+          isNotBlank(elementSettings.id().value()),
+          elementSettings.id().attributeName(),
+          elementSettings.id().value());
+      // Attribute: name
+      buttonAttrs.putIf(
+          isNotBlank(elementSettings.name().value()),
+          elementSettings.name().attributeName(),
+          elementSettings.name().value());
+      // Attribute: value
+      buttonAttrs.putIf(
+          isNotBlank(elementSettings.value().value()),
+          elementSettings.value().attributeName(),
+          elementSettings.value().value());
+      // Attribute: disabled
+      buttonAttrs.put(buildBooleanAttribute("disabled", elementSettings.disabled()));
+      // Fill any other data-* and aria-* attributes
+      buttonAttrs.putAll(getDataAndAriaAttributes(elementSettings.attributeMap()));
+      // Add opening <button> tag
+      targetModel.add(
+          modelFactory.createOpenElementTag(
+              "button", buttonAttrs, /* attributeValueQuotes= */ null, /* synthetic= */ false));
+      // Add text content or child elements
+      if (isNotBlank(elementSettings.text().value())) {
+        targetModel.add(modelFactory.createText(elementSettings.text().value()));
+      } else {
+        for (int i = 1; i < sourceModel.size() - 1; i++) {
+          targetModel.add(sourceModel.get(i));
+        }
+      }
+      // Add closing <button> tag
+      targetModel.add(modelFactory.createCloseElementTag("button"));
     }
-
-    // Add closing button tag
-    targetModel.add(modelFactory.createCloseElementTag("button"));
-
     // Replace the entire original model with our new model
     sourceModel.reset();
     sourceModel.addModel(targetModel);

@@ -49,7 +49,7 @@ public class ButtonElementTagModelProcessorTest extends BaseElementTagModelProce
             th:inverse="${model.inverse()}" />
         """,
         """
-<button type="submit" class="usa-button usa-button--secondary usa-button--big usa-button--inverse" id="actionBtn" name="action" value="submit">Submit Form</button>
+<button class="usa-button usa-button--secondary usa-button--big usa-button--inverse" type="submit" id="actionBtn" name="action" value="submit">Submit Form</button>
 """);
 
     // With plain attributes
@@ -66,7 +66,7 @@ public class ButtonElementTagModelProcessorTest extends BaseElementTagModelProce
             inverse="true" />
         """,
         """
-<button type="submit" class="usa-button usa-button--secondary usa-button--big usa-button--inverse" id="actionBtn" name="action" value="submit">Submit Form</button>
+<button class="usa-button usa-button--secondary usa-button--big usa-button--inverse" type="submit" id="actionBtn" name="action" value="submit">Submit Form</button>
 """);
   }
 
@@ -79,7 +79,7 @@ public class ButtonElementTagModelProcessorTest extends BaseElementTagModelProce
         <cf:button th:type="${model.type()}" th:text="${model.text()}" />
         """,
         """
-        <button type="submit" class="usa-button">Submit Form</button>
+        <button class="usa-button" type="submit">Submit Form</button>
         """);
 
     // With plain attributes
@@ -88,7 +88,7 @@ public class ButtonElementTagModelProcessorTest extends BaseElementTagModelProce
         <cf:button type="submit" text="Submit Form" />
         """,
         """
-        <button type="submit" class="usa-button">Submit Form</button>
+        <button class="usa-button" type="submit">Submit Form</button>
         """);
   }
 
@@ -101,7 +101,7 @@ public class ButtonElementTagModelProcessorTest extends BaseElementTagModelProce
         <cf:button th:variant="${model.variant()}" th:text="${model.text()}" />
         """,
         """
-        <button type="button" class="usa-button usa-button--secondary">Secondary</button>
+        <button class="usa-button usa-button--secondary" type="button">Secondary</button>
         """);
 
     // With plain attributes
@@ -110,7 +110,7 @@ public class ButtonElementTagModelProcessorTest extends BaseElementTagModelProce
         <cf:button variant="secondary" text="Secondary" />
         """,
         """
-        <button type="button" class="usa-button usa-button--secondary">Secondary</button>
+        <button class="usa-button usa-button--secondary" type="button">Secondary</button>
         """);
   }
 
@@ -123,7 +123,7 @@ public class ButtonElementTagModelProcessorTest extends BaseElementTagModelProce
         <cf:button th:size="${model.size()}" th:text="${model.text()}" />
         """,
         """
-        <button type="button" class="usa-button usa-button--big">Big Button</button>
+        <button class="usa-button usa-button--big" type="button">Big Button</button>
         """);
 
     // With plain attributes
@@ -132,7 +132,7 @@ public class ButtonElementTagModelProcessorTest extends BaseElementTagModelProce
         <cf:button size="big" text="Big Button" />
         """,
         """
-        <button type="button" class="usa-button usa-button--big">Big Button</button>
+        <button class="usa-button usa-button--big" type="button">Big Button</button>
         """);
   }
 
@@ -147,7 +147,7 @@ public class ButtonElementTagModelProcessorTest extends BaseElementTagModelProce
             data-analytics="track-click" />
         """,
         """
-<button type="button" class="usa-button" data-testid="submit-button" data-analytics="track-click">Track Me</button>
+<button class="usa-button" type="button" data-testid="submit-button" data-analytics="track-click">Track Me</button>
 """);
 
     // Thymeleaf data attributes
@@ -161,7 +161,7 @@ public class ButtonElementTagModelProcessorTest extends BaseElementTagModelProce
             th:data-target="'#' + ${model.id()}" />
         """,
         """
-<button type="button" class="usa-button" id="myButton" data-testid="myButton" data-target="#myButton">Button</button>
+<button class="usa-button" type="button" id="myButton" data-testid="myButton" data-target="#myButton">Button</button>
 """);
   }
 
@@ -176,7 +176,7 @@ public class ButtonElementTagModelProcessorTest extends BaseElementTagModelProce
             aria-label="Close dialog" />
         """,
         """
-        <button type="button" class="usa-button" aria-label="Close dialog">Close</button>
+        <button class="usa-button" type="button" aria-label="Close dialog">Close</button>
         """);
 
     // Thymeleaf aria attributes
@@ -188,7 +188,7 @@ public class ButtonElementTagModelProcessorTest extends BaseElementTagModelProce
             th:aria-label="${model.text()}" />
         """,
         """
-        <button type="button" class="usa-button" aria-label="Close">Close</button>
+        <button class="usa-button" type="button" aria-label="Close">Close</button>
         """);
   }
 
@@ -203,29 +203,28 @@ public class ButtonElementTagModelProcessorTest extends BaseElementTagModelProce
             th:text="${model.text()}" />
         """,
         """
-<button type="button" class="usa-button usa-button--outline usa-button--big">Large Outline Button</button>
+<button class="usa-button usa-button--outline usa-button--big" type="button">Large Outline Button</button>
 """);
   }
 
   @Test
   public void button_submit_with_disabled() {
     // With Thymeleaf
+
     assertHtml(
         Model.builder().disabled("true").text("Disabled").build(),
         """
         <cf:button th:disabled="${model.disabled()}" th:text="${model.text()}" />
         """,
         """
-        <button type="button" class="usa-button" disabled="disabled">Disabled</button>
+        <button class="usa-button" type="button" disabled="disabled">Disabled</button>
         """);
-
-    // With plain attributes
     assertHtml(
         """
         <cf:button disabled="true" text="Disabled" />
         """,
         """
-        <button type="button" class="usa-button" disabled="disabled">Disabled</button>
+        <button class="usa-button" type="button" disabled="disabled">Disabled</button>
         """);
   }
 
@@ -240,8 +239,9 @@ public class ButtonElementTagModelProcessorTest extends BaseElementTagModelProce
             th:text="${model.text()}" />
         """,
         """
-<button type="button" class="usa-button usa-button--outline usa-button--inverse">Inverse Outline</button>
+<button class="usa-button usa-button--outline usa-button--inverse" type="button">Inverse Outline</button>
 """);
+    // Duplicate test removed, already covered above
   }
 
   @Test
@@ -253,8 +253,8 @@ public class ButtonElementTagModelProcessorTest extends BaseElementTagModelProce
         </cf:button>
         """,
         """
-        <button type="button" class="usa-button usa-button--outline">
-          <svg class="usa-icon" aria-hidden="true"><use href="#close"></use></svg>Close
+        <button class="usa-button usa-button--outline" type="button">
+            <svg class="usa-icon" aria-hidden="true"><use href="#close"></use></svg>Close
         </button>
         """);
   }
@@ -266,7 +266,7 @@ public class ButtonElementTagModelProcessorTest extends BaseElementTagModelProce
         <cf:button />
         """,
         """
-        <button type="button" class="usa-button"></button>
+        <button class="usa-button" type="button"></button>
         """);
   }
 

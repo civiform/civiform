@@ -16,7 +16,7 @@ import views.tags.AbstractElementModelProcessor.AttributeInfo;
 @Accessors(fluent = true)
 public final class ButtonFormSettings {
   private static final ImmutableList<String> ALLOWED_TYPES =
-      ImmutableList.of("button", "reset", "submit");
+      ImmutableList.of("button", "reset", "submit", "link");
   private static final ImmutableList<String> ALLOWED_SIZES = ImmutableList.of("big");
   private static final ImmutableList<String> ALLOWED_VARIANTS =
       ImmutableList.of("secondary", "outline", "accent-cool", "accent-warm", "base", "unstyled");

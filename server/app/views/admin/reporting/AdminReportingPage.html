@@ -42,12 +42,12 @@
       </th:block>
     </tbody>
   </table>
-  <a
-    class="usa-button"
+  <cf:button
+    th:type="link"
     th:href="${model.getDownloadCsvUrl('APPLICATION_COUNTS_BY_PROGRAM')}"
     th:text="#{button.downloadCsv}"
-  >
-  </a>
+    class="usa-button"
+  />
 
   <table class="usa-table">
     <caption th:text="#{caption.submissionsByMonth}"></caption>
@@ -87,10 +87,10 @@
       </th:block>
     </tbody>
   </table>
-  <a
-    class="usa-button"
+  <cf:button
+    th:type="link"
     th:href="${model.getDownloadCsvUrl('APPLICATION_COUNTS_BY_MONTH')}"
     th:text="#{button.downloadCsv}"
-  >
-  </a>
+    class="usa-button"
+  />
 </th:block>
