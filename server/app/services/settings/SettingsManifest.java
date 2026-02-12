@@ -1102,6 +1102,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("LOGIN_DROPDOWN_ENABLED", request);
   }
 
+  /** Enable showing a data security banner to applicants. */
+  public boolean getDataSecurityBannerEnabled(RequestHeader request) {
+    return getBool("DATA_SECURITY_BANNER_ENABLED", request);
+  }
+
   /**
    * (NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration.
    * Inactivity timeout is always enforced when enabled. Maximum duration enforcement additionally
@@ -2382,6 +2387,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingDescription.create(
                           "LOGIN_DROPDOWN_ENABLED",
                           "Enables a dropdown for login that has both applicant and admin login.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "DATA_SECURITY_BANNER_ENABLED",
+                          "Enable showing a data security banner to applicants.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))
