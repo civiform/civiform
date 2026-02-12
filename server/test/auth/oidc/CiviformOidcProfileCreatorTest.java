@@ -6,7 +6,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
 import static support.FakeRequestBuilder.fakeRequest;
 
 import auth.CiviFormProfile;
@@ -134,11 +133,12 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
 
     // Setup.
     // Existing account doesn't have an authority.
-    var emailAccount = resourceCreator
-        .insertAccount()
-        .setEmailAddress(EMAIL)
-        .setApplicants(ImmutableList.of(resourceCreator.insertApplicant()));
-        emailAccount.save();
+    var emailAccount =
+        resourceCreator
+            .insertAccount()
+            .setEmailAddress(EMAIL)
+            .setApplicants(ImmutableList.of(resourceCreator.insertApplicant()));
+    emailAccount.save();
     CiviformOidcProfileCreator oidcProfileCreator = getOidcProfileCreator();
 
     // Execute.
@@ -162,11 +162,12 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     // Setup.
     final String otherEmail = "OTHER@EMAIL.com";
     // Existing account has authority but some other email.
-    var existingAccount = resourceCreator
-        .insertAccount()
-        .setEmailAddress(otherEmail)
-        .setAuthorityId(AUTHORITY_ID)
-        .setApplicants(ImmutableList.of(resourceCreator.insertApplicant()));
+    var existingAccount =
+        resourceCreator
+            .insertAccount()
+            .setEmailAddress(otherEmail)
+            .setAuthorityId(AUTHORITY_ID)
+            .setApplicants(ImmutableList.of(resourceCreator.insertApplicant()));
     existingAccount.save();
     CiviformOidcProfileCreator oidcProfileCreator = getOidcProfileCreator();
 
@@ -189,9 +190,8 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     CiviformOidcProfileCreator oidcProfileCreator = getOidcProfileCreator();
     // Execute.
     CiviFormProfileData profileData =
-        oidcProfileCreator.mergeCiviFormProfile(/* maybeCiviFormProfile= */
-        Optional.empty(),
-        profile);
+        oidcProfileCreator.mergeCiviFormProfile(
+            /* maybeCiviFormProfile= */ Optional.empty(), profile);
 
     // Verify.
     assertThat(profileData).isNotNull();
@@ -411,7 +411,8 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     CiviformOidcProfileCreator creator = spy(getOidcProfileCreator());
     doReturn(Optional.empty()).when(creator).superCreate(any(), any());
 
-    Optional<UserProfile> result = creator.create(buildCallContextWithNothing(), mock(OidcCredentials.class));
+    Optional<UserProfile> result =
+        creator.create(buildCallContextWithNothing(), mock(OidcCredentials.class));
 
     assertThat(result).isEmpty();
   }
@@ -421,7 +422,8 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     CiviformOidcProfileCreator creator = spy(getOidcProfileCreator());
     doReturn(Optional.of(new CommonProfile())).when(creator).superCreate(any(), any());
 
-    Optional<UserProfile> result = creator.create(buildCallContextWithNothing(), mock(OidcCredentials.class));
+    Optional<UserProfile> result =
+        creator.create(buildCallContextWithNothing(), mock(OidcCredentials.class));
 
     assertThat(result).isEmpty();
   }
@@ -431,7 +433,8 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     CiviformOidcProfileCreator creator = spy(getOidcProfileCreator());
     doReturn(Optional.of(profile)).when(creator).superCreate(any(), any());
 
-    Optional<UserProfile> result = creator.create(buildCallContextWithNothing(), mock(OidcCredentials.class));
+    Optional<UserProfile> result =
+        creator.create(buildCallContextWithNothing(), mock(OidcCredentials.class));
 
     assertThat(result).isPresent();
 
@@ -453,7 +456,8 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     CiviformOidcProfileCreator creator = spy(getOidcProfileCreator());
     doReturn(Optional.of(profile)).when(creator).superCreate(any(), any());
 
-    Optional<UserProfile> result = creator.create(buildCallContextWithNothing(), mock(OidcCredentials.class));
+    Optional<UserProfile> result =
+        creator.create(buildCallContextWithNothing(), mock(OidcCredentials.class));
 
     assertThat(result).isPresent();
 

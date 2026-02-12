@@ -184,12 +184,9 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
         .join();
   }
 
-  /**
-   * Get the user profile from the OIDC provider. Extracted from create() for testability.
-   */
+  /** Get the user profile from the OIDC provider. Extracted from create() for testability. */
   @VisibleForTesting
-  protected Optional<UserProfile> superCreate(
-      CallContext callContext, Credentials credentials) {
+  protected Optional<UserProfile> superCreate(CallContext callContext, Credentials credentials) {
     return super.create(callContext, credentials);
   }
 
@@ -216,14 +213,8 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
 
     Function<Optional<CiviFormProfile>, UserProfile> mergeFunction =
         (cProfile) -> this.mergeCiviFormProfile(cProfile, profile);
-    return mergeProfiles(existingApplicant, guestProfile, mergeFunction);
-  }
-
-  @VisibleForTesting
-  Optional<UserProfile> mergeProfiles(Optional<ApplicantModel> existingApplicant, Optional<CiviFormProfile> guestProfile, Function<Optional<CiviFormProfile>, UserProfile> mergeFunction) {
     return civiFormProfileMerger.mergeProfiles(existingApplicant, guestProfile, mergeFunction);
   }
-
 
   @VisibleForTesting
   public final Optional<ApplicantModel> getExistingApplicant(OidcProfile profile) {
