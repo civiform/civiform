@@ -1073,8 +1073,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** Enable allowing CiviForm admins to add a map question to their programs. */
-  public boolean getMapQuestionEnabled(RequestHeader request) {
-    return getBool("MAP_QUESTION_ENABLED", request);
+  public boolean getMapQuestionEnabled() {
+    return getBool("MAP_QUESTION_ENABLED");
   }
 
   /** Enables being able to add a new yes/no question. */
@@ -2347,7 +2347,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " programs.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
+                          SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "YES_NO_QUESTION_ENABLED",
                           "Enables being able to add a new yes/no question.",

@@ -58,7 +58,7 @@ public final class CreateQuestionButton {
       if (type == QuestionType.YES_NO && !settingsManifest.getYesNoQuestionEnabled()) {
         continue;
       }
-      if (type == QuestionType.MAP && !settingsManifest.getMapQuestionEnabled(request)) {
+      if (type == QuestionType.MAP && !settingsManifest.getMapQuestionEnabled()) {
         continue;
       }
 
