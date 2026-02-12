@@ -1160,7 +1160,7 @@ input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
 input.repeatedSet.maxEntities=
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
-alert.repeatedSet.newQuestion=
+alert.repeatedSet.newQuestion=Creating a repeated set will add a new question to the question bank.
 # Submission button for creating a new repeated set
 button.repeatedSet.submitNew=
 # Button for admins to add a new repeated set
@@ -1175,6 +1175,8 @@ text.repeatedSet.prefix=親ラベル
 text.repeatedSet.nestedPrefix=子ラベル
 # Instructions for admins on how to add or change the repeated set question in a program block
 text.repeatedSet.questionDescription=
+#An additional description explaining the uneditable prefix within the screen editing modal
+text.repeatedSet.screenNameDescription=To give the applicant context, we will display the applicant-defined label(s) for the listed entity they are answering questions for on this screen. You can optionally add more text to the screen name to provide further context. For example, "Jennifer - Background Information".
 # Heading above the repeated set question in the program block editor
 heading.repeatedSet.question=
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
