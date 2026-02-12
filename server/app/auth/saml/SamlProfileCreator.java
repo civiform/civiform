@@ -57,6 +57,11 @@ public class SamlProfileCreator extends AuthenticatorProfileCreator {
         new CiviFormProfileMerger(profileFactory, applicantRepositoryProvider, dbExecutionContext);
     this.saml2Client = client;
     this.saml2Configuration = configuration;
+    // TODO(#12696): Handle enhanced logout.
+    // Warning because enhanced logout is behind a feature flag.
+    logger.warn("SAML support does not handle enhanced logout.");
+    // TODO(#12695): Handle Trusted Intermediaries.
+    logger.error("SAML support does not handle trusted intermediaries.");
   }
 
   @Override
