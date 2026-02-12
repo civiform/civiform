@@ -75,7 +75,7 @@ public class CiviFormProfileData extends CommonProfile {
     return getAttributeAsString(SESSION_ID);
   }
 
-  /** Returns the session start time in milliseconds, or empty if not stored. */
+  /** Returns the session start time in milliseconds. Falls back to current time if not stored. */
   public long getSessionStartTime(Clock clock) {
     return (Long) getAttributes().getOrDefault(SESSION_START_TIME, clock.instant().toEpochMilli());
   }
