@@ -142,7 +142,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
         request,
         program,
         blockDefinition.id(),
-        new BlockForm(blockDefinition.getFullName(), blockDefinition.description()),
+        new BlockForm(
+            blockDefinition.getFullName(),
+            blockDefinition.description(),
+            blockDefinition.namePrefix().orElse(""),
+            blockDefinition.isRepeated()),
         blockDefinition,
         blockDefinition.programQuestionDefinitions(),
         message,
@@ -173,7 +177,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
     String blockUpdateAction =
         controllers.admin.routes.AdminProgramBlocksController.update(programId, blockId).url();
     Modal blockDescriptionEditModal =
-        renderBlockDescriptionModal(csrfTag, blockForm, blockUpdateAction, blockDefinition);
+        renderBlockDescriptionModal(
+            csrfTag, blockForm, blockUpdateAction, blockDefinition, request, messages);
 
     String blockDeleteAction =
         controllers.admin.routes.AdminProgramBlocksController.delete(programId, blockId).url();
@@ -1588,35 +1593,110 @@ public final class ProgramBlocksView extends ProgramBaseView {
       InputTag csrfTag,
       BlockForm blockForm,
       String blockUpdateAction,
-      BlockDefinition blockDefinition) {
+      BlockDefinition blockDefinition,
+      Request request,
+      Messages messages) {
     String modalTitle = "Screen name and description";
     FormTag blockDescriptionForm =
         form(csrfTag).withMethod(HttpVerbs.POST).withAction(blockUpdateAction);
-    blockDescriptionForm
-        .withId("block-edit-form")
-        .with(
-            div(
-                    h1("The screen name and description will help a user understand which part of"
-                            + " an application they are on.")
-                        .withClasses("text-base", "mb-2"),
-                    FieldWithLabel.input()
-                        .setId("block-name-input")
-                        .setFieldName("name")
-                        .setLabelText("Screen name")
-                        .setValue(blockDefinition.name())
-                        .getInputTag(),
-                    FieldWithLabel.textArea()
-                        .setId("block-description-textarea")
-                        .setFieldName("description")
-                        .setLabelText("Screen description")
-                        .setValue(blockForm.getDescription())
-                        .getTextareaTag())
-                .withClasses("mx-4"),
-            submitButton("Save")
-                .withId("update-block-button")
-                .withClasses(
-                    "mx-4", "my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50"))
-                .isDisabled());
+    if (settingsManifest.getEnumeratorImprovementsEnabled(request)) {
+      blockDescriptionForm
+          .withId("block-edit-form")
+          .with(
+              div(
+                      h1("The screen name and description will help a user understand which part of"
+                              + " an application they are on.")
+                          .withClasses("text-base", "mb-2"),
+                      div(
+                          label("Screen name")
+                              .attr("for", "block-name-input")
+                              .withClasses(
+                                  "pointer-events-none",
+                                  "text-gray-600",
+                                  "text-base",
+                                  "px-1",
+                                  "py-2"),
+                          iff(
+                              blockForm.isRepeated(),
+                              p(messages.at(
+                                      MessageKey.TEXT_REPEATED_SET_SCREEN_NAME_DESCRIPTION
+                                          .getKeyName()))
+                                  .withClasses(
+                                      "text-xs", "text-gray-500", "pb-3", "text-base", "px-1")
+                                  .attr("data-testid", "repeated-set-prefix-description")),
+                          div()
+                              .withClasses("flex")
+                              .condWith(
+                                  blockForm.isRepeated(),
+                                  label(blockForm.getNamePrefix())
+                                      .withClasses("text-black", "text-lg", "flex-auto", "py-2")
+                                      .attr("data-testid", "name-prefix"))
+                              .with(
+                                  input()
+                                      .attr("maxlength", 10000)
+                                      .withName("name")
+                                      .withValue(blockDefinition.name())
+                                      .withId("block-name-input")
+                                      .attr("data-testid", "block-name-input")
+                                      .withClasses(
+                                          "flex-auto",
+                                          "px-3",
+                                          "bg-white",
+                                          "text-black",
+                                          "text-lg",
+                                          "py-2",
+                                          "block",
+                                          "outline-none",
+                                          "box-border",
+                                          "m-auto",
+                                          "border",
+                                          "border-gray-500",
+                                          "rounded-lg",
+                                          "focus:border-civiform-blue",
+                                          "placeholder-gray-500"),
+                                  div()
+                                      .withId("block-name-textarea-errors")
+                                      .withClasses("text-red-600", "text-xs", "p-1", "hidden"))),
+                      FieldWithLabel.textArea()
+                          .setId("block-description-textarea")
+                          .setFieldName("description")
+                          .setLabelText("Screen description")
+                          .setValue(blockForm.getDescription())
+                          .getTextareaTag())
+                  .withClasses("mx-4"),
+              submitButton("Save")
+                  .withId("update-block-button")
+                  .attr("data-testid", "save-button")
+                  .withClasses(
+                      "mx-4", "my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50"))
+                  .isDisabled());
+    } else {
+      blockDescriptionForm
+          .withId("block-edit-form")
+          .with(
+              div(
+                      h1("The screen name and description will help a user understand which part of"
+                              + " an application they are on.")
+                          .withClasses("text-base", "mb-2"),
+                      FieldWithLabel.input()
+                          .setId("block-name-input")
+                          .setFieldName("name")
+                          .setLabelText("Screen name")
+                          .setValue(blockDefinition.name())
+                          .getInputTag(),
+                      FieldWithLabel.textArea()
+                          .setId("block-description-textarea")
+                          .setFieldName("description")
+                          .setLabelText("Screen description")
+                          .setValue(blockForm.getDescription())
+                          .getTextareaTag())
+                  .withClasses("mx-4"),
+              submitButton("Save")
+                  .withId("update-block-button")
+                  .withClasses(
+                      "mx-4", "my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50"))
+                  .isDisabled());
+    }
     ButtonTag editScreenButton =
         ViewUtils.makeSvgTextButton("Edit screen name and description", Icons.EDIT)
             .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON);
