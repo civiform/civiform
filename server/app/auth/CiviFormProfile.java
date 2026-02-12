@@ -35,6 +35,7 @@ public class CiviFormProfile {
   private final CiviFormProfileData profileData;
   private final SettingsManifest settingsManifest;
   private final AccountRepository accountRepository;
+  private volatile CompletableFuture<AccountModel> account;
 
   public CiviFormProfile(
       DatabaseExecutionContext dbContext,
@@ -83,20 +84,29 @@ public class CiviFormProfile {
     return account.getApplicants().stream().min(comparing(ApplicantModel::getWhenCreated));
   }
 
-  /** Look up the {@link AccountModel} associated with the profile from database. */
-  public CompletableFuture<AccountModel> getAccount() {
-    return supplyAsync(
-        () -> {
-          AccountModel account = new AccountModel();
-          account.id = Long.valueOf(this.profileData.getId());
-          try {
-            account.refresh();
-          } catch (EntityNotFoundException e) {
-            throw new AccountNonexistentException(e.getMessage());
-          }
-          return account;
-        },
-        dbContext);
+  /**
+   * Look up the {@link AccountModel} associated with the profile from database.
+   *
+   * <p>The result is cached for the lifetime of this profile instance (typically one request) to
+   * avoid redundant database queries when multiple callers need account data in the same request.
+   */
+  public synchronized CompletableFuture<AccountModel> getAccount() {
+    if (account == null) {
+      account =
+          supplyAsync(
+              () -> {
+                AccountModel account = new AccountModel();
+                account.id = Long.valueOf(this.profileData.getId());
+                try {
+                  account.refresh();
+                } catch (EntityNotFoundException e) {
+                  throw new AccountNonexistentException(e.getMessage());
+                }
+                return account;
+              },
+              dbContext);
+    }
+    return account;
   }
 
   /**
