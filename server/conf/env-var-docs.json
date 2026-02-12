@@ -952,6 +952,12 @@
         "description": "Enable showing external program cards.",
         "type": "bool",
         "required": false
+      },
+      "LOGIN_DROPDOWN_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enables a dropdown for login that has both applicant and admin login.",
+        "type": "bool",
+        "required": false
       }
     }
   },
@@ -960,7 +966,7 @@
     "members": {
       "SESSION_TIMEOUT_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration.",
+        "description": "(NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration. Inactivity timeout is always enforced when enabled. Maximum duration enforcement additionally requires SESSION_REPLAY_PROTECTION_ENABLED=true.",
         "type": "bool",
         "required": false
       },
@@ -985,12 +991,6 @@
       "EXPANDED_FORM_LOGIC_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Enables new visibility/eligibility condition editing UI and expanded logic capabilities for admin.",
-        "type": "bool",
-        "required": false
-      },
-      "LOGIN_DROPDOWN_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enables new dropdown for login that has both applicant and admin login.",
         "type": "bool",
         "required": false
       },

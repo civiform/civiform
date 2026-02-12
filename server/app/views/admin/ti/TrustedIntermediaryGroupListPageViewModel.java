@@ -1,6 +1,7 @@
 package views.admin.ti;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
 import views.admin.BaseViewModel;
@@ -23,4 +24,16 @@ public class TrustedIntermediaryGroupListPageViewModel implements BaseViewModel 
 
   // Currently selected sort option.
   private final String selectedSortOption;
+
+  // Form action URL for creating a new TI group.
+  private final String newTiGroupUrl;
+
+  // Map of groupIds to edit URLs
+  private final Map<Long, String> editGroupUrls;
+
+  // Map of groupIds to delete URLs
+  private final Map<Long, String> deleteGroupUrls;
+
+  // URL for the TI group sorting
+  private final String tiGroupListUrl;
 }

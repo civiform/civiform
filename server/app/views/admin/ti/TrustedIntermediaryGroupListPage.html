@@ -1,161 +1,114 @@
 <!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
 <!--/*@thymesVar id="model" type="views.admin.ti.TrustedIntermediaryGroupListPageViewModel"*/-->
 <th:block th:fragment="content">
-  <div class="usa-section">
-    <div class="grid-container">
-      <h1>Manage trusted intermediaries</h1>
+  <!-- Create new TI group form -->
+  <h2>Create new trusted intermediary</h2>
+  <form th:action="${model.newTiGroupUrl}" method="post" class="usa-form">
+    <input
+      type="hidden"
+      name="csrfToken"
+      th:value="${templateGlobals.csrfToken}"
+    />
+    <cf:input
+      id="group-name-input"
+      name="name"
+      type="text"
+      th:value="${model.providedName}"
+      maxlength="100"
+      required="required"
+      label="Name"
+    />
+    <cf:input
+      id="group-description-input"
+      name="description"
+      type="text"
+      th:value="${model.providedDescription}"
+      maxlength="255"
+      required="required"
+      label="Description"
+    />
+    <cf:button type="submit" class="usa-button usa-button--primary"
+      >Create</cf:button
+    >
+  </form>
 
-      <!-- Create new TI group form -->
-      <div class="usa-card" style="max-width: 32rem">
-        <div class="usa-card__body">
-          <h2>Create new trusted intermediary</h2>
-          <form action="/admin/tiGroups/new" method="post" class="usa-form">
+  <!-- Existing TI groups header and sort -->
+  <h2>Existing trusted intermediaries</h2>
+  <form
+    method="get"
+    class="usa-form"
+    th:action="${model.tiGroupListUrl}"
+    name="sortForm"
+  >
+    <label for="cf-ti-list">Sort by:</label>
+    <select
+      id="cf-ti-list"
+      name="sort"
+      class="usa-select"
+      onchange="this.form.submit()"
+    >
+      <option value="" disabled hidden>-- Select sort --</option>
+      <th:block th:each="opt : ${model.sortOptions}">
+        <th:block th:each="optionValue : ${opt.selectOptions}">
+          <option
+            th:value="${optionValue.value}"
+            th:text="${optionValue.label}"
+            th:selected="${optionValue.value == model.selectedSortOption}"
+          ></option>
+        </th:block>
+      </th:block>
+    </select>
+    <cf:button type="submit" class="usa-button"> Sort </cf:button>
+  </form>
+
+  <!-- TI group list table -->
+  <table class="usa-table">
+    <thead>
+      <tr>
+        <th>Name / Description</th>
+        <th>Size</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr th:each="group : ${model.tiGroups}">
+        <td>
+          <div th:text="${group.name}"></div>
+          <div th:text="${group.description}"></div>
+        </td>
+        <td>
+          <div>
+            Members:
+            <span th:text="${#lists.size(group.trustedIntermediaries)}"></span>
+          </div>
+          <div>
+            Clients: <span th:text="${group.managedAccountsCount}"></span>
+          </div>
+        </td>
+        <td>
+          <form
+            th:action="${model.editGroupUrls[group.id]}"
+            method="get"
+            style="display: inline"
+          >
+            <cf:button type="submit" class="usa-button">
+              Edit members
+            </cf:button>
+          </form>
+          <form
+            th:action="${model.deleteGroupUrls[group.id]}"
+            method="post"
+            style="display: inline"
+          >
             <input
               type="hidden"
               name="csrfToken"
               th:value="${templateGlobals.csrfToken}"
             />
-            <div class="usa-form-group">
-              <label class="usa-label" for="group-name-input">Name</label>
-              <input
-                class="usa-input"
-                id="group-name-input"
-                name="name"
-                type="text"
-                th:value="${model.providedName}"
-                maxlength="100"
-                required
-              />
-            </div>
-            <div class="usa-form-group">
-              <label class="usa-label" for="group-description-input"
-                >Description</label
-              >
-              <input
-                class="usa-input"
-                id="group-description-input"
-                name="description"
-                type="text"
-                th:value="${model.providedDescription}"
-                maxlength="255"
-                required
-              />
-            </div>
-            <button class="usa-button usa-button--primary" type="submit">
-              Create
-            </button>
+            <cf:button type="submit" class="usa-button"> Delete </cf:button>
           </form>
-        </div>
-      </div>
-
-      <!-- Existing TI groups header and sort -->
-      <div>
-        <h2 class="usa-heading-md">Existing trusted intermediaries</h2>
-      </div>
-      <div>
-        <form method="get">
-          <label class="usa-label" for="sort-select">Sort by:</label>
-          <select
-            class="usa-select"
-            id="cf-ti-list"
-            name="sort"
-            th:value="${model.selectedSortOption}"
-          >
-            <th:block th:each="opt : ${model.sortOptions}">
-              <option
-                th:each="optionValue : ${opt.selectOptions}"
-                th:value="${optionValue.value}"
-                th:text="${optionValue.label}"
-                th:selected="${optionValue.value == model.selectedSortOption}"
-              ></option>
-            </th:block>
-          </select>
-        </form>
-      </div>
-
-      <!-- TI group list table -->
-      <div class="usa-table-container--scrollable">
-        <table class="usa-table usa-table--borderless width-full cf-ti-sublist">
-          <thead>
-            <tr>
-              <th class="width-one-third">Name / Description</th>
-              <th class="width-one-third">Size</th>
-              <th class="width-one-third text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              th:each="group : ${model.tiGroups}"
-              class="cf-ti-element"
-              th:attr="data-tiname=${group.name},data-nummember=${#lists.size(group.trustedIntermediaries)}"
-            >
-              <td>
-                <div
-                  class="font-sans-lg text-bold"
-                  th:text="${group.name}"
-                ></div>
-                <div
-                  class="font-sans-3xs text-base-light"
-                  th:text="${group.description}"
-                ></div>
-              </td>
-              <td>
-                <div class="font-sans-md text-bold">
-                  Members:
-                  <span
-                    th:text="${#lists.size(group.trustedIntermediaries)}"
-                  ></span>
-                </div>
-                <div class="font-sans-sm">
-                  Clients: <span th:text="${group.managedAccountsCount}"></span>
-                </div>
-              </td>
-              <td class="text-right">
-                <div
-                  class="display-flex flex-justify-end flex-align-center gap-2"
-                >
-                  <a
-                    th:attr="href='/admin/tiGroups/' + ${group.id} + '/edit'"
-                    class="usa-button usa-button--outline usa-button--small"
-                    >Edit members</a
-                  >
-                  <form
-                    th:attr="action='/admin/tiGroups/' + ${group.id} + '/delete'"
-                    method="post"
-                    style="display: inline"
-                  >
-                    <input
-                      type="hidden"
-                      name="csrfToken"
-                      th:value="${templateGlobals.csrfToken}"
-                    />
-                    <button
-                      class="usa-button usa-button--outline usa-button--small usa-button--danger"
-                      type="submit"
-                    >
-                      Delete
-                    </button>
-                  </form>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <script
-        src="/assets/javascripts/admin_trusted_intermediary_list.js"
-      ></script>
-      <script>
-        window.addEventListener('DOMContentLoaded', () => {
-          if (
-            window.civiform &&
-            window.civiform.admin_trusted_intermediary_list
-          ) {
-            window.civiform.admin_trusted_intermediary_list.init()
-          }
-        })
-      </script>
-    </div>
-  </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </th:block>

@@ -1092,7 +1092,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("EXTERNAL_PROGRAM_CARDS_ENABLED");
   }
 
-  /** (NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration. */
+  /** Enables a dropdown for login that has both applicant and admin login. */
+  public boolean getLoginDropdownEnabled(RequestHeader request) {
+    return getBool("LOGIN_DROPDOWN_ENABLED", request);
+  }
+
+  /**
+   * (NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration.
+   * Inactivity timeout is always enforced when enabled. Maximum duration enforcement additionally
+   * requires SESSION_REPLAY_PROTECTION_ENABLED=true.
+   */
   public boolean getSessionTimeoutEnabled(RequestHeader request) {
     return getBool("SESSION_TIMEOUT_ENABLED", request);
   }
@@ -1118,14 +1127,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public boolean getExpandedFormLogicEnabled(RequestHeader request) {
     return getBool("EXPANDED_FORM_LOGIC_ENABLED", request);
-  }
-
-  /**
-   * (NOT FOR PRODUCTION USE) Enables new dropdown for login that has both applicant and admin
-   * login.
-   */
-  public boolean getLoginDropdownEnabled(RequestHeader request) {
-    return getBool("LOGIN_DROPDOWN_ENABLED", request);
   }
 
   /**
@@ -2365,7 +2366,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "Enable showing external program cards.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE))))
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "LOGIN_DROPDOWN_ENABLED",
+                          "Enables a dropdown for login that has both applicant and admin login.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Experimental",
               SettingsSection.create(
@@ -2377,7 +2384,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingDescription.create(
                           "SESSION_TIMEOUT_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and"
-                              + " maximum duration.",
+                              + " maximum duration. Inactivity timeout is always enforced when"
+                              + " enabled. Maximum duration enforcement additionally requires"
+                              + " SESSION_REPLAY_PROTECTION_ENABLED=true.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
@@ -2405,13 +2414,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "EXPANDED_FORM_LOGIC_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables new visibility/eligibility condition"
                               + " editing UI and expanded logic capabilities for admin.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "LOGIN_DROPDOWN_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enables new dropdown for login that has both"
-                              + " applicant and admin login.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
