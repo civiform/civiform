@@ -938,7 +938,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
       }
 
       @Override
-      public CompletableFuture<AccountModel> getAccount() {
+      public synchronized CompletableFuture<AccountModel> getAccount() {
         return CompletableFuture.completedFuture(adminAccount.get());
       }
     }
