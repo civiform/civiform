@@ -4,7 +4,6 @@ import auth.CiviFormProfile;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import services.settings.SettingsManifest;
@@ -25,14 +24,11 @@ public final class SessionTimeoutService {
    * duration.
    *
    * @param profile the user's profile
-   * @return a future that completes with true if the session has timed out, false otherwise
+   * @return true if the session has timed out, false otherwise
    */
-  public CompletableFuture<Boolean> isSessionTimedOut(CiviFormProfile profile) {
-
-    if (isSessionTimedOutDueToInactivity(profile)) {
-      return CompletableFuture.completedFuture(true);
-    }
-    return isSessionTimedOutDueToSessionLength(profile);
+  public boolean isSessionTimedOut(CiviFormProfile profile) {
+    return isSessionTimedOutDueToInactivity(profile)
+        || isSessionTimedOutDueToSessionLength(profile);
   }
 
   private boolean isSessionTimedOutDueToInactivity(CiviFormProfile profile) {
@@ -50,38 +46,28 @@ public final class SessionTimeoutService {
    * @param profile the user's profile
    * @return a future that completes with the timeout data for the user's session
    */
-  public CompletableFuture<TimeoutData> calculateTimeoutData(CiviFormProfile profile) {
+  public TimeoutData calculateTimeoutData(CiviFormProfile profile) {
     long currentTime = clock.instant().getEpochSecond();
 
-    return profile
-        .getSessionStartTime()
-        .thenApply(
-            optionalSessionStartTimeInMillis -> {
-              long sessionStartTimeInMillis =
-                  optionalSessionStartTimeInMillis.orElse(currentTime * 1000L);
-              long sessionStartTimeInSeconds = sessionStartTimeInMillis / 1000;
+    long sessionStartTimeInMillis = profile.getProfileData().getSessionStartTime(clock);
 
-              int inactivityMinutes = getSessionInactivityTimeoutMinutes();
-              int totalLengthMinutes = getMaximumSessionDurationMinutes();
-              int inactivityWarningMinutes =
-                  settingsManifest
-                      .get()
-                      .getSessionInactivityWarningThresholdMinutes()
-                      .orElseThrow();
-              int durationWarningMinutes =
-                  settingsManifest.get().getSessionDurationWarningThresholdMinutes().orElseThrow();
+    long sessionStartTimeInSeconds = sessionStartTimeInMillis / 1000;
 
-              long lastActivityTimeInSeconds =
-                  profile.getProfileData().getLastActivityTime(clock) / 1000;
-              return new TimeoutData(
-                  calculateTimeoutLimit(lastActivityTimeInSeconds, inactivityMinutes),
-                  calculateTimeoutLimit(sessionStartTimeInSeconds, totalLengthMinutes),
-                  calculateWarningTime(
-                      lastActivityTimeInSeconds, inactivityMinutes, inactivityWarningMinutes),
-                  calculateWarningTime(
-                      sessionStartTimeInSeconds, totalLengthMinutes, durationWarningMinutes),
-                  currentTime);
-            });
+    int inactivityMinutes = getSessionInactivityTimeoutMinutes();
+    int totalLengthMinutes = getMaximumSessionDurationMinutes();
+    int inactivityWarningMinutes =
+        settingsManifest.get().getSessionInactivityWarningThresholdMinutes().orElseThrow();
+    int durationWarningMinutes =
+        settingsManifest.get().getSessionDurationWarningThresholdMinutes().orElseThrow();
+
+    long lastActivityTimeInSeconds = profile.getProfileData().getLastActivityTime(clock) / 1000;
+    return new TimeoutData(
+        calculateTimeoutLimit(lastActivityTimeInSeconds, inactivityMinutes),
+        calculateTimeoutLimit(sessionStartTimeInSeconds, totalLengthMinutes),
+        calculateWarningTime(
+            lastActivityTimeInSeconds, inactivityMinutes, inactivityWarningMinutes),
+        calculateWarningTime(sessionStartTimeInSeconds, totalLengthMinutes, durationWarningMinutes),
+        currentTime);
   }
 
   private long calculateTimeoutLimit(long startTimeInSeconds, int timeoutMinutes) {
@@ -97,16 +83,11 @@ public final class SessionTimeoutService {
         .getEpochSecond();
   }
 
-  private CompletableFuture<Boolean> isSessionTimedOutDueToSessionLength(CiviFormProfile profile) {
+  private boolean isSessionTimedOutDueToSessionLength(CiviFormProfile profile) {
     long currentTimeInMillis = clock.millis();
     long maxSessionDurationInMillis = getMaxSessionDurationMillis();
-    return profile
-        .getSessionStartTime()
-        .thenApply(
-            optionalSessionStartTime -> {
-              long sessionStartTimeInMillis = optionalSessionStartTime.orElse(currentTimeInMillis);
-              return (currentTimeInMillis - sessionStartTimeInMillis) > maxSessionDurationInMillis;
-            });
+    long sessionStartTimeInMillis = profile.getProfileData().getSessionStartTime(clock);
+    return (currentTimeInMillis - sessionStartTimeInMillis) > maxSessionDurationInMillis;
   }
 
   private long getInactivityTimeoutMillis() {
