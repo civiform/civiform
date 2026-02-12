@@ -3,7 +3,7 @@ package auth;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import java.util.Optional;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 import javax.inject.Provider;
 import models.AccountModel;
 import models.ApplicantModel;
@@ -32,19 +32,22 @@ public final class CiviFormProfileMerger {
 
   /**
    * Performs a three-way merge between an existing applicant in the database, a guest profile in
-   * session storage, and an external profile from an external authentication provider
+   * session storage, and data the caller has.
+   *
+   * <p>The database and guest profile merging are done by this method, and the result is passed to
+   * {@code mergeFunction} to merge with data the caller has such as an authentication provider
+   * profile. This method accepts that as a callback so it can run all the merging in a single
+   * transaction.
    *
    * @param optionalApplicantInDatabase a potentially existing applicant in the database
    * @param optionalGuestProfile a guest profile from the browser session
-   * @param authProviderProfile profile data from an external auth provider, such as OIDC
    * @param mergeFunction a function that merges an external profile into a Civiform profile, or
    *     provides one if it doesn't exist
    */
-  public <T> Optional<UserProfile> mergeProfiles(
+  public Optional<UserProfile> mergeProfiles(
       Optional<ApplicantModel> optionalApplicantInDatabase,
       Optional<CiviFormProfile> optionalGuestProfile,
-      T authProviderProfile,
-      BiFunction<Optional<CiviFormProfile>, T, UserProfile> mergeFunction) {
+      Function<Optional<CiviFormProfile>, UserProfile> mergeFunction) {
     return supplyAsync(
             () ->
                 transactionManager.execute(
@@ -54,11 +57,10 @@ public final class CiviFormProfileMerger {
                           mergeApplicantAndGuestProfile(
                               optionalApplicantInDatabase, optionalGuestProfile);
 
-                      // Merge authProviderProfile into the partially merged profile to finish.
-                      // Merge function will create a new CiviFormProfile if it doesn't exist,
-                      // or otherwise handle it
-                      return Optional.of(
-                          mergeFunction.apply(optionalApplicantProfile, authProviderProfile));
+                      // Let the caller finish the merge process. The merge
+                      // function will handle the profile missing as
+                      // appropriate.
+                      return Optional.of(mergeFunction.apply(optionalApplicantProfile));
                     }),
             dbExecutionContext)
         .join();
