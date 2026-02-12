@@ -682,7 +682,7 @@
           {"val": "my-civiform.org", "should_match": false}
         ]
       },
-      "IMMIGRATIONS_STATUS_INFO_BANNER_LEARN_MORE_URL": {
+      "IMMIGRATION_STATUS_INFO_BANNER_LEARN_MORE_URL": {
         "mode": "ADMIN_WRITEABLE",
         "description": "The HREF for providing more information for the immigration status informational banner.",
         "type": "string"

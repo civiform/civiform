@@ -778,8 +778,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** The HREF for providing more information for the immigration status informational banner. */
-  public Optional<String> getImmigrationsStatusInfoBannerLearnMoreUrl(RequestHeader request) {
-    return getString("IMMIGRATIONS_STATUS_INFO_BANNER_LEARN_MORE_URL", request);
+  public Optional<String> getImmigrationStatusInfoBannerLearnMoreUrl(RequestHeader request) {
+    return getString("IMMIGRATION_STATUS_INFO_BANNER_LEARN_MORE_URL", request);
   }
 
   /**
@@ -2106,7 +2106,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingMode.ADMIN_WRITEABLE,
                           Pattern.compile("^(http://|https://).+")),
                       SettingDescription.create(
-                          "IMMIGRATIONS_STATUS_INFO_BANNER_LEARN_MORE_URL",
+                          "IMMIGRATION_STATUS_INFO_BANNER_LEARN_MORE_URL",
                           "The HREF for providing more information for the immigration status"
                               + " informational banner.",
                           /* isRequired= */ false,

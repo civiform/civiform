@@ -73,7 +73,7 @@ public class ProgramIndexView extends ApplicantBaseView {
     if (settingsManifest.getImmigrationStatusInfoBannerEnabled(request)) {
       context.setVariable(
           "immigrationStatusInfoBannerLearnMoreUrl",
-          settingsManifest.getImmigrationsStatusInfoBannerLearnMoreUrl(request).orElse(""));
+          settingsManifest.getImmigrationStatusInfoBannerLearnMoreUrl(request).orElse(""));
     }
     Optional<ProgramSectionParams> myApplicationsSection = Optional.empty();
     Optional<ProgramSectionParams> preScreenerSection = Optional.empty();
