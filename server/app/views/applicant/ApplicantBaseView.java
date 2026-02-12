@@ -68,8 +68,6 @@ public abstract class ApplicantBaseView {
     context.setVariable("addNoIndexMetaTag", settingsManifest.getStagingAddNoindexMetaTag());
     context.setVariable("favicon", settingsManifest.getFaviconUrl().orElse(""));
     context.setVariable("mapQuestionEnabled", settingsManifest.getMapQuestionEnabled(request));
-    context.setVariable(
-        "dataSecurityBannerEnabled", settingsManifest.getDataSecurityBannerEnabled(request));
 
     context.setVariable("useBundlerDevServer", bundledAssetsFinder.useBundlerDevServer());
     context.setVariable("viteClientUrl", bundledAssetsFinder.viteClientUrl());
@@ -129,11 +127,6 @@ public abstract class ApplicantBaseView {
     context.setVariable("tiDashboardHref", getTiDashboardHref());
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
     context.setVariable("logoutLink", logoutLink);
-    if (settingsManifest.getDataSecurityBannerEnabled(request)) {
-      context.setVariable(
-          "dataSecurityAlertBannerUrl",
-          settingsManifest.getDataSecurityAlertUrl(request).orElse(""));
-    }
 
     // Set branding theme colors.
     context.setVariable("themeColorPrimary", THEME_PRIMARY_HEX);

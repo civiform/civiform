@@ -6,7 +6,7 @@
   <body>
     <div th:replace="~{applicant/ApplicantBaseFragment :: skipNav}"></div>
     <div
-      th:replace="~{applicant/shared/NavigationFragment :: pageHeader(false)}"
+      th:replace="~{applicant/shared/NavigationFragment :: pageHeader}"
     ></div>
     <div
       th:if="${applicationParams.loginOnly() and isGuest}"

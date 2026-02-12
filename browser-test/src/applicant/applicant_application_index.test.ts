@@ -856,17 +856,19 @@ test.describe('applicant program index page', () => {
     await validateScreenshot(page, 'program-index-page-initial-load')
   })
 
-  test('shows data security banner on home page when enabled', async ({
+  test('shows immigration status info banner on home page when enabled', async ({
     page,
   }) => {
-    await enableFeatureFlag(page, 'data_security_banner_enabled')
+    await enableFeatureFlag(page, 'immigration_status_info_banner_enabled')
 
     await page.goto('/')
     await waitForPageJsLoad(page)
 
     await validateScreenshot(
-      page.getByRole('region', {name: 'Data security informational alert'}),
-      'data-security-banner',
+      page.getByRole('region', {
+        name: 'Immigration status informational alert',
+      }),
+      'immigration-status-info-banner',
     )
   })
 })

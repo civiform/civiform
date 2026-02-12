@@ -777,9 +777,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("COMMON_INTAKE_MORE_RESOURCES_LINK_HREF", request);
   }
 
-  /** The HREF for providing more information for the data security alert banner. */
-  public Optional<String> getDataSecurityAlertUrl(RequestHeader request) {
-    return getString("DATA_SECURITY_ALERT_URL", request);
+  /** The HREF for providing more information for the immigration status informational banner. */
+  public Optional<String> getImmigrationsStatusInfoBannerLearnMoreUrl(RequestHeader request) {
+    return getString("IMMIGRATIONS_STATUS_INFO_BANNER_LEARN_MORE_URL", request);
   }
 
   /**
@@ -1102,9 +1102,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("LOGIN_DROPDOWN_ENABLED", request);
   }
 
-  /** Enable showing a data security banner to applicants. */
-  public boolean getDataSecurityBannerEnabled(RequestHeader request) {
-    return getBool("DATA_SECURITY_BANNER_ENABLED", request);
+  /** Enable showing an immigration status informational banner to applicants. */
+  public boolean getImmigrationStatusInfoBannerEnabled(RequestHeader request) {
+    return getBool("IMMIGRATION_STATUS_INFO_BANNER_ENABLED", request);
   }
 
   /**
@@ -2106,9 +2106,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingMode.ADMIN_WRITEABLE,
                           Pattern.compile("^(http://|https://).+")),
                       SettingDescription.create(
-                          "DATA_SECURITY_ALERT_URL",
-                          "The HREF for providing more information for the data security alert"
-                              + " banner.",
+                          "IMMIGRATIONS_STATUS_INFO_BANNER_LEARN_MORE_URL",
+                          "The HREF for providing more information for the immigration status"
+                              + " informational banner.",
                           /* isRequired= */ false,
                           SettingType.STRING,
                           SettingMode.ADMIN_WRITEABLE))))
@@ -2391,8 +2391,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "DATA_SECURITY_BANNER_ENABLED",
-                          "Enable showing a data security banner to applicants.",
+                          "IMMIGRATION_STATUS_INFO_BANNER_ENABLED",
+                          "Enable showing an immigration status informational banner to"
+                              + " applicants.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))

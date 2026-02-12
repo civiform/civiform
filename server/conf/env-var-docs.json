@@ -682,9 +682,9 @@
           {"val": "my-civiform.org", "should_match": false}
         ]
       },
-      "DATA_SECURITY_ALERT_URL": {
+      "IMMIGRATIONS_STATUS_INFO_BANNER_LEARN_MORE_URL": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "The HREF for providing more information for the data security alert banner.",
+        "description": "The HREF for providing more information for the immigration status informational banner.",
         "type": "string"
       }
     }
@@ -964,9 +964,9 @@
         "type": "bool",
         "required": false
       },
-      "DATA_SECURITY_BANNER_ENABLED": {
+      "IMMIGRATION_STATUS_INFO_BANNER_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "Enable showing a data security banner to applicants.",
+        "description": "Enable showing an immigration status informational banner to applicants.",
         "type": "bool",
         "required": false
       }

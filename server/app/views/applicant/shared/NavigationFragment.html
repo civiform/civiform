@@ -1,5 +1,6 @@
-<!--/*@thymesVar id="dataSecurityBannerEnabled" type="boolean"*/-->
-<th:block th:fragment="pageHeader(showDataSecurityBanner)">
+<!--/*@thymesVar id="immigrationStatusInfoBannerEnabled" type="boolean"*/-->
+<!--/*@thymesVar id="immigrationStatusInfoBannerLearnMoreUrl" type=""*/-->
+<th:block th:fragment="pageHeader">
   <div class="sticky top-0 z-50" th:if="${showNotProductionBannerEnabled}">
     <div
       th:replace="~{components/AlertFragment :: alert(alertSettings=${notProductionAlertSettings}, headingLevel='H2')}"
@@ -8,8 +9,12 @@
   <div th:unless="${showNotProductionBannerEnabled}">
     <div th:replace="~{this :: officialGovermentWebsiteBanner}"></div>
   </div>
-  <th:block th:if="${dataSecurityBannerEnabled && showDataSecurityBanner}">
-    <div th:replace="~{this :: dataSecurityBanner}"></div>
+  <!--/* The immigration status info banner is only shown on the program index page,
+  so all immigration status info banner variables are only set in ProgramIndexView and are unset otherwise. */-->
+  <th:block
+    th:if="${immigrationStatusInfoBannerEnabled && showImmigrationStatusInfoBanner}"
+  >
+    <div th:replace="~{this :: immigrationStatusInfoBanner}"></div>
   </th:block>
   <div class="usa-overlay"></div>
   <header class="usa-header usa-header--basic" role="banner">
@@ -208,22 +213,32 @@
     </div>
   </div>
 </section>
-<div th:fragment="dataSecurityBanner" th:if="${dataSecurityBannerEnabled}">
+<div
+  th:fragment="immigrationStatusInfoBanner"
+  th:if="${immigrationStatusInfoBannerEnabled}"
+>
   <section
     class="usa-site-alert usa-site-alert--info usa-site-alert--slim cf-alert"
     role="region"
-    th:aria-label="#{label.dataSecurityBannerAlert}"
+    th:aria-label="#{label.immigrationStatusInfoBanner.label}"
   >
     <div class="usa-alert">
       <div class="usa-alert__body">
         <h4
           class="usa-alert__heading"
-          th:text="#{label.dataSecurityBannerAlert.heading}"
+          th:text="#{label.immigrationStatusInfoBanner.heading}"
         ></h4>
+        <!-- Only display the 'learn more here' url if one is provided by CiviForm admins -->
         <p
+          th:if="${immigrationStatusInfoBannerLearnMoreUrl != ''}"
           class="usa-alert__text"
-          th:with="moreInfoUrl='<a class=\'usa-link\' href=\'' + ${dataSecurityAlertBannerUrl} + '\'>' + #{banner.dataSecurityAlertText.link} + '</a>'"
-          th:utext="#{banner.dataSecurityAlertText(${moreInfoUrl})}"
+          th:with="moreInfoUrl='<a class=\'usa-link\' href=\'' + ${immigrationStatusInfoBannerLearnMoreUrl} + '\'>' + #{banner.immigrationStatusInfoBanner.linkText} + '</a>'"
+          th:utext="#{banner.immigrationStatusInfoBanner.bodyWithLink(${moreInfoUrl})}"
+        ></p>
+        <p
+          th:if="${immigrationStatusInfoBannerLearnMoreUrl == ''}"
+          class="usa-alert__text"
+          th:text="#{banner.immigrationStatusInfoBanner.body}"
         ></p>
       </div>
     </div>

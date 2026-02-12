@@ -885,8 +885,3 @@ main {
 main#main-content {
   outline: none;
 }
-
-/* USWDS defaults to 1rem, which ends up looking weird and unbalanced on some pages. */
-.usa-alert-remove-top-margin {
-  margin-top: 0;
-}
