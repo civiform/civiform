@@ -1175,6 +1175,8 @@ text.repeatedSet.prefix=parent label
 text.repeatedSet.nestedPrefix=child label
 # Instructions for admins on how to add or change the repeated set question in a program block
 text.repeatedSet.questionDescription=Add a repeated set that will ask residents to add objects or individuals to a list. If a repeated set has already been added and you would like to select a different one, delete the question below.
+#An additional description explaining the uneditable prefix within the screen editing modal
+text.repeatedSet.screenNameDescription=To give the applicant context, we will display the applicant-defined label(s) for the listed entity they are answering questions for on this screen. You can optionally add more text to the screen name to provide further context. For example, “Jennifer - Background Information”.
 # Heading above the repeated set question in the program block editor
 heading.repeatedSet.question=Repeated set question
 # Informative text above the listed entity input field to help admins understand what to enter in that field.

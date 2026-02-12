@@ -922,25 +922,32 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           .click()
       })
 
-      await test.step('check for correct enumerator description and uneditable prefix', async () => {
+      const modalPrefix = page.getByTestId('name-prefix')
+
+      await test.step('check for correct enumerator description and uneditable prefix in screen editing modal', async () => {
         await page
           .getByRole('button', {name: 'Edit screen name and description'})
           .click()
-        const modalDescription = page
-          .locator('.cf-modal:not(.hidden)')
-          .first()
-          .filter({
-            hasText:
-              'To give the applicant context, we will display the applicant-defined label(s) for the listed entity they are answering questions for on this screen',
-          })
-        const modalPrefix = page
-          .locator('.cf-modal:not(.hidden)')
-          .first()
-          .filter({
-            hasText: '[parent label] -',
-          })
+        const modalDescription = page.getByTestId(
+          'repeated-set-prefix-description',
+        )
         await expect(modalDescription).toBeVisible()
         await expect(modalPrefix).toBeVisible()
+      })
+
+      await test.step('edit screen name, exit, and ensure prefix is still the same', async () => {
+        await expect(modalPrefix).toHaveText('[parent label] -')
+
+        await page.getByTestId('block-name-input').fill('name')
+
+        await page.getByTestId('save-button').click()
+
+        await page
+          .getByRole('button', {name: 'Edit screen name and description'})
+          .click()
+
+        const currentModalPrefix = page.getByTestId('name-prefix')
+        await expect(currentModalPrefix).toHaveText('[parent label] -')
       })
     })
 

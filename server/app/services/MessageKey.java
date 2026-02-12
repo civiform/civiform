@@ -228,6 +228,7 @@ public enum MessageKey {
   TEXT_REPEATED_SET_QUESTION_DESCRIPTION("text.repeatedSet.questionDescription"),
   TEXT_REPEATED_SET_PREFIX("text.repeatedSet.prefix"),
   TEXT_REPEATED_SET_NESTED_PREFIX("text.repeatedSet.nestedPrefix"),
+  TEXT_REPEATED_SET_SCREEN_NAME_DESCRIPTION("text.repeatedSet.screenNameDescription"),
   TEXT_VALIDATION_TOO_LONG("validation.textTooLong"),
   TEXT_VALIDATION_TOO_SHORT("validation.textTooShort"),
   TITLE_ALL_CLIENTS("title.allClients"),

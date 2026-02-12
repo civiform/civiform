@@ -178,7 +178,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
         controllers.admin.routes.AdminProgramBlocksController.update(programId, blockId).url();
     Modal blockDescriptionEditModal =
         renderBlockDescriptionModal(
-            csrfTag, blockForm, blockUpdateAction, blockDefinition, request);
+            csrfTag, blockForm, blockUpdateAction, blockDefinition, request, messages);
 
     String blockDeleteAction =
         controllers.admin.routes.AdminProgramBlocksController.delete(programId, blockId).url();
@@ -1594,7 +1594,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       BlockForm blockForm,
       String blockUpdateAction,
       BlockDefinition blockDefinition,
-      Request request) {
+      Request request,
+      Messages messages) {
     String modalTitle = "Screen name and description";
     FormTag blockDescriptionForm =
         form(csrfTag).withMethod(HttpVerbs.POST).withAction(blockUpdateAction);
@@ -1615,27 +1616,28 @@ public final class ProgramBlocksView extends ProgramBaseView {
                                   "text-base",
                                   "px-1",
                                   "py-2"),
-                          p(blockForm.isRepeated()
-                                  ? "To give the applicant context, we will display the"
-                                      + " applicant-defined label(s) for the listed entity they are"
-                                      + " answering questions for on this screen. You can"
-                                      + " optionally add more text to the screen name to provide"
-                                      + " further context. For example, “Jennifer - Background"
-                                      + " Information”."
-                                  : "")
-                              .withClasses("text-xs", "text-gray-500", "pb-3", "text-base", "px-1"),
+                          iff(
+                              blockForm.isRepeated(),
+                              p(messages.at(
+                                      MessageKey.TEXT_REPEATED_SET_SCREEN_NAME_DESCRIPTION
+                                          .getKeyName()))
+                                  .withClasses(
+                                      "text-xs", "text-gray-500", "pb-3", "text-base", "px-1")
+                                  .attr("data-testid", "repeated-set-prefix-description")),
                           div()
                               .withClasses("flex")
                               .condWith(
                                   blockForm.isRepeated(),
                                   label(blockForm.getNamePrefix())
-                                      .withClasses("text-black", "text-lg", "flex-auto", "py-2"))
+                                      .withClasses("text-black", "text-lg", "flex-auto", "py-2")
+                                      .attr("data-testid", "name-prefix"))
                               .with(
                                   input()
                                       .attr("maxlength", 10000)
                                       .withName("name")
                                       .withValue(blockDefinition.name())
                                       .withId("block-name-input")
+                                      .attr("data-testid", "block-name-input")
                                       .withClasses(
                                           "flex-auto",
                                           "px-3",
@@ -1664,6 +1666,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   .withClasses("mx-4"),
               submitButton("Save")
                   .withId("update-block-button")
+                  .attr("data-testid", "save-button")
                   .withClasses(
                       "mx-4", "my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50"))
                   .isDisabled());
