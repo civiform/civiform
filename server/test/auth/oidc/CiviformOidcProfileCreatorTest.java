@@ -1,8 +1,13 @@
 package auth.oidc;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static support.FakeRequestBuilder.fakeRequest;
 
 import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
@@ -15,6 +20,7 @@ import com.typesafe.config.ConfigFactory;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -26,9 +32,15 @@ import models.TrustedIntermediaryGroupModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.pac4j.core.context.CallContext;
+import org.pac4j.core.context.session.SessionStore;
+import org.pac4j.core.profile.CommonProfile;
+import org.pac4j.core.profile.UserProfile;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
+import org.pac4j.oidc.credentials.OidcCredentials;
 import org.pac4j.oidc.profile.OidcProfile;
+import org.pac4j.play.PlayWebContext;
 import repository.AccountRepository;
 import repository.DatabaseExecutionContext;
 import repository.ResetPostgres;
@@ -122,20 +134,21 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
 
     // Setup.
     // Existing account doesn't have an authority.
-    resourceCreator
+    var emailAccount = resourceCreator
         .insertAccount()
         .setEmailAddress(EMAIL)
-        .setApplicants(ImmutableList.of(resourceCreator.insertApplicant()))
-        .save();
-    CiviformOidcProfileCreator oidcProfileAdapter = getOidcProfileCreator();
+        .setApplicants(ImmutableList.of(resourceCreator.insertApplicant()));
+        emailAccount.save();
+    CiviformOidcProfileCreator oidcProfileCreator = getOidcProfileCreator();
 
     // Execute.
-    Optional<ApplicantModel> applicant = oidcProfileAdapter.getExistingApplicant(profile);
+    Optional<ApplicantModel> applicant = oidcProfileCreator.getExistingApplicant(profile);
 
     // Verify.
     assertThat(applicant).isPresent();
     AccountModel account = applicant.get().getAccount();
 
+    assertThat(account.id).isEqualTo(emailAccount.id);
     assertThat(account.getEmailAddress()).isEqualTo(EMAIL);
     // The existing account doesn't have an authority as it didn't before.
     assertThat(account.getAuthorityId()).isNull();
@@ -149,21 +162,22 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     // Setup.
     final String otherEmail = "OTHER@EMAIL.com";
     // Existing account has authority but some other email.
-    resourceCreator
+    var existingAccount = resourceCreator
         .insertAccount()
         .setEmailAddress(otherEmail)
         .setAuthorityId(AUTHORITY_ID)
-        .setApplicants(ImmutableList.of(resourceCreator.insertApplicant()))
-        .save();
-    CiviformOidcProfileCreator oidcProfileAdapter = getOidcProfileCreator();
+        .setApplicants(ImmutableList.of(resourceCreator.insertApplicant()));
+    existingAccount.save();
+    CiviformOidcProfileCreator oidcProfileCreator = getOidcProfileCreator();
 
     // Execute.
-    Optional<ApplicantModel> applicant = oidcProfileAdapter.getExistingApplicant(profile);
+    Optional<ApplicantModel> applicant = oidcProfileCreator.getExistingApplicant(profile);
 
     // Verify.
     assertThat(applicant).isPresent();
     AccountModel account = applicant.get().getAccount();
 
+    assertThat(account.id).isEqualTo(existingAccount.id);
     // The email of the existing account is the pre-existing one, not a new profile
     // one.
     assertThat(account.getEmailAddress()).isEqualTo(otherEmail);
@@ -172,10 +186,12 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
 
   @Test
   public void mergeCiviFormProfile_succeeds_new_user() {
-    CiviformOidcProfileCreator oidcProfileAdapter = getOidcProfileCreator();
+    CiviformOidcProfileCreator oidcProfileCreator = getOidcProfileCreator();
     // Execute.
     CiviFormProfileData profileData =
-        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile);
+        oidcProfileCreator.mergeCiviFormProfile(/* maybeCiviFormProfile= */
+        Optional.empty(),
+        profile);
 
     // Verify.
     assertThat(profileData).isNotNull();
@@ -184,7 +200,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     // one.
     assertThat(profileData.getEmail()).isEqualTo(EMAIL);
 
-    Optional<ApplicantModel> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
+    Optional<ApplicantModel> maybeApplicant = oidcProfileCreator.getExistingApplicant(profile);
     assertThat(maybeApplicant).isPresent();
 
     // The session ID is a random value, so just ensure it's set and not an empty string.
@@ -213,12 +229,12 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
 
   @Test
   public void mergeCiviFormProfile_succeeds_new_user_with_enhanced_logout() {
-    CiviformOidcProfileCreator oidcProfileAdapter =
+    CiviformOidcProfileCreator oidcProfileCreator =
         getOidcProfileCreatorWithEnhancedLogoutEnabled();
 
     // Execute.
     CiviFormProfileData profileData =
-        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile);
+        oidcProfileCreator.mergeCiviFormProfile(Optional.empty(), profile);
 
     // Verify.
     assertThat(profileData).isNotNull();
@@ -227,7 +243,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     // one.
     assertThat(profileData.getEmail()).isEqualTo(EMAIL);
 
-    Optional<ApplicantModel> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
+    Optional<ApplicantModel> maybeApplicant = oidcProfileCreator.getExistingApplicant(profile);
     assertThat(maybeApplicant).isPresent();
 
     ApplicantModel applicant = maybeApplicant.get();
@@ -256,11 +272,11 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     CiviFormProfileData fakeProfileData = new CiviFormProfileData(123L, clock);
     when(trustedIntermediary.getProfileData()).thenReturn(fakeProfileData);
 
-    CiviformOidcProfileCreator oidcProfileAdapter = getOidcProfileCreator();
+    CiviformOidcProfileCreator oidcProfileCreator = getOidcProfileCreator();
 
     // Execute.
     CiviFormProfileData profileData =
-        oidcProfileAdapter.mergeCiviFormProfile(Optional.of(trustedIntermediary), profile);
+        oidcProfileCreator.mergeCiviFormProfile(Optional.of(trustedIntermediary), profile);
 
     // Verify.
     // Profile data should still be present after the no-op merge.
@@ -271,7 +287,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     assertThat(profileData.getEmail()).isEqualTo(EMAIL);
     assertThat(profileData.getDisplayName()).isNull();
 
-    Optional<ApplicantModel> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
+    Optional<ApplicantModel> maybeApplicant = oidcProfileCreator.getExistingApplicant(profile);
     assertThat(maybeApplicant).isNotPresent();
   }
 
@@ -289,12 +305,12 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     CiviFormProfileData fakeProfileData = new CiviFormProfileData(123L, clock);
     when(trustedIntermediary.getProfileData()).thenReturn(fakeProfileData);
 
-    CiviformOidcProfileCreator oidcProfileAdapter =
+    CiviformOidcProfileCreator oidcProfileCreator =
         getOidcProfileCreatorWithEnhancedLogoutEnabled();
 
     // Execute.
     CiviFormProfileData profileData =
-        oidcProfileAdapter.mergeCiviFormProfile(Optional.of(trustedIntermediary), profile);
+        oidcProfileCreator.mergeCiviFormProfile(Optional.of(trustedIntermediary), profile);
 
     // Verify.
     // Profile data should still be present after the no-op merge.
@@ -305,7 +321,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     assertThat(profileData.getEmail()).isEqualTo(EMAIL);
     assertThat(profileData.getDisplayName()).isNull();
 
-    Optional<ApplicantModel> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
+    Optional<ApplicantModel> maybeApplicant = oidcProfileCreator.getExistingApplicant(profile);
     assertThat(maybeApplicant).isNotPresent();
 
     // Additional validations for enhanced logout behavior.
@@ -326,18 +342,18 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
   @Parameters(method = "allowedPhoneNumbers")
   public void mergeCiviFormProfile_withPhoneScope_importAllowedPhoneNumber(
       String phoneNumber, String cleanedPhoneNumber) {
-    CiviformOidcProfileCreator oidcProfileAdapter = getOidcProfileCreatorWithPhoneScope();
+    CiviformOidcProfileCreator oidcProfileCreator = getOidcProfileCreatorWithPhoneScope();
     // Execute.
 
     profile.addAttribute(PHONE_NUMBER_ATTRIBUTE_NAME, phoneNumber);
 
     CiviFormProfileData profileData =
-        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile);
+        oidcProfileCreator.mergeCiviFormProfile(Optional.empty(), profile);
 
     // Verify.
     assertThat(profileData).isNotNull();
 
-    Optional<ApplicantModel> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
+    Optional<ApplicantModel> maybeApplicant = oidcProfileCreator.getExistingApplicant(profile);
     assertThat(maybeApplicant).isPresent();
     assertThat(maybeApplicant.get().getPhoneNumber()).isEqualTo(Optional.of(cleanedPhoneNumber));
   }
@@ -356,17 +372,17 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
   @Parameters(method = "disallowedPhoneNumbers")
   public void mergeCiviFormProfile_withPhoneScope_doesNotImportInvalidPhoneNumber(
       String phoneNumber) {
-    CiviformOidcProfileCreator oidcProfileAdapter = getOidcProfileCreatorWithPhoneScope();
+    CiviformOidcProfileCreator oidcProfileCreator = getOidcProfileCreatorWithPhoneScope();
     // Execute.
     profile.addAttribute(PHONE_NUMBER_ATTRIBUTE_NAME, phoneNumber);
 
     CiviFormProfileData profileData =
-        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile);
+        oidcProfileCreator.mergeCiviFormProfile(Optional.empty(), profile);
 
     // Verify.
     assertThat(profileData).isNotNull();
 
-    Optional<ApplicantModel> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
+    Optional<ApplicantModel> maybeApplicant = oidcProfileCreator.getExistingApplicant(profile);
     assertThat(maybeApplicant).isPresent();
     assertThat(maybeApplicant.get().getPhoneNumber()).isEqualTo(Optional.empty());
   }
@@ -374,20 +390,129 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
   @Test
   public void mergeCiviFormProfile_withoutPhoneScope_doesNotImportPhoneNumber() {
     // This does NOT have the phone scope requested
-    CiviformOidcProfileCreator oidcProfileAdapter = getOidcProfileCreator();
+    CiviformOidcProfileCreator oidcProfileCreator = getOidcProfileCreator();
 
     // Execute.
     profile.addAttribute(PHONE_NUMBER_ATTRIBUTE_NAME, PHONE_NUMBER);
 
     CiviFormProfileData profileData =
-        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile);
+        oidcProfileCreator.mergeCiviFormProfile(Optional.empty(), profile);
 
     // Verify.
     assertThat(profileData).isNotNull();
 
-    Optional<ApplicantModel> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
+    Optional<ApplicantModel> maybeApplicant = oidcProfileCreator.getExistingApplicant(profile);
     assertThat(maybeApplicant).isPresent();
     assertThat(maybeApplicant.get().getPhoneNumber()).isEqualTo(Optional.empty());
+  }
+
+  @Test
+  public void create_returnsEmpty_whenProviderReturnsEmpty() {
+    CiviformOidcProfileCreator creator = spy(getOidcProfileCreator());
+    doReturn(Optional.empty()).when(creator).superCreate(any(), any());
+
+    Optional<UserProfile> result = creator.create(buildCallContextWithNothing(), mock(OidcCredentials.class));
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void create_returnsEmpty_whenProviderReturnsNonOidcProfile() {
+    CiviformOidcProfileCreator creator = spy(getOidcProfileCreator());
+    doReturn(Optional.of(new CommonProfile())).when(creator).superCreate(any(), any());
+
+    Optional<UserProfile> result = creator.create(buildCallContextWithNothing(), mock(OidcCredentials.class));
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void create_newUser_succeeds() {
+    CiviformOidcProfileCreator creator = spy(getOidcProfileCreator());
+    doReturn(Optional.of(profile)).when(creator).superCreate(any(), any());
+
+    Optional<UserProfile> result = creator.create(buildCallContextWithNothing(), mock(OidcCredentials.class));
+
+    assertThat(result).isPresent();
+
+    Optional<ApplicantModel> applicant = creator.getExistingApplicant(profile);
+    assertThat(applicant).isPresent();
+    assertThat(applicant.get().getAccount().getEmailAddress()).isEqualTo(EMAIL);
+    assertThat(applicant.get().getAccount().getAuthorityId()).isEqualTo(AUTHORITY_ID);
+  }
+
+  @Test
+  public void create_existingUser_succeeds() {
+    // Pre-create an applicant with matching authority ID.
+    AccountModel existingAccount = resourceCreator.insertAccount();
+    existingAccount.setEmailAddress(EMAIL);
+    existingAccount.setAuthorityId(AUTHORITY_ID);
+    existingAccount.setApplicants(ImmutableList.of(resourceCreator.insertApplicant()));
+    existingAccount.save();
+
+    CiviformOidcProfileCreator creator = spy(getOidcProfileCreator());
+    doReturn(Optional.of(profile)).when(creator).superCreate(any(), any());
+
+    Optional<UserProfile> result = creator.create(buildCallContextWithNothing(), mock(OidcCredentials.class));
+
+    assertThat(result).isPresent();
+
+    Optional<ApplicantModel> applicant = creator.getExistingApplicant(profile);
+    assertThat(applicant).isPresent();
+    assertThat(applicant.get().getAccount().getAuthorityId()).isEqualTo(AUTHORITY_ID);
+  }
+
+  @Test
+  public void create_withGuestProfileInSession_usesGuestAccount() {
+    CiviFormProfileData guestProfileData = profileFactory.createNewApplicant();
+    String guestAccountId = guestProfileData.getId();
+
+    CiviformOidcProfileCreator creator = spy(getOidcProfileCreator());
+    doReturn(Optional.of(profile)).when(creator).superCreate(any(), any());
+
+    CallContext callContext = buildCallContextWithGuestProfile(guestProfileData);
+
+    Optional<UserProfile> result = creator.create(callContext, mock(OidcCredentials.class));
+
+    assertThat(result).isPresent();
+    // The result should reuse the guest account, not create a new one.
+    CiviFormProfileData resultProfileData = (CiviFormProfileData) result.get();
+    assertThat(resultProfileData.getId()).isEqualTo(guestAccountId);
+  }
+
+  @Test
+  public void create_tiUser_skipsGuestProfile() {
+    // Create a TI with matching authority ID.
+    TrustedIntermediaryGroupModel tiGroup = new TrustedIntermediaryGroupModel("TI Group", "test");
+    tiGroup.save();
+    AccountModel tiAccount = resourceCreator.insertAccount();
+    tiAccount.setMemberOfGroup(tiGroup);
+    tiAccount.setAuthorityId(AUTHORITY_ID);
+    tiAccount.setEmailAddress(EMAIL);
+    tiAccount.setApplicants(ImmutableList.of(resourceCreator.insertApplicant()));
+    tiAccount.save();
+
+    // Put a guest profile in the session.
+    CiviFormProfileData guestProfileData = profileFactory.createNewApplicant();
+    String guestAccountId = guestProfileData.getId();
+
+    CiviformOidcProfileCreator creator = spy(getOidcProfileCreator());
+    doReturn(Optional.of(profile)).when(creator).superCreate(any(), any());
+
+    CallContext callContext = buildCallContextWithGuestProfile(guestProfileData);
+
+    // Execute.
+    Optional<UserProfile> result = creator.create(callContext, mock(OidcCredentials.class));
+
+    // Verify.
+    assertThat(result).isPresent();
+    // The TI's account should be used, not the guest account.
+    CiviFormProfileData resultProfileData = (CiviFormProfileData) result.get();
+    assertThat(resultProfileData.getId()).isNotEqualTo(guestAccountId);
+    // Verify it's actually the TI account.
+    Optional<ApplicantModel> applicant = creator.getExistingApplicant(profile);
+    assertThat(applicant).isPresent();
+    assertThat(applicant.get().getAccount().getMemberOfGroup()).isPresent();
   }
 
   /** Returns an OidcProfile with required fields set. */
@@ -397,5 +522,22 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     oidcProfile.addAttribute("iss", "my_issuer");
     oidcProfile.addAttribute("user_emailid", "foo@example.com");
     return oidcProfile;
+  }
+
+  private CallContext buildCallContextWithNothing() {
+    SessionStore sessionStore = mock(SessionStore.class);
+    when(sessionStore.get(any(), any())).thenReturn(Optional.empty());
+    PlayWebContext webContext = new PlayWebContext(fakeRequest());
+    return new CallContext(webContext, sessionStore);
+  }
+
+  private CallContext buildCallContextWithGuestProfile(CiviFormProfileData guestProfileData) {
+    SessionStore sessionStore = mock(SessionStore.class);
+    LinkedHashMap<String, UserProfile> profileMap = new LinkedHashMap<>();
+    // the specific key is irrelevant
+    profileMap.put("somekey", guestProfileData);
+    when(sessionStore.get(any(), any())).thenReturn(Optional.of(profileMap));
+    PlayWebContext webContext = new PlayWebContext(fakeRequest());
+    return new CallContext(webContext, sessionStore);
   }
 }

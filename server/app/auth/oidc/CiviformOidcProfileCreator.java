@@ -184,10 +184,19 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
         .join();
   }
 
+  /**
+   * Get the user profile from the OIDC provider. Extracted from create() for testability.
+   */
+  @VisibleForTesting
+  protected Optional<UserProfile> superCreate(
+      CallContext callContext, Credentials credentials) {
+    return super.create(callContext, credentials);
+  }
+
   @Override
   public Optional<UserProfile> create(CallContext callContext, Credentials credentials) {
     ProfileUtils profileUtils = new ProfileUtils(callContext.sessionStore(), profileFactory);
-    Optional<UserProfile> oidcProfile = super.create(callContext, credentials);
+    Optional<UserProfile> oidcProfile = superCreate(callContext, credentials);
 
     if (oidcProfile.isEmpty()) {
       logger.warn("Didn't get a valid profile back from OIDC.");
@@ -207,8 +216,14 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
 
     Function<Optional<CiviFormProfile>, UserProfile> mergeFunction =
         (cProfile) -> this.mergeCiviFormProfile(cProfile, profile);
+    return mergeProfiles(existingApplicant, guestProfile, mergeFunction);
+  }
+
+  @VisibleForTesting
+  Optional<UserProfile> mergeProfiles(Optional<ApplicantModel> existingApplicant, Optional<CiviFormProfile> guestProfile, Function<Optional<CiviFormProfile>, UserProfile> mergeFunction) {
     return civiFormProfileMerger.mergeProfiles(existingApplicant, guestProfile, mergeFunction);
   }
+
 
   @VisibleForTesting
   public final Optional<ApplicantModel> getExistingApplicant(OidcProfile profile) {
