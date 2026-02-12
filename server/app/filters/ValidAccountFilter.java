@@ -70,7 +70,10 @@ public class ValidAccountFilter extends EssentialFilter {
                           return Accumulator.done(
                               Results.redirect(org.pac4j.play.routes.LogoutController.logout()));
                         } else {
-                          return next.apply(request);
+                          // Attach the profile so downstream actions don't need to re-fetch it
+                          Http.RequestHeader requestWithProfile =
+                              request.addAttr(ProfileUtils.CURRENT_USER_PROFILE, profile.get());
+                          return next.apply(requestWithProfile);
                         }
                       });
 
