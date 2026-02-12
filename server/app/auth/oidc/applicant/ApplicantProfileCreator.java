@@ -15,12 +15,12 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.pac4j.core.context.WebContext;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import repository.DatabaseExecutionContext;
 import services.PhoneValidationResult;
 import services.PhoneValidationUtils;
 
@@ -40,8 +40,9 @@ public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator
       OidcConfiguration configuration,
       OidcClient client,
       OidcClientProviderParams params,
-      StandardClaimsAttributeNames standardClaimsAttributeNames) {
-    super(configuration, client, params);
+      StandardClaimsAttributeNames standardClaimsAttributeNames,
+      DatabaseExecutionContext dbExecutionContext) {
+    super(configuration, client, params, dbExecutionContext);
     this.standardClaimsAttributeNames = checkNotNull(standardClaimsAttributeNames);
   }
 
@@ -130,7 +131,7 @@ public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator
   /** Merge the two provided profiles into a new CiviFormProfileData. */
   @Override
   protected final CiviFormProfileData mergeCiviFormProfile(
-      CiviFormProfile civiformProfile, OidcProfile oidcProfile, WebContext context) {
+      CiviFormProfile civiformProfile, OidcProfile oidcProfile) {
     final Optional<String> maybeLocale = getLocale(oidcProfile);
     final Optional<String> maybeName = getName(oidcProfile);
     final Optional<String> maybePhoneNumber = getPhoneNumber(oidcProfile);
@@ -157,7 +158,7 @@ public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator
           .join();
     }
 
-    return super.mergeCiviFormProfile(civiformProfile, oidcProfile, context);
+    return super.mergeCiviFormProfile(civiformProfile, oidcProfile);
   }
 
   @Override

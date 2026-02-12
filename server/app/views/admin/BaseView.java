@@ -3,11 +3,13 @@ package views.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Optional;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.mvc.Http;
 import services.settings.SettingsManifest;
 import views.CspUtil;
+import views.admin.shared.FeatureFlag;
 import views.admin.shared.Footer;
 import views.admin.shared.LayoutParams;
 import views.admin.shared.TemplateGlobals;
@@ -36,8 +38,21 @@ public abstract class BaseView<TModel extends BaseViewModel> {
   }
 
   /** Page title text */
-  protected String pageTitle() {
+  protected String pageTitle(TModel model) {
     return "";
+  }
+
+  /**
+   * Page heading text. Populates that page's H1. If not overridden uses the ${@link
+   * #pageTitle(TModel)}
+   */
+  protected String pageHeading(TModel model) {
+    return pageTitle(model);
+  }
+
+  /** Page intro shown below the {@link #pageHeading } */
+  protected Optional<String> pageIntro(TModel model) {
+    return Optional.empty();
   }
 
   /**
@@ -108,11 +123,14 @@ public abstract class BaseView<TModel extends BaseViewModel> {
     context.setVariable(
         "templateGlobals",
         TemplateGlobals.builder()
-            .pageTitle(pageTitle())
+            .pageTitle(pageTitle(model))
+            .pageHeading(pageHeading(model))
+            .pageIntro(pageIntro(model))
             .cspNonce(CspUtil.getNonce(request))
             .csrfToken(CSRF.getToken(request.asScala()).value())
             .build());
 
+    // Set values for the footer
     context.setVariable(
         "footer",
         Footer.builder()
@@ -120,6 +138,15 @@ public abstract class BaseView<TModel extends BaseViewModel> {
                 settingsManifest
                     .getSupportEmailAddress(request)
                     .orElse("SUPPORT EMAIL ADDRESS MISSING"))
+            .build());
+
+    // Set values for feature flags
+    context.setVariable(
+        "featureFlag",
+        FeatureFlag.builder()
+            .isAdminUiMigrationScEnabled(settingsManifest.getAdminUiMigrationScEnabled(request))
+            .isAdminUiMigrationScExtendedEnabled(
+                settingsManifest.getAdminUiMigrationScExtendedEnabled(request))
             .build());
 
     // This gives the Thymeleaf template a reference to this view class. Methods can be added

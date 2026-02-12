@@ -1,11 +1,12 @@
 package controllers;
 
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
-import static play.mvc.Results.redirect;
 
 import auth.AdminAuthClient;
 import auth.ApplicantAuthClient;
 import auth.CiviFormHttpActionAdapter;
+import auth.CiviFormProfile;
+import auth.ProfileUtils;
 import com.google.common.base.Preconditions;
 import com.typesafe.config.Config;
 import java.util.Optional;
@@ -42,6 +43,7 @@ public class LoginController extends Controller {
   private final HttpActionAdapter httpActionAdapter;
 
   private final Config config;
+  private final ProfileUtils profileUtils;
 
   @Inject
   public LoginController(
@@ -49,12 +51,30 @@ public class LoginController extends Controller {
       @ApplicantAuthClient @Nullable IndirectClient applicantClient,
       CiviFormHttpActionAdapter civiFormHttpActionAdapter,
       SessionStore sessionStore,
-      Config config) {
+      Config config,
+      ProfileUtils profileUtils) {
     this.adminClient = adminClient;
     this.applicantClient = applicantClient;
     this.sessionStore = Preconditions.checkNotNull(sessionStore);
     this.httpActionAdapter = civiFormHttpActionAdapter;
     this.config = config;
+    this.profileUtils = Preconditions.checkNotNull(profileUtils);
+  }
+
+  public Result logBackIn(Http.Request request, Optional<String> redirectTo) {
+    Optional<CiviFormProfile> optionalProfile = profileUtils.optionalCurrentUserProfile(request);
+
+    if (optionalProfile.isPresent()) {
+      CiviFormProfile profile = optionalProfile.get();
+      if (profile.isCiviFormAdmin() || profile.isProgramAdmin()) {
+        return adminLogin(request);
+      } else {
+        return applicantLogin(request, redirectTo);
+      }
+    }
+
+    // If a profile is not found, just redirect home
+    return redirect(routes.HomeController.index().url());
   }
 
   public Result adminLogin(Http.Request request) {

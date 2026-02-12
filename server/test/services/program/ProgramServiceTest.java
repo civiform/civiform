@@ -277,6 +277,146 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void isTranslationComplete_confirmationMessage_untranslated_returnsFalse()
+      throws Exception {
+    when(translationLocales.translatableLocales()).thenReturn(ImmutableList.of(Locale.CHINESE));
+
+    ProgramModel programModel =
+        ProgramBuilder.newDraftProgram("test program", "description")
+            .withLocalizedName(Locale.CHINESE, "测试项目")
+            .withLocalizedDescription(Locale.CHINESE, "描述")
+            .withLocalizedShortDescription(Locale.CHINESE, "简短描述")
+            // Confirmation message is not translated.
+            .build();
+    ProgramDefinition programDefinition = programModel.getProgramDefinition();
+    // Create an updated LocalizedStrings for the confirmation message that has a non-empty default
+    LocalizedStrings updatedConfirmationMessage =
+        programDefinition
+            .localizedConfirmationMessage()
+            .updateTranslation(DEFAULT_LOCALE, "Default confirmation message");
+
+    // Create a new ProgramDefinition that includes our updated confirmation message
+    programDefinition =
+        programDefinition.toBuilder()
+            .setLocalizedConfirmationMessage(updatedConfirmationMessage)
+            .build();
+    BlockDefinition block = programDefinition.getBlockDefinitionByIndex(0).get();
+    BlockDefinition translatedBlock =
+        block.toBuilder()
+            .setLocalizedName(block.localizedName().updateTranslation(Locale.CHINESE, "屏幕 1"))
+            .setLocalizedDescription(
+                block.localizedDescription().updateTranslation(Locale.CHINESE, "屏幕 1 描述"))
+            .build();
+    programDefinition =
+        programDefinition.toBuilder()
+            .setBlockDefinitions(ImmutableList.of(translatedBlock))
+            .build();
+
+    assertThat(ps.isTranslationComplete(programDefinition)).isFalse();
+  }
+
+  @Test
+  public void isTranslationComplete_confirmationMessage_translated_returnsTrue() throws Exception {
+    when(translationLocales.translatableLocales()).thenReturn(ImmutableList.of(Locale.CHINESE));
+
+    ProgramModel programModel =
+        ProgramBuilder.newDraftProgram("test program", "description")
+            .withLocalizedName(Locale.CHINESE, "测试项目")
+            .withLocalizedDescription(Locale.CHINESE, "描述")
+            .withLocalizedShortDescription(Locale.CHINESE, "简短描述")
+            .withLocalizedConfirmationMessage(Locale.CHINESE, "确认信息")
+            .build();
+    ProgramDefinition programDefinition = programModel.getProgramDefinition();
+    BlockDefinition block = programDefinition.getBlockDefinitionByIndex(0).get();
+    BlockDefinition translatedBlock =
+        block.toBuilder()
+            .setLocalizedName(block.localizedName().updateTranslation(Locale.CHINESE, "屏幕 1"))
+            .setLocalizedDescription(
+                block.localizedDescription().updateTranslation(Locale.CHINESE, "屏幕 1 描述"))
+            .build();
+    ApplicationStep translatedApplicationStep =
+        new ApplicationStep(
+            LocalizedStrings.withDefaultValue("Application step title")
+                .updateTranslation(Locale.CHINESE, "申请步骤"),
+            LocalizedStrings.withDefaultValue("Application step description")
+                .updateTranslation(Locale.CHINESE, "申请步骤说明"));
+    programDefinition =
+        programDefinition.toBuilder()
+            .setBlockDefinitions(ImmutableList.of(translatedBlock))
+            .setApplicationSteps(ImmutableList.of(translatedApplicationStep))
+            .build();
+
+    assertThat(ps.isTranslationComplete(programDefinition)).isTrue();
+  }
+
+  @Test
+  public void isTranslationComplete_blockEligibilityMessage_untranslated_returnsFalse()
+      throws Exception {
+    when(translationLocales.translatableLocales()).thenReturn(ImmutableList.of(Locale.CHINESE));
+    ProgramModel programModel =
+        ProgramBuilder.newDraftProgram("test program", "description")
+            .withLocalizedName(Locale.CHINESE, "测试项目")
+            .withLocalizedDescription(Locale.CHINESE, "描述")
+            .withLocalizedShortDescription(Locale.CHINESE, "简短描述")
+            .withLocalizedConfirmationMessage(Locale.CHINESE, "确认信息")
+            .withBlock("Screen 1", "Screen 1 description")
+            .build();
+    ProgramDefinition programDefinition = programModel.getProgramDefinition();
+    BlockDefinition block = programDefinition.getBlockDefinitionByIndex(0).get();
+    BlockDefinition translatedBlock =
+        block.toBuilder()
+            .setLocalizedName(block.localizedName().updateTranslation(Locale.CHINESE, "屏幕 1"))
+            .setLocalizedDescription(
+                block.localizedDescription().updateTranslation(Locale.CHINESE, "屏幕 1 描述"))
+            .setLocalizedEligibilityMessage(
+                Optional.of(LocalizedStrings.withDefaultValue("eligibility message")))
+            .build();
+    programDefinition =
+        programDefinition.toBuilder()
+            .setBlockDefinitions(ImmutableList.of(translatedBlock))
+            .build();
+    assertThat(ps.isTranslationComplete(programDefinition)).isFalse();
+  }
+
+  @Test
+  public void isTranslationComplete_blockEligibilityMessage_translated_returnsTrue()
+      throws Exception {
+    when(translationLocales.translatableLocales()).thenReturn(ImmutableList.of(Locale.CHINESE));
+    ProgramModel programModel =
+        ProgramBuilder.newDraftProgram("test program", "description")
+            .withLocalizedName(Locale.CHINESE, "测试项目")
+            .withLocalizedDescription(Locale.CHINESE, "描述")
+            .withLocalizedShortDescription(Locale.CHINESE, "简短描述")
+            .withLocalizedConfirmationMessage(Locale.CHINESE, "确认信息")
+            .withBlock("Screen 1", "Screen 1 description")
+            .build();
+    ProgramDefinition programDefinition = programModel.getProgramDefinition();
+    BlockDefinition block = programDefinition.getBlockDefinitionByIndex(0).get();
+    BlockDefinition translatedBlock =
+        block.toBuilder()
+            .setLocalizedName(block.localizedName().updateTranslation(Locale.CHINESE, "屏幕 1"))
+            .setLocalizedDescription(
+                block.localizedDescription().updateTranslation(Locale.CHINESE, "屏幕 1 描述"))
+            .setLocalizedEligibilityMessage(
+                Optional.of(
+                    LocalizedStrings.withDefaultValue("eligibility message")
+                        .updateTranslation(Locale.CHINESE, "合格信息")))
+            .build();
+    ApplicationStep translatedApplicationStep =
+        new ApplicationStep(
+            LocalizedStrings.withDefaultValue("Application step title")
+                .updateTranslation(Locale.CHINESE, "申请步骤"),
+            LocalizedStrings.withDefaultValue("Application step description")
+                .updateTranslation(Locale.CHINESE, "申请步骤说明"));
+    programDefinition =
+        programDefinition.toBuilder()
+            .setBlockDefinitions(ImmutableList.of(translatedBlock))
+            .setApplicationSteps(ImmutableList.of(translatedApplicationStep))
+            .build();
+    assertThat(ps.isTranslationComplete(programDefinition)).isTrue();
+  }
+
+  @Test
   public void isTranslationComplete_complete_returnsTrue() throws Exception {
     when(translationLocales.translatableLocales()).thenReturn(ImmutableList.of(Locale.CHINESE));
 
@@ -296,9 +436,16 @@ public class ProgramServiceTest extends ResetPostgres {
             .setLocalizedDescription(
                 block.localizedDescription().updateTranslation(Locale.CHINESE, "屏幕 1 描述"))
             .build();
+    ApplicationStep translatedApplicationStep =
+        new ApplicationStep(
+            LocalizedStrings.withDefaultValue("Application step title")
+                .updateTranslation(Locale.CHINESE, "申请步骤"),
+            LocalizedStrings.withDefaultValue("Application step description")
+                .updateTranslation(Locale.CHINESE, "申请步骤说明"));
     programDefinition =
         programDefinition.toBuilder()
             .setBlockDefinitions(ImmutableList.of(translatedBlock))
+            .setApplicationSteps(ImmutableList.of(translatedApplicationStep))
             .build();
 
     assertThat(ps.isTranslationComplete(programDefinition)).isTrue();
@@ -347,9 +494,16 @@ public class ProgramServiceTest extends ResetPostgres {
             .setLocalizedDescription(
                 block.localizedDescription().updateTranslation(Locale.CHINESE, "屏幕 1 描述"))
             .build();
+    ApplicationStep translatedApplicationStep =
+        new ApplicationStep(
+            LocalizedStrings.withDefaultValue("Application step title")
+                .updateTranslation(Locale.CHINESE, "申请步骤"),
+            LocalizedStrings.withDefaultValue("Application step description")
+                .updateTranslation(Locale.CHINESE, "申请步骤说明"));
     programDefinition =
         programDefinition.toBuilder()
             .setBlockDefinitions(ImmutableList.of(translatedBlock))
+            .setApplicationSteps(ImmutableList.of(translatedApplicationStep))
             .build();
 
     when(questionService.isTranslationComplete(translationLocales, question)).thenReturn(false);

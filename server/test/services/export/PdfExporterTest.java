@@ -422,6 +422,12 @@ public class PdfExporterTest extends AbstractExporterTest {
     assertThat(linesFromPdf.get(12)).isEqualTo("Application confirmation message");
     assertThat(linesFromPdf.get(13))
         .isEqualTo(programDef.localizedConfirmationMessage().getDefault());
+    assertThat(linesFromPdf.get(15)).isEqualTo("Statuses");
+    assertThat(linesFromPdf.get(17)).isEqualTo("(Default status)");
+    assertThat(linesFromPdf.get(18)).isEqualTo("Pending");
+    assertThat(linesFromPdf.get(19)).isEqualTo("We are reviewing your application!");
+    assertThat(linesFromPdf.get(21)).isEqualTo("approved");
+    assertThat(linesFromPdf.get(22)).isEqualTo("You are approved");
   }
 
   @Test

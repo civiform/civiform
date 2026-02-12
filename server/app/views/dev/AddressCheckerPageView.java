@@ -28,7 +28,7 @@ public final class AddressCheckerPageView extends AdminLayoutBaseView<AddressChe
   }
 
   @Override
-  protected String pageTitle() {
+  protected String pageTitle(AddressCheckerPageViewModel model) {
     return "Address Checker";
   }
 

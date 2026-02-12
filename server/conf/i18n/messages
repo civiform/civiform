@@ -1113,24 +1113,27 @@ ariaLabel.categories=Categories
 
 # Title of the warning modal that appears when the user has been inactive for a while
 session.inactivity.warning.title=Session Inactivity Warning
-
+# Title of the session timeout warning modals
+session.warning.title=Session ending soon
+# Text on a button on a session ending soon modal that gives users the options to save and log in
+session.login.button.loggedIn=Log in
+session.login.button.guest=Log in or create an account
 # Message shown in a modal asking the user if they want to extend their session due to inactivity
 session.inactivity.warning.message=Your session will expire soon due to inactivity. Would you like to extend your session?
-
 # Title of a modal dialog displayed when a user's session is about to expire due to session length limit
 session.length.warning.title=Session Length Warning
-
 # Message shown in a modal warning the user their session will end soon due to session length limit
 session.length.warning.message=Your session will expire soon due to length. Please save your work and re-login if needed.
-
 # Text on a button that allows users to extend their session when shown timeout warnings
 session.extend.button=Extend Session
-
 # Success message shown when the user's session is successfully extended after clicking the extend button
 session.extended.success=Session successfully extended
-
 # Error message shown when there was a problem extending the user's session
 session.extended.error=Failed to extend session
+# Message shown to guest users warning that their session is about to expire due to session length
+session.length.warning.message.guest=Your session is about to expire. Please save your work and log in or create an account to continue. You will not lose your progress in the application.
+# Message shown to logged-in users warning that their session is about to expire due to session length
+session.length.warning.message.loggedIn=Your session is about to expire. Please save your work and log back in to continue. You will not lose your progress in the application.
 
 #------------------------------------------------------------------------------#
 #  ADMIN PROGRAM BLOCK EDIT                                                    #
@@ -1170,6 +1173,18 @@ text.nestedRepeatedSet=Nested repeated set
 text.repeatedSet.prefix=parent label
 # An uneditable prefix for the enumerator screen name representing the nested repeated object that will be enumerated
 text.repeatedSet.nestedPrefix=child label
+# Instructions for admins on how to add or change the repeated set question in a program block
+text.repeatedSet.questionDescription=Add a repeated set that will ask residents to add objects or individuals to a list. If a repeated set has already been added and you would like to select a different one, delete the question below.
+# Heading above the repeated set question in the program block editor
+heading.repeatedSet.question=Repeated set question
+# Informative text above the listed entity input field to help admins understand what to enter in that field.
+description.repeatedSet.listedEntity=Specify the type of individuals or objects an applicant will need to list out. Please add these in the singular form, e.g. "household member" or "income source."
+# Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
+description.repeatedSet.adminId=We will auto-generate an ID from the listed entity defined above. Please customize as needed.
+# An informative description above the question text input field to help admins understand what to enter in that field.
+description.repeatedSet.questionText=Add text that will prompt applicants to list out the entity defined above.
+# An informative description above the hint text input field to help admins understand what to enter in that field.
+description.repeatedSet.hintText=Add a hint that will help applicants decide what entities to list out.
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #
@@ -1220,3 +1235,70 @@ reportingProgram.timeToCompleteP75=Time to complete (p75)
 reportingProgram.timeToCompleteP99=Time to complete (p99)
 # Text on button to download CSV file
 reportingProgram.downloadCsv=Download CSV
+
+#------------------------------------------------------------------------------#
+#  DEV TOOLS - text for the developer tools page                               #
+#------------------------------------------------------------------------------#
+# The text on the button to go to the home page from the dev tools page.
+devtools.homepage=Home page
+
+# Heading for the seed section of the dev tools page.
+devtools.seed.title=Seed
+# Description for the seed section of the dev tools page.
+devtools.seed.description=Populate or clear sample data
+# Button text to seed sample programs and categories.
+devtools.seed.programs=Seed sample programs and categories
+# Button text to seed sample questions.
+devtools.seed.questions=Seed sample questions
+# Button text to clear the entire database (irreversible action).
+devtools.seed.clear=Clear entire database (irreversible!)
+
+# Heading for the caching section of the dev tools page.
+devtools.cache.title=Caching
+# Description for the caching section of the dev tools page.
+devtools.cache.description=Manage or clear cache
+# Button text to clear the cache.
+devtools.cache.clear=Clear cache
+
+# Heading for the durable jobs section of the dev tools page.
+devtools.jobs.title=Durable Jobs
+# Description for the durable jobs section of the dev tools page.
+devtools.jobs.description=Manually run the selected job
+# Label for the dropdown to select a durable job to run.
+devtools.jobs.select=Choose job to run once
+# Button text to run the selected durable job.
+devtools.jobs.run=Run job
+
+# Heading for the icons section of the dev tools page.
+devtools.icons.title=Icons
+# Description for the icons section of the dev tools page.
+devtools.icons.description=See all the svg icons in CiviForm
+# Button text to view all SVG icons.
+devtools.icons.view=View All SVG Icons
+
+# Heading for the Localstack section of the dev tools page.
+devtools.localstack.title=Localstack
+# Description for the Localstack section of the dev tools page.
+devtools.localstack.description=Open S3 or SES endpoints on localstack
+# Button text to view SES emails in Localstack.
+devtools.localstack.ses=View SES Emails
+# Button text to view the S3 private bucket in Localstack.
+devtools.localstack.private=S3 Private Bucket
+# Button text to view the S3 public bucket in Localstack.
+devtools.localstack.public=S3 Public Bucket
+
+# Heading for the address tools section of the dev tools page.
+devtools.address.title=Address Tools
+# Description for the address tools section of the dev tools page.
+devtools.address.description=View address lookup and eligibility results
+# Button text to go to the address tools page.
+devtools.address.go=Go to address tools
+
+# Heading for the session tools section of the dev tools page.
+devtools.session.title=Session Tools
+# Description for the session tools section of the dev tools page.
+devtools.session.description=Inspect the current session
+# Button text to view the current pac4j profile.
+devtools.session.pac4j=View current pac4j profile
+# Button text to view the current Play session.
+devtools.session.play=View current Play session

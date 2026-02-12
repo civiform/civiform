@@ -74,7 +74,7 @@
               ></div>
 
               <div
-                th:each="question: ${applicationParams.block().getQuestions()}"
+                th:each="question: ${applicationParams.block().getVisibleQuestions()}"
               >
                 <div
                   th:replace="~{questiontypes/QuestionFragment :: applicant-question(

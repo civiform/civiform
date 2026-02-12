@@ -410,6 +410,20 @@ test.describe('csv json pdf download test- two applications', () => {
       await logout(page)
     })
 
+    await test.step('Admin -verify filters are maintained after viewing application', async () => {
+      await loginAsProgramAdmin(page)
+      await adminPrograms.viewApplications(programName)
+      await adminPrograms.expectApplicationCount(3)
+
+      await adminPrograms.filterProgramApplications({searchFragment: 'SARA'})
+      await adminPrograms.expectApplicationCount(1)
+      await adminPrograms.viewApplicationForApplicant('smith, sarah')
+      await page.getByRole('link', {name: 'Back'}).click()
+      await waitForPageJsLoad(page)
+      await adminPrograms.expectApplicationCount(1)
+      await logout(page)
+    })
+
     // #######################################
     // Test program applications export
     // #######################################

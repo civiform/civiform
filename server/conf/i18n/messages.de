@@ -44,6 +44,8 @@ header.guestIndicator=You''re a guest user.
 header.userName=Logged in as {0}
 # Error message to answer a required question
 validation.isRequired=This question is required.
+# Error message to fill a required field
+validation.fieldIsRequired=This field is required.
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=Please enter valid input.
 content.requiredFieldsNote=Note: Fields marked with a {0} are required.
@@ -237,6 +239,8 @@ button.save=Save
 button.search=Search
 # Button to start an application on behalf of a client.
 button.startApp=Beantragung starten
+# Button to redirect to the login page when the applicant is not logged in for login-only programs.
+button.startAppForLoginOnlyProgram=Sign in to start an application
 # Button to view the applications belonging to an applicant.
 button.viewApplications=View applications
 # Button to view and add clients
@@ -556,6 +560,12 @@ link.backToEditProgramBlock=Back to edit {0}
 content.predicateVisibilityDescription=Configure when this screen is shown or hidden for applicants based on responses to questions on preceding screens.
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
 content.predicateEligibilityDescription=Add eligibility conditions to determine if an applicant qualifies for the program based on responses to questions on this screen. Applicants who do not meet the minimum requirements will be blocked from submitting an application. You can change this in the
+# Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualitifies for the program.
+content.predicateEligibilityDescription.v2=Add eligibility conditions to determine if an applicant qualifies for the program based on responses to questions on this screen.
+# Text informing admins that ineligible applicants will be blocked from submitting an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
+content.blockIneligibleApplicants=Applicants who do not meet the minimum requirements will be blocked from submitting an application. You can change this in the
+# Text informing admins that ineligible applicants will still be able to submit an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
+content.allowIneligibleApplicants=Applicants can submit an application even if they do not meet the minimum requirements. You can change this in the
 # Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
 link.programSettings=program settings
 
@@ -609,8 +619,12 @@ button.saveAndExit=Save and exit
 confirm.deleteAllConditions=Are you sure you would like to delete all conditions?
 # Confirmation dialog shown to admin for deleting a condition in the predicate edit view
 confirm.deleteSingleCondition=Are you sure you would like to delete this condition?
+# Confirmation dialog shown to admin for leaving predicate edit without saving.
+confirm.leaveWithoutSaving=Are you sure you would like to leave?
 # Dialog to warn admin that a deletion action cannot be undone
 confirm.actionNotReversable=This action cannot be undone.
+# Dialog to warn admin that they have unsaved changes in the predicate edit view.
+confirm.unsavedChanges=You have unsaved changes that will be lost.
 
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsVisibility=There are no available questions on preceding screens with which to set a visibility condition for this screen.
@@ -621,6 +635,11 @@ alert.predicateNoAvailableQuestionsEligibility=There are no available questions 
 label.predicateEligibilityMessageField=Display message shown to ineligible applicants
 # Help text for a textarea input explaining that markdown is supported.
 content.markdownSupported=Markdown is supported
+
+# Error message for when the admin leaves a multi-select question blank in admin predicate edit.
+validation.selectionRequired=You must select at least one option.
+# Error message for when the admin leaves a question unselected in admin predicate edit.
+validation.questionRequired=You must select a question.
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -1043,21 +1062,6 @@ banner.minute=1 minute
 #  are seeded into the database, since these will be admin defined in the future #
 #------------------------------------------------------------------------------#
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# An aria-label for screen readers that helps provide context for the category tags.
 # A tag used to filter the list of programs down to those that are related to childcare.
 category.tag.childcare=Childcare
 
@@ -1100,7 +1104,7 @@ category.tag.utilities=Utilities
 # A tag used to filter the list of programs down to those that are related to military veterans.
 category.tag.veteran=Veteran
 
-
+# An aria-label for screen readers that helps provide context for the category tags.
 ariaLabel.categories=Categories
 
 #------------------------------------------------------------------------------#
@@ -1127,3 +1131,92 @@ session.extended.success=Session successfully extended
 
 # Error message shown when there was a problem extending the user's session
 session.extended.error=Failed to extend session
+
+#------------------------------------------------------------------------------#
+#  ADMIN PROGRAM BLOCK EDIT                                                    #
+#------------------------------------------------------------------------------#
+
+# Heading for the repeated set creation method radio buttons
+heading.repeatedSet.creationMethod=
+# Option for allowing an admin to create a new repeated set
+option.repeatedSet.createNew=
+# Option for allowing an admin to choose an existing repeated set
+option.repeatedSet.chooseExisting=
+# Label for the new repeated set form
+label.repeatedSet.newSetForm=
+# Label for the text input field asking what type of entity users will be listing (e.g., household members)
+input.repeatedSet.listedEntity=
+# Label for the text input field asking for the admin identifier of the repeated set
+input.repeatedSet.adminId=
+# A text input field asking admins for the text that will prompt applicants to list out the entity
+input.repeatedSet.questionText=
+# A text input field for admins to add a hint that will help applicants decide what entities to list out
+input.repeatedSet.hintText=
+# A form field where admins set the minimum number of entities that applicants must list
+input.repeatedSet.minEntities=
+# A form field where admins set the maximum number of entities that applicants can list
+input.repeatedSet.maxEntities=
+# Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
+alert.repeatedSet.newQuestion=
+# Submission button for creating a new repeated set
+button.repeatedSet.submitNew=
+# Button for admins to add a new repeated set
+button.repeatedSet.addNew=
+# Text letting admins know which block represents the group of screens for repeating questions
+text.repeatedSet=
+# Text letting admins know which block represents the group of screens for nested repeating questions
+text.nestedRepeatedSet=
+# An uneditable prefix for the enumerator screen name representing the repeated object that will be enumerated
+text.repeatedSet.prefix=
+# An uneditable prefix for the enumerator screen name representing the nested repeated object that will be enumerated
+text.repeatedSet.nestedPrefix=
+
+#------------------------------------------------------------------------------#
+#  ADMIN REPORTING                                                             #
+#------------------------------------------------------------------------------#
+
+# Caption for the table showing submissions by program
+caption.submissionsByProgram=Submissions by program (all programs)
+# Column header for program name
+content.program=Program
+# Column header for number of submissions
+content.submissions=Submissions
+# Column header for 25th percentile time to complete
+content.timeToCompleteP25=Time to complete (p25)
+# Column header for median (50th percentile) time to complete
+content.medianTimeToComplete=Median time to complete
+# Column header for 75th percentile time to complete
+content.timeToCompleteP75=Time to complete (p75)
+# Column header for 99th percentile time to complete
+content.timeToCompleteP99=Time to complete (p99)
+# Text on button to download CSV file
+button.downloadCsv=Download CSV
+# Caption for the table showing submissions by month
+caption.submissionsByMonth=Submissions by month (all programs)
+# Column header for month
+content.month=Month
+
+#------------------------------------------------------------------------------#
+#  ADMIN REPORTING PROGRAM                                                     #
+#------------------------------------------------------------------------------#
+
+# Heading for the program reporting page
+reportingProgram.heading={0} reporting
+# Info text about data delay
+reportingProgram.dataDelay=Data may be up to an hour delayed.
+# Caption for the table showing submissions by month for a program
+reportingProgram.caption.submissionsByMonth=Submissions by month
+# Column header for month
+reportingProgram.month=Month
+# Column header for submissions
+reportingProgram.submissions=Submissions
+# Column header for 25th percentile time to complete
+reportingProgram.timeToCompleteP25=Time to complete (p25)
+# Column header for median (50th percentile) time to complete
+reportingProgram.medianTimeToComplete=Median time to complete
+# Column header for 75th percentile time to complete
+reportingProgram.timeToCompleteP75=Time to complete (p75)
+# Column header for 99th percentile time to complete
+reportingProgram.timeToCompleteP99=Time to complete (p99)
+# Text on button to download CSV file
+reportingProgram.downloadCsv=Download CSV

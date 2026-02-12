@@ -23,4 +23,8 @@ public class AddressCheckerPageViewModel implements BaseViewModel {
   private Optional<ImmutableList<String>> addressServiceAreaValidationUrls;
   // Map of service area validation config options (id -> option)
   private Map<String, EsriServiceAreaValidationOption> serviceAreaValidationConfigMap;
+
+  // Form action URLs
+  private String correctAddressActionUrl;
+  private String checkServiceAreaActionUrl;
 }

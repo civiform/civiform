@@ -73,6 +73,8 @@ public final class AddressCheckerController extends Controller {
               .addressServiceAreaValidationUrls(
                   settingsManifest.getEsriAddressServiceAreaValidationUrls())
               .serviceAreaValidationConfigMap(esriServiceAreaValidationConfig.getImmutableMap())
+              .correctAddressActionUrl(routes.AddressCheckerController.hxCorrectAddress().url())
+              .checkServiceAreaActionUrl(routes.AddressCheckerController.hxCheckServiceArea().url())
               .build();
       return ok(addressCheckerPageView.render(request, model)).as(Http.MimeTypes.HTML);
     }
