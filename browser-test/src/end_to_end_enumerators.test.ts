@@ -908,7 +908,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(addRepeatedScreenButton).toBeHidden()
       })
 
-      fillOutEnumeratorQuestionFormCorrectly(page)
+      await fillOutEnumeratorQuestionFormCorrectly(page)
 
       await test.step('Verify that the "Add repeated screen" button is now present and click the button', async () => {
         await addRepeatedScreenButton.click()
