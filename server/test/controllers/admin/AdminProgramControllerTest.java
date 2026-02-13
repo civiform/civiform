@@ -11,6 +11,7 @@ import static support.FakeRequestBuilder.fakeRequestBuilder;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.typesafe.config.Config;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,8 @@ import play.data.FormFactory;
 import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.AccountRepository;
+import repository.CategoryRepository;
 import repository.ProgramRepository;
 import repository.ResetPostgres;
 import repository.VersionRepository;
@@ -33,9 +36,12 @@ import services.program.ProgramType;
 import services.question.QuestionService;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
+import views.admin.programs.ProgramEditPageView;
 import views.admin.programs.ProgramEditStatus;
+import views.admin.programs.ProgramIndexPageView;
 import views.admin.programs.ProgramIndexView;
 import views.admin.programs.ProgramMetaDataEditView;
+import views.admin.programs.ProgramNewOnePageView;
 import views.admin.programs.ProgramNewOneView;
 import views.html.helper.CSRF;
 
@@ -82,14 +88,20 @@ public class AdminProgramControllerTest extends ResetPostgres {
             instanceOf(ProgramService.class),
             instanceOf(QuestionService.class),
             instanceOf(ProgramIndexView.class),
+            instanceOf(ProgramIndexPageView.class),
             instanceOf(ProgramNewOneView.class),
+            instanceOf(ProgramNewOnePageView.class),
+            instanceOf(ProgramEditPageView.class),
             instanceOf(ProgramMetaDataEditView.class),
             versionRepository,
             instanceOf(ProfileUtils.class),
             instanceOf(FormFactory.class),
             instanceOf(RequestChecker.class),
             instanceOf(MessagesApi.class),
-            instanceOf(SettingsManifest.class));
+            instanceOf(SettingsManifest.class),
+            instanceOf(AccountRepository.class),
+            instanceOf(CategoryRepository.class),
+            instanceOf(Config.class));
   }
 
   @Test

@@ -1,0 +1,40 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.trustedintermediary.TiAccountSettingsPageViewModel"*/-->
+<th:block th:fragment="content" xmlns:th="http://www.thymeleaf.org">
+  <!--/* Tab navigation */-->
+  <nav aria-label="Trusted Intermediary" data-testid="ti-nav">
+    <a
+      id="client-list-link"
+      th:href="${model.getClientListUrl()}"
+      class="usa-button usa-button--outline"
+      >Client List</a
+    >
+    <a
+      id="account-settings-link"
+      th:href="${model.accountSettingsUrl}"
+      aria-current="page"
+      class="usa-button"
+      >Account Settings</a
+    >
+  </nav>
+
+  <h2>Account Settings</h2>
+
+  <h3>Organization Members</h3>
+  <table class="usa-table usa-table--striped" data-testid="org-members-table">
+    <thead>
+      <tr>
+        <th scope="col" data-testid="org-members-name">Name</th>
+        <th scope="col" data-testid="org-members-email">Email</th>
+        <th scope="col" data-testid="org-members-status">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr th:each="member : ${model.orgMembers}">
+        <td th:text="${member.name}"></td>
+        <td th:text="${member.email}"></td>
+        <td th:text="${member.accountStatus}"></td>
+      </tr>
+    </tbody>
+  </table>
+</th:block>

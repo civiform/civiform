@@ -1,9 +1,10 @@
 <!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
 <!--/*@thymesVar id="model" type="views.admin.reporting.AdminReportingProgramPageViewModel"*/-->
-<th:block th:fragment="content">
-  <h1
-    th:text="${#messages.msg('reportingProgram.heading', model.enUSLocalizedProgramName)}"
-  ></h1>
+<th:block
+  th:fragment="content"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
   <div class="my-8">
     <p th:text="#{reportingProgram.dataDelay}"></p>
   </div>

@@ -807,6 +807,50 @@ public final class QuestionEditView extends BaseHtmlView {
         .setRequired(true);
   }
 
+  // ---------- Public helpers for Thymeleaf migration (pre-render settings as HTML) ----------
+
+  /** Renders the question-type-specific configuration section as HTML. */
+  public String renderQuestionConfigHtml(QuestionForm questionForm, Request request) {
+    Optional<DivTag> config = getQuestionConfig(questionForm, messages, settingsManifest, request);
+    return config.map(tag -> tag.render()).orElse("");
+  }
+
+  /** Renders the universal question toggle section as HTML. */
+  public String renderUniversalQuestionHtml(QuestionForm questionForm) {
+    return buildUniversalQuestion(questionForm).render();
+  }
+
+  /** Renders the primary applicant info section as HTML, or empty if not applicable. */
+  public String renderPrimaryApplicantInfoHtml(QuestionForm questionForm) {
+    if (questionForm.getEnumeratorId().isEmpty()
+        && PrimaryApplicantInfoTag.getAllPaiEnabledQuestionTypes()
+            .contains(questionForm.getQuestionType())) {
+      return buildPrimaryApplicantInfoSection(questionForm).render();
+    }
+    return "";
+  }
+
+  /** Renders the demographic data privacy fields as HTML, or empty if not applicable. */
+  public String renderDemographicFieldsHtml(QuestionForm questionForm) {
+    if (!CsvExporterService.NON_EXPORTED_QUESTION_TYPES.contains(questionForm.getQuestionType())) {
+      return buildDemographicFields(questionForm, /* submittable= */ true).render();
+    }
+    return "";
+  }
+
+  /** Renders the display mode fields as HTML, or empty if not applicable. */
+  public String renderDisplayModeFieldsHtml(QuestionForm questionForm, Request request) {
+    if (settingsManifest.getApiBridgeEnabled(request)) {
+      return buildDisplayModeFields(questionForm, /* submittable= */ true).render();
+    }
+    return "";
+  }
+
+  /** Renders the multi-option template (hidden, used by JS) as HTML. */
+  public String renderMultiOptionTemplateHtml() {
+    return multiOptionQuestionField().render();
+  }
+
   private DivTag repeatedQuestionInformation() {
     return div()
         .with(

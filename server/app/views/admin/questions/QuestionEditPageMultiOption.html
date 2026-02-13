@@ -1,0 +1,143 @@
+<!--/*@thymesVar id="model" type="views.admin.questions.QuestionEditPageViewModel"*/-->
+<!--/* Fragment: multi-option question fields (CHECKBOX, DROPDOWN, RADIO_BUTTON) */-->
+<th:block
+  th:fragment="multiOption"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <!--/* Existing options */-->
+  <div
+    th:each="opt : ${model.existingOptions}"
+    class="cf-multi-option-question-option cf-multi-option-question-option-editable grid grid-cols-8 grid-rows-4 items-center mb-4"
+  >
+    <input type="hidden" name="optionIds[]" th:value="${opt.id}" />
+    <div class="col-start-1 col-span-5 mb-2 ml-2 row-start-1 row-span-2">
+      <div class="usa-form-group">
+        <label class="usa-label" th:for="${'optionAdminName-' + opt.id}"
+          >Admin ID</label
+        >
+        <input
+          class="usa-input cf-multi-option-admin-input"
+          type="text"
+          th:id="${'optionAdminName-' + opt.id}"
+          name="optionAdminNames[]"
+          th:value="${opt.adminName}"
+          required="required"
+          readonly="readonly"
+        />
+      </div>
+    </div>
+    <button
+      type="button"
+      class="multi-option-question-field-move-up-button col-start-8 row-start-1"
+      aria-label="move up"
+    >
+      &#x2191;
+    </button>
+    <button
+      type="button"
+      class="multi-option-question-field-move-down-button col-start-8 row-start-2"
+      aria-label="move down"
+    >
+      &#x2193;
+    </button>
+    <div class="col-start-1 col-span-5 mb-2 ml-2 row-start-3 row-span-2">
+      <div class="usa-form-group">
+        <label class="usa-label" th:for="${'optionText-' + opt.id}"
+          >Option Text</label
+        >
+        <input
+          class="usa-input cf-multi-option-input"
+          type="text"
+          th:id="${'optionText-' + opt.id}"
+          name="options[]"
+          th:value="${opt.optionText}"
+          required="required"
+        />
+      </div>
+    </div>
+    <button
+      type="button"
+      class="multi-option-question-field-remove-button col-start-8 row-span-2"
+      aria-label="delete"
+    >
+      &#x2717;
+    </button>
+  </div>
+
+  <!--/* New options */-->
+  <div
+    th:each="opt : ${model.newOptionItems}"
+    class="cf-multi-option-question-option cf-multi-option-question-option-editable grid grid-cols-8 grid-rows-4 items-center mb-4"
+  >
+    <div class="col-start-1 col-span-5 mb-2 ml-2 row-start-1 row-span-2">
+      <div class="usa-form-group">
+        <label
+          class="usa-label"
+          th:for="${'newOptionAdminName-' + optStat.index}"
+          >Admin ID</label
+        >
+        <input
+          class="usa-input cf-multi-option-admin-input"
+          type="text"
+          th:id="${'newOptionAdminName-' + optStat.index}"
+          name="newOptionAdminNames[]"
+          th:value="${opt.adminName}"
+          required="required"
+        />
+      </div>
+    </div>
+    <button
+      type="button"
+      class="multi-option-question-field-move-up-button col-start-8 row-start-1"
+      aria-label="move up"
+    >
+      &#x2191;
+    </button>
+    <button
+      type="button"
+      class="multi-option-question-field-move-down-button col-start-8 row-start-2"
+      aria-label="move down"
+    >
+      &#x2193;
+    </button>
+    <div class="col-start-1 col-span-5 mb-2 ml-2 row-start-3 row-span-2">
+      <div class="usa-form-group">
+        <label class="usa-label" th:for="${'newOptionText-' + optStat.index}"
+          >Option Text</label
+        >
+        <input
+          class="usa-input cf-multi-option-input"
+          type="text"
+          th:id="${'newOptionText-' + optStat.index}"
+          name="newOptions[]"
+          th:value="${opt.optionText}"
+          required="required"
+        />
+      </div>
+    </div>
+    <button
+      type="button"
+      class="multi-option-question-field-remove-button col-start-8 row-span-2"
+      aria-label="delete"
+    >
+      &#x2717;
+    </button>
+  </div>
+
+  <!--/* Add option button */-->
+  <button
+    type="button"
+    id="add-new-option"
+    class="usa-button usa-button--outline"
+  >
+    Add answer option
+  </button>
+
+  <!--/* Hidden next available ID */-->
+  <input
+    type="hidden"
+    name="nextAvailableId"
+    th:value="${model.nextAvailableId}"
+  />
+</th:block>

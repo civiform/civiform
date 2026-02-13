@@ -14,6 +14,7 @@ import forms.translation.QuestionTranslationForm;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
+import mapping.admin.questions.QuestionTranslationPageMapper;
 import models.ConcurrentUpdateException;
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
@@ -28,6 +29,9 @@ import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
+import services.settings.SettingsManifest;
+import views.admin.questions.QuestionTranslationPageView;
+import views.admin.questions.QuestionTranslationPageViewModel;
 import views.admin.questions.QuestionTranslationView;
 import views.components.ToastMessage;
 
@@ -36,8 +40,10 @@ public class AdminQuestionTranslationsController extends CiviFormController {
 
   private final QuestionService questionService;
   private final QuestionTranslationView translationView;
+  private final QuestionTranslationPageView translationPageView;
   private final FormFactory formFactory;
   private final TranslationLocales translationLocales;
+  private final SettingsManifest settingsManifest;
   private final Optional<Locale> maybeFirstTranslatableLocale;
 
   @Inject
@@ -46,13 +52,17 @@ public class AdminQuestionTranslationsController extends CiviFormController {
       VersionRepository versionRepository,
       QuestionService questionService,
       QuestionTranslationView translationView,
+      QuestionTranslationPageView translationPageView,
       FormFactory formFactory,
-      TranslationLocales translationLocales) {
+      TranslationLocales translationLocales,
+      SettingsManifest settingsManifest) {
     super(profileUtils, versionRepository);
     this.questionService = checkNotNull(questionService);
     this.translationView = checkNotNull(translationView);
+    this.translationPageView = checkNotNull(translationPageView);
     this.formFactory = checkNotNull(formFactory);
     this.translationLocales = checkNotNull(translationLocales);
+    this.settingsManifest = checkNotNull(settingsManifest);
     this.maybeFirstTranslatableLocale =
         this.translationLocales.translatableLocales().stream().findFirst();
   }
@@ -94,6 +104,16 @@ public class AdminQuestionTranslationsController extends CiviFormController {
     Locale localeToEdit = maybeLocaleToEdit.get();
 
     QuestionDefinition definition = getDraftQuestionDefinition(questionName);
+
+    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+      Optional<String> errorMessage = request.flash().get(FlashKey.CONCURRENT_UPDATE);
+      QuestionTranslationPageViewModel model =
+          new QuestionTranslationPageMapper()
+              .map(
+                  definition, localeToEdit, translationLocales.translatableLocales(), errorMessage);
+      return ok(translationPageView.render(request, model)).as(Http.MimeTypes.HTML);
+    }
+
     Optional<ToastMessage> message =
         request.flash().get(FlashKey.CONCURRENT_UPDATE).map(m -> ToastMessage.errorNonLocalized(m));
     if (message.isPresent()) {
@@ -130,10 +150,26 @@ public class AdminQuestionTranslationsController extends CiviFormController {
           questionService.update(definitionWithUpdates);
 
       if (result.isError()) {
+        if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+          QuestionTranslationPageViewModel model =
+              new QuestionTranslationPageMapper()
+                  .map(
+                      definitionWithUpdates,
+                      localeToUpdate,
+                      translationLocales.translatableLocales(),
+                      Optional.of(joinErrors(result.getErrors())));
+          return ok(translationPageView.render(request, model)).as(Http.MimeTypes.HTML);
+        }
         ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
         return ok(
             translationView.renderErrors(request, localeToUpdate, definitionWithUpdates, message));
       }
+
+      if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+        return redirect(
+            routes.AdminQuestionTranslationsController.edit(questionName, locale).url());
+      }
+
       return ok(translationView.render(request, localeToUpdate, definitionWithUpdates));
 
     } catch (UnsupportedQuestionTypeException e) {

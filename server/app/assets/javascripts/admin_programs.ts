@@ -1,5 +1,6 @@
 import {ToastController} from '@/toast'
 import {addEventListenerToElements} from '@/util'
+import {featureFlags} from '@/global/shared/feature_flags'
 
 enum ProgramType {
   DEFAULT = 'CiviForm program',
@@ -55,7 +56,7 @@ class AdminPrograms {
 
     // Listen for changes to the program type radio button, which is only used
     // when EXTERNAL_PROGRAM_CARDS feature is enabled.
-    addEventListenerToElements('#program-type', 'click', () => {
+    addEventListenerToElements('[name=programTypeValue]', 'click', () => {
       const preScreenerCheckbox = <HTMLInputElement>(
         document.querySelector('#pre-screener-program-option')
       )
@@ -145,11 +146,11 @@ class AdminPrograms {
       /* shouldDisable= */ disableApplicationSteps,
     )
     this.updateRequiredIndicatorState(
-      /* fieldSelector= */ 'label[for="apply-step-1-title"]',
+      /* fieldSelector= */ '#apply-step-1-title',
       /* shouldHide= */ disableApplicationSteps,
     )
     this.updateRequiredIndicatorState(
-      /* fieldSelector= */ 'label[for="apply-step-1-description"]',
+      /* fieldSelector= */ '#apply-step-1-description',
       /* shouldHide= */ disableApplicationSteps,
     )
 
@@ -234,20 +235,22 @@ class AdminPrograms {
     fieldSelector: string,
     shouldHide: boolean,
   ) {
-    const labelElement = document.querySelector(fieldSelector)
-    if (!labelElement) {
+    const element = document.querySelector(fieldSelector)
+
+    console.log(fieldSelector, element)
+    if (!element) {
       return
     }
 
-    const requiredSpan = labelElement.querySelector('.usa-hint--required')
+    const requiredSpan = element.querySelector('.usa-hint--required')
     if (!requiredSpan) {
       return
     }
 
     if (shouldHide) {
-      requiredSpan.classList.add('hidden')
+      element.removeAttribute('required')
     } else {
-      requiredSpan.classList.remove('hidden')
+      element.setAttribute('required', 'required')
     }
   }
 
@@ -377,7 +380,16 @@ class AdminPrograms {
   }
 }
 
+class AdminProgramsNew {
+  init() {}
+}
+
 export function init() {
+  // if (featureFlags.isAdminUiMigrationScEnabled) {
+  //   new AdminProgramsNew().init()
+  //   return
+  // }
+
   AdminPrograms.attachCopyProgramLinkListeners()
   AdminPrograms.attachConfirmPreScreenerChangeListener()
   AdminPrograms.attachProgramTypeChangeListener()

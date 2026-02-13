@@ -1,0 +1,96 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.programs.ProgramTranslationPageViewModel"*/-->
+<th:block
+  th:fragment="content"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <!-- Error message -->
+  <cf:alert th:if="${model.errorMessage.isPresent()}" type="error" slim="true">
+    <text th:text="${model.errorMessage.get()}">placeholder</text>
+  </cf:alert>
+
+  <p th:text="#{programtranslation.text.instruction}"></p>
+
+  <!-- Language links -->
+  <nav aria-label="Language Selection">
+    <ul class="usa-list--unstyled display-flex flex-row flex-gap">
+      <li th:each="locale : ${model.localeLinks}">
+        <a
+          th:href="${locale.url}"
+          th:text="${locale.displayName}"
+          th:classappend="${locale.selected} ? 'text-bold text-underline' : ''"
+          class="usa-link"
+        ></a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Translation form -->
+  <form
+    id="program-translation-form"
+    method="POST"
+    th:action="${model.formActionUrl}"
+  >
+    <input th:replace="~{admin/shared/CsrfToken}" />
+
+    <th:block th:each="section : ${model.sections}">
+      <fieldset class="usa-fieldset border-1px border-base-lighter">
+        <legend class="usa-legend">
+          <span th:text="${section.legend}"></span>
+          <a
+            class="usa-link"
+            th:href="${section.editDefaultUrl}"
+            th:text="#{programtranslation.link.editdefault}"
+          ></a>
+        </legend>
+
+        <!-- Hidden fields -->
+        <th:block th:each="hidden : ${section.hiddenFields}">
+          <input
+            type="hidden"
+            th:name="${hidden.name}"
+            th:value="${hidden.value}"
+          />
+        </th:block>
+
+        <!-- Translation fields -->
+        <div class="grid-row grid-gap" th:each="field : ${section.fields}">
+          <div class="grid-col-6">
+            <th:block th:if="${field.textArea}">
+              <cf:textarea
+                th:id="${field.fieldName}"
+                th:name="${field.fieldName}"
+                th:label="${field.label}"
+                th:value="${field.value}"
+              />
+            </th:block>
+            <th:block th:unless="${field.textArea}">
+              <cf:input
+                th:id="${field.fieldName}"
+                th:name="${field.fieldName}"
+                th:label="${field.label}"
+                th:value="${field.value}"
+              />
+            </th:block>
+          </div>
+          <div class="grid-col-6">
+            <div class="bg-base-lighter">
+              <div
+                class="usa-label"
+                th:text="#{admin.common.label.englishtext}"
+              ></div>
+              <p th:text="${field.defaultText}"></p>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+    </th:block>
+
+    <cf:button
+      id="update-localizations-button"
+      type="submit"
+      th:text="#{programtranslation.button.saveprefix} + ' ' + ${model.currentLocaleDisplayName} + ' ' + #{programtranslation.button.savesuffix}"
+    />
+  </form>
+</th:block>

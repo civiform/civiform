@@ -1,4 +1,4 @@
-import {expect} from './civiform_fixtures'
+import {test, expect} from './civiform_fixtures'
 import {Page} from '@playwright/test'
 import {waitForPageJsLoad} from './wait'
 
@@ -47,8 +47,14 @@ export class AdminTranslations {
   }
 
   async selectLanguage(language: string) {
-    await this.page.click(`.cf-admin-language-link:text("${language}")`)
-    await waitForPageJsLoad(this.page)
+    await test.step('select language', async () => {
+      await this.page
+        .getByRole('navigation', {name: 'Language Selection'})
+        .getByRole('link', {name: language})
+        .click()
+
+      await waitForPageJsLoad(this.page)
+    })
   }
 
   async editProgramTranslations({
@@ -64,62 +70,64 @@ export class AdminTranslations {
     blockEligibilityMsg = '',
     programType = 'default',
   }: ProgramTranslationParams) {
-    await this.page.fill('text=Program name', name)
+    await test.step('edit program translations', async () => {
+      await this.page.fill('text=Program name', name)
 
-    if (description != '') {
-      await this.page.fill('text=Program description', description)
-    }
-    await this.page.fill('text=Short program description', shortDescription)
-    if (confirmationMsg != '') {
-      await this.page.fill(
-        'text=Custom confirmation screen message',
-        confirmationMsg,
-      )
-    }
-
-    for (const status of statuses) {
-      await this.page.fill(
-        this.statusNameFieldSelector(status.configuredStatusText),
-        status.statusText,
-      )
-      const isEmailVisible = await this.page.isVisible(
-        this.statusEmailFieldSelector(status.configuredStatusText),
-      )
-      if (status.statusEmail === undefined) {
-        expect(isEmailVisible).toBe(false)
-      } else {
-        expect(isEmailVisible).toBe(true)
+      if (description != '') {
+        await this.page.fill('text=Program description', description)
+      }
+      await this.page.fill('text=Short program description', shortDescription)
+      if (confirmationMsg != '') {
         await this.page.fill(
-          this.statusEmailFieldSelector(status.configuredStatusText),
-          status.statusEmail,
+          'text=Custom confirmation screen message',
+          confirmationMsg,
         )
       }
-    }
 
-    if (programType === 'default') {
-      // Application step fields are within the "Application step 1" fieldset section
-      const applicationStepSection = this.page.locator(
-        'fieldset:has-text("Application step 1")',
-      )
-      await applicationStepSection
-        .getByRole('textbox', {name: 'Title'})
-        .fill(applicationStepTitle)
-      await applicationStepSection
-        .getByRole('textbox', {name: 'Description'})
-        .fill(applicationStepDescription)
-    }
+      for (const status of statuses) {
+        await this.page.fill(
+          this.statusNameFieldSelector(status.configuredStatusText),
+          status.statusText,
+        )
+        const isEmailVisible = await this.page.isVisible(
+          this.statusEmailFieldSelector(status.configuredStatusText),
+        )
+        if (status.statusEmail === undefined) {
+          expect(isEmailVisible).toBe(false)
+        } else {
+          expect(isEmailVisible).toBe(true)
+          await this.page.fill(
+            this.statusEmailFieldSelector(status.configuredStatusText),
+            status.statusEmail,
+          )
+        }
+      }
 
-    await this.page.fill('text=Screen name', blockName)
-    await this.page.fill('text=Screen description', blockDescription)
-    if (blockEligibilityMsg != '') {
-      await this.page.fill(
-        'text=Screen eligibility message',
-        blockEligibilityMsg,
-      )
-    }
+      if (programType === 'default') {
+        // Application step fields are within the "Application step 1" fieldset section
+        const applicationStepSection = this.page.locator(
+          'fieldset:has-text("Application step 1")',
+        )
+        await applicationStepSection
+          .getByRole('textbox', {name: 'Title'})
+          .fill(applicationStepTitle)
+        await applicationStepSection
+          .getByRole('textbox', {name: 'Description'})
+          .fill(applicationStepDescription)
+      }
 
-    await this.page.click('#update-localizations-button')
-    await waitForPageJsLoad(this.page)
+      await this.page.fill('text=Screen name', blockName)
+      await this.page.fill('text=Screen description', blockDescription)
+      if (blockEligibilityMsg != '') {
+        await this.page.fill(
+          'text=Screen eligibility message',
+          blockEligibilityMsg,
+        )
+      }
+
+      await this.page.click('#update-localizations-button')
+      await waitForPageJsLoad(this.page)
+    })
   }
 
   async expectProgramTranslation({

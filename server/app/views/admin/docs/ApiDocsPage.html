@@ -1,0 +1,158 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.docs.ApiDocsPageViewModel"*/-->
+<th:block
+  th:fragment="content"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <!-- Tabs -->
+  <ul class="usa-button-group usa-button-group--segmented">
+    <li class="usa-button-group__item">
+      <a class="usa-button" th:href="${model.apiDocsTabUrl}"
+        >API documentation</a
+      >
+    </li>
+    <li class="usa-button-group__item">
+      <a class="usa-button usa-button--outline" th:href="${model.schemaTabUrl}"
+        >API Schema Viewer</a
+      >
+    </li>
+  </ul>
+
+  <p>
+    This page includes program-specific API documentation for Active and Draft
+    programs. Detailed documentation about authentication, pagination, and every
+    field's possible values is located at
+    <a class="usa-link" href="https://docs.civiform.us/it-manual/api"
+      >docs.civiform.us/it-manual/api</a
+    >.
+  </p>
+
+  <!-- How does this work accordion -->
+  <div class="usa-accordion">
+    <h3 class="usa-accordion__heading">
+      <button
+        type="button"
+        class="usa-accordion__button"
+        aria-expanded="false"
+        aria-controls="notes-content"
+      >
+        How does this work?
+      </button>
+    </h3>
+    <div id="notes-content" class="usa-accordion__content" hidden>
+      <p>
+        The API response preview is a sample of what the API response might look
+        like for a given program. All data is fake. Single-select and
+        multi-select questions have sample answers that are selected from the
+        available responses.
+      </p>
+      <p>
+        You may share this link,
+        <code
+          ><a
+            class="usa-link"
+            th:href="${model.apiDocsLink}"
+            th:text="${model.apiDocsLink}"
+          ></a></code
+        >, with anyone who needs to see API docs. It is accessible without
+        logging in, so they do not need to be a CiviForm Admin or Program Admin
+        to view this page.
+      </p>
+    </div>
+  </div>
+
+  <!-- Program and version selectors -->
+  <div>
+    <label class="usa-label" for="select-slug">Select a program:</label>
+    <select class="usa-select" id="select-slug">
+      <th:block th:each="opt : ${model.programSlugs}">
+        <option
+          th:value="${opt.slug}"
+          th:text="${opt.slug}"
+          th:selected="${opt.selected}"
+        ></option>
+      </th:block>
+    </select>
+
+    <label class="usa-label" for="select-version">Select version:</label>
+    <select class="usa-select" id="select-version">
+      <option value="active" th:selected="${model.activeVersion}">
+        Active
+      </option>
+      <option value="draft" th:selected="${!model.activeVersion}">Draft</option>
+    </select>
+  </div>
+
+  <!-- Navigation script -->
+  <script th:inline="javascript" th:attr="nonce=${templateGlobals.cspNonce()}">
+    document.addEventListener('DOMContentLoaded', () => {
+      const slugSelect = document.getElementById('select-slug')
+      const versionSelect = document.getElementById('select-version')
+      function navigateToProgram() {
+        const slug = slugSelect.value
+        const version = versionSelect.value
+        window.location.href = '/docs/api/programs/' + slug + '/' + version
+      }
+      slugSelect?.addEventListener('change', navigateToProgram)
+      versionSelect?.addEventListener('change', navigateToProgram)
+    })
+  </script>
+
+  <!-- Program content -->
+  <th:block th:if="${!model.programFound}">
+    <h2>Program and version not found</h2>
+  </th:block>
+
+  <th:block th:if="${model.programFound}">
+    <div class="display-flex flex-gap margin-top-2">
+      <!-- Left: Questions -->
+      <div>
+        <h2>Questions</h2>
+        <th:block th:each="q : ${model.questions}">
+          <div class="usa-card">
+            <div class="usa-card__container">
+              <div class="usa-card__body">
+                <h3>
+                  <strong th:text="${q.name}"></strong>
+                  <code th:text="${q.questionNameKey}"></code>
+                </h3>
+                <div class="display-flex flex-gap">
+                  <div>
+                    <h4>Type</h4>
+                    <span th:text="${q.type}"></span>
+                  </div>
+                  <div>
+                    <h4>Text</h4>
+                    <span th:text="${q.questionText}"></span>
+                  </div>
+                </div>
+                <th:block th:if="${q.multiOption}">
+                  <div>
+                    <h4>Options</h4>
+                    <p>Current options:</p>
+                    <span th:each="opt, iterStat : ${q.currentOptions}">
+                      <code th:text="${opt}"></code>
+                      <span th:if="${!iterStat.last}">, </span>
+                    </span>
+                    <p>All possible options:</p>
+                    <span th:each="opt, iterStat : ${q.allHistoricOptions}">
+                      <code th:text="${opt}"></code>
+                      <span th:if="${!iterStat.last}">, </span>
+                    </span>
+                  </div>
+                </th:block>
+              </div>
+            </div>
+          </div>
+        </th:block>
+      </div>
+
+      <!-- Right: JSON preview -->
+      <div>
+        <h2>API response preview</h2>
+        <pre><code data-testid="jsonPreview" th:text="${model.jsonPreview}"></code></pre>
+      </div>
+    </div>
+  </th:block>
+</th:block>

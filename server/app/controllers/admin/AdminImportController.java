@@ -12,6 +12,7 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
 import java.util.Map.Entry;
+import mapping.admin.migration.AdminImportPageMapper;
 import models.DisplayMode;
 import models.ProgramModel;
 import org.pac4j.play.java.Secure;
@@ -33,6 +34,8 @@ import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
+import views.admin.migration.AdminImportPageView;
 import views.admin.migration.AdminImportView;
 import views.admin.migration.AdminImportViewPartial;
 import views.admin.migration.AdminProgramImportForm;
@@ -49,35 +52,48 @@ import views.admin.migration.AdminProgramImportForm;
  * environment (e.g. production).
  */
 public class AdminImportController extends CiviFormController {
+  private static final int MAX_TEXT_LENGTH = 512000;
+
   private final Logger logger = LoggerFactory.getLogger(AdminImportController.class);
   private final AdminImportView adminImportView;
+  private final AdminImportPageView adminImportPageView;
   private final AdminImportViewPartial adminImportViewPartial;
   private final FormFactory formFactory;
   private final ProgramMigrationService programMigrationService;
   private final ProgramRepository programRepository;
   private final ProgramService programService;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public AdminImportController(
       AdminImportView adminImportView,
+      AdminImportPageView adminImportPageView,
       AdminImportViewPartial adminImportViewPartial,
       FormFactory formFactory,
       ProfileUtils profileUtils,
       ProgramMigrationService programMigrationService,
       VersionRepository versionRepository,
       ProgramRepository programRepository,
-      ProgramService programService) {
+      ProgramService programService,
+      SettingsManifest settingsManifest) {
     super(profileUtils, versionRepository);
     this.adminImportView = checkNotNull(adminImportView);
+    this.adminImportPageView = checkNotNull(adminImportPageView);
     this.adminImportViewPartial = checkNotNull(adminImportViewPartial);
     this.formFactory = checkNotNull(formFactory);
     this.programMigrationService = checkNotNull(programMigrationService);
     this.programRepository = checkNotNull(programRepository);
     this.programService = checkNotNull(programService);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Http.Request request) {
+    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+      AdminImportPageMapper mapper = new AdminImportPageMapper();
+      return ok(adminImportPageView.render(request, mapper.map(MAX_TEXT_LENGTH)))
+          .as(Http.MimeTypes.HTML);
+    }
     return ok(adminImportView.render(request));
   }
 

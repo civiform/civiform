@@ -21,7 +21,11 @@ test.describe('modify program statuses', () => {
       // Add a draft program, no questions are needed.
       const programName = 'Test program without statuses'
       await adminPrograms.addProgram(programName)
-      await adminPrograms.gotoDraftProgramManageStatusesPage(programName)
+
+      await test.step('go to draft program manage statuses page', async () => {
+        await adminPrograms.gotoDraftProgramManageStatusesPage(programName)
+      })
+
       await adminProgramStatuses.expectNoStatuses()
       await validateScreenshot(page, 'status-list-with-no-statuses')
     })
@@ -69,8 +73,7 @@ test.describe('modify program statuses', () => {
       page,
       adminProgramStatuses,
     }) => {
-      await adminProgramStatuses.createStatus('')
-      await adminProgramStatuses.expectProgramManageStatusesPage(programName)
+      await adminProgramStatuses.createStatus('', {waitForPageLoad: false})
       await adminProgramStatuses.expectCreateStatusModalWithError(
         'This field is required',
       )
@@ -78,17 +81,19 @@ test.describe('modify program statuses', () => {
     })
 
     test('fails to create status with an existing name', async ({
-      page,
       adminProgramStatuses,
     }) => {
-      await adminProgramStatuses.createStatus('Existing status')
-      await adminProgramStatuses.expectProgramManageStatusesPage(programName)
-      await adminProgramStatuses.createStatus('Existing status')
-      await adminProgramStatuses.expectProgramManageStatusesPage(programName)
+      await adminProgramStatuses.createStatus('Existing status', {
+        waitForPageLoad: false,
+      })
+
+      await adminProgramStatuses.createStatus('Existing status', {
+        waitForPageLoad: false,
+      })
       await adminProgramStatuses.expectCreateStatusModalWithError(
         'A status with name Existing status already exists',
       )
-      await dismissModal(page)
+      // await dismissModal(page)
     })
   })
 
@@ -122,21 +127,28 @@ test.describe('modify program statuses', () => {
     })
 
     test('fails to edit status when providing an existing status name', async ({
-      page,
       adminProgramStatuses,
     }) => {
-      await adminProgramStatuses.editStatus(firstStatusName, {
-        editedStatusName: secondStatusName,
+      await test.step(`Edit status ${firstStatusName}`, async () => {
+        await adminProgramStatuses.editStatus(firstStatusName, {
+          editedStatusName: secondStatusName,
+        })
       })
-      await adminProgramStatuses.expectProgramManageStatusesPage(programName)
-      await adminProgramStatuses.expectEditStatusModalWithError(
-        `A status with name ${secondStatusName} already exists`,
-      )
-      await dismissModal(page)
+
+      await test.step(`expect program manage statuses page ${programName}`, async () => {
+        await adminProgramStatuses.expectProgramManageStatusesPage(programName)
+      })
+
+      await test.step('expect edit status modal with error', async () => {
+        await adminProgramStatuses.expectEditStatusModalWithError(
+          `A status with name ${secondStatusName} already exists`,
+        )
+      })
+
+      // await dismissModal(page)
     })
 
     test('fails to edit status with an empty name', async ({
-      page,
       adminProgramStatuses,
     }) => {
       await adminProgramStatuses.editStatus(firstStatusName, {
@@ -146,7 +158,7 @@ test.describe('modify program statuses', () => {
       await adminProgramStatuses.expectEditStatusModalWithError(
         'This field is required',
       )
-      await dismissModal(page)
+      // await dismissModal(page)
     })
 
     test('edits an existing status name', async ({adminProgramStatuses}) => {

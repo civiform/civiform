@@ -13,6 +13,9 @@ import controllers.BadRequestException;
 import forms.TiClientInfoForm;
 import java.util.Optional;
 import javax.inject.Inject;
+import mapping.ti.TiAccountSettingsPageMapper;
+import mapping.ti.TiDashboardPageMapper;
+import mapping.ti.TiEditClientPageMapper;
 import models.AccountModel;
 import models.TrustedIntermediaryGroupModel;
 import org.pac4j.play.java.Secure;
@@ -23,14 +26,20 @@ import play.mvc.Http;
 import play.mvc.Result;
 import repository.AccountRepository;
 import repository.SearchParameters;
+import services.DateConverter;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantPersonalInfo.Representation;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.pagination.PaginationInfo;
+import services.program.ProgramService;
+import services.settings.SettingsManifest;
 import services.ti.AddNewApplicantReturnObject;
 import services.ti.TrustedIntermediarySearchResult;
 import services.ti.TrustedIntermediaryService;
 import views.trustedintermediary.EditTiClientView;
+import views.trustedintermediary.TiAccountSettingsPageView;
+import views.trustedintermediary.TiDashboardPageView;
+import views.trustedintermediary.TiEditClientPageView;
 import views.trustedintermediary.TrustedIntermediaryAccountSettingsView;
 import views.trustedintermediary.TrustedIntermediaryClientListView;
 
@@ -49,6 +58,13 @@ public final class TrustedIntermediaryController {
   private final TrustedIntermediaryService tiService;
   private final EditTiClientView editTiClientView;
   private final TrustedIntermediaryAccountSettingsView tiAccountSettingsView;
+  private final SettingsManifest settingsManifest;
+  private final TiDashboardPageView tiDashboardPageView;
+  private final TiAccountSettingsPageView tiAccountSettingsPageView;
+  private final TiEditClientPageView tiEditClientPageView;
+  private final TiDashboardPageMapper tiDashboardPageMapper;
+  private final TiAccountSettingsPageMapper tiAccountSettingsPageMapper;
+  private final TiEditClientPageMapper tiEditClientPageMapper;
 
   @Inject
   public TrustedIntermediaryController(
@@ -59,7 +75,13 @@ public final class TrustedIntermediaryController {
       TrustedIntermediaryClientListView trustedIntermediaryClientListView,
       TrustedIntermediaryService tiService,
       EditTiClientView editTiClientView,
-      TrustedIntermediaryAccountSettingsView tiAccountSettingsView) {
+      TrustedIntermediaryAccountSettingsView tiAccountSettingsView,
+      SettingsManifest settingsManifest,
+      TiDashboardPageView tiDashboardPageView,
+      TiAccountSettingsPageView tiAccountSettingsPageView,
+      TiEditClientPageView tiEditClientPageView,
+      DateConverter dateConverter,
+      ProgramService programService) {
     this.profileUtils = Preconditions.checkNotNull(profileUtils);
     this.tiClientListView = Preconditions.checkNotNull(trustedIntermediaryClientListView);
     this.accountRepository = Preconditions.checkNotNull(accountRepository);
@@ -68,6 +90,13 @@ public final class TrustedIntermediaryController {
     this.tiService = Preconditions.checkNotNull(tiService);
     this.editTiClientView = Preconditions.checkNotNull(editTiClientView);
     this.tiAccountSettingsView = Preconditions.checkNotNull(tiAccountSettingsView);
+    this.settingsManifest = Preconditions.checkNotNull(settingsManifest);
+    this.tiDashboardPageView = Preconditions.checkNotNull(tiDashboardPageView);
+    this.tiAccountSettingsPageView = Preconditions.checkNotNull(tiAccountSettingsPageView);
+    this.tiEditClientPageView = Preconditions.checkNotNull(tiEditClientPageView);
+    this.tiDashboardPageMapper = new TiDashboardPageMapper(dateConverter, programService);
+    this.tiAccountSettingsPageMapper = new TiAccountSettingsPageMapper();
+    this.tiEditClientPageMapper = new TiEditClientPageMapper(dateConverter, settingsManifest);
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
@@ -104,6 +133,20 @@ public final class TrustedIntermediaryController {
     PaginationInfo<AccountModel> pageInfo =
         PaginationInfo.paginate(trustedIntermediarySearchResult.accounts(), PAGE_SIZE, page.get());
 
+    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+      return ok(tiDashboardPageView.render(
+              request,
+              tiDashboardPageMapper.map(
+                  trustedIntermediaryGroup.get(),
+                  pageInfo,
+                  searchParameters,
+                  nameQuery,
+                  dayQuery,
+                  monthQuery,
+                  yearQuery)))
+          .as(Http.MimeTypes.HTML);
+    }
+
     Optional<String> applicantName =
         civiformProfile.getApplicant().join().getApplicantDisplayName();
 
@@ -131,6 +174,12 @@ public final class TrustedIntermediaryController {
       return notFound();
     }
 
+    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+      return ok(tiAccountSettingsPageView.render(
+              request, tiAccountSettingsPageMapper.map(trustedIntermediaryGroup.get())))
+          .as(Http.MimeTypes.HTML);
+    }
+
     Optional<String> applicantName =
         civiformProfile.getApplicant().join().getApplicantDisplayName();
 
@@ -155,6 +204,21 @@ public final class TrustedIntermediaryController {
     if (!trustedIntermediaryGroup.get().id.equals(id)) {
       return unauthorized();
     }
+
+    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+      return ok(tiEditClientPageView.render(
+              request,
+              tiEditClientPageMapper.map(
+                  trustedIntermediaryGroup.get(),
+                  /* isEdit= */ false,
+                  routes.TrustedIntermediaryController.addClient(trustedIntermediaryGroup.get().id)
+                      .url(),
+                  Optional.empty(),
+                  Optional.empty(),
+                  request)))
+          .as(Http.MimeTypes.HTML);
+    }
+
     Optional<String> applicantName = civiformProfile.getApplicant().join().getApplicantName();
 
     return ok(
@@ -178,6 +242,21 @@ public final class TrustedIntermediaryController {
     if (trustedIntermediaryGroup.isEmpty()) {
       return notFound();
     }
+
+    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+      AccountModel account = accountRepository.lookupAccount(accountId).get();
+      return ok(tiEditClientPageView.render(
+              request,
+              tiEditClientPageMapper.map(
+                  trustedIntermediaryGroup.get(),
+                  /* isEdit= */ true,
+                  routes.TrustedIntermediaryController.editClient(accountId).url(),
+                  account.representativeApplicant(),
+                  Optional.of(account),
+                  request)))
+          .as(Http.MimeTypes.HTML);
+    }
+
     String applicantName =
         accountRepository.lookupAccount(accountId).get().getApplicantDisplayName();
     return ok(

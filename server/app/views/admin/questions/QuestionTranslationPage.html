@@ -1,0 +1,128 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.questions.QuestionTranslationPageViewModel"*/-->
+<th:block
+  th:fragment="content"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <!-- Error message -->
+  <cf:alert th:if="${model.errorMessage.isPresent()}" type="error" slim="true">
+    <text th:text="${model.errorMessage.get()}">placeholder</text>
+  </cf:alert>
+
+  <!-- Language links -->
+  <nav aria-label="Language Selection">
+    <ul class="usa-list--unstyled display-flex flex-row flex-gap">
+      <li th:each="locale : ${model.localeLinks}">
+        <a
+          th:href="${locale.url}"
+          th:text="${locale.displayName}"
+          th:classappend="${locale.selected} ? 'text-bold text-underline' : ''"
+          class="usa-link"
+        ></a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Translation form -->
+  <form method="POST" th:action="${model.formActionUrl}">
+    <input th:replace="~{admin/shared/CsrfToken}" />
+
+    <input
+      type="hidden"
+      name="concurrencyToken"
+      th:value="${model.concurrencyToken}"
+    />
+
+    <!-- Question text fields -->
+    <fieldset class="usa-fieldset border-1px border-base-lighter">
+      <legend>
+        <span th:text="#{questiontranslation.legend.details}"></span>
+        <a
+          th:href="${model.editQuestionUrl}"
+          class="usa-link"
+          th:text="#{programtranslation.link.editdefault}"
+        ></a>
+      </legend>
+
+      <!-- Question text -->
+      <div class="grid-row grid-gap">
+        <div class="grid-col-6">
+          <cf:textarea
+            th:id="'questionText'"
+            name="questionText"
+            th:label="#{questiontranslation.label.questiontext}"
+            th:value="${model.questionTextField.value}"
+          />
+        </div>
+        <div class="grid-col-6">
+          <p class="text-bold" th:text="#{admin.common.label.englishtext}"></p>
+          <p th:text="${model.questionTextField.defaultText}"></p>
+        </div>
+      </div>
+
+      <!-- Help text (optional) -->
+      <div class="grid-row grid-gap" th:if="${model.helpTextField.isPresent()}">
+        <div class="grid-col-6">
+          <cf:textarea
+            th:id="'questionHelpText'"
+            name="questionHelpText"
+            th:label="#{questiontranslation.label.helptext}"
+            th:value="${model.helpTextField.get().value}"
+          />
+        </div>
+        <div class="grid-col-6">
+          <p class="text-bold" th:text="#{admin.common.label.englishtext}"></p>
+          <p th:text="${model.helpTextField.get().defaultText}"></p>
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- Type-specific fields -->
+
+    <div th:unless="${model.questionType == 'YES_NO'}">
+      <div>Yes/No question options are pre-translated.</div>
+    </div>
+
+    <fieldset
+      th:if="${!model.typeSpecificFields.isEmpty()}"
+      class="usa-fieldset border-1px border-base-lighter"
+    >
+      <legend th:text="${model.questionType}"></legend>
+
+      <div
+        class="grid-row grid-gap"
+        th:each="field : ${model.typeSpecificFields}"
+      >
+        <div class="grid-col-6">
+          <th:block th:if="${field.textArea}">
+            <cf:textarea
+              th:id="${field.fieldName}"
+              th:name="${field.fieldName}"
+              th:label="${field.label}"
+              th:value="${field.value}"
+            />
+          </th:block>
+          <th:block th:unless="${field.textArea}">
+            <cf:input
+              th:id="${field.fieldName}"
+              th:name="${field.fieldName}"
+              th:label="${field.label}"
+              th:value="${field.value}"
+            />
+          </th:block>
+        </div>
+        <div class="grid-col-6">
+          <p class="text-bold" th:text="#{admin.common.label.englishtext}"></p>
+          <p th:text="${field.defaultText}"></p>
+        </div>
+      </div>
+    </fieldset>
+
+    <cf:button
+      id="update-localizations-button"
+      type="submit"
+      th:text="#{programtranslation.button.saveprefix} + ' ' + ${model.currentLocaleDisplayName} + ' ' + #{programtranslation.button.savesuffix}"
+    />
+  </form>
+</th:block>

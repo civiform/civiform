@@ -9,6 +9,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import mapping.admin.tools.UrlCheckerMapper;
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
 import play.data.validation.ValidationError;
@@ -16,28 +17,42 @@ import play.libs.ws.WSClient;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import services.settings.SettingsManifest;
 import views.admin.tools.UrlCheckerCommand;
+import views.admin.tools.UrlCheckerPageView;
 import views.admin.tools.UrlCheckerView;
-import views.admin.tools.UrlCheckerViewModel;
 
 @Slf4j
 public class AdminToolsController extends Controller {
   private final FormFactory formFactory;
   private final WSClient wsClient;
   private final UrlCheckerView urlCheckerView;
+  private final UrlCheckerPageView urlCheckerPageView;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public AdminToolsController(
-      FormFactory formFactory, WSClient wsClient, UrlCheckerView urlCheckerView) {
+      FormFactory formFactory,
+      WSClient wsClient,
+      UrlCheckerView urlCheckerView,
+      UrlCheckerPageView urlCheckerPageView,
+      SettingsManifest settingsManifest) {
     this.formFactory = formFactory;
     this.wsClient = wsClient;
     this.urlCheckerView = urlCheckerView;
+    this.urlCheckerPageView = urlCheckerPageView;
+    this.settingsManifest = settingsManifest;
   }
 
   /** Show url checker form */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result urlTester(Http.Request request) {
-    return ok(urlCheckerView.render(request, new UrlCheckerViewModel())).as(Http.MimeTypes.HTML);
+    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+      UrlCheckerMapper mapper = new UrlCheckerMapper();
+      return ok(urlCheckerPageView.render(request, mapper.map())).as(Http.MimeTypes.HTML);
+    }
+    return ok(urlCheckerView.render(request, new views.admin.tools.UrlCheckerViewModel()))
+        .as(Http.MimeTypes.HTML);
   }
 
   /** Checks if a url is valid and reachable and returns info on the status */

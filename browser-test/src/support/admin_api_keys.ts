@@ -31,7 +31,7 @@ export class AdminApiKeys {
     await this.page.fill('#subnet', subnet)
 
     for (const slug of programSlugs) {
-      await this.page.check(`#${slug}`)
+      await this.page.locator(`label[for="${slug}"]`).click()
     }
 
     await this.page.click('#apikey-submit-button')
@@ -144,16 +144,17 @@ export class AdminApiKeys {
 
   async expectApiKeyIsActive(keyName: string) {
     await this.gotoApiKeyIndexPage()
-    expect(await this.page.innerText('.cf-api-key-name')).toContain(
-      `${keyName} active`,
-    )
+    await expect(this.page.getByRole('heading', {name: keyName})).toBeVisible()
   }
 
   async expectApiKeyIsRetired(keyName: string) {
     await this.gotoRetiredApiKeyIndexPage()
-    expect(await this.page.innerText('.cf-api-key-name')).toContain(
-      `${keyName} retired`,
-    )
+    await expect(
+      this.page.getByRole('heading', {name: `${keyName} retired`}),
+    ).toBeVisible()
+    // expect(await this.page.innerText('.cf-api-key-name')).toContain(
+    //   `${keyName} retired`,
+    // )
   }
 
   async gotoApiKeyIndexPage() {

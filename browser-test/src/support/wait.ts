@@ -1,5 +1,5 @@
 import {ElementHandle, Frame, Page, Locator} from '@playwright/test'
-import {expect} from './civiform_fixtures'
+import {test, expect} from './civiform_fixtures'
 
 /**
  * Civiform attaches JS event handlers after pages load, so after any action
@@ -23,8 +23,16 @@ export const waitForPageJsLoad = async (page: Page | Frame | null) => {
  * @param modalId ID of the modal dialog without the leading #
  */
 export const clickAndWaitForModal = async (page: Page, modalId: string) => {
-  await page.click(`#${modalId}-button`)
-  await page.waitForSelector(`#${modalId}:not(.hidden)`)
+  await test.step(
+    'click and wait for modal',
+    async () => {
+      await page.click(`#${modalId}-button`)
+      await page.waitForSelector(`#${modalId}:not(.hidden)`)
+    },
+    {
+      box: true,
+    },
+  )
 }
 
 /**
@@ -45,16 +53,55 @@ export const waitForAnyModal = async (
 export const waitForAnyModalLocator = async (
   page: Page | Frame,
 ): Promise<Locator> => {
-  const modal = page.locator('.cf-modal:not(.hidden)').first()
-  await modal.waitFor()
-  return modal
+  return await test.step(
+    'waitForAnyModalLocator',
+    async () => {
+      const modal = page.locator('.usa-modal')
+      await modal.waitFor({state: 'visible'})
+      return modal
+    },
+    {
+      box: true,
+    },
+  )
+}
+
+export const waitForAnyModalLocator2 = async (
+  page: Page,
+  heading: string,
+): Promise<Locator> => {
+  return await test.step(
+    'waitForAnyModalLocator2',
+    async () => {
+      const modal = page
+        .locator('.usa-modal')
+        .filter({hasText: heading})
+        .first()
+      await modal.waitFor({state: 'visible'})
+      return modal
+    },
+    {
+      box: true,
+    },
+  )
 }
 
 /**
  * Dismisses an open modal.
  */
-export const dismissModal = async (page: Page | Frame) => {
-  await page.click('.cf-modal:not(.hidden) .cf-modal-close')
+export const dismissModal = async (page: Page) => {
+  await test.step(
+    'dismissModal',
+    async () => {
+      await page
+        .locator('.usa-modal:not(.hidden)')
+        .getByRole('button', {name: 'Close this window'})
+        .click()
+    },
+    {
+      box: true,
+    },
+  )
 }
 
 /**

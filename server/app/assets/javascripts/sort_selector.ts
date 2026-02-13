@@ -36,6 +36,8 @@ export function sortElementsByDataAttributes(
         return 0
       }
 
+      console.log('attr', attrA, attrB)
+
       const compare = function (a: string, b: string): number {
         switch (attrName) {
           case 'lastmodified': {

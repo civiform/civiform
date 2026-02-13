@@ -282,7 +282,7 @@ public final class ApiKeyService {
   // Where "program-slug" is the sluggified name of the program the key should
   // be granted read access for e.g. "grant-program-read[utility-discount-program]".
   private static final Pattern GRANT_PROGRAM_READ_PATTERN =
-      Pattern.compile("^grant-program-read\\[([\\w\\-]+)\\]$");
+      Pattern.compile("^grantProgramRead\\[\\d+\\]$");
 
   private ApiKeyGrants resolveGrants(DynamicForm form) {
     ApiKeyGrants grants = new ApiKeyGrants();
@@ -295,9 +295,10 @@ public final class ApiKeyService {
         continue;
       }
 
-      matcher.matches();
-
-      String programSlug = matcher.group(1);
+      //      matcher.matches();
+      //
+      //      String programSlug = matcher.group(1);
+      String programSlug = form.rawData().get(formDataKey);
 
       if (!programSlugs.contains(programSlug)) {
         // Making the root exception cause a ProgramNotFoundException will cause

@@ -1,0 +1,79 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.programs.ManageProgramAdminsPageViewModel"*/-->
+<th:block
+  th:fragment="content"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <div>
+    <!-- Back link -->
+    <a
+      th:href="${model.backUrl}"
+      class="usa-link display-inline-block"
+      th:text="#{admin.common.link.back}"
+    ></a>
+
+    <!-- Error message -->
+    <cf:alert
+      th:if="${model.errorMessage.isPresent()}"
+      type="error"
+      slim="true"
+    >
+      <text th:text="${model.errorMessage.get()}">placeholder</text>
+    </cf:alert>
+
+    <!-- Add new admin form -->
+    <h2 th:text="#{manageprogramadmins.section.addnew}"></h2>
+    <form class="usa-form" method="POST" th:action="${model.addAdminUrl}">
+      <input th:replace="~{admin/shared/CsrfToken}" />
+      <cf:input
+        id="admin-email-input"
+        name="adminEmail"
+        type="email"
+        th:label="#{manageprogramadmins.label.adminemail}"
+      />
+      <cf:button
+        id="add-admin-button"
+        type="submit"
+        th:text="#{admin.common.button.add}"
+      />
+    </form>
+
+    <!-- Existing admins -->
+    <h2 th:text="#{manageprogramadmins.section.existing}"></h2>
+    <table class="usa-table usa-table--borderless">
+      <thead>
+        <tr>
+          <th scope="col" th:text="#{manageprogramadmins.table.email}"></th>
+          <th scope="col" th:text="#{manageprogramadmins.table.actions}"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="admin : ${model.existingAdmins}">
+          <td th:text="${admin.email}"></td>
+          <td>
+            <form
+              method="POST"
+              th:action="${admin.deleteUrl}"
+              class="usa-form display-inline"
+            >
+              <input th:replace="~{admin/shared/CsrfToken}" />
+              <input
+                type="hidden"
+                name="adminEmail"
+                th:value="${admin.email}"
+              />
+              <cf:button
+                type="submit"
+                th:text="#{admin.common.button.delete}"
+              />
+            </form>
+          </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(model.existingAdmins)}">
+          <td colspan="2" th:text="#{manageprogramadmins.text.noadmins}"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</th:block>

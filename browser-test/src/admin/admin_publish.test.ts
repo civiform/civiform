@@ -4,7 +4,6 @@ import {ProgramVisibility} from '../support/admin_programs'
 
 test.describe(
   'publishing all draft questions and programs',
-  {tag: ['@uses-fixtures']},
   () => {
     const hiddenProgramNoQuestions = 'Public test program hidden no questions'
     const visibleProgramWithQuestion =
@@ -184,23 +183,19 @@ test.describe('publish all programs -- universal questions', () => {
     await test.step('Trigger the modal', async () => {
       await adminPrograms.gotoAdminProgramsPage()
 
-      await page.locator('#publish-all-programs-modal-button').click()
-
-      await expect(page.locator('#publish-all-programs-modal')).toContainText(
-        'program one (Publicly visible) - Contains all universal questions',
-      )
-
-      await expect(page.locator('#publish-all-programs-modal')).toContainText(
-        'program two (Publicly visible) - Contains 1 of 2 universal questions',
-      )
+      await adminPrograms.expectProgramReferencesModalContains({
+        expectedQuestionsContents: [],
+        expectedProgramsContents: [
+          'program one (Publicly visible) - Contains all universal questions',
+          'program two (Publicly visible) - Contains 1 of 2 universal questions',
+        ],
+      })
 
       await validateScreenshot(page, 'publish-all-programs-modal-with-uq')
     })
 
     await test.step('Publish the programs', async () => {
-      await adminQuestions.clickSubmitButtonAndNavigate(
-        'Publish all draft programs and questions',
-      )
+      await adminPrograms.publishAllDrafts()
     })
 
     await test.step('Assert program data', async () => {

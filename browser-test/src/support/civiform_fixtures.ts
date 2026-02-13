@@ -120,6 +120,24 @@ export const test = base.extend<CiviformFixtures>({
       }
     })
 
+    page.on('requestfinished', (request) => {
+      void request.response().then(
+        (response) => {
+          if (response == null) return
+          const statusCode = response.status()
+          if (statusCode >= 400 && statusCode < 600) {
+            throw new Error(
+              `Error loading request. statuscode: ${statusCode}, url: ${request.url()}`,
+            )
+          }
+        },
+        () => {
+          // do nothing. Sometimes we are getting error like:
+          // request.response: Target page, context or browser has been closed
+        },
+      )
+    })
+
     // BeforeEach
     await new Seeding(request).clearDatabase()
 

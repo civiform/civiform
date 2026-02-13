@@ -1,0 +1,192 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.programs.ProgramImagePageViewModel"*/-->
+<th:block
+  th:fragment="content"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <!-- Flash messages -->
+  <cf:alert
+    th:if="${model.successMessage.isPresent()}"
+    type="success"
+    slim="true"
+  >
+    <text th:text="${model.successMessage.get()}">placeholder</text>
+  </cf:alert>
+
+  <cf:alert th:if="${model.errorMessage.isPresent()}" type="error" slim="true">
+    <text th:text="${model.errorMessage.get()}">placeholder</text>
+  </cf:alert>
+
+  <div id="cf-fileupload-too-large-error">
+    <cf:alert type="error" slim="true">
+      <text>File to large</text>
+    </cf:alert>
+  </div>
+
+  <!-- Back link -->
+  <a
+    th:href="${model.backUrl}"
+    class="usa-link"
+    th:text="#{admin.common.link.back}"
+  ></a>
+
+  <div class="display-flex flex-row">
+    <!-- Left column: forms -->
+    <div>
+      <!-- Image description form -->
+      <cf:alert type="info" slim="true">
+        <text th:text="#{programimage.text.descriptionrequired}"
+          >placeholder</text
+        >
+      </cf:alert>
+
+      <form
+        class="usa-form usa-form--large"
+        id="image-description-form"
+        method="POST"
+        th:action="${model.descriptionFormActionUrl}"
+      >
+        <input th:replace="~{admin/shared/CsrfToken}" />
+
+        <cf:input
+          id="summaryImageDescription"
+          name="summaryImageDescription"
+          th:label="#{programimage.label.imagedescription}"
+          type="text"
+          placeholder="Colorful fruits and vegetables in bins"
+          th:value="${model.existingDescription}"
+        />
+
+        <div class="display-flex flex-row">
+          <cf:button
+            type="submit"
+            id="save-image-description-button"
+            disabled="true"
+            th:text="#{programimage.button.savedescription}"
+          />
+          <th:block th:if="${model.manageTranslationsUrl.isPresent()}">
+            <a
+              th:href="${model.manageTranslationsUrl.get()}"
+              class="usa-button usa-button--outline"
+              th:classappend="${model.manageTranslationsDisabled} ? 'usa-button--disabled' : ''"
+              th:tabindex="${model.manageTranslationsDisabled} ? '-1' : null"
+              th:aria-disabled="${model.manageTranslationsDisabled} ? 'true' : null"
+              th:text="#{admin.common.button.managetranslations}"
+            ></a>
+          </th:block>
+        </div>
+      </form>
+
+      <!-- Image upload form -->
+      <div>
+        <form
+          class="usa-form usa-form--large"
+          id="image-file-upload-form"
+          method="POST"
+          enctype="multipart/form-data"
+          th:action="${model.imageUploadFormAction}"
+          th:classappend="${model.imageUploadFormClass}"
+        >
+          <th:block th:each="entry : ${model.imageUploadFormFields}">
+            <input
+              type="hidden"
+              th:name="${entry.key}"
+              th:value="${entry.value}"
+            />
+          </th:block>
+
+          <div class="usa-form-group">
+            <p class="usa-hint" th:text="#{programimage.text.maxsize}"></p>
+            <p class="usa-hint" th:text="#{programimage.text.cropping}"></p>
+            <input
+              type="file"
+              name="file"
+              class="usa-file-input"
+              accept="image/jpeg,image/png"
+              th:disabled="${model.fileInputDisabled}"
+              th:data-file-limit-mb="${model.fileLimitMb}"
+            />
+          </div>
+        </form>
+
+        <div>
+          <cf:button
+            type="submit"
+            form="image-file-upload-form"
+            disabled="true"
+            th:text="#{programimage.button.saveimage}"
+          />
+          <cf:button
+            variant="outline"
+            th:disabled="${!model.hasExistingImage}"
+            aria-controls="delete-image-modal"
+            th:text="#{programimage.button.deleteimage}"
+          />
+        </div>
+      </div>
+
+      <!-- Continue button for creation flow -->
+      <th:block th:if="${model.showContinueButton}">
+        <a
+          th:href="${model.continueUrl}"
+          class="usa-button"
+          id="continue-button"
+          th:text="#{admin.common.button.continue}"
+        ></a>
+      </th:block>
+    </div>
+  </div>
+
+  <!-- Delete image modal -->
+  <wc-modal
+    hidden
+    id="delete-image-modal-container"
+    modal-id="delete-image-modal"
+    th:heading-text="#{programimage.modal.deleteheading}"
+  >
+    <div slot="description">
+      <p th:text="#{programimage.modal.deletedesc}"></p>
+      <form
+        class="usa-form"
+        id="delete-image-form"
+        method="POST"
+        th:action="${model.deleteFileUrl}"
+      >
+        <input th:replace="~{admin/shared/CsrfToken}" />
+      </form>
+    </div>
+    <div slot="buttons">
+      <cf:button
+        data-action="delete"
+        type="submit"
+        form="delete-image-form"
+        th:text="#{programimage.button.deleteimage}"
+      />
+      <cf:button
+        data-action="cancel"
+        variant="outline"
+        th:text="#{admin.common.button.cancel}"
+      />
+    </div>
+  </wc-modal>
+</th:block>
+
+<th:block th:fragment="sidebar">
+  <th:block th:utext="${model.cardPreviewHtml}"></th:block>
+</th:block>
+
+<th:block th:fragment="scripts">
+  <script th:nonce="${templateGlobals.cspNonce()}">
+    document.addEventListener('DOMContentLoaded', () => {
+      document
+        .getElementById('delete-image-modal-container')
+        .addEventListener('modal:action-selected', (e) => {
+          if (e.detail.action !== 'delete') {
+            e.preventDefault()
+            return
+          }
+        })
+    })
+  </script>
+</th:block>

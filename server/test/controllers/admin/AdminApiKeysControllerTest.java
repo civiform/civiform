@@ -20,12 +20,17 @@ import play.twirl.api.Content;
 import repository.ProgramRepository;
 import repository.ResetPostgres;
 import repository.VersionRepository;
+import services.DateConverter;
 import services.apikey.ApiKeyService;
 import services.program.ProgramService;
 import services.program.ProgramType;
+import services.settings.SettingsManifest;
 import support.ProgramBuilder;
+import views.admin.apikeys.ApiKeyCredentialsPageView;
 import views.admin.apikeys.ApiKeyCredentialsView;
+import views.admin.apikeys.ApiKeyIndexPageView;
 import views.admin.apikeys.ApiKeyIndexView;
+import views.admin.apikeys.ApiKeyNewOnePageView;
 import views.admin.apikeys.ApiKeyNewOneView;
 
 public class AdminApiKeysControllerTest extends ResetPostgres {
@@ -56,13 +61,18 @@ public class AdminApiKeysControllerTest extends ResetPostgres {
         new AdminApiKeysController(
             instanceOf(ApiKeyService.class),
             instanceOf(ApiKeyIndexView.class),
+            instanceOf(ApiKeyIndexPageView.class),
             apiKeyNewOneView,
+            instanceOf(ApiKeyNewOnePageView.class),
             instanceOf(ApiKeyCredentialsView.class),
+            instanceOf(ApiKeyCredentialsPageView.class),
             instanceOf(ProgramService.class),
             instanceOf(play.data.FormFactory.class),
             profileUtils,
             instanceOf(VersionRepository.class),
-            instanceOf(ProgramRepository.class));
+            instanceOf(ProgramRepository.class),
+            instanceOf(SettingsManifest.class),
+            instanceOf(DateConverter.class));
   }
 
   @Test

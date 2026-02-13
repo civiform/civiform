@@ -1,6 +1,10 @@
 <!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
 <!--/*@thymesVar id="model" type="views.admin.reporting.AdminReportingPageViewModel"*/-->
-<th:block th:fragment="content">
+<th:block
+  th:fragment="content"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
   <table class="usa-table">
     <caption th:text="#{caption.submissionsByProgram}"></caption>
     <thead>

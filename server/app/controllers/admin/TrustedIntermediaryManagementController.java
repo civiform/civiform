@@ -8,9 +8,10 @@ import controllers.FlashKey;
 import forms.AddTrustedIntermediaryForm;
 import forms.CreateTrustedIntermediaryGroupForm;
 import forms.RemoveTrustedIntermediaryForm;
-import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
+import mapping.admin.ti.TiGroupEditPageMapper;
+import mapping.admin.ti.TiGroupIndexPageMapper;
 import models.TrustedIntermediaryGroupModel;
 import org.pac4j.play.java.Secure;
 import org.slf4j.LoggerFactory;
@@ -25,10 +26,9 @@ import services.ti.NoSuchTrustedIntermediaryError;
 import services.ti.NoSuchTrustedIntermediaryGroupError;
 import services.ti.NotEligibleToBecomeTiError;
 import views.admin.ti.EditTrustedIntermediaryGroupView;
-import views.admin.ti.TrustedIntermediaryGroupListPageView;
-import views.admin.ti.TrustedIntermediaryGroupListPageViewModel;
+import views.admin.ti.TiGroupEditPageView;
+import views.admin.ti.TiGroupIndexPageView;
 import views.admin.ti.TrustedIntermediaryGroupListView;
-import views.components.QuestionSortOption;
 
 /** Controller for admins to manage trusted intermediaries of programs. */
 public class TrustedIntermediaryManagementController extends Controller {
@@ -37,7 +37,8 @@ public class TrustedIntermediaryManagementController extends Controller {
   private final FormFactory formFactory;
   private final EditTrustedIntermediaryGroupView editView;
   private final SettingsManifest settingsManifest;
-  private final TrustedIntermediaryGroupListPageView trustedIntermediaryGroupListPageView;
+  private final TiGroupIndexPageView tiGroupIndexPageView;
+  private final TiGroupEditPageView tiGroupEditPageView;
 
   @Inject
   public TrustedIntermediaryManagementController(
@@ -46,105 +47,30 @@ public class TrustedIntermediaryManagementController extends Controller {
       AccountRepository accountRepository,
       FormFactory formFactory,
       SettingsManifest settingsManifest,
-      TrustedIntermediaryGroupListPageView trustedIntermediaryGroupListPageView) {
+      TiGroupIndexPageView tiGroupIndexPageView,
+      TiGroupEditPageView tiGroupEditPageView) {
     this.listView = Preconditions.checkNotNull(listView);
     this.accountRepository = Preconditions.checkNotNull(accountRepository);
     this.formFactory = Preconditions.checkNotNull(formFactory);
     this.editView = Preconditions.checkNotNull(editView);
     this.settingsManifest = Preconditions.checkNotNull(settingsManifest);
-    this.trustedIntermediaryGroupListPageView =
-        Preconditions.checkNotNull(trustedIntermediaryGroupListPageView);
+    this.tiGroupIndexPageView = Preconditions.checkNotNull(tiGroupIndexPageView);
+    this.tiGroupEditPageView = Preconditions.checkNotNull(tiGroupEditPageView);
   }
 
   /** Return a HTML page displaying all trusted intermediary groups. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Http.Request request) {
     LoggerFactory.getLogger(TrustedIntermediaryManagementController.class)
-        .info("flash: {} sort: {}", request.flash().data(), request.queryString().get("sort"));
+        .info(request.flash().data().toString());
 
     if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
-      // Gather flash values for sticky form and messages
-      String providedName = request.flash().get(FlashKey.PROVIDED_NAME).orElse("");
-      String providedDescription = request.flash().get(FlashKey.PROVIDED_DESCRIPTION).orElse("");
-
-      // Get TI groups
-      ImmutableList<TrustedIntermediaryGroupModel> unsortedTiGroups =
-          ImmutableList.copyOf(accountRepository.listTrustedIntermediaryGroups());
-
-      // Sort options as QuestionSortOption enums
-      ImmutableList<QuestionSortOption> sortOptions =
-          ImmutableList.of(QuestionSortOption.TI_NAME, QuestionSortOption.TI_NUM_MEMBERS);
-      // Default sort option
-      String selectedSortOption = "tiname-asc";
-      if (request.queryString().containsKey("sort")) {
-        String[] sortParams = request.queryString().get("sort");
-        if (sortParams != null && sortParams.length > 0) {
-          selectedSortOption = sortParams[0];
-        }
-      }
-
-      java.util.List<TrustedIntermediaryGroupModel> tiGroupsList =
-          new java.util.ArrayList<>(unsortedTiGroups);
-      if ("tiname-asc".equals(selectedSortOption)) {
-        tiGroupsList.sort(
-            java.util.Comparator.comparing(
-                TrustedIntermediaryGroupModel::getName, String.CASE_INSENSITIVE_ORDER));
-      } else if ("tiname-desc".equals(selectedSortOption)) {
-        tiGroupsList.sort(
-            java.util.Comparator.comparing(
-                    TrustedIntermediaryGroupModel::getName, String.CASE_INSENSITIVE_ORDER)
-                .reversed());
-      } else if ("nummember-asc".equals(selectedSortOption)) {
-        tiGroupsList.sort(
-            java.util.Comparator.comparingInt(g -> g.getTrustedIntermediaries().size()));
-      } else if ("nummember-desc".equals(selectedSortOption)) {
-        tiGroupsList.sort(
-            java.util.Comparator.comparingInt(
-                    (TrustedIntermediaryGroupModel g) -> g.getTrustedIntermediaries().size())
-                .reversed());
-      } else {
-        // Default to name ascending
-        tiGroupsList.sort(
-            java.util.Comparator.comparing(
-                TrustedIntermediaryGroupModel::getName, String.CASE_INSENSITIVE_ORDER));
-      }
-      ImmutableList<TrustedIntermediaryGroupModel> tiGroups = ImmutableList.copyOf(tiGroupsList);
-
-      Map<Long, String> editGroupUrls =
-          tiGroups.stream()
-              .collect(
-                  java.util.stream.Collectors.toMap(
-                      g -> g.id,
-                      g ->
-                          controllers.admin.routes.TrustedIntermediaryManagementController.edit(
-                                  g.id)
-                              .url()));
-      Map<Long, String> deleteGroupUrls =
-          tiGroups.stream()
-              .collect(
-                  java.util.stream.Collectors.toMap(
-                      g -> g.id,
-                      g ->
-                          controllers.admin.routes.TrustedIntermediaryManagementController.delete(
-                                  g.id)
-                              .url()));
-      TrustedIntermediaryGroupListPageViewModel model =
-          TrustedIntermediaryGroupListPageViewModel.builder()
-              .tiGroups(tiGroups)
-              .providedName(providedName)
-              .providedDescription(providedDescription)
-              .sortOptions(sortOptions)
-              .selectedSortOption(selectedSortOption)
-              .newTiGroupUrl(
-                  controllers.admin.routes.TrustedIntermediaryManagementController.create().url())
-              .editGroupUrls(editGroupUrls)
-              .deleteGroupUrls(deleteGroupUrls)
-              .tiGroupListUrl(
-                  controllers.admin.routes.TrustedIntermediaryManagementController.index().url())
-              .build();
-      return ok(trustedIntermediaryGroupListPageView.render(request, model))
+      TiGroupIndexPageMapper mapper = new TiGroupIndexPageMapper();
+      return ok(tiGroupIndexPageView.render(
+              request, mapper.map(accountRepository.listTrustedIntermediaryGroups(), request)))
           .as(Http.MimeTypes.HTML);
     }
+
     return ok(listView.render(accountRepository.listTrustedIntermediaryGroups(), request));
   }
 
@@ -208,6 +134,13 @@ public class TrustedIntermediaryManagementController extends Controller {
     if (tiGroup.isEmpty()) {
       return notFound("no such group.");
     }
+
+    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+      TiGroupEditPageMapper mapper = new TiGroupEditPageMapper();
+      return ok(tiGroupEditPageView.render(request, mapper.map(tiGroup.get(), request)))
+          .as(Http.MimeTypes.HTML);
+    }
+
     return ok(editView.render(tiGroup.get(), request));
   }
 

@@ -8,48 +8,56 @@ test.describe('Admin question list on questions page', () => {
   }) => {
     await loginAsAdmin(page)
     await adminQuestions.gotoAdminQuestionsPage()
-    await page.click('#create-question-button')
-    const dropdownLocator = page.getByTestId('create-question-button-dropdown')
+
+    await page.getByRole('button', {name: 'Create new question'}).click()
+
+    const menuLocator = page.getByRole('menu', {name: 'New Question Options'})
 
     await expect(
-      dropdownLocator.getByText('Address', {exact: true}),
+      menuLocator.getByRole('menuitem', {name: 'Address'}),
     ).toBeVisible()
     await expect(
-      dropdownLocator.getByText('Checkbox', {exact: true}),
+      menuLocator.getByRole('menuitem', {name: 'Checkbox'}),
     ).toBeVisible()
     await expect(
-      dropdownLocator.getByText('Currency', {exact: true}),
-    ).toBeVisible()
-    await expect(dropdownLocator.getByText('Date', {exact: true})).toBeVisible()
-    await expect(
-      dropdownLocator.getByText('Dropdown', {exact: true}),
+      menuLocator.getByRole('menuitem', {name: 'Currency'}),
     ).toBeVisible()
     await expect(
-      dropdownLocator.getByText('Email', {exact: true}),
+      menuLocator.getByRole('menuitem', {name: 'Date'}),
     ).toBeVisible()
     await expect(
-      dropdownLocator.getByText('Enumerator', {exact: true}),
+      menuLocator.getByRole('menuitem', {name: 'Dropdown'}),
     ).toBeVisible()
     await expect(
-      dropdownLocator.getByText('File Upload', {exact: true}),
-    ).toBeVisible()
-    await expect(dropdownLocator.getByText('ID', {exact: true})).toBeVisible()
-    await expect(dropdownLocator.getByText('Name', {exact: true})).toBeVisible()
-    await expect(
-      dropdownLocator.getByText('Number', {exact: true}),
+      menuLocator.getByRole('menuitem', {name: 'Email'}),
     ).toBeVisible()
     await expect(
-      dropdownLocator.getByText('Phone Number', {exact: true}),
+      menuLocator.getByRole('menuitem', {name: 'Enumerator'}),
     ).toBeVisible()
     await expect(
-      dropdownLocator.getByText('Radio Button', {exact: true}),
+      menuLocator.getByRole('menuitem', {name: 'File Upload'}),
+    ).toBeVisible()
+    await expect(menuLocator.getByRole('menuitem', {name: 'ID'})).toBeVisible()
+    await expect(
+      menuLocator.getByRole('menuitem', {name: 'Name'}),
     ).toBeVisible()
     await expect(
-      dropdownLocator.getByText('Static Text', {exact: true}),
+      menuLocator.getByRole('menuitem', {name: 'Number', exact: true}),
     ).toBeVisible()
-    await expect(dropdownLocator.getByText('Text', {exact: true})).toBeVisible()
     await expect(
-      dropdownLocator.getByText('Yes/No', {exact: true}),
+      menuLocator.getByRole('menuitem', {name: 'Phone Number'}),
+    ).toBeVisible()
+    await expect(
+      menuLocator.getByRole('menuitem', {name: 'Radio Button'}),
+    ).toBeVisible()
+    await expect(
+      menuLocator.getByRole('menuitem', {name: 'Static Text'}),
+    ).toBeVisible()
+    await expect(
+      menuLocator.getByRole('menuitem', {name: 'Text', exact: true}),
+    ).toBeVisible()
+    await expect(
+      menuLocator.getByRole('menuitem', {name: 'Yes/No'}),
     ).toBeVisible()
   })
 })
@@ -64,48 +72,54 @@ test.describe('Admin question list on programs page', () => {
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(programName)
     await page.getByRole('button', {name: 'Add a question'}).click()
-    await page.click('#create-question-button')
-    const dropdownLocator = page.getByTestId('create-question-button-dropdown')
+
+    const menuLocator = page.getByRole('menu', {name: 'New Question Options'})
 
     await expect(
-      dropdownLocator.getByText('Address', {exact: true}),
+      menuLocator.getByRole('menuitem', {name: 'Address'}),
     ).toBeVisible()
     await expect(
-      dropdownLocator.getByText('Checkbox', {exact: true}),
+      menuLocator.getByRole('menuitem', {name: 'Checkbox'}),
     ).toBeVisible()
     await expect(
-      dropdownLocator.getByText('Currency', {exact: true}),
-    ).toBeVisible()
-    await expect(dropdownLocator.getByText('Date', {exact: true})).toBeVisible()
-    await expect(
-      dropdownLocator.getByText('Dropdown', {exact: true}),
+      menuLocator.getByRole('menuitem', {name: 'Currency'}),
     ).toBeVisible()
     await expect(
-      dropdownLocator.getByText('Email', {exact: true}),
+      menuLocator.getByRole('menuitem', {name: 'Date'}),
     ).toBeVisible()
     await expect(
-      dropdownLocator.getByText('Enumerator', {exact: true}),
+      menuLocator.getByRole('menuitem', {name: 'Dropdown'}),
     ).toBeVisible()
     await expect(
-      dropdownLocator.getByText('File Upload', {exact: true}),
-    ).toBeVisible()
-    await expect(dropdownLocator.getByText('ID', {exact: true})).toBeVisible()
-    await expect(dropdownLocator.getByText('Name', {exact: true})).toBeVisible()
-    await expect(
-      dropdownLocator.getByText('Number', {exact: true}),
+      menuLocator.getByRole('menuitem', {name: 'Email'}),
     ).toBeVisible()
     await expect(
-      dropdownLocator.getByText('Phone Number', {exact: true}),
+      menuLocator.getByRole('menuitem', {name: 'Enumerator'}),
     ).toBeVisible()
     await expect(
-      dropdownLocator.getByText('Radio Button', {exact: true}),
+      menuLocator.getByRole('menuitem', {name: 'File Upload'}),
+    ).toBeVisible()
+    await expect(menuLocator.getByRole('menuitem', {name: 'ID'})).toBeVisible()
+    await expect(
+      menuLocator.getByRole('menuitem', {name: 'Name'}),
     ).toBeVisible()
     await expect(
-      dropdownLocator.getByText('Static Text', {exact: true}),
+      menuLocator.getByRole('menuitem', {name: 'Number', exact: true}),
     ).toBeVisible()
-    await expect(dropdownLocator.getByText('Text', {exact: true})).toBeVisible()
     await expect(
-      dropdownLocator.getByText('Yes/No', {exact: true}),
+      menuLocator.getByRole('menuitem', {name: 'Phone Number'}),
+    ).toBeVisible()
+    await expect(
+      menuLocator.getByRole('menuitem', {name: 'Radio Button'}),
+    ).toBeVisible()
+    await expect(
+      menuLocator.getByRole('menuitem', {name: 'Static Text'}),
+    ).toBeVisible()
+    await expect(
+      menuLocator.getByRole('menuitem', {name: 'Text', exact: true}),
+    ).toBeVisible()
+    await expect(
+      menuLocator.getByRole('menuitem', {name: 'Yes/No'}),
     ).toBeVisible()
   })
 })

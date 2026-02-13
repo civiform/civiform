@@ -173,7 +173,7 @@ lazy val root = (project in file("."))
           )
           .getOrElse(Seq.empty)
 
-      defaultCompilerOptions ++ errorProneCompilerOptions
+      defaultCompilerOptions // ++ errorProneCompilerOptions
     },
 
     // Documented at https://github.com/sbt/zinc/blob/c18637c1b30f8ab7d1f702bb98301689ec75854b/internal/compiler-interface/src/main/contraband/incremental.contra

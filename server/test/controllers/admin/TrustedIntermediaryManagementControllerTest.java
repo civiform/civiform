@@ -17,7 +17,8 @@ import repository.AccountRepository;
 import repository.ResetPostgres;
 import services.settings.SettingsManifest;
 import views.admin.ti.EditTrustedIntermediaryGroupView;
-import views.admin.ti.TrustedIntermediaryGroupListPageView;
+import views.admin.ti.TiGroupEditPageView;
+import views.admin.ti.TiGroupIndexPageView;
 import views.admin.ti.TrustedIntermediaryGroupListView;
 
 public class TrustedIntermediaryManagementControllerTest extends ResetPostgres {
@@ -47,7 +48,8 @@ public class TrustedIntermediaryManagementControllerTest extends ResetPostgres {
             accountRepository,
             instanceOf(FormFactory.class),
             instanceOf(SettingsManifest.class),
-            instanceOf(TrustedIntermediaryGroupListPageView.class));
+            instanceOf(TiGroupIndexPageView.class),
+            instanceOf(TiGroupEditPageView.class));
   }
 
   @Test

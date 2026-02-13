@@ -1,0 +1,405 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.programs.ProgramApplicationTablePageViewModel"*/-->
+<th:block
+  th:fragment="content"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <div data-testid="application-list">
+    <!-- Info alert for bulk status update messages -->
+    <cf:alert th:if="${model.infoMessage.isPresent()}" type="info">
+      <h4 th:text="#{applicationtable.alert.statusupdate}">placeholder</h4>
+      <text th:text="${model.infoMessage.get()}">placeholder</text>
+    </cf:alert>
+
+    <!-- Search and filter form -->
+    <form
+      class="usa-form"
+      method="GET"
+      th:action="${model.formActionUrl}"
+      data-override-disable-submit-on-enter=""
+    >
+      <fieldset class="usa-fieldset">
+        <legend th:text="#{applicationtable.legend.submitted}"></legend>
+        <div>
+          <div>
+            <label
+              class="usa-label"
+              for="fromDate"
+              th:text="#{applicationtable.label.from}"
+            ></label>
+            <input
+              class="usa-input"
+              id="fromDate"
+              type="date"
+              name="fromDate"
+              th:value="${model.fromDateValue.orElse('')}"
+            />
+          </div>
+          <div>
+            <label
+              class="usa-label"
+              for="untilDate"
+              th:text="#{applicationtable.label.until}"
+            ></label>
+            <input
+              class="usa-input"
+              id="untilDate"
+              type="date"
+              name="untilDate"
+              th:value="${model.untilDateValue.orElse('')}"
+            />
+          </div>
+        </div>
+
+        <label
+          class="usa-label"
+          for="search"
+          th:text="#{applicationtable.label.search}"
+        ></label>
+        <input
+          class="usa-input"
+          id="search"
+          type="text"
+          name="search"
+          th:value="${model.searchValue.orElse('')}"
+        />
+
+        <!-- Application status filter -->
+        <th:block th:if="${!model.allApplicationStatuses.isEmpty()}">
+          <label
+            class="usa-label"
+            for="applicationStatus"
+            th:text="#{applicationtable.label.applicationstatus}"
+          ></label>
+          <select
+            class="usa-select"
+            id="applicationStatus"
+            name="applicationStatus"
+          >
+            <optgroup th:label="#{applicationtable.optgroup.general}">
+              <option
+                value=""
+                th:text="#{applicationtable.option.anystatus}"
+              ></option>
+              <option
+                th:value="${model.noStatusFilterUuid}"
+                th:selected="${model.selectedApplicationStatus.isPresent() and model.selectedApplicationStatus.get() == model.noStatusFilterUuid}"
+                th:text="#{applicationtable.option.nostatus}"
+              ></option>
+            </optgroup>
+            <optgroup th:label="#{applicationtable.optgroup.statuses}">
+              <option
+                th:each="status : ${model.allApplicationStatuses}"
+                th:value="${status}"
+                th:text="${status}"
+                th:selected="${model.selectedApplicationStatus.isPresent() and model.selectedApplicationStatus.get() == status}"
+              ></option>
+            </optgroup>
+          </select>
+        </th:block>
+      </fieldset>
+
+      <div>
+        <th:block th:if="${model.showDownloadButton}">
+          <button
+            type="submit"
+            name="showDownloadModal"
+            value="true"
+            class="usa-button usa-button--outline"
+            th:text="#{applicationtable.button.download}"
+          ></button>
+        </th:block>
+        <button
+          type="submit"
+          class="usa-button"
+          th:text="#{applicationtable.button.filter}"
+        ></button>
+        <a
+          th:href="${model.clearFiltersUrl}"
+          class="usa-button usa-button--outline"
+          th:text="#{applicationtable.button.clear}"
+        ></a>
+      </div>
+    </form>
+
+    <!-- Download modal -->
+    <dialog
+      hidden
+      th:if="${model.showDownloadButton}"
+      id="download-program-applications-modal"
+      class="usa-modal"
+      th:open="${model.showDownloadModal} ? 'open' : null"
+      aria-labelledby="download-modal-heading"
+      aria-describedby="download-modal-desc"
+    >
+      <div class="usa-modal__content">
+        <div class="usa-modal__main">
+          <h2
+            class="usa-modal__heading"
+            id="download-modal-heading"
+            th:text="#{applicationtable.modal.downloadheading}"
+          ></h2>
+          <p
+            id="download-modal-desc"
+            class="usa-sr-only"
+            th:text="#{applicationtable.modal.downloaddesc}"
+          ></p>
+          <form class="usa-form" method="GET">
+            <div class="usa-radio">
+              <input
+                class="usa-radio__input"
+                id="download-current"
+                type="radio"
+                name="ignoreFilters"
+                value=""
+                checked="checked"
+              />
+              <label
+                class="usa-radio__label"
+                for="download-current"
+                th:text="#{applicationtable.radio.currentresults}"
+              ></label>
+            </div>
+            <div class="usa-radio">
+              <input
+                class="usa-radio__input"
+                id="download-all"
+                type="radio"
+                name="ignoreFilters"
+                value="1"
+              />
+              <label
+                class="usa-radio__label"
+                for="download-all"
+                th:text="#{applicationtable.radio.alldata}"
+              ></label>
+            </div>
+            <input
+              type="hidden"
+              name="fromDate"
+              th:value="${model.fromDateValue.orElse('')}"
+            />
+            <input
+              type="hidden"
+              name="untilDate"
+              th:value="${model.untilDateValue.orElse('')}"
+            />
+            <input
+              type="hidden"
+              name="search"
+              th:value="${model.searchValue.orElse('')}"
+            />
+            <input
+              type="hidden"
+              name="applicationStatus"
+              th:value="${model.selectedApplicationStatus.orElse('')}"
+            />
+            <div>
+              <button
+                type="submit"
+                th:formaction="${model.downloadCsvUrl}"
+                class="usa-button"
+                th:text="#{applicationtable.button.downloadcsv}"
+              ></button>
+              <button
+                type="submit"
+                th:formaction="${model.downloadJsonUrl}"
+                class="usa-button"
+                th:text="#{applicationtable.button.downloadjson}"
+              ></button>
+            </div>
+          </form>
+          <button
+            type="button"
+            class="usa-button usa-modal__close"
+            th:aria-label="#{admin.common.modal.close}"
+            data-close-modal
+          >
+            <svg
+              class="usa-icon"
+              aria-hidden="true"
+              focusable="false"
+              role="img"
+            >
+              <use href="/assets/Images/uswds/sprite.svg#close"></use>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Application table with optional bulk status update wrapper -->
+    <th:block th:if="${model.displayStatus}">
+      <form
+        id="bulk-status-update"
+        method="POST"
+        th:action="${model.bulkStatusUpdateUrl}"
+      >
+        <input th:replace="~{admin/shared/CsrfToken}" />
+        <div>
+          <select
+            name="statusText"
+            id="bulk-status-selector"
+            class="usa-select"
+          >
+            <option th:text="${model.dropdownPlaceholder}"></option>
+            <option
+              th:each="status : ${model.activeStatuses}"
+              th:value="${status}"
+              th:text="${status}"
+            ></option>
+          </select>
+          <label
+            for="bulk-status-notification"
+            th:text="#{applicationtable.label.sendnotification}"
+          ></label>
+          <input
+            type="checkbox"
+            name="shouldSendEmail"
+            id="bulk-status-notification"
+            class="usa-checkbox__input"
+          />
+          <button
+            type="submit"
+            class="usa-button"
+            th:text="#{applicationtable.button.statuschange}"
+          ></button>
+        </div>
+
+        <table class="usa-table usa-table--borderless">
+          <thead>
+            <tr>
+              <th scope="col">
+                <input type="checkbox" name="selectall" id="selectAll" />
+              </th>
+              <th scope="col" th:text="#{applicationtable.table.name}"></th>
+              <th
+                th:if="${model.hasEligibilityEnabled}"
+                scope="col"
+                th:text="#{applicationtable.table.eligibility}"
+              ></th>
+              <th scope="col" th:text="#{applicationtable.table.status}"></th>
+              <th
+                scope="col"
+                th:text="#{applicationtable.table.submissiondate}"
+              ></th>
+              <th
+                scope="col"
+                th:text="#{applicationtable.table.submittedby}"
+              ></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              th:each="app : ${model.applications}"
+              class="cf-admin-application-row"
+            >
+              <td>
+                <input
+                  type="checkbox"
+                  name="applicationsIds[]"
+                  th:id="'current-application-selection-' + ${app.applicationId}"
+                  th:value="${app.applicationId}"
+                />
+              </td>
+              <td>
+                <a
+                  th:href="${app.viewUrl}"
+                  th:text="${app.applicantNameWithId}"
+                  class="usa-link"
+                ></a>
+              </td>
+              <td
+                th:if="${model.hasEligibilityEnabled}"
+                th:text="${app.eligibilityStatus.orElse('')}"
+              ></td>
+              <td th:text="${app.applicationStatus}"></td>
+              <td th:text="${app.submitTime}"></td>
+              <td th:text="${app.submittedBy}"></td>
+            </tr>
+          </tbody>
+        </table>
+      </form>
+    </th:block>
+
+    <th:block th:unless="${model.displayStatus}">
+      <div data-testid="application-table">
+        <table class="usa-table usa-table--borderless">
+          <thead>
+            <tr>
+              <th scope="col" th:text="#{applicationtable.table.name}"></th>
+              <th
+                th:if="${model.hasEligibilityEnabled}"
+                scope="col"
+                th:text="#{applicationtable.table.eligibility}"
+              ></th>
+              <th
+                scope="col"
+                th:text="#{applicationtable.table.submissiondate}"
+              ></th>
+              <th
+                scope="col"
+                th:text="#{applicationtable.table.submittedby}"
+              ></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              th:each="app : ${model.applications}"
+              class="cf-admin-application-row"
+            >
+              <td>
+                <a
+                  th:href="${app.viewUrl}"
+                  th:text="${app.applicantNameWithId}"
+                  class="usa-link"
+                ></a>
+              </td>
+              <td
+                th:if="${model.hasEligibilityEnabled}"
+                th:text="${app.eligibilityStatus.orElse('')}"
+              ></td>
+              <td th:text="${app.submitTime}"></td>
+              <td th:text="${app.submittedBy}"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </th:block>
+
+    <!-- Pagination -->
+    <th:block th:if="${model.totalPages > 1}">
+      <nav aria-label="Pagination" class="usa-pagination">
+        <ul class="usa-pagination__list">
+          <li
+            th:each="link : ${model.paginationLinks}"
+            class="usa-pagination__item usa-pagination__page-no"
+          >
+            <a
+              th:href="${link.url}"
+              th:text="${link.pageNumber}"
+              th:classappend="${link.currentPage} ? 'usa-current' : ''"
+              class="usa-pagination__button"
+              th:aria-label="'Page ' + ${link.pageNumber}"
+              th:aria-current="${link.currentPage} ? 'page' : null"
+            >
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </th:block>
+  </div>
+
+  <th:block th:fragment="scripts">
+    <script th:nonce="${templateGlobals.cspNonce()}">
+      document.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-close-modal]')
+        if (btn) {
+          var dialog = btn.closest('dialog')
+          if (dialog) dialog.close()
+        }
+      })
+    </script>
+  </th:block>
+</th:block>

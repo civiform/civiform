@@ -1,0 +1,62 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.migration.AdminExportPageViewModel"*/-->
+<th:block
+  th:fragment="content"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <div>
+    <a
+      class="usa-link"
+      th:href="${model.backToProgramsUrl}"
+      th:text="#{adminexport.link.backtoprograms}"
+    ></a>
+
+    <p th:text="#{adminexport.text.description}"></p>
+    <hr class="usa-hr" />
+
+    <div id="json-preview">
+      <h2>
+        <span th:text="#{adminexport.heading.jsonexport}"></span
+        ><span th:text="${model.programAdminName}"></span>
+      </h2>
+
+      <form class="usa-form" method="post" th:action="${model.downloadJsonUrl}">
+        <input th:replace="~{admin/shared/CsrfToken}" />
+
+        <div>
+          <cf:button
+            id="copy-json-button"
+            type="button"
+            th:text="#{adminexport.button.copyjson}"
+            variant="outline"
+          />
+          <cf:button
+            type="submit"
+            th:text="#{adminexport.button.downloadjson}"
+            variant="outline"
+          />
+        </div>
+
+        <!-- Visible but disabled textarea for display -->
+        <cf:textarea
+          id="program-json"
+          name="program-json-display"
+          th:label="#{adminexport.label.programjson}"
+          th:value="${model.programJson}"
+          disabled="true"
+        />
+
+        <!-- Hidden textarea for form submission -->
+        <div class="display-none">
+          <cf:textarea
+            id="programJson-hidden"
+            name="programJson"
+            th:label="#{adminexport.label.programjson}"
+            th:value="${model.programJson}"
+          />
+        </div>
+      </form>
+    </div>
+  </div>
+</th:block>

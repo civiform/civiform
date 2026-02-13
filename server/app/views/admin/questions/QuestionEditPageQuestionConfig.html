@@ -1,0 +1,504 @@
+<!--/*@thymesVar id="model" type="views.admin.questions.QuestionEditPageViewModel"*/-->
+<!--/* Fragment: per-type question configuration */-->
+<th:block
+  th:fragment="questionConfig"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <div id="question-settings" data-testid="question-settings">
+    <!--/* MAP question: pre-rendered HTML from Thymeleaf partial */-->
+    <th:block
+      th:if="${model.questionTypeName == 'MAP' and !model.questionConfigHtml.isEmpty()}"
+      th:utext="${model.questionConfigHtml}"
+    />
+
+    <!--/* ADDRESS */-->
+    <th:block th:if="${model.questionTypeName == 'ADDRESS'}">
+      <cf:checkbox
+        id="disallow-po-box"
+        name="disallowPoBox"
+        label="Address settings"
+        tiled="false"
+      >
+        <item
+          id="disallow-po-box-toggle"
+          value="true"
+          label="Disallow post office boxes"
+          th:selected="${model.disallowPoBox}"
+        ></item>
+      </cf:checkbox>
+    </th:block>
+
+    <!--/* ID */-->
+    <th:block th:if="${model.questionTypeName == 'ID'}">
+      <cf:input
+        id="id-min-length"
+        name="minLength"
+        label="Minimum length"
+        type="number"
+        min="0"
+        th:value="${model.configMinLength}"
+      />
+      <cf:input
+        id="id-max-length"
+        name="maxLength"
+        label="Maximum length"
+        type="number"
+        min="1"
+        th:value="${model.configMaxLength}"
+      />
+    </th:block>
+
+    <!--/* TEXT */-->
+    <th:block th:if="${model.questionTypeName == 'TEXT'}">
+      <cf:input
+        id="text-min-length"
+        name="minLength"
+        label="Minimum length"
+        type="number"
+        min="0"
+        th:value="${model.configMinLength}"
+      />
+      <cf:input
+        id="text-max-length"
+        name="maxLength"
+        label="Maximum length"
+        type="number"
+        min="1"
+        th:value="${model.configMaxLength}"
+      />
+    </th:block>
+
+    <!--/* NUMBER */-->
+    <th:block th:if="${model.questionTypeName == 'NUMBER'}">
+      <cf:input
+        id="number-min"
+        name="min"
+        label="Minimum value"
+        type="number"
+        min="0"
+        th:value="${model.configMin}"
+      />
+      <cf:input
+        id="number-max"
+        name="max"
+        label="Maximum value"
+        type="number"
+        min="0"
+        th:value="${model.configMax}"
+      />
+    </th:block>
+
+    <!--/* ENUMERATOR */-->
+    <th:block th:if="${model.questionTypeName == 'ENUMERATOR'}">
+      <cf:input
+        id="enumerator-question-entity-type-input"
+        name="entityType"
+        label="Repeated entity type (What are we enumerating?)"
+        required="true"
+        th:value="${model.entityType}"
+      />
+      <cf:input
+        id="enumerator-min-entities"
+        name="minEntities"
+        label="Minimum entity count"
+        type="number"
+        min="0"
+        th:value="${model.minEntities}"
+      />
+      <cf:input
+        id="enumerator-max-entities"
+        name="maxEntities"
+        label="Maximum entity count"
+        type="number"
+        min="1"
+        th:value="${model.maxEntities}"
+      />
+    </th:block>
+
+    <!--/* FILEUPLOAD */-->
+    <th:block th:if="${model.questionTypeName == 'FILEUPLOAD'}">
+      <cf:input
+        id="file-max-files"
+        name="maxFiles"
+        label="Maximum number of file uploads"
+        type="number"
+        min="1"
+        th:value="${model.maxFiles}"
+      />
+    </th:block>
+
+    <!--/* PHONE */-->
+    <th:block th:if="${model.questionTypeName == 'PHONE'}">
+      <p>
+        This supports only US and CA phone numbers. If you need other
+        international numbers, please use a Text question.
+      </p>
+    </th:block>
+
+    <!--/* DATE */-->
+    <th:block th:if="${model.questionTypeName == 'DATE'}">
+      <fieldset class="usa-fieldset">
+        <legend class="usa-legend">Validation parameters</legend>
+        <p>
+          Set the parameters for allowable values for this date question below.
+        </p>
+
+        <cf:select
+          id="min-date-type"
+          name="minDateType"
+          label="Start date"
+          required="true"
+        >
+          <option value="ANY" th:selected="${model.minDateType == 'ANY'}">
+            Any past date
+          </option>
+          <option
+            value="APPLICATION_DATE"
+            th:selected="${model.minDateType == 'APPLICATION_DATE'}"
+          >
+            Current date of application
+          </option>
+          <option value="CUSTOM" th:selected="${model.minDateType == 'CUSTOM'}">
+            Custom date
+          </option>
+        </cf:select>
+
+        <fieldset
+          class="usa-fieldset"
+          id="min-custom-date-fieldset"
+          th:hidden="${model.minDateType != 'CUSTOM'}"
+          th:disabled="${model.minDateType != 'CUSTOM'}"
+        >
+          <legend class="usa-legend">Start custom date</legend>
+          <div class="usa-memorable-date">
+            <div class="usa-form-group--month">
+              <cf:select
+                id="min-custom-date-month"
+                name="minCustomMonth"
+                label="Month"
+                th:value="${model.minCustomMonth}"
+                required="true"
+              >
+                <option value="">- Select -</option>
+                <option
+                  value="1"
+                  th:selected="${#strings.equals(model.minCustomMonth, '1')}"
+                >
+                  1 - January
+                </option>
+                <option
+                  value="2"
+                  th:selected="${#strings.equals(model.minCustomMonth, '2')}"
+                >
+                  2 - February
+                </option>
+                <option
+                  value="3"
+                  th:selected="${#strings.equals(model.minCustomMonth, '3')}"
+                >
+                  3 - March
+                </option>
+                <option
+                  value="4"
+                  th:selected="${#strings.equals(model.minCustomMonth, '4')}"
+                >
+                  4 - April
+                </option>
+                <option
+                  value="5"
+                  th:selected="${#strings.equals(model.minCustomMonth, '5')}"
+                >
+                  5 - May
+                </option>
+                <option
+                  value="6"
+                  th:selected="${#strings.equals(model.minCustomMonth, '6')}"
+                >
+                  6 - June
+                </option>
+                <option
+                  value="7"
+                  th:selected="${#strings.equals(model.minCustomMonth, '7')}"
+                >
+                  7 - July
+                </option>
+                <option
+                  value="8"
+                  th:selected="${#strings.equals(model.minCustomMonth, '8')}"
+                >
+                  8 - August
+                </option>
+                <option
+                  value="9"
+                  th:selected="${#strings.equals(model.minCustomMonth, '9')}"
+                >
+                  9 - September
+                </option>
+                <option
+                  value="10"
+                  th:selected="${#strings.equals(model.minCustomMonth, '10')}"
+                >
+                  10 - October
+                </option>
+                <option
+                  value="11"
+                  th:selected="${#strings.equals(model.minCustomMonth, '11')}"
+                >
+                  11 - November
+                </option>
+                <option
+                  value="12"
+                  th:selected="${#strings.equals(model.minCustomMonth, '12')}"
+                >
+                  12 - December
+                </option>
+              </cf:select>
+            </div>
+            <div class="usa-form-group--day">
+              <cf:input
+                label="Day"
+                id="min-custom-date-day"
+                name="minCustomDay"
+                type="number"
+                min="1"
+                max="31"
+                th:value="${model.minCustomDay}"
+                required="true"
+              />
+            </div>
+            <div class="usa-form-group--year">
+              <cf:input
+                label="Year"
+                id="min-custom-date-year"
+                name="minCustomYear"
+                type="number"
+                min="1900"
+                max="2100"
+                th:value="${model.minCustomYear}"
+                required="true"
+              />
+            </div>
+          </div>
+        </fieldset>
+
+        <cf:select
+          id="max-date-type"
+          name="maxDateType"
+          label="End date"
+          required="true"
+        >
+          <option value="ANY" th:selected="${model.maxDateType == 'ANY'}">
+            Any future date
+          </option>
+          <option
+            value="APPLICATION_DATE"
+            th:selected="${model.maxDateType == 'APPLICATION_DATE'}"
+          >
+            Current date of application
+          </option>
+          <option value="CUSTOM" th:selected="${model.maxDateType == 'CUSTOM'}">
+            Custom date
+          </option>
+        </cf:select>
+
+        <fieldset
+          class="usa-fieldset"
+          id="max-custom-date-fieldset"
+          th:hidden="${model.maxDateType != 'CUSTOM'}"
+          th:disabled="${model.maxDateType != 'CUSTOM'}"
+        >
+          <legend class="usa-legend">End custom date</legend>
+          <div class="usa-memorable-date">
+            <div class="usa-form-group--month">
+              <cf:select
+                id="max-custom-date-month"
+                name="maxCustomMonth"
+                th:value="${model.maxCustomMonth}"
+                label="Month"
+                required="true"
+              >
+                <option value="" selected="">- Select -</option>
+                <option
+                  value="1"
+                  th:selected="${#strings.equals(model.maxCustomMonth, '1')}"
+                >
+                  1 - January
+                </option>
+                <option
+                  value="2"
+                  th:selected="${#strings.equals(model.maxCustomMonth, '2')}"
+                >
+                  2 - February
+                </option>
+                <option
+                  value="3"
+                  th:selected="${#strings.equals(model.maxCustomMonth, '3')}"
+                >
+                  3 - March
+                </option>
+                <option
+                  value="4"
+                  th:selected="${#strings.equals(model.maxCustomMonth, '4')}"
+                >
+                  4 - April
+                </option>
+                <option
+                  value="5"
+                  th:selected="${#strings.equals(model.maxCustomMonth, '5')}"
+                >
+                  5 - May
+                </option>
+                <option
+                  value="6"
+                  th:selected="${#strings.equals(model.maxCustomMonth, '6')}"
+                >
+                  6 - June
+                </option>
+                <option
+                  value="7"
+                  th:selected="${#strings.equals(model.maxCustomMonth, '7')}"
+                >
+                  7 - July
+                </option>
+                <option
+                  value="8"
+                  th:selected="${#strings.equals(model.maxCustomMonth, '8')}"
+                >
+                  8 - August
+                </option>
+                <option
+                  value="9"
+                  th:selected="${#strings.equals(model.maxCustomMonth, '9')}"
+                >
+                  9 - September
+                </option>
+                <option
+                  value="10"
+                  th:selected="${#strings.equals(model.maxCustomMonth, '10')}"
+                >
+                  10 - October
+                </option>
+                <option
+                  value="11"
+                  th:selected="${#strings.equals(model.maxCustomMonth, '11')}"
+                >
+                  11 - November
+                </option>
+                <option
+                  value="12"
+                  th:selected="${#strings.equals(model.maxCustomMonth, '12')}"
+                >
+                  12 - December
+                </option>
+                <
+              </cf:select>
+            </div>
+            <div class="usa-form-group--day">
+              <cf:input
+                label="Day"
+                id="max-custom-date-day"
+                name="maxCustomDay"
+                type="number"
+                min="1"
+                max="31"
+                th:value="${model.maxCustomDay}"
+                required="true"
+              />
+            </div>
+            <div class="usa-form-group--year">
+              <cf:input
+                label="Year"
+                id="max-custom-date-year"
+                name="maxCustomYear"
+                type="number"
+                min="1900"
+                max="2100"
+                th:value="${model.maxCustomYear}"
+                required="true"
+              />
+            </div>
+          </div>
+        </fieldset>
+      </fieldset>
+    </th:block>
+
+    <!--/* CHECKBOX, DROPDOWN, RADIO_BUTTON (multi-option) */-->
+    <th:block th:if="${model.multiOptionQuestion}">
+      <th:block
+        th:replace="~{admin/questions/QuestionEditPageMultiOption :: multiOption}"
+      />
+
+      <!--/* CHECKBOX-specific: min/max choices validation */-->
+      <th:block th:if="${model.questionTypeName == 'CHECKBOX'}">
+        <cf:input
+          id="checkbox-min-choices"
+          name="minChoicesRequired"
+          label="Minimum number of choices required"
+          type="number"
+          min="0"
+          th:value="${model.minChoicesRequired}"
+        />
+        <cf:input
+          id="checkbox-max-choices"
+          name="maxChoicesAllowed"
+          label="Maximum number of choices allowed"
+          type="number"
+          min="1"
+          th:value="${model.maxChoicesAllowed}"
+        />
+      </th:block>
+    </th:block>
+
+    <!--/* YES_NO */-->
+    <th:block th:if="${model.questionTypeName == 'YES_NO'}">
+      <div>
+        <label data-testId="yes-no-options-label"
+          >Select answer options <span class="usa-required">*</span></label
+        >
+      </div>
+      <div th:each="opt : ${model.yesNoOptions}" class="usa-checkbox">
+        <!--/* Hidden inputs for form submission */-->
+        <input type="hidden" name="optionIds[]" th:value="${opt.id}" />
+        <input
+          type="hidden"
+          name="optionAdminNames[]"
+          th:value="${opt.adminName}"
+        />
+        <input type="hidden" name="options[]" th:value="${opt.optionText}" />
+
+        <div class="usa-checkbox">
+          <input
+            type="checkbox"
+            class="usa-checkbox__input"
+            th:id="${opt.adminName}"
+            name="displayedOptionIds[]"
+            th:value="${opt.id}"
+            th:checked="${opt.displayed}"
+            th:disabled="${opt.required}"
+          />
+          <label class="usa-checkbox__label" th:for="${opt.adminName}">
+            <div>
+              <div>
+                <strong>Admin ID: </strong
+                ><span th:text="${opt.adminName}"></span>
+              </div>
+              <div>
+                <strong>Option text: </strong
+                ><span th:text="${opt.optionText}"></span>
+              </div>
+            </div>
+          </label>
+        </div>
+
+        <!--/* Hidden input to ensure required (disabled) checkbox value is still submitted */-->
+        <input
+          th:if="${opt.required}"
+          type="hidden"
+          name="displayedOptionIds[]"
+          th:value="${opt.id}"
+        />
+      </div>
+    </th:block>
+  </div>
+</th:block>

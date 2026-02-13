@@ -152,23 +152,24 @@ test.describe('Program list page.', () => {
     adminPrograms,
   }) => {
     await loginAsAdmin(page)
-
-    const activeElementClassList =
-      'text-blue-600 hover:text-blue-500 inline-flex items-center m-2 border-blue-400 border-b-2'
-    const inactiveElementClassList =
-      'text-blue-600 hover:text-blue-500 inline-flex items-center m-2'
     const publicProgram = 'List test public program'
     const disabledProgram = 'List test disabled program'
-    await adminPrograms.addProgram(publicProgram)
-    await adminPrograms.addDisabledProgram(disabledProgram)
 
+    await test.step(`add program: ${publicProgram}`, async () => {
+      await adminPrograms.addProgram(publicProgram)
+    })
+
+    await test.step(`add disabled program: ${disabledProgram}`, async () => {
+      await adminPrograms.addDisabledProgram(disabledProgram)
+    })
     // in use programs
-    await expectProgramListElements(adminPrograms, [publicProgram])
+
+    await adminPrograms.gotoAdminProgramsPage()
     await expect(page.getByRole('link', {name: 'In use'})).toHaveClass(
-      activeElementClassList,
+      /(^|\s)usa-current(\s|$)/,
     )
-    await expect(page.getByRole('link', {name: 'Disabled'})).toHaveClass(
-      inactiveElementClassList,
+    await expect(page.getByRole('link', {name: 'Disabled'})).not.toHaveClass(
+      /(^|\s)usa-current(\s|$)/,
     )
 
     // disabled programs
@@ -177,11 +178,11 @@ test.describe('Program list page.', () => {
       [disabledProgram],
       /* isProgramDisabled = */ true,
     )
-    await expect(page.getByRole('link', {name: 'In use'})).toHaveClass(
-      inactiveElementClassList,
+    await expect(page.getByRole('link', {name: 'In use'})).not.toHaveClass(
+      /(^|\s)usa-current(\s|$)/,
     )
     await expect(page.getByRole('link', {name: 'Disabled'})).toHaveClass(
-      activeElementClassList,
+      /(^|\s)usa-current(\s|$)/,
     )
   })
 
@@ -227,19 +228,27 @@ test.describe('Program list page.', () => {
     const program = 'Program'
     const preScreenerProgram = 'Pre screener program'
     const externalProgram = 'External'
-    await adminPrograms.addProgram(program)
 
-    await adminPrograms.addPreScreener(
-      preScreenerProgram,
-      'short program description',
-      ProgramVisibility.PUBLIC,
-    )
-    await adminPrograms.addExternalProgram(
-      externalProgram,
-      'short program description',
-      'https://usa.gov',
-      ProgramVisibility.PUBLIC,
-    )
+    await test.step(`add program - ${program}`, async () => {
+      await adminPrograms.addProgram(program)
+    })
+
+    await test.step(`add prescreener - ${preScreenerProgram}`, async () => {
+      await adminPrograms.addPreScreener(
+        preScreenerProgram,
+        'short program description',
+        ProgramVisibility.PUBLIC,
+      )
+    })
+
+    await test.step(`add external program - ${externalProgram}`, async () => {
+      await adminPrograms.addExternalProgram(
+        externalProgram,
+        'short program description',
+        'https://usa.gov',
+        ProgramVisibility.PUBLIC,
+      )
+    })
 
     // Pre-screener program should always be first. Then, order is by last modified.
     await expectProgramListElements(adminPrograms, [
@@ -249,7 +258,9 @@ test.describe('Program list page.', () => {
     ])
 
     const firstProgramCard = page.locator('.cf-admin-program-card').first()
-    await expect(firstProgramCard.getByText('Pre-screener')).toBeVisible()
+    await expect(
+      firstProgramCard.getByText('Pre-Screener', {exact: true}),
+    ).toBeVisible()
 
     const secondProgramCard = page.locator('.cf-admin-program-card').nth(1)
     await expect(secondProgramCard.getByText('External program')).toBeVisible()
@@ -274,20 +285,21 @@ test.describe('Program list page.', () => {
     await adminPrograms.addQuestionFromQuestionBank(nameQuestion)
 
     await adminPrograms.gotoAdminProgramsPage()
-    expect(await page.innerText('.cf-admin-program-card')).not.toContain(
-      'universal questions',
-    )
+    await expect(
+      page.locator('.cf-admin-program-card').getByText('universal questions'),
+    ).toBeHidden()
 
-    // Create a universal question
-    const textQuestion = 'text'
-    await adminQuestions.addTextQuestion({
-      questionName: textQuestion,
-      universal: true,
+    await test.step('add universal text text question', async () => {
+      await adminQuestions.addTextQuestion({
+        questionName: 'text',
+        universal: true,
+      })
     })
+
     await adminPrograms.gotoAdminProgramsPage()
-    expect(await page.innerText('.cf-admin-program-card')).toContain(
-      'universal questions',
-    )
+    await expect(
+      page.locator('.cf-admin-program-card').getByText('universal questions'),
+    ).toBeVisible()
   })
 
   test('external program does not show information about universal questions', async ({
@@ -320,11 +332,14 @@ test.describe('Program list page.', () => {
     expectedPrograms: string[],
     isProgramDisabled: boolean = false,
   ) {
-    if (expectedPrograms.length === 0) {
-      throw new Error('expected at least one program')
-    }
-    const programListNames = await adminPrograms.programNames(isProgramDisabled)
-    expect(programListNames).toEqual(expectedPrograms)
+    await test.step('verify ProgramListElements', async () => {
+      if (expectedPrograms.length === 0) {
+        throw new Error('expected at least one program')
+      }
+      const programListNames =
+        await adminPrograms.programNames(isProgramDisabled)
+      expect(programListNames).toEqual(expectedPrograms)
+    })
   }
 
   test('publishes a single program', async ({page, adminPrograms}) => {
@@ -335,15 +350,11 @@ test.describe('Program list page.', () => {
     await adminPrograms.publishAllDrafts()
     await adminPrograms.createNewVersion(programOne)
     await adminPrograms.expectDraftProgram(programOne)
-
-    await page.click(`#publish-modal-${programOne}-button`)
-    await page.click(`#publish-modal-${programOne} .cf-modal-close`)
+    await adminPrograms.publishSingleProgram(programOne, 'cancel')
 
     // Draft not published because modal was dismissed.
     await adminPrograms.expectDraftProgram(programOne)
-
-    await page.click(`#publish-modal-${programOne}-button`)
-    await page.click(`#publish-modal-${programOne} button[type="submit"]`)
+    await adminPrograms.publishSingleProgram(programOne, 'confirm')
 
     // Program was published.
     await adminPrograms.expectDoesNotHaveDraftProgram(programOne)
@@ -359,51 +370,57 @@ test.describe('Program list page.', () => {
 
     // Create a program and question that is not universal
     const programOne = 'program one'
-    await adminPrograms.addProgram(programOne)
     const nameQuestion = 'name'
+
+    await adminPrograms.addProgram(programOne)
     await adminQuestions.addNameQuestion({
       questionName: nameQuestion,
       universal: false,
     })
+
     await adminPrograms.gotoEditDraftProgramPage(programOne)
     await adminPrograms.addQuestionFromQuestionBank(nameQuestion)
 
-    const publishProgramOneModalButton = '#publish-modal-program-one-button'
-    const publishProgramOneModal = '#publish-modal-program-one'
-
     await adminPrograms.gotoAdminProgramsPage()
-    await page.click(publishProgramOneModalButton)
-    expect(await page.innerText(publishProgramOneModal)).toContain(
-      'Are you sure you want to publish program one and all of its draft questions?',
-    )
-    // Warning should not show because there are no universal questions
-    expect(await page.innerText(publishProgramOneModal)).not.toContain(
-      'Warning: This program does not use all recommended universal questions.',
-    )
+
+    const noUniversalQuestionsModal =
+      await adminPrograms.openSingleProgramPublishModal(programOne)
+
+    await expect(
+      page.getByText(
+        'Are you sure you want to publish program one and all of its draft questions?',
+      ),
+    ).toBeVisible()
 
     await validateScreenshot(
-      page.locator(publishProgramOneModal),
+      noUniversalQuestionsModal,
       'publish-single-program-modal-no-warning',
     )
     // Dismiss the modal
     await adminQuestions.clickSubmitButtonAndNavigate('Cancel')
 
-    // Create a universal question
     const textQuestion = 'text'
+
+    // Create a universal question
     await adminQuestions.addTextQuestion({
       questionName: textQuestion,
       universal: true,
     })
     await adminPrograms.gotoAdminProgramsPage()
-    await page.click(publishProgramOneModalButton)
-    // Warning should show because there is a universal question that is not used in this program
-    expect(await page.innerText(publishProgramOneModal)).toContain(
-      'Warning: This program does not use all recommended universal questions.',
-    )
+
+    const yesUniversalQuestionsModal =
+      await adminPrograms.openSingleProgramPublishModal(programOne)
+    await expect(
+      page.getByText(
+        'Warning: This program does not use all recommended universal questions.',
+      ),
+    ).toBeVisible()
+
     await validateScreenshot(
-      page.locator(publishProgramOneModal),
+      yesUniversalQuestionsModal,
       'publish-single-program-modal-with-warning',
     )
+
     // Dismiss the modal
     await adminQuestions.clickSubmitButtonAndNavigate('Cancel')
 
@@ -411,12 +428,16 @@ test.describe('Program list page.', () => {
     await adminPrograms.gotoEditDraftProgramPage(programOne)
     await adminPrograms.addQuestionFromQuestionBank(textQuestion)
     await adminPrograms.gotoAdminProgramsPage()
-    await page.click(publishProgramOneModalButton)
+
+    await adminPrograms.openSingleProgramPublishModal(programOne)
+    await expect(
+      page.getByText(
+        'Warning: This program does not use all recommended universal questions.',
+      ),
+    ).toBeHidden()
+
     // Warning should not show because the program uses all universal questions
-    expect(await page.innerText(publishProgramOneModal)).not.toContain(
-      'Warning: This program does not use all recommended universal questions.',
-    )
-    await adminQuestions.clickSubmitButtonAndNavigate('Publish program')
+    await adminPrograms.submitSingleProgramPublishModal(programOne)
 
     // Program was published.
     await adminPrograms.expectDoesNotHaveDraftProgram(programOne)
@@ -443,24 +464,19 @@ test.describe('Program list page.', () => {
       universal: true,
     })
 
-    // Trigger the publish modal for the external program
     await adminPrograms.gotoAdminProgramsPage()
-    const publishButton = adminPrograms.getProgramAction(
-      externalProgramName,
-      ProgramLifecycle.DRAFT,
-      ProgramAction.PUBLISH,
-    )
-    await publishButton.click()
+    await adminPrograms.openSingleProgramPublishModal(externalProgramName)
 
     // Verify modal does not show universal question warning, since they are not
     //  applicable to external programs
-    const publishExternalProgramModal = '#publish-modal-external-program'
-    expect(await page.innerText(publishExternalProgramModal)).toContain(
-      'Are you sure you want to publish External Program?',
-    )
-    expect(await page.innerText(publishExternalProgramModal)).not.toContain(
-      'Warning: This program does not use all recommended universal questions.',
-    )
+    await expect(
+      page.getByText('Are you sure you want to publish External Program?'),
+    ).toBeVisible()
+    await expect(
+      page.getByText(
+        'Warning: This program does not use all recommended universal questions.',
+      ),
+    ).toBeHidden()
   })
 
   test('program list has current image', async ({
@@ -472,10 +488,13 @@ test.describe('Program list page.', () => {
 
     const programName = 'Images Flag On Program'
     await adminPrograms.addProgram(programName)
+
     await adminPrograms.goToProgramImagePage(programName)
+
     await adminProgramImage.setImageFileAndSubmit(
       'src/assets/program-summary-image-wide.png',
     )
+
     await adminPrograms.publishAllDrafts()
     await adminPrograms.gotoAdminProgramsPage()
 
@@ -604,7 +623,10 @@ test.describe('Program list page.', () => {
         await adminPrograms.expectProgramActionsVisible(
           externalProgram,
           ProgramLifecycle.DRAFT,
-          [ProgramAction.PUBLISH, ProgramAction.EDIT],
+          [
+            {programAction: ProgramAction.PUBLISH, type: 'button'},
+            {programAction: ProgramAction.EDIT, type: 'link'},
+          ],
           [ProgramExtraAction.MANAGE_TRANSLATIONS],
         )
         await adminPrograms.expectProgramActionsHidden(
@@ -628,13 +650,13 @@ test.describe('Program list page.', () => {
         await adminPrograms.expectProgramActionsVisible(
           externalProgram,
           ProgramLifecycle.ACTIVE,
-          [ProgramAction.VIEW],
+          [{programAction: ProgramAction.VIEW, type: 'link'}],
           [ProgramExtraAction.EDIT],
         )
         await adminPrograms.expectProgramActionsHidden(
           externalProgram,
           ProgramLifecycle.ACTIVE,
-          [ProgramAction.SHARE],
+          [{programAction: ProgramAction.SHARE, type: 'link'}],
           [
             ProgramExtraAction.MANAGE_ADMINS,
             ProgramExtraAction.VIEW_APPLICATIONS,

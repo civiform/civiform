@@ -102,6 +102,10 @@ public abstract class QuestionForm {
   }
 
   public final void setEnumeratorId(String enumeratorId) {
+    if (enumeratorId.equals("-1")) {
+      enumeratorId = "";
+    }
+
     this.enumeratorId =
         enumeratorId.isEmpty() ? Optional.empty() : Optional.of(Long.valueOf(enumeratorId));
   }

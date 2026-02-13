@@ -1,0 +1,78 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.ti.TiGroupIndexPageViewModel"*/-->
+<th:block
+  th:fragment="content"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <!-- Error message -->
+  <cf:alert th:if="${model.errorMessage.isPresent()}" type="error" slim="true">
+    <text th:text="${model.errorMessage.get()}">placeholder</text>
+  </cf:alert>
+
+  <!-- Create new TI group form -->
+  <h2>Create new trusted intermediary</h2>
+  <form
+    class="usa-form usa-form--large"
+    method="POST"
+    th:action="${model.createActionUrl}"
+  >
+    <input th:replace="~{admin/shared/CsrfToken}" />
+    <cf:input
+      id="group-name-input"
+      name="name"
+      label="Name"
+      th:value="${model.providedName}"
+    />
+    <cf:input
+      id="group-description-input"
+      name="description"
+      label="Description"
+      th:value="${model.providedDescription}"
+    />
+    <cf:button type="submit" text="Create" />
+  </form>
+
+  <!-- Existing TI groups -->
+  <h2>Existing trusted intermediaries</h2>
+  <table class="usa-table usa-table--striped">
+    <thead>
+      <tr>
+        <th scope="col">Name / Description</th>
+        <th scope="col">Size</th>
+        <th scope="col">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <th:block th:each="group : ${model.groups}">
+        <tr>
+          <td>
+            <strong th:text="${group.name}"></strong>
+            <br />
+            <span th:text="${group.description}"></span>
+          </td>
+          <td>
+            <strong th:text="'Members: ' + ${group.memberCount}"></strong>
+            <br />
+            <span th:text="'Clients: ' + ${group.clientCount}"></span>
+          </td>
+          <td>
+            <a class="usa-button usa-button--outline" th:href="${group.editUrl}"
+              >Edit members</a
+            >
+            <form
+              style="display: inline"
+              method="POST"
+              th:action="${group.deleteActionUrl}"
+            >
+              <input th:replace="~{admin/shared/CsrfToken}" />
+              <button type="submit" class="usa-button usa-button--secondary">
+                Delete
+              </button>
+            </form>
+          </td>
+        </tr>
+      </th:block>
+    </tbody>
+  </table>
+</th:block>

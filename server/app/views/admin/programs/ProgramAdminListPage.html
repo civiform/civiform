@@ -1,0 +1,116 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.programs.ProgramAdminListPageViewModel"*/-->
+<th:block
+  th:fragment="content"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <th:block th:each="program : ${model.programs}">
+    <th:block th:insert="~{::program-card(${program})}" />
+  </th:block>
+</th:block>
+
+<!--/*@thymesVar id="program" type="views.admin.programs.ProgramAdminListPageViewModel.ProgramCardData"*/-->
+<th:block
+  th:fragment="program-card(program)"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <div
+    class="cf-admin-program-card bg-white margin-bottom-2 border-1px border-base-light display-flex flex-column radius-lg overflow-hidden"
+  >
+    <div class="padding-2">
+      <div class="grid-row grid-gap-2">
+        <div class="grid-col-12 desktop:grid-col-2">
+          <div
+            class="gg-image-placeholder border-1px radius-md border-dotted display-flex flex-align-center flex-justify-center"
+          >
+            {PlaceholderName}
+          </div>
+        </div>
+        <div class="grid-col-12 desktop:grid-col-6">
+          <h2
+            class="margin-0 padding-0 font-sans-sm"
+            th:text="${program.programName}"
+          ></h2>
+          <p class="usa-prose" th:text="${program.programName}"></p>
+        </div>
+        <div class="grid-col-12 desktop:grid-col-4">
+          <!--/*
+          <div th:if="${program.programType != 'default'}">
+            <strong th:text="#{admin.common.label.type}"></strong>
+            <span
+              th:text="${program.programType == 'common_intake_form'} ? #{admin.common.type.prescreener} : #{admin.common.type.external}"
+            ></span>
+          </div>
+          */-->
+          <div class="text-bold">Pre-Screener</div>
+          <div>
+            <strong th:text="#{admin.common.label.adminname}"></strong>
+            <span th:text="${program.adminName}"></span>
+          </div>
+          <div>
+            <strong>Visibility state: </strong>
+            <span>Public</span>
+          </div>
+          <div>
+            <strong>Categories: </strong>
+            <span>None</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="padding-2 bg-gray-2 border-top-1px border-base-light"
+      data-lifecycle-stage="active"
+    >
+      <div class="grid-row grid-gap-2">
+        <div
+          class="grid-col-12 desktop:grid-col-2 desktop:display-flex flex-align-center desktop:flex-justify-center"
+        >
+          <span
+            class="tag tag-active font-ui-xs"
+            th:text="#{admin.common.tag.active}"
+          ></span>
+        </div>
+        <div class="grid-col-12 desktop:grid-col-3">
+          <div>
+            Published on <strong>2025/08/21</strong> at
+            <strong>10:22 AM PDT</strong>
+          </div>
+        </div>
+        <div class="grid-col-12 desktop:grid-col-3">
+          <div><strong>3</strong> screens, <strong>11</strong> questions</div>
+          <div>Contains 0 of 9 universal questions</div>
+        </div>
+        <div
+          class="grid-col-12 desktop:grid-col-4 desktop:display-flex flex-align-center desktop:flex-justify-end"
+        >
+          <ul class="usa-button-group">
+            <li
+              class="usa-button-group__item"
+              th:if="${program.shareLink.isPresent()}"
+            >
+              <a
+                th:href="${program.shareLink.get()}"
+                class="usa-link"
+                target="_blank"
+                th:text="#{programadminlist.link.share}"
+                >Share link</a
+              >
+            </li>
+            <li class="usa-button-group__item">
+              <a
+                th:href="${program.applicationsUrl}"
+                class="usa-link"
+                th:text="${program.programType == 'common_intake_form'} ? #{programindex.link.forms} : #{programindex.link.applications}"
+                >Applications</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</th:block>

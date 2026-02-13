@@ -1,0 +1,279 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.programs.ProgramStatusesPageViewModel"*/-->
+<th:block
+  th:fragment="content"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <div>
+    <!-- Flash messages --><!--/**/-->
+    <cf:alert
+      type="success"
+      slim="true"
+      th:if="${model.successMessage.isPresent()}"
+    >
+      <text th:text="${model.successMessage.get()}">placeholder</text>
+    </cf:alert>
+
+    <cf:alert
+      type="error"
+      slim="true"
+      th:if="${model.errorMessage.isPresent()}"
+    >
+      <text
+        ><th:block th:text="${model.errorMessage.get()}"
+          >placeholder</th:block
+        ></text
+      >
+    </cf:alert>
+
+    <!-- Header -->
+    <div>
+      <a
+        th:if="${model.manageTranslationsUrl.isPresent()}"
+        th:href="${model.manageTranslationsUrl.get()}"
+        class="usa-button usa-button--outline"
+        th:text="#{admin.common.button.managetranslations}"
+      ></a>
+      <cf:button
+        variant="outline"
+        data-open-modal
+        aria-controls="create-status-modal"
+        th:text="#{programstatuses.button.create}"
+      ></cf:button>
+    </div>
+
+    <!-- Status count -->
+    <p th:text="${model.numResultsText()}"></p>
+
+    <!-- Status list -->
+    <div
+      class="border-1px border-base-lighter radius-md cf-admin-program-status-list"
+    >
+      <th:block th:if="${model.statuses.isEmpty()}">
+        <p th:text="#{programstatuses.text.nostatuses}"></p>
+      </th:block>
+
+      <th:block th:each="status : ${model.statuses}">
+        <div
+          class="cf-admin-program-status-item border-bottom-1px border-base-lighter"
+        >
+          <div th:text="${status.statusText}"></div>
+
+          <div
+            th:if="${status.hasEmail}"
+            th:text="#{programstatuses.text.emailadded}"
+          ></div>
+
+          <div
+            th:if="${status.isDefault}"
+            th:text="#{programstatuses.text.defaultstatus}"
+          ></div>
+
+          <cf:button
+            variant="unstyled"
+            th:text="#{admin.common.button.delete}"
+            data-open-modal
+            th:aria-controls="${status.deleteModalId}"
+          />
+
+          <cf:button
+            variant="unstyled"
+            th:text="#{admin.common.button.edit}"
+            data-open-modal
+            th:aria-controls="${status.modalId}"
+          />
+        </div>
+
+        <!-- Edit status modals -->
+        <wc-modal
+          hidden
+          th:id="${status.modalId} + '-container'"
+          th:modal-id="${status.modalId}"
+          th:heading-text="#{programstatuses.modal.editheading}"
+        >
+          <div slot="description">
+            <p
+              class="usa-sr-only"
+              th:text="#{programstatuses.modal.editdesc}"
+            ></p>
+            <form
+              data-form-type="static"
+              th:id="${status.modalId} + '-form'"
+              class="usa-form"
+              method="POST"
+              th:action="${model.createOrUpdateUrl}"
+            >
+              <input th:replace="~{admin/shared/CsrfToken}" />
+              <input
+                type="hidden"
+                name="configuredStatusText"
+                th:value="${status.configuredStatusText}"
+              />
+              <cf:input
+                th:id="'edit-statusText-' + ${status.modalId}"
+                name="statusText"
+                th:label="#{programstatuses.label.statusname}"
+                label="Status name"
+                th:value="${status.statusText}"
+                required="true"
+              />
+              <cf:textarea
+                th:id="'edit-emailBody-' + ${status.modalId}"
+                name="emailBody"
+                th:label="#{programstatuses.label.emailbody}"
+                label="Email the applicant about the status change"
+                th:value="${status.emailBody}"
+              />
+              <p
+                th:if="${status.hasEmail}"
+                class="border-1px border-gold radius-md"
+                th:text="#{programstatuses.text.clearemailwarning}"
+              ></p>
+              <cf:checkbox
+                th:id="'edit-defaultStatusCheckbox-' + ${status.modalId}"
+                name="defaultStatusCheckbox"
+                th:label="#{programstatuses.label.setdefault}"
+              >
+                <item
+                  th:id="'edit-defaultStatusCheckbox-' + ${status.modalId}"
+                  th:label="#{programstatuses.label.setdefault}"
+                  value="on"
+                  th:selected="${status.isDefault}"
+                ></item>
+              </cf:checkbox>
+            </form>
+          </div>
+          <div slot="buttons">
+            <cf:button
+              data-action="ok"
+              type="submit"
+              th:form="${status.modalId} + '-form'"
+              th:text="#{admin.common.button.confirm}"
+              text="Confirm"
+            />
+            <cf:button
+              data-action="cancel"
+              variant="outline"
+              th:text="#{admin.common.button.cancel}"
+            />
+          </div>
+        </wc-modal>
+
+        <!-- Delete status modal -->
+        <wc-modal
+          hidden
+          th:id="${status.deleteModalId} + '-container'"
+          th:modal-id="${status.deleteModalId}"
+          th:heading-text="#{programstatuses.modal.deleteheading}"
+        >
+          <div slot="description">
+            <p th:text="#{programstatuses.modal.deletedesc}"></p>
+            <form
+              th:id="${status.deleteModalId} + '-form'"
+              class="usa-form"
+              method="POST"
+              th:action="${model.deleteUrl}"
+            >
+              <input th:replace="~{admin/shared/CsrfToken}" />
+              <input
+                type="hidden"
+                name="deleteStatusText"
+                th:value="${status.statusText}"
+              />
+            </form>
+          </div>
+          <div slot="buttons">
+            <cf:button
+              data-action="ok"
+              type="submit"
+              th:form="${status.deleteModalId} + '-form'"
+              th:text="#{admin.common.button.delete}"
+              text="Delete"
+              variant="outline"
+            />
+            <cf:button
+              data-action="cancel"
+              variant="outline"
+              th:text="#{admin.common.button.cancel}"
+            />
+          </div>
+        </wc-modal>
+      </th:block>
+    </div>
+
+    <!-- Create status modal -->
+    <wc-modal
+      hidden
+      id="create-status-modal-container"
+      modal-id="create-status-modal"
+      th:heading-text="#{programstatuses.modal.createheading}"
+    >
+      <div slot="description">
+        <p
+          class="usa-sr-only"
+          th:text="#{programstatuses.modal.createdesc}"
+        ></p>
+        <form
+          data-form-type="static"
+          id="create-status-form"
+          class="usa-form"
+          method="POST"
+          th:action="${model.createOrUpdateUrl}"
+        >
+          <input th:replace="~{admin/shared/CsrfToken}" />
+          <input type="hidden" name="configuredStatusText" value="" />
+          <cf:input
+            id="create-statusText"
+            name="statusText"
+            th:label="#{programstatuses.label.statusname}"
+            label="Status name"
+            value=""
+            required="true"
+          />
+          <cf:textarea
+            id="create-emailBody"
+            name="emailBody"
+            th:label="#{programstatuses.label.emailbody}"
+            label="Email the applicant about the status change"
+            value=""
+          />
+          <div class="usa-checkbox">
+            <cf:checkbox
+              id="create-defaultStatusCheckbox"
+              name="defaultStatusCheckbox"
+              th:label="#{programstatuses.label.setdefault}"
+            >
+              <item
+                name="defaultStatusCheckbox"
+                id="dasdf"
+                th:label="#{programstatuses.label.setdefault}"
+                value="on"
+              ></item>
+            </cf:checkbox>
+          </div>
+        </form>
+      </div>
+      <div slot="buttons">
+        <cf:button
+          data-action="ok"
+          type="submit"
+          form="create-status-form"
+          th:text="#{admin.common.button.confirm}"
+          text="Confirm"
+        />
+        <cf:button
+          data-action="cancel"
+          variant="outline"
+          th:text="#{admin.common.button.cancel}"
+        />
+      </div>
+    </wc-modal>
+  </div>
+
+  <th:block th:fragment="scripts">
+    <script th:nonce="${templateGlobals.cspNonce()}">
+      document.addEventListener('DOMContentLoaded', function (e) {})
+    </script>
+  </th:block>
+</th:block>

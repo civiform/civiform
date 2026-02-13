@@ -1,0 +1,43 @@
+package views.admin.programs;
+
+import auth.ProfileUtils;
+import javax.inject.Inject;
+import modules.ThymeleafModule;
+import org.thymeleaf.TemplateEngine;
+import services.BundledAssetsFinder;
+import services.settings.SettingsManifest;
+import views.admin.AdminLayout;
+import views.admin.AdminLayoutBaseView;
+
+public final class ProgramStatusesPageView
+    extends AdminLayoutBaseView<ProgramStatusesPageViewModel> {
+  @Inject
+  public ProgramStatusesPageView(
+      TemplateEngine templateEngine,
+      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
+      BundledAssetsFinder bundledAssetsFinder,
+      ProfileUtils profileUtils,
+      SettingsManifest settingsManifest) {
+    super(
+        templateEngine,
+        playThymeleafContextFactory,
+        settingsManifest,
+        bundledAssetsFinder,
+        profileUtils);
+  }
+
+  @Override
+  protected String pageTitle(ProgramStatusesPageViewModel model) {
+    return "Manage application statuses for %s".formatted(model.getProgramName());
+  }
+
+  @Override
+  protected AdminLayout.NavPage activeNavigationPage() {
+    return AdminLayout.NavPage.PROGRAMS;
+  }
+
+  @Override
+  protected String pageTemplate() {
+    return "admin/programs/ProgramStatusesPage.html";
+  }
+}

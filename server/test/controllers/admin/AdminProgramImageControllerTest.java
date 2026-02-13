@@ -10,6 +10,7 @@ import static support.cloud.FakePublicStorageClient.FAKE_BUCKET_NAME;
 
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
+import com.typesafe.config.Config;
 import java.util.Locale;
 import java.util.stream.Collectors;
 import junitparams.JUnitParamsRunner;
@@ -23,14 +24,18 @@ import play.mvc.Result;
 import repository.ResetPostgres;
 import repository.VersionRepository;
 import services.LocalizedStrings;
+import services.TranslationLocales;
 import services.TranslationNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import support.cloud.FakePublicStorageClient;
 import views.admin.programs.ProgramEditStatus;
+import views.admin.programs.ProgramImagePageView;
 import views.admin.programs.ProgramImageView;
+import views.fileupload.FileUploadViewStrategy;
 
 @RunWith(JUnitParamsRunner.class)
 public class AdminProgramImageControllerTest extends ResetPostgres {
@@ -47,10 +52,16 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
             new FakePublicStorageClient(),
             programService,
             instanceOf(ProgramImageView.class),
+            instanceOf(ProgramImagePageView.class),
             instanceOf(RequestChecker.class),
             instanceOf(FormFactory.class),
             instanceOf(ProfileUtils.class),
-            instanceOf(VersionRepository.class));
+            instanceOf(VersionRepository.class),
+            instanceOf(SettingsManifest.class),
+            instanceOf(FileUploadViewStrategy.class),
+            instanceOf(ProgramCardPreviewController.class),
+            instanceOf(TranslationLocales.class),
+            instanceOf(Config.class));
   }
 
   @Test

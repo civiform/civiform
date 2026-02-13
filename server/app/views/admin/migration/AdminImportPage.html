@@ -1,0 +1,85 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.migration.AdminImportPageViewModel"*/-->
+<th:block
+  th:fragment="content"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <div id="admin-import-header">
+    <a
+      class="usa-link"
+      th:href="${model.backToProgramsUrl}"
+      th:text="#{adminimport.link.backtoprograms}"
+    ></a>
+
+    <p th:text="#{adminimport.text.description}"></p>
+    <hr class="usa-hr" />
+
+    <!-- Instructions -->
+    <h2 th:text="#{adminimport.heading.howto}"></h2>
+    <ol class="usa-process-list">
+      <li class="usa-process-list__item">
+        <h4
+          class="usa-process-list__heading"
+          th:text="#{adminimport.step1.heading}"
+        ></h4>
+        <p th:text="#{adminimport.step1.description}"></p>
+      </li>
+      <li class="usa-process-list__item">
+        <h4
+          class="usa-process-list__heading"
+          th:text="#{adminimport.step2.heading}"
+        ></h4>
+        <p th:text="#{adminimport.step2.description}"></p>
+      </li>
+      <li class="usa-process-list__item">
+        <h4
+          class="usa-process-list__heading"
+          th:text="#{adminimport.step3.heading}"
+        ></h4>
+        <p th:text="#{adminimport.step3.description}"></p>
+      </li>
+      <li class="usa-process-list__item">
+        <h4
+          class="usa-process-list__heading"
+          th:text="#{adminimport.step4.heading}"
+        ></h4>
+        <p th:text="#{adminimport.step4.description}"></p>
+      </li>
+    </ol>
+
+    <!-- Program import section -->
+    <h2 th:text="#{adminimport.heading.programimport}"></h2>
+    <div id="program-data">
+      <p th:text="#{adminimport.text.pasteinstructions}"></p>
+      <p th:text="#{adminimport.text.sizelimit}"></p>
+      <form
+        id="mainForm"
+        data-form-type="static"
+        class="usa-form usa-form--large"
+        hx-encoding="application/x-www-form-urlencoded"
+        th:hx-post="${model.hxImportProgramUrl}"
+        hx-target="#program-data"
+        hx-swap="outerHTML"
+        hx-indicator="#hx-submit-button"
+        hx-disabled-elt="#hx-submit-button"
+      >
+        <input th:replace="~{admin/shared/CsrfToken}" />
+        <cf:textarea
+          id="programJson"
+          name="programJson"
+          th:label="#{adminimport.label.programjson}"
+          th:placeholder="#{adminimport.placeholder.programjson}"
+          th:maxlength="${'' + model.maxTextLength}"
+          required="true"
+        />
+        <cf:button
+          id="hx-submit-button"
+          type="submit"
+          th:text="#{adminimport.button.previewprogram}"
+          variant="outline"
+        />
+      </form>
+    </div>
+  </div>
+</th:block>

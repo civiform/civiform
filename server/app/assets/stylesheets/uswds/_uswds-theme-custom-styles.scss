@@ -26,6 +26,10 @@ See the radio-option below as an example.
 @use 'usa-label' as *;
 @use 'usa-error-message' as *;
 
+body {
+  background-color: #f3f3f3;
+}
+
 .cf-radio-option:focus-within {
   @include u-border('blue-40v');
 }
@@ -497,10 +501,78 @@ Example with two column checkbox list
   }
 }
 
+.usa-form-group--error {
+  .usa-label {
+    @extend .usa-label--error;
+  }
+
+  .usa-error-message {
+  }
+
+  .usa-input {
+    @extend .usa-input--error;
+  }
+}
+
+.usa-form-group--error {
+  .usa-fieldset {
+    .usa-legend {
+      @extend .usa-label--error;
+    }
+
+    .usa-error-message {
+    }
+  }
+}
+
+.usa-accordion {
+  // Prismjs font-size is too large.
+  code[class*='language-'],
+  pre[class*='language-'] {
+    font-size: 14px !important;
+  }
+
+  pre > code[class*='language-'] {
+    display: block;
+    overflow-x: scroll;
+    max-width: 40rem;
+  }
+}
+
 // Fancy dashed line used to separate snippets of sample code.
 hr.code-separator {
   @include u-border-color('base');
   @include u-border('1px', 'dashed');
   @include u-margin-y(4);
   @include u-margin-x(0);
+}
+
+.gg-program-card {
+  @include u-bg('white');
+  @include u-border(1px, 'solid', 'base-light');
+  display: flex;
+  flex-direction: column;
+}
+.gg-image-placeholder {
+  aspect-ratio: 9 / 5;
+  max-width: 250px;
+}
+
+.tag {
+  padding: 1px 8px;
+
+  &-draft {
+    background-color: #ebe3f9;
+  }
+  &-active {
+    background-color: #dfeacd;
+  }
+  &-universal {
+    background-color: #2a646d;
+  }
+}
+
+// forms
+.usa-button-group__item > form {
+  height: 100%;
 }

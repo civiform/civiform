@@ -235,7 +235,8 @@ public abstract class AbstractElementModelProcessor
   /** Filter full attribute map for data-* and aria-* attributes */
   protected static Map<String, String> getDataAndAriaAttributes(Map<String, String> attributeMap) {
     var ignoredAttributes = Set.of("aria-describedby", "aria-invalid");
-    var allowedAttributePrefixes = ImmutableList.of("data-", "th:data-", "aria-", "th:aria-");
+    var allowedAttributePrefixes =
+        ImmutableList.of("data-", "th:data-", "aria-", "th:aria-", "form", "th:form");
 
     Map<String, String> attrs = new LinkedHashMap<>();
 

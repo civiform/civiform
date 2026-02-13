@@ -1,0 +1,437 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.questions.QuestionEditPageViewModel"*/-->
+<th:block
+  th:fragment="content"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <style th:nonce="${templateGlobals.cspNonce()}">
+    svg {
+      display: none;
+    }
+  </style>
+
+  <!-- Error message -->
+  <cf:alert th:if="${model.errorMessage.isPresent()}" type="error" slim="true">
+    <text th:text="${model.errorMessage.get()}">placeholder</text>
+  </cf:alert>
+
+  <!-- Left column: form -->
+  <div id="question-form" hx-ext="response-targets">
+    <!-- Multi-option question answer template (hidden, used by JS for cloning) -->
+    <th:block th:if="${model.multiOptionQuestion}">
+      <div
+        id="multi-option-question-answer-template"
+        class="cf-multi-option-question-option cf-multi-option-question-option-editable hidden grid grid-cols-8 grid-rows-4 items-center mb-4"
+      >
+        <div class="col-start-1 col-span-5 mb-2 ml-2 row-start-1 row-span-2">
+          <div class="usa-form-group">
+            <label class="usa-label">Admin ID</label>
+            <input
+              class="usa-input cf-multi-option-admin-input"
+              type="text"
+              name="newOptionAdminNames[]"
+              required="required"
+            />
+          </div>
+        </div>
+        <button
+          type="button"
+          class="multi-option-question-field-move-up-button col-start-8 row-start-1"
+          aria-label="move up"
+        >
+          &#x2191;
+        </button>
+        <button
+          type="button"
+          class="multi-option-question-field-move-down-button col-start-8 row-start-2"
+          aria-label="move down"
+        >
+          &#x2193;
+        </button>
+        <div class="col-start-1 col-span-5 mb-2 ml-2 row-start-3 row-span-2">
+          <div class="usa-form-group">
+            <label class="usa-label">Option Text</label>
+            <input
+              class="usa-input cf-multi-option-input"
+              type="text"
+              name="newOptions[]"
+              required="required"
+            />
+          </div>
+        </div>
+        <button
+          type="button"
+          class="multi-option-question-field-remove-button col-start-8 row-span-2"
+          aria-label="delete"
+        >
+          &#x2717;
+        </button>
+      </div>
+    </th:block>
+
+    <p>Fields marked with a <span>*</span> are required.</p>
+
+    <form
+      class="usa-form usa-form--large"
+      id="full-edit-form"
+      method="POST"
+      th:action="${model.formActionUrl}"
+    >
+      <input th:replace="~{admin/shared/CsrfToken}" />
+      <input
+        type="hidden"
+        name="questionType"
+        th:value="${model.questionTypeName}"
+      />
+      <input type="hidden" name="redirectUrl" th:value="${model.redirectUrl}" />
+      <input
+        type="hidden"
+        name="concurrencyToken"
+        th:value="${model.concurrencyToken}"
+      />
+      <input
+        type="hidden"
+        name="enumeratorId"
+        th:value="${model.enumeratorIdValue}"
+      />
+
+      <h2 th:text="#{questionnew.section.visibletoapplicants}"></h2>
+
+      <!-- Repeated question information (hidden by default, shown by JS when enumerator selected) -->
+      <div id="repeated-question-information" class="display-none">
+        <cf:alert type="info" slim="true">
+          <content>
+            <p class="usa-alert__text">
+              By selecting an enumerator, you are creating a repeated question -
+              a question that is asked for each repeated entity enumerated by
+              the applicant.
+            </p>
+            <p class="usa-alert__text">
+              Please reference the applicant-defined repeated entity name to
+              give the applicant context on which repeated entity they are
+              answering the question for by using <em>"$this"</em> in the
+              <strong>question's text</strong> and optionally the
+              <strong>help text.</strong>
+            </p>
+            <p class="usa-alert__text">
+              To reference the repeated entities containing this one, use
+              <em>"$this.parent"</em>, <em>"$this.parent.parent"</em>, etc.
+            </p>
+          </content>
+        </cf:alert>
+      </div>
+
+      <cf:textarea
+        id="question-text-textarea"
+        name="questionText"
+        th:label="#{questionnew.label.questiontext}"
+        th:value="${model.questionText}"
+        required="true"
+      />
+
+      <th:block th:if="${model.showHelpText}">
+        <cf:textarea
+          id="question-help-text-textarea"
+          name="questionHelpText"
+          th:label="#{questionnew.label.helptext}"
+          th:value="${model.questionHelpText}"
+        />
+      </th:block>
+
+      <!-- Section: Visible to administrators only -->
+      <h2 th:text="#{questionnew.section.visibletoadmins}"></h2>
+
+      <!-- Admin name: read-only in edit mode -->
+      <div>
+        <p
+          class="usa-label"
+          th:text="#{questionedit.label.adminidentifier}"
+        ></p>
+        <p id="question-name-input" th:text="${model.questionName}"></p>
+        <input
+          type="hidden"
+          name="questionName"
+          th:value="${model.questionName}"
+        />
+      </div>
+
+      <cf:textarea
+        id="question-description-textarea"
+        name="questionDescription"
+        th:label="#{questionnew.label.description}"
+        th:value="${model.questionDescription}"
+      />
+
+      <!-- Enumerator: read-only in edit mode -->
+      <cf:select
+        id="question-enumerator-select"
+        name="enumeratorId-display"
+        th:label="#{questionnew.label.enumerator}"
+        disabled="true"
+      >
+        <option
+          th:text="${model.enumeratorDisplayName}"
+          selected="selected"
+        ></option>
+      </cf:select>
+
+      <!-- MAP question: GeoJSON Endpoint (read-only in edit mode) -->
+      <th:block th:if="${model.mapQuestion}">
+        <cf:input
+          id="geoJsonURL"
+          name="geoJsonEndpoint"
+          th:label="#{questionnew.label.geojsonurl}"
+          th:help-text="#{questionnew.helptext.geojsonurl}"
+          th:value="${model.geoJsonEndpoint}"
+          required="true"
+          readonly="true"
+        />
+      </th:block>
+
+      <!-- Section: Question settings -->
+      <th:block th:if="${model.hasQuestionSettings}">
+        <h2 th:text="#{questionnew.section.settings}"></h2>
+
+        <!-- Type-specific question config -->
+        <th:block
+          th:if="${model.hasQuestionConfig()}"
+          th:replace="~{admin/questions/QuestionEditPageQuestionConfig :: questionConfig}"
+        />
+
+        <!-- Universal question toggle -->
+        <p>
+          Universal questions will be recommended as a standardized type of
+          question to be added to all programs.
+        </p>
+        <cf:checkbox
+          id="universal"
+          name="isUniversal"
+          label="Universal question"
+          tiled="false"
+        >
+          <item
+            id="universal-toggle"
+            value="true"
+            label="Set as a universal question"
+            th:selected="${model.currentlyUniversal}"
+          ></item>
+        </cf:checkbox>
+
+        <!-- Primary applicant info -->
+        <th:block th:if="${model.showPrimaryApplicantInfo}">
+          <div id="primary-applicant-info">
+            <div
+              th:each="tag : ${model.paiTags}"
+              class="cf-primary-applicant-info-subsection"
+            >
+              <p th:text="${tag.description}"></p>
+
+              <cf:checkbox
+                th:id="${tag.fieldName}"
+                th:name="${tag.fieldName}"
+                th:label="${tag.displayName}"
+                tiled="false"
+                th:classappend="${tag.toggleHidden} ? 'display-none'"
+              >
+                <item
+                  th:id="${tag.fieldName + '-toggle'}"
+                  value="true"
+                  th:label="${tag.displayName}"
+                  th:selected="${tag.enabled}"
+                ></item>
+              </cf:checkbox>
+
+              <!-- Alert: not universal (shown when different question does NOT have tag) -->
+              <th:block th:if="${!tag.differentQuestionHasTag}">
+                <div
+                  class="cf-pai-not-universal-alert"
+                  th:classappend="${tag.universal} ? 'display-none'"
+                >
+                  <cf:alert type="info" slim="true">
+                    <text>
+                      You cannot make this question a Primary applicant
+                      information question because the question is not a
+                      Universal question.
+                    </text>
+                  </cf:alert>
+                </div>
+              </th:block>
+
+              <!-- Alert: already set on another question (shown when universal) -->
+              <th:block th:if="${tag.differentQuestionHasTag}">
+                <div
+                  class="cf-pai-tag-set-alert"
+                  th:classappend="${!tag.universal} ? 'display-none'"
+                >
+                  <cf:alert type="info" slim="true">
+                    <text
+                      th:text="${'You cannot make this question a Primary applicant information question because the question named &quot;' + tag.otherQuestionName + '&quot; is already set as a Primary applicant information question.'}"
+                      >placeholder</text
+                    >
+                  </cf:alert>
+                </div>
+              </th:block>
+
+              <!-- Alert: not universal AND already set (shown when not universal) -->
+              <th:block th:if="${tag.differentQuestionHasTag}">
+                <div
+                  class="cf-pai-tag-set-not-universal-alert"
+                  th:classappend="${tag.universal} ? 'display-none'"
+                >
+                  <cf:alert type="info" slim="true">
+                    <text
+                      th:text="${'You cannot make this question a Primary applicant information question because the question is not a Universal question and because the question named &quot;' + tag.otherQuestionName + '&quot; is already set as a Primary applicant information question.'}"
+                      >placeholder</text
+                    >
+                  </cf:alert>
+                </div>
+              </th:block>
+            </div>
+          </div>
+        </th:block>
+
+        <!-- Demographic data privacy -->
+        <th:block th:if="${model.showDemographicFields}">
+          <cf:radio
+            id="question-export-state"
+            name="questionExportState"
+            label="Demographic data privacy settings"
+            required="true"
+            help-text="The setting below only controls what is exported in the demographic export. Answers are always exported via the API."
+          >
+            <item
+              id="export-non-demographic"
+              value="NON_DEMOGRAPHIC"
+              label="Don't include in demographic export"
+              th:selected="${model.questionExportState == 'NON_DEMOGRAPHIC'}"
+            ></item>
+            <item
+              id="export-demographic"
+              value="DEMOGRAPHIC"
+              label="Include in demographic export"
+              th:selected="${model.questionExportState == 'DEMOGRAPHIC'}"
+            ></item>
+            <item
+              id="export-demographic-pii"
+              value="DEMOGRAPHIC_PII"
+              label="Obfuscate and include in demographic export"
+              th:selected="${model.questionExportState == 'DEMOGRAPHIC_PII'}"
+            ></item>
+          </cf:radio>
+          <p>
+            Learn more about each of the demographic data export settings in the
+            <a
+              href="https://docs.civiform.us/user-manual/civiform-admin-guide/manage-questions#question-export-settings"
+              target="_blank"
+              rel="noopener noreferrer"
+              >documentation</a
+            >.
+          </p>
+        </th:block>
+
+        <!-- Display mode -->
+        <th:block th:if="${model.showDisplayModeFields}">
+          <cf:radio
+            id="display-mode"
+            name="displayMode"
+            label="Display Mode"
+            required="true"
+            help-text="This controls whether or not the question is visible to Applicants."
+          >
+            <item
+              id="display-visible"
+              value="VISIBLE"
+              label="Visible - Shown to Applicants"
+              th:selected="${model.displayMode == 'VISIBLE'}"
+            ></item>
+            <item
+              id="display-hidden"
+              value="HIDDEN"
+              label="Hidden - Not shown to Applicants"
+              th:selected="${model.displayMode == 'HIDDEN'}"
+            ></item>
+          </cf:radio>
+        </th:block>
+      </th:block>
+
+      <!-- Buttons: Update always goes through the unset-universal confirmation modal -->
+      <cf:button
+        id="updateButton"
+        type="submit"
+        th:text="#{questionedit.button.update}"
+      />
+
+      <!--        data-open-modal-->
+      <!--        aria-controls="confirm-unset-universal-modal"-->
+    </form>
+  </div>
+
+  <wc-modal
+    hidden
+    id="confirm-unset-universal-modal-container"
+    modal-id="confirm-unset-universal-modal"
+    th:heading-text="#{questionedit.modal.unsetuniversalheading}"
+  >
+    <div slot="description">
+      <div id="confirm-unset-universal-desc">
+        <p
+          th:text="#{questionedit.modal.unsetuniversaldesc.prefix} + ${model.questionTypeLabel} + #{questionedit.modal.unsetuniversaldesc.suffix}"
+        ></p>
+      </div>
+    </div>
+    <div slot="buttons">
+      <cf:button
+        type="submit"
+        form="full-edit-form"
+        data-action="ok"
+        th:text="#{questionedit.button.removefromuni}"
+      />
+      <cf:button
+        data-action="cancel"
+        variant="outline"
+        th:text="#{admin.common.button.cancel}"
+      />
+    </div>
+  </wc-modal>
+</th:block>
+
+<th:block th:fragment="sidebar">
+  <div
+    hx-swap="outerHTML"
+    th:hx-get="${model.previewUrl}"
+    hx-trigger="load"
+  ></div>
+</th:block>
+
+<th:block th:fragment="scripts">
+  <script th:nonce="${templateGlobals.cspNonce()}">
+    document.addEventListener('DOMContentLoaded', () => {
+      const initialUniversalToggleState =
+        document.getElementById('universal-toggle').checked
+
+      document.getElementById('updateButton').addEventListener('click', (e) => {
+        const currentUniversalToggleState =
+          document.getElementById('universal-toggle').checked
+        if (
+          currentUniversalToggleState === false &&
+          currentUniversalToggleState != initialUniversalToggleState
+        ) {
+          e.preventDefault()
+          document
+            .getElementById('confirm-unset-universal-modal-container')
+            .open()
+        }
+      })
+
+      document
+        .getElementById('confirm-unset-universal-modal')
+        .addEventListener('modal:action-selected', (e) => {
+          if (e.detail.action !== 'ok') {
+            e.preventDefault()
+            return
+          }
+        })
+    })
+  </script>
+</th:block>

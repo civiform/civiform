@@ -1,5 +1,6 @@
 import {attachRedirectToPageListeners} from '@/main'
 import {HtmxRequest} from '@/htmx_request'
+import {assertNotNull} from '@/util'
 
 /**
  * Dynamic behavior for AdminImportView.
@@ -151,12 +152,19 @@ class AdminImportView {
   }
 
   addStringifyJsonListener() {
-    document.body.addEventListener('htmx:configRequest', function (evt) {
-      const customEvent = evt as CustomEvent<HtmxRequest>
-      const formData = customEvent.detail.formData
-      const programJson = formData.get('programJson') as string
-      const trimmedProgramJson = JSON.stringify(JSON.parse(programJson))
-      customEvent.detail.formData.set('programJson', trimmedProgramJson)
+    const form = assertNotNull(document.getElementById('mainForm'))
+
+    form.addEventListener('htmx:configRequest', function (evt) {
+      try {
+        const customEvent = evt as CustomEvent<HtmxRequest>
+        const formData = customEvent.detail.formData
+        const programJson = formData.get('programJson') as string
+        const trimmedProgramJson = JSON.stringify(JSON.parse(programJson))
+        customEvent.detail.formData.set('programJson', trimmedProgramJson)
+      } catch {
+        alert('TODO: invalid json was not handled')
+        evt.preventDefault()
+      }
     })
   }
 }

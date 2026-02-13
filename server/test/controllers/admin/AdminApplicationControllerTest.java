@@ -64,6 +64,9 @@ import services.statuses.StatusDefinitions.Status;
 import services.statuses.StatusNotFoundException;
 import services.statuses.StatusService;
 import support.ProgramBuilder;
+import views.ApplicantUtils;
+import views.admin.programs.ProgramApplicationShowPageView;
+import views.admin.programs.ProgramApplicationTablePageView;
 import views.admin.programs.ProgramApplicationTableView;
 import views.admin.programs.ProgramApplicationView;
 
@@ -855,7 +858,10 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         instanceOf(VersionRepository.class),
         instanceOf(StatusService.class),
         instanceOf(ProgramApplicationTableView.class),
-        instanceOf(SettingsManifest.class));
+        instanceOf(ProgramApplicationTablePageView.class),
+        instanceOf(ProgramApplicationShowPageView.class),
+        instanceOf(SettingsManifest.class),
+        instanceOf(ApplicantUtils.class));
   }
 
   private List<String> createApplicationList(int count, ProgramModel program) {

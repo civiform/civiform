@@ -9,6 +9,8 @@ import java.util.Locale;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import javax.inject.Provider;
+import mapping.admin.reporting.AdminReportingPageMapper;
+import mapping.admin.reporting.AdminReportingProgramPageMapper;
 import org.pac4j.play.java.Secure;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -18,9 +20,7 @@ import services.reporting.ReportingService;
 import services.settings.SettingsManifest;
 import views.admin.reporting.AdminReportingIndexView;
 import views.admin.reporting.AdminReportingPageView;
-import views.admin.reporting.AdminReportingPageViewModel;
 import views.admin.reporting.AdminReportingProgramPageView;
-import views.admin.reporting.AdminReportingProgramPageViewModel;
 import views.admin.reporting.AdminReportingShowView;
 
 /** Controller for displaying reporting data to the admin roles. */
@@ -58,11 +58,10 @@ public final class AdminReportingController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result index(Http.Request request) {
     if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
-      AdminReportingPageViewModel model =
-          AdminReportingPageViewModel.builder()
-              .monthlyStats(reportingService.getMonthlyStats())
-              .build();
-      return ok(adminReportingPageView.render(request, model)).as(Http.MimeTypes.HTML);
+      AdminReportingPageMapper mapper = new AdminReportingPageMapper();
+      return ok(adminReportingPageView.render(
+              request, mapper.map(reportingService.getMonthlyStats())))
+          .as(Http.MimeTypes.HTML);
     }
     return ok(
         adminReportingIndexView
@@ -80,17 +79,16 @@ public final class AdminReportingController extends CiviFormController {
           .getActiveFullProgramDefinitionAsync(programSlug)
           .thenApply(
               programDefinition -> {
-                AdminReportingProgramPageViewModel model =
-                    AdminReportingProgramPageViewModel.builder()
-                        .monthlySubmissionsForProgram(
+                AdminReportingProgramPageMapper mapper = new AdminReportingProgramPageMapper();
+                return ok(adminReportingProgramPageView.render(
+                        request,
+                        mapper.map(
                             reportingService
                                 .getMonthlyStats()
-                                .monthlySubmissionsForProgram(programDefinition.adminName()))
-                        .programSlug(programSlug)
-                        .programName(programDefinition.adminName())
-                        .enUSLocalizedProgramName(programDefinition.localizedName().getDefault())
-                        .build();
-                return ok(adminReportingProgramPageView.render(request, model))
+                                .monthlySubmissionsForProgram(programDefinition.adminName()),
+                            programSlug,
+                            programDefinition.adminName(),
+                            programDefinition.localizedName().getDefault())))
                     .as(Http.MimeTypes.HTML);
               });
     }

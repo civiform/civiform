@@ -9,6 +9,7 @@ import controllers.CiviFormController;
 import controllers.FlashKey;
 import forms.admin.ProgramStatusesForm;
 import java.util.Optional;
+import mapping.admin.programs.ProgramStatusesPageMapper;
 import org.pac4j.play.java.Secure;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -19,12 +20,16 @@ import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
+import services.TranslationLocales;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.settings.SettingsManifest;
 import services.statuses.DuplicateStatusException;
 import services.statuses.StatusDefinitions;
 import services.statuses.StatusService;
+import views.admin.programs.ProgramStatusesPageView;
+import views.admin.programs.ProgramStatusesPageViewModel;
 import views.admin.programs.ProgramStatusesView;
 
 /**
@@ -35,25 +40,34 @@ public final class AdminProgramStatusesController extends CiviFormController {
 
   private final StatusService service;
   private final ProgramStatusesView statusesView;
+  private final ProgramStatusesPageView statusesPageView;
   private final RequestChecker requestChecker;
   private final FormFactory formFactory;
   private final ProgramService programService;
+  private final SettingsManifest settingsManifest;
+  private final TranslationLocales translationLocales;
 
   @Inject
   public AdminProgramStatusesController(
       StatusService service,
       ProgramStatusesView statusesView,
+      ProgramStatusesPageView statusesPageView,
       RequestChecker requestChecker,
       FormFactory formFactory,
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
-      ProgramService programService) {
+      ProgramService programService,
+      SettingsManifest settingsManifest,
+      TranslationLocales translationLocales) {
     super(profileUtils, versionRepository);
     this.service = checkNotNull(service);
     this.statusesView = checkNotNull(statusesView);
+    this.statusesPageView = checkNotNull(statusesPageView);
     this.requestChecker = checkNotNull(requestChecker);
     this.formFactory = checkNotNull(formFactory);
     this.programService = checkNotNull(programService);
+    this.settingsManifest = checkNotNull(settingsManifest);
+    this.translationLocales = checkNotNull(translationLocales);
   }
 
   /** Displays the list of {@link StatusDefinitions} associated with the program. */
@@ -61,6 +75,19 @@ public final class AdminProgramStatusesController extends CiviFormController {
   public Result index(Http.Request request, long programId) throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
     ProgramDefinition program = programService.getFullProgramDefinition(programId);
+    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+      StatusDefinitions activeStatusDefinitions =
+          service.lookupActiveStatusDefinitions(program.adminName());
+      ProgramStatusesPageViewModel model =
+          new ProgramStatusesPageMapper()
+              .map(
+                  program,
+                  activeStatusDefinitions,
+                  !translationLocales.translatableLocales().isEmpty(),
+                  request.flash().get(FlashKey.SUCCESS),
+                  request.flash().get(FlashKey.ERROR));
+      return ok(statusesPageView.render(request, model)).as(Http.MimeTypes.HTML);
+    }
     return ok(
         statusesView.render(
             request,
@@ -95,6 +122,19 @@ public final class AdminProgramStatusesController extends CiviFormController {
             .form(ProgramStatusesForm.class)
             .bindFromRequest(request, ProgramStatusesForm.FIELD_NAMES.toArray(new String[0]));
     if (form.hasErrors()) {
+
+      if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+        ProgramStatusesPageViewModel model =
+            new ProgramStatusesPageMapper()
+                .map(
+                    program,
+                    activeStatusDefinitions,
+                    !translationLocales.translatableLocales().isEmpty(),
+                    request.flash().get(FlashKey.SUCCESS),
+                    request.flash().get(FlashKey.ERROR));
+        return ok(statusesPageView.render(request, model)).as(Http.MimeTypes.HTML);
+      }
+
       // Redirecting to the index view would re-render the statuses and lose
       // any form values / errors. Instead, re-render the view at this URL
       // whenever there is are form validation errors, which preserves the
@@ -129,6 +169,19 @@ public final class AdminProgramStatusesController extends CiviFormController {
       // whenever there is are form validation errors, which preserves the
       // form values.
       form = form.withError(ProgramStatusesForm.STATUS_TEXT_FORM_NAME, e.userFacingMessage());
+
+      if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+        ProgramStatusesPageViewModel model =
+            new ProgramStatusesPageMapper()
+                .map(
+                    program,
+                    activeStatusDefinitions,
+                    !translationLocales.translatableLocales().isEmpty(),
+                    request.flash().get(FlashKey.SUCCESS),
+                    Optional.of(e.userFacingMessage()));
+        return ok(statusesPageView.render(request, model)).as(Http.MimeTypes.HTML);
+      }
+
       return ok(statusesView.render(request, program, activeStatusDefinitions, Optional.of(form)));
     }
     final String indexUrl = routes.AdminProgramStatusesController.index(programId).url();

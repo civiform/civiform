@@ -1,0 +1,326 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.programs.ProgramEditPageViewModel"*/-->
+<th:block
+  th:fragment="content"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <!-- Error message -->
+  <cf:alert th:if="${model.errorMessage.isPresent()}" type="error" slim="true">
+    <text th:text="${model.errorMessage.get()}">placeholder</text>
+  </cf:alert>
+
+  <form
+    data-form-type="static"
+    class="usa-form usa-form--large"
+    id="program-details-form"
+    method="POST"
+    th:action="${model.formActionUrl}"
+  >
+    <input th:replace="~{admin/shared/CsrfToken}" />
+
+    <!-- Program setup -->
+    <h2 th:text="#{programnew.section.setup}"></h2>
+
+    <!-- Program name -->
+    <cf:input
+      id="program-display-name-input"
+      name="localizedDisplayName"
+      th:label="#{programnew.label.programname}"
+      required="true"
+      th:value="${model.displayName}"
+    />
+
+    <!-- Short description -->
+    <cf:input
+      id="program-display-short-description-input"
+      name="localizedShortDescription"
+      th:label="#{programnew.label.shortdescription}"
+      required="true"
+      maxlength="100"
+      th:value="${model.shortDescription}"
+    />
+
+    <!-- Program slug (read-only on edit) -->
+    <th:block th:if="${model.programUrl.isPresent()}">
+      <p th:text="#{programedit.text.urlnoteditable}"></p>
+      <p th:text="${model.programUrl.get()}"></p>
+    </th:block>
+    <th:block th:unless="${model.programUrl.isPresent()}">
+      <p th:text="#{programedit.text.idnoteditable}"></p>
+      <p th:text="${model.adminName}"></p>
+    </th:block>
+
+    <!-- Admin description -->
+    <cf:textarea
+      id="program-description-textarea"
+      name="adminDescription"
+      th:label="#{programnew.label.admindescription}"
+      th:value="${model.adminDescription}"
+    />
+
+    <!-- Program type -->
+    <th:block th:if="${model.externalProgramCardsEnabled}">
+      <cf:radio
+        id="programTypeValue"
+        name="programTypeValue"
+        th:label="#{programnew.label.programtype}"
+        required="true"
+      >
+        <item
+          id="default-program-option"
+          value="default"
+          th:label="#{programnew.label.civiformprogram}"
+          th:description="#{programnew.description.civiformprogram}"
+          th:selected="${model.isDefaultProgram}"
+          th:disabled="${model.isExternalProgram}"
+        ></item>
+        <item
+          id="external-program-option"
+          value="external"
+          th:label="#{programnew.label.externalprogram}"
+          th:description="#{programnew.description.externalprogram}"
+          th:selected="${model.isExternalProgram}"
+          th:disabled="${model.isDefaultProgram || model.isPreScreenerForm}"
+        ></item>
+        <item
+          id="pre-screener-program-option"
+          value="common_intake_form"
+          th:label="#{programnew.label.prescreener}"
+          th:description="#{programnew.description.prescreener}"
+          th:selected="${model.isPreScreenerForm}"
+          th:disabled="${model.isExternalProgram}"
+        ></item>
+      </cf:radio>
+    </th:block>
+    <th:block th:unless="${model.externalProgramCardsEnabled}">
+      <cf:checkbox
+        id="pre-screener-checkbox"
+        name="programTypeValue"
+        th:label="#{programnew.label.programtype}"
+      >
+        <item
+          id="pre-screener-checkbox-item"
+          value="common_intake_form"
+          th:label="#{programnew.label.setprescreener}"
+          th:selected="${model.isPreScreenerForm}"
+        ></item>
+      </cf:checkbox>
+    </th:block>
+
+    <!-- Hidden checkbox for confirming pre-screener change -->
+    <input type="hidden" name="confirmedChangePreScreenerForm" value="false" />
+
+    <!-- Program eligibility gating -->
+    <cf:radio
+      id="eligibilityIsGating"
+      name="eligibilityIsGating"
+      th:label="#{programnew.label.eligibilitygating}"
+      required="true"
+    >
+      <item
+        id="program-eligibility-gating"
+        value="true"
+        th:label="#{programnew.label.gatingenabled}"
+        th:selected="${model.eligibilityIsGating and !model.isPreScreenerForm and !model.isExternalProgram}"
+        th:disabled="${model.isPreScreenerForm or model.isExternalProgram}"
+      ></item>
+      <item
+        id="program-eligibility-not-gating"
+        value="false"
+        th:label="#{programnew.label.gatingdisabled}"
+        th:selected="${!model.eligibilityIsGating and !model.isPreScreenerForm and !model.isExternalProgram}"
+        th:disabled="${model.isPreScreenerForm or model.isExternalProgram}"
+      ></item>
+    </cf:radio>
+
+    <!-- Program categories -->
+    <th:block th:if="${!model.categoryOptions.isEmpty()}">
+      <cf:checkbox
+        id="category-checkboxes"
+        name="categories[]"
+        th:label="#{programnew.label.categories}"
+        columns="2"
+        th:disabled="${model.isPreScreenerForm}"
+      >
+        <item
+          th:each="cat : ${model.categoryOptions}"
+          th:id="'checkbox-category-' + ${cat.name}"
+          th:value="${cat.id}"
+          th:label="${cat.name}"
+          th:selected="${model.selectedCategories.contains(cat.id) and !model.isPreScreenerForm}"
+        ></item>
+      </cf:checkbox>
+    </th:block>
+
+    <!-- Program visibility -->
+    <cf:radio
+      id="displayMode"
+      name="displayMode"
+      th:label="#{programnew.label.visibility}"
+      required="true"
+    >
+      <item
+        id="program-display-mode-public"
+        value="PUBLIC"
+        label="Publicly visible"
+        th:selected="${model.displayMode == 'PUBLIC'}"
+      ></item>
+      <item
+        id="program-display-mode-hidden"
+        value="HIDDEN_IN_INDEX"
+        label="Hide from applicants. Only individuals with the unique program link can access this program"
+        th:selected="${model.displayMode == 'HIDDEN_IN_INDEX'}"
+      ></item>
+      <item
+        id="program-display-mode-ti-only"
+        value="TI_ONLY"
+        label="Trusted intermediaries only"
+        th:selected="${model.displayMode == 'TI_ONLY'}"
+      ></item>
+      <item
+        id="program-display-mode-select-ti-only"
+        value="SELECT_TI"
+        label="Visible to selected trusted intermediaries only"
+        th:selected="${model.displayMode == 'SELECT_TI'}"
+      ></item>
+      <item
+        id="program-display-mode-disabled"
+        value="DISABLED"
+        label="Disabled"
+        th:selected="${model.displayMode == 'DISABLED'}"
+      ></item>
+    </cf:radio>
+
+    <!-- TI group selection -->
+    <div
+      id="TiList"
+      th:if="${!model.tiGroupOptions.isEmpty()}"
+      th:hidden="${model.displayMode != 'SELECT_TI'}"
+    >
+      <input type="hidden" name="tiGroups[]" value="" />
+      <cf:checkbox
+        id="ti-group-selection"
+        name="tiGroups[]"
+        th:label="#{programnew.label.tigroups}"
+      >
+        <item
+          th:each="tiGroup : ${model.tiGroupOptions}"
+          th:id="${tiGroup.id}"
+          th:value="${tiGroup.id}"
+          th:label="${tiGroup.name}"
+          th:selected="${model.selectedTiGroups.contains(tiGroup.id)}"
+        ></item>
+      </cf:checkbox>
+    </div>
+
+    <!-- Program external link -->
+    <cf:input
+      id="program-external-link-input"
+      name="externalLink"
+      th:label="#{programnew.label.externallink}"
+      th:value="${model.externalLink}"
+      th:required="${model.isExternalProgram}"
+      th:disabled="${model.isDefaultProgram or model.isPreScreenerForm}"
+      th:readonly="${model.isDefaultProgram or model.isPreScreenerForm}"
+    />
+
+    <!-- Email notifications -->
+    <cf:checkbox
+      id="notification-preferences"
+      name="notificationPreferences"
+      th:label="#{programnew.label.sendemailnotification}"
+      th:disabled="${model.isExternalProgram}"
+    >
+      <item
+        id="notification-preferences-email"
+        th:value="${model.defaultNotificationPreferenceValue}"
+        label="Send Program Admins an email notification every time an application is submitted"
+        th:selected="${model.notificationPreferences.contains(model.defaultNotificationPreferenceValue) and !model.isExternalProgram}"
+        th:disabled="${model.isExternalProgram}"
+      ></item>
+    </cf:checkbox>
+
+    <!-- Login only applications -->
+    <cf:checkbox
+      id="login-only-applications"
+      name="loginOnly"
+      th:label="#{programnew.label.loginonly}"
+    >
+      <item
+        id="login-only-checkbox"
+        value="true"
+        label="Require applicants to log in to apply to this program"
+        th:selected="${model.loginOnly}"
+      ></item>
+    </cf:checkbox>
+
+    <!-- Program overview -->
+    <h2 th:text="#{programnew.section.overview}"></h2>
+
+    <!-- Long program description -->
+    <cf:textarea
+      id="program-display-description-textarea"
+      name="localizedDisplayDescription"
+      th:label="#{programnew.label.longdescription}"
+      th:value="${model.displayDescription}"
+      th:disabled="${model.isPreScreenerForm or model.isExternalProgram}"
+      th:readonly="${model.isPreScreenerForm or model.isExternalProgram}"
+    />
+
+    <!-- How to apply -->
+    <h2 th:text="#{programnew.section.howtoapply}"></h2>
+
+    <!-- Application steps -->
+    <th:block th:each="i : ${#numbers.sequence(0, 4)}">
+      <div th:id="'apply-step-' + ${i + 1} + '-div'">
+        <cf:input
+          th:id="'apply-step-' + ${i + 1} + '-title'"
+          th:name="'applicationSteps[' + ${i} + '][title]'"
+          th:label="'Step ' + ${i + 1} + ' title'"
+          th:required="${i == 0 and !model.isPreScreenerForm and !model.isExternalProgram ? 'true' : ''}"
+          th:value="${i < model.applicationSteps.size() ? model.applicationSteps.get(i).title : ''}"
+          th:disabled="${model.isPreScreenerForm or model.isExternalProgram}"
+          th:readonly="${model.isPreScreenerForm or model.isExternalProgram}"
+        />
+        <cf:textarea
+          th:id="'apply-step-' + ${i + 1} + '-description'"
+          th:name="'applicationSteps[' + ${i} + '][description]'"
+          th:label="'Step ' + ${i + 1} + ' description'"
+          th:required="${i == 0 and !model.isPreScreenerForm and !model.isExternalProgram ? 'true' : ''}"
+          th:value="${i < model.applicationSteps.size() ? model.applicationSteps.get(i).description : ''}"
+          th:disabled="${model.isPreScreenerForm or model.isExternalProgram}"
+          th:readonly="${model.isPreScreenerForm or model.isExternalProgram}"
+        />
+      </div>
+    </th:block>
+
+    <!-- Confirmation message -->
+    <h2 th:text="#{programnew.section.confirmation}"></h2>
+
+    <cf:textarea
+      id="program-confirmation-message-textarea"
+      name="localizedConfirmationMessage"
+      th:label="#{programnew.label.confirmationmessage}"
+      th:value="${model.confirmationMessage}"
+      th:disabled="${model.isExternalProgram}"
+      th:readonly="${model.isExternalProgram}"
+    />
+
+    <!-- Manage questions link -->
+    <th:block th:if="${model.manageQuestionsUrl.isPresent()}">
+      <a
+        th:href="${model.manageQuestionsUrl.get()}"
+        id="manage-questions-link"
+        class="usa-link"
+        th:text="#{programedit.link.managequestions}"
+      ></a>
+    </th:block>
+
+    <cf:button
+      id="program-update-button"
+      type="submit"
+      th:text="${model.editStatus == 'CREATION' or model.editStatus == 'CREATION_EDIT'} ? #{programnew.button.saveandcontinue} : #{admin.common.button.save}"
+    />
+  </form>
+</th:block>

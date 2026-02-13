@@ -1,4 +1,4 @@
-import {expect} from './civiform_fixtures'
+import {test, expect} from './civiform_fixtures'
 import {ElementHandle, Page, Locator} from '@playwright/test'
 import {readFileSync} from 'fs'
 import {
@@ -8,11 +8,13 @@ import {
   waitForAnyModalLocator,
   waitForPageJsLoad,
   waitForHtmxReady,
+  waitForAnyModalLocator2,
 } from './wait'
 import {BASE_URL, TEST_CIVIC_ENTITY_SHORT_NAME} from './config'
 import {AdminProgramStatuses} from './admin_program_statuses'
 import {AdminProgramImage} from './admin_program_image'
 import {extractEmailsForRecipient} from '.'
+import {text} from 'stream/consumers'
 
 /**
  * JSON object representing downloaded application. It can be retrieved by
@@ -203,11 +205,9 @@ export class AdminPrograms {
       this.page.getByRole('heading', {name: 'Program dashboard'}),
     ).toBeVisible()
     await expect(
-      this.page.getByRole('heading', {
-        name:
-          'Create, edit and publish programs in ' +
-          TEST_CIVIC_ENTITY_SHORT_NAME,
-      }),
+      this.page.getByText(
+        `Create, edit and publish programs in ${TEST_CIVIC_ENTITY_SHORT_NAME}`,
+      ),
     ).toBeVisible()
   }
 
@@ -354,72 +354,85 @@ export class AdminPrograms {
       applicationSteps?: {title: string; description: string}[]
     } = {},
   ) {
-    await this.gotoAdminProgramsPage()
-    await this.page.click('#new-program-button')
-    await waitForPageJsLoad(this.page)
+    await test.step(`add program - ${programName}`, async () => {
+      await this.gotoAdminProgramsPage()
+      await this.page.click('#new-program-button')
+      await waitForPageJsLoad(this.page)
 
-    // program slug must be in url-compatible form so we slugify the program name
-    await this.page.fill('#program-slug', slugify(programName))
-    await this.page.fill('#program-description-textarea', adminDescription)
-    await this.page.fill('#program-display-name-input', programName)
-    await this.page.fill(
-      '#program-display-short-description-input',
-      shortDescription,
-    )
-
-    // Program type selector varies with the EXTERNAL_PROGRAM_CARDS feature.
-    // When enabled, form has program type options. Otherwise, form has a
-    // pre-screener checkbox.
-    // IMPORTANT: Select the program type first since some of the next fields
-    // are disabled based on the program type.
-    const hasProgramTypeOptions = await this.page
-      .getByTestId('program-type-options')
-      .isVisible()
-    if (hasProgramTypeOptions) {
-      await this.selectProgramType(programType)
-    }
-
-    if (eligibility) {
-      await this.chooseEligibility(eligibility)
-    }
-
-    await this.page.check(`label:has-text("${visibility}")`)
-    if (visibility == ProgramVisibility.SELECT_TI) {
-      await this.page.check(`label:has-text("${selectedTI}")`)
-    }
-
-    // The external link field is disabled for default programs and pre-screeners,
-    // so only fill it if a value is provided.
-    if (externalLink !== null) {
-      await this.page.fill('#program-external-link-input', externalLink)
-    }
-
-    if (description.length > 0) {
-      await this.page.fill('#program-display-description-textarea', description)
-    }
-
-    if (confirmationMessage.length) {
+      // program slug must be in url-compatible form so we slugify the program name
+      await this.page.fill('#program-slug', slugify(programName))
+      await this.page.fill('#program-description-textarea', adminDescription)
+      await this.page.fill('#program-display-name-input', programName)
       await this.page.fill(
-        '#program-confirmation-message-textarea',
-        confirmationMessage,
+        '#program-display-short-description-input',
+        shortDescription,
       )
-    }
 
-    if (programType === ProgramType.DEFAULT) {
-      for (let i = 0; i < applicationSteps.length; i++) {
-        const indexPlusOne = i + 1
-        await this.page
-          .getByRole('textbox', {name: `Step ${indexPlusOne} title`})
-          .fill(applicationSteps[i].title)
-        await this.page
-          .getByRole('textbox', {name: `Step ${indexPlusOne} description`})
-          .fill(applicationSteps[i].description)
+      // Program type selector varies with the EXTERNAL_PROGRAM_CARDS feature.
+      // When enabled, form has program type options. Otherwise, form has a
+      // pre-screener checkbox.
+      // IMPORTANT: Select the program type first since some of the next fields
+      // are disabled based on the program type.
+      await this.selectProgramType(programType)
+
+      if (eligibility) {
+        await this.chooseEligibility(eligibility)
       }
-    }
 
-    if (submitNewProgram) {
-      await this.submitProgramDetailsEdits()
-    }
+      await this.page.check(`label:has-text("${visibility}")`)
+      if (visibility == ProgramVisibility.SELECT_TI) {
+        await this.page.check(`label:has-text("${selectedTI}")`)
+      }
+
+      // The external link field is disabled for default programs and pre-screeners,
+      // so only fill it if a value is provided.
+      if (externalLink !== null) {
+        await this.page.fill('#program-external-link-input', externalLink)
+      }
+
+      const programDisplayDescription = this.page.locator(
+        '#program-display-description-textarea',
+      )
+      if (
+        description.length > 0 &&
+        (await programDisplayDescription.isEnabled())
+      ) {
+        await programDisplayDescription.fill(description)
+      }
+
+      if (confirmationMessage.length) {
+        await this.page.fill(
+          '#program-confirmation-message-textarea',
+          confirmationMessage,
+        )
+      }
+
+      if (programType === ProgramType.DEFAULT) {
+        for (let i = 0; i < applicationSteps.length; i++) {
+          const indexPlusOne = i + 1
+
+          const stepTitle = this.page.getByRole('textbox', {
+            name: `Step ${indexPlusOne} title`,
+          })
+
+          if (await stepTitle.isEnabled()) {
+            await stepTitle.fill(applicationSteps[i].title)
+          }
+
+          const stepDescription = this.page.getByRole('textbox', {
+            name: `Step ${indexPlusOne} description`,
+          })
+
+          if (await stepDescription.isEnabled()) {
+            await stepDescription.fill(applicationSteps[i].description)
+          }
+        }
+      }
+
+      if (submitNewProgram) {
+        await this.submitProgramDetailsEdits()
+      }
+    })
   }
 
   /**
@@ -658,7 +671,7 @@ export class AdminPrograms {
   async expectProgramActionsVisible(
     programName: string,
     lifecycle: ProgramLifecycle,
-    actions: ProgramAction[],
+    actions: {programAction: ProgramAction; type: 'link' | 'button'}[],
     extraActions: ProgramExtraAction[],
   ) {
     for (const action of actions) {
@@ -671,6 +684,9 @@ export class AdminPrograms {
     }
 
     await this.getProgramExtraActionsButton(programName, lifecycle).click()
+    // await this.page.waitForSelector('ul.ellipsis-menu[popover] li')
+    // await this.page.getByRole('menu', { name: 'Options' }).waitFor({ state: 'visible'})
+
     for (const action of extraActions) {
       const actionButton = this.getProgramExtraAction(
         programName,
@@ -693,7 +709,7 @@ export class AdminPrograms {
   async expectProgramActionsHidden(
     programName: string,
     lifecycle: ProgramLifecycle,
-    actions: ProgramAction[],
+    actions: {programAction: ProgramAction; type: 'link' | 'button'}[],
     extraActions: ProgramExtraAction[],
   ) {
     for (const action of actions) {
@@ -751,9 +767,10 @@ export class AdminPrograms {
     selectedTI = 'none',
   ) {
     await this.gotoAdminProgramsPage()
-    await this.page.click('button :text("View")')
-    await this.page.click('#header_edit_button')
-    await this.page.click('#header_edit_button')
+
+    await this.page.getByRole('link', {name: 'View'}).click()
+    await this.page.getByRole('button', {name: 'Edit program'}).click()
+    await this.page.getByRole('link', {name: 'Edit program details'}).click()
     await waitForPageJsLoad(this.page)
 
     await this.page.check(`label:has-text("${visibility}")`)
@@ -766,7 +783,8 @@ export class AdminPrograms {
 
   async programNames(disabled = false) {
     await this.gotoAdminProgramsPage(disabled)
-    const titles = this.page.locator('.cf-admin-program-card .cf-program-title')
+    const titles = this.page.getByRole('heading', {level: 2})
+    // const titless = this.page.locator('.cf-acf-program-titledmin-program-card .')
     return titles.allTextContents()
   }
 
@@ -886,11 +904,13 @@ export class AdminPrograms {
   }
 
   async goToProgramImagePage(programName: string) {
-    await this.gotoAdminProgramsPage()
-    await this.expectDraftProgram(programName)
-    await this.gotoEditDraftProgramPage(programName)
-    await this.page.click('button:has-text("Edit program image")')
-    await this.expectProgramImagePage()
+    await test.step(`go to program image page for ${programName}`, async () => {
+      await this.gotoAdminProgramsPage()
+      await this.expectDraftProgram(programName)
+      await this.gotoEditDraftProgramPage(programName)
+      await this.page.getByRole('link', {name: 'Edit program image'}).click()
+      await this.expectProgramImagePage()
+    })
   }
 
   /**
@@ -1020,13 +1040,11 @@ export class AdminPrograms {
       )
     } else {
       await this.expectDraftProgram(programName)
-      await this.getProgramAction(
-        programName,
-        lifecycle,
-        ProgramAction.EDIT,
-      ).click()
+      await this.getProgramAction(programName, lifecycle, {
+        programAction: ProgramAction.EDIT,
+        type: 'link',
+      }).click()
     }
-
     await waitForPageJsLoad(this.page)
     await this.expectProgramBlockEditPage(programName)
   }
@@ -1040,11 +1058,10 @@ export class AdminPrograms {
   async gotoViewActiveProgramPage(programName: string) {
     await this.gotoAdminProgramsPage()
     await this.expectActiveProgram(programName)
-    await this.getProgramAction(
-      programName,
-      ProgramLifecycle.ACTIVE,
-      ProgramAction.VIEW,
-    ).click()
+    await this.getProgramAction(programName, ProgramLifecycle.ACTIVE, {
+      programAction: ProgramAction.VIEW,
+      type: 'link',
+    }).click()
     await waitForPageJsLoad(this.page)
     await this.expectProgramBlockReadOnlyPage(programName)
   }
@@ -1204,17 +1221,28 @@ export class AdminPrograms {
     expect(toastContainer).toContain(successToastMessage)
   }
 
-  async expectProgramBlockEditPage(programName = '') {
-    expect(await this.page.innerText('id=program-title')).toContain(programName)
-    expect(await this.page.innerText('id=block-edit-form')).not.toBeNull()
-    expect(await this.page.innerText('h1')).toContain('Add a question')
+  async expectProgramBlockEditPage(programName: string) {
+    await test.step(`expect program block edit page for - ${programName}.`, async () => {
+      await expect(
+        this.page.getByRole('heading', {name: programName, level: 1}),
+      ).toBeVisible()
+
+      await expect(this.page.locator('#block-edit-form')).toBeHidden()
+
+      await expect(
+        this.page.getByRole('button', {name: 'Add a question'}),
+      ).toBeVisible()
+    })
   }
 
   async expectProgramBlockReadOnlyPage(programName = '') {
-    expect(await this.page.innerText('id=program-title')).toContain(programName)
+    await expect(
+      this.page.getByRole('heading', {name: programName, level: 1}),
+    ).toBeVisible()
     // The only element for editing should be one top level button
-    await expect(this.page.locator('#header_edit_button')).toBeVisible()
-    expect(await this.page.locator('id=block-edit-form').count()).toEqual(0)
+    await expect(
+      this.page.getByRole('button', {name: 'Edit program'}),
+    ).toBeVisible()
   }
 
   // Removes questions from given block in program.
@@ -1299,28 +1327,38 @@ export class AdminPrograms {
    * @param block Block information
    */
   async editProgramBlockUsingSpec(programName: string, block: BlockSpec) {
-    await this.gotoEditDraftProgramPage(programName)
+    await test.step(`edit program block - ${programName}`, async () => {
+      await this.gotoEditDraftProgramPage(programName)
 
-    await clickAndWaitForModal(this.page, 'block-description-modal')
+      await this.page
+        .getByRole('button', {name: 'Edit screen name and description'})
+        .click()
+      // await expect(this.page.getByRole('button', { name: 'Save' })).toBeDisabled()
 
-    if (block.name !== undefined) {
-      await this.page.fill('#block-name-input', block.name)
-    }
-
-    await this.page.fill('textarea', block.description || 'screen description')
-
-    await this.page.click('#update-block-button:not([disabled])')
-
-    for (const question of block.questions ?? []) {
-      await this.addQuestionFromQuestionBank(question.name)
-
-      if (question.isOptional) {
+      if (block.name !== undefined) {
         await this.page
-          .getByTestId(`question-admin-name-${question.name}`)
-          .locator(':is(button:has-text("optional"))')
-          .click()
+          .getByRole('textbox', {name: 'Screen name *'})
+          .fill(block.name)
       }
-    }
+
+      await this.page
+        .getByRole('textbox', {name: 'Screen description *'})
+        .fill(block.description || 'screen description')
+
+      // await expect(this.page.getByRole('button', { name: 'Save' })).toBeEnabled()
+      await this.page.getByRole('button', {name: 'Save'}).click()
+
+      for (const question of block.questions ?? []) {
+        await this.addQuestionFromQuestionBank(question.name)
+
+        if (question.isOptional) {
+          await this.page
+            .getByTestId(`question-admin-name-${question.name}`)
+            .locator(':is(button:has-text("optional"))')
+            .click()
+        }
+      }
+    })
   }
 
   /**
@@ -1378,26 +1416,26 @@ export class AdminPrograms {
   }
 
   async closeQuestionBank() {
-    await this.page.click('button.cf-close-question-bank-button')
+    await this.page.getByRole('button', {name: 'Close'}).click()
     await this.waitForQuestionBankAnimationToFinish()
   }
 
   async addQuestionFromQuestionBank(questionName: string) {
-    await this.openQuestionBank()
-    await this.page
-      .locator(
-        `.cf-question-bank-element[data-adminname="${questionName}"] button:has-text("Add")`,
-      )
-      .click()
-    await waitForPageJsLoad(this.page)
-    // After question was added question bank is still open. Close it first.
-    await this.closeQuestionBank()
-    // Make sure the question is successfully added to the screen.
-    await expect(
-      this.page.locator(
-        `div.cf-program-question p:has-text("Admin ID: ${questionName}")`,
-      ),
-    ).toBeVisible()
+    await test.step(`add question from question bank: ${questionName}`, async () => {
+      await this.openQuestionBank()
+      await this.page
+        .locator(
+          `.cf-question-bank-element[data-adminname="${questionName}"] button:has-text("Add")`,
+        )
+        .click()
+      await waitForPageJsLoad(this.page)
+      // After question was added question bank is still open. Close it first.
+      await this.closeQuestionBank()
+      // Make sure the question is successfully added to the screen.
+
+      const card = this.page.getByTestId(`question-admin-name-${questionName}`)
+      await expect(card.getByText(`Admin ID:${questionName}`)).toBeVisible()
+    })
   }
 
   async questionBankNames(universal = false): Promise<string[]> {
@@ -1464,7 +1502,10 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page)
 
     if (editBlockScreenDetails) {
-      await clickAndWaitForModal(this.page, 'block-description-modal')
+      await this.page
+        .getByRole('button', {name: 'Edit screen name and description'})
+        .click()
+      await waitForAnyModalLocator2(this.page, 'Screen name and description')
 
       // Only update the block name if a name was provided. Otherwise, keep the default (which should be something like "Block 1")
       if (block.name !== undefined) {
@@ -1475,7 +1516,10 @@ export class AdminPrograms {
         'textarea',
         block.description || 'screen description',
       )
-      await this.page.click('#update-block-button:not([disabled])')
+
+      await expect(this.page.getByRole('button', {name: 'Save'})).toBeEnabled()
+      await this.page.getByRole('button', {name: 'Save'}).click()
+
       // Wait for submit and redirect back to this page.
       await this.page.waitForURL(this.page.url())
       await waitForPageJsLoad(this.page)
@@ -1530,6 +1574,50 @@ export class AdminPrograms {
     await this.expectActiveProgram(programName)
   }
 
+  async publishSingleProgram(
+    programName: string,
+    modalAction: 'confirm' | 'cancel',
+  ) {
+    await test.step(`publish single program ${programName} and take action ${modalAction}`, async () => {
+      const card = this.page.locator(
+        `.cf-admin-program-card[data-program-name=${programName}]`,
+      )
+      await expect(card).toBeVisible()
+      await card.getByRole('button', {name: 'Publish', exact: true}).click()
+
+      if (modalAction === 'confirm') {
+        await this.page.getByRole('button', {name: 'Publish'}).click()
+      } else if (modalAction === 'cancel') {
+        await this.page.getByRole('button', {name: 'Cancel'}).click()
+      }
+    })
+  }
+
+  async openSingleProgramPublishModal(programName: string): Promise<Locator> {
+    return await test.step(`open single program publish modal for ${programName}`, async () => {
+      const card = this.page.locator(
+        `.cf-admin-program-card[data-program-name="${programName}"]`,
+      )
+      await expect(card).toBeVisible()
+      await card.getByRole('button', {name: 'Publish', exact: true}).click()
+      return card
+    })
+  }
+
+  async submitSingleProgramPublishModal(programName: string) {
+    await test.step(`cancel single program publish modal for ${programName}`, async () => {
+      await this.page.getByRole('button', {name: 'Publish'}).click()
+    })
+  }
+
+  async cancelSingleProgramPublishModal(programName: string) {
+    await test.step(`cancel single program publish modal for ${programName}`, async () => {
+      await this.page
+        .getByRole('button', {name: 'Publish', exact: true})
+        .click()
+    })
+  }
+
   private static PUBLISH_ALL_MODAL_TITLE =
     'Do you want to publish all draft programs?'
 
@@ -1540,23 +1628,30 @@ export class AdminPrograms {
   }
 
   async publishAllDrafts() {
-    await this.gotoAdminProgramsPage()
-    const modal = await this.openPublishAllDraftsModal()
-    const confirmHandle = (await modal.$(
-      'button:has-text("Publish all draft programs and questions")',
-    ))!
-    await confirmHandle.click()
+    await test.step('publish all drafts', async () => {
+      await this.gotoAdminProgramsPage()
+      const modal = await this.openPublishAllDraftsModal()
 
-    await waitForPageJsLoad(this.page)
+      const confirmButton = modal.getByRole('button', {
+        name: 'Publish all draft programs and questions',
+      })
+
+      await confirmButton.click()
+
+      await waitForPageJsLoad(this.page)
+    })
   }
 
-  async openPublishAllDraftsModal() {
-    await this.page.click('button:has-text("Publish all drafts")')
-    const modal = await waitForAnyModal(this.page)
-    expect(await modal.innerText()).toContain(
-      AdminPrograms.PUBLISH_ALL_MODAL_TITLE,
-    )
-    return modal
+  async openPublishAllDraftsModal(): Promise<Locator> {
+    return await test.step('open publish all drafts modal', async () => {
+      await this.page.click('button:has-text("Publish all drafts")')
+      const modal = await waitForAnyModalLocator2(
+        this.page,
+        AdminPrograms.PUBLISH_ALL_MODAL_TITLE,
+      )
+      await expect(modal).toBeVisible()
+      return modal
+    })
   }
 
   async expectProgramReferencesModalContains({
@@ -1568,42 +1663,47 @@ export class AdminPrograms {
   }) {
     const modal = await this.openPublishAllDraftsModal()
 
-    const editedQuestions = await modal.$$(
-      '.cf-admin-publish-references-question li',
-    )
-    const editedQuestionsContents = await Promise.all(
-      editedQuestions.map((editedQuestion) => editedQuestion.innerText()),
-    )
-    expect(editedQuestionsContents).toEqual(expectedQuestionsContents)
+    await expect(
+      this.page.locator('.cf-admin-publish-references-question'),
+    ).toBeVisible()
+    await expect(
+      this.page.locator('.cf-admin-publish-references-program'),
+    ).toBeVisible()
 
-    const editedPrograms = await modal.$$(
-      '.cf-admin-publish-references-program li',
-    )
-    const editedProgramsContents = await Promise.all(
-      editedPrograms.map((editedProgram) => editedProgram.innerText()),
-    )
-    expect(editedProgramsContents).toEqual(expectedProgramsContents)
+    for (const text of expectedQuestionsContents) {
+      await expect(
+        modal.locator('.cf-admin-publish-references-question').getByText(text),
+      ).toBeVisible()
+    }
+
+    for (const text of expectedProgramsContents) {
+      await expect(
+        modal.locator('.cf-admin-publish-references-program').getByText(text),
+      ).toBeVisible()
+    }
 
     await dismissModal(this.page)
   }
 
   async createNewVersion(programName: string, isProgramDisabled = false) {
-    await this.gotoAdminProgramsPage(isProgramDisabled)
-    await this.expectActiveProgram(programName)
+    await test.step(`create new version of program - ${programName}`, async () => {
+      await this.gotoAdminProgramsPage(isProgramDisabled)
+      await this.expectActiveProgram(programName)
 
-    await this.selectProgramExtraAction(
-      programName,
-      ProgramLifecycle.ACTIVE,
-      ProgramExtraAction.EDIT,
-    )
-    await waitForPageJsLoad(this.page)
+      await this.selectProgramExtraAction(
+        programName,
+        ProgramLifecycle.ACTIVE,
+        ProgramExtraAction.EDIT,
+      )
+      await waitForPageJsLoad(this.page)
 
-    await this.page.click('button:has-text("Edit program details")')
-    await waitForPageJsLoad(this.page)
+      await this.page.getByRole('link', {name: 'Edit program details'}).click()
+      await waitForPageJsLoad(this.page)
 
-    await this.submitProgramDetailsEdits()
-    await this.gotoAdminProgramsPage(isProgramDisabled)
-    await this.expectDraftProgram(programName)
+      await this.submitProgramDetailsEdits()
+      await this.gotoAdminProgramsPage(isProgramDisabled)
+      await this.expectDraftProgram(programName)
+    })
   }
 
   /**
@@ -1625,11 +1725,10 @@ export class AdminPrograms {
     if (await extraActions.isVisible()) {
       await extraActions.click()
     }
-    await this.getProgramAction(
-      programName,
-      ProgramLifecycle.ACTIVE,
-      ProgramAction.VIEW_APPLICATIONS,
-    ).click()
+    await this.getProgramAction(programName, ProgramLifecycle.ACTIVE, {
+      programAction: ProgramAction.VIEW_APPLICATIONS,
+      type: 'link',
+    }).click()
     await waitForPageJsLoad(this.page)
   }
 
@@ -1640,9 +1739,9 @@ export class AdminPrograms {
   }
 
   getRowLocator(applicantName: string): Locator {
-    return this.page.locator(
-      `.cf-admin-application-row:has-text("${applicantName}")`,
-    )
+    return this.page.locator('.cf-admin-application-row').filter({
+      has: this.page.getByRole('link', {name: applicantName}),
+    })
   }
 
   selectQuestionWithinBlock(question: string) {
@@ -2015,11 +2114,11 @@ export class AdminPrograms {
   getProgramAction(
     programName: string,
     lifecycle: string,
-    action: ProgramAction,
+    action: {programAction: ProgramAction; type: 'link' | 'button'},
   ) {
     const programCard = this.getProgramCard(programName, lifecycle)
-    return programCard.getByRole('button', {
-      name: action,
+    return programCard.getByRole(action.type, {
+      name: action.programAction,
     })
   }
 
@@ -2030,7 +2129,7 @@ export class AdminPrograms {
     const programCard = this.getProgramCard(programName, lifecycle)
     return programCard
       .locator(`[data-lifecycle-stage=${lifecycle.toLowerCase()}]`)
-      .locator('.cf-with-dropdown')
+      .locator('[data-context-menu]')
   }
 
   getProgramExtraAction(
@@ -2038,8 +2137,7 @@ export class AdminPrograms {
     lifecycle: ProgramLifecycle,
     action: ProgramExtraAction,
   ): Locator {
-    const programCard = this.getProgramCard(programName, lifecycle)
-    return programCard.getByRole('button', {
+    return this.page.getByRole('menuitem', {
       name: action,
     })
   }
@@ -2070,19 +2168,13 @@ export class AdminPrograms {
     // because USWDS styling hides the actual button input and styles the label to
     // look like a checkbox. The actual input element is visually hidden or positioned
     // off-screen, making it inaccessible to Playwright's direct interactions.
-    let programId
-    switch (programType) {
-      case ProgramType.DEFAULT:
-        programId = 'default-program-option'
-        break
-      case ProgramType.PRE_SCREENER:
-        programId = 'pre-screener-program-option'
-        break
-      case ProgramType.EXTERNAL:
-        programId = 'external-program-option'
-        break
-    }
-    await this.page.locator('label[for="' + programId + '"]').click()
+
+    // await this.page.getByText('Pre-screenerThis program').click()
+
+    await this.page
+      .getByRole('group', {name: 'Program type'})
+      .getByText(programType)
+      .click()
   }
 
   /**
@@ -2103,7 +2195,7 @@ export class AdminPrograms {
       await this.gotoEditDraftProgramPage(programName)
     }
 
-    await this.page.getByRole('button', {name: 'Edit program details'}).click()
+    await this.page.getByRole('link', {name: 'Edit program details'}).click()
     for (const category of categories) {
       await this.page.getByText(category).click()
     }
@@ -2128,5 +2220,11 @@ export class AdminPrograms {
       `[Test Message] An update on your application ${programName}`,
     )
     expect(sentEmail.Body.text_part).toContain(emailBody)
+  }
+
+  async openDropdownMenu(programName: string, lifecycle: 'active' | 'draft') {
+    await this.getProgramCard(programName, lifecycle)
+      .getByRole('button', {name: 'More options'})
+      .click()
   }
 }

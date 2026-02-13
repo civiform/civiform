@@ -1,7 +1,11 @@
 <!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
 <!--/*@thymesVar id="model" type="views.dev.DevToolsPageViewModel"*/-->
-<th:block th:fragment="content">
-  <div class="usa-section">
+<th:block
+  th:fragment="content"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <div>
     <!-- Home Section -->
     <div class="grid-row grid-gap">
       <div class="grid-col-12">
@@ -16,17 +20,25 @@
       <div class="grid-col-12 border border-base-lighter">
         <h2>[[#{devtools.seed.title}]]</h2>
         <p>[[#{devtools.seed.description}]]</p>
-        <form th:action="${model.seedProgramsUrl}" method="post">
+        <form
+          class="usa-form"
+          th:action="${model.seedProgramsUrl}"
+          method="post"
+        >
           <button class="usa-button" type="submit">
             [[#{devtools.seed.programs}]]
           </button>
         </form>
-        <form th:action="${model.seedQuestionsUrl}" method="post">
+        <form
+          class="usa-form"
+          th:action="${model.seedQuestionsUrl}"
+          method="post"
+        >
           <button class="usa-button" type="submit">
             [[#{devtools.seed.questions}]]
           </button>
         </form>
-        <form th:action="${model.clearUrl}" method="post">
+        <form class="usa-form" th:action="${model.clearUrl}" method="post">
           <button class="usa-button usa-button--secondary" type="submit">
             [[#{devtools.seed.clear}]]
           </button>
@@ -39,12 +51,8 @@
       <div class="grid-col-12 border border-base-lighter">
         <h2>[[#{devtools.cache.title}]]</h2>
         <p>[[#{devtools.cache.description}]]</p>
-        <form th:action="${model.clearCacheUrl}" method="post">
-          <input
-            type="hidden"
-            name="csrfToken"
-            th:value="${templateGlobals.csrfToken()}"
-          />
+        <form class="usa-form" th:action="${model.clearCacheUrl}" method="post">
+          <input th:replace="~{admin/shared/CsrfToken}" />
           <button class="usa-button" type="submit">
             💵 [[#{devtools.cache.clear}]]
           </button>
@@ -57,12 +65,12 @@
       <div class="grid-col-12 border border-base-lighter">
         <h2>[[#{devtools.jobs.title}]]</h2>
         <p>[[#{devtools.jobs.description}]]</p>
-        <form th:action="${model.runDurableJobUrl}" method="post">
-          <input
-            type="hidden"
-            name="csrfToken"
-            th:value="${templateGlobals.csrfToken()}"
-          />
+        <form
+          class="usa-form"
+          th:action="${model.runDurableJobUrl}"
+          method="post"
+        >
+          <input th:replace="~{admin/shared/CsrfToken}" />
           <label for="durable-job-select">[[#{devtools.jobs.select}]]</label>
           <select
             id="durable-job-select"

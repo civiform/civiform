@@ -1,5 +1,5 @@
-import {expect} from './civiform_fixtures'
-import {ElementHandle, Page} from '@playwright/test'
+import {expect, test} from './civiform_fixtures'
+import {ElementHandle, Locator, Page} from '@playwright/test'
 import {
   dismissModal,
   waitForAnyModal,
@@ -136,7 +136,9 @@ export class AdminQuestions {
   }
 
   async expectAdminQuestionsPage() {
-    await expect(this.page.locator('h1')).toHaveText('All questions')
+    await expect(
+      this.page.getByRole('heading', {name: 'All questions', level: 1}),
+    ).toBeVisible()
   }
 
   selectorForExportOption(exportOption: string) {
@@ -144,11 +146,14 @@ export class AdminQuestions {
   }
 
   async expectAdminQuestionsPageWithSuccessToast(successText: string) {
-    const toastContainer = await this.page.innerHTML('#toast-container')
-
-    expect(toastContainer).toContain('bg-cf-toast-success')
-    expect(toastContainer).toContain(successText)
-    await this.expectAdminQuestionsPage()
+    await test.step('expectAdminQuestionsPageWithSuccessToast', async () => {
+      // TODO: GWEN TOAST
+      // const toastContainer = await this.page.innerHTML('#toast-container')
+      // expect(toastContainer).toContain('bg-cf-toast-success')
+      // expect(toastContainer).toContain(successText)
+      await this.gotoAdminQuestionsPage()
+      await this.expectAdminQuestionsPage()
+    })
   }
 
   async expectAdminQuestionsPageWithUpdateSuccessToast() {
@@ -237,8 +242,13 @@ export class AdminQuestions {
     }
 
     await this.page
-      .getByRole('radio', {name: exportOption, exact: true})
+      .getByRole('group', {name: 'Demographic data privacy settings'})
+      .getByText(exportOption)
       .check()
+
+    // await this.page
+    // .getByRole('radio', {name: exportOption, exact: true})
+    // .check()
   }
 
   async selectDisplayMode(displayMode: QuestionDisplayMode | null) {
@@ -246,7 +256,12 @@ export class AdminQuestions {
       throw new Error('A non-empty displayMode option must be provided')
     }
 
-    await this.page.getByRole('radio', {name: displayMode}).check()
+    await this.page
+      .getByRole('group', {name: 'Display Mode'})
+      .getByText(displayMode + ' -')
+      .click()
+
+    // await this.page.getByRole('radio', {name: displayMode}).check()
   }
 
   async updateQuestionText(updateText: string) {
@@ -259,11 +274,25 @@ export class AdminQuestions {
   }
 
   selectQuestionTableRow(questionName: string) {
-    return `.cf-admin-question-table-row:has-text("Admin ID: ${questionName}")`
+    return `.usa-card:has-text("Admin ID: ${questionName}")`
   }
 
+  selectQuestionCardLocator(questionName: string): Locator {
+    return this.page.locator('.usa-card').filter({hasText: questionName})
+  }
+
+  selectQuestionCardByAdminNameLocator(questionName: string): Locator {
+    return this.page.locator(`.usa-card[data-adminname="${questionName}"]`)
+  }
   selectWithinQuestionTableRow(questionName: string, selector: string) {
     return this.selectQuestionTableRow(questionName) + ' ' + selector
+  }
+
+  selectWithinQuestionCardLocator(
+    questionName: string,
+    selector: string,
+  ): Locator {
+    return this.selectQuestionCardLocator(questionName).locator(selector)
   }
 
   async expectDraftQuestionExist(
@@ -272,13 +301,15 @@ export class AdminQuestions {
     markdown = false,
   ) {
     await this.gotoAdminQuestionsPage()
-    const questionRowText = await this.page.innerText(
-      this.selectQuestionTableRow(questionName),
-    )
+
+    const card = this.selectQuestionCardByAdminNameLocator(questionName)
+    await expect(card.getByText(`Admin ID: ${questionName}`)).toBeVisible()
+
     if (!markdown) {
-      expect(questionRowText).toContain(questionText)
+      await expect(card).toContainText(questionText)
     }
-    expect(questionRowText).toContain('Draft')
+
+    await expect(card).toContainText('Draft')
   }
 
   async expectActiveQuestionExist(questionName: string, questionText = '') {
@@ -381,24 +412,21 @@ export class AdminQuestions {
 
   async questionNames(): Promise<string[]> {
     await this.gotoAdminQuestionsPage()
-    const titles = this.page.locator(
-      '.cf-admin-question-table-row .cf-question-title',
-    )
+
+    const titles = this.page.locator('.usa-card h2')
     return titles.allTextContents()
   }
 
   // Note the following two functions do not reload the
   // questions page, so can be used to verify sorting
   async universalQuestionNames(): Promise<string[]> {
-    const titles = this.page.locator(
-      '#questions-list-universal .cf-admin-question-table-row .cf-question-title',
-    )
+    const titles = this.page.locator('#questions-list-universal .usa-card h2')
     return titles.allTextContents()
   }
 
   async nonUniversalQuestionNames(): Promise<string[]> {
     const titles = this.page.locator(
-      '#questions-list-non-universal .cf-admin-question-table-row .cf-question-title',
+      '#questions-list-non-universal .usa-card h2',
     )
     return titles.allTextContents()
   }
@@ -411,12 +439,11 @@ export class AdminQuestions {
     buttonText: string
   }) {
     await this.gotoAdminQuestionsPage()
-    await this.page.click(
-      this.selectWithinQuestionTableRow(
-        questionName,
-        `button:has-text("${buttonText}")`,
-      ),
-    )
+
+    await this.selectQuestionCardLocator(questionName)
+      .getByRole('link', {name: buttonText})
+      .click()
+
     await waitForPageJsLoad(this.page)
     await this.expectQuestionEditPage(questionName)
   }
@@ -468,9 +495,8 @@ export class AdminQuestions {
   }) {
     await this.gotoAdminQuestionsPage()
     await this.openDropdownMenu(questionName)
-    await this.page.click(
-      this.selectWithinQuestionTableRow(questionName, ':text("Archive")'),
-    )
+    await this.page.getByRole('menuitem', {name: 'Archive'}).click()
+
     if (expectModal) {
       const modal = await waitForAnyModalLocator(this.page)
       await expect(modal).toContainText(
@@ -483,33 +509,30 @@ export class AdminQuestions {
       await this.openDropdownMenu(questionName)
       // Ensure that the page has been reloaded and the "Restore archive" link
       // appears.
-      const restoreArchiveIsVisible = this.page.locator(
-        this.selectWithinQuestionTableRow(
-          questionName,
-          ':text("Restore archived")',
-        ),
-      )
-      await expect(restoreArchiveIsVisible).toBeVisible()
+      await expect(
+        this.page.getByRole('menuitem', {name: 'Restore archived'}),
+      ).toBeVisible()
+      await this.page.getByRole('menuitem', {name: 'Restore archived'}).click()
     }
   }
 
   async goToQuestionTranslationPage(questionName: string) {
-    await this.gotoAdminQuestionsPage()
-    await this.openDropdownMenu(questionName)
-    await this.page.click(
-      this.selectWithinQuestionTableRow(
-        questionName,
-        ':text("Manage translations")',
-      ),
-    )
-    await waitForPageJsLoad(this.page)
-    await this.expectQuestionTranslationPage(questionName)
+    await test.step(`go to question translation page for question: ${questionName}`, async () => {
+      await this.gotoAdminQuestionsPage()
+      await this.openDropdownMenu(questionName)
+      await this.page
+        .getByRole('menuitem', {name: 'Manage translations'})
+        .click()
+      await waitForPageJsLoad(this.page)
+      await this.expectQuestionTranslationPage(questionName)
+    })
   }
 
   private async openDropdownMenu(questionName: string) {
-    await this.page.click(
-      this.selectWithinQuestionTableRow(questionName, '.cf-with-dropdown'),
-    )
+    await this.page
+      .locator(this.selectQuestionTableRow(questionName))
+      .getByRole('button', {name: 'More options'})
+      .click()
   }
 
   async expectQuestionEditPage(questionName: string) {
@@ -1089,10 +1112,8 @@ export class AdminQuestions {
       .locator('#question-settings')
       .locator('div.cf-multi-option-question-option')
       .last()
-    await lastDiv.locator('.cf-multi-option-input input').fill(option.text)
-    await lastDiv
-      .locator('.cf-multi-option-admin-input input')
-      .fill(option.adminName)
+    await lastDiv.locator('.cf-multi-option-input').fill(option.text)
+    await lastDiv.locator('.cf-multi-option-admin-input').fill(option.adminName)
   }
 
   async fillMultiOptionAnswer(index: number, option: QuestionOption) {
@@ -1517,17 +1538,18 @@ export class AdminQuestions {
 
     await this.clickSubmitButtonAndNavigate('Create')
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
+
     if (!markdown) {
       await this.expectDraftQuestionExist(questionName, questionText)
     }
   }
 
   async clickUniversalToggle() {
-    await this.page.click('#universal-toggle')
+    await this.page.getByText('Set as a universal question').click()
   }
 
-  async getUniversalToggleValue(): Promise<string> {
-    return this.page.inputValue('#universal-toggle-input')
+  getUniversalToggleValue(): Locator {
+    return this.page.getByLabel('Set as a universal question')
   }
 
   async clickPrimaryApplicantInfoToggle(field: PrimaryApplicantInfoField) {

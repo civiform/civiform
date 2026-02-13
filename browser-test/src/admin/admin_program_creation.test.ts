@@ -260,7 +260,7 @@ test.describe('program creation', () => {
     await adminPrograms.goToProgramDescriptionPage(programName)
     await adminPrograms.submitProgramDetailsEdits()
 
-    await adminPrograms.expectProgramBlockEditPage()
+    await adminPrograms.expectProgramBlockEditPage(programName)
   })
 
   test('shows correct formatting during question creation', async ({

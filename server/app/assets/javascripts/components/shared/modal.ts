@@ -76,9 +76,8 @@ export class Modal extends HTMLElement {
     }
 
     const descriptionSlot = this.querySelector('[slot="description"]')
-    const descriptionContent = DOMPurify.sanitize(
-      descriptionSlot?.innerHTML ?? '',
-    )
+    const descriptionContent = descriptionSlot?.innerHTML ?? '' // DOMPurify.sanitize(
+    // )
 
     if (!descriptionSlot) {
       throw new Error('wc-modal: description slot is required')
@@ -135,7 +134,8 @@ export class Modal extends HTMLElement {
       modalSizeClass = `usa-modal--${modalSize}`
     }
 
-    this.innerHTML = DOMPurify.sanitize(
+    this.innerHTML =
+      // DOMPurify.sanitize(
       `
       <div class="usa-modal ${modalSizeClass}" id="${this._modalId}" aria-labelledby="${this._modalId}-modal-heading" aria-describedby="${this._modalId}-modal-description" ${forceAction}>
         <div class="usa-modal__content">
@@ -149,12 +149,13 @@ export class Modal extends HTMLElement {
           ${closeButton}
         </div>
       </div>
-    `,
-      {
-        ADD_TAGS: ['use'],
-        ADD_ATTR: ['href'],
-      },
-    )
+    `
+    // ,
+    //   {
+    //     ADD_TAGS: ['use'],
+    //     ADD_ATTR: ['href', 'form'],
+    //   },
+    // )
 
     this._attachButtonListeners()
   }

@@ -1,0 +1,71 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.ti.TiGroupEditPageViewModel"*/-->
+<th:block
+  th:fragment="content"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <a class="usa-link" th:href="${model.backUrl}">Back to all intermediaries</a>
+
+  <h2 th:text="${model.groupName}"></h2>
+  <p th:text="${model.groupDescription}"></p>
+
+  <!-- Error message -->
+  <cf:alert th:if="${model.errorMessage.isPresent()}" type="error" slim="true">
+    <text th:text="${model.errorMessage.get()}">placeholder</text>
+  </cf:alert>
+
+  <!-- Add member form -->
+  <h3>Add a member</h3>
+  <form
+    class="usa-form usa-form--large"
+    method="POST"
+    th:action="${model.addMemberActionUrl}"
+  >
+    <input th:replace="~{admin/shared/CsrfToken}" />
+    <cf:input
+      id="group-name-input"
+      name="emailAddress"
+      label="Member email address"
+      type="email"
+      th:value="${model.providedEmailAddress}"
+    />
+    <cf:button type="submit" text="Add" />
+  </form>
+
+  <!-- Members table -->
+  <table class="usa-table usa-table--striped">
+    <thead>
+      <tr>
+        <th scope="col">Members</th>
+        <th scope="col">Status</th>
+        <th scope="col">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <th:block th:each="member : ${model.members}">
+        <tr>
+          <td>
+            <strong th:text="${member.displayName}"></strong>
+            <br />
+            <span th:text="${member.emailAddress}"></span>
+          </td>
+          <td th:text="${member.status}"></td>
+          <td>
+            <form method="POST" th:action="${member.removeActionUrl}">
+              <input th:replace="~{admin/shared/CsrfToken}" />
+              <input
+                type="hidden"
+                name="accountId"
+                th:value="${member.accountId}"
+              />
+              <button type="submit" class="usa-button usa-button--secondary">
+                Delete
+              </button>
+            </form>
+          </td>
+        </tr>
+      </th:block>
+    </tbody>
+  </table>
+</th:block>

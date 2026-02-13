@@ -1,0 +1,171 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.settings.AdminSettingsPageViewModel"*/-->
+<th:block
+  th:fragment="content"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <div class="usa-in-page-nav-container">
+    <form
+      th:action="${model.formActionUrl}"
+      method="post"
+      id="settings-update-form"
+    >
+      <div>
+        <input th:replace="~{admin/shared/CsrfToken}" />
+
+        <th:block th:each="section : ${model.sections}">
+          <h2 th:id="${section.slug()}" th:text="${section.name()}"></h2>
+
+          <div class="grid-row grid-gap">
+            <th:block th:each="setting : ${section.settings()}">
+              <th:block th:insert="~{::render(${setting})}" />
+            </th:block>
+          </div>
+
+          <th:block th:each="subsection : ${section.subsections()}">
+            <h3 th:text="${subsection.name()}"></h3>
+            <div class="grid-row grid-gap">
+              <th:block th:each="setting : ${subsection.settings()}">
+                <th:block th:insert="~{::render(${setting})}" />
+              </th:block>
+            </div>
+          </th:block>
+        </th:block>
+      </div>
+    </form>
+  </div>
+</th:block>
+
+<th:block
+  th:fragment="sidebar"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <div
+    class="usa-in-page-nav"
+    data-title-text="On this page"
+    data-title-heading-level="h2"
+    data-heading-elements="h2"
+    data-scroll-offset="0"
+    data-root-margin="0px 0px 0px 0px"
+    data-threshold="1"
+  ></div>
+
+  <cf:button
+    type="submit"
+    form="settings-update-form"
+    th:text="#{adminsettings.button.savechanges}"
+  />
+</th:block>
+
+<th:block
+  th:fragment="render(setting)"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <div
+    class="desktop:grid-col-6"
+    th:data-testid="${setting.variableName() + '-container'}"
+  >
+    <!-- Boolean radio -->
+    <th:block th:if="${setting.isBoolean()}">
+      <cf:radio
+        th:id="${setting.variableName()}"
+        th:name="${setting.variableName()}"
+        th:label="${setting.variableName()}"
+        th:help-text="${setting.descriptionHtml()}"
+        th:disabled="${setting.readOnly()}"
+      >
+        <item
+          th:id="${setting.variableName() + '-true'}"
+          value="true"
+          th:label="#{adminsettings.form.booleantrue}"
+          th:selected="${setting.isTrue()}"
+          th:disabled="${setting.readOnly()}"
+          th:data-testid="'enable-' + ${setting.variableName()}"
+        ></item>
+        <item
+          th:id="${setting.variableName() + '-false'}"
+          value="false"
+          th:label="#{adminsettings.form.booleanfalse}"
+          th:selected="${!setting.isTrue()}"
+          th:disabled="${setting.readOnly()}"
+          th:data-testid="'disable-' + ${setting.variableName()}"
+        ></item>
+      </cf:radio>
+
+      <p
+        th:if="${setting.readOnly()}"
+        th:text="#{adminsettings.form.readonly}"
+      ></p>
+    </th:block>
+
+    <!-- String/list input -->
+    <th:block th:if="${setting.isString()}">
+      <cf:input
+        th:id="${setting.variableName()}"
+        th:name="${setting.variableName()}"
+        th:label="${setting.variableName()}"
+        th:help-text="${setting.descriptionHtml()}"
+        type="text"
+        th:value="${setting.displayValue()}"
+        placeholder="empty"
+        th:readonly="${setting.readOnly()}"
+        th:disabled="${setting.readOnly()}"
+        th:is-valid="${setting.errorMessage().isPresent() ? 'false' : ''}"
+        th:validation-message="${setting.errorMessage().orElse('')}"
+        th:data-testid="'string-' + ${setting.variableName()}"
+      />
+      <p
+        th:if="${setting.readOnly()}"
+        th:text="#{adminsettings.form.readonly}"
+      ></p>
+    </th:block>
+
+    <!-- Int input -->
+    <th:block th:if="${setting.isInt()}">
+      <cf:input
+        th:id="${setting.variableName()}"
+        th:name="${setting.variableName()}"
+        th:label="${setting.variableName()}"
+        th:help-text="${setting.descriptionHtml()}"
+        type="number"
+        th:value="${setting.displayValue()}"
+        placeholder="empty"
+        th:readonly="${setting.readOnly()}"
+        th:disabled="${setting.readOnly()}"
+      />
+      <p
+        th:if="${setting.readOnly()}"
+        th:text="#{adminsettings.form.readonly}"
+      ></p>
+    </th:block>
+
+    <!-- Enum select -->
+    <th:block th:if="${setting.isEnum()}">
+      <cf:select
+        th:id="${setting.variableName()}"
+        th:name="${setting.variableName()}"
+        th:label="${setting.variableName()}"
+        th:help-text="${setting.descriptionHtml()}"
+        th:disabled="${setting.readOnly()}"
+      >
+        <option
+          value=""
+          th:text="#{adminsettings.form.selectplaceholder}"
+        ></option>
+        <option
+          th:each="optionVal : ${setting.allowableValues().get()}"
+          th:value="${optionVal}"
+          th:text="${optionVal}"
+          th:selected="${optionVal == setting.value()}"
+        ></option>
+      </cf:select>
+      <p
+        th:if="${setting.readOnly()}"
+        th:text="#{adminsettings.form.readonly}"
+      ></p>
+    </th:block>
+  </div>
+</th:block>

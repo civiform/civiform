@@ -4,47 +4,80 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import auth.ProfileUtils;
+import com.typesafe.config.Config;
 import controllers.CiviFormController;
 import controllers.FlashKey;
 import forms.admin.ProgramImageDescriptionForm;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
+import mapping.admin.programs.ProgramImagePageMapper;
 import org.pac4j.play.java.Secure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.VersionRepository;
 import services.LocalizedStrings;
+import services.TranslationLocales;
 import services.cloud.PublicFileNameFormatter;
 import services.cloud.PublicStorageClient;
+import services.cloud.StorageUploadRequest;
+import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.settings.SettingsManifest;
 import views.admin.programs.ProgramEditStatus;
+import views.admin.programs.ProgramImagePageView;
+import views.admin.programs.ProgramImagePageViewModel;
 import views.admin.programs.ProgramImageView;
+import views.fileupload.FileUploadViewStrategy;
 
 /** Controller for displaying and modifying the image (and alt text) associated with a program. */
 public final class AdminProgramImageController extends CiviFormController {
+  private static final Logger logger = LoggerFactory.getLogger(AdminProgramImageController.class);
+
   private final PublicStorageClient publicStorageClient;
   private final ProgramService programService;
   private final ProgramImageView programImageView;
+  private final ProgramImagePageView programImagePageView;
   private final RequestChecker requestChecker;
   private final FormFactory formFactory;
+  private final SettingsManifest settingsManifest;
+  private final FileUploadViewStrategy fileUploadViewStrategy;
+  private final ProgramCardPreviewController programCardPreviewController;
+  private final TranslationLocales translationLocales;
+  private final String baseUrl;
 
   @Inject
   public AdminProgramImageController(
       PublicStorageClient publicStorageClient,
       ProgramService programService,
       ProgramImageView programImageView,
+      ProgramImagePageView programImagePageView,
       RequestChecker requestChecker,
       FormFactory formFactory,
       ProfileUtils profileUtils,
-      VersionRepository versionRepository) {
+      VersionRepository versionRepository,
+      SettingsManifest settingsManifest,
+      FileUploadViewStrategy fileUploadViewStrategy,
+      ProgramCardPreviewController programCardPreviewController,
+      TranslationLocales translationLocales,
+      Config config) {
     super(profileUtils, versionRepository);
     this.publicStorageClient = checkNotNull(publicStorageClient);
     this.programService = checkNotNull(programService);
     this.programImageView = checkNotNull(programImageView);
+    this.programImagePageView = checkNotNull(programImagePageView);
     this.requestChecker = checkNotNull(requestChecker);
     this.formFactory = checkNotNull(formFactory);
+    this.settingsManifest = checkNotNull(settingsManifest);
+    this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
+    this.programCardPreviewController = checkNotNull(programCardPreviewController);
+    this.translationLocales = checkNotNull(translationLocales);
+    this.baseUrl = checkNotNull(config).getString("base_url");
   }
 
   /**
@@ -56,6 +89,49 @@ public final class AdminProgramImageController extends CiviFormController {
   public Result index(Http.Request request, long programId, String editStatus)
       throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
+
+    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+      ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
+
+      // Prepare file upload data
+      String key = PublicFileNameFormatter.formatPublicProgramImageFileKey(programDefinition.id());
+      String onSuccessRedirectUrl =
+          baseUrl
+              + routes.AdminProgramImageController.updateFileKey(programDefinition.id(), editStatus)
+                  .url();
+      StorageUploadRequest storageUploadRequest =
+          publicStorageClient.getSignedUploadRequest(key, onSuccessRedirectUrl);
+      String imageUploadFormAction = fileUploadViewStrategy.formAction(storageUploadRequest);
+      if (imageUploadFormAction == null) {
+        imageUploadFormAction = "";
+      }
+
+      // Card preview
+      String cardPreviewHtml;
+      try {
+        cardPreviewHtml = programCardPreviewController.cardPreview(request, programDefinition.id());
+      } catch (InterruptedException | ExecutionException e) {
+        logger.error("Error generating card preview: " + e.getLocalizedMessage());
+        cardPreviewHtml = "<p>Error generating card preview</p>";
+      }
+
+      ProgramImagePageMapper mapper = new ProgramImagePageMapper();
+      ProgramImagePageViewModel viewModel =
+          mapper.map(
+              programDefinition,
+              editStatus,
+              !translationLocales.translatableLocales().isEmpty(),
+              imageUploadFormAction,
+              fileUploadViewStrategy.getUploadFormClass(),
+              fileUploadViewStrategy.additionalFileUploadFormInputFields(
+                  Optional.of(storageUploadRequest)),
+              publicStorageClient.getFileLimitMb(),
+              cardPreviewHtml,
+              request.flash().get(FlashKey.SUCCESS),
+              request.flash().get(FlashKey.ERROR));
+      return ok(programImagePageView.render(request, viewModel)).as(Http.MimeTypes.HTML);
+    }
+
     return ok(
         programImageView.render(
             request, programService.getFullProgramDefinition(programId), editStatus));

@@ -7,6 +7,7 @@ import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
+import mapping.admin.migration.AdminExportPageMapper;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
@@ -21,6 +22,8 @@ import services.program.ProgramService;
 import services.question.QuestionService;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
+import views.admin.migration.AdminExportPageView;
 import views.admin.migration.AdminExportView;
 import views.admin.migration.AdminProgramExportForm;
 
@@ -36,26 +39,32 @@ import views.admin.migration.AdminProgramExportForm;
  */
 public class AdminExportController extends CiviFormController {
   private final AdminExportView adminExportView;
+  private final AdminExportPageView adminExportPageView;
   private final FormFactory formFactory;
   private final ProgramMigrationService programMigrationService;
   private final ProgramService programService;
   private final QuestionService questionService;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public AdminExportController(
       AdminExportView adminExportView,
+      AdminExportPageView adminExportPageView,
       FormFactory formFactory,
       ProfileUtils profileUtils,
       ProgramMigrationService programMigrationService,
       ProgramService programService,
       QuestionService questionService,
+      SettingsManifest settingsManifest,
       VersionRepository versionRepository) {
     super(profileUtils, versionRepository);
     this.adminExportView = checkNotNull(adminExportView);
+    this.adminExportPageView = checkNotNull(adminExportPageView);
     this.formFactory = checkNotNull(formFactory);
     this.programMigrationService = checkNotNull(programMigrationService);
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -87,6 +96,13 @@ public class AdminExportController extends CiviFormController {
 
     if (serializeResult.isError()) {
       return badRequest(serializeResult.getErrors().stream().findFirst().orElseThrow());
+    }
+
+    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+      AdminExportPageMapper mapper = new AdminExportPageMapper();
+      return ok(adminExportPageView.render(
+              request, mapper.map(program.adminName(), serializeResult.getResult())))
+          .as(Http.MimeTypes.HTML);
     }
 
     return ok(

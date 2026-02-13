@@ -1,3 +1,5 @@
+import {featureFlags} from '@/global/shared/feature_flags'
+
 export class ModalController {
   static abortController = new AbortController()
 
@@ -103,5 +105,8 @@ export class ModalController {
 }
 
 export function init() {
+  if (featureFlags.isAdminUiMigrationScEnabled) {
+    return
+  }
   new ModalController()
 }

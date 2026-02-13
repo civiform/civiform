@@ -1,0 +1,301 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.programs.ProgramBlockShowPageViewModel"*/-->
+<th:block
+  th:fragment="content"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <div>
+    <!-- Program info header -->
+    <div class="border-1px border-base-lighter radius-md">
+      <span
+        class="usa-tag"
+        th:if="${model.active}"
+        th:text="#{admin.common.tag.active}"
+      ></span>
+      <p th:text="${model.programDescription}"></p>
+      <p>
+        <strong th:text="#{admin.common.label.adminnote}"></strong>
+        <span th:text="${model.adminNote}"></span>
+      </p>
+      <p>
+        <strong th:text="#{admin.common.label.categories}"></strong>
+        <span th:text="${model.categoriesText}"></span>
+      </p>
+
+      <div>
+        <!-- Edit program button (POST to create new draft version) -->
+        <form
+          class="usa-form"
+          method="POST"
+          th:action="${model.editProgramUrl}"
+        >
+          <input th:replace="~{admin/shared/CsrfToken}" />
+          <button
+            type="submit"
+            class="usa-button usa-button--outline"
+            th:text="#{programblockshow.button.editprogram}"
+          ></button>
+        </form>
+
+        <th:block th:if="${model.previewUrl.isPresent()}">
+          <a
+            th:href="${model.previewUrl.get()}"
+            class="usa-button usa-button--outline"
+            th:text="#{admin.common.button.previewasapplicant}"
+          ></a>
+        </th:block>
+
+        <th:block th:if="${model.downloadPdfUrl.isPresent()}">
+          <a
+            th:href="${model.downloadPdfUrl.get()}"
+            class="usa-button usa-button--outline"
+            th:text="#{admin.common.button.downloadpdf}"
+          ></a>
+        </th:block>
+      </div>
+    </div>
+
+    <!-- Main layout: sidebar + content (skip for external programs) -->
+    <th:block th:unless="${model.external}">
+      <div class="display-flex flex-row flex-gap" data-testid="block-panel">
+        <!-- Left sidebar: block list -->
+        <div>
+          <th:block th:each="block, iterstat : ${model.blockList}">
+            <div
+              th:replace="~{:: blockListEntry(${block}, ${iterstat.index + 1})}"
+            ></div>
+          </th:block>
+        </div>
+
+        <!-- Right content: selected block detail -->
+        <div data-testid="block-panel-edit">
+          <!-- Block info -->
+          <div th:id="'block-info-display-' + ${model.selectedBlockId}">
+            <h2 th:text="${model.blockName}"></h2>
+            <p th:text="${model.blockDescription}"></p>
+          </div>
+
+          <!-- Visibility condition -->
+          <div id="visibility-predicate">
+            <h3 th:text="#{programblockshow.heading.visibilitycondition}"></h3>
+            <!-- No predicate defined -->
+            <th:block th:if="${!model.visibilityPredicate.present}">
+              <div class="border-1px border-base-lighter padding-2">
+                <p th:text="#{programblockshow.text.visibility.empty}"></p>
+              </div>
+            </th:block>
+            <!-- Predicate exists -->
+            <th:block th:if="${model.visibilityPredicate.present}">
+              <div class="usa-accordion border-1px border-base-lighter">
+                <div>
+                  <button
+                    class="usa-accordion__button display-flex flex-align-center gap-2 bg-transparent text-black font-weight-normal"
+                    type="button"
+                    aria-expanded="false"
+                    aria-controls="visibility-content"
+                  >
+                    <svg
+                      class="usa-icon"
+                      aria-hidden="true"
+                      focusable="false"
+                      role="img"
+                    >
+                      <use
+                        href="/assets/Images/uswds/sprite.svg#visibility_off"
+                      ></use>
+                    </svg>
+                    <p
+                      th:text="#{programblockshow.text.visibility.present}"
+                    ></p>
+                  </button>
+                </div>
+                <div
+                  id="visibility-content"
+                  class="padding-x-4 padding-bottom-4"
+                >
+                  <p th:utext="${model.visibilityPredicate.heading}"></p>
+                  <ol
+                    th:if="${!model.visibilityPredicate.conditionList.isEmpty()}"
+                    class="list-decimal margin-left-4 padding-top-4"
+                  >
+                    <li
+                      th:each="condition : ${model.visibilityPredicate.conditionList}"
+                      th:utext="${condition}"
+                    ></li>
+                  </ol>
+                </div>
+              </div>
+            </th:block>
+          </div>
+
+          <!-- Eligibility condition (not shown for pre-screener programs) -->
+          <th:block th:if="${model.showEligibilitySection}">
+            <div id="eligibility-predicate">
+              <h3
+                th:text="#{programblockshow.heading.eligibilitycondition}"
+              ></h3>
+              <!-- Gating description -->
+              <p>
+                <span
+                  th:text="#{programblockshow.text.eligibility.intro}"
+                ></span>
+                <span
+                  th:text="${model.eligibilityIsGating} ? #{programblockshow.text.eligibility.gating} : #{programblockshow.text.eligibility.nongating}"
+                ></span>
+                <span
+                  th:text="#{programblockshow.text.eligibility.changehint}"
+                ></span>
+              </p>
+              <!-- No predicate defined -->
+              <th:block th:if="${!model.eligibilityPredicate.present}">
+                <div class="border-1px border-base-lighter padding-2">
+                  <p th:text="#{programblockshow.text.eligibility.empty}"></p>
+                </div>
+              </th:block>
+              <!-- Predicate exists -->
+              <th:block th:if="${model.eligibilityPredicate.present}">
+                <div class="usa-accordion border-1px border-base-lighter">
+                  <div>
+                    <button
+                      class="usa-accordion__button display-flex flex-align-center gap-2 bg-transparent text-black font-weight-normal"
+                      type="button"
+                      aria-expanded="false"
+                      aria-controls="eligibility-content"
+                    >
+                      <svg
+                        class="usa-icon"
+                        aria-hidden="true"
+                        focusable="false"
+                        role="img"
+                      >
+                        <use
+                          href="/assets/Images/uswds/sprite.svg#how_to_reg"
+                        ></use>
+                      </svg>
+                      <p
+                        th:text="#{programblockshow.text.eligibility.present}"
+                      ></p>
+                    </button>
+                  </div>
+                  <div
+                    id="eligibility-content"
+                    class="padding-x-4 padding-bottom-4"
+                  >
+                    <p th:utext="${model.eligibilityPredicate.heading}"></p>
+                    <ol
+                      th:if="${!model.eligibilityPredicate.conditionList.isEmpty()}"
+                      class="list-decimal margin-left-4 padding-top-4"
+                    >
+                      <li
+                        th:each="condition : ${model.eligibilityPredicate.conditionList}"
+                        th:utext="${condition}"
+                      ></li>
+                    </ol>
+                  </div>
+                </div>
+              </th:block>
+            </div>
+          </th:block>
+
+          <!-- Questions -->
+          <div>
+            <h3 th:text="#{programblockshow.heading.questions}"></h3>
+            <th:block th:each="question : ${model.questions}">
+              <th:block th:replace="~{::question-card(${question})}"></th:block>
+            </th:block>
+          </div>
+        </div>
+      </div>
+    </th:block>
+  </div>
+</th:block>
+
+<!-- Block list entry fragment (recursive for children) -->
+<th:block th:fragment="blockListEntry(block, index)">
+  <a
+    th:id="'block_list_item_' + ${index}"
+    th:href="${block.url}"
+    class="display-block text-no-underline"
+    th:classappend="${block.selected} ? 'bg-primary-lighter' : ''"
+    th:style="'padding-left: ' + ${(block.indentLevel * 2) + 1} + 'rem'"
+  >
+    <div>
+      <svg
+        th:if="${block.hasVisibilityPredicate}"
+        class="usa-icon"
+        aria-hidden="true"
+        focusable="false"
+        role="img"
+      >
+        <use href="/assets/Images/uswds/sprite.svg#visibility_off"></use>
+      </svg>
+      <div>
+        <p
+          th:text="${block.name}"
+          th:classappend="${block.hasNullQuestion} ? 'text-error'"
+        ></p>
+        <p th:text="${block.questionCountText}"></p>
+      </div>
+    </div>
+  </a>
+  <!-- Recursive children -->
+  <th:block th:if="${block.children != null and !block.children.isEmpty()}">
+    <th:block th:each="child : ${block.children}">
+      <div th:replace="~{:: blockListEntry(block=${child})}"></div>
+    </th:block>
+  </th:block>
+</th:block>
+
+<!--/*@thymesVar id="question" type="views.admin.programs.ProgramBlockShowPageViewModel.QuestionItem"*/-->
+<th:block th:fragment="question-card(question)">
+  <div
+    class="cf-program-question border-1px border-base-lighter radius-md"
+    th:classappend="${question.malformed} ? 'border-2px border-error'"
+    th:data-testid="'question-admin-name-' + ${question.adminId}"
+  >
+    <!-- Universal badge -->
+    <th:block th:if="${!question.malformed and question.universal}">
+      <div>
+        <span
+          class="usa-tag cf-universal-badge"
+          th:text="#{admin.common.tag.universal}"
+        ></span>
+      </div>
+    </th:block>
+
+    <div>
+      <!-- Question content -->
+      <div>
+        <th:block th:if="${question.malformed}">
+          <p
+            class="text-bold"
+            th:text="#{programblockshow.text.malformedtitle}"
+          ></p>
+          <p th:text="#{programblockshow.text.malformeddesc}"></p>
+        </th:block>
+        <p th:text="${question.questionText}" class="text-bold"></p>
+        <p
+          th:if="${!question.helpText.isEmpty()}"
+          th:text="${question.helpText}"
+        ></p>
+        <p
+          th:text="#{admin.common.label.adminid} + ' ' + ${question.adminId}"
+        ></p>
+      </div>
+
+      <!-- Read-only labels -->
+      <div>
+        <th:block th:if="${question.address}">
+          <span
+            th:text="${question.addressCorrectionEnabled} ? #{programblockshow.text.addresscorrection.enabled} : #{programblockshow.text.addresscorrection.disabled}"
+          ></span>
+        </th:block>
+        <p
+          th:if="${question.showOptionalLabel}"
+          th:text="${question.optional} ? #{admin.common.label.optional} : #{admin.common.label.required}"
+        ></p>
+      </div>
+    </div>
+  </div>
+</th:block>

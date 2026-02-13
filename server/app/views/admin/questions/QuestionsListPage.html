@@ -1,0 +1,409 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.questions.QuestionsListPageViewModel"*/-->
+<th:block
+  th:fragment="content"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <div id="toast-container"></div>
+
+  <div>
+    <!-- Flash messages -->
+    <div th:if="${model.successMessage.isPresent()}" class="margin-bottom-2">
+      <cf:alert type="success" slim="true">
+        <text th:text="${model.successMessage.get()}">placeholder</text>
+      </cf:alert>
+    </div>
+
+    <div th:if="${model.errorMessage.isPresent()}" class="margin-bottom-2">
+      <cf:alert type="error" slim="true">
+        <text th:text="${model.errorMessage.get()}">placeholder</text>
+      </cf:alert>
+    </div>
+
+    <!-- Header -->
+    <div class="display-flex flex-align-center flex-justify margin-bottom-3">
+      <div class="display-flex flex-align-center">
+        <cf:button
+          id="create-question-button"
+          th:href="${model.createQuestionUrl}"
+          class="usa-button"
+          text="Create new question"
+        />
+        <wc-ellipsis-menu
+          hidden
+          trigger="create-question-button"
+          aria-label="New Question Options"
+        >
+          <menu>
+            <li th:each="link : ${model.questionTypeLinks}">
+              <a
+                th:href="${link.url}"
+                th:text="${link.label}"
+                th:id="${link.id}"
+              ></a>
+            </li>
+          </menu>
+        </wc-ellipsis-menu>
+      </div>
+    </div>
+
+    <!-- Filter -->
+    <div class="display-flex flex-gap">
+      <cf:input
+        id="question-bank-filter"
+        name="question-bank-filter"
+        label="Filter questions"
+        type="text"
+        th:value="${model.initialFilter.orElse('')}"
+        placeholder="Search questions..."
+      />
+
+      <cf:select
+        id="question-bank-sort"
+        name="question-bank-sort"
+        label="Sort by:"
+      >
+        <option value="lastmodified-desc" selected>Last modified</option>
+        <option value="adminname-asc">Admin ID A-Z</option>
+        <option value="adminname-desc">Admin ID Z-A</option>
+        <option value="numprograms-asc">Fewest programs</option>
+        <option value="numprograms-desc">Most programs</option>
+      </cf:select>
+    </div>
+
+    <!-- Universal questions section -->
+    <th:block th:if="${!model.universalQuestions.isEmpty()}">
+      <div id="questions-list-universal" class="cf-sortable-questions">
+        <h2 class="margin-top-4 margin-bottom-2">Universal questions</h2>
+        <div class="margin-bottom-2">
+          <cf:alert type="info" slim="true">
+            <text>
+              We recommend using Universal questions in your program for all
+              personal and contact information questions.
+            </text>
+          </cf:alert>
+        </div>
+        <th:block th:each="card : ${model.universalQuestions}">
+          <th:block th:replace="~{::question-card(${card})}" />
+        </th:block>
+      </div>
+    </th:block>
+
+    <!-- Non-universal questions section -->
+    <div id="questions-list-non-universal" class="cf-sortable-questions">
+      <h2
+        th:if="${!model.universalQuestions.isEmpty()}"
+        class="margin-top-4 margin-bottom-2"
+      >
+        All other questions
+      </h2>
+      <th:block th:each="card : ${model.nonUniversalQuestions}">
+        <th:block th:replace="~{::question-card(${card})}" />
+      </th:block>
+    </div>
+
+    <!-- Archived questions section -->
+    <th:block th:if="${!model.archivedQuestions.isEmpty()}">
+      <div id="questions-list-archived">
+        <h2 class="margin-top-4 margin-bottom-2">Marked for archival</h2>
+        <th:block th:each="card : ${model.archivedQuestions}">
+          <th:block th:replace="~{::question-card(${card})}" />
+        </th:block>
+      </div>
+    </th:block>
+
+    <!-- Summary -->
+    <p
+      class="margin-top-3"
+      th:text="'Total questions: ' + ${model.totalQuestionCount}"
+    ></p>
+  </div>
+</th:block>
+
+<th:block th:fragment="scripts">
+  <script th:nonce="${templateGlobals.cspNonce()}"></script>
+</th:block>
+
+<!--/*@thymesVar id="program" type="views.admin.programs.QuestionsListPageViewModel.QuestionCardData"*/-->
+<th:block
+  th:fragment="question-card(card)"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <div
+    class="usa-card bg-white margin-bottom-2 border-1px border-base-light display-flex flex-column radius-lg overflow-hidden cf-question-bank-element question-bank-element"
+    th:data-question-text="${card.questionName}"
+    th:data-adminname="${card.adminName}"
+    th:data-lastmodified="${card.lastModifiedTimestamp}"
+    th:data-numprograms="${card.numReferencingPrograms}"
+  >
+    <!-- Top section: question info -->
+    <div class="padding-2">
+      <div class="grid-row grid-col">
+        <span th:if="${card.isUniversal}" class="usa-tag tag tag-universal"
+          >Universal data question</span
+        >
+      </div>
+    </div>
+
+    <div class="padding-2">
+      <div class="grid-row grid-gap-2">
+        <!-- Column 1: Universal tag -->
+        <div class="grid-col-12 desktop:grid-col-1">
+          <div class="display-flex flex-justify-center">
+            <span class="width-1 height-1 border-1 border-black"></span>
+          </div>
+        </div>
+        <!-- Column 2: Question name, help text, and icon -->
+        <div class="grid-col-12 desktop:grid-col-5">
+          <div class="display-flex flex-align-start gap-2">
+            <div>
+              <h2
+                class="margin-0 padding-0 font-sans-sm"
+                th:text="${card.questionName}"
+              ></h2>
+              <p
+                class="usa-prose"
+                th:if="${card.questionHelpText != ''}"
+                th:text="${card.questionHelpText}"
+              ></p>
+            </div>
+          </div>
+        </div>
+        <!-- Column 3: Admin metadata -->
+        <div class="grid-col-12 desktop:grid-col-3">
+          <div>
+            <strong>Admin ID: </strong>
+            <span th:text="${card.adminName}"></span>
+          </div>
+          <div>
+            <strong>Admin note: </strong>
+            <span th:text="${card.adminDescription}"></span>
+          </div>
+          <div>
+            <strong>Type: </strong>
+            <span th:text="${card.questionType}"></span>
+          </div>
+        </div>
+        <!-- Column 3: Program usage -->
+        <div class="grid-col-12 desktop:grid-col-3">
+          <div>
+            <th:block th:if="${!card.hasReferencingPrograms}">
+              <div>Used in 0 programs.</div>
+            </th:block>
+            <th:block th:if="${card.usedInCount > 0}">
+              <div
+                th:text="${'Used in ' + card.usedInCount + (card.usedInCount > 1 ? ' programs.' : ' program.')}"
+              ></div>
+            </th:block>
+            <th:block th:if="${card.addedToCount > 0}">
+              <div
+                th:text="${'Added to ' + card.addedToCount + (card.addedToCount > 1 ? ' programs in use.' : ' program in use.')}"
+              ></div>
+            </th:block>
+            <th:block th:if="${card.removedFromCount > 0}">
+              <div
+                th:text="${'Removed from ' + card.removedFromCount + (card.removedFromCount > 1 ? ' programs.' : ' program.')}"
+              ></div>
+            </th:block>
+            <th:block th:if="${card.disabledCount > 0}">
+              <div
+                th:text="${'Added to ' + card.disabledCount + (card.disabledCount > 1 ? ' disabled programs.' : ' disabled program.')}"
+              ></div>
+            </th:block>
+            <th:block th:if="${card.hasReferencingPrograms}">
+              <cf:button
+                text="See list"
+                variant="unstyled"
+                data-open-modal
+                th:aria-controls="'ref-programs-' + ${card.adminName}"
+              />
+            </th:block>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Draft row -->
+    <div
+      th:if="${card.draftRow.isPresent()}"
+      th:with="row=${card.draftRow.get()}"
+      class="padding-2 bg-gray-2 border-top-1px border-base-light"
+    >
+      <div class="grid-row grid-gap-2 flex-align-center">
+        <div
+          class="grid-col-12 desktop:grid-col-1 desktop:grid-offset-1 desktop:display-flex flex-align-center desktop:flex-justify-center"
+        >
+          <span
+            class="usa-tag text-black tag tag-draft"
+            th:text="${row.lifecycleLabel}"
+          ></span>
+        </div>
+        <div class="grid-col-12 desktop:grid-col-6">
+          <div>
+            <span th:text="${row.editedOnText}"></span>
+          </div>
+          <div th:if="${row.translationStatus.isPresent()}">
+            <span
+              class="font-body-2xs"
+              th:text="${row.translationStatus.get()}"
+            ></span>
+          </div>
+        </div>
+        <div
+          class="grid-col-12 desktop:grid-col-4 desktop:display-flex flex-align-center desktop:flex-justify-end"
+        >
+          <ul class="usa-button-group">
+            <li class="usa-button-group__item" th:if="${row.isEditable}">
+              <a th:href="${row.editUrl}" class="usa-button usa-button--outline"
+                >Edit</a
+              >
+            </li>
+            <li
+              class="usa-button-group__item display-flex flex-justify-center"
+              th:with="contextMenuId=${'context-id-' + #strings.randomAlphanumeric(8)}"
+            >
+              <cf:button
+                variant="unstyled"
+                th:id="${contextMenuId}"
+                aria-label="More options"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <circle cx="8" cy="3" r="1.5" />
+                  <circle cx="8" cy="8" r="1.5" />
+                  <circle cx="8" cy="13" r="1.5" />
+                </svg>
+              </cf:button>
+              <wc-ellipsis-menu hidden th:trigger="${contextMenuId}">
+                <menu>
+                  <li>
+                    <a th:href="${row.showUrl}">View</a>
+                  </li>
+                  <li th:if="${row.translateUrl.isPresent()}">
+                    <a th:href="${row.translateUrl.get()}"
+                      >Manage translations</a
+                    >
+                  </li>
+                  <li th:if="${row.discardDraftUrl.isPresent()}">
+                    <a href="">Discard Draft</a>
+                  </li>
+                  <li th:if="${row.getDeletionStatusLabel().isPresent()}">
+                    <form
+                      th:action="${row.getDeletionStatusUrl()}"
+                      method="POST"
+                    >
+                      <input th:replace="~{admin/shared/CsrfToken}" />
+                      <cf:button
+                        type="submit"
+                        variant="unstyled"
+                        th:text="${row.getDeletionStatusLabel().get()}"
+                      />
+                    </form>
+                  </li>
+                </menu>
+              </wc-ellipsis-menu>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active row -->
+    <div
+      th:if="${card.activeRow.isPresent()}"
+      th:with="row=${card.activeRow.get()}"
+      class="padding-2 bg-gray-2 border-top-1px border-base-light"
+    >
+      <div class="grid-row grid-gap-2 flex-align-center">
+        <div
+          class="grid-col-12 desktop:grid-col-1 desktop:grid-offset-1 desktop:display-flex flex-align-center desktop:flex-justify-center"
+        >
+          <span
+            class="usa-tag text-black tag tag-active"
+            th:text="${row.lifecycleLabel}"
+          ></span>
+        </div>
+        <div class="grid-col-12 desktop:grid-col-6">
+          <div>
+            <span th:text="${row.editedOnText}"></span>
+          </div>
+          <div th:if="${row.translationStatus.isPresent()}">
+            <span
+              class="font-body-2xs"
+              th:text="${row.translationStatus.get()}"
+            ></span>
+          </div>
+        </div>
+        <div
+          class="grid-col-12 desktop:grid-col-4 desktop:display-flex flex-align-center desktop:flex-justify-end"
+        >
+          <ul class="usa-button-group">
+            <li class="usa-button-group__item" th:unless="${row.isEditable}">
+              <a th:href="${row.showUrl}" class="usa-button usa-button--outline"
+                >View</a
+              >
+            </li>
+            <li class="usa-button-group__item" th:if="${row.isEditable}">
+              <a th:href="${row.editUrl}" class="usa-button usa-button--outline"
+                >Edit</a
+              >
+            </li>
+            <th:block th:unless="${card.draftRow.isPresent()}">
+              <li
+                class="usa-button-group__item display-flex flex-justify-center"
+                th:with="contextMenuId=${'context-id-' + #strings.randomAlphanumeric(8)}"
+              >
+                <cf:button
+                  variant="unstyled"
+                  th:id="${contextMenuId}"
+                  aria-label="More options"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <circle cx="8" cy="3" r="1.5" />
+                    <circle cx="8" cy="8" r="1.5" />
+                    <circle cx="8" cy="13" r="1.5" />
+                  </svg>
+                </cf:button>
+                <wc-ellipsis-menu hidden th:trigger="${contextMenuId}">
+                  <menu>
+                    <li th:if="${row.translateUrl.isPresent()}">
+                      <a th:href="${row.translateUrl.get()}"
+                        >Manage translations</a
+                      >
+                    </li>
+                    <li th:if="${row.getDeletionStatusLabel().isPresent()}">
+                      <form
+                        th:action="${row.getDeletionStatusUrl()}"
+                        method="POST"
+                      >
+                        <input th:replace="~{admin/shared/CsrfToken}" />
+                        <cf:button
+                          type="submit"
+                          variant="unstyled"
+                          th:text="${row.getDeletionStatusLabel().get()}"
+                        />
+                      </form>
+                    </li>
+                  </menu>
+                </wc-ellipsis-menu>
+              </li>
+            </th:block>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</th:block>

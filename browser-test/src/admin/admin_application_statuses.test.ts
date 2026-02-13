@@ -55,6 +55,8 @@ test.describe('view program statuses', () => {
       adminPrograms,
     }) => {
       await page.getByRole('link', {name: 'Back'}).click()
+      await waitForPageJsLoad(page)
+
       await adminPrograms.expectApplicationStatusDoesntContain(
         'Guest',
         'Status: ',

@@ -60,6 +60,7 @@
     <appender-ref ref="STDOUT" />
   </appender>
 
+  <logger name="services.settings.SettingsManifest" level="OFF" />
   <logger name="play" level="INFO" />
   <logger name="application" level="DEBUG" />
   <logger name="loggingfilter" level="INFO" />

@@ -12,16 +12,22 @@ import controllers.FlashKey;
 import forms.BlockForm;
 import java.util.Optional;
 import javax.inject.Inject;
+import mapping.admin.programs.ProgramBlockEditPageMapper;
+import mapping.admin.programs.ProgramBlockShowPageMapper;
 import org.pac4j.play.java.Secure;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.data.FormFactory;
 import play.i18n.MessagesApi;
+import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.ProgramBlockValidation;
+import services.ProgramBlockValidation.AddQuestionResult;
+import services.ProgramBlockValidationFactory;
 import services.program.BlockDefinition;
 import services.program.IllegalApiBridgeStateException;
 import services.program.IllegalPredicateOrderingException;
@@ -34,8 +40,13 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
+import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import views.admin.programs.BlockType;
+import views.admin.programs.ProgramBlockEditPageView;
+import views.admin.programs.ProgramBlockEditPageViewModel;
+import views.admin.programs.ProgramBlockShowPageView;
+import views.admin.programs.ProgramBlockShowPageViewModel;
 import views.admin.programs.ProgramBlocksView;
 import views.components.ToastMessage;
 
@@ -45,7 +56,10 @@ public final class AdminProgramBlocksController extends CiviFormController {
   private final ProgramService programService;
   private final ProgramBlocksView editView;
   private final ProgramBlocksView readOnlyView;
+  private final ProgramBlockShowPageView programBlockShowPageView;
+  private final ProgramBlockEditPageView programBlockEditPageView;
   private final QuestionService questionService;
+  private final ProgramBlockValidationFactory programBlockValidationFactory;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
   private final MessagesApi messagesApi;
@@ -56,6 +70,9 @@ public final class AdminProgramBlocksController extends CiviFormController {
       ProgramService programService,
       QuestionService questionService,
       ProgramBlocksView.Factory programBlockViewFactory,
+      ProgramBlockShowPageView programBlockShowPageView,
+      ProgramBlockEditPageView programBlockEditPageView,
+      ProgramBlockValidationFactory programBlockValidationFactory,
       FormFactory formFactory,
       RequestChecker requestChecker,
       ProfileUtils profileUtils,
@@ -67,6 +84,9 @@ public final class AdminProgramBlocksController extends CiviFormController {
     this.questionService = checkNotNull(questionService);
     this.editView = checkNotNull(programBlockViewFactory.create(DRAFT));
     this.readOnlyView = checkNotNull(programBlockViewFactory.create(ACTIVE));
+    this.programBlockShowPageView = checkNotNull(programBlockShowPageView);
+    this.programBlockEditPageView = checkNotNull(programBlockEditPageView);
+    this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
     this.messagesApi = checkNotNull(messagesApi);
@@ -168,6 +188,10 @@ public final class AdminProgramBlocksController extends CiviFormController {
               : result.getResult().maybeAddedBlock().get();
       if (result.isError()) {
         ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
+        if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+          return redirect(routes.AdminProgramBlocksController.edit(programId, block.id()))
+              .flashing(FlashKey.ERROR, "ERROR");
+        }
         return renderEditViewWithMessage(request, program, block, Optional.of(message));
       }
 
@@ -183,6 +207,10 @@ public final class AdminProgramBlocksController extends CiviFormController {
                 settingsManifest.getEnumeratorImprovementsEnabled(request));
         if (result.isError()) {
           ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
+          if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+            return redirect(routes.AdminProgramBlocksController.edit(programId, block.id()))
+                .flashing(FlashKey.ERROR, "ERROR");
+          }
           return renderEditViewWithMessage(request, program, block, Optional.of(message));
         }
         addedBlockId++;
@@ -209,6 +237,45 @@ public final class AdminProgramBlocksController extends CiviFormController {
       ProgramDefinition program = programService.getFullProgramDefinition(programId);
       BlockDefinition block = program.getBlockDefinition(blockId);
 
+      if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+        ReadOnlyQuestionService roQuestionService =
+            questionService.getReadOnlyQuestionService().toCompletableFuture().join();
+        ImmutableList<QuestionDefinition> allQuestions = roQuestionService.getUpToDateQuestions();
+        ImmutableList<QuestionDefinition> allPreviousVersionQuestions =
+            questionService.getAllPreviousVersionQuestions(versionRepository.getActiveVersion());
+        boolean enumeratorImprovementsEnabled =
+            settingsManifest.getEnumeratorImprovementsEnabled(request);
+        ProgramBlockValidation validation = programBlockValidationFactory.create();
+        ImmutableList<QuestionDefinition> eligibleQuestions =
+            allQuestions.stream()
+                .filter(
+                    q ->
+                        validation.canAddQuestion(program, block, q, enumeratorImprovementsEnabled)
+                            == AddQuestionResult.ELIGIBLE)
+                .sorted(
+                    java.util.Comparator.<QuestionDefinition, java.time.Instant>comparing(
+                            qd -> qd.getLastModifiedTime().orElse(java.time.Instant.EPOCH))
+                        .reversed()
+                        .thenComparing(qd -> qd.getName().toLowerCase(java.util.Locale.ROOT)))
+                .collect(ImmutableList.toImmutableList());
+        boolean showQuestionBank = request.queryString("sqb").orElse("").equals("true");
+        ProgramBlockEditPageViewModel viewModel =
+            new ProgramBlockEditPageMapper()
+                .map(
+                    program,
+                    block,
+                    allPreviousVersionQuestions,
+                    eligibleQuestions,
+                    enumeratorImprovementsEnabled,
+                    settingsManifest.getApiBridgeEnabled(request),
+                    showQuestionBank,
+                    request.flash().get(FlashKey.SUCCESS),
+                    request.flash().get(FlashKey.ERROR),
+                    allQuestions,
+                    settingsManifest.getExpandedFormLogicEnabled(request));
+        return ok(programBlockEditPageView.render(request, viewModel)).as(Http.MimeTypes.HTML);
+      }
+
       Optional<ToastMessage> maybeToastMessage =
           request.flash().get(FlashKey.SUCCESS).map(ToastMessage::success);
       return renderEditViewWithMessage(request, program, block, maybeToastMessage);
@@ -228,6 +295,24 @@ public final class AdminProgramBlocksController extends CiviFormController {
     try {
       ProgramDefinition program = programService.getFullProgramDefinition(programId);
       BlockDefinition block = program.getBlockDefinition(blockId);
+
+      if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+        ImmutableList<QuestionDefinition> allPreviousVersionQuestions =
+            questionService.getAllPreviousVersionQuestions(versionRepository.getActiveVersion());
+        ReadOnlyQuestionService roQuestionService =
+            questionService.getReadOnlyQuestionService().toCompletableFuture().join();
+        ImmutableList<QuestionDefinition> allQuestions = roQuestionService.getUpToDateQuestions();
+        ProgramBlockShowPageViewModel viewModel =
+            new ProgramBlockShowPageMapper()
+                .map(
+                    program,
+                    block,
+                    allPreviousVersionQuestions,
+                    allQuestions,
+                    settingsManifest.getExpandedFormLogicEnabled(request));
+        return ok(programBlockShowPageView.render(request, viewModel)).as(Http.MimeTypes.HTML);
+      }
+
       return renderReadOnlyViewWithMessage(request, program, block);
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
       return notFound(e.toString());
@@ -247,6 +332,10 @@ public final class AdminProgramBlocksController extends CiviFormController {
           programService.updateBlock(programId, blockId, blockForm);
       if (result.isError()) {
         ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
+        if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+          return redirect(routes.AdminProgramBlocksController.edit(programId, blockId))
+              .flashing(FlashKey.ERROR, "ERROR");
+        }
         return renderEditViewWithMessage(
             request, result.getResult(), blockId, blockForm, Optional.of(message));
       }

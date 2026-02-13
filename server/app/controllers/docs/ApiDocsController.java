@@ -8,23 +8,42 @@ import auth.Authorizers;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import javax.inject.Inject;
+import mapping.admin.docs.ApiDocsPageMapper;
 import org.pac4j.play.java.Secure;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.ExportServiceRepository;
+import services.export.ProgramJsonSampler;
 import services.program.ProgramDefinition;
 import services.program.ProgramDraftNotFoundException;
 import services.program.ProgramService;
+import services.settings.SettingsManifest;
+import views.admin.docs.ApiDocsPageView;
 import views.docs.ApiDocsView;
 
 public final class ApiDocsController {
 
   private final ApiDocsView docsView;
   private final ProgramService programService;
+  private final SettingsManifest settingsManifest;
+  private final ApiDocsPageView apiDocsPageView;
+  private final ProgramJsonSampler programJsonSampler;
+  private final ExportServiceRepository exportServiceRepository;
 
   @Inject
-  public ApiDocsController(ApiDocsView docsView, ProgramService programService) {
+  public ApiDocsController(
+      ApiDocsView docsView,
+      ProgramService programService,
+      SettingsManifest settingsManifest,
+      ApiDocsPageView apiDocsPageView,
+      ProgramJsonSampler programJsonSampler,
+      ExportServiceRepository exportServiceRepository) {
     this.docsView = docsView;
     this.programService = programService;
+    this.settingsManifest = settingsManifest;
+    this.apiDocsPageView = apiDocsPageView;
+    this.programJsonSampler = programJsonSampler;
+    this.exportServiceRepository = exportServiceRepository;
   }
 
   /**
@@ -60,6 +79,21 @@ public final class ApiDocsController {
         allNonExternalProgramSlugs.contains(selectedProgramSlug)
             ? getProgramDefinition(selectedProgramSlug, useActiveVersion)
             : Optional.empty();
+
+    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+      ApiDocsPageMapper mapper = new ApiDocsPageMapper();
+      return ok(apiDocsPageView.render(
+              request,
+              mapper.map(
+                  request,
+                  selectedProgramSlug,
+                  programDefinition,
+                  allNonExternalProgramSlugs,
+                  useActiveVersion,
+                  programJsonSampler,
+                  exportServiceRepository)))
+          .as(Http.MimeTypes.HTML);
+    }
 
     return ok(
         docsView.render(

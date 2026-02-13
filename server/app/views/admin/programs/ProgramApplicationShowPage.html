@@ -1,0 +1,318 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.programs.ProgramApplicationShowPageViewModel"*/-->
+<th:block
+  th:fragment="content"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <div id="application-view">
+    <!-- CSRF token for JS-driven form submissions -->
+    <input th:replace="~{admin/shared/CsrfToken}" />
+
+    <!-- Flash success message -->
+    <cf:alert
+      th:if="${model.successMessage.isPresent()}"
+      type="success"
+      slim="true"
+    >
+      <text th:text="${model.successMessage.get()}">placeholder</text>
+    </cf:alert>
+
+    <!-- Back link -->
+    <a
+      class="usa-button"
+      th:href="${model.backUrl}"
+      th:text="#{admin.common.link.back}"
+    ></a>
+
+    <!-- Header row: applicant name, status selector, note, download -->
+    <div>
+      <div class="display-flex flex-gap flex-row flex-align-end">
+        <div class="flex-fill">
+          <p th:text="${model.applicantNameWithApplicationId}"></p>
+        </div>
+
+        <!-- Status selector -->
+        <th:block th:if="${model.hasStatuses}">
+          <div>
+            <div class="cf-program-admin-status-selector">
+              <cf:select
+                id="status-selector"
+                name="status-selector"
+                th:label="#{applicationshow.label.status}"
+              >
+                <option
+                  th:text="${model.dropdownPlaceholder}"
+                  th:disabled="${true}"
+                  th:selected="${model.noCurrentStatus}"
+                ></option>
+                <option
+                  th:each="opt : ${model.statusOptions}"
+                  th:value="${opt.statusText}"
+                  th:text="${opt.statusText}"
+                  th:selected="${opt.currentStatus}"
+                ></option>
+              </cf:select>
+            </div>
+          </div>
+          <div>
+            <!-- Edit note button -->
+            <cf:button
+              variant="outline"
+              data-open-modal
+              aria-controls="edit-note-modal"
+              th:text="#{applicationshow.button.editnote}"
+            />
+          </div>
+        </th:block>
+
+        <div>
+          <!-- Download PDF button -->
+          <a
+            class="usa-button usa-button--outline"
+            th:if="${model.showDownloadButton}"
+            th:href="${model.downloadUrl.get()}"
+            th:text="#{applicationshow.button.exportpdf}"
+          ></a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit time -->
+    <p th:text="${model.submitTime}"></p>
+
+    <!-- Application blocks -->
+    <th:block th:each="block : ${model.blocks}">
+      <div class="border-1px border-base-lighter radius-md">
+        <div>
+          <div class="text-bold" th:text="${block.blockName}"></div>
+          <div th:text="${block.blockDescription}"></div>
+        </div>
+
+        <th:block th:each="answer : ${block.answers}">
+          <div>
+            <div>
+              <div th:text="${answer.questionName}"></div>
+            </div>
+            <div>
+              <!-- File answer -->
+              <th:block th:if="${answer.fileAnswer}">
+                <th:block th:each="file, fileStat : ${answer.fileLinks}">
+                  <a
+                    th:href="${file.url}"
+                    th:text="${file.fileName}"
+                    class="usa-link"
+                  ></a>
+                  <span th:if="${!fileStat.last}">, </span>
+                </th:block>
+              </th:block>
+              <!-- Text answer -->
+              <th:block th:unless="${answer.fileAnswer}">
+                <span th:text="${answer.answerText}"></span>
+              </th:block>
+            </div>
+            <div></div>
+            <div>
+              <div>
+                <span th:text="#{applicationshow.text.answeredon}"></span
+                ><span th:text="${answer.answeredDate}"></span>
+              </div>
+              <div
+                th:if="${answer.showEligibilityText}"
+                th:text="${answer.eligibilityText}"
+              ></div>
+            </div>
+          </div>
+        </th:block>
+      </div>
+    </th:block>
+
+    <!-- Hidden status update confirmation modal trigger buttons (for JS) -->
+    <th:block th:each="modal : ${model.statusUpdateModals}">
+      <button
+        class="hidden"
+        th:data-status-update-confirm-for-status="${modal.statusText}"
+        data-open-modal
+        th:aria-controls="${modal.modalId}"
+      >
+        STUPID
+      </button>
+    </th:block>
+
+    <!-- Status update confirmation modals -->
+    <th:block th:each="modal : ${model.statusUpdateModals}">
+      <dialog
+        hidden
+        th:id="${modal.modalId}"
+        class="usa-modal"
+        th:aria-labelledby="'heading-' + ${modal.modalId}"
+        th:aria-describedby="'desc-' + ${modal.modalId}"
+      >
+        <div class="usa-modal__content">
+          <div class="usa-modal__main">
+            <h2
+              class="usa-modal__heading"
+              th:id="'heading-' + ${modal.modalId}"
+              th:text="#{applicationshow.modal.statuschange}"
+            ></h2>
+            <form
+              class="usa-form cf-program-admin-status-update-form"
+              th:id="'desc-' + ${modal.modalId}"
+            >
+              <input
+                type="hidden"
+                name="programId"
+                th:value="${modal.programId}"
+              />
+              <input
+                type="hidden"
+                name="applicationId"
+                th:value="${modal.applicationId}"
+              />
+              <input
+                type="hidden"
+                name="newStatus"
+                th:value="${modal.statusText}"
+              />
+              <input
+                type="hidden"
+                name="currentStatus"
+                th:value="${modal.previousStatusData}"
+              />
+
+              <p>
+                <span th:text="#{applicationshow.label.statuschange}"></span>
+                <strong th:text="${modal.previousStatusDisplay}"></strong>
+                <strong th:text="#{applicationshow.text.arrow}"></strong>
+                <strong th:text="${modal.statusText}"></strong>
+                <span
+                  th:text="#{applicationshow.text.visibletoapplicant}"
+                ></span>
+              </p>
+              <p>
+                <span th:text="#{applicationshow.label.applicant}"></span>
+                <strong th:text="${modal.applicantName}"></strong>
+              </p>
+              <p>
+                <span th:text="#{applicationshow.label.program}"></span>
+                <strong th:text="${modal.programName}"></strong>
+              </p>
+
+              <div>
+                <!-- Email section -->
+                <th:block
+                  th:if="${modal.hasEmailContent and modal.hasApplicantEmail}"
+                >
+                  <label>
+                    <input
+                      type="checkbox"
+                      name="sendEmail"
+                      value="on"
+                      checked="checked"
+                    />
+                    <span th:text="#{applicationshow.text.notify}"></span>
+                    <strong th:text="${modal.applicantName}"></strong>
+                    <span th:text="#{applicationshow.text.ofchangeat}"></span>
+                    <strong th:text="${modal.emailString}"></strong>
+                  </label>
+                </th:block>
+                <th:block th:if="${!modal.hasEmailContent}">
+                  <input type="hidden" name="sendEmail" value="" />
+                  <p>
+                    <strong th:text="${modal.applicantName}"></strong>
+                    <span
+                      th:text="#{applicationshow.text.noemailcontent}"
+                    ></span>
+                  </p>
+                </th:block>
+                <th:block
+                  th:if="${modal.hasEmailContent and !modal.hasApplicantEmail}"
+                >
+                  <input type="hidden" name="sendEmail" value="" />
+                  <p>
+                    <strong th:text="${modal.applicantName}"></strong>
+                    <span th:text="#{applicationshow.text.noemail}"></span>
+                  </p>
+                </th:block>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  class="usa-button usa-button--unstyled"
+                  data-close-modal
+                  th:text="#{admin.common.button.cancel}"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  class="usa-button"
+                  th:text="#{admin.common.button.confirm}"
+                ></button>
+              </div>
+            </form>
+          </div>
+          <button
+            type="button"
+            class="usa-button usa-modal__close"
+            th:aria-label="#{admin.common.modal.close}"
+            data-close-modal
+          >
+            <svg
+              class="usa-icon"
+              aria-hidden="true"
+              focusable="false"
+              role="img"
+            >
+              <use href="/assets/Images/uswds/sprite.svg#close"></use>
+            </svg>
+          </button>
+        </div>
+      </dialog>
+    </th:block>
+
+    <!-- Edit note modal -->
+    <wc-modal
+      hidden
+      id="edit-note-modal-container"
+      modal-id="edit-note-modal"
+      th:heading-text="#{applicationshow.modal.editnote}"
+    >
+      <div slot="description">
+        <form id="edit-note-form" class="cf-program-admin-edit-note-form">
+          <input type="hidden" name="programId" th:value="${model.programId}" />
+          <input
+            type="hidden"
+            name="applicationId"
+            th:value="${model.applicationId}"
+          />
+          <cf:textarea
+            id="edit-note-textarea"
+            name="note"
+            th:label="#{applicationshow.label.note}"
+            th:value="${model.note.orElse('')}"
+          />
+        </form>
+      </div>
+      <div slot="buttons">
+        <cf:button
+          data-action="ok"
+          type="submit"
+          form="edit-note-form"
+          th:text="#{admin.common.button.save}"
+        />
+
+        <cf:button
+          data-action="cancel"
+          variant="outline"
+          th:text="#{admin.common.button.cancel}"
+        />
+      </div>
+    </wc-modal>
+  </div>
+
+  <th:block th:fragment="scripts">
+    <script th:nonce="${templateGlobals.cspNonce()}"></script>
+  </th:block>
+</th:block>

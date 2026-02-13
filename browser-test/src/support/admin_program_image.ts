@@ -1,17 +1,14 @@
 import {expect} from '../support/civiform_fixtures'
-import {Page} from '@playwright/test'
+import {Locator, Page} from '@playwright/test'
 import {waitForPageJsLoad} from './wait'
-import {dismissToast} from '.'
 
 export class AdminProgramImage {
   // These values should be kept in sync with views/admin/programs/ProgramImageView.java.
   private imageUploadLocator = 'input[type=file]'
   private imageDescriptionLocator = 'input[name="summaryImageDescription"]'
-  private imageUploadSubmitButtonLocator =
-    'button[form=image-file-upload-form][type="submit"]'
-  private imageDescriptionSubmitButtonLocator =
-    'button[form=image-description-form][type="submit"]'
-  private translationsButtonLocator = 'button:has-text("Manage translations")'
+  private readonly translationsButtonLocator: Locator
+  private readonly imageUploadSubmitButtonLocator: Locator
+  private readonly imageDescriptionSubmitButtonLocator: Locator
   private continueButtonLocator = '#continue-button'
   // This should be kept in sync with views/fileupload/FileUploadViewStrategy#createFileTooLargeError.
   private tooLargeErrorLocator = '#cf-fileupload-too-large-error'
@@ -20,10 +17,22 @@ export class AdminProgramImage {
 
   constructor(page: Page) {
     this.page = page
+
+    this.imageUploadSubmitButtonLocator = this.page.getByRole('button', {
+      name: 'Save image',
+      exact: true,
+    })
+    this.imageDescriptionSubmitButtonLocator = this.page.getByRole('button', {
+      name: 'Save image description',
+      exact: true,
+    })
+    this.translationsButtonLocator = this.page.getByRole('link', {
+      name: 'Manage translations',
+    })
   }
 
   async clickBackButton() {
-    await this.page.click('a:has-text("Back")')
+    await this.page.getByRole('link', {name: 'Back', exact: true}).click()
   }
 
   async clickContinueButton() {
@@ -47,7 +56,9 @@ export class AdminProgramImage {
   }
 
   async submitImageDescription() {
-    await this.page.click(this.imageDescriptionSubmitButtonLocator)
+    await this.page
+      .getByRole('button', {name: 'Save image description', exact: true})
+      .click()
     await waitForPageJsLoad(this.page)
   }
 
@@ -70,7 +81,6 @@ export class AdminProgramImage {
     if (currentDescription == '') {
       // A description has to be set before an image can be uploaded
       await this.setImageDescriptionAndSubmit('desc')
-      await dismissToast(this.page)
     }
 
     if (imageFileName !== '') {
@@ -84,7 +94,10 @@ export class AdminProgramImage {
 
   async setImageFileAndSubmit(imageFileName: string) {
     await this.setImageFile(imageFileName)
-    await this.page.click(this.imageUploadSubmitButtonLocator)
+
+    await this.page
+      .getByRole('button', {name: 'Save image', exact: true})
+      .click()
     await waitForPageJsLoad(this.page)
   }
 
@@ -117,27 +130,19 @@ export class AdminProgramImage {
   }
 
   async expectDisabledImageDescriptionSubmit() {
-    await expect(
-      this.page.locator(this.imageDescriptionSubmitButtonLocator),
-    ).toBeDisabled()
+    await expect(this.imageDescriptionSubmitButtonLocator).toBeDisabled()
   }
 
   async expectEnabledImageDescriptionSubmit() {
-    await expect(
-      this.page.locator(this.imageDescriptionSubmitButtonLocator),
-    ).toBeEnabled()
+    await expect(this.imageDescriptionSubmitButtonLocator).toBeEnabled()
   }
 
   async expectDisabledImageFileUploadSubmit() {
-    await expect(
-      this.page.locator(this.imageUploadSubmitButtonLocator),
-    ).toBeDisabled()
+    await expect(this.imageUploadSubmitButtonLocator).toBeDisabled()
   }
 
   async expectEnabledImageFileUploadSubmit() {
-    await expect(
-      this.page.locator(this.imageUploadSubmitButtonLocator),
-    ).toBeEnabled()
+    await expect(this.imageUploadSubmitButtonLocator).toBeEnabled()
   }
 
   async expectDisabledImageFileUpload() {
@@ -171,19 +176,15 @@ export class AdminProgramImage {
   }
 
   async expectDisabledTranslationButton() {
-    await expect(
-      this.page.locator(this.translationsButtonLocator),
-    ).toBeDisabled()
+    await expect(this.translationsButtonLocator).toBeDisabled()
   }
 
   async expectEnabledTranslationButton() {
-    await expect(
-      this.page.locator(this.translationsButtonLocator),
-    ).toBeEnabled()
+    await expect(this.translationsButtonLocator).toBeEnabled()
   }
 
   async clickTranslationButton() {
-    await this.page.click(this.translationsButtonLocator)
+    await this.translationsButtonLocator.click()
   }
 
   async expectProgramPreviewCard(

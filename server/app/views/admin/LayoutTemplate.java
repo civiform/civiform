@@ -6,5 +6,7 @@ package views.admin;
  */
 public final class LayoutTemplate {
   public static final String ADMIN_LAYOUT = "admin/AdminLayout.html";
+  public static final String TRUSTED_INTERMEDIARY_LAYOUT =
+      "trustedintermediary/TrustedIntermediaryLayout.html";
   public static final String TRANSITIONAL_LAYOUT = "admin/TransitionalLayout.html";
 }

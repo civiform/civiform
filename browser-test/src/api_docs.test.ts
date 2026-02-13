@@ -35,9 +35,9 @@ test.describe('Viewing API docs', () => {
     await waitForPageJsLoad(page)
 
     await test.step('Verify default comprehensive sample program', async () => {
-      await expect(
-        page.getByRole('complementary').getByRole('code'),
-      ).toContainText('"program_name" : "comprehensive-sample-program"')
+      await expect(page.getByTestId('jsonPreview')).toContainText(
+        '"program_name" : "comprehensive-sample-program"',
+      )
 
       await validateScreenshot(
         page,
@@ -52,9 +52,9 @@ test.describe('Viewing API docs', () => {
 
       await waitForPageJsLoad(page)
 
-      await expect(
-        page.getByRole('complementary').getByRole('code'),
-      ).toContainText('"program_name" : "minimal-sample-program"')
+      await expect(page.getByTestId('jsonPreview')).toContainText(
+        '"program_name" : "minimal-sample-program"',
+      )
 
       await validateScreenshot(
         page,
@@ -85,9 +85,9 @@ test.describe('Viewing API docs', () => {
 
       await waitForPageJsLoad(page)
 
-      await expect(
-        page.getByRole('complementary').getByRole('code'),
-      ).toContainText('"program_name" : "minimal-sample-program"')
+      await expect(page.getByTestId('jsonPreview')).toContainText(
+        '"program_name" : "minimal-sample-program"',
+      )
 
       await validateScreenshot(page, 'draft-available')
     })

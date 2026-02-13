@@ -149,17 +149,17 @@ public final class ActiveAndDraftQuestions {
     /** Returns a set of references to the question in the ACTIVE version. */
     public abstract ImmutableSet<ProgramDefinition> activeReferences();
 
-    static Builder builder() {
+    public static Builder builder() {
       return new AutoValue_ActiveAndDraftQuestions_ReferencingPrograms.Builder();
     }
 
     @AutoValue.Builder
-    abstract static class Builder {
-      abstract Builder setDraftReferences(ImmutableSet<ProgramDefinition> v);
+    public abstract static class Builder {
+      public abstract Builder setDraftReferences(ImmutableSet<ProgramDefinition> v);
 
-      abstract Builder setActiveReferences(ImmutableSet<ProgramDefinition> v);
+      public abstract Builder setActiveReferences(ImmutableSet<ProgramDefinition> v);
 
-      abstract ReferencingPrograms build();
+      public abstract ReferencingPrograms build();
     }
   }
 }

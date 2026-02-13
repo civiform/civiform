@@ -1,4 +1,4 @@
-package views.admin.ti;
+package views.admin.migration;
 
 import auth.ProfileUtils;
 import javax.inject.Inject;
@@ -9,10 +9,10 @@ import services.settings.SettingsManifest;
 import views.admin.AdminLayout;
 import views.admin.AdminLayoutBaseView;
 
-public final class TrustedIntermediaryGroupListPageView
-    extends AdminLayoutBaseView<TrustedIntermediaryGroupListPageViewModel> {
+public final class AdminExportPageView extends AdminLayoutBaseView<AdminExportPageViewModel> {
+
   @Inject
-  public TrustedIntermediaryGroupListPageView(
+  public AdminExportPageView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       BundledAssetsFinder bundledAssetsFinder,
@@ -27,17 +27,17 @@ public final class TrustedIntermediaryGroupListPageView
   }
 
   @Override
-  protected String pageTitle(TrustedIntermediaryGroupListPageViewModel model) {
-    return "Manage Trusted Intermediaries";
+  protected String pageTitle(AdminExportPageViewModel model) {
+    return "Export a program";
   }
 
   @Override
   protected AdminLayout.NavPage activeNavigationPage() {
-    return AdminLayout.NavPage.INTERMEDIARIES;
+    return AdminLayout.NavPage.PROGRAMS;
   }
 
   @Override
   protected String pageTemplate() {
-    return "admin/ti/TrustedIntermediaryGroupListPage.html";
+    return "admin/migration/AdminExportPage.html";
   }
 }

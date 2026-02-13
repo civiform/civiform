@@ -20,6 +20,9 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import mapping.admin.questions.QuestionEditPageMapper;
+import mapping.admin.questions.QuestionNewPageMapper;
+import mapping.admin.questions.QuestionsListPageMapper;
 import models.ConcurrentUpdateException;
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
@@ -29,8 +32,11 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
 import services.CiviFormError;
+import services.DateConverter;
 import services.ErrorAnd;
 import services.LocalizedStrings;
+import services.TranslationLocales;
+import services.question.ActiveAndDraftQuestions;
 import services.question.QuestionOption;
 import services.question.QuestionService;
 import services.question.QuestionSetting;
@@ -45,11 +51,18 @@ import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
+import services.settings.SettingsManifest;
 import views.admin.questions.MapQuestionSettingsFiltersListPartialView;
 import views.admin.questions.MapQuestionSettingsFiltersListPartialViewModel;
 import views.admin.questions.MapQuestionSettingsFiltersPartialView;
 import views.admin.questions.MapQuestionSettingsFiltersPartialViewModel;
+import views.admin.questions.QuestionEditPageView;
+import views.admin.questions.QuestionEditPageViewModel;
 import views.admin.questions.QuestionEditView;
+import views.admin.questions.QuestionNewPageView;
+import views.admin.questions.QuestionNewPageViewModel;
+import views.admin.questions.QuestionsListPageView;
+import views.admin.questions.QuestionsListPageViewModel;
 import views.admin.questions.QuestionsListView;
 import views.components.TextFormatter;
 import views.components.ToastMessage;
@@ -64,6 +77,12 @@ public final class AdminQuestionController extends CiviFormController {
 
   private final MapQuestionSettingsFiltersPartialView mapQuestionSettingsFiltersPartialView;
   private final MapQuestionSettingsFiltersListPartialView mapQuestionSettingsFiltersListPartialView;
+  private final QuestionEditPageView questionEditPageView;
+  private final QuestionNewPageView questionNewPageView;
+  private final QuestionsListPageView questionsListPageView;
+  private final SettingsManifest settingsManifest;
+  private final TranslationLocales translationLocales;
+  private final DateConverter dateConverter;
 
   @Inject
   public AdminQuestionController(
@@ -75,7 +94,13 @@ public final class AdminQuestionController extends CiviFormController {
       FormFactory formFactory,
       MapQuestionSettingsFiltersPartialView mapQuestionSettingsFiltersPartialView,
       MapQuestionSettingsFiltersListPartialView mapQuestionSettingsFiltersListPartialView,
-      ClassLoaderExecutionContext classLoaderExecutionContext) {
+      ClassLoaderExecutionContext classLoaderExecutionContext,
+      QuestionEditPageView questionEditPageView,
+      QuestionNewPageView questionNewPageView,
+      QuestionsListPageView questionsListPageView,
+      SettingsManifest settingsManifest,
+      TranslationLocales translationLocales,
+      DateConverter dateConverter) {
     super(profileUtils, versionRepository);
     this.service = checkNotNull(service);
     this.listView = checkNotNull(listView);
@@ -84,6 +109,12 @@ public final class AdminQuestionController extends CiviFormController {
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.mapQuestionSettingsFiltersPartialView = mapQuestionSettingsFiltersPartialView;
     this.mapQuestionSettingsFiltersListPartialView = mapQuestionSettingsFiltersListPartialView;
+    this.questionEditPageView = checkNotNull(questionEditPageView);
+    this.questionNewPageView = checkNotNull(questionNewPageView);
+    this.questionsListPageView = checkNotNull(questionsListPageView);
+    this.settingsManifest = checkNotNull(settingsManifest);
+    this.translationLocales = checkNotNull(translationLocales);
+    this.dateConverter = checkNotNull(dateConverter);
   }
 
   /**
@@ -95,12 +126,31 @@ public final class AdminQuestionController extends CiviFormController {
     return service
         .getReadOnlyQuestionService()
         .thenApplyAsync(
-            readOnlyService ->
-                ok(
-                    listView.render(
-                        readOnlyService.getActiveAndDraftQuestions(),
-                        filter.map(TextFormatter::sanitizeHtml),
-                        request)),
+            readOnlyService -> {
+              ActiveAndDraftQuestions activeAndDraftQuestions =
+                  readOnlyService.getActiveAndDraftQuestions();
+              Optional<String> sanitizedFilter = filter.map(TextFormatter::sanitizeHtml);
+
+              if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+                QuestionsListPageMapper listMapper = new QuestionsListPageMapper();
+                QuestionsListPageViewModel model =
+                    listMapper.map(
+                        activeAndDraftQuestions,
+                        sanitizedFilter,
+                        settingsManifest.getTranslationManagementImprovementEnabled(request),
+                        !translationLocales.translatableLocales().isEmpty(),
+                        dateConverter,
+                        service,
+                        translationLocales,
+                        settingsManifest.getYesNoQuestionEnabled(),
+                        settingsManifest.getMapQuestionEnabled(),
+                        request.flash().get(FlashKey.SUCCESS),
+                        request.flash().get(FlashKey.ERROR));
+                return ok(questionsListPageView.render(request, model)).as(Http.MimeTypes.HTML);
+              }
+
+              return ok(listView.render(activeAndDraftQuestions, sanitizedFilter, request));
+            },
             classLoaderExecutionContext.current());
   }
 
@@ -189,6 +239,32 @@ public final class AdminQuestionController extends CiviFormController {
             .toCompletableFuture()
             .join()
             .getUpToDateEnumeratorQuestions();
+
+    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+      try {
+        QuestionForm questionForm = QuestionFormBuilder.create(questionType);
+        questionForm.setRedirectUrl(redirectUrl);
+        ReadOnlyQuestionService roService =
+            service.getReadOnlyQuestionService().toCompletableFuture().join();
+        String questionConfigHtml =
+            questionType.equals(QuestionType.MAP)
+                ? editView.renderQuestionConfigHtml(questionForm, request)
+                : "";
+        QuestionNewPageViewModel model =
+            new QuestionNewPageMapper()
+                .map(
+                    questionForm,
+                    enumeratorQuestionDefinitions,
+                    questionConfigHtml,
+                    settingsManifest.getApiBridgeEnabled(request),
+                    roService,
+                    Optional.empty());
+        return ok(questionNewPageView.render(request, model)).as(Http.MimeTypes.HTML);
+      } catch (UnsupportedQuestionTypeException e) {
+        return badRequest(e.getMessage());
+      }
+    }
+
     try {
       return ok(
           editView.renderNewQuestionForm(
@@ -220,11 +296,30 @@ public final class AdminQuestionController extends CiviFormController {
 
     ErrorAnd<QuestionDefinition, CiviFormError> result = service.create(questionDefinition);
     if (result.isError()) {
-      ToastMessage errorMessage = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
+      String errorText = joinErrors(result.getErrors());
       ReadOnlyQuestionService roService =
           service.getReadOnlyQuestionService().toCompletableFuture().join();
       ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions =
           roService.getUpToDateEnumeratorQuestions();
+
+      if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+        String questionConfigHtml =
+            questionForm.getQuestionType().equals(QuestionType.MAP)
+                ? editView.renderQuestionConfigHtml(questionForm, request)
+                : "";
+        QuestionNewPageViewModel model =
+            new QuestionNewPageMapper()
+                .map(
+                    questionForm,
+                    enumeratorQuestionDefinitions,
+                    questionConfigHtml,
+                    settingsManifest.getApiBridgeEnabled(request),
+                    roService,
+                    Optional.of(errorText));
+        return ok(questionNewPageView.render(request, model)).as(Http.MimeTypes.HTML);
+      }
+
+      ToastMessage errorMessage = ToastMessage.errorNonLocalized(errorText);
       return ok(
           editView.renderNewQuestionForm(
               request, questionForm, enumeratorQuestionDefinitions, errorMessage));
@@ -309,6 +404,26 @@ public final class AdminQuestionController extends CiviFormController {
 
               Optional<QuestionDefinition> maybeEnumerationQuestion =
                   maybeGetEnumerationQuestion(readOnlyService, questionDefinition);
+
+              if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+                try {
+                  QuestionForm questionForm = QuestionFormBuilder.create(questionDefinition);
+                  Optional<String> errorMessage = request.flash().get(FlashKey.CONCURRENT_UPDATE);
+                  QuestionEditPageViewModel model =
+                      buildEditQuestionPageModel(
+                          id,
+                          questionForm,
+                          maybeEnumerationQuestion,
+                          readOnlyService,
+                          request,
+                          errorMessage);
+                  return ok(questionEditPageView.render(request, model)).as(Http.MimeTypes.HTML);
+                } catch (InvalidQuestionTypeException e) {
+                  return badRequest(
+                      invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));
+                }
+              }
+
               try {
                 Optional<ToastMessage> message =
                     request
@@ -385,10 +500,23 @@ public final class AdminQuestionController extends CiviFormController {
     }
 
     if (errorAndUpdatedQuestionDefinition.isError()) {
-      ToastMessage errorMessage =
-          ToastMessage.errorNonLocalized(joinErrors(errorAndUpdatedQuestionDefinition.getErrors()));
+      String errorText = joinErrors(errorAndUpdatedQuestionDefinition.getErrors());
       Optional<QuestionDefinition> maybeEnumerationQuestion =
           maybeGetEnumerationQuestion(roService, questionDefinition);
+
+      if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+        QuestionEditPageViewModel model =
+            buildEditQuestionPageModel(
+                id,
+                questionForm,
+                maybeEnumerationQuestion,
+                roService,
+                request,
+                Optional.of(errorText));
+        return ok(questionEditPageView.render(request, model)).as(Http.MimeTypes.HTML);
+      }
+
+      ToastMessage errorMessage = ToastMessage.errorNonLocalized(errorText);
       return ok(
           editView.renderEditQuestionForm(
               request, id, questionForm, maybeEnumerationQuestion, errorMessage));
@@ -631,6 +759,29 @@ public final class AdminQuestionController extends CiviFormController {
     }
 
     updatedQuestionDefinitionBuilder.setQuestionSettings(newSettingsListBuilder.build());
+  }
+
+  private QuestionEditPageViewModel buildEditQuestionPageModel(
+      long questionId,
+      QuestionForm questionForm,
+      Optional<QuestionDefinition> maybeEnumerationQuestion,
+      ReadOnlyQuestionService readOnlyQuestionService,
+      Request request,
+      Optional<String> errorMessage) {
+    // MAP question config is still rendered via Thymeleaf partial in QuestionEditView
+    String questionConfigHtml =
+        questionForm.getQuestionType().equals(QuestionType.MAP)
+            ? editView.renderQuestionConfigHtml(questionForm, request)
+            : "";
+    QuestionEditPageMapper editMapper = new QuestionEditPageMapper();
+    return editMapper.map(
+        questionId,
+        questionForm,
+        maybeEnumerationQuestion,
+        questionConfigHtml,
+        settingsManifest.getApiBridgeEnabled(request),
+        readOnlyQuestionService,
+        errorMessage);
   }
 
   private String invalidQuestionTypeMessage(String questionType) {

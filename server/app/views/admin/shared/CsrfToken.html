@@ -1,0 +1,8 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<th:block th:fragment="csrfToken">
+  <input
+    type="hidden"
+    name="csrfToken"
+    th:value="${templateGlobals.csrfToken()}"
+  />
+</th:block>

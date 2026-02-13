@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
+import mapping.admin.docs.SchemaPageMapper;
 import models.LifecycleStage;
 import org.pac4j.play.java.Secure;
 import org.slf4j.Logger;
@@ -26,6 +27,7 @@ import services.program.ProgramDefinition;
 import services.program.ProgramDraftNotFoundException;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
+import views.admin.docs.SchemaPageView;
 import views.docs.SchemaView;
 
 /** This handles endpoints related to serving openapi schema data */
@@ -34,6 +36,7 @@ public final class OpenApiSchemaController {
   private final SettingsManifest settingsManifest;
   private final DeploymentType deploymentType;
   private final SchemaView schemaView;
+  private final SchemaPageView schemaPageView;
   private static final Logger logger = LoggerFactory.getLogger(OpenApiSchemaController.class);
 
   @Inject
@@ -41,11 +44,13 @@ public final class OpenApiSchemaController {
       ProgramService programService,
       SettingsManifest settingsManifest,
       DeploymentType deploymentType,
-      SchemaView schemaView) {
+      SchemaView schemaView,
+      SchemaPageView schemaPageView) {
     this.programService = checkNotNull(programService);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.deploymentType = checkNotNull(deploymentType);
     this.schemaView = checkNotNull(schemaView);
+    this.schemaPageView = checkNotNull(schemaPageView);
   }
 
   /** Endpoint to return the generated openapi schema */
@@ -158,6 +163,14 @@ public final class OpenApiSchemaController {
                   Optional.of(stage.orElse(LifecycleStage.ACTIVE.getValue())),
                   Optional.of(openApiVersion.orElse(OpenApiVersion.OPENAPI_V3_0.toString())))
               .url();
+
+      if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+        SchemaPageMapper mapper = new SchemaPageMapper();
+        return ok(schemaPageView.render(
+                request,
+                mapper.map(programSlug, stage, openApiVersion, url, allNonExternalProgramSlugs)))
+            .as(Http.MimeTypes.HTML);
+      }
 
       SchemaView.Form form = new SchemaView.Form(programSlug, stage, openApiVersion);
 

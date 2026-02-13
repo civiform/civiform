@@ -1,0 +1,442 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.programs.ProgramNewOnePageViewModel"*/-->
+<th:block
+  th:fragment="content"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <!-- Error message -->
+  <cf:alert th:if="${model.errorMessage.isPresent()}" type="error" slim="true">
+    <text th:text="${model.errorMessage.get()}">placeholder</text>
+  </cf:alert>
+
+  <form
+    data-form-type="static"
+    class="usa-form usa-form--large"
+    id="program-details-form"
+    method="POST"
+    th:action="${model.formActionUrl}"
+  >
+    <input th:replace="~{admin/shared/CsrfToken}" />
+
+    <!-- Program setup -->
+    <h2 th:text="#{programnew.section.setup}"></h2>
+
+    <!-- Program name -->
+    <cf:input
+      id="program-display-name-input"
+      name="localizedDisplayName"
+      th:label="#{programnew.label.programname}"
+      required="true"
+    />
+
+    <!-- Short description -->
+    <cf:input
+      id="program-display-short-description-input"
+      name="localizedShortDescription"
+      th:label="#{programnew.label.shortdescription}"
+      th:help-text="#{programnew.label.shortdescriptionhelptext}"
+      required="true"
+      maxlength="100"
+    />
+
+    <!-- Program slug -->
+    <th:block th:if="${model.externalProgramCardsEnabled}">
+      <cf:input
+        id="program-slug"
+        name="adminName"
+        th:label="#{programnew.label.slug.external}"
+        th:help-text="#{programnew.label.slug.externalhelptext}"
+        required="true"
+      />
+    </th:block>
+    <th:block th:unless="${model.externalProgramCardsEnabled}">
+      <cf:input
+        id="program-slug"
+        name="adminName"
+        th:label="#{programnew.label.slug.default}"
+        required="true"
+      />
+    </th:block>
+
+    <!-- Admin description -->
+    <cf:textarea
+      id="program-description-textarea"
+      name="adminDescription"
+      th:label="#{programnew.label.admindescription}"
+    />
+
+    <!-- Program type -->
+    <th:block th:if="${model.externalProgramCardsEnabled}">
+      <cf:radio
+        id="programTypeValue"
+        name="programTypeValue"
+        th:label="#{programnew.label.programtype}"
+        required="true"
+      >
+        <item
+          id="default-program-option"
+          value="default"
+          th:label="#{programnew.label.civiformprogram}"
+          th:description="#{programnew.description.civiformprogram}"
+          selected="true"
+        ></item>
+        <item
+          id="external-program-option"
+          value="external"
+          th:label="#{programnew.label.externalprogram}"
+          th:description="#{programnew.description.externalprogram}"
+        ></item>
+        <item
+          id="pre-screener-program-option"
+          value="common_intake_form"
+          th:label="#{programnew.label.prescreener}"
+          th:description="#{programnew.description.prescreener}"
+        ></item>
+      </cf:radio>
+    </th:block>
+    <th:block th:unless="${model.externalProgramCardsEnabled}">
+      <cf:checkbox
+        id="pre-screener-checkbox"
+        name="programTypeValue"
+        th:label="#{programnew.label.programtype}"
+      >
+        <item
+          id="pre-screener-checkbox-item"
+          value="common_intake_form"
+          th:label="#{programnew.label.setprescreener}"
+        ></item>
+      </cf:checkbox>
+    </th:block>
+
+    <!-- Hidden checkbox for confirming pre-screener change -->
+    <input type="hidden" name="confirmedChangePreScreenerForm" value="false" />
+
+    <!-- Program eligibility gating -->
+    <cf:radio
+      id="eligibilityIsGating"
+      name="eligibilityIsGating"
+      th:label="#{programnew.label.eligibilitygating}"
+      required="true"
+    >
+      <item
+        id="program-eligibility-gating"
+        value="true"
+        th:label="#{programnew.label.gatingenabled}"
+        selected="true"
+      ></item>
+      <item
+        id="program-eligibility-not-gating"
+        value="false"
+        th:label="#{programnew.label.gatingdisabled}"
+      ></item>
+    </cf:radio>
+
+    <!-- Program categories -->
+    <th:block th:if="${!model.categoryOptions.isEmpty()}">
+      <cf:checkbox
+        id="category-checkboxes"
+        name="categories[]"
+        th:label="#{programnew.label.categories}"
+      >
+        <item
+          th:each="cat : ${model.categoryOptions}"
+          th:id="'checkbox-category-' + ${cat.name}"
+          th:value="${cat.id}"
+          th:label="${cat.name}"
+        ></item>
+      </cf:checkbox>
+    </th:block>
+
+    <!-- Program visibility -->
+    <!--/* This is not using custom cf components because it's a bit of an outlier with a nexted checkbox list. */-->
+    <div class="usa-form-group">
+      <fieldset class="usa-fieldset">
+        <legend class="usa-legend">Program visibility</legend>
+        <span
+          id="error-message-displayMode"
+          class="usa-error-message"
+          role="alert"
+          hidden="hidden"
+        ></span>
+        <div class="usa-radio">
+          <input
+            type="radio"
+            class="usa-radio__input usa-radio__input--tile"
+            id="program-display-mode-public"
+            name="displayMode"
+            value="PUBLIC"
+            checked="checked"
+            required="required"
+          /><label class="usa-radio__label" for="program-display-mode-public"
+            >Publicly visible</label
+          >
+        </div>
+        <div class="usa-radio">
+          <input
+            type="radio"
+            class="usa-radio__input usa-radio__input--tile"
+            id="program-display-mode-hidden"
+            name="displayMode"
+            value="HIDDEN_IN_INDEX"
+            required="required"
+          /><label class="usa-radio__label" for="program-display-mode-hidden"
+            >Hide from applicants. Only individuals with the unique program link
+            can access this program</label
+          >
+        </div>
+        <div class="usa-radio">
+          <input
+            type="radio"
+            class="usa-radio__input usa-radio__input--tile"
+            id="program-display-mode-ti-only"
+            name="displayMode"
+            value="TI_ONLY"
+            required="required"
+          /><label class="usa-radio__label" for="program-display-mode-ti-only"
+            >Trusted intermediaries only</label
+          >
+        </div>
+        <div class="usa-radio">
+          <input
+            type="radio"
+            class="usa-radio__input usa-radio__input--tile"
+            id="program-display-mode-select-ti-only"
+            name="displayMode"
+            value="SELECT_TI"
+            required="required"
+          /><label
+            class="usa-radio__label"
+            for="program-display-mode-select-ti-only"
+            >Visible to selected trusted intermediaries only</label
+          >
+          <div
+            id="TiList"
+            class="margin-left-2"
+            th:if="${!model.tiGroupOptions.isEmpty()}"
+            hidden="hidden"
+          >
+            <div
+              class="usa-checkbox"
+              th:each="tiGroup : ${model.tiGroupOptions}"
+            >
+              <input
+                type="checkbox"
+                class="usa-checkbox__input usa-checkbox__input--tile"
+                th:id="${tiGroup.id}"
+                name="tiGroups[]"
+                th:value="${tiGroup.id}"
+                required
+              />
+              <label
+                class="usa-checkbox__label"
+                th:for="${tiGroup.id}"
+                th:text="${tiGroup.name}"
+              ></label>
+            </div>
+            <!--/*
+            <div class="usa-form-group margin-top-0">
+              <div class="usa-fieldset">
+                <legend class="usa-legend">Programs</legend>
+                <div class="checkbox-group">
+                  <div class="usa-checkbox" th:each="tiGroup : ${model.tiGroupOptions}">
+                    <input type="checkbox" class="usa-checkbox__input usa-checkbox__input--tile" th:id="${tiGroup.id}" name="tiGroups[]" th:value="${tiGroup.id}" required />
+                    <label class="usa-checkbox__label" for="60" th:text="${tiGroup.name}"></label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            */-->
+          </div>
+        </div>
+        <div class="usa-radio">
+          <input
+            type="radio"
+            class="usa-radio__input usa-radio__input--tile"
+            id="program-display-mode-disabled"
+            name="displayMode"
+            value="DISABLED"
+            required="required"
+          /><label class="usa-radio__label" for="program-display-mode-disabled"
+            >Disabled</label
+          >
+        </div>
+      </fieldset>
+    </div>
+
+    <!-- Program visibility -->
+    <!--/*
+    <cf:radio
+      id="displayMode"
+      name="displayMode"
+      th:label="#{programnew.label.visibility}"
+      required="true"
+    >
+      <item
+        id="program-display-mode-public"
+        value="PUBLIC"
+        th:label="#{programnew.label.public}"
+        selected="true"
+      ></item>
+      <item
+        id="program-display-mode-hidden"
+        value="HIDDEN_IN_INDEX"
+        th:label="#{programnew.label.hidden}"
+      ></item>
+      <item
+        id="program-display-mode-ti-only"
+        value="TI_ONLY"
+        th:label="#{programnew.label.tionly}"
+      ></item>
+      <item
+        id="program-display-mode-select-ti-only"
+        value="SELECT_TI"
+        th:label="#{programnew.label.selectti}"
+      ></item>
+      <item
+        id="program-display-mode-disabled"
+        value="DISABLED"
+        th:label="#{programnew.label.disabled}"
+      ></item>
+    </cf:radio>
+
+    <div
+      id="TiList"
+      th:if="${!model.tiGroupOptions.isEmpty()}"
+      hidden="hidden"
+    >
+      <input type="hidden" name="tiGroups[]" value="" />
+      <cf:checkbox
+        id="ti-group-selection"
+        name="tiGroups[]"
+        th:label="#{programnew.label.selecttigroups}"
+      >
+        <item
+          th:each="tiGroup : ${model.tiGroupOptions}"
+          th:id="${tiGroup.id}"
+          th:value="${tiGroup.id}"
+          th:label="${tiGroup.name}"
+        ></item>
+      </cf:checkbox>
+    </div>
+    */-->
+
+    <!-- Program external link -->
+    <cf:input
+      id="program-external-link-input"
+      name="externalLink"
+      th:label="#{programnew.label.externallink}"
+    />
+
+    <!-- Email notifications -->
+    <cf:checkbox
+      id="notification-preferences"
+      name="notificationPreferences"
+      th:label="#{programnew.label.emailnotifications}"
+    >
+      <item
+        id="notification-preferences-email"
+        th:value="${model.defaultNotificationPreferenceValue}"
+        th:label="#{programnew.label.sendemailnotification}"
+        selected="true"
+      ></item>
+    </cf:checkbox>
+
+    <!-- Login only applications -->
+    <cf:checkbox
+      id="login-only-applications"
+      name="loginOnly"
+      th:label="#{programnew.label.loginonly}"
+    >
+      <item
+        id="login-only-checkbox"
+        value="true"
+        th:label="#{programnew.label.loginonlycheckbox}"
+      ></item>
+    </cf:checkbox>
+
+    <!-- Program overview -->
+    <h2 th:text="#{programnew.section.overview}"></h2>
+
+    <!-- Long program description -->
+    <cf:textarea
+      id="program-display-description-textarea"
+      name="localizedDisplayDescription"
+      th:label="#{programnew.label.longdescription}"
+    />
+
+    <!-- How to apply -->
+    <h2 th:text="#{programnew.section.howtoapply}"></h2>
+
+    <!-- Application steps -->
+    <th:block th:each="i : ${#numbers.sequence(0, 4)}">
+      <div th:id="'apply-step-' + ${i + 1} + '-div'">
+        <cf:input
+          th:id="'apply-step-' + ${i + 1} + '-title'"
+          th:name="'applicationSteps[' + ${i} + '][title]'"
+          th:label="'Step ' + ${i + 1} + ' title'"
+          th:required="${i == 0 ? 'true' : ''}"
+        />
+        <cf:textarea
+          th:id="'apply-step-' + ${i + 1} + '-description'"
+          th:name="'applicationSteps[' + ${i} + '][description]'"
+          th:label="'Step ' + ${i + 1} + ' description'"
+          th:required="${i == 0 ? 'true' : ''}"
+        />
+      </div>
+    </th:block>
+
+    <!-- Confirmation message -->
+    <h2 th:text="#{programnew.section.confirmation}"></h2>
+
+    <cf:textarea
+      id="program-confirmation-message-textarea"
+      name="localizedConfirmationMessage"
+      th:label="#{programnew.label.confirmationmessage}"
+    />
+
+    <cf:button
+      id="program-update-button"
+      type="submit"
+      th:text="#{programnew.button.saveandcontinue}"
+    />
+  </form>
+
+  <wc-modal
+    hidden
+    id="confirm-pre-screener-change-modal-container"
+    modal-id="confirm-pre-screener-change-modal"
+    heading-text="Confirm pre-screener change?"
+  >
+    <div slot="description">
+      <p>
+        The pre-screener will be updated from <strong>Program</strong> to the
+        current program.
+      </p>
+      <p>Would you like to confirm the change?</p>
+    </div>
+    <div slot="buttons">
+      <cf:button data-action="ok" form="delete-image-form" text="Confirm" />
+      <cf:button
+        data-action="cancel"
+        variant="outline"
+        th:text="#{admin.common.button.cancel}"
+      />
+    </div>
+  </wc-modal>
+</th:block>
+
+<th:block th:fragment="scripts">
+  <script th:nonce="${templateGlobals.cspNonce()}">
+    document.addEventListener('DOMContentLoaded', () => {
+      document
+        .getElementById('confirm-pre-screener-change-modal')
+        .addEventListener('modal:action-selected', (e) => {
+          if (e.detail.action !== 'ok') {
+            e.preventDefault()
+            return
+          }
+        })
+    })
+  </script>
+</th:block>

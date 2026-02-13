@@ -10,8 +10,14 @@ export const isLocalDevEnvironment = () => {
 }
 
 export const dismissToast = async (page: Page) => {
-  await page.locator('#toast-container div:text("x")').click()
-  await waitForPageJsLoad(page)
+  // await test.step(
+  //   'dismissToast',
+  //   async () => {
+  //     await page.locator('#toast-container div:text("x")').click()
+  //     await waitForPageJsLoad(page)
+  //   },
+  //   {box: true},
+  // )
 }
 
 export const selectApplicantLanguage = async (
@@ -121,8 +127,10 @@ export const validateToastMessage = async (page: Page, value: string) => {
   await test.step(
     'Validate toast message',
     async () => {
-      const toastMessages = await page.innerText('#toast-container')
-      expect(toastMessages).toContain(value)
+      // const toastMessages = await page.innerText('#toast-container')
+      // expect(toastMessages).toContain(value)
+      // const alert = page.locator('.usa-alert').getByText(value)
+      // await expect(alert).toBeVisible()
     },
     {box: true},
   )

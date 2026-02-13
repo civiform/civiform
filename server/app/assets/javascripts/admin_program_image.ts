@@ -30,11 +30,10 @@ class AdminProgramImage {
         'input[name="summaryImageDescription"]',
       ),
     )
+
     const submitButton = assertNotNull(
-      document.querySelector(
-        'button[form=' +
-          AdminProgramImage.IMAGE_DESCRIPTION_FORM_ID +
-          '][type="submit"]',
+      document.querySelector<HTMLButtonElement>(
+        '#save-image-description-button',
       ),
     )
 

@@ -1,0 +1,736 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.programs.ProgramBlockEditPageViewModel"*/-->
+<th:block
+  th:fragment="content"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <!-- Flash messages -->
+  <cf:alert
+    th:if="${model.successMessage.isPresent()}"
+    type="success"
+    slim="true"
+  >
+    <text th:text="${model.successMessage.get()}">placeholder</text>
+  </cf:alert>
+
+  <cf:alert th:if="${model.errorMessage.isPresent()}" type="error" slim="true">
+    <text th:text="${model.errorMessage.get()}">placeholder</text>
+  </cf:alert>
+
+  <!-- Program info header -->
+  <div class="border-1px border-base-lighter radius-md">
+    <span class="usa-tag" th:text="#{admin.common.tag.draft}"></span>
+    <p th:text="${model.programName}"></p>
+    <p th:text="${model.programDescription}"></p>
+    <p>
+      <strong th:text="#{admin.common.label.adminnote}"></strong>
+      <span th:text="${model.adminNote}"></span>
+    </p>
+    <p>
+      <strong th:text="#{admin.common.label.categories}"></strong>
+      <span th:text="${model.categoriesText}"></span>
+    </p>
+
+    <!-- Malformed question warning -->
+    <!--    <cf:alert th:if="${model.hasMalformedQuestions}" type="error" slim="true">-->
+    <!--      <text th:text="#{programblockedit.text.malformedwarning}"-->
+    <!--        >placeholder</text-->
+    <!--      >-->
+    <!--    </cf:alert>-->
+
+    <div>
+      <a
+        th:href="${model.editProgramDetailsUrl}"
+        class="usa-button usa-button--outline"
+        th:text="#{programblockedit.button.editdetails}"
+      ></a>
+      <a
+        th:href="${model.editProgramImageUrl}"
+        class="usa-button usa-button--outline"
+        th:text="#{programblockedit.button.editimage}"
+      ></a>
+      <th:block th:if="${model.editBridgeDefinitionsUrl.isPresent()}">
+        <a
+          th:href="${model.editBridgeDefinitionsUrl.get()}"
+          class="usa-button usa-button--outline"
+          th:text="#{programblockedit.button.editbridge}"
+        ></a>
+      </th:block>
+      <th:block th:if="${model.previewUrl.isPresent()}">
+        <a
+          th:href="${model.previewUrl.get()}"
+          class="usa-button usa-button--outline"
+          th:text="#{admin.common.button.previewasapplicant}"
+        ></a>
+      </th:block>
+      <th:block th:if="${model.downloadPdfUrl.isPresent()}">
+        <a
+          th:href="${model.downloadPdfUrl.get()}"
+          class="usa-button usa-button--outline"
+          th:text="#{admin.common.button.downloadpdf}"
+        ></a>
+      </th:block>
+    </div>
+  </div>
+
+  <!-- Main layout: sidebar + content -->
+  <div data-testid="block-panel" class="display-flex">
+    <!-- Left sidebar: block list -->
+    <div class="border-right-1px border-base-lighter">
+      <nav aria-label="Side navigation,,">
+        <ul class="usa-sidenav">
+          <th:block th:each="block : ${model.blockList}">
+            <th:block th:replace="~{:: editBlockListEntry(block=${block})}" />
+          </th:block>
+        </ul>
+      </nav>
+
+      <!-- Add screen button -->
+      <div>
+        <th:block th:unless="${model.enumeratorImprovementsEnabled}">
+          <form
+            class="usa-form"
+            method="POST"
+            th:action="${model.createBlockUrl}"
+          >
+            <input th:replace="~{admin/shared/CsrfToken}" />
+            <input type="hidden" name="blockType" value="SINGLE" />
+            <cf:button
+              type="submit"
+              id="add-block-button"
+              variant="outline"
+              th:text="#{programblockedit.button.addscreen}"
+            />
+          </form>
+        </th:block>
+        <th:block th:if="${model.enumeratorImprovementsEnabled}">
+          <div class="usa-accordion">
+            <cf:button
+              id="add-screen"
+              variant="outline"
+              aria-controls="add-screen-dropdown"
+              aria-expanded="false"
+              data-toggle-dropdown
+              th:text="#{programblockedit.button.addscreen}"
+            />
+            <div id="add-screen-dropdown" class="display-none">
+              <form
+                class="usa-form"
+                method="POST"
+                th:action="${model.createBlockUrl}"
+              >
+                <input th:replace="~{admin/shared/CsrfToken}" />
+                <input type="hidden" name="blockType" value="SINGLE" />
+                <cf:button
+                  type="submit"
+                  variant="unstyled"
+                  id="add-block-button"
+                  th:text="#{programblockedit.button.addscreen}"
+                />
+              </form>
+              <form
+                class="usa-form"
+                method="POST"
+                th:action="${model.createBlockUrl}"
+              >
+                <input th:replace="~{admin/shared/CsrfToken}" />
+                <input type="hidden" name="blockType" value="ENUMERATOR" />
+                <cf:button
+                  type="submit"
+                  id="add-enumerator-block-button"
+                  variant="unstyled"
+                  th:text="#{programblockedit.button.addrepeatedset}"
+                />
+              </form>
+            </div>
+          </div>
+        </th:block>
+      </div>
+    </div>
+
+    <!-- Right content: selected block detail -->
+    <div class="flex-fill" data-testid="block-panel-edit">
+      <!-- Block info -->
+      <div th:id="'block-info-display-' + ${model.selectedBlockId}">
+        <h2 th:text="${model.blockName}"></h2>
+        <p th:text="${model.blockDescription}"></p>
+      </div>
+
+      <!-- Block panel buttons -->
+      <div>
+        <cf:button
+          variant="outline"
+          data-open-modal
+          aria-controls="block-description-modal"
+          th:text="#{programblockedit.button.editscreeninfo}"
+        />
+        <form
+          th:if="${model.hasEnumeratorQuestion}"
+          class="usa-form"
+          method="POST"
+          th:action="${model.createBlockUrl}"
+        >
+          <input th:replace="~{admin/shared/CsrfToken}" />
+          <input
+            type="hidden"
+            name="enumeratorId"
+            th:value="${model.selectedBlockId}"
+          />
+          <input type="hidden" name="blockType" value="REPEATED" />
+          <cf:button
+            type="submit"
+            id="create-repeated-block-button"
+            variant="outline"
+            th:text="#{programblockedit.button.createrepeatedscreen}"
+          />
+        </form>
+        <cf:button
+          variant="secondary"
+          th:if="${model.showDeleteButton}"
+          th:disabled="${!model.canDeleteBlock}"
+          th:title="${!model.canDeleteBlock} ? #{programblockedit.text.cannotdelete} : null"
+          th:text="#{programblockedit.button.deletescreen}"
+          data-open-modal
+          aria-controls="block-delete-modal"
+        />
+      </div>
+
+      <!-- Visibility -->
+      <div id="visibility-predicate">
+        <h3>Visibility condition</h3>
+        <div th:if="${!model.hasVisibilityPredicate}">
+          <div>This screen is always shown.</div>
+        </div>
+        <div th:if="${model.hasVisibilityPredicate}">
+          <div>This screen has visibility conditions.</div>
+          <p th:text="${model.visibilityPredicateHeading.get()}"></p>
+          <ol th:if="${model.visibilityPredicateConditionList.isPresent()}">
+            <li
+              th:each="condition : ${model.visibilityPredicateConditionList.get()}"
+              th:text="${condition}"
+            ></li>
+          </ol>
+        </div>
+        <div>
+          <a
+            class="usa-link"
+            id="cf-edit-visibility-predicate"
+            th:href="${model.editVisibilityUrl}"
+            th:text="${!model.hasVisibilityPredicate ? 'Add visibility conditions' : 'Edit visibility conditions'}"
+          ></a>
+        </div>
+      </div>
+
+      <!-- Eligibility -->
+      <div id="eligibility-predicate" th:unless="${model.prescreenerForm}">
+        <h3>Eligibility condition</h3>
+        <div>
+          <span th:if="${model.eligibilityIsGating}">
+            You can add eligibility conditions to determine if an applicant
+            qualifies for the program. Applicants who do not meet the minimum
+            requirements will be blocked from submitting an application.
+          </span>
+          <span th:unless="${model.eligibilityIsGating}">
+            You can add eligibility conditions to determine if an applicant
+            qualifies for the program. Applicants can submit an application even
+            if they do not meet the minimum requirements.
+          </span>
+          You can change this in the
+          <a
+            class="usa-link"
+            data-testid="goto-program-settings-link"
+            th:href="${model.editProgramDetailsUrl}"
+            >program settings.</a
+          >
+        </div>
+        <div th:if="${!model.hasEligibilityPredicate}">
+          <div>This screen does not have any eligibility conditions.</div>
+        </div>
+        <div th:if="${model.hasEligibilityPredicate}">
+          <div>This screen has eligibility conditions.</div>
+          <p th:text="${model.eligibilityPredicateHeading.get()}"></p>
+          <ol th:if="${model.eligibilityPredicateConditionList.isPresent()}">
+            <li
+              th:each="condition : ${model.eligibilityPredicateConditionList.get()}"
+              th:text="${condition}"
+            ></li>
+          </ol>
+        </div>
+        <div>
+          <a
+            class="usa-link"
+            id="cf-edit-eligibility-predicate"
+            th:href="${model.editEligibilityUrl}"
+            th:text="${!model.hasEligibilityPredicate ? 'Add eligibility conditions' : 'Edit eligibility conditions'}"
+          ></a>
+        </div>
+      </div>
+
+      <!-- Questions -->
+      <div id="questions-section">
+        <h3 th:text="#{programblockshow.heading.questions}"></h3>
+        <th:block th:each="question: ${model.questions}">
+          <div
+            class="border-1px border-base-lighter radius-md margin-bottom-2"
+            th:classappend="${question.malformed} ? 'border-2px border-error'"
+            th:data-testid="'question-admin-name-' + ${question.adminId}"
+          >
+            <!-- Universal badge -->
+            <div th:if="${!question.malformed and question.universal}">
+              <span
+                class="usa-tag"
+                th:text="#{admin.common.tag.universal}"
+              ></span>
+            </div>
+
+            <div class="desktop:display-flex">
+              <!-- Question content -->
+              <div class="flex-fill">
+                <th:block th:if="${question.malformed}">
+                  <p
+                    class="text-bold"
+                    th:text="#{programblockshow.text.malformedtitle}"
+                  ></p>
+                  <p th:text="#{programblockshow.text.malformeddesc}"></p>
+                </th:block>
+                <p th:text="${question.questionText}" class="text-bold"></p>
+                <p
+                  th:if="${!question.helpText.isEmpty()}"
+                  th:text="${question.helpText}"
+                ></p>
+                <p>
+                  <strong th:text="#{admin.common.label.adminid}"></strong
+                  ><span th:text="${question.adminId}"></span>
+                </p>
+              </div>
+
+              <!-- Address correction toggle -->
+              <div th:if="${question.showAddressCorrectionToggle}">
+                <form class="usa-form">
+                  <input
+                    type="hidden"
+                    name="addressCorrectionEnabled"
+                    th:value="${question.addressCorrectionEnabled}"
+                  />
+                  <cf:button
+                    variant="unstyled"
+                    th:hx-post="${question.toggleAddressCorrectionUrl}"
+                    hx-select-oob="#questions-section"
+                    th:text="${question.addressCorrectionEnabled} ? #{programblockedit.text.addresscorrection.on} : #{programblockedit.text.addresscorrection.off}"
+                  />
+                </form>
+              </div>
+
+              <!-- Optional toggle -->
+              <div th:if="${question.showOptionalToggle}">
+                <form
+                  class="usa-form"
+                  th:id="'toggle-optional-' + ${question.questionId}"
+                >
+                  <input
+                    type="hidden"
+                    name="optional"
+                    th:value="${question.optional} ? 'false' : 'true'"
+                  />
+                  <cf:button
+                    variant="unstyled"
+                    th:hx-post="${question.toggleOptionalUrl}"
+                    th:hx-select-oob="'#toggle-optional-' + ${question.questionId}"
+                    th:text="${question.optional} ? #{admin.common.label.optional} : #{admin.common.label.required}"
+                  />
+                </form>
+              </div>
+
+              <!-- Move up/down -->
+              <div>
+                <th:block th:if="${question.showMoveUp}">
+                  <form
+                    class="usa-form"
+                    method="POST"
+                    th:action="${question.moveUpUrl}"
+                  >
+                    <input th:replace="~{admin/shared/CsrfToken}" />
+                    <input
+                      type="hidden"
+                      name="position"
+                      th:value="${question.moveUpPosition}"
+                    />
+                    <cf:button
+                      type="submit"
+                      variant="unstyled"
+                      th:aria-label="#{admin.common.button.moveup}"
+                    />
+                  </form>
+                </th:block>
+
+                <th:block th:if="${question.showMoveDown}">
+                  <form
+                    class="usa-form"
+                    method="POST"
+                    th:action="${question.moveDownUrl}"
+                  >
+                    <input th:replace="~{admin/shared/CsrfToken}" />
+                    <input
+                      type="hidden"
+                      name="position"
+                      th:value="${question.moveDownPosition}"
+                    />
+                    <cf:button
+                      type="submit"
+                      variant="unstyled"
+                      th:aria-label="#{admin.common.button.movedown}"
+                    />
+                  </form>
+                </th:block>
+              </div>
+
+              <div>
+                <!-- Edit question link -->
+                <a
+                  th:href="${question.editUrl}"
+                  class="usa-link"
+                  th:text="#{admin.common.button.edit}"
+                ></a>
+
+                <!-- Delete question -->
+                <form
+                  class="usa-form"
+                  method="POST"
+                  th:action="${question.deleteUrl}"
+                >
+                  <input th:replace="~{admin/shared/CsrfToken}" />
+                  <cf:button
+                    type="submit"
+                    th:id="'block-question-' + ${question.questionId}"
+                    name="questionDefinitionId"
+                    th:value="${question.questionId}"
+                    variant="unstyled"
+                    th:disabled="${!question.canRemove}"
+                    th:title="${!question.canRemove} ? #{programblockedit.text.cannotremoveenumerator} : null"
+                    th:text="#{admin.common.button.delete}"
+                  />
+                </form>
+              </div>
+            </div>
+          </div>
+        </th:block>
+
+        <!-- Add a question button -->
+        <cf:button
+          id="openQuestionBankButton"
+          th:text="#{programblockedit.button.addquestion}"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Question bank slide-out panel -->
+  <wc-tray
+    hidden
+    id="questionBankTray"
+    direction="right"
+    heading="Navigation"
+    aria-label="Navigation menu"
+  >
+    <form method="POST" th:action="${model.addQuestionUrl}">
+      <input th:replace="~{admin/shared/CsrfToken}" />
+      <div>
+        <h2 th:text="#{programblockedit.heading.addquestion}"></h2>
+
+        <!-- Filter -->
+        <cf:input
+          id="questionBankFilter"
+          name="questionBankFilter"
+          th:label="#{programblockedit.label.searchquestions}"
+        />
+
+        <!-- Create question link -->
+        <div>
+          <p th:text="#{programblockedit.text.notfinding}"></p>
+          <a
+            id="create-question-button"
+            th:href="${model.questionCreateRedirectUrl}"
+            class="usa-link"
+            th:text="#{programblockedit.link.createquestion}"
+          ></a>
+
+          <!--          <cf:button-->
+          <!--            id="create-question-button"-->
+          <!--            class="usa-button"-->
+          <!--            text="Create new question"-->
+          <!--          />-->
+          <!--          <wc-ellipsis-menu hidden trigger="create-question-button" aria-label="New Question Options">-->
+          <!--            <menu>-->
+          <!--              <li th:each="link : ${model.questionTypeLinks}">-->
+          <!--                <a-->
+          <!--                  th:href="${link.url}"-->
+          <!--                  th:text="${link.label}"-->
+          <!--                  th:id="${link.id}"-->
+          <!--                ></a>-->
+          <!--              </li>-->
+          <!--            </menu>-->
+          <!--          </wc-ellipsis-menu>-->
+        </div>
+
+        <!-- Universal questions -->
+        <th:block th:if="${!model.universalBankQuestions.isEmpty()}">
+          <div
+            id="question-bank-universal"
+            class="cf-sortable-questions-container"
+          >
+            <h3 th:text="#{programblockedit.heading.universalquestions}"></h3>
+
+            <cf:alert slim="true">
+              <text>
+                <th:block
+                  th:text="#{programblockedit.text.universalrecommend}"
+                />
+              </text>
+            </cf:alert>
+
+            <th:block th:each="question : ${model.universalBankQuestions}">
+              <div th:replace="~{:: questionBankEntry(${question})}"></div>
+            </th:block>
+          </div>
+        </th:block>
+
+        <!-- Non-universal questions -->
+        <div
+          id="question-bank-nonuniversal"
+          class="cf-sortable-questions-container"
+        >
+          <h3
+            th:if="${!model.universalBankQuestions.isEmpty()}"
+            th:text="#{programblockedit.heading.otherquestions}"
+          ></h3>
+          <th:block th:each="question : ${model.nonUniversalBankQuestions}">
+            <div th:replace="~{:: questionBankEntry(${question})}"></div>
+          </th:block>
+        </div>
+      </div>
+    </form>
+  </wc-tray>
+
+  <wc-modal
+    hidden
+    id="block-description-container-modal"
+    modal-id="block-description-modal"
+    th:heading-text="#{programblockedit.modal.editscreenheading}"
+  >
+    <div slot="description">
+      <form
+        class="usa-form"
+        id="block-edit-form"
+        method="POST"
+        th:action="${model.blockUpdateUrl}"
+      >
+        <input th:replace="~{admin/shared/CsrfToken}" />
+        <cf:input
+          id="block-name-input"
+          name="name"
+          th:label="#{programblockedit.label.screenname}"
+          th:value="${model.blockRawName}"
+          required="true"
+        />
+        <cf:textarea
+          id="block-description-textarea"
+          name="description"
+          th:label="#{programblockedit.label.screendescription}"
+          th:value="${model.blockRawDescription}"
+          required="true"
+        />
+      </form>
+    </div>
+    <div slot="buttons">
+      <cf:button
+        data-action="save"
+        type="submit"
+        form="block-edit-form"
+        th:text="#{admin.common.button.save}"
+      />
+      <cf:button
+        data-action="cancel"
+        variant="outline"
+        th:text="#{admin.common.button.cancel}"
+      />
+    </div>
+  </wc-modal>
+
+  <wc-modal
+    hidden
+    id="block-delete-modal-container"
+    modal-id="block-delete-modal"
+    th:heading-text="'Delete ' + ${model.blockName} + '?'"
+  >
+    <div slot="description">
+      <form
+        class="usa-form"
+        id="block-delete-form"
+        method="POST"
+        th:action="${model.blockDeleteUrl}"
+      >
+        <input th:replace="~{admin/shared/CsrfToken}" />
+        <p th:if="${!model.deleteModalItemsText.isEmpty()}">
+          <span th:text="${model.blockName}"></span>
+          <strong th:text="${model.deleteModalItemsText} + '.'"></strong>
+        </p>
+        <p th:text="#{programblockedit.modal.deleteconfirm}"></p>
+      </form>
+    </div>
+    <div slot="buttons">
+      <cf:button
+        data-action="delete"
+        type="submit"
+        variant="secondary"
+        form="block-delete-form"
+        th:text="#{admin.common.button.delete}"
+      />
+      <cf:button
+        data-action="cancel"
+        variant="outline"
+        th:text="#{admin.common.button.cancel}"
+      />
+    </div>
+  </wc-modal>
+</th:block>
+
+<!-- Block list entry fragment for editable view (recursive) -->
+<th:block
+  th:fragment="editBlockListEntry(block)"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <li class="usa-sidenav__item display-flex">
+    <!-- Visibility icon -->
+    <svg
+      th:if="${block.hasVisibilityPredicate}"
+      class="usa-icon"
+      aria-hidden="true"
+      focusable="false"
+      role="img"
+    >
+      <use href="/assets/Images/uswds/sprite.svg#visibility_off"></use>
+    </svg>
+    <a th:href="${block.editUrl}" class="text-no-underline">
+      <div
+        th:text="${block.name}"
+        th:classappend="${block.hasNullQuestion} ? 'text-error'"
+      ></div>
+      <div th:text="${block.questionCountText}"></div>
+    </a>
+    <!-- Move buttons -->
+    <div class="display-flex flex-align-center flex-justify-center flex-column">
+      <th:block th:if="${block.showMoveUp}">
+        <form method="POST" th:action="${block.moveUpUrl}">
+          <input th:replace="~{admin/shared/CsrfToken}" />
+          <input type="hidden" name="direction" value="UP" />
+          <cf:button
+            type="submit"
+            variant="unstyled"
+            th:data-test-id="'move-block-up-' + ${block.id}"
+            th:aria-label="#{programblockedit.button.moveblockup}"
+            text="up"
+          ></cf:button>
+        </form>
+      </th:block>
+      <th:block th:if="${block.showMoveDown}">
+        <form method="POST" th:action="${block.moveDownUrl}">
+          <input th:replace="~{admin/shared/CsrfToken}" />
+          <input type="hidden" name="direction" value="DOWN" />
+          <cf:button
+            type="submit"
+            variant="unstyled"
+            th:data-test-id="'move-block-down-' + ${block.id}"
+            th:aria-label="#{programblockedit.button.moveblockdown}"
+            text="down"
+          ></cf:button>
+        </form>
+      </th:block>
+    </div>
+
+    <!-- Recursive children -->
+    <th:block th:if="${block.children != null and !block.children.isEmpty()}">
+      <nav aria-label="Side navigation,,">
+        <ul class="usa-sidenav__sublist">
+          <th:block th:each="child : ${block.children}">
+            <div th:replace="~{:: editBlockListEntry(block=${child})}"></div>
+          </th:block>
+        </ul>
+      </nav>
+    </th:block>
+  </li>
+</th:block>
+
+<!-- Question bank entry fragment -->
+<th:block th:fragment="questionBankEntry(question)">
+  <div
+    th:id="'add-question-' + ${question.id}"
+    class="border-bottom-1px border-base-lighter display-flex flex-row margin-bottom-2 cf-question-bank-element"
+    th:data-adminname="${question.adminId}"
+    th:data-lastmodified="${question.lastModifiedTime}"
+    th:data-relevantfiltertext="${question.relevantFilterText}"
+  >
+    <div class="flex-fill">
+      <th:block th:if="${question.universal}">
+        <span class="usa-tag" th:text="#{admin.common.tag.universal}"></span>
+      </th:block>
+      <p
+        class="text-bold cf-question-title"
+        th:text="${question.questionText}"
+      ></p>
+      <p
+        th:if="${!question.helpText.isEmpty()}"
+        th:text="${question.helpText}"
+      ></p>
+      <p>
+        <span th:text="#{admin.common.label.adminid}"></span>
+        <span th:text="${question.adminId}"></span>
+      </p>
+      <p th:if="${!question.adminNote.isEmpty()}">
+        <span th:text="#{admin.common.label.adminnote}"></span>
+        <span th:text="${question.adminNote}"></span>
+      </p>
+    </div>
+    <div class="display-flex flex-align-center">
+      <cf:button
+        type="submit"
+        variant="outline"
+        th:id="'question-' + ${question.id}"
+        th:name="'question-' + ${question.id}"
+        th:value="${question.id}"
+        th:text="#{admin.common.button.add}"
+      />
+    </div>
+  </div>
+</th:block>
+
+<th:block th:fragment="scripts">
+  <script th:nonce="${templateGlobals.cspNonce()}">
+    document.addEventListener('DOMContentLoaded', () => {
+      document
+        .getElementById('openQuestionBankButton')
+        .addEventListener('click', () => {
+          document.getElementById('questionBankTray').show()
+        })
+
+      document
+        .getElementById('block-description-container-modal')
+        .addEventListener('modal:action-selected', (e) => {
+          if (e.detail.action !== 'save') {
+            e.preventDefault()
+            return
+          }
+        })
+
+      document
+        .getElementById('block-delete-modal-container')
+        .addEventListener('modal:action-selected', (e) => {
+          if (e.detail.action !== 'delete') {
+            e.preventDefault()
+            return
+          }
+        })
+    })
+  </script>
+</th:block>

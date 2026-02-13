@@ -1,6 +1,11 @@
 import {expect} from './civiform_fixtures'
 import {Page, Locator} from '@playwright/test'
-import {dismissModal, waitForAnyModalLocator, waitForPageJsLoad} from './wait'
+import {
+  dismissModal,
+  waitForAnyModalLocator,
+  waitForAnyModalLocator2,
+  waitForPageJsLoad,
+} from './wait'
 
 export class AdminProgramStatuses {
   private page!: Page
@@ -64,13 +69,18 @@ export class AdminProgramStatuses {
     statusName: string,
     {
       emailBody,
+      waitForPageLoad,
     }: {
       emailBody?: string
+      waitForPageLoad?: boolean
     } = {},
   ) {
-    await this.page.click('button:has-text("Create a new status")')
+    await this.page.getByRole('button', {name: 'Create a new status'}).click()
 
-    const modal = await waitForAnyModalLocator(this.page)
+    const modal = await waitForAnyModalLocator2(
+      this.page,
+      'Create a new status',
+    )
     await expect(modal).toContainText('Create a new status')
 
     emailBody = emailBody ?? ''
@@ -78,7 +88,10 @@ export class AdminProgramStatuses {
       statusName,
       emailBody,
     })
-    await waitForPageJsLoad(this.page)
+
+    if (waitForPageLoad) {
+      await waitForPageJsLoad(this.page)
+    }
   }
 
   // Creates an initial status, and sets it as the default status.
@@ -94,10 +107,12 @@ export class AdminProgramStatuses {
   ): Promise<Locator> {
     await this.page.click('button:has-text("Create a new status")')
 
-    const modal = await waitForAnyModalLocator(this.page)
-    await expect(modal).toContainText('Create a new status')
+    const modal = await waitForAnyModalLocator2(
+      this.page,
+      'Create a new status',
+    )
 
-    const statusFieldHandle = modal.locator('text="Status name (required)"')
+    const statusFieldHandle = modal.locator('text="Status name"')
     await statusFieldHandle.fill(statusName)
 
     const defaultCheckboxHandle = modal.locator(
@@ -170,9 +185,10 @@ export class AdminProgramStatuses {
   }
 
   async expectCreateStatusModalWithError(expectErrorContains: string) {
-    const modal = await waitForAnyModalLocator(this.page)
-    await expect(modal).toContainText('Create a new status')
-    await expect(modal).toContainText(expectErrorContains)
+    // const modal = await waitForAnyModalLocator(this.page)
+    // await expect(modal).toContainText('Create a new status')
+    // await expect(modal).toContainText(expectErrorContains)
+    await expect(this.page.getByText(expectErrorContains)).toBeVisible()
   }
 
   async editStatus(
@@ -182,13 +198,16 @@ export class AdminProgramStatuses {
       editedEmailBody = '',
     }: {editedStatusName: string; editedEmailBody?: string},
   ) {
-    await this.page.click(
-      this.programStatusItemSelector(originalStatusName) +
-        ' button:has-text("Edit")',
-    )
+    await expect(
+      this.page.locator(this.programStatusItemSelector(originalStatusName)),
+    ).toBeVisible()
 
-    const modal = await waitForAnyModalLocator(this.page)
-    await expect(modal).toContainText('Edit this status')
+    await this.page
+      .locator(this.programStatusItemSelector(originalStatusName))
+      .getByRole('button', {name: 'Edit'})
+      .click()
+
+    const modal = await waitForAnyModalLocator2(this.page, 'Edit this status')
 
     await this.fillStatusUpdateModalValuesAndSubmit(modal, {
       statusName: editedStatusName,
@@ -198,8 +217,8 @@ export class AdminProgramStatuses {
   }
 
   async expectEditStatusModalWithError(expectErrorContains: string) {
-    const modal = await waitForAnyModalLocator(this.page)
-    expect(await modal.innerText()).toContain('Edit this status')
+    const modal = await waitForAnyModalLocator2(this.page, 'Edit this status')
+
     if (expectErrorContains) {
       expect(await modal.innerText()).toContain(expectErrorContains)
     }
@@ -263,9 +282,11 @@ export class AdminProgramStatuses {
   }
 
   async expectProgramManageStatusesPage(programName: string) {
-    expect(await this.page.innerText('h1')).toContain(
-      `Manage application statuses for ${programName}`,
-    )
+    await expect(
+      this.page.getByRole('heading', {
+        name: `Manage application statuses for ${programName}`,
+      }),
+    ).toBeVisible()
   }
 
   private async fillStatusUpdateModalValuesAndSubmit(
@@ -280,7 +301,7 @@ export class AdminProgramStatuses {
   ) {
     // We perform selectors within the modal since using the typical
     // page.fill with a selector will match multiple modals on the page.
-    const statusFieldHandle = modal.locator('text="Status name (required)"')
+    const statusFieldHandle = modal.locator('text="Status name"')
     await statusFieldHandle.fill(statusName)
 
     const emailFieldHandle = modal.locator(

@@ -1,0 +1,119 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.trustedintermediary.TiEditClientPageViewModel"*/-->
+<th:block
+  th:fragment="content"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <!--/* Tab navigation */-->
+  <nav aria-label="Trusted Intermediary" data-testid="ti-nav">
+    <a
+      id="client-list-link"
+      th:href="${model.clientListUrl}"
+      aria-current="page"
+      class="usa-button"
+      >Client List</a
+    >
+    <a
+      id="account-settings-link"
+      th:href="${model.accountSettingsUrl}"
+      class="usa-button usa-button--outline"
+      >Account Settings</a
+    >
+  </nav>
+
+  <h2
+    th:text="${model.edit ? 'Edit Client' : 'Add Client'}"
+    th:id="${model.edit ? 'edit-client' : 'add-client'}"
+  ></h2>
+
+  <a id="ti-dashboard-link" th:href="${model.backToClientListUrl}">
+    &larr; Back to client list
+  </a>
+
+  <p>Note: Fields marked with a * are required.</p>
+
+  <form
+    th:id="${model.edit ? 'edit-ti' : 'add-ti'}"
+    method="POST"
+    th:action="${model.formActionUrl}"
+  >
+    <cf:input
+      id="first-name-input"
+      name="firstName"
+      label="First name"
+      required="true"
+      th:value="${model.firstName}"
+    />
+
+    <cf:input
+      id="middle-name-input"
+      name="middleName"
+      label="Middle name (Optional)"
+      th:value="${model.middleName}"
+    />
+
+    <cf:input
+      id="last-name-input"
+      name="lastName"
+      label="Last name"
+      required="true"
+      th:value="${model.lastName}"
+    />
+
+    <th:block th:if="${model.nameSuffixEnabled}">
+      <cf:select id="name-suffix-select" name="nameSuffix" label="Suffix">
+        <option value="">-- Select --</option>
+        <option
+          th:each="option : ${model.suffixOptions}"
+          th:value="${option.value}"
+          th:text="${option.label}"
+          th:selected="${option.value == model.nameSuffix}"
+        ></option>
+      </cf:select>
+    </th:block>
+
+    <cf:input
+      id="phone-number-input"
+      name="phoneNumber"
+      label="Phone number (Optional)"
+      placeholder="(xxx) xxx-xxxx"
+      th:value="${model.phoneNumber}"
+    />
+
+    <cf:input
+      id="email-input"
+      name="emailAddress"
+      type="email"
+      label="Email (Optional)"
+      th:value="${model.emailAddress}"
+    />
+
+    <cf:input
+      id="date-of-birth-input"
+      name="dob"
+      type="date"
+      label="Date of birth"
+      required="true"
+      th:value="${model.dateOfBirth}"
+    />
+
+    <cf:textarea
+      id="ti-note-input"
+      name="tiNote"
+      label="Notes (Optional)"
+      th:value="${model.tiNote}"
+    />
+
+    <input
+      type="hidden"
+      name="csrfToken"
+      th:value="${templateGlobals.csrfToken()}"
+    />
+
+    <button type="submit" class="usa-button">Save</button>
+    <a class="usa-button usa-button--outline" th:href="${model.cancelUrl}"
+      >Cancel</a
+    >
+  </form>
+</th:block>

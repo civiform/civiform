@@ -1,0 +1,506 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.programs.ProgramIndexPageViewModel"*/-->
+<!--/*@thymesVar id="program" type="views.admin.programs.ProgramIndexPageViewModel.ProgramCardData"*/-->
+<th:block
+  th:fragment="content"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <!-- Success message -->
+  <cf:alert
+    th:if="${model.successMessage.isPresent()}"
+    type="success"
+    slim="true"
+  >
+    <text th:text="${model.successMessage.get()}">placeholder</text>
+  </cf:alert>
+
+  <!-- Error message -->
+  <cf:alert th:if="${model.errorMessage.isPresent()}" type="error" slim="true">
+    <text th:text="${model.errorMessage.get()}">placeholder</text>
+  </cf:alert>
+
+  <p th:text="#{programindex.text.description(${model.civicEntityName})}"></p>
+
+  <!--  o, o, d, u-->
+  <!--  download, new, publish, import-->
+
+  <!-- Action buttons -->
+  <ul class="usa-button-group flex-align-center">
+    <li class="usa-button-group__item">
+      <a
+        th:href="${model.demographicsCsvUrl}"
+        class="usa-button usa-button--outline"
+        th:text="#{programindex.button.downloaddemographics}"
+      ></a>
+    </li>
+    <li class="usa-button-group__item">
+      <a
+        th:href="${model.newProgramUrl}"
+        id="new-program-button"
+        class="usa-button usa-button--outline"
+        th:text="#{programindex.button.newprogram}"
+      ></a>
+    </li>
+    <li class="usa-button-group__item" th:if="${model.showPublishAllButton}">
+      <cf:button
+        data-open-modal
+        aria-controls="publish-all-modal"
+        th:text="#{programindex.button.publishall}"
+      />
+    </li>
+    <li class="usa-button-group__item">
+      <a
+        th:href="${model.importProgramUrl}"
+        class="usa-link usa-button--unstyled"
+        th:text="#{programindex.link.import}"
+      ></a>
+    </li>
+  </ul>
+
+  <!-- Tabs for In Use / Disabled -->
+  <th:block>
+    <nav>
+      <a
+        th:href="${model.inUseTabUrl}"
+        th:classappend="${model.inUseTabSelected ? 'usa-current' : ''}"
+        class="usa-link"
+        th:text="#{programindex.tab.inuse}"
+      ></a>
+      <a
+        th:if="${model.hasDisabledPrograms}"
+        th:href="${model.disabledTabUrl}"
+        th:classappend="${!model.inUseTabSelected ? 'usa-current' : ''}"
+        class="usa-link"
+        th:text="#{programindex.tab.disabled}"
+      ></a>
+    </nav>
+  </th:block>
+
+  <p th:text="#{programindex.text.sortorder}"></p>
+
+  <th:block th:each="program : ${model.programs}">
+    <th:block th:insert="~{::program-card(${program})}" />
+  </th:block>
+
+  <wc-modal
+    hidden
+    id="publish-all-modal-container"
+    modal-id="publish-all-modal"
+    heading-text="Do you want to publish all draft programs?"
+  >
+    <div slot="description">
+      <p th:text="#{programimage.modal.deletedesc}"></p>
+      <form
+        class="usa-form"
+        id="publish-all-modal-form"
+        method="POST"
+        th:action="${model.publishAllUrl}"
+      >
+        <input th:replace="~{admin/shared/CsrfToken}" />
+
+        <!-- Draft programs list -->
+        <div class="cf-admin-publish-references-program">
+          <p>
+            <strong
+              th:text="${model.draftProgramCount} + ' draft ' + ${model.draftProgramLabel} + ' will be published:'"
+            ></strong>
+          </p>
+          <p th:if="${#lists.isEmpty(model.draftProgramsForPublish)}">None</p>
+          <ul th:unless="${#lists.isEmpty(model.draftProgramsForPublish)}">
+            <li th:each="item : ${model.draftProgramsForPublish}">
+              <span th:text="${item.name}"></span>
+              <span th:text="${item.visibilityText}"></span>
+              <span
+                th:if="${item.universalQuestionsText.isPresent()}"
+                th:text="' - ' + ${item.universalQuestionsText.get()}"
+              ></span>
+              <a th:href="${item.editUrl}">Edit</a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Draft questions list -->
+        <div class="cf-admin-publish-references-question">
+          <p>
+            <strong
+              th:text="${model.draftQuestionCount} + ' draft ' + ${model.draftQuestionLabel} + ' will be published:'"
+            ></strong>
+          </p>
+          <p th:if="${#lists.isEmpty(model.draftQuestionsForPublish)}">None</p>
+          <ul th:unless="${#lists.isEmpty(model.draftQuestionsForPublish)}">
+            <li th:each="item : ${model.draftQuestionsForPublish}">
+              <span th:text="${item.name}"></span>
+              <span> - </span>
+              <a th:href="${item.editUrl}">Edit</a>
+            </li>
+          </ul>
+        </div>
+      </form>
+    </div>
+    <div slot="buttons">
+      <cf:button
+        data-action="ok"
+        type="submit"
+        form="publish-all-modal-form"
+        text="Publish all draft programs and questions"
+      />
+
+      <cf:button
+        data-action="cancel"
+        variant="outline"
+        th:text="#{admin.common.button.cancel}"
+      />
+    </div>
+  </wc-modal>
+</th:block>
+
+<!--/*@thymesVar id="program" type="views.admin.programs.ProgramIndexPageViewModel.ProgramCardData"*/-->
+<th:block
+  th:fragment="program-card(program)"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <div
+    th:data-program-name="${program.programName}"
+    class="cf-admin-program-card bg-white margin-bottom-2 border-1px border-base-light display-flex flex-column radius-lg overflow-hidden"
+  >
+    <div class="padding-2">
+      <div class="grid-row grid-gap-2">
+        <div class="grid-col-12 desktop:grid-col-2">
+          <div
+            class="gg-image-placeholder border-1px radius-md border-dotted display-flex flex-align-center flex-justify-center"
+          >
+            {PlaceholderName}
+          </div>
+        </div>
+        <div class="grid-col-12 desktop:grid-col-6">
+          <h2
+            class="margin-0 padding-0 font-sans-sm"
+            th:text="${program.programName}"
+          ></h2>
+          <p
+            class="usa-prose cf-program-description"
+            th:text="${program.shortDescription}"
+          ></p>
+        </div>
+        <div class="grid-col-12 desktop:grid-col-4">
+          <!--/*
+          <div th:if="${program.programType != 'default'}">
+            <strong th:text="#{admin.common.label.type}"></strong>
+            <span
+              th:text="${program.programType == 'common_intake_form'} ? #{admin.common.type.prescreener} : #{admin.common.type.external}"
+            ></span>
+          </div>
+          */-->
+          <div
+            class="text-bold"
+            th:text="${program.programTypeIndicator}"
+          ></div>
+          <div>
+            <strong th:text="#{admin.common.label.adminname}"></strong>
+            <span th:text="${program.adminName}"></span>
+          </div>
+          <div>
+            <strong>Visibility state: </strong>
+            <span>Public</span>
+          </div>
+          <div>
+            <strong>Categories: </strong>
+            <span
+              th:text="${#lists.isEmpty(program.getCategories()) ? 'None' : #strings.listJoin(program.getCategories(), ', ')}"
+            ></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      th:if="${program.draft.isPresent()}"
+      data-lifecycle-stage="draft"
+      class="padding-2 bg-gray-2 border-top-1px border-base-light"
+    >
+      <div class="grid-row grid-gap-2">
+        <div
+          class="grid-col-12 desktop:grid-col-2 desktop:display-flex flex-align-center desktop:flex-justify-center"
+        >
+          <span
+            class="tag tag-draft font-ui-xs"
+            th:text="#{admin.common.tag.draft}"
+          ></span>
+        </div>
+        <div class="grid-col-12 desktop:grid-col-3">
+          <div>
+            Edited on <strong>2025/08/21</strong> at
+            <strong>10:22 AM PDT</strong>
+          </div>
+        </div>
+        <div class="grid-col-12 desktop:grid-col-3">
+          <div><strong>3</strong> screens, <strong>11</strong> questions</div>
+          <div
+            th:if="${program.draft.get().universalQuestionsText.isPresent()}"
+            th:text="${program.draft.get().universalQuestionsText.get()}"
+          ></div>
+        </div>
+        <div
+          class="grid-col-12 desktop:grid-col-4 desktop:display-flex flex-align-center desktop:flex-justify-end"
+        >
+          <ul class="usa-button-group">
+            <li
+              class="usa-button-group__item"
+              th:with="publishModalId=${'publish-id-' + #strings.randomAlphanumeric(8) + '-modal'},
+                         publishFormId=${publishModalId} + 'form'"
+            >
+              <a
+                class="usa-button usa-button--unstyled"
+                th:text="#{programindex.link.publish}"
+                data-open-modal
+                th:aria-controls="${publishModalId}"
+              />
+              <wc-modal
+                hidden
+                th:id="${publishModalId} + '-container'"
+                th:modal-id="${publishModalId}"
+                th:heading-text="${program.getPublishHeadingText()}"
+              >
+                <div slot="description">
+                  <form
+                    class="usa-form"
+                    th:id="${publishFormId}"
+                    method="POST"
+                    th:action="${program.draft.get().publishUrl}"
+                  >
+                    <th:block
+                      th:if="${!program.draft.get().usesAllUniversalQuestions && !program.draft.get().isExternalProgram}"
+                    >
+                      <cf:alert type="warning" slim="true">
+                        <text
+                          >Warning: This program does not use all recommended
+                          universal questions.</text
+                        >
+                      </cf:alert>
+                      <p>
+                        We recommend using all universal questions when possible
+                        to create consistent reuse of data and question
+                        formatting.
+                      </p>
+                    </th:block>
+                    <input th:replace="~{admin/shared/CsrfToken}" />
+                  </form>
+                </div>
+                <div slot="buttons">
+                  <cf:button
+                    data-action="ok"
+                    type="submit"
+                    th:form="${publishFormId}"
+                    text="Publish"
+                  />
+
+                  <cf:button
+                    data-action="cancel"
+                    variant="outline"
+                    th:text="#{admin.common.button.cancel}"
+                  />
+                </div>
+              </wc-modal>
+            </li>
+            <li class="usa-button-group__item">
+              <a
+                th:href="${program.draft.get().editUrl}"
+                class="usa-button usa-button--unstyled"
+                th:text="#{admin.common.button.edit}"
+              ></a>
+            </li>
+            <li
+              class="usa-button-group__item display-flex flex-justify-center"
+              th:with="contextMenuId=${'context-id-' + #strings.randomAlphanumeric(8)}"
+            >
+              <cf:button
+                data-context-menu
+                variant="unstyled"
+                th:id="${contextMenuId}"
+                aria-label="More options"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <circle cx="8" cy="3" r="1.5" />
+                  <circle cx="8" cy="8" r="1.5" />
+                  <circle cx="8" cy="13" r="1.5" />
+                </svg>
+              </cf:button>
+              <wc-ellipsis-menu hidden th:trigger="${contextMenuId}">
+                <menu>
+                  <li>
+                    <a
+                      th:href="${program.draft.get().manageTranslationsUrl}"
+                      th:text="#{admin.common.button.managetranslations}"
+                    ></a>
+                  </li>
+                  <li th:unless="${program.draft.get().externalProgram}">
+                    <a
+                      th:href="${program.draft.get().manageStatusesUrl}"
+                      th:text="#{programindex.link.managestatuses}"
+                    ></a>
+                  </li>
+                  <li th:unless="${program.draft.get().externalProgram}">
+                    <a
+                      th:href="${program.draft.get().manageProgramAdminsUrl}"
+                      th:text="#{programindex.link.manageprogramadmins}"
+                    ></a>
+                  </li>
+                  <li th:unless="${program.draft.get().externalProgram}">
+                    <a
+                      th:href="${program.draft.get().exportUrl}"
+                      th:text="#{programindex.link.export}"
+                    ></a>
+                  </li>
+                </menu>
+              </wc-ellipsis-menu>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div
+      th:if="${program.active.isPresent()}"
+      data-lifecycle-stage="active"
+      class="padding-2 bg-gray-2 border-top-1px border-base-light"
+    >
+      <div class="grid-row grid-gap-2">
+        <div
+          class="grid-col-12 desktop:grid-col-2 desktop:display-flex flex-align-center desktop:flex-justify-center"
+        >
+          <span
+            class="tag tag-active font-ui-xs"
+            th:text="#{admin.common.tag.active}"
+          ></span>
+        </div>
+        <div class="grid-col-12 desktop:grid-col-3">
+          <div>
+            Published on <strong>2025/08/21</strong> at
+            <strong>10:22 AM PDT</strong>
+          </div>
+        </div>
+        <div class="grid-col-12 desktop:grid-col-3">
+          <div><strong>3</strong> screens, <strong>11</strong> questions</div>
+          <div
+            th:if="${program.active.get().universalQuestionsText.isPresent()}"
+            th:text="${program.active.get().universalQuestionsText.get()}"
+          ></div>
+        </div>
+        <div
+          class="grid-col-12 desktop:grid-col-4 desktop:display-flex flex-align-center desktop:flex-justify-end"
+        >
+          <ul class="usa-button-group">
+            <li class="usa-button-group__item">
+              <a
+                th:href="${program.active.get().viewUrl}"
+                class="usa-link"
+                th:text="#{programindex.link.view}"
+              ></a>
+            </li>
+            <li
+              class="usa-button-group__item"
+              th:if="${program.active.get().shareLink.isPresent()}"
+            >
+              <a
+                th:href="${program.active.get().shareLink.get()}"
+                class="usa-link"
+                target="_blank"
+                th:text="#{programindex.link.share}"
+              ></a>
+            </li>
+            <li
+              class="usa-button-group__item display-flex flex-justify-center"
+              th:with="contextMenuId=${'context-id-' + #strings.randomAlphanumeric(8)}"
+            >
+              <cf:button
+                data-context-menu
+                variant="unstyled"
+                th:id="${contextMenuId}"
+                aria-label="More options"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <circle cx="8" cy="3" r="1.5" />
+                  <circle cx="8" cy="8" r="1.5" />
+                  <circle cx="8" cy="13" r="1.5" />
+                </svg>
+              </cf:button>
+              <wc-ellipsis-menu hidden th:trigger="${contextMenuId}">
+                <menu>
+                  <li th:if="${!program.active.get().hasDraft}">
+                    <form
+                      th:action="${program.active.get().newVersionUrl}"
+                      method="POST"
+                    >
+                      <input th:replace="~{admin/shared/CsrfToken}" />
+                      <button
+                        type="submit"
+                        th:text="#{admin.common.button.edit}"
+                      ></button>
+                    </form>
+                  </li>
+                  <li th:unless="${program.active.get().externalProgram}">
+                    <a
+                      th:href="${program.active.get().applicationsUrl}"
+                      th:text="${program.active.get().preScreenerForm} ? #{programindex.link.forms} : #{programindex.link.applications}"
+                    ></a>
+                  </li>
+                  <li
+                    th:if="${!program.active.get().hasDraft and program.active.get().manageTranslationsUrl.isPresent()}"
+                  >
+                    <a
+                      th:href="${program.active.get().manageTranslationsUrl.get()}"
+                      th:text="#{admin.common.button.managetranslations}"
+                    ></a>
+                  </li>
+                  <li th:unless="${program.active.get().externalProgram}">
+                    <a
+                      th:href="${program.active.get().manageProgramAdminsUrl}"
+                      th:text="#{programindex.link.manageprogramadmins}"
+                    ></a>
+                  </li>
+                  <li th:unless="${program.active.get().externalProgram}">
+                    <a
+                      th:href="${program.active.get().exportUrl}"
+                      th:text="#{programindex.link.export}"
+                    ></a>
+                  </li>
+                </menu>
+              </wc-ellipsis-menu>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</th:block>
+
+<th:block th:fragment="scripts">
+  <script th:nonce="${templateGlobals.cspNonce()}">
+    document.addEventListener('DOMContentLoaded', () => {
+      document
+        .querySelectorAll('[id^="publish-id-"][id$="-modal-container"]')
+        .forEach((modalEl) => {
+          modalEl.addEventListener('modal:action-selected', (e) => {
+            if (e.detail.action !== 'ok') {
+              e.preventDefault()
+              return
+            }
+          })
+        })
+    })
+  </script>
+</th:block>

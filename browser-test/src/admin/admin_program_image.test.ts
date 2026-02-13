@@ -119,9 +119,11 @@ test.describe('Admin can manage program image', () => {
       await adminPrograms.gotoEditDraftProgramPage(programName)
       await adminPrograms.goToProgramImagePage(programName)
 
-      await adminProgramImage.clickBackButton()
+      await test.step('click back button', async () => {
+        await adminProgramImage.clickBackButton()
+      })
 
-      await adminPrograms.expectProgramBlockEditPage()
+      await adminPrograms.expectProgramBlockEditPage(programName)
     })
 
     test('back button redirects to details page if came from create program page', async ({
@@ -182,7 +184,7 @@ test.describe('Admin can manage program image', () => {
 
       await adminProgramImage.clickContinueButton()
 
-      await adminPrograms.expectProgramBlockEditPage()
+      await adminPrograms.expectProgramBlockEditPage(programName)
     })
 
     test('continue button hides if from edit program image page', async ({

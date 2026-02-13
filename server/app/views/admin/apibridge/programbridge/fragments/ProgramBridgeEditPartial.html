@@ -2,11 +2,7 @@
 <!--/*@thymesVar id="model" type="views.admin.apibridge.programbridge.fragments.ProgramBridgeEditPartialViewModel"*/-->
 <th:block th:fragment="content">
   <form method="post" th:action="${model.getSaveUrl()}">
-    <input
-      type="hidden"
-      th:value="${templateGlobals.csrfToken()}"
-      name="csrfToken"
-    />
+    <input th:replace="~{admin/shared/CsrfToken}" />
     <input
       type="hidden"
       th:value="${model.bridgeConfiguration().adminName()}"

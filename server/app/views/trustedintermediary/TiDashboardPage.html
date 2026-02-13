@@ -1,0 +1,222 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.trustedintermediary.TiDashboardPageViewModel"*/-->
+<th:block th:fragment="content" xmlns:th="http://www.thymeleaf.org">
+  <!--/* Tab navigation */-->
+  <nav aria-label="Trusted Intermediary" data-testid="ti-nav">
+    <a
+      id="client-list-link"
+      th:href="${model.clientListUrl}"
+      aria-current="page"
+      class="usa-button"
+      >Client List</a
+    >
+    <a
+      id="account-settings-link"
+      th:href="${model.accountSettingsUrl}"
+      class="usa-button usa-button--outline"
+      >Account Settings</a
+    >
+  </nav>
+
+  <!--/* Header with Add New Client */-->
+  <div class="display-flex flex-justify flex-align-center">
+    <h2>All Clients</h2>
+    <a id="add-new-client" class="usa-button" th:href="${model.addNewClientUrl}"
+      >Add new client</a
+    >
+  </div>
+
+  <!--/* Search form */-->
+  <h4>Search</h4>
+  <form id="ti-search-form" method="GET" th:action="${model.dashboardUrl}">
+    <div class="display-flex flex-align-end">
+      <div>
+        <label class="usa-label" id="name-search" for="name-query"
+          >Search by name</label
+        >
+        <span class="usa-hint">For example: Last name, First name</span>
+        <input
+          class="usa-input"
+          id="name-query"
+          name="nameQuery"
+          th:value="${model.searchNameQuery}"
+        />
+      </div>
+      <div class="margin-left-3">
+        <legend class="usa-legend">Search by date of birth</legend>
+        <span class="usa-hint" id="mdHint">For example: 01/19/2000</span>
+        <div class="usa-memorable-date">
+          <div class="usa-form-group usa-form-group--month">
+            <label class="usa-label" for="monthQuery">Month</label>
+            <input
+              class="usa-input usa-input--inline"
+              id="monthQuery"
+              name="monthQuery"
+              type="text"
+              maxlength="2"
+              pattern="[0-9]*"
+              inputmode="numeric"
+              th:value="${model.searchMonthQuery}"
+            />
+          </div>
+          <div class="usa-form-group usa-form-group--day">
+            <label class="usa-label" for="dayQuery">Day</label>
+            <input
+              class="usa-input usa-input--inline"
+              id="dayQuery"
+              name="dayQuery"
+              type="text"
+              maxlength="2"
+              pattern="[0-9]*"
+              inputmode="numeric"
+              th:value="${model.searchDayQuery}"
+            />
+          </div>
+          <div class="usa-form-group usa-form-group--year">
+            <label class="usa-label" for="yearQuery">Year</label>
+            <input
+              class="usa-input usa-input--inline"
+              id="yearQuery"
+              name="yearQuery"
+              type="text"
+              minlength="4"
+              maxlength="4"
+              pattern="[0-9]*"
+              inputmode="numeric"
+              th:value="${model.searchYearQuery}"
+            />
+          </div>
+        </div>
+      </div>
+      <input
+        type="hidden"
+        name="csrfToken"
+        th:value="${templateGlobals.csrfToken()}"
+      />
+      <button
+        type="submit"
+        class="usa-button usa-button--outline margin-left-3"
+      >
+        Search
+      </button>
+    </div>
+  </form>
+
+  <!--/* Search results info */-->
+  <div
+    class="display-flex flex-align-center margin-bottom-2"
+    th:if="${model.validSearch}"
+  >
+    <h3
+      th:text="${model.displayingClientsText}"
+      data-testid="displaying-clients"
+      class="margin-right-3"
+    ></h3>
+    <a th:href="${model.clearSearchUrl}">Clear search</a>
+  </div>
+
+  <!--/* Client cards */-->
+  <ul class="usa-card-group">
+    <li class="usa-card grid-col-12" th:each="client : ${model.clients}">
+      <div class="usa-card__container">
+        <div class="usa-card__header display-flex flex-justify">
+          <div>
+            <div class="display-flex flex-align-center">
+              <h3
+                class="usa-card__heading"
+                th:text="${client.displayName}"
+              ></h3>
+              <a
+                class="margin-left-1 usa-link"
+                th:href="${client.editUrl}"
+                id="edit-client"
+                >Edit</a
+              >
+            </div>
+            <div
+              class="display-flex flex-align-center"
+              th:if="${!client.dateOfBirth.isEmpty()}"
+            >
+              <span th:text="${client.dateOfBirth}"></span>
+            </div>
+          </div>
+          <div th:if="${!client.viewApplicationsUrl.isEmpty()}">
+            <a
+              class="usa-button usa-button--outline"
+              th:id="'act-as-' + ${client.accountId} + '-button'"
+              th:href="${client.viewApplicationsUrl}"
+              >View applications</a
+            >
+          </div>
+        </div>
+        <div class="usa-card__body display-flex">
+          <div>
+            <label>Contact info</label>
+            <div th:if="${client.phoneNumber.isPresent()}">
+              <span th:text="${client.phoneNumber.get()}"></span>
+            </div>
+            <div th:if="${client.email.isPresent()}">
+              <span th:text="${client.email.get()}"></span>
+            </div>
+          </div>
+          <div class="margin-left-5">
+            <label
+              th:text="${model.getApplicationsSubmittedText(client.applicationCount)}"
+            ></label>
+            <p th:text="${client.programNames}"></p>
+          </div>
+          <div class="margin-left-5">
+            <label>Notes</label>
+            <p th:text="${client.tiNote}"></p>
+          </div>
+        </div>
+      </div>
+    </li>
+  </ul>
+
+  <!--/* Pagination */-->
+  <nav
+    th:if="${model.totalPageCount > 1}"
+    class="usa-pagination"
+    aria-label="Pagination"
+  >
+    <ul class="usa-pagination__list">
+      <li
+        class="usa-pagination__item usa-pagination__arrow"
+        th:if="${model.page > 1}"
+      >
+        <a
+          class="usa-pagination__link usa-pagination__previous-page"
+          th:href="${model.getPaginationUrl(model.page - 1)}"
+          aria-label="Previous page"
+        >
+          <span class="usa-pagination__link-text">Previous</span>
+        </a>
+      </li>
+      <li
+        class="usa-pagination__item usa-pagination__page-no"
+        th:each="p : ${#numbers.sequence(1, model.totalPageCount)}"
+      >
+        <a
+          class="usa-pagination__button"
+          th:href="${model.getPaginationUrl(p)}"
+          th:text="${p}"
+          th:aria-label="'Page ' + ${p}"
+          th:classappend="${p == model.page} ? 'usa-current' : ''"
+        ></a>
+      </li>
+      <li
+        class="usa-pagination__item usa-pagination__arrow"
+        th:if="${model.page < model.totalPageCount}"
+      >
+        <a
+          class="usa-pagination__link usa-pagination__next-page"
+          th:href="${model.getPaginationUrl(model.page + 1)}"
+          aria-label="Next page"
+        >
+          <span class="usa-pagination__link-text">Next</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</th:block>

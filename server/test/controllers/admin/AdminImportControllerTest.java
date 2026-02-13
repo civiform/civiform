@@ -28,8 +28,10 @@ import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
+import views.admin.migration.AdminImportPageView;
 import views.admin.migration.AdminImportView;
 import views.admin.migration.AdminImportViewPartial;
 import views.admin.migration.AdminProgramImportForm;
@@ -45,13 +47,15 @@ public class AdminImportControllerTest extends ResetPostgres {
     controller =
         new AdminImportController(
             instanceOf(AdminImportView.class),
+            instanceOf(AdminImportPageView.class),
             instanceOf(AdminImportViewPartial.class),
             instanceOf(FormFactory.class),
             instanceOf(ProfileUtils.class),
             instanceOf(ProgramMigrationService.class),
             instanceOf(VersionRepository.class),
             instanceOf(ProgramRepository.class),
-            instanceOf(ProgramService.class));
+            instanceOf(ProgramService.class),
+            instanceOf(SettingsManifest.class));
     database = DB.getDefault();
   }
 

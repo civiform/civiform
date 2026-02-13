@@ -1,3 +1,5 @@
+import {featureFlags} from '@/global/shared/feature_flags'
+
 /**
  * Toggles the visibility of the modal
  * @param {Element} modalWrapper The wrapper holding the modal
@@ -225,5 +227,8 @@ window.onload = function () {
 }
 
 export function init() {
+  if (featureFlags.isAdminUiMigrationScEnabled) {
+    return
+  }
   new NorthStarModalController()
 }

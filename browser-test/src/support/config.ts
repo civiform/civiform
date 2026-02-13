@@ -7,7 +7,7 @@ export const {
   TEST_USER_PASSWORD = '',
   TEST_USER_DISPLAY_NAME = '',
   TEST_CIVIC_ENTITY_SHORT_NAME = 'TestCity',
-  DISABLE_SCREENSHOTS = false,
+  DISABLE_SCREENSHOTS = true,
   DISABLE_BROWSER_ERROR_WATCHER = false,
   // This value was extracted from the browser test env via:
   //

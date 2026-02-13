@@ -8,6 +8,7 @@ import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.typesafe.config.Config;
 import controllers.CiviFormController;
 import controllers.FlashKey;
 import forms.ProgramForm;
@@ -15,6 +16,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
+import mapping.admin.programs.ProgramEditPageMapper;
+import mapping.admin.programs.ProgramIndexPageMapper;
+import mapping.admin.programs.ProgramNewOnePageMapper;
 import models.ApplicationStep;
 import models.ProgramModel;
 import models.ProgramTab;
@@ -24,20 +28,31 @@ import play.data.FormFactory;
 import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.AccountRepository;
+import repository.CategoryRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
+import services.program.ActiveAndDraftPrograms;
 import services.program.CantPublishProgramWithSharedQuestionsException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
+import services.question.ActiveAndDraftQuestions;
 import services.question.QuestionService;
+import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
+import views.admin.programs.ProgramEditPageView;
+import views.admin.programs.ProgramEditPageViewModel;
 import views.admin.programs.ProgramEditStatus;
+import views.admin.programs.ProgramIndexPageView;
+import views.admin.programs.ProgramIndexPageViewModel;
 import views.admin.programs.ProgramIndexView;
 import views.admin.programs.ProgramMetaDataEditView;
+import views.admin.programs.ProgramNewOnePageView;
+import views.admin.programs.ProgramNewOnePageViewModel;
 import views.admin.programs.ProgramNewOneView;
 import views.components.ToastMessage;
 
@@ -47,36 +62,54 @@ public final class AdminProgramController extends CiviFormController {
   private final ProgramService programService;
   private final QuestionService questionService;
   private final ProgramIndexView listView;
+  private final ProgramIndexPageView indexPageView;
   private final ProgramNewOneView newOneView;
+  private final ProgramNewOnePageView newOnePageView;
+  private final ProgramEditPageView editPageView;
   private final ProgramMetaDataEditView editView;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
   private final MessagesApi messagesApi;
   private final SettingsManifest settingsManifest;
+  private final AccountRepository accountRepository;
+  private final CategoryRepository categoryRepository;
+  private final String baseUrl;
 
   @Inject
   public AdminProgramController(
       ProgramService programService,
       QuestionService questionService,
       ProgramIndexView listView,
+      ProgramIndexPageView indexPageView,
       ProgramNewOneView newOneView,
+      ProgramNewOnePageView newOnePageView,
+      ProgramEditPageView editPageView,
       ProgramMetaDataEditView editView,
       VersionRepository versionRepository,
       ProfileUtils profileUtils,
       FormFactory formFactory,
       RequestChecker requestChecker,
       MessagesApi messagesApi,
-      SettingsManifest settingsManifest) {
+      SettingsManifest settingsManifest,
+      AccountRepository accountRepository,
+      CategoryRepository categoryRepository,
+      Config config) {
     super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
     this.listView = checkNotNull(listView);
+    this.indexPageView = checkNotNull(indexPageView);
     this.newOneView = checkNotNull(newOneView);
+    this.newOnePageView = checkNotNull(newOnePageView);
+    this.editPageView = checkNotNull(editPageView);
     this.editView = checkNotNull(editView);
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
     this.messagesApi = checkNotNull(messagesApi);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.accountRepository = checkNotNull(accountRepository);
+    this.categoryRepository = checkNotNull(categoryRepository);
+    this.baseUrl = checkNotNull(config).getString("base_url");
   }
 
   /**
@@ -85,6 +118,11 @@ public final class AdminProgramController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Request request) {
+    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+      ActiveAndDraftPrograms programs = programService.getInUseActiveAndDraftPrograms();
+      ProgramIndexPageViewModel model = buildIndexViewModel(request, programs, ProgramTab.IN_USE);
+      return ok(indexPageView.render(request, model)).as(play.mvc.Http.MimeTypes.HTML);
+    }
     Optional<CiviFormProfile> profileMaybe = profileUtils.optionalCurrentUserProfile(request);
     return ok(
         listView.render(
@@ -101,6 +139,14 @@ public final class AdminProgramController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result indexDisabled(Request request) {
+    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+      ProgramIndexPageViewModel model =
+          buildIndexViewModel(
+              request,
+              programService.getDisabledActiveAndDraftProgramsWithoutQuestionLoad(),
+              ProgramTab.DISABLED);
+      return ok(indexPageView.render(request, model)).as(play.mvc.Http.MimeTypes.HTML);
+    }
     Optional<CiviFormProfile> profileMaybe = profileUtils.optionalCurrentUserProfile(request);
     return ok(
         listView.render(
@@ -114,6 +160,16 @@ public final class AdminProgramController extends CiviFormController {
   /** Returns an HTML page containing a form to create a new program in the draft version. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result newOne(Request request) {
+    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+      ProgramNewOnePageMapper mapper = new ProgramNewOnePageMapper();
+      ProgramNewOnePageViewModel model =
+          mapper.map(
+              categoryRepository.listCategories(),
+              accountRepository.listTrustedIntermediaryGroups(),
+              settingsManifest.getExternalProgramCardsEnabled(),
+              Optional.empty());
+      return ok(newOnePageView.render(request, model)).as(play.mvc.Http.MimeTypes.HTML);
+    }
     return ok(newOneView.render(request));
   }
 
@@ -146,6 +202,16 @@ public final class AdminProgramController extends CiviFormController {
             programData.getProgramType());
     if (!errors.isEmpty()) {
       ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(errors));
+      if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+        ProgramNewOnePageViewModel model =
+            new ProgramNewOnePageMapper()
+                .map(
+                    categoryRepository.listCategories(),
+                    accountRepository.listTrustedIntermediaryGroups(),
+                    settingsManifest.getExternalProgramCardsEnabled(),
+                    Optional.of("ERROR"));
+        return ok(newOnePageView.render(request, model)).as(play.mvc.Http.MimeTypes.HTML);
+      }
       return ok(newOneView.render(request, programData, message));
     }
 
@@ -184,6 +250,16 @@ public final class AdminProgramController extends CiviFormController {
     // again just in case.
     if (result.isError()) {
       ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
+      if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+        ProgramNewOnePageViewModel model =
+            new ProgramNewOnePageMapper()
+                .map(
+                    categoryRepository.listCategories(),
+                    accountRepository.listTrustedIntermediaryGroups(),
+                    settingsManifest.getExternalProgramCardsEnabled(),
+                    Optional.of("ERROR"));
+        return ok(newOnePageView.render(request, model)).as(play.mvc.Http.MimeTypes.HTML);
+      }
       return ok(newOneView.render(request, programData, message));
     }
 
@@ -199,7 +275,22 @@ public final class AdminProgramController extends CiviFormController {
   public Result edit(Request request, long id, String editStatus) throws ProgramNotFoundException {
     ProgramDefinition program = programService.getFullProgramDefinition(id);
     requestChecker.throwIfProgramNotDraft(id);
-    return ok(editView.render(request, program, ProgramEditStatus.getStatusFromString(editStatus)));
+    ProgramEditStatus editStatusEnum = ProgramEditStatus.getStatusFromString(editStatus);
+
+    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+      ProgramEditPageMapper editMapper = new ProgramEditPageMapper();
+      ProgramEditPageViewModel model =
+          editMapper.map(
+              program,
+              editStatusEnum,
+              categoryRepository.listCategories(),
+              accountRepository.listTrustedIntermediaryGroups(),
+              settingsManifest.getExternalProgramCardsEnabled(),
+              baseUrl,
+              Optional.empty());
+      return ok(editPageView.render(request, model)).as(play.mvc.Http.MimeTypes.HTML);
+    }
+    return ok(editView.render(request, program, editStatusEnum));
   }
 
   /** POST endpoint for publishing all programs in the draft version. */
@@ -289,6 +380,19 @@ public final class AdminProgramController extends CiviFormController {
             programData.getProgramType());
     if (!validationErrors.isEmpty()) {
       ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(validationErrors));
+      if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+        ProgramEditPageViewModel model =
+            new ProgramEditPageMapper()
+                .map(
+                    programDefinition,
+                    programEditStatus,
+                    categoryRepository.listCategories(),
+                    accountRepository.listTrustedIntermediaryGroups(),
+                    settingsManifest.getExternalProgramCardsEnabled(),
+                    baseUrl,
+                    Optional.of("ERROR"));
+        return ok(editPageView.render(request, model)).as(play.mvc.Http.MimeTypes.HTML);
+      }
       return ok(
           editView.render(request, programDefinition, programEditStatus, programData, message));
     }
@@ -358,5 +462,42 @@ public final class AdminProgramController extends CiviFormController {
               return new ApplicationStep(step.get("title"), step.get("description"));
             })
         .collect(ImmutableList.toImmutableList());
+  }
+
+  private ProgramIndexPageViewModel buildIndexViewModel(
+      Request request, ActiveAndDraftPrograms programs, ProgramTab selectedTab) {
+    String civicEntityName = settingsManifest.getWhitelabelCivicEntityShortName(request).orElse("");
+
+    ActiveAndDraftQuestions questions =
+        questionService.getReadOnlyQuestionServiceSync().getActiveAndDraftQuestions();
+
+    ImmutableList<Long> universalQuestionIds =
+        questionService.getReadOnlyQuestionServiceSync().getUpToDateQuestions().stream()
+            .filter(QuestionDefinition::isUniversal)
+            .map(QuestionDefinition::getId)
+            .collect(ImmutableList.toImmutableList());
+
+    ActiveAndDraftPrograms allPrograms =
+        programService.getActiveAndDraftProgramsWithoutQuestionLoad();
+
+    ImmutableList<QuestionDefinition> draftQuestions =
+        questionService
+            .getReadOnlyQuestionServiceSync()
+            .getActiveAndDraftQuestions()
+            .getDraftQuestions();
+
+    ProgramIndexPageMapper indexMapper = new ProgramIndexPageMapper();
+    return indexMapper.map(
+        programs,
+        questions,
+        selectedTab,
+        civicEntityName,
+        universalQuestionIds,
+        allPrograms,
+        draftQuestions,
+        baseUrl,
+        programService,
+        request.flash().get(FlashKey.SUCCESS),
+        request.flash().get(FlashKey.ERROR));
   }
 }

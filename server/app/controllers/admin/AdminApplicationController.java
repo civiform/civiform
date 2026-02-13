@@ -25,6 +25,8 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
+import mapping.admin.programs.ProgramApplicationShowPageMapper;
+import mapping.admin.programs.ProgramApplicationTablePageMapper;
 import models.ApplicationModel;
 import models.LifecycleStage;
 import org.pac4j.play.java.Secure;
@@ -62,6 +64,10 @@ import services.statuses.StatusDefinitions;
 import services.statuses.StatusNotFoundException;
 import services.statuses.StatusService;
 import views.ApplicantUtils;
+import views.admin.programs.ProgramApplicationShowPageView;
+import views.admin.programs.ProgramApplicationShowPageViewModel;
+import views.admin.programs.ProgramApplicationTablePageView;
+import views.admin.programs.ProgramApplicationTablePageViewModel;
 import views.admin.programs.ProgramApplicationTableView;
 import views.admin.programs.ProgramApplicationTableView.RenderFilterParams;
 import views.admin.programs.ProgramApplicationView;
@@ -85,7 +91,10 @@ public final class AdminApplicationController extends CiviFormController {
   private final DateConverter dateConverter;
   private final StatusService statusService;
   private final ProgramApplicationTableView tableView;
+  private final ProgramApplicationTablePageView tablePageView;
+  private final ProgramApplicationShowPageView showPageView;
   private final SettingsManifest settingsManifest;
+  private final ApplicantUtils applicantUtils;
 
   public enum RelativeTimeOfDay {
     UNKNOWN,
@@ -112,7 +121,10 @@ public final class AdminApplicationController extends CiviFormController {
       VersionRepository versionRepository,
       StatusService statusService,
       ProgramApplicationTableView tableView,
-      SettingsManifest settingsManifest) {
+      ProgramApplicationTablePageView tablePageView,
+      ProgramApplicationShowPageView showPageView,
+      SettingsManifest settingsManifest,
+      ApplicantUtils applicantUtils) {
     super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
     this.applicantService = checkNotNull(applicantService);
@@ -127,7 +139,10 @@ public final class AdminApplicationController extends CiviFormController {
     this.dateConverter = checkNotNull(dateConverter);
     this.statusService = checkNotNull(statusService);
     this.tableView = checkNotNull(tableView);
+    this.tablePageView = checkNotNull(tablePageView);
+    this.showPageView = checkNotNull(showPageView);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.applicantUtils = checkNotNull(applicantUtils);
   }
 
   /** Download a JSON file containing all applications to all versions of the specified program. */
@@ -347,6 +362,35 @@ public final class AdminApplicationController extends CiviFormController {
     ImmutableList<Block> blocks = roApplicantService.getAllActiveBlocks();
     ImmutableList<AnswerData> answers = roApplicantService.getSummaryDataOnlyActiveForAdmin();
     Optional<String> noteMaybe = programAdminApplicationService.getNote(application);
+    StatusDefinitions statusDefinitions = statusService.lookupActiveStatusDefinitions(programName);
+    CiviFormProfile profile = profileUtils.currentUserProfile(request);
+
+    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+      boolean showDownloadButton =
+          !(settingsManifest.getRemoveDownloadForProgramAdminsEnabled(request)
+              && profile.isOnlyProgramAdmin());
+      ProgramApplicationShowPageViewModel model =
+          new ProgramApplicationShowPageMapper()
+              .map(
+                  programId,
+                  programName,
+                  application,
+                  applicantNameWithApplicationId,
+                  blocks,
+                  answers,
+                  statusDefinitions,
+                  noteMaybe,
+                  program.hasEligibilityEnabled(),
+                  showDownloadButton,
+                  dateConverter,
+                  search,
+                  fromDate,
+                  toDate,
+                  page,
+                  selectedApplicationStatus,
+                  request.flash().get(FlashKey.SUCCESS));
+      return ok(showPageView.render(request, model)).as(Http.MimeTypes.HTML);
+    }
 
     return ok(
         applicationView.render(
@@ -356,10 +400,10 @@ public final class AdminApplicationController extends CiviFormController {
             applicantNameWithApplicationId,
             blocks,
             answers,
-            statusService.lookupActiveStatusDefinitions(programName),
+            statusDefinitions,
             noteMaybe,
             program.hasEligibilityEnabled(),
-            profileUtils.currentUserProfile(request),
+            profile,
             request,
             search,
             fromDate,
@@ -536,13 +580,41 @@ public final class AdminApplicationController extends CiviFormController {
     PaginationResult<ApplicationModel> applications =
         programService.getSubmittedProgramApplicationsAllVersions(
             programId, paginationSpec, filters);
+
+    ImmutableList<String> allStatuses = getAllApplicationStatusesForProgram(program.id());
+
+    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+      boolean showDownloadButton =
+          !(settingsManifest.getRemoveDownloadForProgramAdminsEnabled(request)
+              && profile.isOnlyProgramAdmin());
+      ProgramApplicationTablePageViewModel model =
+          new ProgramApplicationTablePageMapper()
+              .map(
+                  program,
+                  activeStatusDefinitions,
+                  allStatuses,
+                  paginationSpec,
+                  applications,
+                  search,
+                  fromDate,
+                  untilDate,
+                  applicationStatus,
+                  showDownloadModal,
+                  message,
+                  showDownloadButton,
+                  dateConverter,
+                  applicantUtils,
+                  applicantService);
+      return ok(tablePageView.render(request, model)).as(Http.MimeTypes.HTML);
+    }
+
     return ok(
         tableView.render(
             request,
             profile,
             program,
             activeStatusDefinitions,
-            getAllApplicationStatusesForProgram(program.id()),
+            allStatuses,
             paginationSpec,
             applications,
             RenderFilterParams.builder()

@@ -3,6 +3,9 @@
  * accessed by CiviForm and Program admins.
  */
 import '@/components/shared/modal'
+import '@/components/shared/ellipsis_menu'
+import '@/components/shared/tray'
+import '@/components/shared/toggle'
 import * as main from '@/main'
 import * as radio from '@/radio'
 import * as toast from '@/toast'
@@ -35,6 +38,8 @@ import * as azureUpload from '@/azure_upload'
 import htmx from '@/htmx'
 
 import {AdminProgramApiBridge} from '@/admin_program_api_bridge'
+import {FormValidation} from '@/global/shared/form_validation'
+import {featureFlags} from '@/global/shared/feature_flags'
 
 // Ensure the object path exists
 window.app = window.app || {}
@@ -55,34 +60,61 @@ window.addEventListener('load', () => {
 function initializeEverything(): void {
   const AZURE_ADMIN_FILEUPLOAD_FORM_ID = 'image-file-upload-form'
 
-  main.init()
-  radio.init()
-  toast.init()
-  toggle.init()
-  adminApiKeys.init()
-  adminApplicationView.init()
-  legacyAdminPredicates.init()
-  adminPredicateEdit.init()
-  adminProgramImage.init()
-  adminPrograms.init()
-  adminProgramStatusesView.init()
-  adminSettingsView.init()
-  adminValidation.init()
-  apiDocs.init()
-  devIcons.init()
-  modal.init()
-  northStarModal.init()
-  questionBank.init()
-  preview.init()
-  enumerator.init()
-  phoneNumber.init()
-  adminQuestionEdit.init()
-  adminExportView.init()
-  adminImportView.init()
-  trustedIntermediaryController.init()
-  fileUpload.init()
-  azureUpload.init(AZURE_ADMIN_FILEUPLOAD_FORM_ID)
-  SessionTimeoutHandler.init()
+  if (featureFlags.isAdminUiMigrationScEnabled) {
+    main.init()
+    legacyAdminPredicates.init()
+    adminPredicateEdit.init()
+    adminProgramImage.init()
+    adminPrograms.init()
+    adminProgramStatusesView.init()
+    adminSettingsView.init()
+    adminValidation.init()
+    apiDocs.init()
+    questionBank.init()
+    preview.init()
+    // enumerator.init()
+    // phoneNumber.init()
+    adminQuestionEdit.init()
+    adminExportView.init()
+    adminImportView.init()
+    // trustedIntermediaryController.init()
+    fileUpload.init()
+    azureUpload.init(AZURE_ADMIN_FILEUPLOAD_FORM_ID)
+    SessionTimeoutHandler.init()
+    new FormValidation().init()
+    document.body.dataset.loadMain = 'true'
+    document.body.dataset.loadModal = 'true'
+  } else {
+    main.init()
+    radio.init()
+    toast.init()
+    toggle.init()
+    adminApiKeys.init()
+    adminApplicationView.init()
+    legacyAdminPredicates.init()
+    adminPredicateEdit.init()
+    adminProgramImage.init()
+    adminPrograms.init()
+    adminProgramStatusesView.init()
+    adminSettingsView.init()
+    adminValidation.init()
+    apiDocs.init()
+    devIcons.init()
+    modal.init()
+    northStarModal.init()
+    questionBank.init()
+    preview.init()
+    enumerator.init()
+    phoneNumber.init()
+    adminQuestionEdit.init()
+    adminExportView.init()
+    adminImportView.init()
+    trustedIntermediaryController.init()
+    fileUpload.init()
+    azureUpload.init(AZURE_ADMIN_FILEUPLOAD_FORM_ID)
+    SessionTimeoutHandler.init()
+    new FormValidation().init()
+  }
 }
 
 function afterSettle(): void {

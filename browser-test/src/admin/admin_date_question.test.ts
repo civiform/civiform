@@ -16,14 +16,17 @@ test.describe('Create date question with validation parameters', () => {
       await waitForPageJsLoad(page)
     })
 
+    const minDateLocator = page.getByRole('combobox', {name: 'Start date'})
+    const maxDateLocator = page.getByRole('combobox', {name: 'End date'})
+
     await test.step('Expect default min and max date types are shown', async () => {
       // Verify validation parameters section is visible
       const questionSettings = page.getByTestId('question-settings')
       await expect(questionSettings).toContainText('Validation parameters')
 
       // Verify default values are selected
-      expect(await page.locator('#min-date-type').inputValue()).toContain('ANY')
-      expect(await page.locator('#max-date-type').inputValue()).toContain('ANY')
+      await expect(minDateLocator).toHaveValue('ANY')
+      await expect(maxDateLocator).toHaveValue('ANY')
 
       // Verify date pickers are not visible
       await expect(page.locator('#min-custom-date-fieldset')).toBeHidden()
@@ -115,16 +118,23 @@ test.describe('Create date question with validation parameters', () => {
       })
     })
 
+    const minDateLocator = page.getByRole('combobox', {name: 'Start date'})
+    const maxDateLocator = page.getByRole('combobox', {name: 'End date'})
+
     await test.step('Edit question to add date validation settings and save', async () => {
       await adminQuestions.gotoQuestionEditPage(questionName)
       await waitForPageJsLoad(page)
+
       // Set min date to custom date
-      await page.selectOption('#min-date-type', {value: 'CUSTOM'})
+      await minDateLocator.selectOption('CUSTOM')
+
       await page.locator('#min-custom-date-day').fill('3')
       await page.locator('#min-custom-date-month').selectOption('4')
       await page.locator('#min-custom-date-year').fill('2024')
+
       // Set max date to application date
-      await page.selectOption('#max-date-type', {value: 'APPLICATION_DATE'})
+      await maxDateLocator.selectOption('APPLICATION_DATE')
+
       await adminQuestions.clickSubmitButtonAndNavigate('Update')
     })
 
@@ -135,17 +145,16 @@ test.describe('Create date question with validation parameters', () => {
       await waitForPageJsLoad(page)
 
       // Verify min custom date is populated
-      expect(await page.locator('#min-date-type').inputValue()).toContain(
-        'CUSTOM',
-      )
+      await expect(minDateLocator).toHaveValue('CUSTOM')
+
       await expect(page.locator('#min-custom-date-fieldset')).toBeVisible()
       await expect(page.locator('#min-custom-date-day')).toHaveValue('3')
       await expect(page.locator('#min-custom-date-month')).toHaveValue('4')
       await expect(page.locator('#min-custom-date-year')).toHaveValue('2024')
+
       // Verify max date is application date and date picker is hidden
-      expect(await page.locator('#max-date-type').inputValue()).toContain(
-        'APPLICATION_DATE',
-      )
+      await expect(maxDateLocator).toHaveValue('APPLICATION_DATE')
+
       await expect(page.locator('#max-custom-date-fieldset')).toBeHidden()
     })
   })

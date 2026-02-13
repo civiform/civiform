@@ -1,6 +1,8 @@
 /** The question bank controller is responsible for manipulating the question bank. */
 import {assertNotNull} from '@/util'
 import {sortElementsByDataAttributes} from '@/sort_selector'
+import {featureFlags} from '@/global/shared/feature_flags'
+import {Tray} from '@/components/shared/tray'
 
 class QuestionBankController {
   static readonly FILTER_ID = 'question-bank-filter'
@@ -136,17 +138,20 @@ class QuestionBankController {
         QuestionBankController.FILTER_ID,
       ) as HTMLInputElement
     ).value.toUpperCase()
+
     const questions = Array.from(
       document.getElementsByClassName(QuestionBankController.QUESTION_CLASS),
     )
+
     questions.forEach((question) => {
       const questionElement = question as HTMLElement
       const questionFilterText =
         questionElement.getAttribute(
           QuestionBankController.RELEVANT_FILTER_TEXT_DATA_ATTR,
         ) ?? questionElement.innerText
+
       questionElement.classList.toggle(
-        'hidden',
+        'display-none',
         filterString.length > 0 &&
           !questionFilterText.toUpperCase().includes(filterString),
       )
@@ -165,6 +170,91 @@ class QuestionBankController {
   }
 }
 
+class QuestionBankControllerNew {
+  static readonly BANK_SHOWN_URL_PARAM = 'sqb'
+  static readonly FILTER_ID = 'question-bank-filter'
+  static readonly SORT_SELECT_ID = 'question-bank-sort'
+
+  init() {
+    const params = new URLSearchParams(window.location.search)
+    const shouldOpenQuestionBank =
+      params.get(QuestionBankControllerNew.BANK_SHOWN_URL_PARAM) === 'true'
+
+    if (shouldOpenQuestionBank) {
+      const tray = document.getElementById('questionBankTray') as Tray | null
+      tray?.show()
+    }
+  }
+
+  constructor() {
+    const questionBankFilter = document.getElementById(
+      QuestionBankControllerNew.FILTER_ID,
+    )
+    if (questionBankFilter) {
+      questionBankFilter.addEventListener(
+        'input',
+        QuestionBankControllerNew.filterQuestions,
+      )
+      QuestionBankControllerNew.filterQuestions()
+    }
+
+    const questionBankSort = document.getElementById(
+      QuestionBankControllerNew.SORT_SELECT_ID,
+    ) as HTMLSelectElement
+
+    if (questionBankSort) {
+      questionBankSort.addEventListener(
+        'change',
+        QuestionBankControllerNew.sortQuestions,
+      )
+    }
+  }
+
+  /**
+   * Filter questions in the question bank with the filter input string, on the question name and description.
+   */
+  static filterQuestions() {
+    const filterString = (
+      document.getElementById(
+        QuestionBankController.FILTER_ID,
+      ) as HTMLInputElement
+    ).value.toUpperCase()
+
+    const questions = Array.from(
+      document.getElementsByClassName(QuestionBankController.QUESTION_CLASS),
+    )
+
+    questions.forEach((question) => {
+      const questionElement = question as HTMLElement
+      const questionFilterText =
+        questionElement.getAttribute(
+          QuestionBankController.RELEVANT_FILTER_TEXT_DATA_ATTR,
+        ) ?? questionElement.innerText
+
+      questionElement.classList.toggle(
+        'display-none',
+        filterString.length > 0 &&
+          !questionFilterText.toUpperCase().includes(filterString),
+      )
+    })
+  }
+
+  /**
+   * Sort questions in the question bank based on the criteria selected from the dropdown.
+   */
+  private static sortQuestions() {
+    sortElementsByDataAttributes(
+      QuestionBankControllerNew.SORT_SELECT_ID,
+      '.cf-sortable-questions',
+      '.cf-question-bank-element',
+    )
+  }
+}
+
 export function init() {
+  if (featureFlags.isAdminUiMigrationScEnabled) {
+    new QuestionBankControllerNew().init()
+    return
+  }
   new QuestionBankController()
 }

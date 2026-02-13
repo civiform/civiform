@@ -1,4 +1,5 @@
 import {assertNotNull} from '@/util'
+import {HtmxBeforeRequestEvent, HtmxConfirmEvent} from '@/htmx_request'
 
 type FormControl = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
 
@@ -44,7 +45,18 @@ export class FormValidation {
       .forEach((el) => this.configureControl(el))
 
     // Validate all controls on submit
-    form.addEventListener('submit', this.onSubmit)
+    form.addEventListener('submit', (ev: SubmitEvent) => {
+      if (!this.validateForm(form)) {
+        ev.preventDefault()
+      }
+    })
+
+    // Validate all controls on submit
+    form.addEventListener('htmx:confirm', (ev: HtmxConfirmEvent) => {
+      if (!this.validateForm(form)) {
+        ev.preventDefault()
+      }
+    })
 
     // Set up MutationObserver for dynamic forms
     if (form.dataset.formType === FormType.DYNAMIC) {
@@ -74,10 +86,9 @@ export class FormValidation {
   }
 
   /**
-   * Validate the form on submit, if invalid focuses on the first invalid control
+   * Validate the entire form
    */
-  private onSubmit = (ev: SubmitEvent) => {
-    const form = ev.target as HTMLFormElement
+  private validateForm(form: HTMLFormElement): boolean {
     let isValid = true
 
     form
@@ -91,12 +102,13 @@ export class FormValidation {
       })
 
     if (!isValid) {
-      ev.preventDefault()
       form
         .querySelector('.usa-form-group--error')
         ?.querySelector<FormControl>('input,textarea,select')
         ?.focus()
     }
+
+    return isValid
   }
 
   /**

@@ -24,3 +24,51 @@ export interface HtmxAfterSwapEvent extends CustomEvent {
     anchor: string
   }
 }
+
+export interface HtmxConfirmEvent extends CustomEvent {
+  target: HTMLElement
+  detail: {
+    elt: HTMLElement
+    issueRequest: (skipConfirmation?: boolean) => void
+    path: string
+    target: HTMLElement
+    triggeringEvent: Event
+    verb: string
+    question?: string // only available if hx-confirm attribute is present
+  }
+}
+
+export interface HtmxBeforeRequestEvent extends CustomEvent {
+  detail: {
+    elt: Element
+    xhr: XMLHttpRequest
+    target: Element
+    requestConfig: {
+      verb: string
+      path: string
+      headers: Record<string, string>
+      parameters: Record<string, string> | FormData
+      target: Element
+      swapStyle: string
+      swapOptions: {
+        swapDelay?: number
+        settleDelay?: number
+        scroll?: string
+        show?: string
+      }
+    }
+    pathInfo: {
+      requestPath: string
+      finalRequestPath: string
+      anchor?: string
+    }
+  }
+}
+
+declare global {
+  interface HTMLElementEventMap {
+    'htmx:beforeRequest': HtmxBeforeRequestEvent
+    'htmx:confirm': HtmxConfirmEvent
+    'htmx:afterSwap': HtmxAfterSwapEvent
+  }
+}

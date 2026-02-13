@@ -994,6 +994,15 @@ error.internalServerHomeButton=Visit homepage
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
 error.statusCode=Error code: {0}
 
+# Override default Play error messages
+error.required=This field is required
+error.minLength=Minimum length is {0}
+error.maxLength=Maximum length is {0}
+error.email=Valid email required
+error.pattern=Invalid format
+error.min=Minimum value is {0}
+error.max=Maximum value is {0}
+
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #
 #-------------------------------------------------------------#
@@ -1322,3 +1331,788 @@ devtools.session.description=Inspect the current session
 devtools.session.pac4j=View current pac4j profile
 # Button text to view the current Play session.
 devtools.session.play=View current Play session
+
+#-----------------------------------------------------------------#
+# ADMIN UI - Common strings shared across multiple admin pages     #
+#-----------------------------------------------------------------#
+
+# Button to cancel an action
+admin.common.button.cancel=Cancel
+# Button to save changes
+admin.common.button.save=Save
+# Button to confirm an action
+admin.common.button.confirm=Confirm
+# Button to delete an item
+admin.common.button.delete=Delete
+# Button to edit an item
+admin.common.button.edit=Edit
+# Link to go back to previous page
+admin.common.link.back=Back
+# Aria label to close a modal window
+admin.common.modal.close=Close this window
+# Button to close a panel
+admin.common.button.close=Close
+# Button to add an item
+admin.common.button.add=Add
+# Label prefix for admin ID
+admin.common.label.adminid=Admin ID:
+# Label prefix for admin note
+admin.common.label.adminnote=Admin note:
+# Label prefix for categories
+admin.common.label.categories=Categories:
+# Tag for draft status
+admin.common.tag.draft=Draft
+# Tag for active status
+admin.common.tag.active=Active
+# Tag for universal question
+admin.common.tag.universal=Universal
+# Button to manage translations
+admin.common.button.managetranslations=Manage translations
+# Button to download PDF preview
+admin.common.button.downloadpdf=Download PDF preview
+# Button to preview as applicant
+admin.common.button.previewasapplicant=Preview as applicant
+# Button to continue to the next step
+admin.common.button.continue=Continue
+# Label for admin name
+admin.common.label.adminname=Admin name:
+# Label for program type
+admin.common.label.type=Type:
+# Text for pre-screener program type
+admin.common.type.prescreener=Pre-Screener
+# Text for external program type
+admin.common.type.external=External program
+# Text shown when translation is complete
+admin.common.text.translationcomplete=Translation complete
+# Text shown when translation is incomplete
+admin.common.text.translationincomplete=Translation incomplete
+# Bold label for English text in translation pages
+admin.common.label.englishtext=English text:
+# Required fields hint
+admin.common.text.requiredfields=Fields marked with a * are required.
+# Text for required question label
+admin.common.label.required=required question
+# Text for optional question label
+admin.common.label.optional=optional question
+# Label for move up button
+admin.common.button.moveup=move up
+# Label for move down button
+admin.common.button.movedown=move down
+
+#-----------------------------------------------------------------#
+# ADMIN SETTINGS PAGE                                              #
+#-----------------------------------------------------------------#
+
+# Page heading for admin settings
+adminsettings.heading=Settings
+# Radio label for boolean true value
+adminsettings.form.booleantrue=True
+# Radio label for boolean false value
+adminsettings.form.booleanfalse=False
+# Label for read-only settings
+adminsettings.form.readonly=Read-only
+# Placeholder for enum select dropdown
+adminsettings.form.selectplaceholder=-- Select --
+# Button to save settings changes
+adminsettings.button.savechanges=Save changes
+
+#-----------------------------------------------------------------#
+# URL CHECKER TOOL                                                 #
+#-----------------------------------------------------------------#
+
+# Description text for the URL checker tool
+urlchecker.text.description=This form can be used to test if CiviForm is able to reach a URL.
+# Label for the URL input field
+urlchecker.label.url=URL
+# Button to check the URL
+urlchecker.button.check=Check
+
+#-----------------------------------------------------------------#
+# API KEY INDEX PAGE                                               #
+#-----------------------------------------------------------------#
+
+# Page heading for API keys
+apikeyindex.heading=API Keys
+# Button to create a new API key
+apikeyindex.button.newkey=New API key
+# Filter link for active API keys
+apikeyindex.filter.active=Active
+# Filter link for retired API keys
+apikeyindex.filter.retired=Retired
+# Filter link for expired API keys
+apikeyindex.filter.expired=Expired
+# Label for API key ID
+apikeyindex.table.id=ID:
+# Label for allowed subnets
+apikeyindex.table.subnets=Allowed subnets:
+# Label for expiration date
+apikeyindex.table.expiration=Expires on:
+# Prefix text for creation time
+apikeyindex.table.created=Created
+# Prefix text for created by
+apikeyindex.table.createdby=Created by
+# Prefix text for last used by
+apikeyindex.table.lastused=Last used by
+# Label for API call count
+apikeyindex.table.callcount=Call count:
+# Prefix text for retired time
+apikeyindex.table.retired=Retired
+# Table header for program name
+apikeyindex.table.programname=Program name
+# Table header for program slug
+apikeyindex.table.programslug=Program slug
+# Table header for permission
+apikeyindex.table.permission=Permission
+# Button to retire an API key
+apikeyindex.button.retire=Retire key
+
+#-----------------------------------------------------------------#
+# API KEY CREDENTIALS PAGE                                         #
+#-----------------------------------------------------------------#
+
+# Heading prefix for created API key name
+apikeycredentials.heading.prefix=Created API key:
+# Section heading for credentials
+apikeycredentials.section.credentials=Credentials
+# Warning text about copying API credentials
+apikeycredentials.text.warning=Please copy your API credentials and store them somewhere secure. This is your only opportunity to copy the secret from CiviForm, if you refresh the page or navigate away you will not be able to recover the secret value and will need to create a new key instead.
+# Info text about API credential formats
+apikeycredentials.text.credentialsinfo=The API credentials are available as both a single token (the "API Secret Token") or a username/password combination, depending on the needs of your API client. See the
+# Link text for API documentation
+apikeycredentials.link.apidocs=API documentation
+# Text after API documentation link
+apikeycredentials.text.fordetails=for details.
+# Label for API secret token
+apikeycredentials.label.secrettoken=API secret token:
+# Label for API username
+apikeycredentials.label.username=API username:
+# Label for API password
+apikeycredentials.label.password=API password:
+
+#-----------------------------------------------------------------#
+# API KEY NEW PAGE                                                 #
+#-----------------------------------------------------------------#
+
+# Page heading for creating new API key
+apikeynewone.heading=Create a new API key
+# Message when no programs exist
+apikeynewone.text.noprograms=You must create and publish a program before creating an API Key.
+# Section heading for name
+apikeynewone.section.name=Name
+# Description for API key name
+apikeynewone.text.namedescription=A human-readable name for identifying this API key in the UI.
+# Label for API key name input
+apikeynewone.form.keyname=API key name
+# Section heading for expiration
+apikeynewone.section.expiration=Expiration date
+# Description for API key expiration
+apikeynewone.text.expirationdescription=Specify a date when this API key will no longer be valid. The expiration date may be edited after the API key is created. It is strongly recommended to allow API keys to expire and create new ones to ensure that if a key has been stolen, malicious users will eventually lose access. For highly sensitive data, expiring keys once a week or once a month is recommended. Once a year is acceptable in most situations.
+# Label for expiration date input
+apikeynewone.form.expirationdate=Expiration date
+# Section heading for allowed IP addresses
+apikeynewone.section.subnet=Allowed IP addresses
+# Description intro for subnet
+apikeynewone.text.subnetdescriptionintro=Specify one or more comma-separated subnets using
+# Link text for CIDR notation
+apikeynewone.link.cidrnotation=CIDR notation
+# Description outro for subnet
+apikeynewone.text.subnetdescriptionoutro=that is allowed to call the API. The subnet may not be edited after the API key is created. A single IP address can be specified with a mask of /32. For example, "8.8.8.8/32" allows only the IP 8.8.8.8 to use the API key. All IP addresses can be allowed, but this is strongly discouraged for security reasons because it would allow any computer connected to the internet to use the key if they obtain it. All IP addresses can be allowed with a value of 0.0.0.0/0, though this is not recommended.
+# Label for subnet input
+apikeynewone.form.subnet=API key subnet
+# Section heading for allowed programs
+apikeynewone.section.programs=Allowed programs
+# Description for program selection
+apikeynewone.text.programsdescription=Select the programs this key grants read access to.
+# Legend for programs fieldset
+apikeynewone.form.programslegend=Programs
+
+#-----------------------------------------------------------------#
+# ADMIN EXPORT PAGE                                                #
+#-----------------------------------------------------------------#
+
+# Link to go back to programs list
+adminexport.link.backtoprograms=Back to all programs
+# Page heading for export
+adminexport.heading=Export a program
+# Description for export
+adminexport.text.description=To export a program, either copy the JSON file content or download the JSON file to your local device.
+# Heading prefix for JSON export
+adminexport.heading.jsonexport=JSON export for
+# Button to copy JSON
+adminexport.button.copyjson=Copy JSON
+# Button to download JSON
+adminexport.button.downloadjson=Download JSON
+# Label for program JSON textarea
+adminexport.label.programjson=Program JSON
+
+#-----------------------------------------------------------------#
+# ADMIN IMPORT PAGE                                                #
+#-----------------------------------------------------------------#
+
+# Link to go back to programs list
+adminimport.link.backtoprograms=Back to all programs
+# Page heading for import
+adminimport.heading=Import an existing program
+# Description for import
+adminimport.text.description=Import a program that exists in another environment into this environment.
+# How to import heading
+adminimport.heading.howto=How to import a program
+# Step 1 heading
+adminimport.step1.heading=Export your program from your other environment
+# Step 1 description
+adminimport.step1.description=Find your program and choose the "Export program" option from the overflow menu. Then either copy or download the JSON code.
+# Step 2 heading
+adminimport.step2.heading=Paste the JSON code in the field below
+# Step 2 description
+adminimport.step2.description=Locate the JSON code in your browser or on your local device. Copy and paste the code into the field below.
+# Step 3 heading
+adminimport.step3.heading=Preview program before saving
+# Step 3 description
+adminimport.step3.description=Review your program information, name and questions, for any errors. If something looks out of place, you can delete and start the process over.
+# Step 4 heading
+adminimport.step4.heading=Save your program
+# Step 4 description
+adminimport.step4.description=Click Save to save the program to this environment. You should now be able to view the program in your program list.
+# Program import section heading
+adminimport.heading.programimport=Program import
+# Instruction for pasting JSON
+adminimport.text.pasteinstructions=To import a program, copy the JSON file content and paste into the box below.
+# Note about size limit
+adminimport.text.sizelimit=Note: Programs larger than 256,000 characters will cause an error. If you need to import a larger program, please contact the engineering team.
+# Label for program JSON textarea
+adminimport.label.programjson=Program JSON
+# Placeholder for program JSON textarea
+adminimport.placeholder.programjson=Paste the JSON file contents into this box.
+# Button to preview program
+adminimport.button.previewprogram=Preview program
+
+#-----------------------------------------------------------------#
+# PROGRAM INDEX PAGE                                               #
+#-----------------------------------------------------------------#
+
+# Page heading for program dashboard
+programindex.heading=Program dashboard
+# Description prefix for program dashboard
+programindex.text.description=Create, edit and publish programs in {0}
+# Button to create a new program
+programindex.button.newprogram=Create new program
+# Button to download demographic data
+programindex.button.downloaddemographics=Download demographic data (CSV)
+# Button to publish all drafts
+programindex.button.publishall=Publish all drafts
+# Link to import an existing program
+programindex.link.import=Import existing program
+# Sort order description
+programindex.text.sortorder=Sorting by most recently updated
+# Tab label for in-use programs
+programindex.tab.inuse=In use
+# Tab label for disabled programs
+programindex.tab.disabled=Disabled
+# Suffix for singular draft program
+programindex.text.draftprogram=draft program
+# Suffix for plural draft programs
+programindex.text.draftprograms=draft programs
+# Suffix for singular draft question
+programindex.text.draftquestion=draft question
+# Suffix for plural draft questions
+programindex.text.draftquestions=draft questions
+# Link to publish a program
+programindex.link.publish=Publish
+# Link to view a program
+programindex.link.view=View
+# Link to share a program
+programindex.link.share=Share link
+# Link text for forms (pre-screener)
+programindex.link.forms=Forms
+# Link text for applications
+programindex.link.applications=Applications
+# Link to manage application statuses
+programindex.link.managestatuses=Manage application statuses
+# Link to manage program admins
+programindex.link.manageprogramadmins=Manage program admins
+# Link to export a program
+programindex.link.export=Export program
+
+#-----------------------------------------------------------------#
+# PROGRAM NEW PAGE                                                 #
+#-----------------------------------------------------------------#
+
+# Page heading for new program
+programnew.heading=New program information
+# Section heading for program setup
+programnew.section.setup=Program setup
+# Label for program name input
+programnew.label.programname=Program name
+# Label for short description input
+programnew.label.shortdescription=Short description of this program for the public.
+# Label for short description input help text
+programnew.label.shortdescriptionhelptext=Maximum 100 characters.
+# Label for program slug with external cards enabled
+programnew.label.slug.external=Create a program slug.
+# Help text for program slug with external cards enabled
+programnew.label.slug.externalhelptext=This slug can only contain lowercase letters, numbers, and dashes. It will be used in the program''s applicant-facing URL (except for external programs), and it can''t be changed later.
+# Label for program slug without external cards
+programnew.label.slug.default=Enter an identifier that will be used in this program''s applicant-facing URL. This value can''t be changed later. Aim to keep it short so it''s easy to share. Use a dash between each word
+# Label for admin description textarea
+programnew.label.admindescription=Program note for administrative use only
+# Label for program type radio
+programnew.label.programtype=Program type
+# Label for CiviForm program option
+programnew.label.civiformprogram=CiviForm program
+# Description for CiviForm program option
+programnew.description.civiformprogram=This program''s informational card will open program details on the CiviForm website.
+# Label for external program option
+programnew.label.externalprogram=External program
+# Description for external program option
+programnew.description.externalprogram=This program''s informational card will open program details on an external website.
+# Label for pre-screener option
+programnew.label.prescreener=Pre-screener
+# Description for pre-screener option
+programnew.description.prescreener=This program informational card will always appear at the top of the Programs and Services page. Only one program can be a screener.
+# Label for set program as pre-screener checkbox
+programnew.label.setprescreener=Set program as pre-screener
+# Label for program eligibility gating
+programnew.label.eligibilitygating=Program eligibility gating
+# Label for gating enabled option
+programnew.label.gatingenabled=Only allow residents to submit applications if they meet all eligibility requirements
+# Label for gating disabled option
+programnew.label.gatingdisabled=Allow residents to submit applications even if they don''t meet eligibility requirements
+# Label for program categories
+programnew.label.categories=Tag this program with 1 or more categories to make it easier to find
+# Label for program visibility
+programnew.label.visibility=Program visibility
+# Label for publicly visible option
+programnew.label.public=Publicly visible
+# Label for hidden from applicants option
+programnew.label.hidden=Hide from applicants. Only individuals with the unique program link can access this program
+# Label for TI only option
+programnew.label.tionly=Trusted intermediaries only
+# Label for select TI option
+programnew.label.selectti=Visible to selected trusted intermediaries only
+# Label for disabled option
+programnew.label.disabled=Disabled
+# Label for TI group selection
+programnew.label.selecttigroups=Select trusted intermediary groups
+# Label for program external link
+programnew.label.externallink=Link to program website
+# Label for email notifications
+programnew.label.emailnotifications=Email notifications
+# Label for email notification checkbox
+programnew.label.sendemailnotification=Send Program Admins an email notification every time an application is submitted
+# Label for login only applications
+programnew.label.loginonly=Login only applications
+# Label for login only checkbox
+programnew.label.loginonlycheckbox=Require applicants to log in to apply to this program
+# Section heading for program overview
+programnew.section.overview=Program overview
+# Label for long description
+programnew.label.longdescription=Long program description
+# Section heading for how to apply
+programnew.section.howtoapply=How to apply
+# Label prefix for step title
+programnew.label.steptitle=Step {0} title
+# Label prefix for step description
+programnew.label.stepdescription=Step {0} description
+# Section heading for confirmation message
+programnew.section.confirmation=Confirmation message
+# Label for confirmation message textarea
+programnew.label.confirmationmessage=A custom message that will be shown on the confirmation page after an application has been submitted. You can use this message to explain next steps of the application process and/or highlight other programs to apply for.
+# Button to save and continue
+programnew.button.saveandcontinue=Save and continue to next step
+
+#-----------------------------------------------------------------#
+# PROGRAM EDIT PAGE                                                #
+#-----------------------------------------------------------------#
+
+# Heading prefix for edit program
+programedit.heading.prefix=Edit program:
+# Text for program URL (non-editable)
+programedit.text.urlnoteditable=The URL for this program. This value can''t be changed
+# Text for program ID (non-editable)
+programedit.text.idnoteditable=The program ID. This ID can''t be changed.
+# Link to manage questions
+programedit.link.managequestions=Manage questions
+
+#-----------------------------------------------------------------#
+# MANAGE PROGRAM ADMINS PAGE                                       #
+#-----------------------------------------------------------------#
+
+# Heading prefix for manage admins
+manageprogramadmins.heading.prefix=Manage admins for program:
+# Section heading for add new admin
+manageprogramadmins.section.addnew=Add new admin
+# Label for admin email input
+manageprogramadmins.label.adminemail=Admin email address (Email address is case-sensitive)
+# Section heading for existing admins
+manageprogramadmins.section.existing=Existing admins
+# Table header for admin email
+manageprogramadmins.table.email=Admin email
+# Table header for actions column
+manageprogramadmins.table.actions=Actions
+# Text when no admins exist
+manageprogramadmins.text.noadmins=No admins have been added to this program.
+
+#-----------------------------------------------------------------#
+# PROGRAM ADMIN LIST PAGE                                          #
+#-----------------------------------------------------------------#
+
+# Page heading for your programs
+programadminlist.heading=Your programs
+# Link text for share link
+programadminlist.link.share=Share link
+
+#-----------------------------------------------------------------#
+# PROGRAM STATUSES PAGE                                            #
+#-----------------------------------------------------------------#
+
+# Button to create a new status
+programstatuses.button.create=Create a new status
+# Text when no statuses exist
+programstatuses.text.nostatuses=No statuses have been created yet
+# Text when applicant notification email is added
+programstatuses.text.emailadded=Applicant notification email added
+# Text for default status label
+programstatuses.text.defaultstatus=Default status
+# Modal heading for creating a status
+programstatuses.modal.createheading=Create a new status
+# Screen reader description for create status modal
+programstatuses.modal.createdesc=Create a new application status with an optional notification email.
+# Label for status name input
+programstatuses.label.statusname=Status name (required)
+# Label for email body textarea
+programstatuses.label.emailbody=Email the applicant about the status change
+# Label for set as default status checkbox
+programstatuses.label.setdefault=Set as default status
+# Modal heading for editing a status
+programstatuses.modal.editheading=Edit this status
+# Screen reader description for edit status modal
+programstatuses.modal.editdesc=Edit the status name, notification email, and default setting.
+# Warning about clearing email body
+programstatuses.text.clearemailwarning=Please be aware that clearing the email body will also clear any associated translations
+# Modal heading for deleting a status
+programstatuses.modal.deleteheading=Delete this status
+# Warning text for deleting a status
+programstatuses.modal.deletedesc=Warning: This will also remove any translated content for the status and email body.
+
+#-----------------------------------------------------------------#
+# PROGRAM IMAGE PAGE                                               #
+#-----------------------------------------------------------------#
+
+# Page heading for image upload
+programimage.heading=Image upload
+# Note about image description requirement
+programimage.text.descriptionrequired=Note: Image description is required before uploading an image.
+# Label for image description input
+programimage.label.imagedescription=Enter image description (Alt Text)
+# Button to save image description
+programimage.button.savedescription=Save image description
+# Hint about maximum image size
+programimage.text.maxsize=The maximum size for image upload is 1MB.
+# Hint about image cropping
+programimage.text.cropping=The image will be automatically cropped to 16x9. The program card preview on the right will show the cropping once the image is saved.
+# Button to save image
+programimage.button.saveimage=Save image
+# Button to delete image
+programimage.button.deleteimage=Delete image
+# Modal heading for delete image confirmation
+programimage.modal.deleteheading=Delete this program image?
+# Modal description for delete image
+programimage.modal.deletedesc=Once you delete this image, you''ll need to re-upload a new image.
+
+#-----------------------------------------------------------------#
+# PROGRAM BLOCK SHOW PAGE (read-only view)                         #
+#-----------------------------------------------------------------#
+
+# Button to edit program
+programblockshow.button.editprogram=Edit program
+# Heading for questions section
+programblockshow.heading.questions=Questions
+# Heading for visibility condition section
+programblockshow.heading.visibilitycondition=Visibility condition
+# Heading for eligibility condition section
+programblockshow.heading.eligibilitycondition=Eligibility condition
+# Error text for malformed question
+programblockshow.text.malformedtitle=This is not pointing at the latest version
+# Error description for malformed question
+programblockshow.text.malformeddesc=Edit the program and try republishing
+# Prefix for address correction label
+programblockshow.text.addresscorrection.enabled=Address correction: enabled
+# Prefix for address correction disabled label
+programblockshow.text.addresscorrection.disabled=Address correction: disabled
+# Visibility predicate: no condition set
+programblockshow.text.visibility.empty=This screen is always shown.
+# Visibility predicate: condition is set (accordion label)
+programblockshow.text.visibility.present=This screen has visibility conditions.
+# Eligibility predicate: intro sentence
+programblockshow.text.eligibility.intro=You can add eligibility conditions to determine if an applicant qualifies for the program.
+# Eligibility predicate: gating description
+programblockshow.text.eligibility.gating=Applicants who do not meet the minimum requirements will be blocked from submitting an application.
+# Eligibility predicate: non-gating description
+programblockshow.text.eligibility.nongating=Applicants can submit an application even if they do not meet the minimum requirements.
+# Eligibility predicate: hint to change gating in settings (read-only view)
+programblockshow.text.eligibility.changehint=You can change this in the program settings if your program is in draft mode.
+# Eligibility predicate: no condition set
+programblockshow.text.eligibility.empty=This screen does not have any eligibility conditions.
+# Eligibility predicate: condition is set (accordion label)
+programblockshow.text.eligibility.present=This screen has eligibility conditions.
+
+#-----------------------------------------------------------------#
+# PROGRAM BLOCK EDIT PAGE                                          #
+#-----------------------------------------------------------------#
+
+# Button to edit program details
+programblockedit.button.editdetails=Edit program details
+# Button to edit program image
+programblockedit.button.editimage=Edit program image
+# Button to edit bridge definition
+programblockedit.button.editbridge=Edit Bridge Definition
+# Warning for malformed questions
+programblockedit.text.malformedwarning=If you see this file a bug with the CiviForm development team. Some questions are not pointing at the latest version. Edit the program and try republishing.
+# Button to add a new screen
+programblockedit.button.addscreen=Add screen
+# Button to add a repeated set
+programblockedit.button.addrepeatedset=Add repeated set
+# Button to edit screen name and description
+programblockedit.button.editscreeninfo=Edit screen name and description
+# Button to create a repeated screen
+programblockedit.button.createrepeatedscreen=Create repeated screen
+# Button to delete a screen
+programblockedit.button.deletescreen=Delete screen
+# Title when screen cannot be deleted
+programblockedit.text.cannotdelete=A screen can only be deleted when it has no repeated screens.
+# Button to add a question
+programblockedit.button.addquestion=Add a question
+# Heading for add a question panel
+programblockedit.heading.addquestion=Add a question
+# Label for search questions filter
+programblockedit.label.searchquestions=Search questions
+# Text for not finding a question
+programblockedit.text.notfinding=Not finding a question?
+# Link to create a new question
+programblockedit.link.createquestion=Create a new question
+# Heading for universal questions section
+programblockedit.heading.universalquestions=Universal questions
+# Alert text recommending universal questions
+programblockedit.text.universalrecommend=We recommend using all universal questions in your program for personal and contact information questions.
+# Heading for other questions section
+programblockedit.heading.otherquestions=All other questions
+# Modal heading for editing screen name/description
+programblockedit.modal.editscreenheading=Screen name and description
+# Modal description for screen name/description
+programblockedit.modal.editscreendesc=The screen name and description will help a user understand which part of an application they are on.
+# Label for screen name input
+programblockedit.label.screenname=Screen name
+# Label for screen description textarea
+programblockedit.label.screendescription=Screen description
+# Address correction toggle on label
+programblockedit.text.addresscorrection.on=Address correction: on
+# Address correction toggle off label
+programblockedit.text.addresscorrection.off=Address correction: off
+# Heading prefix for delete screen modal
+programblockedit.modal.deleteheading.prefix=Delete
+# Suffix for delete screen modal heading
+programblockedit.modal.deleteheading.suffix=?
+# Text in delete modal showing items
+programblockedit.modal.deletetext.includes=includes
+# Confirmation text in delete modal
+programblockedit.modal.deleteconfirm=Are you sure you want to delete this screen?
+# Label for move block up button
+programblockedit.button.moveblockup=move block up
+# Label for move block down button
+programblockedit.button.moveblockdown=move block down
+# Title when enumerator question cannot be removed
+programblockedit.text.cannotremoveenumerator=An enumerator question can only be removed from the screen when the screen has no repeated screens.
+
+#-----------------------------------------------------------------#
+# PROGRAM APPLICATION SHOW PAGE                                    #
+#-----------------------------------------------------------------#
+
+# Heading prefix for program name
+applicationshow.heading.program=Program:
+# Button to edit note
+applicationshow.button.editnote=Edit note
+# Button to export to PDF
+applicationshow.button.exportpdf=Export to PDF
+# Label for status selector
+applicationshow.label.status=Status:
+# Prefix for answered date
+applicationshow.text.answeredon=Answered on
+# Modal heading for status change
+applicationshow.modal.statuschange=Change the status of this application?
+# Label for status change
+applicationshow.label.statuschange=Status Change:
+# Text between old and new status
+applicationshow.text.arrow=->
+# Text indicating status is visible to applicant
+applicationshow.text.visibletoapplicant=(visible to applicant)
+# Label for applicant in status modal
+applicationshow.label.applicant=Applicant:
+# Label for program in status modal
+applicationshow.label.program=Program:
+# Text prefix for notify checkbox
+applicationshow.text.notify=Notify
+# Text for notification at email
+applicationshow.text.ofchangeat=of this change at
+# Text when no email content for status
+applicationshow.text.noemailcontent=will not receive an email because there is no email content set for this status. Connect with your CiviForm Admin to add an email to this status.
+# Text when applicant has no email address
+applicationshow.text.noemail=will not receive an email for this change since they have not provided an email address.
+# Modal heading for edit note
+applicationshow.modal.editnote=Edit note
+# Screen reader description for edit note modal
+applicationshow.modal.editnotedesc=Add or edit a note for this application.
+# Label for note textarea
+applicationshow.label.note=Note
+
+#-----------------------------------------------------------------#
+# PROGRAM APPLICATION TABLE PAGE                                   #
+#-----------------------------------------------------------------#
+
+# Alert heading for status update info
+applicationtable.alert.statusupdate=Status Update
+# Legend for applications submitted fieldset
+applicationtable.legend.submitted=Applications submitted
+# Label for from date filter
+applicationtable.label.from=from:
+# Label for until date filter
+applicationtable.label.until=until:
+# Label for search input
+applicationtable.label.search=Search by name, email, phone number, or application ID
+# Label for application status filter
+applicationtable.label.applicationstatus=Application status
+# Option for any application status
+applicationtable.option.anystatus=Any application status
+# Option for applications without a status
+applicationtable.option.nostatus=Only applications without a status
+# Optgroup label for general filters
+applicationtable.optgroup.general=General
+# Optgroup label for application statuses
+applicationtable.optgroup.statuses=Application statuses
+# Button to download applications
+applicationtable.button.download=Download
+# Button to filter applications
+applicationtable.button.filter=Filter
+# Button to clear filters
+applicationtable.button.clear=Clear
+# Modal heading for download
+applicationtable.modal.downloadheading=Download application data
+# Screen reader description for download modal
+applicationtable.modal.downloaddesc=Choose to download current filtered results or all data in CSV or JSON format.
+# Label for current results radio
+applicationtable.radio.currentresults=Current results
+# Label for all data radio
+applicationtable.radio.alldata=All data
+# Button to download CSV
+applicationtable.button.downloadcsv=Download CSV
+# Button to download JSON
+applicationtable.button.downloadjson=Download JSON
+# Label for send notification checkbox
+applicationtable.label.sendnotification=Send notification
+# Button for status change
+applicationtable.button.statuschange=Status change
+# Table header for name column
+applicationtable.table.name=Name
+# Table header for eligibility column
+applicationtable.table.eligibility=Eligibility
+# Table header for status column
+applicationtable.table.status=Status
+# Table header for submission date column
+applicationtable.table.submissiondate=Submission date
+# Table header for submitted by column
+applicationtable.table.submittedby=Submitted by
+
+#-----------------------------------------------------------------#
+# PROGRAM TRANSLATION PAGE                                         #
+#-----------------------------------------------------------------#
+
+# Instruction text for translation page
+programtranslation.text.instruction=Enter text in the language(s) you want to translate to
+# Link text for edit default
+programtranslation.link.editdefault=(edit default)
+# Button prefix for save translations
+programtranslation.button.saveprefix=Save
+# Button suffix for save translations
+programtranslation.button.savesuffix=updates
+
+#-----------------------------------------------------------------#
+# QUESTION TRANSLATION PAGE                                        #
+#-----------------------------------------------------------------#
+
+# Legend for applicant-visible question details
+questiontranslation.legend.details=Applicant-visible question details
+# Label for question text textarea
+questiontranslation.label.questiontext=Question text
+# Label for help text textarea
+questiontranslation.label.helptext=Question help text
+
+#-----------------------------------------------------------------#
+# QUESTION NEW PAGE                                                #
+#-----------------------------------------------------------------#
+
+# Heading prefix for new question
+questionnew.heading.prefix=New
+# Heading suffix for new question
+questionnew.heading.suffix=question
+# Repeated question info paragraph 1
+questionnew.text.repeatedinfo1=By selecting an enumerator, you are creating a repeated question - a question that is asked for each repeated entity enumerated by the applicant.
+# Repeated question info paragraph 2
+questionnew.text.repeatedinfo2=Please reference the applicant-defined repeated entity name to give the applicant context on which repeated entity they are answering the question for by using
+# Repeated question info: $this reference
+questionnew.text.thisref="$this"
+# Repeated question info: in the text
+questionnew.text.inthetext=in the
+# Repeated question info: question text label
+questionnew.text.questiontextlabel=question''s text
+# Repeated question info: and optionally the
+questionnew.text.andoptionally=and optionally the
+# Repeated question info: help text label
+questionnew.text.helptextlabel=help text.
+# Repeated question info paragraph 3
+questionnew.text.repeatedinfo3=To reference the repeated entities containing this one, use
+# Section heading for visible to applicants
+questionnew.section.visibletoapplicants=Visible to applicants
+# Label for question text textarea
+questionnew.label.questiontext=Question text displayed to the applicant
+# Label for help text textarea
+questionnew.label.helptext=Question help text displayed to the applicant
+# Section heading for visible to admins only
+questionnew.section.visibletoadmins=Visible to administrators only
+# Label for admin identifier
+questionnew.label.adminidentifier=Administrative identifier. This value can''t be changed later
+# Help text for admin identifier
+questionnew.helptext.adminidentifier=This will be used to identify questions in the API and CSV export. It will be formatted so that white spaces are replaced with underscores, uppercase letters are converted to lowercase and all non-alphabetic characters are stripped.
+# Preview text for API visibility
+questionnew.text.apipreview=Visible in the API as:
+# Label for question description
+questionnew.label.description=Question note for administrative use only
+# Label for question enumerator select
+questionnew.label.enumerator=Question enumerator
+# Label for GeoJSON endpoint URL
+questionnew.label.geojsonurl=GeoJSON Endpoint URL
+# Help text for GeoJSON endpoint
+questionnew.helptext.geojsonurl=URL must be entered in order to configure question settings below.
+# Section heading for question settings
+questionnew.section.settings=Question settings
+# Button to create the question
+questionnew.button.create=Create
+
+#-----------------------------------------------------------------#
+# QUESTION EDIT PAGE                                               #
+#-----------------------------------------------------------------#
+
+# Heading prefix for edit question
+questionedit.heading.prefix=Edit
+# Heading suffix for edit question
+questionedit.heading.suffix=question
+# Label for admin identifier (read-only)
+questionedit.label.adminidentifier=Administrative identifier. This value can''t be changed
+# Button to update the question
+questionedit.button.update=Update
+# Modal heading for unset universal confirmation
+questionedit.modal.unsetuniversalheading=Are you sure you want to remove this question from the universal questions set?
+# Modal description prefix for unset universal
+questionedit.modal.unsetuniversaldesc.prefix=This question will no longer be set as a recommended
+# Modal description suffix for unset universal
+questionedit.modal.unsetuniversaldesc.suffix=question.
+# Button to confirm removal from universal questions
+questionedit.button.removefromuni=Remove from universal questions

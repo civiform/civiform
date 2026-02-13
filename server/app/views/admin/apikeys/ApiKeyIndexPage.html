@@ -1,0 +1,181 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.apikeys.ApiKeyIndexPageViewModel"*/-->
+<th:block
+  th:fragment="content"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <style>
+    .bg-gray-2 {
+      background-color: #f9f9f9;
+    }
+  </style>
+
+  <a
+    class="usa-button"
+    th:href="${model.newKeyUrl}"
+    id="new-api-key-button"
+    th:text="#{apikeyindex.button.newkey}"
+  ></a>
+
+  <nav>
+    <a
+      th:href="${model.activeUrl}"
+      th:classappend="${model.isActiveSelected() ? 'usa-current' : ''}"
+      class="usa-link"
+      th:text="#{apikeyindex.filter.active}"
+    ></a>
+    <a
+      th:href="${model.retiredUrl}"
+      th:classappend="${model.isRetiredSelected() ? 'usa-current' : ''}"
+      class="usa-link"
+      th:text="#{apikeyindex.filter.retired}"
+    ></a>
+    <a
+      th:href="${model.expiredUrl}"
+      th:classappend="${model.isExpiredSelected() ? 'usa-current' : ''}"
+      class="usa-link"
+      th:text="#{apikeyindex.filter.expired}"
+    ></a>
+  </nav>
+
+  <!-- Empty state -->
+  <p th:if="${model.apiKeys.isEmpty()}" th:text="${model.emptyMessage()}"></p>
+
+  <!-- API key cards -->
+  <th:block th:each="apiKey : ${model.apiKeys}">
+    <div class="usa-card">
+      <div class="usa-card__container">
+        <!--        <div class="usa-card__header">-->
+        <!--        </div>-->
+
+        <div class="usa-card__body">
+          <div class="grid-row">
+            <div class="grid-col">
+              <div>
+                <h2
+                  class="usa-card__heading"
+                  th:text="${apiKey.name} + ' ' + ${apiKey.status}"
+                ></h2>
+              </div>
+              <div>
+                <span
+                  class="text-bold"
+                  th:text="#{apikeyindex.table.id}"
+                ></span>
+                <span th:text="${apiKey.keyId}"></span>
+              </div>
+              <div>
+                <span
+                  class="text-bold"
+                  th:text="#{apikeyindex.table.subnets}"
+                ></span>
+                <span th:text="${apiKey.subnets}"></span>
+              </div>
+              <div>
+                <span
+                  class="text-bold"
+                  th:text="#{apikeyindex.table.expiration}"
+                ></span>
+                <span th:text="${apiKey.expirationDate}"></span>
+              </div>
+            </div>
+            <div class="grid-col">
+              <div>
+                <span
+                  class="text-bold"
+                  th:text="#{apikeyindex.table.created}"
+                ></span>
+                <span th:text="${apiKey.createTime}"></span>
+              </div>
+              <div>
+                <span
+                  class="text-bold"
+                  th:text="#{apikeyindex.table.createdby}"
+                ></span>
+                <span th:text="${apiKey.createdBy}"></span>
+              </div>
+              <div th:id="${apiKey.nameSlug + '-last-call-ip'}">
+                <span
+                  class="text-bold"
+                  th:text="#{apikeyindex.table.lastused}"
+                ></span>
+                <span th:text="${apiKey.lastCallIp}"></span>
+              </div>
+              <div th:id="${apiKey.nameSlug + '-call-count'}">
+                <span
+                  class="text-bold"
+                  th:text="#{apikeyindex.table.callcount}"
+                ></span>
+                <span th:text="${apiKey.callCount}"></span>
+              </div>
+              <div th:if="${apiKey.retired}">
+                <span
+                  class="text-bold"
+                  th:text="#{apikeyindex.table.retired}"
+                ></span>
+                <span th:text="${apiKey.retiredTime}"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="usa-card__footer bg-gray-2 border-base-light border-top-1px"
+        >
+          <table
+            class="usa-table usa-table--borderless usa-table--stacked modile:width-mobile width-full"
+          >
+            <thead>
+              <tr>
+                <th scope="col" th:text="#{apikeyindex.table.programname}"></th>
+                <th scope="col" th:text="#{apikeyindex.table.programslug}"></th>
+                <th scope="col" th:text="#{apikeyindex.table.permission}"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="grant : ${apiKey.grants}">
+                <td th:text="${grant.programName()}"></td>
+                <td th:text="${grant.programSlug()}"></td>
+                <td th:text="${grant.permission()}"></td>
+              </tr>
+            </tbody>
+          </table>
+          <div th:if="${!apiKey.retired}">
+            <form
+              th:action="${apiKey.retireUrl}"
+              method="post"
+              th:id="'retire-' + ${apiKey.nameSlug}"
+              th:data-api-key-name="${apiKey.name}"
+              class="usa-form retire-key-form"
+            >
+              <input th:replace="~{admin/shared/CsrfToken}" />
+              <cf:button
+                variant="secondary"
+                type="submit"
+                th:text="#{apikeyindex.button.retire}"
+              />
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </th:block>
+</th:block>
+
+<th:block th:fragment="scripts">
+  <script th:nonce="${templateGlobals.cspNonce()}">
+    document.addEventListener('DOMContentLoaded', function (e) {
+      document.querySelectorAll('.retire-key-form').forEach((el) => {
+        el.addEventListener('submit', (clickEvent) => {
+          const keyName = clickEvent.target.dataset.apiKeyName
+          const message = `Retiring the API key is permanent and will prevent anyone from being able to call the API with the key. Are you sure you want to retire ${keyName}?`
+
+          if (!confirm(message)) {
+            clickEvent.preventDefault()
+          }
+        })
+      })
+    })
+  </script>
+</th:block>

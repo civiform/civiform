@@ -1,0 +1,130 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.docs.SchemaPageViewModel"*/-->
+<th:block
+  th:fragment="content"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <!-- Tabs -->
+  <ul class="usa-button-group usa-button-group--segmented">
+    <li class="usa-button-group__item">
+      <a class="usa-button usa-button--outline" th:href="${model.apiDocsTabUrl}"
+        >API documentation</a
+      >
+    </li>
+    <li class="usa-button-group__item">
+      <a class="usa-button" th:href="${model.schemaTabUrl}"
+        >API Schema Viewer</a
+      >
+    </li>
+  </ul>
+
+  <p>
+    This page shows a visualization of the OpenAPI Schema. Both version 2
+    (formerly Swagger 2) and version 3 are available.
+  </p>
+  <p>
+    We recommend only using version 3 unless there is a specific need for the
+    older format.
+  </p>
+
+  <!-- Form with selects -->
+  <form
+    id="form"
+    th:action="${model.formActionUrl}"
+    method="GET"
+    style="display: flex; gap: 1rem; align-items: flex-end"
+  >
+    <div>
+      <label class="usa-label" for="programSlug">Program:</label>
+      <select class="usa-select" id="programSlug" name="programSlug">
+        <th:block th:each="opt : ${model.programSlugs}">
+          <option
+            th:value="${opt.slug}"
+            th:text="${opt.slug}"
+            th:selected="${opt.selected}"
+          ></option>
+        </th:block>
+      </select>
+    </div>
+    <div>
+      <label class="usa-label" for="stage">Status:</label>
+      <select class="usa-select" id="stage" name="stage">
+        <th:block th:each="opt : ${model.stageOptions}">
+          <option
+            th:value="${opt.value}"
+            th:text="${opt.label}"
+            th:selected="${opt.selected}"
+          ></option>
+        </th:block>
+      </select>
+    </div>
+    <div>
+      <label class="usa-label" for="openApiVersion">OpenApi Version:</label>
+      <select class="usa-select" id="openApiVersion" name="openApiVersion">
+        <th:block th:each="opt : ${model.openApiVersionOptions}">
+          <option
+            th:value="${opt.value}"
+            th:text="${opt.label}"
+            th:selected="${opt.selected}"
+          ></option>
+        </th:block>
+      </select>
+    </div>
+  </form>
+
+  <!-- Swagger UI container -->
+  <style th:attr="nonce=${templateGlobals.cspNonce()}">
+    .swagger-ui > .topbar {
+      display: none;
+    }
+  </style>
+  <div id="swagger-ui"></div>
+</th:block>
+
+<!-- Scripts fragment -->
+<th:block th:fragment="scripts" xmlns:th="http://www.thymeleaf.org">
+  <script th:inline="javascript" th:attr="nonce=${templateGlobals.cspNonce()}">
+    document.addEventListener('DOMContentLoaded', () => {
+      SwaggerUIBundle({
+        url: /*[[${model.apiUrl}]]*/ '',
+        dom_id: '#swagger-ui',
+        validatorUrl: null,
+        presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+        layout: 'StandaloneLayout',
+        responseInterceptor: (response) => {
+          if (response.status === 404) {
+            const uiError = document.querySelector(
+              '.swagger-ui.swagger-container',
+            )
+            const customErrorMessage =
+              'A program with this status could not be found.'
+            if (uiError) {
+              uiError.innerHTML =
+                '<div style="display: flex; justify-content: center; margin: 4rem; font-size: 1.6rem;">' +
+                customErrorMessage +
+                '</div>'
+            }
+          }
+          return response
+        },
+      })
+
+      document
+        .getElementById('programSlug')
+        ?.addEventListener('change', () =>
+          document.getElementById('form').submit(),
+        )
+      document
+        .getElementById('stage')
+        ?.addEventListener('change', () =>
+          document.getElementById('form').submit(),
+        )
+      document
+        .getElementById('openApiVersion')
+        ?.addEventListener('change', () =>
+          document.getElementById('form').submit(),
+        )
+    })
+  </script>
+</th:block>

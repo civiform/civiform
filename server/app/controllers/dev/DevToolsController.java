@@ -7,7 +7,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.FlashKey;
 import controllers.dev.seeding.DevDatabaseSeedTask;
-import durablejobs.DurableJobName;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Transaction;
@@ -17,6 +16,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.CompletableFuture;
+import mapping.dev.DevToolsPageMapper;
 import models.JobType;
 import models.LifecycleStage;
 import models.Models;
@@ -40,7 +40,6 @@ import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import services.settings.SettingsService;
 import views.dev.DevToolsPageView;
-import views.dev.DevToolsPageViewModel;
 import views.dev.DevToolsView;
 
 /** Controller for dev tools. */
@@ -113,28 +112,10 @@ public class DevToolsController extends Controller {
    */
   public Result index(Request request) {
     if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
-      ImmutableList<String> durableJobOptions =
-          ImmutableList.copyOf(DurableJobName.values()).stream()
-              .map(DurableJobName::toString)
-              .collect(ImmutableList.toImmutableList());
       String csrfToken = play.filters.csrf.CSRF.getToken(request).map(t -> t.value()).orElse("");
-      DevToolsPageViewModel model =
-          DevToolsPageViewModel.builder()
-              .seedProgramsUrl(routes.DevToolsController.seedPrograms().url())
-              .seedQuestionsUrl(routes.DevToolsController.seedQuestions().url())
-              .clearUrl(routes.DevToolsController.clear().url())
-              .clearCacheUrl(routes.DevToolsController.clearCache().url())
-              .runDurableJobUrl(routes.DevToolsController.runDurableJob().url())
-              .iconsUrl(controllers.dev.routes.IconsController.index().url())
-              .homeUrl(controllers.routes.HomeController.index().url())
-              .addressToolsUrl(controllers.dev.routes.AddressCheckerController.index().url())
-              .sessionProfileUrl(controllers.dev.routes.ProfileController.index().url())
-              .sessionDisplayUrl(controllers.dev.routes.SessionDisplayController.index().url())
-              .durableJobOptions(durableJobOptions)
-              .isDev(deploymentType.isDev())
-              .csrfToken(csrfToken)
-              .build();
-      return ok(devToolsPageView.render(request, model)).as(Http.MimeTypes.HTML);
+      DevToolsPageMapper mapper = new DevToolsPageMapper();
+      return ok(devToolsPageView.render(request, mapper.map(deploymentType.isDev(), csrfToken)))
+          .as(Http.MimeTypes.HTML);
     }
     return ok(view.render(request, request.flash().get(FlashKey.SUCCESS)));
   }

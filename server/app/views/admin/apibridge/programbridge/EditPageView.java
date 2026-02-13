@@ -7,10 +7,10 @@ import org.thymeleaf.TemplateEngine;
 import services.BundledAssetsFinder;
 import services.settings.SettingsManifest;
 import views.admin.AdminLayout;
-import views.admin.TransitionalLayoutBaseView;
+import views.admin.AdminLayoutBaseView;
 
 /** View object for rendering the program bridge edit page */
-public class EditPageView extends TransitionalLayoutBaseView<EditPageViewModel> {
+public class EditPageView extends AdminLayoutBaseView<EditPageViewModel> {
   @Inject
   public EditPageView(
       TemplateEngine templateEngine,

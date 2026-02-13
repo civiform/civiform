@@ -1,0 +1,96 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.apikeys.ApiKeyNewOnePageViewModel"*/-->
+<th:block
+  th:fragment="content"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <th:block>
+    <p
+      th:if="${!model.hasPrograms}"
+      th:text="#{apikeynewone.text.noprograms}"
+    ></p>
+  </th:block>
+
+  <!-- Create form -->
+  <th:block th:if="${model.hasPrograms}">
+    <form
+      class="usa-form usa-form--large"
+      th:action="${model.formActionUrl()}"
+      method="post"
+    >
+      <input th:replace="~{admin/shared/CsrfToken}" />
+
+      <h2 th:text="#{apikeynewone.section.name}"></h2>
+      <p th:text="#{apikeynewone.text.namedescription}"></p>
+      <cf:input
+        id="keyName"
+        name="keyName"
+        th:label="#{apikeynewone.form.keyname}"
+        type="text"
+        th:value="${model.keyNameValue}"
+        required="true"
+        th:validation-message="${model.keyNameError.orElse('')}"
+      />
+
+      <h2 th:text="#{apikeynewone.section.expiration}"></h2>
+      <p th:text="#{apikeynewone.text.expirationdescription}"></p>
+      <cf:input
+        id="expiration"
+        name="expiration"
+        th:label="#{apikeynewone.form.expirationdate}"
+        type="date"
+        th:value="${model.expirationValue}"
+        required="true"
+        th:validation-message="${model.expirationError.orElse('')}"
+      />
+
+      <h2 th:text="#{apikeynewone.section.subnet}"></h2>
+      <p>
+        <span th:text="#{apikeynewone.text.subnetdescriptionintro}"></span>
+        <a
+          class="usa-link usa-link--external"
+          href="https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing"
+          target="_blank"
+          rel="noopener noreferrer"
+          th:text="#{apikeynewone.link.cidrnotation}"
+        ></a>
+        <span th:text="#{apikeynewone.text.subnetdescriptionoutro}"></span>
+      </p>
+      <cf:input
+        id="subnet"
+        name="subnet"
+        th:label="#{apikeynewone.form.subnet}"
+        type="text"
+        th:value="${model.subnetValue}"
+        required="true"
+        th:validation-message="${model.subnetError.orElse('')}"
+      />
+
+      <h2 th:text="#{apikeynewone.section.programs}"></h2>
+      <p th:text="#{apikeynewone.text.programsdescription}"></p>
+
+      <cf:checkbox
+        columns="2"
+        id="grantProgramRead"
+        name="grantProgramRead[]"
+        th:label="#{apikeynewone.form.programslegend}"
+      >
+        <item
+          th:each="program : ${model.programs}"
+          th:label="${program.name()}"
+          th:id="${program.slug()}"
+          th:name="${program.fieldName()}"
+          th:value="${program.slug()}"
+          th:checked="${program.checked()}"
+        ></item>
+      </cf:checkbox>
+
+      <cf:button
+        type="submit"
+        id="apikey-submit-button"
+        th:text="#{admin.common.button.save}"
+      />
+    </form>
+  </th:block>
+</th:block>
