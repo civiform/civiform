@@ -3,7 +3,6 @@ import {
   loginAsAdmin,
   logout,
   loginAsTestUser,
-  disableFeatureFlag,
   selectApplicantLanguage,
   validateScreenshot,
   validateToastMessage,
@@ -415,7 +414,6 @@ test.describe('Admin can manage program translations', () => {
     applicantQuestions,
   }) => {
     await loginAsAdmin(page)
-    await disableFeatureFlag(page, 'expanded_form_logic_enabled')
 
     const questionName = 'eligibility-question-q'
     const eligibilityMsg = 'Cutomized eligibility mesage'
@@ -441,25 +439,35 @@ test.describe('Admin can manage program translations', () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         screenName,
+        /* expandedFormLogicEnabled= */ true,
       )
-      await adminPredicates.addPredicates({
-        questionName: questionName,
-        scalar: 'text',
-        operator: 'is equal to',
-        value: 'eligible',
-      })
-      await adminPredicates.expectPredicateDisplayTextContains(
-        'Applicant is eligible if "eligibility-question-q" text is equal to "eligible"',
+      await adminPredicates.addPredicates(
+        /* expandedFormLogicEnabled= */ true,
+        {
+          questionName: questionName,
+          scalar: 'text',
+          operator: 'is equal to',
+          value: 'eligible',
+        },
       )
+      await expect(
+        page.getByText(
+          'Applicant is eligible if "eligibility-question-q" text is equal to "eligible"',
+        ),
+      ).not.toBeEmpty()
     })
 
     await test.step('Update translations', async () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         screenName,
+        /* expandedFormLogicEnabled= */ true,
       )
-      await adminPredicates.updateEligibilityMessage(eligibilityMsg)
-      await validateToastMessage(page, eligibilityMsg)
+      await adminPredicates.updateEligibilityMessage(
+        eligibilityMsg,
+        /* expandedFormLogicEnabled= */ true,
+      )
+      await validateToastMessage(page, 'Saved eligibility condition')
 
       await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
       await adminTranslations.selectLanguage('Spanish')

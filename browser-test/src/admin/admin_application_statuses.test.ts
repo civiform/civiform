@@ -8,7 +8,6 @@ import {
   loginAsProgramAdmin,
   loginAsTestUser,
   logout,
-  disableFeatureFlag,
   supportsEmailInspection,
   testUserDisplayName,
   extractEmailsForRecipient,
@@ -699,7 +698,6 @@ test.describe('view program statuses', () => {
         adminPrograms,
       }) => {
         await loginAsAdmin(page)
-        await disableFeatureFlag(page, 'expanded_form_logic_enabled')
 
         // Create a program without eligibility
         await adminQuestions.addNameQuestion({
@@ -740,13 +738,17 @@ test.describe('view program statuses', () => {
         await adminPrograms.goToEditBlockEligibilityPredicatePage(
           eligibilityProgramName,
           'Screen 1',
+          /* expandedFormLogicEnabled= */ true,
         )
-        await adminPredicates.addPredicates({
-          questionName: eligibilityQuestionId,
-          scalar: 'number',
-          operator: 'is equal to',
-          value: '5',
-        })
+        await adminPredicates.addPredicates(
+          /* expandedFormLogicEnabled= */ true,
+          {
+            questionName: eligibilityQuestionId,
+            scalar: 'number',
+            operator: 'is equal to',
+            value: '5',
+          },
+        )
         await adminPrograms.gotoAdminProgramsPage()
         await adminPrograms.publishProgram(eligibilityProgramName)
         await logout(page)
