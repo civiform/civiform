@@ -23,7 +23,8 @@ jobs:
             const slackUserMap = {
               'tallulahkay': 'U08ELT9CAB0',
               'fernandez-jack': 'U09HKV8L57V',
-              'melanie-exygy': 'U057V0H2K0W'
+              'melanie-exygy': 'U057V0H2K0W',
+              'AlvieH': 'U09K2RWPA00',
             };
 
             const files = await github.rest.pulls.listFiles({
