@@ -496,9 +496,42 @@ test.describe('Admin can manage program translations', () => {
       )
       await applicantQuestions.answerTextQuestion('ineligible')
       await page.click('text="Continuar"')
-      await validateScreenshot(
-        page,
-        'ineligible-view-with-translated-eligibility-msg',
+      await expect(page.locator('main')).toContainText(
+        'Spanish block eligibility message',
+      )
+    })
+
+    await test.step('Clear eligibility message', async () => {
+      await selectApplicantLanguage(page, 'en-US')
+      await logout(page)
+      await loginAsAdmin(page)
+      await adminPrograms.editProgram(programName)
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        screenName,
+      )
+      await adminPredicates.updateEligibilityMessage('')
+      await validateToastMessage(page, 'Eligibility message removed.')
+
+      await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+      await adminTranslations.selectLanguage('Spanish')
+      await adminTranslations.expectBlockTranslations(
+        'Spanish block name - bloque uno',
+        'Spanish block description',
+        '',
+      )
+
+      await adminPrograms.publishProgram(programName)
+      await logout(page)
+    })
+
+    await test.step('Verify that eligibility message does not show up on the applicant side', async () => {
+      await loginAsTestUser(page)
+      await selectApplicantLanguage(page, 'es-US')
+      await page.click('text="Editar"')
+
+      await expect(page.locator('main')).not.toContainText(
+        'Spanish block eligibility message',
       )
     })
   })
