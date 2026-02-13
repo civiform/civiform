@@ -67,6 +67,7 @@ label.primaryNavigation=قائمة التنقّل الأساسية
 label.agencyIdentifier=معرّف الوكالة،
 # Aria-label for guest session alert
 label.guestSessionAlert=تنبيه يتضمّن معلومات حول جلسة الضيف
+
 # Link to skip to the main content of the page
 link.skipToMainContent=التخطّي إلى المحتوى الرئيسي
 
@@ -1055,6 +1056,21 @@ banner.minutes={0} دقيقة
 banner.hours={0} ساعة
 banner.hour=ساعة واحدة
 banner.minute=دقيقة واحدة
+
+#------------------------------------------------------------------------------#
+# DATA SECURITY BANNER - alert explaining data protection to users             #
+#------------------------------------------------------------------------------#
+
+# Header for data security banner alert
+label.immigrationStatusInfoBanner.heading=Immigrants and refugees are welcome here
+# Aria-label for data security banner alert
+label.immigrationStatusInfoBanner.label=Immigration status informational alert
+# Text in the data security banner explaining how user data is protected when no learn more link is configured
+banner.immigrationStatusInfoBanner.body=We will not ask about your citizenship or immigration status.
+# Text in the data security banner explaining how user data is protected - the placeholder says 'here' and is a link to more information
+banner.immigrationStatusInfoBanner.bodyWithLink=We will not ask about your citizenship or immigration status. You can learn more {0}.
+# Link for more info about the data security banner
+banner.immigrationStatusInfoBanner.linkText=here
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
