@@ -67,6 +67,7 @@ label.primaryNavigation=Основное меню навигации
 label.agencyIdentifier=Идентификатор агентства
 # Aria-label for guest session alert
 label.guestSessionAlert=Предупреждение о том, что запущен гостевой сеанс
+
 # Link to skip to the main content of the page
 link.skipToMainContent=Перейти к основному контенту
 
@@ -1055,6 +1056,21 @@ banner.minutes={0} мин.
 banner.hours={0} час.
 banner.hour=1 час
 banner.minute=1 мин.
+
+#------------------------------------------------------------------------------#
+# DATA SECURITY BANNER - alert explaining data protection to users             #
+#------------------------------------------------------------------------------#
+
+# Header for data security banner alert
+label.immigrationStatusInfoBanner.heading=Immigrants and refugees are welcome here
+# Aria-label for data security banner alert
+label.immigrationStatusInfoBanner.label=Immigration status informational alert
+# Text in the data security banner explaining how user data is protected when no learn more link is configured
+banner.immigrationStatusInfoBanner.body=We will not ask about your citizenship or immigration status.
+# Text in the data security banner explaining how user data is protected - the placeholder says 'here' and is a link to more information
+banner.immigrationStatusInfoBanner.bodyWithLink=We will not ask about your citizenship or immigration status. You can learn more {0}.
+# Link for more info about the data security banner
+banner.immigrationStatusInfoBanner.linkText=here
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
