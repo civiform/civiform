@@ -2,6 +2,7 @@ package views.admin.programs.predicates;
 
 import com.google.common.collect.ImmutableList;
 import controllers.admin.AdminProgramBlockPredicatesController.OptionElement;
+import controllers.admin.AdminProgramBlockPredicatesController.QuestionOptionElement;
 import controllers.admin.AdminProgramBlockPredicatesController.ScalarOptionElement;
 import controllers.admin.routes;
 import java.util.Optional;
@@ -37,7 +38,7 @@ public record EditSubconditionPartialViewModel(
     Optional<String> selectedQuestionType,
     String userEnteredValue,
     String secondUserEnteredValue,
-    ImmutableList<OptionElement> questionOptions,
+    ImmutableList<QuestionOptionElement> questionOptions,
     ImmutableList<ScalarOptionElement> scalarOptions,
     ImmutableList<OptionElement> operatorOptions,
     ImmutableList<OptionElement> valueOptions,
@@ -57,7 +58,7 @@ public record EditSubconditionPartialViewModel(
   }
 
   public boolean hasSelectedQuestion() {
-    return questionOptions.stream().anyMatch(OptionElement::selected);
+    return questionOptions.stream().anyMatch(QuestionOptionElement::selected);
   }
 
   public PredicateValuesInputPartialViewModel predicateValuesInputModel(

@@ -62,6 +62,7 @@
               th:value="${question.value()}"
               th:text="${question.displayText()}"
               th:selected="${question.selected()}"
+              th:data-question-name="${question.adminName()}"
             ></option>
           </select>
         </div>
