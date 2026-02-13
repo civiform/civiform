@@ -26,10 +26,6 @@ See the radio-option below as an example.
 @use 'usa-label' as *;
 @use 'usa-error-message' as *;
 
-.cf-radio-option:focus-within {
-  @include u-border('blue-40v');
-}
-
 // Put the focus outline around the chip instead of the underlying checkbox
 .filter-chip:focus-within {
   @include u-outline('05');
