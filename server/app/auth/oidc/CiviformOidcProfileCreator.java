@@ -184,16 +184,10 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
         .join();
   }
 
-  /** Get the user profile from the OIDC provider. Extracted from create() for testability. */
-  @VisibleForTesting
-  protected Optional<UserProfile> superCreate(CallContext callContext, Credentials credentials) {
-    return super.create(callContext, credentials);
-  }
-
   @Override
   public Optional<UserProfile> create(CallContext callContext, Credentials credentials) {
     ProfileUtils profileUtils = new ProfileUtils(callContext.sessionStore(), profileFactory);
-    Optional<UserProfile> oidcProfile = superCreate(callContext, credentials);
+    Optional<UserProfile> oidcProfile = super.create(callContext, credentials);
 
     if (oidcProfile.isEmpty()) {
       logger.warn("Didn't get a valid profile back from OIDC.");
