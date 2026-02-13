@@ -67,6 +67,7 @@ label.primaryNavigation=Основное меню навигации
 label.agencyIdentifier=Идентификатор агентства
 # Aria-label for guest session alert
 label.guestSessionAlert=Предупреждение о том, что запущен гостевой сеанс
+
 # Link to skip to the main content of the page
 link.skipToMainContent=Перейти к основному контенту
 
@@ -1057,6 +1058,21 @@ banner.hour=1 час
 banner.minute=1 мин.
 
 #------------------------------------------------------------------------------#
+# DATA SECURITY BANNER - alert explaining data protection to users             #
+#------------------------------------------------------------------------------#
+
+# Header for data security banner alert
+label.immigrationStatusInfoBanner.heading=Immigrants and refugees are welcome here
+# Aria-label for data security banner alert
+label.immigrationStatusInfoBanner.label=Immigration status informational alert
+# Text in the data security banner explaining how user data is protected when no learn more link is configured
+banner.immigrationStatusInfoBanner.body=We will not ask about your citizenship or immigration status.
+# Text in the data security banner explaining how user data is protected - the placeholder says 'here' and is a link to more information
+banner.immigrationStatusInfoBanner.bodyWithLink=We will not ask about your citizenship or immigration status. You can learn more {0}.
+# Link for more info about the data security banner
+banner.immigrationStatusInfoBanner.linkText=here
+
+#------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
 # Note for developers: these messages aren't used in static text, but instead they #
 #  are seeded into the database, since these will be admin defined in the future #
@@ -1113,24 +1129,27 @@ ariaLabel.categories=Категории
 
 # Title of the warning modal that appears when the user has been inactive for a while
 session.inactivity.warning.title=Вы слишком долго были неактивны
-
+# Title of the session timeout warning modals
+session.warning.title=Session ending soon
+# Text on a button on a session ending soon modal that gives users the options to save and log in
+session.login.button.loggedIn=Log in
+session.login.button.guest=Log in or create an account
 # Message shown in a modal asking the user if they want to extend their session due to inactivity
 session.inactivity.warning.message=Сеанс скоро закончится. Хотите его продлить?
-
 # Title of a modal dialog displayed when a user's session is about to expire due to session length limit
 session.length.warning.title=Слишком долгий сеанс
-
 # Message shown in a modal warning the user their session will end soon due to session length limit
 session.length.warning.message=Сеанс скоро закончится. Сохраните изменения и, если нужно, заново войдите в аккаунт.
-
 # Text on a button that allows users to extend their session when shown timeout warnings
 session.extend.button=Продлить сеанс
-
 # Success message shown when the user's session is successfully extended after clicking the extend button
 session.extended.success=Сеанс продлен.
-
 # Error message shown when there was a problem extending the user's session
 session.extended.error=Не удалось продлить сеанс.
+# Message shown to guest users warning that their session is about to expire due to session length
+session.length.warning.message.guest=Your session is about to expire. Please save your work and log in or create an account to continue. You will not lose your progress in the application.
+# Message shown to logged-in users warning that their session is about to expire due to session length
+session.length.warning.message.loggedIn=Your session is about to expire. Please save your work and log back in to continue. You will not lose your progress in the application.
 
 #------------------------------------------------------------------------------#
 #  ADMIN PROGRAM BLOCK EDIT                                                    #
@@ -1157,7 +1176,7 @@ input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
 input.repeatedSet.maxEntities=
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
-alert.repeatedSet.newQuestion=
+alert.repeatedSet.newQuestion=Creating a repeated set will add a new question to the question bank.
 # Submission button for creating a new repeated set
 button.repeatedSet.submitNew=
 # Button for admins to add a new repeated set
@@ -1170,6 +1189,20 @@ text.nestedRepeatedSet=
 text.repeatedSet.prefix=заголовок родительского элемента
 # An uneditable prefix for the enumerator screen name representing the nested repeated object that will be enumerated
 text.repeatedSet.nestedPrefix=заголовок дочернего элемента
+# Instructions for admins on how to add or change the repeated set question in a program block
+text.repeatedSet.questionDescription=
+#An additional description explaining the uneditable prefix within the screen editing modal
+text.repeatedSet.screenNameDescription=To give the applicant context, we will display the applicant-defined label(s) for the listed entity they are answering questions for on this screen. You can optionally add more text to the screen name to provide further context. For example, "Jennifer - Background Information".
+# Heading above the repeated set question in the program block editor
+heading.repeatedSet.question=
+# Informative text above the listed entity input field to help admins understand what to enter in that field.
+description.repeatedSet.listedEntity=
+# Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
+description.repeatedSet.adminId=
+# An informative description above the question text input field to help admins understand what to enter in that field.
+description.repeatedSet.questionText=
+# An informative description above the hint text input field to help admins understand what to enter in that field.
+description.repeatedSet.hintText=
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #
@@ -1220,3 +1253,70 @@ reportingProgram.timeToCompleteP75=Время завершения (p75)
 reportingProgram.timeToCompleteP99=Время завершения (p99)
 # Text on button to download CSV file
 reportingProgram.downloadCsv=Скачать CSV
+
+#------------------------------------------------------------------------------#
+#  DEV TOOLS - text for the developer tools page                               #
+#------------------------------------------------------------------------------#
+# The text on the button to go to the home page from the dev tools page.
+devtools.homepage=
+
+# Heading for the seed section of the dev tools page.
+devtools.seed.title=
+# Description for the seed section of the dev tools page.
+devtools.seed.description=
+# Button text to seed sample programs and categories.
+devtools.seed.programs=
+# Button text to seed sample questions.
+devtools.seed.questions=
+# Button text to clear the entire database (irreversible action).
+devtools.seed.clear=
+
+# Heading for the caching section of the dev tools page.
+devtools.cache.title=
+# Description for the caching section of the dev tools page.
+devtools.cache.description=
+# Button text to clear the cache.
+devtools.cache.clear=
+
+# Heading for the durable jobs section of the dev tools page.
+devtools.jobs.title=
+# Description for the durable jobs section of the dev tools page.
+devtools.jobs.description=
+# Label for the dropdown to select a durable job to run.
+devtools.jobs.select=
+# Button text to run the selected durable job.
+devtools.jobs.run=
+
+# Heading for the icons section of the dev tools page.
+devtools.icons.title=
+# Description for the icons section of the dev tools page.
+devtools.icons.description=
+# Button text to view all SVG icons.
+devtools.icons.view=
+
+# Heading for the Localstack section of the dev tools page.
+devtools.localstack.title=
+# Description for the Localstack section of the dev tools page.
+devtools.localstack.description=
+# Button text to view SES emails in Localstack.
+devtools.localstack.ses=
+# Button text to view the S3 private bucket in Localstack.
+devtools.localstack.private=
+# Button text to view the S3 public bucket in Localstack.
+devtools.localstack.public=
+
+# Heading for the address tools section of the dev tools page.
+devtools.address.title=
+# Description for the address tools section of the dev tools page.
+devtools.address.description=
+# Button text to go to the address tools page.
+devtools.address.go=
+
+# Heading for the session tools section of the dev tools page.
+devtools.session.title=
+# Description for the session tools section of the dev tools page.
+devtools.session.description=
+# Button text to view the current pac4j profile.
+devtools.session.pac4j=
+# Button text to view the current Play session.
+devtools.session.play=
