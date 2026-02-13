@@ -777,6 +777,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("COMMON_INTAKE_MORE_RESOURCES_LINK_HREF", request);
   }
 
+  /** The HREF for providing more information for the immigration status informational banner. */
+  public Optional<String> getImmigrationStatusInfoBannerLearnMoreUrl(RequestHeader request) {
+    return getString("IMMIGRATION_STATUS_INFO_BANNER_LEARN_MORE_URL", request);
+  }
+
   /**
    * The [secret key](http://www.playframework.com/documentation/latest/ApplicationSecret) is used
    * to sign Play's session cookie. This must be changed for production.
@@ -1095,6 +1100,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** Enables a dropdown for login that has both applicant and admin login. */
   public boolean getLoginDropdownEnabled(RequestHeader request) {
     return getBool("LOGIN_DROPDOWN_ENABLED", request);
+  }
+
+  /** Enable showing an immigration status informational banner to applicants. */
+  public boolean getImmigrationStatusInfoBannerEnabled(RequestHeader request) {
+    return getBool("IMMIGRATION_STATUS_INFO_BANNER_ENABLED", request);
   }
 
   /**
@@ -2094,7 +2104,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           /* isRequired= */ false,
                           SettingType.STRING,
                           SettingMode.ADMIN_WRITEABLE,
-                          Pattern.compile("^(http://|https://).+")))))
+                          Pattern.compile("^(http://|https://).+")),
+                      SettingDescription.create(
+                          "IMMIGRATION_STATUS_INFO_BANNER_LEARN_MORE_URL",
+                          "The HREF for providing more information for the immigration status"
+                              + " informational banner.",
+                          /* isRequired= */ false,
+                          SettingType.STRING,
+                          SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Observability",
               SettingsSection.create(
@@ -2370,6 +2387,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingDescription.create(
                           "LOGIN_DROPDOWN_ENABLED",
                           "Enables a dropdown for login that has both applicant and admin login.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "IMMIGRATION_STATUS_INFO_BANNER_ENABLED",
+                          "Enable showing an immigration status informational banner to"
+                              + " applicants.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))
