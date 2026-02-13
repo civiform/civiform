@@ -740,8 +740,10 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(StringUtils.deleteWhitespace(content))
         .contains(
             String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.addressApplicantAddress().id));
+                "<optionvalue=\"%d\"data-question-name=\"%s\"selected=\"selected\">",
+                testQuestionBank.addressApplicantAddress().id,
+                StringUtils.deleteWhitespace(
+                    testQuestionBank.addressApplicantAddress().getQuestionDefinition().getName())));
     // Verify only scalars applicable to the selected question are shown
     assertThat(content).contains("service area");
     assertThat(content)
@@ -777,8 +779,10 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(StringUtils.deleteWhitespace(content))
         .doesNotContain(
             String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.addressApplicantAddress().id));
+                "<optionvalue=\"%d\"data-question-name=\"%s\"selected=\"selected\">",
+                testQuestionBank.addressApplicantAddress().id,
+                StringUtils.deleteWhitespace(
+                    testQuestionBank.addressApplicantAddress().getQuestionDefinition().getName())));
     // Without a question selected, verify the form is in its default state with 4 default inputs
     // (question, scalar, operator value) and
     // scalar/operator/value/delete subcondition disabled.
@@ -864,13 +868,20 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(StringUtils.deleteWhitespace(content))
         .doesNotContain(
             String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.addressApplicantAddress().id));
+                "<optionvalue=\"%d\"data-question-name=\"%s\"selected=\"selected\">",
+                testQuestionBank.addressApplicantAddress().id,
+                StringUtils.deleteWhitespace(
+                    testQuestionBank.addressApplicantAddress().getQuestionDefinition().getName())));
     assertThat(StringUtils.deleteWhitespace(content))
         .contains(
             String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.dropdownApplicantIceCream().id));
+                "<optionvalue=\"%d\"data-question-name=\"%s\"selected=\"selected\">",
+                testQuestionBank.dropdownApplicantIceCream().id,
+                StringUtils.deleteWhitespace(
+                    testQuestionBank
+                        .dropdownApplicantIceCream()
+                        .getQuestionDefinition()
+                        .getName())));
     assertThat(StringUtils.countMatches(content, "Add condition")).isEqualTo(1);
   }
 
@@ -896,13 +907,20 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(StringUtils.deleteWhitespace(content))
         .contains(
             String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.addressApplicantAddress().id));
+                "<optionvalue=\"%d\"data-question-name=\"%s\"selected=\"selected\">",
+                testQuestionBank.addressApplicantAddress().id,
+                StringUtils.deleteWhitespace(
+                    testQuestionBank.addressApplicantAddress().getQuestionDefinition().getName())));
     assertThat(StringUtils.deleteWhitespace(content))
         .doesNotContain(
             String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.dropdownApplicantIceCream().id));
+                "<optionvalue=\"%d\"data-question-name=\"%s\"selected=\"selected\">",
+                testQuestionBank.dropdownApplicantIceCream().id,
+                StringUtils.deleteWhitespace(
+                    testQuestionBank
+                        .dropdownApplicantIceCream()
+                        .getQuestionDefinition()
+                        .getName())));
     assertThat(StringUtils.countMatches(content, "Add condition")).isEqualTo(1);
   }
 
@@ -954,13 +972,20 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(StringUtils.deleteWhitespace(content))
         .doesNotContain(
             String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.addressApplicantAddress().id));
+                "<optionvalue=\"%d\"data-question-name=\"%s\"selected=\"selected\">",
+                testQuestionBank.addressApplicantAddress().id,
+                StringUtils.deleteWhitespace(
+                    testQuestionBank.addressApplicantAddress().getQuestionDefinition().getName())));
     assertThat(StringUtils.deleteWhitespace(content))
         .contains(
             String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.dropdownApplicantIceCream().id));
+                "<optionvalue=\"%d\"data-question-name=\"%s\"selected=\"selected\">",
+                testQuestionBank.dropdownApplicantIceCream().id,
+                StringUtils.deleteWhitespace(
+                    testQuestionBank
+                        .dropdownApplicantIceCream()
+                        .getQuestionDefinition()
+                        .getName())));
     assertThat(StringUtils.countMatches(content, "Add sub-condition")).isEqualTo(1);
   }
 
@@ -988,13 +1013,20 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(StringUtils.deleteWhitespace(content))
         .contains(
             String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.addressApplicantAddress().id));
+                "<optionvalue=\"%d\"data-question-name=\"%s\"selected=\"selected\">",
+                testQuestionBank.addressApplicantAddress().id,
+                StringUtils.deleteWhitespace(
+                    testQuestionBank.addressApplicantAddress().getQuestionDefinition().getName())));
     assertThat(StringUtils.deleteWhitespace(content))
         .doesNotContain(
             String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.dropdownApplicantIceCream().id));
+                "<optionvalue=\"%d\"data-question-name=\"%s\"selected=\"selected\">",
+                testQuestionBank.dropdownApplicantIceCream().id,
+                StringUtils.deleteWhitespace(
+                    testQuestionBank
+                        .dropdownApplicantIceCream()
+                        .getQuestionDefinition()
+                        .getName())));
     assertThat(StringUtils.countMatches(content, "Add sub-condition")).isEqualTo(1);
   }
 
@@ -1030,8 +1062,10 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(contentWithoutWhitespace)
         .doesNotContain(
             String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.nameApplicantName().id));
+                "<optionvalue=\"%d\"data-question-name=\"%s\"selected=\"selected\">",
+                testQuestionBank.nameApplicantName().id,
+                StringUtils.deleteWhitespace(
+                    testQuestionBank.nameApplicantName().getQuestionDefinition().getName())));
     assertThat(content).contains("#predicate-conditions-list");
     assertThat(contentWithoutWhitespace).doesNotContain("Condition1");
     assertThat(StringUtils.countMatches(content, "Add condition")).isEqualTo(1);
