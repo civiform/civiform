@@ -1,7 +1,7 @@
 import express from 'express';
 import {createMiddleware} from '@mswjs/http-middleware';
-import {handlers} from './handlers.js';
-import {CONFIG} from './config.js';
+import {handlers} from '@/handlers.js';
+import {CONFIG} from '@/config.js';
 
 const app = express();
 

@@ -4,8 +4,8 @@
   "description": "Mock web services for CiviForm testing (API Bridge, ESRI, GeoJSON)",
   "main": "dist/server.js",
   "scripts": {
-    "build": "tsc",
-    "start": "tsc && node dist/server.js",
+    "build": "tsc && tsc-alias",
+    "start": "npm run build && node dist/server.js",
     "dev": "ts-node src/server.ts",
     "lint": "eslint src/**/*.ts",
     "type-check": "tsc --noEmit"
@@ -27,6 +27,7 @@
     "eslint-config-prettier": "^10.1.8",
     "globals": "^17.0.0",
     "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.16",
     "typescript": "^5.9.3"
   },
   "license": "Apache-2.0"
