@@ -74,6 +74,58 @@ public abstract class QuestionDefinition {
     this.config = config;
   }
 
+  public static QuestionDefinition create(
+      QuestionType questionType,
+      QuestionDefinitionConfig config,
+      ImmutableList<QuestionOption> questionOptions,
+      LocalizedStrings entityType)
+      throws UnsupportedQuestionTypeException {
+    return switch (questionType) {
+      case ADDRESS -> new AddressQuestionDefinition(config);
+      case CHECKBOX ->
+          new MultiOptionQuestionDefinition(
+              config,
+              questionOptions,
+              MultiOptionQuestionDefinition.MultiOptionQuestionType.CHECKBOX);
+      case CURRENCY -> new CurrencyQuestionDefinition(config);
+      case DATE -> new DateQuestionDefinition(config);
+      case DROPDOWN ->
+          new MultiOptionQuestionDefinition(
+              config,
+              questionOptions,
+              MultiOptionQuestionDefinition.MultiOptionQuestionType.DROPDOWN);
+      case EMAIL -> new EmailQuestionDefinition(config);
+      case FILEUPLOAD -> new FileUploadQuestionDefinition(config);
+      case ID -> new IdQuestionDefinition(config);
+      case MAP -> new MapQuestionDefinition(config);
+      case NAME -> new NameQuestionDefinition(config);
+      case NUMBER -> new NumberQuestionDefinition(config);
+      case RADIO_BUTTON ->
+          new MultiOptionQuestionDefinition(
+              config,
+              questionOptions,
+              MultiOptionQuestionDefinition.MultiOptionQuestionType.RADIO_BUTTON);
+      case ENUMERATOR -> {
+        // This shouldn't happen, but protects us in case there are enumerator questions in the prod
+        // database that don't have entity type specified.
+        if (entityType == null || entityType.isEmpty()) {
+          entityType =
+              LocalizedStrings.withDefaultValue(EnumeratorQuestionDefinition.DEFAULT_ENTITY_TYPE);
+        }
+        yield new EnumeratorQuestionDefinition(config, entityType);
+      }
+      case STATIC -> new StaticContentQuestionDefinition(config);
+      case TEXT -> new TextQuestionDefinition(config);
+      case PHONE -> new PhoneQuestionDefinition(config);
+      case YES_NO ->
+          new MultiOptionQuestionDefinition(
+              config,
+              questionOptions,
+              MultiOptionQuestionDefinition.MultiOptionQuestionType.YES_NO);
+      case NULL_QUESTION -> throw new UnsupportedQuestionTypeException(questionType);
+    };
+  }
+
   @JsonIgnore
   public QuestionDisplayMode getDisplayMode() {
     return config.displayMode();

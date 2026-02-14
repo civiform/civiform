@@ -139,9 +139,15 @@ public class AdminProgramBlockQuestionsController extends Controller {
       return badRequest(e.getMessage());
     }
 
+    EnumeratorQuestionForm enumeratorForm = (EnumeratorQuestionForm) questionForm;
     QuestionDefinition questionDefinition;
     try {
-      questionDefinition = questionForm.getBuilder().build();
+      questionDefinition =
+          QuestionDefinition.create(
+              questionForm.getQuestionType(),
+              questionForm.getConfigBuilder().build(),
+              questionForm.getQuestionOptions(),
+              enumeratorForm.getEntityTypeLocalizedStrings());
     } catch (UnsupportedQuestionTypeException e) {
       // Valid question type that is not yet fully supported.
       return badRequest(e.getMessage());

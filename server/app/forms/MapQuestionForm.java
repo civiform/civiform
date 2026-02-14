@@ -13,7 +13,6 @@ import services.question.MapSettingType;
 import services.question.QuestionSetting;
 import services.question.types.MapQuestionDefinition;
 import services.question.types.MapQuestionDefinition.MapValidationPredicates;
-import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
 /** Form for {@link QuestionType#MAP} question configuration and settings. */
@@ -110,7 +109,7 @@ public class MapQuestionForm extends QuestionForm {
   }
 
   @Override
-  public QuestionDefinitionBuilder getBuilder() {
+  public MapValidationPredicates getValidationPredicates() {
     MapValidationPredicates.Builder predicateBuilder = MapValidationPredicates.builder();
 
     predicateBuilder.setGeoJsonEndpoint(getGeoJsonEndpoint());
@@ -119,9 +118,12 @@ public class MapQuestionForm extends QuestionForm {
       predicateBuilder.setMaxLocationSelections(getMaxLocationSelections());
     }
 
-    return super.getBuilder()
-        .setValidationPredicates(predicateBuilder.build())
-        .setQuestionSettings(buildQuestionSettings());
+    return predicateBuilder.build();
+  }
+
+  @Override
+  public ImmutableSet<QuestionSetting> getQuestionSettings() {
+    return buildQuestionSettings();
   }
 
   private void setFormWithDefaultQuestionSettings() {

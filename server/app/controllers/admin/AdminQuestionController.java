@@ -44,6 +44,7 @@ import services.question.types.MapQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionDefinitionConfig;
 import services.question.types.QuestionType;
 import views.admin.questions.MapQuestionSettingsFiltersListPartialView;
 import views.admin.questions.MapQuestionSettingsFiltersListPartialViewModel;
@@ -212,7 +213,15 @@ public final class AdminQuestionController extends CiviFormController {
 
     QuestionDefinition questionDefinition;
     try {
-      questionDefinition = questionForm.getBuilder().build();
+      QuestionDefinitionConfig.Builder configBuilder = questionForm.getConfigBuilder();
+      configBuilder.setValidationPredicates(
+          questionForm.getQuestionType(), questionForm.getValidationPredicatesString());
+      questionDefinition =
+          QuestionDefinition.create(
+              questionForm.getQuestionType(),
+              configBuilder.build(),
+              questionForm.getQuestionOptions(),
+              questionForm.getEntityTypeLocalizedStrings());
     } catch (UnsupportedQuestionTypeException e) {
       // Valid question type that is not yet fully supported.
       return badRequest(e.getMessage());
