@@ -21,6 +21,8 @@ import services.geo.esri.EsriServiceAreaValidationConfig;
 import services.geo.esri.EsriServiceAreaValidationOption;
 import services.settings.SettingsManifest;
 import views.components.TextFormatter;
+import views.dev.AddressCheckerPageView;
+import views.dev.AddressCheckerPageViewModel;
 import views.dev.AddressCheckerView;
 import views.dev.hx.CorrectAddressViewPartial;
 import views.dev.hx.ServiceAreaCheckViewPartial;
@@ -32,6 +34,7 @@ public final class AddressCheckerController extends Controller {
 
   private final SettingsManifest settingsManifest;
   private final AddressCheckerView addressCheckerView;
+  private final AddressCheckerPageView addressCheckerPageView;
   private final CorrectAddressViewPartial correctAddressViewPartial;
   private final ServiceAreaCheckViewPartial checkServiceAreaViewPartial;
   private final EsriClient esriClient;
@@ -46,7 +49,8 @@ public final class AddressCheckerController extends Controller {
       ServiceAreaCheckViewPartial checkServiceAreaViewPartial,
       EsriClient esriClient,
       EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
-      FormFactory formFactory) {
+      FormFactory formFactory,
+      AddressCheckerPageView addressCheckerPageView) {
     this.settingsManifest = checkNotNull(settingsManifest);
     this.addressCheckerView = checkNotNull(addressCheckerView);
     this.correctAddressViewPartial = checkNotNull(correctAddressViewPartial);
@@ -54,9 +58,26 @@ public final class AddressCheckerController extends Controller {
     this.esriClient = checkNotNull(esriClient);
     this.esriServiceAreaValidationConfig = checkNotNull(esriServiceAreaValidationConfig);
     this.formFactory = checkNotNull(formFactory);
+    this.addressCheckerPageView = checkNotNull(addressCheckerPageView);
   }
 
   public Result index(Http.Request request) {
+    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+      AddressCheckerPageViewModel model =
+          AddressCheckerPageViewModel.builder()
+              .backLinkUrl(routes.DevToolsController.index().url())
+              .addressCorrectionEnabled(settingsManifest.getEsriAddressCorrectionEnabled(request))
+              .addressValidationEnabled(
+                  settingsManifest.getEsriAddressServiceAreaValidationEnabled(request))
+              .findAddressCandidatesUrls(settingsManifest.getEsriFindAddressCandidatesUrls())
+              .addressServiceAreaValidationUrls(
+                  settingsManifest.getEsriAddressServiceAreaValidationUrls())
+              .serviceAreaValidationConfigMap(esriServiceAreaValidationConfig.getImmutableMap())
+              .correctAddressActionUrl(routes.AddressCheckerController.hxCorrectAddress().url())
+              .checkServiceAreaActionUrl(routes.AddressCheckerController.hxCheckServiceArea().url())
+              .build();
+      return ok(addressCheckerPageView.render(request, model)).as(Http.MimeTypes.HTML);
+    }
     return ok(addressCheckerView.render(request));
   }
 
