@@ -81,22 +81,14 @@ public class SessionTimeoutFilter extends Filter {
     }
 
     CiviFormProfile profile = optionalProfile.get();
-    return sessionTimeoutService
-        .get()
-        .isSessionTimedOut(profile)
-        .thenCompose(
-            isTimedOut -> {
-              if (isTimedOut) {
-                return CompletableFuture.completedFuture(
-                    Results.redirect(org.pac4j.play.routes.LogoutController.logout()));
-              }
-              profile.getProfileData().updateLastActivityTime(clock);
-              return nextFilter
-                  .apply(requestHeader)
-                  .thenCompose(
-                      result ->
-                          createSessionTimestampCookie(profile).thenApply(result::withCookies));
-            });
+    if (sessionTimeoutService.get().isSessionTimedOut(profile)) {
+      return CompletableFuture.completedFuture(
+          Results.redirect(org.pac4j.play.routes.LogoutController.logout()));
+    }
+    profile.getProfileData().updateLastActivityTime(clock);
+    return nextFilter
+        .apply(requestHeader)
+        .thenApply(result -> result.withCookies(createSessionTimestampCookie(profile)));
   }
 
   /**
@@ -109,32 +101,29 @@ public class SessionTimeoutFilter extends Filter {
    * validation measures must be implemented.
    *
    * @param profile Profile corresponding to the logged-in user (applicant or TI).
-   * @return A future that completes with the cookie containing the session's timeout data.
+   * @return The cookie containing the session's timeout data.
    */
-  private CompletableFuture<Http.Cookie> createSessionTimestampCookie(CiviFormProfile profile) {
-    return sessionTimeoutService
-        .get()
-        .calculateTimeoutData(profile)
-        .thenApply(
-            timeoutData -> {
-              ObjectNode timestamps =
-                  Json.newObject()
-                      .put("inactivityWarning", timeoutData.inactivityWarning())
-                      .put("inactivityTimeout", timeoutData.inactivityTimeout())
-                      .put("totalWarning", timeoutData.totalWarning())
-                      .put("totalTimeout", timeoutData.totalTimeout())
-                      .put("currentTime", timeoutData.currentTime());
+  private Http.Cookie createSessionTimestampCookie(CiviFormProfile profile) {
+    SessionTimeoutService.TimeoutData timeoutData =
+        sessionTimeoutService.get().calculateTimeoutData(profile);
 
-              String cookieValue =
-                  Base64.getEncoder()
-                      .encodeToString(Json.stringify(timestamps).getBytes(StandardCharsets.UTF_8));
+    ObjectNode timestamps =
+        Json.newObject()
+            .put("inactivityWarning", timeoutData.inactivityWarning())
+            .put("inactivityTimeout", timeoutData.inactivityTimeout())
+            .put("totalWarning", timeoutData.totalWarning())
+            .put("totalTimeout", timeoutData.totalTimeout())
+            .put("currentTime", timeoutData.currentTime());
 
-              return Http.Cookie.builder(TIMEOUT_COOKIE_NAME, cookieValue)
-                  .withHttpOnly(false)
-                  .withPath("/")
-                  .withMaxAge(COOKIE_MAX_AGE)
-                  .build();
-            });
+    String cookieValue =
+        Base64.getEncoder()
+            .encodeToString(Json.stringify(timestamps).getBytes(StandardCharsets.UTF_8));
+
+    return Http.Cookie.builder(TIMEOUT_COOKIE_NAME, cookieValue)
+        .withHttpOnly(false)
+        .withPath("/")
+        .withMaxAge(COOKIE_MAX_AGE)
+        .build();
   }
 
   private Result clearTimeoutCookie(Result result) {

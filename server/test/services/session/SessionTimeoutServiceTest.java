@@ -12,12 +12,9 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import javax.inject.Provider;
 import org.junit.Before;
 import org.junit.Test;
-import services.session.SessionTimeoutService.TimeoutData;
 import services.settings.SettingsManifest;
 
 public class SessionTimeoutServiceTest {
@@ -63,12 +60,11 @@ public class SessionTimeoutServiceTest {
   public void isSessionTimedOut_noTimeout() {
     long lastActivityTime = getTimeMinutesAgo(10);
     when(profileData.getLastActivityTime(clock)).thenReturn(lastActivityTime);
-    when(profile.getSessionStartTime())
-        .thenReturn(CompletableFuture.completedFuture(Optional.of(lastActivityTime)));
+    when(profileData.getSessionStartTime(clock)).thenReturn(lastActivityTime);
 
-    CompletableFuture<Boolean> result = sessionTimeoutService.isSessionTimedOut(profile);
+    boolean result = sessionTimeoutService.isSessionTimedOut(profile);
 
-    assertThat(result.join()).isFalse();
+    assertThat(result).isFalse();
   }
 
   @Test
@@ -76,9 +72,9 @@ public class SessionTimeoutServiceTest {
     long lastActivityTime = getTimeMinutesAgo(INACTIVITY_TIMEOUT_MINUTES + 1);
     when(profileData.getLastActivityTime(clock)).thenReturn(lastActivityTime);
 
-    CompletableFuture<Boolean> result = sessionTimeoutService.isSessionTimedOut(profile);
+    boolean result = sessionTimeoutService.isSessionTimedOut(profile);
 
-    assertThat(result.join()).isTrue();
+    assertThat(result).isTrue();
   }
 
   @Test
@@ -86,25 +82,22 @@ public class SessionTimeoutServiceTest {
     long sessionStartTime = getTimeMinutesAgo(MAX_SESSION_DURATION_MINUTES + 1);
     when(profileData.getLastActivityTime(clock))
         .thenReturn(CURRENT_TIME * 1000 - 10 * 60 * 1000); // Recent activity
-    when(profile.getSessionStartTime())
-        .thenReturn(CompletableFuture.completedFuture(Optional.of(sessionStartTime)));
+    when(profileData.getSessionStartTime(clock)).thenReturn(sessionStartTime);
 
-    CompletableFuture<Boolean> result = sessionTimeoutService.isSessionTimedOut(profile);
+    boolean result = sessionTimeoutService.isSessionTimedOut(profile);
 
-    assertThat(result.join()).isTrue();
+    assertThat(result).isTrue();
   }
 
   @Test
   public void calculateTimeoutData_allValuesPresent() {
     long sessionStartTime = getTimeMinutesAgo(30);
     long lastActivityTime = getTimeMinutesAgo(10);
-    when(profile.getSessionStartTime())
-        .thenReturn(CompletableFuture.completedFuture(Optional.of(sessionStartTime)));
+    when(profileData.getSessionStartTime(clock)).thenReturn(sessionStartTime);
     when(profileData.getLastActivityTime(clock)).thenReturn(lastActivityTime);
 
-    CompletableFuture<SessionTimeoutService.TimeoutData> result =
+    SessionTimeoutService.TimeoutData timeoutData =
         sessionTimeoutService.calculateTimeoutData(profile);
-    SessionTimeoutService.TimeoutData timeoutData = result.join();
 
     assertThat(timeoutData.inactivityTimeout())
         .isEqualTo(lastActivityTime / 1000 + INACTIVITY_TIMEOUT_MINUTES * 60);
@@ -123,14 +116,11 @@ public class SessionTimeoutServiceTest {
 
   @Test
   public void calculateTimeoutData_noSessionStartTime_usesCurrentTime() {
-    long lastActivityTime = getTimeMinutesAgo(10);
-    when(profile.getSessionStartTime())
-        .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
-    when(profileData.getLastActivityTime(clock)).thenReturn(lastActivityTime);
+    when(profileData.getSessionStartTime(clock)).thenReturn(CURRENT_TIME * 1000L);
+    when(profileData.getLastActivityTime(clock)).thenReturn(getTimeMinutesAgo(10));
 
-    CompletableFuture<SessionTimeoutService.TimeoutData> result =
+    SessionTimeoutService.TimeoutData timeoutData =
         sessionTimeoutService.calculateTimeoutData(profile);
-    SessionTimeoutService.TimeoutData timeoutData = result.join();
 
     assertThat(timeoutData.totalTimeout())
         .isEqualTo(CURRENT_TIME + MAX_SESSION_DURATION_MINUTES * 60);
@@ -157,10 +147,10 @@ public class SessionTimeoutServiceTest {
     when(settings.getSessionDurationWarningThresholdMinutes()).thenReturn(Optional.empty());
     long lastActivityTime = getTimeMinutesAgo(10);
     when(profileData.getLastActivityTime(clock)).thenReturn(lastActivityTime);
-    when(profile.getSessionStartTime())
-        .thenReturn(CompletableFuture.completedFuture(Optional.of(lastActivityTime)));
+    when(profileData.getSessionStartTime(clock)).thenReturn(lastActivityTime);
 
-    assertThrowsNoSuchElement(sessionTimeoutService.calculateTimeoutData(profile));
+    assertThatThrownBy(() -> sessionTimeoutService.calculateTimeoutData(profile))
+        .isInstanceOf(NoSuchElementException.class);
   }
 
   @Test
@@ -168,21 +158,9 @@ public class SessionTimeoutServiceTest {
     when(settings.getSessionInactivityWarningThresholdMinutes()).thenReturn(Optional.empty());
     long lastActivityTime = getTimeMinutesAgo(10);
     when(profileData.getLastActivityTime(clock)).thenReturn(lastActivityTime);
-    when(profile.getSessionStartTime())
-        .thenReturn(CompletableFuture.completedFuture(Optional.of(lastActivityTime)));
+    when(profileData.getSessionStartTime(clock)).thenReturn(lastActivityTime);
 
-    assertThrowsNoSuchElement(sessionTimeoutService.calculateTimeoutData(profile));
-  }
-
-  private void assertThrowsNoSuchElement(CompletableFuture<TimeoutData> future) {
-    try {
-      future.join();
-    } catch (CompletionException e) {
-      assertThatThrownBy(
-              () -> {
-                throw e.getCause();
-              })
-          .isInstanceOf(NoSuchElementException.class);
-    }
+    assertThatThrownBy(() -> sessionTimeoutService.calculateTimeoutData(profile))
+        .isInstanceOf(NoSuchElementException.class);
   }
 }

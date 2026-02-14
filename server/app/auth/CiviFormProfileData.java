@@ -24,6 +24,7 @@ import repository.DatabaseExecutionContext;
  */
 public class CiviFormProfileData extends CommonProfile {
   public static final String SESSION_ID = "sessionId";
+  public static final String SESSION_START_TIME = "sessionStartTime";
   public static final String LAST_ACTIVITY_TIME = "lastActivityTime";
 
   // It is crucial that serialization of this class does not change, so that user profiles continue
@@ -45,6 +46,7 @@ public class CiviFormProfileData extends CommonProfile {
   public CiviFormProfileData(Long accountId, Clock clock) {
     this();
     this.setId(accountId.toString());
+    addAttribute(SESSION_START_TIME, clock.instant().toEpochMilli());
     addAttribute(LAST_ACTIVITY_TIME, clock.instant().toEpochMilli());
   }
 
@@ -71,6 +73,11 @@ public class CiviFormProfileData extends CommonProfile {
   /** Returns the session ID for this profile. */
   public String getSessionId() {
     return getAttributeAsString(SESSION_ID);
+  }
+
+  /** Returns the session start time in milliseconds. Falls back to current time if not stored. */
+  public long getSessionStartTime(Clock clock) {
+    return (Long) getAttributes().getOrDefault(SESSION_START_TIME, clock.instant().toEpochMilli());
   }
 
   public void updateLastActivityTime(Clock clock) {

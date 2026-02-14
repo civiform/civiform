@@ -133,6 +133,8 @@ public final class ProfileFactory {
   private CiviFormProfileData create(Role[] roleList) {
     CiviFormProfileData p = new CiviFormProfileData();
     p.init(dbContext);
+    p.addAttribute(CiviFormProfileData.SESSION_START_TIME, clock.instant().toEpochMilli());
+    p.addAttribute(CiviFormProfileData.LAST_ACTIVITY_TIME, clock.instant().toEpochMilli());
     for (Role role : roleList) {
       p.addRole(role.toString());
     }
