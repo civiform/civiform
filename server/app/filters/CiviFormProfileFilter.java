@@ -4,10 +4,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static play.mvc.Results.redirect;
 
+import auth.CiviFormProfile;
 import auth.GuestClient;
 import auth.ProfileUtils;
 import com.google.inject.Inject;
 import controllers.routes;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
@@ -52,8 +54,7 @@ public final class CiviFormProfileFilter extends Filter {
         && routerProvider.get().route(requestHeader).isPresent()
         && !requestHeader.path().startsWith("/callback")
         // TODO(#8504) extend to all HTTP methods
-        && (requestHeader.method().equals("GET") || requestHeader.method().equals("HEAD"))
-        && profileUtils.optionalCurrentUserProfile(requestHeader).isEmpty();
+        && (requestHeader.method().equals("GET") || requestHeader.method().equals("HEAD"));
   }
 
   @Override
@@ -61,12 +62,21 @@ public final class CiviFormProfileFilter extends Filter {
       Function<Http.RequestHeader, CompletionStage<Result>> nextFilter,
       Http.RequestHeader requestHeader) {
     if (shouldRedirect(requestHeader)) {
-      // Directly invoke the callback of the GuestClient, which creates a profile. Then redirect the
-      // user to the page they were trying to reach.
-      return CompletableFuture.completedFuture(
-          redirect(routes.CallbackController.callback(GuestClient.CLIENT_NAME).url())
-              .withSession(
-                  requestHeader.session().adding(REDIRECT_TO_SESSION_KEY, requestHeader.uri())));
+      // Only get the user profile if the previous conditions pass
+      Optional<CiviFormProfile> currentUserProfile =
+          profileUtils.optionalCurrentUserProfile(requestHeader);
+      if (currentUserProfile.isEmpty()) {
+        // Directly invoke the callback of the GuestClient, which creates a profile.
+        // Then redirect the user to the page they were trying to reach.
+        return CompletableFuture.completedFuture(
+            redirect(routes.CallbackController.callback(GuestClient.CLIENT_NAME).url())
+                .withSession(
+                    requestHeader.session().adding(REDIRECT_TO_SESSION_KEY, requestHeader.uri())));
+      } else {
+        // Attach the profile so downstream actions don't need to re-fetch it
+        requestHeader =
+            requestHeader.addAttr(ProfileUtils.CURRENT_USER_PROFILE, currentUserProfile.get());
+      }
     }
 
     // Do nothing
