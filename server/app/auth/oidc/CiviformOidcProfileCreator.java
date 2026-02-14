@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import java.util.function.Function;
 import javax.inject.Provider;
+import models.AccountModel;
 import models.ApplicantModel;
 import org.apache.commons.lang3.NotImplementedException;
 import org.pac4j.core.context.CallContext;
@@ -202,8 +203,15 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     }
 
     Optional<ApplicantModel> existingApplicant = getExistingApplicant(profile);
+    // If the civiform user is a TI, do not merge it with a guest.
+    // TIs should not have applicant data. The guest is left a guest account
+    // as if they never logged in.  TIs should not be using guest accounts,
+    // so this is a place where we could try to message the situation
+    // directly if we desired too.
+    boolean isTi =
+        existingApplicant.filter(app -> isTrustedIntermediary(app.getAccount())).isPresent();
     Optional<CiviFormProfile> guestProfile =
-        profileUtils.optionalCurrentUserProfile(callContext.webContext());
+        isTi ? Optional.empty() : profileUtils.optionalCurrentUserProfile(callContext.webContext());
 
     Function<Optional<CiviFormProfile>, UserProfile> mergeFunction =
         (cProfile) -> this.mergeCiviFormProfile(cProfile, profile);
@@ -245,7 +253,11 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
   }
 
   protected final boolean isTrustedIntermediary(CiviFormProfile profile) {
-    return profile.getAccount().join().getMemberOfGroup().isPresent();
+    return isTrustedIntermediary(profile.getAccount().join());
+  }
+
+  protected final boolean isTrustedIntermediary(AccountModel account) {
+    return account.getMemberOfGroup().isPresent();
   }
 
   private boolean enhancedLogoutEnabled() {
