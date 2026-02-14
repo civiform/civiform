@@ -105,8 +105,10 @@ lazy val root = (project in file("."))
       "org.apache.commons" % "commons-csv" % "1.14.1",
       "commons-validator" % "commons-validator" % "1.10.1",
 
+      //
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.5",
+      "org.apache.pdfbox" % "pdfbox" % "3.0.6",
       // Phone number formatting and validation dependency
       "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.23",
 

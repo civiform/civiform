@@ -12,6 +12,10 @@ import services.cloud.PublicStorageClient;
 import services.program.ProgramDefinition;
 import views.style.StyleUtils;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.rendering.PDFRenderer;
+import org.apache.pdfbox.rendering.ImageType;
+
 /** Utility class for rendering program images. */
 public final class ProgramImageUtils {
   private final PublicStorageClient publicStorageClient;
@@ -34,6 +38,7 @@ public final class ProgramImageUtils {
       return Optional.empty();
     }
     String summaryImageFileKey = program.summaryImageFileKey().get();
+
     if (!PublicFileNameFormatter.isFileKeyForPublicProgramImage(summaryImageFileKey)) {
       return Optional.empty();
     }
