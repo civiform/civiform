@@ -9,6 +9,11 @@ x-sbt-volumes:
     - ./server:/usr/src/server:z
 
 services:
+  mobile-proxy:
+    image: ubuntu/squid
+    ports:
+      - 8081:3128
+
   dev-oidc:
     ports:
       - 3390:3390
@@ -24,6 +29,8 @@ services:
       - 8457:8457
       - 5173:5173     # vite dev server
       - 50000:50000
+    environment:
+      BASE_URL=http://civiform:9000
 
   civiform-shell:
     image: civiform-dev
