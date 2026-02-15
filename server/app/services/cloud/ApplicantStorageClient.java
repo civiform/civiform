@@ -1,5 +1,7 @@
 package services.cloud;
 
+import com.google.common.collect.ImmutableSet;
+
 import java.util.Optional;
 
 /**
@@ -17,8 +19,12 @@ import java.util.Optional;
  * the files.
  */
 public interface ApplicantStorageClient {
+
+  /** Deletes the  applicant files which have reached the data retention limits*/
+  void pruneApplicantFileStorage(ImmutableSet<String> fileKeys);
   /** Returns the maximum file size in megabytes allowed for public files. */
   int getFileLimitMb();
+
 
   /**
    * Returns the string version of a URL that gives users temporary access to file storage. This URL

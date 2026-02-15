@@ -5,6 +5,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static services.cloud.aws.AwsStorageUtils.PRESIGNED_URL_DURATION;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import controllers.applicant.ApplicantRequestedAction;
 import java.net.URI;
@@ -16,9 +18,11 @@ import play.Environment;
 import play.inject.ApplicationLifecycle;
 import services.cloud.ApplicantStorageClient;
 import services.cloud.aws.Credentials;
+import services.cloud.aws.FileDeletionFailureException;
 import services.cloud.aws.SignedS3UploadRequest;
 import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
@@ -89,6 +93,10 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
         client.getPresigner().presignGetObject(getObjectPresignRequest);
     return presignedGetObjectRequest.url().toString();
   }
+  @Override
+  public void pruneApplicantFileStorage(ImmutableSet<String> fileKeys) {
+
+  }
 
   @Override
   public SignedS3UploadRequest getSignedUploadRequest(
@@ -121,6 +129,8 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
     String actionLink();
 
     void close();
+
+    void deleteObjects(ImmutableList<String> fileKeys);
   }
 
   static class NullClient implements Client {
@@ -154,6 +164,8 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
 
     @Override
     public void close() {}
+    @Override
+    void deleteObjects(ImmutableList<String> fileKeys);
   }
 
   class S3Client implements Client {
@@ -178,6 +190,27 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
     @Override
     public void close() {
       presigner.close();
+    }
+    @Override
+    public void deleteObjects(ImmutableList<String> fileKeys){
+      ImmutableList<ObjectIdentifier> fileKeyObjects =
+        fileKeys.stream()
+          .map(key -> ObjectIdentifier.builder().key(key).build())
+          .collect(ImmutableList.toImmutableList());
+      Delete del = Delete.builder()
+        .objects(fileKeyObjects)
+        .build();
+      DeleteObjectsRequest multiObjectDeleteRequest = DeleteObjectsRequest.builder()
+        .bucket(bucket)
+        .delete(del)
+        .build();
+
+      try {
+        client.deleteObjects(multiObjectDeleteRequest);
+      } catch (FileDeletionFailureException e) {
+        // See UnusedProgramImagesCleanupJob for the deletion cadence.
+
+      }
     }
   }
 
@@ -209,6 +242,11 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
     @Override
     public void close() {
       presigner.close();
+    }
+
+    @Override
+    public void deleteObjects(ImmutableList<String> fileKeys) {
+
     }
   }
 }
