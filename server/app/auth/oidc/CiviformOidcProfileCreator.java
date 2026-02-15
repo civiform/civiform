@@ -96,7 +96,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
       return Optional.empty();
     }
     // This string format can never change. It is the unique ID for OIDC based
-    // account.
+    // accounts.
     return Optional.of(String.format("iss: %s sub: %s", issuer, subject));
   }
 
@@ -212,36 +212,46 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
 
   @VisibleForTesting
   public final Optional<ApplicantModel> getExistingApplicant(OidcProfile profile) {
-    // User keying changed in March 2022 and is reflected and managed here.
-    // Originally users were keyed on their email address, however this is not
-    // guaranteed to be a unique stable ID. In March 2022 the code base changed to
-    // using authority_id which is unique and stable per authentication provider.
-
     String authorityId =
         getAuthorityId(profile)
             .orElseThrow(
                 () -> new InvalidOidcProfileException("Unable to get authority ID from profile."));
 
-    Optional<ApplicantModel> applicantOpt =
+    Optional<ApplicantModel> idApplicantOpt =
         accountRepositoryProvider
             .get()
             .lookupApplicantByAuthorityId(authorityId)
             .toCompletableFuture()
             .join();
-    if (applicantOpt.isPresent()) {
+    if (idApplicantOpt.isPresent()) {
       logger.debug("Found user using authority ID: {}", authorityId);
-      return applicantOpt;
+      return idApplicantOpt;
     }
 
-    // For pre-existing deployments before April 2022, users will exist without an
-    // authority ID and will be keyed on their email.
+    // Do an email fallback match for TI Clients.
+    // When a TI makes a Client they can optionally specify that person's
+    // email, and if someone with that email newly logs in we connect them
+    // with the account.
     String userEmail = profile.getAttribute(emailAttributeName(), String.class);
-    logger.debug("Looking up user using email {}", userEmail);
-    return accountRepositoryProvider
-        .get()
-        .lookupApplicantByEmail(userEmail)
-        .toCompletableFuture()
-        .join();
+    // TODO(#11410): Use case insensitive search and match if there's a single hit.
+    Optional<ApplicantModel> emailApplicantOpt =
+        accountRepositoryProvider
+            .get()
+            .lookupApplicantByEmail(userEmail)
+            .toCompletableFuture()
+            .join();
+    if (emailApplicantOpt.isEmpty()) {
+      logger.debug("Did not find user by authority id {} or email {}", authorityId, userEmail);
+      return Optional.empty();
+    }
+    // Ensure they are a TI Client.
+    if (emailApplicantOpt.get().getAccount().getManagedByGroup().isPresent()) {
+      logger.debug("Found TI Client by email {}", userEmail);
+      return emailApplicantOpt;
+    }
+
+    logger.debug("Found user by email but they are not a TI Client {}", userEmail);
+    return Optional.empty();
   }
 
   protected final boolean isTrustedIntermediary(CiviFormProfile profile) {
