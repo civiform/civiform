@@ -24,6 +24,7 @@ export default [
   },
   js.configs.recommended,
 
+  // Rules for all files
   {
     files: ["app/assets/javascripts/**/*.ts"],
 
@@ -67,6 +68,16 @@ export default [
           methods: ["DOMPurify.sanitize"],
         },
       }],
+    },
+  },
+
+  // Rule overrides for unit test files
+  {
+    files: ["app/assets/javascripts/**/*.test.ts"],
+    rules: {
+      // It is common to need to set the innerHTML in typescript unit tests to
+      // build html to test against. It is safe to ignore this rule in our sandbox test code.
+      "no-unsanitized/property": "off",
     },
   },
 ];
