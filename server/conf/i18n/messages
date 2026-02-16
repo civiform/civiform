@@ -67,6 +67,7 @@ label.primaryNavigation=Primary navigation
 label.agencyIdentifier=Agency identifier,
 # Aria-label for guest session alert
 label.guestSessionAlert=Guest session informational alert
+
 # Link to skip to the main content of the page
 link.skipToMainContent=Skip to main content
 
@@ -1057,6 +1058,21 @@ banner.hour=1 hour
 banner.minute=1 minute
 
 #------------------------------------------------------------------------------#
+# DATA SECURITY BANNER - alert explaining data protection to users             #
+#------------------------------------------------------------------------------#
+
+# Header for data security banner alert
+label.immigrationStatusInfoBanner.heading=Immigrants and refugees are welcome here
+# Aria-label for data security banner alert
+label.immigrationStatusInfoBanner.label=Immigration status informational alert
+# Text in the data security banner explaining how user data is protected when no learn more link is configured
+banner.immigrationStatusInfoBanner.body=We will not ask about your citizenship or immigration status.
+# Text in the data security banner explaining how user data is protected - the placeholder says 'here' and is a link to more information
+banner.immigrationStatusInfoBanner.bodyWithLink=We will not ask about your citizenship or immigration status. You can learn more {0}.
+# Link for more info about the data security banner
+banner.immigrationStatusInfoBanner.linkText=here
+
+#------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
 # Note for developers: these messages aren't used in static text, but instead they #
 #  are seeded into the database, since these will be admin defined in the future #
@@ -1175,6 +1191,8 @@ text.repeatedSet.prefix=parent label
 text.repeatedSet.nestedPrefix=child label
 # Instructions for admins on how to add or change the repeated set question in a program block
 text.repeatedSet.questionDescription=Add a repeated set that will ask residents to add objects or individuals to a list. If a repeated set has already been added and you would like to select a different one, delete the question below.
+#An additional description explaining the uneditable prefix within the screen editing modal
+text.repeatedSet.screenNameDescription=To give the applicant context, we will display the applicant-defined label(s) for the listed entity they are answering questions for on this screen. You can optionally add more text to the screen name to provide further context. For example, "Jennifer - Background Information".
 # Heading above the repeated set question in the program block editor
 heading.repeatedSet.question=Repeated set question
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
