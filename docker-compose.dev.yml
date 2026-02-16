@@ -45,7 +45,7 @@ services:
     image: civiform-mock-web-services
 
   db:
-    image: postgres:16.11@sha256:f992505e18f114c1e5102ac4dcf00f791b44462f6a423d899320f0bbf80e386f
+    image: postgres:16.12@sha256:e4842c8a99ca99339e1693e6fe5fe62c7becb31991f066f989047dfb2fbf47af
     stdin_open: true
     tty: true
     volumes:
