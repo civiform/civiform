@@ -193,9 +193,8 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     return innerCreate(oidcProfile, guestProfile);
   }
 
-  /* Broken out to allow for unit testing that doesn't exercise the parents
-  create method.  Part of its operation is to make http requests.
-   */
+  // Broken out to allow for unit testing that doesn't exercise the parents
+  // create method.  Part of its operation is to make http requests.
   @VisibleForTesting
   Optional<UserProfile> innerCreate(
       Optional<UserProfile> profile, Optional<CiviFormProfile> guestProfile) {
