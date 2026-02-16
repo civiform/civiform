@@ -188,25 +188,33 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
   public Optional<UserProfile> create(CallContext callContext, Credentials credentials) {
     ProfileUtils profileUtils = new ProfileUtils(callContext.sessionStore(), profileFactory);
     Optional<UserProfile> oidcProfile = super.create(callContext, credentials);
+    Optional<CiviFormProfile> guestProfile =
+        profileUtils.optionalCurrentUserProfile(callContext.webContext());
+    return innerCreate(oidcProfile, guestProfile);
+  }
 
-    if (oidcProfile.isEmpty()) {
+  /* Broken out to allow for unit testing that doesn't exercise the parents
+  create method.  Part of its operation is to make http requests.
+   */
+  @VisibleForTesting
+  Optional<UserProfile> innerCreate(
+      Optional<UserProfile> profile, Optional<CiviFormProfile> guestProfile) {
+    if (profile.isEmpty()) {
       logger.warn("Didn't get a valid profile back from OIDC.");
       return Optional.empty();
     }
 
-    if (!(oidcProfile.get() instanceof OidcProfile profile)) {
+    if (!(profile.get() instanceof OidcProfile oidcProfile)) {
       logger.warn(
           "Got a profile from OIDC callback but it wasn't an OIDC profile: {}",
-          oidcProfile.get().getClass().getName());
+          profile.get().getClass().getName());
       return Optional.empty();
     }
 
-    Optional<ApplicantModel> existingApplicant = getExistingApplicant(profile);
-    Optional<CiviFormProfile> guestProfile =
-        profileUtils.optionalCurrentUserProfile(callContext.webContext());
+    Optional<ApplicantModel> existingApplicant = getExistingApplicant(oidcProfile);
 
     Function<Optional<CiviFormProfile>, UserProfile> mergeFunction =
-        (cProfile) -> this.mergeCiviFormProfile(cProfile, profile);
+        (civiFormProfile) -> this.mergeCiviFormProfile(civiFormProfile, oidcProfile);
     return civiFormProfileMerger.mergeProfiles(existingApplicant, guestProfile, mergeFunction);
   }
 
