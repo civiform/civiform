@@ -1098,7 +1098,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
               questionsCount));
       rowContent.add(
           div()
-              .with(renderEditQuestionLink(questionDefinition.getId()))
+              .with(
+                  renderEditQuestionLink(
+                      questionDefinition.getId(), programDefinition.id(), blockDefinition.id()))
               .with(
                   renderDeleteQuestionForm(
                       csrfTag,
@@ -1373,9 +1375,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .with(addressCorrectionButton));
   }
 
-  private ATag renderEditQuestionLink(Long questionId) {
+  private ATag renderEditQuestionLink(Long questionId, Long programId, Long blockId) {
+    String redirectUrl =
+        controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId).url();
     return a("Edit")
-        .withHref(routes.AdminQuestionController.edit(questionId).url())
+        .withHref(routes.AdminQuestionController.edit(questionId, redirectUrl).url())
         .withClasses("usa-link", "pb-2", "self-center");
   }
 

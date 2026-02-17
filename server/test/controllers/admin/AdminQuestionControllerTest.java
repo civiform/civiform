@@ -185,7 +185,8 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
   @Test
   public void edit_invalidIDReturnsBadRequest() {
-    Result result = controller.edit(fakeRequest(), 9999L).toCompletableFuture().join();
+    Result result =
+        controller.edit(fakeRequest(), 9999L, /* redirectUrl= */ "").toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
 
@@ -200,18 +201,23 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     assertThat(publishedQuestion.id).isNotEqualTo(draftQuestion.id);
 
     Result result =
-        controller.edit(fakeRequest(), publishedQuestion.id).toCompletableFuture().join();
+        controller
+            .edit(fakeRequest(), publishedQuestion.id, /* redirectUrl= */ "")
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
-        .hasValue(routes.AdminQuestionController.edit(draftQuestion.id).url());
+        .hasValue(
+            routes.AdminQuestionController.edit(draftQuestion.id, /* redirectUrl= */ "").url());
   }
 
   @Test
   public void edit_returnsPopulatedForm() {
     QuestionModel question = testQuestionBank.nameApplicantName();
     Request request = fakeRequestBuilder().addCSRFToken().build();
-    Result result = controller.edit(request, question.id).toCompletableFuture().join();
+    Result result =
+        controller.edit(request, question.id, /* redirectUrl= */ "").toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Edit name question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
@@ -222,7 +228,11 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   public void edit_repeatedQuestion_hasEnumeratorName() {
     QuestionModel repeatedQuestion = testQuestionBank.nameRepeatedApplicantHouseholdMemberName();
     Request request = fakeRequestBuilder().addCSRFToken().build();
-    Result result = controller.edit(request, repeatedQuestion.id).toCompletableFuture().join();
+    Result result =
+        controller
+            .edit(request, repeatedQuestion.id, /* redirectUrl= */ "")
+            .toCompletableFuture()
+            .join();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Edit name question");
     assertThat(contentAsString(result)).contains("applicant household members");
@@ -813,7 +823,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.flash().data()).containsKey(FlashKey.CONCURRENT_UPDATE);
     assertThat(result.redirectLocation())
-        .hasValue(routes.AdminQuestionController.edit(question.id).url());
+        .hasValue(routes.AdminQuestionController.edit(question.id, /* redirectUrl= */ "").url());
   }
 
   @Test
@@ -844,7 +854,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.flash().data()).containsKey(FlashKey.CONCURRENT_UPDATE);
     assertThat(result.redirectLocation())
-        .hasValue(routes.AdminQuestionController.edit(question.id).url());
+        .hasValue(routes.AdminQuestionController.edit(question.id, /* redirectUrl= */ "").url());
   }
 
   @Test

@@ -462,12 +462,13 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private LiTag renderPublishModalQuestionItem(QuestionDefinition question) {
+    String redirectUrl = routes.AdminProgramController.index().url();
     return li().with(
             span(question.getQuestionText().getDefault()).withClasses("font-medium"),
             span(" - "),
             new LinkElement()
                 .setText("Edit")
-                .setHref(routes.AdminQuestionController.edit(question.getId()).url())
+                .setHref(routes.AdminQuestionController.edit(question.getId(), redirectUrl).url())
                 .asAnchorText())
         .withClass("pt-2");
   }
