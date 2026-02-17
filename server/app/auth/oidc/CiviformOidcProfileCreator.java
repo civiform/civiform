@@ -239,6 +239,8 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
               guestProfile.get().getAccount().join().id);
         }
       }
+
+      // The above is all logging, this drops the guest.
       guestProfile = Optional.empty();
     }
 
