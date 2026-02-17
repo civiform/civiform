@@ -287,7 +287,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     return isTrustedIntermediary(profile.getAccount().join());
   }
 
-  protected final boolean isTrustedIntermediary(AccountModel account) {
+  private final boolean isTrustedIntermediary(AccountModel account) {
     return account.getMemberOfGroup().isPresent();
   }
 
