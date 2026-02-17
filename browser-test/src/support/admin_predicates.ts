@@ -623,6 +623,9 @@ export class AdminPredicates {
     await expect(
       this.page.locator('#predicate-operator-node-select-null-state'),
     ).toContainText('Applicant is always eligible')
+    await expect(
+      this.page.getByRole('button', {name: 'Add condition'}),
+    ).toBeFocused()
   }
 
   async selectQuestion(

@@ -1,5 +1,6 @@
 import {test, expect} from '../../support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   enableFeatureFlag,
   isLocalDevEnvironment,
   loginAsAdmin,
@@ -26,6 +27,7 @@ test.describe('Applicant navigation flow', () => {
             page,
             'esri_address_service_area_validation_enabled',
           )
+          await disableFeatureFlag(page, 'expanded_form_logic_enabled')
 
           // Create Questions
           await adminQuestions.addAddressQuestion({

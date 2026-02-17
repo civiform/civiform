@@ -35,7 +35,7 @@ public class AdminLayoutBaseViewTest extends WithMockedProfiles {
     }
 
     @Override
-    protected String pageTitle() {
+    protected String pageTitle(CustomViewModel model) {
       return "page-title-1";
     }
 

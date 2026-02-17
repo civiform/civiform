@@ -1,3 +1,4 @@
+<!--/*@thymesVar id="isGuest" type="boolean"*/-->
 <div
   th:fragment="devTools"
   id="modal-container"
@@ -304,7 +305,7 @@
             <h2
               class="usa-modal__heading"
               id="session-inactivity-warning-heading"
-              th:text="#{session.inactivity.warning.title}"
+              th:text="#{session.warning.title}"
             ></h2>
             <div class="usa-prose my-6" id="session-inactivity-description">
               <p th:text="#{session.inactivity.warning.message}"></p>
@@ -358,10 +359,12 @@
             <h2
               class="usa-modal__heading"
               id="session-length-warning-heading"
-              th:text="#{session.length.warning.title}"
+              th:text="#{session.warning.title}"
             ></h2>
             <div class="usa-prose my-6" id="session-length-description">
-              <p th:text="#{session.length.warning.message}"></p>
+              <p
+                th:text="${isGuest} ? #{session.length.warning.message.guest} : #{session.length.warning.message.loggedIn}"
+              ></p>
               <div class="usa-modal__footer">
                 <ul class="usa-button-group">
                   <li class="usa-button-group__item">
@@ -370,7 +373,7 @@
                       class="usa-button"
                       data-modal-primary
                       data-modal-type="session-length-warning"
-                      th:text="#{button.logout}"
+                      th:text="${isGuest} ? #{session.login.button.guest} : #{session.login.button.loggedIn}"
                     ></button>
                   </li>
                   <li class="usa-button-group__item">

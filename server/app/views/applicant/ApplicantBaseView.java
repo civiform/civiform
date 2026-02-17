@@ -67,7 +67,7 @@ public abstract class ApplicantBaseView {
     context.setVariable("civiformImageTag", settingsManifest.getCiviformImageTag().get());
     context.setVariable("addNoIndexMetaTag", settingsManifest.getStagingAddNoindexMetaTag());
     context.setVariable("favicon", settingsManifest.getFaviconUrl().orElse(""));
-    context.setVariable("mapQuestionEnabled", settingsManifest.getMapQuestionEnabled(request));
+    context.setVariable("mapQuestionEnabled", settingsManifest.getMapQuestionEnabled());
 
     context.setVariable("useBundlerDevServer", bundledAssetsFinder.useBundlerDevServer());
     context.setVariable("viteClientUrl", bundledAssetsFinder.viteClientUrl());

@@ -3,6 +3,7 @@ import {
   loginAsAdmin,
   logout,
   loginAsTestUser,
+  disableFeatureFlag,
   selectApplicantLanguage,
   validateScreenshot,
   validateToastMessage,
@@ -414,6 +415,7 @@ test.describe('Admin can manage program translations', () => {
     applicantQuestions,
   }) => {
     await loginAsAdmin(page)
+    await disableFeatureFlag(page, 'expanded_form_logic_enabled')
 
     const questionName = 'eligibility-question-q'
     const eligibilityMsg = 'Cutomized eligibility mesage'

@@ -39,11 +39,11 @@ lazy val root = (project in file("."))
       "org.thymeleaf" % "thymeleaf" % "3.1.3.RELEASE",
       "org.commonmark" % "commonmark" % "0.27.1",
       "org.commonmark" % "commonmark-ext-autolink" % "0.27.1",
-      "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
+      "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20260102.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.41.15",
-      "software.amazon.awssdk" % "ses" % "2.41.15",
+      "software.amazon.awssdk" % "s3" % "2.41.22",
+      "software.amazon.awssdk" % "ses" % "2.41.22",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
@@ -53,7 +53,7 @@ lazy val root = (project in file("."))
       "com.microsoft.graph" % "microsoft-graph" % "6.60.0",
 
       // Database and database testing libraries
-      "org.postgresql" % "postgresql" % "42.7.9",
+      "org.postgresql" % "postgresql" % "42.7.10",
       "com.google.cloud.sql" % "postgres-socket-factory" % "1.28.0",
       "com.h2database" % "h2" % "2.4.240" % Test,
 
@@ -72,7 +72,7 @@ lazy val root = (project in file("."))
       "com.google.guava" % "guava-testlib" % "33.5.0-jre" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
-      "jakarta.xml.bind" % "jakarta.xml.bind-api" % "4.0.4",
+      "jakarta.xml.bind" % "jakarta.xml.bind-api" % "4.0.5",
       "jakarta.activation" % "jakarta.activation-api" % "2.1.4",
       "org.glassfish.jaxb" % "jaxb-runtime" % "4.0.6",
 
@@ -108,7 +108,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.5",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.22",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.24",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.7",
@@ -121,7 +121,7 @@ lazy val root = (project in file("."))
 
       // Override default Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.5.26",
+      "ch.qos.logback" % "logback-classic" % "1.5.29",
 
       // Swagger 2.0 Dependencies
       "io.swagger" % "swagger-core" % "1.6.16" exclude (

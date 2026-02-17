@@ -1,0 +1,668 @@
+<!--/*@thymesVar id="model" type="views.dev.componentcatalog.fragments.InputControl"*/-->
+<th:block
+  th:fragment="render(model)"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <table class="usa-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Required</th>
+        <th>Type</th>
+        <th>Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th colspan="4" scope="rowgroup">Attributes</th>
+      </tr>
+      <tr>
+        <td>id</td>
+        <td>required</td>
+        <td>string</td>
+        <td>Unique identifier for the input element.</td>
+      </tr>
+      <tr>
+        <td>label</td>
+        <td>required</td>
+        <td>string</td>
+        <td>Visible label text for the input.</td>
+      </tr>
+      <tr>
+        <td>name</td>
+        <td>required</td>
+        <td>string</td>
+        <td>
+          Form field name. Supports nested names (e.g. user[profile][email]).
+        </td>
+      </tr>
+      <tr>
+        <td>aria-*</td>
+        <td>optional</td>
+        <td>string</td>
+        <td>
+          Any aria-* attributes are passed through to the rendered input
+          element.
+        </td>
+      </tr>
+      <tr>
+        <td>data-*</td>
+        <td>optional</td>
+        <td>string</td>
+        <td>
+          Any data-* attributes are passed through to the rendered input
+          element.
+        </td>
+      </tr>
+      <tr>
+        <td>disabled</td>
+        <td>optional</td>
+        <td>boolean</td>
+        <td>Set to "true" to disable the field.</td>
+      </tr>
+      <tr>
+        <td>help-text</td>
+        <td>optional</td>
+        <td>string</td>
+        <td>Helper text displayed below the label.</td>
+      </tr>
+      <tr>
+        <td>is-valid</td>
+        <td>optional</td>
+        <td>boolean</td>
+        <td>
+          Controls validation state. "true" or "false". Defaults to "true".
+        </td>
+      </tr>
+      <tr>
+        <td>max</td>
+        <td>optional</td>
+        <td>string</td>
+        <td>Maximum value constraint (for numeric and date types).</td>
+      </tr>
+      <tr>
+        <td>maxlength</td>
+        <td>optional</td>
+        <td>integer string</td>
+        <td>Maximum number of characters allowed.</td>
+      </tr>
+      <tr>
+        <td>min</td>
+        <td>optional</td>
+        <td>string</td>
+        <td>Minimum value constraint (for numeric and date types).</td>
+      </tr>
+      <tr>
+        <td>minlength</td>
+        <td>optional</td>
+        <td>integer string</td>
+        <td>Minimum number of characters allowed.</td>
+      </tr>
+      <tr>
+        <td>pattern</td>
+        <td>optional</td>
+        <td>string</td>
+        <td>Regex pattern for client-side validation.</td>
+      </tr>
+      <tr>
+        <td>placeholder</td>
+        <td>optional</td>
+        <td>string</td>
+        <td>Placeholder text shown when field is empty.</td>
+      </tr>
+      <tr>
+        <td>readonly</td>
+        <td>optional</td>
+        <td>boolean</td>
+        <td>Set to "true" to make the field read-only.</td>
+      </tr>
+      <tr>
+        <td>required</td>
+        <td>optional</td>
+        <td>boolean</td>
+        <td>Set to "true" to mark the field as required.</td>
+      </tr>
+      <tr>
+        <td>size</td>
+        <td>optional</td>
+        <td>string</td>
+        <td>
+          Visual width. Allowed values: 2xs, xs, sm, small, md, medium, lg, xl,
+          2xl.
+        </td>
+      </tr>
+      <tr>
+        <td>type</td>
+        <td>optional</td>
+        <td>string</td>
+        <td>
+          Input type. Defaults to "text". Allowed values: color, date,
+          datetime-local, email, hidden, month, number, password, range, search,
+          tel, text, time, url, week.
+        </td>
+      </tr>
+      <tr>
+        <td>validation-class</td>
+        <td>optional</td>
+        <td>string</td>
+        <td>
+          Fully qualified Java class name used to derive client-side validation
+          constraints.
+        </td>
+      </tr>
+      <tr>
+        <td>validation-field</td>
+        <td>optional</td>
+        <td>string</td>
+        <td>
+          Field name within the validation class to extract Play Framework
+          validation constraints from.
+        </td>
+      </tr>
+      <tr>
+        <td>validation-message</td>
+        <td>optional</td>
+        <td>string</td>
+        <td>Error message displayed when the field is invalid.</td>
+      </tr>
+      <tr>
+        <td>value</td>
+        <td>optional</td>
+        <td>string</td>
+        <td>Initial value of the input.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table class="display-none usa-table">
+    <tr>
+      <th>Parameter Name</th>
+      <th>Required</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>id</td>
+      <td>Yes</td>
+      <td>Unique identifier for the input element</td>
+    </tr>
+    <tr>
+      <td>name</td>
+      <td>Yes</td>
+      <td>The name attribute for form submission</td>
+    </tr>
+    <tr>
+      <td>disabled</td>
+      <td>No</td>
+      <td>Disable the input (defaults to "false")</td>
+    </tr>
+    <tr>
+      <td>help-text</td>
+      <td>No</td>
+      <td>Optional help text to display</td>
+    </tr>
+    <tr>
+      <td>is-valid</td>
+      <td>No</td>
+      <td>Controls validation state (defaults to "true")</td>
+    </tr>
+    <tr>
+      <td>label</td>
+      <td>No</td>
+      <td>The label text to display for the input</td>
+    </tr>
+    <tr>
+      <td>max</td>
+      <td>No</td>
+      <td>Maximum value for number/date inputs</td>
+    </tr>
+    <tr>
+      <td>maxlength</td>
+      <td>No</td>
+      <td>Maximum length for text inputs</td>
+    </tr>
+    <tr>
+      <td>min</td>
+      <td>No</td>
+      <td>Minimum value for number/date inputs</td>
+    </tr>
+    <tr>
+      <td>minlength</td>
+      <td>No</td>
+      <td>Minimum length for text inputs</td>
+    </tr>
+    <tr>
+      <td>pattern</td>
+      <td>No</td>
+      <td>Regular expression pattern for validation</td>
+    </tr>
+    <tr>
+      <td>placeholder</td>
+      <td>No</td>
+      <td>Placeholder text for the input</td>
+    </tr>
+    <tr>
+      <td>readonly</td>
+      <td>No</td>
+      <td>Make the input readonly (defaults to "false")</td>
+    </tr>
+    <tr>
+      <td>required</td>
+      <td>No</td>
+      <td>Makes the input required</td>
+    </tr>
+    <tr>
+      <td>size</td>
+      <td>No</td>
+      <td>Size of the input element (affects CSS class)</td>
+    </tr>
+    <tr>
+      <td>type</td>
+      <td>No</td>
+      <td>Input type (defaults to "text")</td>
+    </tr>
+    <tr>
+      <td>validation-class</td>
+      <td>No</td>
+      <td>CSS class for validation styling</td>
+    </tr>
+    <tr>
+      <td>validation-field</td>
+      <td>No</td>
+      <td>Field name for validation</td>
+    </tr>
+    <tr>
+      <td>validation-message</td>
+      <td>No</td>
+      <td>Custom validation error message</td>
+    </tr>
+    <tr>
+      <td>value</td>
+      <td>No</td>
+      <td>The value of the input element</td>
+    </tr>
+  </table>
+
+  <!--/* Sample 1: Basic Text Input */-->
+  <h2>Basic Text Input</h2>
+
+  <cf:input
+    th:id="${model.basicInput.id()}"
+    th:name="${model.basicInput.name()}"
+    th:label="${model.basicInput.label()}"
+    th:placeholder="${model.basicInput.placeholder()}"
+  />
+
+  <div class="usa-accordion usa-accordion--bordered margin-top-2">
+    <h3 class="usa-accordion__heading">
+      <button
+        type="button"
+        class="usa-accordion__button"
+        aria-expanded="false"
+        aria-controls="b-a1"
+      >
+        Code Sample
+      </button>
+    </h3>
+    <div id="b-a1" class="usa-accordion__content usa-prose">
+      <h4>Java</h4>
+      <pre><code class="language-java">public class BasicTextInput {
+  public String id() {
+    return &quot;firstName&quot;;
+  }
+
+  public String name() {
+    return &quot;firstName&quot;;
+  }
+
+  public String label() {
+    return &quot;First Name&quot;;
+  }
+
+  public String placeholder() {
+    return &quot;Enter your first name&quot;;
+  }
+}</code></pre>
+
+      <h4>Thymeleaf</h4>
+      <pre><code class="language-markup">&lt;cf:input
+  th:id=&quot;${model.basicInput.id()}&quot;
+  th:name=&quot;${model.basicInput.name()}&quot;
+  th:label=&quot;${model.basicInput.label()}&quot;
+  th:placeholder=&quot;${model.basicInput.placeholder()}&quot;
+/&gt;</code></pre>
+
+      <h4>Rendered HTML</h4>
+      <pre><code class="language-markup">&lt;div class=&quot;usa-form-group&quot;&gt;
+  &lt;label class=&quot;usa-label&quot; for=&quot;firstName&quot;&gt;First Name&lt;/label&gt;
+  &lt;input
+    type=&quot;text&quot;
+    class=&quot;usa-input&quot;
+    id=&quot;firstName&quot;
+    name=&quot;firstName&quot;
+    placeholder=&quot;Enter your first name&quot; /&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </div>
+
+  <hr class="code-separator" />
+
+  <!--/* Sample 2: Email Input with Help Text */-->
+  <h2>Email Input with Help Text</h2>
+
+  <cf:input
+    th:id="${model.emailInput.id()}"
+    th:name="${model.emailInput.name()}"
+    th:label="${model.emailInput.label()}"
+    th:type="${model.emailInput.type()}"
+    th:help-text="${model.emailInput.helpText()}"
+    th:placeholder="${model.emailInput.placeholder()}"
+    required="true"
+  />
+
+  <div class="usa-accordion usa-accordion--bordered margin-top-2">
+    <h3 class="usa-accordion__heading">
+      <button
+        type="button"
+        class="usa-accordion__button"
+        aria-expanded="false"
+        aria-controls="b-a2"
+      >
+        Code Sample
+      </button>
+    </h3>
+    <div id="b-a2" class="usa-accordion__content usa-prose">
+      <p>
+        <h4>Java</h4>
+        <pre><code class="language-java">public class EmailInput {
+  public String id() {
+    return &quot;userEmail&quot;;
+  }
+
+  public String name() {
+    return &quot;email&quot;;
+  }
+
+  public String label() {
+    return &quot;Email Address&quot;;
+  }
+
+  public String type() {
+    return &quot;email&quot;;
+  }
+
+  public String helpText() {
+    return &quot;We'll never share your email with anyone else.&quot;;
+  }
+
+  public String placeholder() {
+    return &quot;name@example.com&quot;;
+  }
+}</code></pre>
+
+        <h4>Thymeleaf</h4>
+        <pre><code class="language-markup">&lt;cf:input
+  th:id=&quot;${model.emailInput.id()}&quot;
+  th:name=&quot;${model.emailInput.name()}&quot;
+  th:label=&quot;${model.emailInput.label()}&quot;
+  th:type=&quot;${model.emailInput.type()}&quot;
+  th:help-text=&quot;${model.emailInput.helpText()}&quot;
+  th:placeholder=&quot;${model.emailInput.placeholder()}&quot;
+/&gt;</code></pre>
+
+        <h4>Rendered HTML</h4>
+        <pre><code class="language-markup">&lt;div class=&quot;usa-form-group&quot;&gt;
+  &lt;label class=&quot;usa-label&quot; for=&quot;userEmail&quot;&gt;Email Address&lt;/label&gt;
+  &lt;div class=&quot;usa-hint&quot;&gt;We'll never share your email with anyone else.&lt;/div&gt;
+  &lt;input
+    type=&quot;email&quot;
+    class=&quot;usa-input&quot;
+    id=&quot;userEmail&quot;
+    name=&quot;email&quot;
+    placeholder=&quot;name@example.com&quot; /&gt;
+&lt;/div&gt;</code></pre>
+      </p>
+    </div>
+  </div>
+
+  <hr class="code-separator" />
+
+  <!--/* Sample 3: Password Input with Validation Error */-->
+  <h2>Password Input with Validation Error</h2>
+
+  <cf:input
+    th:id="${model.passwordInput.id()}"
+    th:name="${model.passwordInput.name()}"
+    th:label="${model.passwordInput.label()}"
+    th:type="${model.passwordInput.type()}"
+    th:is-valid="${model.passwordInput.isValid()}"
+    th:validation-message="${model.passwordInput.validationMessage()}"
+    required="true"
+  />
+
+  <div class="usa-accordion usa-accordion--bordered margin-top-2">
+    <h3 class="usa-accordion__heading">
+      <button
+        type="button"
+        class="usa-accordion__button"
+        aria-expanded="false"
+        aria-controls="b-b3"
+      >
+        Code Sample
+      </button>
+    </h3>
+    <div id="b-b3" class="usa-accordion__content usa-prose">
+      <h4>Java</h4>
+      <pre><code class="language-java">public class PasswordInput {
+  public String id() {
+    return &quot;userPassword&quot;;
+  }
+
+  public String name() {
+    return &quot;password&quot;;
+  }
+
+  public String label() {
+    return &quot;Password&quot;;
+  }
+
+  public String type() {
+    return &quot;password&quot;;
+  }
+
+  public String isValid() {
+    return &quot;false&quot;;
+  }
+
+  public String validationMessage() {
+    return &quot;Password must be at least 8 characters&quot;;
+  }
+}</code></pre>
+
+      <h4>Thymeleaf</h4>
+      <pre><code class="language-markup">&lt;cf:input
+  th:id=&quot;${model.passwordInput.id()}&quot;
+  th:name=&quot;${model.passwordInput.name()}&quot;
+  th:label=&quot;${model.passwordInput.label()}&quot;
+  th:type=&quot;${model.passwordInput.type()}&quot;
+  th:is-valid=&quot;${model.passwordInput.isValid()}&quot;
+  th:validation-message=&quot;${model.passwordInput.validationMessage()}&quot;
+  required=&quot;true&quot;
+/&gt;</code></pre>
+
+      <h4>Rendered HTML</h4>
+      <pre><code class="language-markup">&lt;div class=&quot;usa-form-group usa-form-group--error&quot;&gt;
+  &lt;label class=&quot;usa-label&quot; for=&quot;userPassword&quot;&gt;Password&lt;/label&gt;
+  &lt;span id=&quot;userPassword-error&quot; class=&quot;usa-error-message&quot; role=&quot;alert&quot;&gt;
+    Password must be at least 8 characters
+  &lt;/span&gt;
+  &lt;input
+    type=&quot;password&quot;
+    class=&quot;usa-input usa-input--error&quot;
+    id=&quot;userPassword&quot;
+    name=&quot;password&quot;
+    required=&quot;true&quot;
+    aria-describedby=&quot;userPassword-error&quot;
+    aria-invalid=&quot;true&quot; /&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </div>
+
+  <hr class="code-separator" />
+
+  <!--/* Sample 4: Number Input with Value */-->
+  <h2>Number Input with Value</h2>
+
+  <cf:input
+    th:id="${model.numberInput.id()}"
+    th:name="${model.numberInput.name()}"
+    th:label="${model.numberInput.label()}"
+    th:type="${model.numberInput.type()}"
+    th:value="${model.numberInput.value()}"
+    th:help-text="${model.numberInput.helpText()}"
+    required="true"
+  />
+
+  <div class="usa-accordion usa-accordion--bordered margin-top-2">
+    <h3 class="usa-accordion__heading">
+      <button
+        type="button"
+        class="usa-accordion__button"
+        aria-expanded="false"
+        aria-controls="b-a4"
+      >
+        Code Sample
+      </button>
+    </h3>
+    <div id="b-a4" class="usa-accordion__content usa-prose">
+      <h4>Java</h4>
+      <pre><code class="language-java">public class NumberInput {
+  public String id() {
+    return &quot;age&quot;;
+  }
+
+  public String name() {
+    return &quot;age&quot;;
+  }
+
+  public String label() {
+    return &quot;Age&quot;;
+  }
+
+  public String type() {
+    return &quot;number&quot;;
+  }
+
+  public String value() {
+    return &quot;25&quot;;
+  }
+
+  public String helpText() {
+    return &quot;You must be 18 or older&quot;;
+  }
+}</code></pre>
+
+      <h4>Thymeleaf</h4>
+      <pre><code class="language-markup">&lt;cf:input
+  th:id=&quot;${model.numberInput.id()}&quot;
+  th:name=&quot;${model.numberInput.name()}&quot;
+  th:label=&quot;${model.numberInput.label()}&quot;
+  th:type=&quot;${model.numberInput.type()}&quot;
+  th:value=&quot;${model.numberInput.value()}&quot;
+  th:help-text=&quot;${model.numberInput.helpText()}&quot;
+  required=&quot;true&quot;
+/&gt;</code></pre>
+
+      <h4>Rendered HTML</h4>
+      <pre><code class="language-markup">&lt;div class=&quot;usa-form-group&quot;&gt;
+  &lt;label class=&quot;usa-label&quot; for=&quot;age&quot;&gt;Age&lt;/label&gt;
+  &lt;div class=&quot;usa-hint&quot;&gt;You must be 18 or older&lt;/div&gt;
+  &lt;input
+    type=&quot;number&quot;
+    class=&quot;usa-input&quot;
+    id=&quot;age&quot;
+    name=&quot;age&quot;
+    value=&quot;25&quot;
+    required=&quot;true&quot; /&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </div>
+
+  <hr class="code-separator" />
+
+  <!--/* Sample 5: Input with Data Attributes */-->
+  <h2>Input with Data Attributes</h2>
+
+  <cf:input
+    th:id="${model.dataInput.id()}"
+    th:name="${model.dataInput.name()}"
+    th:label="${model.dataInput.label()}"
+    th:data-test-id="${model.dataInput.testId()}"
+    th:data-analytics="${model.dataInput.analyticsEvent()}"
+    th:aria-label="${model.dataInput.ariaLabel()}"
+  />
+
+  <div class="usa-accordion usa-accordion--bordered margin-top-2">
+    <h3 class="usa-accordion__heading">
+      <button
+        type="button"
+        class="usa-accordion__button"
+        aria-expanded="false"
+        aria-controls="b-a5"
+      >
+        Code Sample
+      </button>
+    </h3>
+    <div id="b-a5" class="usa-accordion__content usa-prose">
+      <h4>Java</h4>
+      <pre><code class="language-java">public class DataAttributeInput {
+  public String id() {
+    return &quot;searchQuery&quot;;
+  }
+
+  public String name() {
+    return &quot;q&quot;;
+  }
+
+  public String label() {
+    return &quot;Search&quot;;
+  }
+
+  public String testId() {
+    return &quot;search-input&quot;;
+  }
+
+  public String analyticsEvent() {
+    return &quot;search-initiated&quot;;
+  }
+
+  public String ariaLabel() {
+    return &quot;Search our website&quot;;
+  }
+}</code></pre>
+
+      <h4>Thymeleaf</h4>
+      <pre><code class="language-markup">&lt;cf:input
+  th:id=&quot;${model.dataInput.id()}&quot;
+  th:name=&quot;${model.dataInput.name()}&quot;
+  th:label=&quot;${model.dataInput.label()}&quot;
+  th:data-test-id=&quot;${model.dataInput.testId()}&quot;
+  th:data-analytics=&quot;${model.dataInput.analyticsEvent()}&quot;
+  th:aria-label=&quot;${model.dataInput.ariaLabel()}&quot;
+/&gt;</code></pre>
+
+      <h4>Rendered HTML</h4>
+      <pre><code class="language-markup">&lt;div class=&quot;usa-form-group&quot;&gt;
+  &lt;label class=&quot;usa-label&quot; for=&quot;searchQuery&quot;&gt;Search&lt;/label&gt;
+  &lt;input
+    type=&quot;text&quot;
+    class=&quot;usa-input&quot;
+    id=&quot;searchQuery&quot;
+    name=&quot;q&quot;
+    data-test-id=&quot;search-input&quot;
+    data-analytics=&quot;search-initiated&quot;
+    aria-label=&quot;Search our website&quot; /&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </div>
+</th:block>

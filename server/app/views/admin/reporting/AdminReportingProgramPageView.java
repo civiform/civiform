@@ -27,7 +27,7 @@ public final class AdminReportingProgramPageView
   }
 
   @Override
-  protected String pageTitle() {
+  protected String pageTitle(AdminReportingProgramPageViewModel model) {
     return "Reporting";
   }
 

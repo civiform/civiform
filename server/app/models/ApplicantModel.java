@@ -139,7 +139,7 @@ public class ApplicantModel extends BaseModel {
   }
 
   public ApplicantModel setFirstName(String firstName) {
-    this.firstName = firstName.isEmpty() || firstName.isBlank() ? null : firstName;
+    this.firstName = firstName.isBlank() ? null : firstName;
     return this;
   }
 
@@ -148,7 +148,7 @@ public class ApplicantModel extends BaseModel {
   }
 
   public ApplicantModel setMiddleName(String middleName) {
-    this.middleName = middleName.isEmpty() || middleName.isBlank() ? null : middleName;
+    this.middleName = middleName.isBlank() ? null : middleName;
     return this;
   }
 
@@ -157,7 +157,7 @@ public class ApplicantModel extends BaseModel {
   }
 
   public ApplicantModel setLastName(String lastName) {
-    this.lastName = lastName.isEmpty() || lastName.isBlank() ? null : lastName;
+    this.lastName = lastName.isBlank() ? null : lastName;
     return this;
   }
 
@@ -270,7 +270,7 @@ public class ApplicantModel extends BaseModel {
   }
 
   public ApplicantModel setSuffix(String suffix) {
-    this.suffix = suffix.isEmpty() || suffix.isBlank() ? null : suffix;
+    this.suffix = suffix.isBlank() ? null : suffix;
     return this;
   }
 
@@ -279,7 +279,7 @@ public class ApplicantModel extends BaseModel {
   }
 
   public ApplicantModel setEmailAddress(String emailAddress) {
-    this.emailAddress = emailAddress.isEmpty() || emailAddress.isBlank() ? null : emailAddress;
+    this.emailAddress = emailAddress.isBlank() ? null : emailAddress;
     return this;
   }
 
@@ -288,7 +288,7 @@ public class ApplicantModel extends BaseModel {
   }
 
   public ApplicantModel setCountryCode(String countryCode) {
-    this.countryCode = countryCode.isEmpty() || countryCode.isBlank() ? null : countryCode;
+    this.countryCode = countryCode.isBlank() ? null : countryCode;
     return this;
   }
 
@@ -309,10 +309,7 @@ public class ApplicantModel extends BaseModel {
 
   /** Save in a similar way to {@link CfJsonDocumentContext#putPhoneNumber} */
   public ApplicantModel setPhoneNumber(String phoneNumber) {
-    this.phoneNumber =
-        phoneNumber.isEmpty() || phoneNumber.isBlank()
-            ? null
-            : phoneNumber.replaceAll("[^0-9]", "");
+    this.phoneNumber = phoneNumber.isBlank() ? null : phoneNumber.replaceAll("[^0-9]", "");
     setCountryCodeFromPhoneNumber();
     return this;
   }
@@ -328,7 +325,7 @@ public class ApplicantModel extends BaseModel {
 
   public ApplicantModel setDateOfBirth(String dateOfBirth) {
     this.dateOfBirth =
-        dateOfBirth.isEmpty() || dateOfBirth.isBlank()
+        dateOfBirth.isBlank()
             ? null
             : LocalDate.parse(dateOfBirth, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     return this;

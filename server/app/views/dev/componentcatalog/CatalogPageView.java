@@ -6,6 +6,7 @@ import org.thymeleaf.TemplateEngine;
 import services.BundledAssetsFinder;
 import services.settings.SettingsManifest;
 import views.admin.DevLayoutBaseView;
+import views.admin.LayoutType;
 
 public class CatalogPageView extends DevLayoutBaseView<CatalogPageViewModel> {
 
@@ -19,8 +20,13 @@ public class CatalogPageView extends DevLayoutBaseView<CatalogPageViewModel> {
   }
 
   @Override
-  protected String pageTitle() {
-    return "Component Catalog";
+  protected String pageTitle(CatalogPageViewModel model) {
+    return model.getLabel();
+  }
+
+  @Override
+  protected LayoutType layoutType() {
+    return LayoutType.CONTENT_WITH_RIGHT_SIDEBAR;
   }
 
   @Override

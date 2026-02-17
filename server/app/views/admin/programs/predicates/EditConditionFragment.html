@@ -55,7 +55,7 @@
           th:name="|condition-${conditionId}-node-type|"
           th:id="${subconditionLogicSelectorId}"
           th:data-condition-id="${conditionId}"
-          th:autofocus="${model.focusLogicDropdown}"
+          th:data-should-autofocus="${model.focusLogicDropdown}"
         >
           <option
             th:each="nodeType : ${model.operatorNodeTypes()}"

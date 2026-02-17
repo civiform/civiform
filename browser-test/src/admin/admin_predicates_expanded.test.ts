@@ -8,7 +8,7 @@ import {
   SubconditionSpec,
   SubconditionValue,
 } from '../support/admin_predicates'
-import {assertNotNull} from '../support/helpers'
+import {assertNotNull, isLocalDevEnvironment} from '../support/helpers'
 
 /**
  * Map of question types to that question type's corresponding testing data
@@ -437,6 +437,9 @@ test.describe('create and edit predicates', () => {
       await expect(page.locator('#edit-predicate')).toContainText(
         'Error: You must select a question.',
       )
+      await expect(
+        page.locator('#condition-1-subcondition-1-question'),
+      ).toBeFocused()
     })
 
     await test.step('Select question, save, and check predicate validation', async () => {
@@ -546,6 +549,9 @@ test.describe('create and edit predicates', () => {
       await expect(
         page.locator('#predicate-operator-node-select-null-state'),
       ).toContainText('This screen is always shown')
+      await expect(
+        page.getByRole('button', {name: 'Add condition'}),
+      ).toBeFocused()
       await adminPredicates.expectNoDeleteAllConditionsButton()
       await validateScreenshot(
         page.locator('#edit-predicate'),
@@ -601,12 +607,15 @@ test.describe('create and edit predicates', () => {
 
     await test.step('Create program and add questions', async () => {
       for (const [questionType, questionData] of PROGRAM_SAMPLE_QUESTIONS) {
-        await adminQuestions.addQuestionForType(
-          questionType,
-          questionData.questionName,
-          questionData.questionText,
-          questionData.multiValueOptions,
-        )
+        if (questionType != QuestionType.MAP || isLocalDevEnvironment()) {
+          // Skip MAP question creation in non-local environments
+          await adminQuestions.addQuestionForType(
+            questionType,
+            questionData.questionName,
+            questionData.questionText,
+            questionData.multiValueOptions,
+          )
+        }
       }
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockUsingSpec(programName, {
@@ -698,6 +707,7 @@ test.describe('create and edit predicates', () => {
           'aria-invalid',
           'true',
         )
+        await expect(inputElementLocator).toBeFocused()
         if (questionType === QuestionType.CURRENCY) {
           await expect(page.locator('.usa-input-group--error')).toBeVisible()
         } else {
@@ -814,6 +824,7 @@ test.describe('create and edit predicates', () => {
           'aria-invalid',
           'true',
         )
+        await expect(secondInputElementLocator).toBeFocused()
         if (questionType === QuestionType.CURRENCY) {
           await expect(page.locator('.usa-input-group--error')).toBeVisible()
         } else {
@@ -1052,6 +1063,9 @@ test.describe('create and edit predicates', () => {
         )
         await expect(errorMessageLocator).toBeVisible()
         await expect(page.locator('.usa-form-group--error')).toBeVisible()
+        await expect(
+          page.getByLabel(questionData.multiValueOptions![0].text),
+        ).toBeFocused()
       })
     }
   })

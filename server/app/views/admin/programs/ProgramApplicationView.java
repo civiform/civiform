@@ -22,7 +22,6 @@ import com.google.common.collect.ListMultimap;
 import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.tags.DomContent;
-import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -97,7 +96,12 @@ public final class ProgramApplicationView extends BaseHtmlView {
       Optional<String> noteMaybe,
       Boolean hasEligibilityEnabled,
       CiviFormProfile profile,
-      Request request) {
+      Request request,
+      Optional<String> search,
+      Optional<String> fromDate,
+      Optional<String> toDate,
+      Optional<Integer> page,
+      Optional<String> selectedApplicationStatus) {
     boolean showDownloadButton =
         !(settingsManifest.getRemoveDownloadForProgramAdminsEnabled(request)
             && profile.isOnlyProgramAdmin());
@@ -132,7 +136,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .withClasses("px-20")
             .with(
                 h2("Program: " + programName).withClasses("my-4"),
-                renderBackLink(programId),
+                renderBackLink(
+                    programId, search, fromDate, toDate, page, selectedApplicationStatus),
                 div()
                     .withClasses(
                         "flex", "flex-wrap", "items-center", "my-4", "gap-2", "justify-between")
@@ -182,15 +187,21 @@ public final class ProgramApplicationView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private ATag renderBackLink(Long programId) {
+  private DomContent renderBackLink(
+      long programId,
+      Optional<String> search,
+      Optional<String> fromDate,
+      Optional<String> toDate,
+      Optional<Integer> page,
+      Optional<String> selectedApplicationStatus) {
     String backUrl =
         routes.AdminApplicationController.index(
                 programId,
-                /* search= */ Optional.empty(),
-                /* page= */ Optional.empty(),
-                /* fromDate= */ Optional.empty(),
-                /* untilDate= */ Optional.empty(),
-                /* applicationStatus= */ Optional.empty(),
+                search,
+                page,
+                fromDate,
+                toDate,
+                selectedApplicationStatus,
                 /* selectedApplicationUri= */ Optional.empty(),
                 /* showDownloadModal= */ Optional.empty(),
                 /* message= */ Optional.empty())

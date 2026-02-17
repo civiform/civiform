@@ -15,6 +15,7 @@ import org.pac4j.saml.config.SAML2Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.AccountRepository;
+import repository.DatabaseExecutionContext;
 
 // TODO(#3856): Update with a non deprecated saml impl.
 @SuppressWarnings("deprecation")
@@ -25,17 +26,20 @@ public class LoginRadiusClientProvider implements Provider<SAML2Client> {
   private final Config configuration;
   private final ProfileFactory profileFactory;
   private final Provider<AccountRepository> applicantRepositoryProvider;
+  private final DatabaseExecutionContext dbExecutionContext;
   private final String baseUrl;
 
   @Inject
   public LoginRadiusClientProvider(
       Config configuration,
       ProfileFactory profileFactory,
-      Provider<AccountRepository> applicantRepositoryProvider) {
+      Provider<AccountRepository> applicantRepositoryProvider,
+      DatabaseExecutionContext dbExecutionContext) {
     this.configuration = checkNotNull(configuration);
     this.profileFactory = checkNotNull(profileFactory);
-    this.baseUrl = configuration.getString("base_url");
     this.applicantRepositoryProvider = checkNotNull(applicantRepositoryProvider);
+    this.dbExecutionContext = dbExecutionContext;
+    this.baseUrl = configuration.getString("base_url");
   }
 
   @Override
@@ -62,7 +66,8 @@ public class LoginRadiusClientProvider implements Provider<SAML2Client> {
     SAML2Client client = new SAML2Client(config);
 
     client.setProfileCreator(
-        new SamlProfileCreator(config, client, profileFactory, applicantRepositoryProvider));
+        new SamlProfileCreator(
+            config, client, profileFactory, applicantRepositoryProvider, dbExecutionContext));
 
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
     client.setCallbackUrl(baseUrl + "/callback");

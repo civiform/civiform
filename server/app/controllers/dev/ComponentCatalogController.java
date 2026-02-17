@@ -19,8 +19,16 @@ public class ComponentCatalogController extends Controller {
     this.catalogPageView = checkNotNull(componentCatalogPageView);
   }
 
-  public Result index(Http.Request request) {
-    var viewmodel = new CatalogPageViewModel();
-    return ok(catalogPageView.render(request, viewmodel)).as(Http.MimeTypes.HTML);
+  public Result defaultIndex(Http.Request request) {
+    return redirect(routes.ComponentCatalogController.controlIndex("button").url());
+  }
+
+  public Result controlIndex(Http.Request request, String controlName) {
+    if (!CatalogPageViewModel.controlExists(controlName)) {
+      return notFound();
+    }
+
+    var viewModel = CatalogPageViewModel.builder().controlName(controlName).build();
+    return ok(catalogPageView.render(request, viewModel)).as(Http.MimeTypes.HTML);
   }
 }

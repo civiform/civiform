@@ -48,7 +48,8 @@ public final class SessionTimeoutModals {
     // Inactivity warning modal
     DivTag inactivityModal = createInactivityWarningModal(messages, csrfToken);
 
-    // Session length warning modal
+    // Session length warning modal (always use logged-in messages since this is only used for
+    // admin/TI)
     DivTag sessionLengthModal = createSessionLengthWarningModal(messages);
 
     // Container for both modals
@@ -76,29 +77,30 @@ public final class SessionTimeoutModals {
     return ViewUtils.makeUswdsModal(
             modalBody,
             "session-inactivity-warning",
-            messages.at(MessageKey.SESSION_INACTIVITY_WARNING_TITLE.getKeyName()),
-            messages.at(MessageKey.SESSION_EXTEND_BUTTON.getKeyName()),
+            messages.at(MessageKey.SESSION_WARNING_TITLE.getKeyName()),
+            messages.at(MessageKey.SESSION_INACTIVITY_EXTEND_BUTTON.getKeyName()),
             true,
-            messages.at(MessageKey.SESSION_EXTEND_BUTTON.getKeyName()),
+            messages.at(MessageKey.SESSION_INACTIVITY_EXTEND_BUTTON.getKeyName()),
             messages.at(MessageKey.BUTTON_CANCEL.getKeyName()))
         .withClasses("hidden");
   }
 
   private static DivTag createSessionLengthWarningModal(Messages messages) {
     // Create the body content for the session length warning modal
+    // Always use logged-in messages since this Java class is only used for admin/TI pages
     DivTag modalBody =
         div()
             .withId("session-length-description")
-            .with(p(messages.at(MessageKey.SESSION_LENGTH_WARNING_MESSAGE.getKeyName())));
+            .with(p(messages.at(MessageKey.SESSION_LENGTH_WARNING_MESSAGE_LOGGED_IN.getKeyName())));
 
     // Create the session length warning modal
     return ViewUtils.makeUswdsModal(
             modalBody,
             "session-length-warning",
-            messages.at(MessageKey.SESSION_LENGTH_WARNING_TITLE.getKeyName()),
-            messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()),
+            messages.at(MessageKey.SESSION_WARNING_TITLE.getKeyName()),
+            messages.at(MessageKey.SESSION_LOGIN_BUTTON_LOGGED_IN.getKeyName()),
             true,
-            messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()),
+            messages.at(MessageKey.SESSION_LOGIN_BUTTON_LOGGED_IN.getKeyName()),
             messages.at(MessageKey.BUTTON_CANCEL.getKeyName()))
         .withClasses("hidden");
   }

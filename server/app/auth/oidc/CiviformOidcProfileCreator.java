@@ -11,12 +11,11 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 import javax.inject.Provider;
 import models.ApplicantModel;
 import org.apache.commons.lang3.NotImplementedException;
 import org.pac4j.core.context.CallContext;
-import org.pac4j.core.context.WebContext;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.profile.UserProfile;
 import org.pac4j.core.profile.definition.CommonProfileDefinition;
@@ -27,6 +26,7 @@ import org.pac4j.oidc.profile.creator.OidcProfileCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.AccountRepository;
+import repository.DatabaseExecutionContext;
 import services.settings.SettingsManifest;
 
 /**
@@ -44,12 +44,15 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
   protected final SettingsManifest settingsManifest;
 
   public CiviformOidcProfileCreator(
-      OidcConfiguration configuration, OidcClient client, OidcClientProviderParams params) {
+      OidcConfiguration configuration,
+      OidcClient client,
+      OidcClientProviderParams params,
+      DatabaseExecutionContext dbExecutionContext) {
     super(Preconditions.checkNotNull(configuration), Preconditions.checkNotNull(client));
     this.profileFactory = Preconditions.checkNotNull(params.profileFactory());
     this.accountRepositoryProvider = Preconditions.checkNotNull(params.accountRepositoryProvider());
     this.civiFormProfileMerger =
-        new CiviFormProfileMerger(profileFactory, accountRepositoryProvider);
+        new CiviFormProfileMerger(profileFactory, accountRepositoryProvider, dbExecutionContext);
     this.settingsManifest =
         new SettingsManifest(Preconditions.checkNotNull(params.configuration()));
   }
@@ -103,19 +106,19 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
    */
   @VisibleForTesting
   public CiviFormProfileData mergeCiviFormProfile(
-      Optional<CiviFormProfile> maybeCiviFormProfile, OidcProfile oidcProfile, WebContext context) {
+      Optional<CiviFormProfile> maybeCiviFormProfile, OidcProfile oidcProfile) {
     var civiformProfile =
         maybeCiviFormProfile.orElseGet(
             () -> {
               logger.debug("Found no existing profile in session cookie.");
               return createEmptyCiviFormProfile(oidcProfile);
             });
-    return mergeCiviFormProfile(civiformProfile, oidcProfile, context);
+    return mergeCiviFormProfile(civiformProfile, oidcProfile);
   }
 
   /** Merge the two provided profiles into a new CiviFormProfileData. */
   protected CiviFormProfileData mergeCiviFormProfile(
-      CiviFormProfile civiformProfile, OidcProfile oidcProfile, WebContext context) {
+      CiviFormProfile civiformProfile, OidcProfile oidcProfile) {
 
     // Meaning: whatever you signed in with most recently is the role you have.
     ImmutableSet<Role> roles = roles(civiformProfile, oidcProfile);
@@ -185,30 +188,33 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
   public Optional<UserProfile> create(CallContext callContext, Credentials credentials) {
     ProfileUtils profileUtils = new ProfileUtils(callContext.sessionStore(), profileFactory);
     Optional<UserProfile> oidcProfile = super.create(callContext, credentials);
+    Optional<CiviFormProfile> guestProfile =
+        profileUtils.optionalCurrentUserProfile(callContext.webContext());
+    return innerCreate(oidcProfile, guestProfile);
+  }
 
-    if (oidcProfile.isEmpty()) {
+  // Broken out to allow for unit testing that doesn't exercise the parents
+  // create method.  Part of its operation is to make http requests.
+  @VisibleForTesting
+  Optional<UserProfile> innerCreate(
+      Optional<UserProfile> profile, Optional<CiviFormProfile> guestProfile) {
+    if (profile.isEmpty()) {
       logger.warn("Didn't get a valid profile back from OIDC.");
       return Optional.empty();
     }
 
-    if (!(oidcProfile.get() instanceof OidcProfile profile)) {
+    if (!(profile.get() instanceof OidcProfile oidcProfile)) {
       logger.warn(
           "Got a profile from OIDC callback but it wasn't an OIDC profile: {}",
-          oidcProfile.get().getClass().getName());
+          profile.get().getClass().getName());
       return Optional.empty();
     }
 
-    Optional<ApplicantModel> existingApplicant = getExistingApplicant(profile);
-    Optional<CiviFormProfile> guestProfile =
-        profileUtils.optionalCurrentUserProfile(callContext.webContext());
+    Optional<ApplicantModel> existingApplicant = getExistingApplicant(oidcProfile);
 
-    // The merge function signature specifies the two profiles as parameters.
-    // We need to supply an extra parameter (context), so bind it here.
-    BiFunction<Optional<CiviFormProfile>, OidcProfile, UserProfile> mergeFunction =
-        (cProfile, oProfile) ->
-            this.mergeCiviFormProfile(cProfile, oProfile, callContext.webContext());
-    return civiFormProfileMerger.mergeProfiles(
-        existingApplicant, guestProfile, profile, mergeFunction);
+    Function<Optional<CiviFormProfile>, UserProfile> mergeFunction =
+        (civiFormProfile) -> this.mergeCiviFormProfile(civiFormProfile, oidcProfile);
+    return civiFormProfileMerger.mergeProfiles(existingApplicant, guestProfile, mergeFunction);
   }
 
   @VisibleForTesting

@@ -8,6 +8,7 @@ import {
   loginAsProgramAdmin,
   loginAsTestUser,
   logout,
+  disableFeatureFlag,
   supportsEmailInspection,
   testUserDisplayName,
   extractEmailsForRecipient,
@@ -698,6 +699,7 @@ test.describe('view program statuses', () => {
         adminPrograms,
       }) => {
         await loginAsAdmin(page)
+        await disableFeatureFlag(page, 'expanded_form_logic_enabled')
 
         // Create a program without eligibility
         await adminQuestions.addNameQuestion({

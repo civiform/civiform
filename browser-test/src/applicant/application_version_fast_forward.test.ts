@@ -7,6 +7,7 @@ import {
   loginAsProgramAdmin,
   loginAsTestUser,
   logout,
+  disableFeatureFlag,
   closeWarningMessage,
   AdminPredicates,
   testUserDisplayName,
@@ -39,6 +40,10 @@ test.describe('Application Version Fast-Forward Flow', () => {
     const programAdminActor = await FastForwardProgramAdminActor.create(
       programName,
       browser,
+    )
+    await disableFeatureFlag(
+      civiformAdminActor.getPage(),
+      'expanded_form_logic_enabled',
     )
 
     /*
@@ -495,6 +500,10 @@ test.describe('Application Version Fast-Forward Flow', () => {
     const applicantActor = await FastForwardApplicantActor.create(
       programName,
       browser,
+    )
+    await disableFeatureFlag(
+      civiformAdminActor.getPage(),
+      'expanded_form_logic_enabled',
     )
 
     /*

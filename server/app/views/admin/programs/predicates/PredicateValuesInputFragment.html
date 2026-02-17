@@ -13,7 +13,9 @@
 >
   <div class="usa-form-group margin-top-2 cf-predicate-value-input">
     <label class="usa-label" th:for="${valueInputId}"
-      >[[#{label.predicateValue}]]<span class="usa-hint--required"
+      >[[#{label.predicateValue}]]<span
+        class="usa-hint usa-hint--required"
+        aria-hidden="true"
         >*</span
       ></label
     >
@@ -30,7 +32,7 @@
     >
       <th:block th:case="'Address'">
         <div
-          th:replace="~{::addressValuesInput(${model.valueOptions}, ${valueInputId})}"
+          th:replace="~{::addressValuesInput(${model.valueOptions}, ${valueInputId}, ${errorMessageId})}"
         ></div>
       </th:block>
       <th:block th:case="'Checkbox'">
@@ -40,12 +42,12 @@
       </th:block>
       <th:block th:case="'Currency'">
         <div
-          th:replace="~{::currencyValuesInput(${model.valueOptions}, ${valueInputId}, ${secondValueInputId}, ${secondValueInputGroupId})}"
+          th:replace="~{::currencyValuesInput(${model.valueOptions}, ${valueInputId}, ${secondValueInputId}, ${secondValueInputGroupId}, ${errorMessageId})}"
         ></div>
       </th:block>
       <th:block th:case="'Date'">
         <div
-          th:replace="~{::dateValuesInput(${model.valueOptions}, ${valueInputId}, ${secondValueInputId}, ${secondValueInputGroupId})}"
+          th:replace="~{::dateValuesInput(${model.valueOptions}, ${valueInputId}, ${secondValueInputId}, ${secondValueInputGroupId}, ${errorMessageId})}"
         ></div>
       </th:block>
       <th:block th:case="'Dropdown'">
@@ -55,12 +57,12 @@
       </th:block>
       <th:block th:case="'Email'">
         <div
-          th:replace="~{::emailValuesInput(${valueInputId}, ${valueInputHintId})}"
+          th:replace="~{::emailValuesInput(${valueInputId}, ${valueInputHintId}, ${errorMessageId})}"
         ></div>
       </th:block>
       <th:block th:case="'ID'">
         <div
-          th:replace="~{::textValuesInput(${valueInputId}, ${valueInputHintId})}"
+          th:replace="~{::textValuesInput(${valueInputId}, ${valueInputHintId}, ${errorMessageId})}"
         ></div>
       </th:block>
       <th:block th:case="'Map'">
@@ -70,12 +72,12 @@
       </th:block>
       <th:block th:case="'Name'">
         <div
-          th:replace="~{::textValuesInput(${valueInputId}, ${valueInputHintId})}"
+          th:replace="~{::textValuesInput(${valueInputId}, ${valueInputHintId}, ${errorMessageId})}"
         ></div>
       </th:block>
       <th:block th:case="'Number'">
         <div
-          th:replace="~{::numberValuesInput(${model.valueOptions}, ${valueInputId}, ${secondValueInputId}, ${secondValueInputGroupId})}"
+          th:replace="~{::numberValuesInput(${model.valueOptions}, ${valueInputId}, ${secondValueInputId}, ${secondValueInputGroupId}, ${errorMessageId})}"
         ></div>
       </th:block>
       <th:block th:case="'Radio Button'">
@@ -85,7 +87,7 @@
       </th:block>
       <th:block th:case="'Text'">
         <div
-          th:replace="~{::textValuesInput(${valueInputId}, ${valueInputHintId})}"
+          th:replace="~{::textValuesInput(${valueInputId}, ${valueInputHintId}, ${errorMessageId})}"
         ></div>
       </th:block>
       <th:block th:case="'Yes/No'">
@@ -114,7 +116,9 @@
 <!-- QUESTION TYPE FRAGMENTS -->
 
 <!-- Address question type -->
-<th:block th:fragment="addressValuesInput(valueOptions, valueInputId)">
+<th:block
+  th:fragment="addressValuesInput(valueOptions, valueInputId, errorMessageId)"
+>
   <select class="usa-select" th:id="${valueInputId}" th:name="${valueInputId}">
     <option
       th:each="valueOption: ${valueOptions}"
@@ -123,6 +127,7 @@
       th:selected="${valueOption.selected()}"
       aria-required="true"
       th:aria-invalid="${firstInputInvalid}"
+      th:aria-describedby="${firstInputInvalid ? errorMessageId : ''}"
       address-value
     ></option>
   </select>
@@ -130,7 +135,7 @@
 
 <!-- Currency question type -->
 <th:block
-  th:fragment="currencyValuesInput(valueOptions, valueInputId, secondValueInputId, secondValueInputGroupId)"
+  th:fragment="currencyValuesInput(valueOptions, valueInputId, secondValueInputId, secondValueInputGroupId, errorMessageId)"
 >
   <div
     class="usa-input-group"
@@ -147,6 +152,7 @@
       th:name="${valueInputId}"
       aria-required="true"
       th:aria-invalid="${firstInputInvalid}"
+      th:aria-describedby="${firstInputInvalid ? errorMessageId : ''}"
       th:value="${model.userEnteredValue}"
       data-currency-value
     />
@@ -169,6 +175,7 @@
         th:name="${secondValueInputId}"
         aria-required="true"
         th:aria-invalid="${secondInputInvalid}"
+        th:aria-describedby="${secondInputInvalid ? errorMessageId : ''}"
         th:value="${model.secondUserEnteredValue}"
         data-currency-value
       />
@@ -179,7 +186,7 @@
 <!-- Date question type -->
 <!-- Support both number and date inputs for age vs. date-based operators -->
 <th:block
-  th:fragment="dateValuesInput(valueOptions, valueInputId, secondValueInputId, secondValueInputGroupId)"
+  th:fragment="dateValuesInput(valueOptions, valueInputId, secondValueInputId, secondValueInputGroupId, errorMessageId)"
 >
   <div
     class="usa-hint"
@@ -199,6 +206,7 @@
         th:value="${model.userEnteredValue}"
         aria-required="true"
         th:aria-invalid="${firstInputInvalid}"
+        th:aria-describedby="${firstInputInvalid ? errorMessageId : ''}"
         data-date-value
       />
     </div>
@@ -214,6 +222,7 @@
         th:value="${model.userEnteredValue}"
         aria-required="true"
         th:aria-invalid="${firstInputInvalid}"
+        th:aria-describedby="${firstInputInvalid ? errorMessageId : ''}"
       />
     </div>
     <!-- Note: inputmode is text here to allow commas in input for multiple values. -->
@@ -228,6 +237,7 @@
         th:value="${model.userEnteredValue}"
         aria-required="true"
         th:aria-invalid="${firstInputInvalid}"
+        th:aria-describedby="${firstInputInvalid ? errorMessageId : ''}"
       />
     </div>
   </div>
@@ -246,6 +256,7 @@
         th:value="${model.secondUserEnteredValue}"
         aria-required="true"
         th:aria-invalid="${secondInputInvalid}"
+        th:aria-describedby="${secondInputInvalid ? errorMessageId : ''}"
       />
     </div>
     <div data-age-input-type>
@@ -260,13 +271,16 @@
         th:value="${model.secondUserEnteredValue}"
         aria-required="true"
         th:aria-invalid="${secondInputInvalid}"
+        th:aria-describedby="${secondInputInvalid ? errorMessageId : ''}"
       />
     </div>
   </div>
 </th:block>
 
 <!-- Email question type -->
-<th:block th:fragment="emailValuesInput(valueInputId, valueInputHintId)">
+<th:block
+  th:fragment="emailValuesInput(valueInputId, valueInputHintId, errorMessageId)"
+>
   <div
     class="usa-hint"
     th:id="${valueInputHintId}"
@@ -284,6 +298,7 @@
         th:value="${model.userEnteredValue}"
         aria-required="true"
         th:aria-invalid="${firstInputInvalid}"
+        th:aria-describedby="${firstInputInvalid ? errorMessageId : ''}"
         data-email-value
       />
     </div>
@@ -298,6 +313,7 @@
         th:value="${model.userEnteredValue}"
         aria-required="true"
         th:aria-invalid="${firstInputInvalid}"
+        th:aria-describedby="${firstInputInvalid ? errorMessageId : ''}"
       />
     </div>
   </div>
@@ -311,7 +327,11 @@
     class="usa-form-group margin-y-0"
     th:classappend="${!model.invalidInputIds.isEmpty()} ? 'usa-form-group--error'"
   >
-    <fieldset class="usa-fieldset">
+    <fieldset class="usa-fieldset usa-fieldset--no-legend">
+      <legend
+        class="usa-sr-only"
+        th:text="${'Condition ' + model.conditionId + ' subcondition ' + model.subconditionId + ' values required'}"
+      ></legend>
       <span
         class="usa-error-message"
         th:id="${errorMessageId}"
@@ -332,6 +352,7 @@
             th:id="${checkboxInputId}"
             th:checked="${valueOption.selected}"
             th:aria-invalid="${!model.invalidInputIds.isEmpty()}"
+            th:aria-describedby="${!model.invalidInputIds.isEmpty() ? errorMessageId : ''}"
             data-multi-input-value
           />
           <label
@@ -348,7 +369,7 @@
 
 <!-- Number question type -->
 <th:block
-  th:fragment="numberValuesInput(valueOptions, valueInputId, secondValueInputId, secondValueInputGroupId)"
+  th:fragment="numberValuesInput(valueOptions, valueInputId, secondValueInputId, secondValueInputGroupId, errorMessageId)"
 >
   <div
     class="usa-hint"
@@ -367,6 +388,7 @@
         th:value="${model.userEnteredValue}"
         aria-required="true"
         th:aria-invalid="${firstInputInvalid}"
+        th:aria-describedby="${firstInputInvalid ? errorMessageId : ''}"
         data-number-value
       />
     </div>
@@ -382,6 +404,7 @@
         th:value="${model.userEnteredValue}"
         aria-required="true"
         th:aria-invalid="${firstInputInvalid}"
+        th:aria-describedby="${firstInputInvalid ? errorMessageId : ''}"
       />
     </div>
   </div>
@@ -398,12 +421,15 @@
       th:value="${model.secondUserEnteredValue}"
       aria-required="true"
       th:aria-invalid="${secondInputInvalid}"
+      th:aria-describedby="${secondInputInvalid ? errorMessageId : ''}"
     />
   </div>
 </th:block>
 
 <!-- Text input question type -->
-<th:block th:fragment="textValuesInput(valueInputId, valueInputHintId)">
+<th:block
+  th:fragment="textValuesInput(valueInputId, valueInputHintId, errorMessageId)"
+>
   <div
     class="usa-hint"
     th:id="${valueInputHintId}"
@@ -420,6 +446,7 @@
       th:value="${model.userEnteredValue}"
       aria-required="true"
       th:aria-invalid="${firstInputInvalid}"
+      th:aria-describedby="${firstInputInvalid ? errorMessageId : ''}"
     />
   </div>
 </th:block>

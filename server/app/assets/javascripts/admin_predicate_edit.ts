@@ -97,7 +97,7 @@ export class AdminPredicateEdit {
     }
     AdminPredicateEdit.showOrHideDeleteAllConditionsButton()
     AdminPredicateEdit.showNodeOperatorSelectOrNullState()
-    AdminPredicateEdit.focusSubconditionAndTriggerAriaAnnouncement()
+    AdminPredicateEdit.focusSubcondition()
   }
 
   onPageLoad(): void {
@@ -168,6 +168,9 @@ export class AdminPredicateEdit {
       const event = new Event('change', {bubbles: true})
       el.dispatchEvent(event)
     })
+
+    AdminPredicateEdit.showNodeOperatorSelectOrNullState()
+    AdminPredicateEdit.focusRootNodeOperatorSelect()
   }
 
   private static onScalarDropdownChange(event: Event): void {
@@ -336,6 +339,37 @@ export class AdminPredicateEdit {
     predicateForm.submit()
   }
 
+  /** Focus the root node operator select dropdown. Used on page load and on adding the first condition. */
+  private static focusRootNodeOperatorSelect(): void {
+    const nodeOperatorSelect = document.getElementById(
+      AdminPredicateEdit.NODE_OPERATOR_SELECT_ID,
+    )
+    if (!nodeOperatorSelect) {
+      return
+    }
+
+    // Don't steal focus from other elements that are marked for autofocus.
+    const focusedElement: HTMLElement | null = document.querySelector(
+      '[data-should-autofocus="true"]',
+    )
+    if (focusedElement !== null) {
+      return
+    }
+
+    // Focus the first dropdown in the root node operator select.
+    const visibilityBehaviorDropdown: HTMLSelectElement | null =
+      nodeOperatorSelect.querySelector('#visibility-predicate-action-select')
+    const logicDropdown: HTMLSelectElement = assertNotNull(
+      nodeOperatorSelect.querySelector('#root-node-type'),
+    ) as HTMLSelectElement
+
+    if (visibilityBehaviorDropdown) {
+      setTimeout(() => visibilityBehaviorDropdown.focus(), 100)
+    } else {
+      setTimeout(() => logicDropdown.focus(), 100)
+    }
+  }
+
   /**
    * Depending on whether the user has added conditions in the predicate screen:
    *    * If yes, then show the normal "Applicant is eligible / Screen is visible if any/all conditions are true" text
@@ -359,6 +393,12 @@ export class AdminPredicateEdit {
     if (!document.querySelector('#condition-1')) {
       nodeOperatorSelect.hidden = true
       nodeOperatorSelectNullState.hidden = false
+
+      // Focus the "Add condition" button in the null state.
+      const addConditionButton = document.getElementById('add-condition-button')
+      if (addConditionButton) {
+        setTimeout(() => addConditionButton.focus(), 100)
+      }
       return
     }
 
@@ -368,17 +408,7 @@ export class AdminPredicateEdit {
     // When creating a new predicate, focus the first dropdown on the page.
     // This helps screen-reader users gain context on the logic of the predicate.
     if (!document.querySelector('#condition-2')) {
-      const visibilityBehaviorDropdown: HTMLSelectElement | null =
-        nodeOperatorSelect.querySelector('#visibility-predicate-action-select')
-      const logicDropdown: HTMLSelectElement = assertNotNull(
-        nodeOperatorSelect.querySelector('#root-node-type'),
-      ) as HTMLSelectElement
-
-      if (visibilityBehaviorDropdown) {
-        visibilityBehaviorDropdown.focus()
-      } else {
-        logicDropdown.focus()
-      }
+      AdminPredicateEdit.focusRootNodeOperatorSelect()
     }
   }
 
@@ -427,13 +457,32 @@ export class AdminPredicateEdit {
     ].join(' ')
   }
 
-  private static focusSubconditionAndTriggerAriaAnnouncement(): void {
+  private static focusSubcondition(): void {
+    // First, check if any subcondition is invalid.
+    // If so, focus the first invalid subcondition.
+    const invalidSubconditionInputs: NodeListOf<HTMLElement> =
+      document.querySelectorAll('[aria-invalid="true"]')
+    if (invalidSubconditionInputs.length > 0) {
+      setTimeout(() => invalidSubconditionInputs[0].focus(), 100)
+      return
+    }
+
     // Find which subcondition has autofocus set
     const focusedSubconditionQuestion: HTMLElement | null =
       document.querySelector(
         '.cf-predicate-question-select[data-should-autofocus="true"]',
       )
+    const focusedLogicDropdown: HTMLElement | null = document.querySelector(
+      '.cf-subcondition-logic-select[data-should-autofocus="true"]',
+    )
+
+    // If no subcondition is focused, focus the nearest operator select by default
     if (focusedSubconditionQuestion === null) {
+      if (focusedLogicDropdown !== null) {
+        setTimeout(() => focusedLogicDropdown.focus(), 100)
+      } else {
+        AdminPredicateEdit.focusRootNodeOperatorSelect()
+      }
       return
     }
 

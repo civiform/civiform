@@ -44,6 +44,8 @@ header.guestIndicator=Bisitang user ka
 header.userName=Nakalog-in bilang {0}
 # Error message to answer a required question
 validation.isRequired=Ang tanong na ito ay kinakailangan.
+# Error message to fill a required field
+validation.fieldIsRequired=Ang field na ito ay kinakailangan.
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=Maaari lamang ay maglagay ng halaga para sa bawat linya.
 content.requiredFieldsNote=Tandaan: Nire-require ang mga field na may markang {0}.
@@ -237,6 +239,8 @@ button.save=I-save
 button.search=Maghanap
 # Button to start an application on behalf of a client.
 button.startApp=Magsimula ng application
+# Button to redirect to the login page when the applicant is not logged in for login-only programs.
+button.startAppForLoginOnlyProgram=Mag-sign in upang simulan ang isang aplikasyon
 # Button to view the applications belonging to an applicant.
 button.viewApplications=Tingnan ang mga application
 # Button to view and add clients
@@ -556,6 +560,12 @@ link.backToEditProgramBlock=Bumalik sa pag-edit {0}
 content.predicateVisibilityDescription=I-configure kung kailang ipapakita o itatago ang screen na ito para sa mga aplikante batay sa mga sagot sa mga tanong sa mga naunang screen.
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
 content.predicateEligibilityDescription=Magdagdag ng mga kondisyon sa pagiging karapat-dapat para matukoy kung kwalipikado ang isang aplikante para sa programa batay sa mga sagot sa mga tanong sa screen na ito. Haharangin ang pagsusumite ng aplikasyon ng mga aplikanteng hindi nakakatugon sa minimum na kinakailangan. Mababago mo ito sa
+# Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualitifies for the program.
+content.predicateEligibilityDescription.v2=Magdagdag ng mga kondisyon sa pagiging kwalipikado upang matukoy kung ang isang aplikante ay kwalipikado para sa programa batay sa mga sagot sa mga tanong sa screen na ito.
+# Text informing admins that ineligible applicants will be blocked from submitting an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
+content.blockIneligibleApplicants=Ang mga aplikanteng hindi natutugunan ang mga pinakamababang kinakailangan ay haharangan sa pagsusumite ng aplikasyon. Maaari mo itong baguhin sa
+# Text informing admins that ineligible applicants will still be able to submit an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
+content.allowIneligibleApplicants=Ang mga aplikante ay maaaring magsumite ng aplikasyon kahit na hindi nila natutugunan ang mga pinakamababang kinakailangan. Maaari mo itong baguhin sa
 # Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
 link.programSettings=settings ng program
 
@@ -566,9 +576,9 @@ content.predicateApplicantIsEligible=Karapat-dapat ang aplikante kung
 # Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
 content.predicateConditionsAreTrue=totoo ang mga kondisyon:
 # Text that shows on the eligibility predicate screen when no eligibility conditions are set.
-content.predicateEligibilityNullState=Applicant is always eligible.
+content.predicateEligibilityNullState=Ang aplikante ay palaging kwalipikado.
 # Text that shows on the visibility predicate screen when no visibility conditions are set.
-content.predicateVisibilityNullState=This screen is always shown.
+content.predicateVisibilityNullState=Ang screen na ito ay palaging ipinapakita.
 
 # Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
 content.predicateConditionIsTrueIf=Totoo ang kondisyon kung
@@ -595,7 +605,7 @@ button.predicateAddCondition=Magdagdag ng kondisyon
 # Button to remove a condition from the form
 button.predicateDeleteCondition=I-delete ang kondisyon
 # Button to remove all conditions from the form
-button.predicateDeleteAllConditions=Delete all conditions
+button.predicateDeleteAllConditions=Tanggalin ang lahat ng kondisyon
 # Link to append form fields for configuring a new sub-condition within a condition
 link.predicateAddSubcondition=Magdagdag ng sub-kondisyon
 # Link to remove a sub-condition from the form
@@ -606,11 +616,15 @@ link.backToTop=Bumalik sa itaas
 button.saveAndExit=I-save at mag-exit
 
 # Confirmation dialog shown to admin for deleting all conditions in the predicate edit view
-confirm.deleteAllConditions=Are you sure you would like to delete all conditions?
+confirm.deleteAllConditions=Sigurado ka bang gusto mong tanggalin ang lahat ng kondisyon?
 # Confirmation dialog shown to admin for deleting a condition in the predicate edit view
-confirm.deleteSingleCondition=Are you sure you would like to delete this condition?
+confirm.deleteSingleCondition=Sigurado ka bang gusto mong tanggalin ang kondisyong ito?
+# Confirmation dialog shown to admin for leaving predicate edit without saving.
+confirm.leaveWithoutSaving=Sigurado ka bang gusto mong umalis?
 # Dialog to warn admin that a deletion action cannot be undone
-confirm.actionNotReversable=This action cannot be undone.
+confirm.actionNotReversable=Ang aksyong ito ay hindi na maaaring bawiin.
+# Dialog to warn admin that they have unsaved changes in the predicate edit view.
+confirm.unsavedChanges=Mayroon kang hindi pa naise-save na mga pagbabago na mawawala.
 
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsVisibility=Walang mga available na tanong sa mga naunang screen kung saan magtatakda ng kondisyon sa visibility para sa screen na ito.
@@ -618,9 +632,14 @@ alert.predicateNoAvailableQuestionsVisibility=Walang mga available na tanong sa 
 alert.predicateNoAvailableQuestionsEligibility=Walang mga available na tanong sa screen na ito kung saan magtatakda ng kondisyon sa pagiging karapat-dapat.
 
 # Label for textarea where admins can enter a message to show to applicants who are deemed ineligible based on the eligibility conditions set.
-label.predicateEligibilityMessageField=Display message shown to ineligible applicants
+label.predicateEligibilityMessageField=Ipakita ang mensaheng ipinapakita sa mga aplikanteng hindi kwalipikado
 # Help text for a textarea input explaining that markdown is supported.
-content.markdownSupported=Markdown is supported
+content.markdownSupported=Ang markdown ay sinusuportahan
+
+# Error message for when the admin leaves a multi-select question blank in admin predicate edit.
+validation.selectionRequired=Dapat kang pumili ng kahit isang opsyon.
+# Error message for when the admin leaves a question unselected in admin predicate edit.
+validation.questionRequired=Dapat kang pumili ng tanong.
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -864,7 +883,7 @@ map.locationLinkText=Tingnan ang higit pang detalye
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr=Tingnan ang higit pang detalye para sa {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
-map.locationsCount=Displaying {0} to {1} of {2} locations
+map.locationsCount=Ipinapakita ang {0} hanggang {1} sa {2} (na) lokasyon
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount={0} sa {1} na maximum na lokasyon ang napili.
 # Alt text for map region
@@ -902,7 +921,7 @@ map.geoJsonErrorText = Ikinalulungkot namin na hindi namin maipakita ang tanong 
 map.contactUs = makipag-ugnayan sa amin
 map.homepage = homepage
 # screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
-map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a different location, please unselect at least one of the locations you have chosen.
+map.maxLocationsSelectedSr = Ang pinakamaraming {0} (na) lokasyon ang pinili. Upang magdagdag ng ibang lokasyon, mangyaring alisin ang pagkakapili ng kahit isa sa mga lokasyon na iyong napili.
 
 #---------------------------------------------------------------------------#
 # MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
@@ -968,7 +987,7 @@ error.internalServerTitle.v2=Nagkaroon ng error
 # The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=Pasensya na, nagkaroon ng internal error sa aming system.
 # Additional information about the error that is shown to the user in small font
-error.internalServerDescription=Makipag-ugnayan sa technical support para sa tulong sa {0} at isama itong error ID na {1}
+error.internalServerDescription=Mangyaring makipag-ugnayan sa tagasuportang teknikal para sa tulong sa {0} at isama ang error ID na ito {1}.
 # A button redirecting the user to the homepage
 error.internalServerHomeButton=Pumunta sa homepage
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
@@ -1043,21 +1062,6 @@ banner.minute=1 na minuto
 #  are seeded into the database, since these will be admin defined in the future #
 #------------------------------------------------------------------------------#
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# An aria-label for screen readers that helps provide context for the category tags.
 # A tag used to filter the list of programs down to those that are related to childcare.
 category.tag.childcare=Pangangalaga ng Bata
 
@@ -1100,7 +1104,7 @@ category.tag.utilities=Mga Utility
 # A tag used to filter the list of programs down to those that are related to military veterans.
 category.tag.veteran=Beterano
 
-
+# An aria-label for screen readers that helps provide context for the category tags.
 ariaLabel.categories=Mga Kategorya
 
 #------------------------------------------------------------------------------#
@@ -1127,3 +1131,92 @@ session.extended.success=Na-extend na ang session
 
 # Error message shown when there was a problem extending the user's session
 session.extended.error=Hindi na-extend ang session
+
+#------------------------------------------------------------------------------#
+#  ADMIN PROGRAM BLOCK EDIT                                                    #
+#------------------------------------------------------------------------------#
+
+# Heading for the repeated set creation method radio buttons
+heading.repeatedSet.creationMethod=
+# Option for allowing an admin to create a new repeated set
+option.repeatedSet.createNew=
+# Option for allowing an admin to choose an existing repeated set
+option.repeatedSet.chooseExisting=
+# Label for the new repeated set form
+label.repeatedSet.newSetForm=
+# Label for the text input field asking what type of entity users will be listing (e.g., household members)
+input.repeatedSet.listedEntity=
+# Label for the text input field asking for the admin identifier of the repeated set
+input.repeatedSet.adminId=
+# A text input field asking admins for the text that will prompt applicants to list out the entity
+input.repeatedSet.questionText=
+# A text input field for admins to add a hint that will help applicants decide what entities to list out
+input.repeatedSet.hintText=
+# A form field where admins set the minimum number of entities that applicants must list
+input.repeatedSet.minEntities=
+# A form field where admins set the maximum number of entities that applicants can list
+input.repeatedSet.maxEntities=
+# Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
+alert.repeatedSet.newQuestion=
+# Submission button for creating a new repeated set
+button.repeatedSet.submitNew=
+# Button for admins to add a new repeated set
+button.repeatedSet.addNew=
+# Text letting admins know which block represents the group of screens for repeating questions
+text.repeatedSet=
+# Text letting admins know which block represents the group of screens for nested repeating questions
+text.nestedRepeatedSet=
+# An uneditable prefix for the enumerator screen name representing the repeated object that will be enumerated
+text.repeatedSet.prefix=magulang na label
+# An uneditable prefix for the enumerator screen name representing the nested repeated object that will be enumerated
+text.repeatedSet.nestedPrefix=anak na label
+
+#------------------------------------------------------------------------------#
+#  ADMIN REPORTING                                                             #
+#------------------------------------------------------------------------------#
+
+# Caption for the table showing submissions by program
+caption.submissionsByProgram=Mga isinumite ayon sa programa (lahat ng programa)
+# Column header for program name
+content.program=Programa
+# Column header for number of submissions
+content.submissions=Mga isinumite
+# Column header for 25th percentile time to complete
+content.timeToCompleteP25=Oras upang kumpletuhin (p25)
+# Column header for median (50th percentile) time to complete
+content.medianTimeToComplete=Median na oras upang kumpletuhin
+# Column header for 75th percentile time to complete
+content.timeToCompleteP75=Oras upang kumpletuhin (p75)
+# Column header for 99th percentile time to complete
+content.timeToCompleteP99=Oras upang kumpletuhin (p99)
+# Text on button to download CSV file
+button.downloadCsv=I-download ang CSV
+# Caption for the table showing submissions by month
+caption.submissionsByMonth=Mga isinumite ayon sa buwan (lahat ng programa)
+# Column header for month
+content.month=Buwan
+
+#------------------------------------------------------------------------------#
+#  ADMIN REPORTING PROGRAM                                                     #
+#------------------------------------------------------------------------------#
+
+# Heading for the program reporting page
+reportingProgram.heading={0} (na) nag-uulat
+# Info text about data delay
+reportingProgram.dataDelay=Ang datos ay maaaring hanggang isang oras na maantala.
+# Caption for the table showing submissions by month for a program
+reportingProgram.caption.submissionsByMonth=Mga isinumite ayon sa buwan
+# Column header for month
+reportingProgram.month=Buwan
+# Column header for submissions
+reportingProgram.submissions=Mga isinumite
+# Column header for 25th percentile time to complete
+reportingProgram.timeToCompleteP25=Oras upang kumpletuhin (p25)
+# Column header for median (50th percentile) time to complete
+reportingProgram.medianTimeToComplete=Median na oras upang kumpletuhin
+# Column header for 75th percentile time to complete
+reportingProgram.timeToCompleteP75=Oras upang kumpletuhin (p75)
+# Column header for 99th percentile time to complete
+reportingProgram.timeToCompleteP99=Oras upang kumpletuhin (p99)
+# Text on button to download CSV file
+reportingProgram.downloadCsv=I-download ang CSV

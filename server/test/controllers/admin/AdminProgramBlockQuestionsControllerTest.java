@@ -71,7 +71,7 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void createEnumerator_addsNewEnumeratorQuestionToBlock()
+  public void hxCreateEnumerator_addsNewEnumeratorQuestionToBlock()
       throws ProgramBlockDefinitionNotFoundException {
 
     ProgramBuilder programBuilder = ProgramBuilder.newDraftProgram();
@@ -87,15 +87,17 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
                     "questionHelpText", "help text"))
             .build();
 
-    Result result = controller.createEnumerator(request, program.id, 1);
+    Result result = controller.hxCreateEnumerator(request, program.id, 1);
 
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation())
-        .hasValue(routes.AdminProgramBlocksController.edit(program.id, 1).url());
+    assertThat(result.status()).isEqualTo(OK);
+
+    assertThat(contentAsString(result)).contains("id=\"repeated-set-question-section-heading\"");
+    assertThat(contentAsString(result))
+        .contains("data-testid=\"question-admin-name-pets enumerator\"");
   }
 
   @Test
-  public void createEnumerator_withIncompleteForm_returnsQuestionEditFormWithToastError()
+  public void hxCreateEnumerator_withIncompleteForm_returnsEnumeratorFormWithErrorMessage()
       throws ProgramBlockDefinitionNotFoundException {
 
     ProgramBuilder programBuilder = ProgramBuilder.newDraftProgram();
@@ -110,9 +112,10 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
                     "questionHelpText", "help text"))
             .build();
 
-    Result result = controller.createEnumerator(request, program.id, 1);
+    Result result = controller.hxCreateEnumerator(request, program.id, 1);
 
     assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("<div id=\"enumerator-setup\">");
     assertThat(contentAsString(result)).contains("Error: Question text cannot be blank.");
   }
 

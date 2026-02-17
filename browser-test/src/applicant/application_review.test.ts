@@ -330,24 +330,6 @@ test.describe('Program admin review of submitted applications', () => {
       page.getByRole('heading', {name: 'Your programs'}),
     ).toBeAttached()
 
-    await test.step('Go to reporting page', async () => {
-      await page.getByRole('link', {name: 'Reporting'}).click()
-
-      // The reporting page is not deterministic outside the hermetic testing environment
-      // so don't validate the screenshot for it when running staging probers.
-      if (isLocalDevEnvironment()) {
-        await validateScreenshot(page, 'reporting-page')
-      }
-    })
-
-    await test.step('Go to reporting program details', async () => {
-      await page.getByRole('link', {name: programName}).click()
-
-      if (isLocalDevEnvironment()) {
-        await validateScreenshot(page, 'program-specific-reporting-page')
-      }
-    })
-
     await test.step('Log in as Civiform Admin', async () => {
       // Validate the views for CF and program admins.
       await logout(page)
@@ -365,10 +347,18 @@ test.describe('Program admin review of submitted applications', () => {
     })
 
     if (isLocalDevEnvironment()) {
+      // The reporting page is not deterministic outside the hermetic testing environment
+      // so don't validate the screenshot for it when running staging probers.
       await test.step('Go to reporting page', async () => {
         await page.getByRole('link', {name: 'Reporting'}).click()
-        await waitForPageJsLoad(page)
-        await validateScreenshot(page, 'cf-admin-reporting-page')
+
+        await validateScreenshot(page, 'reporting-page')
+      })
+
+      await test.step('Go to reporting program details', async () => {
+        await page.getByRole('link', {name: programName}).click()
+
+        await validateScreenshot(page, 'program-specific-reporting-page')
       })
     }
   })

@@ -165,6 +165,6 @@ public class ApplicationModelTest extends ResetPostgres {
 
     Instant activitytimeAfterUpdate = applicant.getAccount().getLastActivityTime();
 
-    assertThat(activitytimeAfterUpdate).isNotEqualTo(activitytimeBeforeUpdate);
+    assertThat(activitytimeAfterUpdate).isAfter(activitytimeBeforeUpdate);
   }
 }

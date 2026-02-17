@@ -13,6 +13,7 @@ import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.profile.BasicUserProfile;
 import org.pac4j.core.profile.ProfileManager;
 import org.pac4j.play.PlayWebContext;
+import play.libs.typedmap.TypedKey;
 import play.mvc.Http;
 
 // NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING ProfileUtils
@@ -21,6 +22,8 @@ import play.mvc.Http;
 public class ProfileUtils {
   private final SessionStore sessionStore;
   private final ProfileFactory profileFactory;
+  public static final TypedKey<CiviFormProfile> CURRENT_USER_PROFILE =
+      TypedKey.create("currentUserProfile");
 
   @Inject
   public ProfileUtils(SessionStore sessionStore, ProfileFactory profileFactory) {

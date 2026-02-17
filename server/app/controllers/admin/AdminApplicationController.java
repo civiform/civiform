@@ -305,7 +305,15 @@ public final class AdminApplicationController extends CiviFormController {
 
   /** Return a HTML page displaying the summary of the specified application. */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
-  public Result show(Http.Request request, long programId, long applicationId)
+  public Result show(
+      Http.Request request,
+      long programId,
+      long applicationId,
+      Optional<String> search,
+      Optional<String> fromDate,
+      Optional<String> toDate,
+      Optional<Integer> page,
+      Optional<String> selectedApplicationStatus)
       throws ProgramNotFoundException {
     ProgramDefinition program = programService.getFullProgramDefinition(programId);
     String programName = program.adminName();
@@ -337,7 +345,7 @@ public final class AdminApplicationController extends CiviFormController {
             .toCompletableFuture()
             .join();
     ImmutableList<Block> blocks = roApplicantService.getAllActiveBlocks();
-    ImmutableList<AnswerData> answers = roApplicantService.getSummaryDataOnlyActive();
+    ImmutableList<AnswerData> answers = roApplicantService.getSummaryDataOnlyActiveForAdmin();
     Optional<String> noteMaybe = programAdminApplicationService.getNote(application);
 
     return ok(
@@ -352,7 +360,12 @@ public final class AdminApplicationController extends CiviFormController {
             noteMaybe,
             program.hasEligibilityEnabled(),
             profileUtils.currentUserProfile(request),
-            request));
+            request,
+            search,
+            fromDate,
+            toDate,
+            page,
+            selectedApplicationStatus));
   }
 
   /**

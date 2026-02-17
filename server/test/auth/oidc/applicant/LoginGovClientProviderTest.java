@@ -28,6 +28,7 @@ import org.pac4j.play.PlayWebContext;
 import play.api.test.Helpers;
 import play.mvc.Http.Request;
 import repository.AccountRepository;
+import repository.DatabaseExecutionContext;
 import repository.ResetPostgres;
 import support.CfTestHelpers;
 
@@ -61,7 +62,8 @@ public class LoginGovClientProviderTest extends ResetPostgres {
     loginGovProvider =
         new LoginGovClientProvider(
             OidcClientProviderParams.create(
-                config, profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)));
+                config, profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)),
+            instanceOf(DatabaseExecutionContext.class));
   }
 
   @Test

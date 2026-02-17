@@ -25,6 +25,8 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import controllers.admin.routes;
 import forms.BlockForm;
+import forms.EnumeratorQuestionForm;
+import forms.QuestionForm;
 import j2html.TagCreator;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
@@ -36,7 +38,9 @@ import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.UlTag;
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.OptionalLong;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +48,8 @@ import play.i18n.Messages;
 import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
+import services.AlertType;
+import services.CiviFormError;
 import services.MessageKey;
 import services.ProgramBlockValidationFactory;
 import services.program.BlockDefinition;
@@ -136,7 +142,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
         request,
         program,
         blockDefinition.id(),
-        new BlockForm(blockDefinition.getFullName(), blockDefinition.description()),
+        new BlockForm(
+            blockDefinition.getFullName(),
+            blockDefinition.description(),
+            blockDefinition.namePrefix().orElse(""),
+            blockDefinition.isRepeated()),
         blockDefinition,
         blockDefinition.programQuestionDefinitions(),
         message,
@@ -167,7 +177,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
     String blockUpdateAction =
         controllers.admin.routes.AdminProgramBlocksController.update(programId, blockId).url();
     Modal blockDescriptionEditModal =
-        renderBlockDescriptionModal(csrfTag, blockForm, blockUpdateAction, blockDefinition);
+        renderBlockDescriptionModal(
+            csrfTag, blockForm, blockUpdateAction, blockDefinition, request, messages);
 
     String blockDeleteAction =
         controllers.admin.routes.AdminProgramBlocksController.delete(programId, blockId).url();
@@ -250,7 +261,16 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   csrfTag,
                   ProgramQuestionBank.shouldShowQuestionBank(request),
                   request))
-          .addMainContent(addFormEndpoints(csrfTag, programDefinition.id(), blockId))
+          .addMainContent(
+              addFormEndpoints(
+                  csrfTag,
+                  programDefinition.id(),
+                  blockDefinition.isEnumerator().isPresent()
+                      ? OptionalLong.of(blockId)
+                      : blockDefinition
+                          .enumeratorId()
+                          .map(OptionalLong::of)
+                          .orElse(OptionalLong.empty())))
           .addModals(blockDescriptionEditModal, blockDeleteScreenModal);
     }
 
@@ -289,7 +309,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
     }
   }
 
-  private DivTag addFormEndpoints(InputTag csrfTag, long programId, long blockId) {
+  private DivTag addFormEndpoints(
+      InputTag csrfTag, long programId, OptionalLong optionalEnumeratorId) {
     String blockCreateAction =
         controllers.admin.routes.AdminProgramBlocksController.create(programId).url();
     FormTag createBlockForm =
@@ -312,7 +333,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 FieldWithLabel.number()
                     .setFieldName(ENUMERATOR_ID_FORM_FIELD)
                     .setScreenReaderText(ENUMERATOR_ID_FORM_FIELD)
-                    .setValue(OptionalLong.of(blockId))
+                    .setValue(optionalEnumeratorId)
                     .getNumberTag())
             .with(
                 FieldWithLabel.input()
@@ -559,16 +580,16 @@ public final class ProgramBlocksView extends ProgramBaseView {
       ImmutableList<ProgramQuestionDefinition> blockQuestions,
       ImmutableList<QuestionDefinition> allQuestions,
       ImmutableList<QuestionDefinition> allPreviousVersionQuestions,
-      boolean blockDefinitionHasEnumeratorQuestion,
+      boolean blockHasEnumeratorQuestion,
       InputTag csrfTag,
       ButtonTag blockDescriptionModalButton,
       ButtonTag blockDeleteModalButton,
       Request request,
       Messages messages) {
-    // A block can only be deleted when it has no repeated blocks. Same is true for
-    // removing the enumerator question from the block.
-    final boolean canDelete =
-        !blockDefinitionHasEnumeratorQuestion || hasNoRepeatedBlocks(program, blockDefinition.id());
+
+    boolean isEnumeratorBlock =
+        settingsManifest.getEnumeratorImprovementsEnabled(request)
+            && blockDefinition.getIsEnumerator();
 
     DivTag blockInfoDisplay =
         div()
@@ -600,6 +621,110 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   settingsManifest.getExpandedFormLogicEnabled(request)));
     }
 
+    DivTag programQuestions =
+        div()
+            .withId(QUESTIONS_SECTION_ID)
+            .withClasses("my-4")
+            .with(div("Questions").withClasses("text-lg", "font-bold", "py-2"));
+
+    ImmutableList.Builder<DivTag> questionCardsBuilder = ImmutableList.builder();
+
+    IntStream.range(0, blockQuestions.size())
+        .forEach(
+            index -> {
+              ProgramQuestionDefinition question = blockQuestions.get(index);
+              QuestionDefinition questionDefinition =
+                  findQuestionDefinition(question, allPreviousVersionQuestions);
+
+              questionCardsBuilder.add(
+                  renderQuestion(
+                      Optional.of(csrfTag),
+                      program,
+                      blockDefinition,
+                      questionDefinition,
+                      question,
+                      index,
+                      blockQuestions.size(),
+                      request));
+            });
+
+    ImmutableList<DivTag> questionCards = questionCardsBuilder.build();
+    programQuestions.with(questionCards);
+
+    DivTag div = div().withClasses("w-7/12", "py-6", "px-4").withData("testId", "block-panel-edit");
+
+    // UI elements for editing are only needed when we view a draft
+    if (viewAllowsEditingProgram()) {
+      DivTag buttons =
+          renderBlockPanelTopButtons(
+              program,
+              blockHasEnumeratorQuestion,
+              blockDescriptionModalButton,
+              blockDeleteModalButton,
+              canDeleteBlock(program, blockDefinition),
+              settingsManifest.getEnumeratorImprovementsEnabled(request));
+      ButtonTag addQuestion =
+          makeSvgTextButton("Add a question", Icons.ADD)
+              .withClasses(
+                  ButtonStyles.SOLID_BLUE_WITH_ICON,
+                  ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
+                  "my-4");
+
+      div.with(blockInfoDisplay, buttons, visibilityPredicateDisplay);
+      maybeEligibilityPredicateDisplay.ifPresent(div::with);
+
+      if (isEnumeratorBlock) {
+        return div.with(
+            renderEnumeratorScreenContent(
+                blockHasEnumeratorQuestion,
+                request,
+                messages,
+                program.id(),
+                blockDefinition,
+                questionCards.isEmpty() ? Optional.empty() : Optional.of(questionCards.get(0))));
+      }
+
+      return div.with(
+          programQuestions,
+          addQuestion,
+          iff(
+              settingsManifest.getEnumeratorImprovementsEnabled(request),
+              renderAddRepeatedScreenButtons(
+                  messages,
+                  blockHasEnumeratorQuestion,
+                  optionallyGetParentEnumeratorBlock(program, blockDefinition))));
+    }
+
+    div.with(blockInfoDisplay, visibilityPredicateDisplay);
+    maybeEligibilityPredicateDisplay.ifPresent(div::with);
+    return div.with(programQuestions);
+  }
+
+  private Optional<BlockDefinition> optionallyGetParentEnumeratorBlock(
+      ProgramDefinition program, BlockDefinition blockDefinition) {
+    if (blockDefinition.enumeratorId().isEmpty()) {
+      return Optional.empty();
+    }
+    try {
+      return Optional.of(program.getBlockDefinition(blockDefinition.enumeratorId().get()));
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      logger.error(
+          "Could not find parent enumerator block for repeated block with id "
+              + blockDefinition.id(),
+          e);
+      return Optional.empty();
+    }
+  }
+
+  boolean canDeleteBlock(ProgramDefinition program, BlockDefinition blockDefinition) {
+    // A block can only be deleted when it has no repeated blocks. Same is true for
+    // removing the enumerator question from the block.
+    return !blockDefinition.hasEnumeratorQuestion()
+        || hasNoRepeatedBlocks(program, blockDefinition.id());
+  }
+
+  private ImmutableSetMultimap<Long, Long> constructQuestionIdToVisibilityBlockIdMap(
+      ProgramDefinition program) {
     // Precompute a map of questions to block ids that use the question in visibility conditions.
     // This will be used to render related visibility conditions in each question card.
     ImmutableSetMultimap.Builder<Long, Long> questionIdToVisibilityBlockIdBuilder =
@@ -612,78 +737,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                     .forEach(
                         questionId ->
                             questionIdToVisibilityBlockIdBuilder.put(questionId, block.id())));
-    ImmutableSetMultimap<Long, Long> questionIdToVisibilityBlockIdMap =
-        questionIdToVisibilityBlockIdBuilder.build();
-
-    DivTag programQuestions =
-        div()
-            .withId(QUESTIONS_SECTION_ID)
-            .withClasses("my-4")
-            .with(div("Questions").withClasses("text-lg", "font-bold", "py-2"));
-
-    IntStream.range(0, blockQuestions.size())
-        .forEach(
-            index -> {
-              ProgramQuestionDefinition question = blockQuestions.get(index);
-              QuestionDefinition questionDefinition =
-                  findQuestionDefinition(question, allPreviousVersionQuestions);
-
-              programQuestions.with(
-                  renderQuestion(
-                      csrfTag,
-                      program,
-                      blockDefinition,
-                      questionDefinition,
-                      canDelete,
-                      question.optional(),
-                      question.addressCorrectionEnabled(),
-                      index,
-                      blockQuestions.size(),
-                      question.getQuestionDefinition() instanceof NullQuestionDefinition,
-                      request,
-                      questionIdToVisibilityBlockIdMap.get(questionDefinition.getId())));
-            });
-
-    DivTag div = div().withClasses("w-7/12", "py-6", "px-4").withData("testId", "block-panel-edit");
-
-    // UI elements for editing are only needed when we view a draft
-    if (viewAllowsEditingProgram()) {
-      DivTag buttons =
-          renderBlockPanelButtons(
-              program,
-              blockDefinitionHasEnumeratorQuestion,
-              blockDescriptionModalButton,
-              blockDeleteModalButton,
-              canDelete);
-      ButtonTag addQuestion =
-          makeSvgTextButton("Add a question", Icons.ADD)
-              .withClasses(
-                  ButtonStyles.SOLID_BLUE_WITH_ICON,
-                  ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
-                  "my-4");
-
-      div.with(blockInfoDisplay, buttons, visibilityPredicateDisplay);
-      maybeEligibilityPredicateDisplay.ifPresent(div::with);
-
-      if (settingsManifest.getEnumeratorImprovementsEnabled(request)
-          && blockDefinition.getIsEnumerator()) {
-        return div.with(
-            renderEnumeratorScreenContent(
-                blockDefinitionHasEnumeratorQuestion,
-                csrfTag,
-                programQuestions,
-                addQuestion,
-                messages,
-                program.id(),
-                blockDefinition.id()));
-      }
-
-      return div.with(programQuestions, addQuestion);
-    }
-
-    div.with(blockInfoDisplay, visibilityPredicateDisplay);
-    maybeEligibilityPredicateDisplay.ifPresent(div::with);
-    return div.with(programQuestions);
+    return questionIdToVisibilityBlockIdBuilder.build();
   }
 
   /**
@@ -709,26 +763,86 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   private DivTag renderEnumeratorScreenContent(
-      boolean blockDefinitionHasEnumeratorQuestion,
-      InputTag csrfTag,
-      DivTag programQuestions,
-      ButtonTag addQuestion,
+      boolean blockHasEnumeratorQuestion,
+      Request request,
       Messages messages,
       Long programId,
-      Long blockId) {
+      BlockDefinition blockDefinition,
+      Optional<DivTag> optionalQuestionCard) {
     // If it's an empty enumerator block
-    if (!blockDefinitionHasEnumeratorQuestion) {
-      FieldsetTag creationMethodRadio = renderCreationMethodRadioButtons(messages);
-      FormTag newEnumeratorQuestionForm =
-          renderNewEnumeratorQuestionForm(csrfTag, messages, programId, blockId);
-      return div().with(creationMethodRadio, newEnumeratorQuestionForm);
+    if (!blockHasEnumeratorQuestion || optionalQuestionCard.isEmpty()) {
+      return renderEnumeratorSetupSection(
+          request,
+          messages,
+          programId,
+          blockDefinition.id(),
+          /* optionalQuestionForm= */ Optional.empty(),
+          /* errorMessages= */ ImmutableSet.of());
     } else {
-      return div()
-          .with(
-              div("This is an enumerator block that already has a question."),
-              programQuestions,
-              addQuestion);
+      return renderEnumeratorSectionWithSelectedQuestion(
+          messages, optionalQuestionCard, blockHasEnumeratorQuestion);
     }
+  }
+
+  public DivTag renderEnumeratorSectionWithSelectedQuestion(
+      Messages messages,
+      Optional<DivTag> optionalQuestionCard,
+      boolean blockHasEnumeratorQuestion) {
+    return div(
+        renderEnumeratorQuestionCardSection(messages, optionalQuestionCard),
+        renderAddRepeatedScreenButtons(
+            messages,
+            blockHasEnumeratorQuestion,
+            /* optionalParentEnumeratorBlock= */ Optional.empty()));
+  }
+
+  private DivTag renderEnumeratorQuestionCardSection(
+      Messages messages, Optional<DivTag> optionalQuestionCard) {
+    DivTag questionCard = optionalQuestionCard.orElse(div());
+    return div()
+        .with(
+            p(messages.at(MessageKey.HEADING_REPEATED_SET_QUESTION.getKeyName()))
+                .withId("repeated-set-question-section-heading")
+                .withClasses("text-lg", "font-bold", "margin-bottom-05")
+                .withTabindex(-1),
+            p(messages.at(MessageKey.TEXT_REPEATED_SET_QUESTION_DESCRIPTION.getKeyName()))
+                .withClasses("text-base", "text-sm"),
+            questionCard);
+  }
+
+  private DivTag renderAddRepeatedScreenButtons(
+      Messages messages,
+      boolean isEnumeratorBlockWithQuestion,
+      Optional<BlockDefinition> optionalParentEnumeratorBlock) {
+    boolean isRepeatedBlockAndParentHasQuestion =
+        optionalParentEnumeratorBlock.map(BlockDefinition::hasEnumeratorQuestion).orElse(false);
+
+    return isEnumeratorBlockWithQuestion || isRepeatedBlockAndParentHasQuestion
+        ? div()
+            .withClasses("border-top", "border-gray-300", "padding-top-3", "margin-top-3")
+            .with(
+                button("")
+                    .withType("submit")
+                    .withId("add-repeated-block-button")
+                    .withForm(CREATE_REPEATED_BLOCK_FORM_ID)
+                    .withClasses("usa-button", "usa-button--outline")
+                    .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
+                    .withText(messages.at(MessageKey.BUTTON_ADD_REPEATED_SCREEN.getKeyName())))
+        : div();
+  }
+
+  public DivTag renderEnumeratorSetupSection(
+      Request request,
+      Messages messages,
+      Long programId,
+      Long blockId,
+      Optional<EnumeratorQuestionForm> optionalQuestionForm,
+      ImmutableSet<CiviFormError> errorMessages) {
+    return div(
+            renderCreationMethodRadioButtons(messages),
+            renderNewEnumeratorQuestionForm(
+                request, messages, programId, blockId, optionalQuestionForm, errorMessages))
+        .withId("enumerator-setup");
   }
 
   private FieldsetTag renderCreationMethodRadioButtons(Messages messages) {
@@ -760,62 +874,110 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 label(messages.at(MessageKey.OPTION_REPEATED_SET_CHOOSE_EXISTING.getKeyName()))
                     .withClass("usa-radio__label")
                     .attr("for", "choose-existing"))
-            .withClasses("usa-fieldset"));
+            .withClasses("usa-fieldset", "margin-y-2"));
   }
 
   private FormTag renderNewEnumeratorQuestionForm(
-      InputTag csrfTag, Messages messages, Long programId, Long blockId) {
+      Request request,
+      Messages messages,
+      Long programId,
+      Long blockId,
+      Optional<EnumeratorQuestionForm> optionalQuestionForm,
+      ImmutableSet<CiviFormError> errorMessages) {
+    InputTag csrfTag = makeCsrfTokenInputTag(request);
     return form(csrfTag)
-        .withClasses("border", "border-gray-300")
+        .withClasses("usa-summary-box", "bg-white", "border-gray-300", "maxw-mobile-lg")
         .withId("new-enumerator-question-form")
-        .withMethod(HttpVerbs.POST)
-        .withAction(
-            routes.AdminProgramBlockQuestionsController.createEnumerator(programId, blockId).url())
+        .attr(
+            "hx-post",
+            routes.AdminProgramBlockQuestionsController.hxCreateEnumerator(programId, blockId)
+                .url())
+        .attr("hx-target", "#enumerator-setup")
+        .attr("hx-swap", "outerHTML show:top")
         .with(
-            p(messages.at(MessageKey.LABEL_NEW_REPEATED_SET_FORM.getKeyName())),
+            label(messages.at(MessageKey.LABEL_NEW_REPEATED_SET_FORM.getKeyName()))
+                .withClasses("base-darkest", "text-lg")
+                .withFor("new-enumerator-question-form"),
+            AlertComponent.renderFullAlert(
+                    AlertType.ERROR,
+                    /* text= */ "Error: "
+                        + errorMessages.stream()
+                            .map(CiviFormError::message)
+                            .collect(Collectors.joining(".  "))
+                        + ".",
+                    /* title= */ Optional.empty(),
+                    /* hidden= */ errorMessages.isEmpty())
+                .withId("new-enumerator-question-form-errors"),
             FieldWithLabel.input()
                 .setId("listed-entity-input")
                 .setFieldName("entityType")
                 .setLabelText(messages.at(MessageKey.INPUT_LISTED_ENTITY.getKeyName()))
+                .setValue(
+                    optionalQuestionForm.map(EnumeratorQuestionForm::getEntityType).orElse(""))
+                .setDescription(messages.at(MessageKey.DESCRIPTION_LISTED_ENTITY.getKeyName()))
+                .setRequired(true)
                 .getUSWDSInputTag(),
             FieldWithLabel.input()
                 .setId("enumerator-admin-id-input")
                 .setFieldName("questionName")
                 .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_ADMIN_ID.getKeyName()))
+                .setValue(optionalQuestionForm.map(QuestionForm::getQuestionName).orElse(""))
+                .setDescription(
+                    messages.at(MessageKey.DESCRIPTION_REPEATED_SET_ADMIN_ID.getKeyName()))
+                .setRequired(true)
                 .getUSWDSInputTag(),
             FieldWithLabel.textArea()
                 .setId("question-text-input")
                 .setFieldName("questionText")
                 .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_QUESTION_TEXT.getKeyName()))
+                .setValue(optionalQuestionForm.map(QuestionForm::getQuestionText).orElse(""))
+                .setDescription(
+                    messages.at(MessageKey.DESCRIPTION_REPEATED_SET_QUESTION_TEXT.getKeyName()))
+                .setRequired(true)
                 .getUSWDSTextareaTag(),
             FieldWithLabel.textArea()
                 .setId("hint-text-input")
                 .setFieldName("questionHelpText")
                 .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_HINT_TEXT.getKeyName()))
+                .setValue(optionalQuestionForm.map(QuestionForm::getQuestionHelpText).orElse(""))
+                .setDescription(
+                    messages.at(MessageKey.DESCRIPTION_REPEATED_SET_HINT_TEXT.getKeyName()))
                 .getUSWDSTextareaTag(),
             FieldWithLabel.number()
                 .setId("min-entity-count-input")
                 .setFieldName("minEntities")
                 .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_MIN_ENTITIES.getKeyName()))
-                .getNumberTag(),
+                .setValue(
+                    optionalQuestionForm
+                        .map(EnumeratorQuestionForm::getMinEntities)
+                        .orElse(OptionalInt.empty()))
+                .getUSWDSNumberTag(),
             FieldWithLabel.number()
                 .setId("max-entity-count-input")
                 .setFieldName("maxEntities")
                 .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_MAX_ENTITIES.getKeyName()))
-                .getNumberTag(),
-            AlertComponent.renderSlimInfoAlert(
-                messages.at(MessageKey.ALERT_REPEATED_SET_NEW_QUESTION.getKeyName())),
-            submitButton(messages.at(MessageKey.BUTTON_REPEATED_SET_SUBMIT_NEW.getKeyName()))
-                .withId("create-repeated-set-button")
-                .withClasses("usa-button", "usa-button--primary"));
+                .setValue(
+                    optionalQuestionForm
+                        .map(EnumeratorQuestionForm::getMaxEntities)
+                        .orElse(OptionalInt.empty()))
+                .getUSWDSNumberTag(),
+            div(
+                    AlertComponent.renderSlimInfoAlert(
+                        messages.at(MessageKey.ALERT_REPEATED_SET_NEW_QUESTION.getKeyName())),
+                    submitButton(
+                            messages.at(MessageKey.BUTTON_REPEATED_SET_SUBMIT_NEW.getKeyName()))
+                        .withId("create-repeated-set-button")
+                        .withClasses("usa-button", "usa-button--primary", "margin-top-105"))
+                .withClasses("border-top", "border-gray-300", "padding-top-3", "margin-top-3"));
   }
 
-  private DivTag renderBlockPanelButtons(
+  private DivTag renderBlockPanelTopButtons(
       ProgramDefinition program,
       boolean blockDefinitionIsEnumerator,
       ButtonTag blockDescriptionModalButton,
       ButtonTag blockDeleteModalButton,
-      Boolean canDelete) {
+      Boolean canDelete,
+      boolean enumeratorImprovementsEnabled) {
 
     // Add buttons to change the block.
     DivTag buttons = div().withClasses("flex", "flex-row", "gap-4");
@@ -823,7 +985,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     // Buttons are only needed when the view is used for editing
     buttons.with(blockDescriptionModalButton);
     buttons.condWith(
-        blockDefinitionIsEnumerator,
+        !enumeratorImprovementsEnabled && blockDefinitionIsEnumerator,
         button("Create repeated screen")
             .withType("submit")
             .withId("create-repeated-block-button")
@@ -958,19 +1120,24 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * Renders an individual question, including the description and any toggles or tags that should
    * be shown next to the question in the list of questions.
    */
-  private DivTag renderQuestion(
-      InputTag csrfTag,
+  public DivTag renderQuestion(
+      Optional<InputTag> optionalCsrfTag,
       ProgramDefinition programDefinition,
       BlockDefinition blockDefinition,
       QuestionDefinition questionDefinition,
-      boolean canRemove,
-      boolean isOptional,
-      boolean addressCorrectionEnabled,
+      ProgramQuestionDefinition programQuestionDefinition,
       int questionIndex,
       int questionsCount,
-      boolean malformedQuestionDefinition,
-      Request request,
-      ImmutableSet<Long> visibilityGatedBlockIds) {
+      Request request) {
+    InputTag csrfTag = optionalCsrfTag.orElse(makeCsrfTokenInputTag(request));
+    boolean isOptional = programQuestionDefinition.optional();
+    boolean addressCorrectionEnabled = programQuestionDefinition.addressCorrectionEnabled();
+    boolean malformedQuestionDefinition =
+        programQuestionDefinition.getQuestionDefinition() instanceof NullQuestionDefinition;
+
+    ImmutableSet<Long> visibilityGatedBlockIds =
+        constructQuestionIdToVisibilityBlockIdMap(programDefinition)
+            .get(questionDefinition.getId());
     ImmutableList.Builder<DomContent> rowContent = ImmutableList.builder();
     Optional<FormTag> maybeAddressCorrectionEnabledToggle =
         renderAddressCorrectionEnabledToggle(
@@ -1008,7 +1175,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                       programDefinition.id(),
                       blockDefinition.id(),
                       questionDefinition,
-                      canRemove))
+                      canDeleteBlock(programDefinition, blockDefinition)))
               .withClasses("flex", "flex-column"));
     } else {
       // For each toggle, use a label instead in the read only view
@@ -1496,35 +1663,110 @@ public final class ProgramBlocksView extends ProgramBaseView {
       InputTag csrfTag,
       BlockForm blockForm,
       String blockUpdateAction,
-      BlockDefinition blockDefinition) {
+      BlockDefinition blockDefinition,
+      Request request,
+      Messages messages) {
     String modalTitle = "Screen name and description";
     FormTag blockDescriptionForm =
         form(csrfTag).withMethod(HttpVerbs.POST).withAction(blockUpdateAction);
-    blockDescriptionForm
-        .withId("block-edit-form")
-        .with(
-            div(
-                    h1("The screen name and description will help a user understand which part of"
-                            + " an application they are on.")
-                        .withClasses("text-base", "mb-2"),
-                    FieldWithLabel.input()
-                        .setId("block-name-input")
-                        .setFieldName("name")
-                        .setLabelText("Screen name")
-                        .setValue(blockDefinition.name())
-                        .getInputTag(),
-                    FieldWithLabel.textArea()
-                        .setId("block-description-textarea")
-                        .setFieldName("description")
-                        .setLabelText("Screen description")
-                        .setValue(blockForm.getDescription())
-                        .getTextareaTag())
-                .withClasses("mx-4"),
-            submitButton("Save")
-                .withId("update-block-button")
-                .withClasses(
-                    "mx-4", "my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50"))
-                .isDisabled());
+    if (settingsManifest.getEnumeratorImprovementsEnabled(request)) {
+      blockDescriptionForm
+          .withId("block-edit-form")
+          .with(
+              div(
+                      h1("The screen name and description will help a user understand which part of"
+                              + " an application they are on.")
+                          .withClasses("text-base", "mb-2"),
+                      div(
+                          label("Screen name")
+                              .attr("for", "block-name-input")
+                              .withClasses(
+                                  "pointer-events-none",
+                                  "text-gray-600",
+                                  "text-base",
+                                  "px-1",
+                                  "py-2"),
+                          iff(
+                              blockForm.isRepeated(),
+                              p(messages.at(
+                                      MessageKey.TEXT_REPEATED_SET_SCREEN_NAME_DESCRIPTION
+                                          .getKeyName()))
+                                  .withClasses(
+                                      "text-xs", "text-gray-500", "pb-3", "text-base", "px-1")
+                                  .attr("data-testid", "repeated-set-prefix-description")),
+                          div()
+                              .withClasses("flex")
+                              .condWith(
+                                  blockForm.isRepeated(),
+                                  label(blockForm.getNamePrefix())
+                                      .withClasses("text-black", "text-lg", "flex-auto", "py-2")
+                                      .attr("data-testid", "name-prefix"))
+                              .with(
+                                  input()
+                                      .attr("maxlength", 10000)
+                                      .withName("name")
+                                      .withValue(blockDefinition.name())
+                                      .withId("block-name-input")
+                                      .attr("data-testid", "block-name-input")
+                                      .withClasses(
+                                          "flex-auto",
+                                          "px-3",
+                                          "bg-white",
+                                          "text-black",
+                                          "text-lg",
+                                          "py-2",
+                                          "block",
+                                          "outline-none",
+                                          "box-border",
+                                          "m-auto",
+                                          "border",
+                                          "border-gray-500",
+                                          "rounded-lg",
+                                          "focus:border-civiform-blue",
+                                          "placeholder-gray-500"),
+                                  div()
+                                      .withId("block-name-textarea-errors")
+                                      .withClasses("text-red-600", "text-xs", "p-1", "hidden"))),
+                      FieldWithLabel.textArea()
+                          .setId("block-description-textarea")
+                          .setFieldName("description")
+                          .setLabelText("Screen description")
+                          .setValue(blockForm.getDescription())
+                          .getTextareaTag())
+                  .withClasses("mx-4"),
+              submitButton("Save")
+                  .withId("update-block-button")
+                  .attr("data-testid", "save-button")
+                  .withClasses(
+                      "mx-4", "my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50"))
+                  .isDisabled());
+    } else {
+      blockDescriptionForm
+          .withId("block-edit-form")
+          .with(
+              div(
+                      h1("The screen name and description will help a user understand which part of"
+                              + " an application they are on.")
+                          .withClasses("text-base", "mb-2"),
+                      FieldWithLabel.input()
+                          .setId("block-name-input")
+                          .setFieldName("name")
+                          .setLabelText("Screen name")
+                          .setValue(blockDefinition.name())
+                          .getInputTag(),
+                      FieldWithLabel.textArea()
+                          .setId("block-description-textarea")
+                          .setFieldName("description")
+                          .setLabelText("Screen description")
+                          .setValue(blockForm.getDescription())
+                          .getTextareaTag())
+                  .withClasses("mx-4"),
+              submitButton("Save")
+                  .withId("update-block-button")
+                  .withClasses(
+                      "mx-4", "my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50"))
+                  .isDisabled());
+    }
     ButtonTag editScreenButton =
         ViewUtils.makeSvgTextButton("Edit screen name and description", Icons.EDIT)
             .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON);

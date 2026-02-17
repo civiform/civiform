@@ -12,11 +12,13 @@ import org.pac4j.core.profile.creator.ProfileCreator;
 import org.pac4j.core.util.generator.RandomValueGenerator;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
+import repository.DatabaseExecutionContext;
 
 /*
  * Login.gov (https://developers.login.gov/oidc/) OIDC provider using the PKCE method.
  */
 public final class LoginGovClientProvider extends GenericOidcClientProvider {
+  private final DatabaseExecutionContext dbExecutionContext;
   // Login.gov requires a state longer than 22 characters
   static final RandomValueGenerator stateGenerator = new RandomValueGenerator(30);
 
@@ -31,8 +33,10 @@ public final class LoginGovClientProvider extends GenericOidcClientProvider {
           .build();
 
   @Inject
-  public LoginGovClientProvider(OidcClientProviderParams params) {
-    super(params);
+  public LoginGovClientProvider(
+      OidcClientProviderParams params, DatabaseExecutionContext dbExecutionContext) {
+    super(params, dbExecutionContext);
+    this.dbExecutionContext = dbExecutionContext;
   }
 
   @Override
@@ -43,7 +47,8 @@ public final class LoginGovClientProvider extends GenericOidcClientProvider {
 
   @Override
   public ProfileCreator getProfileCreator(OidcConfiguration config, OidcClient client) {
-    return new GenericApplicantProfileCreator(config, client, params, standardClaimsAttributeNames);
+    return new GenericApplicantProfileCreator(
+        config, client, params, standardClaimsAttributeNames, dbExecutionContext);
   }
 
   @Override
