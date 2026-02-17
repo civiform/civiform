@@ -604,24 +604,30 @@ test.describe('create and edit predicates', () => {
     await enableFeatureFlag(page, 'esri_address_correction_enabled')
 
     const programName = 'Populate predicate values across question types'
+    const programQuestions = new Map(
+      PROGRAM_SAMPLE_QUESTIONS.entries().filter(
+        (entry) =>
+          // Filter out map questions, as they require a geocoding service that is not available in all environments
+          entry[0] !== QuestionType.MAP || isLocalDevEnvironment(),
+      ),
+    )
 
     await test.step('Create program and add questions', async () => {
-      for (const [questionType, questionData] of PROGRAM_SAMPLE_QUESTIONS) {
-        if (questionType != QuestionType.MAP || isLocalDevEnvironment()) {
-          // Skip MAP question creation in non-local environments
-          await adminQuestions.addQuestionForType(
-            questionType,
-            questionData.questionName,
-            questionData.questionText,
-            questionData.multiValueOptions,
-          )
-        }
+      for (const [questionType, questionData] of programQuestions) {
+        // Skip MAP question creation in non-local environments
+        await adminQuestions.addQuestionForType(
+          questionType,
+          questionData.questionName,
+          questionData.questionText,
+          questionData.multiValueOptions,
+        )
       }
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockUsingSpec(programName, {
         name: 'Screen 1',
         description: 'first screen',
-        questions: PROGRAM_SAMPLE_QUESTIONS.values()
+        questions: programQuestions
+          .values()
           .map((questionData) => ({name: questionData.questionName}))
           .toArray(),
       })
@@ -651,7 +657,7 @@ test.describe('create and edit predicates', () => {
     ]) {
       const singleValueOperator =
         questionType === QuestionType.DATE ? 'IS_AFTER' : 'EQUAL_TO'
-      const questionData = PROGRAM_SAMPLE_QUESTIONS.get(questionType)!
+      const questionData = programQuestions.get(questionType)!
 
       await test.step(`Select ${questionType} question and validate single-value operator behavior`, async () => {
         await adminPredicates.configureSubcondition({
@@ -751,7 +757,7 @@ test.describe('create and edit predicates', () => {
       QuestionType.DATE,
       QuestionType.NUMBER,
     ]) {
-      const questionData = PROGRAM_SAMPLE_QUESTIONS.get(questionType)!
+      const questionData = programQuestions.get(questionType)!
 
       await test.step(`Select ${questionType} question and validate BETWEEN operator behavior`, async () => {
         await adminPredicates.configureSubcondition({
@@ -865,7 +871,7 @@ test.describe('create and edit predicates', () => {
     }
 
     await test.step('Select date question and validate age operator behavior', async () => {
-      const questionData = PROGRAM_SAMPLE_QUESTIONS.get(QuestionType.DATE)!
+      const questionData = programQuestions.get(QuestionType.DATE)!
       await adminPredicates.configureSubcondition({
         conditionId: 1,
         subconditionId: 1,
@@ -935,7 +941,7 @@ test.describe('create and edit predicates', () => {
       QuestionType.TEXT,
     ]) {
       await test.step(`Select ${questionType} question and validate CSV operator behavior`, async () => {
-        const questionData = PROGRAM_SAMPLE_QUESTIONS.get(questionType)!
+        const questionData = programQuestions.get(questionType)!
         await adminPredicates.configureSubcondition({
           conditionId: 1,
           subconditionId: 1,
@@ -1008,7 +1014,11 @@ test.describe('create and edit predicates', () => {
       QuestionType.RADIO,
       QuestionType.YES_NO,
     ]) {
-      const questionData = PROGRAM_SAMPLE_QUESTIONS.get(questionType)!
+      if (questionType === QuestionType.MAP && !isLocalDevEnvironment()) {
+        // Skip map question assertions in non-local environments
+        continue
+      }
+      const questionData = programQuestions.get(questionType)!
 
       await test.step(`Select ${questionType} question and validate multi-select operator behavior`, async () => {
         await adminPredicates.configureSubcondition({
