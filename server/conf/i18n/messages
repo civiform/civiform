@@ -1203,6 +1203,8 @@ description.repeatedSet.adminId=We will auto-generate an ID from the listed enti
 description.repeatedSet.questionText=Add text that will prompt applicants to list out the entity defined above.
 # An informative description above the hint text input field to help admins understand what to enter in that field.
 description.repeatedSet.hintText=Add a hint that will help applicants decide what entities to list out.
+# A button for admins to add a repeated screen to a program
+button.addRepeatedScreen=Add repeated screen
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #
