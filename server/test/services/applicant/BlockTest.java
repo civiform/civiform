@@ -25,6 +25,7 @@ import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.question.QuestionAnswerer;
 import services.question.exceptions.QuestionNotFoundException;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
@@ -1117,6 +1118,140 @@ public class BlockTest {
 
     assertThat(block.hasErrors()).isFalse();
     assertThat(block.isCompletedInProgramWithoutErrors()).isTrue();
+  }
+
+  @Test
+  public void getLocalizedName_withoutRepeatedEntity_returnsNameOnly() {
+    ApplicantData applicantData = new ApplicantData();
+    String expectedName = "name";
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName(expectedName)
+            .setDescription("desc")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("desc"))
+            .build();
+
+    Block block =
+        new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
+
+    String resultingName = block.getLocalizedName(Locale.getDefault());
+    assertThat(resultingName).isEqualTo(expectedName);
+  }
+
+  @Test
+  public void getLocalizedName_withRepeatedEntityButWithoutPrefix_returnsNameOnly() {
+    ApplicantData applicantData = new ApplicantData();
+    String expectedName = "name";
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName(expectedName)
+            .setDescription("desc")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("desc"))
+            .build();
+
+    RepeatedEntity repeatedEntity =
+        RepeatedEntity.create(
+            (EnumeratorQuestionDefinition)
+                testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition(),
+            Optional.empty(),
+            Optional.empty(),
+            "Person 1",
+            0);
+
+    Block block =
+        new Block(
+            "id",
+            blockDefinition,
+            new ApplicantModel(),
+            applicantData,
+            Optional.of(repeatedEntity));
+
+    String resultingName = block.getLocalizedName(Locale.getDefault());
+    assertThat(resultingName).isEqualTo(expectedName);
+  }
+
+  @Test
+  public void getLocalizedName_withRepeatedEntityAndWithPrefix_returnsPrefixReplacedAndName() {
+    ApplicantData applicantData = new ApplicantData();
+    String expectedName = "name";
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName(expectedName)
+            .setDescription("desc")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("desc"))
+            .setNamePrefix(Optional.of("[parent label] - "))
+            .build();
+
+    String entityName = "Person 1";
+    RepeatedEntity repeatedEntity =
+        RepeatedEntity.create(
+            (EnumeratorQuestionDefinition)
+                testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition(),
+            Optional.empty(),
+            Optional.empty(),
+            entityName,
+            0);
+
+    Block block =
+        new Block(
+            "id",
+            blockDefinition,
+            new ApplicantModel(),
+            applicantData,
+            Optional.of(repeatedEntity));
+
+    String resultingName = block.getLocalizedName(Locale.getDefault());
+    assertThat(resultingName).isEqualTo(entityName + " - " + expectedName);
+  }
+
+  @Test
+  public void
+      getLocalizedName_withNestedRepeatedEntityAndWithPrefix_returnsPrefixReplacedAndName() {
+    ApplicantData applicantData = new ApplicantData();
+    String expectedName = "name";
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName(expectedName)
+            .setDescription("desc")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("desc"))
+            .setNamePrefix(Optional.of("[parent label] - [child label] - "))
+            .build();
+
+    String parentEntityName = "Person 1";
+    RepeatedEntity parentEntity =
+        RepeatedEntity.create(
+            (EnumeratorQuestionDefinition)
+                testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition(),
+            Optional.empty(),
+            Optional.empty(),
+            parentEntityName,
+            0);
+
+    String childEntityName = "Job 1";
+    RepeatedEntity childEntity =
+        RepeatedEntity.create(
+            (EnumeratorQuestionDefinition)
+                testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition(),
+            Optional.empty(),
+            Optional.of(parentEntity),
+            childEntityName,
+            0);
+
+    Block block =
+        new Block(
+            "id", blockDefinition, new ApplicantModel(), applicantData, Optional.of(childEntity));
+
+    String resultingName = block.getLocalizedName(Locale.getDefault());
+    assertThat(resultingName)
+        .isEqualTo(parentEntityName + " - " + childEntityName + " - " + expectedName);
   }
 
   private static BlockDefinition setUpBlockWithQuestions() {

@@ -83,7 +83,25 @@ public final class Block {
   }
 
   public String getLocalizedName(Locale preferredLocale) {
-    return blockDefinition.localizedName().getOrDefault(preferredLocale);
+    String name = blockDefinition.localizedName().getOrDefault(preferredLocale);
+    return repeatedEntity
+        .map(
+            entity ->
+                blockDefinition
+                        .namePrefix()
+                        .map(
+                            prefix ->
+                                prefix
+                                    .replace("[child label]", entity.entityName())
+                                    .replace(
+                                        "[parent label]",
+                                        entity
+                                            .parent()
+                                            .map(RepeatedEntity::entityName)
+                                            .orElse(entity.entityName())))
+                        .orElse("")
+                    + name)
+        .orElse(name);
   }
 
   public String getLocalizedDescription(Locale preferredLocale) {
