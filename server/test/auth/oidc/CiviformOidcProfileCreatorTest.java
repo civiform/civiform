@@ -516,6 +516,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     CiviFormProfileData profileData = (CiviFormProfileData) result.get();
     // Should use the TI's existing account, not the guest.
     assertThat(Long.parseLong(profileData.getId())).isEqualTo(tiAccount.id);
+    // The TI should not have the guest applicant merged into it.
     tiAccount.refresh();
     assertThat(tiAccount.getApplicants()).hasSize(1);
     // Guest profile's account should remain separate (not merged).
