@@ -239,11 +239,14 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
       OidcProfile oidcProfile,
       CiviFormProfile guestProfile) {
     boolean isTi =
-        existingApplicant.filter(app -> isTrustedIntermediary(app.getAccount())).isPresent();
+        existingApplicant
+            .map(ApplicantModel::getAccount)
+            .filter(this::isTrustedIntermediary)
+            .isPresent();
     boolean isProgramAdmin = oidcProfile.getRoles().contains(Role.ROLE_PROGRAM_ADMIN.toString());
     boolean isCiviFormAdmin = oidcProfile.getRoles().contains(Role.ROLE_CIVIFORM_ADMIN.toString());
     if (isTi || isProgramAdmin || isCiviFormAdmin) {
-      // Log if the Ti/Admin is using guest accounts.
+      // Log if the TI/Admin is using guest accounts to apply.
       boolean guestHasApplications =
           !guestProfile.getApplicant().join().getApplications().isEmpty();
       if (guestHasApplications) {
@@ -257,7 +260,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
         }
 
         // We may not have an existing applicant if it's their first login.
-        // If so, there is nothing else non identifying to log.
+        // If so, there is nothing else non identifying to log here.
         var accountId =
             existingApplicant
                 .map(ApplicantModel::getAccount)
