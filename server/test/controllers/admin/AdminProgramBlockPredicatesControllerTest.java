@@ -861,8 +861,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
         .doesNotContain(
             createOptionTagForSelectedQuestion(testQuestionBank.addressApplicantAddress()));
     assertThat(StringUtils.deleteWhitespace(content))
-        .contains(
-            createOptionTagForSelectedQuestion(testQuestionBank.dropdownApplicantIceCream()));
+        .contains(createOptionTagForSelectedQuestion(testQuestionBank.dropdownApplicantIceCream()));
     assertThat(StringUtils.countMatches(content, "Add condition")).isEqualTo(1);
   }
 
@@ -886,8 +885,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
     String content = Helpers.contentAsString(result);
     assertThat(StringUtils.deleteWhitespace(content))
-        .contains(
-            createOptionTagForSelectedQuestion(testQuestionBank.addressApplicantAddress()));
+        .contains(createOptionTagForSelectedQuestion(testQuestionBank.addressApplicantAddress()));
     assertThat(StringUtils.deleteWhitespace(content))
         .doesNotContain(
             createOptionTagForSelectedQuestion(testQuestionBank.dropdownApplicantIceCream()));
@@ -943,8 +941,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
         .doesNotContain(
             createOptionTagForSelectedQuestion(testQuestionBank.addressApplicantAddress()));
     assertThat(StringUtils.deleteWhitespace(content))
-        .contains(
-            createOptionTagForSelectedQuestion(testQuestionBank.dropdownApplicantIceCream()));
+        .contains(createOptionTagForSelectedQuestion(testQuestionBank.dropdownApplicantIceCream()));
     assertThat(StringUtils.countMatches(content, "Add sub-condition")).isEqualTo(1);
   }
 
@@ -970,10 +967,10 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
     String content = Helpers.contentAsString(result);
     assertThat(StringUtils.deleteWhitespace(content))
-        .contains(
-           createOptionTagForSelectedQuestion(testQuestionBank.addressApplicantAddress()));
+        .contains(createOptionTagForSelectedQuestion(testQuestionBank.addressApplicantAddress()));
     assertThat(StringUtils.deleteWhitespace(content))
-        .doesNotContain(createOptionTagForSelectedQuestion(testQuestionBank.dropdownApplicantIceCream()));
+        .doesNotContain(
+            createOptionTagForSelectedQuestion(testQuestionBank.dropdownApplicantIceCream()));
     assertThat(StringUtils.countMatches(content, "Add sub-condition")).isEqualTo(1);
   }
 
@@ -1007,8 +1004,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     String contentWithoutWhitespace = StringUtils.deleteWhitespace(content);
     assertThat(content).doesNotContain("firstname");
     assertThat(contentWithoutWhitespace)
-        .doesNotContain(
-            createOptionTagForSelectedQuestion(testQuestionBank.nameApplicantName()));
+        .doesNotContain(createOptionTagForSelectedQuestion(testQuestionBank.nameApplicantName()));
     assertThat(content).contains("#predicate-conditions-list");
     assertThat(contentWithoutWhitespace).doesNotContain("Condition1");
     assertThat(StringUtils.countMatches(content, "Add condition")).isEqualTo(1);
@@ -1069,8 +1065,8 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     return conditionMap;
   }
 
-  // Create a (no-whitespace) option tag string for a given question that matches the format used in the form.
-  // Used to check that the correct question is selected in the form after an edit.
+  // Create a (no-whitespace) option tag string for a given question that matches the format used in
+  // the form. Used to check that the correct question is selected in the form after an edit.
   private static String createOptionTagForSelectedQuestion(QuestionModel questionModel) {
     return String.format(
         "<optionvalue=\"%d\"data-question-name=\"%s\"selected=\"selected\">",
