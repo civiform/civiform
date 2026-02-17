@@ -44,6 +44,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
   private OidcProfile oidcProfile;
   private ProfileFactory profileFactory;
   private AccountRepository accountRepository;
+  private TrustedIntermediaryGroupModel tiGroup;
 
   @Before
   public void setup() {
@@ -57,6 +58,9 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     oidcProfile.addAttribute("iss", ISSUER);
     oidcProfile.setId(SUBJECT);
     oidcProfile.setIdTokenString(ID_TOKEN_STRING);
+
+    tiGroup = new TrustedIntermediaryGroupModel("TI Group", "test");
+    tiGroup.save();
   }
 
   private CiviformOidcProfileCreator getOidcProfileCreator(
@@ -243,16 +247,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
 
   @Test
   public void mergeCiviFormProfile_skipped_forTrustedIntermediaries() {
-    // Setup - create a real TI account in the database.
-    TrustedIntermediaryGroupModel tiGroup = new TrustedIntermediaryGroupModel("TI Group", "test");
-    tiGroup.save();
-    AccountModel tiAccount = resourceCreator.insertAccount();
-    tiAccount.setMemberOfGroup(tiGroup);
-    ApplicantModel tiApplicant = resourceCreator.insertApplicant();
-    tiApplicant.setAccount(tiAccount);
-    tiApplicant.save();
-    tiAccount.setApplicants(ImmutableList.of(tiApplicant));
-    tiAccount.save();
+    ApplicantModel tiApplicant = makeTrustedIntermediary();
 
     CiviFormProfile trustedIntermediary = profileFactory.wrap(tiApplicant);
     String originalProfileId = trustedIntermediary.getProfileData().getId();
@@ -280,16 +275,8 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
 
   @Test
   public void mergeCiviFormProfile_skippedWithEnhancedLogout_forTrustedIntermediaries() {
-    // Setup - create a real TI account in the database.
-    TrustedIntermediaryGroupModel tiGroup = new TrustedIntermediaryGroupModel("TI Group", "test");
-    tiGroup.save();
-    AccountModel tiAccount = resourceCreator.insertAccount();
-    tiAccount.setMemberOfGroup(tiGroup);
-    ApplicantModel tiApplicant = resourceCreator.insertApplicant();
-    tiApplicant.setAccount(tiAccount);
-    tiApplicant.save();
-    tiAccount.setApplicants(ImmutableList.of(tiApplicant));
-    tiAccount.save();
+    ApplicantModel tiApplicant = makeTrustedIntermediary();
+    AccountModel tiAccount = tiApplicant.getAccount();
 
     CiviFormProfile trustedIntermediary = profileFactory.wrap(tiApplicant);
     String originalProfileId = trustedIntermediary.getProfileData().getId();
@@ -509,6 +496,32 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     assertThat(Long.parseLong(profileData.getId())).isEqualTo(existingAccount.id);
   }
 
+  @Test
+  public void innerCreate_existingTiUser_withGuestProfile_discardsGuestProfile() {
+    ApplicantModel tiApplicant = makeTrustedIntermediary();
+    AccountModel tiAccount = tiApplicant.getAccount();
+    // Connect the TI with the oidc profile.
+    tiAccount.setEmailAddress(EMAIL).setAuthorityId(AUTHORITY_ID).save();
+
+    // Create a guest profile (simulating a user who started as guest before TI login).
+    CiviFormProfileData guestProfileData = profileFactory.createNewApplicant();
+    CiviFormProfile guestProfile = profileFactory.wrapProfileData(guestProfileData);
+
+    CiviformOidcProfileCreator creator = getOidcProfileCreator();
+
+    Optional<UserProfile> result =
+        creator.innerCreate(Optional.of(oidcProfile), Optional.of(guestProfile));
+
+    assertThat(result).isPresent();
+    CiviFormProfileData profileData = (CiviFormProfileData) result.get();
+    // Should use the TI's existing account, not the guest.
+    assertThat(Long.parseLong(profileData.getId())).isEqualTo(tiAccount.id);
+    tiAccount.refresh();
+    assertThat(tiAccount.getApplicants()).hasSize(1);
+    // Guest profile's account should remain separate (not merged).
+    assertThat(guestProfileData.getId()).isNotEqualTo(profileData.getId());
+  }
+
   /**
    * Returns an OidcProfile with required fields set. Uses the same constants as the main profile
    * created in setup() to ensure consistent authority IDs across tests.
@@ -519,5 +532,16 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     oidcProfile.addAttribute("iss", ISSUER);
     oidcProfile.addAttribute("user_emailid", EMAIL);
     return oidcProfile;
+  }
+
+  private ApplicantModel makeTrustedIntermediary() {
+    AccountModel tiAccount = resourceCreator.insertAccount();
+    tiAccount.setMemberOfGroup(tiGroup);
+    ApplicantModel tiApplicant = resourceCreator.insertApplicant();
+    tiApplicant.setAccount(tiAccount);
+    tiApplicant.save();
+    tiAccount.setApplicants(ImmutableList.of(tiApplicant));
+    tiAccount.save();
+    return tiApplicant;
   }
 }
