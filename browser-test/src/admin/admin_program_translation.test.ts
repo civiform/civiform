@@ -519,9 +519,10 @@ test.describe('Admin can manage program translations', () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         screenName,
+        /* expandedFormLogicEnabled= */ true,
       )
-      await adminPredicates.updateEligibilityMessage('')
-      await validateToastMessage(page, 'Eligibility message removed.')
+      await adminPredicates.updateEligibilityMessage('', /* expandedFormLogicEnabled= */ true)
+      await validateToastMessage(page, 'Saved eligibility condition')
 
       await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
       await adminTranslations.selectLanguage('Spanish')
