@@ -497,7 +497,9 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
   }
 
   @Test
-  public void innerCreate_existingTiUser_withGuestProfile_discardsGuestProfile() {
+  @Parameters({"true", "false"})
+  public void innerCreate_existingTiUser_withGuestProfile_discardsGuestProfile(
+      boolean guestHasApplications) {
     ApplicantModel tiApplicant = makeTrustedIntermediary();
     AccountModel tiAccount = tiApplicant.getAccount();
     // Connect the TI with the oidc profile.
@@ -506,6 +508,12 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     // Create a guest profile (simulating a user who started as guest before TI login).
     CiviFormProfileData guestProfileData = profileFactory.createNewApplicant();
     CiviFormProfile guestProfile = profileFactory.wrapProfileData(guestProfileData);
+
+    if (guestHasApplications) {
+      ApplicantModel guestApplicant = guestProfile.getApplicant().join();
+      resourceCreator.insertActiveApplication(
+          guestApplicant, resourceCreator.insertActiveProgram("test-program"));
+    }
 
     CiviformOidcProfileCreator creator = getOidcProfileCreator();
 
