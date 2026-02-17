@@ -205,7 +205,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
 
     return ok(
         blockEditView
-            .renderEnumeratorQuestionCardSection(
+            .renderEnumeratorSectionWithSelectedQuestion(
                 messagesApi.preferred(request),
                 /* optionalQuestionCard= */ Optional.of(
                     blockEditView.renderQuestion(
@@ -216,7 +216,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
                         programQuestionDefinition,
                         /* questionIndex= */ 0, // Enumerator blocks have only one question
                         blockDefinition.getQuestionCount(),
-                        request)))
+                        request)),
+                /* blockHasEnumeratorQuestion= */ true)
             .render());
   }
 

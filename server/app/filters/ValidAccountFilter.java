@@ -51,7 +51,12 @@ public class ValidAccountFilter extends EssentialFilter {
             return next.apply(request);
           }
 
-          Optional<CiviFormProfile> profile = profileUtils.optionalCurrentUserProfile(request);
+          // Only get the profile if it doesn't already exist on the request
+          Optional<CiviFormProfile> profile =
+              request
+                  .attrs()
+                  .getOptional(ProfileUtils.CURRENT_USER_PROFILE)
+                  .or(() -> profileUtils.optionalCurrentUserProfile(request));
 
           if (profile.isEmpty()) {
             return next.apply(request);
@@ -65,7 +70,10 @@ public class ValidAccountFilter extends EssentialFilter {
                           return Accumulator.done(
                               Results.redirect(org.pac4j.play.routes.LogoutController.logout()));
                         } else {
-                          return next.apply(request);
+                          // Attach the profile so downstream actions don't need to re-fetch it
+                          Http.RequestHeader requestWithProfile =
+                              request.addAttr(ProfileUtils.CURRENT_USER_PROFILE, profile.get());
+                          return next.apply(requestWithProfile);
                         }
                       });
 
