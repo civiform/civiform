@@ -1203,6 +1203,8 @@ description.repeatedSet.adminId=
 description.repeatedSet.questionText=
 # An informative description above the hint text input field to help admins understand what to enter in that field.
 description.repeatedSet.hintText=
+# A button for admins to add a repeated screen to a program
+button.addRepeatedScreen=Add repeated screen
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #
