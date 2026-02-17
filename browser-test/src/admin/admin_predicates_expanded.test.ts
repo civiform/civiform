@@ -607,7 +607,8 @@ test.describe('create and edit predicates', () => {
     const programQuestions = new Map(
       PROGRAM_SAMPLE_QUESTIONS.entries().filter(
         (entry) =>
-          // Filter out map questions, as they require a geocoding service that is not available in all environments
+          // Filter out map questions for all but local environments.
+          // This is because mock-web-services isn't available in CI.
           entry[0] !== QuestionType.MAP || isLocalDevEnvironment(),
       ),
     )
