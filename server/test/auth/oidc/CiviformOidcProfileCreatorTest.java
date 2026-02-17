@@ -593,7 +593,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
   @Test
   public void shouldDropGuestProfile_regularApplicantWithExistingAccount_returnsFalse() {
     // No admin roles, not a TI — regular applicant should keep the guest.
-    ApplicantModel existingApplicant = resourceCreator.insertApplicant();
+    ApplicantModel existingApplicant = resourceCreator.insertApplicantWithAccount();
 
     CiviFormProfile guestProfile =
         profileFactory.wrapProfileData(profileFactory.createNewApplicant());
