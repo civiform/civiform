@@ -7,7 +7,7 @@
     "probe": "npx playwright test"
   },
   "devDependencies": {
-    "@axe-core/playwright": "4.11.0",
+    "@axe-core/playwright": "4.11.1",
     "@playwright/test": "1.58.2",
     "@types/node": "24.10.9",
     "@typescript-eslint/eslint-plugin": "8.54.0",
