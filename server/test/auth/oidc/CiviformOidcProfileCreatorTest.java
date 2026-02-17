@@ -538,10 +538,12 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
 
   @Test
   public void shouldDropGuestProfile_ti_returnsTrue() {
-    // TIs are identified by their Account.
+    // TIs are identified by their Account data.
     ApplicantModel tiApplicant = makeTrustedIntermediary();
     CiviFormProfile guestProfile =
         profileFactory.wrapProfileData(profileFactory.createNewApplicant());
+    resourceCreator.insertActiveApplication(
+        guestProfile.getApplicant().join(), resourceCreator.insertActiveProgram("test-program"));
 
     CiviformOidcProfileCreator creator = getOidcProfileCreator();
 
@@ -556,6 +558,8 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     oidcProfile.addRole(Role.ROLE_PROGRAM_ADMIN.toString());
     CiviFormProfile guestProfile =
         profileFactory.wrapProfileData(profileFactory.createNewApplicant());
+    resourceCreator.insertActiveApplication(
+        guestProfile.getApplicant().join(), resourceCreator.insertActiveProgram("test-program"));
     Optional<ApplicantModel> existingApplicant =
         hasExistingApplicant
             ? Optional.of(resourceCreator.insertApplicantWithAccount())
@@ -574,6 +578,8 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     oidcProfile.addRole(Role.ROLE_CIVIFORM_ADMIN.toString());
     CiviFormProfile guestProfile =
         profileFactory.wrapProfileData(profileFactory.createNewApplicant());
+    resourceCreator.insertActiveApplication(
+        guestProfile.getApplicant().join(), resourceCreator.insertActiveProgram("test-program"));
     Optional<ApplicantModel> existingApplicant =
         hasExistingApplicant
             ? Optional.of(resourceCreator.insertApplicantWithAccount())
@@ -590,6 +596,8 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
   public void shouldDropGuestProfile_regularApplicant_returnsFalse(boolean hasExistingApplicant) {
     CiviFormProfile guestProfile =
         profileFactory.wrapProfileData(profileFactory.createNewApplicant());
+    resourceCreator.insertActiveApplication(
+        guestProfile.getApplicant().join(), resourceCreator.insertActiveProgram("test-program"));
     Optional<ApplicantModel> existingApplicant =
         hasExistingApplicant
             ? Optional.of(resourceCreator.insertApplicantWithAccount())
