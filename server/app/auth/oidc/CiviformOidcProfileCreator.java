@@ -217,8 +217,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     // If the civiform user is a TI, do not merge it with a guest.
     // The guest will be left a guest account as if they never logged in.
     // TIs should not have applicant data, and should not be using guest
-    // accounts to apply for clients, so this is a place where we could try to
-    // communicate the situation to the TI directly if we desired too.
+    // accounts to apply for clients.
     boolean isTi =
         existingApplicant.filter(app -> isTrustedIntermediary(app.getAccount())).isPresent();
     if (isTi) {

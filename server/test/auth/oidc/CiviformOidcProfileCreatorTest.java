@@ -509,8 +509,8 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     CiviFormProfileData guestProfileData = profileFactory.createNewApplicant();
     CiviFormProfile guestProfile = profileFactory.wrapProfileData(guestProfileData);
 
+    ApplicantModel guestApplicant = guestProfile.getApplicant().join();
     if (guestHasApplications) {
-      ApplicantModel guestApplicant = guestProfile.getApplicant().join();
       resourceCreator.insertActiveApplication(
           guestApplicant, resourceCreator.insertActiveProgram("test-program"));
     }
@@ -526,9 +526,13 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     assertThat(Long.parseLong(profileData.getId())).isEqualTo(tiAccount.id);
     // The TI should not have the guest applicant merged into it.
     tiAccount.refresh();
-    assertThat(tiAccount.getApplicants()).hasSize(1);
+    var tiApplicants = tiAccount.getApplicants();
+    assertThat(tiApplicants).hasSize(1);
+    assertThat(tiApplicants.get(0).getApplications()).hasSize(0);
     // Guest profile's account should remain separate (not merged).
     assertThat(guestProfileData.getId()).isNotEqualTo(profileData.getId());
+    guestApplicant.refresh();
+    assertThat(guestApplicant.getApplications()).hasSize(guestHasApplications ? 1 : 0);
   }
 
   /**
