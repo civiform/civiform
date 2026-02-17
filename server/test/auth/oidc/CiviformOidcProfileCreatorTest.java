@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
 import auth.ProfileFactory;
+import auth.Role;
 import auth.oidc.applicant.IdcsApplicantProfileCreator;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -533,6 +534,76 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     assertThat(guestProfileData.getId()).isNotEqualTo(profileData.getId());
     guestApplicant.refresh();
     assertThat(guestApplicant.getApplications()).hasSize(guestHasApplications ? 1 : 0);
+  }
+
+  @Test
+  public void shouldDropGuestProfile_tiWithExistingAccount_returnsTrue() {
+    ApplicantModel tiApplicant = makeTrustedIntermediary();
+    CiviFormProfile guestProfile =
+        profileFactory.wrapProfileData(profileFactory.createNewApplicant());
+
+    CiviformOidcProfileCreator creator = getOidcProfileCreator();
+
+    assertThat(creator.shouldDropGuestProfile(Optional.of(tiApplicant), oidcProfile, guestProfile))
+        .isTrue();
+  }
+
+  @Test
+  public void shouldDropGuestProfile_programAdmin_returnsTrue() {
+    oidcProfile.addRole(Role.ROLE_PROGRAM_ADMIN.toString());
+    CiviFormProfile guestProfile =
+        profileFactory.wrapProfileData(profileFactory.createNewApplicant());
+
+    CiviformOidcProfileCreator creator = getOidcProfileCreator();
+
+    assertThat(
+            creator.shouldDropGuestProfile(
+                /* existingApplicant= */ Optional.empty(), oidcProfile, guestProfile))
+        .isTrue();
+  }
+
+  @Test
+  public void shouldDropGuestProfile_civiFormAdmin_returnsTrue() {
+    oidcProfile.addRole(Role.ROLE_CIVIFORM_ADMIN.toString());
+    CiviFormProfile guestProfile =
+        profileFactory.wrapProfileData(profileFactory.createNewApplicant());
+
+    CiviformOidcProfileCreator creator = getOidcProfileCreator();
+
+    assertThat(
+            creator.shouldDropGuestProfile(
+                /* existingApplicant= */ Optional.empty(), oidcProfile, guestProfile))
+        .isTrue();
+  }
+
+  @Test
+  public void shouldDropGuestProfile_regularApplicantNoAccount_returnsFalse() {
+    // No admin roles, not a TI — regular applicant should keep the guest.
+    CiviFormProfile guestProfile =
+        profileFactory.wrapProfileData(profileFactory.createNewApplicant());
+
+    CiviformOidcProfileCreator creator = getOidcProfileCreator();
+
+    assertThat(
+            creator.shouldDropGuestProfile(
+                /* existingApplicant= */ Optional.empty(), oidcProfile, guestProfile))
+        .isFalse();
+  }
+
+  @Test
+  public void shouldDropGuestProfile_regularApplicantWithExistingAccount_returnsFalse() {
+    // No admin roles, not a TI — regular applicant should keep the guest.
+    ApplicantModel existingApplicant = resourceCreator.insertApplicant();
+
+    CiviFormProfile guestProfile =
+        profileFactory.wrapProfileData(profileFactory.createNewApplicant());
+
+    CiviformOidcProfileCreator creator = getOidcProfileCreator();
+
+    assertThat(
+            creator.shouldDropGuestProfile(
+                Optional.of(existingApplicant), oidcProfile, guestProfile))
+        .isFalse();
   }
 
   /**

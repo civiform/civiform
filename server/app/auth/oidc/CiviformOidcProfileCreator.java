@@ -233,7 +233,8 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
    * @return if the guest should not be used based on the logging in users type being not a standard
    *     applicant user type.
    */
-  private boolean shouldDropGuestProfile(
+  @VisibleForTesting
+  boolean shouldDropGuestProfile(
       Optional<ApplicantModel> existingApplicant,
       OidcProfile oidcProfile,
       CiviFormProfile guestProfile) {
@@ -254,8 +255,9 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
         } else if (isCiviFormAdmin) {
           accountDescriptor = "CiviForm Admin";
         }
+
         // We may not have an existing applicant if it's their first login.
-        // There is also nothing else non identifying to log.
+        // If so, there is nothing else non identifying to log.
         var accountId =
             existingApplicant
                 .map(ApplicantModel::getAccount)
