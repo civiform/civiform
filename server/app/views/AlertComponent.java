@@ -110,7 +110,12 @@ public final class AlertComponent {
    */
   public static DivTag renderFullAlert(String text, String... classes) {
     return renderFullAlert(
-        AlertType.INFO, text, /* title= */ Optional.empty(), /* hidden= */ false, HeadingLevel.H4, classes);
+        AlertType.INFO,
+        text,
+        /* title= */ Optional.empty(),
+        /* hidden= */ false,
+        HeadingLevel.H4,
+        classes);
   }
 
   /**
