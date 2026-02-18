@@ -152,6 +152,20 @@ public class SessionTimeoutFilterTest extends WithApplication {
   }
 
   @Test
+  public void testNoSessionStartTime_redirectsToLogout() throws Exception {
+    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
+    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
+    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
+    when(mockProfile.getSessionStartTime())
+        .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
+
+    Result result = executeFilter(request);
+
+    assertThat(result.status()).isEqualTo(303);
+    assertThat(result.redirectLocation()).hasValue("/logout");
+  }
+
+  @Test
   public void testSessionTimedOut_redirectsToLogout() throws Exception {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));

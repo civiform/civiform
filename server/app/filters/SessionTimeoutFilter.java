@@ -88,7 +88,13 @@ public class SessionTimeoutFilter extends Filter {
         .getSessionStartTime()
         .thenCompose(
             optionalSessionStartTime -> {
-              long sessionStartTimeInMillis = optionalSessionStartTime.orElse(clock.millis());
+              long sessionStartTimeInMillis;
+              if (optionalSessionStartTime.isPresent()) {
+                sessionStartTimeInMillis = optionalSessionStartTime.get();
+              } else {
+                return CompletableFuture.completedFuture(
+                    Results.redirect(org.pac4j.play.routes.LogoutController.logout()));
+              }
 
               if (sessionTimeoutService
                   .get()
