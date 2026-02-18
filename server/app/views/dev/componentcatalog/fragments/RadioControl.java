@@ -60,9 +60,11 @@ public final class RadioControl {
         "false",
         ImmutableList.of(
             new RadioOptionWithSelected(
-                "delivery-standard", "standard", "Standard (5-7 days)", true),
-            new RadioOptionWithSelected("delivery-express", "express", "Express (2-3 days)", false),
-            new RadioOptionWithSelected("delivery-overnight", "overnight", "Overnight", false)));
+                "delivery-standard", "standard", "Standard (5-7 days)", /* selected= */ true),
+            new RadioOptionWithSelected(
+                "delivery-express", "express", "Express (2-3 days)", /* selected= */ false),
+            new RadioOptionWithSelected(
+                "delivery-overnight", "overnight", "Overnight", /* selected= */ false)));
   }
 
   public record BasicRadio(String name, String label, ImmutableList<RadioOption> options) {}

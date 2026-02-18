@@ -49,7 +49,10 @@ public abstract class LocalizedQuestionSetting {
   /** Sanitized HTML for the option that processes Markdown. */
   public String formattedSettingDisplayName(String ariaLabelForNewTabs) {
     return TextFormatter.formatTextToSanitizedHTML(
-        settingDisplayName(), false, false, ariaLabelForNewTabs);
+        settingDisplayName(),
+        /* preserveEmptyLines= */ false,
+        /* addRequiredIndicator= */ false,
+        ariaLabelForNewTabs);
   }
 
   /** The locale this option is localized to. */

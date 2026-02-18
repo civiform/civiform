@@ -215,7 +215,13 @@ public final class ThymeleafModule extends AbstractModule {
 
     public HtmxAttributeProcessor(
         String dialectPrefix, String htmxAttributeSuffix, ObjectMapper mapper) {
-      super(TEMPLATE_MODE, dialectPrefix, htmxAttributeSuffix, ATTRIBUTE_PRECEDENCE, false, false);
+      super(
+          TEMPLATE_MODE,
+          dialectPrefix,
+          htmxAttributeSuffix,
+          ATTRIBUTE_PRECEDENCE,
+          /* removeAttribute= */ false,
+          /* restrictedExpressionExecution= */ false);
       this.htmxAttributeSuffix = htmxAttributeSuffix;
       this.mapper = mapper;
     }

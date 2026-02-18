@@ -79,7 +79,7 @@ public final class SessionTimeoutModals {
             "session-inactivity-warning",
             messages.at(MessageKey.SESSION_WARNING_TITLE.getKeyName()),
             messages.at(MessageKey.SESSION_INACTIVITY_EXTEND_BUTTON.getKeyName()),
-            true,
+            /* hasFooter= */ true,
             messages.at(MessageKey.SESSION_INACTIVITY_EXTEND_BUTTON.getKeyName()),
             messages.at(MessageKey.BUTTON_CANCEL.getKeyName()))
         .withClasses("hidden");
@@ -99,7 +99,7 @@ public final class SessionTimeoutModals {
             "session-length-warning",
             messages.at(MessageKey.SESSION_WARNING_TITLE.getKeyName()),
             messages.at(MessageKey.SESSION_LOGIN_BUTTON_LOGGED_IN.getKeyName()),
-            true,
+            /* hasFooter= */ true,
             messages.at(MessageKey.SESSION_LOGIN_BUTTON_LOGGED_IN.getKeyName()),
             messages.at(MessageKey.BUTTON_CANCEL.getKeyName()))
         .withClasses("hidden");

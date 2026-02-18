@@ -250,7 +250,7 @@ public final class ProgramMigrationService {
    */
   public ImmutableMap<String, QuestionDefinition> maybeOverwriteQuestionName(
       ImmutableList<QuestionDefinition> questions) {
-    return overwriteDuplicateNames(questions, ImmutableList.of(), true);
+    return overwriteDuplicateNames(questions, ImmutableList.of(), /* checkAll= */ true);
   }
 
   /**
@@ -262,7 +262,7 @@ public final class ProgramMigrationService {
    */
   private ImmutableMap<String, QuestionDefinition> overwriteDuplicateNames(
       ImmutableList<QuestionDefinition> questions, ImmutableList<String> duplicates) {
-    return overwriteDuplicateNames(questions, duplicates, false);
+    return overwriteDuplicateNames(questions, duplicates, /* checkAll= */ false);
   }
 
   private ImmutableMap<String, QuestionDefinition> overwriteDuplicateNames(

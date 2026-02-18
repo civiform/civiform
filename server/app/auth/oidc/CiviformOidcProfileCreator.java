@@ -9,10 +9,13 @@ import auth.ProfileUtils;
 import auth.Role;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import javax.inject.Provider;
+import models.AccountModel;
 import models.ApplicantModel;
 import org.apache.commons.lang3.NotImplementedException;
 import org.pac4j.core.context.CallContext;
@@ -211,6 +214,34 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     }
 
     Optional<ApplicantModel> existingApplicant = getExistingApplicant(oidcProfile);
+    // If the civiform user is a TI, do not merge it with a guest.
+    // The guest will be left a guest account as if they never logged in.
+    // TIs should not have applicant data, and should not be using guest
+    // accounts to apply for clients.
+    boolean isTi =
+        existingApplicant.filter(app -> isTrustedIntermediary(app.getAccount())).isPresent();
+    if (isTi) {
+      // Log if the TI is using guest accounts for clients, which they shouldn't do.
+      var optionalGuestApplicant =
+          guestProfile.map(CiviFormProfile::getApplicant).map(CompletableFuture::join);
+      if (optionalGuestApplicant.isPresent()) {
+        boolean guestHasApplications =
+            !optionalGuestApplicant
+                .map(ApplicantModel::getApplications)
+                .orElse(ImmutableList.of())
+                .isEmpty();
+        if (guestHasApplications) {
+          logger.info(
+              "TI Account ID {} applied as Guest Account ID {} and is logging in. Guest account"
+                  + " will not be merged. TIs should not use guest accounts to apply for clients.",
+              existingApplicant.get().getAccount().id,
+              guestProfile.get().getAccount().join().id);
+        }
+      }
+
+      // The above is all logging, this drops the guest.
+      guestProfile = Optional.empty();
+    }
 
     Function<Optional<CiviFormProfile>, UserProfile> mergeFunction =
         (civiFormProfile) -> this.mergeCiviFormProfile(civiFormProfile, oidcProfile);
@@ -252,7 +283,11 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
   }
 
   protected final boolean isTrustedIntermediary(CiviFormProfile profile) {
-    return profile.getAccount().join().getMemberOfGroup().isPresent();
+    return isTrustedIntermediary(profile.getAccount().join());
+  }
+
+  private boolean isTrustedIntermediary(AccountModel account) {
+    return account.getMemberOfGroup().isPresent();
   }
 
   private boolean enhancedLogoutEnabled() {
