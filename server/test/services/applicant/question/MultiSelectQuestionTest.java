@@ -91,7 +91,7 @@ public class MultiSelectQuestionTest extends ResetPostgres {
                 applicantQuestion.getContextualizedPath(),
                 ImmutableSet.of(
                     ValidationErrorMessage.create(
-                        MessageKey.MULTI_SELECT_VALIDATION_TOO_FEW, /* minRequired= */ 2))));
+                        MessageKey.MULTI_SELECT_VALIDATION_TOO_FEW, /* args= */ 2))));
   }
 
   @Test
@@ -125,7 +125,7 @@ public class MultiSelectQuestionTest extends ResetPostgres {
                 applicantQuestion.getContextualizedPath(),
                 ImmutableSet.of(
                     ValidationErrorMessage.create(
-                        MessageKey.MULTI_SELECT_VALIDATION_TOO_FEW, /* minRequired= */ 2))));
+                        MessageKey.MULTI_SELECT_VALIDATION_TOO_FEW, /* args= */ 2))));
   }
 
   @Test
@@ -150,7 +150,7 @@ public class MultiSelectQuestionTest extends ResetPostgres {
                 applicantQuestion.getContextualizedPath(),
                 ImmutableSet.of(
                     ValidationErrorMessage.create(
-                        MessageKey.MULTI_SELECT_VALIDATION_TOO_MANY, /* maxAllowed= */ 3))));
+                        MessageKey.MULTI_SELECT_VALIDATION_TOO_MANY, /* args= */ 3))));
   }
 
   @Test
