@@ -218,13 +218,13 @@ public class MultiSelectQuestionTest extends ResetPostgres {
                 /* displayOrder= */ 3L,
                 "tres",
                 LocalizedStrings.of(Locale.US, "third"),
-                /* displayInAnswerOptions= */ Optional.of(false)), // Hidden
+                /* displayInAnswerOptions= */ Optional.of(false)),
             QuestionOption.create(
                 /* id= */ 4L,
                 /* displayOrder= */ 4L,
                 "cuatro",
                 LocalizedStrings.of(Locale.US, "fourth"),
-                /* displayInAnswerOptions= */ Optional.of(false))); // Hidden
+                /* displayInAnswerOptions= */ Optional.of(false)));
 
     MultiOptionQuestionDefinition questionWithHiddenOptions =
         new MultiOptionQuestionDefinition(
@@ -277,13 +277,13 @@ public class MultiSelectQuestionTest extends ResetPostgres {
                 /* displayOrder= */ 3L,
                 "tres",
                 LocalizedStrings.of(Locale.US, "third"),
-                /* displayInAnswerOptions= */ Optional.of(false)), // Hidden
+                /* displayInAnswerOptions= */ Optional.of(false)),
             QuestionOption.create(
                 /* id= */ 4L,
                 /* displayOrder= */ 4L,
                 "cuatro",
                 LocalizedStrings.of(Locale.US, "fourth"),
-                /* displayInAnswerOptions= */ Optional.of(false))); // Hidden
+                /* displayInAnswerOptions= */ Optional.of(false)));
 
     MultiOptionQuestionDefinition questionWithHiddenOptions =
         new MultiOptionQuestionDefinition(
