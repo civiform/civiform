@@ -352,9 +352,21 @@ public class TextFormatterTest extends ResetPostgres {
 
   @Test
   public void formatTextToSanitizedHTML_emptyStringReturnsEmptyString() {
-    assertThat(TextFormatter.formatTextToSanitizedHTML("", false, false, "")).isEmpty();
-    assertThat(TextFormatter.formatTextToSanitizedHTML("", true, false, "")).isEmpty();
-    assertThat(TextFormatter.formatTextToSanitizedHTML("", false, true, "")).isEmpty();
-    assertThat(TextFormatter.formatTextToSanitizedHTML("", true, true, "")).isEmpty();
+    assertThat(
+            TextFormatter.formatTextToSanitizedHTML(
+                /* text= */ "", /* preserveEmptyLines= */ false, /* addRequiredIndicator= */ false, /* ariaLabelForNewTabs= */ ""))
+        .isEmpty();
+    assertThat(
+            TextFormatter.formatTextToSanitizedHTML(
+                /* text= */ "", /* preserveEmptyLines= */ true, /* addRequiredIndicator= */ false, /* ariaLabelForNewTabs= */ ""))
+        .isEmpty();
+    assertThat(
+            TextFormatter.formatTextToSanitizedHTML(
+                /* text= */ "", /* preserveEmptyLines= */ false, /* addRequiredIndicator= */ true, /* ariaLabelForNewTabs= */ ""))
+        .isEmpty();
+    assertThat(
+            TextFormatter.formatTextToSanitizedHTML(
+                /* text= */ "", /* preserveEmptyLines= */ true, /* addRequiredIndicator= */ true, /* ariaLabelForNewTabs= */ ""))
+        .isEmpty();
   }
 }

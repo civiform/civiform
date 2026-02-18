@@ -192,7 +192,7 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
       return div();
     }
     return AlertComponent.renderFullAlert(
-        AlertType.SUCCESS, successToast, optionalSuccessMessage, false, "mb-4", "w-3/5");
+        AlertType.SUCCESS, successToast, optionalSuccessMessage, /* hidden= */ false, "mb-4", "w-3/5");
   }
 
   private ATag renderBackLink(String linkText) {

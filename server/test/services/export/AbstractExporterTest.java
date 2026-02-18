@@ -106,7 +106,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     Path answerPath =
         question
             .getQuestionDefinition()
-            .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH);
+            .getContextualizedPath(
+                /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
     switch (questionType) {
       case ADDRESS ->
           QuestionAnswerer.answerAddressQuestion(

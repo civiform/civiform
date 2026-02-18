@@ -330,7 +330,13 @@ public class EligibilityAlertSettingsCalculatorTest {
     ImmutableList<ApplicantQuestion> questions = ImmutableList.of(question);
 
     AlertSettings result =
-        eligibilityAlertSettingsCalculator.calculate(request, false, false, true, 1L, questions);
+        eligibilityAlertSettingsCalculator.calculate(
+            request,
+            /* isTI= */ false,
+            /* isApplicationEligible= */ false,
+            /* pageHasSupplementalInformation= */ true,
+            1L,
+            questions);
 
     assertThat(result.additionalText().size()).isEqualTo(1);
     assertThat(result.additionalText().get(0)).isEqualTo(QUESTION_TEXT);
@@ -351,7 +357,12 @@ public class EligibilityAlertSettingsCalculatorTest {
 
     AlertSettings result =
         eligibilityAlertSettingsCalculator.calculate(
-            fakeRequest(), false, true, false, /* programId */ 1L, ImmutableList.of());
+            fakeRequest(),
+            /* isTI= */ false,
+            /* isApplicationEligible= */ true,
+            /* pageHasSupplementalInformation= */ false,
+            /* programId= */ 1L,
+            ImmutableList.of());
 
     assertThat(result.show()).isEqualTo(isEligibilityEnabled);
   }
@@ -386,7 +397,12 @@ public class EligibilityAlertSettingsCalculatorTest {
 
     AlertSettings result =
         eligibilityAlertSettingsCalculator.calculate(
-            fakeRequest(), false, true, false, /* programId */ 1L, ImmutableList.of());
+            fakeRequest(),
+            /* isTI= */ false,
+            /* isApplicationEligible= */ true,
+            /* pageHasSupplementalInformation= */ false,
+            /* programId= */ 1L,
+            ImmutableList.of());
 
     assertThat(result.show()).isEqualTo(false);
   }
