@@ -141,10 +141,8 @@ public class BaseHtmlLayout {
         link().withHref(bundledAssetsFinder.getUswdsStylesheet()).withRel("stylesheet"));
     bundle.addStylesheets(
         link().withHref(bundledAssetsFinder.getTailwindStylesheet()).withRel("stylesheet"));
-    if (settingsManifest.getMapQuestionEnabled()) {
-      bundle.addStylesheets(
-          link().withHref(bundledAssetsFinder.getMapLibreGLStylesheet()).withRel("stylesheet"));
-    }
+    bundle.addStylesheets(
+        link().withHref(bundledAssetsFinder.getMapLibreGLStylesheet()).withRel("stylesheet"));
 
     // Add Google analytics scripts.
     measurementId
