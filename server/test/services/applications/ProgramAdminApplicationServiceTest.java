@@ -677,8 +677,9 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
         StatusEvent.builder().setEmailSent(true).setStatusText("Not an actual status").build();
 
     assertThatThrownBy(
-            () -> service.setStatus(
-                application.id, program, /* currentStatus= */ Optional.empty(), event, account))
+            () ->
+                service.setStatus(
+                    application.id, program, /* currentStatus= */ Optional.empty(), event, account))
         .isInstanceOf(StatusNotFoundException.class);
     application.refresh();
     assertThat(application.getApplicationEvents()).isEmpty();
@@ -730,8 +731,9 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             .build();
 
     assertThatThrownBy(
-            () -> service.setStatus(
-                application.id, program, /* currentStatus= */ Optional.empty(), event, account))
+            () ->
+                service.setStatus(
+                    application.id, program, /* currentStatus= */ Optional.empty(), event, account))
         .isInstanceOf(StatusEmailNotFoundException.class);
     application.refresh();
     assertThat(application.getApplicationEvents()).isEmpty();
@@ -743,7 +745,8 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     repo.createOrUpdateStatusDefinitions(
         program.adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
     AccountModel account = resourceCreator.insertAccount();
-    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount(/* accountEmail= */ Optional.empty());
+    ApplicantModel applicant =
+        resourceCreator.insertApplicantWithAccount(/* accountEmail= */ Optional.empty());
     ApplicationModel application =
         ApplicationModel.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
             .setSubmitTimeToNow();
@@ -766,7 +769,8 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     repo.createOrUpdateStatusDefinitions(
         program.adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
     AccountModel account = resourceCreator.insertAccount();
-    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount(/* accountEmail= */ Optional.empty());
+    ApplicantModel applicant =
+        resourceCreator.insertApplicantWithAccount(/* accountEmail= */ Optional.empty());
     ApplicationModel application =
         ApplicationModel.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
             .setSubmitTimeToNow();
