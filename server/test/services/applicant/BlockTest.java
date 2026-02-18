@@ -1157,10 +1157,10 @@ public class BlockTest {
         RepeatedEntity.create(
             (EnumeratorQuestionDefinition)
                 testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition(),
-            Optional.empty(),
-            Optional.empty(),
-            "Person 1",
-            0);
+            /* visibility= */ Optional.empty(),
+            /* parent= */ Optional.empty(),
+            /* entityName= */ "Person 1",
+            /* index= */ 0);
 
     Block block =
         new Block(
@@ -1193,10 +1193,10 @@ public class BlockTest {
         RepeatedEntity.create(
             (EnumeratorQuestionDefinition)
                 testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition(),
-            Optional.empty(),
-            Optional.empty(),
-            entityName,
-            0);
+            /* visibility= */ Optional.empty(),
+            /* parent= */ Optional.empty(),
+            /* entityName= */ entityName,
+            /* index= */ 0);
 
     Block block =
         new Block(
@@ -1230,20 +1230,20 @@ public class BlockTest {
         RepeatedEntity.create(
             (EnumeratorQuestionDefinition)
                 testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition(),
-            Optional.empty(),
-            Optional.empty(),
-            parentEntityName,
-            0);
+            /* visibility= */ Optional.empty(),
+            /* parent= */ Optional.empty(),
+            /* entityName= */ parentEntityName,
+            /* index= */ 0);
 
     String childEntityName = "Job 1";
     RepeatedEntity childEntity =
         RepeatedEntity.create(
             (EnumeratorQuestionDefinition)
                 testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition(),
-            Optional.empty(),
-            Optional.of(parentEntity),
-            childEntityName,
-            0);
+            /* visibility= */ Optional.empty(),
+            /* parent= */ Optional.of(parentEntity),
+            /* entityName= */ childEntityName,
+            /* index= */ 0);
 
     Block block =
         new Block(
