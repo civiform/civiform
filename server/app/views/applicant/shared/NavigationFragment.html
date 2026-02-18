@@ -88,7 +88,12 @@
   <div th:replace="~{this :: tiAlert}"></div>
   <th:block th:if="${sessionTimeoutEnabled}">
     <th:div
-      th:replace="~{applicant/shared/ModalFragment :: sessionTimeoutModals}"
+      th:replace="~{applicant/shared/ModalFragment :: sessionInactivityTimeoutModal}"
+    ></th:div>
+  </th:block>
+  <th:block th:if="${sessionTimeoutEnabled}">
+    <th:div
+      th:replace="~{applicant/shared/ModalFragment :: sessionLengthTimeoutModal}"
     ></th:div>
   </th:block>
 </th:block>

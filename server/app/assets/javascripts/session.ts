@@ -111,11 +111,7 @@ export class SessionTimeoutHandler {
       data.inactivityWarning <= now &&
       lastShownInactivity !== data.inactivityWarning.toString()
     ) {
-      this.setWarningModalVisible(
-        WarningType.INACTIVITY,
-        true,
-        data.inactivityWarning,
-      )
+      this.showWarningModal(WarningType.INACTIVITY, data.inactivityWarning)
       return
     }
 
@@ -125,11 +121,7 @@ export class SessionTimeoutHandler {
       data.totalWarning <= now &&
       lastShownTotal !== data.totalWarning.toString()
     ) {
-      this.setWarningModalVisible(
-        WarningType.TOTAL_LENGTH,
-        true,
-        data.totalWarning,
-      )
+      this.showWarningModal(WarningType.TOTAL_LENGTH, data.totalWarning)
       return
     }
   }
@@ -158,8 +150,6 @@ export class SessionTimeoutHandler {
         elt: HTMLElement
       }
       if (detail.elt.id !== 'extend-session-form') return
-
-      this.setWarningModalVisible(WarningType.INACTIVITY, false)
 
       // Processes /extend-session form submissions
       if (detail.xhr.status === 200) {
@@ -205,13 +195,14 @@ export class SessionTimeoutHandler {
         form?.requestSubmit()
       })
 
-      // Handle dismiss/close buttons
+      // Handle dismiss/close buttons - USWDS closes natively via data-close-modal,
+      // we just need to update our visibility flag
       const closeButtons = inactivityModal.querySelectorAll(
         '[data-modal-secondary], [data-close-modal]',
       )
       closeButtons.forEach((button) => {
         button.addEventListener('click', () => {
-          this.setWarningModalVisible(WarningType.INACTIVITY, false)
+          this.inactivityWarningVisible = false
         })
       })
     }
@@ -227,13 +218,14 @@ export class SessionTimeoutHandler {
         this.login()
       })
 
-      // Handle dismiss/close buttons
+      // Handle dismiss/close buttons - USWDS closes natively via data-close-modal,
+      // we just need to update our visibility flag
       const closeButtons = lengthModal.querySelectorAll(
         '[data-modal-secondary], [data-close-modal]',
       )
       closeButtons.forEach((button) => {
         button.addEventListener('click', () => {
-          this.setWarningModalVisible(WarningType.TOTAL_LENGTH, false)
+          this.totalLengthWarningVisible = false
         })
       })
     }
@@ -323,41 +315,34 @@ export class SessionTimeoutHandler {
   }
 
   /**
-   * Shows or hides a warning modal of the specified type.
-   * When showing, also records in sessionStorage that the warning was shown.
+   * Shows a warning modal of the specified type and records in sessionStorage that it was shown.
    *
    * @param type Type of warning to show (inactivity or total length)
-   * @param visible Whether to show or hide the modal
    * @param warningTimestamp Timestamp to record (used to detect new sessions and session extension)
    */
-  private static setWarningModalVisible(
-    type: WarningType,
-    visible: boolean,
-    warningTimestamp?: number,
-  ) {
+  private static showWarningModal(type: WarningType, warningTimestamp: number) {
     const modalId =
       type === WarningType.INACTIVITY
         ? `${SessionModalType.INACTIVITY}-modal`
         : `${SessionModalType.LENGTH}-modal`
-    const modal = document.getElementById(modalId)
-    modal?.classList.toggle('is-hidden', !visible)
+
+    const openButton = document.getElementById(
+      `invisible-${modalId}-button`,
+    ) as HTMLElement
+    openButton?.click()
 
     if (type === WarningType.INACTIVITY) {
-      this.inactivityWarningVisible = visible
-      if (visible && warningTimestamp !== undefined) {
-        sessionStorage.setItem(
-          this.INACTIVITY_WARNING_SHOWN_KEY,
-          warningTimestamp.toString(),
-        )
-      }
+      this.inactivityWarningVisible = true
+      sessionStorage.setItem(
+        this.INACTIVITY_WARNING_SHOWN_KEY,
+        warningTimestamp.toString(),
+      )
     } else {
-      this.totalLengthWarningVisible = visible
-      if (visible && warningTimestamp !== undefined) {
-        sessionStorage.setItem(
-          this.TOTAL_WARNING_SHOWN_KEY,
-          warningTimestamp.toString(),
-        )
-      }
+      this.totalLengthWarningVisible = true
+      sessionStorage.setItem(
+        this.TOTAL_WARNING_SHOWN_KEY,
+        warningTimestamp.toString(),
+      )
     }
   }
 
