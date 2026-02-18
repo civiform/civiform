@@ -228,16 +228,21 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
   }
 
   /**
-   * If the Oidc/CiviForm user is a TI or Admin, and not a standard user, log and return as such.
+   * If the CiviForm user is a TI or Admin, and not a standard user, log and return as such.
    *
-   * @return if the guest should not be used based on the logging in users type being not a standard
+   * @return if the guest should not be used based on the logged in users type being not a standard
    *     applicant user type.
    */
   @VisibleForTesting
   boolean shouldDropGuestProfile(AccountModel existingAccount, CiviFormProfile guestProfile) {
     boolean isTi = isTrustedIntermediary(existingAccount);
     boolean isProgramAdmin = !existingAccount.getAdministeredProgramNames().isEmpty();
+    // Note: Despite the auth profile determining who is a CF admin, the CF
+    // account is used here to reduce complexity and because the likelihood of
+    // a CF admin logging in only after their status has changed, and they
+    // applied as a guest is very small.
     boolean isCiviFormAdmin = existingAccount.getGlobalAdmin();
+
     if (isTi || isProgramAdmin || isCiviFormAdmin) {
       // Log if the TI/Admin is using guest accounts to apply.
       boolean guestHasApplications =
