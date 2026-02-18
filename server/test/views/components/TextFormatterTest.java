@@ -7,10 +7,14 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.google.common.collect.ImmutableList;
 import j2html.tags.DomContent;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.slf4j.LoggerFactory;
 import repository.ResetPostgres;
 
+@RunWith(JUnitParamsRunner.class)
 public class TextFormatterTest extends ResetPostgres {
 
   @Test
@@ -351,34 +355,12 @@ public class TextFormatterTest extends ResetPostgres {
   }
 
   @Test
-  public void formatTextToSanitizedHTML_emptyStringReturnsEmptyString() {
+  @Parameters({"true, true", "true, false", "false, true", "false, false"})
+  public void formatTextToSanitizedHTML_emptyStringReturnsEmptyString(
+      boolean preserveEmptyLines, boolean addRequiredIndicator) {
     assertThat(
             TextFormatter.formatTextToSanitizedHTML(
-                /* text= */ "",
-                /* preserveEmptyLines= */ false,
-                /* addRequiredIndicator= */ false,
-                /* ariaLabelForNewTabs= */ ""))
-        .isEmpty();
-    assertThat(
-            TextFormatter.formatTextToSanitizedHTML(
-                /* text= */ "",
-                /* preserveEmptyLines= */ true,
-                /* addRequiredIndicator= */ false,
-                /* ariaLabelForNewTabs= */ ""))
-        .isEmpty();
-    assertThat(
-            TextFormatter.formatTextToSanitizedHTML(
-                /* text= */ "",
-                /* preserveEmptyLines= */ false,
-                /* addRequiredIndicator= */ true,
-                /* ariaLabelForNewTabs= */ ""))
-        .isEmpty();
-    assertThat(
-            TextFormatter.formatTextToSanitizedHTML(
-                /* text= */ "",
-                /* preserveEmptyLines= */ true,
-                /* addRequiredIndicator= */ true,
-                /* ariaLabelForNewTabs= */ ""))
+                /* text= */ "", preserveEmptyLines, addRequiredIndicator, /* ariaLabelForNewTabs= */ ""))
         .isEmpty();
   }
 }
