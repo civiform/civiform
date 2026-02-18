@@ -37,7 +37,14 @@ public final class IconElementTagProcessor extends AbstractElementTagProcessor {
 
   public IconElementTagProcessor(
       String dialectPrefix, AssetsFinder assetsFinder, Environment environment) {
-    super(TemplateMode.HTML, dialectPrefix, "icon", true, null, false, 10);
+    super(
+        TemplateMode.HTML,
+        dialectPrefix,
+        "icon",
+        /* prefixElementName= */ true,
+        /* attributeName= */ null,
+        /* prefixAttributeName= */ false,
+        10);
     this.assetsFinder = checkNotNull(assetsFinder);
     this.environment = checkNotNull(environment);
   }

@@ -14,7 +14,7 @@ import views.style.StyleUtils;
 public final class QuestionBank {
 
   public static final DivTag renderFilterAndSort(List<QuestionSortOption> sortOptions) {
-    return renderFilterAndSort(sortOptions, Optional.empty());
+    return renderFilterAndSort(sortOptions, /* filter= */ Optional.empty());
   }
 
   public static final DivTag renderFilterAndSort(
