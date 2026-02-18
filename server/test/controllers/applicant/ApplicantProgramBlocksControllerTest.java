@@ -343,7 +343,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         ProgramBuilder.newObsoleteProgram("program")
             .withBlock("block")
             .withQuestionDefinition(
-                testQuestionBank().nameApplicantName().getQuestionDefinition(), false)
+                testQuestionBank().nameApplicantName().getQuestionDefinition(),
+                /* optional= */ false)
             .build();
     String obsoleteProgramId = Long.toString(obsoleteProgram.id);
 
@@ -795,7 +796,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         ProgramBuilder.newObsoleteProgram("program")
             .withBlock("name")
             .withQuestionDefinition(
-                testQuestionBank().nameApplicantName().getQuestionDefinition(), false)
+                testQuestionBank().nameApplicantName().getQuestionDefinition(),
+                /* optional= */ false)
             .build();
 
     String obsoleteProgramId = Long.toString(obsoleteProgram.id);

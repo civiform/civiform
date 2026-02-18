@@ -200,21 +200,29 @@ public class MultiSelectQuestionTest extends ResetPostgres {
     ImmutableList<QuestionOption> optionsWithSomeHidden =
         ImmutableList.of(
             QuestionOption.create(
-                1L, 1L, "uno", LocalizedStrings.of(Locale.US, "valid"), Optional.of(true)),
+                1L,
+                1L,
+                "uno",
+                LocalizedStrings.of(Locale.US, "valid"),
+                /* displayInAnswerOptions= */ Optional.of(true)),
             QuestionOption.create(
-                2L, 2L, "dos", LocalizedStrings.of(Locale.US, "ok"), Optional.of(true)),
+                2L,
+                2L,
+                "dos",
+                LocalizedStrings.of(Locale.US, "ok"),
+                /* displayInAnswerOptions= */ Optional.of(true)),
             QuestionOption.create(
                 3L,
                 3L,
                 "tres",
                 LocalizedStrings.of(Locale.US, "third"),
-                Optional.of(false)), // Hidden
+                /* displayInAnswerOptions= */ Optional.of(false)), // Hidden
             QuestionOption.create(
                 4L,
                 4L,
                 "cuatro",
                 LocalizedStrings.of(Locale.US, "fourth"),
-                Optional.of(false))); // Hidden
+                /* displayInAnswerOptions= */ Optional.of(false))); // Hidden
 
     MultiOptionQuestionDefinition questionWithHiddenOptions =
         new MultiOptionQuestionDefinition(
@@ -245,21 +253,29 @@ public class MultiSelectQuestionTest extends ResetPostgres {
     ImmutableList<QuestionOption> optionsWithSomeHidden =
         ImmutableList.of(
             QuestionOption.create(
-                1L, 1L, "uno", LocalizedStrings.of(Locale.US, "valid"), Optional.of(true)),
+                1L,
+                1L,
+                "uno",
+                LocalizedStrings.of(Locale.US, "valid"),
+                /* displayInAnswerOptions= */ Optional.of(true)),
             QuestionOption.create(
-                2L, 2L, "dos", LocalizedStrings.of(Locale.US, "ok"), Optional.of(true)),
+                2L,
+                2L,
+                "dos",
+                LocalizedStrings.of(Locale.US, "ok"),
+                /* displayInAnswerOptions= */ Optional.of(true)),
             QuestionOption.create(
                 3L,
                 3L,
                 "tres",
                 LocalizedStrings.of(Locale.US, "third"),
-                Optional.of(false)), // Hidden
+                /* displayInAnswerOptions= */ Optional.of(false)), // Hidden
             QuestionOption.create(
                 4L,
                 4L,
                 "cuatro",
                 LocalizedStrings.of(Locale.US, "fourth"),
-                Optional.of(false))); // Hidden
+                /* displayInAnswerOptions= */ Optional.of(false))); // Hidden
 
     MultiOptionQuestionDefinition questionWithHiddenOptions =
         new MultiOptionQuestionDefinition(

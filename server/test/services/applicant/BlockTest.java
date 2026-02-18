@@ -77,7 +77,12 @@ public class BlockTest {
             .setLocalizedDescription(LocalizedStrings.withDefaultValue("description"))
             .build();
     Block block =
-        new Block("1", definition, new ApplicantModel(), new ApplicantData(), Optional.empty());
+        new Block(
+            "1",
+            definition,
+            new ApplicantModel(),
+            new ApplicantData(),
+            /* repeatedEntity= */ Optional.empty());
     assertThat(block.getId()).isEqualTo("1");
     assertThat(block.getName()).isEqualTo("name");
     assertThat(block.getDescription()).isEqualTo("description");
@@ -105,11 +110,31 @@ public class BlockTest {
 
     new EqualsTester()
         .addEqualityGroup(
-            new Block("1", definition, new ApplicantModel(), new ApplicantData(), Optional.empty()),
-            new Block("1", definition, new ApplicantModel(), new ApplicantData(), Optional.empty()))
+            new Block(
+                "1",
+                definition,
+                new ApplicantModel(),
+                new ApplicantData(),
+                /* repeatedEntity= */ Optional.empty()),
+            new Block(
+                "1",
+                definition,
+                new ApplicantModel(),
+                new ApplicantData(),
+                /* repeatedEntity= */ Optional.empty()))
         .addEqualityGroup(
-            new Block("2", definition, new ApplicantModel(), new ApplicantData(), Optional.empty()),
-            new Block("2", definition, new ApplicantModel(), new ApplicantData(), Optional.empty()))
+            new Block(
+                "2",
+                definition,
+                new ApplicantModel(),
+                new ApplicantData(),
+                /* repeatedEntity= */ Optional.empty()),
+            new Block(
+                "2",
+                definition,
+                new ApplicantModel(),
+                new ApplicantData(),
+                /* repeatedEntity= */ Optional.empty()))
         .addEqualityGroup(
             new Block(
                 "1",
@@ -174,7 +199,12 @@ public class BlockTest {
     BlockDefinition definition = setUpBlockWithQuestions();
 
     Block block =
-        new Block("1", definition, new ApplicantModel(), new ApplicantData(), Optional.empty());
+        new Block(
+            "1",
+            definition,
+            new ApplicantModel(),
+            new ApplicantData(),
+            /* repeatedEntity= */ Optional.empty());
 
     assertThatThrownBy(() -> block.getQuestion(3L))
         .isInstanceOf(QuestionNotFoundException.class)
@@ -186,7 +216,12 @@ public class BlockTest {
     BlockDefinition definition = setUpBlockWithQuestions();
 
     Block block =
-        new Block("1", definition, new ApplicantModel(), new ApplicantData(), Optional.empty());
+        new Block(
+            "1",
+            definition,
+            new ApplicantModel(),
+            new ApplicantData(),
+            /* repeatedEntity= */ Optional.empty());
 
     assertThat(
             block.getScalarType(
@@ -233,7 +268,12 @@ public class BlockTest {
     BlockDefinition definition = setUpBlockWithQuestions();
 
     Block block =
-        new Block("1", definition, new ApplicantModel(), new ApplicantData(), Optional.empty());
+        new Block(
+            "1",
+            definition,
+            new ApplicantModel(),
+            new ApplicantData(),
+            /* repeatedEntity= */ Optional.empty());
 
     assertThat(block.getScalarType(Path.create("fake.path"))).isEmpty();
   }
@@ -251,7 +291,12 @@ public class BlockTest {
             .setLocalizedDescription(LocalizedStrings.withDefaultValue("description"))
             .build();
     Block block =
-        new Block("1", definition, new ApplicantModel(), new ApplicantData(), Optional.empty());
+        new Block(
+            "1",
+            definition,
+            new ApplicantModel(),
+            new ApplicantData(),
+            /* repeatedEntity= */ Optional.empty());
 
     assertThat(block.hasErrors()).isFalse();
   }
@@ -293,7 +338,12 @@ public class BlockTest {
             .setLocalizedDescription(LocalizedStrings.withDefaultValue("description"))
             .build();
     Block block =
-        new Block("1", definition, new ApplicantModel(), new ApplicantData(), Optional.empty());
+        new Block(
+            "1",
+            definition,
+            new ApplicantModel(),
+            new ApplicantData(),
+            /* repeatedEntity= */ Optional.empty());
 
     assertThat(block.isAnsweredWithoutErrors()).isTrue();
     assertThat(block.containsStatic()).isFalse();
@@ -304,7 +354,12 @@ public class BlockTest {
     BlockDefinition definition = setUpBlockWithQuestions();
 
     Block block =
-        new Block("1", definition, new ApplicantModel(), new ApplicantData(), Optional.empty());
+        new Block(
+            "1",
+            definition,
+            new ApplicantModel(),
+            new ApplicantData(),
+            /* repeatedEntity= */ Optional.empty());
 
     // No questions filled in yet.
     assertThat(block.isAnsweredWithoutErrors()).isFalse();
@@ -815,7 +870,11 @@ public class BlockTest {
 
     Block block =
         new Block(
-            "id", blockDefinition, new ApplicantModel(), new ApplicantData(), Optional.empty());
+            "id",
+            blockDefinition,
+            new ApplicantModel(),
+            new ApplicantData(),
+            /* repeatedEntity= */ Optional.empty());
 
     assertThat(block.hasOnlyOptionalQuestions()).isFalse();
   }
@@ -846,7 +905,11 @@ public class BlockTest {
 
     Block block =
         new Block(
-            "id", blockDefinition, new ApplicantModel(), new ApplicantData(), Optional.empty());
+            "id",
+            blockDefinition,
+            new ApplicantModel(),
+            new ApplicantData(),
+            /* repeatedEntity= */ Optional.empty());
 
     assertThat(block.hasOnlyOptionalQuestions()).isFalse();
   }
@@ -877,7 +940,11 @@ public class BlockTest {
 
     Block block =
         new Block(
-            "id", blockDefinition, new ApplicantModel(), new ApplicantData(), Optional.empty());
+            "id",
+            blockDefinition,
+            new ApplicantModel(),
+            new ApplicantData(),
+            /* repeatedEntity= */ Optional.empty());
 
     assertThat(block.hasOnlyOptionalQuestions()).isTrue();
   }
