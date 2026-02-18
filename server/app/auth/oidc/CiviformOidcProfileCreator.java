@@ -217,8 +217,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
       // The guest will be left a guest account as if they never logged in.
       // These users should not have applicant data, and should not be using
       // guest accounts to apply on behalf of others users
-      if (shouldDropGuestProfile(existingApplicant.get().getAccount(),
-        guestProfile.get())) {
+      if (shouldDropGuestProfile(existingApplicant.get().getAccount(), guestProfile.get())) {
         guestProfile = Optional.empty();
       }
     }
@@ -235,9 +234,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
    *     applicant user type.
    */
   @VisibleForTesting
-  boolean shouldDropGuestProfile(
-      AccountModel existingAccount,
-      CiviFormProfile guestProfile) {
+  boolean shouldDropGuestProfile(AccountModel existingAccount, CiviFormProfile guestProfile) {
     boolean isTi = isTrustedIntermediary(existingAccount);
     boolean isProgramAdmin = !existingAccount.getAdministeredProgramNames().isEmpty();
     boolean isCiviFormAdmin = existingAccount.getGlobalAdmin();
@@ -257,7 +254,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
 
         // We may not have an existing applicant if it's their first login.
         // If so, there is nothing else non identifying to log here.
-        var accountId =existingAccount.id.toString();
+        var accountId = existingAccount.id.toString();
         logger.info(
             "{} Account ID {} applied as Guest Account ID {} and is logging in. Guest account will"
                 + " not be merged. They should not use guest accounts to apply for others.",
