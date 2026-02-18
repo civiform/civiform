@@ -354,19 +354,31 @@ public class TextFormatterTest extends ResetPostgres {
   public void formatTextToSanitizedHTML_emptyStringReturnsEmptyString() {
     assertThat(
             TextFormatter.formatTextToSanitizedHTML(
-                /* text= */ "", /* preserveEmptyLines= */ false, /* addRequiredIndicator= */ false, /* ariaLabelForNewTabs= */ ""))
+                /* text= */ "",
+                /* preserveEmptyLines= */ false,
+                /* addRequiredIndicator= */ false,
+                /* ariaLabelForNewTabs= */ ""))
         .isEmpty();
     assertThat(
             TextFormatter.formatTextToSanitizedHTML(
-                /* text= */ "", /* preserveEmptyLines= */ true, /* addRequiredIndicator= */ false, /* ariaLabelForNewTabs= */ ""))
+                /* text= */ "",
+                /* preserveEmptyLines= */ true,
+                /* addRequiredIndicator= */ false,
+                /* ariaLabelForNewTabs= */ ""))
         .isEmpty();
     assertThat(
             TextFormatter.formatTextToSanitizedHTML(
-                /* text= */ "", /* preserveEmptyLines= */ false, /* addRequiredIndicator= */ true, /* ariaLabelForNewTabs= */ ""))
+                /* text= */ "",
+                /* preserveEmptyLines= */ false,
+                /* addRequiredIndicator= */ true,
+                /* ariaLabelForNewTabs= */ ""))
         .isEmpty();
     assertThat(
             TextFormatter.formatTextToSanitizedHTML(
-                /* text= */ "", /* preserveEmptyLines= */ true, /* addRequiredIndicator= */ true, /* ariaLabelForNewTabs= */ ""))
+                /* text= */ "",
+                /* preserveEmptyLines= */ true,
+                /* addRequiredIndicator= */ true,
+                /* ariaLabelForNewTabs= */ ""))
         .isEmpty();
   }
 }
