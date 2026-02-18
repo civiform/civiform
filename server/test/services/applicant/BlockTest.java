@@ -1105,7 +1105,10 @@ public class BlockTest {
   }
 
   private static Block makeUnrepeatedBlock(
-      String id, BlockDefinition definition, ApplicantModel applicant, ApplicantData applicantData) {
+      String id,
+      BlockDefinition definition,
+      ApplicantModel applicant,
+      ApplicantData applicantData) {
     return new Block(id, definition, applicant, applicantData, Optional.empty());
   }
 
