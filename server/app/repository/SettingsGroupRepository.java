@@ -44,10 +44,8 @@ public final class SettingsGroupRepository {
   public CompletionStage<Optional<SettingsGroupModel>> getCurrentSettings() {
     return supplyAsync(
         () ->
-            settingsManifest.getSettingsCacheEnabled()
-                ? settingsCache.getOrElseUpdate(
-                    CURRENT_SETTINGS_CACHE_KEY, this::findCurrentSettingsFromDb)
-                : findCurrentSettingsFromDb(),
+            settingsCache.getOrElseUpdate(
+                CURRENT_SETTINGS_CACHE_KEY, this::findCurrentSettingsFromDb),
         databaseExecutionContext);
   }
 
