@@ -90,15 +90,20 @@ public final class Block {
                 blockDefinition
                         .namePrefix()
                         .map(
-                            prefix ->
-                                prefix
-                                    .replace("[child label]", entity.entityName())
-                                    .replace(
-                                        "[parent label]",
-                                        entity
-                                            .parent()
-                                            .map(RepeatedEntity::entityName)
-                                            .orElse(entity.entityName())))
+                            prefix -> {
+                              String[] prefixParts = prefix.split("- ");
+                              if (prefixParts.length > 0) {
+                                prefixParts[0] =
+                                    entity
+                                        .parent()
+                                        .map(RepeatedEntity::entityName)
+                                        .orElse(entity.entityName());
+                                if (prefixParts.length > 1) {
+                                  prefixParts[1] = entity.entityName();
+                                }
+                              }
+                              return String.join(" - ", prefixParts) + " - ";
+                            })
                         .orElse("")
                     + name)
         .orElse(name);
