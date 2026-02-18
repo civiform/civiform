@@ -57,10 +57,11 @@ public final class CheckboxControl {
         "Programming skills",
         "false",
         ImmutableList.of(
-            new CheckboxSelected.Option("skill-java", "java", "Java", true),
-            new CheckboxSelected.Option("skill-python", "python", "Python", true),
-            new CheckboxSelected.Option("skill-javascript", "javascript", "JavaScript", false),
-            new CheckboxSelected.Option("skill-csharp", "csharp", "C#", false)));
+            new CheckboxSelected.Option("skill-java", "java", "Java", /* selected= */ true),
+            new CheckboxSelected.Option("skill-python", "python", "Python", /* selected= */ true),
+            new CheckboxSelected.Option(
+                "skill-javascript", "javascript", "JavaScript", /* selected= */ false),
+            new CheckboxSelected.Option("skill-csharp", "csharp", "C#", /* selected= */ false)));
   }
 
   public CheckboxWithData checkboxWithData() {

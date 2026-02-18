@@ -128,7 +128,7 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
     // Create a program and application for the guest
     ProgramDefinition program = ProgramBuilder.newActiveProgram("test-program").buildDefinition();
     ApplicationModel guestApplication =
-        new ApplicationModel(guestApplicant, program.toProgram(), null);
+        new ApplicationModel(guestApplicant, program.toProgram(), /* lifecycleStage= */ null);
     guestApplication.save();
     guestApplicant.refresh();
 
@@ -176,7 +176,7 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
     // Create a program and application for the guest
     ProgramDefinition program = ProgramBuilder.newActiveProgram("test-program").buildDefinition();
     ApplicationModel guestApplication =
-        new ApplicationModel(guestApplicant, program.toProgram(), null);
+        new ApplicationModel(guestApplicant, program.toProgram(), /* lifecycleStage= */ null);
     guestApplication.save();
     guestApplicant.refresh();
 

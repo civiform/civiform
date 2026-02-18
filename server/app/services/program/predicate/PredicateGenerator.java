@@ -216,7 +216,12 @@ public final class PredicateGenerator {
                 .collect(ImmutableList.toImmutableList());
 
         predicateValue =
-            parsePredicateValue(scalar, operator, "", Optional.empty(), rawPredicateValues);
+            parsePredicateValue(
+                scalar,
+                operator,
+                /* value= */ "",
+                /* secondValue= */ Optional.empty(),
+                rawPredicateValues);
       } else {
         continue;
       }
