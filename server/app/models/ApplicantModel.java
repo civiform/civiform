@@ -232,7 +232,7 @@ public class ApplicantModel extends BaseModel {
         // Too many names - put them all in first name.
         firstName = displayName;
     }
-    setUserName(firstName, middleName, lastName, nameSuffix, false);
+    setUserName(firstName, middleName, lastName, nameSuffix, /* overwrite= */ false);
   }
 
   // By default, overwrite name fields if data exists in them
@@ -241,7 +241,7 @@ public class ApplicantModel extends BaseModel {
       Optional<String> middleName,
       Optional<String> lastName,
       Optional<String> nameSuffix) {
-    setUserName(firstName, middleName, lastName, nameSuffix, true);
+    setUserName(firstName, middleName, lastName, nameSuffix, /* overwrite= */ true);
   }
 
   /**

@@ -267,7 +267,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
         .thenCompose(
             programId -> {
-              return editOrReview(request, applicantId, programId, blockId, true, questionName);
+              return editOrReview(
+                  request, applicantId, programId, blockId, /* inReview= */ true, questionName);
             });
   }
 

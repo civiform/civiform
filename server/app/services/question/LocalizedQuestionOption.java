@@ -42,7 +42,11 @@ public abstract class LocalizedQuestionOption {
 
   /** Sanitized HTML for the option that processes Markdown. */
   public String formattedOptionText(String ariaLabelForNewTabs) {
-    return TextFormatter.formatTextToSanitizedHTML(optionText(), false, false, ariaLabelForNewTabs);
+    return TextFormatter.formatTextToSanitizedHTML(
+        optionText(),
+        /* preserveEmptyLines= */ false,
+        /* addRequiredIndicator= */ false,
+        ariaLabelForNewTabs);
   }
 
   /**
@@ -50,7 +54,11 @@ public abstract class LocalizedQuestionOption {
    * used for Yes/No questions where the option text comes from i18n translations.
    */
   public String formattedOptionText(String optionText, String ariaLabelForNewTabs) {
-    return TextFormatter.formatTextToSanitizedHTML(optionText, false, false, ariaLabelForNewTabs);
+    return TextFormatter.formatTextToSanitizedHTML(
+        optionText,
+        /* preserveEmptyLines= */ false,
+        /* addRequiredIndicator= */ false,
+        ariaLabelForNewTabs);
   }
 
   /** Returns the message key for yes/no question options. Only applicable to yes/no questions. */
