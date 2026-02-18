@@ -360,7 +360,10 @@ public class TextFormatterTest extends ResetPostgres {
       boolean preserveEmptyLines, boolean addRequiredIndicator) {
     assertThat(
             TextFormatter.formatTextToSanitizedHTML(
-                /* text= */ "", preserveEmptyLines, addRequiredIndicator, /* ariaLabelForNewTabs= */ ""))
+                /* text= */ "",
+                preserveEmptyLines,
+                addRequiredIndicator,
+                /* ariaLabelForNewTabs= */ ""))
         .isEmpty();
   }
 }
