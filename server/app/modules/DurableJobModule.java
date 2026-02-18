@@ -19,7 +19,6 @@ import durablejobs.RecurringJobScheduler;
 import durablejobs.StartupDurableJobRunner;
 import durablejobs.StartupJobScheduler;
 import durablejobs.jobs.AddCategoryAndTranslationsJob;
-import durablejobs.jobs.CalculateEligibilityDeterminationJob;
 import durablejobs.jobs.MapRefreshJob;
 import durablejobs.jobs.OldJobCleanupJob;
 import durablejobs.jobs.ReportingDashboardMonthlyRefreshJob;
@@ -164,13 +163,7 @@ public final class DurableJobModule extends AbstractModule {
                 publicStorageClient, versionRepository, persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.ThirdOfMonth2Am());
 
-    durableJobRegistry.register(
-        DurableJobName.CALCULATE_ELIGIBILITY_DETERMINATION_JOB,
-        JobType.RECURRING,
-        persistedDurableJob ->
-            new CalculateEligibilityDeterminationJob(
-                applicantService, programService, persistedDurableJob),
-        new RecurringJobExecutionTimeResolvers.Sunday2Am());
+    // TODO(#12749): Re-register CalculateEligibilityDeterminationJob once bugs are fixed
 
     if (config.getBoolean("map_question_enabled")
         && config.getBoolean("durable_jobs.map_refresh")) {
