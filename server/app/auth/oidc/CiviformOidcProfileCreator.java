@@ -212,12 +212,13 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     }
 
     Optional<ApplicantModel> existingApplicant = getExistingApplicant(oidcProfile);
-    if (guestProfile.isPresent()) {
+    if (guestProfile.isPresent() && existingApplicant.isPresent()) {
       // If the civiform user is a TI or Admin, do not merge it with a guest.
       // The guest will be left a guest account as if they never logged in.
       // These users should not have applicant data, and should not be using
       // guest accounts to apply on behalf of others users
-      if (shouldDropGuestProfile(existingApplicant, oidcProfile, guestProfile.get())) {
+      if (shouldDropGuestProfile(existingApplicant.get().getAccount(),
+        guestProfile.get())) {
         guestProfile = Optional.empty();
       }
     }
@@ -235,16 +236,11 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
    */
   @VisibleForTesting
   boolean shouldDropGuestProfile(
-      Optional<ApplicantModel> existingApplicant,
-      OidcProfile oidcProfile,
+      AccountModel existingAccount,
       CiviFormProfile guestProfile) {
-    boolean isTi =
-        existingApplicant
-            .map(ApplicantModel::getAccount)
-            .filter(this::isTrustedIntermediary)
-            .isPresent();
-    boolean isProgramAdmin = oidcProfile.getRoles().contains(Role.ROLE_PROGRAM_ADMIN.toString());
-    boolean isCiviFormAdmin = oidcProfile.getRoles().contains(Role.ROLE_CIVIFORM_ADMIN.toString());
+    boolean isTi = isTrustedIntermediary(existingAccount);
+    boolean isProgramAdmin = !existingAccount.getAdministeredProgramNames().isEmpty();
+    boolean isCiviFormAdmin = existingAccount.getGlobalAdmin();
     if (isTi || isProgramAdmin || isCiviFormAdmin) {
       // Log if the TI/Admin is using guest accounts to apply.
       boolean guestHasApplications =
@@ -261,12 +257,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
 
         // We may not have an existing applicant if it's their first login.
         // If so, there is nothing else non identifying to log here.
-        var accountId =
-            existingApplicant
-                .map(ApplicantModel::getAccount)
-                .map(acct -> acct.id)
-                .map(Object::toString)
-                .orElse("<new account>");
+        var accountId =existingAccount.id.toString();
         logger.info(
             "{} Account ID {} applied as Guest Account ID {} and is logging in. Guest account will"
                 + " not be merged. They should not use guest accounts to apply for others.",
