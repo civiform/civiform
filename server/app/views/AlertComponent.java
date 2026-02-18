@@ -109,7 +109,13 @@ public final class AlertComponent {
    * @return DivTag containing the alert.
    */
   public static DivTag renderFullAlert(String text, String... classes) {
-    return renderFullAlert(AlertType.INFO, text, Optional.empty(), false, HeadingLevel.H4, classes);
+    return renderFullAlert(
+        AlertType.INFO,
+        text,
+        /* title= */ Optional.empty(),
+        /* hidden= */ false,
+        HeadingLevel.H4,
+        classes);
   }
 
   /**
@@ -152,6 +158,6 @@ public final class AlertComponent {
    * @return DivTag containing the alert.
    */
   public static DivTag renderSlimInfoAlert(String text, String... classes) {
-    return renderSlimAlert(AlertType.INFO, text, false, classes);
+    return renderSlimAlert(AlertType.INFO, text, /* hidden= */ false, classes);
   }
 }

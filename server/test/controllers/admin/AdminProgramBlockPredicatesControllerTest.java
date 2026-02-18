@@ -18,6 +18,7 @@ import java.util.Map;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.ProgramModel;
+import models.QuestionModel;
 import org.codehaus.plexus.util.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -738,10 +739,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
     String content = Helpers.contentAsString(result);
     assertThat(StringUtils.deleteWhitespace(content))
-        .contains(
-            String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.addressApplicantAddress().id));
+        .contains(createOptionTagForSelectedQuestion(testQuestionBank.addressApplicantAddress()));
     // Verify only scalars applicable to the selected question are shown
     assertThat(content).contains("service area");
     assertThat(content)
@@ -776,9 +774,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     // Verify that the question with id addressApplicantAddress is not selected.
     assertThat(StringUtils.deleteWhitespace(content))
         .doesNotContain(
-            String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.addressApplicantAddress().id));
+            createOptionTagForSelectedQuestion(testQuestionBank.addressApplicantAddress()));
     // Without a question selected, verify the form is in its default state with 4 default inputs
     // (question, scalar, operator value) and
     // scalar/operator/value/delete subcondition disabled.
@@ -863,14 +859,9 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     String content = Helpers.contentAsString(result);
     assertThat(StringUtils.deleteWhitespace(content))
         .doesNotContain(
-            String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.addressApplicantAddress().id));
+            createOptionTagForSelectedQuestion(testQuestionBank.addressApplicantAddress()));
     assertThat(StringUtils.deleteWhitespace(content))
-        .contains(
-            String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.dropdownApplicantIceCream().id));
+        .contains(createOptionTagForSelectedQuestion(testQuestionBank.dropdownApplicantIceCream()));
     assertThat(StringUtils.countMatches(content, "Add condition")).isEqualTo(1);
   }
 
@@ -894,15 +885,10 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
     String content = Helpers.contentAsString(result);
     assertThat(StringUtils.deleteWhitespace(content))
-        .contains(
-            String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.addressApplicantAddress().id));
+        .contains(createOptionTagForSelectedQuestion(testQuestionBank.addressApplicantAddress()));
     assertThat(StringUtils.deleteWhitespace(content))
         .doesNotContain(
-            String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.dropdownApplicantIceCream().id));
+            createOptionTagForSelectedQuestion(testQuestionBank.dropdownApplicantIceCream()));
     assertThat(StringUtils.countMatches(content, "Add condition")).isEqualTo(1);
   }
 
@@ -953,14 +939,9 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     String content = Helpers.contentAsString(result);
     assertThat(StringUtils.deleteWhitespace(content))
         .doesNotContain(
-            String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.addressApplicantAddress().id));
+            createOptionTagForSelectedQuestion(testQuestionBank.addressApplicantAddress()));
     assertThat(StringUtils.deleteWhitespace(content))
-        .contains(
-            String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.dropdownApplicantIceCream().id));
+        .contains(createOptionTagForSelectedQuestion(testQuestionBank.dropdownApplicantIceCream()));
     assertThat(StringUtils.countMatches(content, "Add sub-condition")).isEqualTo(1);
   }
 
@@ -986,15 +967,10 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
     String content = Helpers.contentAsString(result);
     assertThat(StringUtils.deleteWhitespace(content))
-        .contains(
-            String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.addressApplicantAddress().id));
+        .contains(createOptionTagForSelectedQuestion(testQuestionBank.addressApplicantAddress()));
     assertThat(StringUtils.deleteWhitespace(content))
         .doesNotContain(
-            String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.dropdownApplicantIceCream().id));
+            createOptionTagForSelectedQuestion(testQuestionBank.dropdownApplicantIceCream()));
     assertThat(StringUtils.countMatches(content, "Add sub-condition")).isEqualTo(1);
   }
 
@@ -1028,10 +1004,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     String contentWithoutWhitespace = StringUtils.deleteWhitespace(content);
     assertThat(content).doesNotContain("firstname");
     assertThat(contentWithoutWhitespace)
-        .doesNotContain(
-            String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.nameApplicantName().id));
+        .doesNotContain(createOptionTagForSelectedQuestion(testQuestionBank.nameApplicantName()));
     assertThat(content).contains("#predicate-conditions-list");
     assertThat(contentWithoutWhitespace).doesNotContain("Condition1");
     assertThat(StringUtils.countMatches(content, "Add condition")).isEqualTo(1);
@@ -1090,5 +1063,14 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     }
 
     return conditionMap;
+  }
+
+  // Create a (no-whitespace) option tag string for a given question that matches the format used in
+  // the form. Used to check that the correct question is selected in the form after an edit.
+  private static String createOptionTagForSelectedQuestion(QuestionModel questionModel) {
+    return String.format(
+        "<optionvalue=\"%d\"data-question-name=\"%s\"selected=\"selected\">",
+        questionModel.id,
+        StringUtils.deleteWhitespace(questionModel.getQuestionDefinition().getName()));
   }
 }

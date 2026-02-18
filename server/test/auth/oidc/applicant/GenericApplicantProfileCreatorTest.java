@@ -87,7 +87,8 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
     profile.setId(SUBJECT);
 
     CiviFormProfileData profileData =
-        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile);
+        oidcProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviFormProfile= */ Optional.empty(), profile);
     assertThat(profileData).isNotNull();
     assertThat(profileData.getEmail()).isEqualTo("foo@bar.com");
 
@@ -108,7 +109,8 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
     profile.setId(SUBJECT);
 
     CiviFormProfileData profileData =
-        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile);
+        oidcProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviFormProfile= */ Optional.empty(), profile);
     assertThat(profileData).isNotNull();
     assertThat(profileData.getEmail()).isEqualTo("foo@bar.com");
 
@@ -134,7 +136,8 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
     profile.setId(SUBJECT);
 
     CiviFormProfileData profileData =
-        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile);
+        oidcProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviFormProfile= */ Optional.empty(), profile);
     assertThat(profileData).isNotNull();
     assertThat(profileData.getEmail()).isEqualTo("foo@bar.com");
 
