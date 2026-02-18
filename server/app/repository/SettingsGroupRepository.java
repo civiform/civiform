@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.cache.NamedCache;
 import play.cache.SyncCacheApi;
-import services.settings.SettingsManifest;
 
 /** Contains queries related to the server settings system. */
 public final class SettingsGroupRepository {
@@ -26,17 +25,14 @@ public final class SettingsGroupRepository {
 
   private final Database database;
   private final DatabaseExecutionContext databaseExecutionContext;
-  private final SettingsManifest settingsManifest;
   private final SyncCacheApi settingsCache;
 
   @Inject
   public SettingsGroupRepository(
       DatabaseExecutionContext databaseExecutionContext,
-      SettingsManifest settingsManifest,
       @NamedCache("civiform-settings") SyncCacheApi settingsCache) {
     this.database = DB.getDefault();
     this.databaseExecutionContext = checkNotNull(databaseExecutionContext);
-    this.settingsManifest = checkNotNull(settingsManifest);
     this.settingsCache = checkNotNull(settingsCache);
   }
 
