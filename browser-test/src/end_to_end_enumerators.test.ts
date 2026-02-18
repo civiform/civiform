@@ -770,11 +770,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Navigate to another block, return and make sure the enumerator question is still visible', async () => {
-        await page
-          .getByRole('link', {
-            name: '[parent label] - Screen 3 (repeated from 2)',
-          })
-          .click()
+        await navigateToRepeatedScreen(page, 3, 2)
         await page.getByRole('link', {name: 'Screen 2'}).click()
         await expectCurrentBlockTitle(
           /* isRepeatedBlock= */ false,
@@ -915,11 +911,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Click on the new repeated screen in the block order panel', async () => {
-        await page
-          .getByRole('link', {
-            name: '[parent label] - Screen 4 (repeated from 2)',
-          })
-          .click()
+        await navigateToRepeatedScreen(page, 4, 2)
       })
 
       await test.step('Verify that we can add a repeated screen from another repeated screen', async () => {
@@ -947,13 +939,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await waitForPageJsLoad(page)
       })
 
-      await test.step('Navigate to repeated screen', async () => {
-        await page
-          .getByRole('link', {
-            name: '[parent label] - Screen 3 (repeated from 2)',
-          })
-          .click()
-      })
+      await navigateToRepeatedScreen(page, 3, 2)
 
       const modalPrefix = page.getByTestId('name-prefix')
 
@@ -983,56 +969,135 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(currentModalPrefix).toHaveText('[parent label] -')
       })
     })
-
-    async function fillOutEnumeratorQuestionFormCorrectly(page: Page) {
-      const blockPanel = page.getByTestId('block-panel-edit')
-
-      await test.step('Fill out the new enumerator question form and submit it', async () => {
-        const listedEntityInput = blockPanel.getByRole('textbox', {
-          name: 'Listed entity',
-        })
-        await expect(listedEntityInput).toHaveAttribute('aria-required', 'true')
-        await listedEntityInput.fill('Pets')
-
-        const questionTextInput = blockPanel.getByRole('textbox', {
-          name: 'Question text',
-        })
-        await expect(questionTextInput).toHaveAttribute('aria-required', 'true')
-        await questionTextInput.fill('List the names of your pets.')
-
-        const adminIdInput = blockPanel.getByRole('textbox', {
-          name: 'Repeated set admin ID',
-        })
-        await expect(adminIdInput).toHaveAttribute('aria-required', 'true')
-        await adminIdInput.fill('pets enumerator')
-
-        await blockPanel.getByRole('textbox', {name: 'Hint text'}).fill('Hint')
-        await blockPanel
-          .getByRole('button', {name: 'Create repeated set'})
-          .click()
-        await waitForHtmxReady(page)
-      })
-    }
-
-    async function expectCurrentBlockTitle(
-      isRepeatedBlock: boolean,
-      blockPanel: Locator,
-      expectedScreenNumber: number,
-      repeatedFrom?: number,
-    ) {
-      if (!isRepeatedBlock) {
-        await expect(
-          blockPanel.getByText(`Screen ${expectedScreenNumber}`, {
-            exact: true,
-          }),
-        ).toBeVisible()
-      } else {
-        await expect(
-          blockPanel.getByText(
-            `[parent label] - Screen ${expectedScreenNumber} (repeated from ${repeatedFrom})`,
-          ),
-        ).toBeVisible()
-      }
-    }
   })
+
+  test.describe('Applicant', () => {
+    const programName = 'Enumerator test program'
+    const questionName = 'enumerator-ete-repeated-name'
+
+    test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(programName)
+
+      await adminPrograms.gotoEditDraftProgramPage(programName)
+
+      await test.step('Add a new repeated set', async () => {
+        await page.getByRole('button', {name: 'Add screen'}).first().click()
+        await page.getByRole('button', {name: 'Add repeated set'}).click()
+      })
+
+      await test.step('Select the repeated set block from the block order panel', async () => {
+        await page.getByRole('link', {name: 'Screen 2'}).click()
+      })
+
+      await fillOutEnumeratorQuestionFormCorrectly(page)
+
+      await adminQuestions.addNameQuestion({
+        questionName: 'enumerator-ete-repeated-name',
+        description: 'desc',
+        questionText: 'Name for $this',
+        helpText: 'full name for $this',
+        enumeratorName: 'pets enumerator',
+      })
+
+      await adminPrograms.gotoEditDraftProgramPage(programName)
+
+      await navigateToRepeatedScreen(page, 3, 2)
+
+      await test.step('Add a question to the repeated screen and publish the program', async () => {
+        await adminPrograms.addQuestionFromQuestionBank(questionName)
+        await adminPrograms.publishProgram(programName)
+      })
+
+      await logout(page)
+    })
+
+    test('sees repeated entity name in the screen name', async ({
+      applicantQuestions,
+      page,
+    }) => {
+      await test.step('Apply to the program', async () => {
+        await applicantQuestions.applyProgram(programName)
+      })
+
+      await test.step('Enter two repeated entity names on the enumerator screen', async () => {
+        await page.getByRole('button', {name: 'Add Pets'}).click()
+        await page.getByRole('textbox', {name: 'Pets name #1'}).fill('Bugs')
+      })
+
+      await test.step('Go to review screen and check the repeated entity names in the screen names', async () => {
+        await page.getByRole('button', {name: 'Review and submit'}).click()
+        await expect(
+          page.getByText(`Bugs - Screen 3 (repeated from 2)`),
+        ).toBeVisible()
+      })
+
+      // TODO(Once #12023 is complete): Also test with repeated screens under a nested enumerator
+    })
+  })
+
+  async function fillOutEnumeratorQuestionFormCorrectly(page: Page) {
+    const blockPanel = page.getByTestId('block-panel-edit')
+
+    await test.step('Fill out the new enumerator question form and submit it', async () => {
+      const listedEntityInput = blockPanel.getByRole('textbox', {
+        name: 'Listed entity',
+      })
+      await expect(listedEntityInput).toHaveAttribute('aria-required', 'true')
+      await listedEntityInput.fill('Pets')
+
+      const questionTextInput = blockPanel.getByRole('textbox', {
+        name: 'Question text',
+      })
+      await expect(questionTextInput).toHaveAttribute('aria-required', 'true')
+      await questionTextInput.fill('List the names of your pets.')
+
+      const adminIdInput = blockPanel.getByRole('textbox', {
+        name: 'Repeated set admin ID',
+      })
+      await expect(adminIdInput).toHaveAttribute('aria-required', 'true')
+      await adminIdInput.fill('pets enumerator')
+
+      await blockPanel.getByRole('textbox', {name: 'Hint text'}).fill('Hint')
+      await blockPanel
+        .getByRole('button', {name: 'Create repeated set'})
+        .click()
+      await waitForHtmxReady(page)
+    })
+  }
+
+  async function expectCurrentBlockTitle(
+    isRepeatedBlock: boolean,
+    blockPanel: Locator,
+    expectedScreenNumber: number,
+    repeatedFrom?: number,
+  ) {
+    if (!isRepeatedBlock) {
+      await expect(
+        blockPanel.getByText(`Screen ${expectedScreenNumber}`, {
+          exact: true,
+        }),
+      ).toBeVisible()
+    } else {
+      await expect(
+        blockPanel.getByText(
+          `[parent label] - Screen ${expectedScreenNumber} (repeated from ${repeatedFrom})`,
+        ),
+      ).toBeVisible()
+    }
+  }
+
+  async function navigateToRepeatedScreen(
+    page: Page,
+    screenNumber: number,
+    repeatedFrom: number,
+  ) {
+    await test.step('Navigate to repeated screen', async () => {
+      await page
+        .getByRole('link', {
+          name: `[parent label] - Screen ${screenNumber} (repeated from ${repeatedFrom})`,
+        })
+        .click()
+    })
+  }
 })
