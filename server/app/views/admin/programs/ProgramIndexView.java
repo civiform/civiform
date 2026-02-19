@@ -469,7 +469,8 @@ public final class ProgramIndexView extends BaseHtmlView {
             new LinkElement()
                 .setText("Edit")
                 .setHref(routes.AdminQuestionController.edit(question.getId(), redirectUrl).url())
-                .asAnchorText())
+                .asAnchorText()
+                .attr("data-testid", question.getName()))
         .withClass("pt-2");
   }
 

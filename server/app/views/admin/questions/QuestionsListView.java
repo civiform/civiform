@@ -662,11 +662,9 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   private ButtonTag renderQuestionEditLink(QuestionDefinition definition, boolean isVisible) {
-    // The default redirect from the question edit page is back to the question list view, so we can
-    // leave this redirect url blank
-    String redirectUrl = "";
     String link =
-        controllers.admin.routes.AdminQuestionController.edit(definition.getId(), redirectUrl)
+        controllers.admin.routes.AdminQuestionController.edit(
+                definition.getId(), /* redirectUrl= */ "")
             .url();
     return asRedirectElement(
         makeSvgTextButton("Edit", Icons.EDIT)

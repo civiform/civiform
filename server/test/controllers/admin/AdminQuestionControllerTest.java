@@ -349,6 +349,8 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             originalNameQuestion.getQuestionDefinition().getQuestionType().toString());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
+
+    // Redirects to the question index page since redirectUrl is not explicitly set
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminQuestionController.index(Optional.empty()).url());
     assertThat(result.flash().get(FlashKey.SUCCESS).get()).contains("updated");
@@ -364,6 +366,39 @@ public class AdminQuestionControllerTest extends ResetPostgres {
         .isEqualTo("a new description");
     assertThat(updatedNameQuestion.getQuestionTags())
         .isEqualTo(ImmutableList.of(QuestionTag.DEMOGRAPHIC_PII));
+  }
+
+  @Test
+  public void update_redirectsToRedirectUrlAfterUpdateIfOneIsSet() {
+    // We can only update draft questions, so save this in the DRAFT version.
+    QuestionModel originalNameQuestion =
+        testQuestionBank.maybeSave(
+            this.createNameQuestionDuplicate(testQuestionBank.nameApplicantName()),
+            LifecycleStage.DRAFT);
+
+    String redirectUrl = routes.AdminProgramBlocksController.edit(1L, 1L).url();
+
+    ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
+    formData
+        .put("questionName", originalNameQuestion.getQuestionDefinition().getName())
+        .put("questionDescription", "a new description")
+        .put("questionType", originalNameQuestion.getQuestionDefinition().getQuestionType().name())
+        .put("questionText", "question text updated")
+        .put("questionHelpText", "a new help text")
+        .put("questionExportState", "DEMOGRAPHIC_PII")
+        .put("concurrencyToken", originalNameQuestion.getConcurrencyToken().toString())
+        .put("redirectUrl", redirectUrl);
+    RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(formData.build());
+
+    Result result =
+        controller.update(
+            requestBuilder.build(),
+            originalNameQuestion.getQuestionDefinition().getId(),
+            originalNameQuestion.getQuestionDefinition().getQuestionType().toString());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue(redirectUrl);
+    assertThat(result.flash().get(FlashKey.SUCCESS).get()).contains("updated");
   }
 
   @Test

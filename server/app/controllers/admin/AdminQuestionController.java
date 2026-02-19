@@ -385,7 +385,6 @@ public final class AdminQuestionController extends CiviFormController {
     }
 
     if (errorAndUpdatedQuestionDefinition.isError()) {
-      // probably will need to pass in redirect url here too so it carries it forward
       ToastMessage errorMessage =
           ToastMessage.errorNonLocalized(joinErrors(errorAndUpdatedQuestionDefinition.getErrors()));
       Optional<QuestionDefinition> maybeEnumerationQuestion =

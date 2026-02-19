@@ -762,17 +762,30 @@ test.describe('program creation', () => {
     adminQuestions,
     adminProgramImage,
   }) => {
+    const programName = 'Test program'
+    const questionName = 'text-question'
+
     await test.step('setup program with question', async () => {
       await loginAsAdmin(page)
-      await adminQuestions.addTextQuestion({questionName: 'text-question'})
-      await adminPrograms.addProgram('Test program')
+      await adminQuestions.addTextQuestion({questionName})
+      await adminPrograms.addProgram(programName)
       await adminProgramImage.clickContinueButton()
-      await adminPrograms.addQuestionFromQuestionBank('text-question')
+      await adminPrograms.addQuestionFromQuestionBank(questionName)
     })
 
     await test.step('click edit question link', async () => {
-      await adminPrograms.editQuestion('text-question')
-      await adminQuestions.expectQuestionEditPage('text-question')
+      await adminPrograms.editQuestion(questionName)
+      await adminQuestions.expectQuestionEditPage(questionName)
+    })
+
+    await test.step('update question and redirect to edit block screen', async () => {
+      await adminQuestions.updateQuestionText('updated')
+      await adminQuestions.clickSubmitButtonAndNavigate('Update')
+      await adminPrograms.expectProgramBlockEditPage(programName)
+      await adminPrograms.expectQuestionCardWithLabel(
+        questionName,
+        questionName,
+      )
     })
   })
 
