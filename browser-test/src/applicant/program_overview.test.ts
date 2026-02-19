@@ -1,7 +1,6 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
   ClientInformation,
-  disableFeatureFlag,
   loginAsAdmin,
   loginAsTrustedIntermediary,
   loginAsTestUser,
@@ -20,7 +19,6 @@ test.describe('Applicant program overview', () => {
   test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
     await test.step('create a new program with one text question', async () => {
       await loginAsAdmin(page)
-      await disableFeatureFlag(page, 'expanded_form_logic_enabled')
       await adminQuestions.addTextQuestion({
         questionName: 'text question',
         questionText: questionText,
@@ -191,13 +189,17 @@ test.describe('Applicant program overview', () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         secondProgram,
         'Screen 1',
+        /* expandedFormLogicEnabled= */ true,
       )
-      await adminPredicates.addPredicates({
-        questionName: 'text question',
-        scalar: 'text',
-        operator: 'is equal to',
-        value: 'eligible',
-      })
+      await adminPredicates.addPredicates(
+        /* expandedFormLogicEnabled= */ true,
+        {
+          questionName: 'text question',
+          scalar: 'text',
+          operator: 'is equal to',
+          value: 'eligible',
+        },
+      )
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishProgram(secondProgram)
       await logout(page)
