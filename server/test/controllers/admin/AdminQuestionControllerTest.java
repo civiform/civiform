@@ -820,10 +820,13 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             question.getQuestionDefinition().getId(),
             question.getQuestionDefinition().getQuestionType().toString());
 
+    // URL the user will be sent to after successful submission of the question form
+    String redirectUrl = routes.AdminQuestionController.index(Optional.empty()).url();
+
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.flash().data()).containsKey(FlashKey.CONCURRENT_UPDATE);
     assertThat(result.redirectLocation())
-        .hasValue(routes.AdminQuestionController.edit(question.id, /* redirectUrl= */ "").url());
+        .hasValue(routes.AdminQuestionController.edit(question.id, redirectUrl).url());
   }
 
   @Test
@@ -851,10 +854,13 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             question.getQuestionDefinition().getId(),
             question.getQuestionDefinition().getQuestionType().toString());
 
+    // URL the user will be sent to after successful submission of the question form
+    String redirectUrl = routes.AdminQuestionController.index(Optional.empty()).url();
+
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.flash().data()).containsKey(FlashKey.CONCURRENT_UPDATE);
     assertThat(result.redirectLocation())
-        .hasValue(routes.AdminQuestionController.edit(question.id, /* redirectUrl= */ "").url());
+        .hasValue(routes.AdminQuestionController.edit(question.id, redirectUrl).url());
   }
 
   @Test
