@@ -1,4 +1,5 @@
 import {ToastController} from '@/toast'
+import {default as uswdsModal} from '@uswds/uswds/js/usa-modal'
 
 /**
  * There are two types of session timeouts, each with its own warning modal.
@@ -326,10 +327,24 @@ export class SessionTimeoutHandler {
         ? `${SessionModalType.INACTIVITY}-modal`
         : `${SessionModalType.LENGTH}-modal`
 
-    const openButton = document.getElementById(
-      `invisible-${modalId}-button`,
-    ) as HTMLElement
-    openButton?.click()
+    const wrapper = document.getElementById(modalId)
+
+    if (!wrapper || !wrapper.classList.contains('usa-modal-wrapper')) {
+      return
+    }
+
+    // Use the USWDS toggleModal API directly with a fake event/target,
+    // the same pattern used in components/shared/modal.ts.
+    const fakeTarget = {
+      getAttribute: (attr: string) =>
+        attr === 'aria-controls' ? modalId : null,
+      setAttribute: () => {},
+      hasAttribute: (attr: string) => attr === 'data-open-modal',
+      closest: () => null,
+    } as Partial<HTMLElement> as HTMLElement
+
+    const fakeEvent = {target: fakeTarget, type: 'click'}
+    uswdsModal.toggleModal.call(fakeTarget, fakeEvent)
 
     if (type === WarningType.INACTIVITY) {
       this.inactivityWarningVisible = true
