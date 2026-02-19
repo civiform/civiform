@@ -230,7 +230,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
   /**
    * If the CiviForm user is a TI or Admin, and not a standard user, log and return as such.
    *
-   * @return if the guest should not be used based on the logged-in users type being not a standard
+   * @return whether or not the guest should be used based on the logged-in users type
    *     applicant user type.
    */
   @VisibleForTesting
