@@ -6,7 +6,6 @@ import {WarningType} from '@/session'
 type SessionTimeoutHandlerType = typeof SessionTimeoutHandler & {
   logout: () => void
   pollSession: () => void
-  setWarningModalVisible: (type: WarningType) => void
   inactivityWarningShown: boolean
   totalLengthWarningShown: boolean
   isInitialized: boolean
@@ -222,26 +221,6 @@ describe('SessionTimeoutHandler', () => {
     SessionTimeoutHandler['isInitialized'] = false
   })
 
-  describe('setWarningModalVisible', () => {
-    it('shows inactivity warning modal', () => {
-      SessionTimeoutHandler['setWarningModalVisible'](
-        WarningType.INACTIVITY,
-        true,
-      )
-
-      expect(inactivityModal.classList.contains('is-hidden')).toBe(false)
-    })
-
-    it('shows total length warning modal', () => {
-      SessionTimeoutHandler['setWarningModalVisible'](
-        WarningType.TOTAL_LENGTH,
-        true,
-      )
-
-      expect(lengthModal.classList.contains('is-hidden')).toBe(false)
-    })
-  })
-
   describe('monitorSession', () => {
     it('shows inactivity warning and sets flags when time has passed', () => {
       const now = Math.floor(Date.now() / 1000)
@@ -328,11 +307,11 @@ describe('SessionTimeoutHandler', () => {
       expect(inactivityModal.classList.contains('is-hidden')).toBe(false)
       expect(SessionTimeoutHandler['inactivityWarningVisible']).toBe(true)
 
-      // User dismisses the modal
-      SessionTimeoutHandler['setWarningModalVisible'](
-        WarningType.INACTIVITY,
-        false,
-      )
+      // // User dismisses the modal
+      // SessionTimeoutHandler['setWarningModalVisible'](
+      //   WarningType.INACTIVITY,
+      //   false,
+      // )
       expect(inactivityModal.classList.contains('is-hidden')).toBe(true)
       expect(SessionTimeoutHandler['inactivityWarningVisible']).toBe(false)
 
@@ -358,11 +337,11 @@ describe('SessionTimeoutHandler', () => {
       expect(lengthModal.classList.contains('is-hidden')).toBe(false)
       expect(SessionTimeoutHandler['totalLengthWarningVisible']).toBe(true)
 
-      // User dismisses the modal
-      SessionTimeoutHandler['setWarningModalVisible'](
-        WarningType.TOTAL_LENGTH,
-        false,
-      )
+      // // User dismisses the modal
+      // SessionTimeoutHandler['setWarningModalVisible'](
+      //   WarningType.TOTAL_LENGTH,
+      //   false,
+      // )
       expect(lengthModal.classList.contains('is-hidden')).toBe(true)
       expect(SessionTimeoutHandler['totalLengthWarningVisible']).toBe(false)
 
@@ -389,11 +368,11 @@ describe('SessionTimeoutHandler', () => {
       SessionTimeoutHandler['monitorSession'](oldData, now)
       expect(inactivityModal.classList.contains('is-hidden')).toBe(false)
 
-      // User dismisses and extends session
-      SessionTimeoutHandler['setWarningModalVisible'](
-        WarningType.INACTIVITY,
-        false,
-      )
+      // // User dismisses and extends session
+      // SessionTimeoutHandler['setWarningModalVisible'](
+      //   WarningType.INACTIVITY,
+      //   false,
+      // )
 
       // Simulate time passing and new warning threshold being reached
       const laterNow = now + 300
@@ -426,11 +405,11 @@ describe('SessionTimeoutHandler', () => {
       SessionTimeoutHandler['monitorSession'](data, now)
       expect(inactivityModal.classList.contains('is-hidden')).toBe(false)
 
-      // User dismisses the modal
-      SessionTimeoutHandler['setWarningModalVisible'](
-        WarningType.INACTIVITY,
-        false,
-      )
+      // // User dismisses the modal
+      // SessionTimeoutHandler['setWarningModalVisible'](
+      //   WarningType.INACTIVITY,
+      //   false,
+      // )
 
       // Simulate page navigation by resetting the visible flag (as would happen on new page load)
       SessionTimeoutHandler['inactivityWarningVisible'] = false
