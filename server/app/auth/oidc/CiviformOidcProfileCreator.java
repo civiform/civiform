@@ -230,8 +230,8 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
   /**
    * If the CiviForm user is a TI or Admin, and not a standard user, log and return as such.
    *
-   * @return whether or not the guest should be used based on the logged-in users type
-   *     applicant user type.
+   * @return whether or not the guest should be used based on the logged-in users type applicant
+   *     user type.
    */
   @VisibleForTesting
   boolean shouldDropGuestProfile(AccountModel existingAccount, CiviFormProfile guestProfile) {
@@ -257,12 +257,10 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
           accountDescriptor = "CiviForm Admin";
         }
 
-        // We may not have an existing applicant if it's their first login.
-        // If so, there is nothing else non identifying to log here.
         var accountId = existingAccount.id.toString();
         logger.info(
-            "{} Account ID {} applied as Guest Account ID {} and is logging in. Guest account will"
-                + " not be merged. They should not use guest accounts to apply for others.",
+            "{} Account ID {} applied as Guest Account ID {} and is logging "
+                + "in. This is typically undesired. The Guest account will not be merged.",
             accountDescriptor,
             accountId,
             guestProfile.getAccount().join().id);
