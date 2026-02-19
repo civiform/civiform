@@ -535,6 +535,64 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     assertThat(guestApplicant.getApplications()).hasSize(guestHasApplications ? 1 : 0);
   }
 
+  @Test
+  public void shouldDropGuestProfile_ti_returnsTrue() {
+    ApplicantModel tiApplicant = makeTrustedIntermediary();
+    AccountModel tiAccount = tiApplicant.getAccount();
+    CiviFormProfile guestProfile =
+        profileFactory.wrapProfileData(profileFactory.createNewApplicant());
+    resourceCreator.insertActiveApplication(
+        guestProfile.getApplicant().join(), resourceCreator.insertActiveProgram("test-program"));
+
+    CiviformOidcProfileCreator creator = getOidcProfileCreator();
+
+    assertThat(creator.shouldDropGuestProfile(tiAccount, guestProfile)).isTrue();
+  }
+
+  @Test
+  public void shouldDropGuestProfile_programAdmin_returnsTrue() {
+    AccountModel adminAccount = resourceCreator.insertAccount();
+    adminAccount.addAdministeredProgram(
+        resourceCreator.insertActiveProgram("administered-program").getProgramDefinition());
+    adminAccount.save();
+    CiviFormProfile guestProfile =
+        profileFactory.wrapProfileData(profileFactory.createNewApplicant());
+    resourceCreator.insertActiveApplication(
+        guestProfile.getApplicant().join(), resourceCreator.insertActiveProgram("test-program"));
+
+    CiviformOidcProfileCreator creator = getOidcProfileCreator();
+
+    assertThat(creator.shouldDropGuestProfile(adminAccount, guestProfile)).isTrue();
+  }
+
+  @Test
+  public void shouldDropGuestProfile_civiFormAdmin_returnsTrue() {
+    AccountModel adminAccount = resourceCreator.insertAccount();
+    adminAccount.setGlobalAdmin(true);
+    adminAccount.save();
+    CiviFormProfile guestProfile =
+        profileFactory.wrapProfileData(profileFactory.createNewApplicant());
+    resourceCreator.insertActiveApplication(
+        guestProfile.getApplicant().join(), resourceCreator.insertActiveProgram("test-program"));
+
+    CiviformOidcProfileCreator creator = getOidcProfileCreator();
+
+    assertThat(creator.shouldDropGuestProfile(adminAccount, guestProfile)).isTrue();
+  }
+
+  @Test
+  public void shouldDropGuestProfile_regularApplicant_returnsFalse() {
+    AccountModel regularAccount = resourceCreator.insertAccount();
+    CiviFormProfile guestProfile =
+        profileFactory.wrapProfileData(profileFactory.createNewApplicant());
+    resourceCreator.insertActiveApplication(
+        guestProfile.getApplicant().join(), resourceCreator.insertActiveProgram("test-program"));
+
+    CiviformOidcProfileCreator creator = getOidcProfileCreator();
+
+    assertThat(creator.shouldDropGuestProfile(regularAccount, guestProfile)).isFalse();
+  }
+
   /**
    * Returns an OidcProfile with required fields set. Uses the same constants as the main profile
    * created in setup() to ensure consistent authority IDs across tests.

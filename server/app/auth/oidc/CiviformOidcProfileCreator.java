@@ -9,10 +9,8 @@ import auth.ProfileUtils;
 import auth.Role;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import javax.inject.Provider;
 import models.AccountModel;
@@ -214,38 +212,61 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     }
 
     Optional<ApplicantModel> existingApplicant = getExistingApplicant(oidcProfile);
-    // If the civiform user is a TI, do not merge it with a guest.
-    // The guest will be left a guest account as if they never logged in.
-    // TIs should not have applicant data, and should not be using guest
-    // accounts to apply for clients.
-    boolean isTi =
-        existingApplicant.filter(app -> isTrustedIntermediary(app.getAccount())).isPresent();
-    if (isTi) {
-      // Log if the TI is using guest accounts for clients, which they shouldn't do.
-      var optionalGuestApplicant =
-          guestProfile.map(CiviFormProfile::getApplicant).map(CompletableFuture::join);
-      if (optionalGuestApplicant.isPresent()) {
-        boolean guestHasApplications =
-            !optionalGuestApplicant
-                .map(ApplicantModel::getApplications)
-                .orElse(ImmutableList.of())
-                .isEmpty();
-        if (guestHasApplications) {
-          logger.info(
-              "TI Account ID {} applied as Guest Account ID {} and is logging in. Guest account"
-                  + " will not be merged. TIs should not use guest accounts to apply for clients.",
-              existingApplicant.get().getAccount().id,
-              guestProfile.get().getAccount().join().id);
-        }
+    if (guestProfile.isPresent() && existingApplicant.isPresent()) {
+      // If the civiform user is a TI or Admin, do not merge it with a guest.
+      // The guest will be left a guest account as if they never logged in.
+      // These users should not have applicant data, and should not be using
+      // guest accounts to apply on behalf of others users
+      if (shouldDropGuestProfile(existingApplicant.get().getAccount(), guestProfile.get())) {
+        guestProfile = Optional.empty();
       }
-
-      // The above is all logging, this drops the guest.
-      guestProfile = Optional.empty();
     }
 
     Function<Optional<CiviFormProfile>, UserProfile> mergeFunction =
         (civiFormProfile) -> this.mergeCiviFormProfile(civiFormProfile, oidcProfile);
     return civiFormProfileMerger.mergeProfiles(existingApplicant, guestProfile, mergeFunction);
+  }
+
+  /**
+   * If the CiviForm user is a TI or Admin, and not a standard user, log and return as such.
+   *
+   * @return whether or not the guest should be used based on the logged-in users type.
+   */
+  @VisibleForTesting
+  boolean shouldDropGuestProfile(AccountModel existingAccount, CiviFormProfile guestProfile) {
+    boolean isTi = isTrustedIntermediary(existingAccount);
+    boolean isProgramAdmin = !existingAccount.getAdministeredProgramNames().isEmpty();
+    // Note: Despite the auth profile determining who is a CF admin, the CF
+    // account is used here to reduce complexity and because the likelihood of
+    // a CF admin logging in only after their status has changed, and they
+    // applied as a guest is very small.
+    boolean isCiviFormAdmin = existingAccount.getGlobalAdmin();
+
+    if (isTi || isProgramAdmin || isCiviFormAdmin) {
+      // Log if the TI/Admin is using guest accounts to apply.
+      boolean guestHasApplications =
+          !guestProfile.getApplicant().join().getApplications().isEmpty();
+      if (guestHasApplications) {
+        String accountDescriptor = "";
+        if (isTi) {
+          accountDescriptor = "TI";
+        } else if (isProgramAdmin) {
+          accountDescriptor = "Program Admin";
+        } else if (isCiviFormAdmin) {
+          accountDescriptor = "CiviForm Admin";
+        }
+
+        var accountId = existingAccount.id.toString();
+        logger.info(
+            "{} Account ID {} applied as Guest Account ID {} and is logging "
+                + "in. This is typically undesired. The Guest account will not be merged.",
+            accountDescriptor,
+            accountId,
+            guestProfile.getAccount().join().id);
+      }
+      return true;
+    }
+    return false;
   }
 
   @VisibleForTesting
