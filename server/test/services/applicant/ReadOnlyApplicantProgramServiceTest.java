@@ -985,9 +985,9 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
     ProgramDefinition program =
         ProgramBuilder.newActiveProgram()
             .withBlock() // Block is completed
-            .withQuestionDefinition(nameQuestion, true)
+            .withQuestionDefinition(nameQuestion, /* optional= */ true)
             .withBlock() // Block incomplete; this is what predicate is based on
-            .withQuestionDefinition(colorQuestion, false)
+            .withQuestionDefinition(colorQuestion, /* optional= */ false)
             .buildDefinition();
     QuestionAnswerer.addMetadata(
         applicantData,
@@ -1007,9 +1007,9 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
     ProgramDefinition program =
         ProgramBuilder.newActiveProgram()
             .withBlock() // Block is completed
-            .withQuestionDefinition(nameQuestion, true)
+            .withQuestionDefinition(nameQuestion, /* optional= */ true)
             .withBlock() // Block incomplete; this is what predicate is based on
-            .withQuestionDefinition(colorQuestion, false)
+            .withQuestionDefinition(colorQuestion, /* optional= */ false)
             .buildDefinition();
     QuestionAnswerer.addMetadata(
         applicantData,
@@ -1029,9 +1029,9 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
     ProgramDefinition program =
         ProgramBuilder.newActiveProgram()
             .withBlock() // Block is completed
-            .withQuestionDefinition(nameQuestion, false)
+            .withQuestionDefinition(nameQuestion, /* optional= */ false)
             .withBlock() // Block incomplete; this is what predicate is based on
-            .withQuestionDefinition(colorQuestion, false)
+            .withQuestionDefinition(colorQuestion, /* optional= */ false)
             .buildDefinition();
     QuestionAnswerer.addMetadata(
         applicantData,

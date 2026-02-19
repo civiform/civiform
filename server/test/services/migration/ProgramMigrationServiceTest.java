@@ -71,13 +71,17 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
   private static final String DROPDOWN_QUESTION_NAME = "dropdownQuestion";
 
   private static final QuestionDefinition QUESTION_1 =
-      createQuestionDefinition(QUESTION_1_NAME, 1L, QuestionType.TEXT, Optional.empty());
+      createQuestionDefinition(
+          QUESTION_1_NAME, 1L, QuestionType.TEXT, /* enumeratorId= */ Optional.empty());
   private static final QuestionDefinition QUESTION_2 =
-      createQuestionDefinition(QUESTION_2_NAME, 2L, QuestionType.TEXT, Optional.empty());
+      createQuestionDefinition(
+          QUESTION_2_NAME, 2L, QuestionType.TEXT, /* enumeratorId= */ Optional.empty());
   private static final QuestionDefinition QUESTION_3 =
-      createQuestionDefinition(QUESTION_3_NAME, 3L, QuestionType.ADDRESS, Optional.empty());
+      createQuestionDefinition(
+          QUESTION_3_NAME, 3L, QuestionType.ADDRESS, /* enumeratorId= */ Optional.empty());
   private static final QuestionDefinition ENUMERATOR =
-      createQuestionDefinition("enumerator", 4L, QuestionType.ENUMERATOR, Optional.empty());
+      createQuestionDefinition(
+          "enumerator", 4L, QuestionType.ENUMERATOR, /* enumeratorId= */ Optional.empty());
   private static final QuestionDefinition REPEATED =
       createQuestionDefinition("repeated", 5L, QuestionType.TEXT, Optional.of(4L));
   private static final QuestionDefinition VALID_YES_NO_QUESTION =
@@ -419,7 +423,8 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
             .buildDefinition();
 
     ErrorAnd<ProgramModel, String> savedProgram =
-        service.saveImportedProgram(programDefinition, null, ImmutableMap.of());
+        service.saveImportedProgram(
+            programDefinition, /* questionDefinitions= */ null, ImmutableMap.of());
 
     assertThat(savedProgram.hasResult()).isTrue();
     assertThat(savedProgram.getResult().getProgramDefinition().adminName())
@@ -471,7 +476,10 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     // Q3 has the same name as Q1 would have after adding a deduping suffix
     QuestionDefinition question3 =
         createQuestionDefinition(
-            QUESTION_1_NAME + " -_- a", 3L, QuestionType.ADDRESS, Optional.empty());
+            QUESTION_1_NAME + " -_- a",
+            3L,
+            QuestionType.ADDRESS,
+            /* enumeratorId= */ Optional.empty());
     ProgramDefinition programDefinition =
         ProgramBuilder.newProgram("program1", PROGRAM_ID_1)
             .withBlock("Block A")
@@ -644,7 +652,8 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
             .withProgramType(ProgramType.DEFAULT)
             .buildDefinition();
     QuestionDefinition question =
-        createQuestionDefinition(QUESTION_1_NAME, 1L, QuestionType.TEXT, Optional.empty());
+        createQuestionDefinition(
+            QUESTION_1_NAME, 1L, QuestionType.TEXT, /* enumeratorId= */ Optional.empty());
     ImmutableList<QuestionDefinition> questionDefinitions = ImmutableList.of(question);
 
     service.saveImportedProgram(programDefinition, questionDefinitions, ImmutableMap.of());
@@ -774,7 +783,10 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
   public void validateQuestionKeyUniqueness_importTwoConflictingKeys_throws() {
     QuestionDefinition conflictingQuestion =
         createQuestionDefinition(
-            QUESTION_1_NAME + "01_023", 2L, QuestionType.TEXT, Optional.empty());
+            QUESTION_1_NAME + "01_023",
+            2L,
+            QuestionType.TEXT,
+            /* enumeratorId= */ Optional.empty());
     ImmutableList<QuestionDefinition> questions = ImmutableList.of(QUESTION_1, conflictingQuestion);
 
     Exception e =
@@ -792,7 +804,10 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     resourceCreator.insertQuestion(QUESTION_1_NAME);
     QuestionDefinition conflictingQuestion =
         createQuestionDefinition(
-            QUESTION_1_NAME + "01_023", 2L, QuestionType.TEXT, Optional.empty());
+            QUESTION_1_NAME + "01_023",
+            2L,
+            QuestionType.TEXT,
+            /* enumeratorId= */ Optional.empty());
     ImmutableList<QuestionDefinition> questions = ImmutableList.of(conflictingQuestion);
 
     Exception e =

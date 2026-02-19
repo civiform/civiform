@@ -74,7 +74,7 @@ public class BlockDefinitionTest {
             .addQuestion(
                 ProgramQuestionDefinition.create(
                     testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition(),
-                    Optional.empty()))
+                    /* programDefinitionId= */ Optional.empty()))
             .build();
 
     assertThat(blockDefinition.hasEnumeratorQuestion()).isTrue();
@@ -115,7 +115,7 @@ public class BlockDefinitionTest {
             .addQuestion(
                 ProgramQuestionDefinition.create(
                     testQuestionBank.fileUploadApplicantFile().getQuestionDefinition(),
-                    Optional.empty()))
+                    /* programDefinitionId= */ Optional.empty()))
             .build();
 
     assertThat(blockDefinition.isFileUpload()).isTrue();
@@ -188,10 +188,14 @@ public class BlockDefinitionTest {
     QuestionDefinition secondAddress =
         testQuestionBank.addressApplicantSecondaryAddress().getQuestionDefinition();
     ProgramQuestionDefinition firstQuestion =
-        ProgramQuestionDefinition.create(firstAddress, Optional.empty());
+        ProgramQuestionDefinition.create(firstAddress, /* programDefinitionId= */ Optional.empty());
     // Second address has correction enabled
     ProgramQuestionDefinition secondQuestion =
-        ProgramQuestionDefinition.create(secondAddress, Optional.empty(), false, true);
+        ProgramQuestionDefinition.create(
+            secondAddress,
+            /* programDefinitionId= */ Optional.empty(),
+            /* optional= */ false,
+            /* addressCorrectionEnabled= */ true);
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
             .setId(123L)
@@ -224,9 +228,15 @@ public class BlockDefinitionTest {
             .setDescription("Block Description")
             .setLocalizedName(LocalizedStrings.withDefaultValue("Block Name"))
             .setLocalizedDescription(LocalizedStrings.withDefaultValue("Block Description"))
-            .addQuestion(ProgramQuestionDefinition.create(nameQuestion, Optional.empty()))
-            .addQuestion(ProgramQuestionDefinition.create(addressQuestion, Optional.empty()))
-            .addQuestion(ProgramQuestionDefinition.create(colorQuestion, Optional.empty()))
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    nameQuestion, /* programDefinitionId= */ Optional.empty()))
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    addressQuestion, /* programDefinitionId= */ Optional.empty()))
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    colorQuestion, /* programDefinitionId= */ Optional.empty()))
             .build();
     return block;
   }
@@ -242,7 +252,9 @@ public class BlockDefinitionTest {
             .setDescription("Block Description")
             .setLocalizedName(LocalizedStrings.withDefaultValue("Block Name"))
             .setLocalizedDescription(LocalizedStrings.withDefaultValue("Block Description"))
-            .addQuestion(ProgramQuestionDefinition.create(nullQuestion, Optional.empty()))
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    nullQuestion, /* programDefinitionId= */ Optional.empty()))
             .build();
 
     assertThat(blockDefinition.hasNullQuestion()).isTrue();
@@ -259,7 +271,9 @@ public class BlockDefinitionTest {
             .setDescription("Block Description")
             .setLocalizedName(LocalizedStrings.withDefaultValue("Block Name"))
             .setLocalizedDescription(LocalizedStrings.withDefaultValue("Block Description"))
-            .addQuestion(ProgramQuestionDefinition.create(nullQuestion, Optional.empty()))
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    nullQuestion, /* programDefinitionId= */ Optional.empty()))
             .build();
 
     assertThat(blockDefinition.hasNullQuestion()).isFalse();
@@ -276,7 +290,9 @@ public class BlockDefinitionTest {
             .setDescription("Block Description")
             .setLocalizedName(LocalizedStrings.withDefaultValue("Block Name"))
             .setLocalizedDescription(LocalizedStrings.withDefaultValue("Block Description"))
-            .addQuestion(ProgramQuestionDefinition.create(nullQuestion, Optional.empty()))
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    nullQuestion, /* programDefinitionId= */ Optional.empty()))
             .build();
 
     assertThat(blockDefinition.getFullName()).isEqualTo("Block Name");

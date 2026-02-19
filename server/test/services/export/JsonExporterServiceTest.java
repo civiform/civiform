@@ -161,7 +161,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
     programAdminApplicationService.setStatus(
         fakeApplication0.id,
         fakeProgram.getProgramDefinition(),
-        Optional.empty(),
+        /* currentStatus= */ Optional.empty(),
         StatusEvent.builder().setEmailSent(false).setStatusText(status).build(),
         admin);
     FakeApplicationFiller.newFillerFor(fakeProgram).submit();
