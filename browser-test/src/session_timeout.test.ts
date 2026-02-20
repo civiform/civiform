@@ -51,8 +51,7 @@ test.describe('Session timeout for admins', () => {
     })
 
     await test.step('Confirm toast appears confirming that session has been extended', async () => {
-      const toast = page
-        .getByText('Session successfully extendedx')
+      const toast = page.getByText('Session successfully extendedx')
       await expect(toast).toBeVisible()
     })
 
