@@ -194,6 +194,7 @@ export class SessionTimeoutHandler {
       )
       closeButtons.forEach((button) => {
         button.addEventListener('click', () => {
+          this.showWarningModal(WarningType.INACTIVITY)
           this.inactivityWarningVisible = false
         })
       })
@@ -312,7 +313,7 @@ export class SessionTimeoutHandler {
    * @param type Type of warning to show (inactivity or total length)
    * @param warningTimestamp Timestamp to record (used to detect new sessions and session extension)
    */
-  private static showWarningModal(type: WarningType, warningTimestamp: number) {
+  private static showWarningModal(type: WarningType, warningTimestamp?: number) {
     const modalId =
       type === WarningType.INACTIVITY
         ? `${SessionModalType.INACTIVITY}-modal`
@@ -337,18 +338,20 @@ export class SessionTimeoutHandler {
     const fakeEvent = {target: fakeTarget, type: 'click'}
     uswdsModal.toggleModal.call(fakeTarget, fakeEvent)
 
-    if (type === WarningType.INACTIVITY) {
-      this.inactivityWarningVisible = true
-      sessionStorage.setItem(
-        this.INACTIVITY_WARNING_SHOWN_KEY,
-        warningTimestamp.toString(),
-      )
-    } else {
-      this.totalLengthWarningVisible = true
-      sessionStorage.setItem(
-        this.TOTAL_WARNING_SHOWN_KEY,
-        warningTimestamp.toString(),
-      )
+    if (warningTimestamp) {
+      if (type === WarningType.INACTIVITY) {
+        this.inactivityWarningVisible = true
+        sessionStorage.setItem(
+          this.INACTIVITY_WARNING_SHOWN_KEY,
+          warningTimestamp.toString(),
+        )
+      } else {
+        this.totalLengthWarningVisible = true
+        sessionStorage.setItem(
+          this.TOTAL_WARNING_SHOWN_KEY,
+          warningTimestamp.toString(),
+        )
+      }
     }
   }
 
