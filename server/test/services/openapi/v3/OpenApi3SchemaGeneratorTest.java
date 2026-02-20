@@ -69,7 +69,7 @@ public class OpenApi3SchemaGeneratorTest {
             .build();
 
     OpenApiSchemaSettings settings =
-        new OpenApiSchemaSettings("baseUrl", "email123@example.com", true);
+        new OpenApiSchemaSettings("baseUrl", "email123@example.com", /* allowHttpScheme= */ true);
 
     var generator = new OpenApi3SchemaGenerator(settings);
     String actual = generator.createSchema(programDefinition);
@@ -272,7 +272,7 @@ components:
             .build();
 
     OpenApiSchemaSettings settings =
-        new OpenApiSchemaSettings("baseUrl", "email123@example.com", true);
+        new OpenApiSchemaSettings("baseUrl", "email123@example.com", /* allowHttpScheme= */ true);
 
     var generator = new OpenApi3SchemaGenerator(settings);
     String actual = generator.createSchema(programDefinition);
@@ -828,7 +828,7 @@ components:
             .build();
 
     OpenApiSchemaSettings settings =
-        new OpenApiSchemaSettings("baseUrl", "email123@example.com", true);
+        new OpenApiSchemaSettings("baseUrl", "email123@example.com", /* allowHttpScheme= */ true);
 
     var generator = new OpenApi3SchemaGenerator(settings);
     String actual = generator.createSchema(programDefinition);

@@ -303,11 +303,16 @@ public final class CsvExporterService {
           .filter(qd -> !NON_EXPORTED_QUESTION_TYPES.contains(qd.getQuestionType()))
           // Use a program question definition that doesn't have a program associated with it,
           // which is okay because this should be program agnostic.
-          .map(qd -> ProgramQuestionDefinition.create(qd, Optional.empty()))
+          .map(
+              qd ->
+                  ProgramQuestionDefinition.create(qd, /* programDefinitionId= */ Optional.empty()))
           .map(
               pqd ->
                   new ApplicantQuestion(
-                      pqd, new ApplicantModel(), new ApplicantData(), Optional.empty()))
+                      pqd,
+                      new ApplicantModel(),
+                      new ApplicantData(),
+                      /* repeatedEntity= */ Optional.empty()))
           .flatMap(
               aq ->
                   csvColumnFactory.buildColumns(

@@ -250,7 +250,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 li(a("API Schema Viewer")
                         .withHref(
                             routes.OpenApiSchemaController.getSchemaUI(
-                                    "", Optional.empty(), Optional.empty())
+                                    /* programSlug= */ "",
+                                    /* stage= */ Optional.empty(),
+                                    /* openApiVersion= */ Optional.empty())
                                 .url()))
                     .withClasses("border-b-2", AdminStyles.LINK_SELECTED))
             .withClasses("flex", "gap-4"))

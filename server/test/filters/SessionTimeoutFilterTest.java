@@ -87,13 +87,18 @@ public class SessionTimeoutFilterTest extends WithApplication {
 
   @Test
   public void testTimeoutDisabled_clearsCookie() throws Exception {
-    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
+    RequestHeader request =
+        fakeRequestBuilder()
+            .method("GET")
+            .uri("/programs/1")
+            .cookie(Http.Cookie.builder(TIMEOUT_COOKIE_NAME, "somevalue").withPath("/").build())
+            .build();
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(false);
 
     Result result = executeFilter(request);
 
     assertThat(result.status()).isEqualTo(200);
-    // Cookie should be cleared in case user had one from when feature was enabled
+    // Cookie should be cleared since it was present on the request
     Optional<Http.Cookie> cookie = result.cookies().get(TIMEOUT_COOKIE_NAME);
     assertThat(cookie).isPresent();
     assertThat(cookie.get().maxAge().longValue()).isEqualTo(Duration.ZERO.toSeconds());

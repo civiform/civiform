@@ -22,7 +22,7 @@ public final record TrustedIntermediarySearchResult(
   }
 
   public TrustedIntermediarySearchResult(ImmutableList<AccountModel> accounts) {
-    this(accounts, Optional.empty());
+    this(accounts, /* errorMessage= */ Optional.empty());
   }
 
   public boolean isSuccessful() {

@@ -68,7 +68,8 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
   default ImmutableMap<Path, Optional<?>> getSampleJsonEntries(
       QuestionDefinition questionDefinition, SampleDataContext sampleDataContext) {
     ProgramQuestionDefinition programQuestionDefinition =
-        ProgramQuestionDefinition.create(questionDefinition, Optional.empty());
+        ProgramQuestionDefinition.create(
+            questionDefinition, /* programDefinitionId= */ Optional.empty());
     return questionDefinition
         .getEnumeratorId()
         .map(

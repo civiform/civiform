@@ -42,19 +42,19 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20260102.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.41.22",
-      "software.amazon.awssdk" % "ses" % "2.41.22",
+      "software.amazon.awssdk" % "s3" % "2.41.32",
+      "software.amazon.awssdk" % "ses" % "2.41.32",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
       "com.azure" % "azure-storage-blob" % "12.32.0",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.60.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.61.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.10",
-      "com.google.cloud.sql" % "postgres-socket-factory" % "1.28.0",
+      "com.google.cloud.sql" % "postgres-socket-factory" % "1.28.1",
       "com.h2database" % "h2" % "2.4.240" % Test,
 
       // Metrics collection and export for Prometheus
@@ -99,7 +99,7 @@ lazy val root = (project in file("."))
 
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.42.0",
-      "org.checkerframework" % "dataflow-errorprone" % "3.53.0",
+      "org.checkerframework" % "dataflow-errorprone" % "3.53.1",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.14.1",
@@ -121,7 +121,7 @@ lazy val root = (project in file("."))
 
       // Override default Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.5.29",
+      "ch.qos.logback" % "logback-classic" % "1.5.32",
 
       // Swagger 2.0 Dependencies
       "io.swagger" % "swagger-core" % "1.6.16" exclude (
@@ -131,8 +131,8 @@ lazy val root = (project in file("."))
       "io.swagger" % "swagger-parser" % "1.0.75",
 
       // OpenAPI 3.x Dependencies
-      "io.swagger.core.v3" % "swagger-core" % "2.2.42",
-      "io.swagger.parser.v3" % "swagger-parser" % "2.1.37",
+      "io.swagger.core.v3" % "swagger-core" % "2.2.43",
+      "io.swagger.parser.v3" % "swagger-parser" % "2.1.38",
 
       // JSON Schema validation
       "com.networknt" % "json-schema-validator" % "2.0.1",

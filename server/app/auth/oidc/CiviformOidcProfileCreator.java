@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import java.util.function.Function;
 import javax.inject.Provider;
+import models.AccountModel;
 import models.ApplicantModel;
 import org.apache.commons.lang3.NotImplementedException;
 import org.pac4j.core.context.CallContext;
@@ -211,10 +212,61 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     }
 
     Optional<ApplicantModel> existingApplicant = getExistingApplicant(oidcProfile);
+    if (guestProfile.isPresent() && existingApplicant.isPresent()) {
+      // If the civiform user is a TI or Admin, do not merge it with a guest.
+      // The guest will be left a guest account as if they never logged in.
+      // These users should not have applicant data, and should not be using
+      // guest accounts to apply on behalf of others users
+      if (shouldDropGuestProfile(existingApplicant.get().getAccount(), guestProfile.get())) {
+        guestProfile = Optional.empty();
+      }
+    }
 
     Function<Optional<CiviFormProfile>, UserProfile> mergeFunction =
         (civiFormProfile) -> this.mergeCiviFormProfile(civiFormProfile, oidcProfile);
     return civiFormProfileMerger.mergeProfiles(existingApplicant, guestProfile, mergeFunction);
+  }
+
+  /**
+   * If the CiviForm user is a TI or Admin, and not a standard user, log and return as such.
+   *
+   * @return whether or not the guest should be used based on the logged-in users type.
+   */
+  @VisibleForTesting
+  boolean shouldDropGuestProfile(AccountModel existingAccount, CiviFormProfile guestProfile) {
+    boolean isTi = isTrustedIntermediary(existingAccount);
+    boolean isProgramAdmin = !existingAccount.getAdministeredProgramNames().isEmpty();
+    // Note: Despite the auth profile determining who is a CF admin, the CF
+    // account is used here to reduce complexity and because the likelihood of
+    // a CF admin logging in only after their status has changed, and they
+    // applied as a guest is very small.
+    boolean isCiviFormAdmin = existingAccount.getGlobalAdmin();
+
+    if (isTi || isProgramAdmin || isCiviFormAdmin) {
+      // Log if the TI/Admin is using guest accounts to apply.
+      boolean guestHasApplications =
+          !guestProfile.getApplicant().join().getApplications().isEmpty();
+      if (guestHasApplications) {
+        String accountDescriptor = "";
+        if (isTi) {
+          accountDescriptor = "TI";
+        } else if (isProgramAdmin) {
+          accountDescriptor = "Program Admin";
+        } else if (isCiviFormAdmin) {
+          accountDescriptor = "CiviForm Admin";
+        }
+
+        var accountId = existingAccount.id.toString();
+        logger.info(
+            "{} Account ID {} applied as Guest Account ID {} and is logging "
+                + "in. This is typically undesired. The Guest account will not be merged.",
+            accountDescriptor,
+            accountId,
+            guestProfile.getAccount().join().id);
+      }
+      return true;
+    }
+    return false;
   }
 
   @VisibleForTesting
@@ -252,7 +304,11 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
   }
 
   protected final boolean isTrustedIntermediary(CiviFormProfile profile) {
-    return profile.getAccount().join().getMemberOfGroup().isPresent();
+    return isTrustedIntermediary(profile.getAccount().join());
+  }
+
+  private boolean isTrustedIntermediary(AccountModel account) {
+    return account.getMemberOfGroup().isPresent();
   }
 
   private boolean enhancedLogoutEnabled() {

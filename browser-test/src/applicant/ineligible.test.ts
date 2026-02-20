@@ -3,7 +3,6 @@ import {
   loginAsAdmin,
   loginAsTestUser,
   logout,
-  disableFeatureFlag,
   validateScreenshot,
   validateAccessibility,
   loginAsTrustedIntermediary,
@@ -18,8 +17,6 @@ test.describe('Ineligible Page Tests', () => {
 
   test.beforeEach(
     async ({page, adminQuestions, adminPrograms, adminPredicates}) => {
-      await disableFeatureFlag(page, 'expanded_form_logic_enabled')
-
       await test.step('Setup: Create program with eligibility condition', async () => {
         await loginAsAdmin(page)
 
@@ -38,13 +35,17 @@ test.describe('Ineligible Page Tests', () => {
         await adminPrograms.goToEditBlockEligibilityPredicatePage(
           programName,
           'Screen 1',
+          /* expandedFormLogicEnabled= */ true,
         )
-        await adminPredicates.addPredicates({
-          questionName: eligibilityQuestionId,
-          scalar: 'number',
-          operator: 'is greater than',
-          value: '0',
-        })
+        await adminPredicates.addPredicates(
+          /* expandedFormLogicEnabled= */ true,
+          {
+            questionName: eligibilityQuestionId,
+            scalar: 'number',
+            operator: 'is greater than',
+            value: '0',
+          },
+        )
 
         await adminPrograms.gotoAdminProgramsPage()
         await adminPrograms.publishProgram(programName)
@@ -137,8 +138,12 @@ test.describe('Ineligible Page Tests', () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         'Screen 1',
+        /* expandedFormLogicEnabled= */ true,
       )
-      await adminPredicates.updateEligibilityMessage(eligibilityMsg)
+      await adminPredicates.updateEligibilityMessage(
+        eligibilityMsg,
+        /* expandedFormLogicEnabled= */ true,
+      )
       await adminPrograms.publishProgram(programName)
       await logout(page)
     })

@@ -258,7 +258,7 @@ public final class AdminLayout extends BaseHtmlLayout {
                 .withClasses("cf-admin-heading-nav-item-settings-icon"));
 
     LiTag logoutNavItem =
-        createTopNavItem("Logout", logoutLink, false, Optional.of("logout-button"));
+        createTopNavItem("Logout", logoutLink, /* active= */ false, Optional.of("logout-button"));
 
     String apiNavItemDropdownId = "admin-api-nav-item";
 

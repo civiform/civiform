@@ -25,6 +25,7 @@ import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.question.QuestionAnswerer;
 import services.question.exceptions.QuestionNotFoundException;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
@@ -76,8 +77,7 @@ public class BlockTest {
             .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
             .setLocalizedDescription(LocalizedStrings.withDefaultValue("description"))
             .build();
-    Block block =
-        new Block("1", definition, new ApplicantModel(), new ApplicantData(), Optional.empty());
+    Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), new ApplicantData());
     assertThat(block.getId()).isEqualTo("1");
     assertThat(block.getName()).isEqualTo("name");
     assertThat(block.getDescription()).isEqualTo("description");
@@ -103,37 +103,27 @@ public class BlockTest {
     applicant.setApplicantData(applicantData);
     long programDefinitionId = 1L;
 
+    BlockDefinition definitionWithQuestion =
+        definition.toBuilder()
+            .addQuestion(
+                ProgramQuestionDefinition.create(question, Optional.of(programDefinitionId)))
+            .build();
+
     new EqualsTester()
         .addEqualityGroup(
-            new Block("1", definition, new ApplicantModel(), new ApplicantData(), Optional.empty()),
-            new Block("1", definition, new ApplicantModel(), new ApplicantData(), Optional.empty()))
+            makeUnrepeatedBlock("1", definition, new ApplicantModel(), new ApplicantData()),
+            makeUnrepeatedBlock("1", definition, new ApplicantModel(), new ApplicantData()))
         .addEqualityGroup(
-            new Block("2", definition, new ApplicantModel(), new ApplicantData(), Optional.empty()),
-            new Block("2", definition, new ApplicantModel(), new ApplicantData(), Optional.empty()))
+            makeUnrepeatedBlock("2", definition, new ApplicantModel(), new ApplicantData()),
+            makeUnrepeatedBlock("2", definition, new ApplicantModel(), new ApplicantData()))
         .addEqualityGroup(
-            new Block(
-                "1",
-                definition.toBuilder()
-                    .addQuestion(
-                        ProgramQuestionDefinition.create(
-                            question, Optional.of(programDefinitionId)))
-                    .build(),
-                new ApplicantModel(),
-                new ApplicantData(),
-                Optional.empty()),
-            new Block(
-                "1",
-                definition.toBuilder()
-                    .addQuestion(
-                        ProgramQuestionDefinition.create(
-                            question, Optional.of(programDefinitionId)))
-                    .build(),
-                new ApplicantModel(),
-                new ApplicantData(),
-                Optional.empty()))
+            makeUnrepeatedBlock(
+                "1", definitionWithQuestion, new ApplicantModel(), new ApplicantData()),
+            makeUnrepeatedBlock(
+                "1", definitionWithQuestion, new ApplicantModel(), new ApplicantData()))
         .addEqualityGroup(
-            new Block("1", definition, applicant, applicantData, Optional.empty()),
-            new Block("1", definition, applicant, applicantData, Optional.empty()))
+            makeUnrepeatedBlock("1", definition, applicant, applicantData),
+            makeUnrepeatedBlock("1", definition, applicant, applicantData))
         .testEquals();
   }
 
@@ -143,12 +133,14 @@ public class BlockTest {
     ApplicantModel applicant = new ApplicantModel();
     ApplicantData applicantData = new ApplicantData();
 
-    Block block = new Block("1", definition, applicant, applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("1", definition, applicant, applicantData);
 
     ImmutableList<ApplicantQuestion> expected =
         ImmutableList.of(
-            new ApplicantQuestion(NAME_QUESTION, applicant, applicantData, Optional.empty()),
-            new ApplicantQuestion(COLOR_QUESTION, applicant, applicantData, Optional.empty()));
+            new ApplicantQuestion(
+                NAME_QUESTION, applicant, applicantData, /* repeatedEntity= */ Optional.empty()),
+            new ApplicantQuestion(
+                COLOR_QUESTION, applicant, applicantData, /* repeatedEntity= */ Optional.empty()));
     assertThat(block.getVisibleQuestions()).containsExactlyElementsOf(expected);
   }
 
@@ -158,12 +150,14 @@ public class BlockTest {
     ApplicantModel applicant = new ApplicantModel();
     ApplicantData applicantData = new ApplicantData();
 
-    Block block = new Block("1", definition, applicant, applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("1", definition, applicant, applicantData);
 
     ApplicantQuestion expectedQuestion1 =
-        new ApplicantQuestion(NAME_QUESTION, applicant, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            NAME_QUESTION, applicant, applicantData, /* repeatedEntity= */ Optional.empty());
     ApplicantQuestion expectedQuestion2 =
-        new ApplicantQuestion(COLOR_QUESTION, applicant, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            COLOR_QUESTION, applicant, applicantData, /* repeatedEntity= */ Optional.empty());
 
     assertThat(block.getQuestion(1L)).isEqualTo(expectedQuestion1);
     assertThat(block.getQuestion(2L)).isEqualTo(expectedQuestion2);
@@ -173,8 +167,7 @@ public class BlockTest {
   public void getQuestion_throwsExceptionIfIdNotPresent() {
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block =
-        new Block("1", definition, new ApplicantModel(), new ApplicantData(), Optional.empty());
+    Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), new ApplicantData());
 
     assertThatThrownBy(() -> block.getQuestion(3L))
         .isInstanceOf(QuestionNotFoundException.class)
@@ -185,8 +178,7 @@ public class BlockTest {
   public void getScalarType_returnsAllScalarTypes() {
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block =
-        new Block("1", definition, new ApplicantModel(), new ApplicantData(), Optional.empty());
+    Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), new ApplicantData());
 
     assertThat(
             block.getScalarType(
@@ -232,8 +224,7 @@ public class BlockTest {
   public void getScalarType_forNonExistentPath_returnsEmpty() {
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block =
-        new Block("1", definition, new ApplicantModel(), new ApplicantData(), Optional.empty());
+    Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), new ApplicantData());
 
     assertThat(block.getScalarType(Path.create("fake.path"))).isEmpty();
   }
@@ -250,8 +241,7 @@ public class BlockTest {
             .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
             .setLocalizedDescription(LocalizedStrings.withDefaultValue("description"))
             .build();
-    Block block =
-        new Block("1", definition, new ApplicantModel(), new ApplicantData(), Optional.empty());
+    Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), new ApplicantData());
 
     assertThat(block.hasErrors()).isFalse();
   }
@@ -263,7 +253,7 @@ public class BlockTest {
     // Both questions are required. Fill out an answer.
     answerColorQuestion(applicantData, UNUSED_PROGRAM_ID);
     answerNameQuestion(applicantData, UNUSED_PROGRAM_ID);
-    Block block = new Block("1", definition, new ApplicantModel(), applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), applicantData);
 
     assertThat(block.hasErrors()).isFalse();
   }
@@ -277,7 +267,7 @@ public class BlockTest {
     answerNameQuestion(applicantData, UNUSED_PROGRAM_ID);
     applicantData.setFailedUpdates(
         ImmutableMap.of(Path.create("applicant.applicant_favorite_color"), "invalid_input"));
-    Block block = new Block("1", definition, new ApplicantModel(), applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), applicantData);
 
     assertThat(block.hasErrors()).isTrue();
   }
@@ -292,8 +282,7 @@ public class BlockTest {
             .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
             .setLocalizedDescription(LocalizedStrings.withDefaultValue("description"))
             .build();
-    Block block =
-        new Block("1", definition, new ApplicantModel(), new ApplicantData(), Optional.empty());
+    Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), new ApplicantData());
 
     assertThat(block.isAnsweredWithoutErrors()).isTrue();
     assertThat(block.containsStatic()).isFalse();
@@ -303,8 +292,7 @@ public class BlockTest {
   public void isAnswered_returnsFalseIfMultipleQuestionsNotAnswered() {
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block =
-        new Block("1", definition, new ApplicantModel(), new ApplicantData(), Optional.empty());
+    Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), new ApplicantData());
 
     // No questions filled in yet.
     assertThat(block.isAnsweredWithoutErrors()).isFalse();
@@ -318,7 +306,7 @@ public class BlockTest {
     answerColorQuestion(applicantData, UNUSED_PROGRAM_ID);
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block = new Block("1", definition, new ApplicantModel(), applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), applicantData);
 
     assertThat(block.isAnsweredWithoutErrors()).isFalse();
   }
@@ -331,7 +319,7 @@ public class BlockTest {
     answerColorQuestion(applicantData, UNUSED_PROGRAM_ID);
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block = new Block("1", definition, new ApplicantModel(), applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), applicantData);
 
     assertThat(block.isAnsweredWithoutErrors()).isTrue();
   }
@@ -349,12 +337,18 @@ public class BlockTest {
             .setDescription("")
             .setLocalizedName(LocalizedStrings.withDefaultValue(""))
             .setLocalizedDescription(LocalizedStrings.withDefaultValue(""))
-            .addQuestion(ProgramQuestionDefinition.create(NAME_QUESTION, Optional.empty()))
-            .addQuestion(ProgramQuestionDefinition.create(COLOR_QUESTION, Optional.empty()))
-            .addQuestion(ProgramQuestionDefinition.create(STATIC_QUESTION, Optional.empty()))
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    NAME_QUESTION, /* programDefinitionId= */ Optional.empty()))
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    COLOR_QUESTION, /* programDefinitionId= */ Optional.empty()))
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    STATIC_QUESTION, /* programDefinitionId= */ Optional.empty()))
             .build();
 
-    Block block = new Block("1", definition, new ApplicantModel(), applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), applicantData);
 
     assertThat(block.isAnsweredWithoutErrors()).isTrue();
     assertThat(block.containsStatic()).isTrue();
@@ -373,10 +367,12 @@ public class BlockTest {
             .setDescription("")
             .setLocalizedName(LocalizedStrings.withDefaultValue(""))
             .setLocalizedDescription(LocalizedStrings.withDefaultValue(""))
-            .addQuestion(ProgramQuestionDefinition.create(STATIC_QUESTION, Optional.empty()))
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    STATIC_QUESTION, /* programDefinitionId= */ Optional.empty()))
             .build();
 
-    Block block = new Block("1", definition, new ApplicantModel(), applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), applicantData);
 
     assertThat(block.isAnsweredWithoutErrors()).isTrue();
     assertThat(block.containsStatic()).isTrue();
@@ -387,7 +383,7 @@ public class BlockTest {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block = new Block("1", definition, new ApplicantModel(), applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), applicantData);
 
     assertThat(block.isAnsweredWithoutErrors()).isFalse();
 
@@ -409,12 +405,18 @@ public class BlockTest {
             .setDescription("")
             .setLocalizedName(LocalizedStrings.withDefaultValue(""))
             .setLocalizedDescription(LocalizedStrings.withDefaultValue(""))
-            .addQuestion(ProgramQuestionDefinition.create(NAME_QUESTION, Optional.empty()))
-            .addQuestion(ProgramQuestionDefinition.create(COLOR_QUESTION, Optional.empty()))
-            .addQuestion(ProgramQuestionDefinition.create(STATIC_QUESTION, Optional.empty()))
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    NAME_QUESTION, /* programDefinitionId= */ Optional.empty()))
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    COLOR_QUESTION, /* programDefinitionId= */ Optional.empty()))
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    STATIC_QUESTION, /* programDefinitionId= */ Optional.empty()))
             .build();
 
-    Block block = new Block("1", definition, new ApplicantModel(), applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), applicantData);
 
     assertThat(block.answeredByUserQuestionsCount()).isEqualTo(1);
     assertThat(block.answerableQuestionsCount()).isEqualTo(2);
@@ -425,7 +427,7 @@ public class BlockTest {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block = new Block("1", definition, new ApplicantModel(), applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), applicantData);
 
     assertThat(block.wasAnsweredInProgram(1L)).isFalse();
   }
@@ -435,7 +437,7 @@ public class BlockTest {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block = new Block("1", definition, new ApplicantModel(), applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), applicantData);
     // Answer questions in different program.
     answerNameQuestion(applicantData, 567L);
     answerColorQuestion(applicantData, 567L);
@@ -448,7 +450,7 @@ public class BlockTest {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block = new Block("1", definition, new ApplicantModel(), applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), applicantData);
     answerNameQuestion(applicantData, 1L);
 
     assertThat(block.wasAnsweredInProgram(1L)).isFalse();
@@ -459,7 +461,7 @@ public class BlockTest {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block = new Block("1", definition, new ApplicantModel(), applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), applicantData);
     answerNameQuestion(applicantData, 22L);
     answerColorQuestion(applicantData, 22L);
 
@@ -471,7 +473,7 @@ public class BlockTest {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block = new Block("1", definition, new ApplicantModel(), applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), applicantData);
     answerNameQuestion(applicantData, 100L);
     answerColorQuestion(applicantData, 200L);
 
@@ -491,10 +493,10 @@ public class BlockTest {
             .addQuestion(
                 ProgramQuestionDefinition.create(
                     testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition(),
-                    Optional.empty()))
+                    /* programDefinitionId= */ Optional.empty()))
             .build();
 
-    Block block = new Block("1", definition, new ApplicantModel(), applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), applicantData);
 
     assertThat(block.isEnumerator()).isTrue();
   }
@@ -504,7 +506,7 @@ public class BlockTest {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block = new Block("1", definition, new ApplicantModel(), applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), applicantData);
 
     assertThat(block.isEnumerator()).isFalse();
   }
@@ -522,9 +524,10 @@ public class BlockTest {
             .setLocalizedName(LocalizedStrings.withDefaultValue(""))
             .setLocalizedDescription(LocalizedStrings.withDefaultValue(""))
             .addQuestion(
-                ProgramQuestionDefinition.create(enumeratorQuestionDefinition, Optional.empty()))
+                ProgramQuestionDefinition.create(
+                    enumeratorQuestionDefinition, /* programDefinitionId= */ Optional.empty()))
             .build();
-    Block block = new Block("1", definition, new ApplicantModel(), applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), applicantData);
 
     ApplicantQuestion enumeratorQuestion = block.getEnumeratorQuestion();
 
@@ -544,10 +547,10 @@ public class BlockTest {
             .addQuestion(
                 ProgramQuestionDefinition.create(
                     testQuestionBank.fileUploadApplicantFile().getQuestionDefinition(),
-                    Optional.empty()))
+                    /* programDefinitionId= */ Optional.empty()))
             .build();
 
-    Block block = new Block("1", definition, new ApplicantModel(), applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), applicantData);
 
     assertThat(block.isFileUpload()).isTrue();
   }
@@ -557,7 +560,7 @@ public class BlockTest {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
-    Block block = new Block("1", definition, new ApplicantModel(), applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), applicantData);
 
     assertThat(block.isFileUpload()).isFalse();
   }
@@ -582,8 +585,7 @@ public class BlockTest {
                     Optional.of(programId)))
             .build();
     ApplicantData applicantData = new ApplicantData();
-    Block block =
-        new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("id", blockDefinition, new ApplicantModel(), applicantData);
 
     block.getVisibleQuestions().stream()
         .map(ApplicantQuestion::getContextualizedPath)
@@ -624,8 +626,7 @@ public class BlockTest {
                     Optional.of(programId)))
             .build();
     ApplicantData applicantData = new ApplicantData();
-    Block block =
-        new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("id", blockDefinition, new ApplicantModel(), applicantData);
 
     block.getVisibleQuestions().stream()
         .map(ApplicantQuestion::getContextualizedPath)
@@ -660,8 +661,7 @@ public class BlockTest {
             .addQuestion(pqd)
             .build();
 
-    Block block =
-        new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("id", blockDefinition, new ApplicantModel(), applicantData);
 
     assertThat(block.isCompletedInProgramWithoutErrors()).isTrue();
   }
@@ -688,8 +688,7 @@ public class BlockTest {
                     .setOptional(true))
             .build();
     ApplicantData applicantData = new ApplicantData();
-    Block block =
-        new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("id", blockDefinition, new ApplicantModel(), applicantData);
 
     assertThat(block.hasErrors()).isFalse();
   }
@@ -714,8 +713,7 @@ public class BlockTest {
                     Optional.of(programId)))
             .build();
     ApplicantData applicantData = new ApplicantData();
-    Block block =
-        new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("id", blockDefinition, new ApplicantModel(), applicantData);
 
     QuestionAnswerer.answerNumberQuestion(
         applicantData, block.getVisibleQuestions().get(0).getContextualizedPath(), "5");
@@ -752,8 +750,7 @@ public class BlockTest {
             .addQuestion(pqd)
             .build();
 
-    Block block =
-        new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("id", blockDefinition, new ApplicantModel(), applicantData);
 
     assertThat(block.isCompletedInProgramWithoutErrors()).isFalse();
   }
@@ -783,8 +780,7 @@ public class BlockTest {
             .addQuestion(pqd)
             .build();
 
-    Block block =
-        new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("id", blockDefinition, new ApplicantModel(), applicantData);
 
     assertThat(block.isCompletedInProgramWithoutErrors()).isFalse();
   }
@@ -814,8 +810,7 @@ public class BlockTest {
             .build();
 
     Block block =
-        new Block(
-            "id", blockDefinition, new ApplicantModel(), new ApplicantData(), Optional.empty());
+        makeUnrepeatedBlock("id", blockDefinition, new ApplicantModel(), new ApplicantData());
 
     assertThat(block.hasOnlyOptionalQuestions()).isFalse();
   }
@@ -845,8 +840,7 @@ public class BlockTest {
             .build();
 
     Block block =
-        new Block(
-            "id", blockDefinition, new ApplicantModel(), new ApplicantData(), Optional.empty());
+        makeUnrepeatedBlock("id", blockDefinition, new ApplicantModel(), new ApplicantData());
 
     assertThat(block.hasOnlyOptionalQuestions()).isFalse();
   }
@@ -876,8 +870,7 @@ public class BlockTest {
             .build();
 
     Block block =
-        new Block(
-            "id", blockDefinition, new ApplicantModel(), new ApplicantData(), Optional.empty());
+        makeUnrepeatedBlock("id", blockDefinition, new ApplicantModel(), new ApplicantData());
 
     assertThat(block.hasOnlyOptionalQuestions()).isTrue();
   }
@@ -913,8 +906,7 @@ public class BlockTest {
             .addQuestion(pqd)
             .build();
 
-    Block block =
-        new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("id", blockDefinition, new ApplicantModel(), applicantData);
 
     Optional<ImmutableList<String>> serviceAreaIds = block.getLeafAddressNodeServiceAreaIds();
 
@@ -941,8 +933,7 @@ public class BlockTest {
             .addQuestion(pqd)
             .build();
 
-    Block block =
-        new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("id", blockDefinition, new ApplicantModel(), applicantData);
     Optional<ApplicantQuestion> addressQuestion = block.getAddressQuestionWithCorrectionEnabled();
     assertThat(addressQuestion.isPresent()).isTrue();
     assertThat(addressQuestion.get().isAddressCorrectionEnabled()).isTrue();
@@ -965,8 +956,7 @@ public class BlockTest {
             .addQuestion(ProgramQuestionDefinition.create(COLOR_QUESTION, Optional.of(programId)))
             .build();
 
-    Block block =
-        new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("id", blockDefinition, new ApplicantModel(), applicantData);
 
     // Should return visible questions
     assertThat(block.getVisibleQuestions()).hasSize(2);
@@ -997,8 +987,7 @@ public class BlockTest {
                 ProgramQuestionDefinition.create(HIDDEN_TEXT_QUESTION, Optional.of(programId)))
             .build();
 
-    Block block =
-        new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("id", blockDefinition, new ApplicantModel(), applicantData);
 
     // Block should not be complete when visible question is unanswered
     assertThat(block.isCompletedInProgramWithoutErrors()).isFalse();
@@ -1039,8 +1028,7 @@ public class BlockTest {
             .addQuestion(ProgramQuestionDefinition.create(hiddenQuestion2, Optional.of(programId)))
             .build();
 
-    Block block =
-        new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("id", blockDefinition, new ApplicantModel(), applicantData);
 
     // Block with only hidden questions should be complete without any answers
     // because getQuestions().isEmpty() returns true
@@ -1080,8 +1068,7 @@ public class BlockTest {
             .addQuestion(ProgramQuestionDefinition.create(hiddenQuestion2, Optional.of(programId)))
             .build();
 
-    Block block =
-        new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("id", blockDefinition, new ApplicantModel(), applicantData);
 
     // Should have 4 total questions
     assertThat(block.getAllQuestions()).hasSize(4);
@@ -1110,13 +1097,154 @@ public class BlockTest {
                 ProgramQuestionDefinition.create(HIDDEN_TEXT_QUESTION, Optional.of(programId)))
             .build();
 
-    Block block =
-        new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
+    Block block = makeUnrepeatedBlock("id", blockDefinition, new ApplicantModel(), applicantData);
 
     answerNameQuestion(applicantData, programId);
 
     assertThat(block.hasErrors()).isFalse();
     assertThat(block.isCompletedInProgramWithoutErrors()).isTrue();
+  }
+
+  @Test
+  public void getLocalizedName_withoutRepeatedEntity_returnsNameOnly() {
+    ApplicantData applicantData = new ApplicantData();
+    String expectedName = "name";
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName(expectedName)
+            .setDescription("desc")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("desc"))
+            .build();
+
+    Block block =
+        new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
+
+    String resultingName = block.getLocalizedName(Locale.getDefault());
+    assertThat(resultingName).isEqualTo(expectedName);
+  }
+
+  @Test
+  public void getLocalizedName_withRepeatedEntityButWithoutPrefix_returnsNameOnly() {
+    ApplicantData applicantData = new ApplicantData();
+    String expectedName = "name";
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName(expectedName)
+            .setDescription("desc")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("desc"))
+            .build();
+
+    RepeatedEntity repeatedEntity =
+        RepeatedEntity.create(
+            (EnumeratorQuestionDefinition)
+                testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition(),
+            /* visibility= */ Optional.empty(),
+            /* parent= */ Optional.empty(),
+            /* entityName= */ "Person 1",
+            /* index= */ 0);
+
+    Block block =
+        new Block(
+            "id",
+            blockDefinition,
+            new ApplicantModel(),
+            applicantData,
+            Optional.of(repeatedEntity));
+
+    String resultingName = block.getLocalizedName(Locale.getDefault());
+    assertThat(resultingName).isEqualTo(expectedName);
+  }
+
+  @Test
+  public void getLocalizedName_withRepeatedEntityAndWithPrefix_returnsPrefixReplacedAndName() {
+    ApplicantData applicantData = new ApplicantData();
+    String expectedName = "name";
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName(expectedName)
+            .setDescription("desc")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("desc"))
+            .setNamePrefix(Optional.of("[parent label] - "))
+            .build();
+
+    String entityName = "Person 1";
+    RepeatedEntity repeatedEntity =
+        RepeatedEntity.create(
+            (EnumeratorQuestionDefinition)
+                testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition(),
+            /* visibility= */ Optional.empty(),
+            /* parent= */ Optional.empty(),
+            /* entityName= */ entityName,
+            /* index= */ 0);
+
+    Block block =
+        new Block(
+            "id",
+            blockDefinition,
+            new ApplicantModel(),
+            applicantData,
+            Optional.of(repeatedEntity));
+
+    String resultingName = block.getLocalizedName(Locale.getDefault());
+    assertThat(resultingName).isEqualTo(entityName + " - " + expectedName);
+  }
+
+  @Test
+  public void
+      getLocalizedName_withNestedRepeatedEntityAndWithPrefix_returnsPrefixReplacedAndName() {
+    ApplicantData applicantData = new ApplicantData();
+    String expectedName = "name";
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName(expectedName)
+            .setDescription("desc")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("desc"))
+            .setNamePrefix(Optional.of("[parent label] - [child label] - "))
+            .build();
+
+    String parentEntityName = "Person 1";
+    RepeatedEntity parentEntity =
+        RepeatedEntity.create(
+            (EnumeratorQuestionDefinition)
+                testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition(),
+            /* visibility= */ Optional.empty(),
+            /* parent= */ Optional.empty(),
+            /* entityName= */ parentEntityName,
+            /* index= */ 0);
+
+    String childEntityName = "Job 1";
+    RepeatedEntity childEntity =
+        RepeatedEntity.create(
+            (EnumeratorQuestionDefinition)
+                testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition(),
+            /* visibility= */ Optional.empty(),
+            /* parent= */ Optional.of(parentEntity),
+            /* entityName= */ childEntityName,
+            /* index= */ 0);
+
+    Block block =
+        new Block(
+            "id", blockDefinition, new ApplicantModel(), applicantData, Optional.of(childEntity));
+
+    String resultingName = block.getLocalizedName(Locale.getDefault());
+    assertThat(resultingName)
+        .isEqualTo(parentEntityName + " - " + childEntityName + " - " + expectedName);
+  }
+
+  private static Block makeUnrepeatedBlock(
+      String id,
+      BlockDefinition definition,
+      ApplicantModel applicant,
+      ApplicantData applicantData) {
+    return new Block(id, definition, applicant, applicantData, Optional.empty());
   }
 
   private static BlockDefinition setUpBlockWithQuestions() {
@@ -1126,8 +1254,12 @@ public class BlockTest {
         .setDescription("")
         .setLocalizedName(LocalizedStrings.withDefaultValue(""))
         .setLocalizedDescription(LocalizedStrings.withDefaultValue(""))
-        .addQuestion(ProgramQuestionDefinition.create(NAME_QUESTION, Optional.empty()))
-        .addQuestion(ProgramQuestionDefinition.create(COLOR_QUESTION, Optional.empty()))
+        .addQuestion(
+            ProgramQuestionDefinition.create(
+                NAME_QUESTION, /* programDefinitionId= */ Optional.empty()))
+        .addQuestion(
+            ProgramQuestionDefinition.create(
+                COLOR_QUESTION, /* programDefinitionId= */ Optional.empty()))
         .build();
   }
 

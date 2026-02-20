@@ -27,11 +27,6 @@ import services.settings.SettingsManifest;
 /**
  * A filter to manage session timeouts in CiviForm.
  *
- * <p>NOTE: This filter is currently not called from application.conf because of issues we were
- * seeing with #10330.
- *
- * <p>TODO: #9819 Re-enable this filter when we ensure there aren't performance issues.
- *
  * <p>This filter checks for session timeout, updates last activity time, and sets a cookie for the
  * frontend to show timeout warnings.
  *
@@ -71,7 +66,11 @@ public class SessionTimeoutFilter extends Filter {
     }
 
     if (!settingsManifest.get().getSessionTimeoutEnabled(requestHeader)) {
-      return nextFilter.apply(requestHeader).thenApply(this::clearTimeoutCookie);
+      CompletionStage<Result> result = nextFilter.apply(requestHeader);
+      if (requestHeader.cookies().get(TIMEOUT_COOKIE_NAME).isPresent()) {
+        return result.thenApply(this::clearTimeoutCookie);
+      }
+      return result;
     }
     // Only get the profile if it doesn't already exist on the request
     Optional<CiviFormProfile> optionalProfile =

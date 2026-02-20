@@ -57,7 +57,8 @@ public class GenericOidcProfileCreatorTest extends ResetPostgres {
     profile.setId("subject");
 
     CiviFormProfileData profileData =
-        genericOidcProfileCreator.mergeCiviFormProfile(Optional.empty(), profile);
+        genericOidcProfileCreator.mergeCiviFormProfile(
+            /* maybeCiviFormProfile= */ Optional.empty(), profile);
 
     assertThat(profileData.getRoles()).contains("ROLE_CIVIFORM_ADMIN");
   }
@@ -72,7 +73,8 @@ public class GenericOidcProfileCreatorTest extends ResetPostgres {
     profile.setId("subject");
 
     CiviFormProfileData profileData =
-        genericOidcProfileCreator.mergeCiviFormProfile(Optional.empty(), profile);
+        genericOidcProfileCreator.mergeCiviFormProfile(
+            /* maybeCiviFormProfile= */ Optional.empty(), profile);
 
     assertThat(profileData.getRoles()).doesNotContain("ROLE_CIVIFORM_ADMIN");
   }
@@ -87,7 +89,8 @@ public class GenericOidcProfileCreatorTest extends ResetPostgres {
     profile.setId("subject");
 
     CiviFormProfileData profileData =
-        genericOidcProfileCreator.mergeCiviFormProfile(Optional.empty(), profile);
+        genericOidcProfileCreator.mergeCiviFormProfile(
+            /* maybeCiviFormProfile= */ Optional.empty(), profile);
 
     assertThat(profileData.getRoles()).doesNotContain("ROLE_CIVIFORM_ADMIN");
   }

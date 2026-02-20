@@ -319,7 +319,9 @@ public final class QuestionEditView extends BaseHtmlView {
     if (Strings.isNullOrEmpty(cancelUrl)) {
       cancelUrl = controllers.admin.routes.AdminQuestionController.index(Optional.empty()).url();
     }
-    FormTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOptions, true, request);
+    FormTag formTag =
+        buildSubmittableQuestionForm(
+            questionForm, enumeratorOptions, /* forCreate= */ true, request);
     formTag
         .withAction(
             controllers.admin.routes.AdminQuestionController.create(
@@ -346,7 +348,9 @@ public final class QuestionEditView extends BaseHtmlView {
     SelectWithLabel enumeratorOption =
         enumeratorOptionsFromMaybeEnumerationQuestionDefinition(
             maybeEnumerationQuestionDefinition, FormMode.EDIT);
-    FormTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOption, false, request);
+    FormTag formTag =
+        buildSubmittableQuestionForm(
+            questionForm, enumeratorOption, /* forCreate= */ false, request);
     formTag.withAction(
         controllers.admin.routes.AdminQuestionController.update(
                 id, questionForm.getQuestionType().toString())

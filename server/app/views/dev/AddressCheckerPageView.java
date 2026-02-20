@@ -1,0 +1,52 @@
+package views.dev;
+
+import auth.ProfileUtils;
+import javax.inject.Inject;
+import modules.ThymeleafModule;
+import org.thymeleaf.TemplateEngine;
+import play.mvc.Http;
+import services.BundledAssetsFinder;
+import services.settings.SettingsManifest;
+import views.admin.AdminLayout;
+import views.admin.AdminLayoutBaseView;
+import views.admin.shared.AdminCommonHeader;
+
+public final class AddressCheckerPageView extends AdminLayoutBaseView<AddressCheckerPageViewModel> {
+  @Inject
+  public AddressCheckerPageView(
+      TemplateEngine templateEngine,
+      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
+      BundledAssetsFinder bundledAssetsFinder,
+      ProfileUtils profileUtils,
+      SettingsManifest settingsManifest) {
+    super(
+        templateEngine,
+        playThymeleafContextFactory,
+        settingsManifest,
+        bundledAssetsFinder,
+        profileUtils);
+  }
+
+  @Override
+  protected String pageTitle(AddressCheckerPageViewModel model) {
+    return "Address Checker";
+  }
+
+  @Override
+  protected String pageTemplate() {
+    return "dev/AddressCheckerPage.html";
+  }
+
+  @Override
+  protected void customizeContext(
+      Http.Request request, ThymeleafModule.PlayThymeleafContext context) {
+    // Avoid requiring a user profile for dev tools page.
+    context.setVariable(
+        "adminCommonHeader",
+        AdminCommonHeader.builder()
+            .activeNavPage(AdminLayout.NavPage.NULL_PAGE)
+            .isOnlyProgramAdmin(false)
+            .isApiBridgeEnabled(settingsManifest.getApiBridgeEnabled(request))
+            .build());
+  }
+}

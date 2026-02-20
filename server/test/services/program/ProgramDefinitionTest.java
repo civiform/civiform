@@ -1197,7 +1197,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
         ProgramBuilder.newActiveProgram()
             .withBridgeDefinitions(map)
             .withBlock()
-            .withQuestionDefinition(addressQuestion, false)
+            .withQuestionDefinition(addressQuestion, /* optional= */ false)
             .build()
             .getProgramDefinition();
 
@@ -1216,11 +1216,12 @@ public class ProgramDefinitionTest extends ResetPostgres {
         ProgramBuilder.newActiveProgram()
             .withBridgeDefinitions(ImmutableMap.of())
             .withBlock()
-            .withQuestionDefinition(addressQuestion, false)
+            .withQuestionDefinition(addressQuestion, /* optional= */ false)
             .withBlock()
-            .withQuestionDefinition(textQuestion, false)
+            .withQuestionDefinition(textQuestion, /* optional= */ false)
             .withQuestionDefinition(
-                testQuestionBank.addressApplicantSecondaryAddress().getQuestionDefinition(), false)
+                testQuestionBank.addressApplicantSecondaryAddress().getQuestionDefinition(),
+                /* optional= */ false)
             .build()
             .getProgramDefinition();
 
@@ -1249,10 +1250,11 @@ public class ProgramDefinitionTest extends ResetPostgres {
         ProgramBuilder.newActiveProgram()
             .withBridgeDefinitions(map)
             .withBlock()
-            .withQuestionDefinition(addressQuestion, false)
-            .withQuestionDefinition(textQuestion, false)
+            .withQuestionDefinition(addressQuestion, /* optional= */ false)
+            .withQuestionDefinition(textQuestion, /* optional= */ false)
             .withQuestionDefinition(
-                testQuestionBank.addressApplicantSecondaryAddress().getQuestionDefinition(), false)
+                testQuestionBank.addressApplicantSecondaryAddress().getQuestionDefinition(),
+                /* optional= */ false)
             .build()
             .getProgramDefinition();
 
@@ -1269,11 +1271,14 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .withBridgeDefinitions(ImmutableMap.of())
             .withBlock()
             .withQuestionDefinition(
-                testQuestionBank.addressApplicantAddress().getQuestionDefinition(), false)
+                testQuestionBank.addressApplicantAddress().getQuestionDefinition(),
+                /* optional= */ false)
             .withQuestionDefinition(
-                testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition(), false)
+                testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition(),
+                /* optional= */ false)
             .withQuestionDefinition(
-                testQuestionBank.addressApplicantSecondaryAddress().getQuestionDefinition(), false)
+                testQuestionBank.addressApplicantSecondaryAddress().getQuestionDefinition(),
+                /* optional= */ false)
             .build()
             .getProgramDefinition();
 

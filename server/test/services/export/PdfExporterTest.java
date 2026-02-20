@@ -87,7 +87,8 @@ public class PdfExporterTest extends AbstractExporterTest {
     Path answerPath =
         fileQuestion
             .getQuestionDefinition()
-            .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH);
+            .getContextualizedPath(
+                /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
 
     QuestionAnswerer.answerFileQuestion(
         applicantFive.getApplicantData(), answerPath, "my-file-key");
@@ -139,7 +140,8 @@ public class PdfExporterTest extends AbstractExporterTest {
     Path answerPath =
         fileQuestion
             .getQuestionDefinition()
-            .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH);
+            .getContextualizedPath(
+                /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
 
     QuestionAnswerer.answerFileQuestionWithMultipleUpload(
         applicantFive.getApplicantData(),
@@ -196,7 +198,8 @@ public class PdfExporterTest extends AbstractExporterTest {
     Path answerPath =
         fileQuestion
             .getQuestionDefinition()
-            .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH);
+            .getContextualizedPath(
+                /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
 
     QuestionAnswerer.answerFileQuestion(
         applicantFive.getApplicantData(), answerPath, "my-file-key");
@@ -244,7 +247,8 @@ public class PdfExporterTest extends AbstractExporterTest {
     Path answerPath =
         fileQuestion
             .getQuestionDefinition()
-            .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH);
+            .getContextualizedPath(
+                /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
 
     QuestionAnswerer.answerFileQuestionWithMultipleUpload(
         applicantFive.getApplicantData(),
