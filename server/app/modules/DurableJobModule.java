@@ -43,10 +43,8 @@ import repository.ProgramRepository;
 import repository.ReportingRepository;
 import repository.VersionRepository;
 import scala.concurrent.ExecutionContext;
-import services.applicant.ApplicantService;
 import services.cloud.PublicStorageClient;
 import services.geojson.GeoJsonClient;
-import services.program.ProgramService;
 import services.settings.SettingsManifest;
 
 /**
@@ -122,8 +120,6 @@ public final class DurableJobModule extends AbstractModule {
   @RecurringJobsProviderName
   public DurableJobRegistry provideRecurringDurableJobRegistry(
       AccountRepository accountRepository,
-      ApplicantService applicantService,
-      ProgramService programService,
       @BindingAnnotations.Now Provider<LocalDateTime> nowProvider,
       PersistedDurableJobRepository persistedDurableJobRepository,
       PublicStorageClient publicStorageClient,
