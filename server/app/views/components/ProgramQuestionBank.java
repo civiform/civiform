@@ -45,6 +45,8 @@ public final class ProgramQuestionBank {
   // Url parameter used to force question bank open upon initial rendering
   // of program edit page.
   private static final String SHOW_QUESTION_BANK_PARAM = "sqb";
+  // Url parameter used to indicate a newly created question that should be auto-added to the block
+  public static final String NEWLY_CREATED_QUESTION_ID_PARAM = "newQuestionId";
   // Data attribute used to store which text is relevant when filtering
   // questions via the search bar.
   private static final String RELEVANT_FILTER_TEXT_DATA_ATTR = "relevantfiltertext";
@@ -320,6 +322,22 @@ public final class ProgramQuestionBank {
     try {
       return new URIBuilder(url)
           .setParameter(ProgramQuestionBank.SHOW_QUESTION_BANK_PARAM, "true")
+          .build()
+          .toString();
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * Adds the newly created question ID to the URL so it can be auto-added to the block when the
+   * user returns from question creation.
+   */
+  public static String addNewlyCreatedQuestionIdParam(String url, long questionId) {
+    try {
+      return new URIBuilder(url)
+          .setParameter(
+              ProgramQuestionBank.NEWLY_CREATED_QUESTION_ID_PARAM, String.valueOf(questionId))
           .build()
           .toString();
     } catch (URISyntaxException e) {
