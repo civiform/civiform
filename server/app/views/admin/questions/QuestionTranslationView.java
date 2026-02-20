@@ -176,7 +176,7 @@ public final class QuestionTranslationView extends TranslationFormView {
                     .setText("(edit default)")
                     .setHref(
                         controllers.admin.routes.AdminQuestionController.edit(
-                                questionDefinition.getId())
+                                questionDefinition.getId(), /* redirectUrl= */ "")
                             .url())
                     .setStyles("ml-2")
                     .asAnchorText()),

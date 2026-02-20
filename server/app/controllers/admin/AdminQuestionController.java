@@ -282,7 +282,7 @@ public final class AdminQuestionController extends CiviFormController {
    * to edit them.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public CompletionStage<Result> edit(Request request, Long id) {
+  public CompletionStage<Result> edit(Request request, Long id, String redirectUrl) {
     return service
         .getReadOnlyQuestionService()
         .thenApplyAsync(
@@ -301,7 +301,9 @@ public final class AdminQuestionController extends CiviFormController {
                       .getActiveAndDraftQuestions()
                       .getDraftQuestionDefinition(questionDefinition.getName());
               if (possibleDraft.isPresent() && possibleDraft.get().getId() != id) {
-                return redirect(routes.AdminQuestionController.edit(possibleDraft.get().getId()))
+                return redirect(
+                        routes.AdminQuestionController.edit(
+                            possibleDraft.get().getId(), redirectUrl))
                     .flashing(request.flash().data());
               }
 
@@ -313,9 +315,15 @@ public final class AdminQuestionController extends CiviFormController {
                         .flash()
                         .get(FlashKey.CONCURRENT_UPDATE)
                         .map(m -> ToastMessage.errorNonLocalized(m));
+                Optional<String> optionalRedirectUrl =
+                    redirectUrl.isBlank() ? Optional.empty() : Optional.of(redirectUrl);
                 return ok(
                     editView.renderEditQuestionForm(
-                        request, questionDefinition, maybeEnumerationQuestion, message));
+                        request,
+                        questionDefinition,
+                        maybeEnumerationQuestion,
+                        message,
+                        optionalRedirectUrl));
               } catch (InvalidQuestionTypeException e) {
                 return badRequest(
                     invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));
@@ -335,6 +343,11 @@ public final class AdminQuestionController extends CiviFormController {
     } catch (InvalidQuestionTypeException e) {
       return badRequest(invalidQuestionTypeMessage(questionType));
     }
+
+    String redirectUrl =
+        questionForm.getRedirectUrl().isEmpty()
+            ? routes.AdminQuestionController.index(Optional.empty()).url()
+            : questionForm.getRedirectUrl();
 
     ReadOnlyQuestionService roService =
         service.getReadOnlyQuestionService().toCompletableFuture().join();
@@ -364,7 +377,7 @@ public final class AdminQuestionController extends CiviFormController {
     } catch (ConcurrentUpdateException e) {
       // If there was a concurrent update, load a fresh edit form so the admin sees the concurrently
       // made changes.
-      return redirect(routes.AdminQuestionController.edit(id))
+      return redirect(routes.AdminQuestionController.edit(id, redirectUrl))
           .flashing(
               FlashKey.CONCURRENT_UPDATE,
               "The question was updated by another user while the edit page was open in your"
@@ -388,8 +401,7 @@ public final class AdminQuestionController extends CiviFormController {
     }
 
     String successMessage = String.format("question %s updated", questionForm.getQuestionName());
-    return withSuccessMessage(
-        redirect(routes.AdminQuestionController.index(Optional.empty())), successMessage);
+    return withSuccessMessage(redirect(redirectUrl), successMessage);
   }
 
   private Result withSuccessMessage(Result result, String message) {

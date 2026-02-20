@@ -156,9 +156,13 @@ public final class QuestionEditView extends BaseHtmlView {
       Request request,
       QuestionDefinition questionDefinition,
       Optional<QuestionDefinition> maybeEnumerationQuestionDefinition,
-      Optional<ToastMessage> message)
+      Optional<ToastMessage> message,
+      Optional<String> redirectUrl)
       throws InvalidQuestionTypeException {
     QuestionForm questionForm = QuestionFormBuilder.create(questionDefinition);
+    if (redirectUrl.isPresent()) {
+      questionForm.setRedirectUrl(redirectUrl.get());
+    }
     return renderEditQuestionForm(
         request,
         questionDefinition.getId(),

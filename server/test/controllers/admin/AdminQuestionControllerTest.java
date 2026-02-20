@@ -185,7 +185,8 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
   @Test
   public void edit_invalidIDReturnsBadRequest() {
-    Result result = controller.edit(fakeRequest(), 9999L).toCompletableFuture().join();
+    Result result =
+        controller.edit(fakeRequest(), 9999L, /* redirectUrl= */ "").toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
 
@@ -200,18 +201,23 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     assertThat(publishedQuestion.id).isNotEqualTo(draftQuestion.id);
 
     Result result =
-        controller.edit(fakeRequest(), publishedQuestion.id).toCompletableFuture().join();
+        controller
+            .edit(fakeRequest(), publishedQuestion.id, /* redirectUrl= */ "")
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
-        .hasValue(routes.AdminQuestionController.edit(draftQuestion.id).url());
+        .hasValue(
+            routes.AdminQuestionController.edit(draftQuestion.id, /* redirectUrl= */ "").url());
   }
 
   @Test
   public void edit_returnsPopulatedForm() {
     QuestionModel question = testQuestionBank.nameApplicantName();
     Request request = fakeRequestBuilder().addCSRFToken().build();
-    Result result = controller.edit(request, question.id).toCompletableFuture().join();
+    Result result =
+        controller.edit(request, question.id, /* redirectUrl= */ "").toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Edit name question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
@@ -222,7 +228,11 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   public void edit_repeatedQuestion_hasEnumeratorName() {
     QuestionModel repeatedQuestion = testQuestionBank.nameRepeatedApplicantHouseholdMemberName();
     Request request = fakeRequestBuilder().addCSRFToken().build();
-    Result result = controller.edit(request, repeatedQuestion.id).toCompletableFuture().join();
+    Result result =
+        controller
+            .edit(request, repeatedQuestion.id, /* redirectUrl= */ "")
+            .toCompletableFuture()
+            .join();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Edit name question");
     assertThat(contentAsString(result)).contains("applicant household members");
@@ -339,6 +349,8 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             originalNameQuestion.getQuestionDefinition().getQuestionType().toString());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
+
+    // Redirects to the question index page since redirectUrl is not explicitly set
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminQuestionController.index(Optional.empty()).url());
     assertThat(result.flash().get(FlashKey.SUCCESS).get()).contains("updated");
@@ -354,6 +366,39 @@ public class AdminQuestionControllerTest extends ResetPostgres {
         .isEqualTo("a new description");
     assertThat(updatedNameQuestion.getQuestionTags())
         .isEqualTo(ImmutableList.of(QuestionTag.DEMOGRAPHIC_PII));
+  }
+
+  @Test
+  public void update_redirectsToRedirectUrlAfterUpdateIfOneIsSet() {
+    // We can only update draft questions, so save this in the DRAFT version.
+    QuestionModel originalNameQuestion =
+        testQuestionBank.maybeSave(
+            this.createNameQuestionDuplicate(testQuestionBank.nameApplicantName()),
+            LifecycleStage.DRAFT);
+
+    String redirectUrl = routes.AdminProgramBlocksController.edit(1L, 1L).url();
+
+    ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
+    formData
+        .put("questionName", originalNameQuestion.getQuestionDefinition().getName())
+        .put("questionDescription", "a new description")
+        .put("questionType", originalNameQuestion.getQuestionDefinition().getQuestionType().name())
+        .put("questionText", "question text updated")
+        .put("questionHelpText", "a new help text")
+        .put("questionExportState", "DEMOGRAPHIC_PII")
+        .put("concurrencyToken", originalNameQuestion.getConcurrencyToken().toString())
+        .put("redirectUrl", redirectUrl);
+    RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(formData.build());
+
+    Result result =
+        controller.update(
+            requestBuilder.build(),
+            originalNameQuestion.getQuestionDefinition().getId(),
+            originalNameQuestion.getQuestionDefinition().getQuestionType().toString());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue(redirectUrl);
+    assertThat(result.flash().get(FlashKey.SUCCESS).get()).contains("updated");
   }
 
   @Test
@@ -810,10 +855,13 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             question.getQuestionDefinition().getId(),
             question.getQuestionDefinition().getQuestionType().toString());
 
+    // URL the user will be sent to after successful submission of the question form
+    String redirectUrl = routes.AdminQuestionController.index(Optional.empty()).url();
+
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.flash().data()).containsKey(FlashKey.CONCURRENT_UPDATE);
     assertThat(result.redirectLocation())
-        .hasValue(routes.AdminQuestionController.edit(question.id).url());
+        .hasValue(routes.AdminQuestionController.edit(question.id, redirectUrl).url());
   }
 
   @Test
@@ -841,10 +889,13 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             question.getQuestionDefinition().getId(),
             question.getQuestionDefinition().getQuestionType().toString());
 
+    // URL the user will be sent to after successful submission of the question form
+    String redirectUrl = routes.AdminQuestionController.index(Optional.empty()).url();
+
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.flash().data()).containsKey(FlashKey.CONCURRENT_UPDATE);
     assertThat(result.redirectLocation())
-        .hasValue(routes.AdminQuestionController.edit(question.id).url());
+        .hasValue(routes.AdminQuestionController.edit(question.id, redirectUrl).url());
   }
 
   @Test

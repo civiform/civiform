@@ -662,7 +662,10 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   private ButtonTag renderQuestionEditLink(QuestionDefinition definition, boolean isVisible) {
-    String link = controllers.admin.routes.AdminQuestionController.edit(definition.getId()).url();
+    String link =
+        controllers.admin.routes.AdminQuestionController.edit(
+                definition.getId(), /* redirectUrl= */ "")
+            .url();
     return asRedirectElement(
         makeSvgTextButton("Edit", Icons.EDIT)
             .withClasses(ButtonStyles.CLEAR_WITH_ICON, isVisible ? "" : "invisible"),
