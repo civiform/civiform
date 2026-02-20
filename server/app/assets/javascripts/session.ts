@@ -313,7 +313,10 @@ export class SessionTimeoutHandler {
    * @param type Type of warning to show (inactivity or total length)
    * @param warningTimestamp Timestamp to record (used to detect new sessions and session extension)
    */
-  private static showWarningModal(type: WarningType, warningTimestamp?: number) {
+  private static showWarningModal(
+    type: WarningType,
+    warningTimestamp?: number,
+  ) {
     const modalId =
       type === WarningType.INACTIVITY
         ? `${SessionModalType.INACTIVITY}-modal`
