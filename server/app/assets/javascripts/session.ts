@@ -140,19 +140,19 @@ export class SessionTimeoutHandler {
   }
 
   /**
-   * Set up event handlers for the server-rendered modals and process the extend session form submission.
+   * Set up event handlers for the server-rendered modals and process the extend session button submission.
    */
   private static setupModalEventHandlers() {
-    // HTMX handler remains at document level for form submissions
+    // HTMX handler remains at document level
     document.addEventListener('htmx:afterRequest', (event: Event) => {
       const customEvent = event as CustomEvent
       const detail = customEvent.detail as {
         xhr: XMLHttpRequest
         elt: HTMLElement
       }
-      if (detail.elt.id !== 'extend-session-form') return
+      if (detail.elt.id !== 'extend-session-button') return
 
-      // Processes /extend-session form submissions
+      // Processes /extend-session request
       if (detail.xhr.status === 200) {
         const successText =
           document.getElementById('session-extended-success-text')
@@ -187,15 +187,6 @@ export class SessionTimeoutHandler {
       `${SessionModalType.INACTIVITY}-modal`,
     )
     if (inactivityModal) {
-      // Handle extend session button
-      const extendButton = inactivityModal.querySelector('[data-modal-primary]')
-      extendButton?.addEventListener('click', () => {
-        const form = document.getElementById(
-          'extend-session-form',
-        ) as HTMLFormElement
-        form?.requestSubmit()
-      })
-
       // Handle dismiss/close buttons - USWDS closes natively via data-close-modal,
       // we just need to update our visibility flag
       const closeButtons = inactivityModal.querySelectorAll(
