@@ -31,6 +31,13 @@ import services.applicant.ApplicantData;
 public class ApplicationModel extends BaseModel {
 
   @ManyToOne private ApplicantModel applicant;
+  // The applicant ID that originally created this application.
+  // This will be present when an account (typically a guest) is merged into
+  // another so that references to the original applications that include the
+  // applicant are not broken.
+  // We store the ID instead of a DB relation, as that applicant may be deleted
+  // after the merge.
+  private Long originalApplicantId;
 
   @ManyToOne private ProgramModel program;
 
@@ -68,6 +75,7 @@ public class ApplicationModel extends BaseModel {
             || !applicant.getAccount().getAdministeredProgramNames().isEmpty();
   }
 
+  @VisibleForTesting
   public static ApplicationModel create(
       ApplicantModel applicant, ProgramModel program, LifecycleStage lifecycleStage) {
     ApplicationModel application = new ApplicationModel(applicant, program, lifecycleStage);
@@ -104,6 +112,15 @@ public class ApplicationModel extends BaseModel {
 
   public ApplicantModel getApplicant() {
     return this.applicant;
+  }
+
+  public Optional<Long> getOriginalApplicantId() {
+    return Optional.ofNullable(this.originalApplicantId);
+  }
+
+  public ApplicationModel setOriginalApplicantId(long applicantId) {
+    this.originalApplicantId = applicantId;
+    return this;
   }
 
   public ProgramModel getProgram() {

@@ -110,6 +110,46 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
   }
 
   @Test
+  public void export_whenOriginalApplicantIdIsSet_usesOriginalApplicantId() {
+    var fakeProgram = FakeProgramBuilder.newActiveProgram("fake-program").build();
+    var applicant = resourceCreator.insertApplicantWithAccount();
+    long originalApplicantId = 99999L;
+    var application =
+        FakeApplicationFiller.newFillerFor(fakeProgram, applicant).submit().getApplication();
+    application.setOriginalApplicantId(originalApplicantId);
+    application.save();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            SubmitTimeSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertValueAtPath("applicant_id", originalApplicantId);
+  }
+
+  @Test
+  public void export_whenOriginalApplicantIdIsNotSet_usesCurrentApplicantId() {
+    var fakeProgram = FakeProgramBuilder.newActiveProgram("fake-program").build();
+    var applicant = resourceCreator.insertApplicantWithAccount();
+    FakeApplicationFiller.newFillerFor(fakeProgram, applicant).submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            SubmitTimeSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertValueAtPath("applicant_id", applicant.id);
+  }
+
+  @Test
   public void export_whenSubmitterIsTi_tiTopLevelFieldsAreSet() {
     var fakeProgram = FakeProgramBuilder.newActiveProgram().build();
     FakeApplicationFiller.newFillerFor(fakeProgram)

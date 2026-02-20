@@ -155,6 +155,35 @@ public class ApplicationModelTest extends ResetPostgres {
   }
 
   @Test
+  public void originalApplicantId_defaultsToEmpty() {
+    ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
+
+    ApplicationModel application =
+        resourceCreator.insertActiveApplication(
+            resourceCreator.insertApplicantWithAccount(), program);
+    assertThat(application.getOriginalApplicantId()).isEmpty();
+    application.save();
+
+    application.refresh();
+    assertThat(application.getOriginalApplicantId()).isEmpty();
+  }
+
+  @Test
+  public void originalApplicantId_canBeSetAndPersisted() {
+    long applicantId = 500L;
+    ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
+
+    ApplicationModel application =
+        resourceCreator.insertActiveApplication(
+            resourceCreator.insertApplicantWithAccount(), program);
+    application.setOriginalApplicantId(applicantId);
+    application.save();
+
+    application.refresh();
+    assertThat(application.getOriginalApplicantId()).isEqualTo(Optional.of(applicantId));
+  }
+
+  @Test
   public void create_new_application_updatesLastActivityTime() {
     ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
 
