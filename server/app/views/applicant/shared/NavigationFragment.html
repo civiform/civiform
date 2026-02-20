@@ -96,6 +96,18 @@
       th:replace="~{applicant/shared/ModalFragment :: sessionLengthTimeoutModal}"
     ></th:div>
   </th:block>
+  <div id="session-timeout-messages" hidden>
+    <span
+      id="session-extended-success-text"
+      role="alert"
+      th:text="#{session.extended.success}"
+    ></span>
+    <span
+      id="session-extended-error-text"
+      role="alert"
+      th:text="#{session.extended.error}"
+    ></span>
+  </div>
 </th:block>
 
 <section

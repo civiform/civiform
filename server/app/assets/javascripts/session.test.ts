@@ -3,9 +3,28 @@ import {SessionTimeoutHandler} from '@/session'
 import {ToastController} from '@/toast'
 import {WarningType} from '@/session'
 
+// Mock USWDS modal to simulate toggling is-hidden/is-visible without a real browser DOM
+vi.mock('@uswds/uswds/js/usa-modal', () => ({
+  default: {
+    toggleModal: vi.fn(function (event: {
+      target: {getAttribute: (attr: string) => string | null}
+    }) {
+      const modalId = event.target?.getAttribute?.('aria-controls')
+      if (modalId) {
+        const modal = document.getElementById(modalId)
+        if (modal) {
+          modal.classList.toggle('is-hidden')
+          modal.classList.toggle('is-visible')
+        }
+      }
+    }),
+  },
+}))
+
 type SessionTimeoutHandlerType = typeof SessionTimeoutHandler & {
   logout: () => void
   pollSession: () => void
+  showWarningModal: (type: WarningType, warningTimestamp: number) => void
   inactivityWarningShown: boolean
   totalLengthWarningShown: boolean
   isInitialized: boolean
@@ -15,7 +34,7 @@ describe('SessionTimeoutHandler', () => {
   let container: HTMLElement
   let inactivityModal: HTMLElement
   let lengthModal: HTMLElement
-  let extendSessionForm: HTMLFormElement
+  let extendSessionButton: HTMLButtonElement
   let showToastSpy: ReturnType<typeof vi.spyOn>
 
   /**
@@ -24,30 +43,29 @@ describe('SessionTimeoutHandler', () => {
   function createInactivityModal() {
     inactivityModal = document.createElement('div')
     inactivityModal.id = 'session-inactivity-warning-modal'
-    inactivityModal.classList.add('is-hidden', 'usa-modal')
-    inactivityModal.setAttribute(
-      'data-modal-type',
-      'session-inactivity-warning',
-    )
+    inactivityModal.classList.add('is-hidden', 'usa-modal-wrapper')
 
-    createExtendSessionForm()
-    addSecondaryButton(inactivityModal, 'session-inactivity-warning')
+    createExtendSessionButton()
+    addSecondaryButton(inactivityModal)
     addCloseButton(inactivityModal)
     container.appendChild(inactivityModal)
   }
 
   /**
-   * Create extend session form
+   * Create extend session button with HTMX attributes and hidden CSRF input
    */
-  function createExtendSessionForm() {
-    extendSessionForm = document.createElement('form')
-    extendSessionForm.id = 'extend-session-form'
-    extendSessionForm.setAttribute('hx-post', '/extend-session')
-    extendSessionForm.setAttribute('hx-target', 'this')
-    extendSessionForm.setAttribute('hx-swap', 'none')
-    addCsrfToken()
-    addExtendSessionButton()
-    inactivityModal.appendChild(extendSessionForm)
+  function createExtendSessionButton() {
+    extendSessionButton = document.createElement('button')
+    extendSessionButton.id = 'extend-session-button'
+    extendSessionButton.setAttribute('hx-post', '/extend-session')
+    extendSessionButton.setAttribute('hx-target', 'this')
+    extendSessionButton.setAttribute('hx-swap', 'none')
+    extendSessionButton.setAttribute(
+      'hx-vals',
+      '{"csrfToken": "test-csrf-token"}',
+    )
+    extendSessionButton.setAttribute('data-modal-primary', '')
+    inactivityModal.appendChild(extendSessionButton)
   }
 
   /**
@@ -85,15 +103,13 @@ describe('SessionTimeoutHandler', () => {
   function createLengthWarningModal() {
     lengthModal = document.createElement('div')
     lengthModal.id = 'session-length-warning-modal'
-    lengthModal.classList.add('is-hidden', 'usa-modal')
-    lengthModal.setAttribute('data-modal-type', 'session-length-warning')
+    lengthModal.classList.add('is-hidden', 'usa-modal-wrapper')
 
     // Create primary button (login)
     const loginButton = document.createElement('button')
     loginButton.textContent = 'Login'
     loginButton.classList.add('usa-button')
     loginButton.setAttribute('data-modal-primary', '')
-    loginButton.setAttribute('data-modal-type', 'session-length-warning')
     lengthModal.appendChild(loginButton)
 
     // Create secondary button (cancel)
@@ -101,44 +117,18 @@ describe('SessionTimeoutHandler', () => {
     cancelButton.textContent = 'Cancel'
     cancelButton.classList.add('usa-button', 'usa-button--unstyled')
     cancelButton.setAttribute('data-modal-secondary', '')
-    cancelButton.setAttribute('data-modal-type', 'session-length-warning')
     lengthModal.appendChild(cancelButton)
     container.appendChild(lengthModal)
   }
 
   /**
-   * Adds CSRF token input to a form
-   */
-  function addCsrfToken() {
-    const csrfInput = document.createElement('input')
-    csrfInput.setAttribute('name', 'csrfToken')
-    csrfInput.value = 'test-csrf-token'
-    extendSessionForm.appendChild(csrfInput)
-  }
-
-  /**
-   * Adds extend session button to a form
-   */
-  function addExtendSessionButton() {
-    const primaryButton = document.createElement('button')
-    primaryButton.textContent = 'Extend Session'
-    primaryButton.classList.add('usa-button')
-    primaryButton.setAttribute('data-modal-primary', '')
-    primaryButton.setAttribute('data-modal-type', 'session-inactivity-warning')
-    extendSessionForm.appendChild(primaryButton)
-  }
-
-  /**
    * Adds secondary (cancel) button to a modal
-   * @param modal Modal element to add button to
-   * @param modalType Type of modal (for data attribute)
    */
-  function addSecondaryButton(modal: HTMLElement, modalType: string) {
+  function addSecondaryButton(modal: HTMLElement) {
     const button = document.createElement('button')
     button.textContent = 'Cancel'
     button.classList.add('usa-button', 'usa-button--unstyled')
     button.setAttribute('data-modal-secondary', '')
-    button.setAttribute('data-modal-type', modalType)
     modal.appendChild(button)
   }
 
@@ -151,7 +141,6 @@ describe('SessionTimeoutHandler', () => {
     closeButton.textContent = 'Close'
     closeButton.classList.add('usa-button', 'usa-modal__close')
     closeButton.setAttribute('data-close-modal', '')
-    closeButton.setAttribute('data-modal-type', 'session-inactivity-warning')
     modal.appendChild(closeButton)
   }
 
@@ -307,11 +296,10 @@ describe('SessionTimeoutHandler', () => {
       expect(inactivityModal.classList.contains('is-hidden')).toBe(false)
       expect(SessionTimeoutHandler['inactivityWarningVisible']).toBe(true)
 
-      // // User dismisses the modal
-      // SessionTimeoutHandler['setWarningModalVisible'](
-      //   WarningType.INACTIVITY,
-      //   false,
-      // )
+      // Simulate user dismissing the modal
+      inactivityModal.classList.add('is-hidden')
+      inactivityModal.classList.remove('is-visible')
+      SessionTimeoutHandler['inactivityWarningVisible'] = false
       expect(inactivityModal.classList.contains('is-hidden')).toBe(true)
       expect(SessionTimeoutHandler['inactivityWarningVisible']).toBe(false)
 
@@ -337,11 +325,10 @@ describe('SessionTimeoutHandler', () => {
       expect(lengthModal.classList.contains('is-hidden')).toBe(false)
       expect(SessionTimeoutHandler['totalLengthWarningVisible']).toBe(true)
 
-      // // User dismisses the modal
-      // SessionTimeoutHandler['setWarningModalVisible'](
-      //   WarningType.TOTAL_LENGTH,
-      //   false,
-      // )
+      // Simulate user dismissing the modal
+      lengthModal.classList.add('is-hidden')
+      lengthModal.classList.remove('is-visible')
+      SessionTimeoutHandler['totalLengthWarningVisible'] = false
       expect(lengthModal.classList.contains('is-hidden')).toBe(true)
       expect(SessionTimeoutHandler['totalLengthWarningVisible']).toBe(false)
 
@@ -368,11 +355,10 @@ describe('SessionTimeoutHandler', () => {
       SessionTimeoutHandler['monitorSession'](oldData, now)
       expect(inactivityModal.classList.contains('is-hidden')).toBe(false)
 
-      // // User dismisses and extends session
-      // SessionTimeoutHandler['setWarningModalVisible'](
-      //   WarningType.INACTIVITY,
-      //   false,
-      // )
+      // Simulate user dismissing the modal
+      inactivityModal.classList.add('is-hidden')
+      inactivityModal.classList.remove('is-visible')
+      SessionTimeoutHandler['inactivityWarningVisible'] = false
 
       // Simulate time passing and new warning threshold being reached
       const laterNow = now + 300
@@ -405,12 +391,6 @@ describe('SessionTimeoutHandler', () => {
       SessionTimeoutHandler['monitorSession'](data, now)
       expect(inactivityModal.classList.contains('is-hidden')).toBe(false)
 
-      // // User dismisses the modal
-      // SessionTimeoutHandler['setWarningModalVisible'](
-      //   WarningType.INACTIVITY,
-      //   false,
-      // )
-
       // Simulate page navigation by resetting the visible flag (as would happen on new page load)
       SessionTimeoutHandler['inactivityWarningVisible'] = false
       inactivityModal.classList.add('is-hidden')
@@ -429,7 +409,7 @@ describe('SessionTimeoutHandler', () => {
         const successEvent = new CustomEvent('htmx:afterRequest', {
           detail: {
             xhr: {status: 200},
-            elt: extendSessionForm,
+            elt: extendSessionButton,
           },
         })
 
@@ -454,7 +434,7 @@ describe('SessionTimeoutHandler', () => {
         const failEvent = new CustomEvent('htmx:afterRequest', {
           detail: {
             xhr: {status: 500},
-            elt: extendSessionForm,
+            elt: extendSessionButton,
           },
         })
 
@@ -476,7 +456,7 @@ describe('SessionTimeoutHandler', () => {
         SessionTimeoutHandler.init()
 
         const loginButton = lengthModal.querySelector(
-          '[data-modal-primary][data-modal-type="session-length-warning"]',
+          '[data-modal-primary]',
         ) as HTMLButtonElement
         loginButton?.click()
 
@@ -489,11 +469,12 @@ describe('SessionTimeoutHandler', () => {
         inactivityModal.classList.remove('is-hidden')
 
         const cancelButton = inactivityModal.querySelector(
-          '[data-modal-secondary][data-modal-type="session-inactivity-warning"]',
+          '[data-modal-secondary]',
         ) as HTMLButtonElement
         cancelButton?.click()
 
-        expect(inactivityModal.classList.contains('is-hidden')).toBe(true)
+        // USWDS handles the CSS class toggling via data-close-modal;
+        // our handler only updates the visibility flag
         expect(SessionTimeoutHandler['inactivityWarningVisible']).toBe(false)
       })
 
@@ -503,11 +484,12 @@ describe('SessionTimeoutHandler', () => {
         lengthModal.classList.remove('is-hidden')
 
         const cancelButton = lengthModal.querySelector(
-          '[data-modal-secondary][data-modal-type="session-length-warning"]',
+          '[data-modal-secondary]',
         ) as HTMLButtonElement
         cancelButton?.click()
 
-        expect(lengthModal.classList.contains('is-hidden')).toBe(true)
+        // USWDS handles the CSS class toggling via data-close-modal;
+        // our handler only updates the visibility flag
         expect(SessionTimeoutHandler['totalLengthWarningVisible']).toBe(false)
       })
     })
@@ -536,15 +518,16 @@ describe('SessionTimeoutHandler', () => {
         })
       })
 
-      it('handles primary button click for inactivity warning', () => {
+      it('extend session button has htmx attributes configured', () => {
         SessionTimeoutHandler.init()
-        const primaryButton = inactivityModal.querySelector(
-          '[data-modal-primary][data-modal-type="session-inactivity-warning"]',
-        ) as HTMLButtonElement
-        const requestSubmitSpy = vi.spyOn(extendSessionForm, 'requestSubmit')
-
-        primaryButton?.click()
-        expect(requestSubmitSpy).toHaveBeenCalled()
+        expect(extendSessionButton.getAttribute('hx-post')).toBe(
+          '/extend-session',
+        )
+        expect(extendSessionButton.getAttribute('hx-target')).toBe('this')
+        expect(extendSessionButton.getAttribute('hx-swap')).toBe('none')
+        expect(extendSessionButton.getAttribute('hx-vals')).toContain(
+          'csrfToken',
+        )
       })
 
       it('handles primary button click for session length warning', () => {
@@ -555,7 +538,7 @@ describe('SessionTimeoutHandler', () => {
         SessionTimeoutHandler.init()
 
         const primaryButton = lengthModal.querySelector(
-          '[data-modal-primary][data-modal-type="session-length-warning"]',
+          '[data-modal-primary]',
         ) as HTMLButtonElement
         primaryButton?.click()
 
@@ -565,7 +548,7 @@ describe('SessionTimeoutHandler', () => {
       it('handles secondary button click', () => {
         SessionTimeoutHandler.init()
         const secondaryButton = inactivityModal.querySelector(
-          '[data-modal-secondary][data-modal-type="session-inactivity-warning"]',
+          '[data-modal-secondary]',
         ) as HTMLButtonElement
         secondaryButton?.click()
 
@@ -576,7 +559,7 @@ describe('SessionTimeoutHandler', () => {
       it('handles close button click', () => {
         SessionTimeoutHandler.init()
         const closeButton = inactivityModal.querySelector(
-          '[data-close-modal][data-modal-type="session-inactivity-warning"]',
+          '.usa-modal__close[data-close-modal]',
         ) as HTMLButtonElement
         closeButton?.click()
 
@@ -589,7 +572,7 @@ describe('SessionTimeoutHandler', () => {
         const successEvent = new CustomEvent('htmx:afterRequest', {
           detail: {
             xhr: {status: 200},
-            elt: extendSessionForm,
+            elt: extendSessionButton,
           },
         })
 
@@ -663,10 +646,10 @@ describe('SessionTimeoutHandler', () => {
       })
 
       it('shows inactivity warning immediately if time has passed and not shown before', () => {
-        const setWarningModalVisibleSpy = vi.spyOn(
+        const showWarningModalSpy = vi.spyOn(
           SessionTimeoutHandler as SessionTimeoutHandlerType,
-          'setWarningModalVisible',
-        ) as Mock<(type: WarningType) => void>
+          'showWarningModal',
+        ) as Mock<(type: WarningType, warningTimestamp: number) => void>
 
         const now = Math.floor(Date.now() / 1000)
 
@@ -681,18 +664,17 @@ describe('SessionTimeoutHandler', () => {
         )}`
 
         SessionTimeoutHandler['pollSession']()
-        expect(setWarningModalVisibleSpy).toHaveBeenCalledWith(
+        expect(showWarningModalSpy).toHaveBeenCalledWith(
           WarningType.INACTIVITY,
-          true,
           expect.any(Number),
         )
       })
 
       it('shows total length warning if time has passed and no other warning shown', () => {
-        const setWarningModalVisibleSpy = vi.spyOn(
+        const showWarningModalSpy = vi.spyOn(
           SessionTimeoutHandler as SessionTimeoutHandlerType,
-          'setWarningModalVisible',
-        ) as Mock<(type: WarningType) => void>
+          'showWarningModal',
+        ) as Mock<(type: WarningType, warningTimestamp: number) => void>
 
         const now = Math.floor(Date.now() / 1000)
 
@@ -707,17 +689,16 @@ describe('SessionTimeoutHandler', () => {
         )}`
 
         SessionTimeoutHandler['pollSession']()
-        expect(setWarningModalVisibleSpy).toHaveBeenCalledWith(
+        expect(showWarningModalSpy).toHaveBeenCalledWith(
           WarningType.TOTAL_LENGTH,
-          true,
           expect.any(Number),
         )
       })
 
       it('does not show total length warning if inactivity warning is showing', () => {
-        const setWarningModalVisibleSpy = vi.spyOn(
+        const showWarningModalSpy = vi.spyOn(
           SessionTimeoutHandler as SessionTimeoutHandlerType,
-          'setWarningModalVisible',
+          'showWarningModal',
         )
         const now = Math.floor(Date.now() / 1000)
 
@@ -735,14 +716,14 @@ describe('SessionTimeoutHandler', () => {
         )}`
 
         SessionTimeoutHandler['pollSession']()
-        expect(setWarningModalVisibleSpy).not.toHaveBeenCalled()
+        expect(showWarningModalSpy).not.toHaveBeenCalled()
       })
 
       it('sets timer for future inactivity warning', () => {
-        const setWarningModalVisibleSpy = vi.spyOn(
+        const showWarningModalSpy = vi.spyOn(
           SessionTimeoutHandler as SessionTimeoutHandlerType,
-          'setWarningModalVisible',
-        ) as Mock<(type: WarningType) => void>
+          'showWarningModal',
+        ) as Mock<(type: WarningType, warningTimestamp: number) => void>
 
         const now = Math.floor(Date.now() / 1000)
 
@@ -760,9 +741,8 @@ describe('SessionTimeoutHandler', () => {
 
         // Fast forward to warning time
         vi.advanceTimersByTime(60000)
-        expect(setWarningModalVisibleSpy).toHaveBeenCalledWith(
+        expect(showWarningModalSpy).toHaveBeenCalledWith(
           WarningType.INACTIVITY,
-          true,
           expect.any(Number),
         )
       })
