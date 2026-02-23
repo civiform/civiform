@@ -9,6 +9,18 @@
 -J--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED
 -J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED
 -J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED
+-J--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED
+
+# Required for Java 25 compatibility - base module access
+-J--add-opens=java.base/java.lang=ALL-UNNAMED
+-J--add-opens=java.base/java.lang.invoke=ALL-UNNAMED
+-J--add-opens=java.base/java.util=ALL-UNNAMED
+
+# Enable native access for JNA and other native libraries
+-J--enable-native-access=ALL-UNNAMED
+
+# Increase heap size for compilation
+-J-Xmx2G
 
 # Enables Java Assertions, does not affect output from `sbt dist`
 -J-enableassertions

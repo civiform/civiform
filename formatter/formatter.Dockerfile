@@ -1,14 +1,7 @@
 # syntax=docker/dockerfile:1@sha256:b6afd42430b15f2d2a4c5a02b919e98a525b785b1aaff16747d2f623364e39b6
-# The eclipse-temurin image and the standard openJDK11 fails to run on M1 Macs because it is incompatible with ARM architecture. This
-# workaround uses an aarch64 (arm64) image instead when an optional platform argument is set to arm64.
-# Docker's BuildKit skips unused stages so the image for the platform that isn't used will not be built.
+FROM eclipse-temurin:25.0.1_8-jdk-alpine
 
-FROM eclipse-temurin:17.0.18_8-jdk-alpine@sha256:903e865ecd125a01759fd156d042b998aa86957262f6dec4745125a47bd4f882 AS amd64
-FROM bellsoft/liberica-openjdk-alpine:17.0.16-12@sha256:ed3d715eb5d00e7929d47b3bd4c4b872d773dc4830cf34222ccc9ab3ab1c9a84 AS arm64
-
-FROM ${TARGETARCH}
-
-ENV JAVA_FORMATTER_URL="https://github.com/google/google-java-format/releases/download/v1.22.0/google-java-format-1.22.0-all-deps.jar"
+ENV JAVA_FORMATTER_URL="https://github.com/google/google-java-format/releases/download/v1.34.1/google-java-format-1.34.1-all-deps.jar"
 
 RUN wget $JAVA_FORMATTER_URL -O /fmt.jar && \
     apk update && \

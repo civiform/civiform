@@ -55,17 +55,14 @@
     },
     {
       groupName: "jdk and jre",
-      // Allow for version 17.*
+      // Allow for version 25.*
       // 
       // Examples of what this should match are:
-      //   17.0.12_7-jdk-alpine
-      //   17.0.12_7-jre-alpine
-      //   17.0.12-10
-      allowedVersions: "/^17\\.([0-9]*)\\.([0-9]*)([-_]?)([0-9]*)(-?.*)$/",
-      matchPackageNames: [
-        "bellsoft/liberica-openjdk-alpine{/,}**",
-        "eclipse-temurin{/,}**",
-      ],
+      //   25.0.12_7-jdk-alpine
+      //   25.0.12_7-jre-alpine
+      //   25.0.12-10
+      allowedVersions: "/^25\\.([0-9]*)\\.([0-9]*)([-_]?)([0-9]*)(-?.*)$/",
+      matchPackageNames: ["eclipse-temurin{/,}**"],
     },
     {
       groupName: "jupiter",
