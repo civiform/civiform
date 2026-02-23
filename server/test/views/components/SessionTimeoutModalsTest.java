@@ -24,15 +24,17 @@ public class SessionTimeoutModalsTest extends ResetPostgres {
   @Test
   public void render_createsCorrectStructure() {
     String csrfToken = "test-csrf-token";
-    DivTag result = SessionTimeoutModals.render(messages, csrfToken);
-    String html = result.render();
+    List<DivTag> result = SessionTimeoutModals.render(messages, csrfToken);
+    String html =
+        result.stream().map(DivTag::render).collect(java.util.stream.Collectors.joining());
     assertSessionTimeoutModalStructure(html, csrfToken);
   }
 
   @Test
   public void render_modalsAreHiddenByDefault() {
-    DivTag result = SessionTimeoutModals.render(messages, "test-csrf-token");
-    String html = result.render();
+    List<DivTag> result = SessionTimeoutModals.render(messages, "test-csrf-token");
+    String html =
+        result.stream().map(DivTag::render).collect(java.util.stream.Collectors.joining());
 
     assertThat(html).contains("class=\"hidden\"");
     assertThat(html).contains("session-timeout-messages");
