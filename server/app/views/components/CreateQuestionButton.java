@@ -9,6 +9,7 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import java.util.Locale;
+import java.util.Optional;
 import play.mvc.Http;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
@@ -23,6 +24,7 @@ public final class CreateQuestionButton {
   public static DivTag renderCreateQuestionButton(
       String questionCreateRedirectUrl,
       boolean isPrimaryButton,
+      Optional<String> enumeratorQuestion,
       SettingsManifest settingsManifest,
       Http.Request request) {
     String parentId = "create-question-button";
@@ -65,7 +67,7 @@ public final class CreateQuestionButton {
       String typeString = type.toString().toLowerCase(Locale.ROOT);
       String link =
           controllers.admin.routes.AdminQuestionController.newOne(
-                  typeString, questionCreateRedirectUrl)
+                  typeString, questionCreateRedirectUrl, enumeratorQuestion)
               .url();
       ATag linkTag =
           a().withHref(link)

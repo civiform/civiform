@@ -881,6 +881,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
     test('can use the "Add repeated screen" button to add repeated screens', async ({
       page,
+      adminPrograms,
     }) => {
       const blockPanel = page.getByTestId('block-panel-edit')
       const addRepeatedScreenButton = blockPanel.getByRole('button', {
@@ -914,7 +915,22 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await navigateToRepeatedScreen(page, 4, 2)
       })
 
+      await test.step('Verify that creating a repeated question pre-selects the enumerator question.', async () => {
+        await page.getByRole('button', {name: 'Add a question'}).click()
+        await page.getByRole('button', {name: 'Create new question'}).click()
+        await page.getByRole('link', {name: 'Text', exact: true}).click()
+        await expect(page.getByLabel('Question enumerator')).toBeDisabled()
+        await expect(
+          page.getByLabel('Question enumerator').locator('option[selected]'),
+        ).toHaveText('pets enumerator')
+      })
+
+      await test.step('Go to the program block edit page', async () => {
+        await adminPrograms.gotoEditDraftProgramPage('Enumerator test program')
+      })
+
       await test.step('Verify that we can add a repeated screen from another repeated screen', async () => {
+        await navigateToRepeatedScreen(page, 4, 2)
         await addRepeatedScreenButton.click()
         await expectCurrentBlockTitle(
           /* isRepeatedBlock= */ true,
