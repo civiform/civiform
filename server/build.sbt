@@ -77,7 +77,7 @@ lazy val root = (project in file("."))
       "org.glassfish.jaxb" % "jaxb-runtime" % "4.0.6",
 
       // Code autogeneration
-      "org.projectlombok" % "lombok" % "1.18.42",
+      "org.projectlombok" % "lombok" % "1.18.42" % "provided",
 
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
@@ -142,8 +142,7 @@ lazy val root = (project in file("."))
       "com.networknt" % "json-schema-validator" % "2.0.1",
 
       // Logstash to write JSON formatted log lines with logback
-      "net.logstash.logback" % "logstash-logback-encoder" % "8.1",
-      "org.projectlombok" % "lombok" % "1.18.42" % "provided"
+      "net.logstash.logback" % "logstash-logback-encoder" % "8.1"
     ),
     javacOptions ++= {
       val defaultCompilerOptions = Seq(
