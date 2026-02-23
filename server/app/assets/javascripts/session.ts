@@ -194,7 +194,6 @@ export class SessionTimeoutHandler {
       )
       closeButtons.forEach((button) => {
         button.addEventListener('click', () => {
-          this.showWarningModal(WarningType.INACTIVITY)
           this.inactivityWarningVisible = false
         })
       })
