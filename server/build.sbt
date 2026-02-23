@@ -77,7 +77,7 @@ lazy val root = (project in file("."))
       "org.glassfish.jaxb" % "jaxb-runtime" % "4.0.6",
 
       // Code autogeneration
-      "org.projectlombok" % "lombok" % "1.18.42",
+      "org.projectlombok" % "lombok" % "1.18.42" % "provided",
 
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
@@ -95,8 +95,12 @@ lazy val root = (project in file("."))
 
       // Autovalue
       "com.google.auto.value" % "auto-value-annotations" % "1.11.1",
-      "com.google.auto.value" % "auto-value" % "1.11.1",
 
+      // Add AutoValue as a compile-only dependency, but strip out its shaded variant to avoid classpath conflicts
+      "com.google.auto.value" % "auto-value" % "1.11.1" % "provided" exclude (
+        "com.google.auto.value",
+        "auto-value-shaded"
+      ),
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.42.0",
       "org.checkerframework" % "dataflow-errorprone" % "3.53.1",
@@ -149,6 +153,9 @@ lazy val root = (project in file("."))
         "-Xlint:deprecation",
         "-XDcompilePolicy=simple",
         "-implicit:class",
+        // As of Java 21+ auto-discovery of annotation processors is more strict so they need to be explicitly declared now
+        "-processor",
+        "com.google.auto.value.processor.AutoValueProcessor,com.google.auto.value.processor.AutoOneOfProcessor,lombok.launch.AnnotationProcessorHider$AnnotationProcessor",
         // The compile option below is a hack that preserves generated files. Normally,
         // AutoValue generates .java files, compiles them into .class files, and then deletes
         // the .java files. This option keeps the .java files in the specified directory,
