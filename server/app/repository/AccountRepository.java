@@ -285,6 +285,13 @@ public final class AccountRepository {
     return newer;
   }
 
+  public ApplicantModel mergeApplicants(
+      ApplicantModel mergeFrom, ApplicantModel mergeTo, boolean logOperation) {
+    // TODO(#11389): Implement new merge logic.
+    logger.error("New merge logic is not implemented");
+    return mergeTo;
+  }
+
   public List<TrustedIntermediaryGroupModel> listTrustedIntermediaryGroups() {
     return database
         .find(TrustedIntermediaryGroupModel.class)

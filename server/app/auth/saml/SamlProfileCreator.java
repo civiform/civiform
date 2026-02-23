@@ -87,7 +87,13 @@ public class SamlProfileCreator extends AuthenticatorProfileCreator {
         profileUtils.optionalCurrentUserProfile(callContext.webContext());
     Function<Optional<CiviFormProfile>, UserProfile> mergeFunction =
         (cProfile) -> this.mergeCiviFormProfile(cProfile, profile);
-    return civiFormProfileMerger.mergeProfiles(existingApplicant, guestProfile, mergeFunction);
+    return civiFormProfileMerger.mergeProfiles(
+        existingApplicant,
+        guestProfile,
+        mergeFunction,
+        // SAML is not currently used so we won't bother with enabling it
+        // for  the dry run.
+        /* newMergingDryRun= */ false);
   }
 
   @VisibleForTesting

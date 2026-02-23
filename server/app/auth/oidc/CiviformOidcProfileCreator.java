@@ -224,7 +224,11 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
 
     Function<Optional<CiviFormProfile>, UserProfile> mergeFunction =
         (civiFormProfile) -> this.mergeCiviFormProfile(civiFormProfile, oidcProfile);
-    return civiFormProfileMerger.mergeProfiles(existingApplicant, guestProfile, mergeFunction);
+    return civiFormProfileMerger.mergeProfiles(
+        existingApplicant,
+        guestProfile,
+        mergeFunction,
+        settingsManifest.getNewApplicantGuestMergingStrategyDryRunEnabled());
   }
 
   /**

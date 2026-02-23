@@ -53,7 +53,8 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
             /* mergeFunction= */ (civiFormProfile) -> {
               assertThat(civiFormProfile).isEmpty();
               return userProfile;
-            });
+            },
+            /* newMergingDryRun= */ false);
 
     assertThat(merged).hasValue(userProfile);
   }
@@ -71,7 +72,8 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
               var profileData = civiFormProfile.orElseThrow().getProfileData();
               assertThat(profileData.getId()).isEqualTo(expectedAccountId.toString());
               return userProfile;
-            });
+            },
+            /* newMergingDryRun= */ false);
 
     assertThat(merged).hasValue(userProfile);
   }
@@ -90,7 +92,8 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
               assertThat(innerCiviformProfile.orElseThrow().getProfileData().getId())
                   .isEqualTo(expectedAccountId.toString());
               return userProfile;
-            });
+            },
+            /* newMergingDryRun= */ false);
 
     assertThat(merged).hasValue(userProfile);
   }
@@ -112,7 +115,8 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
                       innerCiviformProfile.orElseThrow().getProfileData().getAttribute(EMAIL_ATTR))
                   .isEqualTo(EMAIL);
               return userProfile;
-            });
+            },
+            /* newMergingDryRun= */ false);
 
     assertThat(merged).hasValue(userProfile);
   }
@@ -150,7 +154,8 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
               assertThat(innerCiviFormProfile.orElseThrow().getProfileData().getId())
                   .isEqualTo(expectedAccountId.toString());
               return userProfile;
-            });
+            },
+            /* newMergingDryRun= */ false);
 
     assertThat(merged).hasValue(userProfile);
 
@@ -198,7 +203,8 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
                 Optional.of(guestProfile),
                 /* mergeFunction= */ (unused) -> {
                   throw new RuntimeException();
-                }));
+                },
+                /* newMergingDryRun= */ false));
 
     loggedInApplicant.refresh();
     guestApplicant.refresh();

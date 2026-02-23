@@ -2,12 +2,19 @@ package auth;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import io.ebean.DB;
+import io.ebean.Transaction;
+import io.ebean.TxScope;
+import io.ebean.annotation.TxIsolation;
+import io.ebean.annotation.TxType;
 import java.util.Optional;
 import java.util.function.Function;
 import javax.inject.Provider;
 import models.AccountModel;
 import models.ApplicantModel;
 import org.pac4j.core.profile.UserProfile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import repository.AccountRepository;
 import repository.DatabaseExecutionContext;
 import repository.TransactionManager;
@@ -19,6 +26,7 @@ public final class CiviFormProfileMerger {
   private final Provider<AccountRepository> applicantRepositoryProvider;
   private final DatabaseExecutionContext dbExecutionContext;
   private final TransactionManager transactionManager;
+  private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   public CiviFormProfileMerger(
       ProfileFactory profileFactory,
@@ -47,7 +55,19 @@ public final class CiviFormProfileMerger {
   public Optional<UserProfile> mergeProfiles(
       Optional<ApplicantModel> optionalApplicantInDatabase,
       Optional<CiviFormProfile> optionalGuestProfile,
-      Function<Optional<CiviFormProfile>, UserProfile> mergeFunction) {
+      Function<Optional<CiviFormProfile>, UserProfile> mergeFunction,
+      boolean newMergingDryRun) {
+    // Testing the new merging code as a logging side effect.
+    if (newMergingDryRun) {
+      try (Transaction transaction =
+          DB.beginTransaction(
+              TxScope.required()
+                  .setIsolation(TxIsolation.SERIALIZABLE)
+                  .setType(TxType.REQUIRES_NEW))) {
+        logger.info("Updated Guest Merge Dry Run");
+        transaction.rollback();
+      }
+    }
     return supplyAsync(
             () ->
                 transactionManager.execute(
@@ -55,7 +75,9 @@ public final class CiviFormProfileMerger {
                       // Merge the applicant with the guest profile.
                       Optional<CiviFormProfile> optionalApplicantProfile =
                           mergeApplicantAndGuestProfile(
-                              optionalApplicantInDatabase, optionalGuestProfile);
+                              optionalApplicantInDatabase,
+                              optionalGuestProfile,
+                              /* newMergingDryRun= */ false);
 
                       // Let the caller finish the merge process. The merge
                       // function will handle the profile missing as
@@ -68,7 +90,8 @@ public final class CiviFormProfileMerger {
 
   private Optional<CiviFormProfile> mergeApplicantAndGuestProfile(
       Optional<ApplicantModel> optionalApplicantInDatabase,
-      Optional<CiviFormProfile> optionalGuestProfile) {
+      Optional<CiviFormProfile> optionalGuestProfile,
+      boolean newMergingDryRun) {
     // This method makes some subjective decisions around the guest
     // profile's data which is informed by an applicant being present or not.
 
@@ -96,20 +119,35 @@ public final class CiviFormProfileMerger {
     // Merge the two applicants.
     return Optional.of(
         mergeApplicantAndGuestProfile(
-            optionalApplicantInDatabase.get(), optionalGuestProfile.get()));
+            optionalApplicantInDatabase.get(), optionalGuestProfile.get(), newMergingDryRun));
   }
 
   private CiviFormProfile mergeApplicantAndGuestProfile(
-      ApplicantModel applicantInDatabase, CiviFormProfile sessionGuestProfile) {
+      ApplicantModel applicantInDatabase,
+      CiviFormProfile sessionGuestProfile,
+      boolean newMergingDryRun) {
     // Merge guest applicant data with already existing account in database.
     // TODO(#11304#issuecomment-3233634460): this merges the older account
     // into the newer which is incorrect.
     ApplicantModel guestApplicant = sessionGuestProfile.getApplicant().join();
     AccountModel existingAccount = applicantInDatabase.getAccount();
-    ApplicantModel mergedApplicant =
-        applicantRepositoryProvider
-            .get()
-            .mergeApplicantsOlderIntoNewer(guestApplicant, applicantInDatabase, existingAccount);
+
+    final ApplicantModel mergedApplicant;
+    if (newMergingDryRun) {
+      mergedApplicant =
+          applicantRepositoryProvider
+              .get()
+              .mergeApplicants(
+                  /* mergeFrom= */ guestApplicant,
+                  /* mergeTo= */ applicantInDatabase,
+                  /* logOperation= */ true);
+
+    } else {
+      mergedApplicant =
+          applicantRepositoryProvider
+              .get()
+              .mergeApplicantsOlderIntoNewer(guestApplicant, applicantInDatabase, existingAccount);
+    }
     return profileFactory.wrap(mergedApplicant);
   }
 }
