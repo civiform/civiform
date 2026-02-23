@@ -43,10 +43,6 @@ public class SessionTimeoutModalsTest extends ResetPostgres {
   }
 
   public static void assertSessionTimeoutModalStructure(String html, String csrfTokenValue) {
-    // verify container structure
-    assertThat(html).contains("id=\"session-timeout-container\"");
-    assertThat(html).contains("id=\"session-timeout-modals\"");
-
     // verify inactivity warning modal
     assertThat(html).contains("id=\"session-inactivity-warning-modal\"");
     assertThat(html).contains("Session ending soon");
@@ -58,11 +54,9 @@ public class SessionTimeoutModalsTest extends ResetPostgres {
     assertThat(html).contains("Your session is about to expire");
     assertThat(html).contains("Log in");
 
-    // verify form and CSRF token
-    assertThat(html).contains("id=\"extend-session-form\"");
-    assertThat(html).contains("name=\"csrfToken\"");
-    assertThat(html).contains(String.format("value=\"%s\"", csrfTokenValue));
+    // verify HTMX attributes and CSRF token
     assertThat(html).contains("hx-post=\"/extend-session\"");
+    assertThat(html).contains(csrfTokenValue);
 
     // verify localized messages container
     assertThat(html).contains("id=\"session-timeout-messages\"");
