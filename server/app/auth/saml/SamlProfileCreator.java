@@ -92,7 +92,7 @@ public class SamlProfileCreator extends AuthenticatorProfileCreator {
         guestProfile,
         mergeFunction,
         // SAML is not currently used so we won't bother with enabling it
-        // for  the dry run.
+        // for the dry run.
         /* newMergingDryRun= */ false);
   }
 
