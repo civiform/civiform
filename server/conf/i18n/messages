@@ -1205,6 +1205,9 @@ description.repeatedSet.questionText=Add text that will prompt applicants to lis
 description.repeatedSet.hintText=Add a hint that will help applicants decide what entities to list out.
 # A button for admins to add a repeated screen to a program
 button.addRepeatedScreen=Add repeated screen
+# A button for admins to add a pre-existing enumerator question to a program
+button.addQuestion=Add question
+
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #

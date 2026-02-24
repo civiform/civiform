@@ -69,6 +69,7 @@ public enum MessageKey {
   BANNER_TITLE("banner.title"),
   BUTTON_ADD_NEW_CLIENT("button.addNewClient"),
   BUTTON_ADD_REPEATED_SCREEN("button.addRepeatedScreen"),
+  BUTTON_ADD_QUESTION("button.addQuestion"),
   BUTTON_BACK_TO_CLIENT_LIST("button.backToClientList"),
   BUTTON_CANCEL("button.cancel"),
   BUTTON_CLOSE("button.close"),

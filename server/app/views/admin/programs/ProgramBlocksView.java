@@ -841,8 +841,26 @@ public final class ProgramBlocksView extends ProgramBaseView {
     return div(
             renderCreationMethodRadioButtons(messages),
             renderNewEnumeratorQuestionForm(
-                request, messages, programId, blockId, optionalQuestionForm, errorMessages))
+                request, messages, programId, blockId, optionalQuestionForm, errorMessages),
+            renderChooseExistingQuestion(messages))
         .withId("enumerator-setup");
+  }
+
+  private FieldsetTag renderChooseExistingQuestion(Messages messages) {
+    return fieldset(
+            div()
+                .with(
+                    p(messages.at(MessageKey.HEADING_REPEATED_SET_QUESTION.getKeyName()))
+                        .withId("repeated-set-question-section-heading")
+                        .withClasses("text-lg", "font-bold", "margin-bottom-05")
+                        .withTabindex(-1)
+                        .with(ViewUtils.requiredQuestionIndicator())),
+            submitButton(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName()))
+                .withId("Add-question")
+                .attr("data-testid", "add-question-button")
+                .withClasses("usa-button", "usa-button--primary", "margin-top-105"))
+        .withId("add-question-section")
+        .withClass("hidden");
   }
 
   private FieldsetTag renderCreationMethodRadioButtons(Messages messages) {
@@ -858,7 +876,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
                     .withName("creation-method-option")
                     .withId("create-new")
                     .withValue("create-new")
-                    .withClass("usa-radio__input usa-radio__input--tile"),
+                    .withClass("usa-radio__input usa-radio__input--tile")
+                    .attr("checked", "checked")
+                    .attr("data-testid", "create-new-radio"),
                 label(messages.at(MessageKey.OPTION_REPEATED_SET_CREATE_NEW.getKeyName()))
                     .withClass("usa-radio__label")
                     .attr("for", "create-new")),
@@ -869,11 +889,13 @@ public final class ProgramBlocksView extends ProgramBaseView {
                     .withType("radio")
                     .withName("creation-method-option")
                     .withId("choose-existing")
+                    .attr("data-testid", "choose-existing-radio")
                     .withValue("choose-existing")
                     .withClass("usa-radio__input usa-radio__input--tile"),
                 label(messages.at(MessageKey.OPTION_REPEATED_SET_CHOOSE_EXISTING.getKeyName()))
                     .withClass("usa-radio__label")
-                    .attr("for", "choose-existing"))
+                    .attr("for", "choose-existing")
+                    .attr("data-testid", "choose-existing-radio-label"))
             .withClasses("usa-fieldset", "margin-y-2"));
   }
 
@@ -892,6 +914,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             "hx-post",
             routes.AdminProgramBlockQuestionsController.hxCreateEnumerator(programId, blockId)
                 .url())
+        .attr("data-testid", "create-new-question-form")
         .attr("hx-target", "#enumerator-setup")
         .attr("hx-swap", "outerHTML show:top")
         .with(
