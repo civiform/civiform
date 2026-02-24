@@ -116,14 +116,15 @@ public final class SimpleEmail implements EmailSendClient {
       SendEmailRequest emailRequest =
           SendEmailRequest.builder().destination(destination).message(msg).source(sender).build();
       client.get().sendEmail(emailRequest);
+      // Increase the count of emails sent.
+      emailSendMetrics.getEmailSendCount().labels(String.valueOf(HttpStatusCode.OK)).inc();
     } catch (SesException e) {
       logger.error(e.toString());
       e.printStackTrace();
       emailSendMetrics.getEmailFailCount().inc();
       emailSendMetrics.getEmailSendCount().labels(String.valueOf(e.statusCode())).inc();
     } finally {
-      // Increase the count of emails sent.
-      emailSendMetrics.getEmailSendCount().labels(String.valueOf(HttpStatusCode.OK)).inc();
+      
       // Record the execution time of the email sending process.
       timer.observeDuration();
     }

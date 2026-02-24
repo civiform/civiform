@@ -128,14 +128,15 @@ public class GraphApiEmailClient implements EmailSendClient {
             .sendMail()
             .post(sendMailPostRequestBody);
       }
+      // Increase the count of emails sent.
+      emailSendMetrics.getEmailSendCount().labels(String.valueOf(HttpStatusCode.OK)).inc();
     } catch (ApiException e) {
       logger.error(e.toString());
       e.printStackTrace();
       emailSendMetrics.getEmailFailCount().inc();
       emailSendMetrics.getEmailSendCount().labels(String.valueOf(e.getResponseStatusCode())).inc();
     } finally {
-      // Increase the count of emails sent.
-      emailSendMetrics.getEmailSendCount().labels(String.valueOf(HttpStatusCode.OK)).inc();
+      
       // Record the execution time of the email sending process.
       timer.observeDuration();
     }
