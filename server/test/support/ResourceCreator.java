@@ -259,7 +259,7 @@ public class ResourceCreator {
     accountEmail.ifPresent(account::setEmailAddress);
     // If the account has an email, it is an authorized user and should have an
     // authority ID.
-    accountEmail.ifPresent(unused -> account.setAuthorityId(UUID.randomUUID().toString()));
+    accountEmail.ifPresent(_ -> account.setAuthorityId(UUID.randomUUID().toString()));
     account.save();
     applicant.setAccount(account);
     applicant.save();
