@@ -1132,7 +1132,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
                         return getOrMakeFileRecord(key.get(), originalFileName, applicantId)
                             .thenComposeAsync(
-                                (StoredFileModel unused) ->
+                                _ ->
                                     applicantService.stageAndUpdateIfValid(
                                         applicantId,
                                         programId,
