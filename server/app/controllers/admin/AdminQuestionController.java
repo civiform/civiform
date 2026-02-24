@@ -236,11 +236,14 @@ public final class AdminQuestionController extends CiviFormController {
       return badRequest(e.toString());
     }
 
-    String successMessage = String.format("question %s created", questionForm.getQuestionName());
+    String successMessage =
+        String.format(
+            "question %s created and added to the program block", questionForm.getQuestionName());
     String redirectUrl =
         questionForm.getRedirectUrl().isEmpty()
             ? routes.AdminQuestionController.index(Optional.empty()).url()
-            : questionForm.getRedirectUrl();
+            : views.components.ProgramQuestionBank.addNewlyCreatedQuestionIdParam(
+                questionForm.getRedirectUrl(), result.getResult().getId());
     return withSuccessMessage(redirect(redirectUrl), successMessage);
   }
 
