@@ -119,9 +119,9 @@ public final class SessionTimeoutModals {
         body,
         "session-length-warning",
         messages.at(MessageKey.SESSION_WARNING_TITLE.getKeyName()),
-        messages.at(MessageKey.SESSION_LOGIN_BUTTON_LOGGED_IN.getKeyName()),
+        "",
         /* hasFooter= */ true,
-        messages.at(MessageKey.BUTTON_CANCEL.getKeyName()),
-        messages.at(MessageKey.BUTTON_CLOSE.getKeyName()));
+        messages.at(MessageKey.SESSION_LOGIN_BUTTON_LOGGED_IN.getKeyName()),
+        messages.at(MessageKey.BUTTON_CANCEL.getKeyName()));
   }
 }
