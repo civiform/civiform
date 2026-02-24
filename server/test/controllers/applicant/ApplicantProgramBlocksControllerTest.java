@@ -1,6 +1,5 @@
 package controllers.applicant;
 
-import static controllers.applicant.ApplicantProgramBlocksController.ADDRESS_JSON_SESSION_KEY;
 import static controllers.applicant.ApplicantRequestedAction.NEXT_BLOCK;
 import static controllers.applicant.ApplicantRequestedAction.PREVIOUS_BLOCK;
 import static controllers.applicant.ApplicantRequestedAction.REVIEW_PAGE;
@@ -2887,7 +2886,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         fakeRequestBuilder()
-            .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
+            .bodyForm(
+                ImmutableMap.of(
+                    AddressCorrectionBlockView.ADDRESS_JSON_FIELD_NAME,
+                    createAddressSuggestionsJson()))
             .build();
 
     Result result =
@@ -2915,7 +2917,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         fakeRequestBuilder()
-            .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
+            .bodyForm(
+                ImmutableMap.of(
+                    AddressCorrectionBlockView.ADDRESS_JSON_FIELD_NAME,
+                    createAddressSuggestionsJson()))
             .build();
     Result result =
         subject
@@ -2944,7 +2949,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         fakeRequestBuilder()
-            .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
+            .bodyForm(
+                ImmutableMap.of(
+                    AddressCorrectionBlockView.ADDRESS_JSON_FIELD_NAME,
+                    createAddressSuggestionsJson()))
             .build();
     Result result =
         subject
@@ -2971,7 +2979,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         fakeRequestBuilder()
-            .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
+            .bodyForm(
+                ImmutableMap.of(
+                    AddressCorrectionBlockView.ADDRESS_JSON_FIELD_NAME,
+                    createAddressSuggestionsJson()))
             .build();
     Result result =
         subject
@@ -2994,7 +3005,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         fakeRequestBuilder()
-            .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
+            .bodyForm(
+                ImmutableMap.of(
+                    AddressCorrectionBlockView.ADDRESS_JSON_FIELD_NAME,
+                    createAddressSuggestionsJson()))
             .build();
 
     Result result =
@@ -3016,7 +3030,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   public void confirmAddress_noAddressJson_throws() {
     Request request =
         fakeRequestBuilder()
-            // Don't set the ADDRESS_JSON_SESSION_KEY on the session
+            // Don't set ADDRESS_JSON_FIELD_NAME in the form body
             .bodyForm(
                 ImmutableMap.of(
                     AddressCorrectionBlockView.SELECTED_ADDRESS_NAME,
@@ -3078,12 +3092,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .join();
     // Check that we're taken to the address correction screen with some suggestions
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(result.session().get(ADDRESS_JSON_SESSION_KEY)).isPresent();
-
     // Then, send a confirmAddress request but don't fill in SELECTED_ADDRESS_NAME in the form body
     Request request =
         fakeRequestBuilder()
-            .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
+            .bodyForm(
+                ImmutableMap.of(
+                    AddressCorrectionBlockView.ADDRESS_JSON_FIELD_NAME,
+                    createAddressSuggestionsJson()))
             .build();
 
     Result confirmAddressResult =
@@ -3156,12 +3171,15 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         addressSuggestionJsonSerializer.serialize(ImmutableList.of(addressSuggestion));
 
     // The selected address (set in the body form with the key SELECTED_ADDRESS_NAME) should match
-    // one of the address
-    // suggestions (set in the session with the key ADDRESS_JSON_SESSION_KEY).
+    // one of the address suggestions (set in the form with the key ADDRESS_JSON_FIELD_NAME).
     Request request =
         fakeRequestBuilder()
-            .session(ADDRESS_JSON_SESSION_KEY, addressSuggestionString)
-            .bodyForm(ImmutableMap.of(AddressCorrectionBlockView.SELECTED_ADDRESS_NAME, address))
+            .bodyForm(
+                ImmutableMap.of(
+                    AddressCorrectionBlockView.SELECTED_ADDRESS_NAME,
+                    address,
+                    AddressCorrectionBlockView.ADDRESS_JSON_FIELD_NAME,
+                    addressSuggestionString))
             .build();
     Result result =
         subject
@@ -3210,10 +3228,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         fakeRequestBuilder()
-            .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
             .bodyForm(
                 ImmutableMap.of(
-                    AddressCorrectionBlockView.SELECTED_ADDRESS_NAME, SUGGESTED_ADDRESS))
+                    AddressCorrectionBlockView.SELECTED_ADDRESS_NAME,
+                    SUGGESTED_ADDRESS,
+                    AddressCorrectionBlockView.ADDRESS_JSON_FIELD_NAME,
+                    createAddressSuggestionsJson()))
             .build();
     Result result =
         subject
@@ -3257,10 +3277,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         fakeRequestBuilder()
-            .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
             .bodyForm(
                 ImmutableMap.of(
-                    AddressCorrectionBlockView.SELECTED_ADDRESS_NAME, SUGGESTED_ADDRESS))
+                    AddressCorrectionBlockView.SELECTED_ADDRESS_NAME,
+                    SUGGESTED_ADDRESS,
+                    AddressCorrectionBlockView.ADDRESS_JSON_FIELD_NAME,
+                    createAddressSuggestionsJson()))
             .build();
     Result result =
         subject
@@ -3334,11 +3356,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     // Then, choose the original address during address correction
     Request confirmAddressRequest =
         fakeRequestBuilder()
-            .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
             .bodyForm(
                 ImmutableMap.of(
                     AddressCorrectionBlockView.SELECTED_ADDRESS_NAME,
-                    AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE))
+                    AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE,
+                    AddressCorrectionBlockView.ADDRESS_JSON_FIELD_NAME,
+                    createAddressSuggestionsJson()))
             .build();
 
     Result confirmAddressResult =
