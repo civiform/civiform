@@ -168,6 +168,15 @@ public abstract class AbstractSettingsManifest {
     return getConfigVal(config::getString, getHoconName(variableName));
   }
 
+  protected <E extends Enum<E>> Optional<E> getEnum(String variableName, Class<E> enumClass) {
+    return getString(variableName).map(value -> Enum.valueOf(enumClass, value));
+  }
+
+  protected <E extends Enum<E>> Optional<E> getEnum(
+      String variableName, Class<E> enumClass, Http.RequestHeader request) {
+    return getString(variableName, request).map(value -> Enum.valueOf(enumClass, value));
+  }
+
   protected Optional<Integer> getInt(
       SettingDescription settingDescription, Http.RequestHeader request) {
     return getInt(settingDescription.variableName(), request);
