@@ -25,6 +25,7 @@ public class AddressCorrectionBlockView extends ApplicantBaseView {
   // to process address correction form submissions
   public static final String USER_KEEPING_ADDRESS_VALUE = "USER_KEEPING_ADDRESS_VALUE";
   public static final String SELECTED_ADDRESS_NAME = "selectedAddress";
+  public static final String ADDRESS_JSON_FIELD_NAME = "addressJson";
 
   @Inject
   AddressCorrectionBlockView(
@@ -50,7 +51,8 @@ public class AddressCorrectionBlockView extends ApplicantBaseView {
       ApplicationBaseViewParams params,
       AddressSuggestionGroup addressSuggestionGroup,
       ApplicantRequestedAction applicantRequestedAction,
-      Boolean isEligibilityEnabled) {
+      Boolean isEligibilityEnabled,
+      String addressJson) {
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
             request,
@@ -74,6 +76,7 @@ public class AddressCorrectionBlockView extends ApplicantBaseView {
     context.setVariable("addressSuggestionGroup", addressSuggestionGroup);
     context.setVariable("isEligibilityEnabled", isEligibilityEnabled);
     context.setVariable("applicationParams", params);
+    context.setVariable("addressJson", addressJson);
 
     // Progress bar
     ProgressBar progressBar =
