@@ -22,6 +22,7 @@ import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.stream.Stream;
 import org.apache.http.client.utils.URIBuilder;
 import play.mvc.Http;
@@ -30,6 +31,7 @@ import services.ProgramBlockValidation;
 import services.ProgramBlockValidation.AddQuestionResult;
 import services.ProgramBlockValidationFactory;
 import services.program.BlockDefinition;
+import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
@@ -158,6 +160,7 @@ public final class ProgramQuestionBank {
                                 CreateQuestionButton.renderCreateQuestionButton(
                                     params.questionCreateRedirectUrl(),
                                     /* isPrimaryButton= */ false,
+                                    getParentEnumeratorId(),
                                     settingsManifest,
                                     request)))));
 
@@ -285,6 +288,28 @@ public final class ProgramQuestionBank {
                 adminNote);
 
     return questionDiv.with(row.with(icon, content, addButton));
+  }
+
+  /**
+   * If this is a repeated question, return the id of the enumerator question for the parent block.
+   */
+  private Optional<String> getParentEnumeratorId() {
+    if (!settingsManifest.getEnumeratorImprovementsEnabled(request)
+        || !params.blockDefinition().isRepeated()) {
+      return Optional.empty();
+    }
+
+    try {
+      BlockDefinition parentEnumeratorBlock =
+          params.program().getBlockDefinition(params.blockDefinition().enumeratorId().get());
+      if (!parentEnumeratorBlock.hasEnumeratorQuestion()) {
+        return Optional.empty();
+      }
+      return Optional.of(
+          Long.toString(parentEnumeratorBlock.getEnumerationQuestionDefinition().getId()));
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**

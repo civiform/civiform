@@ -175,7 +175,11 @@ public final class AdminQuestionController extends CiviFormController {
 
   /** Return a HTML page containing a form to create a new question in the draft version. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result newOne(Request request, String type, String redirectUrl) {
+  public Result newOne(
+      Request request,
+      String type,
+      String redirectUrl,
+      Optional<String> enumeratorQuestionOptional) {
     QuestionType questionType;
     try {
       questionType = QuestionType.of(type);
@@ -192,7 +196,11 @@ public final class AdminQuestionController extends CiviFormController {
     try {
       return ok(
           editView.renderNewQuestionForm(
-              request, questionType, enumeratorQuestionDefinitions, redirectUrl));
+              request,
+              questionType,
+              enumeratorQuestionDefinitions,
+              enumeratorQuestionOptional,
+              redirectUrl));
     } catch (UnsupportedQuestionTypeException e) {
       return badRequest(e.getMessage());
     }
