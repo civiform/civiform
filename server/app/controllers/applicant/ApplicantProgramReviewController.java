@@ -119,7 +119,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
       Request request, long applicantId, String programParam, Boolean isFromUrlCall) {
     boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
+        .resolveProgramParam(programParam, applicantId, programSlugUrlEnabled)
         .thenCompose(
             programId -> {
               CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request);
@@ -179,6 +179,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                                     applicantStage.toCompletableFuture().join())
                                 .setProfile(submittingProfile)
                                 .setProgramId(programId)
+                                .setProgramSlug(programSlugHandler.getProgramSlug(programParam))
                                 .setCompletedBlockCount(completedBlockCount)
                                 .setTotalBlockCount(totalBlockCount)
                                 .setMessages(messages)

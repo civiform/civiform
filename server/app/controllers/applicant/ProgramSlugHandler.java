@@ -20,6 +20,7 @@ import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
+import repository.ProgramRepository;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.applicant.ApplicantService.ApplicantProgramData;
@@ -28,6 +29,7 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
+import services.settings.SettingsManifest;
 import views.applicant.programoverview.ProgramOverviewView;
 
 /** Class for showing program view based on program slug. */
@@ -41,6 +43,8 @@ public final class ProgramSlugHandler {
   private final ApplicantRoutes applicantRoutes;
   private final ProgramOverviewView programOverviewView;
   private final MessagesApi messagesApi;
+  private final SettingsManifest settingsManifest;
+  private final ProgramRepository programRepository;
 
   @Inject
   public ProgramSlugHandler(
@@ -51,7 +55,9 @@ public final class ProgramSlugHandler {
       LanguageUtils languageUtils,
       ApplicantRoutes applicantRoutes,
       ProgramOverviewView programOverviewView,
-      MessagesApi messagesApi) {
+      MessagesApi messagesApi,
+      SettingsManifest settingsManifest,
+      ProgramRepository programRepository) {
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.applicantService = checkNotNull(applicantService);
     this.profileUtils = checkNotNull(profileUtils);
@@ -60,6 +66,8 @@ public final class ProgramSlugHandler {
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.programOverviewView = checkNotNull(programOverviewView);
     this.messagesApi = checkNotNull(messagesApi);
+    this.settingsManifest = checkNotNull(settingsManifest);
+    this.programRepository = checkNotNull(programRepository);
   }
 
   public CompletionStage<Result> showProgram(
@@ -179,8 +187,8 @@ public final class ProgramSlugHandler {
    * @return CompletionStage containing the resolved program ID
    */
   public CompletionStage<Long> resolveProgramParam(
-      String programParam, Long applicantId, Boolean isFromUrlCall, Boolean programSlugUrlEnabled) {
-    if (programSlugUrlEnabled && isFromUrlCall) {
+      String programParam, Long applicantId, Boolean programSlugUrlEnabled) {
+    if (programSlugUrlEnabled) {
       if (StringUtils.isNumeric(programParam)) {
         // This should have been previously handled by the caller, since we don't support program
         // ids (numeric) when feature is enabled and call comes directly from the URL
@@ -214,6 +222,19 @@ public final class ProgramSlugHandler {
             });
   }
 
+  /** Returns the program slug associated with the program. */
+  public String getProgramSlug(String programParam) {
+    if (!StringUtils.isNumeric(programParam)) {
+      return programParam;
+    }
+    Long programId = Long.parseLong(programParam);
+    try {
+      return programRepository.getSlug(programId);
+    } catch (ProgramNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   private Result redirectToOverviewOrReviewPage(
       CiviFormController controller,
       Http.Request request,
@@ -229,6 +250,13 @@ public final class ProgramSlugHandler {
 
     // For pre-screener forms, redirect to the first block edit page
     if (activeProgramDefinition.programType().equals(ProgramType.PRE_SCREENER_FORM)) {
+      if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+        return Results.redirect(applicantRoutes.edit(profile, applicantId, programSlug))
+            .flashing(FlashKey.REDIRECTED_FROM_PROGRAM_SLUG, programSlug)
+            // If we had a redirectTo session key that redirected us here, remove it so that it
+            // doesn't get used again.
+            .removingFromSession(request, REDIRECT_TO_SESSION_KEY);
+      }
       return Results.redirect(
               applicantRoutes.edit(profile, applicantId, activeProgramDefinition.id()))
           .flashing(FlashKey.REDIRECTED_FROM_PROGRAM_SLUG, programSlug)

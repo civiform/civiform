@@ -242,7 +242,7 @@ public final class ApplicantProgramsController extends CiviFormController {
       Request request, long applicantId, String programParam, Boolean isFromUrlCall) {
     boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
+        .resolveProgramParam(programParam, applicantId, programSlugUrlEnabled)
         .thenCompose(
             programId -> {
               CiviFormProfile profile = profileUtils.currentUserProfile(request);

@@ -163,7 +163,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
           .inc();
       return CompletableFuture.completedFuture(redirectToHome());
     }
-    return editInternal(request, applicantId, programParam, blockId, questionName, isFromUrlCall);
+    return editInternal(request, applicantId, programParam, blockId, questionName);
   }
 
   private CompletionStage<Result> editInternal(
@@ -171,11 +171,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long applicantId,
       String programParam,
       String blockId,
-      Optional<String> questionName,
-      Boolean isFromUrlCall) {
+      Optional<String> questionName) {
     boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
+        .resolveProgramParam(programParam, applicantId, programSlugUrlEnabled)
         .thenCompose(
             programId -> {
               return editOrReview(
@@ -220,8 +219,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     }
 
-    return editInternal(
-        request, applicantId.get(), programParam, blockId, questionName, isFromUrlCall);
+    return editInternal(request, applicantId.get(), programParam, blockId, questionName);
   }
 
   /**
@@ -249,7 +247,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
           .inc();
       return CompletableFuture.completedFuture(redirectToHome());
     }
-    return reviewInternal(request, applicantId, programParam, blockId, questionName, isFromUrlCall);
+    return reviewInternal(request, applicantId, programParam, blockId, questionName);
   }
 
   private CompletionStage<Result> reviewInternal(
@@ -257,12 +255,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long applicantId,
       String programParam,
       String blockId,
-      Optional<String> questionName,
-      Boolean isFromUrlCall) {
+      Optional<String> questionName) {
 
     boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
+        .resolveProgramParam(programParam, applicantId, programSlugUrlEnabled)
         .thenCompose(
             programId -> {
               return editOrReview(
@@ -316,8 +313,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     }
 
-    return reviewInternal(
-        request, optionalApplicantId.get(), programParam, blockId, questionName, isFromUrlCall);
+    return reviewInternal(request, optionalApplicantId.get(), programParam, blockId, questionName);
   }
 
   /** Handles the applicant's selection from the address correction options. */
@@ -461,7 +457,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
 
     return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
+        .resolveProgramParam(programParam, applicantId, programSlugUrlEnabled)
         .thenCompose(
             programId -> {
               CompletionStage<ApplicantPersonalInfo> applicantStage =
@@ -596,7 +592,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     Long applicantId = optionalApplicantId.get();
     return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
+        .resolveProgramParam(programParam, applicantId, programSlugUrlEnabled)
         .thenCompose(
             programId ->
                 previousWithApplicantId(
@@ -737,7 +733,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     Long applicantId = optionalApplicantId.get();
     return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
+        .resolveProgramParam(programParam, applicantId, programSlugUrlEnabled)
         .thenCompose(
             programId ->
                 removeFileWithApplicantId(
@@ -774,7 +770,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
 
     return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
+        .resolveProgramParam(programParam, applicantId, programSlugUrlEnabled)
         .thenCompose(
             programId -> {
               CompletionStage<ApplicantPersonalInfo> applicantStage =
@@ -933,7 +929,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     Long applicantId = optionalApplicantId.get();
     return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
+        .resolveProgramParam(programParam, applicantId, programSlugUrlEnabled)
         .thenCompose(
             programId ->
                 addFileWithApplicantId(
@@ -967,7 +963,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
 
     return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
+        .resolveProgramParam(programParam, applicantId, programSlugUrlEnabled)
         .thenCompose(
             programId -> {
               CompletionStage<ApplicantPersonalInfo> applicantStage =

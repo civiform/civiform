@@ -38,17 +38,6 @@ public final class ApplicantRoutes {
   }
 
   /**
-   * Returns the route corresponding to the applicant show action. Used when there is no
-   * account/applicant created yet when browsing the home page.
-   *
-   * @param programId - ID of the program to view
-   * @return Route for the program view action
-   */
-  public Call show(long programId) {
-    return controllers.applicant.routes.ApplicantProgramsController.show(String.valueOf(programId));
-  }
-
-  /**
    * Returns the program overview page
    *
    * @param programSlug - slug of the program to view
@@ -75,11 +64,17 @@ public final class ApplicantRoutes {
     }
   }
 
+  // TODO:#11090 Remove method when routes are no longer hit
   public Call edit(long programId) {
     return routes.ApplicantProgramsController.edit(
         Long.toString(programId), /* isFromUrlCall= */ false);
   }
 
+  public Call edit(String programSlug) {
+    return routes.ApplicantProgramsController.edit(programSlug, /* isFromUrlCall= */ false);
+  }
+
+  // TODO:#11090 Remove method when routes are no longer hit
   /**
    * Returns the route corresponding to the applicant edit action.
    *
@@ -94,6 +89,23 @@ public final class ApplicantRoutes {
           applicantId, Long.toString(programId), /* isFromUrlCall= */ false);
     } else {
       return edit(programId);
+    }
+  }
+
+  /**
+   * Returns the route corresponding to the applicant edit action.
+   *
+   * @param profile - Profile corresponding to the logged-in user (applicant or TI).
+   * @param applicantId - ID of applicant for whom the action should be performed.
+   * @param programSlug - slug of program to edit
+   * @return Route for the applicant edit action
+   */
+  public Call edit(CiviFormProfile profile, long applicantId, String programSlug) {
+    if (includeApplicantIdInRoute(profile)) {
+      return controllers.applicant.routes.ApplicantProgramsController.editWithApplicantId(
+          applicantId, programSlug, /* isFromUrlCall= */ false);
+    } else {
+      return edit(programSlug);
     }
   }
 
