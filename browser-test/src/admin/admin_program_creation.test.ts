@@ -743,7 +743,7 @@ test.describe('program creation', () => {
     })
     await adminQuestions.clickSubmitButtonAndNavigate('Create')
     await adminPrograms.expectSuccessToast(
-      `question ${universalQuestionName} created`,
+      `question ${universalQuestionName} created and added to the program block`,
     )
     await adminPrograms.expectProgramBlockEditPage(programName)
 
