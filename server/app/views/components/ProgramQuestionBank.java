@@ -298,7 +298,6 @@ public final class ProgramQuestionBank {
     }
 
     try {
-      // Note: this also throws if a repeated set hasn't been added to the parent block yet.
       BlockDefinition parentEnumeratorBlock =
           params.program().getBlockDefinition(params.blockDefinition().enumeratorId().get());
       if (!parentEnumeratorBlock.hasEnumeratorQuestion()) {
