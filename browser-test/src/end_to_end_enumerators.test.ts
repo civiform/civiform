@@ -634,9 +634,32 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
   })
 
   test.describe('Admin', () => {
-    test.beforeEach(async ({page, adminPrograms}) => {
+    test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
       await loginAsAdmin(page)
       await adminPrograms.addProgram('Enumerator test program')
+
+      await test.step('Add questions to the program block', async () => {
+        await adminQuestions.addEnumeratorQuestion({
+          questionName: 'enumerator-ete-householdmembers',
+          description: 'desc',
+          questionText: 'Household members',
+          helpText: 'list household members',
+          maxNum: 4,
+        })
+        await adminQuestions.addNameQuestion({
+          questionName: 'enumerator-ete-repeated-name',
+          description: 'desc',
+          questionText: 'Name for $this',
+          helpText: 'full name for $this',
+          enumeratorName: 'enumerator-ete-householdmembers',
+        })
+        await adminQuestions.addNumberQuestion({
+          questionName: 'income-non-enumerator-question',
+          description: 'desc',
+          questionText: 'Your monthly income',
+          helpText: 'Monthly income',
+        })
+      })
 
       await test.step('Go to the program block edit page', async () => {
         await adminPrograms.gotoEditDraftProgramPage('Enumerator test program')
@@ -951,6 +974,19 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
       await test.step('Click on the new repeated screen in the block order panel', async () => {
         await navigateToRepeatedScreen(page, 4, 2)
+      })
+
+      await test.step('Verify that the question bank has all non-enumerator questions', async () => {
+        await page.getByRole('button', {name: 'Add a question'}).click()
+
+        await expect(
+          page.getByText('Admin ID: income-non-enumerator-question'),
+        ).toBeVisible()
+        await expect(
+          page.getByText('Admin ID: enumerator-ete-repeated-name'),
+        ).toBeHidden()
+
+        await page.getByRole('button', {name: 'Close'}).click()
       })
 
       await test.step('Verify that creating a repeated question pre-selects the enumerator question.', async () => {
