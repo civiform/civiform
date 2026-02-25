@@ -13,7 +13,6 @@ import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMo
 import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -78,7 +77,6 @@ import views.trustedintermediary.ApplicationBaseViewParams;
  */
 public final class ApplicantProgramBlocksController extends CiviFormController {
   private static final ImmutableSet<String> STRIPPED_FORM_FIELDS = ImmutableSet.of("csrfToken");
-  @VisibleForTesting static final String ADDRESS_JSON_SESSION_KEY = "addressJson";
 
   private final ApplicantService applicantService;
   private final MessagesApi messagesApi;
@@ -334,7 +332,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     DynamicForm form = formFactory.form().bindFromRequest(request);
     Optional<String> selectedAddress =
         Optional.ofNullable(form.get(AddressCorrectionBlockView.SELECTED_ADDRESS_NAME));
-    Optional<String> maybeAddressJson = request.session().get(ADDRESS_JSON_SESSION_KEY);
+    Optional<String> maybeAddressJson =
+        Optional.ofNullable(form.get(AddressCorrectionBlockView.ADDRESS_JSON_FIELD_NAME));
 
     ImmutableList<AddressSuggestion> suggestions =
         addressSuggestionJsonSerializer.deserialize(
@@ -407,7 +406,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             classLoaderExecutionContext.current())
         .thenComposeAsync(
             roApplicantProgramService -> {
-              removeAddressJsonFromSession(request);
               CiviFormProfile profile = profileUtils.currentUserProfile(request);
               return renderErrorOrRedirectToRequestedPage(
                   request,
@@ -421,19 +419,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   roApplicantProgramService);
             },
             classLoaderExecutionContext.current())
-        .exceptionally(
-            throwable -> {
-              removeAddressJsonFromSession(request);
-              return handleUpdateExceptions(throwable);
-            });
-  }
-
-  /**
-   * Clean up the address suggestions json from the session. Remove this to prevent the chance of
-   * the old session value being used on subsequent address corrections.
-   */
-  private void removeAddressJsonFromSession(Request request) {
-    request.session().removing(ADDRESS_JSON_SESSION_KEY);
+        .exceptionally(throwable -> handleUpdateExceptions(throwable));
   }
 
   /**
@@ -1132,7 +1118,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
                         return getOrMakeFileRecord(key.get(), originalFileName, applicantId)
                             .thenComposeAsync(
-                                (StoredFileModel unused) ->
+                                _ ->
                                     applicantService.stageAndUpdateIfValid(
                                         applicantId,
                                         programId,
@@ -1636,9 +1622,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   applicationParams,
                   addressSuggestionGroup,
                   applicantRequestedAction,
-                  isEligibilityEnabledOnThisBlock))
-              .as(Http.MimeTypes.HTML)
-              .addingToSession(request, ADDRESS_JSON_SESSION_KEY, json));
+                  isEligibilityEnabledOnThisBlock,
+                  json))
+              .as(Http.MimeTypes.HTML));
     }
   }
 

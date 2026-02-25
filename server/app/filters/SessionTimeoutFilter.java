@@ -84,21 +84,31 @@ public class SessionTimeoutFilter extends Filter {
     }
 
     CiviFormProfile profile = optionalProfile.get();
-    return sessionTimeoutService
-        .get()
-        .isSessionTimedOut(profile)
+    return profile
+        .getSessionStartTime()
         .thenCompose(
-            isTimedOut -> {
-              if (isTimedOut) {
+            optionalSessionStartTime -> {
+              long sessionStartTimeInMillis;
+              if (optionalSessionStartTime.isPresent()) {
+                sessionStartTimeInMillis = optionalSessionStartTime.get();
+              } else {
+                return CompletableFuture.completedFuture(
+                    Results.redirect(org.pac4j.play.routes.LogoutController.logout()));
+              }
+
+              if (sessionTimeoutService
+                  .get()
+                  .isSessionTimedOut(profile, sessionStartTimeInMillis)) {
                 return CompletableFuture.completedFuture(
                     Results.redirect(org.pac4j.play.routes.LogoutController.logout()));
               }
               profile.getProfileData().updateLastActivityTime(clock);
               return nextFilter
                   .apply(requestHeader)
-                  .thenCompose(
+                  .thenApply(
                       result ->
-                          createSessionTimestampCookie(profile).thenApply(result::withCookies));
+                          result.withCookies(
+                              createSessionTimestampCookie(profile, sessionStartTimeInMillis)));
             });
   }
 
@@ -112,32 +122,31 @@ public class SessionTimeoutFilter extends Filter {
    * validation measures must be implemented.
    *
    * @param profile Profile corresponding to the logged-in user (applicant or TI).
-   * @return A future that completes with the cookie containing the session's timeout data.
+   * @param sessionStartTimeInMillis the session start time in milliseconds
+   * @return The cookie containing the session's timeout data.
    */
-  private CompletableFuture<Http.Cookie> createSessionTimestampCookie(CiviFormProfile profile) {
-    return sessionTimeoutService
-        .get()
-        .calculateTimeoutData(profile)
-        .thenApply(
-            timeoutData -> {
-              ObjectNode timestamps =
-                  Json.newObject()
-                      .put("inactivityWarning", timeoutData.inactivityWarning())
-                      .put("inactivityTimeout", timeoutData.inactivityTimeout())
-                      .put("totalWarning", timeoutData.totalWarning())
-                      .put("totalTimeout", timeoutData.totalTimeout())
-                      .put("currentTime", timeoutData.currentTime());
+  private Http.Cookie createSessionTimestampCookie(
+      CiviFormProfile profile, long sessionStartTimeInMillis) {
+    SessionTimeoutService.TimeoutData timeoutData =
+        sessionTimeoutService.get().calculateTimeoutData(profile, sessionStartTimeInMillis);
 
-              String cookieValue =
-                  Base64.getEncoder()
-                      .encodeToString(Json.stringify(timestamps).getBytes(StandardCharsets.UTF_8));
+    ObjectNode timestamps =
+        Json.newObject()
+            .put("inactivityWarning", timeoutData.inactivityWarning())
+            .put("inactivityTimeout", timeoutData.inactivityTimeout())
+            .put("totalWarning", timeoutData.totalWarning())
+            .put("totalTimeout", timeoutData.totalTimeout())
+            .put("currentTime", timeoutData.currentTime());
 
-              return Http.Cookie.builder(TIMEOUT_COOKIE_NAME, cookieValue)
-                  .withHttpOnly(false)
-                  .withPath("/")
-                  .withMaxAge(COOKIE_MAX_AGE)
-                  .build();
-            });
+    String cookieValue =
+        Base64.getEncoder()
+            .encodeToString(Json.stringify(timestamps).getBytes(StandardCharsets.UTF_8));
+
+    return Http.Cookie.builder(TIMEOUT_COOKIE_NAME, cookieValue)
+        .withHttpOnly(false)
+        .withPath("/")
+        .withMaxAge(COOKIE_MAX_AGE)
+        .build();
   }
 
   private Result clearTimeoutCookie(Result result) {

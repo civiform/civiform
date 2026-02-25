@@ -116,6 +116,7 @@ public final class QuestionsListView extends BaseHtmlView {
                             controllers.admin.routes.AdminQuestionController.index(Optional.empty())
                                 .url(),
                             /* isPrimaryButton= */ true,
+                            /* enumeratorQuestion= */ Optional.empty(),
                             settingsManifest,
                             request)),
                 QuestionBank.renderFilterAndSort(

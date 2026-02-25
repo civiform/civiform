@@ -109,10 +109,16 @@ public final class QuestionEditView extends BaseHtmlView {
       Request request,
       QuestionType questionType,
       ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions,
+      Optional<String> selectedEnumerator,
       String redirectUrl)
       throws UnsupportedQuestionTypeException {
     QuestionForm questionForm = QuestionFormBuilder.create(questionType);
     questionForm.setRedirectUrl(redirectUrl);
+    selectedEnumerator.ifPresent(
+        enumeratorId -> {
+          questionForm.setEnumeratorId(enumeratorId);
+          questionForm.setEnumeratorSelectEnabled(false);
+        });
     return renderNewQuestionForm(
         request, questionForm, enumeratorQuestionDefinitions, /* message= */ Optional.empty());
   }
@@ -228,7 +234,9 @@ public final class QuestionEditView extends BaseHtmlView {
 
     SelectWithLabel enumeratorOption =
         enumeratorOptionsFromMaybeEnumerationQuestionDefinition(
-            maybeEnumerationQuestionDefinition, FormMode.VIEW);
+            maybeEnumerationQuestionDefinition,
+            questionForm.getEnumeratorSelectEnabled(),
+            FormMode.VIEW);
     DivTag formContent =
         buildQuestionContainer(title)
             .with(buildReadOnlyQuestionForm(questionForm, enumeratorOption, request));
@@ -351,7 +359,9 @@ public final class QuestionEditView extends BaseHtmlView {
       Request request) {
     SelectWithLabel enumeratorOption =
         enumeratorOptionsFromMaybeEnumerationQuestionDefinition(
-            maybeEnumerationQuestionDefinition, FormMode.EDIT);
+            maybeEnumerationQuestionDefinition,
+            questionForm.getEnumeratorSelectEnabled(),
+            FormMode.EDIT);
     FormTag formTag =
         buildSubmittableQuestionForm(
             questionForm, enumeratorOption, /* forCreate= */ false, request);
@@ -476,7 +486,9 @@ public final class QuestionEditView extends BaseHtmlView {
             .setDisabled(!submittable)
             .setValue(questionForm.getQuestionDescription())
             .getTextareaTag(),
-        enumeratorOptions.setDisabled(!forCreate).getSelectTag());
+        enumeratorOptions
+            .setDisabled(!questionForm.getEnumeratorSelectEnabled() || !forCreate)
+            .getSelectTag());
 
     if (questionType.equals(QuestionType.MAP)) {
       formTag.with(
@@ -768,6 +780,7 @@ public final class QuestionEditView extends BaseHtmlView {
     return enumeratorOptions(
         options,
         questionForm.getEnumeratorId().map(String::valueOf).orElse(NO_ENUMERATOR_ID_STRING),
+        questionForm.getEnumeratorSelectEnabled(),
         FormMode.CREATE);
   }
 
@@ -776,7 +789,9 @@ public final class QuestionEditView extends BaseHtmlView {
    * question definition if available, or with just the no-enumerator option.
    */
   private SelectWithLabel enumeratorOptionsFromMaybeEnumerationQuestionDefinition(
-      Optional<QuestionDefinition> maybeEnumerationQuestionDefinition, FormMode formMode) {
+      Optional<QuestionDefinition> maybeEnumerationQuestionDefinition,
+      boolean enabled,
+      FormMode formMode) {
     String enumeratorName =
         maybeEnumerationQuestionDefinition
             .map(QuestionDefinition::getName)
@@ -792,18 +807,23 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setValue(enumeratorId)
                 .build()),
         enumeratorId,
+        enabled,
         formMode);
   }
 
   private SelectWithLabel enumeratorOptions(
-      ImmutableList<SelectWithLabel.OptionValue> options, String selected, FormMode formMode) {
+      ImmutableList<SelectWithLabel.OptionValue> options,
+      String selected,
+      boolean enabled,
+      FormMode formMode) {
     return new SelectWithLabel()
         .setId("question-enumerator-select")
         .setFieldName(QUESTION_ENUMERATOR_FIELD)
         .setLabelText("Question enumerator")
         .setOptions(options)
         .setValue(selected)
-        .setReadOnly(formMode.equals(FormMode.EDIT))
+        .setDisabled(formMode.equals(FormMode.EDIT) || !enabled)
+        .setReadOnly(formMode.equals(FormMode.EDIT) || !enabled)
         .setRequired(true);
   }
 
