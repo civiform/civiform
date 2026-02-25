@@ -83,7 +83,10 @@ public final class SessionTimeoutModals {
                                             .attr("data-modal-type", "session-inactivity-warning")
                                             .attr("hx-target", "this")
                                             .attr("hx-swap", "none")
-                                            .attr("hx-post", "/extend-session")
+                                            .attr(
+                                                "hx-post",
+                                                controllers.routes.SessionController.extendSession()
+                                                    .url())
                                             .attr(
                                                 "hx-vals",
                                                 "{\"csrfToken\": \"" + csrfToken + "\"}")),
