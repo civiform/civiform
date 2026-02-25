@@ -911,20 +911,6 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await addRepeatedScreenButton.click()
       })
 
-      await test.step('Click on the new repeated screen in the block order panel', async () => {
-        await navigateToRepeatedScreen(page, 4, 2)
-      })
-
-      await test.step('Verify that creating a repeated question pre-selects the enumerator question.', async () => {
-        await page.getByRole('button', {name: 'Add a question'}).click()
-        await page.getByRole('button', {name: 'Create new question'}).click()
-        await page.getByRole('link', {name: 'Text', exact: true}).click()
-        await expect(page.getByLabel('Question enumerator')).toBeDisabled()
-        await expect(
-          page.getByLabel('Question enumerator').locator('option[selected]'),
-        ).toHaveText('pets enumerator')
-      })
-
       await test.step('Go to the program block edit page', async () => {
         await adminPrograms.gotoEditDraftProgramPage('Enumerator test program')
       })
@@ -938,6 +924,43 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           /* expectedScreenNumber= */ 5,
           /* repeatedFrom= */ 2,
         )
+      })
+    })
+
+    test('can add repeated questions to repeated screens', async ({page}) => {
+      const blockPanel = page.getByTestId('block-panel-edit')
+      const addRepeatedScreenButton = blockPanel.getByRole('button', {
+        name: 'Add repeated screen',
+      })
+
+      await test.step('Add a new repeated set', async () => {
+        await page.getByRole('button', {name: 'Add screen'}).first().click()
+        await page.getByRole('button', {name: 'Add repeated set'}).click()
+      })
+
+      await test.step('Select the repeated set block from the block order panel', async () => {
+        await page.getByRole('link', {name: 'Screen 2'}).click()
+      })
+
+      await fillOutEnumeratorQuestionFormCorrectly(page)
+
+      await test.step('Verify that the "Add repeated screen" button is now present and click the button', async () => {
+        await expect(addRepeatedScreenButton).toBeVisible()
+        await addRepeatedScreenButton.click()
+      })
+
+      await test.step('Click on the new repeated screen in the block order panel', async () => {
+        await navigateToRepeatedScreen(page, 4, 2)
+      })
+
+      await test.step('Verify that creating a repeated question pre-selects the enumerator question.', async () => {
+        await page.getByRole('button', {name: 'Add a question'}).click()
+        await page.getByRole('button', {name: 'Create new question'}).click()
+        await page.getByRole('link', {name: 'Text', exact: true}).click()
+        await expect(page.getByLabel('Question enumerator')).toBeDisabled()
+        await expect(
+          page.getByLabel('Question enumerator').locator('option[selected]'),
+        ).toHaveText('pets enumerator')
       })
     })
 
