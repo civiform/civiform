@@ -23,35 +23,6 @@ import services.question.types.QuestionDefinition;
  * should be static.
  */
 final class Utils {
-  private static final String ALPHABET = "abcdefghijklmnopqrstuvwxyz";
-
-  /**
-   * Convert a number to the equivalent "excel column name".
-   *
-   * <p>For example, 5 maps to "e", and 28 maps to "ab".
-   *
-   * @param num to convert
-   * @return The "excel column name" form of the number
-   */
-  static String convertNumberToSuffix(int num) {
-    String result = "";
-
-    // Division algorithm to convert from base 10 to "base 26"
-    int dividend = num; // 28
-    while (dividend > 0) {
-      // Subtract one so we're doing math with a zero-based index.
-      // We need "a" to be 0, and "z" to be 25, so that 26 wraps around
-      // to be "aa". "a" is "ten" in base 26.
-      dividend = dividend - 1;
-      int remainder = dividend % 26;
-      result = ALPHABET.charAt(remainder) + result;
-      dividend = dividend / 26;
-      ;
-    }
-
-    return result;
-  }
-
   /**
    * Update the block definitions on the program with the newly saved questions before saving the
    * program.
