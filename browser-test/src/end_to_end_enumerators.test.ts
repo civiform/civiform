@@ -654,7 +654,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           enumeratorName: 'enumerator-ete-householdmembers',
         })
         await adminQuestions.addNumberQuestion({
-          questionName: 'income-non-enumerator-question',
+          questionName: 'income-non-repeated-question',
           description: 'desc',
           questionText: 'Your monthly income',
           helpText: 'Monthly income',
@@ -950,7 +950,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
-    test('can add repeated questions to repeated screens', async ({page}) => {
+    test('can add repeated questions to repeated screens', async ({
+      page,
+      adminPrograms,
+      adminQuestions,
+    }) => {
       const blockPanel = page.getByTestId('block-panel-edit')
       const addRepeatedScreenButton = blockPanel.getByRole('button', {
         name: 'Add repeated screen',
@@ -967,6 +971,18 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
       await fillOutEnumeratorQuestionFormCorrectly(page)
 
+      await test.step('Add a repeated question associated with this enumerator', async () => {
+        await adminQuestions.addTextQuestion({
+          questionName: 'enumerator-pets-repeated-colors',
+          description: 'desc',
+          questionText: "What is $this's favorite color?",
+          helpText: 'Favorite color for $this',
+          enumeratorName: 'pets enumerator',
+        })
+
+        await adminPrograms.gotoEditDraftProgramPage('Enumerator test program')
+      })
+
       await test.step('Verify that the "Add repeated screen" button is now present and click the button', async () => {
         await expect(addRepeatedScreenButton).toBeVisible()
         await addRepeatedScreenButton.click()
@@ -976,16 +992,23 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await navigateToRepeatedScreen(page, 4, 2)
       })
 
-      await test.step('Verify that the question bank has all non-enumerator questions', async () => {
+      await test.step('Verify that the question bank has all non-repeated questions', async () => {
         await page.getByRole('button', {name: 'Add a question'}).click()
-
         await expect(
-          page.getByText('Admin ID: income-non-enumerator-question'),
+          page.getByText('Admin ID: income-non-repeated-question'),
         ).toBeVisible()
+      })
+
+      await test.step('Verify that the question bank has the repeated question that is associated with this enumerator', async () => {
+        await expect(
+          page.getByText('Admin ID: enumerator-pets-repeated-colors'),
+        ).toBeVisible()
+      })
+
+      await test.step('Verify that the question bank does not have repeated questions that are associated with other enumerators', async () => {
         await expect(
           page.getByText('Admin ID: enumerator-ete-repeated-name'),
         ).toBeHidden()
-
         await page.getByRole('button', {name: 'Close'}).click()
       })
 
