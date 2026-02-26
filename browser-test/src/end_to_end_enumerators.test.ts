@@ -1085,27 +1085,32 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       await page.getByRole('link', {name: 'Screen 2'}).click()
 
       await test.step('Check that Create New is preselected and create new partial view is visible', async () => {
-        const createNewButton = page.getByTestId('create-new-radio')
+        const createNewButton = page.getByLabel('Create new')
 
-        const newEnumeratorQuestionForm = page.getByTestId(
-          'create-new-question-form',
-        )
+        const newEnumeratorQuestionFormButton = page.getByRole('button', {
+          name: 'Create repeated set',
+        })
         await expect(createNewButton).toBeChecked()
-        await expect(newEnumeratorQuestionForm).toBeVisible()
+        await expect(newEnumeratorQuestionFormButton).toBeVisible()
       })
 
       await test.step('swap to choose existing and check existing partial view is visible', async () => {
-        const chooseExistingButton = page.getByTestId('choose-existing-radio')
-        const chooseExistingLabel = page.getByTestId(
-          'choose-existing-radio-label',
-        )
+        const chooseExistingButton = page.getByRole('radio', {
+          name: 'Choose existing',
+        })
+
         await chooseExistingButton.scrollIntoViewIfNeeded()
         await expect(chooseExistingButton).toBeVisible()
 
         // Uswds styling makes the label the clickable portion, trying to check the input will not work.
+        const chooseExistingLabel = page.getByTestId(
+          'choose-existing-radio-label',
+        )
         await chooseExistingLabel.check()
 
-        const addQuestionButton = page.getByTestId('add-question-button')
+        const addQuestionButton = page.getByRole('button', {
+          name: 'Add question',
+        })
         await expect(chooseExistingButton).toBeChecked()
         await expect(addQuestionButton).toBeVisible()
       })

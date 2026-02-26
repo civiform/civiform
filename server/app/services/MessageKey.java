@@ -119,6 +119,9 @@ public enum MessageKey {
   DESCRIPTION_LISTED_ENTITY("description.repeatedSet.listedEntity"),
   DESCRIPTION_REPEATED_SET_HINT_TEXT("description.repeatedSet.hintText"),
   DESCRIPTION_REPEATED_SET_QUESTION_TEXT("description.repeatedSet.questionText"),
+  DESCRIPTION_REPEATED_SET_CREATE_NEW_QUESTION("description.repeatedSet.createNewQuestion"),
+  DESCRIPTION_REPEATED_SET_CHOOSE_EXISTING_QUESTION(
+      "description.repeatedSet.chooseExistingQuestion"),
   DOB_EXAMPLE("label.dobExample"),
   DOB_ERROR_LABEL("label.errorDOB"),
   DOB_LABEL("label.dob"),
@@ -228,6 +231,7 @@ public enum MessageKey {
   TEXT_NESTED_REPEATED_SET("text.nestedRepeatedSet"),
   TEXT_REPEATED_SET("text.repeatedSet"),
   TEXT_REPEATED_SET_QUESTION_DESCRIPTION("text.repeatedSet.questionDescription"),
+  TEXT_REPEATED_SET_ADD_QUESTION_DESCRIPTION("text.repeatedSet.addQuestionDescription"),
   TEXT_REPEATED_SET_PREFIX("text.repeatedSet.prefix"),
   TEXT_REPEATED_SET_NESTED_PREFIX("text.repeatedSet.nestedPrefix"),
   TEXT_REPEATED_SET_SCREEN_NAME_DESCRIPTION("text.repeatedSet.screenNameDescription"),

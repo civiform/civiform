@@ -14,6 +14,7 @@ import static j2html.TagCreator.label;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 import static j2html.TagCreator.ul;
 import static views.ViewUtils.ProgramDisplayType.DRAFT;
@@ -846,57 +847,77 @@ public final class ProgramBlocksView extends ProgramBaseView {
         .withId("enumerator-setup");
   }
 
-  private FieldsetTag renderChooseExistingQuestion(Messages messages) {
-    return fieldset(
-            div()
+  private DivTag renderChooseExistingQuestion(Messages messages) {
+    return div(
+            p(messages.at(MessageKey.HEADING_REPEATED_SET_QUESTION.getKeyName()))
+                .withId("repeated-set-question-section-heading")
+                .withClasses("font-bold", "margin-bottom-05", "text-black-700")
+                .with(ViewUtils.requiredQuestionIndicator()),
+            p("")
+                .withClasses("font-ui-sm", "text-base")
                 .with(
-                    p(messages.at(MessageKey.HEADING_REPEATED_SET_QUESTION.getKeyName()))
-                        .withId("repeated-set-question-section-heading")
-                        .withClasses("text-lg", "font-bold", "margin-bottom-05")
-                        .withTabindex(-1)
-                        .with(ViewUtils.requiredQuestionIndicator())),
-            submitButton(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName()))
+                    span(
+                        messages.at(
+                            MessageKey.TEXT_REPEATED_SET_ADD_QUESTION_DESCRIPTION.getKeyName()))),
+            button("")
                 .withId("Add-question")
-                .attr("data-testid", "add-question-button")
-                .withClasses("usa-button", "usa-button--primary", "margin-top-105"))
+                .withClasses("usa-button", "usa-button--outline")
+                .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
+                .withText(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName())))
         .withId("add-question-section")
         .withClass("hidden");
   }
 
   private FieldsetTag renderCreationMethodRadioButtons(Messages messages) {
     return fieldset(
-        legend(messages.at(MessageKey.HEADING_REPEATED_SET_CREATION_METHOD.getKeyName()))
-            .withClass("text-gray-600")
-            .with(ViewUtils.requiredQuestionIndicator()),
-        div()
-            .withClass("usa-radio")
-            .with(
-                input()
-                    .withType("radio")
-                    .withName("creation-method-option")
-                    .withId("create-new")
-                    .withValue("create-new")
-                    .withClass("usa-radio__input usa-radio__input--tile")
-                    .attr("checked", "checked")
-                    .attr("data-testid", "create-new-radio"),
-                label(messages.at(MessageKey.OPTION_REPEATED_SET_CREATE_NEW.getKeyName()))
-                    .withClass("usa-radio__label")
-                    .attr("for", "create-new")),
-        div()
-            .withClass("usa-radio")
-            .with(
-                input()
-                    .withType("radio")
-                    .withName("creation-method-option")
-                    .withId("choose-existing")
-                    .attr("data-testid", "choose-existing-radio")
-                    .withValue("choose-existing")
-                    .withClass("usa-radio__input usa-radio__input--tile"),
-                label(messages.at(MessageKey.OPTION_REPEATED_SET_CHOOSE_EXISTING.getKeyName()))
-                    .withClass("usa-radio__label")
-                    .attr("for", "choose-existing")
-                    .attr("data-testid", "choose-existing-radio-label"))
-            .withClasses("usa-fieldset", "margin-y-2"));
+            legend(messages.at(MessageKey.HEADING_REPEATED_SET_CREATION_METHOD.getKeyName()))
+                .withClasses("text-black-700", "font-bold"),
+            div()
+                .withClass("usa-radio")
+                .with(
+                    input()
+                        .withType("radio")
+                        .withName("creation-method-option")
+                        .withId("create-new")
+                        .withValue("create-new")
+                        .withClass("usa-radio__input usa-radio__input--tile")
+                        .attr("checked", "checked"),
+                    label(messages.at(MessageKey.OPTION_REPEATED_SET_CREATE_NEW.getKeyName()))
+                        .with(
+                            p("")
+                                .withClasses(
+                                    "font-ui-2-xs", "text-base", "text-black", "margin-top-2")
+                                .with(
+                                    span(
+                                        messages.at(
+                                            MessageKey.DESCRIPTION_REPEATED_SET_CREATE_NEW_QUESTION
+                                                .getKeyName()))))
+                        .withClass("usa-radio__label")
+                        .attr("for", "create-new")),
+            div()
+                .withClass("usa-radio")
+                .with(
+                    input()
+                        .withType("radio")
+                        .withName("creation-method-option")
+                        .withId("choose-existing")
+                        .withValue("choose-existing")
+                        .withClass("usa-radio__input usa-radio__input--tile"),
+                    label(messages.at(MessageKey.OPTION_REPEATED_SET_CHOOSE_EXISTING.getKeyName()))
+                        .withClass("usa-radio__label")
+                        .attr("for", "choose-existing")
+                        .attr("data-testid", "choose-existing-radio-label")
+                        .with(
+                            p("")
+                                .withClasses(
+                                    "font-ui-2-xs", "text-base", "text-black", "margin-top-2")
+                                .with(
+                                    span(
+                                        messages.at(
+                                            MessageKey
+                                                .DESCRIPTION_REPEATED_SET_CHOOSE_EXISTING_QUESTION
+                                                .getKeyName()))))))
+        .withClasses("usa-fieldset", "margin-y-2", "maxw-mobile-lg");
   }
 
   private FormTag renderNewEnumeratorQuestionForm(
@@ -914,7 +935,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
             "hx-post",
             routes.AdminProgramBlockQuestionsController.hxCreateEnumerator(programId, blockId)
                 .url())
-        .attr("data-testid", "create-new-question-form")
         .attr("hx-target", "#enumerator-setup")
         .attr("hx-swap", "outerHTML show:top")
         .with(
