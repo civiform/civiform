@@ -115,6 +115,7 @@ abstract class ProgramBaseView extends BaseHtmlView {
                     span(
                         programDefinition.categories().stream()
                             .map(CategoryModel::getDefaultName)
+                            .sorted()
                             .collect(Collectors.joining(", ")))))
             .withClasses("text-sm");
 
