@@ -152,7 +152,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       String blockId,
       Optional<String> questionName) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled and it comes from the URL call
+    // slug because the program slug URL is enabled
     boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
@@ -230,7 +230,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       String blockId,
       Optional<String> questionName) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled and it comes from the URL call
+    // slug because the program slug URL is enabled
     boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
@@ -284,7 +284,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   public CompletionStage<Result> review(
       Request request, String programParam, String blockId, Optional<String> questionName) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled and it comes from the URL call
+    // slug because the program slug URL is enabled
     boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
@@ -429,7 +429,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       int previousBlockIndex,
       boolean inReview) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled and it comes from the URL call
+    // slug because the program slug URL is enabled
     boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
@@ -551,7 +551,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   public CompletionStage<Result> previous(
       Request request, String programParam, int previousBlockIndex, boolean inReview) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled and it comes from the URL call
+    // slug because the program slug URL is enabled
     boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
@@ -570,12 +570,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
 
     Long applicantId = optionalApplicantId.get();
-    return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, programSlugUrlEnabled)
-        .thenCompose(
-            programId ->
-                previousWithApplicantId(
-                    request, applicantId, Long.toString(programId), previousBlockIndex, inReview));
+    return previousWithApplicantId(
+        request, applicantId, programParam, previousBlockIndex, inReview);
   }
 
   @Secure
@@ -684,7 +680,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       String fileKeyToRemove,
       boolean inReview) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled and it comes from the URL call
+    // slug because the program slug URL is enabled
     boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
@@ -703,17 +699,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
 
     Long applicantId = optionalApplicantId.get();
-    return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, programSlugUrlEnabled)
-        .thenCompose(
-            programId ->
-                removeFileWithApplicantId(
-                    request,
-                    applicantId,
-                    Long.toString(programId),
-                    blockId,
-                    fileKeyToRemove,
-                    inReview));
+    return removeFileWithApplicantId(
+        request, applicantId, programParam, blockId, fileKeyToRemove, inReview);
   }
 
   @Secure
@@ -725,7 +712,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       String fileKeyToRemove,
       boolean inReview) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled and it comes from the URL call
+    // slug because the program slug URL is enabled
     boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
@@ -873,7 +860,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   public CompletionStage<Result> addFile(
       Request request, String programParam, String blockId, boolean inReview) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled and it comes from the URL call
+    // slug because the program slug URL is enabled
     boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
@@ -891,19 +878,14 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
 
     Long applicantId = optionalApplicantId.get();
-    return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, programSlugUrlEnabled)
-        .thenCompose(
-            programId ->
-                addFileWithApplicantId(
-                    request, applicantId, Long.toString(programId), blockId, inReview));
+    return addFileWithApplicantId(request, applicantId, programParam, blockId, inReview);
   }
 
   @Secure
   public CompletionStage<Result> addFileWithApplicantId(
       Request request, long applicantId, String programParam, String blockId, boolean inReview) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled and it comes from the URL call
+    // slug because the program slug URL is enabled
     boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters

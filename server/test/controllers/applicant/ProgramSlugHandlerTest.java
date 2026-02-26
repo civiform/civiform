@@ -542,32 +542,6 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void resolveProgramParam_whenSlugEnabledAndNotFromUrl_withId_success() throws Exception {
-    String programId = "123";
-    ApplicantModel applicant = createApplicantWithMockedProfile();
-
-    CompletionStage<Long> result =
-        instanceOf(ProgramSlugHandler.class)
-            .resolveProgramParam(programId, applicant.id, /* programSlugUrlEnabled= */ true);
-
-    assertThat(result.toCompletableFuture().get()).isEqualTo(123L);
-  }
-
-  @Test
-  public void resolveProgramParam_whenSlugEnabledAndNotFromUrl_withSlug_error() throws Exception {
-    ProgramDefinition program = ProgramBuilder.newActiveProgram("test program").buildDefinition();
-    ApplicantModel applicant = createApplicantWithMockedProfile();
-
-    assertThatThrownBy(
-            () ->
-                instanceOf(ProgramSlugHandler.class)
-                    .resolveProgramParam(
-                        program.slug(), applicant.id, /* programSlugUrlEnabled= */ true))
-        .isInstanceOf(RuntimeException.class)
-        .hasMessage("Could not parse value from 'test-program' to a numeric value");
-  }
-
-  @Test
   public void resolveProgramParam_whenSlugEnabledAndFromUrl_withId_error() throws Exception {
     String programId = "123";
     ApplicantModel applicant = createApplicantWithMockedProfile();
