@@ -103,7 +103,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   public CompletionStage<Result> reviewWithApplicantId(
       Request request, long applicantId, String programParam) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled and it comes from the URL call
+    // slug because the program slug URL is enabled
     boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
@@ -213,7 +213,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.APPLICANT)
   public CompletionStage<Result> review(Request request, String programParam) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled and it comes from the URL call
+    // slug because the program slug URL is enabled
     boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
