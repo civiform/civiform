@@ -3,6 +3,7 @@ package auth.saml;
 import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
 import auth.CiviFormProfileMerger;
+import auth.NewGuestMergeLaunchStage;
 import auth.ProfileFactory;
 import auth.ProfileUtils;
 import auth.Role;
@@ -93,7 +94,7 @@ public class SamlProfileCreator extends AuthenticatorProfileCreator {
         mergeFunction,
         // SAML is not currently used so we won't bother with enabling it
         // for the dry run.
-        /* newMergingDryRun= */ false);
+        NewGuestMergeLaunchStage.OFF);
   }
 
   @VisibleForTesting

@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.CiviFormProfile;
+import auth.NewGuestMergeLaunchStage;
 import auth.oidc.IdTokens;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
@@ -285,11 +286,28 @@ public final class AccountRepository {
     return newer;
   }
 
-  public ApplicantModel mergeApplicants(
-      ApplicantModel mergeFrom, ApplicantModel mergeTo, boolean logOperation) {
+  /**
+   * Merge data from {@code mergeFrom} to {@code mergeTo}.
+   *
+   * <p>This is part of an in-progress and incomplete method.
+   *
+   * @param newMergeStage what launch stage the new merge feature is at. Must DRY_RUN OR ENABLED.
+   */
+  public void mergeApplicants(
+      ApplicantModel mergeFrom, ApplicantModel mergeTo, NewGuestMergeLaunchStage newMergeStage) {
+    boolean logOnly =
+        switch (newMergeStage) {
+          case DRY_RUN -> true;
+          case ENABLED -> false;
+          default ->
+              throw new IllegalArgumentException(
+                  "New merge launch stage should not be " + newMergeStage);
+        };
     // TODO(#11389): Implement new merge logic.
     logger.error("New merge logic is not implemented");
-    return mergeTo;
+    if (logOnly) {
+      logger.info("New Merge Logic Dry Run");
+    }
   }
 
   public List<TrustedIntermediaryGroupModel> listTrustedIntermediaryGroups() {

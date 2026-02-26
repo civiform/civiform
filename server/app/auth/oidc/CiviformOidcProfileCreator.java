@@ -4,6 +4,7 @@ import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
 import auth.CiviFormProfileMerger;
 import auth.IdentityProviderType;
+import auth.NewGuestMergeLaunchStage;
 import auth.ProfileFactory;
 import auth.ProfileUtils;
 import auth.Role;
@@ -224,11 +225,14 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
 
     Function<Optional<CiviFormProfile>, UserProfile> mergeFunction =
         (civiFormProfile) -> this.mergeCiviFormProfile(civiFormProfile, oidcProfile);
+    NewGuestMergeLaunchStage newMergeStage = NewGuestMergeLaunchStage.OFF;
+    if (settingsManifest.getNewApplicantGuestMergingStrategyEnabled()) {
+      newMergeStage = NewGuestMergeLaunchStage.ENABLED;
+    } else if (settingsManifest.getNewApplicantGuestMergingStrategyDryRunEnabled()) {
+      newMergeStage = NewGuestMergeLaunchStage.DRY_RUN;
+    }
     return civiFormProfileMerger.mergeProfiles(
-        existingApplicant,
-        guestProfile,
-        mergeFunction,
-        settingsManifest.getNewApplicantGuestMergingStrategyDryRunEnabled());
+        existingApplicant, guestProfile, mergeFunction, newMergeStage);
   }
 
   /**

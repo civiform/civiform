@@ -54,7 +54,7 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
               assertThat(civiFormProfile).isEmpty();
               return userProfile;
             },
-            /* newMergingDryRun= */ false);
+            NewGuestMergeLaunchStage.OFF);
 
     assertThat(merged).hasValue(userProfile);
   }
@@ -73,7 +73,7 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
               assertThat(profileData.getId()).isEqualTo(expectedAccountId.toString());
               return userProfile;
             },
-            /* newMergingDryRun= */ false);
+            NewGuestMergeLaunchStage.OFF);
 
     assertThat(merged).hasValue(userProfile);
   }
@@ -93,7 +93,7 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
                   .isEqualTo(expectedAccountId.toString());
               return userProfile;
             },
-            /* newMergingDryRun= */ false);
+            NewGuestMergeLaunchStage.OFF);
 
     assertThat(merged).hasValue(userProfile);
   }
@@ -116,7 +116,7 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
                   .isEqualTo(EMAIL);
               return userProfile;
             },
-            /* newMergingDryRun= */ false);
+            NewGuestMergeLaunchStage.OFF);
 
     assertThat(merged).hasValue(userProfile);
   }
@@ -155,7 +155,7 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
                   .isEqualTo(expectedAccountId.toString());
               return userProfile;
             },
-            /* newMergingDryRun= */ false);
+            NewGuestMergeLaunchStage.OFF);
 
     assertThat(merged).hasValue(userProfile);
 
@@ -204,7 +204,7 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
                 /* mergeFunction= */ (unused) -> {
                   throw new RuntimeException();
                 },
-                /* newMergingDryRun= */ false));
+                NewGuestMergeLaunchStage.OFF));
 
     loggedInApplicant.refresh();
     guestApplicant.refresh();
