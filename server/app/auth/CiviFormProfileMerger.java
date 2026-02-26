@@ -67,9 +67,6 @@ public final class CiviFormProfileMerger {
         .join();
   }
 
-  /**
-   * @param newMergingDryRun Runs a dry run of the new merge path instead of the existing merge.
-   */
   private Optional<CiviFormProfile> mergeApplicantAndGuestProfile(
       Optional<ApplicantModel> optionalApplicantInDatabase,
       Optional<CiviFormProfile> optionalGuestProfile,
