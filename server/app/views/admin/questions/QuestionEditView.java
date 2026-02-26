@@ -112,13 +112,37 @@ public final class QuestionEditView extends BaseHtmlView {
       Optional<String> selectedEnumerator,
       String redirectUrl)
       throws UnsupportedQuestionTypeException {
+    return renderNewQuestionForm(
+        request,
+        questionType,
+        enumeratorQuestionDefinitions,
+        selectedEnumerator,
+        redirectUrl,
+        /* isRepeatingBlock= */ false);
+  }
+
+  /** Render a fresh New Question Form. */
+  public Content renderNewQuestionForm(
+      Request request,
+      QuestionType questionType,
+      ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions,
+      Optional<String> selectedEnumerator,
+      String redirectUrl,
+      boolean isRepeatingBlock)
+      throws UnsupportedQuestionTypeException {
     QuestionForm questionForm = QuestionFormBuilder.create(questionType);
     questionForm.setRedirectUrl(redirectUrl);
-    selectedEnumerator.ifPresent(
-        enumeratorId -> {
-          questionForm.setEnumeratorId(enumeratorId);
-          questionForm.setEnumeratorSelectEnabled(false);
-        });
+    if (!isRepeatingBlock) {
+      // Non-repeating block: disable enumerator selection
+      questionForm.setEnumeratorSelectEnabled(false);
+    } else {
+      // Pre-selected enumerator or default: set if present and disable
+      selectedEnumerator.ifPresent(
+          enumeratorId -> {
+            questionForm.setEnumeratorId(enumeratorId);
+            questionForm.setEnumeratorSelectEnabled(false);
+          });
+    }
     return renderNewQuestionForm(
         request, questionForm, enumeratorQuestionDefinitions, /* message= */ Optional.empty());
   }
