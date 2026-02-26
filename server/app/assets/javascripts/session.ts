@@ -1,4 +1,5 @@
 import {ToastController} from '@/toast'
+import {default as uswdsModal} from '@uswds/uswds/js/usa-modal'
 
 /**
  * There are two types of session timeouts, each with its own warning modal.
@@ -111,11 +112,7 @@ export class SessionTimeoutHandler {
       data.inactivityWarning <= now &&
       lastShownInactivity !== data.inactivityWarning.toString()
     ) {
-      this.setWarningModalVisible(
-        WarningType.INACTIVITY,
-        true,
-        data.inactivityWarning,
-      )
+      this.showWarningModal(WarningType.INACTIVITY, data.inactivityWarning)
       return
     }
 
@@ -125,11 +122,7 @@ export class SessionTimeoutHandler {
       data.totalWarning <= now &&
       lastShownTotal !== data.totalWarning.toString()
     ) {
-      this.setWarningModalVisible(
-        WarningType.TOTAL_LENGTH,
-        true,
-        data.totalWarning,
-      )
+      this.showWarningModal(WarningType.TOTAL_LENGTH, data.totalWarning)
       return
     }
   }
@@ -147,21 +140,19 @@ export class SessionTimeoutHandler {
   }
 
   /**
-   * Set up event handlers for the server-rendered modals and process the extend session form submission.
+   * Set up event handlers for the server-rendered modals and process the extend session button submission.
    */
   private static setupModalEventHandlers() {
-    // HTMX handler remains at document level for form submissions
+    // HTMX handler remains at document level
     document.addEventListener('htmx:afterRequest', (event: Event) => {
       const customEvent = event as CustomEvent
       const detail = customEvent.detail as {
         xhr: XMLHttpRequest
         elt: HTMLElement
       }
-      if (detail.elt.id !== 'extend-session-form') return
+      if (detail.elt.id !== 'extend-session-button') return
 
-      this.setWarningModalVisible(WarningType.INACTIVITY, false)
-
-      // Processes /extend-session form submissions
+      // Processes /extend-session request
       if (detail.xhr.status === 200) {
         const successText =
           document.getElementById('session-extended-success-text')
@@ -196,22 +187,14 @@ export class SessionTimeoutHandler {
       `${SessionModalType.INACTIVITY}-modal`,
     )
     if (inactivityModal) {
-      // Handle extend session button
-      const extendButton = inactivityModal.querySelector('[data-modal-primary]')
-      extendButton?.addEventListener('click', () => {
-        const form = document.getElementById(
-          'extend-session-form',
-        ) as HTMLFormElement
-        form?.requestSubmit()
-      })
-
-      // Handle dismiss/close buttons
+      // Handle dismiss/close buttons - USWDS closes natively via data-close-modal,
+      // we just need to update our visibility flag
       const closeButtons = inactivityModal.querySelectorAll(
         '[data-modal-secondary], [data-close-modal]',
       )
       closeButtons.forEach((button) => {
         button.addEventListener('click', () => {
-          this.setWarningModalVisible(WarningType.INACTIVITY, false)
+          this.inactivityWarningVisible = false
         })
       })
     }
@@ -227,13 +210,14 @@ export class SessionTimeoutHandler {
         this.login()
       })
 
-      // Handle dismiss/close buttons
+      // Handle dismiss/close buttons - USWDS closes natively via data-close-modal,
+      // we just need to update our visibility flag
       const closeButtons = lengthModal.querySelectorAll(
         '[data-modal-secondary], [data-close-modal]',
       )
       closeButtons.forEach((button) => {
         button.addEventListener('click', () => {
-          this.setWarningModalVisible(WarningType.TOTAL_LENGTH, false)
+          this.totalLengthWarningVisible = false
         })
       })
     }
@@ -323,36 +307,48 @@ export class SessionTimeoutHandler {
   }
 
   /**
-   * Shows or hides a warning modal of the specified type.
-   * When showing, also records in sessionStorage that the warning was shown.
+   * Shows a warning modal of the specified type and records in sessionStorage that it was shown.
    *
    * @param type Type of warning to show (inactivity or total length)
-   * @param visible Whether to show or hide the modal
    * @param warningTimestamp Timestamp to record (used to detect new sessions and session extension)
    */
-  private static setWarningModalVisible(
+  private static showWarningModal(
     type: WarningType,
-    visible: boolean,
     warningTimestamp?: number,
   ) {
     const modalId =
       type === WarningType.INACTIVITY
         ? `${SessionModalType.INACTIVITY}-modal`
         : `${SessionModalType.LENGTH}-modal`
-    const modal = document.getElementById(modalId)
-    modal?.classList.toggle('is-hidden', !visible)
 
-    if (type === WarningType.INACTIVITY) {
-      this.inactivityWarningVisible = visible
-      if (visible && warningTimestamp !== undefined) {
+    const wrapper = document.getElementById(modalId)
+
+    if (!wrapper || !wrapper.classList.contains('usa-modal-wrapper')) {
+      return
+    }
+
+    // Use the USWDS toggleModal API directly with a fake event/target,
+    // the same pattern used in components/shared/modal.ts.
+    const fakeTarget = {
+      getAttribute: (attr: string) =>
+        attr === 'aria-controls' ? modalId : null,
+      setAttribute: () => {},
+      hasAttribute: (attr: string) => attr === 'data-open-modal',
+      closest: () => null,
+    } as Partial<HTMLElement> as HTMLElement
+
+    const fakeEvent = {target: fakeTarget, type: 'click'}
+    uswdsModal.toggleModal.call(fakeTarget, fakeEvent)
+
+    if (warningTimestamp) {
+      if (type === WarningType.INACTIVITY) {
+        this.inactivityWarningVisible = true
         sessionStorage.setItem(
           this.INACTIVITY_WARNING_SHOWN_KEY,
           warningTimestamp.toString(),
         )
-      }
-    } else {
-      this.totalLengthWarningVisible = visible
-      if (visible && warningTimestamp !== undefined) {
+      } else {
+        this.totalLengthWarningVisible = true
         sessionStorage.setItem(
           this.TOTAL_WARNING_SHOWN_KEY,
           warningTimestamp.toString(),

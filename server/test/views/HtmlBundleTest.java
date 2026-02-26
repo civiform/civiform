@@ -111,7 +111,7 @@ public class HtmlBundleTest extends ResetPostgres {
     Content content = bundle.render();
     String html = content.body();
 
-    assertThat(html).contains("<div id=\"uswds-modal-container\">");
+    assertThat(html).contains("<div id=\"uswds-modal-container\" hidden>");
     assertThat(html).contains("<div class=\"usa-modal\" id=\"test-modal\">");
     assertThat(html).contains("<div class=\"usa-modal__content\">");
     assertThat(html).contains("<div class=\"usa-modal__main\">");
@@ -135,7 +135,7 @@ public class HtmlBundleTest extends ResetPostgres {
     Content content = bundle.render();
     String html = content.body();
 
-    assertThat(html).contains("<div id=\"uswds-modal-container\">");
+    assertThat(html).contains("<div id=\"uswds-modal-container\" hidden>");
     assertThat(html).contains("<div class=\"usa-modal\" id=\"test-modal-1\">");
     assertThat(html).contains("<div class=\"usa-modal\" id=\"test-modal-2\">");
     assertThat(html).contains("<p>First modal</p>");
