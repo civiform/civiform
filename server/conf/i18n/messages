@@ -1175,6 +1175,8 @@ input.repeatedSet.hintText=Hint text
 input.repeatedSet.minEntities=Minimum entity count
 # A form field where admins set the maximum number of entities that applicants can list
 input.repeatedSet.maxEntities=Maximum entity count
+# Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
+alert.repeatedSet.addQuestionDisabled=To add questions to this repeated screen, first select or create and save a repeated set question on the parent repeated set screen.
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
 alert.repeatedSet.newQuestion=Creating a repeated set will add a new question to the question bank.
 # Submission button for creating a new repeated set

@@ -950,6 +950,46 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
+    test('repeated screen add-question button is disabled until enumerator question is saved', async ({
+      page,
+    }) => {
+      const blockPanel = page.getByTestId('block-panel-edit')
+      const addQuestionButton = blockPanel.getByRole('button', {
+        name: 'Add a question',
+      })
+      const repeatedSetAlert = blockPanel.getByRole('alert').filter({
+        hasText:
+          'To add questions to this repeated screen, first select or create and save a repeated set question on the parent repeated set screen.',
+      })
+
+      await test.step('Add a new repeated set and verify repeated screen is selected', async () => {
+        await page.getByRole('button', {name: 'Add screen'}).first().click()
+        await page.getByRole('button', {name: 'Add repeated set'}).click()
+        await expectCurrentBlockTitle(
+          /* isRepeatedBlock= */ true,
+          blockPanel,
+          /* expectedScreenNumber= */ 3,
+          /* repeatedFrom= */ 2,
+        )
+      })
+
+      await test.step('Verify add-question is disabled and alert is visible before enumerator question is saved', async () => {
+        await expect(addQuestionButton).toBeDisabled()
+        await expect(repeatedSetAlert).toBeVisible()
+      })
+
+      await test.step('Save an enumerator question on the parent repeated set screen', async () => {
+        await page.getByRole('link', {name: 'Screen 2'}).click()
+        await fillOutEnumeratorQuestionFormCorrectly(page)
+      })
+
+      await test.step('Return to repeated screen and verify Add a question is enabled and alert is hidden', async () => {
+        await navigateToRepeatedScreen(page, 3, 2)
+        await expect(addQuestionButton).toBeEnabled()
+        await expect(repeatedSetAlert).toBeHidden()
+      })
+    })
+
     test('can add repeated questions to repeated screens', async ({
       page,
       adminPrograms,
