@@ -33,8 +33,6 @@ interface TimeoutData {
   totalWarning: number
   /** When to logout due to total session length */
   totalTimeout: number
-  /** Server's current time when cookie was set - used for clock skew calculation */
-  currentTime: number
 }
 
 /**
@@ -258,7 +256,6 @@ export class SessionTimeoutHandler {
         inactivityTimeout: data.inactivityTimeout,
         totalWarning: data.totalWarning,
         totalTimeout: data.totalTimeout,
-        currentTime: data.currentTime,
       }
     } catch (e) {
       console.error('Failed to parse session timeout data:', e)
@@ -286,8 +283,7 @@ export class SessionTimeoutHandler {
       typeof d.inactivityWarning === 'number' &&
       typeof d.inactivityTimeout === 'number' &&
       typeof d.totalWarning === 'number' &&
-      typeof d.totalTimeout === 'number' &&
-      typeof d.currentTime === 'number'
+      typeof d.totalTimeout === 'number'
     )
   }
 
