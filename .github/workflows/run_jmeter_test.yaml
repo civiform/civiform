@@ -51,7 +51,7 @@ jobs:
           args: -JciviformUrl=${{ github.event.inputs.civiform_url }} -Jusers=${{ github.event.inputs.num_users }}
           results-file: result.${{ github.event.inputs.output_file_type }}
       - name: Upload Results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         with:
           name: jmeter-results
           path: result.${{ github.event.inputs.output_file_type }}
