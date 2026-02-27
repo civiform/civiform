@@ -45,6 +45,7 @@ import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
+import services.settings.SettingsManifest;
 import views.admin.questions.MapQuestionSettingsFiltersListPartialView;
 import views.admin.questions.MapQuestionSettingsFiltersListPartialViewModel;
 import views.admin.questions.MapQuestionSettingsFiltersPartialView;
@@ -61,6 +62,7 @@ public final class AdminQuestionController extends CiviFormController {
   private final QuestionEditView editView;
   private final FormFactory formFactory;
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
+  private final SettingsManifest settingsManifest;
 
   private final MapQuestionSettingsFiltersPartialView mapQuestionSettingsFiltersPartialView;
   private final MapQuestionSettingsFiltersListPartialView mapQuestionSettingsFiltersListPartialView;
@@ -72,6 +74,7 @@ public final class AdminQuestionController extends CiviFormController {
       QuestionService service,
       QuestionsListView listView,
       QuestionEditView editView,
+      SettingsManifest settingsManifest,
       FormFactory formFactory,
       MapQuestionSettingsFiltersPartialView mapQuestionSettingsFiltersPartialView,
       MapQuestionSettingsFiltersListPartialView mapQuestionSettingsFiltersListPartialView,
@@ -80,6 +83,7 @@ public final class AdminQuestionController extends CiviFormController {
     this.service = checkNotNull(service);
     this.listView = checkNotNull(listView);
     this.editView = checkNotNull(editView);
+    this.settingsManifest = checkNotNull(settingsManifest);
     this.formFactory = checkNotNull(formFactory);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.mapQuestionSettingsFiltersPartialView = mapQuestionSettingsFiltersPartialView;
@@ -226,7 +230,11 @@ public final class AdminQuestionController extends CiviFormController {
       return badRequest(e.getMessage());
     }
 
-    ErrorAnd<QuestionDefinition, CiviFormError> result = service.create(questionDefinition);
+    boolean requireLegacyRepeatedEntitySelector =
+        !settingsManifest.getEnumeratorImprovementsEnabled(request);
+
+    ErrorAnd<QuestionDefinition, CiviFormError> result =
+        service.create(questionDefinition, requireLegacyRepeatedEntitySelector);
     if (result.isError()) {
       ToastMessage errorMessage = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
       ReadOnlyQuestionService roService =
@@ -381,7 +389,10 @@ public final class AdminQuestionController extends CiviFormController {
 
     ErrorAnd<QuestionDefinition, CiviFormError> errorAndUpdatedQuestionDefinition;
     try {
-      errorAndUpdatedQuestionDefinition = service.update(maybeExisting, questionDefinition);
+      boolean requireLegacyRepeatedEntitySelector =
+          !settingsManifest.getEnumeratorImprovementsEnabled(request);
+      errorAndUpdatedQuestionDefinition =
+          service.update(maybeExisting, questionDefinition, requireLegacyRepeatedEntitySelector);
     } catch (InvalidUpdateException e) {
       // Ill-formed update request.
       return badRequest(e.toString());

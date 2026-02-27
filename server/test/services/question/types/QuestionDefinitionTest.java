@@ -317,6 +317,16 @@ public class QuestionDefinitionTest {
   }
 
   @Test
+  public void validate_withRepeatedQuestion_missingEntityNameFormatString_notRequired()
+      throws Exception {
+    QuestionDefinition question = builder.setEnumeratorId(Optional.of(1L)).build();
+
+    assertThat(
+            question.validate(Optional.empty(), /* requireLegacyRepeatedEntitySelector= */ false))
+        .isEmpty();
+  }
+
+  @Test
   public void
       validate_withRepeatedQuestion_oneTranslationMissingEntityNameFormatString_returnsErrors()
           throws Exception {

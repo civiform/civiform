@@ -154,6 +154,58 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void create_repeatedQuestion_withoutThisReference_flagEnabled_redirectsOnSuccess() {
+    QuestionModel enumeratorQuestion = testQuestionBank.enumeratorApplicantHouseholdMembers();
+    ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
+    formData
+        .put("questionName", "name")
+        .put("questionDescription", "desc")
+        .put("enumeratorId", String.valueOf(enumeratorQuestion.id))
+        .put("questionType", "TEXT")
+        .put("questionText", "What color is this repeated entity?")
+        .put("questionHelpText", "help text without legacy repeated entity selector");
+    RequestBuilder requestBuilder =
+        fakeRequestBuilder()
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
+            .bodyForm(formData.build());
+
+    ImmutableSet<Long> questionIdsBefore = retrieveAllQuestionIds();
+    Result result = controller.create(requestBuilder.build(), "text");
+
+    assertThat(result.redirectLocation())
+        .hasValue(routes.AdminQuestionController.index(Optional.empty()).url());
+    assertThat(result.flash().get(FlashKey.SUCCESS).get()).contains("created");
+
+    ImmutableSet<Long> questionIdsAfter = retrieveAllQuestionIds();
+    assertThat(questionIdsAfter.size()).isEqualTo(questionIdsBefore.size() + 1);
+  }
+
+  @Test
+  public void create_repeatedQuestion_withoutThisReference_flagDisabled_returnsValidationError() {
+    QuestionModel enumeratorQuestion = testQuestionBank.enumeratorApplicantHouseholdMembers();
+    ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
+    formData
+        .put("questionName", "name")
+        .put("questionDescription", "desc")
+        .put("enumeratorId", String.valueOf(enumeratorQuestion.id))
+        .put("questionType", "TEXT")
+        .put("questionText", "What color is this repeated entity?")
+        .put("questionHelpText", "help text without placeholder");
+    RequestBuilder requestBuilder =
+        fakeRequestBuilder()
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "false")
+            .bodyForm(formData.build());
+
+    ImmutableSet<Long> questionIdsBefore = retrieveAllQuestionIds();
+    Result result = controller.create(requestBuilder.build(), "text");
+
+    assertThat(result.status()).isEqualTo(OK);
+    String unescaped = StringEscapeUtils.unescapeHtml4(contentAsString(result));
+    assertThat(unescaped).contains("Repeated questions must reference '$this' in the text");
+    assertThat(retrieveAllQuestionIds().size()).isEqualTo(questionIdsBefore.size());
+  }
+
+  @Test
   public void create_failsWithErrorMessageAndPopulatedFields() {
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData.put("questionName", "name");
@@ -336,6 +388,27 @@ public class AdminQuestionControllerTest extends ResetPostgres {
         .contains(
             "id=\"question-enumerator-select\" name=\"enumeratorId\" disabled"
                 + " readonly=\"readonly\"");
+  }
+
+  @Test
+  public void newOne_flagEnabled_truncatesRepeatedQuestionInformationMessage() {
+    Request request =
+        fakeRequestBuilder()
+            .addCSRFToken()
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
+            .build();
+    Result result =
+        controller.newOne(
+            request,
+            "text",
+            "/some/redirect/url",
+            /* enumeratorQuestionOptional= */ Optional.empty());
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result))
+        .contains("By selecting an enumerator, you are creating a repeated question - a question")
+        .doesNotContain("Please reference the applicant-defined repeated entity name")
+        .doesNotContain("To reference the repeated entities containing this one, use");
   }
 
   @Test

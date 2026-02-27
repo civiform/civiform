@@ -67,7 +67,15 @@ public final class QuestionService {
    * <p>NOTE: This does not update the version.
    */
   public ErrorAnd<QuestionDefinition, CiviFormError> create(QuestionDefinition questionDefinition) {
-    ImmutableSet<CiviFormError> validationErrors = questionDefinition.validate();
+    return create(questionDefinition, /* requireLegacyRepeatedEntitySelector= */ true);
+  }
+
+  public ErrorAnd<QuestionDefinition, CiviFormError> create(
+      QuestionDefinition questionDefinition, boolean requireLegacyRepeatedEntitySelector) {
+    ImmutableSet<CiviFormError> validationErrors =
+        questionDefinition.validate(
+            Optional.empty(),
+            /* requireLegacyRepeatedEntitySelector= */ requireLegacyRepeatedEntitySelector);
 
     return transactionManager.execute(
         /* synchronousWork= */ () -> {
@@ -146,7 +154,8 @@ public final class QuestionService {
    */
   public ErrorAnd<QuestionDefinition, CiviFormError> update(QuestionDefinition updatedDefinition)
       throws InvalidUpdateException {
-    return update(Optional.empty(), updatedDefinition);
+    return update(
+        Optional.empty(), updatedDefinition, /* requireLegacyRepeatedEntitySelector= */ true);
   }
 
   /**
@@ -170,10 +179,20 @@ public final class QuestionService {
   public ErrorAnd<QuestionDefinition, CiviFormError> update(
       Optional<QuestionDefinition> previousDefinition, QuestionDefinition updatedDefinition)
       throws InvalidUpdateException {
+    return update(
+        previousDefinition, updatedDefinition, /* requireLegacyRepeatedEntitySelector= */ true);
+  }
+
+  public ErrorAnd<QuestionDefinition, CiviFormError> update(
+      Optional<QuestionDefinition> previousDefinition,
+      QuestionDefinition updatedDefinition,
+      boolean requireLegacyRepeatedEntitySelector)
+      throws InvalidUpdateException {
     if (!updatedDefinition.isPersisted()) {
       throw new InvalidUpdateException("question definition is not persisted");
     }
-    ImmutableSet<CiviFormError> validationErrors = updatedDefinition.validate(previousDefinition);
+    ImmutableSet<CiviFormError> validationErrors =
+        updatedDefinition.validate(previousDefinition, requireLegacyRepeatedEntitySelector);
 
     Optional<QuestionModel> maybeQuestion =
         questionRepository.lookupQuestion(updatedDefinition.getId()).toCompletableFuture().join();
