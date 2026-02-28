@@ -72,6 +72,14 @@ public final class CsvExporterService {
 
   /** Return a string containing a CSV of all applications at all versions of particular program. */
   public String getProgramAllVersionsCsv(long programId, SubmittedApplicationFilter filters)
+       throws ProgramNotFoundException {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    writeProgramAllVersionsCsv(programId, filters, baos);
+    return baos.toString(StandardCharsets.UTF_8);
+  }
+
+  public void writeProgramAllVersionsCsv(
+      long programId, SubmittedApplicationFilter filters, OutputStream outputStream)
       throws ProgramNotFoundException {
     ImmutableMap<Long, ProgramDefinition> programDefinitionsForAllVersions =
         programService.getAllVersionsFullProgramDefinition(programId).stream()
@@ -90,13 +98,14 @@ public final class CsvExporterService {
         generateCsvConfig(
             applications, programDefinitionsForAllVersions, currentProgram.hasEligibilityEnabled());
 
-    return exportCsv(
+    exportCsvToStream(
         exportConfig,
         applications,
         // Use our local program definition cache when exporting applications,
         // it's faster then the cache in the ProgramRepository.
         programDefinitionsForAllVersions::get,
-        Optional.of(currentProgram));
+        Optional.of(currentProgram),
+        outputStream);
   }
 
   private CsvExportConfig generateCsvConfig(
@@ -135,45 +144,40 @@ public final class CsvExporterService {
    * @param getProgramDefinition a function used to retrieve the ProgramDefinition by ID
    * @param currentProgram the current program definition
    */
-  private String exportCsv(
+  private void exportCsvToStream(
       CsvExportConfig exportConfig,
       ImmutableList<ApplicationModel> applications,
       Function<Long, ProgramDefinition> getProgramDefinition,
-      Optional<ProgramDefinition> currentProgram) {
-    OutputStream inMemoryBytes = new ByteArrayOutputStream();
-    try (Writer writer = new OutputStreamWriter(inMemoryBytes, StandardCharsets.UTF_8)) {
-      try (CsvExporter csvExporter =
-          new CsvExporter(
-              exportConfig.columns(),
-              config.getString("play.http.secret.key"),
-              writer,
-              dateConverter)) {
-        boolean shouldCheckEligibility =
-            currentProgram.isPresent() && currentProgram.get().hasEligibilityEnabled();
+      Optional<ProgramDefinition> currentProgram,
+      OutputStream outputStream) {
+    try (Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
+        CsvExporter csvExporter =
+            new CsvExporter(
+                exportConfig.columns(),
+                config.getString("play.http.secret.key"),
+                writer,
+                dateConverter)) {
+      boolean shouldCheckEligibility =
+          currentProgram.isPresent() && currentProgram.get().hasEligibilityEnabled();
 
-        for (ApplicationModel application : applications) {
-          ProgramDefinition programDefForApplication =
-              getProgramDefinition.apply(application.getProgram().id);
-          ReadOnlyApplicantProgramService roApplicantService =
-              applicantService.getReadOnlyApplicantProgramService(
-                  application, programDefForApplication);
+      for (ApplicationModel application : applications) {
+        ProgramDefinition programDefForApplication = getProgramDefinition.apply(application.getProgram().id);
+        ReadOnlyApplicantProgramService roApplicantService =
+            applicantService.getReadOnlyApplicantProgramService(application, programDefForApplication);
 
-          Optional<Boolean> optionalEligibilityStatus =
-              shouldCheckEligibility
-                  ? applicantService.getApplicationEligibilityStatus(
-                      application, programDefForApplication)
-                  : Optional.empty();
+        Optional<Boolean> optionalEligibilityStatus =
+            shouldCheckEligibility
+                ? applicantService.getApplicationEligibilityStatus(application, programDefForApplication)
+                : Optional.empty();
 
-          csvExporter.exportRecord(
-              application, roApplicantService, optionalEligibilityStatus, programDefForApplication);
-        }
+        csvExporter.exportRecord(
+            application, roApplicantService, optionalEligibilityStatus, programDefForApplication);
       }
+
+      writer.flush();
     } catch (IOException e) {
-      // Since it's an in-memory writer, this shouldn't happen.  Catch so that callers don't
-      // have to deal with it.
       throw new RuntimeException(e);
     }
-    return inMemoryBytes.toString();
   }
 
   /**
@@ -242,6 +246,12 @@ public final class CsvExporterService {
    * TODO(#6746): Include repeated questions in the demographic export
    */
   public String getDemographicsCsv(TimeFilter filter) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        writeDemographicsCsv(filter, baos);
+        return baos.toString(StandardCharsets.UTF_8);
+    }
+
+    public void writeDemographicsCsv(TimeFilter filter, OutputStream outputStream) {
     // Use the ProgramDefinition cache in the ProgramRepository, since we don't already have a local
     // cache of ProgramDefinitions. This will cause a database call for program definitions that
     // aren't yet in the cache.
@@ -257,11 +267,12 @@ public final class CsvExporterService {
             throw new RuntimeException(e);
           }
         };
-    return exportCsv(
+    exportCsvToStream(
         getDemographicsExporterConfig(),
         applicantService.getApplications(filter),
         getProgramDefinition,
-        /* currentProgram= */ Optional.empty());
+        /* currentProgram= */ Optional.empty(),
+        outputStream);
   }
 
   private CsvExportConfig getDemographicsExporterConfig() {

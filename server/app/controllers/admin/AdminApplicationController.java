@@ -17,22 +17,33 @@ import controllers.BadRequestException;
 import controllers.CiviFormController;
 import controllers.FlashKey;
 import forms.admin.BulkStatusUpdateForm;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import javax.inject.Inject;
 import models.ApplicationModel;
 import models.LifecycleStage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
+import play.mvc.HttpExecutionContext;
 import play.mvc.Result;
 import repository.SubmittedApplicationFilter;
 import repository.TimeFilter;
@@ -69,6 +80,8 @@ import views.admin.programs.ProgramApplicationView;
 /** Controller for admins viewing applications to programs. */
 public final class AdminApplicationController extends CiviFormController {
   private static final int PAGE_SIZE_BULK_STATUS = 100;
+  private static final Logger logger = LoggerFactory.getLogger(AdminApplicationController.class);
+  private static final long CSV_WRITE_TIMEOUT_SECONDS = 120;
 
   private static final String REDIRECT_URI_KEY = "redirectUri";
 
@@ -86,6 +99,7 @@ public final class AdminApplicationController extends CiviFormController {
   private final StatusService statusService;
   private final ProgramApplicationTableView tableView;
   private final SettingsManifest settingsManifest;
+  private final HttpExecutionContext httpExecutionContext;
 
   public enum RelativeTimeOfDay {
     UNKNOWN,
@@ -112,7 +126,8 @@ public final class AdminApplicationController extends CiviFormController {
       VersionRepository versionRepository,
       StatusService statusService,
       ProgramApplicationTableView tableView,
-      SettingsManifest settingsManifest) {
+      SettingsManifest settingsManifest,
+      HttpExecutionContext httpExecutionContext) {
     super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
     this.applicantService = checkNotNull(applicantService);
@@ -128,6 +143,7 @@ public final class AdminApplicationController extends CiviFormController {
     this.statusService = checkNotNull(statusService);
     this.tableView = checkNotNull(tableView);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.httpExecutionContext = checkNotNull(httpExecutionContext);
   }
 
   /** Download a JSON file containing all applications to all versions of the specified program. */
@@ -199,36 +215,84 @@ public final class AdminApplicationController extends CiviFormController {
       return unauthorized();
     }
     boolean shouldApplyFilters = ignoreFilters.orElse("").isEmpty();
+    SubmittedApplicationFilter filters = SubmittedApplicationFilter.EMPTY;
+    if (shouldApplyFilters) {
+      filters =
+          SubmittedApplicationFilter.builder()
+              .setSearchNameFragment(search)
+              .setSubmitTimeFilter(
+                  TimeFilter.builder()
+                      .setFromTime(
+                          parseDateTimeFromQuery(dateConverter, fromDate, RelativeTimeOfDay.START))
+                      .setUntilTime(
+                          parseDateTimeFromQuery(dateConverter, untilDate, RelativeTimeOfDay.END))
+                      .build())
+              .setApplicationStatus(applicationStatus)
+              .setLifecycleStages(ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
+              .build();
+    }
+
+    ProgramDefinition program = programService.getFullProgramDefinition(programId);
     try {
-      SubmittedApplicationFilter filters = SubmittedApplicationFilter.EMPTY;
-      if (shouldApplyFilters) {
-        filters =
-            SubmittedApplicationFilter.builder()
-                .setSearchNameFragment(search)
-                .setSubmitTimeFilter(
-                    TimeFilter.builder()
-                        .setFromTime(
-                            parseDateTimeFromQuery(
-                                dateConverter, fromDate, RelativeTimeOfDay.START))
-                        .setUntilTime(
-                            parseDateTimeFromQuery(dateConverter, untilDate, RelativeTimeOfDay.END))
-                        .build())
-                .setApplicationStatus(applicationStatus)
-                .setLifecycleStages(
-                    ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
-                .build();
-      }
-      ProgramDefinition program = programService.getFullProgramDefinition(programId);
       checkProgramAdminAuthorization(request, program.adminName()).join();
-      String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
-      String csv = exporterService.getProgramAllVersionsCsv(programId, filters);
-      return ok(csv)
-          .as(Http.MimeTypes.BINARY)
-          .withHeader(
-              "Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
     } catch (CompletionException | MissingOptionalException e) {
       return unauthorized();
     }
+
+    String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
+
+    PipedInputStream inputStream = new PipedInputStream(256 * 1024);
+    PipedOutputStream outputStream;
+    try {
+      outputStream = new PipedOutputStream(inputStream);
+    } catch (IOException e) {
+      logger.error("Failed to create piped stream for CSV export: {}", e.getMessage());
+      return internalServerError("Unable to create download stream");
+    }
+
+    CompletableFuture.runAsync(
+            () -> {
+              try (OutputStream safeStream = outputStream) {
+                logger.debug("Starting CSV export for program {}", programId);
+                exporterService.writeProgramAllVersionsCsv(programId, filters, safeStream);
+                logger.debug("CSV export completed successfully for program {}", programId);
+              } catch (IOException e) {
+                logger.warn(
+                    "Client disconnected during CSV download for program {}: {}",
+                    programId,
+                    e.getMessage());
+              } catch (ProgramNotFoundException e) {
+                logger.error("Program not found during CSV export: {}", programId);
+                closeStreamWithError(inputStream);
+              } catch (Exception e) {
+                logger.error(
+                    "Unexpected error during CSV export for program {}: {}",
+                    programId,
+                    e.getMessage(),
+                    e);
+                closeStreamWithError(inputStream);
+              }
+            },
+            httpExecutionContext.current())
+        .orTimeout(CSV_WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        .exceptionally(
+            ex -> {
+              if (ex instanceof TimeoutException || ex.getCause() instanceof TimeoutException) {
+                logger.error(
+                    "CSV export timeout exceeded ({} sec) for program {}",
+                    CSV_WRITE_TIMEOUT_SECONDS,
+                    programId);
+              } else {
+                logger.error("CSV export task failed for program {}: {}", programId, ex.getMessage(), ex);
+              }
+              closeStreamWithError(inputStream);
+              return null;
+            });
+
+    return ok()
+        .sendInputStream(() -> inputStream)
+        .as("text/csv; charset=utf-8")
+        .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
   }
 
   /**
@@ -269,10 +333,55 @@ public final class AdminApplicationController extends CiviFormController {
             .setUntilTime(parseDateTimeFromQuery(dateConverter, untilDate, RelativeTimeOfDay.END))
             .build();
     String filename = String.format("demographics-%s.csv", nowProvider.get());
-    String csv = exporterService.getDemographicsCsv(submitTimeFilter);
-    return ok(csv)
-        .as(Http.MimeTypes.BINARY)
+
+    PipedInputStream inputStream = new PipedInputStream(256 * 1024);
+    PipedOutputStream outputStream;
+    try {
+      outputStream = new PipedOutputStream(inputStream);
+    } catch (IOException e) {
+      logger.error("Failed to create piped stream for demographics export: {}", e.getMessage());
+      return internalServerError("Unable to create download stream");
+    }
+
+    CompletableFuture.runAsync(
+            () -> {
+              try (OutputStream safeStream = outputStream) {
+                logger.debug("Starting demographics CSV export");
+                exporterService.writeDemographicsCsv(submitTimeFilter, safeStream);
+                logger.debug("Demographics CSV export completed successfully");
+              } catch (IOException e) {
+                logger.warn("Client disconnected during demographics download: {}", e.getMessage());
+              } catch (Exception e) {
+                logger.error("Unexpected error during demographics export: {}", e.getMessage(), e);
+                closeStreamWithError(inputStream);
+              }
+            },
+            httpExecutionContext.current())
+        .orTimeout(CSV_WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        .exceptionally(
+            ex -> {
+              if (ex instanceof TimeoutException || ex.getCause() instanceof TimeoutException) {
+                logger.error(
+                    "Demographics export timeout exceeded ({} sec)", CSV_WRITE_TIMEOUT_SECONDS);
+              } else {
+                logger.error("Demographics export task failed: {}", ex.getMessage(), ex);
+              }
+              closeStreamWithError(inputStream);
+              return null;
+            });
+
+    return ok()
+        .sendInputStream(() -> inputStream)
+        .as("text/csv; charset=utf-8")
         .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
+  }
+
+  private void closeStreamWithError(InputStream stream) {
+    try {
+      stream.close();
+    } catch (IOException e) {
+      logger.debug("Error closing stream after export failure: {}", e.getMessage());
+    }
   }
 
   /** Download a PDF file of the application to the program. */
