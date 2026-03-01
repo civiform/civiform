@@ -5,7 +5,7 @@ import {
   BridgeResponse,
   ProblemDetail,
   ValidationProblemDetail,
-} from '../types/apibridge.js';
+} from '@/types/apibridge.js';
 
 // Sample data (from Python sample_data.py)
 const requestSchema = {
