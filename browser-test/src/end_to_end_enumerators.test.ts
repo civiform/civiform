@@ -1013,9 +1013,12 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Verify that creating a repeated question pre-selects the enumerator question.', async () => {
-        await page.getByRole('button', {name: 'Add a question'}).click()
-        await page.getByRole('button', {name: 'Create new question'}).click()
-        await page.getByRole('link', {name: 'Text', exact: true}).click()
+        await test.step('Add a new text. question to the screen', async () => {
+          await page.getByRole('button', {name: 'Add a question'}).click()
+          await page.getByRole('button', {name: 'Create new question'}).click()
+          await page.getByRole('link', {name: 'Text', exact: true}).click()
+        })
+
         await expect(page.getByLabel('Question enumerator')).toBeDisabled()
         await expect(
           page.getByLabel('Question enumerator').locator('option[selected]'),

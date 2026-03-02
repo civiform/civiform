@@ -133,10 +133,8 @@ public final class QuestionEditView extends BaseHtmlView {
     QuestionForm questionForm = QuestionFormBuilder.create(questionType);
     questionForm.setRedirectUrl(redirectUrl);
     if (!isRepeatingBlock) {
-      // Non-repeating block: disable enumerator selection
       questionForm.setEnumeratorSelectEnabled(false);
     } else {
-      // Pre-selected enumerator or default: set if present and disable
       selectedEnumerator.ifPresent(
           enumeratorId -> {
             questionForm.setEnumeratorId(enumeratorId);
