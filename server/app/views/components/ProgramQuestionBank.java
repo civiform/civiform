@@ -162,7 +162,10 @@ public final class ProgramQuestionBank {
                                     /* isPrimaryButton= */ false,
                                     getParentEnumeratorId(),
                                     settingsManifest,
-                                    request)))));
+                                    request,
+                                    /* isEmptyBlock= */ params.blockDefinition().getQuestionCount()
+                                        == 0,
+                                    /* isQuestionPage= */ false)))));
 
     // Sort by last modified, since that's the default of the sort by dropdown
     ImmutableList<QuestionDefinition> allQuestions =

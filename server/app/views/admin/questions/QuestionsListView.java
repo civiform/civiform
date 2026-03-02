@@ -118,7 +118,9 @@ public final class QuestionsListView extends BaseHtmlView {
                             /* isPrimaryButton= */ true,
                             /* enumeratorQuestion= */ Optional.empty(),
                             settingsManifest,
-                            request)),
+                            request,
+                            /* isEmptyBlock= */ true,
+                            /* isQuestionPage= */ true)),
                 QuestionBank.renderFilterAndSort(
                     ImmutableList.of(
                         QuestionSortOption.LAST_MODIFIED,
