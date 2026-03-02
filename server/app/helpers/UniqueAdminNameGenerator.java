@@ -93,7 +93,7 @@ public final class UniqueAdminNameGenerator {
     String result = "";
 
     // Division algorithm to convert from base 10 to "base 26"
-    int dividend = num; // 28
+    int dividend = num;
     while (dividend > 0) {
       // Subtract one so we're doing math with a zero-based index.
       // We need "a" to be 0, and "z" to be 25, so that 26 wraps around
