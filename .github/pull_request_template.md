@@ -9,6 +9,7 @@ Remove this section if the feature is still under development or if title of the
 When the Release engineer creates Release Notes, they will not look for this section for Under Development tagged PRs, and will use it if present for all other PRs included in the Release Notes.
 
 ### Checklist
+
 Remove any sections below that do not apply to your PR. For sections that do apply, complete all of the appropriate checklist items and check them off. If a checklist item doesn't apply to your PR, leave it unchecked but do not delete it.
 
 #### General
