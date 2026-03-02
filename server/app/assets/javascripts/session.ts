@@ -368,6 +368,9 @@ export class SessionTimeoutHandler {
    * Initiates login.
    */
   private static login() {
-    window.location.href = '/logBackIn'
+    const redirectTo = encodeURIComponent(
+      window.location.pathname + window.location.search,
+    )
+    window.location.href = `/logBackIn?redirectTo=${redirectTo}`
   }
 }
