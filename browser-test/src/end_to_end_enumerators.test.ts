@@ -1013,9 +1013,12 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Verify that creating a repeated question pre-selects the enumerator question.', async () => {
-        await page.getByRole('button', {name: 'Add a question'}).click()
-        await page.getByRole('button', {name: 'Create new question'}).click()
-        await page.getByRole('link', {name: 'Text', exact: true}).click()
+        await test.step('Add a new text question to the screen', async () => {
+          await page.getByRole('button', {name: 'Add a question'}).click()
+          await page.getByRole('button', {name: 'Create new question'}).click()
+          await page.getByRole('link', {name: 'Text', exact: true}).click()
+        })
+
         await expect(page.getByLabel('Question enumerator')).toBeDisabled()
         await expect(
           page.getByLabel('Question enumerator').locator('option[selected]'),
@@ -1113,6 +1116,32 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         })
         await expect(chooseExistingButton).toBeChecked()
         await expect(addQuestionButton).toBeVisible()
+      })
+    })
+
+    test('disables enumerator dropdown when creating question from non-repeating screen', async ({
+      page,
+    }) => {
+      await test.step('Click on the first (non-repeating) screen', async () => {
+        await page.getByRole('link', {name: 'Screen 1'}).click()
+      })
+
+      await test.step('Add a new text question to the screen', async () => {
+        await test.step('Click "Add a question"', async () => {
+          await page.getByRole('button', {name: 'Add a question'}).click()
+        })
+
+        await test.step('Click "Create new question"', async () => {
+          await page.getByRole('button', {name: 'Create new question'}).click()
+        })
+
+        await test.step('Select a question type (Text)', async () => {
+          await page.getByRole('link', {name: 'Text', exact: true}).click()
+        })
+      })
+
+      await test.step('Verify that the "Question enumerator" dropdown is disabled', async () => {
+        await expect(page.getByLabel('Question enumerator')).toBeDisabled()
       })
     })
   })

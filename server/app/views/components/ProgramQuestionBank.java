@@ -161,6 +161,7 @@ public final class ProgramQuestionBank {
                                     params.questionCreateRedirectUrl(),
                                     /* isPrimaryButton= */ false,
                                     getParentEnumeratorId(),
+                                    params.blockDefinition().isRepeated(),
                                     settingsManifest,
                                     request)))));
 
