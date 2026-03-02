@@ -9,6 +9,10 @@ on:
     types:
       - closed
 
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
   notify_on_messages_change:
     if: github.event.pull_request.merged == true
