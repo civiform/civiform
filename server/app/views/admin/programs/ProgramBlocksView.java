@@ -844,7 +844,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
             renderNewEnumeratorQuestionForm(
                 request, messages, programId, blockId, optionalQuestionForm, errorMessages),
             renderChooseExistingQuestion(messages))
-        .withId("enumerator-setup");
+        .withId("enumerator-setup")
+        .withClass("maxw-mobile-lg");
   }
 
   private DivTag renderChooseExistingQuestion(Messages messages) {
@@ -853,8 +854,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .withId("repeated-set-question-section-heading")
                 .withClasses("font-bold", "margin-bottom-05", "text-black-700")
                 .with(ViewUtils.requiredQuestionIndicator()),
-            p("")
-                .withClasses("font-ui-sm", "text-base")
+            div()
+                .withClasses("font-ui-sm", "text-base", "margin-bottom-1")
                 .with(
                     span(
                         messages.at(
@@ -884,7 +885,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                         .attr("checked", "checked"),
                     label(messages.at(MessageKey.OPTION_REPEATED_SET_CREATE_NEW.getKeyName()))
                         .with(
-                            p("")
+                            div()
                                 .withClasses(
                                     "font-ui-2-xs", "text-base", "text-black", "margin-top-2")
                                 .with(
@@ -908,7 +909,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                         .attr("for", "choose-existing")
                         .attr("data-testid", "choose-existing-radio-label")
                         .with(
-                            p("")
+                            div()
                                 .withClasses(
                                     "font-ui-2-xs", "text-base", "text-black", "margin-top-2")
                                 .with(
@@ -917,7 +918,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                                             MessageKey
                                                 .DESCRIPTION_REPEATED_SET_CHOOSE_EXISTING_QUESTION
                                                 .getKeyName()))))))
-        .withClasses("usa-fieldset", "margin-y-2", "maxw-mobile-lg");
+        .withClasses("usa-fieldset", "margin-y-2");
   }
 
   private FormTag renderNewEnumeratorQuestionForm(
@@ -929,7 +930,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       ImmutableSet<CiviFormError> errorMessages) {
     InputTag csrfTag = makeCsrfTokenInputTag(request);
     return form(csrfTag)
-        .withClasses("usa-summary-box", "bg-white", "border-gray-300", "maxw-mobile-lg")
+        .withClasses("usa-summary-box", "bg-white", "border-gray-300")
         .withId("new-enumerator-question-form")
         .attr(
             "hx-post",
