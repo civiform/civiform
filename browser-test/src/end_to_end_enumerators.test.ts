@@ -1067,6 +1067,54 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(currentModalPrefix).toHaveText('[parent label] -')
       })
     })
+
+    test('Radio button swaps repeated set creation method', async ({
+      page,
+      adminPrograms,
+    }) => {
+      await test.step('Go to the program block edit page', async () => {
+        await adminPrograms.gotoEditDraftProgramPage('Enumerator test program')
+      })
+
+      await test.step('Add a new repeated set', async () => {
+        await page.getByRole('button', {name: 'Add screen'}).first().click()
+        await page.getByRole('button', {name: 'Add repeated set'}).click()
+        await waitForPageJsLoad(page)
+      })
+
+      await page.getByRole('link', {name: 'Screen 2'}).click()
+
+      await test.step('Check that Create New is preselected and create new partial view is visible', async () => {
+        const createNewButton = page.getByLabel('Create new')
+
+        const newEnumeratorQuestionFormButton = page.getByRole('button', {
+          name: 'Create repeated set',
+        })
+        await expect(createNewButton).toBeChecked()
+        await expect(newEnumeratorQuestionFormButton).toBeVisible()
+      })
+
+      await test.step('swap to choose existing and check existing partial view is visible', async () => {
+        const chooseExistingButton = page.getByRole('radio', {
+          name: 'Choose existing',
+        })
+
+        await chooseExistingButton.scrollIntoViewIfNeeded()
+        await expect(chooseExistingButton).toBeVisible()
+
+        // Uswds styling makes the label the clickable portion, trying to check the input will not work.
+        const chooseExistingLabel = page.getByTestId(
+          'choose-existing-radio-label',
+        )
+        await chooseExistingLabel.check()
+
+        const addQuestionButton = page.getByRole('button', {
+          name: 'Add question',
+        })
+        await expect(chooseExistingButton).toBeChecked()
+        await expect(addQuestionButton).toBeVisible()
+      })
+    })
   })
 
   test.describe('Applicant', () => {
