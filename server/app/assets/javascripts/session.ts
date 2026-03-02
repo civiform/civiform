@@ -56,6 +56,24 @@ export const enum SessionModalType {
   LENGTH = 'session-length-warning',
 }
 
+// Fake event targets for using the USWDS toggleModal API directly
+const fakeOpenTarget = (modalId: string): HTMLElement =>
+  ({
+    getAttribute: (attr: string) => (attr === 'aria-controls' ? modalId : null),
+    setAttribute: () => {},
+    hasAttribute: (attr: string) => attr === 'data-open-modal',
+    closest: () => null,
+  }) as Partial<HTMLElement> as HTMLElement
+
+const fakeCloseTarget = (modalId: string, wrapper: HTMLElement): HTMLElement =>
+  ({
+    getAttribute: (attr: string) => (attr === 'aria-controls' ? modalId : null),
+    setAttribute: () => {},
+    hasAttribute: (attr: string) => attr === 'data-close-modal',
+    closest: (selector: string) =>
+      selector === '.usa-modal' ? wrapper.querySelector('.usa-modal') : null,
+  }) as Partial<HTMLElement> as HTMLElement
+
 /**
  * Handles session timeout management including:
  * - Reading timeout data from cookies
@@ -346,18 +364,9 @@ export class SessionTimeoutHandler {
 
     // Use the USWDS toggleModal API directly with a fake event/target,
     // the same pattern used in components/shared/modal.ts.
-    const fakeTarget = {
-      getAttribute: (attr: string) =>
-        attr === 'aria-controls' ? modalId : null,
-      setAttribute: () => {},
-      hasAttribute: (attr: string) =>
-        attr === (show ? 'data-open-modal' : 'data-close-modal'),
-      closest: (selector: string) =>
-        !show && selector === '.usa-modal'
-          ? wrapper.querySelector('.usa-modal')
-          : null,
-    } as Partial<HTMLElement> as HTMLElement
-
+    const fakeTarget = show
+      ? fakeOpenTarget(modalId)
+      : fakeCloseTarget(modalId, wrapper)
     const fakeEvent = {target: fakeTarget, type: 'click'}
     uswdsModal.toggleModal.call(fakeTarget, fakeEvent)
 
