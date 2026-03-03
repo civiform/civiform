@@ -454,7 +454,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     assertThat(result.redirectLocation())
         .contains(
             controllers.applicant.routes.ApplicantProgramsController.edit(
-                    String.valueOf(programDefinition.id()), /* isFromUrlCall= */ false)
+                    String.valueOf(programDefinition.id()))
                 .url());
   }
 
@@ -496,11 +496,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
     CompletionStage<Long> result =
         instanceOf(ProgramSlugHandler.class)
-            .resolveProgramParam(
-                programId,
-                applicant.id,
-                /* isFromUrlCall= */ false,
-                /* programSlugUrlEnabled= */ false);
+            .resolveProgramParam(programId, applicant.id, /* programSlugUrlEnabled= */ false);
 
     assertThat(result.toCompletableFuture().get()).isEqualTo(123L);
   }
@@ -514,10 +510,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             () ->
                 instanceOf(ProgramSlugHandler.class)
                     .resolveProgramParam(
-                        program.slug(),
-                        applicant.id,
-                        /* isFromUrlCall= */ false,
-                        /* programSlugUrlEnabled= */ false))
+                        program.slug(), applicant.id, /* programSlugUrlEnabled= */ false))
         .isInstanceOf(RuntimeException.class)
         .hasMessage("Could not parse value from 'test-program' to a numeric value");
   }
@@ -529,11 +522,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
     CompletionStage<Long> result =
         instanceOf(ProgramSlugHandler.class)
-            .resolveProgramParam(
-                programId,
-                applicant.id,
-                /* isFromUrlCall= */ true,
-                /* programSlugUrlEnabled= */ false);
+            .resolveProgramParam(programId, applicant.id, /* programSlugUrlEnabled= */ false);
 
     assertThat(result.toCompletableFuture().get()).isEqualTo(123L);
   }
@@ -547,43 +536,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             () ->
                 instanceOf(ProgramSlugHandler.class)
                     .resolveProgramParam(
-                        program.slug(),
-                        applicant.id,
-                        /* isFromUrlCall= */ true,
-                        /* programSlugUrlEnabled= */ false))
-        .isInstanceOf(RuntimeException.class)
-        .hasMessage("Could not parse value from 'test-program' to a numeric value");
-  }
-
-  @Test
-  public void resolveProgramParam_whenSlugEnabledAndNotFromUrl_withId_success() throws Exception {
-    String programId = "123";
-    ApplicantModel applicant = createApplicantWithMockedProfile();
-
-    CompletionStage<Long> result =
-        instanceOf(ProgramSlugHandler.class)
-            .resolveProgramParam(
-                programId,
-                applicant.id,
-                /* isFromUrlCall= */ false,
-                /* programSlugUrlEnabled= */ true);
-
-    assertThat(result.toCompletableFuture().get()).isEqualTo(123L);
-  }
-
-  @Test
-  public void resolveProgramParam_whenSlugEnabledAndNotFromUrl_withSlug_error() throws Exception {
-    ProgramDefinition program = ProgramBuilder.newActiveProgram("test program").buildDefinition();
-    ApplicantModel applicant = createApplicantWithMockedProfile();
-
-    assertThatThrownBy(
-            () ->
-                instanceOf(ProgramSlugHandler.class)
-                    .resolveProgramParam(
-                        program.slug(),
-                        applicant.id,
-                        /* isFromUrlCall= */ false,
-                        /* programSlugUrlEnabled= */ true))
+                        program.slug(), applicant.id, /* programSlugUrlEnabled= */ false))
         .isInstanceOf(RuntimeException.class)
         .hasMessage("Could not parse value from 'test-program' to a numeric value");
   }
@@ -597,10 +550,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             () ->
                 instanceOf(ProgramSlugHandler.class)
                     .resolveProgramParam(
-                        programId,
-                        applicant.id,
-                        /* isFromUrlCall= */ true,
-                        /* programSlugUrlEnabled= */ true))
+                        programId, applicant.id, /* programSlugUrlEnabled= */ true))
         .isInstanceOf(IllegalStateException.class)
         .hasMessage("Numeric program parameter should have been handled by the caller");
   }
@@ -612,11 +562,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
     CompletionStage<Long> result =
         instanceOf(ProgramSlugHandler.class)
-            .resolveProgramParam(
-                program.slug(),
-                applicant.id,
-                /* isFromUrlCall= */ true,
-                /* programSlugUrlEnabled= */ true);
+            .resolveProgramParam(program.slug(), applicant.id, /* programSlugUrlEnabled= */ true);
 
     assertThat(result.toCompletableFuture().get()).isEqualTo(program.id());
   }
