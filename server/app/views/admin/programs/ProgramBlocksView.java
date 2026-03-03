@@ -614,9 +614,18 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Request request,
       Messages messages) {
 
-    boolean isEnumeratorBlock =
-        settingsManifest.getEnumeratorImprovementsEnabled(request)
-            && blockDefinition.getIsEnumerator();
+    boolean enumeratorImprovementsEnabled =
+        settingsManifest.getEnumeratorImprovementsEnabled(request);
+
+    boolean isEnumeratorBlock = enumeratorImprovementsEnabled && blockDefinition.getIsEnumerator();
+
+    Optional<BlockDefinition> optionalParentEnumeratorBlock = Optional.empty();
+    boolean isEnumeratorBlockComplete = true;
+    if (enumeratorImprovementsEnabled && blockDefinition.isRepeated()) {
+      optionalParentEnumeratorBlock = optionallyGetParentEnumeratorBlock(program, blockDefinition);
+      isEnumeratorBlockComplete =
+          optionalParentEnumeratorBlock.map(block -> block.hasEnumeratorQuestion()).orElse(false);
+    }
 
     DivTag blockInfoDisplay =
         div()
@@ -689,9 +698,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
               blockDescriptionModalButton,
               blockDeleteModalButton,
               canDeleteBlock(program, blockDefinition),
-              settingsManifest.getEnumeratorImprovementsEnabled(request));
+              enumeratorImprovementsEnabled);
       ButtonTag addQuestion =
           makeSvgTextButton("Add a question", Icons.ADD)
+              .withCondDisabled(!isEnumeratorBlockComplete)
               .withClasses(
                   ButtonStyles.SOLID_BLUE_WITH_ICON,
                   ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
@@ -721,9 +731,16 @@ public final class ProgramBlocksView extends ProgramBaseView {
           programQuestions,
           addQuestion,
           iff(
-              settingsManifest.getEnumeratorImprovementsEnabled(request),
+              enumeratorImprovementsEnabled && !isEnumeratorBlockComplete,
+              AlertComponent.renderSlimInfoAlert(
+                  messages.at(MessageKey.ALERT_REPEATED_SET_ADD_QUESTION_DISABLED.getKeyName()))),
+          iff(
+              enumeratorImprovementsEnabled,
               renderAddRepeatedScreenButtons(
-                  messages, blockHasEnumeratorQuestion, parentEnumerator, shouldShowNestedButton)));
+                  messages,
+                  blockHasEnumeratorQuestion,
+                  optionalParentEnumeratorBlock,
+                  shouldShowNestedButton)));
     }
 
     div.with(blockInfoDisplay, visibilityPredicateDisplay);
