@@ -11,6 +11,9 @@ import auth.Role;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+import java.security.cert.X509Certificate;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import javax.inject.Provider;
@@ -27,6 +30,13 @@ import org.pac4j.oidc.profile.OidcProfile;
 import org.pac4j.oidc.profile.creator.OidcProfileCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.api.http.MediaRange;
+import play.api.mvc.RequestHeader;
+import play.i18n.Lang;
+import play.libs.typedmap.TypedEntry;
+import play.libs.typedmap.TypedKey;
+import play.libs.typedmap.TypedMap;
+import play.mvc.Http;
 import repository.AccountRepository;
 import repository.DatabaseExecutionContext;
 import services.settings.SettingsManifest;
@@ -40,6 +50,7 @@ import services.settings.SettingsManifest;
  */
 public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
   private static final Logger logger = LoggerFactory.getLogger(CiviformOidcProfileCreator.class);
+  private static final NoopRequestHeader NOOP_REQUEST_HEADER = new NoopRequestHeader();
   protected final ProfileFactory profileFactory;
   protected final Provider<AccountRepository> accountRepositoryProvider;
   protected final CiviFormProfileMerger civiFormProfileMerger;
@@ -226,9 +237,13 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     Function<Optional<CiviFormProfile>, UserProfile> mergeFunction =
         (civiFormProfile) -> this.mergeCiviFormProfile(civiFormProfile, oidcProfile);
     NewGuestMergeLaunchStage newMergeStage = NewGuestMergeLaunchStage.OFF;
-    if (settingsManifest.getNewApplicantGuestMergingStrategyEnabled()) {
+    // Note: a RequestHeader is necessary for the getters, but not for the
+    // desired functionality. See the comment above {@code NoopRequestHeader}
+    // for more info.
+    if (settingsManifest.getNewApplicantGuestMergingStrategyEnabled(NOOP_REQUEST_HEADER)) {
       newMergeStage = NewGuestMergeLaunchStage.ENABLED;
-    } else if (settingsManifest.getNewApplicantGuestMergingStrategyDryRunEnabled()) {
+    } else if (settingsManifest.getNewApplicantGuestMergingStrategyDryRunEnabled(
+        NOOP_REQUEST_HEADER)) {
       newMergeStage = NewGuestMergeLaunchStage.DRY_RUN;
     }
     return civiFormProfileMerger.mergeProfiles(
@@ -327,5 +342,194 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
           throw new NotImplementedException(
               "Identity provider type not handled: " + identityProviderType());
     };
+  }
+
+  /*
+   Below is effectively a Fake implementation of RequestHeader that does
+   nothing, the necessity is a bit windy but also temporary until the new
+   guest merge feature is promoted to the only behavior:
+
+   1. The new Guest Merge logic requires feature flags that change behavior
+   and don't just add new abilities as some flags do.
+   2. Browser tests require WRITEABLE feature flags for them to be tested.
+   3. WRITEABLE feature flags require a HttpRequest object to look up their
+   value, which is done through SettingsManifest getters.
+   4. This file is used by the play framework and in a manner that does not
+   provide a HttpRequest; this is the crux of the issue here.
+   5. SettingsManifest is a generated file so it can't have bespoke changes
+   to, for example, not require a HttpRequest for some getters.
+   6. These getters require only that HttpRequest::attrs returns a non-null
+   object, the object is not necessary for the browser test operation or the
+   flags operation otherwise. This is possibly a smell for how our Feature
+   Flags are managed, and there is a desire to change that otherwise.
+  */
+
+  /**
+   * An empty Noop implementation of {@code Http.RequestHeader} to pass to SettingsManifest getters.
+   *
+   * <p>The main material need is for {@code attrs()} to return an empty object.
+   */
+  @SuppressWarnings("deprecation")
+  static class NoopRequestHeader implements Http.RequestHeader {
+
+    @Override
+    public String uri() {
+      return "";
+    }
+
+    @Override
+    public String method() {
+      return "";
+    }
+
+    @Override
+    public String version() {
+      return "";
+    }
+
+    @Override
+    public String remoteAddress() {
+      return "";
+    }
+
+    @Override
+    public boolean secure() {
+      return false;
+    }
+
+    @Override
+    public TypedMap attrs() {
+      return TypedMap.empty();
+    }
+
+    @Override
+    public Http.RequestHeader withAttrs(TypedMap newAttrs) {
+      return null;
+    }
+
+    @Override
+    public <A> Http.RequestHeader addAttr(TypedKey<A> key, A value) {
+      return null;
+    }
+
+    @Override
+    public Http.RequestHeader addAttrs(TypedEntry<?> e1) {
+      return null;
+    }
+
+    @Override
+    public Http.RequestHeader addAttrs(TypedEntry<?> e1, TypedEntry<?> e2) {
+      return null;
+    }
+
+    @Override
+    public Http.RequestHeader addAttrs(TypedEntry<?> e1, TypedEntry<?> e2, TypedEntry<?> e3) {
+      return null;
+    }
+
+    @Override
+    public Http.RequestHeader addAttrs(List<TypedEntry<?>> entries) {
+      return null;
+    }
+
+    @Override
+    public Http.RequestHeader removeAttr(TypedKey<?> key) {
+      return null;
+    }
+
+    @Override
+    public Http.Request withBody(Http.RequestBody body) {
+      return null;
+    }
+
+    @Override
+    public String host() {
+      return "";
+    }
+
+    @Override
+    public String path() {
+      return "";
+    }
+
+    @Override
+    public List<Lang> acceptLanguages() {
+      return List.of();
+    }
+
+    @Override
+    public List<MediaRange> acceptedTypes() {
+      return List.of();
+    }
+
+    @Override
+    public boolean accepts(String mimeType) {
+      return false;
+    }
+
+    @Override
+    public Map<String, String[]> queryString() {
+      return Map.of();
+    }
+
+    @Override
+    public String getQueryString(String key) {
+      return "";
+    }
+
+    @Override
+    public Optional<String> queryString(String key) {
+      return Optional.empty();
+    }
+
+    @Override
+    public Http.Cookies cookies() {
+      return null;
+    }
+
+    @Override
+    public Optional<Http.Cookie> cookie(String name) {
+      return Optional.empty();
+    }
+
+    @Override
+    public Optional<Http.Cookie> getCookie(String name) {
+      return Optional.empty();
+    }
+
+    @Override
+    public Http.Headers getHeaders() {
+      return null;
+    }
+
+    @Override
+    public Http.Headers headers() {
+      return null;
+    }
+
+    @Override
+    public boolean hasBody() {
+      return false;
+    }
+
+    @Override
+    public Optional<String> contentType() {
+      return Optional.empty();
+    }
+
+    @Override
+    public Optional<String> charset() {
+      return Optional.empty();
+    }
+
+    @Override
+    public Optional<List<X509Certificate>> clientCertificateChain() {
+      return Optional.empty();
+    }
+
+    @Override
+    public RequestHeader asScala() {
+      return null;
+    }
   }
 }

@@ -1158,15 +1158,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** (NOT FOR PRODUCTION USE) Enable the new applicant-guest merging strategy. */
-  public boolean getNewApplicantGuestMergingStrategyEnabled() {
-    return getBool("NEW_APPLICANT_GUEST_MERGING_STRATEGY_ENABLED");
+  public boolean getNewApplicantGuestMergingStrategyEnabled(RequestHeader request) {
+    return getBool("NEW_APPLICANT_GUEST_MERGING_STRATEGY_ENABLED", request);
   }
 
   /**
    * (NOT FOR PRODUCTION USE) Enable dry run logging for the new applicant-guest merging strategy.
    */
-  public boolean getNewApplicantGuestMergingStrategyDryRunEnabled() {
-    return getBool("NEW_APPLICANT_GUEST_MERGING_STRATEGY_DRY_RUN_ENABLED");
+  public boolean getNewApplicantGuestMergingStrategyDryRunEnabled(RequestHeader request) {
+    return getBool("NEW_APPLICANT_GUEST_MERGING_STRATEGY_DRY_RUN_ENABLED", request);
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -2479,14 +2479,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " strategy.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
+                          SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "NEW_APPLICANT_GUEST_MERGING_STRATEGY_DRY_RUN_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enable dry run logging for the new"
                               + " applicant-guest merging strategy.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE))))
+                          SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Miscellaneous",
               SettingsSection.create(

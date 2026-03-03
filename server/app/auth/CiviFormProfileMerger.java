@@ -43,6 +43,7 @@ public final class CiviFormProfileMerger {
    * @param optionalGuestProfile a guest profile from the browser session
    * @param mergeFunction a function that merges an external profile into a Civiform profile, or
    *     provides one if it doesn't exist
+   * @param newMergeStage the launch status of the new merge logic.
    */
   public Optional<UserProfile> mergeProfiles(
       Optional<ApplicantModel> optionalApplicantInDatabase,
