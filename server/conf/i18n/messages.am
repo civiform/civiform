@@ -1206,7 +1206,7 @@ description.repeatedSet.questionText=
 # An informative description above the hint text input field to help admins understand what to enter in that field.
 description.repeatedSet.hintText=
 #An informative description below the option to create a new repeated set question
-description.repeatedSet.createNewQuestion=Create a new repeated set question from this screen. We''ll save it for you in the question bank for future use.
+description.repeatedSet.createNewQuestion=
 #An informative description below the option to choose an existing question
 description.repeatedSet.chooseExistingQuestion=Add an existing repeated set from the question bank.
 # A button for admins to add a repeated screen to a program
