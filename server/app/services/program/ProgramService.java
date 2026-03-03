@@ -1410,6 +1410,35 @@ public final class ProgramService {
         enumeratorImprovementsEnabled);
   }
 
+  /**
+   * Adds an empty nested enumerator {@link BlockDefinition} to the given program under a parent
+   * enumerator. The block should be added after the last repeated or nested repeated block with the
+   * same ancestor. See {@link ProgramDefinition#orderBlockDefinitions()} for more details about
+   * block positioning.
+   *
+   * @param programId the ID of the program to update
+   * @param parentEnumeratorBlockId ID of the parent enumerator block
+   * @return a {@link ProgramBlockAdditionResult} including the updated program and block if it
+   *     succeeded, or a set of errors with the unmodified program definition and no block if
+   *     failed.
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   * @throws ProgramBlockDefinitionNotFoundException when parentEnumeratorBlockId does not
+   *     correspond to an enumerator block in the Program.
+   */
+  public ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addNestedRepeatedSetToProgram(
+      long programId,
+      long parentEnumeratorBlockId,
+      Messages messages,
+      boolean enumeratorImprovementsEnabled)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
+    return addBlockToProgram(
+        programId,
+        Optional.of(parentEnumeratorBlockId),
+        /* isEnumerator= */ Optional.of(true),
+        messages,
+        enumeratorImprovementsEnabled);
+  }
+
   private ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addBlockToProgram(
       long programId,
       Optional<Long> enumeratorBlockId,

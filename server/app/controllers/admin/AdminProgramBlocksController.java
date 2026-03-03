@@ -146,7 +146,45 @@ public final class AdminProgramBlocksController extends CiviFormController {
 
     try {
       ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result;
-      if (enumeratorId.isPresent()) {
+      if (enumeratorId.isPresent() && BlockType.ENUMERATOR.equals(blockType.orElse(null))) {
+        // Create a nested enumerator (enumerator under another enumerator)
+        // This feature requires the enumerator improvements flag to be enabled
+        if (!settingsManifest.getEnumeratorImprovementsEnabled(request)) {
+          return badRequest("Nested repeated sets require ENUMERATOR_IMPROVEMENTS_ENABLED flag");
+        }
+        result =
+            programService.addNestedRepeatedSetToProgram(
+                programId,
+                enumeratorId.get(),
+                messagesApi.preferred(request),
+                settingsManifest.getEnumeratorImprovementsEnabled(request));
+        ProgramDefinition program = result.getResult().program();
+        BlockDefinition block =
+            result.getResult().maybeAddedBlock().isEmpty()
+                ? program.getLastBlockDefinition()
+                : result.getResult().maybeAddedBlock().get();
+        if (result.isError()) {
+          ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
+          return renderEditViewWithMessage(request, program, block, Optional.of(message));
+        }
+
+        long addedBlockId = block.id();
+
+        // Also add the first repeated block under the new nested enumerator
+        result =
+            programService.addRepeatedBlockToProgram(
+                programId,
+                addedBlockId,
+                messagesApi.preferred(request),
+                settingsManifest.getEnumeratorImprovementsEnabled(request));
+        if (result.isError()) {
+          ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
+          return renderEditViewWithMessage(request, program, block, Optional.of(message));
+        }
+        addedBlockId++;
+
+        return redirect(routes.AdminProgramBlocksController.edit(programId, addedBlockId).url());
+      } else if (enumeratorId.isPresent()) {
         result =
             programService.addRepeatedBlockToProgram(
                 programId,
