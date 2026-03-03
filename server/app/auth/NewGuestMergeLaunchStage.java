@@ -4,6 +4,6 @@ package auth;
 // TODO(#11389): Remove after launch.
 public enum NewGuestMergeLaunchStage {
   OFF,
-  ENABLED,
-  DRY_RUN;
+  DRY_RUN,
+  ENABLED;
 }

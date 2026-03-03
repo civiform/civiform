@@ -291,7 +291,7 @@ public final class AccountRepository {
    *
    * <p>This is part of an in-progress and incomplete method.
    *
-   * @param newMergeStage what launch stage the new merge feature is at. Must DRY_RUN OR ENABLED.
+   * @param newMergeStage what launch stage the new merge feature is at. Must be DRY_RUN OR ENABLED.
    */
   public void mergeApplicants(
       ApplicantModel mergeFrom, ApplicantModel mergeTo, NewGuestMergeLaunchStage newMergeStage) {

@@ -92,8 +92,9 @@ public class SamlProfileCreator extends AuthenticatorProfileCreator {
         existingApplicant,
         guestProfile,
         mergeFunction,
-        // SAML is not currently used so we won't bother with enabling it
-        // for the dry run.
+        // SAML is not currently used so we won't bother with supporting the
+        // launch progression. It will be enabled when the launch is promoted
+        // to the default.
         NewGuestMergeLaunchStage.OFF);
   }
 

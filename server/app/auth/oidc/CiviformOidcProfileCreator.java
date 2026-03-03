@@ -10,6 +10,7 @@ import auth.ProfileUtils;
 import auth.Role;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.security.cert.X509Certificate;
 import java.util.List;
@@ -40,6 +41,7 @@ import play.mvc.Http;
 import repository.AccountRepository;
 import repository.DatabaseExecutionContext;
 import services.settings.SettingsManifest;
+import services.settings.SettingsService;
 
 /**
  * This class ensures that the OidcProfileCreator that both the AD and IDCS clients use will
@@ -240,6 +242,8 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     // Note: a RequestHeader is necessary for the getters, but not for the
     // desired functionality. See the comment above {@code NoopRequestHeader}
     // for more info.
+    // Because we can't access the RequestHeader these can only be set in the
+    // config file.
     if (settingsManifest.getNewApplicantGuestMergingStrategyDryRunEnabled(NOOP_REQUEST_HEADER)) {
       newMergeStage = NewGuestMergeLaunchStage.DRY_RUN;
     }
@@ -375,7 +379,8 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
   /**
    * An empty Noop implementation of {@code Http.RequestHeader} to pass to SettingsManifest getters.
    *
-   * <p>The main material need is for {@code attrs()} to return an empty object.
+   * <p>The main material need for SettingsManifest is for {@code attrs()} to return something
+   * non-null.
    */
   @SuppressWarnings("deprecation")
   static class NoopRequestHeader implements Http.RequestHeader {
@@ -407,7 +412,11 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
 
     @Override
     public TypedMap attrs() {
-      return TypedMap.empty();
+      // Minimally this only needs to return a TypedMap. Including the
+      // specific Entry key prevents warning logging that the KEY is not present.
+      return TypedMap.create(
+          new TypedEntry<ImmutableMap<String, String>>(
+              SettingsService.CIVIFORM_SETTINGS_ATTRIBUTE_KEY, ImmutableMap.of()));
     }
 
     @Override
