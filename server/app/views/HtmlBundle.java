@@ -284,8 +284,8 @@ public final class HtmlBundle {
   }
 
   private Optional<DivTag> renderUswdsModals() {
-    return uswdsModals.size() > 0
-        ? Optional.of(div().withId("uswds-modal-container").with(uswdsModals))
+    return !uswdsModals.isEmpty()
+        ? Optional.of(div().withId("uswds-modal-container").isHidden().with(uswdsModals))
         : Optional.empty();
   }
 

@@ -26,6 +26,7 @@ public abstract class QuestionForm {
   private String questionName;
   private String questionDescription;
   private Optional<Long> enumeratorId;
+  private boolean enumeratorSelectEnabled;
   private String questionText;
   private String questionHelpText;
   private Optional<String> questionExportState;
@@ -40,6 +41,7 @@ public abstract class QuestionForm {
     questionName = "";
     questionDescription = "";
     enumeratorId = Optional.empty();
+    enumeratorSelectEnabled = true;
     questionText = "";
     questionHelpText = "";
     questionExportState = Optional.of("");
@@ -57,6 +59,7 @@ public abstract class QuestionForm {
     questionName = qd.getName();
     questionDescription = qd.getDescription();
     enumeratorId = qd.getEnumeratorId();
+    enumeratorSelectEnabled = true;
     redirectUrl = "";
 
     try {
@@ -97,6 +100,10 @@ public abstract class QuestionForm {
     return enumeratorId;
   }
 
+  public final boolean getEnumeratorSelectEnabled() {
+    return enumeratorSelectEnabled;
+  }
+
   public final String getConcurrencyToken() {
     return concurrencyToken.toString();
   }
@@ -104,6 +111,10 @@ public abstract class QuestionForm {
   public final void setEnumeratorId(String enumeratorId) {
     this.enumeratorId =
         enumeratorId.isEmpty() ? Optional.empty() : Optional.of(Long.valueOf(enumeratorId));
+  }
+
+  public final void setEnumeratorSelectEnabled(boolean enumeratorSelect) {
+    this.enumeratorSelectEnabled = enumeratorSelect;
   }
 
   public final void setConcurrencyToken(UUID concurrencyToken) {

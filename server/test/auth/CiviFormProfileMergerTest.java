@@ -220,7 +220,7 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
             civiFormProfileMerger.mergeProfiles(
                 Optional.of(loggedInApplicant),
                 Optional.of(guestProfile),
-                /* mergeFunction= */ (unused) -> {
+                /* mergeFunction= */ _ -> {
                   throw new RuntimeException();
                 },
                 launchStage));

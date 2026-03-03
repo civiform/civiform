@@ -17,14 +17,12 @@ import com.google.inject.Inject;
 import controllers.admin.AdminImportController;
 import controllers.admin.ProgramMigrationWrapper;
 import controllers.admin.ProgramMigrationWrapper.DuplicateQuestionHandlingOption;
+import helpers.UniqueAdminNameGenerator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import models.ProgramModel;
 import models.ProgramNotificationPreference;
@@ -39,7 +37,6 @@ import repository.TransactionManager;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
-import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
@@ -48,8 +45,6 @@ import services.question.QuestionService;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
-import services.question.types.QuestionDefinitionConfig;
-import services.question.types.TextQuestionDefinition;
 import services.statuses.StatusDefinitions;
 
 /**
@@ -58,11 +53,6 @@ import services.statuses.StatusDefinitions;
  */
 public final class ProgramMigrationService {
   private static final Logger logger = LoggerFactory.getLogger(ProgramMigrationService.class);
-  // We use `-_-` as the delimiter because it's unlikely to already be used in a question with a
-  // name like `name - parent`.
-  // It will transform to a key formatted like `%s__%s`
-  private static final String CONFLICTING_QUESTION_FORMAT = "%s -_- %s";
-  private static final Pattern SUFFIX_PATTERN = Pattern.compile(" -_- [a-z]+$");
 
   private final ApplicationStatusesRepository applicationStatusesRepository;
   private final ObjectMapper objectMapper;
@@ -71,6 +61,7 @@ public final class ProgramMigrationService {
   private final QuestionService questionService;
   private final VersionRepository versionRepository;
   private final TransactionManager transactionManager;
+  private final UniqueAdminNameGenerator uniqueAdminNameGenerator;
 
   @Inject
   public ProgramMigrationService(
@@ -80,7 +71,8 @@ public final class ProgramMigrationService {
       QuestionRepository questionRepository,
       QuestionService questionService,
       VersionRepository versionRepository,
-      TransactionManager transactionManager) {
+      TransactionManager transactionManager,
+      UniqueAdminNameGenerator uniqueAdminNameGenerator) {
     // These extra modules let ObjectMapper serialize Guava types like ImmutableList.
     this.objectMapper =
         checkNotNull(objectMapper)
@@ -93,6 +85,7 @@ public final class ProgramMigrationService {
     this.questionService = checkNotNull(questionService);
     this.versionRepository = checkNotNull(versionRepository);
     this.transactionManager = checkNotNull(transactionManager);
+    this.uniqueAdminNameGenerator = checkNotNull(uniqueAdminNameGenerator);
   }
 
   /**
@@ -295,11 +288,12 @@ public final class ProgramMigrationService {
                   // questions' admin names should be overwritten.
                   boolean nameHasConflict =
                       checkAll
-                          ? nameHasConflict(question.getName(), newNamesSoFar)
+                          ? uniqueAdminNameGenerator.nameHasConflict(
+                              question.getName(), newNamesSoFar)
                           : duplicates.contains(question.getName());
                   String newAdminName =
                       nameHasConflict
-                          ? generateUniqueAdminName(question.getName(), newNamesSoFar)
+                          ? uniqueAdminNameGenerator.generate(question.getName(), newNamesSoFar)
                           : question.getName();
                   newNamesSoFar.add(newAdminName);
                   try {
@@ -308,57 +302,6 @@ public final class ProgramMigrationService {
                     throw new RuntimeException(error);
                   }
                 }));
-  }
-
-  /**
-   * Generate a new admin name for questions of the format "orginal admin name -_- a" where "a" is
-   * the next consecutive letter such that we don't already have a question with that admin name
-   * saved. For example if the admin name is "sample question" and we already have <br>
-   * "sample question -_- a" and "sample question -_- b" saved in the db, the generated name will be
-   * "sample question -_- c".
-   *
-   * <p>Note: always generates a new name. Callers should ensure that the {@code adminName} already
-   * exists before calling this method.
-   */
-  String generateUniqueAdminName(String adminName, List<String> newNamesSoFar) {
-    // If the question name contains a suffix of the form " -_- a" (for example "admin name -_- a"),
-    // we want to strip off the " -_- n" to find the base name. This also allows us to correctly
-    // increment the suffix of the base admin name so we don't end up with admin names like "admin
-    // name -_- a -_- a".
-    Matcher matcher = SUFFIX_PATTERN.matcher(adminName);
-    String adminNameBase = adminName;
-    if (matcher.find()) {
-      adminNameBase = adminName.substring(0, matcher.start());
-    }
-
-    int extension = 0;
-    String newName = "";
-    do {
-      extension++;
-      newName =
-          CONFLICTING_QUESTION_FORMAT.formatted(
-              adminNameBase, Utils.convertNumberToSuffix(extension));
-    } while (nameHasConflict(newName, newNamesSoFar));
-
-    return newName;
-  }
-
-  private boolean nameHasConflict(String name, List<String> newNamesSoFar) {
-    // Check if any of the names we've already generated might conflict with this one.
-    // We can compare raw names, rather than keys, because everything we generate
-    // follows the same pattern and will reduce to keys in the same way.
-    if (newNamesSoFar.contains(name)) {
-      return true;
-    }
-    QuestionDefinition testQuestion =
-        new TextQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName(name)
-                .setDescription("description")
-                .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
-                .build());
-
-    return questionRepository.findConflictingQuestion(testQuestion).isPresent();
   }
 
   /**

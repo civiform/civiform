@@ -186,7 +186,7 @@ public final class ApplicantService {
   public CompletionStage<ApplicantModel> createApplicant() {
 
     ApplicantModel applicant = new ApplicantModel();
-    return accountRepository.insertApplicant(applicant).thenApply((unused) -> applicant);
+    return accountRepository.insertApplicant(applicant).thenApply(_ -> applicant);
   }
 
   /**

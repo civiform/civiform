@@ -22,6 +22,7 @@ import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.stream.Stream;
 import org.apache.http.client.utils.URIBuilder;
 import play.mvc.Http;
@@ -30,6 +31,7 @@ import services.ProgramBlockValidation;
 import services.ProgramBlockValidation.AddQuestionResult;
 import services.ProgramBlockValidationFactory;
 import services.program.BlockDefinition;
+import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
@@ -45,6 +47,8 @@ public final class ProgramQuestionBank {
   // Url parameter used to force question bank open upon initial rendering
   // of program edit page.
   private static final String SHOW_QUESTION_BANK_PARAM = "sqb";
+  // Url parameter used to indicate a newly created question that should be auto-added to the block
+  public static final String NEWLY_CREATED_QUESTION_ID_PARAM = "newQuestionId";
   // Data attribute used to store which text is relevant when filtering
   // questions via the search bar.
   private static final String RELEVANT_FILTER_TEXT_DATA_ATTR = "relevantfiltertext";
@@ -156,6 +160,8 @@ public final class ProgramQuestionBank {
                                 CreateQuestionButton.renderCreateQuestionButton(
                                     params.questionCreateRedirectUrl(),
                                     /* isPrimaryButton= */ false,
+                                    getParentEnumeratorId(),
+                                    params.blockDefinition().isRepeated(),
                                     settingsManifest,
                                     request)))));
 
@@ -286,6 +292,28 @@ public final class ProgramQuestionBank {
   }
 
   /**
+   * If this is a repeated question, return the id of the enumerator question for the parent block.
+   */
+  private Optional<String> getParentEnumeratorId() {
+    if (!settingsManifest.getEnumeratorImprovementsEnabled(request)
+        || !params.blockDefinition().isRepeated()) {
+      return Optional.empty();
+    }
+
+    try {
+      BlockDefinition parentEnumeratorBlock =
+          params.program().getBlockDefinition(params.blockDefinition().enumeratorId().get());
+      if (!parentEnumeratorBlock.hasEnumeratorQuestion()) {
+        return Optional.empty();
+      }
+      return Optional.of(
+          Long.toString(parentEnumeratorBlock.getEnumerationQuestionDefinition().getId()));
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
    * Used to filter questions in the question bank.
    *
    * <p>Questions that are filtered out:
@@ -320,6 +348,22 @@ public final class ProgramQuestionBank {
     try {
       return new URIBuilder(url)
           .setParameter(ProgramQuestionBank.SHOW_QUESTION_BANK_PARAM, "true")
+          .build()
+          .toString();
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * Adds the newly created question ID to the URL so it can be auto-added to the block when the
+   * user returns from question creation.
+   */
+  public static String addNewlyCreatedQuestionIdParam(String url, long questionId) {
+    try {
+      return new URIBuilder(url)
+          .setParameter(
+              ProgramQuestionBank.NEWLY_CREATED_QUESTION_ID_PARAM, String.valueOf(questionId))
           .build()
           .toString();
     } catch (URISyntaxException e) {

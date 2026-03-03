@@ -18,6 +18,7 @@ on:
 
 permissions:
   pull-requests: read
+  contents: read
 
 jobs:
   create_release:
