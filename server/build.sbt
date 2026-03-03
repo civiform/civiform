@@ -7,6 +7,10 @@ import com.typesafe.sbt.gzip.Import.gzip
 import com.typesafe.sbt.digest.Import.digest
 import com.github.sbt.jacoco.JacocoPlugin.autoImport._
 
+// .jvmopts is the single source of truth for heap settings.
+// SBT reads it automatically for the build JVM and we read it here for forked and production JVMs.
+val heapOpts = IO.readLines(file(".jvmopts")).filter(l => l.startsWith("-Xmx") || l.startsWith("-Xms"))
+
 lazy val root = (project in file("."))
   .enablePlugins(PlayJava, PlayEbean, SbtWeb)
   .settings(
@@ -213,6 +217,9 @@ lazy val root = (project in file("."))
     Test / testOptions := Seq(
       Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-q")
     ),
+
+    javaOptions ++= heapOpts,
+    Universal / javaOptions ++= heapOpts.map("-J" + _),
 
     // Enable Java Assertions in Unit Tests
     Test / javaOptions += "-enableassertions",
