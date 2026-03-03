@@ -317,7 +317,7 @@ public class QuestionDefinitionTest {
   }
 
   @Test
-  public void validate_withRepeatedQuestion_missingEntityNameFormatString_notRequired()
+  public void validate_withRepeatedQuestion_missingRepeatedEntitySelector_returnsNoErrors()
       throws Exception {
     QuestionDefinition question = builder.setEnumeratorId(Optional.of(1L)).build();
 

@@ -404,7 +404,8 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             request,
             "text",
             "/some/redirect/url",
-            /* enumeratorQuestionOptional= */ Optional.empty());
+            /* enumeratorQuestionOptional= */ Optional.empty(),
+            /* isRepeatingBlockOptional= */ Optional.empty());
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))

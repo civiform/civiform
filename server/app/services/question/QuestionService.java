@@ -74,7 +74,7 @@ public final class QuestionService {
       QuestionDefinition questionDefinition, boolean requireLegacyRepeatedEntitySelector) {
     ImmutableSet<CiviFormError> validationErrors =
         questionDefinition.validate(
-            Optional.empty(),
+            /* previousDefinition= */ Optional.empty(),
             /* requireLegacyRepeatedEntitySelector= */ requireLegacyRepeatedEntitySelector);
 
     return transactionManager.execute(
