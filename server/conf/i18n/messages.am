@@ -1194,7 +1194,7 @@ text.repeatedSet.questionDescription=
 #An additional description explaining the uneditable prefix within the screen editing modal
 text.repeatedSet.screenNameDescription=
 #An additional description explaining what the add question button does
-text.repeatedSet.addQuestionDescription=Add a repeated set that will ask residents to add objects or individuals to a list. If a repeated set has already been added and you would like to select a different one, delete the question below.
+text.repeatedSet.addQuestionDescription=
 # Heading above the repeated set question in the program block editor
 heading.repeatedSet.question=
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
