@@ -19,8 +19,5 @@
 # Enable native access for JNA and other native libraries
 -J--enable-native-access=ALL-UNNAMED
 
-# Increase heap size for compilation
--J-Xmx2G
-
 # Enables Java Assertions, does not affect output from `sbt dist`
 -J-enableassertions
