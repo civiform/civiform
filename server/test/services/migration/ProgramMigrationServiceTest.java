@@ -20,9 +20,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import controllers.admin.ProgramMigrationWrapper;
-import java.util.ArrayList;
+import helpers.UniqueAdminNameGenerator;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import models.CategoryModel;
@@ -110,7 +109,8 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
           instanceOf(QuestionRepository.class),
           instanceOf(QuestionService.class),
           instanceOf(VersionRepository.class),
-          instanceOf(TransactionManager.class));
+          instanceOf(TransactionManager.class),
+          instanceOf(UniqueAdminNameGenerator.class));
   ApplicationStatusesRepository applicationStatusesRepository;
   private QuestionRepository questionRepository;
   private TransactionManager transactionManager;
@@ -140,7 +140,8 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
             instanceOf(QuestionRepository.class),
             instanceOf(QuestionService.class),
             instanceOf(VersionRepository.class),
-            instanceOf(TransactionManager.class));
+            instanceOf(TransactionManager.class),
+            instanceOf(UniqueAdminNameGenerator.class));
 
     ErrorAnd<String, String> result =
         badMapperService.serialize(
@@ -310,40 +311,6 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     assertThat(updatedQuestions.get("id-test").getName()).isEqualTo("id-test -_- a");
     // "new text test" should have not have been changed
     assertThat(updatedQuestions.get("new text test").getName()).isEqualTo("new text test");
-  }
-
-  @Test
-  public void generateUniqueAdminName_generatesCorrectAdminNames() {
-    resourceCreator.insertQuestion("name-question");
-    resourceCreator.insertQuestion("name-question -_- a");
-    resourceCreator.insertQuestion("name-question -_- b");
-
-    String newAdminName = service.generateUniqueAdminName("name-question", new ArrayList<>());
-    assertThat(newAdminName).isEqualTo("name-question -_- c");
-    // Even though there is no existing match, this method should still return a unique name, since
-    // it assumed that the caller has checked for an existing match before calling.
-    String unmatchedAdminName =
-        service.generateUniqueAdminName("admin-name-unmatched", new ArrayList<>());
-    assertThat(unmatchedAdminName).isEqualTo("admin-name-unmatched -_- a");
-  }
-
-  @Test
-  public void generateUniqueAdminName_generatesCorrectAdminNamesForAdminNamesWithSuffixes() {
-    resourceCreator.insertQuestion("name-question");
-    resourceCreator.insertQuestion("name-question -_- a");
-    resourceCreator.insertQuestion("name-question -_- b");
-
-    String newAdminName = service.generateUniqueAdminName("name-question -_- a", new ArrayList<>());
-    assertThat(newAdminName).isEqualTo("name-question -_- c");
-  }
-
-  @Test
-  public void
-      generateUniqueAdminName_generatesCorrectAdminNamesWhenAlreadyGeneratedNameMightConflict() {
-    List<String> namesSoFar = List.of("name-question -_- a", "name-question -_- b");
-
-    String newAdminName = service.generateUniqueAdminName("name-question -_- a", namesSoFar);
-    assertThat(newAdminName).isEqualTo("name-question -_- c");
   }
 
   @Test
