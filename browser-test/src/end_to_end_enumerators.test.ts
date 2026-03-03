@@ -1167,17 +1167,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Add a new text question to the screen', async () => {
-        await test.step('Click "Add a question"', async () => {
-          await page.getByRole('button', {name: 'Add a question'}).click()
-        })
-
-        await test.step('Click "Create new question"', async () => {
-          await page.getByRole('button', {name: 'Create new question'}).click()
-        })
-
-        await test.step('Select a question type (Text)', async () => {
-          await page.getByRole('link', {name: 'Text', exact: true}).click()
-        })
+        await page.getByRole('button', {name: 'Add a question'}).click()
+        await page.getByRole('button', {name: 'Create new question'}).click()
+        await page.getByRole('link', {name: 'Text', exact: true}).click()
       })
 
       await test.step('Verify that the "Question enumerator" dropdown is disabled', async () => {
