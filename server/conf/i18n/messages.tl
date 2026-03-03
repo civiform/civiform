@@ -1208,11 +1208,11 @@ description.repeatedSet.hintText=
 #An informative description below the option to create a new repeated set question
 description.repeatedSet.createNewQuestion=
 #An informative description below the option to choose an existing question
-description.repeatedSet.chooseExistingQuestion=Add an existing repeated set from the question bank.
+description.repeatedSet.chooseExistingQuestion=
 # A button for admins to add a repeated screen to a program
 button.addRepeatedScreen=
 # A button for admins to add a pre-existing enumerator question to a program
-button.addQuestion=Add question
+button.addQuestion=
 
 
 #------------------------------------------------------------------------------#
