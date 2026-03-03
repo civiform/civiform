@@ -57,11 +57,10 @@ public abstract class AbstractSettingsManifest {
   }
 
   private ImmutableList<SettingDescription> getAllFeatureFlagsSettingDescriptions() {
-    if (!getSections().containsKey(FEATURE_FLAG_SETTING_SECTION_NAME)) {
-      return ImmutableList.of();
-    }
-
-    return getSettingDescriptions(getSections().get(FEATURE_FLAG_SETTING_SECTION_NAME));
+    return Optional.ofNullable(getSections())
+        .map(m -> m.get(FEATURE_FLAG_SETTING_SECTION_NAME))
+        .map(this::getSettingDescriptions)
+        .orElseGet(ImmutableList::of);
   }
 
   private ImmutableList<SettingDescription> getSettingDescriptions(SettingsSection section) {
@@ -111,25 +110,22 @@ public abstract class AbstractSettingsManifest {
   /**
    * Gets the config value for the given setting. If the setting is found in the stored writeable
    * settings, the value from the database is returned. Otherwise the value from the application
-   * {@link Config} is used..
+   * {@link Config} is used.
    */
   private boolean getBool(SettingDescription settingDescription, Http.RequestHeader request) {
     return getBool(settingDescription.variableName(), request);
   }
 
   protected boolean getBool(String variableName, Http.RequestHeader request) {
-    if (!request.attrs().containsKey(CIVIFORM_SETTINGS_ATTRIBUTE_KEY)) {
-      logger.warn(
-          String.format(
-              "Settings not found on request when looking up value for %s", variableName));
-      return getBool(variableName);
+    var optionalWritableSettings = request.attrs().getOptional(CIVIFORM_SETTINGS_ATTRIBUTE_KEY);
+    if (optionalWritableSettings.isEmpty()) {
+      logger.warn("Settings not found on request when looking up value for {}", variableName);
     }
 
-    var writableSettings = request.attrs().get(CIVIFORM_SETTINGS_ATTRIBUTE_KEY);
-
-    return writableSettings.containsKey(variableName)
-        ? writableSettings.get(variableName).equals("true")
-        : getBool(variableName);
+    return optionalWritableSettings
+        .map(s -> s.get(variableName))
+        .map(s -> s.equals("true"))
+        .orElseGet(() -> getBool(variableName));
   }
 
   protected Optional<Boolean> getBool(SettingDescription settingDescription) {
@@ -146,18 +142,12 @@ public abstract class AbstractSettingsManifest {
   }
 
   protected Optional<String> getString(String variableName, Http.RequestHeader request) {
-    if (!request.attrs().containsKey(CIVIFORM_SETTINGS_ATTRIBUTE_KEY)) {
-      logger.warn(
-          String.format(
-              "Settings not found on request when looking up value for %s", variableName));
-      return getString(variableName);
+    var optionalWritableSettings = request.attrs().getOptional(CIVIFORM_SETTINGS_ATTRIBUTE_KEY);
+    if (optionalWritableSettings.isEmpty()) {
+      logger.warn("Settings not found on request when looking up value for {}", variableName);
     }
 
-    var writableSettings = request.attrs().get(CIVIFORM_SETTINGS_ATTRIBUTE_KEY);
-
-    return writableSettings.containsKey(variableName)
-        ? Optional.of(writableSettings.get(variableName))
-        : getString(variableName);
+    return optionalWritableSettings.map(s -> s.get(variableName)).or(() -> getString(variableName));
   }
 
   protected Optional<String> getString(SettingDescription settingDescription) {
@@ -174,18 +164,15 @@ public abstract class AbstractSettingsManifest {
   }
 
   protected Optional<Integer> getInt(String variableName, Http.RequestHeader request) {
-    if (!request.attrs().containsKey(CIVIFORM_SETTINGS_ATTRIBUTE_KEY)) {
-      logger.warn(
-          String.format(
-              "Settings not found on request when looking up value for %s", variableName));
-      return getInt(variableName);
+    var optionalWritableSettings = request.attrs().getOptional(CIVIFORM_SETTINGS_ATTRIBUTE_KEY);
+    if (optionalWritableSettings.isEmpty()) {
+      logger.warn("Settings not found on request when looking up value for {}", variableName);
     }
 
-    var writableSettings = request.attrs().get(CIVIFORM_SETTINGS_ATTRIBUTE_KEY);
-
-    return writableSettings.containsKey(variableName)
-        ? Optional.of(Integer.parseInt(writableSettings.get(variableName)))
-        : getInt(variableName);
+    return optionalWritableSettings
+        .map(s -> s.get(variableName))
+        .map(Integer::parseInt)
+        .or(() -> getInt(variableName));
   }
 
   protected Optional<Integer> getInt(SettingDescription settingDescription) {
@@ -203,21 +190,15 @@ public abstract class AbstractSettingsManifest {
 
   protected Optional<ImmutableList<String>> getListOfStrings(
       String variableName, Http.RequestHeader request) {
-    if (!request.attrs().containsKey(CIVIFORM_SETTINGS_ATTRIBUTE_KEY)) {
-      logger.warn(
-          String.format(
-              "Settings not found on request when looking up value for %s", variableName));
-      return getListOfStrings(variableName);
+    var optionalWritableSettings = request.attrs().getOptional(CIVIFORM_SETTINGS_ATTRIBUTE_KEY);
+    if (optionalWritableSettings.isEmpty()) {
+      logger.warn("Settings not found on request when looking up value for {}", variableName);
     }
 
-    var writableSettings = request.attrs().get(CIVIFORM_SETTINGS_ATTRIBUTE_KEY);
-
-    if (!writableSettings.containsKey(variableName)) {
-      return getListOfStrings(variableName);
-    }
-
-    return Optional.of(
-        ImmutableList.copyOf(Splitter.on(",").split(writableSettings.get(variableName))));
+    return optionalWritableSettings
+        .map(map -> map.get(variableName))
+        .map(s -> ImmutableList.copyOf(Splitter.on(",").split(s)))
+        .or(() -> getListOfStrings(variableName));
   }
 
   protected Optional<ImmutableList<String>> getListOfStrings(
