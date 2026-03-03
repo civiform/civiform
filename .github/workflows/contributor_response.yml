@@ -8,9 +8,14 @@ on:
   issue_comment:
     types: [created] # Ensure it only triggers on comment creation
 
+permissions:
+  contents: read
+
 jobs:
   auto-response:
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
     steps:
       - name: Check if commenter is a contributor
         id: check-if-commenter-is-a-contributor

@@ -179,7 +179,8 @@ public final class AdminQuestionController extends CiviFormController {
       Request request,
       String type,
       String redirectUrl,
-      Optional<String> enumeratorQuestionOptional) {
+      Optional<String> enumeratorQuestionOptional,
+      Optional<String> isRepeatingBlockOptional) {
     QuestionType questionType;
     try {
       questionType = QuestionType.of(type);
@@ -194,13 +195,15 @@ public final class AdminQuestionController extends CiviFormController {
             .join()
             .getUpToDateEnumeratorQuestions();
     try {
+      boolean isRepeatingBlock = isRepeatingBlockOptional.map(Boolean::parseBoolean).orElse(true);
       return ok(
           editView.renderNewQuestionForm(
               request,
               questionType,
               enumeratorQuestionDefinitions,
               enumeratorQuestionOptional,
-              redirectUrl));
+              redirectUrl,
+              isRepeatingBlock));
     } catch (UnsupportedQuestionTypeException e) {
       return badRequest(e.getMessage());
     }

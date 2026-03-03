@@ -86,7 +86,8 @@ public final class ProgramBlockValidation {
     if (block.getQuestionCount() > 0 && isSingleBlockQuestion(question)) {
       return AddQuestionResult.CANT_ADD_SINGLE_BLOCK_QUESTION_TO_NON_EMPTY_BLOCK;
     }
-    if (!question.getEnumeratorId().equals(getEnumeratorQuestionId(program, block))) {
+    if (!question.getEnumeratorId().equals(getEnumeratorQuestionId(program, block))
+        && !(enumeratorImprovementsEnabled && question.getEnumeratorId().isEmpty())) {
       return AddQuestionResult.ENUMERATOR_MISMATCH;
     }
     if (!activeAndDraftQuestions.getActiveQuestions().contains(question)

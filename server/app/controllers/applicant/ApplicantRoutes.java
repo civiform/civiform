@@ -76,8 +76,7 @@ public final class ApplicantRoutes {
   }
 
   public Call edit(long programId) {
-    return routes.ApplicantProgramsController.edit(
-        Long.toString(programId), /* isFromUrlCall= */ false);
+    return routes.ApplicantProgramsController.edit(Long.toString(programId));
   }
 
   /**
@@ -91,7 +90,7 @@ public final class ApplicantRoutes {
   public Call edit(CiviFormProfile profile, long applicantId, long programId) {
     if (includeApplicantIdInRoute(profile)) {
       return controllers.applicant.routes.ApplicantProgramsController.editWithApplicantId(
-          applicantId, Long.toString(programId), /* isFromUrlCall= */ false);
+          applicantId, Long.toString(programId));
     } else {
       return edit(programId);
     }
@@ -109,9 +108,9 @@ public final class ApplicantRoutes {
     String programIdStr = Long.toString(programId);
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramReviewController.reviewWithApplicantId(
-          applicantId, programIdStr, /* isFromUrlCall= */ false);
+          applicantId, programIdStr);
     }
-    return routes.ApplicantProgramReviewController.review(programIdStr, /* isFromUrlCall= */ false);
+    return routes.ApplicantProgramReviewController.review(programIdStr);
   }
 
   /**
@@ -122,8 +121,7 @@ public final class ApplicantRoutes {
    * @return Route for the applicant review action
    */
   public Call review(long programId) {
-    return routes.ApplicantProgramReviewController.review(
-        Long.toString(programId), /* isFromUrlCall= */ false);
+    return routes.ApplicantProgramReviewController.review(Long.toString(programId));
   }
 
   /**
@@ -161,10 +159,9 @@ public final class ApplicantRoutes {
     String programIdStr = Long.toString(programId);
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.editWithApplicantId(
-          applicantId, programIdStr, blockId, questionName, /* isFromUrlCall= */ false);
+          applicantId, programIdStr, blockId, questionName);
     }
-    return routes.ApplicantProgramBlocksController.edit(
-        programIdStr, blockId, questionName, /* isFromUrlCall= */ false);
+    return routes.ApplicantProgramBlocksController.edit(programIdStr, blockId, questionName);
   }
 
   /**
@@ -175,10 +172,7 @@ public final class ApplicantRoutes {
    */
   public Call blockEdit(long programId) {
     return routes.ApplicantProgramBlocksController.edit(
-        Long.toString(programId),
-        /* blockId= */ "1",
-        /* questionName= */ Optional.empty(),
-        /* isFromUrlCall= */ false);
+        Long.toString(programId), /* blockId= */ "1", /* questionName= */ Optional.empty());
   }
 
   /**
@@ -200,10 +194,9 @@ public final class ApplicantRoutes {
     String programIdStr = Long.toString(programId);
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.reviewWithApplicantId(
-          applicantId, programIdStr, blockId, questionName, /* isFromUrlCall= */ false);
+          applicantId, programIdStr, blockId, questionName);
     }
-    return routes.ApplicantProgramBlocksController.review(
-        programIdStr, blockId, questionName, /* isFromUrlCall= */ false);
+    return routes.ApplicantProgramBlocksController.review(programIdStr, blockId, questionName);
   }
 
   /**
@@ -293,10 +286,10 @@ public final class ApplicantRoutes {
     String programIdStr = Long.toString(programId);
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.previousWithApplicantId(
-          applicantId, programIdStr, previousBlockIndex, inReview, /* isFromUrlCall= */ false);
+          applicantId, programIdStr, previousBlockIndex, inReview);
     }
     return routes.ApplicantProgramBlocksController.previous(
-        programIdStr, previousBlockIndex, inReview, /* isFromUrlCall= */ false);
+        programIdStr, previousBlockIndex, inReview);
   }
 
   /**
@@ -314,10 +307,9 @@ public final class ApplicantRoutes {
     String programIdStr = Long.toString(programId);
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.addFileWithApplicantId(
-          applicantId, programIdStr, blockId, inReview, /* isFromUrlCall= */ false);
+          applicantId, programIdStr, blockId, inReview);
     }
-    return routes.ApplicantProgramBlocksController.addFile(
-        programIdStr, blockId, inReview, /* isFromUrlCall= */ false);
+    return routes.ApplicantProgramBlocksController.addFile(programIdStr, blockId, inReview);
   }
 
   /**
@@ -340,10 +332,10 @@ public final class ApplicantRoutes {
     String programIdStr = Long.toString(programId);
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.removeFileWithApplicantId(
-          applicantId, programIdStr, blockId, fileKey, inReview, /* isFromUrlCall= */ false);
+          applicantId, programIdStr, blockId, fileKey, inReview);
     }
     return routes.ApplicantProgramBlocksController.removeFile(
-        programIdStr, blockId, fileKey, inReview, /* isFromUrlCall= */ false);
+        programIdStr, blockId, fileKey, inReview);
   }
 
   /**

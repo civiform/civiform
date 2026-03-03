@@ -10,6 +10,8 @@ When the Release engineer creates Release Notes, they will not look for this sec
 
 ### Checklist
 
+Remove any sections below that do not apply to your PR. For sections that do apply, complete all of the appropriate checklist items and check them off. If a checklist item doesn't apply to your PR, leave it unchecked but do not delete it.
+
 #### General
 
 Read the full guidelines for PRs [here](https://github.com/civiform/civiform/wiki/Technical-contribution-guide#creating-a-pull-request)

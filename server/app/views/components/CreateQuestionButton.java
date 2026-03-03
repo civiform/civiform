@@ -27,6 +27,23 @@ public final class CreateQuestionButton {
       Optional<String> enumeratorQuestion,
       SettingsManifest settingsManifest,
       Http.Request request) {
+    return renderCreateQuestionButton(
+        questionCreateRedirectUrl,
+        isPrimaryButton,
+        enumeratorQuestion,
+        /* isRepeatingBlock= */ true,
+        settingsManifest,
+        request);
+  }
+
+  /** Renders the "Create new question" button with a dropdown for each question type. */
+  public static DivTag renderCreateQuestionButton(
+      String questionCreateRedirectUrl,
+      boolean isPrimaryButton,
+      Optional<String> enumeratorQuestion,
+      boolean isRepeatingBlock,
+      SettingsManifest settingsManifest,
+      Http.Request request) {
     String parentId = "create-question-button";
     String dropdownId = parentId + "-dropdown";
     ButtonTag createNewQuestionButton =
@@ -67,7 +84,10 @@ public final class CreateQuestionButton {
       String typeString = type.toString().toLowerCase(Locale.ROOT);
       String link =
           controllers.admin.routes.AdminQuestionController.newOne(
-                  typeString, questionCreateRedirectUrl, enumeratorQuestion)
+                  typeString,
+                  questionCreateRedirectUrl,
+                  enumeratorQuestion,
+                  Optional.of(Boolean.toString(isRepeatingBlock)))
               .url();
       ATag linkTag =
           a().withHref(link)
