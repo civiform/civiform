@@ -1201,6 +1201,50 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
       // TODO(Once #12023 is complete): Also test with repeated screens under a nested enumerator
     })
+
+    test('still supports $this placeholder in repeated question text', async ({
+      applicantQuestions,
+      page,
+    }) => {
+      await test.step('Apply to the program and add a repeated entity', async () => {
+        await applicantQuestions.applyProgram(programName)
+        await page.getByRole('button', {name: 'Add Pets'}).click()
+        await page.getByRole('textbox', {name: 'Pets name #1'}).fill('Bugs')
+      })
+
+      await test.step('Continue to repeated question and verify $this is replaced', async () => {
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.validateQuestionIsOnPage('Name for Bugs')
+      })
+    })
+
+    test('does not throw errors when repeated question text omits $this', async ({
+      adminPrograms,
+      adminQuestions,
+      applicantQuestions,
+      page,
+    }) => {
+      await test.step('Update repeated question text to omit $this and publish', async () => {
+        await loginAsAdmin(page)
+        await adminQuestions.gotoQuestionEditPage(questionName)
+        await page.getByRole('textbox', {name: 'Question text'}).fill('Name')
+        await adminQuestions.clickSubmitButtonAndNavigate('Update')
+        await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
+
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await adminPrograms.publishProgram(programName)
+        await logout(page)
+      })
+
+      await test.step('Apply and verify repeated question renders without $this', async () => {
+        await applicantQuestions.applyProgram(programName)
+        await page.getByRole('button', {name: 'Add Pets'}).click()
+        await page.getByRole('textbox', {name: 'Pets name #1'}).fill('Bugs')
+
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.validateQuestionIsOnPage('Name')
+      })
+    })
   })
 
   async function fillOutEnumeratorQuestionFormCorrectly(page: Page) {
