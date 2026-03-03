@@ -588,9 +588,18 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Request request,
       Messages messages) {
 
-    boolean isEnumeratorBlock =
-        settingsManifest.getEnumeratorImprovementsEnabled(request)
-            && blockDefinition.getIsEnumerator();
+    boolean enumeratorImprovementsEnabled =
+        settingsManifest.getEnumeratorImprovementsEnabled(request);
+
+    boolean isEnumeratorBlock = enumeratorImprovementsEnabled && blockDefinition.getIsEnumerator();
+
+    Optional<BlockDefinition> optionalParentEnumeratorBlock = Optional.empty();
+    boolean isEnumeratorBlockComplete = true;
+    if (enumeratorImprovementsEnabled && blockDefinition.isRepeated()) {
+      optionalParentEnumeratorBlock = optionallyGetParentEnumeratorBlock(program, blockDefinition);
+      isEnumeratorBlockComplete =
+          optionalParentEnumeratorBlock.map(block -> block.hasEnumeratorQuestion()).orElse(false);
+    }
 
     DivTag blockInfoDisplay =
         div()
@@ -688,6 +697,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   .withText(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName()))
                   .withClass(ReferenceClasses.OPEN_QUESTION_BANK_BUTTON)
               : makeSvgTextButton("Add a question", Icons.ADD)
+                  .withCondDisabled(!isEnumeratorBlockComplete)
                   .withClasses(
                       ButtonStyles.SOLID_BLUE_WITH_ICON,
                       ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
@@ -711,11 +721,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
           programQuestions,
           addQuestion,
           iff(
-              enumeratorImprovementsEnabled,
+              settingsManifest.getEnumeratorImprovementsEnabled(request),
               renderAddRepeatedScreenButtons(
-                  messages,
-                  blockHasEnumeratorQuestion,
-                  optionallyGetParentEnumeratorBlock(program, blockDefinition))));
+                  messages, blockHasEnumeratorQuestion, optionalParentEnumeratorBlock)));
     }
 
     div.with(blockInfoDisplay, visibilityPredicateDisplay);
