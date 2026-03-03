@@ -24,7 +24,7 @@ vi.mock('@uswds/uswds/js/usa-modal', () => ({
 type SessionTimeoutHandlerType = typeof SessionTimeoutHandler & {
   logout: () => void
   pollSession: () => void
-  showWarningModal: (type: WarningType, warningTimestamp: number) => void
+  toggleWarningModal: (type: WarningType, warningTimestamp: number) => void
   inactivityWarningShown: boolean
   totalLengthWarningShown: boolean
   isInitialized: boolean
@@ -218,7 +218,6 @@ describe('SessionTimeoutHandler', () => {
         inactivityTimeout: now + 60,
         totalWarning: now + 3600,
         totalTimeout: now + 7200,
-        currentTime: now,
       }
 
       SessionTimeoutHandler['monitorSession'](data, now)
@@ -235,7 +234,6 @@ describe('SessionTimeoutHandler', () => {
         inactivityTimeout: now + 7200,
         totalWarning: now - 60,
         totalTimeout: now + 60,
-        currentTime: now,
       }
 
       SessionTimeoutHandler['monitorSession'](data, now)
@@ -254,7 +252,6 @@ describe('SessionTimeoutHandler', () => {
         inactivityTimeout: now + 60,
         totalWarning: now + 3600,
         totalTimeout: now + 7200,
-        currentTime: now,
       }
 
       SessionTimeoutHandler['monitorSession'](data, now)
@@ -272,7 +269,6 @@ describe('SessionTimeoutHandler', () => {
         inactivityTimeout: now + 7200,
         totalWarning: now - 60,
         totalTimeout: now + 60,
-        currentTime: now,
       }
 
       SessionTimeoutHandler['monitorSession'](data, now)
@@ -288,7 +284,6 @@ describe('SessionTimeoutHandler', () => {
         inactivityTimeout: now + 60,
         totalWarning: now + 3600,
         totalTimeout: now + 7200,
-        currentTime: now,
       }
 
       // First call shows the warning
@@ -317,7 +312,6 @@ describe('SessionTimeoutHandler', () => {
         inactivityTimeout: now + 7200,
         totalWarning: warningTimestamp,
         totalTimeout: now + 60,
-        currentTime: now,
       }
 
       // First call shows the warning
@@ -348,7 +342,6 @@ describe('SessionTimeoutHandler', () => {
         inactivityTimeout: now + 60,
         totalWarning: now + 3600,
         totalTimeout: now + 7200,
-        currentTime: now,
       }
 
       // First call shows the warning with old timestamp
@@ -384,7 +377,6 @@ describe('SessionTimeoutHandler', () => {
         inactivityTimeout: now + 60,
         totalWarning: now + 3600,
         totalTimeout: now + 7200,
-        currentTime: now,
       }
 
       // First call shows the warning
@@ -637,7 +629,6 @@ describe('SessionTimeoutHandler', () => {
             inactivityTimeout: now - 60, // Past timeout
             totalWarning: now + 3600,
             totalTimeout: now + 7200,
-            currentTime: now,
           }),
         )}`
 
@@ -646,9 +637,9 @@ describe('SessionTimeoutHandler', () => {
       })
 
       it('shows inactivity warning immediately if time has passed and not shown before', () => {
-        const showWarningModalSpy = vi.spyOn(
+        const toggleWarningModalSpy = vi.spyOn(
           SessionTimeoutHandler as SessionTimeoutHandlerType,
-          'showWarningModal',
+          'toggleWarningModal',
         ) as Mock<(type: WarningType, warningTimestamp: number) => void>
 
         const now = Math.floor(Date.now() / 1000)
@@ -659,21 +650,20 @@ describe('SessionTimeoutHandler', () => {
             inactivityTimeout: now + 60,
             totalWarning: now + 3600,
             totalTimeout: now + 7200,
-            currentTime: now,
           }),
         )}`
 
         SessionTimeoutHandler['pollSession']()
-        expect(showWarningModalSpy).toHaveBeenCalledWith(
+        expect(toggleWarningModalSpy).toHaveBeenCalledWith(
           WarningType.INACTIVITY,
           expect.any(Number),
         )
       })
 
       it('shows total length warning if time has passed and no other warning shown', () => {
-        const showWarningModalSpy = vi.spyOn(
+        const toggleWarningModalSpy = vi.spyOn(
           SessionTimeoutHandler as SessionTimeoutHandlerType,
-          'showWarningModal',
+          'toggleWarningModal',
         ) as Mock<(type: WarningType, warningTimestamp: number) => void>
 
         const now = Math.floor(Date.now() / 1000)
@@ -684,21 +674,20 @@ describe('SessionTimeoutHandler', () => {
             inactivityTimeout: now + 7200,
             totalWarning: now - 60, // Past warning
             totalTimeout: now + 3600,
-            currentTime: now,
           }),
         )}`
 
         SessionTimeoutHandler['pollSession']()
-        expect(showWarningModalSpy).toHaveBeenCalledWith(
+        expect(toggleWarningModalSpy).toHaveBeenCalledWith(
           WarningType.TOTAL_LENGTH,
           expect.any(Number),
         )
       })
 
       it('does not show total length warning if inactivity warning is showing', () => {
-        const showWarningModalSpy = vi.spyOn(
+        const toggleWarningModalSpy = vi.spyOn(
           SessionTimeoutHandler as SessionTimeoutHandlerType,
-          'showWarningModal',
+          'toggleWarningModal',
         )
         const now = Math.floor(Date.now() / 1000)
 
@@ -711,18 +700,17 @@ describe('SessionTimeoutHandler', () => {
             inactivityTimeout: now + 60,
             totalWarning: now - 30, // Past warning
             totalTimeout: now + 3600,
-            currentTime: now,
           }),
         )}`
 
         SessionTimeoutHandler['pollSession']()
-        expect(showWarningModalSpy).not.toHaveBeenCalled()
+        expect(toggleWarningModalSpy).not.toHaveBeenCalled()
       })
 
       it('sets timer for future inactivity warning', () => {
-        const showWarningModalSpy = vi.spyOn(
+        const toggleWarningModalSpy = vi.spyOn(
           SessionTimeoutHandler as SessionTimeoutHandlerType,
-          'showWarningModal',
+          'toggleWarningModal',
         ) as Mock<(type: WarningType, warningTimestamp: number) => void>
 
         const now = Math.floor(Date.now() / 1000)
@@ -733,7 +721,6 @@ describe('SessionTimeoutHandler', () => {
             inactivityTimeout: now + 120,
             totalWarning: now + 3600,
             totalTimeout: now + 7200,
-            currentTime: now,
           }),
         )}`
 
@@ -741,7 +728,7 @@ describe('SessionTimeoutHandler', () => {
 
         // Fast forward to warning time
         vi.advanceTimersByTime(60000)
-        expect(showWarningModalSpy).toHaveBeenCalledWith(
+        expect(toggleWarningModalSpy).toHaveBeenCalledWith(
           WarningType.INACTIVITY,
           expect.any(Number),
         )
