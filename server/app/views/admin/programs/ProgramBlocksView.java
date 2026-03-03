@@ -631,8 +631,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   settingsManifest.getExpandedFormLogicEnabled(request)));
     }
 
-    boolean enumeratorImprovementsEnabled =
-        settingsManifest.getEnumeratorImprovementsEnabled(request);
     boolean isRepeatedBlockWithEnumeratorImprovements =
         enumeratorImprovementsEnabled && blockDefinition.isRepeated();
 
