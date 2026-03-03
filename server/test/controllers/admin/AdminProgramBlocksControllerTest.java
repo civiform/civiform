@@ -247,6 +247,35 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void edit_repeatedScreen_withEnumeratorImprovementsEnabled_showsUpdatedQuestionsSection() {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
+            .withRepeatedBlock()
+            .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
+            .build();
+
+    Result result =
+        controller.edit(
+            fakeRequestBuilder()
+                .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
+                .build(),
+            program.id,
+            /* blockId= */ 2L);
+
+    assertThat(result.status()).isEqualTo(OK);
+    String html = Helpers.contentAsString(result);
+    assertThat(html)
+        .contains("Repeated questions")
+        .contains("Add a repeated set that will ask residents")
+        .containsPattern("id=\"questions-section\"[^>]*maxw-mobile-lg")
+        .contains("usa-button--outline")
+        .contains(">Add question<")
+        .doesNotContain(">Add a question<");
+  }
+
+  @Test
   public void edit_withNewlyCreatedQuestionId_autoAddsQuestionAndRedirects() {
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
     QuestionModel question = testQuestionBank.nameApplicantName();

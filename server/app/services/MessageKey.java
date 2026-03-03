@@ -153,6 +153,7 @@ public enum MessageKey {
   HEADING_INFORMATION_ARIA_LABEL_PREFIX("heading.informationAriaLabelPrefix"), // North Star only
   HEADING_REPEATED_SET_CREATION_METHOD("heading.repeatedSet.creationMethod"),
   HEADING_REPEATED_SET_QUESTION("heading.repeatedSet.question"),
+  HEADING_REPEATED_QUESTIONS("heading.repeated.questions"),
   HEADING_REVIEW_AND_SUBMIT("heading.reviewAndSubmit"), // North Star only
   HEADING_SUCCESS_ARIA_LABEL_PREFIX("heading.successAriaLabelPrefix"), // North Star only
   ID_VALIDATION_NUMBER_REQUIRED("validation.numberRequired"),
