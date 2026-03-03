@@ -598,7 +598,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     if (enumeratorImprovementsEnabled && blockDefinition.isRepeated()) {
       optionalParentEnumeratorBlock = optionallyGetParentEnumeratorBlock(program, blockDefinition);
       isEnumeratorBlockComplete =
-          optionalParentEnumeratorBlock.map(block -> block.getQuestionCount() > 0).orElse(false);
+          optionalParentEnumeratorBlock.map(block -> block.hasEnumeratorQuestion()).orElse(false);
     }
 
     DivTag blockInfoDisplay =

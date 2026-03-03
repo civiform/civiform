@@ -959,7 +959,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
       const repeatedSetAlert = blockPanel.getByRole('alert').filter({
         hasText:
-          'To add questions to this repeated screen, first select or create and save a repeated set question on the parent repeated set screen.',
+          'A repeated set question must first be added before repeated questions can be. Please navigate to the parent screen to add a repeated set question.',
       })
 
       await test.step('Add a new repeated set and verify repeated screen is selected', async () => {

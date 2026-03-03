@@ -247,39 +247,6 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void edit_repeatedBlockWithoutSavedEnumeratorQuestion_disablesAddQuestionWithAlert()
-      throws Exception {
-    ProgramModel program = ProgramBuilder.newDraftProgram().build();
-
-    Request createRequest =
-        fakeRequestBuilder()
-            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
-            .bodyForm(ImmutableMap.of("blockType", "ENUMERATOR"))
-            .build();
-    Result createResult = controller.create(createRequest, program.id);
-
-    assertThat(createResult.status()).isEqualTo(SEE_OTHER);
-    assertThat(createResult.redirectLocation())
-        .hasValue(
-            routes.AdminProgramBlocksController.edit(program.id, /* blockDefinitionId= */ 3L)
-                .url());
-
-    Request editRequest =
-        fakeRequestBuilder().addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true").build();
-    Result editResult = controller.edit(editRequest, program.id, /* blockId= */ 3L);
-
-    assertThat(editResult.status()).isEqualTo(OK);
-    String html = contentAsString(editResult);
-    assertThat(html)
-        .contains(
-            "To add questions to this repeated screen, first select or create and save a"
-                + " repeated set question on the parent repeated set screen.")
-        .contains("cf-open-question-bank-button")
-        .contains("Add a question")
-        .contains("disabled");
-  }
-
-  @Test
   public void edit_withNewlyCreatedQuestionId_autoAddsQuestionAndRedirects() {
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
     QuestionModel question = testQuestionBank.nameApplicantName();
