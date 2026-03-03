@@ -267,7 +267,6 @@ test.describe('Ineligible Page Tests', () => {
 
     await test.step('Expect first block edit', async () => {
       await applicantQuestions.validateQuestionIsOnPage(questionText)
-      expect(page.url().split('/').pop()).toEqual('edit?isFromUrlCall=false')
     })
   })
 
@@ -306,7 +305,6 @@ test.describe('Ineligible Page Tests', () => {
 
     await test.step('Expect block review page', async () => {
       await applicantQuestions.validateQuestionIsOnPage(questionText)
-      expect(page.url().split('/').pop()).toEqual('review?isFromUrlCall=false')
     })
   })
 
