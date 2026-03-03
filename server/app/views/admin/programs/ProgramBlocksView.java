@@ -631,8 +631,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   settingsManifest.getExpandedFormLogicEnabled(request)));
     }
 
-    boolean enumeratorImprovementsEnabled =
-        settingsManifest.getEnumeratorImprovementsEnabled(request);
     boolean isRepeatedBlockWithEnumeratorImprovements =
         enumeratorImprovementsEnabled && blockDefinition.isRepeated();
 
@@ -692,7 +690,22 @@ public final class ProgramBlocksView extends ProgramBaseView {
       ButtonTag addQuestion =
           isRepeatedBlockWithEnumeratorImprovements
               ? button("")
-                  .withClasses("usa-button", "usa-button--outline", "my-4")
+                  .withType("button")
+                  .withStyle(
+                      "background-color: #fff; border-color: #005EA2; border-width: 2px;"
+                          + " border-radius: 4px; color: #005EA2;")
+                  .withClasses(
+                      "usa-button",
+                      "usa-button--outline",
+                      "bg-white",
+                      "border-2",
+                      "rounded",
+                      "py-3",
+                      "px-5",
+                      "flex",
+                      "justify-center",
+                      "items-center",
+                      "gap-2")
                   .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
                   .withText(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName()))
                   .withClass(ReferenceClasses.OPEN_QUESTION_BANK_BUTTON)
@@ -856,7 +869,18 @@ public final class ProgramBlocksView extends ProgramBaseView {
                     .withType("submit")
                     .withId("add-repeated-block-button")
                     .withForm(CREATE_REPEATED_BLOCK_FORM_ID)
-                    .withClasses("usa-button", "usa-button--outline")
+                    .withClasses(
+                        "usa-button",
+                        "usa-button--outline",
+                        "bg-white",
+                        "border-2",
+                        "rounded",
+                        "py-3",
+                        "px-5",
+                        "flex",
+                        "justify-center",
+                        "items-center",
+                        "gap-2")
                     .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
                     .withText(messages.at(MessageKey.BUTTON_ADD_REPEATED_SCREEN.getKeyName())))
         : div();
@@ -892,7 +916,22 @@ public final class ProgramBlocksView extends ProgramBaseView {
                             MessageKey.TEXT_REPEATED_SET_ADD_QUESTION_DESCRIPTION.getKeyName()))),
             button("")
                 .withId("Add-question")
-                .withClasses("usa-button", "usa-button--outline")
+                .withType("button")
+                .withStyle(
+                    "background-color: #fff; border-color: #005EA2; border-width: 2px;"
+                        + " border-radius: 4px; color: #005EA2;")
+                .withClasses(
+                    "usa-button",
+                    "usa-button--outline",
+                    "bg-white",
+                    "border-2",
+                    "rounded",
+                    "py-3",
+                    "px-5",
+                    "flex",
+                    "justify-center",
+                    "items-center",
+                    "gap-2")
                 .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
                 .withText(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName())))
         .withId("add-question-section")

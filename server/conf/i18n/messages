@@ -1196,7 +1196,7 @@ text.repeatedSet.questionDescription=Add a repeated set that will ask residents 
 #An additional description explaining the uneditable prefix within the screen editing modal
 text.repeatedSet.screenNameDescription=To give the applicant context, we will display the applicant-defined label(s) for the listed entity they are answering questions for on this screen. You can optionally add more text to the screen name to provide further context. For example, "Jennifer - Background Information".
 #An additional description explaining what the add question button does
-text.repeatedSet.addQuestionDescription=Add a repeated set that will ask residents to add objects or individuals to a list. If a repeated set has already been added and you would like to select a different one, delete the question below.
+text.repeatedSet.addQuestionDescription=Add the questions you would like to be asked about each object or individual listed by the applicant. If a question you add is not already associated with the repeated set, the question will be duplicated for this repeated set in the question bank.
 # Heading above the repeated set question in the program block editor
 heading.repeatedSet.question=Repeated set question
 # Heading above repeated block questions in the program block editor when enumerator improvements are enabled
