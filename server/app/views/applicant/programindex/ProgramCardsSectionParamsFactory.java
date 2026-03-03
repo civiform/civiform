@@ -141,6 +141,7 @@ public final class ProgramCardsSectionParamsFactory {
     categoriesBuilder.addAll(
         program.categories().stream()
             .map(c -> c.getLocalizedName().getOrDefault(preferredLocale))
+            .sorted()
             .collect(ImmutableList.toImmutableList()));
 
     String description = program.localizedShortDescription().getOrDefault(preferredLocale);

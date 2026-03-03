@@ -360,6 +360,34 @@ class AdminPrograms {
     })
   }
 
+  static attachEventListenerToEnumeratorCreationMethod() {
+    const radioButtons = document.querySelectorAll(
+      'input[name="creation-method-option"]',
+    )
+    const enumerator_question_form = document.querySelector(
+      '#new-enumerator-question-form',
+    ) as HTMLElement
+    const add_question_section = document.querySelector(
+      '#add-question-section',
+    ) as HTMLElement
+
+    radioButtons.forEach((radio) => {
+      radio.addEventListener('change', (event) => {
+        // hide all sections
+        enumerator_question_form.style.display = 'none'
+        add_question_section.style.display = 'none'
+
+        const target = event.target as HTMLInputElement
+
+        if (target.value == 'create-new') {
+          enumerator_question_form.style.display = 'block'
+        } else {
+          add_question_section.style.display = 'block'
+        }
+      })
+    })
+  }
+
   static focusOnEnumeratorQuestionSection() {
     const enumeratorSectionHeading = document.getElementById(
       'repeated-set-question-section-heading',
@@ -386,4 +414,5 @@ export function init() {
   AdminPrograms.attachEventListenersToHideEditTiInTIOnlyMode()
   AdminPrograms.attachEventListenersToHideEditTiInHiddenMode()
   AdminPrograms.attachEventListenerToHtmxSwap()
+  AdminPrograms.attachEventListenerToEnumeratorCreationMethod()
 }

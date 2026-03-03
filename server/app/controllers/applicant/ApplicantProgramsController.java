@@ -224,22 +224,22 @@ public final class ApplicantProgramsController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.TI_OR_CIVIFORM_ADMIN)
   public CompletionStage<Result> editWithApplicantId(
-      Request request, long applicantId, String programParam, Boolean isFromUrlCall) {
+      Request request, long applicantId, String programParam) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled and it comes from the URL call
+    // slug because the program slug URL is enabled
     boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+    if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels("/applicants/:applicantId/programs/:programParam/edit", programParam)
           .inc();
       return CompletableFuture.completedFuture(redirectToHome());
     }
-    return editInternal(request, applicantId, programParam, isFromUrlCall);
+    return editInternal(request, applicantId, programParam);
   }
 
   private CompletionStage<Result> editInternal(
-      Request request, long applicantId, String programParam, Boolean isFromUrlCall) {
+      Request request, long applicantId, String programParam) {
     boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     return programSlugHandler
         .resolveProgramParam(programParam, applicantId, programSlugUrlEnabled)
@@ -302,11 +302,11 @@ public final class ApplicantProgramsController extends CiviFormController {
   }
 
   @Secure(authorizers = Authorizers.Labels.APPLICANT)
-  public CompletionStage<Result> edit(Request request, String programParam, Boolean isFromUrlCall) {
+  public CompletionStage<Result> edit(Request request, String programParam) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled and it comes from the URL call
+    // slug because the program slug URL is enabled
     boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+    if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels("/programs/:programParam/edit", programParam)
@@ -321,7 +321,7 @@ public final class ApplicantProgramsController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     }
 
-    return editInternal(request, applicantId.get(), programParam, isFromUrlCall);
+    return editInternal(request, applicantId.get(), programParam);
   }
 
   @Secure

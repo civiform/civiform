@@ -182,7 +182,6 @@ public final class ProgramSlugHandler {
    *
    * @param programParam The program parameter (either slug or numeric ID)
    * @param applicantId The applicant ID for slug resolution
-   * @param isFromUrlCall Whether this call originated from a URL
    * @param programSlugUrlEnabled Whether program slug URLs feature is enabled
    * @return CompletionStage containing the resolved program ID
    */

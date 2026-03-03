@@ -301,25 +301,88 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   @Test
   public void newOne_returnsExpectedForm() {
     Request request = fakeRequestBuilder().addCSRFToken().build();
-    Result result = controller.newOne(request, "text", "/some/redirect/url");
+    Result result =
+        controller.newOne(
+            request,
+            "text",
+            "/some/redirect/url",
+            /* enumeratorQuestionOptional= */ Optional.empty(),
+            /* isRepeatingBlockOptional= */ Optional.empty());
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("New text question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
     assertThat(contentAsString(result)).contains("/some/redirect/url");
+    assertThat(contentAsString(result))
+        .doesNotContain(
+            "id=\"question-enumerator-select\" name=\"enumeratorId\" disabled"
+                + " readonly=\"readonly\"");
+  }
+
+  @Test
+  public void newOne_enumeratorSelected_disablesEnumeratorSelect() {
+    Request request = fakeRequestBuilder().addCSRFToken().build();
+    Result result =
+        controller.newOne(
+            request,
+            "text",
+            "/some/redirect/url",
+            /* enumeratorQuestionOptional= */ Optional.of("10"),
+            /* isRepeatingBlockOptional= */ Optional.of("true"));
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("New text question");
+    assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
+    assertThat(contentAsString(result)).contains("/some/redirect/url");
+    assertThat(contentAsString(result))
+        .contains(
+            "id=\"question-enumerator-select\" name=\"enumeratorId\" disabled"
+                + " readonly=\"readonly\"");
   }
 
   @Test
   public void newOne_returnsFailureForInvalidQuestionType() {
-    Result result = controller.newOne(fakeRequest(), "nope", "/some/redirect/url");
+    Result result =
+        controller.newOne(
+            fakeRequest(),
+            "nope",
+            "/some/redirect/url",
+            /* enumeratorQuestionOptional= */ Optional.empty(),
+            /* isRepeatingBlockOptional= */ Optional.empty());
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
 
   @Test
   public void newOne_absoluteRedirectUrl_throws() {
-    assertThatThrownBy(() -> controller.newOne(fakeRequest(), "text", "https://www.example.com"))
+    assertThatThrownBy(
+            () ->
+                controller.newOne(
+                    fakeRequest(),
+                    "text",
+                    "https://www.example.com",
+                    /* enumeratorQuestionOptional= */ Optional.empty(),
+                    /* isRepeatingBlockOptional= */ Optional.empty()))
         .isInstanceOf(RuntimeException.class)
         .hasMessageContainingAll("Invalid absolute URL.");
+  }
+
+  @Test
+  public void newOne_nonRepeatingBlock_disablesEnumeratorSelect() {
+    Request request = fakeRequestBuilder().addCSRFToken().build();
+    Result result =
+        controller.newOne(
+            request,
+            "text",
+            "/some/redirect/url",
+            /* enumeratorQuestionOptional= */ Optional.empty(),
+            /* isRepeatingBlockOptional= */ Optional.of("false"));
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("New text question");
+    assertThat(contentAsString(result))
+        .contains(
+            "id=\"question-enumerator-select\" name=\"enumeratorId\" disabled"
+                + " readonly=\"readonly\"");
   }
 
   @Test
