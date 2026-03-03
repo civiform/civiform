@@ -109,6 +109,8 @@ test.describe('Applicant auth', () => {
     await validateAccessibility(page)
   })
 
+  // Both flags should not be enabled at the same time so we don't test for
+  // that.
   for (const {mergingEnabled, dryRunEnabled, label} of [
     {mergingEnabled: false, dryRunEnabled: false, label: 'both flags disabled'},
     {mergingEnabled: false, dryRunEnabled: true, label: 'dry run enabled'},
@@ -168,8 +170,11 @@ test.describe('Applicant auth', () => {
     })
   }
 
-  // It is a KI (#11389) that auth login then guest, then auth login does not make the application available on the auth user.
-  // Same test as above but the auth user logs in first.
+  // It is a KI (#11389) that auth login, then guest, then auth login does not
+  // make the application available on the auth user.
+  // This is the same test as above but the auth user logs in first.
+  // Both flags should not be enabled at the same time so we don't test for
+  // that.
   for (const {mergingEnabled, dryRunEnabled, label} of [
     {mergingEnabled: false, dryRunEnabled: false, label: 'both flags disabled'},
     {mergingEnabled: false, dryRunEnabled: true, label: 'dry run enabled'},

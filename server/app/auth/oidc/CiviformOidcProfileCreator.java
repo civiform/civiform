@@ -240,11 +240,19 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     // Note: a RequestHeader is necessary for the getters, but not for the
     // desired functionality. See the comment above {@code NoopRequestHeader}
     // for more info.
-    if (settingsManifest.getNewApplicantGuestMergingStrategyEnabled(NOOP_REQUEST_HEADER)) {
-      newMergeStage = NewGuestMergeLaunchStage.ENABLED;
-    } else if (settingsManifest.getNewApplicantGuestMergingStrategyDryRunEnabled(
-        NOOP_REQUEST_HEADER)) {
+    if (settingsManifest.getNewApplicantGuestMergingStrategyDryRunEnabled(NOOP_REQUEST_HEADER)) {
       newMergeStage = NewGuestMergeLaunchStage.DRY_RUN;
+    }
+    if (settingsManifest.getNewApplicantGuestMergingStrategyEnabled(NOOP_REQUEST_HEADER)) {
+      if (newMergeStage.equals(NewGuestMergeLaunchStage.DRY_RUN)) {
+        logger.warn(
+            """
+            New account-merging feature flags are both set, only one must be. \
+            Operating in dry_run and not enabled mode.
+            """);
+      } else {
+        newMergeStage = NewGuestMergeLaunchStage.ENABLED;
+      }
     }
     return civiFormProfileMerger.mergeProfiles(
         existingApplicant, guestProfile, mergeFunction, newMergeStage);
