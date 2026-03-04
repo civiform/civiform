@@ -47,6 +47,7 @@ public enum MessageKey {
   ALERT_CLIENT_LIKELY_ELIGIBLE("alert.clientLikelyEligible"), // North Star only
   ALERT_CLIENT_LIKELY_INELIGIBLE("alert.clientLikelyIneligible"), // North Star only
   ALERT_NO_PROGRAMS_AVAILABLE("alert.noProgramsAvailable"),
+  ALERT_REPEATED_SET_ADD_QUESTION_DISABLED("alert.repeatedSet.addQuestionDisabled"),
   ALERT_REPEATED_SET_NEW_QUESTION("alert.repeatedSet.newQuestion"),
   ALERT_SUBMITTED("alert.submitted"), // North Star only
   BANNER_ERROR_SAVING_APPLICATION("banner.errorSavingApplication"),

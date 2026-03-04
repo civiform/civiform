@@ -46,7 +46,6 @@ RUN set -o pipefail && \
 
 ARG image_tag
 ENV CIVIFORM_IMAGE_TAG=$image_tag
-
 ARG git_commit_sha
 LABEL civiform.git.commit_sha=$git_commit_sha
 

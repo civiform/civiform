@@ -950,6 +950,46 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
+    test('repeated screen add-question button is disabled until enumerator question is saved', async ({
+      page,
+    }) => {
+      const blockPanel = page.getByTestId('block-panel-edit')
+      const addQuestionButton = blockPanel.getByRole('button', {
+        name: 'Add a question',
+      })
+      const repeatedSetAlert = blockPanel.getByRole('alert').filter({
+        hasText:
+          'A repeated set question must first be added before repeated questions can be. Please navigate to the parent screen to add a repeated set question.',
+      })
+
+      await test.step('Add a new repeated set and verify repeated screen is selected', async () => {
+        await page.getByRole('button', {name: 'Add screen'}).first().click()
+        await page.getByRole('button', {name: 'Add repeated set'}).click()
+        await expectCurrentBlockTitle(
+          /* isRepeatedBlock= */ true,
+          blockPanel,
+          /* expectedScreenNumber= */ 3,
+          /* repeatedFrom= */ 2,
+        )
+      })
+
+      await test.step('Verify add-question is disabled and alert is visible before enumerator question is saved', async () => {
+        await expect(addQuestionButton).toBeDisabled()
+        await expect(repeatedSetAlert).toBeVisible()
+      })
+
+      await test.step('Save an enumerator question on the parent repeated set screen', async () => {
+        await page.getByRole('link', {name: 'Screen 2'}).click()
+        await fillOutEnumeratorQuestionFormCorrectly(page)
+      })
+
+      await test.step('Return to repeated screen and verify Add a question is enabled and alert is hidden', async () => {
+        await navigateToRepeatedScreen(page, 3, 2)
+        await expect(addQuestionButton).toBeEnabled()
+        await expect(repeatedSetAlert).toBeHidden()
+      })
+    })
+
     test('can add repeated questions to repeated screens', async ({
       page,
       adminPrograms,
@@ -1200,6 +1240,50 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       // TODO(Once #12023 is complete): Also test with repeated screens under a nested enumerator
+    })
+
+    test('still supports $this placeholder in repeated question text', async ({
+      applicantQuestions,
+      page,
+    }) => {
+      await test.step('Apply to the program and add a repeated entity', async () => {
+        await applicantQuestions.applyProgram(programName)
+        await page.getByRole('button', {name: 'Add Pets'}).click()
+        await page.getByRole('textbox', {name: 'Pets name #1'}).fill('Bugs')
+      })
+
+      await test.step('Continue to repeated question and verify $this is replaced', async () => {
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.validateQuestionIsOnPage('Name for Bugs')
+      })
+    })
+
+    test('does not throw errors when repeated question text omits $this', async ({
+      adminPrograms,
+      adminQuestions,
+      applicantQuestions,
+      page,
+    }) => {
+      await test.step('Update repeated question text to omit $this and publish', async () => {
+        await loginAsAdmin(page)
+        await adminQuestions.gotoQuestionEditPage(questionName)
+        await page.getByRole('textbox', {name: 'Question text'}).fill('Name')
+        await adminQuestions.clickSubmitButtonAndNavigate('Update')
+        await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
+
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await adminPrograms.publishProgram(programName)
+        await logout(page)
+      })
+
+      await test.step('Apply and verify repeated question renders without $this', async () => {
+        await applicantQuestions.applyProgram(programName)
+        await page.getByRole('button', {name: 'Add Pets'}).click()
+        await page.getByRole('textbox', {name: 'Pets name #1'}).fill('Bugs')
+
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.validateQuestionIsOnPage('Name')
+      })
     })
   })
 
