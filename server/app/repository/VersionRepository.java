@@ -640,7 +640,7 @@ public final class VersionRepository {
     // Only set the version cache for active and obsolete versions
     if (settingsManifest.getVersionCacheEnabled() && version.id <= getActiveVersion().id) {
       return programsByVersionCache.getOrElseUpdate(
-          String.valueOf(version.id), version::getPrograms);
+          String.valueOf(version.id), () -> getProgramsForVersionWithoutCache(version));
     }
     return getProgramsForVersionWithoutCache(version);
   }
@@ -652,7 +652,15 @@ public final class VersionRepository {
 
   /** Returns the programs for a version without using the cache. */
   public ImmutableList<ProgramModel> getProgramsForVersionWithoutCache(VersionModel version) {
-    return version.getPrograms();
+    return ImmutableList.copyOf(
+        database
+            .find(ProgramModel.class)
+            .fetch("categories")
+            .where()
+            .in("versions", version)
+            .setLabel("ProgramModel.findByVersion")
+            .setProfileLocation(profileLocationBuilder.create("getProgramsForVersionWithoutCache"))
+            .findList());
   }
 
   /**

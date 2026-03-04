@@ -102,6 +102,7 @@ public final class ProgramRepository {
   private Optional<ProgramModel> lookupProgramSync(long id) {
     return database
         .find(ProgramModel.class)
+        .fetch("categories")
         .setLabel("ProgramModel.findById")
         .setProfileLocation(queryProfileLocationBuilder.create("lookupProgramSync"))
         .where()
