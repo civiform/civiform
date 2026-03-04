@@ -137,7 +137,7 @@ test.describe('Applicant auth', () => {
     ).toContainText(/\d?\d\/\d?\d\/\d\d/)
   })
 
-  // It is a KI (#11389) that auth login, then guest, then auth login does not
+  // It is a bug (#11389) that auth login, then guest, then auth login does not
   // make the application available on the auth user.
   // This is the same test as above but the auth user logs in first.
   test('Auth login, then Guest login, then auth login does not show submitted applications', async ({
