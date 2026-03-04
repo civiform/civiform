@@ -149,26 +149,54 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
             .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
             .build();
 
+    program.refresh();
+    var initialBlockDefinitions = program.getProgramDefinition().blockDefinitions();
+    long parentEnumeratorId = initialBlockDefinitions.get(0).id();
+
     Request request =
         fakeRequestBuilder()
             .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
-            .bodyForm(ImmutableMap.of("enumeratorId", "1", "blockType", "ENUMERATOR"))
+            .bodyForm(
+                ImmutableMap.of(
+                    "enumeratorId", String.valueOf(parentEnumeratorId), "blockType", "ENUMERATOR"))
             .build();
     Result result = controller.create(request, program.id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation())
-        .hasValue(
-            routes.AdminProgramBlocksController.edit(program.id, /* blockDefinitionId= */ 4L)
-                .url());
-
     program.refresh();
     var blockDefinitions = program.getProgramDefinition().blockDefinitions();
     assertThat(blockDefinitions).hasSize(4);
-    assertThat(blockDefinitions.get(2).getIsEnumerator()).isEqualTo(true);
-    assertThat(blockDefinitions.get(2).enumeratorId()).hasValue(1L);
-    assertThat(blockDefinitions.get(3).isRepeated()).isEqualTo(true);
-    assertThat(blockDefinitions.get(3).enumeratorId()).hasValue(3L);
+
+    long nestedEnumeratorId =
+        blockDefinitions.stream()
+            .filter(
+                block ->
+                    block.getIsEnumerator()
+                        && block
+                            .enumeratorId()
+                            .map(id -> id.equals(parentEnumeratorId))
+                            .orElse(false))
+            .findFirst()
+            .orElseThrow()
+            .id();
+    long repeatedUnderNestedId =
+        blockDefinitions.stream()
+            .filter(
+                block ->
+                    block.isRepeated()
+                        && block
+                            .enumeratorId()
+                            .map(id -> id.equals(nestedEnumeratorId))
+                            .orElse(false))
+            .findFirst()
+            .orElseThrow()
+            .id();
+
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.AdminProgramBlocksController.edit(
+                    program.id, /* blockDefinitionId= */ repeatedUnderNestedId)
+                .url());
   }
 
   @Test
@@ -288,12 +316,56 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
             .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
             .build();
 
+    program.refresh();
+    long parentEnumeratorId = program.getProgramDefinition().blockDefinitions().get(0).id();
+
     controller.create(
         fakeRequestBuilder()
             .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
-            .bodyForm(ImmutableMap.of("enumeratorId", "1", "blockType", "ENUMERATOR"))
+            .bodyForm(
+                ImmutableMap.of(
+                    "enumeratorId", String.valueOf(parentEnumeratorId), "blockType", "ENUMERATOR"))
             .build(),
         program.id);
+
+    program.refresh();
+    var blockDefinitions = program.getProgramDefinition().blockDefinitions();
+    long repeatedUnderParentId =
+        blockDefinitions.stream()
+            .filter(
+                block ->
+                    block.isRepeated()
+                        && block
+                            .enumeratorId()
+                            .map(id -> id.equals(parentEnumeratorId))
+                            .orElse(false))
+            .findFirst()
+            .orElseThrow()
+            .id();
+    long nestedEnumeratorId =
+        blockDefinitions.stream()
+            .filter(
+                block ->
+                    block.getIsEnumerator()
+                        && block
+                            .enumeratorId()
+                            .map(id -> id.equals(parentEnumeratorId))
+                            .orElse(false))
+            .findFirst()
+            .orElseThrow()
+            .id();
+    long repeatedUnderNestedId =
+        blockDefinitions.stream()
+            .filter(
+                block ->
+                    block.isRepeated()
+                        && block
+                            .enumeratorId()
+                            .map(id -> id.equals(nestedEnumeratorId))
+                            .orElse(false))
+            .findFirst()
+            .orElseThrow()
+            .id();
 
     Result parentEnumeratorResult =
         controller.edit(
@@ -301,7 +373,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
                 .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
                 .build(),
             program.id,
-            /* blockId= */ 1L);
+            /* blockId= */ parentEnumeratorId);
     String parentEnumeratorHtml = Helpers.contentAsString(parentEnumeratorResult);
     assertThat(parentEnumeratorHtml).contains("id=\"create-nested-set-button\"");
 
@@ -311,7 +383,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
                 .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
                 .build(),
             program.id,
-            /* blockId= */ 2L);
+            /* blockId= */ repeatedUnderParentId);
     String repeatedUnderParentHtml = Helpers.contentAsString(repeatedUnderParentResult);
     assertThat(repeatedUnderParentHtml).contains("id=\"create-nested-set-button\"");
 
@@ -321,9 +393,9 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
                 .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
                 .build(),
             program.id,
-            /* blockId= */ 3L);
+            /* blockId= */ nestedEnumeratorId);
     String nestedEnumeratorHtml = Helpers.contentAsString(nestedEnumeratorResult);
-    assertThat(nestedEnumeratorHtml).contains("id=\"create-nested-set-button\"");
+    assertThat(nestedEnumeratorHtml).doesNotContain("id=\"create-nested-set-button\"");
 
     Result repeatedUnderNestedResult =
         controller.edit(
@@ -331,7 +403,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
                 .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
                 .build(),
             program.id,
-            /* blockId= */ 4L);
+            /* blockId= */ repeatedUnderNestedId);
     String repeatedUnderNestedHtml = Helpers.contentAsString(repeatedUnderNestedResult);
     assertThat(repeatedUnderNestedHtml).doesNotContain("id=\"create-nested-set-button\"");
   }
@@ -347,19 +419,37 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
             .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
             .build();
 
+    program.refresh();
+    var blockDefinitions = program.getProgramDefinition().blockDefinitions();
+    long parentEnumeratorId = blockDefinitions.get(0).id();
+    long repeatedUnderParentId =
+        blockDefinitions.stream()
+            .filter(
+                block ->
+                    block.isRepeated()
+                        && block
+                            .enumeratorId()
+                            .map(id -> id.equals(parentEnumeratorId))
+                            .orElse(false))
+            .findFirst()
+            .orElseThrow()
+            .id();
+
     Result result =
         controller.edit(
             fakeRequestBuilder()
                 .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
                 .build(),
             program.id,
-            /* blockId= */ 2L);
+            /* blockId= */ repeatedUnderParentId);
 
     assertThat(result.status()).isEqualTo(OK);
     String html = Helpers.contentAsString(result);
     assertThat(html)
         .containsPattern(
-            "id=\"nested-repeated-set-create-form\"[\\s\\S]*name=\"enumeratorId\"[\\s\\S]*value=\"1\"");
+            "id=\"nested-repeated-set-create-form\"[\\s\\S]*name=\"enumeratorId\"[\\s\\S]*value=\""
+                + parentEnumeratorId
+                + "\"");
   }
 
   @Test
