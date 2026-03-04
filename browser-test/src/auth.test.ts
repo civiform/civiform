@@ -1,7 +1,5 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
-  disableFeatureFlag,
-  enableFeatureFlag,
   isLocalDevEnvironment,
   loginAsAdmin,
   loginAsTestUser,
@@ -109,7 +107,7 @@ test.describe('Applicant auth', () => {
     await validateAccessibility(page)
   })
 
-  test(`Guest login followed by auth login stores submitted applications`, async ({
+  test('Guest login followed by auth login stores submitted applications', async ({
     page,
     adminPrograms,
     applicantProgramList,
@@ -142,7 +140,7 @@ test.describe('Applicant auth', () => {
   // It is a KI (#11389) that auth login, then guest, then auth login does not
   // make the application available on the auth user.
   // This is the same test as above but the auth user logs in first.
-  test(`Auth login, then Guest login, then auth login does not show submitted applications`, async ({
+  test('Auth login, then Guest login, then auth login does not show submitted applications', async ({
     page,
     adminPrograms,
     applicantProgramList,
