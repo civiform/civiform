@@ -57,7 +57,7 @@ public abstract class AbstractSettingsManifest {
   }
 
   private ImmutableList<SettingDescription> getAllFeatureFlagsSettingDescriptions() {
-    return Optional.ofNullable(getSections())
+    return Optional.of(getSections())
         .map(m -> m.get(FEATURE_FLAG_SETTING_SECTION_NAME))
         .map(this::getSettingDescriptions)
         .orElseGet(ImmutableList::of);

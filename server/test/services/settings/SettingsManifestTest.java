@@ -262,7 +262,7 @@ public class SettingsManifestTest {
                 "TEST_SECTION",
                 SettingsSection.create(
                     "Test Section",
-                    "Fake section.",
+                    "Fake section",
                     ImmutableList.of(),
                     ImmutableList.of(BOOL_VARIABLE))),
             CONFIG);
