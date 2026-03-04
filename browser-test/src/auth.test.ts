@@ -109,135 +109,73 @@ test.describe('Applicant auth', () => {
     await validateAccessibility(page)
   })
 
-  // Both flags should not be enabled at the same time so we don't test for
-  // that.
-  for (const {mergingEnabled, dryRunEnabled, label} of [
-    {mergingEnabled: false, dryRunEnabled: false, label: 'both flags disabled'},
-    {mergingEnabled: false, dryRunEnabled: true, label: 'dry run enabled'},
-    {mergingEnabled: true, dryRunEnabled: false, label: 'merging enabled'},
-  ]) {
-    test(`Guest login followed by auth login stores submitted applications (${label})`, async ({
-      page,
-      adminPrograms,
-      applicantProgramList,
-      applicantQuestions,
-    }) => {
-      if (mergingEnabled) {
-        await enableFeatureFlag(
-          page,
-          'new_applicant_guest_merging_strategy_enabled',
-        )
-      } else {
-        await disableFeatureFlag(
-          page,
-          'new_applicant_guest_merging_strategy_enabled',
-        )
-      }
-      if (dryRunEnabled) {
-        await enableFeatureFlag(
-          page,
-          'new_applicant_guest_merging_strategy_dry_run_enabled',
-        )
-      } else {
-        await disableFeatureFlag(
-          page,
-          'new_applicant_guest_merging_strategy_dry_run_enabled',
-        )
-      }
+  test(`Guest login followed by auth login stores submitted applications`, async ({
+    page,
+    adminPrograms,
+    applicantProgramList,
+    applicantQuestions,
+  }) => {
+    await loginAsAdmin(page)
+    const programName = 'Test program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.publishAllDrafts()
 
-      await loginAsAdmin(page)
-      const programName = 'Test program'
-      await adminPrograms.addProgram(programName)
-      await adminPrograms.publishAllDrafts()
+    await logout(page)
+    await applicantQuestions.applyProgram(programName)
+    await applicantQuestions.submitFromReviewPage()
+    await loginAsTestUser(page)
 
-      await logout(page)
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.submitFromReviewPage()
-      await loginAsTestUser(page)
-
-      // Check that program is marked as submitted.
-      const applicationCardLocator = page.getByRole('heading', {
-        name: programName,
-      })
-      await expect(applicationCardLocator).toBeAttached()
-
-      await expect(
-        applicantProgramList.getSubmittedTagLocator(
-          CardSectionName.MyApplications,
-          programName,
-        ),
-      ).toContainText(/\d?\d\/\d?\d\/\d\d/)
+    // Check that program is marked as submitted.
+    const applicationCardLocator = page.getByRole('heading', {
+      name: programName,
     })
-  }
+    await expect(applicationCardLocator).toBeAttached()
+
+    await expect(
+      applicantProgramList.getSubmittedTagLocator(
+        CardSectionName.MyApplications,
+        programName,
+      ),
+    ).toContainText(/\d?\d\/\d?\d\/\d\d/)
+  })
 
   // It is a KI (#11389) that auth login, then guest, then auth login does not
   // make the application available on the auth user.
   // This is the same test as above but the auth user logs in first.
-  // Both flags should not be enabled at the same time so we don't test for
-  // that.
-  for (const {mergingEnabled, dryRunEnabled, label} of [
-    {mergingEnabled: false, dryRunEnabled: false, label: 'both flags disabled'},
-    {mergingEnabled: false, dryRunEnabled: true, label: 'dry run enabled'},
-    {mergingEnabled: true, dryRunEnabled: false, label: 'merging enabled'},
-  ]) {
-    test(`Auth login, then Guest login, then auth login does not show submitted applications (${label})`, async ({
-      page,
-      adminPrograms,
-      applicantProgramList,
-      applicantQuestions,
-    }) => {
-      if (mergingEnabled) {
-        await enableFeatureFlag(
-          page,
-          'new_applicant_guest_merging_strategy_enabled',
-        )
-      } else {
-        await disableFeatureFlag(
-          page,
-          'new_applicant_guest_merging_strategy_enabled',
-        )
-      }
-      if (dryRunEnabled) {
-        await enableFeatureFlag(
-          page,
-          'new_applicant_guest_merging_strategy_dry_run_enabled',
-        )
-      } else {
-        await disableFeatureFlag(
-          page,
-          'new_applicant_guest_merging_strategy_dry_run_enabled',
-        )
-      }
+  test(`Auth login, then Guest login, then auth login does not show submitted applications`, async ({
+    page,
+    adminPrograms,
+    applicantProgramList,
+    applicantQuestions,
+  }) => {
+    await loginAsAdmin(page)
+    const programName = 'Test program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.publishAllDrafts()
+    await logout(page)
 
-      await loginAsAdmin(page)
-      const programName = 'Test program'
-      await adminPrograms.addProgram(programName)
-      await adminPrograms.publishAllDrafts()
-      await logout(page)
+    // Log-in as a real user to create then in the DB.
+    await loginAsTestUser(page)
 
-      // Log-in as a real user to create then in the DB.
-      await loginAsTestUser(page)
+    // Apply as a guest.
+    await logout(page)
+    await applicantQuestions.applyProgram(programName)
+    await applicantQuestions.submitFromReviewPage()
 
-      // Apply as a guest.
-      await logout(page)
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.submitFromReviewPage()
+    // Log-in as the real user again.
+    await loginAsTestUser(page)
 
-      // Log-in as the real user again.
-      await loginAsTestUser(page)
-
-      // Check that no program is marked as submitted.
-      const applicationCardLocator = page.getByRole('heading', {
-        name: programName,
-      })
-      await expect(applicationCardLocator).toBeAttached()
-
-      await expect(
-        applicantProgramList.getSubmittedTagLocator(
-          CardSectionName.MyApplications,
-          programName,
-        ),
-      ).not.toBeAttached()
+    // Check that no program is marked as submitted.
+    const applicationCardLocator = page.getByRole('heading', {
+      name: programName,
     })
-  }
+    await expect(applicationCardLocator).toBeAttached()
+
+    await expect(
+      applicantProgramList.getSubmittedTagLocator(
+        CardSectionName.MyApplications,
+        programName,
+      ),
+    ).not.toBeAttached()
+  })
 })
