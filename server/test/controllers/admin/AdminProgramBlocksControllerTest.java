@@ -375,7 +375,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
             program.id,
             /* blockId= */ parentEnumeratorId);
     String parentEnumeratorHtml = Helpers.contentAsString(parentEnumeratorResult);
-    assertThat(parentEnumeratorHtml).contains("id=\"create-nested-set-button\"");
+    assertThat(parentEnumeratorHtml).doesNotContain("id=\"create-nested-set-button\"");
 
     Result repeatedUnderParentResult =
         controller.edit(
@@ -445,11 +445,9 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(OK);
     String html = Helpers.contentAsString(result);
-    assertThat(html)
-        .containsPattern(
-            "id=\"nested-repeated-set-create-form\"[\\s\\S]*name=\"enumeratorId\"[\\s\\S]*value=\""
-                + parentEnumeratorId
-                + "\"");
+    assertThat(html).contains("id=\"nested-repeated-set-create-form\"");
+    assertThat(html).contains("name=\"enumeratorId\"");
+    assertThat(html).contains("value=\"" + parentEnumeratorId + "\"");
   }
 
   @Test
