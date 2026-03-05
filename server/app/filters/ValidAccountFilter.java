@@ -7,7 +7,6 @@ import auth.ProfileUtils;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import javax.inject.Provider;
 import org.apache.pekko.stream.Materializer;
 import org.apache.pekko.util.ByteString;
 import play.libs.streams.Accumulator;
@@ -28,7 +27,6 @@ public class ValidAccountFilter extends EssentialFilter {
   private final ProfileUtils profileUtils;
   private final Provider<SettingsManifest> settingsManifest;
   private final Materializer materializer;
-  private final Provider<DatabaseExecutionContext> databaseExecutionContext;
 
   @Inject
   public ValidAccountFilter(
@@ -39,7 +37,6 @@ public class ValidAccountFilter extends EssentialFilter {
     this.profileUtils = checkNotNull(profileUtils);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.materializer = checkNotNull(materializer);
-    this.databaseExecutionContext = databaseExecutionContext;
   }
 
   @Override
