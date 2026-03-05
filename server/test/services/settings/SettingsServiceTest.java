@@ -18,11 +18,14 @@ import models.SettingsGroupModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.Environment;
+import play.cache.SyncCacheApi;
 import play.mvc.Http;
 import repository.ResetPostgres;
 import repository.SettingsGroupRepository;
 
 public class SettingsServiceTest extends ResetPostgres {
+
+  private static SyncCacheApi cache = mock(SyncCacheApi.class);
 
   public static final String TEST_AUTHORITY_ID = "test-id";
   private SettingsService settingsService;
@@ -120,7 +123,8 @@ public class SettingsServiceTest extends ResetPostgres {
                   "test_enum",
                   "test-2",
                   "test_regex_validated_string",
-                  "test")));
+                  "test")),
+          cache);
 
   private CiviFormProfile testProfile;
 

@@ -78,7 +78,7 @@ public class SessionTimeoutFilterTest extends WithApplication {
     // Request without profile attribute - should clear the timeout cookie
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.empty());
-    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
+    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(true);
 
     Result result = executeFilter(request);
 
@@ -97,7 +97,7 @@ public class SessionTimeoutFilterTest extends WithApplication {
             .uri("/programs/1")
             .cookie(Http.Cookie.builder(TIMEOUT_COOKIE_NAME, "somevalue").withPath("/").build())
             .build();
-    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(false);
+    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(false);
 
     Result result = executeFilter(request);
 
@@ -112,7 +112,7 @@ public class SessionTimeoutFilterTest extends WithApplication {
   public void testTimeoutEnabled_validSession_setsCookieAndUpdatesActivity() throws Exception {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
-    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
+    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(true);
     when(sessionTimeoutService.isSessionTimedOut(eq(mockProfile), anyLong())).thenReturn(false);
 
     Result result = executeFilter(request);
@@ -139,7 +139,7 @@ public class SessionTimeoutFilterTest extends WithApplication {
   public void testCookieProperties() throws Exception {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
-    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
+    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(true);
     when(sessionTimeoutService.isSessionTimedOut(eq(mockProfile), anyLong())).thenReturn(false);
 
     Result result = executeFilter(request);
@@ -155,7 +155,7 @@ public class SessionTimeoutFilterTest extends WithApplication {
   public void testNoSessionStartTime_redirectsToLogout() throws Exception {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
-    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
+    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(true);
     when(mockProfile.getSessionStartTime())
         .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
 
@@ -169,7 +169,7 @@ public class SessionTimeoutFilterTest extends WithApplication {
   public void testSessionTimedOut_redirectsToLogout() throws Exception {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
-    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
+    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(true);
     when(sessionTimeoutService.isSessionTimedOut(eq(mockProfile), anyLong())).thenReturn(true);
 
     Result result = executeFilter(request);

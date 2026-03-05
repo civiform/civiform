@@ -2683,7 +2683,7 @@ public class ProgramServiceTest extends ResetPostgres {
   public void
       removeQuestionsFromBlock_setsIsEnumeratorFalseOnBlockDefinition_withEnumeratorImprovementsDisabled()
           throws Exception {
-    when(mockSettingsManifest.getEnumeratorImprovementsEnabled(fakeRequest)).thenReturn(false);
+    when(mockSettingsManifest.getEnumeratorImprovementsEnabled()).thenReturn(false);
 
     ProgramDefinition program = ProgramBuilder.newDraftProgram().withBlock().buildDefinition();
 
@@ -2713,7 +2713,7 @@ public class ProgramServiceTest extends ResetPostgres {
   public void
       removeQuestionsFromBlock_doesNotSetIsEnumeratorFalseOnBlockDefinition_withEnumeratorImprovementsEnabled()
           throws Exception {
-    when(mockSettingsManifest.getEnumeratorImprovementsEnabled(fakeRequest)).thenReturn(true);
+    when(mockSettingsManifest.getEnumeratorImprovementsEnabled()).thenReturn(true);
 
     ProgramDefinition programDefinition =
         ProgramBuilder.newDraftProgram().withEnumeratorBlock().buildDefinition();

@@ -33,7 +33,7 @@ public class FileControllerTest extends WithMockedProfiles {
     resetDatabase();
     mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     when(mockSettingsManifest.getClientIpType()).thenReturn(Optional.of("FORWARDED"));
-    when(mockSettingsManifest.getAllowCiviformAdminAccessPrograms(request)).thenReturn(false);
+    when(mockSettingsManifest.getAllowCiviformAdminAccessPrograms()).thenReturn(false);
     setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(mockSettingsManifest));
     controller = instanceOf(FileController.class);
   }
@@ -138,7 +138,7 @@ public class FileControllerTest extends WithMockedProfiles {
 
   @Test
   public void adminShow_globalAdminWithPrivileges_differentFileKey_notFound() {
-    when(mockSettingsManifest.getAllowCiviformAdminAccessPrograms(request)).thenReturn(true);
+    when(mockSettingsManifest.getAllowCiviformAdminAccessPrograms()).thenReturn(true);
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
     createGlobalAdminWithMockedProfile();
     String fileKey = createFakeFileKey(1L, program.id + 1);
@@ -184,7 +184,7 @@ public class FileControllerTest extends WithMockedProfiles {
 
   @Test
   public void adminShow_globalAdminWithPrivileges_success() {
-    when(mockSettingsManifest.getAllowCiviformAdminAccessPrograms(request)).thenReturn(true);
+    when(mockSettingsManifest.getAllowCiviformAdminAccessPrograms()).thenReturn(true);
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
     createGlobalAdminWithMockedProfile();
     String fileKey = createFakeFileKey(1L, program.id);
@@ -220,7 +220,7 @@ public class FileControllerTest extends WithMockedProfiles {
 
   @Test
   public void acledAdminShow_globalAdminWithPrivileges_differentFileKey_notFound() {
-    when(mockSettingsManifest.getAllowCiviformAdminAccessPrograms(request)).thenReturn(true);
+    when(mockSettingsManifest.getAllowCiviformAdminAccessPrograms()).thenReturn(true);
     createGlobalAdminWithMockedProfile();
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
     createStoredFileWithProgramAccess(createFakeFileKey(1L, program.id), program);
@@ -232,7 +232,7 @@ public class FileControllerTest extends WithMockedProfiles {
 
   @Test
   public void acledAdminShow_globalAdminWithoutPrivileges_unauthorized() {
-    when(mockSettingsManifest.getAllowCiviformAdminAccessPrograms(request)).thenReturn(false);
+    when(mockSettingsManifest.getAllowCiviformAdminAccessPrograms()).thenReturn(false);
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
     createGlobalAdminWithMockedProfile();
     String fileKey = createFakeFileKey(1L, program.id);
@@ -244,7 +244,7 @@ public class FileControllerTest extends WithMockedProfiles {
 
   @Test
   public void acledAdminShow_globalAdminWithPrivileges_success() {
-    when(mockSettingsManifest.getAllowCiviformAdminAccessPrograms(request)).thenReturn(true);
+    when(mockSettingsManifest.getAllowCiviformAdminAccessPrograms()).thenReturn(true);
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
     createGlobalAdminWithMockedProfile();
     String fileKey = createFakeFileKey(1L, program.id);

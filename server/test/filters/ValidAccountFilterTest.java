@@ -60,7 +60,7 @@ public class ValidAccountFilterTest extends WithApplication {
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
     when(profileUtils.validCiviFormProfile(mockProfile))
         .thenReturn(CompletableFuture.completedFuture(true));
-    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(false);
+    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(false);
     when(settingsManifest.getSessionReplayProtectionEnabled()).thenReturn(false);
 
     Result result = executeFilter(request);
@@ -75,7 +75,7 @@ public class ValidAccountFilterTest extends WithApplication {
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
     when(profileUtils.validCiviFormProfile(mockProfile))
         .thenReturn(CompletableFuture.completedFuture(true));
-    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(false);
+    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(false);
     when(settingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
 
     // Session ID not found in active sessions

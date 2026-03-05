@@ -94,10 +94,10 @@ public class TrustedIntermediaryClientListViewTest extends WithMockedProfiles {
     Http.Request request = FakeRequestBuilder.fakeRequest();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(profile));
     when(languageUtils.getPreferredLanguage(request)).thenReturn(Lang.defaultLang());
-    when(settingsManifest.getSupportEmailAddress(request)).thenReturn(Optional.of("supportEmail"));
-    when(settingsManifest.getWhitelabelCivicEntityFullName(request))
+    when(settingsManifest.getSupportEmailAddress()).thenReturn(Optional.of("supportEmail"));
+    when(settingsManifest.getWhitelabelCivicEntityFullName())
         .thenReturn(Optional.of("CE full name"));
-    when(settingsManifest.getWhitelabelCivicEntityShortName(request))
+    when(settingsManifest.getWhitelabelCivicEntityShortName())
         .thenReturn(Optional.of("CE short name"));
 
     AccountModel ti = createTIWithMockedProfile(createApplicant());
