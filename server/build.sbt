@@ -114,6 +114,9 @@ lazy val root = (project in file("."))
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.14.1",
       "commons-validator" % "commons-validator" % "1.10.1",
+      "org.apache.pekko" %% "pekko-connectors-s3" % "1.0.2",
+      "org.apache.pekko" %% "pekko-http" % "1.0.1",
+      "org.apache.pekko" %% "pekko-http-xml" % "1.0.1",
 
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.5",
