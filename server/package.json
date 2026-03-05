@@ -24,7 +24,7 @@
     "@typescript-eslint/parser": "8.56.1",
     "@vitest/coverage-v8": "^4.0.16",
     "autoprefixer": "^10.4.16",
-    "eslint": "9.39.3",
+    "eslint": "10.0.2",
     "eslint-config-google": "0.14.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-no-unsanitized": "^4.0.2",
