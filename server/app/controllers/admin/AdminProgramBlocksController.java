@@ -158,32 +158,6 @@ public final class AdminProgramBlocksController extends CiviFormController {
                 enumeratorId.get(),
                 messagesApi.preferred(request),
                 settingsManifest.getEnumeratorImprovementsEnabled(request));
-        ProgramDefinition program = result.getResult().program();
-        BlockDefinition block =
-            result.getResult().maybeAddedBlock().isEmpty()
-                ? program.getLastBlockDefinition()
-                : result.getResult().maybeAddedBlock().get();
-        if (result.isError()) {
-          ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
-          return renderEditViewWithMessage(request, program, block, Optional.of(message));
-        }
-
-        long addedBlockId = block.id();
-
-        // Also add the first repeated block under the new nested enumerator
-        result =
-            programService.addRepeatedBlockToProgram(
-                programId,
-                addedBlockId,
-                messagesApi.preferred(request),
-                settingsManifest.getEnumeratorImprovementsEnabled(request));
-        if (result.isError()) {
-          ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
-          return renderEditViewWithMessage(request, program, block, Optional.of(message));
-        }
-        addedBlockId++;
-
-        return redirect(routes.AdminProgramBlocksController.edit(programId, addedBlockId).url());
       } else if (enumeratorId.isPresent()) {
         result =
             programService.addRepeatedBlockToProgram(
@@ -227,7 +201,6 @@ public final class AdminProgramBlocksController extends CiviFormController {
         }
         addedBlockId++;
       }
-
       return redirect(routes.AdminProgramBlocksController.edit(programId, addedBlockId).url());
     } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
       return notFound(e.toString());
