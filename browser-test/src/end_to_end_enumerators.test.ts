@@ -692,9 +692,8 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Validate that two new blocks appear in the block order panel', async () => {
-        const newBlockCount = page
-          .getByRole('link', {name: /Screen /})
-          
+        const newBlockCount = page.getByRole('link', {name: /Screen /})
+
         await expect(newBlockCount).toHaveCount(initialBlockCount + 2)
       })
 
