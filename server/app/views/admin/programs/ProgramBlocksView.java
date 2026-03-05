@@ -722,10 +722,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
       }
 
       // For repeated blocks, check if parent enumerator is at first level (not nested)
-      Optional<BlockDefinition> parentEnumerator =
-          optionallyGetParentEnumeratorBlock(program, blockDefinition);
       boolean shouldShowNestedButton =
-          parentEnumerator.map(parent -> parent.enumeratorId().isEmpty()).orElse(false);
+          optionalParentEnumeratorBlock
+              .map(parent -> parent.enumeratorId().isEmpty())
+              .orElse(false);
 
       return div.with(
           programQuestions,
@@ -878,7 +878,13 @@ public final class ProgramBlocksView extends ProgramBaseView {
     }
 
     DivTag buttonsDiv =
-        div().withClasses("border-top", "border-gray-300", "padding-top-3", "margin-top-3");
+        div()
+            .withClasses(
+                "border-top",
+                "border-gray-300",
+                "padding-top-3",
+                "margin-top-3",
+                "usa-button-group");
 
     // Always show "Add repeated screen" button
     buttonsDiv.with(
@@ -886,7 +892,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .withType("submit")
             .withId("add-repeated-block-button")
             .withForm(CREATE_REPEATED_BLOCK_FORM_ID)
-            .withClasses("usa-button", "usa-button--outline")
+            .withClasses("usa-button", "usa-button--outline", "usa-button-group__item")
             .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
             .withText(messages.at(MessageKey.BUTTON_ADD_REPEATED_SCREEN.getKeyName())));
 
@@ -897,7 +903,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
               .withType("submit")
               .withId("create-nested-set-button")
               .withForm(CREATE_NESTED_REPEATED_SET_FORM_ID)
-              .withClasses("usa-button", "usa-button--outline", "margin-left-1")
+              .withClasses("usa-button", "usa-button--outline", "usa-button-group__item")
               .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
               .withText(messages.at(MessageKey.BUTTON_ADD_NESTED_REPEATED_SET.getKeyName())));
     }
