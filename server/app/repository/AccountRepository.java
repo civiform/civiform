@@ -64,7 +64,7 @@ public final class AccountRepository {
     this.settingsManifest = checkNotNull(settingsManifest);
 
     int sessionDurationMinutes =
-        settingsManifest
+        this.settingsManifest
             .getMaximumSessionDurationMinutes()
             // Default to 10 hours if not configured.
             .orElse(600);
