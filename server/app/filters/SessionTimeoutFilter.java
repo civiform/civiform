@@ -73,14 +73,6 @@ public class SessionTimeoutFilter extends Filter {
       return nextFilter.apply(requestHeader);
     }
 
-    if (!settingsManifest.get().getSessionTimeoutEnabled(requestHeader)) {
-      CompletionStage<Result> result = nextFilter.apply(requestHeader);
-      if (requestHeader.cookies().get(TIMEOUT_COOKIE_NAME).isPresent()) {
-        return result.thenApply(this::clearTimeoutCookie);
-      }
-      return result;
-    }
-    // Only get the profile if it doesn't already exist on the request
     Optional<CiviFormProfile> optionalProfile =
         requestHeader
             .attrs()
@@ -92,10 +84,18 @@ public class SessionTimeoutFilter extends Filter {
     }
 
     CiviFormProfile profile = optionalProfile.get();
+
     return profile
         .getAccount()
         .thenComposeAsync(
             account -> {
+              Optional<SessionDetails> optionalSession =
+                  account.getActiveSession(profile.getProfileData().getSessionId());
+
+              if (optionalSession.isEmpty()) {
+                return CompletableFuture.completedFuture(
+                  Results.redirect(org.pac4j.play.routes.LogoutController.logout()));
+              }
               Optional<Long> optionalSessionStartTime =
                   account
                       .getActiveSession(profile.getProfileData().getSessionId())
@@ -108,6 +108,19 @@ public class SessionTimeoutFilter extends Filter {
                 return CompletableFuture.completedFuture(
                     Results.redirect(org.pac4j.play.routes.LogoutController.logout()));
               }
+
+              if (!settingsManifest.get().getSessionTimeoutEnabled(requestHeader)) {
+                return nextFilter
+                    .apply(requestHeader)
+                    .thenApply(
+                        result -> {
+                          if (requestHeader.cookies().get(TIMEOUT_COOKIE_NAME).isPresent()) {
+                            return clearTimeoutCookie(result);
+                          }
+                          return result;
+                        });
+              }
+
               if (sessionTimeoutService
                   .get()
                   .isSessionTimedOut(profile, sessionStartTimeInMillis)) {
