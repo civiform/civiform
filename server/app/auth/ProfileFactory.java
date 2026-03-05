@@ -75,10 +75,8 @@ public final class ProfileFactory {
         .thenAccept(
             account -> {
               profile.storeApplicantIdInProfile(account);
-              if (settingsManifest.getSessionReplayProtectionEnabled()) {
-                account.addActiveSession(profileData.getSessionId(), clock);
-                account.save();
-              }
+              account.addActiveSession(profileData.getSessionId(), clock);
+              account.save();
             })
         .join();
 
@@ -259,9 +257,7 @@ public final class ProfileFactory {
   }
 
   private void addActiveSession(AccountModel account, CiviFormProfileData profileData) {
-    if (settingsManifest.getSessionReplayProtectionEnabled()) {
-      account.addActiveSession(profileData.getSessionId(), clock);
-    }
+    account.addActiveSession(profileData.getSessionId(), clock);
   }
 
   private static String generateFakeAdminAuthorityId() {

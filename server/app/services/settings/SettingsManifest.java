@@ -951,14 +951,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * Enable session replay protection, so that a session cookie cannot be replayed if the user logs
-   * out
-   */
-  public boolean getSessionReplayProtectionEnabled() {
-    return getBool("SESSION_REPLAY_PROTECTION_ENABLED");
-  }
-
-  /**
    * The amount of time, in minutes, that a session lasts. The default is 600 minutes, or 10 hours.
    * Note that there isn't yet messaging on the frontend to notify a user when their session is
    * expired.
@@ -1097,11 +1089,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("IMMIGRATION_STATUS_INFO_BANNER_ENABLED", request);
   }
 
-  /**
-   * (NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration.
-   * Inactivity timeout is always enforced when enabled. Maximum duration enforcement additionally
-   * requires SESSION_REPLAY_PROTECTION_ENABLED=true.
-   */
+  /** (NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration. */
   public boolean getSessionTimeoutEnabled(RequestHeader request) {
     return getBool("SESSION_TIMEOUT_ENABLED", request);
   }
@@ -2217,13 +2205,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   ImmutableList.of(),
                   ImmutableList.of(
                       SettingDescription.create(
-                          "SESSION_REPLAY_PROTECTION_ENABLED",
-                          "Enable session replay protection, so that a session cookie cannot be"
-                              + " replayed if the user logs out",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
                           "MAXIMUM_SESSION_DURATION_MINUTES",
                           "The amount of time, in minutes, that a session lasts. The default is 600"
                               + " minutes, or 10 hours. Note that there isn't yet messaging on the"
@@ -2396,9 +2377,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingDescription.create(
                           "SESSION_TIMEOUT_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and"
-                              + " maximum duration. Inactivity timeout is always enforced when"
-                              + " enabled. Maximum duration enforcement additionally requires"
-                              + " SESSION_REPLAY_PROTECTION_ENABLED=true.",
+                              + " maximum duration.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),

@@ -172,16 +172,12 @@ public abstract class ApplicantBaseView {
       context.setVariable("extendSessionUrl", routes.SessionController.extendSession().url());
     }
 
-    boolean sessionReplayProtectionEnabled = settingsManifest.getSessionReplayProtectionEnabled();
-    context.setVariable("sessionReplayProtectionEnabled", sessionReplayProtectionEnabled);
-    if (sessionReplayProtectionEnabled) {
-      int sessionDurationMinutes = settingsManifest.getMaximumSessionDurationMinutes().get();
-      String sessionExpirationBanner =
-          messages.at(
-              MessageKey.BANNER_SESSION_EXPIRATION.getKeyName(),
-              getSessionDurationMessage(sessionDurationMinutes, messages));
-      context.setVariable("sessionReplayBanner", sessionExpirationBanner);
-    }
+    int sessionDurationMinutes = settingsManifest.getMaximumSessionDurationMinutes().get();
+    String sessionExpirationBanner =
+        messages.at(
+            MessageKey.BANNER_SESSION_EXPIRATION.getKeyName(),
+            getSessionDurationMessage(sessionDurationMinutes, messages));
+    context.setVariable("sessionReplayBanner", sessionExpirationBanner);
 
     boolean loginDropdownEnabled = settingsManifest.getLoginDropdownEnabled(request);
     context.setVariable("loginDropdownEnabled", loginDropdownEnabled);
