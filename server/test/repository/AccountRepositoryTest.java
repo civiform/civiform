@@ -3,7 +3,6 @@ package repository;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -464,7 +463,6 @@ public class AccountRepositoryTest extends ResetPostgres {
 
   @Test
   public void addIdTokenAndPrune() {
-    when(mockSettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(false);
     AccountModel account = new AccountModel();
     String fakeEmail = "fake email";
     account.setEmailAddress(fakeEmail);
@@ -499,7 +497,6 @@ public class AccountRepositoryTest extends ResetPostgres {
 
   @Test
   public void addIdTokenAndPrune_sessionReplayEnabled() {
-    when(mockSettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
     AccountModel account = new AccountModel();
     String fakeEmail = "fake email";
     account.setEmailAddress(fakeEmail);
@@ -539,7 +536,6 @@ public class AccountRepositoryTest extends ResetPostgres {
     listAppender.start();
     logger.addAppender(listAppender);
 
-    when(mockSettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
     AccountModel account = new AccountModel();
     String fakeEmail = "fake email";
     account.setEmailAddress(fakeEmail);
