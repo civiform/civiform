@@ -234,7 +234,7 @@ public final class AdminQuestionController extends CiviFormController {
     }
 
     boolean requireLegacyRepeatedEntitySelector =
-        !settingsManifest.getEnumeratorImprovementsEnabled(request);
+        !settingsManifest.getEnumeratorImprovementsEnabled();
 
     ErrorAnd<QuestionDefinition, CiviFormError> result =
         service.create(questionDefinition, requireLegacyRepeatedEntitySelector);
@@ -393,7 +393,7 @@ public final class AdminQuestionController extends CiviFormController {
     ErrorAnd<QuestionDefinition, CiviFormError> errorAndUpdatedQuestionDefinition;
     try {
       boolean requireLegacyRepeatedEntitySelector =
-          !settingsManifest.getEnumeratorImprovementsEnabled(request);
+          !settingsManifest.getEnumeratorImprovementsEnabled();
       errorAndUpdatedQuestionDefinition =
           service.update(maybeExisting, questionDefinition, requireLegacyRepeatedEntitySelector);
     } catch (InvalidUpdateException e) {

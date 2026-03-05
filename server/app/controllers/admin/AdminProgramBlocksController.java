@@ -152,7 +152,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
                 programId,
                 enumeratorId.get(),
                 messagesApi.preferred(request),
-                settingsManifest.getEnumeratorImprovementsEnabled(request));
+                settingsManifest.getEnumeratorImprovementsEnabled());
       } else {
         result =
             programService.addBlockToProgram(
@@ -161,7 +161,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
                     ? Optional.of(true)
                     : Optional.empty(),
                 messagesApi.preferred(request),
-                settingsManifest.getEnumeratorImprovementsEnabled(request));
+                settingsManifest.getEnumeratorImprovementsEnabled());
       }
       ProgramDefinition program = result.getResult().program();
       BlockDefinition block =
@@ -182,7 +182,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
                 programId,
                 addedBlockId,
                 messagesApi.preferred(request),
-                settingsManifest.getEnumeratorImprovementsEnabled(request));
+                settingsManifest.getEnumeratorImprovementsEnabled());
         if (result.isError()) {
           ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
           return renderEditViewWithMessage(request, program, block, Optional.of(message));
@@ -218,7 +218,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
               programId,
               blockId,
               ImmutableList.of(newQuestionId),
-              settingsManifest.getEnumeratorImprovementsEnabled(request));
+              settingsManifest.getEnumeratorImprovementsEnabled());
           // Redirect without the newQuestionId parameter to reload the page cleanly
           return redirect(routes.AdminProgramBlocksController.edit(programId, blockId).url())
               .flashing(request.flash().data());

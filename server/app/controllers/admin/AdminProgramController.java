@@ -179,7 +179,7 @@ public final class AdminProgramController extends CiviFormController {
             ImmutableList.copyOf(programData.getCategories()),
             applicationSteps,
             messagesApi.preferred(request),
-            settingsManifest.getEnumeratorImprovementsEnabled(request));
+            settingsManifest.getEnumeratorImprovementsEnabled());
     // There shouldn't be any errors since we already validated the program, but check for errors
     // again just in case.
     if (result.isError()) {

@@ -75,9 +75,7 @@ public final class OpenApiSchemaController {
 
       OpenApiSchemaSettings openApiSchemaSettings =
           new OpenApiSchemaSettings(
-              settingsManifest.getBaseUrl().orElse(""),
-              getEmailAddress(request),
-              deploymentType.isDev());
+              settingsManifest.getBaseUrl().orElse(""), getEmailAddress(), deploymentType.isDev());
 
       OpenApiSchemaGenerator openApiSchemaGenerator =
           OpenApiSchemaGeneratorFactory.createGenerator(openApiVersionType, openApiSchemaSettings);
@@ -122,12 +120,12 @@ public final class OpenApiSchemaController {
   }
 
   /** Get either the IT email address or the support email address */
-  private String getEmailAddress(Http.Request request) {
+  private String getEmailAddress() {
     Optional<String> contactEmailAddress =
         settingsManifest.getItEmailAddress().isPresent()
                 && !settingsManifest.getItEmailAddress().get().isBlank()
             ? settingsManifest.getItEmailAddress()
-            : settingsManifest.getSupportEmailAddress(request);
+            : settingsManifest.getSupportEmailAddress();
     return contactEmailAddress.orElse("");
   }
 

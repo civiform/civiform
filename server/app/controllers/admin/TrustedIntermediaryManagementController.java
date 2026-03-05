@@ -62,7 +62,7 @@ public class TrustedIntermediaryManagementController extends Controller {
     LoggerFactory.getLogger(TrustedIntermediaryManagementController.class)
         .info("flash: {} sort: {}", request.flash().data(), request.queryString().get("sort"));
 
-    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+    if (settingsManifest.getAdminUiMigrationScEnabled()) {
       // Gather flash values for sticky form and messages
       String providedName = request.flash().get(FlashKey.PROVIDED_NAME).orElse("");
       String providedDescription = request.flash().get(FlashKey.PROVIDED_DESCRIPTION).orElse("");

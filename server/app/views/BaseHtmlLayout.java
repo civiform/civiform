@@ -174,7 +174,7 @@ public class BaseHtmlLayout {
   }
 
   protected void addSessionTimeoutModals(HtmlBundle bundle, Messages messages) {
-    if (settingsManifest.getSessionTimeoutEnabled(bundle.getRequest())
+    if (settingsManifest.getSessionTimeoutEnabled()
         && bundle.getRequest() instanceof Http.Request) {
       // Add the session timeout modals to the bundle
       Http.Request request = (Http.Request) bundle.getRequest();
@@ -206,7 +206,8 @@ public class BaseHtmlLayout {
               dataLayer.push(arguments);
             }
             gtag('js', new Date());
-            gtag('config', '%s');""",
+            gtag('config', '%s');\
+            """,
             trackingTag);
     ScriptTag rawScript = script().with(rawHtml(googleAnalyticsCode)).withType("text/javascript");
     return new ImmutableList.Builder<ScriptTag>().add(scriptImport).add(rawScript).build();

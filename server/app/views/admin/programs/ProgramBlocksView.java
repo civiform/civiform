@@ -3,6 +3,7 @@ package views.admin.programs;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.b;
+import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
@@ -179,7 +180,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
         controllers.admin.routes.AdminProgramBlocksController.update(programId, blockId).url();
     Modal blockDescriptionEditModal =
         renderBlockDescriptionModal(
-            csrfTag, blockForm, blockUpdateAction, blockDefinition, request, messages);
+            csrfTag, blockForm, blockUpdateAction, blockDefinition, messages);
 
     String blockDeleteAction =
         controllers.admin.routes.AdminProgramBlocksController.delete(programId, blockId).url();
@@ -191,8 +192,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .anyMatch(BlockDefinition::hasNullQuestion);
 
     ArrayList<ProgramHeaderButton> headerButtons =
-        new ArrayList<>(
-            getEditHeaderButtons(/* isEditingAllowed= */ viewAllowsEditingProgram(), request));
+        new ArrayList<>(getEditHeaderButtons(/* isEditingAllowed= */ viewAllowsEditingProgram()));
 
     // External programs applications are hosted outside of Civiform. Therefore, we shouldn't show
     // buttons to preview or download the application.
@@ -293,10 +293,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * @param isEditingAllowed true if the view allows editing and false otherwise. (Typically, a view
    *     only allows editing if a program is in draft mode.)
    */
-  private ImmutableList<ProgramHeaderButton> getEditHeaderButtons(
-      boolean isEditingAllowed, Request request) {
+  private ImmutableList<ProgramHeaderButton> getEditHeaderButtons(boolean isEditingAllowed) {
     if (isEditingAllowed) {
-      if (settingsManifest.getApiBridgeEnabled(request)) {
+      if (settingsManifest.getApiBridgeEnabled()) {
         return ImmutableList.of(
             ProgramHeaderButton.EDIT_PROGRAM_DETAILS,
             ProgramHeaderButton.EDIT_PROGRAM_IMAGE,
@@ -375,14 +374,14 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
     if (viewAllowsEditingProgram()) {
       ret.condWith(
-          !settingsManifest.getEnumeratorImprovementsEnabled(request),
+          !settingsManifest.getEnumeratorImprovementsEnabled(),
           ViewUtils.makeSvgTextButton("Add screen", Icons.ADD)
               .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "m-4")
               .withType("submit")
               .withId("add-block-button")
               .withForm(CREATE_BLOCK_FORM_ID));
       ret.condWith(
-          settingsManifest.getEnumeratorImprovementsEnabled(request),
+          settingsManifest.getEnumeratorImprovementsEnabled(),
           ViewUtils.makeSvgTextButton("Add screen", Icons.ADD)
               .withId("add-screen")
               .attr("aria-controls", "add-screen-dropdown")
@@ -426,7 +425,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       // TODO: Not i18n safe.
       int numQuestions = blockDefinition.getQuestionCount();
       String questionCountText = String.format("Question count: %d", numQuestions);
-      if (settingsManifest.getEnumeratorImprovementsEnabled(request)
+      if (settingsManifest.getEnumeratorImprovementsEnabled()
           && blockDefinition.getIsEnumerator()) {
         questionCountText =
             (level > 0)
@@ -588,8 +587,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Request request,
       Messages messages) {
 
-    boolean enumeratorImprovementsEnabled =
-        settingsManifest.getEnumeratorImprovementsEnabled(request);
+    boolean enumeratorImprovementsEnabled = settingsManifest.getEnumeratorImprovementsEnabled();
 
     boolean isEnumeratorBlock = enumeratorImprovementsEnabled && blockDefinition.getIsEnumerator();
 
@@ -616,7 +614,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             blockDefinition.visibilityPredicate(),
             blockDefinition.getFullName(),
             allQuestions,
-            settingsManifest.getExpandedFormLogicEnabled(request));
+            settingsManifest.getExpandedFormLogicEnabled());
 
     Optional<DivTag> maybeEligibilityPredicateDisplay = Optional.empty();
     if (!program.programType().equals(ProgramType.PRE_SCREENER_FORM)) {
@@ -628,7 +626,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   blockDefinition.eligibilityDefinition(),
                   blockDefinition.getFullName(),
                   allQuestions,
-                  settingsManifest.getExpandedFormLogicEnabled(request)));
+                  settingsManifest.getExpandedFormLogicEnabled()));
     }
 
     DivTag programQuestions =
@@ -648,14 +646,14 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
               questionCardsBuilder.add(
                   renderQuestion(
+                      request,
                       Optional.of(csrfTag),
                       program,
                       blockDefinition,
                       questionDefinition,
                       question,
                       index,
-                      blockQuestions.size(),
-                      request));
+                      blockQuestions.size()));
             });
 
     ImmutableList<DivTag> questionCards = questionCardsBuilder.build();
@@ -1177,14 +1175,14 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * be shown next to the question in the list of questions.
    */
   public DivTag renderQuestion(
+      Request request,
       Optional<InputTag> optionalCsrfTag,
       ProgramDefinition programDefinition,
       BlockDefinition blockDefinition,
       QuestionDefinition questionDefinition,
       ProgramQuestionDefinition programQuestionDefinition,
       int questionIndex,
-      int questionsCount,
-      Request request) {
+      int questionsCount) {
     InputTag csrfTag = optionalCsrfTag.orElse(makeCsrfTokenInputTag(request));
     boolean isOptional = programQuestionDefinition.optional();
     boolean addressCorrectionEnabled = programQuestionDefinition.addressCorrectionEnabled();
@@ -1197,7 +1195,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
     ImmutableList.Builder<DomContent> rowContent = ImmutableList.builder();
     Optional<FormTag> maybeAddressCorrectionEnabledToggle =
         renderAddressCorrectionEnabledToggle(
-            request,
             csrfTag,
             programDefinition,
             blockDefinition,
@@ -1403,7 +1400,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * for address related questions.
    */
   private Optional<FormTag> renderAddressCorrectionEnabledToggle(
-      Request request,
       InputTag csrfTag,
       ProgramDefinition programDefinition,
       BlockDefinition blockDefinition,
@@ -1433,7 +1429,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     }
 
     DivTag toolTip;
-    if (!settingsManifest.getEsriAddressCorrectionEnabled(request)) {
+    if (!settingsManifest.getEsriAddressCorrectionEnabled()) {
       // Leave the space at the end, because we will add a "Learn more" link. This
       // should always be the last string added to toolTipText for this reason.
       toolTipText +=
@@ -1724,12 +1720,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
       BlockForm blockForm,
       String blockUpdateAction,
       BlockDefinition blockDefinition,
-      Request request,
       Messages messages) {
     String modalTitle = "Screen name and description";
     FormTag blockDescriptionForm =
         form(csrfTag).withMethod(HttpVerbs.POST).withAction(blockUpdateAction);
-    if (settingsManifest.getEnumeratorImprovementsEnabled(request)) {
+    if (settingsManifest.getEnumeratorImprovementsEnabled()) {
       blockDescriptionForm
           .withId("block-edit-form")
           .with(

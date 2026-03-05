@@ -36,7 +36,7 @@ public final class DevToolsPageView extends AdminLayoutBaseView<DevToolsPageView
         AdminCommonHeader.builder()
             .activeNavPage(AdminLayout.NavPage.NULL_PAGE)
             .isOnlyProgramAdmin(false)
-            .isApiBridgeEnabled(settingsManifest.getApiBridgeEnabled(request))
+            .isApiBridgeEnabled(settingsManifest.getApiBridgeEnabled())
             .build());
   }
 

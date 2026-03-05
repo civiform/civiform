@@ -65,7 +65,7 @@ public class SessionTimeoutFilter extends Filter {
       return nextFilter.apply(requestHeader);
     }
 
-    if (!settingsManifest.get().getSessionTimeoutEnabled(requestHeader)) {
+    if (!settingsManifest.get().getSessionTimeoutEnabled()) {
       CompletionStage<Result> result = nextFilter.apply(requestHeader);
       if (requestHeader.cookies().get(TIMEOUT_COOKIE_NAME).isPresent()) {
         return result.thenApply(this::clearTimeoutCookie);

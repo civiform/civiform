@@ -47,7 +47,7 @@ public final class InternalServerError extends ApplicantBaseView {
             ApplicantPersonalInfo.ofGuestUser(),
             messages);
 
-    String supportEmail = settingsManifest.getSupportEmailAddress(request).orElse("");
+    String supportEmail = settingsManifest.getSupportEmailAddress().orElse("");
 
     context.setVariable("exceptionId", exceptionId);
     context.setVariable("supportEmail", supportEmail);

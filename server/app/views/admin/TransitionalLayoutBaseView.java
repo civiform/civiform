@@ -52,7 +52,7 @@ public abstract class TransitionalLayoutBaseView<TModel extends BaseViewModel>
         AdminCommonHeader.builder()
             .activeNavPage(activeNavigationPage())
             .isOnlyProgramAdmin(profile.isOnlyProgramAdmin())
-            .isApiBridgeEnabled(settingsManifest.getApiBridgeEnabled(request))
+            .isApiBridgeEnabled(settingsManifest.getApiBridgeEnabled())
             .build());
   }
 

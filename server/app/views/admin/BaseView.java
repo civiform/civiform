@@ -135,18 +135,16 @@ public abstract class BaseView<TModel extends BaseViewModel> {
         "footer",
         Footer.builder()
             .technicalSupportEmail(
-                settingsManifest
-                    .getSupportEmailAddress(request)
-                    .orElse("SUPPORT EMAIL ADDRESS MISSING"))
+                settingsManifest.getSupportEmailAddress().orElse("SUPPORT EMAIL ADDRESS MISSING"))
             .build());
 
     // Set values for feature flags
     context.setVariable(
         "featureFlag",
         FeatureFlag.builder()
-            .isAdminUiMigrationScEnabled(settingsManifest.getAdminUiMigrationScEnabled(request))
+            .isAdminUiMigrationScEnabled(settingsManifest.getAdminUiMigrationScEnabled())
             .isAdminUiMigrationScExtendedEnabled(
-                settingsManifest.getAdminUiMigrationScExtendedEnabled(request))
+                settingsManifest.getAdminUiMigrationScExtendedEnabled())
             .build());
 
     // This gives the Thymeleaf template a reference to this view class. Methods can be added
