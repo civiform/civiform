@@ -14,6 +14,7 @@ import org.pac4j.oidc.profile.OidcProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.DatabaseExecutionContext;
+import services.settings.SettingsManifest;
 
 /**
  * This class creates a pac4j `UserProfile` for admins when the identity provider is a generic OIDC
@@ -35,8 +36,9 @@ public class GenericOidcProfileCreator extends CiviformOidcProfileCreator {
       OidcConfiguration oidcConfiguration,
       OidcClient client,
       OidcClientProviderParams params,
-      DatabaseExecutionContext dbExcecutionContext) {
-    super(oidcConfiguration, client, params, dbExcecutionContext);
+      DatabaseExecutionContext dbExcecutionContext,
+      SettingsManifest settingsManifest) {
+    super(oidcConfiguration, client, params, dbExcecutionContext, settingsManifest);
     this.groupsAttributeName = params.configuration().getString(ID_GROUPS_ATTRIBUTE_NAME);
     this.adminGroupName = params.configuration().getString(ADMIN_GROUP_CONFIG_NAME);
   }

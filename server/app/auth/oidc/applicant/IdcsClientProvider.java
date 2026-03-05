@@ -5,11 +5,13 @@ import auth.oidc.OidcClientProviderParams;
 import auth.oidc.StandardClaimsAttributeNames;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.util.Optional;
 import org.pac4j.core.profile.creator.ProfileCreator;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import repository.DatabaseExecutionContext;
+import services.settings.SettingsManifest;
 
 /** This class customized the OIDC provider to a specific provider, allowing overrides to be set. */
 public final class IdcsClientProvider extends OidcClientProvider {
@@ -37,8 +39,10 @@ public final class IdcsClientProvider extends OidcClientProvider {
 
   @Inject
   public IdcsClientProvider(
-      OidcClientProviderParams params, DatabaseExecutionContext dbExecutionContext) {
-    super(params);
+      OidcClientProviderParams params,
+      DatabaseExecutionContext dbExecutionContext,
+      Provider<SettingsManifest> settingsManifestProvider) {
+    super(params, settingsManifestProvider);
     this.dbExecutionContext = dbExecutionContext;
   }
 
@@ -55,7 +59,7 @@ public final class IdcsClientProvider extends OidcClientProvider {
   @Override
   public ProfileCreator getProfileCreator(OidcConfiguration config, OidcClient client) {
     return new IdcsApplicantProfileCreator(
-        config, client, params, standardClaimsAttributeNames, dbExecutionContext);
+        config, client, params, standardClaimsAttributeNames, dbExecutionContext, settingsManifest);
   }
 
   @Override

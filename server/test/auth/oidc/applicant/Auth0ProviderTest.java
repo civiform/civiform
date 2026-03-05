@@ -63,7 +63,8 @@ public class Auth0ProviderTest extends ResetPostgres {
         new Auth0ClientProvider(
             OidcClientProviderParams.create(
                 config, profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)),
-            instanceOf(DatabaseExecutionContext.class));
+            instanceOf(DatabaseExecutionContext.class),
+            null);
   }
 
   @Test

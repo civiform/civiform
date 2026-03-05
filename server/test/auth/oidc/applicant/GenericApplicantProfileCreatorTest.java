@@ -59,7 +59,8 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
                         MIDDLE_NAME_ATTRIBUTE_NAME,
                         LAST_NAME_ATTRIBUTE_NAME))
                 .build(),
-            instanceOf(DatabaseExecutionContext.class));
+            instanceOf(DatabaseExecutionContext.class),
+            null);
   }
 
   // Test for https://github.com/civiform/civiform/issues/8344
@@ -78,7 +79,8 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
                 .setLocale(Optional.of(LOCALE_ATTRIBUTE_NAME))
                 .setNames(ImmutableList.of(NAME_ATTRIBUTE))
                 .build(),
-            instanceOf(DatabaseExecutionContext.class));
+            instanceOf(DatabaseExecutionContext.class),
+            null);
 
     OidcProfile profile = new OidcProfile();
     profile.addAttribute(EMAIL_ATTRIBUTE_NAME, "foo@bar.com");

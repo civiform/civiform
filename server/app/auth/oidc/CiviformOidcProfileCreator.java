@@ -48,14 +48,14 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
       OidcConfiguration configuration,
       OidcClient client,
       OidcClientProviderParams params,
-      DatabaseExecutionContext dbExecutionContext) {
+      DatabaseExecutionContext dbExecutionContext,
+      SettingsManifest settingsManifest) {
     super(Preconditions.checkNotNull(configuration), Preconditions.checkNotNull(client));
     this.profileFactory = Preconditions.checkNotNull(params.profileFactory());
     this.accountRepositoryProvider = Preconditions.checkNotNull(params.accountRepositoryProvider());
     this.civiFormProfileMerger =
         new CiviFormProfileMerger(profileFactory, accountRepositoryProvider, dbExecutionContext);
-    this.settingsManifest =
-        new SettingsManifest(Preconditions.checkNotNull(params.configuration()));
+    this.settingsManifest = Preconditions.checkNotNull(settingsManifest);
   }
 
   protected abstract String emailAttributeName();

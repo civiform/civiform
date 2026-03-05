@@ -3,6 +3,7 @@ package auth.oidc.admin;
 import auth.oidc.OidcClientProviderParams;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod;
 import java.util.Optional;
@@ -10,6 +11,7 @@ import org.pac4j.oidc.config.KeycloakOidcConfiguration;
 import org.pac4j.oidc.config.OidcConfiguration;
 import play.Environment;
 import repository.DatabaseExecutionContext;
+import services.settings.SettingsManifest;
 
 /**
  * WARNING! This is EXPERIMENTAL only and not production ready
@@ -21,8 +23,9 @@ public class KeycloakAdminClientProvider extends GenericOidcClientProvider {
   public KeycloakAdminClientProvider(
       OidcClientProviderParams params,
       Environment env,
-      DatabaseExecutionContext dbExecutionContext) {
-    super(params, dbExecutionContext);
+      DatabaseExecutionContext dbExecutionContext,
+      Provider<SettingsManifest> settingsManifestProvider) {
+    super(params, dbExecutionContext, settingsManifestProvider);
 
     if (env.isProd()) {
       throw new UnsupportedOperationException(
