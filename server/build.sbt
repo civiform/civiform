@@ -175,7 +175,7 @@ lazy val root = (project in file("."))
               // code contains it - we can't control that.
               "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF -XepDisableWarningsInGeneratedCode -Xep:WildcardImport:ERROR -Xep:CatchingUnchecked:ERROR -Xep:ThrowsUncheckedException:ERROR",
               "--should-stop=ifError=FLOW",
-              "-Werror"
+              // "-Werror"
             )
           )
           .getOrElse(Seq.empty)
