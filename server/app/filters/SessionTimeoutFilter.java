@@ -62,6 +62,12 @@ public class SessionTimeoutFilter extends Filter {
       Function<Http.RequestHeader, CompletionStage<Result>> nextFilter,
       Http.RequestHeader requestHeader) {
     if (ValidAccountFilter.allowedEndpoint(requestHeader)) {
+      // Update activity time for allowed endpoints when a profile exists, so that
+      // requests to these routes (e.g., API calls) count toward session activity
+      requestHeader
+          .attrs()
+          .getOptional(ProfileUtils.CURRENT_USER_PROFILE)
+          .ifPresent(profile -> profile.getProfileData().updateLastActivityTime(clock));
       return nextFilter.apply(requestHeader);
     }
 

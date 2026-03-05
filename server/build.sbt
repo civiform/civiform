@@ -7,6 +7,12 @@ import com.typesafe.sbt.gzip.Import.gzip
 import com.typesafe.sbt.digest.Import.digest
 import com.github.sbt.jacoco.JacocoPlugin.autoImport._
 
+// .jvmopts is the single source of truth for heap settings.
+// SBT reads it automatically for the build JVM and we read it here for forked and production JVMs.
+val heapOpts = IO
+  .readLines(file(".jvmopts"))
+  .filter(l => l.startsWith("-Xmx") || l.startsWith("-Xms"))
+
 lazy val root = (project in file("."))
   .enablePlugins(PlayJava, PlayEbean, SbtWeb)
   .settings(
@@ -42,8 +48,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20260102.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.42.4",
-      "software.amazon.awssdk" % "ses" % "2.42.4",
+      "software.amazon.awssdk" % "s3" % "2.42.6",
+      "software.amazon.awssdk" % "ses" % "2.42.6",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
@@ -103,7 +109,7 @@ lazy val root = (project in file("."))
       ),
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.48.0",
-      "org.checkerframework" % "dataflow-errorprone" % "3.53.1",
+      "org.checkerframework" % "dataflow-errorprone" % "3.54.0",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.14.1",
@@ -135,7 +141,7 @@ lazy val root = (project in file("."))
       "io.swagger" % "swagger-parser" % "1.0.75",
 
       // OpenAPI 3.x Dependencies
-      "io.swagger.core.v3" % "swagger-core" % "2.2.43",
+      "io.swagger.core.v3" % "swagger-core" % "2.2.44",
       "io.swagger.parser.v3" % "swagger-parser" % "2.1.38",
 
       // JSON Schema validation
@@ -213,6 +219,9 @@ lazy val root = (project in file("."))
     Test / testOptions := Seq(
       Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-q")
     ),
+
+    javaOptions ++= heapOpts,
+    Universal / javaOptions ++= heapOpts.map("-J" + _),
 
     // Enable Java Assertions in Unit Tests
     Test / javaOptions += "-enableassertions",
