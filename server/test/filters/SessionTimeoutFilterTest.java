@@ -184,7 +184,7 @@ public class SessionTimeoutFilterTest extends WithApplication {
         fakeRequestBuilder()
             .method("GET")
             .uri("/assets/some-file.js")
-            .addAttr(ProfileUtils.CURRENT_USER_PROFILE, mockProfile)
+            .attr(ProfileUtils.CURRENT_USER_PROFILE, mockProfile)
             .build();
 
     Result result = executeFilter(request);
