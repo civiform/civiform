@@ -2,6 +2,7 @@ package filters;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -107,6 +108,7 @@ public class SessionTimeoutFilterTest extends WithApplication {
             .uri("/programs/1")
             .cookie(Http.Cookie.builder(TIMEOUT_COOKIE_NAME, "somevalue").withPath("/").build())
             .build();
+    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(false);
 
     Result result = executeFilter(request);
@@ -211,6 +213,23 @@ public class SessionTimeoutFilterTest extends WithApplication {
     Result result = executeFilter(request);
 
     assertThat(result.status()).isEqualTo(200);
+  }
+
+  @Test
+  public void testInvalidSession_sessionTimeoutDisabled_redirectsToLogout() throws Exception {
+    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
+    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
+    when(profileUtils.validCiviFormProfile(mockProfile))
+        .thenReturn(CompletableFuture.completedFuture(true));
+
+    // Session ID not found in active sessions
+    when(mockAccount.getActiveSession(anyString())).thenReturn(Optional.empty());
+    when(mockProfileData.getSessionId()).thenReturn("session123");
+
+    Result result = executeFilter(request);
+
+    assertThat(result.status()).isEqualTo(303); // Redirect status
+    assertThat(result.redirectLocation()).hasValue("/logout");
   }
 
   private Result executeFilter(RequestHeader request) throws Exception {
