@@ -7,6 +7,7 @@ import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.util.Providers;
+import io.ebean.DB;
 import io.ebean.DataIntegrityException;
 import java.time.Instant;
 import java.util.Locale;
@@ -105,12 +106,14 @@ public class ProgramRepositoryTest extends ResetPostgres {
     resourceCreator.insertActiveProgram("one");
     ProgramModel two = resourceCreator.insertActiveProgram("two");
 
-    assertThat(programCache.get(String.valueOf(two.id))).isEmpty();
+    // Cache key includes active version ID to avoid stale entries after publish
+    String cacheKey = two.id + ":" + versionRepo.getActiveVersion().id;
+    assertThat(programCache.get(cacheKey)).isEmpty();
 
     Optional<ProgramModel> found = repo.lookupProgram(two.id).toCompletableFuture().join();
 
     assertThat(found).hasValue(two);
-    assertThat(programCache.get(String.valueOf(two.id))).hasValue(found);
+    assertThat(programCache.get(cacheKey)).hasValue(found);
   }
 
   @Test
@@ -382,7 +385,9 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
     ImmutableList<VersionModel> versions = repo.getVersionsForProgram(program);
 
-    assertThat(versionsByProgramCache.get(String.valueOf(program.id)).get()).isEqualTo(versions);
+    // Cache key includes active version ID to avoid stale entries after publish
+    String cacheKey = program.id + ":" + versionRepo.getActiveVersion().id;
+    assertThat(versionsByProgramCache.get(cacheKey).get()).isEqualTo(versions);
   }
 
   @Test
@@ -1191,5 +1196,244 @@ public class ProgramRepositoryTest extends ResetPostgres {
                     .build()));
 
     assertThat(updatedProgramModel.getCategories().size()).isEqualTo(0);
+  }
+
+  @Test
+  public void getVersionsForProgramWithoutCache_returnsFreshDataFromDatabase() {
+    // Create a program and publish it (now in V1 active)
+    ProgramModel program = resourceCreator.insertDraftProgram("test-program");
+    versionRepo.publishNewSynchronizedVersion();
+    program.refresh();
+
+    // Get a reference to the program that has its BeanCollection loaded and
+    // force the BeanCollection to load with current data (1 version: V1)
+    ProgramModel staleProgram = DB.find(ProgramModel.class, program.id);
+    assertThat(staleProgram.getVersions()).hasSize(1);
+
+    // Create and publish another program, which causes our original program to be
+    // associated with the new active version (V2) during publish
+    resourceCreator.insertDraftProgram("another-program");
+    versionRepo.publishNewSynchronizedVersion();
+
+    // The stale program's BeanCollection still shows only 1 version (V1)
+    // because its in-memory BeanCollection wasn't refreshed
+    assertThat(staleProgram.getVersions()).hasSize(1);
+
+    // But getVersionsForProgramWithoutCache should return fresh data with 2 versions
+    // (V1 obsolete and V2 active)
+    ImmutableList<VersionModel> freshVersions = repo.getVersionsForProgramWithoutCache(program.id);
+    assertThat(freshVersions).hasSize(2);
+  }
+
+  @Test
+  public void getVersionsForProgramWithoutCache_throwsForNonexistentProgram() {
+    assertThatThrownBy(() -> repo.getVersionsForProgramWithoutCache(Long.MAX_VALUE))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessageContaining("not found when fetching versions");
+  }
+
+  @Test
+  public void getVersionsForProgram_usesCachedDataWhenNoDraftExists() {
+    Mockito.when(mockSettingsManifest.getProgramCacheEnabled()).thenReturn(true);
+
+    // Create and publish a program (no draft exists after publish)
+    ProgramModel program = resourceCreator.insertDraftProgram("test-program");
+    versionRepo.publishNewSynchronizedVersion();
+    program.refresh();
+
+    VersionModel activeVersion = versionRepo.getActiveVersion();
+    String cacheKey = program.id + ":" + activeVersion.id;
+
+    // First call: cache miss, should fetch from DB and cache
+    assertThat(versionsByProgramCache.get(cacheKey).isPresent()).isFalse();
+    ImmutableList<VersionModel> firstResult = repo.getVersionsForProgram(program);
+    assertThat(firstResult).hasSize(1);
+    assertThat(versionsByProgramCache.get(cacheKey).isPresent()).isTrue();
+
+    // Directly insert a version association into the DB join table.
+    // This is not something that would actually happen. We're just testing
+    // that the second call hits the cache as expected and doesn't fall through
+    // to fetching from the database.
+    VersionModel fakeVersion = new VersionModel(LifecycleStage.OBSOLETE);
+    fakeVersion.save();
+    DB.sqlUpdate("INSERT INTO versions_programs (versions_id, programs_id) VALUES (?, ?)")
+        .setParameter(1, fakeVersion.id)
+        .setParameter(2, program.id)
+        .execute();
+
+    // Second call: cache hit
+    ImmutableList<VersionModel> secondResult = repo.getVersionsForProgram(program);
+    assertThat(secondResult).hasSize(1);
+    assertThat(versionsByProgramCache.get(cacheKey).isPresent()).isTrue();
+  }
+
+  @Test
+  public void getVersionsForProgram_bypassesCacheWhenDraftExists() {
+    Mockito.when(mockSettingsManifest.getProgramCacheEnabled()).thenReturn(true);
+
+    // Create a program and publish it
+    ProgramModel program = resourceCreator.insertDraftProgram("test-program");
+    versionRepo.publishNewSynchronizedVersion();
+    program.refresh();
+
+    VersionModel activeVersion = versionRepo.getActiveVersion();
+    String cacheKey = program.id + ":" + activeVersion.id;
+
+    // Create a draft (by editing a different program)
+    resourceCreator.insertDraftProgram("another-program");
+
+    // Call should bypass cache because draft exists
+    ImmutableList<VersionModel> result = repo.getVersionsForProgram(program);
+    assertThat(result).hasSize(1);
+    assertThat(versionsByProgramCache.get(cacheKey).isPresent()).isFalse();
+  }
+
+  @Test
+  public void getVersionsForProgram_usesDifferentCacheItemOnPublish() {
+    Mockito.when(mockSettingsManifest.getProgramCacheEnabled()).thenReturn(true);
+
+    // Create and publish a program
+    ProgramModel program = resourceCreator.insertDraftProgram("test-program");
+    versionRepo.publishNewSynchronizedVersion();
+    program.refresh();
+
+    VersionModel firstActiveVersion = versionRepo.getActiveVersion();
+    String firstCacheKey = program.id + ":" + firstActiveVersion.id;
+
+    // Cache the versions
+    ImmutableList<VersionModel> firstResult = repo.getVersionsForProgram(program);
+    assertThat(firstResult).hasSize(1);
+    assertThat(versionsByProgramCache.get(firstCacheKey).isPresent()).isTrue();
+
+    // Create and publish another program, changing the active version
+    resourceCreator.insertDraftProgram("another-program");
+    versionRepo.publishNewSynchronizedVersion();
+
+    VersionModel secondActiveVersion = versionRepo.getActiveVersion();
+    String secondCacheKey = program.id + ":" + secondActiveVersion.id;
+
+    // The active version changed, so the old cache key won't match
+    assertThat(firstCacheKey).isNotEqualTo(secondCacheKey);
+
+    // New cache key should not have a cached value yet
+    assertThat(versionsByProgramCache.get(secondCacheKey).isPresent()).isFalse();
+
+    // Call should fetch fresh data and cache under new key
+    program.refresh();
+    ImmutableList<VersionModel> secondResult = repo.getVersionsForProgram(program);
+    assertThat(secondResult).hasSize(2);
+    assertThat(versionsByProgramCache.get(secondCacheKey).isPresent()).isTrue();
+  }
+
+  @Test
+  public void lookupProgram_usesCachedDataWhenNoDraftExists() {
+    Mockito.when(mockSettingsManifest.getProgramCacheEnabled()).thenReturn(true);
+
+    // Create and publish a program
+    ProgramModel program = resourceCreator.insertDraftProgram("test-program");
+    versionRepo.publishNewSynchronizedVersion();
+    program.refresh();
+
+    // Cache key includes active version ID to avoid stale entries after publish
+    String programKey = program.id + ":" + versionRepo.getActiveVersion().id;
+    String originalDescription = program.getProgramDefinition().localizedDescription().getDefault();
+
+    // First call: cache miss, should fetch from DB and cache
+    Optional<ProgramModel> firstResult =
+        repo.lookupProgram(program.id).toCompletableFuture().join();
+    assertThat(firstResult).isPresent();
+    assertThat(programCache.get(programKey).isPresent()).isTrue();
+
+    // Directly update the program description in the DB
+    String newDescription = "MODIFIED_DESCRIPTION";
+    DB.sqlUpdate(
+            "UPDATE programs SET program_definition = jsonb_set(program_definition,"
+                + " '{localizedDescription,translations,en_US}', '\""
+                + newDescription
+                + "\"') WHERE id = ?")
+        .setParameter(1, program.id)
+        .execute();
+
+    // Second call - cache hit, returns stale cached data with original description
+    Optional<ProgramModel> secondResult =
+        repo.lookupProgram(program.id).toCompletableFuture().join();
+    assertThat(secondResult).isPresent();
+    assertThat(secondResult.get().getProgramDefinition().localizedDescription().getDefault())
+        .isEqualTo(originalDescription);
+
+    // But a fresh DB fetch returns the new description, proving cache was hit above
+    ProgramModel freshProgram = DB.find(ProgramModel.class, program.id);
+    assertThat(freshProgram.getProgramDefinition().localizedDescription().getDefault())
+        .isEqualTo(newDescription);
+  }
+
+  @Test
+  public void lookupProgram_bypassesCacheWhenDraftExists() {
+    Mockito.when(mockSettingsManifest.getProgramCacheEnabled()).thenReturn(true);
+
+    // Create a program and publish it
+    ProgramModel program = resourceCreator.insertDraftProgram("test-program");
+    versionRepo.publishNewSynchronizedVersion();
+    program.refresh();
+
+    // Cache key includes active version ID to avoid stale entries after publish
+    String programKey = program.id + ":" + versionRepo.getActiveVersion().id;
+
+    // First call with no draft - should cache
+    Optional<ProgramModel> firstResult =
+        repo.lookupProgram(program.id).toCompletableFuture().join();
+    assertThat(firstResult).isPresent();
+    assertThat(programCache.get(programKey).isPresent()).isTrue();
+
+    // Create a draft
+    resourceCreator.insertDraftProgram("another-program");
+
+    // Clear cache to verify bypass behavior
+    programCache.remove(programKey);
+
+    // Call should bypass cache because draft exists (won't re-cache)
+    Optional<ProgramModel> secondResult =
+        repo.lookupProgram(program.id).toCompletableFuture().join();
+    assertThat(secondResult).isPresent();
+    // Cache should NOT be populated since draft exists
+    assertThat(programCache.get(programKey).isPresent()).isFalse();
+  }
+
+  @Test
+  public void lookupProgram_usesDifferentCacheKeyAfterPublish() {
+    Mockito.when(mockSettingsManifest.getProgramCacheEnabled()).thenReturn(true);
+
+    // Create and publish a program
+    ProgramModel program = resourceCreator.insertDraftProgram("test-program");
+    versionRepo.publishNewSynchronizedVersion();
+    program.refresh();
+
+    VersionModel firstActiveVersion = versionRepo.getActiveVersion();
+    String firstCacheKey = program.id + ":" + firstActiveVersion.id;
+
+    // Cache the program under the first key
+    Optional<ProgramModel> firstResult =
+        repo.lookupProgram(program.id).toCompletableFuture().join();
+    assertThat(firstResult).isPresent();
+    assertThat(programCache.get(firstCacheKey).isPresent()).isTrue();
+
+    // Publish again (creating a new active version)
+    resourceCreator.insertDraftProgram("another-program");
+    versionRepo.publishNewSynchronizedVersion();
+
+    VersionModel secondActiveVersion = versionRepo.getActiveVersion();
+    String secondCacheKey = program.id + ":" + secondActiveVersion.id;
+
+    // Keys should differ because the active version ID changed
+    assertThat(firstCacheKey).isNotEqualTo(secondCacheKey);
+
+    // The new key should not have a cached value yet
+    assertThat(programCache.get(secondCacheKey).isPresent()).isFalse();
+
+    // Lookup should fetch fresh data and cache under the new key
+    Optional<ProgramModel> secondResult =
+        repo.lookupProgram(program.id).toCompletableFuture().join();
+    assertThat(secondResult).isPresent();
+    assertThat(programCache.get(secondCacheKey).isPresent()).isTrue();
   }
 }

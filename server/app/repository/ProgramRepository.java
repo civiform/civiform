@@ -3,6 +3,7 @@ package repository;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -79,12 +80,22 @@ public final class ProgramRepository {
   }
 
   public CompletionStage<Optional<ProgramModel>> lookupProgram(long id) {
-    // Use the cache if it is enabled and there isn't a draft version in progress.
-    if (settingsManifest.getProgramCacheEnabled()
-        && versionRepository.get().getDraftVersion().isEmpty()) {
-      return supplyAsync(
-          () -> programCache.getOrElseUpdate(String.valueOf(id), () -> lookupProgramSync(id)),
-          dbExecutionContext);
+    // Only use cache when enabled and no draft version exists. When a draft exists, programs
+    // that weren't edited still get associated with the new draft version, so cached data would
+    // be stale since it would be missing the draft version association. The draft check queries
+    // the DB, ensuring correctness across multiple server instances.
+    //
+    // The cache key includes the active version ID so that after a publish, which changes the
+    // active version, we look up a different cache key and get fresh data instead of stale
+    // entries cached under the old version's key.
+    if (settingsManifest.getProgramCacheEnabled()) {
+      Optional<Long> activeVersionId = versionRepository.get().getActiveVersionIdIfNoDraft();
+      if (activeVersionId.isPresent()) {
+        String cacheKey = id + ":" + activeVersionId.get();
+        return supplyAsync(
+            () -> programCache.getOrElseUpdate(cacheKey, () -> lookupProgramSync(id)),
+            dbExecutionContext);
+      }
     }
     return supplyAsync(() -> lookupProgramSync(id), dbExecutionContext);
   }
@@ -121,12 +132,52 @@ public final class ProgramRepository {
     return program;
   }
 
+  /**
+   * Returns the versions for a program.
+   *
+   * <p>If the cache is enabled, returns cached data or populates the cache on miss using a fresh DB
+   * fetch by ID (not the passed-in model's BeanCollection, which may be stale).
+   *
+   * <p>Only caches when no draft exists, since draft creation changes version associations. The
+   * cache key includes the active version ID to naturally invalidate stale entries after publish.
+   */
   public ImmutableList<VersionModel> getVersionsForProgram(ProgramModel program) {
     if (settingsManifest.getProgramCacheEnabled()) {
-      return versionsByProgramCache.getOrElseUpdate(
-          String.valueOf(program.id), program::getVersions);
+      Optional<Long> activeVersionId = versionRepository.get().getActiveVersionIdIfNoDraft();
+      if (activeVersionId.isPresent()) {
+        // Include active version ID in key to avoid stale entries after publish
+        String cacheKey = program.id + ":" + activeVersionId.get();
+        return versionsByProgramCache.getOrElseUpdate(
+            cacheKey, () -> getVersionsForProgramWithoutCache(program.id));
+      }
     }
-    return program.getVersions();
+    return getVersionsForProgramWithoutCache(program.id);
+  }
+
+  /**
+   * Returns the versions for a program without using the cache. Always fetches fresh data from the
+   * database by ID to avoid stale BeanCollection data.
+   *
+   * <p>Takes a program ID rather than a ProgramModel to make the fresh-fetch intent explicit.
+   */
+  @VisibleForTesting
+  ImmutableList<VersionModel> getVersionsForProgramWithoutCache(long programId) {
+    ProgramModel freshProgram =
+        database
+            .find(ProgramModel.class)
+            .setId(programId)
+            .setLabel("ProgramModel.findByIdForVersions")
+            .setProfileLocation(
+                queryProfileLocationBuilder.create("getVersionsForProgramWithoutCache"))
+            .findOne();
+    if (freshProgram == null) {
+      throw new RuntimeException(
+          String.format(
+              "Program %d not found when fetching versions. This may indicate data corruption"
+                  + " or a race condition.",
+              programId));
+    }
+    return freshProgram.getVersions();
   }
 
   public ImmutableSet<String> getAllProgramNames() {
