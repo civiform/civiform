@@ -452,7 +452,7 @@ public final class QuestionEditView extends BaseHtmlView {
                 requiredFieldsExplanationContent());
     formTag.with(
         h2("Visible to applicants").withClasses("py-2", "mt-6", "font-semibold"),
-        repeatedQuestionInformation(request),
+        repeatedQuestionInformation(),
         FieldWithLabel.textArea()
             .setId("question-text-textarea")
             .setFieldName("questionText")
@@ -548,7 +548,7 @@ public final class QuestionEditView extends BaseHtmlView {
       questionSettingsContentBuilder.add(buildDemographicFields(questionForm, submittable));
     }
 
-    if (settingsManifest.getApiBridgeEnabled(request)) {
+    if (settingsManifest.getApiBridgeEnabled()) {
       questionSettingsContentBuilder.add(buildDisplayModeFields(questionForm, submittable));
     }
 
@@ -849,7 +849,7 @@ public final class QuestionEditView extends BaseHtmlView {
         .setRequired(true);
   }
 
-  private DivTag repeatedQuestionInformation(Request request) {
+  private DivTag repeatedQuestionInformation() {
     DivTag repeatedQuestionInfo =
         div()
             .with(
@@ -867,7 +867,7 @@ public final class QuestionEditView extends BaseHtmlView {
                 "border-blue-400",
                 "space-y-4");
 
-    if (!settingsManifest.getEnumeratorImprovementsEnabled(request)) {
+    if (!settingsManifest.getEnumeratorImprovementsEnabled()) {
       repeatedQuestionInfo.with(
           p(
               join(

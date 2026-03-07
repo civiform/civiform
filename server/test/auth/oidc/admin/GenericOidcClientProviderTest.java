@@ -23,6 +23,8 @@ import support.CfTestHelpers;
 @RunWith(JUnitParamsRunner.class)
 public class GenericOidcClientProviderTest extends ResetPostgres {
   private GenericOidcClientProvider genericOidcProvider;
+  private ProfileFactory profileFactory;
+  private static AccountRepository accountProvider;
   private static final String DISCOVERY_URI =
       "http://dev-oidc:3390/.well-known/openid-configuration";
   private static final String BASE_URL =
@@ -30,8 +32,8 @@ public class GenericOidcClientProviderTest extends ResetPostgres {
 
   @Before
   public void setup() {
-    AccountRepository accountProvider = instanceOf(AccountRepository.class);
-    ProfileFactory profileFactory = instanceOf(ProfileFactory.class);
+    accountProvider = instanceOf(AccountRepository.class);
+    profileFactory = instanceOf(ProfileFactory.class);
     Config config =
         ConfigFactory.parseMap(
             ImmutableMap.<String, String>builder()
@@ -53,7 +55,8 @@ public class GenericOidcClientProviderTest extends ResetPostgres {
         new GenericOidcClientProvider(
             OidcClientProviderParams.create(
                 config, profileFactory, CfTestHelpers.userRepositoryProvider(accountProvider)),
-            instanceOf(DatabaseExecutionContext.class));
+            instanceOf(DatabaseExecutionContext.class),
+            null);
   }
 
   @Test

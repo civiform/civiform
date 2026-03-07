@@ -62,13 +62,13 @@ public final class AddressCheckerController extends Controller {
   }
 
   public Result index(Http.Request request) {
-    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+    if (settingsManifest.getAdminUiMigrationScEnabled()) {
       AddressCheckerPageViewModel model =
           AddressCheckerPageViewModel.builder()
               .backLinkUrl(routes.DevToolsController.index().url())
-              .addressCorrectionEnabled(settingsManifest.getEsriAddressCorrectionEnabled(request))
+              .addressCorrectionEnabled(settingsManifest.getEsriAddressCorrectionEnabled())
               .addressValidationEnabled(
-                  settingsManifest.getEsriAddressServiceAreaValidationEnabled(request))
+                  settingsManifest.getEsriAddressServiceAreaValidationEnabled())
               .findAddressCandidatesUrls(settingsManifest.getEsriFindAddressCandidatesUrls())
               .addressServiceAreaValidationUrls(
                   settingsManifest.getEsriAddressServiceAreaValidationUrls())

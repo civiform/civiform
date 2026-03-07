@@ -112,7 +112,7 @@ public class DevToolsController extends Controller {
    * database content and another to clear the database.
    */
   public Result index(Request request) {
-    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+    if (settingsManifest.getAdminUiMigrationScEnabled()) {
       ImmutableList<String> durableJobOptions =
           ImmutableList.copyOf(DurableJobName.values()).stream()
               .map(DurableJobName::toString)
@@ -187,11 +187,11 @@ public class DevToolsController extends Controller {
       devDatabaseSeedTask.insertMinimalSampleProgram(
           createdSampleQuestions,
           messagesApi.preferred(request),
-          settingsManifest.getEnumeratorImprovementsEnabled(request));
+          settingsManifest.getEnumeratorImprovementsEnabled());
       devDatabaseSeedTask.insertComprehensiveSampleProgram(
           createdSampleQuestions,
           messagesApi.preferred(request),
-          settingsManifest.getEnumeratorImprovementsEnabled(request));
+          settingsManifest.getEnumeratorImprovementsEnabled());
 
       return true;
     } catch (RuntimeException ex) {

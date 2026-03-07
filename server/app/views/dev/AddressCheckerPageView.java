@@ -46,7 +46,7 @@ public final class AddressCheckerPageView extends AdminLayoutBaseView<AddressChe
         AdminCommonHeader.builder()
             .activeNavPage(AdminLayout.NavPage.NULL_PAGE)
             .isOnlyProgramAdmin(false)
-            .isApiBridgeEnabled(settingsManifest.getApiBridgeEnabled(request))
+            .isApiBridgeEnabled(settingsManifest.getApiBridgeEnabled())
             .build());
   }
 }

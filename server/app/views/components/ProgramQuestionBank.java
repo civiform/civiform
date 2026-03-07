@@ -295,7 +295,7 @@ public final class ProgramQuestionBank {
    * If this is a repeated question, return the id of the enumerator question for the parent block.
    */
   private Optional<String> getParentEnumeratorId() {
-    if (!settingsManifest.getEnumeratorImprovementsEnabled(request)
+    if (!settingsManifest.getEnumeratorImprovementsEnabled()
         || !params.blockDefinition().isRepeated()) {
       return Optional.empty();
     }
@@ -335,7 +335,7 @@ public final class ProgramQuestionBank {
                         params.program(),
                         params.blockDefinition(),
                         q,
-                        settingsManifest.getEnumeratorImprovementsEnabled(request))
+                        settingsManifest.getEnumeratorImprovementsEnabled())
                     == AddQuestionResult.ELIGIBLE);
   }
 

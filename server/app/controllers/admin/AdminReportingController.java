@@ -57,7 +57,7 @@ public final class AdminReportingController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result index(Http.Request request) {
-    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+    if (settingsManifest.getAdminUiMigrationScEnabled()) {
       AdminReportingPageViewModel model =
           AdminReportingPageViewModel.builder()
               .monthlyStats(reportingService.getMonthlyStats())
@@ -75,7 +75,7 @@ public final class AdminReportingController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public CompletionStage<Result> show(Http.Request request, String programSlug) {
-    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+    if (settingsManifest.getAdminUiMigrationScEnabled()) {
       return programService
           .getActiveFullProgramDefinitionAsync(programSlug)
           .thenApply(

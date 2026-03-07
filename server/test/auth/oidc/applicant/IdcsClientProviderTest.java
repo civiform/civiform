@@ -51,7 +51,8 @@ public class IdcsClientProviderTest extends ResetPostgres {
         new IdcsClientProvider(
             OidcClientProviderParams.create(
                 config, profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)),
-            instanceOf(DatabaseExecutionContext.class));
+            instanceOf(DatabaseExecutionContext.class),
+            null);
   }
 
   @Test

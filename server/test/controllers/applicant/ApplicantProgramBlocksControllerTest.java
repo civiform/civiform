@@ -5,7 +5,6 @@ import static controllers.applicant.ApplicantRequestedAction.PREVIOUS_BLOCK;
 import static controllers.applicant.ApplicantRequestedAction.REVIEW_PAGE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.BAD_REQUEST;
@@ -123,7 +122,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     String programId = String.valueOf(program.id);
 
     Request request = fakeRequestBuilder().build();
-    when(settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -168,7 +167,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   public void edit_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_isOk() {
     String programSlug = program.getSlug();
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -182,7 +181,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   public void
       editWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
     String programId = Long.toString(program.id);
 
     Result result =
@@ -236,7 +235,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   public void editWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_isOk() {
     String programSlug = program.getSlug();
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -423,7 +422,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   @Test
   public void review_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -472,7 +471,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   public void review_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_isOk() {
     String programSlug = program.getSlug();
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -486,7 +485,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   public void
       reviewWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
     String programId = Long.toString(program.id);
 
     Result result =
@@ -542,7 +541,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
       reviewWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_isOk() {
     String programSlug = program.getSlug();
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -560,7 +559,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   @Test
   public void previous_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -607,7 +606,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   public void previous_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_isOk() {
     String programSlug = program.getSlug();
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -621,7 +620,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   public void
       previousWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -677,7 +676,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
       previousWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_isOk() {
     String programSlug = program.getSlug();
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -1608,7 +1607,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(),
                     "92373"))
             .build();
-    when(settingsManifest.getEsriAddressCorrectionEnabled(any())).thenReturn(true);
+    when(settingsManifest.getEsriAddressCorrectionEnabled()).thenReturn(true);
     Result result =
         subject
             .updateWithApplicantId(
@@ -1674,7 +1673,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   @Test
   public void addFile_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
     String programId = Long.toString(program.id);
 
     Result result =
@@ -1724,7 +1723,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     String programSlug = activeProgram.getSlug();
 
     Request request = fakeRequestWithKeyAndBucket();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -1744,7 +1743,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   public void
       addFileWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
     String programId = Long.toString(program.id);
 
     Result result =
@@ -1802,7 +1801,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     String programSlug = activeProgram.getSlug();
 
     Request request = fakeRequestWithKeyAndBucket();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -2215,7 +2214,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   public void
       removeFileWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
     String programId = Long.toString(program.id);
 
     Result result =
@@ -2280,7 +2279,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     String programSlug = activeProgram.getSlug();
 
     Request request = fakeRequestWithKeyAndBucket();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -2375,7 +2374,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   @Test
   public void removeFile_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
     String programId = Long.toString(program.id);
 
     Result result =
@@ -2434,7 +2433,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     String programSlug = activeProgram.getSlug();
 
     Request request = fakeRequestWithKeyAndBucket();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -2930,7 +2929,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(),
                     "02111"))
             .build();
-    when(settingsManifest.getEsriAddressCorrectionEnabled(any())).thenReturn(true);
+    when(settingsManifest.getEsriAddressCorrectionEnabled()).thenReturn(true);
     Result result =
         subject
             .updateWithApplicantId(
@@ -3182,7 +3181,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(),
                     "02111"))
             .build();
-    when(settingsManifest.getEsriAddressCorrectionEnabled(any())).thenReturn(true);
+    when(settingsManifest.getEsriAddressCorrectionEnabled()).thenReturn(true);
     subject
         .updateWithApplicantId(
             answerAddressQuestionRequest,

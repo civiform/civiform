@@ -63,7 +63,8 @@ public class LoginGovClientProviderTest extends ResetPostgres {
         new LoginGovClientProvider(
             OidcClientProviderParams.create(
                 config, profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)),
-            instanceOf(DatabaseExecutionContext.class));
+            instanceOf(DatabaseExecutionContext.class),
+            null);
   }
 
   @Test
