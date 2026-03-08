@@ -178,6 +178,8 @@ label.programFilters.v2=Bạn muốn nhận dịch vụ trợ giúp nào?
 button.applySelections=Áp dụng các lựa chọn
 # The button to clear program filter selections
 button.clearSelections=Xoá các lựa chọn
+# Screen reader announcement when selections are cleared
+content.selectionsCleared=Selections cleared
 # Link text to read more about a program.
 link.programDetails=Chi tiết chương trình
 # The same text, read for screen readers.

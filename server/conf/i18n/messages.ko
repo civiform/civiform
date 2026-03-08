@@ -178,6 +178,8 @@ label.programFilters.v2=어떤 도움이 필요하신가요?
 button.applySelections=선택사항 적용
 # The button to clear program filter selections
 button.clearSelections=선택사항 삭제
+# Screen reader announcement when selections are cleared
+content.selectionsCleared=Selections cleared
 # Link text to read more about a program.
 link.programDetails=프로그램 세부정보
 # The same text, read for screen readers.

@@ -178,6 +178,8 @@ label.programFilters.v2=Maxaad rabtaa in lagaa caawiyo?
 button.applySelections=Ku dabaq xulashooyinka
 # The button to clear program filter selections
 button.clearSelections=Tirtir xulashooyinka
+# Screen reader announcement when selections are cleared
+content.selectionsCleared=Selections cleared
 # Link text to read more about a program.
 link.programDetails=Faahfaahinta barnaamijka
 # The same text, read for screen readers.

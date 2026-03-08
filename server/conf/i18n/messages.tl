@@ -178,6 +178,8 @@ label.programFilters.v2=Sa aling bagay mo gustong makakuha ng tulong?
 button.applySelections=I-apply ang mga napili
 # The button to clear program filter selections
 button.clearSelections=I-clear ang mga napili
+# Screen reader announcement when selections are cleared
+content.selectionsCleared=Selections cleared
 # Link text to read more about a program.
 link.programDetails=Mga detalya ng programa
 # The same text, read for screen readers.

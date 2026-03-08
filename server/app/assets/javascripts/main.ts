@@ -413,6 +413,15 @@ export function init() {
       const checkboxInput = checkbox as HTMLInputElement
       checkboxInput.checked = false
     })
+
+    // Announce to screen readers that selections were cleared (WCAG 4.1.3)
+    const statusDiv = document.getElementById('clear-filters-status')
+    if (statusDiv) {
+      statusDiv.textContent = ''
+      setTimeout(() => {
+        statusDiv.textContent = statusDiv.dataset.message || ''
+      }, 100)
+    }
   })
 
   attachFormDebouncers()

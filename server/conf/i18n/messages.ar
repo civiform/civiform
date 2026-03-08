@@ -178,6 +178,8 @@ label.programFilters.v2=ما الذي أنت بحاجة إلى مساعدة بش
 button.applySelections=تطبيق الاختيارات
 # The button to clear program filter selections
 button.clearSelections=محو الاختيارات
+# Screen reader announcement when selections are cleared
+content.selectionsCleared=Selections cleared
 # Link text to read more about a program.
 link.programDetails=تفاصيل البرامج
 # The same text, read for screen readers.

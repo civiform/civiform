@@ -178,6 +178,8 @@ label.programFilters.v2=С чем вам нужна помощь?
 button.applySelections=Применить фильтры
 # The button to clear program filter selections
 button.clearSelections=Удалить фильтры
+# Screen reader announcement when selections are cleared
+content.selectionsCleared=Selections cleared
 # Link text to read more about a program.
 link.programDetails=Сведения о программе
 # The same text, read for screen readers.

@@ -178,6 +178,8 @@ label.programFilters.v2=必要な支援
 button.applySelections=選択内容を適用
 # The button to clear program filter selections
 button.clearSelections=選択内容を消去
+# Screen reader announcement when selections are cleared
+content.selectionsCleared=Selections cleared
 # Link text to read more about a program.
 link.programDetails=プログラムの詳細
 # The same text, read for screen readers.

@@ -178,6 +178,8 @@ label.programFilters.v2=በምን ላይ እርዳታ ይፈልጋሉ?
 button.applySelections=ምርጫዎችን ተግብር
 # The button to clear program filter selections
 button.clearSelections=ምርጫዎችን አጽዳ
+# Screen reader announcement when selections are cleared
+content.selectionsCleared=Selections cleared
 # Link text to read more about a program.
 link.programDetails=የፕሮግራም ዝርዝሮች
 # The same text, read for screen readers.

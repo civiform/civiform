@@ -178,6 +178,8 @@ label.programFilters.v2=您需要哪個領域的協助？
 button.applySelections=套用所選篩選條件
 # The button to clear program filter selections
 button.clearSelections=清除所選篩選條件
+# Screen reader announcement when selections are cleared
+content.selectionsCleared=Selections cleared
 # Link text to read more about a program.
 link.programDetails=計畫詳情
 # The same text, read for screen readers.
