@@ -179,7 +179,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                                     applicantStage.toCompletableFuture().join())
                                 .setProfile(submittingProfile)
                                 .setProgramId(programId)
-                                // .setProgramSlug(programSlugHandler.getProgramSlug(programParam))
+                                .setProgramSlug(programSlugHandler.getProgramSlug(programParam))
                                 .setCompletedBlockCount(completedBlockCount)
                                 .setTotalBlockCount(totalBlockCount)
                                 .setMessages(messages)
