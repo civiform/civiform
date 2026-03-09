@@ -41,7 +41,6 @@ public class CiviFormSessionFilter extends EssentialFilter {
   private static final Duration COOKIE_MAX_AGE = Duration.ofDays(2);
 
   private final ProfileUtils profileUtils;
-  private final Provider<SettingsManifest> settingsManifest;
   private final Materializer materializer;
   private final Clock clock;
   private final Provider<SettingsManifest> settingsManifest;
@@ -51,11 +50,12 @@ public class CiviFormSessionFilter extends EssentialFilter {
   @Inject
   public CiviFormSessionFilter(
       ProfileUtils profileUtils,
-      Provider<SettingsManifest> settingsManifest,
       Materializer materializer,
+      Clock clock,
+      Provider<SettingsManifest> settingsManifest,
+      Provider<SessionTimeoutService> sessionTimeoutService,
       Provider<DatabaseExecutionContext> databaseExecutionContext) {
     this.profileUtils = checkNotNull(profileUtils);
-    this.settingsManifest = checkNotNull(settingsManifest);
     this.materializer = checkNotNull(materializer);
     this.clock = checkNotNull(clock);
     this.settingsManifest = checkNotNull(settingsManifest);
@@ -157,31 +157,8 @@ public class CiviFormSessionFilter extends EssentialFilter {
         });
   }
 
-  private CompletionStage<Boolean> shouldLogoutUser(CiviFormProfile profile) {
-
-    return profileUtils
-        .validCiviFormProfile(profile)
-        .thenComposeAsync(
-            profileValid -> {
-              if (!profileValid) {
-                return CompletableFuture.completedFuture(false);
-              }
-              return isValidSession(profile);
-            },
-            databaseExecutionContext.get())
-        // Log out if either profile or session was invalid
-        .thenApplyAsync(isValidProfileAndSession -> !isValidProfileAndSession);
-  }
-
-  private CompletionStage<Boolean> isValidSession(CiviFormProfile profile) {
-    if (settingsManifest.get().getSessionReplayProtectionEnabled()) {
-      return profile
-          .getAccount()
-          .thenApply(
-              account ->
-                  account.getActiveSession(profile.getProfileData().getSessionId()).isPresent());
-    }
-    return CompletableFuture.completedFuture(true);
+  private static Accumulator<ByteString, Result> redirectToLogout() {
+    return Accumulator.done(Results.redirect(org.pac4j.play.routes.LogoutController.logout()));
   }
 
   /**
