@@ -204,7 +204,8 @@ public class BaseHtmlLayout {
               dataLayer.push(arguments);
             }
             gtag('js', new Date());
-            gtag('config', '%s');""",
+            gtag('config', '%s');\
+            """,
             trackingTag);
     ScriptTag rawScript = script().with(rawHtml(googleAnalyticsCode)).withType("text/javascript");
     return new ImmutableList.Builder<ScriptTag>().add(scriptImport).add(rawScript).build();
