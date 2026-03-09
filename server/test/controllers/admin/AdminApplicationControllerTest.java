@@ -690,6 +690,36 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void updateStatuses_noApplicationsSelected_redirectsWithMessage() throws Exception {
+    AccountModel adminAccount = resourceCreator.insertAccount();
+    controller = makeNoOpProfileController(Optional.of(adminAccount));
+    ProgramModel program = ProgramBuilder.newActiveProgram("test name", "test description").build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
+    ApplicantModel applicant =
+        resourceCreator.insertApplicantWithAccount(Optional.of("user@example.com"));
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+
+    Request request =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "statusText", APPROVED_STATUS.statusText(),
+                    "shouldSendEmail", "false"))
+            .build();
+
+    Result result = controller.updateStatuses(request, program.id);
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).isPresent();
+    assertThat(result.redirectLocation().get())
+        .contains("message=Select+at+least+one+application+before+changing+status");
+    application.refresh();
+    assertThat(application.getApplicationEvents()).isEmpty();
+  }
+
+  @Test
   public void updateStatus_emptySendEmail_succeeds() throws Exception {
     // Setup
     AccountModel adminAccount = resourceCreator.insertAccount();

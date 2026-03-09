@@ -574,6 +574,21 @@ public final class AdminApplicationController extends CiviFormController {
     var applicationIdList =
         form.get().getApplicationsIds().stream().collect(ImmutableList.toImmutableList());
 
+    if (applicationIdList.isEmpty()) {
+      return redirect(
+          routes.AdminApplicationController.index(
+                  programId,
+                  /* search= */ Optional.empty(),
+                  /* page= */ Optional.empty(),
+                  /* fromDate= */ Optional.empty(),
+                  /* untilDate= */ Optional.empty(),
+                  /* applicationStatus= */ Optional.empty(),
+                  Optional.empty(),
+                  /* showDownloadModal= */ Optional.empty(),
+                  /* message= */ Optional.of(
+                      "Select at least one application before changing status"))
+              .url());
+    }
     boolean sendEmail = form.get().getShouldSendEmail();
     programAdminApplicationService.setStatuses(
         applicationIdList,
