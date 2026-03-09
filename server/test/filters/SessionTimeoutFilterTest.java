@@ -16,11 +16,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
+import models.AccountModel;
+import models.SessionDetails;
 import org.apache.pekko.stream.Materializer;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,6 +44,8 @@ public class SessionTimeoutFilterTest extends WithApplication {
   private SessionTimeoutService sessionTimeoutService;
   private CiviFormProfile mockProfile;
   private CiviFormProfileData mockProfileData;
+  private AccountModel mockAccount;
+  private final String SESSION_ID = "test-session-id";
   private final SessionTimeoutService.TimeoutData defaultTimeoutData =
       new SessionTimeoutService.TimeoutData(
           CURRENT_TIME + (30 * 60),
@@ -58,11 +63,16 @@ public class SessionTimeoutFilterTest extends WithApplication {
     Materializer materializer = instanceOf(Materializer.class);
     mockProfile = mock(CiviFormProfile.class);
     mockProfileData = mock(CiviFormProfileData.class);
+    mockAccount = mock(AccountModel.class);
     clock = mock(Clock.class);
 
+    SessionDetails sessionDetails = new SessionDetails();
+    sessionDetails.setCreationTime(Instant.ofEpochMilli(CURRENT_TIME * 1000));
+
     when(mockProfile.getProfileData()).thenReturn(mockProfileData);
-    when(mockProfile.getSessionStartTime())
-        .thenReturn(CompletableFuture.completedFuture(Optional.of(CURRENT_TIME * 1000)));
+    when(mockProfileData.getSessionId()).thenReturn(SESSION_ID);
+    when(mockProfile.getAccount()).thenReturn(CompletableFuture.completedFuture(mockAccount));
+    when(mockAccount.getActiveSession(SESSION_ID)).thenReturn(Optional.of(sessionDetails));
     when(clock.millis()).thenReturn(CURRENT_TIME * 1000);
 
     filter =
@@ -156,8 +166,7 @@ public class SessionTimeoutFilterTest extends WithApplication {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
-    when(mockProfile.getSessionStartTime())
-        .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
+    when(mockAccount.getActiveSession(SESSION_ID)).thenReturn(Optional.empty());
 
     Result result = executeFilter(request);
 
@@ -176,6 +185,8 @@ public class SessionTimeoutFilterTest extends WithApplication {
 
     assertThat(result.status()).isEqualTo(303);
     assertThat(result.redirectLocation()).hasValue("/logout");
+    verify(mockAccount).removeActiveSession(SESSION_ID);
+    verify(mockAccount).save();
   }
 
   @Test
