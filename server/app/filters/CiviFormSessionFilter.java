@@ -36,7 +36,7 @@ import services.settings.SettingsManifest;
  * <p>This filter ensures the account referenced in the browser cookie is valid, checks for session
  * expiration, and sets a cookie for the frontend to show timeout warnings.
  */
-public class ValidAccountFilter extends EssentialFilter {
+public class CiviFormSessionFilter extends EssentialFilter {
   private static final String TIMEOUT_COOKIE_NAME = "session_timeout_data";
   private static final Duration COOKIE_MAX_AGE = Duration.ofDays(2);
 
@@ -49,7 +49,7 @@ public class ValidAccountFilter extends EssentialFilter {
   private final Provider<DatabaseExecutionContext> databaseExecutionContext;
 
   @Inject
-  public ValidAccountFilter(
+  public CiviFormSessionFilter(
       ProfileUtils profileUtils,
       Provider<SettingsManifest> settingsManifest,
       Materializer materializer,

@@ -62,7 +62,7 @@ public class ValidAccountFilterTest extends WithApplication {
     settingsManifest = mock(SettingsManifest.class);
 
     filter =
-        new ValidAccountFilter(
+        new CiviFormSessionFilter(
             profileUtils,
             () -> settingsManifest, // Provider<SettingsManifest>
             mat,
