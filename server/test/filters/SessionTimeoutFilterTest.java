@@ -178,6 +178,30 @@ public class SessionTimeoutFilterTest extends WithApplication {
     assertThat(result.redirectLocation()).hasValue("/logout");
   }
 
+  @Test
+  public void testAllowedEndpoint_withProfile_updatesActivityTime() throws Exception {
+    RequestHeader request =
+        fakeRequestBuilder()
+            .method("GET")
+            .uri("/assets/some-file.js")
+            .attr(ProfileUtils.CURRENT_USER_PROFILE, mockProfile)
+            .build();
+
+    Result result = executeFilter(request);
+
+    assertThat(result.status()).isEqualTo(200);
+    verify(mockProfileData).updateLastActivityTime(clock);
+  }
+
+  @Test
+  public void testAllowedEndpoint_withoutProfile_doesNotThrow() throws Exception {
+    RequestHeader request = fakeRequestBuilder().method("GET").uri("/assets/some-file.js").build();
+
+    Result result = executeFilter(request);
+
+    assertThat(result.status()).isEqualTo(200);
+  }
+
   private Result executeFilter(RequestHeader request) throws Exception {
     Function<Http.RequestHeader, CompletionStage<Result>> nextFilter =
         requestHeader -> CompletableFuture.completedFuture(play.mvc.Results.ok("Success"));

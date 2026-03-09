@@ -452,7 +452,7 @@ public final class QuestionEditView extends BaseHtmlView {
                 requiredFieldsExplanationContent());
     formTag.with(
         h2("Visible to applicants").withClasses("py-2", "mt-6", "font-semibold"),
-        repeatedQuestionInformation(),
+        repeatedQuestionInformation(request),
         FieldWithLabel.textArea()
             .setId("question-text-textarea")
             .setFieldName("questionText")
@@ -509,7 +509,7 @@ public final class QuestionEditView extends BaseHtmlView {
             .setValue(questionForm.getQuestionDescription())
             .getTextareaTag(),
         enumeratorOptions
-            .setDisabled(!questionForm.getEnumeratorSelectEnabled() || !forCreate)
+            .setReadOnly(!questionForm.getEnumeratorSelectEnabled() || !forCreate)
             .getSelectTag());
 
     if (questionType.equals(QuestionType.MAP)) {
@@ -849,39 +849,46 @@ public final class QuestionEditView extends BaseHtmlView {
         .setRequired(true);
   }
 
-  private DivTag repeatedQuestionInformation() {
-    return div()
-        .with(
-            p(
-                "By selecting an enumerator, you are creating a repeated question - a question that"
-                    + " is asked for each repeated entity enumerated by the applicant."),
-            p(
-                join(
-                    "Please reference the applicant-defined repeated entity name to give the"
-                        + " applicant context on which repeated entity they are answering the"
-                        + " question for by using ",
-                    em("\"$this\""),
-                    "in the ",
-                    strong("question's text"),
-                    " and optionally the ",
-                    strong("help text. "))),
-            p(
-                join(
-                    "To reference the repeated entities containing this one, use ",
-                    em("\"$this.parent\""),
-                    ", ",
-                    em("\"$this.parent.parent\""),
-                    ", etc.")))
-        .withId("repeated-question-information")
-        .withClasses(
-            "hidden",
-            "text-blue-600",
-            "text-sm",
-            "p-2",
-            "font-mono",
-            "border-4",
-            "border-blue-400",
-            "space-y-4");
+  private DivTag repeatedQuestionInformation(Request request) {
+    DivTag repeatedQuestionInfo =
+        div()
+            .with(
+                p(
+                    "By selecting an enumerator, you are creating a repeated question - a question"
+                        + " that is asked for each repeated entity enumerated by the applicant."))
+            .withId("repeated-question-information")
+            .withClasses(
+                "hidden",
+                "text-blue-600",
+                "text-sm",
+                "p-2",
+                "font-mono",
+                "border-4",
+                "border-blue-400",
+                "space-y-4");
+
+    if (!settingsManifest.getEnumeratorImprovementsEnabled(request)) {
+      repeatedQuestionInfo.with(
+          p(
+              join(
+                  "Please reference the applicant-defined repeated entity name to give the"
+                      + " applicant context on which repeated entity they are answering the"
+                      + " question for by using ",
+                  em("\"$this\""),
+                  "in the ",
+                  strong("question's text"),
+                  " and optionally the ",
+                  strong("help text. "))),
+          p(
+              join(
+                  "To reference the repeated entities containing this one, use ",
+                  em("\"$this.parent\""),
+                  ", ",
+                  em("\"$this.parent.parent\""),
+                  ", etc.")));
+    }
+
+    return repeatedQuestionInfo;
   }
 
   private DivTag administrativeNameField(String adminName, boolean editExistingQuestion) {
