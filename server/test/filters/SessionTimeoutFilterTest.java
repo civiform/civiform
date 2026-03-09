@@ -1,6 +1,8 @@
 package filters;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -14,11 +16,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
+import models.AccountModel;
+import models.SessionDetails;
 import org.apache.pekko.stream.Materializer;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,10 +42,11 @@ public class SessionTimeoutFilterTest extends WithApplication {
   private ProfileUtils profileUtils;
   private SettingsManifest settingsManifest;
   private SessionTimeoutService sessionTimeoutService;
-  private Materializer materializer;
   private CiviFormProfile mockProfile;
   private CiviFormProfileData mockProfileData;
-  private SessionTimeoutService.TimeoutData defaultTimeoutData =
+  private AccountModel mockAccount;
+  private final String SESSION_ID = "test-session-id";
+  private final SessionTimeoutService.TimeoutData defaultTimeoutData =
       new SessionTimeoutService.TimeoutData(
           CURRENT_TIME + (30 * 60),
           CURRENT_TIME + (10 * 60 * 60),
@@ -54,19 +60,27 @@ public class SessionTimeoutFilterTest extends WithApplication {
     profileUtils = mock(ProfileUtils.class);
     settingsManifest = mock(SettingsManifest.class);
     sessionTimeoutService = mock(SessionTimeoutService.class);
-    materializer = instanceOf(Materializer.class);
+    Materializer materializer = instanceOf(Materializer.class);
     mockProfile = mock(CiviFormProfile.class);
     mockProfileData = mock(CiviFormProfileData.class);
+    mockAccount = mock(AccountModel.class);
     clock = mock(Clock.class);
 
+    SessionDetails sessionDetails = new SessionDetails();
+    sessionDetails.setCreationTime(Instant.ofEpochMilli(CURRENT_TIME * 1000));
+
     when(mockProfile.getProfileData()).thenReturn(mockProfileData);
+    when(mockProfileData.getSessionId()).thenReturn(SESSION_ID);
+    when(mockProfile.getAccount()).thenReturn(CompletableFuture.completedFuture(mockAccount));
+    when(mockAccount.getActiveSession(SESSION_ID)).thenReturn(Optional.of(sessionDetails));
+    when(clock.millis()).thenReturn(CURRENT_TIME * 1000);
 
     filter =
         new SessionTimeoutFilter(
             materializer, profileUtils, () -> settingsManifest, () -> sessionTimeoutService, clock);
 
-    when(sessionTimeoutService.calculateTimeoutData(mockProfile))
-        .thenReturn(CompletableFuture.completedFuture(defaultTimeoutData));
+    when(sessionTimeoutService.calculateTimeoutData(eq(mockProfile), anyLong()))
+        .thenReturn(defaultTimeoutData);
   }
 
   @Test
@@ -109,12 +123,11 @@ public class SessionTimeoutFilterTest extends WithApplication {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
-    when(sessionTimeoutService.isSessionTimedOut(mockProfile))
-        .thenReturn(CompletableFuture.completedFuture(false));
+    when(sessionTimeoutService.isSessionTimedOut(eq(mockProfile), anyLong())).thenReturn(false);
 
     Result result = executeFilter(request);
 
-    verify(sessionTimeoutService).calculateTimeoutData(mockProfile);
+    verify(sessionTimeoutService).calculateTimeoutData(eq(mockProfile), anyLong());
     verify(mockProfileData).updateLastActivityTime(clock);
 
     Optional<Http.Cookie> cookie = result.cookies().get(TIMEOUT_COOKIE_NAME);
@@ -137,8 +150,7 @@ public class SessionTimeoutFilterTest extends WithApplication {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
-    when(sessionTimeoutService.isSessionTimedOut(mockProfile))
-        .thenReturn(CompletableFuture.completedFuture(false));
+    when(sessionTimeoutService.isSessionTimedOut(eq(mockProfile), anyLong())).thenReturn(false);
 
     Result result = executeFilter(request);
 
@@ -150,17 +162,55 @@ public class SessionTimeoutFilterTest extends WithApplication {
   }
 
   @Test
-  public void testSessionTimedOut_redirectsToLogout() throws Exception {
+  public void testNoSessionStartTime_redirectsToLogout() throws Exception {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
-    when(sessionTimeoutService.isSessionTimedOut(mockProfile))
-        .thenReturn(CompletableFuture.completedFuture(true));
+    when(mockAccount.getActiveSession(SESSION_ID)).thenReturn(Optional.empty());
 
     Result result = executeFilter(request);
 
     assertThat(result.status()).isEqualTo(303);
     assertThat(result.redirectLocation()).hasValue("/logout");
+  }
+
+  @Test
+  public void testSessionTimedOut_redirectsToLogout() throws Exception {
+    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
+    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
+    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
+    when(sessionTimeoutService.isSessionTimedOut(eq(mockProfile), anyLong())).thenReturn(true);
+
+    Result result = executeFilter(request);
+
+    assertThat(result.status()).isEqualTo(303);
+    assertThat(result.redirectLocation()).hasValue("/logout");
+    verify(mockAccount).removeActiveSession(SESSION_ID);
+    verify(mockAccount).save();
+  }
+
+  @Test
+  public void testAllowedEndpoint_withProfile_updatesActivityTime() throws Exception {
+    RequestHeader request =
+        fakeRequestBuilder()
+            .method("GET")
+            .uri("/assets/some-file.js")
+            .attr(ProfileUtils.CURRENT_USER_PROFILE, mockProfile)
+            .build();
+
+    Result result = executeFilter(request);
+
+    assertThat(result.status()).isEqualTo(200);
+    verify(mockProfileData).updateLastActivityTime(clock);
+  }
+
+  @Test
+  public void testAllowedEndpoint_withoutProfile_doesNotThrow() throws Exception {
+    RequestHeader request = fakeRequestBuilder().method("GET").uri("/assets/some-file.js").build();
+
+    Result result = executeFilter(request);
+
+    assertThat(result.status()).isEqualTo(200);
   }
 
   private Result executeFilter(RequestHeader request) throws Exception {

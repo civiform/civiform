@@ -23,6 +23,7 @@ import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.program.BlockDefinition;
+import services.program.CantAddQuestionToBlockException;
 import services.program.IllegalApiBridgeStateException;
 import services.program.IllegalPredicateOrderingException;
 import services.program.ProgramBlockAdditionResult;
@@ -34,6 +35,7 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
+import services.question.exceptions.QuestionNotFoundException;
 import services.settings.SettingsManifest;
 import views.admin.programs.BlockType;
 import views.admin.programs.ProgramBlocksView;
@@ -206,6 +208,33 @@ public final class AdminProgramBlocksController extends CiviFormController {
     requestChecker.throwIfProgramNotDraft(programId);
 
     try {
+      // Auto-add newly created question to the block if one was just created
+      Optional<String> newQuestionIdParam =
+          request.queryString(views.components.ProgramQuestionBank.NEWLY_CREATED_QUESTION_ID_PARAM);
+      if (newQuestionIdParam.isPresent()) {
+        try {
+          long newQuestionId = Long.parseLong(newQuestionIdParam.get());
+          programService.addQuestionsToBlock(
+              programId,
+              blockId,
+              ImmutableList.of(newQuestionId),
+              settingsManifest.getEnumeratorImprovementsEnabled(request));
+          // Redirect without the newQuestionId parameter to reload the page cleanly
+          return redirect(routes.AdminProgramBlocksController.edit(programId, blockId).url())
+              .flashing(request.flash().data());
+        } catch (NumberFormatException e) {
+          // Invalid question ID format, ignore and continue
+        } catch (ProgramNotFoundException
+            | ProgramBlockDefinitionNotFoundException
+            | QuestionNotFoundException
+            | CantAddQuestionToBlockException e) {
+          // If adding fails, show the block without the new question and flash an error toast
+          // message
+          return redirect(routes.AdminProgramBlocksController.edit(programId, blockId).url())
+              .flashing("error", "Question created, but could not be added to the program block");
+        }
+      }
+
       ProgramDefinition program = programService.getFullProgramDefinition(programId);
       BlockDefinition block = program.getBlockDefinition(blockId);
 

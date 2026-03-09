@@ -47,6 +47,7 @@ public enum MessageKey {
   ALERT_CLIENT_LIKELY_ELIGIBLE("alert.clientLikelyEligible"), // North Star only
   ALERT_CLIENT_LIKELY_INELIGIBLE("alert.clientLikelyIneligible"), // North Star only
   ALERT_NO_PROGRAMS_AVAILABLE("alert.noProgramsAvailable"),
+  ALERT_REPEATED_SET_ADD_QUESTION_DISABLED("alert.repeatedSet.addQuestionDisabled"),
   ALERT_REPEATED_SET_NEW_QUESTION("alert.repeatedSet.newQuestion"),
   ALERT_SUBMITTED("alert.submitted"), // North Star only
   BANNER_ERROR_SAVING_APPLICATION("banner.errorSavingApplication"),
@@ -69,6 +70,7 @@ public enum MessageKey {
   BANNER_TITLE("banner.title"),
   BUTTON_ADD_NEW_CLIENT("button.addNewClient"),
   BUTTON_ADD_REPEATED_SCREEN("button.addRepeatedScreen"),
+  BUTTON_ADD_QUESTION("button.addQuestion"),
   BUTTON_BACK_TO_CLIENT_LIST("button.backToClientList"),
   BUTTON_CANCEL("button.cancel"),
   BUTTON_CLOSE("button.close"),
@@ -118,6 +120,9 @@ public enum MessageKey {
   DESCRIPTION_LISTED_ENTITY("description.repeatedSet.listedEntity"),
   DESCRIPTION_REPEATED_SET_HINT_TEXT("description.repeatedSet.hintText"),
   DESCRIPTION_REPEATED_SET_QUESTION_TEXT("description.repeatedSet.questionText"),
+  DESCRIPTION_REPEATED_SET_CREATE_NEW_QUESTION("description.repeatedSet.createNewQuestion"),
+  DESCRIPTION_REPEATED_SET_CHOOSE_EXISTING_QUESTION(
+      "description.repeatedSet.chooseExistingQuestion"),
   DOB_EXAMPLE("label.dobExample"),
   DOB_ERROR_LABEL("label.errorDOB"),
   DOB_LABEL("label.dob"),
@@ -227,6 +232,7 @@ public enum MessageKey {
   TEXT_NESTED_REPEATED_SET("text.nestedRepeatedSet"),
   TEXT_REPEATED_SET("text.repeatedSet"),
   TEXT_REPEATED_SET_QUESTION_DESCRIPTION("text.repeatedSet.questionDescription"),
+  TEXT_REPEATED_SET_ADD_QUESTION_DESCRIPTION("text.repeatedSet.addQuestionDescription"),
   TEXT_REPEATED_SET_PREFIX("text.repeatedSet.prefix"),
   TEXT_REPEATED_SET_NESTED_PREFIX("text.repeatedSet.nestedPrefix"),
   TEXT_REPEATED_SET_SCREEN_NAME_DESCRIPTION("text.repeatedSet.screenNameDescription"),

@@ -7,6 +7,12 @@ import com.typesafe.sbt.gzip.Import.gzip
 import com.typesafe.sbt.digest.Import.digest
 import com.github.sbt.jacoco.JacocoPlugin.autoImport._
 
+// .jvmopts is the single source of truth for heap settings.
+// SBT reads it automatically for the build JVM and we read it here for forked and production JVMs.
+val heapOpts = IO
+  .readLines(file(".jvmopts"))
+  .filter(l => l.startsWith("-Xmx") || l.startsWith("-Xms"))
+
 lazy val root = (project in file("."))
   .enablePlugins(PlayJava, PlayEbean, SbtWeb)
   .settings(
@@ -27,11 +33,11 @@ lazy val root = (project in file("."))
       "com.google.auto" % "auto-common" % "1.2.2",
 
       // JSON libraries
-      "com.jayway.jsonpath" % "json-path" % "2.10.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.21.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.21.0",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.21.0",
-      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.21.0",
+      "com.jayway.jsonpath" % "json-path" % "3.0.0",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.21.1",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.21.1",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.21.1",
+      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.21.1",
       "com.google.inject.extensions" % "guice-assistedinject" % "6.0.0",
 
       // Templating
@@ -42,15 +48,15 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20260102.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.41.32",
-      "software.amazon.awssdk" % "ses" % "2.41.32",
+      "software.amazon.awssdk" % "s3" % "2.42.8",
+      "software.amazon.awssdk" % "ses" % "2.42.8",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
       "com.azure" % "azure-storage-blob" % "12.32.0",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.61.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.62.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.10",
@@ -77,29 +83,33 @@ lazy val root = (project in file("."))
       "org.glassfish.jaxb" % "jaxb-runtime" % "4.0.6",
 
       // Code autogeneration
-      "org.projectlombok" % "lombok" % "1.18.42",
+      "org.projectlombok" % "lombok" % "1.18.42" % "provided",
 
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "13.0.2-PLAY3.0",
-      "org.pac4j" % "pac4j-core" % "6.3.1",
+      "org.pac4j" % "pac4j-core" % "6.3.3",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "6.3.1",
+      "org.pac4j" % "pac4j-http" % "6.3.3",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "6.3.1",
+      "org.pac4j" % "pac4j-oidc" % "6.3.3",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "6.3.1",
+      "org.pac4j" % "pac4j-saml" % "6.3.3",
 
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.13.0",
 
       // Autovalue
       "com.google.auto.value" % "auto-value-annotations" % "1.11.1",
-      "com.google.auto.value" % "auto-value" % "1.11.1",
 
+      // Add AutoValue as a compile-only dependency, but strip out its shaded variant to avoid classpath conflicts
+      "com.google.auto.value" % "auto-value" % "1.11.1" % "provided" exclude (
+        "com.google.auto.value",
+        "auto-value-shaded"
+      ),
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.42.0",
-      "org.checkerframework" % "dataflow-errorprone" % "3.53.1",
+      "com.google.errorprone" % "error_prone_core" % "2.48.0",
+      "org.checkerframework" % "dataflow-errorprone" % "3.54.0",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.14.1",
@@ -108,7 +118,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.5",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.24",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.25",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.7",
@@ -131,7 +141,7 @@ lazy val root = (project in file("."))
       "io.swagger" % "swagger-parser" % "1.0.75",
 
       // OpenAPI 3.x Dependencies
-      "io.swagger.core.v3" % "swagger-core" % "2.2.43",
+      "io.swagger.core.v3" % "swagger-core" % "2.2.44",
       "io.swagger.parser.v3" % "swagger-parser" % "2.1.38",
 
       // JSON Schema validation
@@ -149,6 +159,9 @@ lazy val root = (project in file("."))
         "-Xlint:deprecation",
         "-XDcompilePolicy=simple",
         "-implicit:class",
+        // As of Java 21+ auto-discovery of annotation processors is more strict so they need to be explicitly declared now
+        "-processor",
+        "com.google.auto.value.processor.AutoValueProcessor,com.google.auto.value.processor.AutoOneOfProcessor,lombok.launch.AnnotationProcessorHider$AnnotationProcessor",
         // The compile option below is a hack that preserves generated files. Normally,
         // AutoValue generates .java files, compiles them into .class files, and then deletes
         // the .java files. This option keeps the .java files in the specified directory,
@@ -206,6 +219,9 @@ lazy val root = (project in file("."))
     Test / testOptions := Seq(
       Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-q")
     ),
+
+    javaOptions ++= heapOpts,
+    Universal / javaOptions ++= heapOpts.map("-J" + _),
 
     // Enable Java Assertions in Unit Tests
     Test / javaOptions += "-enableassertions",
@@ -307,8 +323,8 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.21.0",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.21.0",
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.21.1",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.21.1",
   "com.fasterxml.jackson.core" % "jackson-annotations" % "2.21"
 )
 

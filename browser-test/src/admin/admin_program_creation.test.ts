@@ -715,9 +715,19 @@ test.describe('program creation', () => {
       helpText: 'Question help text',
     })
     await adminQuestions.clickSubmitButtonAndNavigate('Create')
-    await adminPrograms.expectSuccessToast(`question ${questionName} created`)
+    await adminPrograms.expectSuccessToast(
+      `question ${questionName} created and added to the program block`,
+    )
     await adminPrograms.expectProgramBlockEditPage(programName)
 
+    // Verify the question bank is closed after question creation
+    await expect(page.locator('.cf-question-bank-panel')).toBeHidden()
+
+    // Verify the first question was automatically added to the block
+    await adminPrograms.expectQuestionCardWithLabel(questionName, questionName)
+
+    // Open the question bank again to create another question
+    await adminPrograms.openQuestionBank()
     await page.click('#create-question-button')
     await page.click('#create-text-question')
     await waitForPageJsLoad(page)
@@ -733,27 +743,26 @@ test.describe('program creation', () => {
     })
     await adminQuestions.clickSubmitButtonAndNavigate('Create')
     await adminPrograms.expectSuccessToast(
-      `question ${universalQuestionName} created`,
+      `question ${universalQuestionName} created and added to the program block`,
     )
     await adminPrograms.expectProgramBlockEditPage(programName)
-    await validateScreenshot(
-      page.locator('.cf-question-bank-panel'),
-      'question-bank-with-created-question',
-      {fullPage: false},
+
+    // Verify the question bank is no longer open
+    await expect(page.locator('.cf-question-bank-panel')).toBeHidden()
+
+    // Verify both questions are now in the block (automatically added)
+    await adminPrograms.expectQuestionCardWithLabel(questionName, questionName)
+    await adminPrograms.expectQuestionCardWithLabel(
+      universalQuestionName,
+      universalQuestionName,
     )
 
+    // Verify questions exist in the system
     await adminQuestions.expectDraftQuestionExist(questionName, questionText)
     await adminQuestions.expectDraftQuestionExist(
       universalQuestionName,
       universalQuestionText,
     )
-    // Ensure the question can be added from the question bank.
-    await adminPrograms.editProgramBlock(programName, 'dummy description', [
-      questionName,
-    ])
-    await adminPrograms.editProgramBlock(programName, 'new dummy description', [
-      universalQuestionName,
-    ])
   })
 
   test('edit question from program screen', async ({
@@ -762,17 +771,30 @@ test.describe('program creation', () => {
     adminQuestions,
     adminProgramImage,
   }) => {
+    const programName = 'Test program'
+    const questionName = 'text-question'
+
     await test.step('setup program with question', async () => {
       await loginAsAdmin(page)
-      await adminQuestions.addTextQuestion({questionName: 'text-question'})
-      await adminPrograms.addProgram('Test program')
+      await adminQuestions.addTextQuestion({questionName})
+      await adminPrograms.addProgram(programName)
       await adminProgramImage.clickContinueButton()
-      await adminPrograms.addQuestionFromQuestionBank('text-question')
+      await adminPrograms.addQuestionFromQuestionBank(questionName)
     })
 
     await test.step('click edit question link', async () => {
-      await adminPrograms.editQuestion('text-question')
-      await adminQuestions.expectQuestionEditPage('text-question')
+      await adminPrograms.editQuestion(questionName)
+      await adminQuestions.expectQuestionEditPage(questionName)
+    })
+
+    await test.step('update question and redirect to edit block screen', async () => {
+      await adminQuestions.updateQuestionText('updated')
+      await adminQuestions.clickSubmitButtonAndNavigate('Update')
+      await adminPrograms.expectProgramBlockEditPage(programName)
+      await adminPrograms.expectQuestionCardWithLabel(
+        questionName,
+        questionName,
+      )
     })
   })
 

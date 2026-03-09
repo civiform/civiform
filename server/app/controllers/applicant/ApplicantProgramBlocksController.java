@@ -13,7 +13,6 @@ import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMo
 import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -78,7 +77,6 @@ import views.trustedintermediary.ApplicationBaseViewParams;
  */
 public final class ApplicantProgramBlocksController extends CiviFormController {
   private static final ImmutableSet<String> STRIPPED_FORM_FIELDS = ImmutableSet.of("csrfToken");
-  @VisibleForTesting static final String ADDRESS_JSON_SESSION_KEY = "addressJson";
 
   private final ApplicantService applicantService;
   private final MessagesApi messagesApi;
@@ -152,12 +150,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long applicantId,
       String programParam,
       String blockId,
-      Optional<String> questionName,
-      Boolean isFromUrlCall) {
+      Optional<String> questionName) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled and it comes from the URL call
+    // slug because the program slug URL is enabled
     boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+    if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels(
@@ -165,7 +162,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
           .inc();
       return CompletableFuture.completedFuture(redirectToHome());
     }
-    return editInternal(request, applicantId, programParam, blockId, questionName, isFromUrlCall);
+    return editInternal(request, applicantId, programParam, blockId, questionName);
   }
 
   private CompletionStage<Result> editInternal(
@@ -173,11 +170,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long applicantId,
       String programParam,
       String blockId,
-      Optional<String> questionName,
-      Boolean isFromUrlCall) {
+      Optional<String> questionName) {
     boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
+        .resolveProgramParam(programParam, applicantId, programSlugUrlEnabled)
         .thenCompose(
             programId -> {
               return editOrReview(
@@ -199,15 +195,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.APPLICANT)
   public CompletionStage<Result> edit(
-      Request request,
-      String programParam,
-      String blockId,
-      Optional<String> questionName,
-      Boolean isFromUrlCall) {
+      Request request, String programParam, String blockId, Optional<String> questionName) {
     // Redirect home when the program slug URL feature is enabled and the program param could be
     // a program slug but it is actually a program id (numeric).
     boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+    if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels("/programs/:programParam/blocks/:blockId/edit", programParam)
@@ -222,8 +214,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     }
 
-    return editInternal(
-        request, applicantId.get(), programParam, blockId, questionName, isFromUrlCall);
+    return editInternal(request, applicantId.get(), programParam, blockId, questionName);
   }
 
   /**
@@ -237,12 +228,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long applicantId,
       String programParam,
       String blockId,
-      Optional<String> questionName,
-      Boolean isFromUrlCall) {
+      Optional<String> questionName) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled and it comes from the URL call
+    // slug because the program slug URL is enabled
     boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+    if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels(
@@ -251,7 +241,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
           .inc();
       return CompletableFuture.completedFuture(redirectToHome());
     }
-    return reviewInternal(request, applicantId, programParam, blockId, questionName, isFromUrlCall);
+    return reviewInternal(request, applicantId, programParam, blockId, questionName);
   }
 
   private CompletionStage<Result> reviewInternal(
@@ -259,12 +249,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long applicantId,
       String programParam,
       String blockId,
-      Optional<String> questionName,
-      Boolean isFromUrlCall) {
+      Optional<String> questionName) {
 
     boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
+        .resolveProgramParam(programParam, applicantId, programSlugUrlEnabled)
         .thenCompose(
             programId -> {
               return editOrReview(
@@ -288,22 +277,16 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    *     depending on feature configuration
    * @param blockId the unique identifier of the specific block within the program to review
    * @param questionName optional parameter present when answering a question or reviewing an answer
-   * @param isFromUrlCall indicates whether this method was invoked directly from a URL call, used
-   *     to determine redirect behavior when program slug URLs are enabled
    * @return a CompletionStage that resolves to a Result containing the rendered review page or a
    *     redirect response
    */
   @Secure(authorizers = Authorizers.Labels.APPLICANT)
   public CompletionStage<Result> review(
-      Request request,
-      String programParam,
-      String blockId,
-      Optional<String> questionName,
-      Boolean isFromUrlCall) {
+      Request request, String programParam, String blockId, Optional<String> questionName) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled and it comes from the URL call
+    // slug because the program slug URL is enabled
     boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+    if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels("/programs/:programParam/blocks/:blockId/review", programParam)
@@ -318,8 +301,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     }
 
-    return reviewInternal(
-        request, optionalApplicantId.get(), programParam, blockId, questionName, isFromUrlCall);
+    return reviewInternal(request, optionalApplicantId.get(), programParam, blockId, questionName);
   }
 
   /** Handles the applicant's selection from the address correction options. */
@@ -334,7 +316,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     DynamicForm form = formFactory.form().bindFromRequest(request);
     Optional<String> selectedAddress =
         Optional.ofNullable(form.get(AddressCorrectionBlockView.SELECTED_ADDRESS_NAME));
-    Optional<String> maybeAddressJson = request.session().get(ADDRESS_JSON_SESSION_KEY);
+    Optional<String> maybeAddressJson =
+        Optional.ofNullable(form.get(AddressCorrectionBlockView.ADDRESS_JSON_FIELD_NAME));
 
     ImmutableList<AddressSuggestion> suggestions =
         addressSuggestionJsonSerializer.deserialize(
@@ -407,7 +390,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             classLoaderExecutionContext.current())
         .thenComposeAsync(
             roApplicantProgramService -> {
-              removeAddressJsonFromSession(request);
               CiviFormProfile profile = profileUtils.currentUserProfile(request);
               return renderErrorOrRedirectToRequestedPage(
                   request,
@@ -421,19 +403,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   roApplicantProgramService);
             },
             classLoaderExecutionContext.current())
-        .exceptionally(
-            throwable -> {
-              removeAddressJsonFromSession(request);
-              return handleUpdateExceptions(throwable);
-            });
-  }
-
-  /**
-   * Clean up the address suggestions json from the session. Remove this to prevent the chance of
-   * the old session value being used on subsequent address corrections.
-   */
-  private void removeAddressJsonFromSession(Request request) {
-    request.session().removing(ADDRESS_JSON_SESSION_KEY);
+        .exceptionally(throwable -> handleUpdateExceptions(throwable));
   }
 
   /**
@@ -447,8 +417,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    *     block sequence
    * @param inReview indicates whether the applicant is currently in review mode (true) or edit mode
    *     (false), which affects navigation behavior and view rendering
-   * @param isFromUrlCall indicates whether this method was invoked directly from a URL call, used
-   *     to determine redirect behavior when program slug URLs are enabled
    * @return a CompletionStage that resolves to a Result containing the rendered previous block
    *     page, or error responses (unauthorized, not found, or redirect) if authorization fails or
    *     resources are not found
@@ -459,12 +427,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long applicantId,
       String programParam,
       int previousBlockIndex,
-      boolean inReview,
-      boolean isFromUrlCall) {
+      boolean inReview) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled and it comes from the URL call
+    // slug because the program slug URL is enabled
     boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+    if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels(
@@ -475,7 +442,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
 
     return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
+        .resolveProgramParam(programParam, applicantId, programSlugUrlEnabled)
         .thenCompose(
             programId -> {
               CompletionStage<ApplicantPersonalInfo> applicantStage =
@@ -577,22 +544,16 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    *     block sequence
    * @param inReview indicates whether the applicant is currently in review mode (true) or edit mode
    *     (false), which affects navigation behavior
-   * @param isFromUrlCall indicates whether this method was invoked directly from a URL call, used
-   *     to determine redirect behavior when program slug URLs are enabled
    * @return a CompletionStage that resolves to a Result containing the rendered review page or a
    *     redirect response
    */
   @Secure
   public CompletionStage<Result> previous(
-      Request request,
-      String programParam,
-      int previousBlockIndex,
-      boolean inReview,
-      Boolean isFromUrlCall) {
+      Request request, String programParam, int previousBlockIndex, boolean inReview) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled and it comes from the URL call
+    // slug because the program slug URL is enabled
     boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+    if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels(
@@ -609,17 +570,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
 
     Long applicantId = optionalApplicantId.get();
-    return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
-        .thenCompose(
-            programId ->
-                previousWithApplicantId(
-                    request,
-                    applicantId,
-                    Long.toString(programId),
-                    previousBlockIndex,
-                    inReview, /* isFromUrlCall */
-                    false));
+    return previousWithApplicantId(
+        request, applicantId, programParam, previousBlockIndex, inReview);
   }
 
   @Secure
@@ -718,8 +670,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    *     uploaded files list
    * @param inReview indicates whether the applicant is currently in review mode (true) or edit mode
    *     (false), which affects navigation behavior after file removal
-   * @param isFromUrlCall indicates whether this method was invoked directly from a URL call, used
-   *     to determine redirect behavior when program slug URLs are enabled
    * @return a CompletionStage that resolves to a Result handled by removeFileWithApplicantId()
    */
   @Secure
@@ -728,12 +678,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       String programParam,
       String blockId,
       String fileKeyToRemove,
-      boolean inReview,
-      boolean isFromUrlCall) {
+      boolean inReview) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled and it comes from the URL call
+    // slug because the program slug URL is enabled
     boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+    if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels(
@@ -750,18 +699,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
 
     Long applicantId = optionalApplicantId.get();
-    return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
-        .thenCompose(
-            programId ->
-                removeFileWithApplicantId(
-                    request,
-                    applicantId,
-                    Long.toString(programId),
-                    blockId,
-                    fileKeyToRemove,
-                    inReview,
-                    /* isFromUrlCall= */ false));
+    return removeFileWithApplicantId(
+        request, applicantId, programParam, blockId, fileKeyToRemove, inReview);
   }
 
   @Secure
@@ -771,12 +710,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       String programParam,
       String blockId,
       String fileKeyToRemove,
-      boolean inReview,
-      boolean isFromUrlCall) {
+      boolean inReview) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled and it comes from the URL call
+    // slug because the program slug URL is enabled
     boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+    if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels(
@@ -788,7 +726,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
 
     return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
+        .resolveProgramParam(programParam, applicantId, programSlugUrlEnabled)
         .thenCompose(
             programId -> {
               CompletionStage<ApplicantPersonalInfo> applicantStage =
@@ -916,21 +854,15 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    *     file upload question
    * @param inReview indicates whether the applicant is currently in review mode (true) or edit mode
    *     (false), which affects navigation behavior after file processing
-   * @param isFromUrlCall indicates whether this method was invoked directly from a URL call, used
-   *     to determine redirect behavior when program slug URLs are enabled
    * @return a CompletionStage that resolves to a Result handled by addFileWithApplicantId()
    */
   @Secure
   public CompletionStage<Result> addFile(
-      Request request,
-      String programParam,
-      String blockId,
-      boolean inReview,
-      boolean isFromUrlCall) {
+      Request request, String programParam, String blockId, boolean inReview) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled and it comes from the URL call
+    // slug because the program slug URL is enabled
     boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+    if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels("/programs/:programParam/blocks/:blockId/addFile/:inReview", programParam)
@@ -946,31 +878,16 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
 
     Long applicantId = optionalApplicantId.get();
-    return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
-        .thenCompose(
-            programId ->
-                addFileWithApplicantId(
-                    request,
-                    applicantId,
-                    Long.toString(programId),
-                    blockId,
-                    inReview,
-                    /* isFromUrlCall= */ false));
+    return addFileWithApplicantId(request, applicantId, programParam, blockId, inReview);
   }
 
   @Secure
   public CompletionStage<Result> addFileWithApplicantId(
-      Request request,
-      long applicantId,
-      String programParam,
-      String blockId,
-      boolean inReview,
-      boolean isFromUrlCall) {
+      Request request, long applicantId, String programParam, String blockId, boolean inReview) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled and it comes from the URL call
+    // slug because the program slug URL is enabled
     boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+    if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels(
@@ -981,7 +898,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
 
     return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
+        .resolveProgramParam(programParam, applicantId, programSlugUrlEnabled)
         .thenCompose(
             programId -> {
               CompletionStage<ApplicantPersonalInfo> applicantStage =
@@ -1132,7 +1049,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
                         return getOrMakeFileRecord(key.get(), originalFileName, applicantId)
                             .thenComposeAsync(
-                                (StoredFileModel unused) ->
+                                _ ->
                                     applicantService.stageAndUpdateIfValid(
                                         applicantId,
                                         programId,
@@ -1636,9 +1553,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   applicationParams,
                   addressSuggestionGroup,
                   applicantRequestedAction,
-                  isEligibilityEnabledOnThisBlock))
-              .as(Http.MimeTypes.HTML)
-              .addingToSession(request, ADDRESS_JSON_SESSION_KEY, json));
+                  isEligibilityEnabledOnThisBlock,
+                  json))
+              .as(Http.MimeTypes.HTML));
     }
   }
 

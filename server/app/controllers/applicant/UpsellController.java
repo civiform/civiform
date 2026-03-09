@@ -113,7 +113,7 @@ public final class UpsellController extends CiviFormController {
     return CompletableFuture.allOf(
             isPreScreener, account, roApplicantProgramService, relevantProgramsFuture)
         .thenComposeAsync(
-            ignored -> {
+            _ -> {
               if (!isPreScreener.join()) {
                 // Only the pre-screener form needs to get the applicant's eligible
                 // programs this way.
@@ -125,7 +125,7 @@ public final class UpsellController extends CiviFormController {
                   .thenComposeAsync(v -> checkApplicantAuthorization(request, applicantId))
                   .thenComposeAsync(
                       // We are already checking if profile is empty
-                      v ->
+                      _ ->
                           applicantService.maybeEligibleProgramsForApplicant(
                               applicantId, profile, request),
                       classLoaderExecutionContext.current())

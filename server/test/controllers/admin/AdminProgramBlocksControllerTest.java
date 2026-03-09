@@ -10,6 +10,7 @@ import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import com.google.common.collect.ImmutableMap;
+import controllers.FlashKey;
 import models.ProgramModel;
 import models.QuestionModel;
 import org.junit.Before;
@@ -243,6 +244,78 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
         .doesNotContain(applicantName.getQuestionDefinition().getQuestionText().getDefault());
     assertThat(Helpers.contentAsString(result))
         .contains(otherQuestionDef.getQuestionText().getDefault());
+  }
+
+  @Test
+  public void edit_withNewlyCreatedQuestionId_autoAddsQuestionAndRedirects() {
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
+    QuestionModel question = testQuestionBank.nameApplicantName();
+    question.save();
+
+    Request request =
+        fakeRequestBuilder()
+            .uri(
+                routes.AdminProgramBlocksController.edit(program.id, /* blockDefinitionId= */ 1L)
+                        .url()
+                    + "?"
+                    + views.components.ProgramQuestionBank.NEWLY_CREATED_QUESTION_ID_PARAM
+                    + "="
+                    + question.id)
+            .build();
+
+    Result result = controller.edit(request, program.id, /* blockId= */ 1L);
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.AdminProgramBlocksController.edit(program.id, /* blockDefinitionId= */ 1L)
+                .url());
+
+    program.refresh();
+    assertThat(
+            program.getProgramDefinition().blockDefinitions().get(0).programQuestionDefinitions())
+        .hasSize(1);
+    assertThat(
+            program
+                .getProgramDefinition()
+                .blockDefinitions()
+                .get(0)
+                .programQuestionDefinitions()
+                .get(0)
+                .id())
+        .isEqualTo(question.id);
+  }
+
+  @Test
+  public void edit_withNewlyCreatedQuestionId_whenQuestionDoesNotExist_redirectsWithErrorFlash() {
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
+    long nonexistentQuestionId = 999999L;
+
+    Request request =
+        fakeRequestBuilder()
+            .uri(
+                routes.AdminProgramBlocksController.edit(program.id, /* blockDefinitionId= */ 1L)
+                        .url()
+                    + "?"
+                    + views.components.ProgramQuestionBank.NEWLY_CREATED_QUESTION_ID_PARAM
+                    + "="
+                    + nonexistentQuestionId)
+            .build();
+
+    Result result = controller.edit(request, program.id, /* blockId= */ 1L);
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.AdminProgramBlocksController.edit(program.id, /* blockDefinitionId= */ 1L)
+                .url());
+    assertThat(result.flash().get(FlashKey.ERROR))
+        .hasValue("Question created, but could not be added to the program block");
+
+    program.refresh();
+    assertThat(
+            program.getProgramDefinition().blockDefinitions().get(0).programQuestionDefinitions())
+        .isEmpty();
   }
 
   @Test

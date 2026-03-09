@@ -18,6 +18,7 @@ on:
 
 permissions:
   pull-requests: read
+  contents: read
 
 jobs:
   create_release:
@@ -29,7 +30,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Login to Docker Hub
-        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2 # v4
         with:
           username: ${{ secrets.DOCKER_HUB_USER_NAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
