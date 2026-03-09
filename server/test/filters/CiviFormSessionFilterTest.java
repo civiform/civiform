@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
@@ -108,9 +109,7 @@ public class CiviFormSessionFilterTest extends WithApplication {
     Result result = executeFilter(request);
 
     assertThat(result.status()).isEqualTo(200);
-    Optional<Http.Cookie> cookie = result.cookies().get(TIMEOUT_COOKIE_NAME);
-    assertThat(cookie).isPresent();
-    assertThat(cookie.get().maxAge().longValue()).isEqualTo(Duration.ZERO.toSeconds());
+    verify(mockProfileData, never()).updateLastActivityTime(clock);
   }
 
   @Test
