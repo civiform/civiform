@@ -90,8 +90,6 @@ public class CiviFormSessionFilterTest extends WithApplication {
     when(settingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
   }
 
-  // --- Allowed endpoints ---
-
   @Test
   public void testAllowedEndpoint_bypassesFilter() throws Exception {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/playIndex").build();
@@ -114,8 +112,6 @@ public class CiviFormSessionFilterTest extends WithApplication {
     assertThat(cookie).isPresent();
     assertThat(cookie.get().maxAge().longValue()).isEqualTo(Duration.ZERO.toSeconds());
   }
-
-  // --- Invalid account or session ---
 
   @Test
   public void testInvalidSession_replayProtectionEnabled_redirectsToLogout() throws Exception {
@@ -177,8 +173,6 @@ public class CiviFormSessionFilterTest extends WithApplication {
     assertThat(result.redirectLocation()).hasValue("/logout");
   }
 
-  // --- Timeout disabled ---
-
   @Test
   public void testTimeoutDisabled_clearsCookie() throws Exception {
     RequestHeader request =
@@ -209,8 +203,6 @@ public class CiviFormSessionFilterTest extends WithApplication {
     assertThat(result.status()).isEqualTo(200);
     assertThat(result.cookies().get(TIMEOUT_COOKIE_NAME)).isEmpty();
   }
-
-  // --- Timeout enabled ---
 
   @Test
   public void testTimeoutEnabled_validSession_setsCookieAndUpdatesActivity() throws Exception {
