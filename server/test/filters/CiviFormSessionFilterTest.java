@@ -2,6 +2,7 @@ package filters;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -31,18 +32,18 @@ import play.mvc.Http.RequestHeader;
 import play.mvc.Result;
 import play.test.WithApplication;
 import repository.DatabaseExecutionContext;
+import services.session.SessionTimeoutService;
 import services.settings.SettingsManifest;
 
-public class ValidAccountFilterTest extends WithApplication {
+public class CiviFormSessionFilterTest extends WithApplication {
   private static final String TIMEOUT_COOKIE_NAME = "session_timeout_data";
   private static final long CURRENT_TIME = 1000000000L;
   private static final String SESSION_ID = "test-session-id";
 
   private ProfileUtils profileUtils;
   private SettingsManifest settingsManifest;
-  private ValidAccountFilter filter;
-  private SettingsManifest settingsManifest;
   private SessionTimeoutService sessionTimeoutService;
+  private CiviFormSessionFilter filter;
   private CiviFormProfile mockProfile;
   private CiviFormProfileData mockProfileData;
   private AccountModel mockAccount;
@@ -60,14 +61,17 @@ public class ValidAccountFilterTest extends WithApplication {
   public void setUp() {
     profileUtils = mock(ProfileUtils.class);
     settingsManifest = mock(SettingsManifest.class);
+    sessionTimeoutService = mock(SessionTimeoutService.class);
+    clock = mock(Clock.class);
 
     filter =
         new CiviFormSessionFilter(
             profileUtils,
-            () -> settingsManifest, // Provider<SettingsManifest>
             mat,
-            () -> instanceOf(DatabaseExecutionContext.class) // Provider<DatabaseExecutionContext>
-            );
+            clock,
+            () -> settingsManifest,
+            () -> sessionTimeoutService,
+            () -> instanceOf(DatabaseExecutionContext.class));
 
     mockProfile = mock(CiviFormProfile.class);
     mockProfileData = mock(CiviFormProfileData.class);
@@ -82,6 +86,8 @@ public class ValidAccountFilterTest extends WithApplication {
     when(clock.millis()).thenReturn(CURRENT_TIME * 1000);
     when(sessionTimeoutService.calculateTimeoutData(eq(mockProfile), anyLong()))
         .thenReturn(defaultTimeoutData);
+    // Session replay protection is enabled by default
+    when(settingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
   }
 
   // --- Allowed endpoints ---
@@ -99,10 +105,7 @@ public class ValidAccountFilterTest extends WithApplication {
   public void testValidProfile_sessionTimeoutDisabled_noUpdatesLastActivityTime() throws Exception {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
-    when(profileUtils.validCiviFormProfile(mockProfile))
-        .thenReturn(CompletableFuture.completedFuture(true));
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(false);
-    when(settingsManifest.getSessionReplayProtectionEnabled()).thenReturn(false);
 
     Result result = executeFilter(request);
 
@@ -115,11 +118,9 @@ public class ValidAccountFilterTest extends WithApplication {
   // --- Invalid account or session ---
 
   @Test
-  public void testInvalidSession_sessionTimeoutDisabled_redirectsToLogout() throws Exception {
+  public void testInvalidSession_replayProtectionEnabled_redirectsToLogout() throws Exception {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
-    when(profileUtils.validCiviFormProfile(mockProfile))
-        .thenReturn(CompletableFuture.completedFuture(true));
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(false);
     when(settingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
 
@@ -131,6 +132,22 @@ public class ValidAccountFilterTest extends WithApplication {
 
     assertThat(result.status()).isEqualTo(303); // Redirect status
     assertThat(result.redirectLocation()).hasValue("/logout");
+  }
+
+  @Test
+  public void testInvalidSession_replayProtectionDisabled_passesThrough() throws Exception {
+    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
+    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
+    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(false);
+    when(settingsManifest.getSessionReplayProtectionEnabled()).thenReturn(false);
+
+    // Session ID not found in active sessions
+    when(mockAccount.getActiveSession(anyString())).thenReturn(Optional.empty());
+    when(mockProfileData.getSessionId()).thenReturn("session123");
+
+    Result result = executeFilter(request);
+
+    assertThat(result.status()).isEqualTo(200);
   }
 
   @Test

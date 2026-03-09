@@ -114,14 +114,20 @@ public class CiviFormSessionFilter extends EssentialFilter {
                         AccountModel account = optionalAccount.get();
                         Optional<SessionDetails> optionalSession =
                             account.getActiveSession(profile.getProfileData().getSessionId());
-                        if (optionalSession.isEmpty()) {
+
+                        // When session replay protection is enabled, force logout if the
+                        // session is not found in the database.
+                        if (settingsManifest.get().getSessionReplayProtectionEnabled()
+                            && optionalSession.isEmpty()) {
                           return redirectToLogout();
                         }
-                        long sessionStartTimeInMillis =
-                            optionalSession.get().getCreationTime().toEpochMilli();
 
-                        // Handle session timeout
-                        if (settingsManifest.get().getSessionTimeoutEnabled(request)) {
+                        // Handle session timeout (only when session exists)
+                        if (settingsManifest.get().getSessionTimeoutEnabled(request)
+                            && optionalSession.isPresent()) {
+                          long sessionStartTimeInMillis =
+                              optionalSession.get().getCreationTime().toEpochMilli();
+
                           // Validate session length
                           if (sessionTimeoutService
                               .get()
@@ -139,17 +145,17 @@ public class CiviFormSessionFilter extends EssentialFilter {
                                           createSessionTimestampCookie(
                                               profile, sessionStartTimeInMillis)),
                                   materializer.executionContext());
-                        } else {
-                          return next.apply(request)
-                              .map(
-                                  result -> {
-                                    if (request.cookies().get(TIMEOUT_COOKIE_NAME).isPresent()) {
-                                      return clearTimeoutCookie(result);
-                                    }
-                                    return result;
-                                  },
-                                  materializer.executionContext());
                         }
+
+                        return next.apply(request)
+                            .map(
+                                result -> {
+                                  if (request.cookies().get(TIMEOUT_COOKIE_NAME).isPresent()) {
+                                    return clearTimeoutCookie(result);
+                                  }
+                                  return result;
+                                },
+                                materializer.executionContext());
                       },
                       databaseExecutionContext.get());
 
