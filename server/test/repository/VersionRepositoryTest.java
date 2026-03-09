@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import play.cache.NamedCacheImpl;
 import play.cache.SyncCacheApi;
 import repository.VersionRepository.PublishProgramPreview;
 import services.applicant.question.Scalar;
@@ -55,8 +56,16 @@ public class VersionRepositoryTest extends ResetPostgres {
   @Before
   public void setupVersionRepository() {
     mockSettingsManifest = Mockito.mock(SettingsManifest.class);
-    questionsByVersionCache = instanceOf(SyncCacheApi.class);
-    programsByVersionCache = instanceOf(SyncCacheApi.class);
+    questionsByVersionCache =
+        instanceOf(
+            new play.inject.BindingKey<>(SyncCacheApi.class)
+                .qualifiedWith(new NamedCacheImpl("version-questions"))
+                .asScala());
+    programsByVersionCache =
+        instanceOf(
+            new play.inject.BindingKey<>(SyncCacheApi.class)
+                .qualifiedWith(new NamedCacheImpl("version-programs"))
+                .asScala());
     versionRepository =
         new VersionRepository(
             instanceOf(ProgramRepository.class),
@@ -1177,14 +1186,15 @@ public class VersionRepositoryTest extends ResetPostgres {
 
   @Test
   public void getQuestionsForVersion_cacheIsPopulatedWithFreshData() {
-    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
-
     // Create a version and add a question
     VersionModel version = versionRepository.getDraftVersionOrCreate();
     QuestionModel firstQuestion = resourceCreator.insertQuestion("first-question");
     firstQuestion.addVersion(version).save();
     versionRepository.publishNewSynchronizedVersion();
     version.refresh();
+
+    // Enable cache after publish so publish doesn't warm the cache
+    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
 
     String versionKey = String.valueOf(version.id);
 
@@ -1214,13 +1224,14 @@ public class VersionRepositoryTest extends ResetPostgres {
 
   @Test
   public void getProgramsForVersion_cacheIsPopulatedWithFreshData() {
-    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
-
     // Create a version and add a program
     VersionModel version = versionRepository.getDraftVersionOrCreate();
     resourceCreator.insertDraftProgram("first-program");
     versionRepository.publishNewSynchronizedVersion();
     version.refresh();
+
+    // Enable cache after publish so publish doesn't warm the cache
+    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
 
     String versionKey = String.valueOf(version.id);
 
@@ -1251,7 +1262,6 @@ public class VersionRepositoryTest extends ResetPostgres {
   public void getQuestionsForVersion_returnsFreshDataWithCacheEnabled() {
     // Same scenario as the StaleVersionObject test, but with cache enabled.
     // Verifies that on cache miss, fresh data is fetched and cached correctly.
-    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
 
     // Create a version and add a question
     VersionModel version = versionRepository.getDraftVersionOrCreate();
@@ -1259,6 +1269,9 @@ public class VersionRepositoryTest extends ResetPostgres {
     firstQuestion.addVersion(version).save();
     versionRepository.publishNewSynchronizedVersion();
     version.refresh();
+
+    // Enable cache after publish so publish doesn't warm the cache
+    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
 
     // Get a reference to the version that has its BeanCollection loaded
     VersionModel staleVersion = DB.find(VersionModel.class, version.id);
@@ -1282,13 +1295,15 @@ public class VersionRepositoryTest extends ResetPostgres {
   public void getProgramsForVersion_returnsFreshDataWithCacheEnabled() {
     // Same scenario as the StaleVersionObject test, but with cache enabled.
     // Verifies that on cache miss, fresh data is fetched and cached correctly.
-    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
 
     // Create a version and add a program
     VersionModel version = versionRepository.getDraftVersionOrCreate();
     resourceCreator.insertDraftProgram("first-program");
     versionRepository.publishNewSynchronizedVersion();
     version.refresh();
+
+    // Enable cache after publish so publish doesn't warm the cache
+    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
 
     // Get a reference to the version that has its BeanCollection loaded
     VersionModel staleVersion = DB.find(VersionModel.class, version.id);
@@ -1316,7 +1331,7 @@ public class VersionRepositoryTest extends ResetPostgres {
 
     assertThatThrownBy(() -> versionRepository.getQuestionsForVersion(fakeVersion))
         .isInstanceOf(RuntimeException.class)
-        .hasMessageContaining("not found when fetching questions");
+        .hasMessageContaining("not found when fetching Questions");
   }
 
   @Test
@@ -1327,7 +1342,7 @@ public class VersionRepositoryTest extends ResetPostgres {
 
     assertThatThrownBy(() -> versionRepository.getProgramsForVersion(fakeVersion))
         .isInstanceOf(RuntimeException.class)
-        .hasMessageContaining("not found when fetching programs");
+        .hasMessageContaining("not found when fetching Programs");
   }
 
   @Test
@@ -1521,8 +1536,9 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(withoutDraft).isPresent();
     long activeVersionId = withoutDraft.get();
 
-    // Create a draft
-    versionRepository.getDraftVersionOrCreate();
+    // Create a draft with a question (publish requires at least 1 program or question)
+    VersionModel draft = versionRepository.getDraftVersionOrCreate();
+    resourceCreator.insertQuestion("draft-question").addVersion(draft).save();
 
     // Now draft exists, should return empty
     Optional<Long> withDraft = versionRepository.getActiveVersionIdIfNoDraft();
@@ -1566,21 +1582,28 @@ public class VersionRepositoryTest extends ResetPostgres {
 
   @Test
   public void previewPublish_includesProgramsAddedFromActiveVersion() {
-    // Create two programs: one active-only, one draft
-    ProgramBuilder.newActiveProgram("active-only-program").build();
-    QuestionModel question = resourceCreator.insertQuestion("draft-question");
-    question.addVersion(versionRepository.getDraftVersionOrCreate()).save();
-    ProgramBuilder.newDraftProgram("draft-program")
+    // Create an active-only program with a question, and a separate draft program with its own
+    // question. The preview should carry forward the active program and include both in the map.
+    QuestionModel activeQuestion = resourceCreator.insertQuestion("active-question");
+    activeQuestion.addVersion(versionRepository.getActiveVersion()).save();
+    ProgramBuilder.newActiveProgram("active-only-program")
         .withBlock("Screen 1")
-        .withRequiredQuestion(question)
+        .withRequiredQuestion(activeQuestion)
         .build();
 
-    // Preview should include both: the draft program and the active program copied forward.
-    // The map keys are question names, values are the programs referencing each question.
-    // The draft program references "draft-question", and the active program has no questions,
-    // so we verify the draft program appears in the map.
+    QuestionModel draftQuestion = resourceCreator.insertQuestion("draft-question");
+    draftQuestion.addVersion(versionRepository.getDraftVersionOrCreate()).save();
+    ProgramBuilder.newDraftProgram("draft-program")
+        .withBlock("Screen 1")
+        .withRequiredQuestion(draftQuestion)
+        .build();
+
     ImmutableMap<String, ImmutableSet<PublishProgramPreview>> preview =
         versionRepository.previewPublishNewSynchronizedVersion();
+    assertThat(preview).containsKey("active-question");
+    assertThat(
+            preview.get("active-question").stream().map(PublishProgramPreview::adminName))
+        .containsExactly("active-only-program");
     assertThat(preview).containsKey("draft-question");
     assertThat(
             preview.get("draft-question").stream().map(PublishProgramPreview::adminName))
