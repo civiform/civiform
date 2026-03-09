@@ -2,13 +2,24 @@ package filters;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.AccountNonexistentException;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.nio.charset.StandardCharsets;
+import java.time.Clock;
+import java.time.Duration;
+import java.util.Base64;
 import java.util.Optional;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import javax.inject.Provider;
+import models.AccountModel;
+import models.SessionDetails;
 import org.apache.pekko.stream.Materializer;
 import org.apache.pekko.util.ByteString;
+import play.libs.Json;
 import play.libs.streams.Accumulator;
 import play.mvc.EssentialAction;
 import play.mvc.EssentialFilter;
@@ -16,17 +27,26 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 import repository.DatabaseExecutionContext;
+import services.session.SessionTimeoutService;
 import services.settings.SettingsManifest;
 
 /**
- * A filter to ensure the account referenced in the browser cookie is valid. This should only matter
- * when the account is deleted from the database which almost will never happen in prod database.
+ * A filter to validate user accounts and manage session timeouts.
+ *
+ * <p>This filter ensures the account referenced in the browser cookie is valid, checks for session
+ * expiration, and sets a cookie for the frontend to show timeout warnings.
  */
 public class ValidAccountFilter extends EssentialFilter {
+  private static final String TIMEOUT_COOKIE_NAME = "session_timeout_data";
+  private static final Duration COOKIE_MAX_AGE = Duration.ofDays(2);
 
   private final ProfileUtils profileUtils;
   private final Provider<SettingsManifest> settingsManifest;
   private final Materializer materializer;
+  private final Clock clock;
+  private final Provider<SettingsManifest> settingsManifest;
+  private final Provider<SessionTimeoutService> sessionTimeoutService;
+  private final Provider<DatabaseExecutionContext> databaseExecutionContext;
 
   @Inject
   public ValidAccountFilter(
@@ -37,6 +57,10 @@ public class ValidAccountFilter extends EssentialFilter {
     this.profileUtils = checkNotNull(profileUtils);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.materializer = checkNotNull(materializer);
+    this.clock = checkNotNull(clock);
+    this.settingsManifest = checkNotNull(settingsManifest);
+    this.sessionTimeoutService = checkNotNull(sessionTimeoutService);
+    this.databaseExecutionContext = checkNotNull(databaseExecutionContext);
   }
 
   @Override
@@ -44,34 +68,90 @@ public class ValidAccountFilter extends EssentialFilter {
     return EssentialAction.of(
         request -> {
           if (allowedEndpoint(request)) {
+            // Update activity time for allowed endpoints when a profile exists, so that
+            // requests to these routes (e.g., API calls) count toward session activity
+            request
+                .attrs()
+                .getOptional(ProfileUtils.CURRENT_USER_PROFILE)
+                .ifPresent(profile -> profile.getProfileData().updateLastActivityTime(clock));
             return next.apply(request);
           }
 
           // Only get the profile if it doesn't already exist on the request
-          Optional<CiviFormProfile> profile =
+          Optional<CiviFormProfile> optionalProfile =
               request
                   .attrs()
                   .getOptional(ProfileUtils.CURRENT_USER_PROFILE)
                   .or(() -> profileUtils.optionalCurrentUserProfile(request));
 
-          if (profile.isEmpty()) {
-            return next.apply(request);
+          if (optionalProfile.isEmpty()) {
+            return next.apply(request)
+                .map(this::clearTimeoutCookie, materializer.executionContext());
           }
 
+          CiviFormProfile profile = optionalProfile.get();
+
           CompletionStage<Accumulator<ByteString, Result>> futureAccumulator =
-              shouldLogoutUser(profile.get())
-                  .thenApply(
-                      shouldLogout -> {
-                        if (shouldLogout) {
-                          return Accumulator.done(
-                              Results.redirect(org.pac4j.play.routes.LogoutController.logout()));
-                        } else {
-                          // Attach the profile so downstream actions don't need to re-fetch it
-                          Http.RequestHeader requestWithProfile =
-                              request.addAttr(ProfileUtils.CURRENT_USER_PROFILE, profile.get());
-                          return next.apply(requestWithProfile);
+              profile
+                  .getAccount()
+                  .thenApplyAsync(Optional::of, databaseExecutionContext.get())
+                  .exceptionally(
+                      ex -> {
+                        Throwable cause = (ex instanceof CompletionException) ? ex.getCause() : ex;
+                        if (cause instanceof AccountNonexistentException) {
+                          return Optional.empty();
                         }
-                      });
+                        throw new CompletionException(cause);
+                      })
+                  .thenApplyAsync(
+                      optionalAccount -> {
+                        // Validate account
+                        if (optionalAccount.isEmpty()) {
+                          return redirectToLogout();
+                        }
+
+                        // Validate session
+                        AccountModel account = optionalAccount.get();
+                        Optional<SessionDetails> optionalSession =
+                            account.getActiveSession(profile.getProfileData().getSessionId());
+                        if (optionalSession.isEmpty()) {
+                          return redirectToLogout();
+                        }
+                        long sessionStartTimeInMillis =
+                            optionalSession.get().getCreationTime().toEpochMilli();
+
+                        // Handle session timeout
+                        if (settingsManifest.get().getSessionTimeoutEnabled(request)) {
+                          // Validate session length
+                          if (sessionTimeoutService
+                              .get()
+                              .isSessionTimedOut(profile, sessionStartTimeInMillis)) {
+                            account.removeActiveSession(profile.getProfileData().getSessionId());
+                            account.save();
+                            return redirectToLogout();
+                          }
+
+                          profile.getProfileData().updateLastActivityTime(clock);
+                          return next.apply(request)
+                              .map(
+                                  result ->
+                                      result.withCookies(
+                                          createSessionTimestampCookie(
+                                              profile, sessionStartTimeInMillis)),
+                                  materializer.executionContext());
+                        } else {
+                          return next.apply(request)
+                              .map(
+                                  result -> {
+                                    if (request.cookies().get(TIMEOUT_COOKIE_NAME).isPresent()) {
+                                      return clearTimeoutCookie(result);
+                                    }
+                                    return result;
+                                  },
+                                  materializer.executionContext());
+                        }
+                      },
+                      databaseExecutionContext.get());
 
           return Accumulator.flatten(futureAccumulator, materializer);
         });
@@ -109,16 +189,61 @@ public class ValidAccountFilter extends EssentialFilter {
    * infinite redirect.
    *
    * <p>NOTE: You might think we'd also want an OptionalProfileRoutes check here. However, this is
-   * currently only called after checking if a profile is present and valid. If the profile isn't
-   * present, we never make it here anyway. If the profile is invalid, we don't want to allow
-   * hitting those endpoints with an invalid profile, so we don't add that check here.
+   * only called after checking if a profile is present. If the profile isn't present, we skip
+   * validation anyway. If the profile is present but invalid, we don't want to allow hitting those
+   * endpoints with an invalid profile, so we don't add that check here.
    */
-  public static boolean allowedEndpoint(Http.RequestHeader requestHeader) {
+  private static boolean allowedEndpoint(Http.RequestHeader requestHeader) {
     return NonUserRoutes.anyMatch(requestHeader) || isLogoutRequest(requestHeader.uri());
   }
 
   /** Return true if the request is to the logout endpoint. */
   private static boolean isLogoutRequest(String uri) {
     return uri.startsWith(org.pac4j.play.routes.LogoutController.logout().url());
+  }
+
+  /**
+   * Creates a cookie containing the current session's timeout data.
+   *
+   * <p>This cookie is intended for use by client-side JavaScript. It is not encrypted because the
+   * data it contains is not sensitive, and the client needs to be able to read it. To mitigate
+   * potential security risks, this cookie should not contain values that are also transmitted in
+   * client requests. If it becomes necessary to use this cookie's data on the server, additional
+   * validation measures must be implemented.
+   *
+   * @param profile Profile corresponding to the logged-in user (applicant or TI).
+   * @param sessionStartTimeInMillis the session start time in milliseconds
+   * @return The cookie containing the session's timeout data.
+   */
+  private Http.Cookie createSessionTimestampCookie(
+      CiviFormProfile profile, long sessionStartTimeInMillis) {
+    SessionTimeoutService.TimeoutData timeoutData =
+        sessionTimeoutService.get().calculateTimeoutData(profile, sessionStartTimeInMillis);
+
+    ObjectNode timestamps =
+        Json.newObject()
+            .put("inactivityWarning", timeoutData.inactivityWarning())
+            .put("inactivityTimeout", timeoutData.inactivityTimeout())
+            .put("totalWarning", timeoutData.totalWarning())
+            .put("totalTimeout", timeoutData.totalTimeout())
+            .put("currentTime", timeoutData.currentTime());
+
+    String cookieValue =
+        Base64.getEncoder()
+            .encodeToString(Json.stringify(timestamps).getBytes(StandardCharsets.UTF_8));
+
+    return Http.Cookie.builder(TIMEOUT_COOKIE_NAME, cookieValue)
+        .withHttpOnly(false)
+        .withPath("/")
+        .withMaxAge(COOKIE_MAX_AGE)
+        .build();
+  }
+
+  private Result clearTimeoutCookie(Result result) {
+    return result.withCookies(
+        Http.Cookie.builder(TIMEOUT_COOKIE_NAME, "")
+            .withMaxAge(Duration.ZERO)
+            .withPath("/")
+            .build());
   }
 }
