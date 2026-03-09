@@ -324,8 +324,10 @@ public final class ProgramRepository {
       ProgramModel newDraft = new ProgramModel(existingProgram.toBuilder().build(), draftVersion);
       newDraft = insertProgramSync(newDraft);
       draftVersion.refresh();
+      Long newDraftId = newDraft.id;
       Preconditions.checkState(
-          versionRepository.get().getProgramsForVersion(draftVersion).contains(newDraft),
+          versionRepository.get().getProgramsForVersion(draftVersion).stream()
+              .anyMatch(p -> p.id.equals(newDraftId)),
           "Must have successfully added draft version.");
       Preconditions.checkState(
           draftVersion.getLifecycleStage().equals(LifecycleStage.DRAFT),
