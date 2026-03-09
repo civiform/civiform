@@ -303,7 +303,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "question_type" : "TEXT",
           "text" : "answer two"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -365,7 +366,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
           "street" : "12345 E South St",
           "well_known_id" : "54321",
           "zip" : "97403"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -437,7 +439,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             }
           } ],
           "question_type" : "ENUMERATOR"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -481,7 +484,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
           "street" : "12345 E South St",
           "well_known_id" : null,
           "zip" : "97403"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -517,7 +521,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
           "street" : null,
           "well_known_id" : null,
           "zip" : null
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -551,7 +556,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "question_type" : "MULTI_SELECT",
           "selections" : [ "pepper_grinder", "garlic_press" ]
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -595,7 +601,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             }
           } ],
           "question_type" : "ENUMERATOR"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -622,7 +629,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "question_type" : "MULTI_SELECT",
           "selections" : [ ]
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -651,7 +659,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "currency_dollars" : 5444.33,
           "question_type" : "CURRENCY"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -690,7 +699,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             }
           } ],
           "question_type" : "ENUMERATOR"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -717,7 +727,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "currency_dollars" : null,
           "question_type" : "CURRENCY"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -746,7 +757,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "date" : "2015-10-21",
           "question_type" : "DATE"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -785,7 +797,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             }
           } ],
           "question_type" : "ENUMERATOR"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -812,7 +825,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "date" : null,
           "question_type" : "DATE"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -841,7 +855,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "question_type" : "SINGLE_SELECT",
           "selection" : "strawberry"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -880,7 +895,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             }
           } ],
           "question_type" : "ENUMERATOR"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -907,7 +923,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "question_type" : "SINGLE_SELECT",
           "selection" : null
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -936,7 +953,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "email" : "chell@aperturescience.com",
           "question_type" : "EMAIL"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -977,7 +995,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             }
           } ],
           "question_type" : "ENUMERATOR"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -1004,7 +1023,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "email" : null,
           "question_type" : "EMAIL"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -1031,11 +1051,12 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_file",
-        """
+"""
 {
   "file_urls" : [ "%s/admin/applicant-files/test-file-key-1", "%s/admin/applicant-files/test-file-key-2" ],
   "question_type" : "FILE_UPLOAD"
-}"""
+}\
+"""
             .formatted(BASE_URL, BASE_URL));
   }
 
@@ -1063,7 +1084,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "file_urls" : [ ],
           "question_type" : "FILE_UPLOAD"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -1095,7 +1117,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
 
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_household_members",
-        """
+"""
 {
   "entities" : [ {
     "entity_name" : "taylor",
@@ -1105,7 +1127,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
     }
   } ],
   "question_type" : "ENUMERATOR"
-}"""
+}\
+"""
             .formatted(BASE_URL, BASE_URL));
   }
 
@@ -1133,7 +1156,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "file_urls" : [ ],
           "question_type" : "FILE_UPLOAD"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -1175,7 +1199,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             }
           } ],
           "question_type" : "ENUMERATOR"
-        }"""
+        }\
+        """
             .formatted(BASE_URL));
   }
 
@@ -1205,7 +1230,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "id" : "011235813",
           "question_type" : "ID"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -1242,7 +1268,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             }
           } ],
           "question_type" : "ENUMERATOR"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -1269,7 +1296,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "id" : null,
           "question_type" : "ID"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -1301,7 +1329,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
           "middle_name" : "Allison",
           "question_type" : "NAME",
           "suffix" : "I"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -1348,7 +1377,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             }
           } ],
           "question_type" : "ENUMERATOR"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -1380,7 +1410,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
           "middle_name" : null,
           "question_type" : "NAME",
           "suffix" : null
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -1410,7 +1441,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
           "middle_name" : null,
           "question_type" : "NAME",
           "suffix" : null
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -1439,7 +1471,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "number" : 4200,
           "question_type" : "NUMBER"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -1477,7 +1510,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             }
           } ],
           "question_type" : "ENUMERATOR"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -1504,7 +1538,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "number" : null,
           "question_type" : "NUMBER"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -1533,7 +1568,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "phone_number" : "+15558675309",
           "question_type" : "PHONE"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -1572,7 +1608,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             }
           } ],
           "question_type" : "ENUMERATOR"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -1599,7 +1636,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "phone_number" : null,
           "question_type" : "PHONE"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -1628,7 +1666,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "question_type" : "SINGLE_SELECT",
           "selection" : "summer"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -1669,7 +1708,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             }
           } ],
           "question_type" : "ENUMERATOR"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -1696,7 +1736,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "question_type" : "SINGLE_SELECT",
           "selection" : null
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -1725,7 +1766,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "question_type" : "SINGLE_SELECT",
           "selection" : "yes"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -1763,7 +1805,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             "entity_name" : "taylor"
           } ],
           "question_type" : "ENUMERATOR"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -1790,7 +1833,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "question_type" : "SINGLE_SELECT",
           "selection" : null
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -1819,7 +1863,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "question_type" : "TEXT",
           "text" : "red 💖"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -1860,7 +1905,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             }
           } ],
           "question_type" : "ENUMERATOR"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -1887,7 +1933,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "question_type" : "TEXT",
           "text" : null
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -1918,7 +1965,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "entities" : [ ],
           "question_type" : "ENUMERATOR"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -1970,7 +2018,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             }
           } ],
           "question_type" : "ENUMERATOR"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -2014,7 +2063,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             }
           } ],
           "question_type" : "ENUMERATOR"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -2066,7 +2116,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             }
           } ],
           "question_type" : "ENUMERATOR"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -2145,7 +2196,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             }
           } ],
           "question_type" : "ENUMERATOR"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -2228,7 +2280,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             }
           } ],
           "question_type" : "ENUMERATOR"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -2258,7 +2311,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "question_type" : "TEXT",
           "text" : "red"
-        }""");
+        }\
+        """);
 
     // assert hidden question is still in export
     resultAsserter.assertJsonAtApplicationPath(
@@ -2267,7 +2321,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "date" : null,
           "question_type" : "DATE"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -2342,7 +2397,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "email" : null,
           "question_type" : "EMAIL"
-        }""");
+        }\
+        """);
     resultAsserter.assertJsonAtApplicationPath(
         1,
         ".number_of_items_applicant_can_juggle",
@@ -2350,7 +2406,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "number" : 3,
           "question_type" : "NUMBER"
-        }""");
+        }\
+        """);
 
     // second application
     resultAsserter.assertJsonAtApplicationPath(
@@ -2360,7 +2417,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "email" : "test@test.com",
           "question_type" : "EMAIL"
-        }""");
+        }\
+        """);
     resultAsserter.assertJsonAtApplicationPath(
         0,
         ".number_of_items_applicant_can_juggle",
@@ -2368,7 +2426,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "number" : 4,
           "question_type" : "NUMBER"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -2414,7 +2473,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "email" : "test@test.com",
           "question_type" : "EMAIL"
-        }""");
+        }\
+        """);
     resultAsserter.assertJsonAtApplicationPath(
         1,
         ".number_of_items_applicant_can_juggle",
@@ -2422,7 +2482,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "number" : 3,
           "question_type" : "NUMBER"
-        }""");
+        }\
+        """);
 
     // second application
     resultAsserter.assertJsonAtApplicationPath(
@@ -2432,7 +2493,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "email" : null,
           "question_type" : "EMAIL"
-        }""");
+        }\
+        """);
     resultAsserter.assertJsonAtApplicationPath(
         0,
         ".number_of_items_applicant_can_juggle",
@@ -2440,7 +2502,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "number" : 4,
           "question_type" : "NUMBER"
-        }""");
+        }\
+        """);
 
     ImmutableList<ProgramDefinition> programDefinitionsForAllVersions =
         programService.getAllVersionsFullProgramDefinition(fakeProgram.id);
@@ -2491,7 +2554,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "email" : "test@test.com",
           "question_type" : "EMAIL"
-        }""");
+        }\
+        """);
     programBResultAsserter.assertJsonDoesNotContainApplicationPath(
         ".number_of_items_applicant_can_juggle");
 
@@ -2517,14 +2581,16 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "email" : "test@test.com",
           "question_type" : "EMAIL"
-        }""");
+        }\
+        """);
     updatedProgramBResultAsserter.assertJsonAtApplicationPath(
         ".number_of_items_applicant_can_juggle",
         """
         {
           "number" : null,
           "question_type" : "NUMBER"
-        }""");
+        }\
+        """);
   }
 
   @Test
@@ -2580,7 +2646,8 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         {
           "question_type" : "SINGLE_SELECT",
           "selection" : "mint"
-        }""");
+        }\
+        """);
   }
 
   private static class ResultAsserter {
