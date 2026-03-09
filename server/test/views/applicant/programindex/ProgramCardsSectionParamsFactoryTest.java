@@ -42,7 +42,8 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
             // empty lifecycle stage means this is their first time filling out this application
             /* optionalLifecycleStage= */ Optional.empty(),
             /* applicantId= */ Optional.empty(),
-            /* profile= */ Optional.empty());
+            /* profile= */ Optional.empty(),
+            /* programSlugUrlEnabled= */ false);
     assertThat(url).isEqualTo("/programs/fake-program");
   }
 
@@ -59,7 +60,8 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
             // empty lifecycle stage means this is their first time filling out this application
             /* optionalLifecycleStage= */ Optional.empty(),
             /* applicantId= */ Optional.of(1L),
-            /* profile= */ Optional.of(testProfile));
+            /* profile= */ Optional.of(testProfile),
+            /* programSlugUrlEnabled= */ false);
     assertThat(url).isEqualTo("/applicants/1/programs/fake-program");
   }
 
@@ -76,7 +78,8 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
             Optional.of(
                 LifecycleStage.DRAFT), // draft lifecyle stage means they have an in progress draft
             /* applicantId= */ Optional.empty(),
-            /* profile= */ Optional.empty());
+            /* profile= */ Optional.empty(),
+            /* programSlugUrlEnabled= */ false);
     assertThat(url).isEqualTo("/programs/1/edit");
   }
 
@@ -93,7 +96,8 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
             Optional.of(
                 LifecycleStage.DRAFT), // draft lifecyle stage means they have an in progress draft
             /* applicantId= */ Optional.of(1L),
-            /* profile= */ Optional.of(testProfile));
+            /* profile= */ Optional.of(testProfile),
+            /* programSlugUrlEnabled= */ false);
     assertThat(url).isEqualTo("/applicants/1/programs/1/edit");
   }
 
@@ -111,7 +115,8 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
                 LifecycleStage
                     .ACTIVE), // active lifecycle stage means they have submitted the application
             /* applicantId= */ Optional.empty(),
-            /* profile= */ Optional.empty());
+            /* profile= */ Optional.empty(),
+            /* programSlugUrlEnabled= */ false);
     assertThat(url).isEqualTo("/programs/1/review");
   }
 
@@ -129,7 +134,8 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
                 LifecycleStage
                     .ACTIVE), // active lifecycle stage means they have submitted the application
             /* applicantId= */ Optional.of(1L),
-            /* profile= */ Optional.of(testProfile));
+            /* profile= */ Optional.of(testProfile),
+            /* programSlugUrlEnabled= */ false);
     assertThat(url).isEqualTo("/applicants/1/programs/1/review");
   }
 
@@ -146,7 +152,8 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
             // empty lifecycle stage means this is their first time filling out this application
             /* optionalLifecycleStage= */ Optional.empty(),
             /* applicantId= */ Optional.empty(),
-            /* profile= */ Optional.empty());
+            /* profile= */ Optional.empty(),
+            /* programSlugUrlEnabled= */ false);
     assertThat(url).isEqualTo("/programs/1/edit");
   }
 
@@ -163,7 +170,8 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
             // empty lifecycle stage means this is their first time filling out this application
             /* optionalLifecycleStage= */ Optional.empty(),
             /* applicantId= */ Optional.of(1L),
-            /* profile= */ Optional.of(testProfile));
+            /* profile= */ Optional.of(testProfile),
+            /* programSlugUrlEnabled= */ false);
     assertThat(url).isEqualTo("/applicants/1/programs/1/edit");
   }
 
@@ -180,7 +188,8 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
             // empty lifecycle stage means this is their first time filling out this application
             /* optionalLifecycleStage= */ Optional.empty(),
             /* applicantId= */ Optional.empty(),
-            /* profile= */ Optional.empty());
+            /* profile= */ Optional.empty(),
+            /* programSlugUrlEnabled= */ false);
     assertThat(url).isEqualTo("https://usa.gov");
   }
 }
