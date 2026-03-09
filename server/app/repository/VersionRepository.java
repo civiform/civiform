@@ -13,6 +13,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import io.ebean.DB;
 import io.ebean.Database;
+import io.ebean.PersistenceContextScope;
 import io.ebean.SerializableConflictException;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
@@ -92,12 +93,11 @@ public final class VersionRepository {
    * methods with a "bypassCache" parameter since we intend to later refactor the dry run publish
    * flow to which this mechanism will not be necessary, meaning less code change at that time.
    *
-   * <p>This relies on the DRY_RUN path being fully synchronous on a single thread, which is
-   * currently guaranteed by the SERIALIZABLE transaction wrapping the entire publish flow.
-   * ThreadLocal state does not propagate across threads, so if this code is ever refactored to use
-   * async execution (CompletableFuture, Play's async actions, etc.), this mechanism will silently
-   * break. In that case, replace this with an explicit method parameter or similar approach that
-   * doesn't rely on thread-local state.
+   * <p>This relies on the DRY_RUN path being fully synchronous on a single thread. ThreadLocal
+   * state does not propagate across threads, so if this code is ever refactored to use async
+   * execution (CompletableFuture, Play's async actions, etc.), this mechanism will silently break.
+   * In that case, replace this with an explicit method parameter or similar approach that doesn't
+   * rely on thread-local state.
    */
   private static final ThreadLocal<Boolean> skipCache = ThreadLocal.withInitial(() -> false);
 
@@ -289,10 +289,10 @@ public final class VersionRepository {
           draft.save();
           active.save();
 
-          // Skip cache reads and writes during dry run to prevent transient data
-          // (which will be rolled back) from polluting the cache.
-          skipCache.set(true);
           try {
+            // Skip cache reads and writes during dry run to prevent transient data
+            // (which will be rolled back) from polluting the cache.
+            skipCache.set(true);
             var dryRunNewActive = buildDryRunPublishedVersion(draft);
             transaction.rollback();
             draft.refresh();
@@ -306,13 +306,11 @@ public final class VersionRepository {
     }
   }
 
-  // This is the one and only place that version.getPrograms() and version.getQuestions() is okay.
-  // this is only called inside the DRY_RUN publish transaction above, and the VersionModel passed
-  // in
-  // is consistent with the database state within the transaction, and this version cannot be read
-  // or modified by other CiviForm servers. Eventually, we will refactor the whole DRY_RUN publish
-  // flow
-  // to remove these points of confusion.
+  // This is the one and only place that version.getPrograms() and version.getQuestions() is
+  // okay. This is only called inside the DRY_RUN publish transaction above, and the VersionModel
+  // passed in is consistent with the database state within the transaction, and this version
+  // cannot be read or modified by other CiviForm servers. Eventually, we will refactor the whole
+  // DRY_RUN publish flow to remove these points of confusion.
   private PreviewPublishedVersion buildDryRunPublishedVersion(VersionModel version) {
     return new PreviewPublishedVersion(
         /* id= */ version.id,
@@ -661,16 +659,22 @@ public final class VersionRepository {
    * (if enabled and not skipped), fetches a fresh VersionModel from the DB by ID, and caches the
    * result for ACTIVE/OBSOLETE versions based on actual DB lifecycle state.
    *
+   * <p>Uses {@code PersistenceContextScope.QUERY} to bypass ebean's transaction-scoped persistence
+   * context (L1 cache). Without this, a {@code database.find} for a version that was already loaded
+   * in the current transaction would return the same cached instance with a potentially stale
+   * BeanCollection, defeating the purpose of the fresh fetch.
+   *
    * @param version the version to fetch data for (may be stale)
    * @param extractor function to get the desired list from a fresh VersionModel (e.g. {@code
    *     VersionModel::getQuestions} or {@code VersionModel::getPrograms})
    * @param cache the SyncCacheApi instance for this data type
+   * @param label a camelCase label for logging and profiling (e.g. "Questions" or "Programs")
    */
   private <T> ImmutableList<T> getModelsForVersion(
       VersionModel version,
       Function<VersionModel, ImmutableList<T>> extractor,
-      SyncCacheApi cache) {
-    String label = (cache == questionsByVersionCache) ? "questions" : "programs";
+      SyncCacheApi cache,
+      String label) {
     boolean useCache = settingsManifest.getVersionCacheEnabled() && !skipCache.get();
     String cacheKey = String.valueOf(version.id);
 
@@ -684,6 +688,7 @@ public final class VersionRepository {
     VersionModel freshVersion =
         database
             .find(VersionModel.class)
+            .setPersistenceContextScope(PersistenceContextScope.QUERY)
             .setId(version.id)
             .setLabel("VersionModel.findByIdFor" + label)
             .setProfileLocation(profileLocationBuilder.create("get" + label + "ForVersion"))
@@ -716,7 +721,8 @@ public final class VersionRepository {
    * DRAFT versions always bypass the cache.
    */
   public ImmutableList<QuestionModel> getQuestionsForVersion(VersionModel version) {
-    return getModelsForVersion(version, VersionModel::getQuestions, questionsByVersionCache);
+    return getModelsForVersion(
+        version, VersionModel::getQuestions, questionsByVersionCache, "Questions");
   }
 
   /** Returns the questions for a version if the version is present. */
@@ -773,7 +779,8 @@ public final class VersionRepository {
    * DRAFT versions always bypass the cache.
    */
   public ImmutableList<ProgramModel> getProgramsForVersion(VersionModel version) {
-    return getModelsForVersion(version, VersionModel::getPrograms, programsByVersionCache);
+    return getModelsForVersion(
+        version, VersionModel::getPrograms, programsByVersionCache, "Programs");
   }
 
   /** Returns the programs for a version if the version is present. */
