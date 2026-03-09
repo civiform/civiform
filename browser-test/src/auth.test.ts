@@ -119,10 +119,10 @@ test.describe('Applicant auth', () => {
       await loginAsAdmin(page)
       await adminPrograms.addProgram(programName)
       await adminPrograms.publishAllDrafts()
+      await logout(page)
     })
 
     await test.step('Apply to program as Guest', async () => {
-      await logout(page)
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.submitFromReviewPage()
     })
@@ -158,18 +158,19 @@ test.describe('Applicant auth', () => {
   }) => {
     const programName = 'Test program'
 
-    await test.step('Add user to the database', async () => {
-      await loginAsTestUser(page)
-    })
-
     await test.step('Add program', async () => {
       await loginAsAdmin(page)
       await adminPrograms.addProgram(programName)
       await adminPrograms.publishAllDrafts()
+      await logout(page)
+    })
+
+    await test.step('Add user to the database', async () => {
+      await loginAsTestUser(page)
+      await logout(page)
     })
 
     await test.step('Apply to program as Guest', async () => {
-      await logout(page)
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.submitFromReviewPage()
     })
