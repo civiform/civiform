@@ -3,6 +3,7 @@ package auth.saml;
 import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
 import auth.CiviFormProfileMerger;
+import auth.NewGuestMergeLaunchStage;
 import auth.ProfileFactory;
 import auth.ProfileUtils;
 import auth.Role;
@@ -87,7 +88,14 @@ public class SamlProfileCreator extends AuthenticatorProfileCreator {
         profileUtils.optionalCurrentUserProfile(callContext.webContext());
     Function<Optional<CiviFormProfile>, UserProfile> mergeFunction =
         (cProfile) -> this.mergeCiviFormProfile(cProfile, profile);
-    return civiFormProfileMerger.mergeProfiles(existingApplicant, guestProfile, mergeFunction);
+    return civiFormProfileMerger.mergeProfiles(
+        existingApplicant,
+        guestProfile,
+        mergeFunction,
+        // SAML is not currently used so we won't bother with supporting the
+        // launch progression. It will be enabled when the launch is promoted
+        // to the default.
+        NewGuestMergeLaunchStage.OFF);
   }
 
   @VisibleForTesting

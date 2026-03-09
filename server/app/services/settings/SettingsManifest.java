@@ -1157,6 +1157,18 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("ADMIN_UI_MIGRATION_SC_EXTENDED_ENABLED", request);
   }
 
+  /** (NOT FOR PRODUCTION USE) Enable the new applicant-guest merging strategy. */
+  public boolean getNewApplicantGuestMergingStrategyEnabled() {
+    return getBool("NEW_APPLICANT_GUEST_MERGING_STRATEGY_ENABLED");
+  }
+
+  /**
+   * (NOT FOR PRODUCTION USE) Enable dry run logging for the new applicant-guest merging strategy.
+   */
+  public boolean getNewApplicantGuestMergingStrategyDryRunEnabled() {
+    return getBool("NEW_APPLICANT_GUEST_MERGING_STRATEGY_DRY_RUN_ENABLED");
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.<String, SettingsSection>builder()
           .put(
@@ -2460,7 +2472,21 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " migration in Thymeleaf.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE))))
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "NEW_APPLICANT_GUEST_MERGING_STRATEGY_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enable the new applicant-guest merging"
+                              + " strategy.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "NEW_APPLICANT_GUEST_MERGING_STRATEGY_DRY_RUN_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enable dry run logging for the new"
+                              + " applicant-guest merging strategy.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_READABLE))))
           .put(
               "Miscellaneous",
               SettingsSection.create(
