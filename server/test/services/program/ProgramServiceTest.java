@@ -4227,9 +4227,6 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void syncQuestionsToProgramDefinitions_throwsWhenNoActiveOrObsoleteVersion() {
-    VersionRepository versionRepository = instanceOf(VersionRepository.class);
-    ProgramRepository programRepository = instanceOf(ProgramRepository.class);
-
     // Create a program with eligibility in the draft (but don't publish).
     QuestionDefinition question = nameQuestion;
     EligibilityDefinition eligibility =

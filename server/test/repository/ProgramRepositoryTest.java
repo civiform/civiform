@@ -1250,21 +1250,9 @@ public class ProgramRepositoryTest extends ResetPostgres {
     assertThat(firstResult).hasSize(1);
     assertThat(versionsByProgramCache.get(cacheKey).isPresent()).isTrue();
 
-    // Directly insert a version association into the DB join table.
-    // This is not something that would actually happen. We're just testing
-    // that the second call hits the cache as expected and doesn't fall through
-    // to fetching from the database.
-    VersionModel fakeVersion = new VersionModel(LifecycleStage.OBSOLETE);
-    fakeVersion.save();
-    DB.sqlUpdate("INSERT INTO versions_programs (versions_id, programs_id) VALUES (?, ?)")
-        .setParameter(1, fakeVersion.id)
-        .setParameter(2, program.id)
-        .execute();
-
-    // Second call: cache hit
+    // Second call: should return the same cached list instance (cache hit)
     ImmutableList<VersionModel> secondResult = repo.getVersionsForProgram(program);
-    assertThat(secondResult).hasSize(1);
-    assertThat(versionsByProgramCache.get(cacheKey).isPresent()).isTrue();
+    assertThat(secondResult).isSameAs(firstResult);
   }
 
   @Test
@@ -1336,35 +1324,19 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
     // Cache key includes active version ID to avoid stale entries after publish
     String programKey = program.id + ":" + versionRepo.getActiveVersion().id;
-    String originalDescription = program.getProgramDefinition().localizedDescription().getDefault();
 
     // First call: cache miss, should fetch from DB and cache
+    assertThat(programCache.get(programKey).isPresent()).isFalse();
     Optional<ProgramModel> firstResult =
         repo.lookupProgram(program.id).toCompletableFuture().join();
     assertThat(firstResult).isPresent();
     assertThat(programCache.get(programKey).isPresent()).isTrue();
 
-    // Directly update the program description in the DB
-    String newDescription = "MODIFIED_DESCRIPTION";
-    DB.sqlUpdate(
-            "UPDATE programs SET program_definition = jsonb_set(program_definition,"
-                + " '{localizedDescription,translations,en_US}', '\""
-                + newDescription
-                + "\"') WHERE id = ?")
-        .setParameter(1, program.id)
-        .execute();
-
-    // Second call - cache hit, returns stale cached data with original description
+    // Second call: should return the same cached object (cache hit)
     Optional<ProgramModel> secondResult =
         repo.lookupProgram(program.id).toCompletableFuture().join();
     assertThat(secondResult).isPresent();
-    assertThat(secondResult.get().getProgramDefinition().localizedDescription().getDefault())
-        .isEqualTo(originalDescription);
-
-    // But a fresh DB fetch returns the new description, proving cache was hit above
-    ProgramModel freshProgram = DB.find(ProgramModel.class, program.id);
-    assertThat(freshProgram.getProgramDefinition().localizedDescription().getDefault())
-        .isEqualTo(newDescription);
+    assertThat(secondResult.get()).isSameAs(firstResult.get());
   }
 
   @Test

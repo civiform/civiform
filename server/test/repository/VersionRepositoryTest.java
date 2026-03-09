@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import play.cache.NamedCacheImpl;
 import play.cache.SyncCacheApi;
 import repository.VersionRepository.PreviewPublishedVersion;
 import services.applicant.question.Scalar;
@@ -55,8 +56,16 @@ public class VersionRepositoryTest extends ResetPostgres {
   @Before
   public void setupVersionRepository() {
     mockSettingsManifest = Mockito.mock(SettingsManifest.class);
-    questionsByVersionCache = instanceOf(SyncCacheApi.class);
-    programsByVersionCache = instanceOf(SyncCacheApi.class);
+    questionsByVersionCache =
+        instanceOf(
+            new play.inject.BindingKey<>(SyncCacheApi.class)
+                .qualifiedWith(new NamedCacheImpl("version-questions"))
+                .asScala());
+    programsByVersionCache =
+        instanceOf(
+            new play.inject.BindingKey<>(SyncCacheApi.class)
+                .qualifiedWith(new NamedCacheImpl("version-programs"))
+                .asScala());
     versionRepository =
         new VersionRepository(
             instanceOf(ProgramRepository.class),
@@ -1181,14 +1190,15 @@ public class VersionRepositoryTest extends ResetPostgres {
 
   @Test
   public void getQuestionsForVersion_cacheIsPopulatedWithFreshData() {
-    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
-
     // Create a version and add a question
     VersionModel version = versionRepository.getDraftVersionOrCreate();
     QuestionModel firstQuestion = resourceCreator.insertQuestion("first-question");
     firstQuestion.addVersion(version).save();
     versionRepository.publishNewSynchronizedVersion();
     version.refresh();
+
+    // Enable cache after publish so publish doesn't warm the cache
+    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
 
     String versionKey = String.valueOf(version.id);
 
@@ -1218,13 +1228,14 @@ public class VersionRepositoryTest extends ResetPostgres {
 
   @Test
   public void getProgramsForVersion_cacheIsPopulatedWithFreshData() {
-    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
-
     // Create a version and add a program
     VersionModel version = versionRepository.getDraftVersionOrCreate();
     resourceCreator.insertDraftProgram("first-program");
     versionRepository.publishNewSynchronizedVersion();
     version.refresh();
+
+    // Enable cache after publish so publish doesn't warm the cache
+    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
 
     String versionKey = String.valueOf(version.id);
 
@@ -1255,7 +1266,6 @@ public class VersionRepositoryTest extends ResetPostgres {
   public void getQuestionsForVersion_returnsFreshDataWithCacheEnabled() {
     // Same scenario as the StaleVersionObject test, but with cache enabled.
     // Verifies that on cache miss, fresh data is fetched and cached correctly.
-    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
 
     // Create a version and add a question
     VersionModel version = versionRepository.getDraftVersionOrCreate();
@@ -1263,6 +1273,9 @@ public class VersionRepositoryTest extends ResetPostgres {
     firstQuestion.addVersion(version).save();
     versionRepository.publishNewSynchronizedVersion();
     version.refresh();
+
+    // Enable cache after publish so publish doesn't warm the cache
+    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
 
     // Get a reference to the version that has its BeanCollection loaded
     VersionModel staleVersion = DB.find(VersionModel.class, version.id);
@@ -1286,13 +1299,15 @@ public class VersionRepositoryTest extends ResetPostgres {
   public void getProgramsForVersion_returnsFreshDataWithCacheEnabled() {
     // Same scenario as the StaleVersionObject test, but with cache enabled.
     // Verifies that on cache miss, fresh data is fetched and cached correctly.
-    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
 
     // Create a version and add a program
     VersionModel version = versionRepository.getDraftVersionOrCreate();
     resourceCreator.insertDraftProgram("first-program");
     versionRepository.publishNewSynchronizedVersion();
     version.refresh();
+
+    // Enable cache after publish so publish doesn't warm the cache
+    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
 
     // Get a reference to the version that has its BeanCollection loaded
     VersionModel staleVersion = DB.find(VersionModel.class, version.id);
@@ -1525,8 +1540,9 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(withoutDraft).isPresent();
     long activeVersionId = withoutDraft.get();
 
-    // Create a draft
-    versionRepository.getDraftVersionOrCreate();
+    // Create a draft with a question (publish requires at least 1 program or question)
+    VersionModel draft = versionRepository.getDraftVersionOrCreate();
+    resourceCreator.insertQuestion("draft-question").addVersion(draft).save();
 
     // Now draft exists, should return empty
     Optional<Long> withDraft = versionRepository.getActiveVersionIdIfNoDraft();
