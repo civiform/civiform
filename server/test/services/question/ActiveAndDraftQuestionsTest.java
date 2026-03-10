@@ -429,18 +429,16 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
     QuestionModel draftQuestion = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
     versionRepository.getDraftVersionOrCreate().addQuestion(draftQuestion).save();
     ProgramBuilder.newDraftProgram("first-program").withBlock("Screen 1").build();
-    ProgramModel secondProgramDraft =
-        ProgramBuilder.newDraftProgram("second-program")
-            .withBlock("Screen 1")
-            .withBlock("Screen 2")
-            .withBlock("Screen 3")
-            .withRequiredQuestion(draftQuestion)
-            .build();
-    ProgramModel thirdProgramDraft =
-        ProgramBuilder.newDraftProgram("third-program")
-            .withBlock("Screen 1")
-            .withRequiredQuestion(draftQuestion)
-            .build();
+    ProgramBuilder.newDraftProgram("second-program")
+        .withBlock("Screen 1")
+        .withBlock("Screen 2")
+        .withBlock("Screen 3")
+        .withRequiredQuestion(draftQuestion)
+        .build();
+    ProgramBuilder.newDraftProgram("third-program")
+        .withBlock("Screen 1")
+        .withRequiredQuestion(draftQuestion)
+        .build();
 
     Optional<Transaction> maybeTransaction = maybeMakeTransaction(useTransaction);
 
