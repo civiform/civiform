@@ -77,7 +77,7 @@ public class CiviFormSessionFilter extends EssentialFilter {
             return next.apply(request);
           }
 
-          /**
+          /*
            * Get the profile if it doesn't already exist on the request Should have already been
            * added in {@link CiviFormProfileFilter}
            */
