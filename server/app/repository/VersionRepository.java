@@ -70,7 +70,6 @@ public final class VersionRepository {
   private final SyncCacheApi questionsByVersionCache;
   private final SyncCacheApi programsByVersionCache;
 
-
   @Inject
   public VersionRepository(
       ProgramRepository programRepository,
@@ -103,7 +102,8 @@ public final class VersionRepository {
    * next version. This method will not mutate the database and will return a copy of relevant data
    * from the updated Version corresponding to what would be the new ACTIVE version.
    */
-  public ImmutableMap<String, ImmutableSet<DraftProgramReference>> previewPublishNewSynchronizedVersion() {
+  public ImmutableMap<String, ImmutableSet<DraftProgramReference>>
+      previewPublishNewSynchronizedVersion() {
     return publishNewSynchronizedVersion(PublishMode.DRY_RUN)
         .orElseThrow(
             () ->
@@ -116,7 +116,8 @@ public final class VersionRepository {
     PUBLISH_CHANGES,
   }
 
-  private Optional<ImmutableMap<String, ImmutableSet<DraftProgramReference>>> publishNewSynchronizedVersion(PublishMode publishMode) {
+  private Optional<ImmutableMap<String, ImmutableSet<DraftProgramReference>>>
+      publishNewSynchronizedVersion(PublishMode publishMode) {
     /*
      A few transaction notes about this method:
 
@@ -244,8 +245,8 @@ public final class VersionRepository {
     }
   }
 
-  private ImmutableMap<String, ImmutableSet<DraftProgramReference>> buildDraftReferencingProgramsMap(
-      VersionModel version) {
+  private ImmutableMap<String, ImmutableSet<DraftProgramReference>>
+      buildDraftReferencingProgramsMap(VersionModel version) {
     return buildReferencingProgramsMap(version).entrySet().stream()
         .collect(
             ImmutableMap.toImmutableMap(

@@ -25,9 +25,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import play.cache.SyncCacheApi;
-import services.program.DraftProgramReference;
 import services.applicant.question.Scalar;
 import services.program.CantPublishProgramWithSharedQuestionsException;
+import services.program.DraftProgramReference;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -199,7 +199,8 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifecycleStage.DRAFT);
     assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
 
-    assertThat(previewResult.keySet()).containsExactlyInAnyOrder("first-question", "second-question");
+    assertThat(previewResult.keySet())
+        .containsExactlyInAnyOrder("first-question", "second-question");
     assertThat(previewResult.get("first-question").stream().map(DraftProgramReference::adminName))
         .containsExactly("foo");
     assertThat(previewResult.get("second-question").stream().map(DraftProgramReference::adminName))

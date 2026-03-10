@@ -35,8 +35,8 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DeletionStatus;
 import services.TranslationLocales;
-import services.program.ProgramDefinition;
 import services.program.DraftProgramReference;
+import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
 import services.question.QuestionService;
 import services.question.types.QuestionDefinition;
@@ -542,7 +542,8 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   private GroupedReferencingPrograms createReferencingPrograms(
-      Collection<ProgramDefinition> activePrograms, Collection<DraftProgramReference> draftPrograms) {
+      Collection<ProgramDefinition> activePrograms,
+      Collection<DraftProgramReference> draftPrograms) {
     ImmutableMap<String, ProgramDefinition> activeProgramsMap =
         activePrograms.stream()
             .collect(
@@ -551,11 +552,13 @@ public final class QuestionsListView extends BaseHtmlView {
     ImmutableMap<String, DraftProgramReference> draftDisabledProgramsMap =
         draftPrograms.stream()
             .filter(program -> program.displayMode() == DisplayMode.DISABLED)
-            .collect(ImmutableMap.toImmutableMap(DraftProgramReference::adminName, Function.identity()));
+            .collect(
+                ImmutableMap.toImmutableMap(DraftProgramReference::adminName, Function.identity()));
 
     ImmutableMap<String, DraftProgramReference> draftProgramsMap =
         draftPrograms.stream()
-            .collect(ImmutableMap.toImmutableMap(DraftProgramReference::adminName, Function.identity()));
+            .collect(
+                ImmutableMap.toImmutableMap(DraftProgramReference::adminName, Function.identity()));
 
     // Use set operations to collect programs into 4 sets.
     Set<String> usedSet = Sets.intersection(activeProgramsMap.keySet(), draftProgramsMap.keySet());
@@ -672,7 +675,7 @@ public final class QuestionsListView extends BaseHtmlView {
                             each(
                                 referencingPrograms,
                                 programReference ->
-                                  li(programReference.localizedName().getDefault())))));
+                                    li(programReference.localizedName().getDefault())))));
   }
 
   private ButtonTag renderQuestionEditLink(QuestionDefinition definition, boolean isVisible) {
