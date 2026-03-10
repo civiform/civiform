@@ -97,18 +97,70 @@ public final class VersionRepository {
   }
 
   /**
-   * Simulates publishing a new version of all programs and questions. All DRAFT programs/questions
-   * will become ACTIVE, and all ACTIVE programs/questions without a draft will be copied to the
-   * next version. This method will not mutate the database and will return a copy of relevant data
-   * from the updated Version corresponding to what would be the new ACTIVE version.
+   * Simulates publishing a new version of all programs and questions. Returns a map from question
+   * name to the set of programs that would reference each question in the new active version.
+   *
+   * <p>Draft programs (excluding tombstoned ones) are included first. Active programs that do not
+   * have a draft (regardless of tombstone status) are then included.
+   *
+   * <p>This method does not mutate the database.
    */
   public ImmutableMap<String, ImmutableSet<DraftProgramReference>>
       previewPublishNewSynchronizedVersion() {
-    return publishNewSynchronizedVersion(PublishMode.DRY_RUN)
-        .orElseThrow(
-            () ->
-                new IllegalStateException(
-                    "publishNewSynchronizedVersion did not return a Dry Run version."));
+    return transactionManager.execute(
+        () -> {
+          VersionModel draft =
+              getDraftVersion()
+                  .orElseThrow(
+                      () -> new IllegalStateException("Called when no draft exists to preview."));
+          VersionModel active = getActiveVersion();
+
+          ImmutableSet<String> draftProgramNames = getProgramNamesForVersion(draft);
+
+          ImmutableMap<Long, String> activeQuestionIdToName = getQuestionIdToNameMap(active);
+          ImmutableMap<Long, String> draftQuestionIdToName = getQuestionIdToNameMap(draft);
+
+          // Draft programs may reference question IDs from either the active or draft version.
+          // Build a combined lookup so both are resolved; draft entries take precedence.
+          Map<Long, String> combinedQuestionIdToNameMap = Maps.newHashMap();
+          combinedQuestionIdToNameMap.putAll(activeQuestionIdToName);
+          combinedQuestionIdToNameMap.putAll(draftQuestionIdToName);
+          ImmutableMap<Long, String> combinedQuestionIdToName =
+              ImmutableMap.copyOf(combinedQuestionIdToNameMap);
+
+          Map<String, Set<DraftProgramReference>> result = Maps.newHashMap();
+
+          // Include draft programs, excluding tombstoned ones.
+          for (ProgramModel program : getProgramsForVersion(draft)) {
+            ProgramDefinition def = programRepository.getShallowProgramDefinition(program);
+            if (draft.programIsTombstoned(def.adminName())) {
+              continue;
+            }
+            DraftProgramReference ref =
+                new DraftProgramReference(def.adminName(), def.displayMode(), def.localizedName());
+            for (String questionName : getProgramQuestionNames(def, combinedQuestionIdToName)) {
+              result.computeIfAbsent(questionName, k -> Sets.newHashSet()).add(ref);
+            }
+          }
+
+          // Include active programs that do not have a draft version.
+          for (ProgramModel program : getProgramsForVersion(active)) {
+            ProgramDefinition def = programRepository.getShallowProgramDefinition(program);
+            if (draftProgramNames.contains(def.adminName())) {
+              continue;
+            }
+            DraftProgramReference ref =
+                new DraftProgramReference(def.adminName(), def.displayMode(), def.localizedName());
+            for (String questionName : getProgramQuestionNames(def, activeQuestionIdToName)) {
+              result.computeIfAbsent(questionName, k -> Sets.newHashSet()).add(ref);
+            }
+          }
+
+          return result.entrySet().stream()
+              .collect(
+                  ImmutableMap.toImmutableMap(
+                      Entry::getKey, e -> ImmutableSet.copyOf(e.getValue())));
+        });
   }
 
   private enum PublishMode {
