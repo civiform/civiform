@@ -934,12 +934,6 @@
         "type": "bool",
         "required": false
       },
-      "MAP_QUESTION_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "Enable allowing CiviForm admins to add a map question to their programs.",
-        "type": "bool",
-        "required": false
-      },
       "YES_NO_QUESTION_ENABLED": {
         "mode": "ADMIN_READABLE",
         "description": "Enables being able to add a new yes/no question.",
