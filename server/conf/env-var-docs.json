@@ -946,12 +946,6 @@
         "type": "bool",
         "required": false
       },
-      "SETTINGS_CACHE_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "Enables reading settings from the cache instead of directly from the database.",
-        "type": "bool",
-        "required": false
-      },
       "EXTERNAL_PROGRAM_CARDS_ENABLED": {
         "mode": "ADMIN_READABLE",
         "description": "Enable showing external program cards.",

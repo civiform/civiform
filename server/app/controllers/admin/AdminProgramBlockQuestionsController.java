@@ -217,7 +217,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
                         /* questionIndex= */ 0, // Enumerator blocks have only one question
                         blockDefinition.getQuestionCount(),
                         request)),
-                /* blockHasEnumeratorQuestion= */ true)
+                /* blockHasEnumeratorQuestion= */ true,
+                blockDefinition)
             .render());
   }
 

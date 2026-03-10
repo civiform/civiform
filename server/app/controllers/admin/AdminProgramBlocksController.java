@@ -146,7 +146,19 @@ public final class AdminProgramBlocksController extends CiviFormController {
 
     try {
       ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result;
-      if (enumeratorId.isPresent()) {
+      if (enumeratorId.isPresent() && BlockType.ENUMERATOR.equals(blockType.orElse(null))) {
+        // Create a nested enumerator (enumerator under another enumerator)
+        // This feature requires the enumerator improvements flag to be enabled
+        if (!settingsManifest.getEnumeratorImprovementsEnabled(request)) {
+          return badRequest("Nested repeated sets require ENUMERATOR_IMPROVEMENTS_ENABLED flag");
+        }
+        result =
+            programService.addNestedRepeatedSetToProgram(
+                programId,
+                enumeratorId.get(),
+                messagesApi.preferred(request),
+                settingsManifest.getEnumeratorImprovementsEnabled(request));
+      } else if (enumeratorId.isPresent()) {
         result =
             programService.addRepeatedBlockToProgram(
                 programId,
@@ -189,7 +201,6 @@ public final class AdminProgramBlocksController extends CiviFormController {
         }
         addedBlockId++;
       }
-
       return redirect(routes.AdminProgramBlocksController.edit(programId, addedBlockId).url());
     } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
       return notFound(e.toString());

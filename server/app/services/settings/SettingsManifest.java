@@ -1087,11 +1087,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("YES_NO_QUESTION_ENABLED");
   }
 
-  /** Enables reading settings from the cache instead of directly from the database. */
-  public boolean getSettingsCacheEnabled() {
-    return getBool("SETTINGS_CACHE_ENABLED");
-  }
-
   /** Enable showing external program cards. */
   public boolean getExternalProgramCardsEnabled() {
     return getBool("EXTERNAL_PROGRAM_CARDS_ENABLED");
@@ -2380,13 +2375,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingDescription.create(
                           "YES_NO_QUESTION_ENABLED",
                           "Enables being able to add a new yes/no question.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
-                          "SETTINGS_CACHE_ENABLED",
-                          "Enables reading settings from the cache instead of directly from the"
-                              + " database.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_READABLE),
