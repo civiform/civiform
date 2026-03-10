@@ -5,11 +5,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.AccountNonexistentException;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Duration;
-import java.util.Base64;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
@@ -19,7 +16,6 @@ import models.AccountModel;
 import models.SessionDetails;
 import org.apache.pekko.stream.Materializer;
 import org.apache.pekko.util.ByteString;
-import play.libs.Json;
 import play.libs.streams.Accumulator;
 import play.mvc.EssentialAction;
 import play.mvc.EssentialFilter;
@@ -144,8 +140,7 @@ public class CiviFormSessionFilter extends EssentialFilter {
                               .map(
                                   result ->
                                       result.withCookies(
-                                          createSessionTimestampCookie(
-                                              profile, sessionStartTimeInMillis)),
+                                          createTimeoutCookie(profile, sessionStartTimeInMillis)),
                                   materializer.executionContext());
                         }
 
@@ -200,24 +195,11 @@ public class CiviFormSessionFilter extends EssentialFilter {
    * @param sessionStartTimeInMillis the session start time in milliseconds
    * @return The cookie containing the session's timeout data.
    */
-  private Http.Cookie createSessionTimestampCookie(
-      CiviFormProfile profile, long sessionStartTimeInMillis) {
+  private Http.Cookie createTimeoutCookie(CiviFormProfile profile, long sessionStartTimeInMillis) {
     SessionTimeoutService.TimeoutData timeoutData =
         sessionTimeoutService.get().calculateTimeoutData(profile, sessionStartTimeInMillis);
 
-    ObjectNode timestamps =
-        Json.newObject()
-            .put("inactivityWarning", timeoutData.inactivityWarning())
-            .put("inactivityTimeout", timeoutData.inactivityTimeout())
-            .put("totalWarning", timeoutData.totalWarning())
-            .put("totalTimeout", timeoutData.totalTimeout())
-            .put("currentTime", timeoutData.currentTime());
-
-    String cookieValue =
-        Base64.getEncoder()
-            .encodeToString(Json.stringify(timestamps).getBytes(StandardCharsets.UTF_8));
-
-    return Http.Cookie.builder(TIMEOUT_COOKIE_NAME, cookieValue)
+    return Http.Cookie.builder(TIMEOUT_COOKIE_NAME, timeoutData.cookieValue())
         .withHttpOnly(false)
         .withPath("/")
         .withMaxAge(COOKIE_MAX_AGE)
