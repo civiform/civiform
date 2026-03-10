@@ -101,6 +101,28 @@ public class CiviFormSessionFilterTest extends WithApplication {
   }
 
   @Test
+  public void testLogoutRequest_bypassesFilter() throws Exception {
+    RequestHeader request = fakeRequestBuilder().method("GET").uri("/logout").build();
+
+    Result result = executeFilter(request);
+
+    assertThat(result.status()).isEqualTo(200);
+  }
+
+  @Test
+  public void testNoProfile_clearsCookie() throws Exception {
+    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
+    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.empty());
+
+    Result result = executeFilter(request);
+
+    assertThat(result.status()).isEqualTo(200);
+    Optional<Http.Cookie> cookie = result.cookies().get(TIMEOUT_COOKIE_NAME);
+    assertThat(cookie).isPresent();
+    assertThat(cookie.get().maxAge().longValue()).isEqualTo(Duration.ZERO.toSeconds());
+  }
+
+  @Test
   public void testValidProfile_sessionTimeoutDisabled_noUpdatesLastActivityTime() throws Exception {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
@@ -231,6 +253,19 @@ public class CiviFormSessionFilterTest extends WithApplication {
         .isEqualTo(defaultTimeoutData.totalTimeout());
     assertThat(timeoutData.get("totalWarning").asLong())
         .isEqualTo(defaultTimeoutData.totalWarning());
+  }
+
+  @Test
+  public void testNoSessionStartTime_redirectsToLogout() throws Exception {
+    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
+    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
+    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
+    when(mockAccount.getActiveSession(SESSION_ID)).thenReturn(Optional.empty());
+
+    Result result = executeFilter(request);
+
+    assertThat(result.status()).isEqualTo(303);
+    assertThat(result.redirectLocation()).hasValue("/logout");
   }
 
   @Test
