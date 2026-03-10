@@ -118,6 +118,25 @@ public class ApplicantRoutesTest extends ResetPostgres {
   }
 
   @Test
+  public void testEditRoute_withProgramSlug() {
+    String expectedEditUrl = String.format("/programs/%s/edit", PROGRAM_SLUG);
+    assertThat(new ApplicantRoutes().edit(PROGRAM_SLUG).url()).isEqualTo(expectedEditUrl);
+  }
+
+  @Test
+  public void testEditRoute_withProgramSlug_WithApplicantId() {
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.addAttribute(
+        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedEditUrl = String.format("/programs/%s/edit", PROGRAM_SLUG);
+    assertThat(new ApplicantRoutes().edit(applicantProfile, APPLICANT_ID, PROGRAM_SLUG).url())
+        .isEqualTo(expectedEditUrl);
+  }
+
+  @Test
   public void testReviewRoute_forApplicantWithIdInProfile_newSchemaEnabled() {
     CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
@@ -208,6 +227,23 @@ public class ApplicantRoutesTest extends ResetPostgres {
     assertThat(
             new ApplicantRoutes()
                 .blockEdit(adminProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, Optional.empty())
+                .url())
+        .isEqualTo(expectedBlockEditUrl);
+  }
+
+  @Test
+  public void testBlockEditRoute_withProgramSlug() {
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.addAttribute(
+        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedBlockEditUrl =
+        String.format("/programs/%s/blocks/%s/edit", PROGRAM_SLUG, BLOCK_ID);
+    assertThat(
+            new ApplicantRoutes()
+                .blockEdit(applicantProfile, APPLICANT_ID, PROGRAM_SLUG, BLOCK_ID, Optional.empty())
                 .url())
         .isEqualTo(expectedBlockEditUrl);
   }

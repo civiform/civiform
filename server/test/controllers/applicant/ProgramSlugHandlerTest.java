@@ -620,4 +620,25 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     // Verify it returns the active program ID
     assertThat(resultId).isEqualTo(programDefinition.id());
   }
+
+  @Test
+  public void getProgramSlug_withProgramSlug() {
+    String programSlug = "test-program";
+
+    String resultSlug = instanceOf(ProgramSlugHandler.class).getProgramSlug(programSlug);
+
+    assertThat(resultSlug).isEqualTo(programSlug);
+  }
+
+  @Test
+  public void getProgramSlug_withProgramId() {
+    String programSlug = "test-program";
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram(programSlug, "desc").buildDefinition();
+
+    String resultSlug =
+        instanceOf(ProgramSlugHandler.class).getProgramSlug(String.valueOf(programDefinition.id()));
+
+    assertThat(resultSlug).isEqualTo(programSlug);
+  }
 }
