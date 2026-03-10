@@ -114,8 +114,7 @@ public class CiviFormSessionFilter extends EssentialFilter {
                         Optional<SessionDetails> optionalSession =
                             account.getActiveSession(profile.getProfileData().getSessionId());
 
-                        if (settingsManifest.get().getSessionReplayProtectionEnabled()
-                            && optionalSession.isEmpty()) {
+                        if (optionalSession.isEmpty()) {
                           return redirectToLogout();
                         }
 
