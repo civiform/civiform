@@ -113,38 +113,85 @@ test.describe('Applicant auth', () => {
     applicantProgramList,
     applicantQuestions,
   }) => {
-    await loginAsAdmin(page)
     const programName = 'Test program'
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.publishAllDrafts()
 
-    await logout(page)
-    await applicantQuestions.applyProgram(programName)
-    await applicantQuestions.submitFromReviewPage()
-    await loginAsTestUser(page)
-
-    // Check that program is marked as submitted.
-    const applicationCardLocator = page.getByRole('heading', {
-      name: programName,
+    await test.step('Add program', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
     })
-    await expect(applicationCardLocator).toBeAttached()
 
-    await expect(
-      applicantProgramList.getSubmittedTagLocator(
-        CardSectionName.MyApplications,
-        programName,
-      ),
-    ).toContainText(/\d?\d\/\d?\d\/\d\d/)
+    await test.step('Apply to program as Guest', async () => {
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.submitFromReviewPage()
+    })
 
-    // Logout and login to make sure data is tied to account.
-    await logout(page)
-    await loginAsTestUser(page)
+    await test.step('Log-in as user to merge accounts', async () => {
+      await loginAsTestUser(page)
+    })
 
-    await expect(
-      applicantProgramList.getSubmittedTagLocator(
-        CardSectionName.MyApplications,
-        programName,
-      ),
-    ).toContainText(/\d?\d\/\d?\d\/\d\d/)
+    await test.step('Verify the user now has access to the application', async () => {
+      const applicationCardLocator = page.getByRole('heading', {
+        name: programName,
+      })
+      await expect(applicationCardLocator).toBeAttached()
+
+      // Check submitted time exists.
+      await expect(
+        applicantProgramList.getSubmittedTagLocator(
+          CardSectionName.MyApplications,
+          programName,
+        ),
+      ).toContainText(/\d?\d\/\d?\d\/\d\d/)
+    })
+  })
+
+  // It is a bug (#11389) that auth login, then guest, then auth login does not
+  // make the application available on the auth user.
+  // This is the same test as above but the auth user logs in first.
+  test('Auth login, then Guest login, then auth login does not show submitted applications', async ({
+    page,
+    adminPrograms,
+    applicantProgramList,
+    applicantQuestions,
+  }) => {
+    const programName = 'Test program'
+
+    await test.step('Add program', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
+    })
+
+    await test.step('Add user to the database', async () => {
+      await loginAsTestUser(page)
+      await logout(page)
+    })
+
+    await test.step('Apply to program as Guest', async () => {
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.submitFromReviewPage()
+    })
+
+    await test.step('Log-in as user to merge accounts', async () => {
+      await loginAsTestUser(page)
+    })
+
+    await test.step('Verify the user does not see a submitted application', async () => {
+      const applicationCardLocator = page.getByRole('heading', {
+        name: programName,
+      })
+      await expect(applicationCardLocator).toBeAttached()
+
+      // Check submitted time does not exist.
+      await expect(
+        applicantProgramList.getSubmittedTagLocator(
+          CardSectionName.MyApplications,
+          programName,
+        ),
+      ).not.toBeAttached()
+    })
   })
 })

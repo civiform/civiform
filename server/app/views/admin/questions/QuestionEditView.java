@@ -509,7 +509,7 @@ public final class QuestionEditView extends BaseHtmlView {
             .setValue(questionForm.getQuestionDescription())
             .getTextareaTag(),
         enumeratorOptions
-            .setDisabled(!questionForm.getEnumeratorSelectEnabled() || !forCreate)
+            .setReadOnly(!questionForm.getEnumeratorSelectEnabled() || !forCreate)
             .getSelectTag());
 
     if (questionType.equals(QuestionType.MAP)) {

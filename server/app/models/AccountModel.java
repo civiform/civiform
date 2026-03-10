@@ -65,6 +65,11 @@ public class AccountModel extends BaseModel {
   @DbJsonB(name = "active_sessions")
   private Map<String, SessionDetails> activeSessions = new HashMap<>();
 
+  /**
+   * TODO: There are two "last activity time" implementations: this DB column (updated on every
+   * save) and {@link auth.CiviFormProfileData#LAST_ACTIVITY_TIME} (session-level, used for session
+   * timeout). Reconcile into one or rename to clarify their distinct purposes.
+   */
   @WhenModified private Instant lastActivityTime;
 
   public Instant getLastActivityTime() {

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -15,6 +16,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import javax.inject.Inject;
 import javax.inject.Provider;
+import models.SessionDetails;
 import org.apache.pekko.stream.Materializer;
 import play.libs.Json;
 import play.mvc.Filter;
@@ -62,6 +64,12 @@ public class SessionTimeoutFilter extends Filter {
       Function<Http.RequestHeader, CompletionStage<Result>> nextFilter,
       Http.RequestHeader requestHeader) {
     if (ValidAccountFilter.allowedEndpoint(requestHeader)) {
+      // Update activity time for allowed endpoints when a profile exists, so that
+      // requests to these routes (e.g., API calls) count toward session activity
+      requestHeader
+          .attrs()
+          .getOptional(ProfileUtils.CURRENT_USER_PROFILE)
+          .ifPresent(profile -> profile.getProfileData().updateLastActivityTime(clock));
       return nextFilter.apply(requestHeader);
     }
 
@@ -85,9 +93,14 @@ public class SessionTimeoutFilter extends Filter {
 
     CiviFormProfile profile = optionalProfile.get();
     return profile
-        .getSessionStartTime()
-        .thenCompose(
-            optionalSessionStartTime -> {
+        .getAccount()
+        .thenComposeAsync(
+            account -> {
+              Optional<Long> optionalSessionStartTime =
+                  account
+                      .getActiveSession(profile.getProfileData().getSessionId())
+                      .map(SessionDetails::getCreationTime)
+                      .map(Instant::toEpochMilli);
               long sessionStartTimeInMillis;
               if (optionalSessionStartTime.isPresent()) {
                 sessionStartTimeInMillis = optionalSessionStartTime.get();
@@ -95,10 +108,11 @@ public class SessionTimeoutFilter extends Filter {
                 return CompletableFuture.completedFuture(
                     Results.redirect(org.pac4j.play.routes.LogoutController.logout()));
               }
-
               if (sessionTimeoutService
                   .get()
                   .isSessionTimedOut(profile, sessionStartTimeInMillis)) {
+                account.removeActiveSession(profile.getProfileData().getSessionId());
+                account.save();
                 return CompletableFuture.completedFuture(
                     Results.redirect(org.pac4j.play.routes.LogoutController.logout()));
               }
