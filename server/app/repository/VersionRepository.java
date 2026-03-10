@@ -101,7 +101,7 @@ public final class VersionRepository {
    * name to the set of programs that would reference each question in the new active version.
    *
    * <p>Draft programs (excluding tombstoned ones) are included first. Active programs that do not
-   * have a draft (regardless of tombstone status) are then included.
+   * have a draft and are not tombstoned in the draft are then included.
    *
    * <p>This method does not mutate the database.
    */
@@ -143,10 +143,11 @@ public final class VersionRepository {
             }
           }
 
-          // Include active programs that do not have a draft version.
+          // Include active programs that do not have a draft version and are not tombstoned.
           for (ProgramModel program : getProgramsForVersion(active)) {
             ProgramDefinition def = programRepository.getShallowProgramDefinition(program);
-            if (draftProgramNames.contains(def.adminName())) {
+            if (draftProgramNames.contains(def.adminName())
+                || draft.programIsTombstoned(def.adminName())) {
               continue;
             }
             DraftProgramReference ref =
