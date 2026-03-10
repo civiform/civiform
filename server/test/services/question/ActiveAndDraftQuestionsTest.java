@@ -19,6 +19,7 @@ import org.junit.runner.RunWith;
 import repository.ResetPostgres;
 import repository.VersionRepository;
 import services.DeletionStatus;
+import services.program.DraftProgramReference;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
@@ -394,8 +395,10 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
         newActiveAndDraftQuestions().getReferencingPrograms(TEST_QUESTION_NAME);
     assertThat(result.activeReferences().stream().map(ProgramDefinition::id))
         .containsExactlyInAnyOrder(firstProgramActive.id, secondProgramActive.id);
-    assertThat(result.draftReferences().stream().map(ProgramDefinition::id))
-        .containsExactlyInAnyOrder(secondProgramDraft.id, thirdProgramDraft.id);
+    assertThat(
+            result.draftReferences().stream()
+                .map(DraftProgramReference::adminName))
+        .containsExactlyInAnyOrder("second-program", "third-program");
 
     maybeTransaction.ifPresent(Transaction::end);
   }
@@ -447,8 +450,10 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
         newActiveAndDraftQuestions().getReferencingPrograms(TEST_QUESTION_NAME);
     assertThat(result.activeReferences().stream().map(ProgramDefinition::id))
         .containsExactlyInAnyOrder(firstProgramActive.id, secondProgramActive.id);
-    assertThat(result.draftReferences().stream().map(ProgramDefinition::id))
-        .containsExactlyInAnyOrder(secondProgramDraft.id, thirdProgramDraft.id);
+    assertThat(
+            result.draftReferences().stream()
+                .map(DraftProgramReference::adminName))
+        .containsExactlyInAnyOrder("second-program", "third-program");
 
     maybeTransaction.ifPresent(Transaction::end);
   }

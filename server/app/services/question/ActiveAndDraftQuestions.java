@@ -11,6 +11,7 @@ import models.VersionModel;
 import org.apache.pekko.japi.Pair;
 import repository.VersionRepository;
 import services.DeletionStatus;
+import services.program.DraftProgramReference;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 
@@ -27,7 +28,7 @@ public final class ActiveAndDraftQuestions {
           String, Pair<Optional<QuestionDefinition>, Optional<QuestionDefinition>>>
       versionedByName;
   private final ImmutableMap<String, DeletionStatus> deletionStatusByName;
-  private final ImmutableMap<String, ImmutableSet<ProgramDefinition>>
+  private final ImmutableMap<String, ImmutableSet<DraftProgramReference>>
       referencingDraftProgramsByName;
   private final ImmutableMap<String, ImmutableSet<ProgramDefinition>>
       referencingActiveProgramsByName;
@@ -50,8 +51,7 @@ public final class ActiveAndDraftQuestions {
     VersionModel active = repository.getActiveVersion();
     VersionModel draft = repository.getDraftVersionOrCreate();
     this.referencingActiveProgramsByName = repository.buildReferencingProgramsMap(active);
-    this.referencingDraftProgramsByName =
-        repository.previewPublishNewSynchronizedVersion().questionToPrograms();
+    this.referencingDraftProgramsByName = repository.previewPublishNewSynchronizedVersion();
 
     ImmutableMap<String, QuestionDefinition> activeNameToQuestion =
         repository.getQuestionDefinitionsForVersion(active).stream()
@@ -87,13 +87,13 @@ public final class ActiveAndDraftQuestions {
                 ImmutableMap.toImmutableMap(
                     questionName -> questionName,
                     questionName -> {
-                      ImmutableMap<String, ImmutableSet<ProgramDefinition>> referencesToExamine =
+                      ImmutableSet<?> referencesToExamine =
                           draftVersionHasAnyEdits
-                              ? referencingDraftProgramsByName
-                              : referencingActiveProgramsByName;
-                      if (!referencesToExamine
-                          .getOrDefault(questionName, ImmutableSet.of())
-                          .isEmpty()) {
+                              ? referencingDraftProgramsByName.getOrDefault(
+                                  questionName, ImmutableSet.of())
+                              : referencingActiveProgramsByName.getOrDefault(
+                                  questionName, ImmutableSet.of());
+                      if (!referencesToExamine.isEmpty()) {
                         return DeletionStatus.NOT_DELETABLE;
                       }
                       return tombstonedQuestionNames.contains(questionName)
@@ -144,7 +144,7 @@ public final class ActiveAndDraftQuestions {
   public abstract static class ReferencingPrograms {
 
     /** Returns a set of references to the question in the DRAFT version. */
-    public abstract ImmutableSet<ProgramDefinition> draftReferences();
+    public abstract ImmutableSet<DraftProgramReference> draftReferences();
 
     /** Returns a set of references to the question in the ACTIVE version. */
     public abstract ImmutableSet<ProgramDefinition> activeReferences();
@@ -155,7 +155,7 @@ public final class ActiveAndDraftQuestions {
 
     @AutoValue.Builder
     abstract static class Builder {
-      abstract Builder setDraftReferences(ImmutableSet<ProgramDefinition> v);
+      abstract Builder setDraftReferences(ImmutableSet<DraftProgramReference> v);
 
       abstract Builder setActiveReferences(ImmutableSet<ProgramDefinition> v);
 
