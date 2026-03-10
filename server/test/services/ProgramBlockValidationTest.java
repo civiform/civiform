@@ -137,7 +137,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
                 program.getLastBlockDefinition(),
                 nameQuestion,
                 /* enumeratorImprovementsEnabled= */ false))
-        .isEqualTo(AddQuestionResult.BLOCK_IS_SINGLE_QUESTION);
+        .isEqualTo(AddQuestionResult.QUESTION_TYPE_PREVENTS_ADDITIONAL_QUESTIONS);
   }
 
   @Test

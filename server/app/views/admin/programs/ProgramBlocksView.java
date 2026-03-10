@@ -64,6 +64,7 @@ import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateUseCase;
 import services.question.types.NullQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
 import services.question.types.StaticContentQuestionDefinition;
 import services.settings.SettingsManifest;
 import views.AlertComponent;
@@ -631,6 +632,35 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   settingsManifest.getExpandedFormLogicEnabled(request)));
     }
 
+    Optional<DivTag> optionalEnumeratorCard = Optional.empty();
+    if (isEnumeratorBlock && blockDefinition.hasEnumeratorQuestion()) {
+      ProgramQuestionDefinition programQuestionDefinition =
+          blockDefinition.programQuestionDefinitions().stream()
+              .filter(
+                  question ->
+                      question
+                          .getQuestionDefinition()
+                          .getQuestionType()
+                          .equals(QuestionType.ENUMERATOR))
+              .findFirst()
+              .orElseThrow(
+                  () ->
+                      new RuntimeException(
+                          "Expected enumerator block to have an enumerator question"));
+      optionalEnumeratorCard =
+          Optional.of(
+              renderQuestion(
+                  Optional.of(csrfTag),
+                  program,
+                  blockDefinition,
+                  blockDefinition.getEnumerationQuestionDefinition(),
+                  programQuestionDefinition,
+                  0,
+                  1,
+                  request,
+                  /* isInitialQuestion= */ false));
+    }
+
     DivTag programQuestions =
         div()
             .withId(QUESTIONS_SECTION_ID)
@@ -645,6 +675,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
               ProgramQuestionDefinition question = blockQuestions.get(index);
               QuestionDefinition questionDefinition =
                   findQuestionDefinition(question, allPreviousVersionQuestions);
+              boolean isInitialQuestion = isEnumeratorBlock && blockQuestions.size() == 1;
 
               questionCardsBuilder.add(
                   renderQuestion(
@@ -655,7 +686,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                       question,
                       index,
                       blockQuestions.size(),
-                      request));
+                      request,
+                      isInitialQuestion));
             });
 
     ImmutableList<DivTag> questionCards = questionCardsBuilder.build();
@@ -685,6 +717,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
       maybeEligibilityPredicateDisplay.ifPresent(div::with);
 
       if (isEnumeratorBlock) {
+        long initialQuestionId = 0;
+        // If the enumerator block has only the initial question
+        if (questionCards.size() == 1) {
+          initialQuestionId = blockDefinition.programQuestionDefinitions().get(0).id();
+        }
         return div.with(
             renderEnumeratorScreenContent(
                 blockHasEnumeratorQuestion,
@@ -692,7 +729,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 messages,
                 program.id(),
                 blockDefinition,
-                questionCards.isEmpty() ? Optional.empty() : Optional.of(questionCards.get(0))));
+                optionalEnumeratorCard,
+                /* optionalInitialQuestionCard= */ questionCards.size() == 1
+                    ? Optional.of(questionCards.get(0))
+                    : Optional.empty(),
+                initialQuestionId));
       }
 
       return div.with(
@@ -781,19 +822,23 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Messages messages,
       Long programId,
       BlockDefinition blockDefinition,
-      Optional<DivTag> optionalQuestionCard) {
+      Optional<DivTag> optionalEnumeratorCard,
+      Optional<DivTag> optionalInitialQuestionCard,
+      long initialQuestionId) {
     // If it's an empty enumerator block
-    if (!blockHasEnumeratorQuestion || optionalQuestionCard.isEmpty()) {
+    if (!blockHasEnumeratorQuestion || optionalEnumeratorCard.isEmpty()) {
       return renderEnumeratorSetupSection(
           request,
           messages,
           programId,
           blockDefinition.id(),
           /* optionalQuestionForm= */ Optional.empty(),
-          /* errorMessages= */ ImmutableSet.of());
+          /* errorMessages= */ ImmutableSet.of(),
+          optionalInitialQuestionCard,
+          initialQuestionId);
     } else {
       return renderEnumeratorSectionWithSelectedQuestion(
-          messages, optionalQuestionCard, blockHasEnumeratorQuestion);
+          messages, optionalEnumeratorCard, blockHasEnumeratorQuestion);
     }
   }
 
@@ -850,11 +895,23 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Long programId,
       Long blockId,
       Optional<EnumeratorQuestionForm> optionalQuestionForm,
-      ImmutableSet<CiviFormError> errorMessages) {
+      ImmutableSet<CiviFormError> errorMessages,
+      Optional<DivTag> optionalInitialQuestionCard,
+      long initialQuestionId) {
     return div(
             renderCreationMethodRadioButtons(messages),
             renderNewEnumeratorQuestionForm(
-                request, messages, programId, blockId, optionalQuestionForm, errorMessages),
+                request,
+                messages,
+                programId,
+                blockId,
+                optionalQuestionForm,
+                errorMessages,
+                optionalInitialQuestionCard),
+            iff(
+                optionalInitialQuestionCard.isPresent() && initialQuestionId > 0,
+                renderDeleteQuestionFormWithoutContents(
+                    makeCsrfTokenInputTag(request), programId, blockId, initialQuestionId)),
             renderChooseExistingQuestion(messages))
         .withId("enumerator-setup")
         .withClass("maxw-mobile-lg");
@@ -939,7 +996,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Long programId,
       Long blockId,
       Optional<EnumeratorQuestionForm> optionalQuestionForm,
-      ImmutableSet<CiviFormError> errorMessages) {
+      ImmutableSet<CiviFormError> errorMessages,
+      Optional<DivTag> optionalInitialQuestionCard) {
     InputTag csrfTag = makeCsrfTokenInputTag(request);
     return form(csrfTag)
         .withClasses("usa-summary-box", "bg-white", "border-gray-300")
@@ -1017,12 +1075,21 @@ public final class ProgramBlocksView extends ProgramBaseView {
                         .map(EnumeratorQuestionForm::getMaxEntities)
                         .orElse(OptionalInt.empty()))
                 .getUSWDSNumberTag(),
+            iff(
+                optionalInitialQuestionCard.isEmpty(),
+                input()
+                    .attr("aria-required", "true")
+                    .withType("button")
+                    .withValue("Add question")
+                    .withClasses(ReferenceClasses.OPEN_QUESTION_BANK_BUTTON)),
+            optionalInitialQuestionCard.orElse(div()),
             div(
                     AlertComponent.renderSlimInfoAlert(
                         messages.at(MessageKey.ALERT_REPEATED_SET_NEW_QUESTION.getKeyName())),
                     submitButton(
                             messages.at(MessageKey.BUTTON_REPEATED_SET_SUBMIT_NEW.getKeyName()))
                         .withId("create-repeated-set-button")
+                        .withForm("new-enumerator-question-form")
                         .withClasses("usa-button", "usa-button--primary", "margin-top-105"))
                 .withClasses("border-top", "border-gray-300", "padding-top-3", "margin-top-3"));
   }
@@ -1184,7 +1251,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       ProgramQuestionDefinition programQuestionDefinition,
       int questionIndex,
       int questionsCount,
-      Request request) {
+      Request request,
+      boolean isInitialQuestion) {
     InputTag csrfTag = optionalCsrfTag.orElse(makeCsrfTokenInputTag(request));
     boolean isOptional = programQuestionDefinition.optional();
     boolean addressCorrectionEnabled = programQuestionDefinition.addressCorrectionEnabled();
@@ -1196,16 +1264,24 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .get(questionDefinition.getId());
     ImmutableList.Builder<DomContent> rowContent = ImmutableList.builder();
     Optional<FormTag> maybeAddressCorrectionEnabledToggle =
-        renderAddressCorrectionEnabledToggle(
-            request,
-            csrfTag,
-            programDefinition,
-            blockDefinition,
-            questionDefinition,
-            addressCorrectionEnabled);
+        isInitialQuestion
+            ? Optional.empty()
+            : renderAddressCorrectionEnabledToggle(
+                request,
+                csrfTag,
+                programDefinition,
+                blockDefinition,
+                questionDefinition,
+                addressCorrectionEnabled);
     Optional<FormTag> maybeOptionalToggle =
-        renderOptionalToggle(
-            csrfTag, programDefinition.id(), blockDefinition.id(), questionDefinition, isOptional);
+        isInitialQuestion
+            ? Optional.empty()
+            : renderOptionalToggle(
+                csrfTag,
+                programDefinition.id(),
+                blockDefinition.id(),
+                questionDefinition,
+                isOptional);
     // UI for editing is only added if we are viewing a draft.
     if (viewAllowsEditingProgram()) {
       if (maybeAddressCorrectionEnabledToggle.isPresent()) {
@@ -1214,17 +1290,20 @@ public final class ProgramBlocksView extends ProgramBaseView {
       if (maybeOptionalToggle.isPresent()) {
         rowContent.add(maybeOptionalToggle.get());
       }
-      rowContent.add(
-          renderMoveQuestionButtonsSection(
-              csrfTag,
-              programDefinition.id(),
-              blockDefinition.id(),
-              questionDefinition,
-              questionIndex,
-              questionsCount));
+      if (!isInitialQuestion) {
+        rowContent.add(
+            renderMoveQuestionButtonsSection(
+                csrfTag,
+                programDefinition.id(),
+                blockDefinition.id(),
+                questionDefinition,
+                questionIndex,
+                questionsCount));
+      }
       rowContent.add(
           div()
-              .with(
+              .condWith(
+                  !isInitialQuestion,
                   renderEditQuestionLink(
                       questionDefinition.getId(), programDefinition.id(), blockDefinition.id()))
               .with(
@@ -1522,6 +1601,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     ButtonTag removeButton =
         ViewUtils.makeSvgTextButton("Delete", Icons.DELETE)
             .withType("submit")
+            .withForm("block-questions-form")
             .withId("block-question-" + questionDefinition.getId())
             .withName("questionDefinitionId")
             .withValue(String.valueOf(questionDefinition.getId()))
@@ -1543,6 +1623,18 @@ public final class ProgramBlocksView extends ProgramBaseView {
         .withMethod(HttpVerbs.POST)
         .withAction(deleteQuestionAction)
         .with(removeButton);
+  }
+
+  private FormTag renderDeleteQuestionFormWithoutContents(
+      InputTag csrfTag, long programDefinitionId, long blockDefinitionId, long initialQuestionId) {
+    String deleteQuestionAction =
+        controllers.admin.routes.AdminProgramBlockQuestionsController.delete(
+                programDefinitionId, blockDefinitionId, initialQuestionId)
+            .url();
+    return form(csrfTag)
+        .withId("block-questions-form")
+        .withMethod(HttpVerbs.POST)
+        .withAction(deleteQuestionAction);
   }
 
   /**

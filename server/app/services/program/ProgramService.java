@@ -1634,9 +1634,10 @@ public final class ProgramService {
             // because it will no longer be possible to add an enumerator question to a block that
             // isn't already an enumerator block.
             .setIsEnumerator(
-                updatedBlockQuestionsList.stream()
-                        .map(ProgramQuestionDefinition::getQuestionDefinition)
-                        .anyMatch(QuestionDefinition::isEnumerator)
+                (enumeratorImprovementsEnabled && blockDefinition.getIsEnumerator())
+                        || updatedBlockQuestionsList.stream()
+                            .map(ProgramQuestionDefinition::getQuestionDefinition)
+                            .anyMatch(QuestionDefinition::isEnumerator)
                     ? Optional.of(true)
                     : Optional.empty())
             .build();

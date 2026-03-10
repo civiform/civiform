@@ -10,6 +10,7 @@ import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
 
 /** Helper class for performing validation related to creating or modifying program blocks. */
 public final class ProgramBlockValidation {
@@ -38,7 +39,7 @@ public final class ProgramBlockValidation {
     // Cannot add question to the block because the block contains a question
     // of special type (enumerator or file upload) that prohibits having
     // other questions in the block.
-    BLOCK_IS_SINGLE_QUESTION,
+    QUESTION_TYPE_PREVENTS_ADDITIONAL_QUESTIONS,
 
     // Cannot add special question type (enumerator or file upload) to
     // non-empty block. These questions must be an only question in a block.
@@ -78,7 +79,7 @@ public final class ProgramBlockValidation {
       return AddQuestionResult.DUPLICATE;
     }
     if ((!enumeratorImprovementsEnabled && block.hasEnumeratorQuestion()) || block.isFileUpload()) {
-      return AddQuestionResult.BLOCK_IS_SINGLE_QUESTION;
+      return AddQuestionResult.QUESTION_TYPE_PREVENTS_ADDITIONAL_QUESTIONS;
     }
     if (enumeratorImprovementsEnabled && question.isEnumerator() && !block.getIsEnumerator()) {
       return AddQuestionResult.ENUMERATOR_ON_NON_ENUMERATOR_BLOCK;
@@ -99,10 +100,7 @@ public final class ProgramBlockValidation {
   }
 
   private boolean isSingleBlockQuestion(QuestionDefinition question) {
-    return switch (question.getQuestionType()) {
-      case ENUMERATOR, FILEUPLOAD -> true;
-      default -> false;
-    };
+    return question.getQuestionType().equals(QuestionType.FILEUPLOAD);
   }
 
   /**

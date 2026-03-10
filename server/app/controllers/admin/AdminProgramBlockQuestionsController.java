@@ -157,7 +157,9 @@ public class AdminProgramBlockQuestionsController extends Controller {
                   programId,
                   blockId,
                   Optional.of(questionForm),
-                  result.getErrors())
+                  result.getErrors(),
+                  /* optionalInitialQuestionCard= */ Optional.empty(),
+                  /* initialQuestionId= */ 0L)
               .render());
     }
 
@@ -216,7 +218,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
                         programQuestionDefinition,
                         /* questionIndex= */ 0, // Enumerator blocks have only one question
                         blockDefinition.getQuestionCount(),
-                        request)),
+                        request,
+                        /* isInitialQuestion= */ false)),
                 /* blockHasEnumeratorQuestion= */ true)
             .render());
   }
