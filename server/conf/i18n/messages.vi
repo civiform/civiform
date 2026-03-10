@@ -1213,6 +1213,8 @@ description.repeatedSet.createNewQuestion=
 description.repeatedSet.chooseExistingQuestion=
 # A button for admins to add a repeated screen to a program
 button.addRepeatedScreen=
+# A button for admins to add a nested repeated set to a program
+button.addNestedRepeatedSet=Add nested repeated set
 # A button for admins to add a pre-existing enumerator question to a program
 button.addQuestion=
 
