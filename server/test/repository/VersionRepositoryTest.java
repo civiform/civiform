@@ -252,9 +252,7 @@ public class VersionRepositoryTest extends ResetPostgres {
     ImmutableList<Long> draftProgramIdsBefore =
         draftBefore.getPrograms().stream().map(p -> p.id).collect(ImmutableList.toImmutableList());
     ImmutableList<Long> activeQuestionIdsBefore =
-        activeBefore
-            .getQuestions()
-            .stream()
+        activeBefore.getQuestions().stream()
             .map(q -> q.id)
             .collect(ImmutableList.toImmutableList());
 
@@ -351,8 +349,8 @@ public class VersionRepositoryTest extends ResetPostgres {
   }
 
   /**
-   * A draft that removes all questions from a program (compared to its active version) causes
-   * those question references to disappear from the result.
+   * A draft that removes all questions from a program (compared to its active version) causes those
+   * question references to disappear from the result.
    */
   @Test
   public void previewPublishNewSynchronizedVersion_draftProgramWithNoQuestionsRemovesReferences() {
@@ -369,8 +367,8 @@ public class VersionRepositoryTest extends ResetPostgres {
 
   /**
    * Active programs with no draft counterpart are copied into the (temporary) combined draft and
-   * appear in the result. Their question references resolve because active-only questions are
-   * also temporarily copied.
+   * appear in the result. Their question references resolve because active-only questions are also
+   * temporarily copied.
    */
   @Test
   public void previewPublishNewSynchronizedVersion_activeProgramWithoutDraftIncluded() {
@@ -437,8 +435,8 @@ public class VersionRepositoryTest extends ResetPostgres {
   }
 
   /**
-   * A program (draft or active-only) that has no questions in its blocks contributes no entries
-   * to the question-to-programs map.
+   * A program (draft or active-only) that has no questions in its blocks contributes no entries to
+   * the question-to-programs map.
    */
   @Test
   public void previewPublishNewSynchronizedVersion_programWithNoQuestionsAddsNoEntries() {
@@ -470,8 +468,8 @@ public class VersionRepositoryTest extends ResetPostgres {
   }
 
   /**
-   * A program referencing multiple questions contributes all of them as separate keys in the
-   * result map.
+   * A program referencing multiple questions contributes all of them as separate keys in the result
+   * map.
    */
   @Test
   public void previewPublishNewSynchronizedVersion_programWithMultipleQuestionsAllMapped() {
@@ -534,8 +532,8 @@ public class VersionRepositoryTest extends ResetPostgres {
   }
 
   /**
-   * Verifies all three fields of {@link DraftProgramReference} are populated correctly from
-   * the program definition.
+   * Verifies all three fields of {@link DraftProgramReference} are populated correctly from the
+   * program definition.
    */
   @Test
   public void previewPublishNewSynchronizedVersion_draftProgramReferenceFieldsPopulated() {
