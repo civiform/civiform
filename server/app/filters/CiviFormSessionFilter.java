@@ -68,8 +68,8 @@ public class CiviFormSessionFilter extends EssentialFilter {
     return EssentialAction.of(
         request -> {
           if (allowedEndpoint(request)) {
-            // Update activity time for allowed endpoints when a profile exists, so that
-            // requests to these routes (e.g., API calls) count toward session activity
+            // Update activity time for allowed endpoints so that requests
+            // to these routes (e.g., API calls) count toward session activity
             request
                 .attrs()
                 .getOptional(ProfileUtils.CURRENT_USER_PROFILE)
@@ -77,7 +77,10 @@ public class CiviFormSessionFilter extends EssentialFilter {
             return next.apply(request);
           }
 
-          // Only get the profile if it doesn't already exist on the request
+          /**
+           * Get the profile if it doesn't already exist on the request Should have already been
+           * added in {@link CiviFormProfileFilter}
+           */
           Optional<CiviFormProfile> optionalProfile =
               request
                   .attrs()
@@ -115,20 +118,17 @@ public class CiviFormSessionFilter extends EssentialFilter {
                         Optional<SessionDetails> optionalSession =
                             account.getActiveSession(profile.getProfileData().getSessionId());
 
-                        // When session replay protection is enabled, force logout if the
-                        // session is not found in the database.
                         if (settingsManifest.get().getSessionReplayProtectionEnabled()
                             && optionalSession.isEmpty()) {
                           return redirectToLogout();
                         }
 
-                        // Handle session timeout (only when session exists)
+                        // Validate session length
                         if (settingsManifest.get().getSessionTimeoutEnabled(request)
                             && optionalSession.isPresent()) {
                           long sessionStartTimeInMillis =
                               optionalSession.get().getCreationTime().toEpochMilli();
 
-                          // Validate session length
                           if (sessionTimeoutService
                               .get()
                               .isSessionTimedOut(profile, sessionStartTimeInMillis)) {
@@ -137,7 +137,9 @@ public class CiviFormSessionFilter extends EssentialFilter {
                             return redirectToLogout();
                           }
 
+                          // Update last activity time
                           profile.getProfileData().updateLastActivityTime(clock);
+
                           return next.apply(request)
                               .map(
                                   result ->
