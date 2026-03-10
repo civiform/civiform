@@ -375,18 +375,16 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
 
     // No longer reference the question from the first program.
     ProgramBuilder.newDraftProgram("first-program").withBlock("Screen 1").build();
-    ProgramModel secondProgramDraft =
-        ProgramBuilder.newDraftProgram("second-program")
-            .withBlock("Screen 1")
-            .withBlock("Screen 2")
-            .withBlock("Screen 3")
-            .withRequiredQuestion(question)
-            .build();
-    ProgramModel thirdProgramDraft =
-        ProgramBuilder.newDraftProgram("third-program")
-            .withBlock("Screen 1")
-            .withRequiredQuestion(question)
-            .build();
+    ProgramBuilder.newDraftProgram("second-program")
+        .withBlock("Screen 1")
+        .withBlock("Screen 2")
+        .withBlock("Screen 3")
+        .withRequiredQuestion(question)
+        .build();
+    ProgramBuilder.newDraftProgram("third-program")
+        .withBlock("Screen 1")
+        .withRequiredQuestion(question)
+        .build();
     versionRepository.getDraftVersionOrCreate().addQuestion(question).save();
 
     Optional<Transaction> maybeTransaction = maybeMakeTransaction(useTransaction);
