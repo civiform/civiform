@@ -395,9 +395,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
         newActiveAndDraftQuestions().getReferencingPrograms(TEST_QUESTION_NAME);
     assertThat(result.activeReferences().stream().map(ProgramDefinition::id))
         .containsExactlyInAnyOrder(firstProgramActive.id, secondProgramActive.id);
-    assertThat(
-            result.draftReferences().stream()
-                .map(DraftProgramReference::adminName))
+    assertThat(result.draftReferences().stream().map(DraftProgramReference::adminName))
         .containsExactlyInAnyOrder("second-program", "third-program");
 
     maybeTransaction.ifPresent(Transaction::end);
@@ -450,9 +448,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
         newActiveAndDraftQuestions().getReferencingPrograms(TEST_QUESTION_NAME);
     assertThat(result.activeReferences().stream().map(ProgramDefinition::id))
         .containsExactlyInAnyOrder(firstProgramActive.id, secondProgramActive.id);
-    assertThat(
-            result.draftReferences().stream()
-                .map(DraftProgramReference::adminName))
+    assertThat(result.draftReferences().stream().map(DraftProgramReference::adminName))
         .containsExactlyInAnyOrder("second-program", "third-program");
 
     maybeTransaction.ifPresent(Transaction::end);
