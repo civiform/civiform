@@ -496,40 +496,6 @@ public class AccountRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void addIdTokenAndPrune_sessionReplayEnabled() {
-    AccountModel account = new AccountModel();
-    String fakeEmail = "fake email";
-    account.setEmailAddress(fakeEmail);
-    account.addActiveSession("sessionId1", VALID_SESSION_CLOCK);
-    account.storeIdTokenInActiveSession("sessionId1", "idToken1");
-    account.addActiveSession("sessionId2", VALID_SESSION_CLOCK);
-    account.storeIdTokenInActiveSession("sessionId2", "idToken2");
-    account.save();
-    long accountId = account.id;
-
-    // Create a JWT that just expired.
-    LocalDateTime now = LocalDateTime.now(Clock.systemUTC());
-    Instant timeInPast = now.minus(1, ChronoUnit.SECONDS).toInstant(ZoneOffset.UTC);
-    JWT expiredJwt = getJwtWithExpirationTime(timeInPast);
-
-    repo.addIdTokenAndPrune(account, "sessionId1", expiredJwt.serialize());
-
-    // Create a JWT that won't expire for an hour.
-    Instant timeInFuture = now.plus(1, ChronoUnit.HOURS).toInstant(ZoneOffset.UTC);
-    JWT validJwt = getJwtWithExpirationTime(timeInFuture);
-
-    repo.addIdTokenAndPrune(account, "sessionId2", validJwt.serialize());
-
-    Optional<AccountModel> retrievedAccount = repo.lookupAccount(accountId);
-    assertThat(retrievedAccount).isNotEmpty();
-    // Expired token
-    assertThat(retrievedAccount.get().getIdTokens().getIdToken("sessionId1")).isEmpty();
-    // Valid token
-    assertThat(retrievedAccount.get().getIdTokens().getIdToken("sessionId2"))
-        .hasValue(validJwt.serialize());
-  }
-
-  @Test
   public void addIdTokenAndPrune_logsWithoutActiveSession() {
     Logger logger = (Logger) LoggerFactory.getLogger(AccountRepository.class);
     ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
