@@ -120,13 +120,11 @@ public final class VersionRepository {
           ImmutableMap<Long, String> activeQuestionIdToName = getQuestionIdToNameMap(active);
           ImmutableMap<Long, String> draftQuestionIdToName = getQuestionIdToNameMap(draft);
 
-          // Draft programs may reference question IDs from either the active or draft version.
-          // Build a combined lookup so both are resolved; draft entries take precedence.
-          Map<Long, String> combinedQuestionIdToNameMap = Maps.newHashMap();
-          combinedQuestionIdToNameMap.putAll(activeQuestionIdToName);
-          combinedQuestionIdToNameMap.putAll(draftQuestionIdToName);
-          ImmutableMap<Long, String> combinedQuestionIdToName =
-              ImmutableMap.copyOf(combinedQuestionIdToNameMap);
+          ImmutableMap<Long, String> questionIdToName =
+              new ImmutableMap.Builder<Long, String>()
+                  .putAll(activeQuestionIdToName)
+                  .putAll(draftQuestionIdToName)
+                  .build();
 
           Map<String, Set<DraftProgramReference>> result = Maps.newHashMap();
 
@@ -138,7 +136,7 @@ public final class VersionRepository {
             }
             DraftProgramReference ref =
                 new DraftProgramReference(def.adminName(), def.displayMode(), def.localizedName());
-            for (String questionName : getProgramQuestionNames(def, combinedQuestionIdToName)) {
+            for (String questionName : getProgramQuestionNames(def, questionIdToName)) {
               result.computeIfAbsent(questionName, k -> Sets.newHashSet()).add(ref);
             }
           }
