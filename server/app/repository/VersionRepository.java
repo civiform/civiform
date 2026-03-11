@@ -120,11 +120,11 @@ public final class VersionRepository {
           ImmutableMap<Long, String> activeQuestionIdToName = getQuestionIdToNameMap(active);
           ImmutableMap<Long, String> draftQuestionIdToName = getQuestionIdToNameMap(draft);
 
-          ImmutableMap<Long, String> questionIdToName =
-              new ImmutableMap.Builder<Long, String>()
-                  .putAll(activeQuestionIdToName)
-                  .putAll(draftQuestionIdToName)
-                  .build();
+          Map<Long, String> combinedQuestionIdToNameMap = Maps.newHashMap();
+          combinedQuestionIdToNameMap.putAll(activeQuestionIdToName);
+          combinedQuestionIdToNameMap.putAll(draftQuestionIdToName);
+          ImmutableMap<Long, String> combinedQuestionIdToName =
+              ImmutableMap.copyOf(combinedQuestionIdToNameMap);
 
           Map<String, Set<DraftProgramReference>> result = Maps.newHashMap();
 
@@ -136,7 +136,7 @@ public final class VersionRepository {
             }
             DraftProgramReference ref =
                 new DraftProgramReference(def.adminName(), def.displayMode(), def.localizedName());
-            for (String questionName : getProgramQuestionNames(def, questionIdToName)) {
+            for (String questionName : getProgramQuestionNames(def, combinedQuestionIdToName)) {
               result.computeIfAbsent(questionName, k -> Sets.newHashSet()).add(ref);
             }
           }
