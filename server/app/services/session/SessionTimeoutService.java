@@ -1,11 +1,15 @@
 package services.session;
 
 import auth.CiviFormProfile;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Base64;
 import javax.inject.Inject;
 import javax.inject.Provider;
+import play.libs.Json;
 import services.settings.SettingsManifest;
 
 /** Service responsible for managing session timeout logic in CiviForm. */
@@ -112,5 +116,19 @@ public final class SessionTimeoutService {
       long totalTimeout,
       long inactivityWarning,
       long totalWarning,
-      long currentTime) {}
+      long currentTime) {
+    private ObjectNode timestamps() {
+      return Json.newObject()
+          .put("inactivityWarning", inactivityWarning)
+          .put("inactivityTimeout", inactivityTimeout)
+          .put("totalWarning", totalWarning)
+          .put("totalTimeout", totalTimeout)
+          .put("currentTime", currentTime);
+    }
+
+    public String cookieValue() {
+      return Base64.getEncoder()
+          .encodeToString(Json.stringify(timestamps()).getBytes(StandardCharsets.UTF_8));
+    }
+  }
 }
