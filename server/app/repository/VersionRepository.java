@@ -38,8 +38,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.cache.NamedCache;
 import play.cache.SyncCacheApi;
-import services.program.BlockDefinition;
 import services.LocalizedStrings;
+import services.program.BlockDefinition;
 import services.program.CantPublishProgramWithSharedQuestionsException;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
@@ -110,8 +110,7 @@ public final class VersionRepository {
    * next version. This method will not mutate the database and will return a copy of relevant data
    * from the updated Version corresponding to what would be the new ACTIVE version.
    */
-  public ImmutableMap<String, ImmutableSet<ProgramPreview>>
-      previewPublishNewSynchronizedVersion() {
+  public ImmutableMap<String, ImmutableSet<ProgramPreview>> previewPublishNewSynchronizedVersion() {
     return publishNewSynchronizedVersion(PublishMode.DRY_RUN)
         .orElseThrow(
             () ->
@@ -253,8 +252,8 @@ public final class VersionRepository {
     }
   }
 
-  private ImmutableMap<String, ImmutableSet<ProgramPreview>>
-      buildDraftReferencingProgramsMap(VersionModel version) {
+  private ImmutableMap<String, ImmutableSet<ProgramPreview>> buildDraftReferencingProgramsMap(
+      VersionModel version) {
     return buildReferencingProgramsMap(version).entrySet().stream()
         .collect(
             ImmutableMap.toImmutableMap(

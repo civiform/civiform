@@ -28,8 +28,7 @@ public final class ActiveAndDraftQuestions {
           String, Pair<Optional<QuestionDefinition>, Optional<QuestionDefinition>>>
       versionedByName;
   private final ImmutableMap<String, DeletionStatus> deletionStatusByName;
-  private final ImmutableMap<String, ImmutableSet<ProgramPreview>>
-      referencingDraftProgramsByName;
+  private final ImmutableMap<String, ImmutableSet<ProgramPreview>> referencingDraftProgramsByName;
   private final ImmutableMap<String, ImmutableSet<ProgramDefinition>>
       referencingActiveProgramsByName;
   private final boolean draftVersionHasAnyEdits;
