@@ -508,8 +508,8 @@ public final class QuestionsListView extends BaseHtmlView {
     abstract ImmutableList<ProgramDefinition> removedPrograms();
 
     /**
-     * Returns an immutable list of draft program references that are currently in draft status with
-     * disabled visibility.
+     * Returns an immutable list of programs that are currently in draft status with disabled
+     * visibility.
      */
     abstract ImmutableList<PublishProgramPreview> disabledPrograms();
 
@@ -613,14 +613,14 @@ public final class QuestionsListView extends BaseHtmlView {
             !referencingPrograms.usedPrograms().isEmpty(),
             div()
                 .with(
-                    referencingDraftProgramList(
+                    referencingPreviewProgramList(
                         "This question is used in:", referencingPrograms.usedPrograms()))
                 .withClass(ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_USED))
         .condWith(
             !referencingPrograms.addedPrograms().isEmpty(),
             div()
                 .with(
-                    referencingDraftProgramList(
+                    referencingPreviewProgramList(
                         "This question is added to:", referencingPrograms.addedPrograms()))
                 .withClass(ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_ADDED))
         .condWith(
@@ -646,7 +646,7 @@ public final class QuestionsListView extends BaseHtmlView {
             .build());
   }
 
-  private DivTag referencingDraftProgramList(
+  private DivTag referencingPreviewProgramList(
       String title, ImmutableList<PublishProgramPreview> referencingPrograms) {
     return div()
         .with(p(title).withClass("font-semibold"))

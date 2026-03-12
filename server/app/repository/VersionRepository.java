@@ -59,7 +59,7 @@ import services.settings.SettingsManifest;
 public final class VersionRepository {
 
   /**
-   * A lightweight container representing the programs that would be result from the publish action.
+   * A lightweight container representing the programs that would result from the publish action.
    */
   public record PublishProgramPreview(
       String adminName, DisplayMode displayMode, LocalizedStrings localizedName) {}
