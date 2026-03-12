@@ -789,6 +789,29 @@ public final class ApplicantService {
   }
 
   /**
+   * Returns the ID of the first block that has an address question with correction enabled that
+   * hasn't been through the correction flow yet. Returns empty if all addresses are corrected. This
+   * can happen when an address is pre-filled from a different program that didn't have correction
+   * enabled.
+   */
+  public Optional<String> getFirstBlockWithUncorrectedAddress(
+      ReadOnlyApplicantProgramService roApplicantProgramService) {
+    for (Block block : roApplicantProgramService.getAllActiveBlocks()) {
+      Optional<ApplicantQuestion> maybeAddressQuestion =
+          block.getAddressQuestionWithCorrectionEnabled();
+      if (maybeAddressQuestion.isEmpty()) {
+        continue;
+      }
+
+      AddressQuestion addressQuestion = maybeAddressQuestion.get().createAddressQuestion();
+      if (addressQuestion.needsAddressCorrection()) {
+        return Optional.of(block.getId());
+      }
+    }
+    return Optional.empty();
+  }
+
+  /**
    * When an application is submitted, we store the name of its program in the ACLs for each file in
    * the application.
    */

@@ -264,7 +264,29 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 return CompletableFuture.completedFuture(applicationUpdatedOptional.get());
               }
 
-              return submitInternal(request, applicantId, programId);
+              // If any address question has correction enabled but hasn't been
+              // through the correction flow yet, redirect to that block instead
+              // of submitting. This handles addresses pre-filled from a program
+              // that didn't have correction enabled.
+              return applicantService
+                  .getReadOnlyApplicantProgramService(applicantId, programId)
+                  .thenComposeAsync(
+                      roService -> {
+                        Optional<String> uncorrectedBlockId =
+                            applicantService.getFirstBlockWithUncorrectedAddress(roService);
+                        if (uncorrectedBlockId.isPresent()) {
+                          return CompletableFuture.completedFuture(
+                              found(
+                                  applicantRoutes.blockReview(
+                                      profile,
+                                      applicantId,
+                                      programId,
+                                      uncorrectedBlockId.get(),
+                                      /* questionName= */ Optional.empty())));
+                        }
+                        return submitInternal(request, applicantId, programId);
+                      },
+                      classLoaderExecutionContext.current());
             },
             classLoaderExecutionContext.current())
         .exceptionally(
