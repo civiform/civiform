@@ -7,11 +7,11 @@ import {
 } from './support'
 import {Page} from '@playwright/test'
 
-// Config values from application.dev-browser-tests.conf:
-// - Inactivity warning at: 50 minutes (60 - 10)
-// - Inactivity timeout at: 60 minutes
-// - Session duration warning at: 55 minutes (65 - 10)
-// - Maximum session at: 65 minutes
+// Config values from application.conf defaults:
+// - Inactivity warning at: 25 minutes (30 - 5)
+// - Inactivity timeout at: 30 minutes
+// - Session duration warning at: 590 minutes (600 - 10)
+// - Maximum session at: 600 minutes
 // Note: inactivity timeout must be < max session for inactivity warning to show
 
 test.describe('Session timeout for admins', () => {
@@ -26,11 +26,11 @@ test.describe('Session timeout for admins', () => {
     await enableFeatureFlag(page, 'session_timeout_enabled')
   })
 
-  test('shows inactivity warning modal after 50 minutes and logs user out after 90 more minutes', async ({
+  test('shows inactivity warning modal after 25 minutes and logs user out after inactivity timeout', async ({
     page,
   }) => {
-    await test.step('Fast forward 50 mins', async () => {
-      await page.clock.runFor('50:00')
+    await test.step('Fast forward 25 mins', async () => {
+      await page.clock.runFor('25:00')
     })
 
     await test.step('Validate inactivity warning modal appears', async () => {
@@ -55,14 +55,14 @@ test.describe('Session timeout for admins', () => {
       await expect(toast).toBeVisible()
     })
 
-    await test.step('Fast forward another 80 mins and confirm the modal shows again', async () => {
-      await page.clock.runFor('01:20')
+    await test.step('Fast forward another 2 mins and confirm the modal shows again', async () => {
+      await page.clock.runFor('02:00')
       const logoutModal = page.locator('#session-inactivity-warning-modal')
       await expect(logoutModal).not.toHaveClass(/is-hidden/)
     })
 
-    await test.step('Fast forward 10 more mins and confirm the user is logged out', async () => {
-      await page.clock.runFor('10:00')
+    await test.step('Fast forward 5 more mins and confirm the user is logged out', async () => {
+      await page.clock.runFor('05:00')
 
       await confirmUserIsLoggedOut(page)
     })
@@ -80,7 +80,7 @@ test.describe('Session timeout for applicants', () => {
     await enableFeatureFlag(page, 'session_timeout_enabled')
   })
 
-  test('shows inactivity warning modal after 50 minutes and session length warning modal after 55 minutes', async ({
+  test('shows inactivity warning modal after 25 minutes and session length warning modal after 590 minutes', async ({
     page,
   }) => {
     await test.step('Create and login as applicant', async () => {
@@ -88,8 +88,8 @@ test.describe('Session timeout for applicants', () => {
       await loginAsTestUser(page)
     })
 
-    await test.step('Fast forward 50 mins', async () => {
-      await page.clock.runFor('50:00')
+    await test.step('Fast forward 25 mins', async () => {
+      await page.clock.runFor('25:00')
     })
 
     await test.step('Validate inactivity warning modal appears', async () => {
@@ -106,8 +106,8 @@ test.describe('Session timeout for applicants', () => {
       await closeModalButton.click()
     })
 
-    await test.step('Fast forward another 5 mins', async () => {
-      await page.clock.runFor('05:00')
+    await test.step('Fast forward to 590 mins total', async () => {
+      await page.clock.runFor('565:00')
     })
 
     await test.step('Validate session length warning modal appears', async () => {
@@ -133,7 +133,7 @@ const confirmUserIsLoggedOut = async (page: Page) => {
   // redirected to dev-oidc:PORT/session/end page. There they need to confirm
   // logout.
   if (page.url().match('dev-oidc.*/session/end')) {
-    const pageContent = await page.textContent('html')
+    const pageContent = await page.locator('html').textContent()
     if (pageContent!.includes('Do you want to sign-out from')) {
       // OIDC central provider confirmation page
       await page.getByRole('button', {name: 'Yes'}).click()
