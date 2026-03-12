@@ -657,8 +657,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   settingsManifest.getExpandedFormLogicEnabled(request)));
     }
 
+    boolean isRepeatedScreen =
+        blockDefinition.isRepeated() || blockDefinition.enumeratorId().isPresent();
     boolean isRepeatedBlockWithEnumeratorImprovements =
-        enumeratorImprovementsEnabled && blockDefinition.isRepeated();
+        enumeratorImprovementsEnabled && isRepeatedScreen;
 
     DivTag questionSectionHeader =
         div(isRepeatedBlockWithEnumeratorImprovements
@@ -717,24 +719,15 @@ public final class ProgramBlocksView extends ProgramBaseView {
           isRepeatedBlockWithEnumeratorImprovements
               ? button("")
                   .withType("button")
-                  .withStyle(
-                      "background-color: #fff; border-color: #005EA2; border-width: 2px;"
-                          + " border-radius: 4px; color: #005EA2;")
+                  .withCondDisabled(!isEnumeratorBlockComplete)
                   .withClasses(
                       "usa-button",
                       "usa-button--outline",
-                      "bg-white",
-                      "border-2",
-                      "rounded",
-                      "py-3",
-                      "px-5",
-                      "flex",
-                      "justify-center",
-                      "items-center",
-                      "gap-2")
+                      "usa-button-group__item",
+                      "my-4",
+                      ReferenceClasses.OPEN_QUESTION_BANK_BUTTON)
                   .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
                   .withText(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName()))
-                  .withClass(ReferenceClasses.OPEN_QUESTION_BANK_BUTTON)
               : makeSvgTextButton("Add a question", Icons.ADD)
                   .withCondDisabled(!isEnumeratorBlockComplete)
                   .withClasses(
@@ -762,9 +755,13 @@ public final class ProgramBlocksView extends ProgramBaseView {
               .map(parent -> parent.enumeratorId().isEmpty())
               .orElse(false);
 
+      DivTag questionsSection =
+          div()
+              .withCondClass(isRepeatedBlockWithEnumeratorImprovements, "maxw-mobile-lg")
+              .with(programQuestions, addQuestion);
+
       return div.with(
-          programQuestions,
-          addQuestion,
+          questionsSection,
           iff(
               settingsManifest.getEnumeratorImprovementsEnabled(request),
               renderAddRepeatedScreenButtons(

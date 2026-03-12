@@ -745,9 +745,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(blockPanel.locator('#questions-section')).toBeHidden()
       })
 
-      await test.step('Validate that "Add a question" button is not visible', async () => {
+      await test.step('Validate that "Add question" button is not visible', async () => {
         await expect(
-          blockPanel.getByRole('button', {name: 'Add a question'}),
+          blockPanel.getByRole('button', {name: 'Add question'}),
         ).toBeHidden()
       })
 
@@ -998,7 +998,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
     }) => {
       const blockPanel = page.getByTestId('block-panel-edit')
       const addQuestionButton = blockPanel.getByRole('button', {
-        name: 'Add a question',
+        name: 'Add question',
       })
       const repeatedSetAlert = blockPanel.getByRole('alert').filter({
         hasText:
@@ -1026,7 +1026,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await fillOutEnumeratorQuestionFormCorrectly(page)
       })
 
-      await test.step('Return to repeated screen and verify Add a question is enabled and alert is hidden', async () => {
+      await test.step('Return to repeated screen and verify Add question is enabled and alert is hidden', async () => {
         await navigateToRepeatedScreen(page, 3, 2)
         await expect(addQuestionButton).toBeEnabled()
         await expect(repeatedSetAlert).toBeHidden()
@@ -1076,7 +1076,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Verify that the question bank has all non-repeated questions', async () => {
-        await page.getByRole('button', {name: 'Add a question'}).click()
+        await page.getByRole('button', {name: 'Add question'}).click()
         await expect(
           page.getByText('Admin ID: income-non-repeated-question'),
         ).toBeVisible()
@@ -1097,7 +1097,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
       await test.step('Verify that creating a repeated question pre-selects the enumerator question.', async () => {
         await test.step('Add a new text question to the screen', async () => {
-          await page.getByRole('button', {name: 'Add a question'}).click()
+          await page.getByRole('button', {name: 'Add question'}).click()
           await page.getByRole('button', {name: 'Create new question'}).click()
           await page.getByRole('link', {name: 'Text', exact: true}).click()
         })
