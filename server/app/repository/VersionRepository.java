@@ -39,8 +39,8 @@ import org.slf4j.LoggerFactory;
 import play.cache.NamedCache;
 import play.cache.SyncCacheApi;
 import services.program.BlockDefinition;
+import services.LocalizedStrings;
 import services.program.CantPublishProgramWithSharedQuestionsException;
-import services.program.DraftProgramReference;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -57,6 +57,14 @@ import services.settings.SettingsManifest;
 
 /** A repository object for dealing with versioning of questions and programs. */
 public final class VersionRepository {
+
+  /**
+   * A lightweight container for a program that references a question in the draft version, holding
+   * only the fields needed for display rather than a full {@link
+   * services.program.ProgramDefinition}.
+   */
+  public record ProgramPreview(
+      String adminName, DisplayMode displayMode, LocalizedStrings localizedName) {}
 
   private static final Logger logger = LoggerFactory.getLogger(VersionRepository.class);
   private static final QueryProfileLocationBuilder profileLocationBuilder =
@@ -102,7 +110,7 @@ public final class VersionRepository {
    * next version. This method will not mutate the database and will return a copy of relevant data
    * from the updated Version corresponding to what would be the new ACTIVE version.
    */
-  public ImmutableMap<String, ImmutableSet<DraftProgramReference>>
+  public ImmutableMap<String, ImmutableSet<ProgramPreview>>
       previewPublishNewSynchronizedVersion() {
     return publishNewSynchronizedVersion(PublishMode.DRY_RUN)
         .orElseThrow(
@@ -116,7 +124,7 @@ public final class VersionRepository {
     PUBLISH_CHANGES,
   }
 
-  private Optional<ImmutableMap<String, ImmutableSet<DraftProgramReference>>>
+  private Optional<ImmutableMap<String, ImmutableSet<ProgramPreview>>>
       publishNewSynchronizedVersion(PublishMode publishMode) {
     /*
      A few transaction notes about this method:
@@ -245,7 +253,7 @@ public final class VersionRepository {
     }
   }
 
-  private ImmutableMap<String, ImmutableSet<DraftProgramReference>>
+  private ImmutableMap<String, ImmutableSet<ProgramPreview>>
       buildDraftReferencingProgramsMap(VersionModel version) {
     return buildReferencingProgramsMap(version).entrySet().stream()
         .collect(
@@ -255,7 +263,7 @@ public final class VersionRepository {
                     e.getValue().stream()
                         .map(
                             p ->
-                                new DraftProgramReference(
+                                new ProgramPreview(
                                     p.adminName(), p.displayMode(), p.localizedName()))
                         .collect(ImmutableSet.toImmutableSet())));
   }

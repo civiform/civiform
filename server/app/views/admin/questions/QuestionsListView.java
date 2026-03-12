@@ -35,7 +35,8 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DeletionStatus;
 import services.TranslationLocales;
-import services.program.DraftProgramReference;
+import repository.VersionRepository;
+import repository.ProgramPreview;
 import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
 import services.question.QuestionService;
@@ -501,9 +502,9 @@ public final class QuestionsListView extends BaseHtmlView {
 
   @AutoValue
   abstract static class GroupedReferencingPrograms {
-    abstract ImmutableList<DraftProgramReference> usedPrograms();
+    abstract ImmutableList<ProgramPreview> usedPrograms();
 
-    abstract ImmutableList<DraftProgramReference> addedPrograms();
+    abstract ImmutableList<ProgramPreview> addedPrograms();
 
     abstract ImmutableList<ProgramDefinition> removedPrograms();
 
@@ -511,7 +512,7 @@ public final class QuestionsListView extends BaseHtmlView {
      * Returns an immutable list of draft program references that are currently in draft status with
      * disabled visibility.
      */
-    abstract ImmutableList<DraftProgramReference> disabledPrograms();
+    abstract ImmutableList<ProgramPreview> disabledPrograms();
 
     static Builder builder() {
       return new AutoValue_QuestionsListView_GroupedReferencingPrograms.Builder();
@@ -529,13 +530,13 @@ public final class QuestionsListView extends BaseHtmlView {
 
     @AutoValue.Builder
     abstract static class Builder {
-      abstract Builder setUsedPrograms(ImmutableList<DraftProgramReference> usedPrograms);
+      abstract Builder setUsedPrograms(ImmutableList<ProgramPreview> usedPrograms);
 
-      abstract Builder setAddedPrograms(ImmutableList<DraftProgramReference> addedPrograms);
+      abstract Builder setAddedPrograms(ImmutableList<ProgramPreview> addedPrograms);
 
       abstract Builder setRemovedPrograms(ImmutableList<ProgramDefinition> removedPrograms);
 
-      abstract Builder setDisabledPrograms(ImmutableList<DraftProgramReference> disabledPrograms);
+      abstract Builder setDisabledPrograms(ImmutableList<ProgramPreview> disabledPrograms);
 
       abstract GroupedReferencingPrograms build();
     }
@@ -543,22 +544,22 @@ public final class QuestionsListView extends BaseHtmlView {
 
   private GroupedReferencingPrograms createReferencingPrograms(
       Collection<ProgramDefinition> activePrograms,
-      Collection<DraftProgramReference> draftPrograms) {
+      Collection<ProgramPreview> draftPrograms) {
     ImmutableMap<String, ProgramDefinition> activeProgramsMap =
         activePrograms.stream()
             .collect(
                 ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
 
-    ImmutableMap<String, DraftProgramReference> draftDisabledProgramsMap =
+    ImmutableMap<String, ProgramPreview> draftDisabledProgramsMap =
         draftPrograms.stream()
             .filter(program -> program.displayMode() == DisplayMode.DISABLED)
             .collect(
-                ImmutableMap.toImmutableMap(DraftProgramReference::adminName, Function.identity()));
+                ImmutableMap.toImmutableMap(ProgramPreview::adminName, Function.identity()));
 
-    ImmutableMap<String, DraftProgramReference> draftProgramsMap =
+    ImmutableMap<String, ProgramPreview> draftProgramsMap =
         draftPrograms.stream()
             .collect(
-                ImmutableMap.toImmutableMap(DraftProgramReference::adminName, Function.identity()));
+                ImmutableMap.toImmutableMap(ProgramPreview::adminName, Function.identity()));
 
     // Use set operations to collect programs into 4 sets.
     Set<String> usedSet = Sets.intersection(activeProgramsMap.keySet(), draftProgramsMap.keySet());
@@ -568,25 +569,25 @@ public final class QuestionsListView extends BaseHtmlView {
     Set<String> disabledSet =
         Sets.difference(draftDisabledProgramsMap.keySet(), activeProgramsMap.keySet());
 
-    ImmutableList<DraftProgramReference> usedPrograms =
+    ImmutableList<ProgramPreview> usedPrograms =
         usedSet.stream()
             .map(draftProgramsMap::get)
-            .sorted(Comparator.comparing(DraftProgramReference::adminName))
+            .sorted(Comparator.comparing(ProgramPreview::adminName))
             .collect(ImmutableList.toImmutableList());
-    ImmutableList<DraftProgramReference> addedPrograms =
+    ImmutableList<ProgramPreview> addedPrograms =
         addedSet.stream()
             .map(draftProgramsMap::get)
-            .sorted(Comparator.comparing(DraftProgramReference::adminName))
+            .sorted(Comparator.comparing(ProgramPreview::adminName))
             .collect(ImmutableList.toImmutableList());
     ImmutableList<ProgramDefinition> removedPrograms =
         removedSet.stream()
             .map(activeProgramsMap::get)
             .sorted(Comparator.comparing(ProgramDefinition::adminName))
             .collect(ImmutableList.toImmutableList());
-    ImmutableList<DraftProgramReference> disabledPrograms =
+    ImmutableList<ProgramPreview> disabledPrograms =
         disabledSet.stream()
             .map(draftDisabledProgramsMap::get)
-            .sorted(Comparator.comparing(DraftProgramReference::adminName))
+            .sorted(Comparator.comparing(ProgramPreview::adminName))
             .collect(ImmutableList.toImmutableList());
     return GroupedReferencingPrograms.builder()
         .setUsedPrograms(usedPrograms)
@@ -647,7 +648,7 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   private DivTag referencingDraftProgramList(
-      String title, ImmutableList<DraftProgramReference> referencingPrograms) {
+      String title, ImmutableList<ProgramPreview> referencingPrograms) {
     return div()
         .with(p(title).withClass("font-semibold"))
         .with(

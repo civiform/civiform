@@ -27,7 +27,7 @@ import org.mockito.Mockito;
 import play.cache.SyncCacheApi;
 import services.applicant.question.Scalar;
 import services.program.CantPublishProgramWithSharedQuestionsException;
-import services.program.DraftProgramReference;
+import repository.ProgramPreview;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -172,7 +172,7 @@ public class VersionRepositoryTest extends ResetPostgres {
     VersionModel oldActive = versionRepository.getActiveVersion();
 
     // First, preview the changes and ensure no versions are updated.
-    ImmutableMap<String, ImmutableSet<DraftProgramReference>> previewResult =
+    ImmutableMap<String, ImmutableSet<ProgramPreview>> previewResult =
         versionRepository.previewPublishNewSynchronizedVersion();
     assertThat(versionRepository.getDraftVersionOrCreate().id).isEqualTo(oldDraft.id);
     assertThat(versionRepository.getActiveVersion().id).isEqualTo(oldActive.id);
@@ -201,9 +201,9 @@ public class VersionRepositoryTest extends ResetPostgres {
 
     assertThat(previewResult.keySet())
         .containsExactlyInAnyOrder("first-question", "second-question");
-    assertThat(previewResult.get("first-question").stream().map(DraftProgramReference::adminName))
+    assertThat(previewResult.get("first-question").stream().map(ProgramPreview::adminName))
         .containsExactly("foo");
-    assertThat(previewResult.get("second-question").stream().map(DraftProgramReference::adminName))
+    assertThat(previewResult.get("second-question").stream().map(ProgramPreview::adminName))
         .containsExactly("bar");
 
     // Now actually publish the version and assert the results.
