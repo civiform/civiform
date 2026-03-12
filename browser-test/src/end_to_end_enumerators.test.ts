@@ -1468,3 +1468,50 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
     })
   }
 })
+
+// Test existing enumerator functionality
+test.describe('e2e enumerator test with the feature flag turned on for existing functionality', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(page, 'enumerator_improvements_enabled')
+  })
+
+  const programName = 'E2E Enumerator'
+
+  test.describe('Admin page', () => {
+    test('Updates enumerator elements in preview', async ({
+      page,
+      adminQuestions,
+    }) => {
+      await test.step('Load enumerator creation page', async () => {
+        await loginAsAdmin(page)
+
+        await adminQuestions.gotoAdminQuestionsPage()
+
+        await page.click('#create-question-button')
+        await page.click('#create-enumerator-question')
+        await waitForPageJsLoad(page)
+      })
+
+      await test.step('Click add button and verify we get entity row and delete button and preview values update', async () => {
+        await page.click('button:text("Add Sample repeated entity type")')
+        await page.fill('text=Repeated Entity Type', 'New entity type')
+        await validateScreenshot(page, 'enumerator-type-set')
+      })
+
+      await test.step('Verify question preview has the default values.', async () => {
+        await adminQuestions.expectCommonPreviewValues({
+          questionText: 'Sample question text',
+          questionHelpText: '',
+        })
+        await adminQuestions.expectEnumeratorPreviewValues({
+          entityNameInputLabelText: 'New entity type name #1',
+          addEntityButtonText: 'Add New entity type',
+          deleteEntityButtonText: 'Remove New entity type #1',
+        })
+      })
+    })
+
+    
+  })
+
+})
