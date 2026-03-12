@@ -31,6 +31,7 @@ import play.i18n.MessagesApi;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Result;
 import repository.AccountRepository;
+import repository.ProgramRepository;
 import repository.VersionRepository;
 import services.applicant.ApplicantService;
 import services.program.ProgramDefinition;
@@ -175,7 +176,9 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             languageUtils,
             applicantRoutes,
             instanceOf(ProgramOverviewView.class),
-            instanceOf(MessagesApi.class));
+            instanceOf(MessagesApi.class),
+            instanceOf(SettingsManifest.class),
+            instanceOf(ProgramRepository.class));
     Result result =
         handler
             .showProgram(controller, fakeRequest(), programDefinition.slug())
@@ -213,7 +216,9 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             languageUtils,
             applicantRoutes,
             instanceOf(ProgramOverviewView.class),
-            instanceOf(MessagesApi.class));
+            instanceOf(MessagesApi.class),
+            instanceOf(SettingsManifest.class),
+            instanceOf(ProgramRepository.class));
     Result result =
         handler
             .showProgram(controller, fakeRequest(), programDefinition.slug())
@@ -259,7 +264,9 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             languageUtils,
             applicantRoutes,
             instanceOf(ProgramOverviewView.class),
-            instanceOf(MessagesApi.class));
+            instanceOf(MessagesApi.class),
+            instanceOf(SettingsManifest.class),
+            instanceOf(ProgramRepository.class));
     Result result =
         handler
             .showProgram(controller, fakeRequest(), programDefinition.slug())
@@ -301,7 +308,9 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             languageUtils,
             applicantRoutes,
             instanceOf(ProgramOverviewView.class),
-            instanceOf(MessagesApi.class));
+            instanceOf(MessagesApi.class),
+            instanceOf(SettingsManifest.class),
+            instanceOf(ProgramRepository.class));
     Result result =
         handler
             .showProgram(controller, fakeRequest(), programDefinition.slug())
@@ -348,7 +357,9 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             languageUtils,
             applicantRoutes,
             instanceOf(ProgramOverviewView.class),
-            instanceOf(MessagesApi.class));
+            instanceOf(MessagesApi.class),
+            instanceOf(SettingsManifest.class),
+            instanceOf(ProgramRepository.class));
     Result result =
         handler
             .showProgram(controller, fakeRequest(), programDefinition.slug())
@@ -395,7 +406,9 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             languageUtils,
             applicantRoutes,
             instanceOf(ProgramOverviewView.class),
-            instanceOf(MessagesApi.class));
+            instanceOf(MessagesApi.class),
+            instanceOf(SettingsManifest.class),
+            instanceOf(ProgramRepository.class));
     Result result =
         handler
             .showProgramPreview(controller, fakeRequest(), programDefinition.slug())
@@ -442,7 +455,9 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             languageUtils,
             applicantRoutes,
             instanceOf(ProgramOverviewView.class),
-            instanceOf(MessagesApi.class));
+            instanceOf(MessagesApi.class),
+            instanceOf(SettingsManifest.class),
+            instanceOf(ProgramRepository.class));
     Result result =
         handler
             .showProgramPreview(controller, fakeRequest(), programDefinition.slug())
@@ -604,5 +619,26 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
     // Verify it returns the active program ID
     assertThat(resultId).isEqualTo(programDefinition.id());
+  }
+
+  @Test
+  public void getProgramSlug_withProgramSlug() {
+    String programSlug = "test-program";
+
+    String resultSlug = instanceOf(ProgramSlugHandler.class).getProgramSlug(programSlug);
+
+    assertThat(resultSlug).isEqualTo(programSlug);
+  }
+
+  @Test
+  public void getProgramSlug_withProgramId() {
+    String programSlug = "test-program";
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram(programSlug, "desc").buildDefinition();
+
+    String resultSlug =
+        instanceOf(ProgramSlugHandler.class).getProgramSlug(String.valueOf(programDefinition.id()));
+
+    assertThat(resultSlug).isEqualTo(programSlug);
   }
 }

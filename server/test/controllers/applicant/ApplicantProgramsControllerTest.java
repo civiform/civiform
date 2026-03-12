@@ -449,6 +449,29 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void edit_whenFeatureEnabledAndIsProgramSlugFromUrl_redirectsToFirstBlock() {
+    String programName = "program-name";
+
+    ProgramModel program =
+        ProgramBuilder.newActiveProgram(programName)
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
+            .build();
+
+    Request request = fakeRequestBuilder().build();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    Result result = controller.edit(request, program.getSlug()).toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(FOUND);
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.ApplicantProgramBlocksController.edit(
+                    programName, "1", /* questionName= */ Optional.empty())
+                .url());
+  }
+
+  @Test
   public void edit_redirectToOtherUrl() {
     ProgramModel program = ProgramBuilder.newActiveProgram().build();
     String programId = String.valueOf(program.id);
@@ -461,7 +484,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void editWithApplicanId_whenFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
+  public void editWithApplicantId_whenFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
     ProgramModel program = ProgramBuilder.newActiveProgram().build();
     String programId = String.valueOf(program.id);
 
@@ -478,6 +501,34 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     // param expects a program slug
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
+  public void
+      editWithApplicantId_whenFeatureEnabledAndIsProgramSlugFromUrl_redirectsToFirstBlock() {
+    String programName = "program-name";
+
+    ProgramModel program =
+        ProgramBuilder.newActiveProgram(programName)
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
+            .build();
+
+    Request request = fakeRequestBuilder().build();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    Result result =
+        controller
+            .editWithApplicantId(request, currentApplicant.id, program.getSlug())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(FOUND);
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.ApplicantProgramBlocksController.edit(
+                    programName, "1", /* questionName= */ Optional.empty())
+                .url());
   }
 
   @Test
