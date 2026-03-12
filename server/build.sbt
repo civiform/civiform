@@ -48,8 +48,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20260102.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.42.4",
-      "software.amazon.awssdk" % "ses" % "2.42.4",
+      "software.amazon.awssdk" % "s3" % "2.42.9",
+      "software.amazon.awssdk" % "ses" % "2.42.9",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
@@ -109,7 +109,7 @@ lazy val root = (project in file("."))
       ),
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.48.0",
-      "org.checkerframework" % "dataflow-errorprone" % "3.53.1",
+      "org.checkerframework" % "dataflow-errorprone" % "3.54.0",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.14.1",
@@ -141,7 +141,7 @@ lazy val root = (project in file("."))
       "io.swagger" % "swagger-parser" % "1.0.75",
 
       // OpenAPI 3.x Dependencies
-      "io.swagger.core.v3" % "swagger-core" % "2.2.43",
+      "io.swagger.core.v3" % "swagger-core" % "2.2.44",
       "io.swagger.parser.v3" % "swagger-parser" % "2.1.38",
 
       // JSON Schema validation

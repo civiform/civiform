@@ -114,6 +114,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
   private static final String CREATE_BLOCK_FORM_ID = "block-create-form";
   private static final String CREATE_REPEATED_BLOCK_FORM_ID = "repeated-block-create-form";
   private static final String CREATE_ENUMERATOR_BLOCK_FORM_ID = "enumerator-block-create-form";
+  private static final String CREATE_NESTED_REPEATED_SET_FORM_ID =
+      "nested-repeated-set-create-form";
   private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
   private static final int BASE_INDENTATION_SIZE = 4;
   private static final int INDENTATION_FACTOR_INCREASE_ON_LEVEL = 2;
@@ -264,6 +266,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   request))
           .addMainContent(
               addFormEndpoints(
+                  request,
                   csrfTag,
                   programDefinition.id(),
                   blockDefinition.isEnumerator().isPresent()
@@ -311,7 +314,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   private DivTag addFormEndpoints(
-      InputTag csrfTag, long programId, OptionalLong optionalEnumeratorId) {
+      Request request, InputTag csrfTag, long programId, OptionalLong optionalEnumeratorId) {
     String blockCreateAction =
         controllers.admin.routes.AdminProgramBlocksController.create(programId).url();
     FormTag createBlockForm =
@@ -353,8 +356,31 @@ public final class ProgramBlocksView extends ProgramBaseView {
                     .setValue(BlockType.ENUMERATOR.toString())
                     .getInputTag());
 
-    return div(createBlockForm, createRepeatedBlockForm, createRepeatedSetForm)
-        .withClasses("hidden");
+    DivTag formsContainer =
+        div(createBlockForm, createRepeatedBlockForm, createRepeatedSetForm).withClasses("hidden");
+
+    // Only include nested repeated set form when enumerator improvements are enabled
+    if (settingsManifest.getEnumeratorImprovementsEnabled(request)) {
+      FormTag createNestedRepeatedSetForm =
+          form(csrfTag)
+              .withId(CREATE_NESTED_REPEATED_SET_FORM_ID)
+              .withMethod(HttpVerbs.POST)
+              .withAction(blockCreateAction)
+              .with(
+                  FieldWithLabel.number()
+                      .setFieldName(ENUMERATOR_ID_FORM_FIELD)
+                      .setScreenReaderText(ENUMERATOR_ID_FORM_FIELD)
+                      .setValue(optionalEnumeratorId)
+                      .getNumberTag())
+              .with(
+                  FieldWithLabel.input()
+                      .setFieldName(BLOCK_TYPE_FORM_FIELD)
+                      .setValue(BlockType.ENUMERATOR.toString())
+                      .getInputTag());
+      formsContainer.with(createNestedRepeatedSetForm);
+    }
+
+    return formsContainer;
   }
 
   /**
@@ -730,13 +756,22 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 questionCards.isEmpty() ? Optional.empty() : Optional.of(questionCards.get(0))));
       }
 
+      // For repeated blocks, check if parent enumerator is at first level (not nested)
+      boolean shouldShowNestedButton =
+          optionalParentEnumeratorBlock
+              .map(parent -> parent.enumeratorId().isEmpty())
+              .orElse(false);
+
       return div.with(
           programQuestions,
           addQuestion,
           iff(
               settingsManifest.getEnumeratorImprovementsEnabled(request),
               renderAddRepeatedScreenButtons(
-                  messages, blockHasEnumeratorQuestion, optionalParentEnumeratorBlock)));
+                  messages,
+                  blockHasEnumeratorQuestion,
+                  optionalParentEnumeratorBlock,
+                  shouldShowNestedButton)));
     }
 
     div.with(blockInfoDisplay, visibilityPredicateDisplay);
@@ -824,20 +859,24 @@ public final class ProgramBlocksView extends ProgramBaseView {
           /* errorMessages= */ ImmutableSet.of());
     } else {
       return renderEnumeratorSectionWithSelectedQuestion(
-          messages, optionalQuestionCard, blockHasEnumeratorQuestion);
+          messages, optionalQuestionCard, blockHasEnumeratorQuestion, blockDefinition);
     }
   }
 
   public DivTag renderEnumeratorSectionWithSelectedQuestion(
       Messages messages,
       Optional<DivTag> optionalQuestionCard,
-      boolean blockHasEnumeratorQuestion) {
+      boolean blockHasEnumeratorQuestion,
+      BlockDefinition blockDefinition) {
+    // For enumerators, only show nested button if enumerator is at first level (not nested itself)
+    boolean shouldShowNestedButton = blockDefinition.enumeratorId().isEmpty();
     return div(
         renderEnumeratorQuestionCardSection(messages, optionalQuestionCard),
         renderAddRepeatedScreenButtons(
             messages,
             blockHasEnumeratorQuestion,
-            /* optionalParentEnumeratorBlock= */ Optional.empty()));
+            /* optionalParentEnumeratorBlock= */ Optional.empty(),
+            shouldShowNestedButton));
   }
 
   private DivTag renderEnumeratorQuestionCardSection(
@@ -857,33 +896,50 @@ public final class ProgramBlocksView extends ProgramBaseView {
   private DivTag renderAddRepeatedScreenButtons(
       Messages messages,
       boolean isEnumeratorBlockWithQuestion,
-      Optional<BlockDefinition> optionalParentEnumeratorBlock) {
+      Optional<BlockDefinition> optionalParentEnumeratorBlock,
+      boolean shouldShowNestedRepeatedSetButton) {
     boolean isRepeatedBlockAndParentHasQuestion =
         optionalParentEnumeratorBlock.map(BlockDefinition::hasEnumeratorQuestion).orElse(false);
 
-    return isEnumeratorBlockWithQuestion || isRepeatedBlockAndParentHasQuestion
-        ? div()
-            .withClasses("border-top", "border-gray-300", "padding-top-3", "margin-top-3")
-            .with(
-                button("")
-                    .withType("submit")
-                    .withId("add-repeated-block-button")
-                    .withForm(CREATE_REPEATED_BLOCK_FORM_ID)
-                    .withClasses(
-                        "usa-button",
-                        "usa-button--outline",
-                        "bg-white",
-                        "border-2",
-                        "rounded",
-                        "py-3",
-                        "px-5",
-                        "flex",
-                        "justify-center",
-                        "items-center",
-                        "gap-2")
-                    .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
-                    .withText(messages.at(MessageKey.BUTTON_ADD_REPEATED_SCREEN.getKeyName())))
-        : div();
+    boolean shouldShowButtons =
+        isEnumeratorBlockWithQuestion || isRepeatedBlockAndParentHasQuestion;
+
+    if (!shouldShowButtons) {
+      return div();
+    }
+
+    DivTag buttonsDiv =
+        div()
+            .withClasses(
+                "border-top",
+                "border-gray-300",
+                "padding-top-3",
+                "margin-top-3",
+                "usa-button-group");
+
+    // Always show "Add repeated screen" button
+    buttonsDiv.with(
+        button("")
+            .withType("submit")
+            .withId("add-repeated-block-button")
+            .withForm(CREATE_REPEATED_BLOCK_FORM_ID)
+            .withClasses("usa-button", "usa-button--outline", "usa-button-group__item")
+            .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
+            .withText(messages.at(MessageKey.BUTTON_ADD_REPEATED_SCREEN.getKeyName())));
+
+    // Only show "Add nested repeated set" button if at first nesting level
+    if (shouldShowNestedRepeatedSetButton) {
+      buttonsDiv.with(
+          button("")
+              .withType("submit")
+              .withId("create-nested-set-button")
+              .withForm(CREATE_NESTED_REPEATED_SET_FORM_ID)
+              .withClasses("usa-button", "usa-button--outline", "usa-button-group__item")
+              .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
+              .withText(messages.at(MessageKey.BUTTON_ADD_NESTED_REPEATED_SET.getKeyName())));
+    }
+
+    return buttonsDiv;
   }
 
   public DivTag renderEnumeratorSetupSection(

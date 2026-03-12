@@ -671,12 +671,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
     }) => {
       const blockPanel = page.getByTestId('block-panel-edit')
       let initialBlockCount: number
+      const screenLinks = page.getByRole('link', {name: /Screen /})
       let enumeratorBlockLink: Locator
 
       await test.step('Record how many blocks are present in the block order panel', async () => {
-        initialBlockCount = await page
-          .getByRole('link', {name: /^Screen /})
-          .count()
+        initialBlockCount = await screenLinks.count()
       })
 
       await test.step('Click "Add screen" button and check that the dropdown appears', async () => {
@@ -692,10 +691,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Validate that two new blocks appear in the block order panel', async () => {
-        const newBlockCount = await page
-          .getByRole('link', {name: /Screen /})
-          .count()
-        expect(newBlockCount).toBe(initialBlockCount + 2)
+        await expect(screenLinks).toHaveCount(initialBlockCount + 2)
       })
 
       await test.step('Validate that the current block is the newly-created repeated block', async () => {
@@ -950,6 +946,53 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
+    test('"Add nested repeated set" button appears only on parent enumerator and direct repeated screens', async ({
+      page,
+    }) => {
+      const blockPanel = page.getByTestId('block-panel-edit')
+      const addNestedRepeatedSetButton = blockPanel.getByRole('button', {
+        name: 'Add nested repeated set',
+      })
+
+      await test.step('Add a new repeated set and verify nested button is hidden before parent enumerator question is saved', async () => {
+        await page.getByRole('button', {name: 'Add screen'}).first().click()
+        await page.getByRole('button', {name: 'Add repeated set'}).click()
+        await page.getByRole('link', {name: 'Screen 2'}).click()
+        await expect(addNestedRepeatedSetButton).toBeHidden()
+      })
+
+      await test.step('Save parent enumerator question and verify nested button appears on parent enumerator', async () => {
+        await fillOutEnumeratorQuestionFormCorrectly(page)
+        await expect(addNestedRepeatedSetButton).toBeVisible()
+      })
+
+      await test.step('Add a repeated screen and verify nested button appears on direct repeated screen', async () => {
+        await blockPanel
+          .getByRole('button', {name: 'Add repeated screen'})
+          .click()
+        await navigateToRepeatedScreen(page, 4, 2)
+        await expect(addNestedRepeatedSetButton).toBeVisible()
+      })
+
+      await test.step('Create nested repeated set and verify nested button is hidden on nested blocks', async () => {
+        await addNestedRepeatedSetButton.click()
+
+        await navigateToRepeatedScreen(page, 5, 2)
+        await expect(addNestedRepeatedSetButton).toBeHidden()
+
+        await fillOutEnumeratorQuestionFormCorrectly(page, {
+          listedEntity: 'Jobs',
+          questionText: 'List jobs for $this',
+          adminId: 'jobs enumerator',
+        })
+
+        await navigateToRepeatedScreen(page, 6, 5, {
+          childLabel: '[child label]',
+        })
+        await expect(addNestedRepeatedSetButton).toBeHidden()
+      })
+    })
+
     test('repeated screen add-question button is disabled until enumerator question is saved', async ({
       page,
     }) => {
@@ -1180,7 +1223,8 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
   test.describe('Applicant', () => {
     const programName = 'Enumerator test program'
-    const questionName = 'enumerator-ete-repeated-name'
+    const repeatedQuestionName = 'enumerator-ete-repeated-name'
+    const nestedRepeatedQuestionName = 'enumerator-ete-nested-repeated-name'
 
     test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
       await loginAsAdmin(page)
@@ -1211,15 +1255,50 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
       await navigateToRepeatedScreen(page, 3, 2)
 
-      await test.step('Add a question to the repeated screen and publish the program', async () => {
-        await adminPrograms.addQuestionFromQuestionBank(questionName)
+      await test.step('Add repeated name question to the repeated screen', async () => {
+        await adminPrograms.addQuestionFromQuestionBank(repeatedQuestionName)
+      })
+
+      await test.step('Create nested repeated set from repeated screen', async () => {
+        const blockPanel = page.getByTestId('block-panel-edit')
+        await blockPanel
+          .getByRole('button', {name: 'Add nested repeated set'})
+          .click()
+
+        await navigateToRepeatedScreen(page, 4, 2)
+        await fillOutEnumeratorQuestionFormCorrectly(page, {
+          listedEntity: 'Jobs',
+          questionText: 'List jobs for $this',
+          adminId: 'jobs enumerator',
+        })
+      })
+
+      await test.step('Add nested repeated question to repeated screen under nested set', async () => {
+        await adminQuestions.addNameQuestion({
+          questionName: nestedRepeatedQuestionName,
+          description: 'desc',
+          questionText: 'First name for $this',
+          helpText: 'first name for $this',
+          enumeratorName: 'jobs enumerator',
+        })
+
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await navigateToRepeatedScreen(page, 5, 4, {
+          childLabel: '[child label]',
+        })
+        await adminPrograms.addQuestionFromQuestionBank(
+          nestedRepeatedQuestionName,
+        )
+      })
+
+      await test.step('Publish the program', async () => {
         await adminPrograms.publishProgram(programName)
       })
 
       await logout(page)
     })
 
-    test('sees repeated entity name in the screen name', async ({
+    test('sees repeated entity and nested repeated entity names in the screen name', async ({
       applicantQuestions,
       page,
     }) => {
@@ -1232,14 +1311,28 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await page.getByRole('textbox', {name: 'Pets name #1'}).fill('Bugs')
       })
 
-      await test.step('Go to review screen and check the repeated entity names in the screen names', async () => {
+      await test.step('Answer repeated and nested repeated questions', async () => {
+        await applicantQuestions.clickContinue()
+
+        await applicantQuestions.answerNameQuestion('Bugs', 'Bunny')
+        await applicantQuestions.clickContinue()
+
+        await page.getByRole('button', {name: 'Add Jobs'}).click()
+        await page.getByRole('textbox', {name: 'Jobs name #1'}).fill('Mechanic')
+        await applicantQuestions.clickContinue()
+
+        await applicantQuestions.answerNameQuestion('Wile', 'Coyote')
         await page.getByRole('button', {name: 'Review and submit'}).click()
+      })
+
+      await test.step('Go to review screen and check repeated entity names in the screen names', async () => {
         await expect(
           page.getByText(`Bugs - Screen 3 (repeated from 2)`),
         ).toBeVisible()
+        await expect(
+          page.getByText(`Bugs - Mechanic - Screen 5 (repeated from 4)`),
+        ).toBeVisible()
       })
-
-      // TODO(Once #12023 is complete): Also test with repeated screens under a nested enumerator
     })
 
     test('still supports $this placeholder in repeated question text', async ({
@@ -1266,7 +1359,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
     }) => {
       await test.step('Update repeated question text to omit $this and publish', async () => {
         await loginAsAdmin(page)
-        await adminQuestions.gotoQuestionEditPage(questionName)
+        await adminQuestions.gotoQuestionEditPage(repeatedQuestionName)
         await page.getByRole('textbox', {name: 'Question text'}).fill('Name')
         await adminQuestions.clickSubmitButtonAndNavigate('Update')
         await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
@@ -1287,29 +1380,43 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
     })
   })
 
-  async function fillOutEnumeratorQuestionFormCorrectly(page: Page) {
+  async function fillOutEnumeratorQuestionFormCorrectly(
+    page: Page,
+    options?: {
+      listedEntity?: string
+      questionText?: string
+      adminId?: string
+      hintText?: string
+    },
+  ) {
     const blockPanel = page.getByTestId('block-panel-edit')
+    const {
+      listedEntity = 'Pets',
+      questionText = 'List the names of your pets.',
+      adminId = 'pets enumerator',
+      hintText = 'Hint',
+    } = options ?? {}
 
     await test.step('Fill out the new enumerator question form and submit it', async () => {
       const listedEntityInput = blockPanel.getByRole('textbox', {
         name: 'Listed entity',
       })
       await expect(listedEntityInput).toHaveAttribute('aria-required', 'true')
-      await listedEntityInput.fill('Pets')
+      await listedEntityInput.fill(listedEntity)
 
       const questionTextInput = blockPanel.getByRole('textbox', {
         name: 'Question text',
       })
       await expect(questionTextInput).toHaveAttribute('aria-required', 'true')
-      await questionTextInput.fill('List the names of your pets.')
+      await questionTextInput.fill(questionText)
 
       const adminIdInput = blockPanel.getByRole('textbox', {
         name: 'Repeated set admin ID',
       })
       await expect(adminIdInput).toHaveAttribute('aria-required', 'true')
-      await adminIdInput.fill('pets enumerator')
+      await adminIdInput.fill(adminId)
 
-      await blockPanel.getByRole('textbox', {name: 'Hint text'}).fill('Hint')
+      await blockPanel.getByRole('textbox', {name: 'Hint text'}).fill(hintText)
       await blockPanel
         .getByRole('button', {name: 'Create repeated set'})
         .click()
@@ -1342,11 +1449,20 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
     page: Page,
     screenNumber: number,
     repeatedFrom: number,
+    options?: {
+      parentLabel?: string
+      childLabel?: string
+    },
   ) {
+    const {parentLabel = '[parent label]', childLabel} = options ?? {}
+    const repeatedLabel = childLabel
+      ? `${parentLabel} - ${childLabel}`
+      : parentLabel
+
     await test.step('Navigate to repeated screen', async () => {
       await page
         .getByRole('link', {
-          name: `[parent label] - Screen ${screenNumber} (repeated from ${repeatedFrom})`,
+          name: `${repeatedLabel} - Screen ${screenNumber} (repeated from ${repeatedFrom})`,
         })
         .click()
     })

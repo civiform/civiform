@@ -1077,19 +1077,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED", request);
   }
 
-  /** Enable allowing CiviForm admins to add a map question to their programs. */
-  public boolean getMapQuestionEnabled() {
-    return getBool("MAP_QUESTION_ENABLED");
-  }
-
   /** Enables being able to add a new yes/no question. */
   public boolean getYesNoQuestionEnabled() {
     return getBool("YES_NO_QUESTION_ENABLED");
-  }
-
-  /** Enables reading settings from the cache instead of directly from the database. */
-  public boolean getSettingsCacheEnabled() {
-    return getBool("SETTINGS_CACHE_ENABLED");
   }
 
   /** Enable showing external program cards. */
@@ -1155,6 +1145,18 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** (NOT FOR PRODUCTION USE) Enable extended options in the admin UI migration in Thymeleaf. */
   public boolean getAdminUiMigrationScExtendedEnabled(RequestHeader request) {
     return getBool("ADMIN_UI_MIGRATION_SC_EXTENDED_ENABLED", request);
+  }
+
+  /** (NOT FOR PRODUCTION USE) Enable the new applicant-guest merging strategy. */
+  public boolean getNewApplicantGuestMergingStrategyEnabled() {
+    return getBool("NEW_APPLICANT_GUEST_MERGING_STRATEGY_ENABLED");
+  }
+
+  /**
+   * (NOT FOR PRODUCTION USE) Enable dry run logging for the new applicant-guest merging strategy.
+   */
+  public boolean getNewApplicantGuestMergingStrategyDryRunEnabled() {
+    return getBool("NEW_APPLICANT_GUEST_MERGING_STRATEGY_DRY_RUN_ENABLED");
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -2359,22 +2361,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "MAP_QUESTION_ENABLED",
-                          "Enable allowing CiviForm admins to add a map question to their"
-                              + " programs.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
                           "YES_NO_QUESTION_ENABLED",
                           "Enables being able to add a new yes/no question.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
-                          "SETTINGS_CACHE_ENABLED",
-                          "Enables reading settings from the cache instead of directly from the"
-                              + " database.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_READABLE),
@@ -2460,7 +2448,21 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " migration in Thymeleaf.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE))))
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "NEW_APPLICANT_GUEST_MERGING_STRATEGY_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enable the new applicant-guest merging"
+                              + " strategy.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "NEW_APPLICANT_GUEST_MERGING_STRATEGY_DRY_RUN_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enable dry run logging for the new"
+                              + " applicant-guest merging strategy.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_READABLE))))
           .put(
               "Miscellaneous",
               SettingsSection.create(
