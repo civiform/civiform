@@ -285,21 +285,6 @@ public final class VersionRepository {
     }
   }
 
-  private ImmutableMap<String, ImmutableSet<PublishProgramPreview>> buildDryRunPublishedVersion(
-      VersionModel version) {
-    return buildReferencingProgramsMap(version).entrySet().stream()
-        .collect(
-            ImmutableMap.toImmutableMap(
-                Entry::getKey,
-                e ->
-                    e.getValue().stream()
-                        .map(
-                            p ->
-                                new PublishProgramPreview(
-                                    p.adminName(), p.displayMode(), p.localizedName()))
-                        .collect(ImmutableSet.toImmutableSet())));
-  }
-
   /**
    * Publish the specified DRAFT program and its modified questions. No other programs/questions
    * will be published. The DRAFT program and its DRAFT questions will become ACTIVE. The ACTIVE
