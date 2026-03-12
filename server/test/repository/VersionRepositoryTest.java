@@ -25,9 +25,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import play.cache.SyncCacheApi;
+import repository.VersionRepository.PublishProgramPreview;
 import services.applicant.question.Scalar;
 import services.program.CantPublishProgramWithSharedQuestionsException;
-import services.program.DraftProgramReference;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -135,19 +135,19 @@ public class VersionRepositoryTest extends ResetPostgres {
     secondQuestion.addVersion(versionRepository.getActiveVersion()).save();
 
     ProgramModel firstProgramActive =
-        ProgramBuilder.newActiveProgram("foo")
+        ProgramBuilder.newActiveProgram("first-program")
             .withBlock("Screen 1")
             .withRequiredQuestion(firstQuestion)
             .build();
     ProgramModel secondProgramActive =
-        ProgramBuilder.newActiveProgram("bar")
+        ProgramBuilder.newActiveProgram("second-program")
             .withBlock("Screen 1")
             .withRequiredQuestion(secondQuestion)
             .build();
     QuestionModel secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
     secondQuestionUpdated.addVersion(versionRepository.getDraftVersionOrCreate()).save();
     ProgramModel secondProgramDraft =
-        ProgramBuilder.newDraftProgram("bar")
+        ProgramBuilder.newDraftProgram("second-program")
             .withBlock("Screen 1")
             .withRequiredQuestion(secondQuestionUpdated)
             .build();
@@ -172,7 +172,7 @@ public class VersionRepositoryTest extends ResetPostgres {
     VersionModel oldActive = versionRepository.getActiveVersion();
 
     // First, preview the changes and ensure no versions are updated.
-    ImmutableMap<String, ImmutableSet<DraftProgramReference>> previewResult =
+    ImmutableMap<String, ImmutableSet<PublishProgramPreview>> previewResult =
         versionRepository.previewPublishNewSynchronizedVersion();
     assertThat(versionRepository.getDraftVersionOrCreate().id).isEqualTo(oldDraft.id);
     assertThat(versionRepository.getActiveVersion().id).isEqualTo(oldActive.id);
@@ -201,10 +201,10 @@ public class VersionRepositoryTest extends ResetPostgres {
 
     assertThat(previewResult.keySet())
         .containsExactlyInAnyOrder("first-question", "second-question");
-    assertThat(previewResult.get("first-question").stream().map(DraftProgramReference::adminName))
-        .containsExactly("foo");
-    assertThat(previewResult.get("second-question").stream().map(DraftProgramReference::adminName))
-        .containsExactly("bar");
+    assertThat(previewResult.get("first-question").stream().map(PublishProgramPreview::adminName))
+        .containsExactly("first-program");
+    assertThat(previewResult.get("second-question").stream().map(PublishProgramPreview::adminName))
+        .containsExactly("second-program");
 
     // Now actually publish the version and assert the results.
     versionRepository.publishNewSynchronizedVersion();

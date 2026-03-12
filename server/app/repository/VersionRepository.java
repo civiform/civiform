@@ -38,9 +38,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.cache.NamedCache;
 import play.cache.SyncCacheApi;
+import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.CantPublishProgramWithSharedQuestionsException;
-import services.program.DraftProgramReference;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -57,6 +57,12 @@ import services.settings.SettingsManifest;
 
 /** A repository object for dealing with versioning of questions and programs. */
 public final class VersionRepository {
+
+  /**
+   * A lightweight container representing the programs that would result from the publish action.
+   */
+  public record PublishProgramPreview(
+      String adminName, DisplayMode displayMode, LocalizedStrings localizedName) {}
 
   private static final Logger logger = LoggerFactory.getLogger(VersionRepository.class);
   private static final QueryProfileLocationBuilder profileLocationBuilder =
@@ -105,7 +111,7 @@ public final class VersionRepository {
    *
    * <p>This method does not mutate the database.
    */
-  public ImmutableMap<String, ImmutableSet<DraftProgramReference>>
+  public ImmutableMap<String, ImmutableSet<PublishProgramPreview>>
       previewPublishNewSynchronizedVersion() {
     return transactionManager.execute(
         () -> {
@@ -169,7 +175,7 @@ public final class VersionRepository {
     PUBLISH_CHANGES,
   }
 
-  private Optional<ImmutableMap<String, ImmutableSet<DraftProgramReference>>>
+  private Optional<ImmutableMap<String, ImmutableSet<PublishProgramPreview>>>
       publishNewSynchronizedVersion(PublishMode publishMode) {
     /*
      A few transaction notes about this method:
@@ -288,7 +294,7 @@ public final class VersionRepository {
         case DRY_RUN -> {
           // Capture the dry run data to return before resetting everything done above.
           // See the comment at the top of the method for more info.
-          var dryRunNewActive = buildDraftReferencingProgramsMap(draft);
+          var dryRunNewActive = buildDryRunPublishedVersion(draft);
           transaction.rollback();
           draft.refresh();
           active.refresh();
@@ -298,8 +304,8 @@ public final class VersionRepository {
     }
   }
 
-  private ImmutableMap<String, ImmutableSet<DraftProgramReference>>
-      buildDraftReferencingProgramsMap(VersionModel version) {
+  private ImmutableMap<String, ImmutableSet<PublishProgramPreview>> buildDryRunPublishedVersion(
+      VersionModel version) {
     return buildReferencingProgramsMap(version).entrySet().stream()
         .collect(
             ImmutableMap.toImmutableMap(
@@ -308,7 +314,7 @@ public final class VersionRepository {
                     e.getValue().stream()
                         .map(
                             p ->
-                                new DraftProgramReference(
+                                new PublishProgramPreview(
                                     p.adminName(), p.displayMode(), p.localizedName()))
                         .collect(ImmutableSet.toImmutableSet())));
   }
