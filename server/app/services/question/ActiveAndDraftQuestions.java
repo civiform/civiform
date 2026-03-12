@@ -10,7 +10,7 @@ import java.util.function.Function;
 import models.VersionModel;
 import org.apache.pekko.japi.Pair;
 import repository.VersionRepository;
-import repository.VersionRepository.ProgramPreview;
+import repository.VersionRepository.PublishProgramPreview;
 import services.DeletionStatus;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
@@ -28,7 +28,8 @@ public final class ActiveAndDraftQuestions {
           String, Pair<Optional<QuestionDefinition>, Optional<QuestionDefinition>>>
       versionedByName;
   private final ImmutableMap<String, DeletionStatus> deletionStatusByName;
-  private final ImmutableMap<String, ImmutableSet<ProgramPreview>> referencingDraftProgramsByName;
+  private final ImmutableMap<String, ImmutableSet<PublishProgramPreview>>
+      referencingDraftProgramsByName;
   private final ImmutableMap<String, ImmutableSet<ProgramDefinition>>
       referencingActiveProgramsByName;
   private final boolean draftVersionHasAnyEdits;
@@ -143,7 +144,7 @@ public final class ActiveAndDraftQuestions {
   public abstract static class ReferencingPrograms {
 
     /** Returns a set of references to the question in the DRAFT version. */
-    public abstract ImmutableSet<ProgramPreview> draftReferences();
+    public abstract ImmutableSet<PublishProgramPreview> draftReferences();
 
     /** Returns a set of references to the question in the ACTIVE version. */
     public abstract ImmutableSet<ProgramDefinition> activeReferences();
@@ -154,7 +155,7 @@ public final class ActiveAndDraftQuestions {
 
     @AutoValue.Builder
     abstract static class Builder {
-      abstract Builder setDraftReferences(ImmutableSet<ProgramPreview> v);
+      abstract Builder setDraftReferences(ImmutableSet<PublishProgramPreview> v);
 
       abstract Builder setActiveReferences(ImmutableSet<ProgramDefinition> v);
 

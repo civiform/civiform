@@ -59,11 +59,9 @@ import services.settings.SettingsManifest;
 public final class VersionRepository {
 
   /**
-   * A lightweight container for a program that references a question in the draft version, holding
-   * only the fields needed for display rather than a full {@link
-   * services.program.ProgramDefinition}.
+   * A lightweight container representing the programs that would be result from the publish action.
    */
-  public record ProgramPreview(
+  public record PublishProgramPreview(
       String adminName, DisplayMode displayMode, LocalizedStrings localizedName) {}
 
   private static final Logger logger = LoggerFactory.getLogger(VersionRepository.class);
@@ -110,7 +108,8 @@ public final class VersionRepository {
    * next version. This method will not mutate the database and will return a copy of relevant data
    * from the updated Version corresponding to what would be the new ACTIVE version.
    */
-  public ImmutableMap<String, ImmutableSet<ProgramPreview>> previewPublishNewSynchronizedVersion() {
+  public ImmutableMap<String, ImmutableSet<PublishProgramPreview>>
+      previewPublishNewSynchronizedVersion() {
     return publishNewSynchronizedVersion(PublishMode.DRY_RUN)
         .orElseThrow(
             () ->
@@ -123,7 +122,7 @@ public final class VersionRepository {
     PUBLISH_CHANGES,
   }
 
-  private Optional<ImmutableMap<String, ImmutableSet<ProgramPreview>>>
+  private Optional<ImmutableMap<String, ImmutableSet<PublishProgramPreview>>>
       publishNewSynchronizedVersion(PublishMode publishMode) {
     /*
      A few transaction notes about this method:
@@ -242,7 +241,7 @@ public final class VersionRepository {
         case DRY_RUN -> {
           // Capture the dry run data to return before resetting everything done above.
           // See the comment at the top of the method for more info.
-          var dryRunNewActive = buildDraftReferencingProgramsMap(draft);
+          var dryRunNewActive = buildDryRunPublishedVersion(draft);
           transaction.rollback();
           draft.refresh();
           active.refresh();
@@ -252,7 +251,7 @@ public final class VersionRepository {
     }
   }
 
-  private ImmutableMap<String, ImmutableSet<ProgramPreview>> buildDraftReferencingProgramsMap(
+  private ImmutableMap<String, ImmutableSet<PublishProgramPreview>> buildDryRunPublishedVersion(
       VersionModel version) {
     return buildReferencingProgramsMap(version).entrySet().stream()
         .collect(
@@ -262,7 +261,7 @@ public final class VersionRepository {
                     e.getValue().stream()
                         .map(
                             p ->
-                                new ProgramPreview(
+                                new PublishProgramPreview(
                                     p.adminName(), p.displayMode(), p.localizedName()))
                         .collect(ImmutableSet.toImmutableSet())));
   }
