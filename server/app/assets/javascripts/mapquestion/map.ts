@@ -249,10 +249,10 @@ const addPopupsToMap = (
       return
     }
 
-    const geometry = features[0].geometry as Point
-    const properties = features[0].properties
+    const firstFeature = features[0]
+    const geometry = firstFeature.geometry as Point
 
-    if (!geometry || !properties) {
+    if (!geometry) {
       return
     }
 
@@ -269,14 +269,36 @@ const addPopupsToMap = (
       return null
     }
 
-    const popupContent = createPopupContent(
-      mapId,
-      popupContentTemplate.content.children,
-      settings,
-      properties,
-    )
-    if (popupContent) {
-      popup.setDOMContent(popupContent)
+    const popupContent: Node[] = []
+    const [lng, lat] = geometry.coordinates
+    for (const feature of features) {
+      const featureCoords = (feature.geometry as Point).coordinates
+      if (featureCoords[0] !== lng || featureCoords[1] !== lat) {
+        continue
+      }
+      const content = createPopupContent(
+        mapId,
+        popupContentTemplate.content.children,
+        settings,
+        feature.properties,
+      )
+      if (content) {
+        popupContent.push(content)
+      }
+    }
+
+    if (popupContent.length === 1) {
+      popup.setDOMContent(popupContent[0])
+    } else if (popupContent.length > 1) {
+      const container = document.createElement('div')
+      popupContent.forEach((location, index) => {
+        const locationElement = location as HTMLElement
+        if (index > 0) {
+          locationElement.classList.add('border-top-1px', 'border-base-lighter')
+        }
+        container.appendChild(locationElement)
+      })
+      popup.setDOMContent(container)
     }
 
     popup.addTo(map)
