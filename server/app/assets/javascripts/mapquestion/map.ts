@@ -249,16 +249,16 @@ const addPopupsToMap = (
       return
     }
 
-    const geometry = features[0].geometry as Point
-    const properties = features[0].properties
+    const clickedGeometry = features[0].geometry as Point
 
-    if (!geometry || !properties) {
+    if (!clickedGeometry) {
       return
     }
 
-    const coordinates: LngLatLike = geometry.coordinates.slice() as LngLatLike
-
-    const popup = new Popup().setLngLat(coordinates)
+    const clickedCoordinates = clickedGeometry.coordinates
+    const popup = new Popup().setLngLat(
+      clickedCoordinates.slice() as LngLatLike,
+    )
 
     const popupContentTemplate = mapQuerySelector(
       mapId,
@@ -266,17 +266,54 @@ const addPopupsToMap = (
     ) as HTMLTemplateElement
     if (!popupContentTemplate) {
       console.warn(`Map popup template not found for map: ${mapId}`)
-      return null
+      return
     }
 
-    const popupContent = createPopupContent(
+    const popupContent: Node[] = []
+    const firstFeatureContent = createPopupContent(
       mapId,
       popupContentTemplate.content.children,
       settings,
-      properties,
+      features[0].properties,
     )
-    if (popupContent) {
-      popup.setDOMContent(popupContent)
+    if (firstFeatureContent) {
+      popupContent.push(firstFeatureContent)
+    }
+    // MapLibre has a flexible click tolerance and will return multiple
+    // features if their pin is nearby the click. Compare the remaining
+    // features' coordinates and only display the ones that share the
+    // same coordinates as the feature that was clicked on
+    for (let i = 1; i < features.length; i++) {
+      const featureCoords = (features[i].geometry as Point).coordinates
+      if (
+        featureCoords[0] !== clickedCoordinates[0] ||
+        featureCoords[1] !== clickedCoordinates[1]
+      ) {
+        continue
+      }
+      const content = createPopupContent(
+        mapId,
+        popupContentTemplate.content.children,
+        settings,
+        features[i].properties,
+      )
+      if (content) {
+        popupContent.push(content)
+      }
+    }
+
+    if (popupContent.length === 1) {
+      popup.setDOMContent(popupContent[0])
+    } else if (popupContent.length > 1) {
+      const container = document.createElement('div')
+      popupContent.forEach((location, index) => {
+        const locationElement = location as HTMLElement
+        if (index > 0) {
+          locationElement.classList.add('border-top-1px', 'border-base-lighter')
+        }
+        container.appendChild(locationElement)
+      })
+      popup.setDOMContent(container)
     }
 
     popup.addTo(map)
