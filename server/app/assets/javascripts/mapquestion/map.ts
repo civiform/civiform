@@ -249,16 +249,16 @@ const addPopupsToMap = (
       return
     }
 
-    const firstFeature = features[0]
-    const geometry = firstFeature.geometry as Point
+    const clickedGeometry = features[0].geometry as Point
 
-    if (!geometry) {
+    if (!clickedGeometry) {
       return
     }
 
-    const coordinates: LngLatLike = geometry.coordinates.slice() as LngLatLike
-
-    const popup = new Popup().setLngLat(coordinates)
+    const clickedCoordinates = clickedGeometry.coordinates
+    const popup = new Popup().setLngLat(
+      clickedCoordinates.slice() as LngLatLike,
+    )
 
     const popupContentTemplate = mapQuerySelector(
       mapId,
@@ -266,21 +266,36 @@ const addPopupsToMap = (
     ) as HTMLTemplateElement
     if (!popupContentTemplate) {
       console.warn(`Map popup template not found for map: ${mapId}`)
-      return null
+      return
     }
 
     const popupContent: Node[] = []
-    const [lng, lat] = geometry.coordinates
-    for (const feature of features) {
-      const featureCoords = (feature.geometry as Point).coordinates
-      if (featureCoords[0] !== lng || featureCoords[1] !== lat) {
+    const firstFeatureContent = createPopupContent(
+      mapId,
+      popupContentTemplate.content.children,
+      settings,
+      features[0].properties,
+    )
+    if (firstFeatureContent) {
+      popupContent.push(firstFeatureContent)
+    }
+    // MapLibre has a flexible click tolerance and will return multiple
+    // features if their pin is nearby the click. Compare the remaining
+    // features' coordinates and only display the ones that share the
+    // same coordinates as the feature that was clicked on
+    for (let i = 1; i < features.length; i++) {
+      const featureCoords = (features[i].geometry as Point).coordinates
+      if (
+        featureCoords[0] !== clickedCoordinates[0] ||
+        featureCoords[1] !== clickedCoordinates[1]
+      ) {
         continue
       }
       const content = createPopupContent(
         mapId,
         popupContentTemplate.content.children,
         settings,
-        feature.properties,
+        features[i].properties,
       )
       if (content) {
         popupContent.push(content)
