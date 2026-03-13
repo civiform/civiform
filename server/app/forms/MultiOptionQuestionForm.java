@@ -201,7 +201,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
    * @return a {@link QuestionDefinitionBuilder} with the values from this QuestionForm
    */
   @Override
-  public QuestionDefinitionBuilder getBuilder() {
+  public MultiOptionQuestionDefinition.MultiOptionValidationPredicates getValidationPredicates() {
     MultiOptionQuestionDefinition.MultiOptionValidationPredicates.Builder predicateBuilder =
         MultiOptionQuestionDefinition.MultiOptionValidationPredicates.builder();
 
@@ -213,6 +213,12 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
       predicateBuilder.setMaxChoicesAllowed(getMaxChoicesAllowed());
     }
 
+    return predicateBuilder.build();
+  }
+
+  /** Builds the question options list. Note: This method has side effects on nextAvailableId. */
+  @Override
+  public ImmutableList<QuestionOption> getQuestionOptions() {
     ImmutableList.Builder<QuestionOption> questionOptionsBuilder = ImmutableList.builder();
 
     Preconditions.checkState(
@@ -253,14 +259,11 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
               /* optionText= */ LocalizedStrings.withDefaultValue(newOptions.get(i)),
               /* displayInAnswerOptions= */ Optional.of(true)));
     }
-    ImmutableList<QuestionOption> questionOptions = questionOptionsBuilder.build();
 
     // Sets the next available ID as the previous ID + the size of new options, since each new
     // option ID is assigned in order.
     setNextAvailableId(nextAvailableId.getAsLong() + newOptions.size());
 
-    return super.getBuilder()
-        .setQuestionOptions(questionOptions)
-        .setValidationPredicates(predicateBuilder.build());
+    return questionOptionsBuilder.build();
   }
 }

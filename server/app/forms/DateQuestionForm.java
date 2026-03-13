@@ -6,7 +6,6 @@ import java.util.Optional;
 import services.question.types.DateQuestionDefinition;
 import services.question.types.DateQuestionDefinition.DateValidationOption;
 import services.question.types.DateQuestionDefinition.DateValidationOption.DateType;
-import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
 /** Form for updating a date question. */
@@ -141,7 +140,7 @@ public class DateQuestionForm extends QuestionForm {
   }
 
   @Override
-  public QuestionDefinitionBuilder getBuilder() {
+  public DateQuestionDefinition.DateValidationPredicates getValidationPredicates() {
     DateQuestionDefinition.DateValidationPredicates.Builder dateValidationPredicatesBuilder =
         DateQuestionDefinition.DateValidationPredicates.builder();
 
@@ -160,7 +159,7 @@ public class DateQuestionForm extends QuestionForm {
               .build());
     }
 
-    return super.getBuilder().setValidationPredicates(dateValidationPredicatesBuilder.build());
+    return dateValidationPredicatesBuilder.build();
   }
 
   private Optional<LocalDate> getMinCustomDate() {

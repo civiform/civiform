@@ -2,7 +2,6 @@ package forms;
 
 import java.util.OptionalInt;
 import services.question.types.FileUploadQuestionDefinition;
-import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
 /** Form for updating a file upload question. */
@@ -40,13 +39,9 @@ public class FileUploadQuestionForm extends QuestionForm {
   }
 
   @Override
-  public QuestionDefinitionBuilder getBuilder() {
-    FileUploadQuestionDefinition.FileUploadValidationPredicates.Builder
-        fileUploadPredicatesBuilder =
-            FileUploadQuestionDefinition.FileUploadValidationPredicates.builder();
-
-    fileUploadPredicatesBuilder.setMaxFiles(getMaxFiles());
-
-    return super.getBuilder().setValidationPredicates(fileUploadPredicatesBuilder.build());
+  public FileUploadQuestionDefinition.FileUploadValidationPredicates getValidationPredicates() {
+    return FileUploadQuestionDefinition.FileUploadValidationPredicates.builder()
+        .setMaxFiles(getMaxFiles())
+        .build();
   }
 }

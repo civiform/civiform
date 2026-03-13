@@ -2,7 +2,6 @@ package forms;
 
 import java.util.OptionalLong;
 import services.question.types.NumberQuestionDefinition;
-import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
 /** Form for updating a number question. */
@@ -58,13 +57,10 @@ public class NumberQuestionForm extends QuestionForm {
   }
 
   @Override
-  public QuestionDefinitionBuilder getBuilder() {
-    NumberQuestionDefinition.NumberValidationPredicates.Builder numberValidationPredicatesBuilder =
-        NumberQuestionDefinition.NumberValidationPredicates.builder();
-
-    numberValidationPredicatesBuilder.setMin(getMin());
-    numberValidationPredicatesBuilder.setMax(getMax());
-
-    return super.getBuilder().setValidationPredicates(numberValidationPredicatesBuilder.build());
+  public NumberQuestionDefinition.NumberValidationPredicates getValidationPredicates() {
+    return NumberQuestionDefinition.NumberValidationPredicates.builder()
+        .setMin(getMin())
+        .setMax(getMax())
+        .build();
   }
 }

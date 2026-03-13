@@ -3,7 +3,6 @@ package forms;
 import java.util.OptionalInt;
 import services.LocalizedStrings;
 import services.question.types.EnumeratorQuestionDefinition;
-import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
 /** Form for updating an enumerator question. */
@@ -63,15 +62,15 @@ public class EnumeratorQuestionForm extends QuestionForm {
   }
 
   @Override
-  public QuestionDefinitionBuilder getBuilder() {
-    EnumeratorQuestionDefinition.EnumeratorValidationPredicates validationPredicates =
-        EnumeratorQuestionDefinition.EnumeratorValidationPredicates.builder()
-            .setMinEntities(getMinEntities())
-            .setMaxEntities(getMaxEntities())
-            .build();
+  public EnumeratorQuestionDefinition.EnumeratorValidationPredicates getValidationPredicates() {
+    return EnumeratorQuestionDefinition.EnumeratorValidationPredicates.builder()
+        .setMinEntities(getMinEntities())
+        .setMaxEntities(getMaxEntities())
+        .build();
+  }
 
-    return super.getBuilder()
-        .setEntityType(LocalizedStrings.withDefaultValue(this.entityType))
-        .setValidationPredicates(validationPredicates);
+  @Override
+  public LocalizedStrings getEntityTypeLocalizedStrings() {
+    return LocalizedStrings.withDefaultValue(this.entityType);
   }
 }

@@ -1,7 +1,6 @@
 package forms;
 
 import services.question.types.AddressQuestionDefinition;
-import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
 /** Form for updating an address question. */
@@ -32,13 +31,9 @@ public class AddressQuestionForm extends QuestionForm {
   }
 
   @Override
-  public QuestionDefinitionBuilder getBuilder() {
-    AddressQuestionDefinition.AddressValidationPredicates.Builder
-        addressValidationPredicatesBuilder =
-            AddressQuestionDefinition.AddressValidationPredicates.builder();
-
-    addressValidationPredicatesBuilder.setDisallowPoBox(getDisallowPoBox());
-
-    return super.getBuilder().setValidationPredicates(addressValidationPredicatesBuilder.build());
+  public AddressQuestionDefinition.AddressValidationPredicates getValidationPredicates() {
+    return AddressQuestionDefinition.AddressValidationPredicates.builder()
+        .setDisallowPoBox(getDisallowPoBox())
+        .build();
   }
 }
