@@ -141,10 +141,8 @@ public class BaseHtmlLayout {
         link().withHref(bundledAssetsFinder.getUswdsStylesheet()).withRel("stylesheet"));
     bundle.addStylesheets(
         link().withHref(bundledAssetsFinder.getTailwindStylesheet()).withRel("stylesheet"));
-    if (settingsManifest.getMapQuestionEnabled()) {
-      bundle.addStylesheets(
-          link().withHref(bundledAssetsFinder.getMapLibreGLStylesheet()).withRel("stylesheet"));
-    }
+    bundle.addStylesheets(
+        link().withHref(bundledAssetsFinder.getMapLibreGLStylesheet()).withRel("stylesheet"));
 
     // Add Google analytics scripts.
     measurementId
@@ -206,7 +204,8 @@ public class BaseHtmlLayout {
               dataLayer.push(arguments);
             }
             gtag('js', new Date());
-            gtag('config', '%s');""",
+            gtag('config', '%s');\
+            """,
             trackingTag);
     ScriptTag rawScript = script().with(rawHtml(googleAnalyticsCode)).withType("text/javascript");
     return new ImmutableList.Builder<ScriptTag>().add(scriptImport).add(rawScript).build();

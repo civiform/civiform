@@ -172,8 +172,7 @@ public final class DurableJobModule extends AbstractModule {
                 applicantService, programService, persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.Sunday2Am());
 
-    if (config.getBoolean("map_question_enabled")
-        && config.getBoolean("durable_jobs.map_refresh")) {
+    if (config.getBoolean("durable_jobs.map_refresh")) {
       durableJobRegistry.register(
           DurableJobName.REFRESH_MAP_DATA,
           JobType.RECURRING,
