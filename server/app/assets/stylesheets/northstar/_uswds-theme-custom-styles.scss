@@ -858,6 +858,8 @@ main {
     0 4px 6px -4px rgba(0, 0, 0, 0.1); // tailwind shadow-lg
   color: color('gray-cool-70');
   transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .bg-cf-toast-alert {
