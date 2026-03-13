@@ -657,11 +657,27 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   settingsManifest.getExpandedFormLogicEnabled(request)));
     }
 
+    boolean isRepeatedScreen =
+        blockDefinition.isRepeated() || blockDefinition.enumeratorId().isPresent();
+    boolean isRepeatedBlockWithEnumeratorImprovements =
+        enumeratorImprovementsEnabled && isRepeatedScreen;
+
+    DivTag questionSectionHeader =
+        div(isRepeatedBlockWithEnumeratorImprovements
+                ? messages.at(MessageKey.HEADING_REPEATED_QUESTIONS.getKeyName())
+                : "Questions")
+            .withClasses("text-lg", "font-bold", "py-2");
+
     DivTag programQuestions =
-        div()
-            .withId(QUESTIONS_SECTION_ID)
-            .withClasses("my-4")
-            .with(div("Questions").withClasses("text-lg", "font-bold", "py-2"));
+        div().withId(QUESTIONS_SECTION_ID).withClasses("my-4").with(questionSectionHeader);
+
+    if (isRepeatedBlockWithEnumeratorImprovements) {
+      programQuestions
+          .withClass("maxw-mobile-lg")
+          .with(
+              p(messages.at(MessageKey.TEXT_REPEATED_SET_ADD_QUESTION_DESCRIPTION.getKeyName()))
+                  .withClasses("text-base", "text-sm", "margin-bottom-1"));
+    }
 
     ImmutableList.Builder<DivTag> questionCardsBuilder = ImmutableList.builder();
 
@@ -700,12 +716,24 @@ public final class ProgramBlocksView extends ProgramBaseView {
               canDeleteBlock(program, blockDefinition),
               enumeratorImprovementsEnabled);
       ButtonTag addQuestion =
-          makeSvgTextButton("Add a question", Icons.ADD)
-              .withCondDisabled(!isEnumeratorBlockComplete)
-              .withClasses(
-                  ButtonStyles.SOLID_BLUE_WITH_ICON,
-                  ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
-                  "my-4");
+          isRepeatedBlockWithEnumeratorImprovements
+              ? button("")
+                  .withType("button")
+                  .withCondDisabled(!isEnumeratorBlockComplete)
+                  .withClasses(
+                      "usa-button",
+                      "usa-button--outline",
+                      "usa-button-group__item",
+                      "my-4",
+                      ReferenceClasses.OPEN_QUESTION_BANK_BUTTON)
+                  .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
+                  .withText(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName()))
+              : makeSvgTextButton("Add a question", Icons.ADD)
+                  .withCondDisabled(!isEnumeratorBlockComplete)
+                  .withClasses(
+                      ButtonStyles.SOLID_BLUE_WITH_ICON,
+                      ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
+                      "my-4");
 
       div.with(blockInfoDisplay, buttons, visibilityPredicateDisplay);
       maybeEligibilityPredicateDisplay.ifPresent(div::with);
@@ -727,15 +755,15 @@ public final class ProgramBlocksView extends ProgramBaseView {
               .map(parent -> parent.enumeratorId().isEmpty())
               .orElse(false);
 
+      DivTag questionsSection =
+          div()
+              .withCondClass(isRepeatedBlockWithEnumeratorImprovements, "maxw-mobile-lg")
+              .with(programQuestions, addQuestion);
+
       return div.with(
-          programQuestions,
-          addQuestion,
+          questionsSection,
           iff(
-              enumeratorImprovementsEnabled && !isEnumeratorBlockComplete,
-              AlertComponent.renderSlimInfoAlert(
-                  messages.at(MessageKey.ALERT_REPEATED_SET_ADD_QUESTION_DISABLED.getKeyName()))),
-          iff(
-              enumeratorImprovementsEnabled,
+              settingsManifest.getEnumeratorImprovementsEnabled(request),
               renderAddRepeatedScreenButtons(
                   messages,
                   blockHasEnumeratorQuestion,
@@ -941,7 +969,22 @@ public final class ProgramBlocksView extends ProgramBaseView {
                             MessageKey.TEXT_REPEATED_SET_ADD_QUESTION_DESCRIPTION.getKeyName()))),
             button("")
                 .withId("Add-question")
-                .withClasses("usa-button", "usa-button--outline")
+                .withType("button")
+                .withStyle(
+                    "background-color: #fff; border-color: #005EA2; border-width: 2px;"
+                        + " border-radius: 4px; color: #005EA2;")
+                .withClasses(
+                    "usa-button",
+                    "usa-button--outline",
+                    "bg-white",
+                    "border-2",
+                    "rounded",
+                    "py-3",
+                    "px-5",
+                    "flex",
+                    "justify-center",
+                    "items-center",
+                    "gap-2")
                 .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
                 .withText(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName())))
         .withId("add-question-section")
