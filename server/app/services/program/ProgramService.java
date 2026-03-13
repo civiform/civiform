@@ -60,6 +60,7 @@ import services.program.predicate.PredicateDefinition;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.QuestionNotFoundException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
@@ -1635,9 +1636,21 @@ public final class ProgramService {
         questionService.getReadOnlyQuestionService().toCompletableFuture().join();
 
     for (long questionId : questionIds) {
+      QuestionDefinition questionDefinition = roQuestionService.getQuestionDefinition(questionId);
+
+      // If this is a repeated block and the question is not repeated
+      // Create a new question that is a copy and save that question before adding it to the block.
+      if (enumeratorImprovementsEnabled
+          && blockDefinition.isRepeated()
+          && !questionDefinition.isEnumerator()
+          && questionDefinition.getEnumeratorId().isEmpty()) {
+        System.out.println("creating copy");
+        questionDefinition =
+            createQuestionCopy(questionDefinition, programDefinition, blockDefinition);
+      }
+
       ProgramQuestionDefinition question =
-          ProgramQuestionDefinition.create(
-              roQuestionService.getQuestionDefinition(questionId), Optional.of(programId));
+          ProgramQuestionDefinition.create(questionDefinition, Optional.of(programId));
       AddQuestionResult canAddQuestion =
           programBlockValidationFactory
               .create()
@@ -2336,6 +2349,34 @@ public final class ProgramService {
             .collect(ImmutableList.toImmutableList());
 
     return updateProgramDefinitionWithBlockDefinitions(programDefinition, updatedBlockDefinitions);
+  }
+
+  private QuestionDefinition createQuestionCopy(
+      QuestionDefinition questionDefinition,
+      ProgramDefinition programDefinition,
+      BlockDefinition blockDefinition) {
+    try {
+      // Get the question ID of the parent block's enumerator question
+      Optional<Long> enumeratorQuestionId =
+          Optional.of(
+              programDefinition
+                  .getBlockDefinition(blockDefinition.enumeratorId().get())
+                  .getEnumerationQuestionDefinition()
+                  .getId());
+      // Create the copy question, handle potential errors below
+      ErrorAnd<QuestionDefinition, CiviFormError> maybeCopy =
+          questionService.createCopy(questionDefinition, enumeratorQuestionId);
+      if (maybeCopy.isError()) {
+        throw new RuntimeException(
+            String.format(
+                "Unexpected error: Was not able to create a repeated copy of question %s in"
+                    + " block %s",
+                questionDefinition.getName(), blockDefinition.getFullName()));
+      }
+      return maybeCopy.getResult();
+    } catch (UnsupportedQuestionTypeException | ProgramBlockDefinitionNotFoundException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /** Update the program with the new provided api bridge definitions */

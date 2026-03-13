@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import helpers.UniqueAdminNameGenerator;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -84,6 +85,7 @@ public class QuestionServiceTest extends ResetPostgres {
   public void create_handlesSerializationFailure() throws Exception {
     TransactionManager mockTransactionManager = mock(TransactionManager.class);
     GeoJsonDataRepository geoJsonDataRepository = mock(GeoJsonDataRepository.class);
+    UniqueAdminNameGenerator uniqueAdminNameGenerator = mock(UniqueAdminNameGenerator.class);
     when(mockTransactionManager.execute(any(), any()))
         .then(
             invocation -> {
@@ -97,7 +99,8 @@ public class QuestionServiceTest extends ResetPostgres {
             instanceOf(QuestionRepository.class),
             () -> versionRepository,
             mockTransactionManager,
-            geoJsonDataRepository);
+            geoJsonDataRepository,
+            uniqueAdminNameGenerator);
 
     ErrorAnd<QuestionDefinition, CiviFormError> errorAndResult =
         questionServiceWithFailingTransactionManager.create(questionDefinition);
@@ -120,6 +123,62 @@ public class QuestionServiceTest extends ResetPostgres {
     assertThat(errorAndResult.hasResult()).isTrue();
     assertThat(errorAndResult.getResult().getQuestionPathSegment())
         .isEqualTo(questionDefinition.getQuestionPathSegment());
+  }
+
+  @Test
+  public void createCopy_returnsQuestionDefinitionWhenSucceeds() throws Exception {
+    ErrorAnd<QuestionDefinition, CiviFormError> errorAndResult =
+        questionService.createCopy(questionDefinition, Optional.empty());
+
+    assertThat(errorAndResult.isError()).isFalse();
+    assertThat(errorAndResult.hasResult()).isTrue();
+    assertThat(errorAndResult.getResult().getName()).isEqualTo("my name -_- a");
+  }
+
+  @Test
+  public void createCopy_appliesSuppliedEnumeratorId() throws Exception {
+    ErrorAnd<QuestionDefinition, CiviFormError> errorAndResult =
+        questionService.createCopy(questionDefinition, Optional.of(1L));
+
+    assertThat(errorAndResult.isError()).isFalse();
+    assertThat(errorAndResult.hasResult()).isTrue();
+    assertThat(errorAndResult.getResult().getEnumeratorId().get()).isEqualTo(1L);
+  }
+
+  @Test
+  public void createCopy_universalQuestion_copyIsNotUniversal() throws Exception {
+    QuestionDefinition universalQuestion =
+        new QuestionDefinitionBuilder(questionDefinition).setUniversal(true).build();
+    ErrorAnd<QuestionDefinition, CiviFormError> errorAndResult =
+        questionService.createCopy(universalQuestion, Optional.empty());
+
+    assertThat(errorAndResult.isError()).isFalse();
+    assertThat(errorAndResult.hasResult()).isTrue();
+    assertThat(errorAndResult.getResult().isUniversal()).isFalse();
+  }
+
+  @Test
+  public void createCopy_includesTranslations() throws Exception {
+    TranslationLocales translationLocales = mock(TranslationLocales.class);
+    when(translationLocales.translatableLocales())
+        .thenReturn(ImmutableList.of(Locale.US, Locale.FRANCE, Locale.JAPAN));
+    QuestionDefinition question =
+        new QuestionDefinitionBuilder(questionDefinition)
+            .setQuestionText(
+                LocalizedStrings.of(
+                    Locale.US, "text", Locale.FRANCE, "texte", Locale.JAPAN, "テキスト"))
+            .setQuestionHelpText(
+                LocalizedStrings.of(Locale.US, "help", Locale.FRANCE, "aide", Locale.JAPAN, "ヘルプ"))
+            .build();
+
+    ErrorAnd<QuestionDefinition, CiviFormError> errorAndResult =
+        questionService.createCopy(question, Optional.empty());
+    assertThat(errorAndResult.isError()).isFalse();
+    assertThat(errorAndResult.hasResult()).isTrue();
+
+    QuestionDefinition questionCopy = errorAndResult.getResult();
+    assertThat(questionService.isTranslationComplete(translationLocales, question)).isTrue();
+    assertThat(questionService.isTranslationComplete(translationLocales, questionCopy)).isTrue();
   }
 
   @Test
