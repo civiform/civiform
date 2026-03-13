@@ -24,18 +24,19 @@ public class ApplicationModelTest extends ResetPostgres {
           .build();
   private ApplicationStatusesRepository applicationStatusesRepository;
   private ApplicationEventRepository applicationEventRepository;
+  private ProgramModel program;
 
   @Before
   public void setUp() {
     applicationStatusesRepository = instanceOf(ApplicationStatusesRepository.class);
     applicationEventRepository = instanceOf(ApplicationEventRepository.class);
+    program = ProgramBuilder.newActiveProgram("test program", "description").build();
   }
 
   @Test
   public void latestStatusIsCarriedForwardEvenAfterApplicationUpdates() {
     // Tests a case where an Application's status is preserved, even if the application row is
     // updated
-    ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
     applicationStatusesRepository.createOrUpdateStatusDefinitions(
         program.getProgramDefinition().adminName(),
         new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
@@ -67,8 +68,6 @@ public class ApplicationModelTest extends ResetPostgres {
 
   @Test
   public void eligibility_determination_default_not_computed() {
-    ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
-
     ApplicationModel application =
         resourceCreator.insertActiveApplication(
             resourceCreator.insertApplicantWithAccount(), program);
@@ -78,8 +77,6 @@ public class ApplicationModelTest extends ResetPostgres {
 
   @Test
   public void eligibility_determination_eligible() {
-    ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
-
     ApplicationModel application =
         resourceCreator.insertActiveApplication(
             resourceCreator.insertApplicantWithAccount(), program);
@@ -90,8 +87,6 @@ public class ApplicationModelTest extends ResetPostgres {
 
   @Test
   public void eligibility_determination_ineligible() {
-    ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
-
     ApplicationModel application =
         resourceCreator.insertActiveApplication(
             resourceCreator.insertApplicantWithAccount(), program);
@@ -102,8 +97,6 @@ public class ApplicationModelTest extends ResetPostgres {
 
   @Test
   public void eligibility_determination_no_eligibility_criteria() {
-    ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
-
     ApplicationModel application =
         resourceCreator.insertActiveApplication(
             resourceCreator.insertApplicantWithAccount(), program);
@@ -114,8 +107,6 @@ public class ApplicationModelTest extends ResetPostgres {
 
   @Test
   public void isAdmin_applicant_isFalse() {
-    ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
-
     applicationStatusesRepository.createOrUpdateStatusDefinitions(
         program.getProgramDefinition().adminName(),
         new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
@@ -127,8 +118,6 @@ public class ApplicationModelTest extends ResetPostgres {
 
   @Test
   public void isAdmin_globalAdmin_isTrue() {
-    ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
-
     applicationStatusesRepository.createOrUpdateStatusDefinitions(
         program.getProgramDefinition().adminName(),
         new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
@@ -141,8 +130,6 @@ public class ApplicationModelTest extends ResetPostgres {
 
   @Test
   public void isAdmin_programAdmin_isTrue() {
-    ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
-
     applicationStatusesRepository.createOrUpdateStatusDefinitions(
         program.getProgramDefinition().adminName(),
         new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
@@ -156,8 +143,6 @@ public class ApplicationModelTest extends ResetPostgres {
 
   @Test
   public void originalApplicantId_defaultsToEmpty() {
-    ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
-
     ApplicationModel application =
         resourceCreator.insertActiveApplication(
             resourceCreator.insertApplicantWithAccount(), program);
@@ -171,8 +156,6 @@ public class ApplicationModelTest extends ResetPostgres {
   @Test
   public void originalApplicantId_canBeSetAndPersisted() {
     long applicantId = 500L;
-    ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
-
     ApplicationModel application =
         resourceCreator.insertActiveApplication(
             resourceCreator.insertApplicantWithAccount(), program);
@@ -185,8 +168,6 @@ public class ApplicationModelTest extends ResetPostgres {
 
   @Test
   public void create_new_application_updatesLastActivityTime() {
-    ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
-
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     Instant activitytimeBeforeUpdate = applicant.getAccount().getLastActivityTime();
     ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
