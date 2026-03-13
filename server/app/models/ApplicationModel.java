@@ -33,10 +33,8 @@ public class ApplicationModel extends BaseModel {
   @ManyToOne private ApplicantModel applicant;
   // The applicant ID that originally created this application.
   // This will be present when an account (typically a guest) is merged into
-  // another so that references to the original applications that include the
-  // applicant are not broken.
-  // We store the ID instead of a DB relation, as that applicant may be deleted
-  // after the merge.
+  // another account. We store this value so that references to applications that rely on the
+  // original applicant id are not broken.
   private Long originalApplicantId;
 
   @ManyToOne private ProgramModel program;
