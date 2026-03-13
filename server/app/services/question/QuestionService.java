@@ -8,6 +8,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import helpers.UniqueAdminNameGenerator;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -28,10 +30,12 @@ import services.TranslationLocales;
 import services.export.CsvExporterService;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.QuestionNotFoundException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.MapQuestionDefinition;
 import services.question.types.MapQuestionDefinition.MapValidationPredicates;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
 
 /**
  * The service responsible for accessing the Question resource. Admins create {@link
@@ -45,17 +49,20 @@ public final class QuestionService {
   private final Provider<VersionRepository> versionRepositoryProvider;
   private final TransactionManager transactionManager;
   private final GeoJsonDataRepository geoJsonDataRepository;
+  private final UniqueAdminNameGenerator uniqueAdminNameGenerator;
 
   @Inject
   public QuestionService(
       QuestionRepository questionRepository,
       Provider<VersionRepository> versionRepositoryProvider,
       TransactionManager transactionManager,
-      GeoJsonDataRepository geoJsonDataRepository) {
+      GeoJsonDataRepository geoJsonDataRepository,
+      UniqueAdminNameGenerator uniqueAdminNameGenerator) {
     this.questionRepository = checkNotNull(questionRepository);
     this.versionRepositoryProvider = checkNotNull(versionRepositoryProvider);
     this.transactionManager = checkNotNull(transactionManager);
     this.geoJsonDataRepository = checkNotNull(geoJsonDataRepository);
+    this.uniqueAdminNameGenerator = checkNotNull(uniqueAdminNameGenerator);
   }
 
   /**
@@ -216,6 +223,28 @@ public final class QuestionService {
 
     question = questionRepository.createOrUpdateDraft(updatedDefinition);
     return ErrorAnd.of(questionRepository.getQuestionDefinition(question));
+  }
+
+  /**
+   * Creates a copy of the given QuestionDefinition with a unique admin name and an (optional)
+   * enumerator ID.
+   */
+  public ErrorAnd<QuestionDefinition, CiviFormError> createCopy(
+      QuestionDefinition questionDefinition, Optional<Long> enumeratorId)
+      throws UnsupportedQuestionTypeException {
+    String newAdminName =
+        uniqueAdminNameGenerator.generate(
+            questionDefinition.getName(), /* newNamesSoFar= */ new ArrayList<>());
+
+    QuestionDefinition copy =
+        new QuestionDefinitionBuilder(questionDefinition)
+            .clearId()
+            .setName(newAdminName)
+            .setUniversal(false)
+            .setEnumeratorId(enumeratorId)
+            .build();
+
+    return create(copy, /* requireLegacyRepeatedEntitySelector= */ false);
   }
 
   /** If this question is archived but a new version has not been published yet, un-archive it. */
