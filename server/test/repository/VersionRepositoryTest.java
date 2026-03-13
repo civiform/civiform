@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
@@ -24,7 +25,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import play.cache.SyncCacheApi;
-import repository.VersionRepository.PreviewPublishedVersion;
+import repository.VersionRepository.PublishProgramPreview;
 import services.applicant.question.Scalar;
 import services.program.CantPublishProgramWithSharedQuestionsException;
 import services.program.EligibilityDefinition;
@@ -105,12 +106,8 @@ public class VersionRepositoryTest extends ResetPostgres {
     }
 
     // Publish and ensure that both the program and question aren't carried forward.
-    PreviewPublishedVersion updated = versionRepository.previewPublishNewSynchronizedVersion();
-    assertThat(updated.lifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
-    assertThat(updated.programIds()).isEmpty();
-    assertThat(updated.tombstonedProgramNames()).isEmpty();
-    assertThat(updated.questionIds()).isEmpty();
-    assertThat(updated.tombstonedQuestionNames()).isEmpty();
+    // The result map is empty because the only program/question were tombstoned.
+    assertThat(versionRepository.previewPublishNewSynchronizedVersion()).isEmpty();
 
     // Ensure that the Active and Draft versions are still as expected after the preview.
     assertThat(versionRepository.getActiveVersion().getPrograms()).isEmpty();
@@ -138,19 +135,19 @@ public class VersionRepositoryTest extends ResetPostgres {
     secondQuestion.addVersion(versionRepository.getActiveVersion()).save();
 
     ProgramModel firstProgramActive =
-        ProgramBuilder.newActiveProgram("foo")
+        ProgramBuilder.newActiveProgram("first-program")
             .withBlock("Screen 1")
             .withRequiredQuestion(firstQuestion)
             .build();
     ProgramModel secondProgramActive =
-        ProgramBuilder.newActiveProgram("bar")
+        ProgramBuilder.newActiveProgram("second-program")
             .withBlock("Screen 1")
             .withRequiredQuestion(secondQuestion)
             .build();
     QuestionModel secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
     secondQuestionUpdated.addVersion(versionRepository.getDraftVersionOrCreate()).save();
     ProgramModel secondProgramDraft =
-        ProgramBuilder.newDraftProgram("bar")
+        ProgramBuilder.newDraftProgram("second-program")
             .withBlock("Screen 1")
             .withRequiredQuestion(secondQuestionUpdated)
             .build();
@@ -175,7 +172,7 @@ public class VersionRepositoryTest extends ResetPostgres {
     VersionModel oldActive = versionRepository.getActiveVersion();
 
     // First, preview the changes and ensure no versions are updated.
-    PreviewPublishedVersion toApplyNewActiveVersion =
+    ImmutableMap<String, ImmutableSet<PublishProgramPreview>> previewResult =
         versionRepository.previewPublishNewSynchronizedVersion();
     assertThat(versionRepository.getDraftVersionOrCreate().id).isEqualTo(oldDraft.id);
     assertThat(versionRepository.getActiveVersion().id).isEqualTo(oldActive.id);
@@ -202,12 +199,12 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifecycleStage.DRAFT);
     assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
 
-    assertThat(toApplyNewActiveVersion.id()).isEqualTo(oldDraft.id);
-    assertThat(toApplyNewActiveVersion.lifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
-    assertThat(toApplyNewActiveVersion.programIds())
-        .containsExactlyInAnyOrder(secondProgramDraft.id, firstProgramActive.id);
-    assertThat(toApplyNewActiveVersion.questionIds())
-        .containsExactlyInAnyOrder(firstQuestion.id, secondQuestionUpdated.id);
+    assertThat(previewResult.keySet())
+        .containsExactlyInAnyOrder("first-question", "second-question");
+    assertThat(previewResult.get("first-question").stream().map(PublishProgramPreview::adminName))
+        .containsExactly("first-program");
+    assertThat(previewResult.get("second-question").stream().map(PublishProgramPreview::adminName))
+        .containsExactly("second-program");
 
     // Now actually publish the version and assert the results.
     versionRepository.publishNewSynchronizedVersion();
@@ -229,6 +226,254 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
 
     maybeTransaction.ifPresent(Transaction::end);
+  }
+
+  @Test
+  public void previewPublishNewSynchronizedVersion_doesNotMutateDatabase() {
+    QuestionModel question = resourceCreator.insertQuestion("q1");
+    question.addVersion(versionRepository.getActiveVersion()).save();
+    ProgramBuilder.newDraftProgram("foo")
+        .withBlock("Screen 1")
+        .withRequiredQuestion(question)
+        .build();
+
+    VersionModel draftBefore = versionRepository.getDraftVersionOrCreate();
+    VersionModel activeBefore = versionRepository.getActiveVersion();
+    long draftId = draftBefore.id;
+    long activeId = activeBefore.id;
+    ImmutableList<Long> draftProgramIdsBefore =
+        draftBefore.getPrograms().stream().map(p -> p.id).collect(ImmutableList.toImmutableList());
+    ImmutableList<Long> activeQuestionIdsBefore =
+        activeBefore.getQuestions().stream()
+            .map(q -> q.id)
+            .collect(ImmutableList.toImmutableList());
+
+    versionRepository.previewPublishNewSynchronizedVersion();
+
+    assertThat(versionRepository.getDraftVersionOrCreate().id).isEqualTo(draftId);
+    assertThat(versionRepository.getActiveVersion().id).isEqualTo(activeId);
+    draftBefore.refresh();
+    activeBefore.refresh();
+    assertThat(draftBefore.getLifecycleStage()).isEqualTo(LifecycleStage.DRAFT);
+    assertThat(activeBefore.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+    assertThat(draftBefore.getPrograms().stream().map(p -> p.id))
+        .containsExactlyElementsOf(draftProgramIdsBefore);
+    assertThat(activeBefore.getQuestions().stream().map(q -> q.id))
+        .containsExactlyElementsOf(activeQuestionIdsBefore);
+  }
+
+  @Test
+  public void previewPublishNewSynchronizedVersion_draftProgramWithDraftQuestion() {
+    QuestionModel activeQuestion = resourceCreator.insertQuestion("q1");
+    activeQuestion.addVersion(versionRepository.getActiveVersion()).save();
+    QuestionModel draftQuestion = resourceCreator.insertQuestion("q1");
+    draftQuestion.addVersion(versionRepository.getDraftVersionOrCreate()).save();
+    ProgramBuilder.newDraftProgram("program")
+        .withBlock("Screen 1")
+        .withRequiredQuestion(draftQuestion)
+        .build();
+
+    ImmutableMap<String, ImmutableSet<PublishProgramPreview>> result =
+        versionRepository.previewPublishNewSynchronizedVersion();
+
+    assertThat(result.keySet()).containsExactly("q1");
+    assertThat(result.get("q1").stream().map(PublishProgramPreview::adminName))
+        .containsExactly("program");
+  }
+
+  @Test
+  public void previewPublishNewSynchronizedVersion_draftProgramReferencingActiveVersionQuestion() {
+    QuestionModel question = resourceCreator.insertQuestion("q1");
+    question.addVersion(versionRepository.getActiveVersion()).save();
+    ProgramBuilder.newDraftProgram("program")
+        .withBlock("Screen 1")
+        .withRequiredQuestion(question)
+        .build();
+
+    ImmutableMap<String, ImmutableSet<PublishProgramPreview>> result =
+        versionRepository.previewPublishNewSynchronizedVersion();
+
+    assertThat(result.keySet()).containsExactly("q1");
+    assertThat(result.get("q1").stream().map(PublishProgramPreview::adminName))
+        .containsExactly("program");
+  }
+
+  @Test
+  public void previewPublishNewSynchronizedVersion_activeProgramWithDraftUsesOnlyDraftVersion() {
+    QuestionModel q1 = resourceCreator.insertQuestion("q1");
+    q1.addVersion(versionRepository.getActiveVersion()).save();
+    QuestionModel q2 = resourceCreator.insertQuestion("q2");
+    q2.addVersion(versionRepository.getActiveVersion()).save();
+    ProgramBuilder.newActiveProgram("program")
+        .withBlock("Screen 1")
+        .withRequiredQuestion(q1)
+        .build();
+    // Draft does not contain q1, and newly includes q2.
+    ProgramBuilder.newDraftProgram("program")
+        .withBlock("Screen 1")
+        .withRequiredQuestion(q2)
+        .build();
+
+    ImmutableMap<String, ImmutableSet<PublishProgramPreview>> result =
+        versionRepository.previewPublishNewSynchronizedVersion();
+
+    assertThat(result).doesNotContainKey("q1");
+    assertThat(result.keySet()).containsExactly("q2");
+    assertThat(result.get("q2").stream().map(PublishProgramPreview::adminName))
+        .containsExactly("program");
+  }
+
+  @Test
+  public void previewPublishNewSynchronizedVersion_activeProgramWithoutDraftIncluded() {
+    QuestionModel question = resourceCreator.insertQuestion("q1");
+    question.addVersion(versionRepository.getActiveVersion()).save();
+    ProgramBuilder.newActiveProgram("program")
+        .withBlock("Screen 1")
+        .withRequiredQuestion(question)
+        .build();
+    versionRepository.getDraftVersionOrCreate();
+
+    ImmutableMap<String, ImmutableSet<PublishProgramPreview>> result =
+        versionRepository.previewPublishNewSynchronizedVersion();
+
+    assertThat(result.keySet()).containsExactly("q1");
+    assertThat(result.get("q1").stream().map(PublishProgramPreview::adminName))
+        .containsExactly("program");
+  }
+
+  @Test
+  public void previewPublishNewSynchronizedVersion_tombstonedActiveProgramExcluded() {
+    QuestionModel question = resourceCreator.insertQuestion("q1");
+    question.addVersion(versionRepository.getActiveVersion()).save();
+    ProgramModel activeProgram =
+        ProgramBuilder.newActiveProgram("program")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(question)
+            .build();
+    VersionModel draft = versionRepository.getDraftVersionOrCreate();
+    draft.addTombstoneForProgramForTest(activeProgram);
+    draft.save();
+
+    ImmutableMap<String, ImmutableSet<PublishProgramPreview>> result =
+        versionRepository.previewPublishNewSynchronizedVersion();
+
+    assertThat(result).doesNotContainKey("q1");
+  }
+
+  @Test
+  public void previewPublishNewSynchronizedVersion_programWithNoQuestionsAddsNoEntries() {
+    ProgramBuilder.newDraftProgram("empty-program").withBlock("Screen 1").build();
+
+    ImmutableMap<String, ImmutableSet<PublishProgramPreview>> result =
+        versionRepository.previewPublishNewSynchronizedVersion();
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void previewPublishNewSynchronizedVersion_unreferencedQuestionsNotInResult() {
+    QuestionModel activeQuestion = resourceCreator.insertQuestion("active-unreferenced");
+    activeQuestion.addVersion(versionRepository.getActiveVersion()).save();
+    QuestionModel draftQuestion = resourceCreator.insertQuestion("draft-unreferenced");
+    draftQuestion.addVersion(versionRepository.getDraftVersionOrCreate()).save();
+    ProgramBuilder.newDraftProgram("empty-program").withBlock("Screen 1").build();
+
+    ImmutableMap<String, ImmutableSet<PublishProgramPreview>> result =
+        versionRepository.previewPublishNewSynchronizedVersion();
+
+    assertThat(result).doesNotContainKey("active-unreferenced");
+    assertThat(result).doesNotContainKey("draft-unreferenced");
+  }
+
+  @Test
+  public void previewPublishNewSynchronizedVersion_programWithMultipleQuestionsAllMapped() {
+    QuestionModel q1 = resourceCreator.insertQuestion("q1");
+    q1.addVersion(versionRepository.getActiveVersion()).save();
+    QuestionModel q2 = resourceCreator.insertQuestion("q2");
+    q2.addVersion(versionRepository.getActiveVersion()).save();
+    QuestionModel q3 = resourceCreator.insertQuestion("q3");
+    q3.addVersion(versionRepository.getActiveVersion()).save();
+    ProgramBuilder.newDraftProgram("program")
+        .withBlock("Screen 1")
+        .withRequiredQuestion(q1)
+        .withRequiredQuestion(q2)
+        .withBlock("Screen 2")
+        .withRequiredQuestion(q3)
+        .build();
+
+    ImmutableMap<String, ImmutableSet<PublishProgramPreview>> result =
+        versionRepository.previewPublishNewSynchronizedVersion();
+
+    assertThat(result.keySet()).containsExactlyInAnyOrder("q1", "q2", "q3");
+    assertThat(result.get("q1").stream().map(PublishProgramPreview::adminName))
+        .containsExactly("program");
+    assertThat(result.get("q2").stream().map(PublishProgramPreview::adminName))
+        .containsExactly("program");
+    assertThat(result.get("q3").stream().map(PublishProgramPreview::adminName))
+        .containsExactly("program");
+  }
+
+  @Test
+  public void previewPublishNewSynchronizedVersion_multipleProgramsReferencingSameQuestion() {
+    QuestionModel question = resourceCreator.insertQuestion("shared-q");
+    question.addVersion(versionRepository.getActiveVersion()).save();
+
+    ProgramBuilder.newActiveProgram("active-only")
+        .withBlock("Screen 1")
+        .withRequiredQuestion(question)
+        .build();
+    ProgramBuilder.newDraftProgram("draft-program")
+        .withBlock("Screen 1")
+        .withRequiredQuestion(question)
+        .build();
+
+    ImmutableMap<String, ImmutableSet<PublishProgramPreview>> result =
+        versionRepository.previewPublishNewSynchronizedVersion();
+
+    assertThat(result.keySet()).containsExactly("shared-q");
+    assertThat(result.get("shared-q").stream().map(PublishProgramPreview::adminName))
+        .containsExactlyInAnyOrder("active-only", "draft-program");
+  }
+
+  @Test
+  public void previewPublishNewSynchronizedVersion_fieldsPopulated() {
+    QuestionModel question = resourceCreator.insertQuestion("q1");
+    question.addVersion(versionRepository.getActiveVersion()).save();
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("program")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(question)
+            .build();
+
+    ImmutableMap<String, ImmutableSet<PublishProgramPreview>> result =
+        versionRepository.previewPublishNewSynchronizedVersion();
+
+    assertThat(result.keySet()).containsExactly("q1");
+    assertThat(result.get("q1")).isNotNull();
+    assertThat(result.get("q1").size()).isEqualTo(1);
+    PublishProgramPreview ref = result.get("q1").iterator().next();
+    assertThat(ref.adminName()).isEqualTo("program");
+    assertThat(ref.displayMode()).isEqualTo(program.getProgramDefinition().displayMode());
+    assertThat(ref.localizedName()).isEqualTo(program.getProgramDefinition().localizedName());
+  }
+
+  @Test
+  public void previewPublishNewSynchronizedVersion_allProgramsTombstonedReturnsEmpty() {
+    QuestionModel question = resourceCreator.insertQuestion("q1");
+    question.addVersion(versionRepository.getActiveVersion()).save();
+    ProgramModel draftProgram =
+        ProgramBuilder.newDraftProgram("foo")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(question)
+            .build();
+    VersionModel draft = versionRepository.getDraftVersionOrCreate();
+    draft.addTombstoneForProgramForTest(draftProgram);
+    draft.save();
+
+    ImmutableMap<String, ImmutableSet<PublishProgramPreview>> result =
+        versionRepository.previewPublishNewSynchronizedVersion();
+
+    assertThat(result).isEmpty();
   }
 
   @Test
