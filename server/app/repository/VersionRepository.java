@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.cache.NamedCache;
 import play.cache.SyncCacheApi;
+import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.CantPublishProgramWithSharedQuestionsException;
 import services.program.EligibilityDefinition;
@@ -57,6 +58,12 @@ import services.settings.SettingsManifest;
 /** A repository object for dealing with versioning of questions and programs. */
 public final class VersionRepository {
 
+  /**
+   * A lightweight container representing the programs that would result from the publish action.
+   */
+  public record PublishProgramPreview(
+      String adminName, DisplayMode displayMode, LocalizedStrings localizedName) {}
+
   private static final Logger logger = LoggerFactory.getLogger(VersionRepository.class);
   private static final QueryProfileLocationBuilder profileLocationBuilder =
       new QueryProfileLocationBuilder("VersionRepository");
@@ -68,26 +75,6 @@ public final class VersionRepository {
   private final SettingsManifest settingsManifest;
   private final SyncCacheApi questionsByVersionCache;
   private final SyncCacheApi programsByVersionCache;
-
-  /**
-   * Container class to represent what would happen in previewPublishNewSynchronizedVersion() if it
-   * were not a preview.
-   *
-   * <p>Specifically this is the Draft version data after it is made the Active version.
-   *
-   * <p>This is necessary due to the Ebean persistence cache; we can't return the DB backed
-   * VersionModel object that was updated to determine these values as it must be reset.
-   *
-   * <p>Note: Currently only questionToPrograms is used by production code, the rest is for tests.
-   */
-  public record PreviewPublishedVersion(
-      long id,
-      LifecycleStage lifecycleStage,
-      ImmutableList<Long> programIds,
-      ImmutableList<String> tombstonedProgramNames,
-      ImmutableList<Long> questionIds,
-      ImmutableList<String> tombstonedQuestionNames,
-      ImmutableMap<String, ImmutableSet<ProgramDefinition>> questionToPrograms) {}
 
   @Inject
   public VersionRepository(
@@ -121,7 +108,8 @@ public final class VersionRepository {
    * next version. This method will not mutate the database and will return a copy of relevant data
    * from the updated Version corresponding to what would be the new ACTIVE version.
    */
-  public PreviewPublishedVersion previewPublishNewSynchronizedVersion() {
+  public ImmutableMap<String, ImmutableSet<PublishProgramPreview>>
+      previewPublishNewSynchronizedVersion() {
     return publishNewSynchronizedVersion(PublishMode.DRY_RUN)
         .orElseThrow(
             () ->
@@ -134,7 +122,8 @@ public final class VersionRepository {
     PUBLISH_CHANGES,
   }
 
-  private Optional<PreviewPublishedVersion> publishNewSynchronizedVersion(PublishMode publishMode) {
+  private Optional<ImmutableMap<String, ImmutableSet<PublishProgramPreview>>>
+      publishNewSynchronizedVersion(PublishMode publishMode) {
     /*
      A few transaction notes about this method:
 
@@ -262,17 +251,19 @@ public final class VersionRepository {
     }
   }
 
-  private PreviewPublishedVersion buildDryRunPublishedVersion(VersionModel version) {
-    return new PreviewPublishedVersion(
-        /* id= */ version.id,
-        /* lifecycleStage= */ version.getLifecycleStage(),
-        /* programIds= */ version.getPrograms().stream().map(p -> p.id).collect(toImmutableList()),
-        /* tombstonedProgramNames= */ ImmutableList.copyOf(version.getTombstonedProgramNames()),
-        /* questionIds= */ version.getQuestions().stream()
-            .map(q -> q.id)
-            .collect(toImmutableList()),
-        /* tombstonedQuestionNames= */ ImmutableList.copyOf(version.getTombstonedQuestionNames()),
-        /* questionToPrograms= */ buildReferencingProgramsMap(version));
+  private ImmutableMap<String, ImmutableSet<PublishProgramPreview>> buildDryRunPublishedVersion(
+      VersionModel version) {
+    return buildReferencingProgramsMap(version).entrySet().stream()
+        .collect(
+            ImmutableMap.toImmutableMap(
+                Entry::getKey,
+                e ->
+                    e.getValue().stream()
+                        .map(
+                            p ->
+                                new PublishProgramPreview(
+                                    p.adminName(), p.displayMode(), p.localizedName()))
+                        .collect(ImmutableSet.toImmutableSet())));
   }
 
   /**
