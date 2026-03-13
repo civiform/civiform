@@ -228,7 +228,6 @@ public class VersionRepositoryTest extends ResetPostgres {
     maybeTransaction.ifPresent(Transaction::end);
   }
 
-  /** The preview must not mutate the database: version IDs, lifecycle stages, and memberships. */
   @Test
   public void previewPublishNewSynchronizedVersion_doesNotMutateDatabase() {
     QuestionModel question = resourceCreator.insertQuestion("q1");
