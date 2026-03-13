@@ -98,7 +98,8 @@ public final class VersionRepository {
    * Simulates publishing a new version of all programs and questions.
    *
    * <p>Returns a map from question name to the set of programs that would reference it in the new
-   * active version. The returned data is the minimal information needed by callers.
+   * active version. If a question is not used it is not in the returned data. The returned data is
+   * the minimal information needed by callers.
    */
   public ImmutableMap<String, ImmutableSet<PublishProgramPreview>>
       previewPublishNewSynchronizedVersion() {
@@ -106,7 +107,7 @@ public final class VersionRepository {
     // 1. For all Draft Programs, map their questions to the program.
     // 2. For all Active Programs not in the Draft, do the same
     // 3. Skip Tombstoned Programs - While the application no longer
-    // supports Tombstoning programs, we still need to handle that the
+    // supports Tombstoning programs, we still need to handle that fact that the
     // data supports it.
     //
     // This relies on a few application invariants:
