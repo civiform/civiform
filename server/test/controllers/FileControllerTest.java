@@ -8,6 +8,7 @@ import static play.mvc.Http.Status.SEE_OTHER;
 import static play.mvc.Http.Status.UNAUTHORIZED;
 import static support.FakeRequestBuilder.fakeRequest;
 
+import auth.ClientIpType;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -32,7 +33,7 @@ public class FileControllerTest extends WithMockedProfiles {
   public void setUp() {
     resetDatabase();
     mockSettingsManifest = Mockito.mock(SettingsManifest.class);
-    when(mockSettingsManifest.getClientIpType()).thenReturn(Optional.of("FORWARDED"));
+    when(mockSettingsManifest.getClientIpType()).thenReturn(Optional.of(ClientIpType.FORWARDED));
     when(mockSettingsManifest.getAllowCiviformAdminAccessPrograms(request)).thenReturn(false);
     setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(mockSettingsManifest));
     controller = instanceOf(FileController.class);
