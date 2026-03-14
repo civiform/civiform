@@ -844,7 +844,7 @@ public final class QuestionEditView extends BaseHtmlView {
         .setLabelText("Question enumerator")
         .setOptions(options)
         .setValue(selected)
-        .setDisabled(formMode.equals(FormMode.EDIT) || !enabled)
+        .setDisabled(formMode.equals(FormMode.EDIT))
         .setReadOnly(formMode.equals(FormMode.EDIT) || !enabled)
         .setRequired(true);
   }
