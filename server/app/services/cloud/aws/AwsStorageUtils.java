@@ -12,7 +12,7 @@ public final class AwsStorageUtils extends AbstractS3StorageUtils {
    * The duration that a signed upload or download request URL from {@link #getSignedUploadRequest}
    * is valid for use.
    */
-  public static final Duration PRESIGNED_URL_DURATION = Duration.ofMinutes(10);
+  public static final Duration PRESIGNED_URL_DURATION = Duration.ofHours(1);
 
   @Override
   protected Duration getPresignedUrlDuration() {
