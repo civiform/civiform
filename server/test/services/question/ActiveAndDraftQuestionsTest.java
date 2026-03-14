@@ -19,6 +19,7 @@ import org.junit.runner.RunWith;
 import repository.ResetPostgres;
 import repository.VersionRepository;
 import services.DeletionStatus;
+import services.program.DraftProgramReference;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
@@ -374,18 +375,16 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
 
     // No longer reference the question from the first program.
     ProgramBuilder.newDraftProgram("first-program").withBlock("Screen 1").build();
-    ProgramModel secondProgramDraft =
-        ProgramBuilder.newDraftProgram("second-program")
-            .withBlock("Screen 1")
-            .withBlock("Screen 2")
-            .withBlock("Screen 3")
-            .withRequiredQuestion(question)
-            .build();
-    ProgramModel thirdProgramDraft =
-        ProgramBuilder.newDraftProgram("third-program")
-            .withBlock("Screen 1")
-            .withRequiredQuestion(question)
-            .build();
+    ProgramBuilder.newDraftProgram("second-program")
+        .withBlock("Screen 1")
+        .withBlock("Screen 2")
+        .withBlock("Screen 3")
+        .withRequiredQuestion(question)
+        .build();
+    ProgramBuilder.newDraftProgram("third-program")
+        .withBlock("Screen 1")
+        .withRequiredQuestion(question)
+        .build();
     versionRepository.getDraftVersionOrCreate().addQuestion(question).save();
 
     Optional<Transaction> maybeTransaction = maybeMakeTransaction(useTransaction);
@@ -394,8 +393,8 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
         newActiveAndDraftQuestions().getReferencingPrograms(TEST_QUESTION_NAME);
     assertThat(result.activeReferences().stream().map(ProgramDefinition::id))
         .containsExactlyInAnyOrder(firstProgramActive.id, secondProgramActive.id);
-    assertThat(result.draftReferences().stream().map(ProgramDefinition::id))
-        .containsExactlyInAnyOrder(secondProgramDraft.id, thirdProgramDraft.id);
+    assertThat(result.draftReferences().stream().map(DraftProgramReference::adminName))
+        .containsExactlyInAnyOrder("second-program", "third-program");
 
     maybeTransaction.ifPresent(Transaction::end);
   }
@@ -428,18 +427,16 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
     QuestionModel draftQuestion = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
     versionRepository.getDraftVersionOrCreate().addQuestion(draftQuestion).save();
     ProgramBuilder.newDraftProgram("first-program").withBlock("Screen 1").build();
-    ProgramModel secondProgramDraft =
-        ProgramBuilder.newDraftProgram("second-program")
-            .withBlock("Screen 1")
-            .withBlock("Screen 2")
-            .withBlock("Screen 3")
-            .withRequiredQuestion(draftQuestion)
-            .build();
-    ProgramModel thirdProgramDraft =
-        ProgramBuilder.newDraftProgram("third-program")
-            .withBlock("Screen 1")
-            .withRequiredQuestion(draftQuestion)
-            .build();
+    ProgramBuilder.newDraftProgram("second-program")
+        .withBlock("Screen 1")
+        .withBlock("Screen 2")
+        .withBlock("Screen 3")
+        .withRequiredQuestion(draftQuestion)
+        .build();
+    ProgramBuilder.newDraftProgram("third-program")
+        .withBlock("Screen 1")
+        .withRequiredQuestion(draftQuestion)
+        .build();
 
     Optional<Transaction> maybeTransaction = maybeMakeTransaction(useTransaction);
 
@@ -447,8 +444,8 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
         newActiveAndDraftQuestions().getReferencingPrograms(TEST_QUESTION_NAME);
     assertThat(result.activeReferences().stream().map(ProgramDefinition::id))
         .containsExactlyInAnyOrder(firstProgramActive.id, secondProgramActive.id);
-    assertThat(result.draftReferences().stream().map(ProgramDefinition::id))
-        .containsExactlyInAnyOrder(secondProgramDraft.id, thirdProgramDraft.id);
+    assertThat(result.draftReferences().stream().map(DraftProgramReference::adminName))
+        .containsExactlyInAnyOrder("second-program", "third-program");
 
     maybeTransaction.ifPresent(Transaction::end);
   }

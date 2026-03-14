@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
@@ -24,9 +25,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import play.cache.SyncCacheApi;
-import repository.VersionRepository.PreviewPublishedVersion;
 import services.applicant.question.Scalar;
 import services.program.CantPublishProgramWithSharedQuestionsException;
+import services.program.DraftProgramReference;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -105,12 +106,8 @@ public class VersionRepositoryTest extends ResetPostgres {
     }
 
     // Publish and ensure that both the program and question aren't carried forward.
-    PreviewPublishedVersion updated = versionRepository.previewPublishNewSynchronizedVersion();
-    assertThat(updated.lifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
-    assertThat(updated.programIds()).isEmpty();
-    assertThat(updated.tombstonedProgramNames()).isEmpty();
-    assertThat(updated.questionIds()).isEmpty();
-    assertThat(updated.tombstonedQuestionNames()).isEmpty();
+    // The result map is empty because the only program/question were tombstoned.
+    assertThat(versionRepository.previewPublishNewSynchronizedVersion()).isEmpty();
 
     // Ensure that the Active and Draft versions are still as expected after the preview.
     assertThat(versionRepository.getActiveVersion().getPrograms()).isEmpty();
@@ -175,7 +172,7 @@ public class VersionRepositoryTest extends ResetPostgres {
     VersionModel oldActive = versionRepository.getActiveVersion();
 
     // First, preview the changes and ensure no versions are updated.
-    PreviewPublishedVersion toApplyNewActiveVersion =
+    ImmutableMap<String, ImmutableSet<DraftProgramReference>> previewResult =
         versionRepository.previewPublishNewSynchronizedVersion();
     assertThat(versionRepository.getDraftVersionOrCreate().id).isEqualTo(oldDraft.id);
     assertThat(versionRepository.getActiveVersion().id).isEqualTo(oldActive.id);
@@ -202,12 +199,12 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifecycleStage.DRAFT);
     assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
 
-    assertThat(toApplyNewActiveVersion.id()).isEqualTo(oldDraft.id);
-    assertThat(toApplyNewActiveVersion.lifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
-    assertThat(toApplyNewActiveVersion.programIds())
-        .containsExactlyInAnyOrder(secondProgramDraft.id, firstProgramActive.id);
-    assertThat(toApplyNewActiveVersion.questionIds())
-        .containsExactlyInAnyOrder(firstQuestion.id, secondQuestionUpdated.id);
+    assertThat(previewResult.keySet())
+        .containsExactlyInAnyOrder("first-question", "second-question");
+    assertThat(previewResult.get("first-question").stream().map(DraftProgramReference::adminName))
+        .containsExactly("foo");
+    assertThat(previewResult.get("second-question").stream().map(DraftProgramReference::adminName))
+        .containsExactly("bar");
 
     // Now actually publish the version and assert the results.
     versionRepository.publishNewSynchronizedVersion();
@@ -229,6 +226,356 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
 
     maybeTransaction.ifPresent(Transaction::end);
+  }
+
+  // ---- previewPublishNewSynchronizedVersion tests ----
+
+  /**
+   * The preview must not mutate the database: version IDs, lifecycle stages, and program/question
+   * memberships must be identical before and after the call. Tested both with and without an outer
+   * transaction, since the DRY_RUN path uses savepoints when a transaction already exists.
+   */
+  @Test
+  @Parameters({"false", "true"})
+  public void previewPublishNewSynchronizedVersion_doesNotMutateDatabase(Boolean useTransaction) {
+    QuestionModel question = resourceCreator.insertQuestion("q1");
+    question.addVersion(versionRepository.getActiveVersion()).save();
+    ProgramBuilder.newDraftProgram("foo")
+        .withBlock("Screen 1")
+        .withRequiredQuestion(question)
+        .build();
+
+    VersionModel draftBefore = versionRepository.getDraftVersionOrCreate();
+    VersionModel activeBefore = versionRepository.getActiveVersion();
+    long draftId = draftBefore.id;
+    long activeId = activeBefore.id;
+    ImmutableList<Long> draftProgramIdsBefore =
+        draftBefore.getPrograms().stream().map(p -> p.id).collect(ImmutableList.toImmutableList());
+    ImmutableList<Long> activeQuestionIdsBefore =
+        activeBefore.getQuestions().stream()
+            .map(q -> q.id)
+            .collect(ImmutableList.toImmutableList());
+
+    Optional<Transaction> maybeTransaction = Optional.empty();
+    if (useTransaction) {
+      maybeTransaction =
+          Optional.of(
+              DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE)));
+    }
+
+    versionRepository.previewPublishNewSynchronizedVersion();
+
+    assertThat(versionRepository.getDraftVersionOrCreate().id).isEqualTo(draftId);
+    assertThat(versionRepository.getActiveVersion().id).isEqualTo(activeId);
+    draftBefore.refresh();
+    activeBefore.refresh();
+    assertThat(draftBefore.getLifecycleStage()).isEqualTo(LifecycleStage.DRAFT);
+    assertThat(activeBefore.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+    assertThat(draftBefore.getPrograms().stream().map(p -> p.id))
+        .containsExactlyElementsOf(draftProgramIdsBefore);
+    assertThat(activeBefore.getQuestions().stream().map(q -> q.id))
+        .containsExactlyElementsOf(activeQuestionIdsBefore);
+
+    maybeTransaction.ifPresent(Transaction::end);
+  }
+
+  /**
+   * A draft program referencing a question that was added to the draft version appears in the
+   * result under that question's name.
+   */
+  @Test
+  public void previewPublishNewSynchronizedVersion_draftProgramWithDraftQuestion() {
+    QuestionModel activeQuestion = resourceCreator.insertQuestion("q1");
+    activeQuestion.addVersion(versionRepository.getActiveVersion()).save();
+    QuestionModel draftQuestion = resourceCreator.insertQuestion("q1");
+    draftQuestion.addVersion(versionRepository.getDraftVersionOrCreate()).save();
+    ProgramBuilder.newDraftProgram("foo")
+        .withBlock("Screen 1")
+        .withRequiredQuestion(draftQuestion)
+        .build();
+
+    ImmutableMap<String, ImmutableSet<DraftProgramReference>> result =
+        versionRepository.previewPublishNewSynchronizedVersion();
+
+    assertThat(result.keySet()).containsExactly("q1");
+    assertThat(result.get("q1").stream().map(DraftProgramReference::adminName))
+        .containsExactly("foo");
+  }
+
+  /**
+   * A draft program referencing a question that exists only in the active version is included.
+   * During the DRY_RUN the active question is temporarily copied into the draft, so the reference
+   * resolves. This is the scenario that causes a NOT_DELETABLE deletion status.
+   */
+  @Test
+  public void previewPublishNewSynchronizedVersion_draftProgramReferencingActiveVersionQuestion() {
+    QuestionModel question = resourceCreator.insertQuestion("q1");
+    question.addVersion(versionRepository.getActiveVersion()).save();
+    ProgramBuilder.newDraftProgram("foo")
+        .withBlock("Screen 1")
+        .withRequiredQuestion(question)
+        .build();
+
+    ImmutableMap<String, ImmutableSet<DraftProgramReference>> result =
+        versionRepository.previewPublishNewSynchronizedVersion();
+
+    assertThat(result.keySet()).containsExactly("q1");
+    assertThat(result.get("q1").stream().map(DraftProgramReference::adminName))
+        .containsExactly("foo");
+  }
+
+  /**
+   * When a program has both an active and a draft version, only the draft's question references
+   * appear. The active version's references are excluded because the active program is not copied
+   * (a draft already exists for that name). A question that was dropped in the draft no longer
+   * appears; the new question added in the draft does.
+   */
+  @Test
+  public void previewPublishNewSynchronizedVersion_activeProgramWithDraftUsesOnlyDraftVersion() {
+    QuestionModel q1 = resourceCreator.insertQuestion("q1");
+    q1.addVersion(versionRepository.getActiveVersion()).save();
+    QuestionModel q2 = resourceCreator.insertQuestion("q2");
+    q2.addVersion(versionRepository.getActiveVersion()).save();
+    ProgramBuilder.newActiveProgram("foo").withBlock("Screen 1").withRequiredQuestion(q1).build();
+    ProgramBuilder.newDraftProgram("foo").withBlock("Screen 1").withRequiredQuestion(q2).build();
+
+    ImmutableMap<String, ImmutableSet<DraftProgramReference>> result =
+        versionRepository.previewPublishNewSynchronizedVersion();
+
+    assertThat(result).doesNotContainKey("q1");
+    assertThat(result.keySet()).containsExactly("q2");
+    assertThat(result.get("q2").stream().map(DraftProgramReference::adminName))
+        .containsExactly("foo");
+  }
+
+  /**
+   * A draft that removes all questions from a program (compared to its active version) causes those
+   * question references to disappear from the result.
+   */
+  @Test
+  public void previewPublishNewSynchronizedVersion_draftProgramWithNoQuestionsRemovesReferences() {
+    QuestionModel q1 = resourceCreator.insertQuestion("q1");
+    q1.addVersion(versionRepository.getActiveVersion()).save();
+    ProgramBuilder.newActiveProgram("foo").withBlock("Screen 1").withRequiredQuestion(q1).build();
+    ProgramBuilder.newDraftProgram("foo").withBlock("Screen 1").build();
+
+    ImmutableMap<String, ImmutableSet<DraftProgramReference>> result =
+        versionRepository.previewPublishNewSynchronizedVersion();
+
+    assertThat(result).doesNotContainKey("q1");
+  }
+
+  /**
+   * Active programs with no draft counterpart are copied into the (temporary) combined draft and
+   * appear in the result. Their question references resolve because active-only questions are also
+   * temporarily copied.
+   */
+  @Test
+  public void previewPublishNewSynchronizedVersion_activeProgramWithoutDraftIncluded() {
+    QuestionModel question = resourceCreator.insertQuestion("q1");
+    question.addVersion(versionRepository.getActiveVersion()).save();
+    ProgramBuilder.newActiveProgram("foo")
+        .withBlock("Screen 1")
+        .withRequiredQuestion(question)
+        .build();
+    versionRepository.getDraftVersionOrCreate();
+
+    ImmutableMap<String, ImmutableSet<DraftProgramReference>> result =
+        versionRepository.previewPublishNewSynchronizedVersion();
+
+    assertThat(result.keySet()).containsExactly("q1");
+    assertThat(result.get("q1").stream().map(DraftProgramReference::adminName))
+        .containsExactly("foo");
+  }
+
+  /**
+   * A draft program that is tombstoned is removed from the draft before building the map, so it
+   * does not appear in the result even if it references questions.
+   */
+  @Test
+  public void previewPublishNewSynchronizedVersion_tombstonedDraftProgramExcluded() {
+    QuestionModel question = resourceCreator.insertQuestion("q1");
+    question.addVersion(versionRepository.getActiveVersion()).save();
+    ProgramModel draftProgram =
+        ProgramBuilder.newDraftProgram("foo")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(question)
+            .build();
+    VersionModel draft = versionRepository.getDraftVersionOrCreate();
+    draft.addTombstoneForProgramForTest(draftProgram);
+    draft.save();
+
+    ImmutableMap<String, ImmutableSet<DraftProgramReference>> result =
+        versionRepository.previewPublishNewSynchronizedVersion();
+
+    assertThat(result).doesNotContainKey("q1");
+  }
+
+  /**
+   * An active program tombstoned in the draft (scheduled for deletion) is not copied into the
+   * temporary combined draft and does not appear in the result.
+   */
+  @Test
+  public void previewPublishNewSynchronizedVersion_tombstonedActiveProgramExcluded() {
+    QuestionModel question = resourceCreator.insertQuestion("q1");
+    question.addVersion(versionRepository.getActiveVersion()).save();
+    ProgramModel activeProgram =
+        ProgramBuilder.newActiveProgram("foo")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(question)
+            .build();
+    VersionModel draft = versionRepository.getDraftVersionOrCreate();
+    draft.addTombstoneForProgramForTest(activeProgram);
+    draft.save();
+
+    ImmutableMap<String, ImmutableSet<DraftProgramReference>> result =
+        versionRepository.previewPublishNewSynchronizedVersion();
+
+    assertThat(result).doesNotContainKey("q1");
+  }
+
+  /**
+   * A program (draft or active-only) that has no questions in its blocks contributes no entries to
+   * the question-to-programs map.
+   */
+  @Test
+  public void previewPublishNewSynchronizedVersion_programWithNoQuestionsAddsNoEntries() {
+    ProgramBuilder.newDraftProgram("empty-program").withBlock("Screen 1").build();
+
+    ImmutableMap<String, ImmutableSet<DraftProgramReference>> result =
+        versionRepository.previewPublishNewSynchronizedVersion();
+
+    assertThat(result).isEmpty();
+  }
+
+  /**
+   * Questions that exist in the active or draft version but are not referenced by any program do
+   * not appear as keys in the result map.
+   */
+  @Test
+  public void previewPublishNewSynchronizedVersion_unreferencedQuestionsNotInResult() {
+    QuestionModel activeQuestion = resourceCreator.insertQuestion("active-unreferenced");
+    activeQuestion.addVersion(versionRepository.getActiveVersion()).save();
+    QuestionModel draftQuestion = resourceCreator.insertQuestion("draft-unreferenced");
+    draftQuestion.addVersion(versionRepository.getDraftVersionOrCreate()).save();
+    ProgramBuilder.newDraftProgram("empty-program").withBlock("Screen 1").build();
+
+    ImmutableMap<String, ImmutableSet<DraftProgramReference>> result =
+        versionRepository.previewPublishNewSynchronizedVersion();
+
+    assertThat(result).doesNotContainKey("active-unreferenced");
+    assertThat(result).doesNotContainKey("draft-unreferenced");
+  }
+
+  /**
+   * A program referencing multiple questions contributes all of them as separate keys in the result
+   * map.
+   */
+  @Test
+  public void previewPublishNewSynchronizedVersion_programWithMultipleQuestionsAllMapped() {
+    QuestionModel q1 = resourceCreator.insertQuestion("q1");
+    q1.addVersion(versionRepository.getActiveVersion()).save();
+    QuestionModel q2 = resourceCreator.insertQuestion("q2");
+    q2.addVersion(versionRepository.getActiveVersion()).save();
+    QuestionModel q3 = resourceCreator.insertQuestion("q3");
+    q3.addVersion(versionRepository.getActiveVersion()).save();
+    ProgramBuilder.newDraftProgram("foo")
+        .withBlock("Screen 1")
+        .withRequiredQuestion(q1)
+        .withRequiredQuestion(q2)
+        .withBlock("Screen 2")
+        .withRequiredQuestion(q3)
+        .build();
+
+    ImmutableMap<String, ImmutableSet<DraftProgramReference>> result =
+        versionRepository.previewPublishNewSynchronizedVersion();
+
+    assertThat(result.keySet()).containsExactlyInAnyOrder("q1", "q2", "q3");
+    assertThat(result.get("q1").stream().map(DraftProgramReference::adminName))
+        .containsExactly("foo");
+    assertThat(result.get("q2").stream().map(DraftProgramReference::adminName))
+        .containsExactly("foo");
+    assertThat(result.get("q3").stream().map(DraftProgramReference::adminName))
+        .containsExactly("foo");
+  }
+
+  /**
+   * Multiple programs referencing the same question all appear under that question's key.
+   *
+   * <p>The question exists only in the active version. During DRY_RUN it is temporarily copied to
+   * the combined draft, so both the draft program and the copied active-only program can resolve
+   * their references to it.
+   */
+  @Test
+  public void previewPublishNewSynchronizedVersion_multipleProgramsReferencingSameQuestion() {
+    // Question is in the active version only (no draft version with the same name).
+    QuestionModel question = resourceCreator.insertQuestion("shared-q");
+    question.addVersion(versionRepository.getActiveVersion()).save();
+
+    // "active-only" has no draft — it will be copied into the temporary combined draft.
+    ProgramBuilder.newActiveProgram("active-only")
+        .withBlock("Screen 1")
+        .withRequiredQuestion(question)
+        .build();
+    // "draft-program" is already in the draft and references the same question.
+    ProgramBuilder.newDraftProgram("draft-program")
+        .withBlock("Screen 1")
+        .withRequiredQuestion(question)
+        .build();
+
+    ImmutableMap<String, ImmutableSet<DraftProgramReference>> result =
+        versionRepository.previewPublishNewSynchronizedVersion();
+
+    assertThat(result.keySet()).containsExactly("shared-q");
+    assertThat(result.get("shared-q").stream().map(DraftProgramReference::adminName))
+        .containsExactlyInAnyOrder("active-only", "draft-program");
+  }
+
+  /**
+   * Verifies all three fields of {@link DraftProgramReference} are populated correctly from the
+   * program definition.
+   */
+  @Test
+  public void previewPublishNewSynchronizedVersion_draftProgramReferenceFieldsPopulated() {
+    QuestionModel question = resourceCreator.insertQuestion("q1");
+    question.addVersion(versionRepository.getActiveVersion()).save();
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("foo")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(question)
+            .build();
+
+    ImmutableMap<String, ImmutableSet<DraftProgramReference>> result =
+        versionRepository.previewPublishNewSynchronizedVersion();
+
+    assertThat(result.keySet()).containsExactly("q1");
+    DraftProgramReference ref = result.get("q1").iterator().next();
+    assertThat(ref.adminName()).isEqualTo("foo");
+    assertThat(ref.displayMode()).isEqualTo(program.getProgramDefinition().displayMode());
+    assertThat(ref.localizedName()).isEqualTo(program.getProgramDefinition().localizedName());
+  }
+
+  /**
+   * When all draft programs are tombstoned and there are no active programs without a draft, the
+   * result map is empty.
+   */
+  @Test
+  public void previewPublishNewSynchronizedVersion_allProgramsTombstonedReturnsEmpty() {
+    QuestionModel question = resourceCreator.insertQuestion("q1");
+    question.addVersion(versionRepository.getActiveVersion()).save();
+    ProgramModel draftProgram =
+        ProgramBuilder.newDraftProgram("foo")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(question)
+            .build();
+    VersionModel draft = versionRepository.getDraftVersionOrCreate();
+    draft.addTombstoneForProgramForTest(draftProgram);
+    draft.save();
+
+    ImmutableMap<String, ImmutableSet<DraftProgramReference>> result =
+        versionRepository.previewPublishNewSynchronizedVersion();
+
+    assertThat(result).isEmpty();
   }
 
   @Test
