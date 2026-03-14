@@ -69,7 +69,7 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
     context.setVariable("programTitle", params.programTitle());
     context.setVariable("programShortDescription", params.programShortDescription());
     context.setVariable("blocks", params.blocks());
-    context.setVariable("continueUrl", getContinueUrl(params));
+    context.setVariable("continueUrl", getContinueUrl(params, request));
     context.setVariable(
         "hasCompletedAllBlocks", params.completedBlockCount() == params.totalBlockCount());
     context.setVariable("submitUrl", getSubmitUrl(params));
@@ -165,7 +165,12 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
     }
   }
 
-  private String getContinueUrl(Params params) {
+  private String getContinueUrl(Params params, Request request) {
+    if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+      return applicantRoutes
+          .edit(params.profile(), params.applicantId(), params.programSlug())
+          .url();
+    }
     return applicantRoutes.edit(params.profile(), params.applicantId(), params.programId()).url();
   }
 
@@ -199,6 +204,8 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
     abstract CiviFormProfile profile();
 
     abstract long programId();
+
+    abstract String programSlug();
 
     abstract int totalBlockCount();
 
@@ -236,6 +243,8 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
       public abstract Builder setProfile(CiviFormProfile profile);
 
       public abstract Builder setProgramId(long programId);
+
+      public abstract Builder setProgramSlug(String programSlug);
 
       public abstract Builder setTotalBlockCount(int totalBlockCount);
 

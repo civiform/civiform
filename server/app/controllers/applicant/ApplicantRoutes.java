@@ -38,17 +38,6 @@ public final class ApplicantRoutes {
   }
 
   /**
-   * Returns the route corresponding to the applicant show action. Used when there is no
-   * account/applicant created yet when browsing the home page.
-   *
-   * @param programId - ID of the program to view
-   * @return Route for the program view action
-   */
-  public Call show(long programId) {
-    return controllers.applicant.routes.ApplicantProgramsController.show(String.valueOf(programId));
-  }
-
-  /**
    * Returns the program overview page
    *
    * @param programSlug - slug of the program to view
@@ -75,10 +64,16 @@ public final class ApplicantRoutes {
     }
   }
 
+  // TODO:#11090 Remove method when routes are no longer hit
   public Call edit(long programId) {
     return routes.ApplicantProgramsController.edit(Long.toString(programId));
   }
 
+  public Call edit(String programSlug) {
+    return routes.ApplicantProgramsController.edit(programSlug);
+  }
+
+  // TODO:#11090 Remove method when routes are no longer hit
   /**
    * Returns the route corresponding to the applicant edit action.
    *
@@ -93,6 +88,23 @@ public final class ApplicantRoutes {
           applicantId, Long.toString(programId));
     } else {
       return edit(programId);
+    }
+  }
+
+  /**
+   * Returns the route corresponding to the applicant edit action.
+   *
+   * @param profile - Profile corresponding to the logged-in user (applicant or TI).
+   * @param applicantId - ID of applicant for whom the action should be performed.
+   * @param programSlug - slug of program to edit
+   * @return Route for the applicant edit action
+   */
+  public Call edit(CiviFormProfile profile, long applicantId, String programSlug) {
+    if (includeApplicantIdInRoute(profile)) {
+      return controllers.applicant.routes.ApplicantProgramsController.editWithApplicantId(
+          applicantId, programSlug);
+    } else {
+      return edit(programSlug);
     }
   }
 
@@ -114,6 +126,22 @@ public final class ApplicantRoutes {
   }
 
   /**
+   * Returns the route corresponding to the applicant review action.
+   *
+   * @param profile - Profile corresponding to the logged-in user (applicant or TI).
+   * @param applicantId - ID of applicant for whom the action should be performed.
+   * @param programSlug - slug of program to review
+   * @return Route for the applicant review action
+   */
+  public Call review(CiviFormProfile profile, long applicantId, String programSlug) {
+    if (includeApplicantIdInRoute(profile)) {
+      return routes.ApplicantProgramReviewController.reviewWithApplicantId(
+          applicantId, programSlug);
+    }
+    return routes.ApplicantProgramReviewController.review(programSlug);
+  }
+
+  /**
    * Returns the route corresponding to the applicant review action. Used when there is no
    * account/applicant created yet when browsing the home page.
    *
@@ -122,6 +150,17 @@ public final class ApplicantRoutes {
    */
   public Call review(long programId) {
     return routes.ApplicantProgramReviewController.review(Long.toString(programId));
+  }
+
+  /**
+   * Returns the route corresponding to the applicant review action. Used when there is no
+   * account/applicant created yet when browsing the home page.
+   *
+   * @param programSlug - slug of the program to review
+   * @return Route for the applicant review action
+   */
+  public Call review(String programSlug) {
+    return routes.ApplicantProgramReviewController.review(programSlug);
   }
 
   /**
@@ -140,12 +179,29 @@ public final class ApplicantRoutes {
     }
   }
 
+  //   /**
+  //  * Returns the route corresponding to the applicant submit action.
+  //  *
+  //  * @param profile - Profile corresponding to the logged-in user (applicant or TI).
+  //  * @param applicantId - ID of applicant for whom the action should be performed.
+  //  * @param programId - ID of program to review
+  //  * @return Route for the applicant submit action
+  //  */
+  //   public Call submit(CiviFormProfile profile, long applicantId, String programSlug) {
+  //     if (includeApplicantIdInRoute(profile)) {
+  //       return routes.ApplicantProgramReviewController.submitWithApplicantId(applicantId,
+  // programSlug);
+  //     } else {
+  //       return routes.ApplicantProgramReviewController.submit(programSlug);
+  //     }
+  //   }
+
   /**
    * Returns the route corresponding to the applicant block edit action.
    *
    * @param profile - Profile corresponding to the logged-in user (applicant or TI).
    * @param applicantId - ID of applicant for whom the action should be performed.
-   * @param programId - ID of program to review
+   * @param programId - ID of program to edit
    * @param blockId - ID of the block to edit
    * @param questionName - Name of question being edited, if applicable
    * @return Route for the applicant block edit action
@@ -165,6 +221,29 @@ public final class ApplicantRoutes {
   }
 
   /**
+   * Returns the route corresponding to the applicant block edit action.
+   *
+   * @param profile - Profile corresponding to the logged-in user (applicant or TI).
+   * @param applicantId - ID of applicant for whom the action should be performed.
+   * @param programSlug - slug of program to edit
+   * @param blockId - ID of the block to edit
+   * @param questionName - Name of question being edited, if applicable
+   * @return Route for the applicant block edit action
+   */
+  public Call blockEdit(
+      CiviFormProfile profile,
+      long applicantId,
+      String programSlug,
+      String blockId,
+      Optional<String> questionName) {
+    if (includeApplicantIdInRoute(profile)) {
+      return routes.ApplicantProgramBlocksController.editWithApplicantId(
+          applicantId, programSlug, blockId, questionName);
+    }
+    return routes.ApplicantProgramBlocksController.edit(programSlug, blockId, questionName);
+  }
+
+  /**
    * Returns the route corresponding to the applicant block edit action without an applicant ID.
    *
    * @param programId - ID of program to edit
@@ -173,6 +252,17 @@ public final class ApplicantRoutes {
   public Call blockEdit(long programId) {
     return routes.ApplicantProgramBlocksController.edit(
         Long.toString(programId), /* blockId= */ "1", /* questionName= */ Optional.empty());
+  }
+
+  /**
+   * Returns the route corresponding to the applicant block edit action without an applicant ID.
+   *
+   * @param programSlug - slug of program to edit
+   * @return Route for the applicant block edit action
+   */
+  public Call blockEdit(String programSlug) {
+    return routes.ApplicantProgramBlocksController.edit(
+        programSlug, /* blockId= */ "1", /* questionName= */ Optional.empty());
   }
 
   /**
@@ -200,6 +290,29 @@ public final class ApplicantRoutes {
   }
 
   /**
+   * Returns the route corresponding to the applicant block review action.
+   *
+   * @param profile - Profile corresponding to the logged-in user (applicant or TI).
+   * @param applicantId - ID of applicant for whom the action should be performed.
+   * @param programSlug - slug of program to review
+   * @param blockId - ID of block to review
+   * @param questionName - Name of the question being reviewed, if applicable.
+   * @return Route for the applicant block review action
+   */
+  public Call blockReview(
+      CiviFormProfile profile,
+      long applicantId,
+      String programSlug,
+      String blockId,
+      Optional<String> questionName) {
+    if (includeApplicantIdInRoute(profile)) {
+      return routes.ApplicantProgramBlocksController.reviewWithApplicantId(
+          applicantId, programSlug, blockId, questionName);
+    }
+    return routes.ApplicantProgramBlocksController.review(programSlug, blockId, questionName);
+  }
+
+  /**
    * Returns the route to the block specified by {@code blockId}.
    *
    * @param inReview true if the applicant is reviewing their application answers and false if
@@ -214,6 +327,28 @@ public final class ApplicantRoutes {
     } else {
       return blockEdit(
           profile, applicantId, programId, blockId, /* questionName= */ Optional.empty());
+    }
+  }
+
+  /**
+   * Returns the route to the block specified by {@code blockId}.
+   *
+   * @param inReview true if the applicant is reviewing their application answers and false if
+   *     they're filling out the application step-by-step. See {@link #edit} and {@link #review} for
+   *     more details.
+   */
+  public Call blockEditOrBlockReview(
+      CiviFormProfile profile,
+      long applicantId,
+      String programSlug,
+      String blockId,
+      boolean inReview) {
+    if (inReview) {
+      return blockReview(
+          profile, applicantId, programSlug, blockId, /* questionName= */ Optional.empty());
+    } else {
+      return blockEdit(
+          profile, applicantId, programSlug, blockId, /* questionName= */ Optional.empty());
     }
   }
 
@@ -277,6 +412,31 @@ public final class ApplicantRoutes {
     }
   }
 
+  /**
+   * Returns the route corresponding to the applicant previous block action, or the route
+   * corresponding to the review page if there's no valid previous block.
+   *
+   * @param profile - Profile corresponding to the logged-in user (applicant or TI).
+   * @param applicantId - ID of applicant for whom the action should be performed.
+   * @param programSlug - slug of program to review
+   * @param currentBlockIndex - index of the current block
+   * @param inReview - true if executing the review action (as opposed to edit)
+   * @return Route for the applicant previous block action
+   */
+  public Call blockPreviousOrReview(
+      CiviFormProfile profile,
+      long applicantId,
+      String programSlug,
+      int currentBlockIndex,
+      boolean inReview) {
+    int previousBlockIndex = currentBlockIndex - 1;
+    if (previousBlockIndex >= 0) {
+      return blockPrevious(profile, applicantId, programSlug, previousBlockIndex, inReview);
+    } else {
+      return review(profile, applicantId, programSlug);
+    }
+  }
+
   private Call blockPrevious(
       CiviFormProfile profile,
       long applicantId,
@@ -290,6 +450,20 @@ public final class ApplicantRoutes {
     }
     return routes.ApplicantProgramBlocksController.previous(
         programIdStr, previousBlockIndex, inReview);
+  }
+
+  private Call blockPrevious(
+      CiviFormProfile profile,
+      long applicantId,
+      String programSlug,
+      int previousBlockIndex,
+      boolean inReview) {
+    if (includeApplicantIdInRoute(profile)) {
+      return routes.ApplicantProgramBlocksController.previousWithApplicantId(
+          applicantId, programSlug, previousBlockIndex, inReview);
+    }
+    return routes.ApplicantProgramBlocksController.previous(
+        programSlug, previousBlockIndex, inReview);
   }
 
   /**
@@ -343,7 +517,7 @@ public final class ApplicantRoutes {
    *
    * @param profile - Profile corresponding to the logged-in user (applicant or TI).
    * @param applicantId - ID of applicant for whom the action should be performed.
-   * @param programId - ID of program to review
+   * @param programId - ID of program to update
    * @param blockId - ID of the block to be updated
    * @param inReview - true if executing the review action (as opposed to edit)
    * @param applicantRequestedAction - the page the applicant would like to see after the updates
