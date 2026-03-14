@@ -657,11 +657,28 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   settingsManifest.getExpandedFormLogicEnabled(request)));
     }
 
+    boolean isRepeatedScreen =
+        blockDefinition.isRepeated() || blockDefinition.enumeratorId().isPresent();
+    boolean showRepeatedQuestionsContent = enumeratorImprovementsEnabled && isRepeatedScreen;
+
+    String questionsSectionHeading =
+        showRepeatedQuestionsContent
+            ? messages.at(MessageKey.HEADING_REPEATED_QUESTIONS.getKeyName())
+            : "Questions";
+
     DivTag programQuestions =
         div()
             .withId(QUESTIONS_SECTION_ID)
             .withClasses("my-4")
-            .with(div("Questions").withClasses("text-lg", "font-bold", "py-2"));
+            .with(div(questionsSectionHeading).withClasses("text-lg", "font-bold", "py-2"));
+
+    if (showRepeatedQuestionsContent) {
+      programQuestions
+          .withClass("maxw-mobile-lg")
+          .with(
+              p(messages.at(MessageKey.TEXT_REPEATED_QUESTIONS_DESCRIPTION.getKeyName()))
+                  .withClasses("text-base", "margin-bottom-2"));
+    }
 
     ImmutableList.Builder<DivTag> questionCardsBuilder = ImmutableList.builder();
 
@@ -700,12 +717,24 @@ public final class ProgramBlocksView extends ProgramBaseView {
               canDeleteBlock(program, blockDefinition),
               enumeratorImprovementsEnabled);
       ButtonTag addQuestion =
-          makeSvgTextButton("Add a question", Icons.ADD)
-              .withCondDisabled(!isEnumeratorBlockComplete)
-              .withClasses(
-                  ButtonStyles.SOLID_BLUE_WITH_ICON,
-                  ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
-                  "my-4");
+          showRepeatedQuestionsContent
+              ? button("")
+                  .withType("button")
+                  .withCondDisabled(!isEnumeratorBlockComplete)
+                  .withClasses(
+                      "usa-button",
+                      "usa-button--outline",
+                      "usa-button-group__item",
+                      ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
+                      "my-4")
+                  .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
+                  .withText(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName()))
+              : makeSvgTextButton("Add a question", Icons.ADD)
+                  .withCondDisabled(!isEnumeratorBlockComplete)
+                  .withClasses(
+                      ButtonStyles.SOLID_BLUE_WITH_ICON,
+                      ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
+                      "my-4");
 
       div.with(blockInfoDisplay, buttons, visibilityPredicateDisplay);
       maybeEligibilityPredicateDisplay.ifPresent(div::with);
@@ -727,13 +756,20 @@ public final class ProgramBlocksView extends ProgramBaseView {
               .map(parent -> parent.enumeratorId().isEmpty())
               .orElse(false);
 
+      DivTag questionsSection =
+          div()
+              .withCondClass(showRepeatedQuestionsContent, "maxw-mobile-lg")
+              .with(
+                  programQuestions,
+                  addQuestion,
+                  iff(
+                      enumeratorImprovementsEnabled && !isEnumeratorBlockComplete,
+                      AlertComponent.renderSlimInfoAlert(
+                          messages.at(
+                              MessageKey.ALERT_REPEATED_SET_ADD_QUESTION_DISABLED.getKeyName()))));
+
       return div.with(
-          programQuestions,
-          addQuestion,
-          iff(
-              enumeratorImprovementsEnabled && !isEnumeratorBlockComplete,
-              AlertComponent.renderSlimInfoAlert(
-                  messages.at(MessageKey.ALERT_REPEATED_SET_ADD_QUESTION_DISABLED.getKeyName()))),
+          questionsSection,
           iff(
               enumeratorImprovementsEnabled,
               renderAddRepeatedScreenButtons(
