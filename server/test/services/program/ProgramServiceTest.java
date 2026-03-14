@@ -49,7 +49,9 @@ import play.inject.BindingKey;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http.Request;
 import repository.CategoryRepository;
+import repository.ProgramRepository;
 import repository.ResetPostgres;
+import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
@@ -4153,5 +4155,105 @@ public class ProgramServiceTest extends ResetPostgres {
 
     assertThat(nestedBlock.getResult().namePrefix().get())
         .isEqualTo("[parent label] - [child label] - ");
+  }
+
+  @Test
+  public void syncQuestionsToProgramDefinitions_selectsActiveVersionAmongMultiple() {
+    VersionRepository versionRepository = instanceOf(VersionRepository.class);
+    ProgramRepository programRepository = instanceOf(ProgramRepository.class);
+
+    // Create a program with eligibility (which triggers the version lookup in sync),
+    // using the name question from the test question bank (already in the draft).
+    QuestionDefinition question = nameQuestion;
+    EligibilityDefinition eligibility =
+        EligibilityDefinition.builder()
+            .setPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafOperationExpressionNode.create(
+                            question.getId(),
+                            Scalar.FIRST_NAME,
+                            Operator.EQUAL_TO,
+                            PredicateValue.of("test"))),
+                    PredicateAction.HIDE_BLOCK))
+            .build();
+    ProgramBuilder.newDraftProgram("eligibility-program")
+        .withBlock()
+        .withRequiredQuestionDefinition(question)
+        .withEligibilityDefinition(eligibility)
+        .buildDefinition();
+
+    // Publish V1: the eligibility program and its question are now in V1 (active).
+    versionRepository.publishNewSynchronizedVersion();
+    long v1Id = versionRepository.getActiveVersion().id;
+
+    // Publish V2: create a draft with an unrelated change, then publish. During publish,
+    // the eligibility program (which wasn't edited) is copied from V1 to V2. After publish,
+    // the same ProgramModel row is associated with both V1 (obsolete) and V2 (active).
+    ProgramBuilder.newDraftProgram("unrelated-program").build();
+    versionRepository.publishNewSynchronizedVersion();
+    long v2Id = versionRepository.getActiveVersion().id;
+    assertThat(v2Id).isGreaterThan(v1Id);
+
+    // Re-fetch the program. It should be in both V1 (obsolete) and V2 (active).
+    ProgramModel programModel =
+        versionRepository.getProgramsForVersion(versionRepository.getActiveVersion()).stream()
+            .filter(
+                p ->
+                    programRepository
+                        .getShallowProgramDefinition(p)
+                        .adminName()
+                        .equals("eligibility-program"))
+            .findFirst()
+            .orElseThrow();
+    ImmutableList<Long> versionIds =
+        programRepository.getVersionsForProgram(programModel).stream()
+            .map(v -> v.id)
+            .collect(ImmutableList.toImmutableList());
+    assertThat(versionIds).contains(v1Id, v2Id);
+
+    ProgramDefinition programDef = programRepository.getShallowProgramDefinition(programModel);
+
+    // syncQuestionsToProgramDefinitions should succeed. The version selection logic must
+    // pick the active version (V2), not the obsolete one (V1). Both versions have
+    // identical questions here, so this validates the selection logic, not the data.
+    ImmutableList<ProgramDefinition> result =
+        ps.syncQuestionsToProgramDefinitions(ImmutableList.of(programDef))
+            .toCompletableFuture()
+            .join();
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).hasEligibilityEnabled()).isTrue();
+  }
+
+  @Test
+  public void syncQuestionsToProgramDefinitions_throwsWhenNoActiveOrObsoleteVersion() {
+    // Create a program with eligibility in the draft (but don't publish).
+    QuestionDefinition question = nameQuestion;
+    EligibilityDefinition eligibility =
+        EligibilityDefinition.builder()
+            .setPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafOperationExpressionNode.create(
+                            question.getId(),
+                            Scalar.FIRST_NAME,
+                            Operator.EQUAL_TO,
+                            PredicateValue.of("test"))),
+                    PredicateAction.HIDE_BLOCK))
+            .build();
+    ProgramDefinition programDef =
+        ProgramBuilder.newDraftProgram("draft-only-program")
+            .withBlock()
+            .withRequiredQuestionDefinition(question)
+            .withEligibilityDefinition(eligibility)
+            .buildDefinition();
+
+    // The program exists only in the draft. The active version (from ResetPostgres) has
+    // a lower ID than the draft, so the filter (ver.id <= activeVersionId) excludes it,
+    // leaving no candidates. The RuntimeException is thrown synchronously before any
+    // CompletionStage is created.
+    assertThatThrownBy(() -> ps.syncQuestionsToProgramDefinitions(ImmutableList.of(programDef)))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessageContaining("has no active or obsolete version");
   }
 }

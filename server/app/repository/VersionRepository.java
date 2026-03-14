@@ -13,6 +13,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import io.ebean.DB;
 import io.ebean.Database;
+import io.ebean.PersistenceContextScope;
 import io.ebean.SerializableConflictException;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
@@ -21,12 +22,14 @@ import jakarta.persistence.NonUniqueResultException;
 import jakarta.persistence.RollbackException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import javax.inject.Inject;
 import models.DisplayMode;
@@ -54,7 +57,21 @@ import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 
-/** A repository object for dealing with versioning of questions and programs. */
+/**
+ * A repository object for dealing with versioning of questions and programs.
+ *
+ * <p><b>Caching and BeanCollection Freshness</b>
+ *
+ * <p>When fetching questions or programs for a version, always use {@link #getQuestionsForVersion}
+ * and {@link #getProgramsForVersion} rather than calling {@code VersionModel.getQuestions()} or
+ * {@code VersionModel.getPrograms()} directly. Ebean's BeanCollection can become stale if the
+ * version was modified since the VersionModel object was created, leading to missing or duplicate
+ * entries. These get methods always fetch fresh data from the database by ID.
+ *
+ * <p>Caching is determined by the version's lifecycle stage in the database (not the in-memory
+ * model). ACTIVE and OBSOLETE version results are cached since their associations are immutable.
+ * DRAFT versions always bypass the cache and hit the database directly.
+ */
 public final class VersionRepository {
 
   private static final Logger logger = LoggerFactory.getLogger(VersionRepository.class);
@@ -68,6 +85,21 @@ public final class VersionRepository {
   private final SettingsManifest settingsManifest;
   private final SyncCacheApi questionsByVersionCache;
   private final SyncCacheApi programsByVersionCache;
+
+  /**
+   * When set to true, the ({@link #getProgramsForVersion}, {@link #getQuestionsForVersion}) methods
+   * bypass the cache entirely. Used during DRY_RUN publish to prevent transient data (which will be
+   * rolled back) from polluting the cache. This method is used rather than overloading the get
+   * methods with a "bypassCache" parameter since we intend to later refactor the dry run publish
+   * flow to which this mechanism will not be necessary, meaning less code change at that time.
+   *
+   * <p>This relies on the DRY_RUN path being fully synchronous on a single thread. ThreadLocal
+   * state does not propagate across threads, so if this code is ever refactored to use async
+   * execution (CompletableFuture, Play's async actions, etc.), this mechanism will silently break.
+   * In that case, replace this with an explicit method parameter or similar approach that doesn't
+   * rely on thread-local state.
+   */
+  private static final ThreadLocal<Boolean> skipCache = ThreadLocal.withInitial(() -> false);
 
   /**
    * Container class to represent what would happen in previewPublishNewSynchronizedVersion() if it
@@ -182,7 +214,7 @@ public final class VersionRepository {
                   questionRepository.getQuestionDefinition(question).getName());
 
       // Associate any active programs that aren't present in the draft with the draft.
-      getProgramsForVersionWithoutCache(active).stream()
+      getProgramsForVersion(active).stream()
           // Exclude programs deleted in the draft.
           .filter(not(programIsDeletedInDraft))
           // Exclude programs that are in the draft already.
@@ -199,7 +231,7 @@ public final class VersionRepository {
           .forEach(draft::addProgram);
 
       // Associate any active questions that aren't present in the draft with the draft.
-      getQuestionsForVersionWithoutCache(active).stream()
+      getQuestionsForVersion(active).stream()
           // Exclude questions deleted in the draft.
           .filter(not(questionIsDeletedInDraft))
           // Exclude questions that are in the draft already.
@@ -217,14 +249,16 @@ public final class VersionRepository {
           .forEach(draft::addQuestion);
 
       // Remove any questions / programs both added and archived in the current version.
-      getQuestionsForVersion(draft).stream()
+      ImmutableList<QuestionModel> draftQuestions = getQuestionsForVersion(draft);
+      draftQuestions.stream()
           .filter(questionIsDeletedInDraft)
           .forEach(
               questionToDelete -> {
                 draft.removeTombstoneForQuestion(questionToDelete);
                 draft.removeQuestion(questionToDelete);
               });
-      getProgramsForVersion(draft).stream()
+      ImmutableList<ProgramModel> draftPrograms = getProgramsForVersion(draft);
+      draftPrograms.stream()
           .filter(programIsDeletedInDraft)
           .forEach(
               programToDelete -> {
@@ -239,7 +273,7 @@ public final class VersionRepository {
       return switch (publishMode) {
         case PUBLISH_CHANGES -> {
           Preconditions.checkState(
-              !getProgramsForVersion(draft).isEmpty() || !getQuestionsForVersion(draft).isEmpty(),
+              !draftPrograms.isEmpty() || !draftQuestions.isEmpty(),
               "Must have at least 1 program or question in the draft version.");
           draft.save();
           active.save();
@@ -250,18 +284,33 @@ public final class VersionRepository {
           yield Optional.empty();
         }
         case DRY_RUN -> {
-          // Capture the dry run data to return before resetting everything done above.
-          // See the comment at the top of the method for more info.
-          var dryRunNewActive = buildDryRunPublishedVersion(draft);
-          transaction.rollback();
-          draft.refresh();
-          active.refresh();
-          yield Optional.of(dryRunNewActive);
+          // Save changes within the transaction so that buildDryRunPublishedVersion's
+          // fresh DB fetches (via getModelsForVersion) see the in-memory modifications.
+          draft.save();
+          active.save();
+
+          try {
+            // Skip cache reads and writes during dry run to prevent transient data
+            // (which will be rolled back) from polluting the cache.
+            skipCache.set(true);
+            var dryRunNewActive = buildDryRunPublishedVersion(draft);
+            transaction.rollback();
+            draft.refresh();
+            active.refresh();
+            yield Optional.of(dryRunNewActive);
+          } finally {
+            skipCache.set(false);
+          }
         }
       };
     }
   }
 
+  // This is the one and only place that version.getPrograms() and version.getQuestions() is
+  // okay. This is only called inside the DRY_RUN publish transaction above, and the VersionModel
+  // passed in is consistent with the database state within the transaction, and this version
+  // cannot be read or modified by other CiviForm servers. Eventually, we will refactor the whole
+  // DRY_RUN publish flow to remove these points of confusion.
   private PreviewPublishedVersion buildDryRunPublishedVersion(VersionModel version) {
     return new PreviewPublishedVersion(
         /* id= */ version.id,
@@ -315,7 +364,7 @@ public final class VersionRepository {
       }
 
       // Move everything we're not publishing right now to the new draft.
-      getProgramsForVersionWithoutCache(existingDraft).stream()
+      getProgramsForVersion(existingDraft).stream()
           .filter(
               program ->
                   !programRepository
@@ -327,7 +376,7 @@ public final class VersionRepository {
                 newDraft.addProgram(program);
                 existingDraft.removeProgram(program);
               });
-      getQuestionsForVersionWithoutCache(existingDraft).stream()
+      getQuestionsForVersion(existingDraft).stream()
           .filter(
               question ->
                   !questionsToPublishNames.contains(
@@ -448,6 +497,46 @@ public final class VersionRepository {
     }
   }
 
+  /**
+   * Returns the active version ID if caching should be used, empty if caching should be bypassed.
+   *
+   * <p>Caching should be bypassed when a draft version exists because during publish, programs get
+   * new version associations that would make cached data stale.
+   *
+   * <p>This method performs a single DB query to check both conditions, avoiding the overhead of
+   * separate getDraftVersion() and getActiveVersion() calls.
+   */
+  public Optional<Long> getActiveVersionIdIfNoDraft() {
+    List<VersionModel> versions =
+        database
+            .find(VersionModel.class)
+            .where()
+            .in("lifecycle_stage", LifecycleStage.DRAFT, LifecycleStage.ACTIVE)
+            .setLabel("VersionModel.findDraftAndActive")
+            .setProfileLocation(profileLocationBuilder.create("getActiveVersionIdIfNoDraft"))
+            .findList();
+
+    if (versions.stream().anyMatch(v -> v.getLifecycleStage() == LifecycleStage.DRAFT)) {
+      return Optional.empty();
+    }
+
+    Optional<Long> activeId =
+        versions.stream()
+            .filter(v -> v.getLifecycleStage() == LifecycleStage.ACTIVE)
+            .map(v -> v.id)
+            .findFirst();
+
+    if (activeId.isEmpty()) {
+      logger.error(
+          "No ACTIVE version found and no DRAFT exists. Found {} version(s) with lifecycle"
+              + " stages: {}",
+          versions.size(),
+          versions.stream().map(v -> v.getLifecycleStage().toString()).collect(toImmutableList()));
+    }
+
+    return activeId;
+  }
+
   public VersionModel getActiveVersion() {
     return database
         .find(VersionModel.class)
@@ -566,18 +655,74 @@ public final class VersionRepository {
   }
 
   /**
+   * Shared implementation for fetching questions or programs for a version. Checks the cache first
+   * (if enabled and not skipped), fetches a fresh VersionModel from the DB by ID, and caches the
+   * result for ACTIVE/OBSOLETE versions based on actual DB lifecycle state.
+   *
+   * <p>Uses {@code PersistenceContextScope.QUERY} to bypass ebean's transaction-scoped persistence
+   * context (L1 cache). Without this, a {@code database.find} for a version that was already loaded
+   * in the current transaction would return the same cached instance with a potentially stale
+   * BeanCollection, defeating the purpose of the fresh fetch.
+   *
+   * @param version the version to fetch data for (may be stale)
+   * @param extractor function to get the desired list from a fresh VersionModel (e.g. {@code
+   *     VersionModel::getQuestions} or {@code VersionModel::getPrograms})
+   * @param cache the SyncCacheApi instance for this data type
+   * @param label a camelCase label for logging and profiling (e.g. "Questions" or "Programs")
+   */
+  private <T> ImmutableList<T> getModelsForVersion(
+      VersionModel version,
+      Function<VersionModel, ImmutableList<T>> extractor,
+      SyncCacheApi cache,
+      String label) {
+    boolean useCache = settingsManifest.getVersionCacheEnabled() && !skipCache.get();
+    String cacheKey = String.valueOf(version.id);
+
+    if (useCache) {
+      Optional<ImmutableList<T>> cached = cache.get(cacheKey);
+      if (cached.isPresent()) {
+        return cached.get();
+      }
+    }
+
+    VersionModel freshVersion =
+        database
+            .find(VersionModel.class)
+            .setPersistenceContextScope(PersistenceContextScope.QUERY)
+            .setId(version.id)
+            .setLabel("VersionModel.findByIdFor" + label)
+            .setProfileLocation(profileLocationBuilder.create("get" + label + "ForVersion"))
+            .findOne();
+    if (freshVersion == null) {
+      throw new RuntimeException(
+          String.format(
+              "Version %d not found when fetching %s. This may indicate data corruption"
+                  + " or a race condition during publish.",
+              version.id, label));
+    }
+
+    ImmutableList<T> results = extractor.apply(freshVersion);
+
+    if (useCache
+        && (freshVersion.getLifecycleStage() == LifecycleStage.ACTIVE
+            || freshVersion.getLifecycleStage() == LifecycleStage.OBSOLETE)) {
+      cache.set(cacheKey, results);
+    }
+
+    return results;
+  }
+
+  /**
    * Returns the questions for a version.
    *
-   * <p>If the cache is enabled, we will get the data from the cache and set it if it is not
-   * present.
+   * <p>Always returns correct data regardless of the lifecycle state of the passed-in VersionModel.
+   * Fetches a fresh version from the database by ID to avoid stale BeanCollection data. Caches
+   * results for ACTIVE and OBSOLETE versions (based on actual DB state, not the in-memory model).
+   * DRAFT versions always bypass the cache.
    */
   public ImmutableList<QuestionModel> getQuestionsForVersion(VersionModel version) {
-    // Only set the version cache for active and obsolete versions
-    if (settingsManifest.getVersionCacheEnabled() && version.id <= getActiveVersion().id) {
-      return questionsByVersionCache.getOrElseUpdate(
-          String.valueOf(version.id), version::getQuestions);
-    }
-    return getQuestionsForVersionWithoutCache(version);
+    return getModelsForVersion(
+        version, VersionModel::getQuestions, questionsByVersionCache, "Questions");
   }
 
   /** Returns the questions for a version if the version is present. */
@@ -585,11 +730,6 @@ public final class VersionRepository {
     return maybeVersion.isPresent()
         ? getQuestionsForVersion(maybeVersion.get())
         : ImmutableList.of();
-  }
-
-  /** Returns the questions for a version without using the cache. */
-  public ImmutableList<QuestionModel> getQuestionsForVersionWithoutCache(VersionModel version) {
-    return version.getQuestions();
   }
 
   /**
@@ -633,26 +773,19 @@ public final class VersionRepository {
   /**
    * Returns the programs for a version.
    *
-   * <p>If the cache is enabled, we will get the data from the cache and set it if it is not
-   * present.
+   * <p>Always returns correct data regardless of the lifecycle state of the passed-in VersionModel.
+   * Fetches a fresh version from the database by ID to avoid stale BeanCollection data. Caches
+   * results for ACTIVE and OBSOLETE versions (based on actual DB state, not the in-memory model).
+   * DRAFT versions always bypass the cache.
    */
   public ImmutableList<ProgramModel> getProgramsForVersion(VersionModel version) {
-    // Only set the version cache for active and obsolete versions
-    if (settingsManifest.getVersionCacheEnabled() && version.id <= getActiveVersion().id) {
-      return programsByVersionCache.getOrElseUpdate(
-          String.valueOf(version.id), version::getPrograms);
-    }
-    return getProgramsForVersionWithoutCache(version);
+    return getModelsForVersion(
+        version, VersionModel::getPrograms, programsByVersionCache, "Programs");
   }
 
   /** Returns the programs for a version if the version is present. */
   public ImmutableList<ProgramModel> getProgramsForVersion(Optional<VersionModel> version) {
     return version.isPresent() ? getProgramsForVersion(version.get()) : ImmutableList.of();
-  }
-
-  /** Returns the programs for a version without using the cache. */
-  public ImmutableList<ProgramModel> getProgramsForVersionWithoutCache(VersionModel version) {
-    return version.getPrograms();
   }
 
   /**
@@ -771,13 +904,13 @@ public final class VersionRepository {
         () -> {
           VersionModel activeVersion = getActiveVersion();
           ImmutableList<QuestionDefinition> newActiveQuestions =
-              getQuestionsForVersionWithoutCache(activeVersion).stream()
+              getQuestionsForVersion(activeVersion).stream()
                   .map(questionRepository::getQuestionDefinition)
                   .collect(ImmutableList.toImmutableList());
           // Check there aren't any duplicate questions in the new active version
           validateNoDuplicateQuestions(newActiveQuestions);
           ImmutableSet<Long> missingQuestionIds =
-              getProgramsForVersionWithoutCache(activeVersion).stream()
+              getProgramsForVersion(activeVersion).stream()
                   .map(
                       program ->
                           programRepository
@@ -795,7 +928,7 @@ public final class VersionRepository {
             return;
           }
           ImmutableSet<Long> programIdsMissingQuestions =
-              getProgramsForVersionWithoutCache(activeVersion).stream()
+              getProgramsForVersion(activeVersion).stream()
                   .filter(
                       program ->
                           programRepository
