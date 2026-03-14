@@ -87,8 +87,6 @@ public class CiviFormSessionFilterTest extends WithApplication {
     when(clock.millis()).thenReturn(CURRENT_TIME * 1000);
     when(sessionTimeoutService.calculateTimeoutData(eq(mockProfile), anyLong()))
         .thenReturn(defaultTimeoutData);
-    // Session replay protection is enabled by default
-    when(settingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
   }
 
   @Test
@@ -135,11 +133,10 @@ public class CiviFormSessionFilterTest extends WithApplication {
   }
 
   @Test
-  public void testInvalidSession_replayProtectionEnabled_redirectsToLogout() throws Exception {
+  public void testInvalidSession_redirectsToLogout() throws Exception {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(false);
-    when(settingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
 
     // Session ID not found in active sessions
     when(mockAccount.getActiveSession(anyString())).thenReturn(Optional.empty());
@@ -152,22 +149,6 @@ public class CiviFormSessionFilterTest extends WithApplication {
   }
 
   @Test
-  public void testInvalidSession_replayProtectionDisabled_passesThrough() throws Exception {
-    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
-    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
-    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(false);
-    when(settingsManifest.getSessionReplayProtectionEnabled()).thenReturn(false);
-
-    // Session ID not found in active sessions
-    when(mockAccount.getActiveSession(anyString())).thenReturn(Optional.empty());
-    when(mockProfileData.getSessionId()).thenReturn("session123");
-
-    Result result = executeFilter(request);
-
-    assertThat(result.status()).isEqualTo(200);
-  }
-
-  @Test
   public void testInvalidAccount_redirectsToLogout() throws Exception {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
@@ -175,18 +156,6 @@ public class CiviFormSessionFilterTest extends WithApplication {
         .thenReturn(
             CompletableFuture.failedFuture(
                 new auth.AccountNonexistentException("account not found")));
-
-    Result result = executeFilter(request);
-
-    assertThat(result.status()).isEqualTo(303);
-    assertThat(result.redirectLocation()).hasValue("/logout");
-  }
-
-  @Test
-  public void testInvalidSession_redirectsToLogout() throws Exception {
-    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
-    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
-    when(mockAccount.getActiveSession(SESSION_ID)).thenReturn(Optional.empty());
 
     Result result = executeFilter(request);
 

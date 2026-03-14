@@ -633,10 +633,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void
-      showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithSingleHoursAndMinutes() {
+  public void showWithApplicantId_showsMessageWithSingleHoursAndMinutes() {
     SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
-    when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
     when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(90));
 
     setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));
@@ -661,10 +659,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void
-      showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithHoursAndMinutes() {
+  public void showWithApplicantId_showsMessageWithHoursAndMinutes() {
     SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
-    when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
     when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(130));
 
     setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));
@@ -689,10 +685,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void
-      showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithSingleMinute() {
+  public void showWithApplicantId_showsMessageWithSingleMinute() {
     SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
-    when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
     when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(1));
 
     setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));
@@ -716,10 +710,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void
-      showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithMultipleMinutes() {
+  public void showWithApplicantId_showsMessageWithMultipleMinutes() {
     SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
-    when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
     when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(5));
 
     setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));
@@ -743,10 +735,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void
-      showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithMultipleHoursAndSingleMinute() {
+  public void showWithApplicantId_showsMessageWithMultipleHoursAndSingleMinute() {
     SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
-    when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
     when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(121));
 
     setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));
@@ -771,9 +761,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithOneHour() {
+  public void showWithApplicantId_showsMessageWithOneHour() {
     SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
-    when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
     when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(60));
 
     setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));
@@ -797,10 +786,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void
-      showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithMultipleHours() {
+  public void showWithApplicantId_showsMessageWithMultipleHours() {
     SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
-    when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
     when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(120));
 
     setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));
