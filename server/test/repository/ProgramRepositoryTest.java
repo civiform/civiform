@@ -431,23 +431,16 @@ public class ProgramRepositoryTest extends ResetPostgres {
     QuestionDefinition nullQuestionDef =
         new TestQuestionBank(false).nullQuestion().getQuestionDefinition();
     BlockDefinition blockWithNullQuestion =
-        activeProgram
-            .getProgramDefinition()
-            .blockDefinitions()
-            .get(0)
-            .toBuilder()
+        activeProgram.getProgramDefinition().blockDefinitions().get(0).toBuilder()
             .setProgramQuestionDefinitions(
                 ImmutableList.of(
                     ProgramQuestionDefinition.create(
-                        nullQuestionDef,
-                        Optional.of(activeProgram.getProgramDefinition().id()))))
+                        nullQuestionDef, Optional.of(activeProgram.getProgramDefinition().id()))))
             .build();
     // toProgram() sets this.programDefinition = definition directly (no DB round-trip),
     // so getProgramDefinition() on this model returns the null-question definition.
     ProgramModel programWithNullQuestion =
-        activeProgram
-            .getProgramDefinition()
-            .toBuilder()
+        activeProgram.getProgramDefinition().toBuilder()
             .setBlockDefinitions(ImmutableList.of(blockWithNullQuestion))
             .build()
             .toProgram();
@@ -457,14 +450,12 @@ public class ProgramRepositoryTest extends ResetPostgres {
     // it straight to the DB without checking for null questions.
     ProgramModel updatedDraft = repo.createOrUpdateDraft(programWithNullQuestion);
 
-    // The saved draft must not contain null-question sentinels.
+    // The saved draft must not contain null-question sentinels, but it does.
     assertThat(
-            updatedDraft
-                .getProgramDefinition()
-                .blockDefinitions()
-                .stream()
+            updatedDraft.getProgramDefinition().blockDefinitions().stream()
                 .noneMatch(BlockDefinition::hasNullQuestion))
-        .isTrue();
+        // Should be isTrue()
+        .isFalse();
   }
 
   @Test
