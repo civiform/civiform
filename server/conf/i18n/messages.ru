@@ -1147,7 +1147,7 @@ session.extended.success=Сеанс продлен.
 # Error message shown when there was a problem extending the user's session
 session.extended.error=Не удалось продлить сеанс.
 # Message shown to guest users warning that their session is about to expire due to session length
-session.length.warning.message.guest=Your session is about to expire. Please save your work and log in or create an account to continue. You will not lose your progress in the application.
+session.length.warning.message.guest=Your session is about to expire. Please save your work and log in or create an account to continue.
 # Message shown to logged-in users warning that their session is about to expire due to session length
 session.length.warning.message.loggedIn=Your session is about to expire. Please save your work and log back in to continue. You will not lose your progress in the application.
 
