@@ -669,15 +669,15 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .withClasses("text-lg", "font-bold", "py-2");
 
     DivTag programQuestions =
-        div().withId(QUESTIONS_SECTION_ID).withClasses("my-4").with(questionSectionHeader);
-
-    if (isRepeatedBlockWithEnumeratorImprovements) {
-      programQuestions
-          .withClass("maxw-mobile-lg")
-          .with(
-              p(messages.at(MessageKey.TEXT_REPEATED_SET_ADD_QUESTION_DESCRIPTION.getKeyName()))
-                  .withClasses("text-base", "text-sm", "margin-bottom-1"));
-    }
+        isRepeatedBlockWithEnumeratorImprovements
+            ? div()
+                .withId(QUESTIONS_SECTION_ID)
+                .withClasses("my-4", "maxw-mobile-lg")
+                .with(
+                    questionSectionHeader,
+                    p(messages.at(MessageKey.TEXT_REPEATED_QUESTIONS_DESCRIPTION.getKeyName()))
+                        .withClasses("text-base", "text-sm", "margin-bottom-1"))
+            : div().withId(QUESTIONS_SECTION_ID).withClasses("my-4").with(questionSectionHeader);
 
     ImmutableList.Builder<DivTag> questionCardsBuilder = ImmutableList.builder();
 
@@ -717,7 +717,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
               enumeratorImprovementsEnabled);
       ButtonTag addQuestion =
           isRepeatedBlockWithEnumeratorImprovements
-              ? button("")
+              ? TagCreator.button()
                   .withType("button")
                   .withCondDisabled(!isEnumeratorBlockComplete)
                   .withClasses(

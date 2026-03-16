@@ -232,6 +232,7 @@ public enum MessageKey {
   TAG_MAY_QUALIFY("tag.mayQualify"),
   TAG_MAY_QUALIFY_TI("tag.mayQualifyTi"),
   TEXT_NESTED_REPEATED_SET("text.nestedRepeatedSet"),
+  TEXT_REPEATED_QUESTIONS_DESCRIPTION("text.repeatedQuestions.description"),
   TEXT_REPEATED_SET("text.repeatedSet"),
   TEXT_REPEATED_SET_QUESTION_DESCRIPTION("text.repeatedSet.questionDescription"),
   TEXT_REPEATED_SET_ADD_QUESTION_DESCRIPTION("text.repeatedSet.addQuestionDescription"),
