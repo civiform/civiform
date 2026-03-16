@@ -108,7 +108,7 @@ const applyLocationFilters = (
   resetPagination(mapId)
 }
 
-const featureMatchesFilters = (
+export const featureMatchesFilters = (
   feature: Feature<Geometry, GeoJsonProperties> | undefined,
   filters: {[key: string]: string},
 ): boolean => {
@@ -119,7 +119,7 @@ const featureMatchesFilters = (
   )
 }
 
-const getFilters = (mapId: string): {[key: string]: string} => {
+export const getFilters = (mapId: string): {[key: string]: string} => {
   const activeFilters: {[key: string]: string} = {}
   const filterSelectOptions = queryMapSelectOptions(mapId)
 

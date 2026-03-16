@@ -1,6 +1,10 @@
 import {Feature, FeatureCollection, GeoJsonProperties, Point} from 'geojson'
 import {GeoJSONSource, LngLatLike, Map as MapLibreMap, Popup} from 'maplibre-gl'
-import {initFilters} from '@/mapquestion/map_question_filters'
+import {
+  featureMatchesFilters,
+  getFilters,
+  initFilters,
+} from '@/mapquestion/map_question_filters'
 import {
   CF_MAP_QUESTION_PAGINATION_BUTTON,
   CF_MAP_QUESTION_PAGINATION_NEXT_BUTTON,
@@ -286,6 +290,7 @@ const addPopupsToMap = (
     for (let i = 1; i < features.length; i++) {
       const featureCoords = (features[i].geometry as Point).coordinates
       if (
+        !featureMatchesFilters(features[i], getFilters(mapId)) ||
         featureCoords[0] !== clickedCoordinates[0] ||
         featureCoords[1] !== clickedCoordinates[1]
       ) {
