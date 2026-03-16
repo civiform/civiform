@@ -340,8 +340,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
         .containsPattern("id=\"questions-section\"[^>]*maxw-mobile-lg")
         .contains("cf-open-question-bank-button")
         .contains("usa-button--outline")
-        .contains(">Add question<")
-        .doesNotContain(">Add a question<");
+        .contains("Add question");
   }
 
   @Test

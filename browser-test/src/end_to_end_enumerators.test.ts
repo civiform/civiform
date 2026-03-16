@@ -1210,7 +1210,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Add a new text question to the screen', async () => {
-        await page.getByRole('button', {name: 'Add question'}).click()
+        await page.getByRole('button', {name: 'Add a question'}).click()
         await page.getByRole('button', {name: 'Create new question'}).click()
         await page.getByRole('link', {name: 'Text', exact: true}).click()
       })
