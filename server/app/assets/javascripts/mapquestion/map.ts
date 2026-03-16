@@ -249,6 +249,8 @@ const addPopupsToMap = (
       return
     }
 
+    // MapLibre will return all features within the click tolerance.
+    // Use the first one in the list as the 'clicked' feature
     const clickedGeometry = features[0].geometry as Point
 
     if (!clickedGeometry) {
@@ -270,19 +272,17 @@ const addPopupsToMap = (
     }
 
     const popupContent: Node[] = []
-    const firstFeatureContent = createPopupContent(
+    const clickedFeatureContent = createPopupContent(
       mapId,
       popupContentTemplate.content.children,
       settings,
       features[0].properties,
     )
-    if (firstFeatureContent) {
-      popupContent.push(firstFeatureContent)
+    if (clickedFeatureContent) {
+      popupContent.push(clickedFeatureContent)
     }
-    // MapLibre has a flexible click tolerance and will return multiple
-    // features if their pin is nearby the click. Compare the remaining
-    // features' coordinates and only display the ones that share the
-    // same coordinates as the feature that was clicked on
+    // Compare the remaining features' coordinates and only display the
+    // ones that share the exact same coordinates as the 'clicked' feature
     for (let i = 1; i < features.length; i++) {
       const featureCoords = (features[i].geometry as Point).coordinates
       if (
@@ -302,19 +302,15 @@ const addPopupsToMap = (
       }
     }
 
-    if (popupContent.length === 1) {
-      popup.setDOMContent(popupContent[0])
-    } else if (popupContent.length > 1) {
-      const container = document.createElement('div')
-      popupContent.forEach((location, index) => {
-        const locationElement = location as HTMLElement
-        if (index > 0) {
-          locationElement.classList.add('border-top-1px', 'border-base-lighter')
-        }
-        container.appendChild(locationElement)
-      })
-      popup.setDOMContent(container)
-    }
+    const popupContainer = document.createElement('div')
+    popupContent.forEach((location, index) => {
+      const locationElement = location as HTMLElement
+      if (index > 0) {
+        locationElement.classList.add('border-top-1px', 'border-base-lighter')
+      }
+      popupContainer.appendChild(locationElement)
+    })
+    popup.setDOMContent(popupContainer)
 
     popup.addTo(map)
   })
