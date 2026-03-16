@@ -307,6 +307,44 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void edit_repeatedScreen_withEnumeratorImprovementsEnabled_showsUpdatedQuestionsSection() {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
+            .withRepeatedBlock()
+            .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
+            .build();
+
+    program.refresh();
+    long repeatedBlockId =
+        program.getProgramDefinition().blockDefinitions().stream()
+            .filter(block -> block.isRepeated())
+            .findFirst()
+            .orElseThrow()
+            .id();
+
+    Result result =
+        controller.edit(
+            fakeRequestBuilder()
+                .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
+                .build(),
+            program.id,
+            repeatedBlockId);
+
+    assertThat(result.status()).isEqualTo(OK);
+    String html = Helpers.contentAsString(result);
+    assertThat(html)
+        .contains("Repeated questions")
+        .contains("Add the questions you would like to be asked about each object or individual")
+        .containsPattern("id=\"questions-section\"[^>]*maxw-mobile-lg")
+        .contains("cf-open-question-bank-button")
+        .contains("usa-button--outline")
+        .contains(">Add question<")
+        .doesNotContain(">Add a question<");
+  }
+
+  @Test
   public void edit_withEnumeratorImprovementsEnabled_showsNestedButtonOnlyOnAllowedNestingLevels() {
     ProgramModel program =
         ProgramBuilder.newDraftProgram()
