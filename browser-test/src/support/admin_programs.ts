@@ -787,14 +787,16 @@ export class AdminPrograms {
    * Expects a question card with a specified text label in it.
    */
   async expectQuestionCardWithLabel(questionName: string, label: string) {
-    await expect(
-      this.page.locator(
-        this.withinQuestionCardSelectorInProgramView(
-          questionName,
-          `p:has-text("${label}")`,
-        ),
-      ),
-    ).toHaveCount(1)
+    expect(
+      await this.page
+        .locator(
+          this.withinQuestionCardSelectorInProgramView(
+            questionName,
+            `p:has-text("${label}")`,
+          ),
+        )
+        .count(),
+    ).toBe(1)
   }
 
   /**
@@ -804,14 +806,16 @@ export class AdminPrograms {
     questionName: string,
     universal: boolean,
   ) {
-    await expect(
-      this.page.locator(
-        this.withinQuestionCardSelectorInProgramView(
-          questionName,
-          '.cf-universal-badge',
-        ),
-      ),
-    ).toHaveCount(universal ? 1 : 0)
+    expect(
+      await this.page
+        .locator(
+          this.withinQuestionCardSelectorInProgramView(
+            questionName,
+            '.cf-universal-badge',
+          ),
+        )
+        .count(),
+    ).toBe(universal ? 1 : 0)
   }
 
   // Question card within a program edit or read only page
@@ -1210,7 +1214,7 @@ export class AdminPrograms {
     expect(await this.page.innerText('id=program-title')).toContain(programName)
     // The only element for editing should be one top level button
     await expect(this.page.locator('#header_edit_button')).toBeVisible()
-    await expect(this.page.locator('id=block-edit-form')).toHaveCount(0)
+    expect(await this.page.locator('id=block-edit-form').count()).toEqual(0)
   }
 
   // Removes questions from given block in program.
