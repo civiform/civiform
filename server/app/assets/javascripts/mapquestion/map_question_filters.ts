@@ -10,6 +10,7 @@ import {
   CF_LOCATION_COUNT,
   LOCATIONS_LAYER,
   POPUP_LAYER,
+  MAP_LIBRE_POPUP_CLASS,
   MapData,
   mapQuerySelector,
   CF_FILTER_HIDDEN,
@@ -98,7 +99,7 @@ const applyLocationFilters = (
     } else {
       containerElement.classList.add(CF_FILTER_HIDDEN)
       if (featureId == openPopupFeatureId) {
-        const popup = popupContent.parentElement?.parentElement
+        const popup = popupContent.closest(MAP_LIBRE_POPUP_CLASS)
         if (popup) popup.remove()
       }
     }
