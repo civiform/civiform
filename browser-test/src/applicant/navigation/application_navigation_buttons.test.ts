@@ -1,11 +1,19 @@
 import {expect, test} from '../../support/civiform_fixtures'
 import {
+  AdminPrograms,
+  AdminQuestions,
+  ApplicantQuestions,
+  closeWarningMessage,
   enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
   validateScreenshot,
+  waitForPageJsLoad,
 } from '../../support'
+import {ApplicantProgramOverview} from '../../support/applicant_program_overview'
+import {Seeding} from '../../support/seeding'
+import {BrowserContext, Page} from '@playwright/test'
 
 test.describe('Applicant navigation flow', () => {
   const programName = 'Test program for navigation flows'
@@ -18,14 +26,30 @@ test.describe('Applicant navigation flow', () => {
   const currencyQuestionText = 'currency question text'
 
   test.describe('navigation with five blocks', () => {
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      await loginAsAdmin(page)
+    let page: Page
+    let context: BrowserContext
+    let applicantQuestions: ApplicantQuestions
+    let applicantProgramOverview: ApplicantProgramOverview
+
+    test.beforeAll(async ({browser}) => {
+      const adminContext = await browser.newContext()
+      await new Seeding(adminContext.request).clearDatabase()
+
+      const adminPage = await adminContext.newPage()
+      await adminPage.goto('/programs')
+      await waitForPageJsLoad(adminPage)
+      await closeWarningMessage(adminPage)
+
+      await loginAsAdmin(adminPage)
       await enableFeatureFlag(
-        page,
+        adminPage,
         'suggest_programs_on_application_confirmation_page',
       )
 
       await test.step('Set up program with questions', async () => {
+        const adminQuestions = new AdminQuestions(adminPage)
+        const adminPrograms = new AdminPrograms(adminPage)
+
         await adminQuestions.addDateQuestion({
           questionName: 'nav-date-q',
           questionText: dateQuestionText,
@@ -87,14 +111,28 @@ test.describe('Applicant navigation flow', () => {
 
         await adminPrograms.gotoAdminProgramsPage()
         await adminPrograms.publishProgram(programName)
-        await logout(page)
+        await logout(adminPage)
       })
+
+      await adminContext.close()
+    })
+
+    test.beforeEach(async ({browser}) => {
+      context = await browser.newContext()
+      page = await context.newPage()
+      await page.goto('/programs')
+      await waitForPageJsLoad(page)
+      await closeWarningMessage(page)
+      applicantQuestions = new ApplicantQuestions(page)
+      applicantProgramOverview = new ApplicantProgramOverview(page)
+    })
+
+    test.afterEach(async () => {
+      await context.close()
     })
 
     test.describe('previous button', () => {
-      test('clicking previous on first block goes to summary page', async ({
-        applicantQuestions,
-      }) => {
+      test('clicking previous on first block goes to summary page', async () => {
         await applicantQuestions.applyProgram(programName)
 
         await applicantQuestions.clickBack()
@@ -102,9 +140,7 @@ test.describe('Applicant navigation flow', () => {
         await applicantQuestions.expectReviewPage()
       })
 
-      test('clicking previous on later blocks goes to previous blocks', async ({
-        applicantQuestions,
-      }) => {
+      test('clicking previous on later blocks goes to previous blocks', async () => {
         await applicantQuestions.applyProgram(programName)
 
         // Fill out the first block and click next
@@ -157,9 +193,7 @@ test.describe('Applicant navigation flow', () => {
         await applicantQuestions.expectReviewPage()
       })
 
-      test('clicking previous with correct form shows previous page and saves answers', async ({
-        applicantQuestions,
-      }) => {
+      test('clicking previous with correct form shows previous page and saves answers', async () => {
         await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerMemorableDateQuestion(
           '2021',
@@ -193,10 +227,7 @@ test.describe('Applicant navigation flow', () => {
         )
       })
 
-      test('clicking previous with some missing answers shows error modal', async ({
-        page,
-        applicantQuestions,
-      }) => {
+      test('clicking previous with some missing answers shows error modal', async () => {
         await applicantQuestions.applyProgram(programName)
         // There is also a date question, and it's intentionally not answered
         await applicantQuestions.answerEmailQuestion('test1@gmail.com')
@@ -212,9 +243,7 @@ test.describe('Applicant navigation flow', () => {
         })
       })
 
-      test('clicking previous with no answers does not show error modal', async ({
-        applicantQuestions,
-      }) => {
+      test('clicking previous with no answers does not show error modal', async () => {
         await applicantQuestions.applyProgram(programName)
 
         // If the applicant has never answered this block before and doesn't fill in any
@@ -226,9 +255,7 @@ test.describe('Applicant navigation flow', () => {
         await applicantQuestions.expectReviewPage()
       })
 
-      test('error on previous modal > click stay and fix > shows block', async ({
-        applicantQuestions,
-      }) => {
+      test('error on previous modal > click stay and fix > shows block', async () => {
         await applicantQuestions.applyProgram(programName)
         // await applicantQuestions.answerDateQuestion('')
         // Intentionally do NOT answer the date question
@@ -266,9 +293,7 @@ test.describe('Applicant navigation flow', () => {
         )
       })
 
-      test('error on previous modal > click previous without saving > answers not saved', async ({
-        applicantQuestions,
-      }) => {
+      test('error on previous modal > click previous without saving > answers not saved', async () => {
         await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerMemorableDateQuestion(
           '2021',
@@ -293,9 +318,7 @@ test.describe('Applicant navigation flow', () => {
         )
       })
 
-      test('error on previous modal > click previous without saving > shows previous block', async ({
-        applicantQuestions,
-      }) => {
+      test('error on previous modal > click previous without saving > shows previous block', async () => {
         await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerMemorableDateQuestion(
           '2021',
@@ -331,9 +354,7 @@ test.describe('Applicant navigation flow', () => {
         await applicantQuestions.checkEmailQuestionValue('test1@gmail.com')
       })
 
-      test('clicking previous after deleting answers to required questions shows error modal', async ({
-        applicantQuestions,
-      }) => {
+      test('clicking previous after deleting answers to required questions shows error modal', async () => {
         await test.step('answer questions on first block', async () => {
           await applicantQuestions.applyProgram(programName)
           await applicantQuestions.answerMemorableDateQuestion(
@@ -359,9 +380,7 @@ test.describe('Applicant navigation flow', () => {
         })
       })
 
-      test('previous saves blank optional answers', async ({
-        applicantQuestions,
-      }) => {
+      test('previous saves blank optional answers', async () => {
         await test.step('answer blocks with all required questions', async () => {
           await applicantQuestions.applyProgram(programName)
           await applicantQuestions.answerMemorableDateQuestion(
@@ -409,11 +428,7 @@ test.describe('Applicant navigation flow', () => {
     })
 
     test.describe('next button', () => {
-      test('next block progression', async ({
-        page,
-        applicantQuestions,
-        applicantProgramOverview,
-      }) => {
+      test('next block progression', async () => {
         await applicantQuestions.clickApplyProgramButton(programName)
         await applicantProgramOverview.startApplicationFromProgramOverviewPage(
           programName,
@@ -548,7 +563,7 @@ test.describe('Applicant navigation flow', () => {
         })
       })
 
-      test('can skip optional questions', async ({applicantQuestions}) => {
+      test('can skip optional questions', async () => {
         await applicantQuestions.applyProgram(programName)
 
         await test.step('screen 1', async () => {
@@ -602,10 +617,7 @@ test.describe('Applicant navigation flow', () => {
         })
       })
 
-      test('answering questions out of order', async ({
-        applicantQuestions,
-        applicantProgramOverview,
-      }) => {
+      test('answering questions out of order', async () => {
         await applicantQuestions.clickApplyProgramButton(programName)
         await applicantProgramOverview.startApplicationFromProgramOverviewPage(
           programName,
@@ -702,9 +714,7 @@ test.describe('Applicant navigation flow', () => {
     })
 
     test.describe('review button', () => {
-      test('clicking review with correct form shows review page with saved answers', async ({
-        applicantQuestions,
-      }) => {
+      test('clicking review with correct form shows review page with saved answers', async () => {
         await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerMemorableDateQuestion(
           '2021',
@@ -726,9 +736,7 @@ test.describe('Applicant navigation flow', () => {
         )
       })
 
-      test('clicking review with some missing answers shows modal', async ({
-        applicantQuestions,
-      }) => {
+      test('clicking review with some missing answers shows modal', async () => {
         await applicantQuestions.applyProgram(programName)
         // Intentionally do NOT answer the date question
         await applicantQuestions.answerEmailQuestion('test1@gmail.com')
@@ -739,9 +747,7 @@ test.describe('Applicant navigation flow', () => {
         await applicantQuestions.expectErrorOnReviewModal()
       })
 
-      test('clicking review with no answers does not show error modal', async ({
-        applicantQuestions,
-      }) => {
+      test('clicking review with no answers does not show error modal', async () => {
         await applicantQuestions.applyProgram(programName)
 
         // If the applicant has never answered this block before and doesn't fill in any
@@ -752,9 +758,7 @@ test.describe('Applicant navigation flow', () => {
         await applicantQuestions.expectReviewPage()
       })
 
-      test('error on review modal > click stay and fix > shows block', async ({
-        applicantQuestions,
-      }) => {
+      test('error on review modal > click stay and fix > shows block', async () => {
         await applicantQuestions.applyProgram(programName)
         // Intentionally do NOT answer the date question
         await applicantQuestions.answerEmailQuestion('test1@gmail.com')
@@ -788,9 +792,7 @@ test.describe('Applicant navigation flow', () => {
         )
       })
 
-      test('error on review modal > click review without saving > shows review page without saved answers', async ({
-        applicantQuestions,
-      }) => {
+      test('error on review modal > click review without saving > shows review page without saved answers', async () => {
         await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerMemorableDateQuestion(
           '2021',
@@ -814,9 +816,7 @@ test.describe('Applicant navigation flow', () => {
         )
       })
 
-      test('clicking review after deleting answers to required questions shows error modal', async ({
-        applicantQuestions,
-      }) => {
+      test('clicking review after deleting answers to required questions shows error modal', async () => {
         await test.step('answer questions on first block', async () => {
           await applicantQuestions.applyProgram(programName)
           await applicantQuestions.answerMemorableDateQuestion(
@@ -842,9 +842,7 @@ test.describe('Applicant navigation flow', () => {
         })
       })
 
-      test('review saves blank optional answers', async ({
-        applicantQuestions,
-      }) => {
+      test('review saves blank optional answers', async () => {
         await test.step('answer blocks with all required questions', async () => {
           await applicantQuestions.applyProgram(programName)
           await applicantQuestions.answerMemorableDateQuestion(
@@ -891,14 +889,29 @@ test.describe('Applicant navigation flow', () => {
   })
 
   test.describe('navigation with two blocks', () => {
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      await loginAsAdmin(page)
+    let page: Page
+    let context: BrowserContext
+    let applicantQuestions: ApplicantQuestions
+
+    test.beforeAll(async ({browser}) => {
+      const adminContext = await browser.newContext()
+      await new Seeding(adminContext.request).clearDatabase()
+
+      const adminPage = await adminContext.newPage()
+      await adminPage.goto('/programs')
+      await waitForPageJsLoad(adminPage)
+      await closeWarningMessage(adminPage)
+
+      await loginAsAdmin(adminPage)
       await enableFeatureFlag(
-        page,
+        adminPage,
         'suggest_programs_on_application_confirmation_page',
       )
 
       await test.step('Set up program with questions', async () => {
+        const adminQuestions = new AdminQuestions(adminPage)
+        const adminPrograms = new AdminPrograms(adminPage)
+
         await adminQuestions.addPhoneQuestion({
           questionName: 'nav-phone-q',
           questionText: phoneQuestionText,
@@ -921,18 +934,30 @@ test.describe('Applicant navigation flow', () => {
         })
 
         // Move Page B to the first page in the application. Expect its block ID is 2.
-        await page.locator('[data-test-id="move-block-up-2"]').click()
+        await adminPage.locator('[data-test-id="move-block-up-2"]').click()
 
         await adminPrograms.gotoAdminProgramsPage()
         await adminPrograms.publishProgram(programName)
-        await logout(page)
+        await logout(adminPage)
       })
+
+      await adminContext.close()
     })
 
-    test('Applying to a program shows blocks in the admin-specified order', async ({
-      page,
-      applicantQuestions,
-    }) => {
+    test.beforeEach(async ({browser}) => {
+      context = await browser.newContext()
+      page = await context.newPage()
+      await page.goto('/programs')
+      await waitForPageJsLoad(page)
+      await closeWarningMessage(page)
+      applicantQuestions = new ApplicantQuestions(page)
+    })
+
+    test.afterEach(async () => {
+      await context.close()
+    })
+
+    test('Applying to a program shows blocks in the admin-specified order', async () => {
       await applicantQuestions.applyProgram(programName)
 
       await test.step('Expect Page B as the first page', async () => {
@@ -953,10 +978,7 @@ test.describe('Applicant navigation flow', () => {
       await applicantQuestions.expectReviewPage()
     })
 
-    test('Editing an in-progress application takes user to the next incomplete page', async ({
-      page,
-      applicantQuestions,
-    }) => {
+    test('Editing an in-progress application takes user to the next incomplete page', async () => {
       await applicantQuestions.applyProgram(programName)
 
       await test.step('Fill out page 1, then go to home page', async () => {
