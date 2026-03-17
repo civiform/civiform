@@ -285,14 +285,16 @@ const addPopupsToMap = (
     if (clickedFeatureContent) {
       popupContent.push(clickedFeatureContent)
     }
-    // Compare the remaining features' coordinates and only display the
-    // ones that share the exact same coordinates as the 'clicked' feature
+    // Compare the remaining features' coordinates and only display the ones
+    // that are at approximately the same location as the 'clicked' feature.
     for (let i = 1; i < features.length; i++) {
       const featureCoords = (features[i].geometry as Point).coordinates
       if (
         !featureMatchesFilters(features[i], getFilters(mapId)) ||
-        featureCoords[0] !== clickedCoordinates[0] ||
-        featureCoords[1] !== clickedCoordinates[1]
+        Math.trunc(featureCoords[0] * 10000) !==
+          Math.trunc(clickedCoordinates[0] * 10000) ||
+        Math.trunc(featureCoords[1] * 10000) !==
+          Math.trunc(clickedCoordinates[1] * 10000)
       ) {
         continue
       }
