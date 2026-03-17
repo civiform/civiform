@@ -1644,7 +1644,6 @@ public final class ProgramService {
           && blockDefinition.isRepeated()
           && !questionDefinition.isEnumerator()
           && questionDefinition.getEnumeratorId().isEmpty()) {
-        System.out.println("creating copy");
         questionDefinition =
             createQuestionCopy(questionDefinition, programDefinition, blockDefinition);
       }

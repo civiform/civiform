@@ -148,13 +148,19 @@ public class QuestionServiceTest extends ResetPostgres {
   @Test
   public void createCopy_universalQuestion_copyIsNotUniversal() throws Exception {
     QuestionDefinition universalQuestion =
-        new QuestionDefinitionBuilder(questionDefinition).setUniversal(true).build();
+        new QuestionDefinitionBuilder(questionDefinition)
+            .setUniversal(true)
+            .setPrimaryApplicantInfoTags(ImmutableSet.of(PrimaryApplicantInfoTag.APPLICANT_NAME))
+            .build();
     ErrorAnd<QuestionDefinition, CiviFormError> errorAndResult =
         questionService.createCopy(universalQuestion, Optional.empty());
 
     assertThat(errorAndResult.isError()).isFalse();
     assertThat(errorAndResult.hasResult()).isTrue();
-    assertThat(errorAndResult.getResult().isUniversal()).isFalse();
+
+    QuestionDefinition questionCopy = errorAndResult.getResult();
+    assertThat(questionCopy.isUniversal()).isFalse();
+    assertThat(questionCopy.getPrimaryApplicantInfoTags()).isEmpty();
   }
 
   @Test

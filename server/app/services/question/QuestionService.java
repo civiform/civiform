@@ -241,6 +241,7 @@ public final class QuestionService {
             .clearId()
             .setName(newAdminName)
             .setUniversal(false)
+            .setPrimaryApplicantInfoTags(ImmutableSet.of())
             .setEnumeratorId(enumeratorId)
             .build();
 
