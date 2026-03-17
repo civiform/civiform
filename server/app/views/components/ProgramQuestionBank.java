@@ -174,12 +174,47 @@ public final class ProgramQuestionBank {
                     .reversed()
                     .thenComparing(qdef -> qdef.getName().toLowerCase(Locale.ROOT)))
             .collect(ImmutableList.toImmutableList());
-    ImmutableList<QuestionDefinition> universalQuestions =
-        allQuestions.stream().filter(q -> q.isUniversal()).collect(ImmutableList.toImmutableList());
-    ImmutableList<QuestionDefinition> nonUniversalQuestions =
+
+    boolean shouldShowPreviouslyUsedSection =
+        settingsManifest.getEnumeratorImprovementsEnabled(request)
+            && params.blockDefinition().isRepeated();
+
+    ImmutableList<QuestionDefinition> previouslyUsedForRepeatedSetQuestions =
+        shouldShowPreviouslyUsedSection
+            ? allQuestions.stream()
+                .filter(q -> q.getEnumeratorId().isPresent())
+                .collect(ImmutableList.toImmutableList())
+            : ImmutableList.of();
+
+    ImmutableList<QuestionDefinition> remainingQuestions =
         allQuestions.stream()
+            .filter(q -> !(shouldShowPreviouslyUsedSection && q.getEnumeratorId().isPresent()))
+            .collect(ImmutableList.toImmutableList());
+
+    ImmutableList<QuestionDefinition> universalQuestions =
+        remainingQuestions.stream()
+            .filter(QuestionDefinition::isUniversal)
+            .collect(ImmutableList.toImmutableList());
+    ImmutableList<QuestionDefinition> nonUniversalQuestions =
+        remainingQuestions.stream()
             .filter(q -> !q.isUniversal())
             .collect(ImmutableList.toImmutableList());
+
+    if (!previouslyUsedForRepeatedSetQuestions.isEmpty()) {
+      contentDiv.with(
+          div()
+              .withId("question-bank-previously-used")
+              .withClasses(ReferenceClasses.SORTABLE_QUESTIONS_CONTAINER)
+              .with(
+                  h2("Previously used for this repeated set")
+                      .withClasses(AdminStyles.SEMIBOLD_HEADER))
+              .with(
+                  AlertComponent.renderSlimInfoAlert(
+                      "Questions associated with a different enumerator can't be used."))
+              .with(
+                  each(previouslyUsedForRepeatedSetQuestions, qd -> renderQuestionDefinition(qd))));
+    }
+
     if (!universalQuestions.isEmpty()) {
       contentDiv.with(
           div()

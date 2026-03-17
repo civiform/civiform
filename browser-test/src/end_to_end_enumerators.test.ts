@@ -1082,10 +1082,31 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         ).toBeVisible()
       })
 
-      await test.step('Verify that the question bank has the repeated question that is associated with this enumerator', async () => {
+      await test.step('Verify that the repeated question associated with this enumerator is in the previously-used section', async () => {
+        const previouslyUsedSection = page.locator(
+          '#question-bank-previously-used',
+        )
+
         await expect(
-          page.getByText('Admin ID: enumerator-pets-repeated-colors'),
+          page.getByRole('heading', {
+            name: 'Previously used for this repeated set',
+          }),
         ).toBeVisible()
+        await expect(
+          page.getByText(
+            "Questions associated with a different enumerator can't be used.",
+          ),
+        ).toBeVisible()
+        await expect(
+          previouslyUsedSection.getByText(
+            'Admin ID: enumerator-pets-repeated-colors',
+          ),
+        ).toBeVisible()
+        await expect(
+          page
+            .locator('#question-bank-nonuniversal')
+            .getByText('Admin ID: enumerator-pets-repeated-colors'),
+        ).toBeHidden()
       })
 
       await test.step('Verify that the question bank does not have repeated questions that are associated with other enumerators', async () => {
