@@ -1,5 +1,6 @@
 package views.applicant.blocks;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -8,6 +9,12 @@ import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
 import forms.EnumeratorQuestionForm;
+
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +24,10 @@ import java.util.stream.Collectors;
 import models.ApplicantModel.Suffix;
 import models.GeoJsonDataModel;
 import modules.ThymeleafModule;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.io.RandomAccessReadBuffer;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.rendering.PDFRenderer;
 import org.thymeleaf.TemplateEngine;
 import play.mvc.Http.Request;
 import repository.GeoJsonDataRepository;
@@ -27,6 +38,7 @@ import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.MapQuestion;
 import services.cloud.ApplicantFileNameFormatter;
+import services.cloud.PublicStorageClient;
 import services.cloud.StorageUploadRequest;
 import services.geojson.Feature;
 import services.geojson.FeatureCollection;
@@ -38,6 +50,8 @@ import views.fileupload.FileUploadViewStrategy;
 import views.html.helper.CSRF;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.trustedintermediary.ApplicationBaseViewParams;
+
+import javax.imageio.ImageIO;
 
 /** Renders a page for answering questions in a program screen (block). */
 public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
@@ -51,6 +65,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
 
   private final FileUploadViewStrategy fileUploadViewStrategy;
   private final GeoJsonDataRepository mapDataRepository;
+  private final PublicStorageClient publicStorageClient;
 
   @Inject
   ApplicantProgramBlockEditView(
@@ -62,7 +77,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
       DeploymentType deploymentType,
-      GeoJsonDataRepository mapDataRepository) {
+      GeoJsonDataRepository mapDataRepository, PublicStorageClient publicStorageClient) {
     super(
         templateEngine,
         playThymeleafContextFactory,
@@ -73,6 +88,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
         deploymentType);
     this.fileUploadViewStrategy = fileUploadViewStrategy;
     this.mapDataRepository = mapDataRepository;
+    this.publicStorageClient = checkNotNull(publicStorageClient);
   }
 
   public String render(
@@ -103,6 +119,35 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
     boolean isTi = applicationParams.profile().isTrustedIntermediary();
     boolean isGuest = applicationParams.applicantPersonalInfo().getType() == GUEST && !isTi;
     context.setVariable("isGuest", isGuest);
+
+    String source = "";
+
+    String url = publicStorageClient.getPublicDisplayUrl("program-summary-image/program-17/f1040.pdf");
+    try (InputStream is = new URL(url).openStream()) {
+      // PDFBox 3.x requires wrapping InputStreams into a RandomAccessReadBuffer
+      try (PDDocument document = Loader.loadPDF(RandomAccessReadBuffer.createBufferFromStream(is))) {
+        System.out.println("Successfully loaded PDF from S3. Pages: " + document.getNumberOfPages());
+
+        PDFRenderer renderer = new PDFRenderer(document);
+
+        // 2. Render first page (index 0) at 300 DPI for quality
+        BufferedImage image = renderer.renderImageWithDPI(0, 30);
+
+        // 3. Convert image to Byte Array
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(image, "png", baos);
+        byte[] imageBytes = baos.toByteArray();
+
+        // 4. Encode to Base64
+        String base64String = Base64.getEncoder().encodeToString(imageBytes);
+        source = "data:image/png;base64," + base64String;
+        context.setVariable("imagesource",source);
+        // Proceed to generate HTML image tag as discussed earlier
+      }
+    } catch (Exception e) {
+      System.err.println("Failed to read from S3: " + e.getMessage());
+    }
+
 
     // Progress bar
     ProgressBar progressBar =

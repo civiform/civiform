@@ -69,7 +69,7 @@
 
     <!-- Optional image -->
     <div th:if="${showImage}" class="usa-card__media">
-      <div class="usa-card__img add-aspect-16x9">
+      <div class="usa-card__img add-aspect-32x32">
         <img
           th:src="${card.imageSourceUrl().get()}"
           th:alt="${card.altText().orElse('')}"
