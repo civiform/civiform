@@ -20,8 +20,8 @@ test.describe('Managing system-wide settings', () => {
     await page.setViewportSize({width: 768, height: 720})
     await adminSettings.gotoAdminSettings()
 
-    const header = page.locator('#admin-settings-side-nav h1')
-    await validateScreenshot(header, 'admin-settings-header-narrow')
+    const navBar = page.locator('header.usa-header').first()
+    await validateScreenshot(navBar, 'admin-settings-header-narrow')
   })
 
   test('Updates settings on save', async ({adminSettings}) => {
