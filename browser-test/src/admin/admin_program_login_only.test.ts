@@ -1,5 +1,5 @@
 import {expect, test} from '../support/civiform_fixtures'
-import {loginAsAdmin} from '../support'
+import {loginAsAdmin, logout} from '../support'
 import {ProgramLifecycle, ProgramVisibility} from '../support/admin_programs'
 
 test.describe('login only program', () => {
@@ -30,12 +30,18 @@ test.describe('login only program', () => {
         'https://usa.gov',
         ProgramVisibility.PUBLIC,
       )
+      await adminPrograms.goToProgramDescriptionPage(
+        'External Program Name',
+        ProgramLifecycle.DRAFT,
+      )
       await expect(
         page.getByRole('checkbox', {
           name: 'Require applicants to log in to apply to this program',
         }),
       ).toBeDisabled()
     })
+
+    await logout(page)
   })
 
   test('login only persists through publish', async ({page, adminPrograms}) => {
