@@ -21,7 +21,7 @@
       id="main-content"
       tabindex="-1"
       role="main"
-      th:with="question=${applicationParams.block().getQuestions().get(0)},
+      th:with="question=${applicationParams.block().getVisibleQuestions().get(0)},
       questionParams=${questionRendererParams.get(question.getQuestionDefinition().getId())},
       fileUploadQuestion=${question.createFileUploadQuestion()}"
     >

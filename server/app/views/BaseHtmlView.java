@@ -174,11 +174,11 @@ public abstract class BaseHtmlView {
                 .condWith(
                     pageCount > 7 && isCurrentPageInMiddle,
                     renderPaginationEllipses(),
-                    renderPaginationPageButton(page - 1, false, linkForPage),
-                    renderPaginationPageButton(page, true, linkForPage),
-                    renderPaginationPageButton(page + 1, false, linkForPage),
+                    renderPaginationPageButton(page - 1, /* isCurrentPage= */ false, linkForPage),
+                    renderPaginationPageButton(page, /* isCurrentPage= */ true, linkForPage),
+                    renderPaginationPageButton(page + 1, /* isCurrentPage= */ false, linkForPage),
                     renderPaginationEllipses(),
-                    renderPaginationPageButton(pageCount, false, linkForPage))
+                    renderPaginationPageButton(pageCount, /* isCurrentPage= */ false, linkForPage))
 
                 /* If the page count is > 7 and the current page is one of the first 4 pages,
                 only show the ellipses on the right.
@@ -190,7 +190,7 @@ public abstract class BaseHtmlView {
                         pageNum ->
                             renderPaginationPageButton(pageNum, page == pageNum, linkForPage)),
                     renderPaginationEllipses(),
-                    renderPaginationPageButton(pageCount, false, linkForPage))
+                    renderPaginationPageButton(pageCount, /* isCurrentPage= */ false, linkForPage))
 
                 /* If the page count is > 7 and the current page is one of the last 4 pages,
                 only show the ellipses on the left.

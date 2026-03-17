@@ -21,6 +21,7 @@ import models.ProgramTab;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
+import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
@@ -33,6 +34,7 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
 import services.question.QuestionService;
+import services.settings.SettingsManifest;
 import views.admin.programs.ProgramEditStatus;
 import views.admin.programs.ProgramIndexView;
 import views.admin.programs.ProgramMetaDataEditView;
@@ -49,6 +51,8 @@ public final class AdminProgramController extends CiviFormController {
   private final ProgramMetaDataEditView editView;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
+  private final MessagesApi messagesApi;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public AdminProgramController(
@@ -60,7 +64,9 @@ public final class AdminProgramController extends CiviFormController {
       VersionRepository versionRepository,
       ProfileUtils profileUtils,
       FormFactory formFactory,
-      RequestChecker requestChecker) {
+      RequestChecker requestChecker,
+      MessagesApi messagesApi,
+      SettingsManifest settingsManifest) {
     super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
@@ -69,6 +75,8 @@ public final class AdminProgramController extends CiviFormController {
     this.editView = checkNotNull(editView);
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
+    this.messagesApi = checkNotNull(messagesApi);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /**
@@ -169,7 +177,9 @@ public final class AdminProgramController extends CiviFormController {
             programData.getProgramType(),
             ImmutableList.copyOf(programData.getTiGroups()),
             ImmutableList.copyOf(programData.getCategories()),
-            applicationSteps);
+            applicationSteps,
+            messagesApi.preferred(request),
+            settingsManifest.getEnumeratorImprovementsEnabled(request));
     // There shouldn't be any errors since we already validated the program, but check for errors
     // again just in case.
     if (result.isError()) {

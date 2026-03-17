@@ -1,5 +1,6 @@
 <!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
 <!--/*@thymesVar id="layoutParams" type="views.admin.shared.LayoutParams"*/-->
+<!--/*@thymesVar id="featureFlag" type="views.admin.shared.FeatureFlag"*/-->
 <!doctype html>
 <html lang="en-US" xmlns:th="http://www.thymeleaf.org">
   <head>
@@ -47,43 +48,100 @@
   </head>
 
   <!--/* Body sets HTMX header so the CSRF token is always there */-->
-  <body
-    class="display-flex minh-viewport body-background-gradient"
-    th:hx-headers='|{"CSRF-TOKEN":"${templateGlobals.csrfToken()}"}|'
-  >
-    <!--/* Header navigation */-->
-    <th:block th:insert="~{admin/shared/AdminCommonHeader}"></th:block>
+  <body th:hx-headers='|{"CSRF-TOKEN":"${templateGlobals.csrfToken()}"}|'>
+    <th:block
+      th:if="${featureFlag.isAdminUiMigrationScExtendedEnabled()}"
+      th:insert="~{admin/shared/Banner}"
+    ></th:block>
+    <th:block
+      th:unless="${featureFlag.isAdminUiMigrationScExtendedEnabled()}"
+      th:insert="~{admin/shared/TransitionalAdminCommonHeader}"
+    ></th:block>
 
-    <!--/* Main */-->
-    <main
-      class="bg-white shadow-2 width-full margin-x-auto"
-      th:classappend="${layoutParams.isWidescreen() ? 'admin-widescreen-main': 'admin-normal-main'}"
+    <div
+      class="bg-white maxw-full margin-x-auto desktop-lg:maxw-desktop-lg"
+      th:classappend="${featureFlag.isAdminUiMigrationScExtendedEnabled()} ? '' : 'padding-top-8 padding-bottom-4'"
     >
+      <!--/* Header navigation */-->
       <th:block
-        th:insert="~{${layoutParams.pageTemplate()} :: content}"
+        th:if="${featureFlag.isAdminUiMigrationScExtendedEnabled()}"
+        th:insert="~{admin/shared/AdminCommonHeader}"
       ></th:block>
-    </main>
 
-    <!--/* Google Tag Manager */-->
-    <th:block
-      th:insert="~{components/GoogleTagManagerFragment :: tagManager(${layoutParams.measurementId()}, ${templateGlobals.cspNonce()})}"
-    ></th:block>
+      <!--/* Main */-->
+      <div class="grid-container bg-white" data-testid="page-content">
+        <!--/* Heading */-->
+        <section aria-labelledby="sitePageHeading">
+          <h1
+            id="sitePageHeading"
+            th:text="${templateGlobals.pageHeading()}"
+          ></h1>
+          <p
+            th:if="${templateGlobals.pageIntro().isPresent()}"
+            th:text="${templateGlobals.pageIntro().get()}"
+          ></p>
+          <div>
+            <th:block
+              th:insert="~{${layoutParams.pageTemplate()} :: callToAction} ?: ~{}"
+            ></th:block>
+          </div>
+        </section>
 
-    <!--/* Scripts to be added at the end */-->
-    <script
-      th:each="script: ${layoutParams.bodyScripts()}"
-      th:nonce="${templateGlobals.cspNonce()}"
-      th:src="${script.src()}"
-      th:type="${script.type()}"
-      th:async="${script.async()}"
-      th:defer="${script.defer()}"
-      th:integrity="${script.integrity()}"
-      th:id="${script.id()}"
-    ></script>
+        <!--/* Content */-->
+        <div
+          class="grid-row"
+          th:classappend="${layoutParams.layoutType().name() == 'CONTENT_WITH_LEFT_SIDEBAR'} ? 'desktop:flex-row-reverse' : ''"
+        >
+          <main
+            id="main-content"
+            class="grid-col"
+            th:classappend="${layoutParams.layoutType().name() != 'CONTENT_ONLY'} ? 'desktop:grid-col-8' : ''"
+          >
+            <th:block
+              th:insert="~{${layoutParams.pageTemplate()} :: content}"
+            ></th:block>
+          </main>
 
-    <!--/* Optional page specific scripts. These should be load last. */-->
-    <th:block
-      th:insert="~{${layoutParams.pageTemplate()} :: scripts} ?: ~{}"
-    ></th:block>
+          <!--/* Optional sidebar. */-->
+          <aside
+            id="sidebar"
+            class="grid-col desktop:grid-col-4"
+            th:if="${layoutParams.layoutType().name() != 'CONTENT_ONLY'}"
+          >
+            <th:block
+              th:insert="~{${layoutParams.pageTemplate()} :: sidebar} ?: ~{}"
+            ></th:block>
+          </aside>
+        </div>
+      </div>
+
+      <!--/* Footer */-->
+      <th:block
+        th:if="${featureFlag.isAdminUiMigrationScExtendedEnabled()}"
+        th:insert="~{admin/shared/Footer}"
+      ></th:block>
+
+      <!--/* Google Tag Manager */-->
+      <th:block
+        th:insert="~{components/GoogleTagManagerFragment :: tagManager(${layoutParams.measurementId()}, ${templateGlobals.cspNonce()})}"
+      ></th:block>
+
+      <!--/* Scripts to be added at the end */-->
+      <script
+        th:each="script: ${layoutParams.bodyScripts()}"
+        th:nonce="${templateGlobals.cspNonce()}"
+        th:src="${script.src()}"
+        th:type="${script.type()}"
+        th:async="${script.async()}"
+        th:defer="${script.defer()}"
+        th:integrity="${script.integrity()}"
+        th:id="${script.id()}"
+      ></script>
+
+      <!--/* Optional page specific scripts. These should be load last. */-->
+      <th:block
+        th:insert="~{${layoutParams.pageTemplate()} :: scripts} ?: ~{}"
+      ></th:block>
+    </div>
   </body>
 </html>

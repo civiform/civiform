@@ -85,6 +85,7 @@ export enum QuestionType {
   NUMBER = 'number',
   RADIO = 'radio',
   TEXT = 'text',
+  YES_NO = 'yes-no',
   ENUMERATOR = 'enumerator',
   FILE_UPLOAD = 'file-upload',
 }
@@ -215,9 +216,13 @@ export class AdminQuestions {
       'label:has-text("Question note for administrative use only")',
       description ?? '',
     )
-    await this.page.selectOption('#question-enumerator-select', {
-      label: enumeratorName,
-    })
+    // Only select enumerator if the dropdown is enabled
+    const enumeratorSelect = this.page.locator('#question-enumerator-select')
+    if (await enumeratorSelect.isEnabled()) {
+      await this.page.selectOption('#question-enumerator-select', {
+        label: enumeratorName,
+      })
+    }
     if (exportOption) {
       await this.selectExportOption(exportOption)
     }
@@ -648,6 +653,9 @@ export class AdminQuestions {
         break
       case QuestionType.TEXT:
         await this.addTextQuestion({questionName, questionText: questionText})
+        break
+      case QuestionType.YES_NO:
+        await this.addYesNoQuestion({questionName, questionText: questionText})
         break
       case QuestionType.ENUMERATOR:
         await this.addEnumeratorQuestion({

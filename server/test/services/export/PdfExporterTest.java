@@ -87,7 +87,8 @@ public class PdfExporterTest extends AbstractExporterTest {
     Path answerPath =
         fileQuestion
             .getQuestionDefinition()
-            .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH);
+            .getContextualizedPath(
+                /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
 
     QuestionAnswerer.answerFileQuestion(
         applicantFive.getApplicantData(), answerPath, "my-file-key");
@@ -139,7 +140,8 @@ public class PdfExporterTest extends AbstractExporterTest {
     Path answerPath =
         fileQuestion
             .getQuestionDefinition()
-            .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH);
+            .getContextualizedPath(
+                /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
 
     QuestionAnswerer.answerFileQuestionWithMultipleUpload(
         applicantFive.getApplicantData(),
@@ -196,7 +198,8 @@ public class PdfExporterTest extends AbstractExporterTest {
     Path answerPath =
         fileQuestion
             .getQuestionDefinition()
-            .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH);
+            .getContextualizedPath(
+                /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
 
     QuestionAnswerer.answerFileQuestion(
         applicantFive.getApplicantData(), answerPath, "my-file-key");
@@ -244,7 +247,8 @@ public class PdfExporterTest extends AbstractExporterTest {
     Path answerPath =
         fileQuestion
             .getQuestionDefinition()
-            .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH);
+            .getContextualizedPath(
+                /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
 
     QuestionAnswerer.answerFileQuestionWithMultipleUpload(
         applicantFive.getApplicantData(),
@@ -422,6 +426,12 @@ public class PdfExporterTest extends AbstractExporterTest {
     assertThat(linesFromPdf.get(12)).isEqualTo("Application confirmation message");
     assertThat(linesFromPdf.get(13))
         .isEqualTo(programDef.localizedConfirmationMessage().getDefault());
+    assertThat(linesFromPdf.get(15)).isEqualTo("Statuses");
+    assertThat(linesFromPdf.get(17)).isEqualTo("(Default status)");
+    assertThat(linesFromPdf.get(18)).isEqualTo("Pending");
+    assertThat(linesFromPdf.get(19)).isEqualTo("We are reviewing your application!");
+    assertThat(linesFromPdf.get(21)).isEqualTo("approved");
+    assertThat(linesFromPdf.get(22)).isEqualTo("You are approved");
   }
 
   @Test

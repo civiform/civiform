@@ -45,6 +45,11 @@
               th:with="suggestions=${addressSuggestionGroup.getAddressSuggestions()}"
             >
               <input hidden th:value="${csrfToken}" name="csrfToken" />
+              <input
+                type="hidden"
+                name="addressJson"
+                th:value="${addressJson}"
+              />
               <fieldset class="cf-no-margin-padding border-0">
                 <!--/* If this question is used for eligibility, we must use the corrected address */-->
                 <div th:if="${!isEligibilityEnabled}" class="usa-prose">

@@ -44,6 +44,8 @@ header.guestIndicator=게스트 사용자
 header.userName={0}(으)로 로그인됨
 # Error message to answer a required question
 validation.isRequired=이 질문은 필수입니다.
+# Error message to fill a required field
+validation.fieldIsRequired=이 필드는 필수입니다.
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=유효한 내용을 입력하세요.
 content.requiredFieldsNote=참고: {0} 표시가 있는 입력란은 필수입니다.
@@ -237,6 +239,8 @@ button.save=저장
 button.search=검색
 # Button to start an application on behalf of a client.
 button.startApp=애플리케이션 시작
+# Button to redirect to the login page when the applicant is not logged in for login-only programs.
+button.startAppForLoginOnlyProgram=신청을 시작하려면 로그인하세요
 # Button to view the applications belonging to an applicant.
 button.viewApplications=애플리케이션 보기
 # Button to view and add clients
@@ -556,6 +560,12 @@ link.backToEditProgramBlock={0} 편집으로 돌아가기
 content.predicateVisibilityDescription=이전 화면의 질문에 대한 응답에 따라 지원자에게 이 화면을 표시하거나 숨길 시점을 설정하세요.
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
 content.predicateEligibilityDescription=이 화면의 질문에 대한 응답에 따라 지원자의 프로그램 지원 자격 충족 여부를 결정할 조건을 추가하세요. 최소 조건을 충족하지 못하는 지원자는 지원서를 제출하지 못하도록 차단됩니다. 이 설정은 다음에서 변경할 수 있습니다.
+# Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualitifies for the program.
+content.predicateEligibilityDescription.v2=이 화면의 질문에 대한 답변을 바탕으로, 신청자의 프로그램 지원 자격 여부를 결정하는 자격 조건을 추가하세요.
+# Text informing admins that ineligible applicants will be blocked from submitting an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
+content.blockIneligibleApplicants=최소 기준을 충족하지 않는 신청자는 신청서 제출이 차단됩니다. [여기]에서 변경할 수 있습니다. 
+# Text informing admins that ineligible applicants will still be able to submit an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
+content.allowIneligibleApplicants=신청자는 최소 기준을 충족하지 않더라도 신청서를 제출할 수 있습니다. [여기]에서 변경할 수 있습니다.
 # Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
 link.programSettings=프로그램 설정
 
@@ -566,9 +576,9 @@ content.predicateApplicantIsEligible=다음의 경우 지원자가 자격 조건
 # Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
 content.predicateConditionsAreTrue=조건이 참임:
 # Text that shows on the eligibility predicate screen when no eligibility conditions are set.
-content.predicateEligibilityNullState=Applicant is always eligible.
+content.predicateEligibilityNullState=신청자는 별도 조건 없이 항상 신청 가능합니다.
 # Text that shows on the visibility predicate screen when no visibility conditions are set.
-content.predicateVisibilityNullState=This screen is always shown.
+content.predicateVisibilityNullState=이 화면은 항상 표시됩니다.
 
 # Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
 content.predicateConditionIsTrueIf=다음의 경우 조건이 참임
@@ -595,7 +605,7 @@ button.predicateAddCondition=조건 추가
 # Button to remove a condition from the form
 button.predicateDeleteCondition=조건 삭제
 # Button to remove all conditions from the form
-button.predicateDeleteAllConditions=Delete all conditions
+button.predicateDeleteAllConditions=모든 조건 삭제
 # Link to append form fields for configuring a new sub-condition within a condition
 link.predicateAddSubcondition=하위 조건 추가
 # Link to remove a sub-condition from the form
@@ -606,11 +616,15 @@ link.backToTop=맨 위로 돌아가기
 button.saveAndExit=저장하고 종료
 
 # Confirmation dialog shown to admin for deleting all conditions in the predicate edit view
-confirm.deleteAllConditions=Are you sure you would like to delete all conditions?
+confirm.deleteAllConditions=정말 모든 조건을 삭제하겠습니까?
 # Confirmation dialog shown to admin for deleting a condition in the predicate edit view
-confirm.deleteSingleCondition=Are you sure you would like to delete this condition?
+confirm.deleteSingleCondition=정말 모든 조건을 삭제하겠습니까?
+# Confirmation dialog shown to admin for leaving predicate edit without saving.
+confirm.leaveWithoutSaving=정말 이 페이지에서 나가겠습니까?
 # Dialog to warn admin that a deletion action cannot be undone
-confirm.actionNotReversable=This action cannot be undone.
+confirm.actionNotReversable=이 실행은 되돌릴 수 없습니다.
+# Dialog to warn admin that they have unsaved changes in the predicate edit view.
+confirm.unsavedChanges=저장되지 않은 변경 사항이 있습니다.
 
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsVisibility=이전 화면에는 이 화면의 표시 조건을 설정하는 데 사용할 질문이 없습니다.
@@ -618,9 +632,14 @@ alert.predicateNoAvailableQuestionsVisibility=이전 화면에는 이 화면의 
 alert.predicateNoAvailableQuestionsEligibility=이 화면에는 자격 조건을 설정하는 데 사용할 질문이 없습니다.
 
 # Label for textarea where admins can enter a message to show to applicants who are deemed ineligible based on the eligibility conditions set.
-label.predicateEligibilityMessageField=Display message shown to ineligible applicants
+label.predicateEligibilityMessageField=자격이 없는 신청자에게 표시되는 메시지
 # Help text for a textarea input explaining that markdown is supported.
-content.markdownSupported=Markdown is supported
+content.markdownSupported=마크다운을 지원합니다
+
+# Error message for when the admin leaves a multi-select question blank in admin predicate edit.
+validation.selectionRequired=최소 한 가지 옵션을 선택해야 합니다.
+# Error message for when the admin leaves a question unselected in admin predicate edit.
+validation.questionRequired=질문을 선택해야 합니다.
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -864,7 +883,7 @@ map.locationLinkText=세부 정보 더 보기
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr={0} 세부 정보 더 보기
 # Text showing the count of displayed locations, with placeholders for current count and total count
-map.locationsCount=Displaying {0} to {1} of {2} locations
+map.locationsCount={2}개 위치 중 {0}~{1} 표시
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount=최대 {1}개 중 {0}개 위치가 선택되었습니다.
 # Alt text for map region
@@ -902,7 +921,7 @@ map.geoJsonErrorText = 죄송합니다만 현재 이 질문을 표시할 수 없
 map.contactUs = 문의
 map.homepage = 홈페이지
 # screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
-map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a different location, please unselect at least one of the locations you have chosen.
+map.maxLocationsSelectedSr = 최대 {0}개 위치를 선택할 수 있습니다. 다른 위치를 추가하려면, 선택한 위치 중 하나 이상을 선택 해제해 주세요.
 
 #---------------------------------------------------------------------------#
 # MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
@@ -968,7 +987,7 @@ error.internalServerTitle.v2=오류가 발생했습니다
 # The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=죄송합니다. Google 시스템에 내부 오류가 발생했습니다
 # Additional information about the error that is shown to the user in small font
-error.internalServerDescription=도움이 필요한 경우 오류 ID({0})를 포함하여 기술 지원팀({1})에 문의하세요.
+error.internalServerDescription=도움이 필요하면 기술 지원팀 {0}으로 문의하시고, 오류 ID {1}를 함께 제공해 주세요. 
 # A button redirecting the user to the homepage
 error.internalServerHomeButton=홈페이지 방문
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
@@ -1043,21 +1062,6 @@ banner.minute=1분
 #  are seeded into the database, since these will be admin defined in the future #
 #------------------------------------------------------------------------------#
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# An aria-label for screen readers that helps provide context for the category tags.
 # A tag used to filter the list of programs down to those that are related to childcare.
 category.tag.childcare=육아
 
@@ -1100,7 +1104,7 @@ category.tag.utilities=유틸리티
 # A tag used to filter the list of programs down to those that are related to military veterans.
 category.tag.veteran=군필
 
-
+# An aria-label for screen readers that helps provide context for the category tags.
 ariaLabel.categories=카테고리
 
 #------------------------------------------------------------------------------#
@@ -1127,3 +1131,92 @@ session.extended.success=세션이 연장되었습니다
 
 # Error message shown when there was a problem extending the user's session
 session.extended.error=세션을 연장할 수 없습니다
+
+#------------------------------------------------------------------------------#
+#  ADMIN PROGRAM BLOCK EDIT                                                    #
+#------------------------------------------------------------------------------#
+
+# Heading for the repeated set creation method radio buttons
+heading.repeatedSet.creationMethod=
+# Option for allowing an admin to create a new repeated set
+option.repeatedSet.createNew=
+# Option for allowing an admin to choose an existing repeated set
+option.repeatedSet.chooseExisting=
+# Label for the new repeated set form
+label.repeatedSet.newSetForm=
+# Label for the text input field asking what type of entity users will be listing (e.g., household members)
+input.repeatedSet.listedEntity=
+# Label for the text input field asking for the admin identifier of the repeated set
+input.repeatedSet.adminId=
+# A text input field asking admins for the text that will prompt applicants to list out the entity
+input.repeatedSet.questionText=
+# A text input field for admins to add a hint that will help applicants decide what entities to list out
+input.repeatedSet.hintText=
+# A form field where admins set the minimum number of entities that applicants must list
+input.repeatedSet.minEntities=
+# A form field where admins set the maximum number of entities that applicants can list
+input.repeatedSet.maxEntities=
+# Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
+alert.repeatedSet.newQuestion=
+# Submission button for creating a new repeated set
+button.repeatedSet.submitNew=
+# Button for admins to add a new repeated set
+button.repeatedSet.addNew=
+# Text letting admins know which block represents the group of screens for repeating questions
+text.repeatedSet=
+# Text letting admins know which block represents the group of screens for nested repeating questions
+text.nestedRepeatedSet=
+# An uneditable prefix for the enumerator screen name representing the repeated object that will be enumerated
+text.repeatedSet.prefix=상위 라벨
+# An uneditable prefix for the enumerator screen name representing the nested repeated object that will be enumerated
+text.repeatedSet.nestedPrefix=하위 라벨
+
+#------------------------------------------------------------------------------#
+#  ADMIN REPORTING                                                             #
+#------------------------------------------------------------------------------#
+
+# Caption for the table showing submissions by program
+caption.submissionsByProgram=프로그램별 제출 현황 (전체 프로그램)
+# Column header for program name
+content.program=프로그램
+# Column header for number of submissions
+content.submissions=제출 서류
+# Column header for 25th percentile time to complete
+content.timeToCompleteP25=완료 시간 (p25)
+# Column header for median (50th percentile) time to complete
+content.medianTimeToComplete=완료 소요 시간(중간값)
+# Column header for 75th percentile time to complete
+content.timeToCompleteP75=완료 시간 (p75)
+# Column header for 99th percentile time to complete
+content.timeToCompleteP99=완료 시간 (p99)
+# Text on button to download CSV file
+button.downloadCsv=CSV 다운로드
+# Caption for the table showing submissions by month
+caption.submissionsByMonth=월별 제출 현황 (모든 프로그램)
+# Column header for month
+content.month=월
+
+#------------------------------------------------------------------------------#
+#  ADMIN REPORTING PROGRAM                                                     #
+#------------------------------------------------------------------------------#
+
+# Heading for the program reporting page
+reportingProgram.heading={0} 리포트
+# Info text about data delay
+reportingProgram.dataDelay=데이터가 최대 한 시간 지연될 수 있습니다.
+# Caption for the table showing submissions by month for a program
+reportingProgram.caption.submissionsByMonth=월별 제출 현황
+# Column header for month
+reportingProgram.month=월
+# Column header for submissions
+reportingProgram.submissions=제출 서류
+# Column header for 25th percentile time to complete
+reportingProgram.timeToCompleteP25=완료 시간 (p25)
+# Column header for median (50th percentile) time to complete
+reportingProgram.medianTimeToComplete=완료 소요 시간(중간값)
+# Column header for 75th percentile time to complete
+reportingProgram.timeToCompleteP75=완료 시간 (p75)
+# Column header for 99th percentile time to complete
+reportingProgram.timeToCompleteP99=완료 시간 (p99)
+# Text on button to download CSV file
+reportingProgram.downloadCsv=CSV 다운로드

@@ -69,7 +69,13 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
             .addQuestion(pqd)
             .build();
 
-    block = new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
+    block =
+        new Block(
+            "id",
+            blockDefinition,
+            new ApplicantModel(),
+            applicantData,
+            /* repeatedEntity= */ Optional.empty());
   }
 
   @Test
@@ -160,7 +166,12 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
             .build();
 
     Block block =
-        new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
+        new Block(
+            "id",
+            blockDefinition,
+            new ApplicantModel(),
+            applicantData,
+            /* repeatedEntity= */ Optional.empty());
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
             .put(
@@ -209,7 +220,12 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
             .build();
 
     Block block =
-        new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
+        new Block(
+            "id",
+            blockDefinition,
+            new ApplicantModel(),
+            applicantData,
+            /* repeatedEntity= */ Optional.empty());
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
             .put(

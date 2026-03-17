@@ -7,6 +7,10 @@ enum ProgramType {
   EXTERNAL = 'External program',
 }
 
+interface HtmxDetail {
+  target?: HTMLElement
+}
+
 class AdminPrograms {
   private static PROGRAM_CARDS_SELECTOR = '.cf-admin-program-card'
   private static PROGRAM_LINK_ATTRIBUTE = 'data-copyable-program-link'
@@ -37,7 +41,7 @@ class AdminPrograms {
   static attachProgramTypeChangeListener() {
     // Listens for changes to the pre-screener checkbox.
     // TODO(#10363): This should be removed once EXTERNAL_PROGRAM_CARDS feature
-    // is enabled by default, which is handled by the next listener.
+    // flag is removed, which is handled by the next listener.
     addEventListenerToElements('#pre-screener-checkbox', 'click', () => {
       const preScreenerCheckbox = <HTMLInputElement>(
         document.querySelector('#pre-screener-checkbox')
@@ -339,6 +343,66 @@ class AdminPrograms {
       })
     }
   }
+
+  static attachEventListenerToHtmxSwap() {
+    document.body.addEventListener('htmx:afterSwap', (e) => {
+      const targetElement = (e as CustomEvent<HtmxDetail>).detail.target
+      if (!targetElement) {
+        return
+      }
+      if (targetElement.id === 'enumerator-setup') {
+        if (document.getElementById('new-enumerator-question-form-errors')) {
+          this.focusOnFirstEnumeratorFormField()
+        } else {
+          this.focusOnEnumeratorQuestionSection()
+        }
+      }
+    })
+  }
+
+  static attachEventListenerToEnumeratorCreationMethod() {
+    const radioButtons = document.querySelectorAll(
+      'input[name="creation-method-option"]',
+    )
+    const enumerator_question_form = document.querySelector(
+      '#new-enumerator-question-form',
+    ) as HTMLElement
+    const add_question_section = document.querySelector(
+      '#add-question-section',
+    ) as HTMLElement
+
+    radioButtons.forEach((radio) => {
+      radio.addEventListener('change', (event) => {
+        // hide all sections
+        enumerator_question_form.style.display = 'none'
+        add_question_section.style.display = 'none'
+
+        const target = event.target as HTMLInputElement
+
+        if (target.value == 'create-new') {
+          enumerator_question_form.style.display = 'block'
+        } else {
+          add_question_section.style.display = 'block'
+        }
+      })
+    })
+  }
+
+  static focusOnEnumeratorQuestionSection() {
+    const enumeratorSectionHeading = document.getElementById(
+      'repeated-set-question-section-heading',
+    )
+    if (enumeratorSectionHeading) {
+      enumeratorSectionHeading.focus()
+    }
+  }
+
+  static focusOnFirstEnumeratorFormField() {
+    const firstInputField = document.getElementById('listed-entity-input')
+    if (firstInputField) {
+      firstInputField.focus()
+    }
+  }
 }
 
 export function init() {
@@ -349,4 +413,6 @@ export function init() {
   AdminPrograms.attachEventListenersToHideEditTiInPublicMode()
   AdminPrograms.attachEventListenersToHideEditTiInTIOnlyMode()
   AdminPrograms.attachEventListenersToHideEditTiInHiddenMode()
+  AdminPrograms.attachEventListenerToHtmxSwap()
+  AdminPrograms.attachEventListenerToEnumeratorCreationMethod()
 }

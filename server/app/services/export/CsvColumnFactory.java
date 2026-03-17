@@ -410,7 +410,7 @@ final class CsvColumnFactory {
   }
 
   private static String formatHeader(Path scalarPath) {
-    return formatHeader(scalarPath, Optional.empty());
+    return formatHeader(scalarPath, /* optionAdminName= */ Optional.empty());
   }
 
   private static String formatHeader(Path scalarPath, Optional<String> optionAdminName) {

@@ -13,6 +13,7 @@ import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.KeycloakOidcConfiguration;
 import org.pac4j.oidc.config.OidcConfiguration;
 import play.Environment;
+import repository.DatabaseExecutionContext;
 
 /**
  * WARNING! This is EXPERIMENTAL only and not production ready
@@ -20,6 +21,7 @@ import play.Environment;
  * <p>Customize the OIDC provider to handle Keycloak specific settings for the applicant provider
  */
 public class KeycloakApplicantClientProvider extends GenericOidcClientProvider {
+  private final DatabaseExecutionContext dbExecutionContext;
   private static final StandardClaimsAttributeNames standardClaimsAttributeNames =
       StandardClaimsAttributeNames.builder()
           .setEmail("email")
@@ -27,8 +29,12 @@ public class KeycloakApplicantClientProvider extends GenericOidcClientProvider {
           .build();
 
   @Inject
-  public KeycloakApplicantClientProvider(OidcClientProviderParams params, Environment env) {
-    super(params);
+  public KeycloakApplicantClientProvider(
+      OidcClientProviderParams params,
+      Environment env,
+      DatabaseExecutionContext dbExecutionContext) {
+    super(params, dbExecutionContext);
+    this.dbExecutionContext = dbExecutionContext;
 
     if (env.isProd()) {
       throw new UnsupportedOperationException(
@@ -68,7 +74,8 @@ public class KeycloakApplicantClientProvider extends GenericOidcClientProvider {
 
   @Override
   public ProfileCreator getProfileCreator(OidcConfiguration config, OidcClient client) {
-    return new GenericApplicantProfileCreator(config, client, params, standardClaimsAttributeNames);
+    return new GenericApplicantProfileCreator(
+        config, client, params, standardClaimsAttributeNames, dbExecutionContext);
   }
 
   @Override

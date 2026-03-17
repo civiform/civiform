@@ -3,11 +3,14 @@ package views.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Optional;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.mvc.Http;
 import services.settings.SettingsManifest;
 import views.CspUtil;
+import views.admin.shared.FeatureFlag;
+import views.admin.shared.Footer;
 import views.admin.shared.LayoutParams;
 import views.admin.shared.TemplateGlobals;
 import views.html.helper.CSRF;
@@ -35,8 +38,21 @@ public abstract class BaseView<TModel extends BaseViewModel> {
   }
 
   /** Page title text */
-  protected String pageTitle() {
+  protected String pageTitle(TModel model) {
     return "";
+  }
+
+  /**
+   * Page heading text. Populates that page's H1. If not overridden uses the ${@link
+   * #pageTitle(TModel)}
+   */
+  protected String pageHeading(TModel model) {
+    return pageTitle(model);
+  }
+
+  /** Page intro shown below the {@link #pageHeading } */
+  protected Optional<String> pageIntro(TModel model) {
+    return Optional.empty();
   }
 
   /**
@@ -55,6 +71,14 @@ public abstract class BaseView<TModel extends BaseViewModel> {
    */
   protected String layoutTemplate() {
     return null;
+  }
+
+  /**
+   * Determines the {@link LayoutType} for the page main content and if/where it has sidebar
+   * content.
+   */
+  protected LayoutType layoutType() {
+    return LayoutType.CONTENT_ONLY;
   }
 
   /**
@@ -85,6 +109,7 @@ public abstract class BaseView<TModel extends BaseViewModel> {
         LayoutParams.builder()
             .pageTemplate(pageTemplate())
             .isWidescreen(isWidescreen())
+            .layoutType(layoutType())
             .civiformImageTag(settingsManifest.getCiviformImageTag().orElse("UNKNOWN"))
             .addNoIndexMetaTag(settingsManifest.getStagingAddNoindexMetaTag())
             .favicon(FAVICON_DATAURI)
@@ -98,9 +123,30 @@ public abstract class BaseView<TModel extends BaseViewModel> {
     context.setVariable(
         "templateGlobals",
         TemplateGlobals.builder()
-            .pageTitle(pageTitle())
+            .pageTitle(pageTitle(model))
+            .pageHeading(pageHeading(model))
+            .pageIntro(pageIntro(model))
             .cspNonce(CspUtil.getNonce(request))
             .csrfToken(CSRF.getToken(request.asScala()).value())
+            .build());
+
+    // Set values for the footer
+    context.setVariable(
+        "footer",
+        Footer.builder()
+            .technicalSupportEmail(
+                settingsManifest
+                    .getSupportEmailAddress(request)
+                    .orElse("SUPPORT EMAIL ADDRESS MISSING"))
+            .build());
+
+    // Set values for feature flags
+    context.setVariable(
+        "featureFlag",
+        FeatureFlag.builder()
+            .isAdminUiMigrationScEnabled(settingsManifest.getAdminUiMigrationScEnabled(request))
+            .isAdminUiMigrationScExtendedEnabled(
+                settingsManifest.getAdminUiMigrationScExtendedEnabled(request))
             .build());
 
     // This gives the Thymeleaf template a reference to this view class. Methods can be added
@@ -226,7 +272,13 @@ public abstract class BaseView<TModel extends BaseViewModel> {
     return ImmutableList.of();
   }
 
-  /** Returns true if a widescreen layout is requested. Defaults to false. */
+  /**
+   * Returns true if a widescreen layout is requested. Defaults to false.
+   *
+   * @deprecated This will go away after the admin redesign migration
+   */
+  @SuppressWarnings("InlineMeSuggester")
+  @Deprecated
   protected boolean isWidescreen() {
     return false;
   }

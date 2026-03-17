@@ -186,7 +186,7 @@ public final class ApplicantService {
   public CompletionStage<ApplicantModel> createApplicant() {
 
     ApplicantModel applicant = new ApplicantModel();
-    return accountRepository.insertApplicant(applicant).thenApply((unused) -> applicant);
+    return accountRepository.insertApplicant(applicant).thenApply(_ -> applicant);
   }
 
   /**
@@ -835,7 +835,15 @@ public final class ApplicantService {
   private void notifyProgramAdmins(
       long applicantId, long programId, long applicationId, String programName) {
     String applicationViewLink =
-        controllers.admin.routes.AdminApplicationController.show(programId, applicationId).url();
+        controllers.admin.routes.AdminApplicationController.show(
+                programId,
+                applicationId,
+                /* search= */ Optional.empty(),
+                /* fromDate= */ Optional.empty(),
+                /* toDate= */ Optional.empty(),
+                /* page= */ Optional.empty(),
+                /* selectedApplicationStatus= */ Optional.empty())
+            .url();
 
     String viewLink =
         baseUrl
@@ -1118,7 +1126,7 @@ public final class ApplicantService {
               ImmutableSet<ApplicationModel> applications = applicationsFuture.join();
               logDuplicateDrafts(applications);
               return relevantProgramsForApplicantInternal(
-                  activeProgramDefinitions, applications, allPrograms, request);
+                  activeProgramDefinitions, applications, allPrograms);
             },
             classLoaderExecutionContext.current());
   }
@@ -1139,7 +1147,7 @@ public final class ApplicantService {
                   .filter(pdef -> pdef.displayMode().equals(DisplayMode.PUBLIC))
                   .collect(ImmutableList.toImmutableList());
           return relevantProgramsForApplicantInternal(
-              activeProgramDefinitions, ImmutableSet.of(), activeProgramDefinitions, request);
+              activeProgramDefinitions, ImmutableSet.of(), activeProgramDefinitions);
         },
         classLoaderExecutionContext.current());
   }
@@ -1214,8 +1222,7 @@ public final class ApplicantService {
   private ApplicationPrograms relevantProgramsForApplicantInternal(
       ImmutableList<ProgramDefinition> activePrograms,
       ImmutableSet<ApplicationModel> applications,
-      ImmutableList<ProgramDefinition> allPrograms,
-      Request request) {
+      ImmutableList<ProgramDefinition> allPrograms) {
     // Use ImmutableMap.copyOf rather than the collector to guard against cases where the
     // provided active programs contains duplicate entries with the same adminName. In this
     // case, the ImmutableMap collector would throw since ImmutableMap builders don't allow
@@ -1364,7 +1371,7 @@ public final class ApplicantService {
             relevantPrograms.setPreScreenerForm(applicantProgramDataBuilder.build());
           } else if (programType.equals(ProgramType.DEFAULT)
               || (programType.equals(ProgramType.EXTERNAL)
-                  && settingsManifest.getExternalProgramCardsEnabled(request))) {
+                  && settingsManifest.getExternalProgramCardsEnabled())) {
             unappliedPrograms.add(applicantProgramDataBuilder.build());
           }
         });
@@ -1757,7 +1764,7 @@ public final class ApplicantService {
                 areaUpdate.value()));
 
     // Write metadata for all questions in the block, regardless of whether they were blank or not.
-    block.getQuestions().stream()
+    block.getVisibleQuestions().stream()
         .map(ApplicantQuestion::getContextualizedPath)
         .forEach(path -> writeMetadataForPath(path, applicantData, updateMetadata));
     return failedUpdatesBuilder.build();
@@ -2047,7 +2054,7 @@ public final class ApplicantService {
     // Get a writeable map so the existing paths can be replaced
     Map<String, String> newFormData = new java.util.HashMap<>(formData);
 
-    for (ApplicantQuestion applicantQuestion : blockMaybe.get().getQuestions()) {
+    for (ApplicantQuestion applicantQuestion : blockMaybe.get().getVisibleQuestions()) {
       if (applicantQuestion.getType() != QuestionType.PHONE) {
         continue;
       }
@@ -2086,7 +2093,7 @@ public final class ApplicantService {
     // Get a writeable map so the existing paths can be replaced
     Map<String, String> newFormData = new java.util.HashMap<>(formData);
 
-    for (ApplicantQuestion applicantQuestion : blockMaybe.get().getQuestions()) {
+    for (ApplicantQuestion applicantQuestion : blockMaybe.get().getVisibleQuestions()) {
       if (applicantQuestion.getType() != QuestionType.DATE) {
         continue;
       }

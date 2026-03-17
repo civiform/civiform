@@ -27,7 +27,13 @@
           [[#{content.predicateVisibilityDescription}]]
         </p>
         <p th:case="'ELIGIBILITY'" class="margin-top-05">
-          [[#{content.predicateEligibilityDescription}]]
+          [[#{content.predicateEligibilityDescription.v2}]]
+          <span th:if="${model.programDefinition.eligibilityIsGating()}">
+            [[#{content.blockIneligibleApplicants}]]
+          </span>
+          <span th:unless="${model.programDefinition.eligibilityIsGating()}">
+            [[#{content.allowIneligibleApplicants}]]
+          </span>
           <a
             th:href="${model.programEditUrl()}"
             class="usa-link"
@@ -37,7 +43,12 @@
         </p>
       </div>
 
-      <form id="predicate-form" class="usa-form">
+      <form
+        id="predicate-form"
+        class="usa-form"
+        th:hx-post="${model.updatePredicateEndpoint()}"
+        hx-target="#predicate-conditions-list"
+      >
         <input
           type="hidden"
           th:value="${templateGlobals.csrfToken()}"
@@ -171,8 +182,6 @@
           type="submit"
           class="usa-button tablet:grid-col-auto justify-center"
           form="predicate-form"
-          th:hx-post="${model.updatePredicateEndpoint()}"
-          hx-target="#predicate-conditions-list"
           th:text="#{button.saveAndExit}"
           th:disabled="${!model.hasAvailableQuestions}"
         ></button>

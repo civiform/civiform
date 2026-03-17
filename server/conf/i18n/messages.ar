@@ -44,6 +44,8 @@ header.guestIndicator=أنت من المستخدمين الضيوف
 header.userName=مُسجَّل الدخول باسم المستخدم {0}
 # Error message to answer a required question
 validation.isRequired=يجب الإجابة عن هذا السؤال.
+# Error message to fill a required field
+validation.fieldIsRequired=هذا الحقل مطلوب.\n
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=يُرجى إدخال معلومات صالحة.
 content.requiredFieldsNote=ملاحظة: يجب ملء الحقول التي تحمل العلامة {0}.
@@ -237,6 +239,8 @@ button.save=حفظ
 button.search=بحث
 # Button to start an application on behalf of a client.
 button.startApp=بدء الطلب
+# Button to redirect to the login page when the applicant is not logged in for login-only programs.
+button.startAppForLoginOnlyProgram=تسجيل الدخول لبدء تقديم الطلب.\n
 # Button to view the applications belonging to an applicant.
 button.viewApplications=عرض الطلبات
 # Button to view and add clients
@@ -556,6 +560,12 @@ link.backToEditProgramBlock=العودة لتحرير {0}
 content.predicateVisibilityDescription=اضبط متى يتم عرض هذه الشاشة أو إخفاؤها للمتقدمين بناءً على إجاباتهم في الشاشات السابقة.
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
 content.predicateEligibilityDescription=أضف شروط الأهلية لتحديد ما إذا كان المتقدم مؤهلًا للبرنامج بناءً على إجاباته في هذه الشاشة. المتقدمون الذين لا يستوفون الحد الأدنى من المتطلبات سيتم منعهم من إرسال الطلب. يمكنك تغيير ذلك من خلال
+# Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualitifies for the program.
+content.predicateEligibilityDescription.v2=أضف شروط الأهلية لتحديد ما إذا كان المتقدم مؤهلًا للبرنامج بناءً على إجاباته على الأسئلة المعروضة في هذه الشاشة.
+# Text informing admins that ineligible applicants will be blocked from submitting an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
+content.blockIneligibleApplicants=سيُمنع المتقدمين الذين لا يستوفون الحد الأدنى من المتطلبات من تقديم الطلب. يمكنك تغيير هذا في
+# Text informing admins that ineligible applicants will still be able to submit an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
+content.allowIneligibleApplicants=يمكن للمتقدمين تقديم طلب حتى لو لم يستوفوا الحد الأدنى من المتطلبات. يمكنك تغيير هذا في
 # Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
 link.programSettings=إعدادات البرنامج
 
@@ -566,9 +576,9 @@ content.predicateApplicantIsEligible=يكون المتقدم مؤهلًا إذا
 # Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
 content.predicateConditionsAreTrue=الشروط صحيحة:
 # Text that shows on the eligibility predicate screen when no eligibility conditions are set.
-content.predicateEligibilityNullState=Applicant is always eligible.
+content.predicateEligibilityNullState=المتقدم مؤهل دائماً.
 # Text that shows on the visibility predicate screen when no visibility conditions are set.
-content.predicateVisibilityNullState=This screen is always shown.
+content.predicateVisibilityNullState=هذه الشاشة معروضة دائماً.
 
 # Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
 content.predicateConditionIsTrueIf=يكون الشرط صحيح إذا كانت
@@ -595,7 +605,7 @@ button.predicateAddCondition=إضافة شرط
 # Button to remove a condition from the form
 button.predicateDeleteCondition=حذف الشرط
 # Button to remove all conditions from the form
-button.predicateDeleteAllConditions=Delete all conditions
+button.predicateDeleteAllConditions=حذف جميع الشروط.\n
 # Link to append form fields for configuring a new sub-condition within a condition
 link.predicateAddSubcondition=إضافة شرط فرعي
 # Link to remove a sub-condition from the form
@@ -606,11 +616,15 @@ link.backToTop=العودة إلى الأعلى
 button.saveAndExit=حفظ وخروج
 
 # Confirmation dialog shown to admin for deleting all conditions in the predicate edit view
-confirm.deleteAllConditions=Are you sure you would like to delete all conditions?
+confirm.deleteAllConditions=هل متأكد من رغبتك في حذف جميع الشروط؟\n
 # Confirmation dialog shown to admin for deleting a condition in the predicate edit view
-confirm.deleteSingleCondition=Are you sure you would like to delete this condition?
+confirm.deleteSingleCondition=هل متأكد من رغبتك في حذف هذا الشرط؟\n
+# Confirmation dialog shown to admin for leaving predicate edit without saving.
+confirm.leaveWithoutSaving=هل متأكد من رغبتك في المغادرة؟\n
 # Dialog to warn admin that a deletion action cannot be undone
-confirm.actionNotReversable=This action cannot be undone.
+confirm.actionNotReversable=لا يمكن التراجع عن هذا الإجراء.\n
+# Dialog to warn admin that they have unsaved changes in the predicate edit view.
+confirm.unsavedChanges=لقد أجريتَ تغييرات لم تحفظها وستفقدها.
 
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
 alert.predicateNoAvailableQuestionsVisibility=لا توجد أسئلة متاحة في الشاشات السابقة يمكن استخدامها لتعيين شرط الرؤية لهذه الشاشة.
@@ -618,9 +632,14 @@ alert.predicateNoAvailableQuestionsVisibility=لا توجد أسئلة متاح�
 alert.predicateNoAvailableQuestionsEligibility=لا توجد أسئلة متاحة في هذه الشاشة يمكن استخدامها لتعيين شرط الأهلية.
 
 # Label for textarea where admins can enter a message to show to applicants who are deemed ineligible based on the eligibility conditions set.
-label.predicateEligibilityMessageField=Display message shown to ineligible applicants
+label.predicateEligibilityMessageField=عرض الرسالة للمتقدمين غير المؤهلين.
 # Help text for a textarea input explaining that markdown is supported.
-content.markdownSupported=Markdown is supported
+content.markdownSupported=يدعم التنسيق النصي (Markdown).
+
+# Error message for when the admin leaves a multi-select question blank in admin predicate edit.
+validation.selectionRequired=يجب عليك تحديد خيار واحد على الأقل.\n
+# Error message for when the admin leaves a question unselected in admin predicate edit.
+validation.questionRequired=عليك تحديد سؤال.
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -864,7 +883,7 @@ map.locationLinkText=عرض مزيد من التفاصيل
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
 map.locationLinkTextSr=عرض مزيد من التفاصيل لـ {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
-map.locationsCount=Displaying {0} to {1} of {2} locations
+map.locationsCount=معروض أمامك من {0} إلى {1} من أصل {2} موقعاً.\n
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
 map.locationsSelectedCount=تم تحديد {0} من {1} موقعًا كحد أقصى.
 # Alt text for map region
@@ -902,7 +921,7 @@ map.geoJsonErrorText = نأسف لعدم قدرتنا على عرض هذا ال�
 map.contactUs = اتصل بنا
 map.homepage = الصفحة الرئيسية
 # screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
-map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a different location, please unselect at least one of the locations you have chosen.
+map.maxLocationsSelectedSr = حددتَ الحد الأقصى للمواقع والبالغ {0} موقعاً. لإضافة موقع آخر، يُرجى إلغاء تحديد موقع واحد على الأقل من المواقع التي اخترتها.
 
 #---------------------------------------------------------------------------#
 # MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
@@ -968,7 +987,7 @@ error.internalServerTitle.v2=حدث خطأ ما
 # The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=عذرًا، لقد حدث خطأ داخلي في أنظمتنا.
 # Additional information about the error that is shown to the user in small font
-error.internalServerDescription=يُرجى التواصل مع فريق الدعم الفني على {0} للحصول على الدعم وإدراج معرّف الخطأ هذا {1}.
+error.internalServerDescription=يُرجى التواصل مع الدعم الفني للحصول على المساعدة على الرقم {0}، مع ذكر رمز الخطأ {1}.\n
 # A button redirecting the user to the homepage
 error.internalServerHomeButton=زيارة الصفحة الرئيسية
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
@@ -1043,21 +1062,6 @@ banner.minute=دقيقة واحدة
 #  are seeded into the database, since these will be admin defined in the future #
 #------------------------------------------------------------------------------#
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# An aria-label for screen readers that helps provide context for the category tags.
 # A tag used to filter the list of programs down to those that are related to childcare.
 category.tag.childcare=رعاية الأطفال
 
@@ -1100,7 +1104,7 @@ category.tag.utilities=شركات الطاقة
 # A tag used to filter the list of programs down to those that are related to military veterans.
 category.tag.veteran=المحاربين القدامى
 
-
+# An aria-label for screen readers that helps provide context for the category tags.
 ariaLabel.categories=الفئات
 
 #------------------------------------------------------------------------------#
@@ -1127,3 +1131,92 @@ session.extended.success=تم تمديد الجلسة بنجاح
 
 # Error message shown when there was a problem extending the user's session
 session.extended.error=تعذَّر تمديد الجلسة
+
+#------------------------------------------------------------------------------#
+#  ADMIN PROGRAM BLOCK EDIT                                                    #
+#------------------------------------------------------------------------------#
+
+# Heading for the repeated set creation method radio buttons
+heading.repeatedSet.creationMethod=
+# Option for allowing an admin to create a new repeated set
+option.repeatedSet.createNew=
+# Option for allowing an admin to choose an existing repeated set
+option.repeatedSet.chooseExisting=
+# Label for the new repeated set form
+label.repeatedSet.newSetForm=
+# Label for the text input field asking what type of entity users will be listing (e.g., household members)
+input.repeatedSet.listedEntity=
+# Label for the text input field asking for the admin identifier of the repeated set
+input.repeatedSet.adminId=
+# A text input field asking admins for the text that will prompt applicants to list out the entity
+input.repeatedSet.questionText=
+# A text input field for admins to add a hint that will help applicants decide what entities to list out
+input.repeatedSet.hintText=
+# A form field where admins set the minimum number of entities that applicants must list
+input.repeatedSet.minEntities=
+# A form field where admins set the maximum number of entities that applicants can list
+input.repeatedSet.maxEntities=
+# Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
+alert.repeatedSet.newQuestion=
+# Submission button for creating a new repeated set
+button.repeatedSet.submitNew=
+# Button for admins to add a new repeated set
+button.repeatedSet.addNew=
+# Text letting admins know which block represents the group of screens for repeating questions
+text.repeatedSet=
+# Text letting admins know which block represents the group of screens for nested repeating questions
+text.nestedRepeatedSet=
+# An uneditable prefix for the enumerator screen name representing the repeated object that will be enumerated
+text.repeatedSet.prefix=التصنيف الرئيسي
+# An uneditable prefix for the enumerator screen name representing the nested repeated object that will be enumerated
+text.repeatedSet.nestedPrefix=التصنيف الفرعي
+
+#------------------------------------------------------------------------------#
+#  ADMIN REPORTING                                                             #
+#------------------------------------------------------------------------------#
+
+# Caption for the table showing submissions by program
+caption.submissionsByProgram=الطلبات المقدمة حسب البرنامج (جميع البرامج)\n
+# Column header for program name
+content.program=البرنامج
+# Column header for number of submissions
+content.submissions=الطلبات المقدمة
+# Column header for 25th percentile time to complete
+content.timeToCompleteP25=مدة الإنجاز (p25)
+# Column header for median (50th percentile) time to complete
+content.medianTimeToComplete=متوسط ​​مدة الإنجاز
+# Column header for 75th percentile time to complete
+content.timeToCompleteP75=مدة الإنجاز (p75)
+# Column header for 99th percentile time to complete
+content.timeToCompleteP99=مدة الإنجاز (p99)
+# Text on button to download CSV file
+button.downloadCsv=تنزيل ملف CSV
+# Caption for the table showing submissions by month
+caption.submissionsByMonth=الطلبات المقدمة حسب الشهر (جميع البرامج)
+# Column header for month
+content.month=الشهر
+
+#------------------------------------------------------------------------------#
+#  ADMIN REPORTING PROGRAM                                                     #
+#------------------------------------------------------------------------------#
+
+# Heading for the program reporting page
+reportingProgram.heading={0} تقرير
+# Info text about data delay
+reportingProgram.dataDelay=قد تتأخر البيانات لمدة تصل إلى ساعة.
+# Caption for the table showing submissions by month for a program
+reportingProgram.caption.submissionsByMonth=الطلبات المقدمة حسب الشهر\n
+# Column header for month
+reportingProgram.month=الشهر\n
+# Column header for submissions
+reportingProgram.submissions=الطلبات المقدمة
+# Column header for 25th percentile time to complete
+reportingProgram.timeToCompleteP25=مدة الإنجاز (p25)
+# Column header for median (50th percentile) time to complete
+reportingProgram.medianTimeToComplete=متوسط ​​مدة الإنجاز
+# Column header for 75th percentile time to complete
+reportingProgram.timeToCompleteP75=مدة الإنجاز (p75)
+# Column header for 99th percentile time to complete
+reportingProgram.timeToCompleteP99=مدة الإنجاز (p99)
+# Text on button to download CSV file
+reportingProgram.downloadCsv=تنزيل ملف CSV

@@ -41,6 +41,7 @@ public record ProgramHeader(ProgramDefinition programDefinition, ProgramDisplayT
         ? "None"
         : programDefinition.categories().stream()
             .map(CategoryModel::getDefaultName)
+            .sorted()
             .collect(Collectors.joining(", "));
   }
 

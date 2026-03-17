@@ -1,5 +1,5 @@
 import {test, expect} from '../support/civiform_fixtures'
-import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
+import {loginAsAdmin, validateScreenshot} from '../support'
 import {ProgramVisibility} from '../support/admin_programs'
 
 test.describe('Managing API keys', () => {
@@ -22,7 +22,6 @@ test.describe('Managing API keys', () => {
     })
 
     await test.step('Add external program only', async () => {
-      await enableFeatureFlag(page, 'external_program_cards_enabled')
       await adminPrograms.addExternalProgram(
         externalProgramName,
         externalProgramDescription,

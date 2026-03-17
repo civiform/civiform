@@ -549,7 +549,11 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   private void addGuestApplicant(AccountModel account, String dob) {
     ApplicantModel applicant = new ApplicantModel();
     applicant.setAccount(account);
-    applicant.setUserName("Guest", Optional.empty(), Optional.of("User"), Optional.empty());
+    applicant.setUserName(
+        "Guest",
+        /* middleName= */ Optional.empty(),
+        Optional.of("User"),
+        /* nameSuffix= */ Optional.empty());
     applicant.setDateOfBirth(dob);
     applicant.save();
     account.save();

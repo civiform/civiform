@@ -10,9 +10,11 @@ import java.util.Optional;
 import org.pac4j.core.profile.creator.ProfileCreator;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
+import repository.DatabaseExecutionContext;
 
 public class GenericOidcClientProvider extends OidcClientProvider {
 
+  private final DatabaseExecutionContext dbExecutionContext;
   private static final String ATTRIBUTE_PREFIX = "applicant_generic_oidc.";
   private static final ImmutableList<String> DEFAULT_SCOPES =
       ImmutableList.of("openid", "profile", "email");
@@ -34,8 +36,10 @@ public class GenericOidcClientProvider extends OidcClientProvider {
   private static final String PHONE_NUMBER_ATTRIBUTE_CONFIG_NAME = "phone_number_attribute";
 
   @Inject
-  public GenericOidcClientProvider(OidcClientProviderParams params) {
+  public GenericOidcClientProvider(
+      OidcClientProviderParams params, DatabaseExecutionContext dbExecutionContext) {
     super(params);
+    this.dbExecutionContext = dbExecutionContext;
   }
 
   @Override
@@ -65,7 +69,8 @@ public class GenericOidcClientProvider extends OidcClientProvider {
             .setPhoneNumber(getConfigurationValue(PHONE_NUMBER_ATTRIBUTE_CONFIG_NAME))
             .build();
 
-    return new GenericApplicantProfileCreator(config, client, params, standardClaimsAttributeNames);
+    return new GenericApplicantProfileCreator(
+        config, client, params, standardClaimsAttributeNames, dbExecutionContext);
   }
 
   @Override

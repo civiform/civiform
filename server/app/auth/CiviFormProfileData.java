@@ -24,6 +24,12 @@ import repository.DatabaseExecutionContext;
  */
 public class CiviFormProfileData extends CommonProfile {
   public static final String SESSION_ID = "sessionId";
+
+  /**
+   * TODO: There are two "last activity time" implementations: this session-level attribute (used
+   * for session timeout) and {@link models.AccountModel#getLastActivityTime()} (DB column, updated
+   * on every save). Reconcile into one or rename to clarify their distinct purposes.
+   */
   public static final String LAST_ACTIVITY_TIME = "lastActivityTime";
 
   // It is crucial that serialization of this class does not change, so that user profiles continue

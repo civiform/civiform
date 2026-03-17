@@ -40,6 +40,7 @@ import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.GeoJsonDataRepository;
 import repository.VersionRepository;
 import services.LocalizedStrings;
 import services.applicant.question.Scalar;
@@ -69,6 +70,7 @@ import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.MapQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
@@ -112,6 +114,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   private final RequestChecker requestChecker;
   private final SettingsManifest settingsManifest;
   private final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
+  private final GeoJsonDataRepository geoJsonDataRepository;
 
   /**
    * Contains data for rendering a simple HTML option element with no additional data attributes.
@@ -126,6 +129,14 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   @Builder
   public record ScalarOptionElement(
       String value, String displayText, String scalarType, boolean selected) {}
+
+  /**
+   * Contains data for rendering an HTML option element with additional data attributes required for
+   * {@link Question} options.
+   */
+  @Builder
+  public record QuestionOptionElement(
+      String value, String displayText, String adminName, boolean selected) {}
 
   @Inject
   public AdminProgramBlockPredicatesController(
@@ -143,6 +154,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
       EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
+      GeoJsonDataRepository geoJsonDataRepository,
       SettingsManifest settingsManifest) {
     super(profileUtils, versionRepository);
     this.predicateGenerator = checkNotNull(predicateGenerator);
@@ -158,6 +170,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     this.requestChecker = checkNotNull(requestChecker);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.esriServiceAreaValidationConfig = checkNotNull(esriServiceAreaValidationConfig);
+    this.geoJsonDataRepository = checkNotNull(geoJsonDataRepository);
   }
 
   /**
@@ -493,13 +506,14 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
         leafNode.comparedValue().toSelectedValue(selectedQuestion.getQuestionType());
 
     // Grab user-entered text to populate text fields.
-    // For cases where we expect multi-value inputs (like checkbox questions),
-    // we use "valueOptions" below and the text fields aren't shown.
     Optional<String> firstValueOptional =
         switch (userEnteredValue.getKind()) {
           case SINGLE -> Optional.of(userEnteredValue.single());
           case PAIR -> Optional.of(userEnteredValue.pair().first());
-          case MULTIPLE -> Optional.empty();
+          case MULTIPLE ->
+              userEnteredValue.multiple().isEmpty()
+                  ? Optional.empty()
+                  : Optional.of(String.join(",", userEnteredValue.multiple()));
         };
 
     Optional<String> secondValueOptional =
@@ -798,6 +812,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                     .blockId(blockDefinitionId)
                     .predicateUseCase(PredicateUseCase.valueOf(predicateUseCase))
                     .conditions(validatedConditionsList)
+                    .predicateLogicalOperator(
+                        getLogicalOperatorFromFormData("root", ImmutableMap.copyOf(form.rawData())))
                     .build()))
             .as(Http.MimeTypes.HTML);
       }
@@ -1224,15 +1240,16 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
    * Converts a list of {@link QuestionDefinition}s to a list of {@link OptionElement}s for use in a
    * select dropdown.
    */
-  private ImmutableList<OptionElement> getQuestionOptions(
+  private ImmutableList<QuestionOptionElement> getQuestionOptions(
       ImmutableList<QuestionDefinition> availableQuestions,
       Optional<QuestionDefinition> selectedQuestion) {
-    ImmutableList.Builder<OptionElement> questionOptions = new ImmutableList.Builder<>();
+    ImmutableList.Builder<QuestionOptionElement> questionOptions = new ImmutableList.Builder<>();
     for (QuestionDefinition question : availableQuestions) {
       questionOptions.add(
-          OptionElement.builder()
+          QuestionOptionElement.builder()
               .value(String.valueOf(question.getId()))
               .displayText(question.getQuestionText().getDefault())
+              .adminName(question.getName())
               .selected(
                   selectedQuestion.isPresent()
                       && question.getId() == selectedQuestion.get().getId())
@@ -1293,32 +1310,12 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
    */
   private ImmutableList<OptionElement> getValueOptionsForQuestion(
       QuestionDefinition question, SelectedValue selectedValue) {
-    AtomicBoolean isFirst = new AtomicBoolean(true);
     if (question.isAddress()) {
       checkState(selectedValue.getKind().equals(SelectedValue.Kind.SINGLE));
-      // Check whether the selected value is a valid address.
-      ImmutableMap<String, EsriServiceAreaValidationOption> addressOptions =
-          esriServiceAreaValidationConfig.getImmutableMap();
-      boolean valueIsAddress =
-          addressOptions.entrySet().stream()
-              .anyMatch(entry -> entry.getValue().getLabel().equals(selectedValue.single()));
-      return addressOptions.entrySet().stream()
-          .map(
-              entry -> {
-                String displayText = entry.getValue().getLabel();
-                // Select either the already-selected address value OR the first in the list of
-                // options if no address is selected.
-                boolean shouldSelect =
-                    valueIsAddress
-                        ? displayText.equals(selectedValue.single())
-                        : isFirst.getAndSet(false);
-                return OptionElement.builder()
-                    .value(entry.getKey())
-                    .displayText(displayText)
-                    .selected(shouldSelect)
-                    .build();
-              })
-          .collect(ImmutableList.toImmutableList());
+      return getAddressQuestionValueOptions(selectedValue);
+    } else if (question.isMap()) {
+      checkState(selectedValue.getKind().equals(SelectedValue.Kind.MULTIPLE));
+      return getMapQuestionValueOptions((MapQuestionDefinition) question, selectedValue);
     } else if (question.getQuestionType().isMultiOptionType()) {
       checkState(selectedValue.getKind().equals(SelectedValue.Kind.MULTIPLE));
       MultiOptionQuestionDefinition multiOptionQuestionDefinition =
@@ -1338,6 +1335,64 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     } else {
       return ImmutableList.of();
     }
+  }
+
+  /**
+   * Returns a list of {@link OptionElement}s representing possible address areas for Address
+   * questions.
+   */
+  private ImmutableList<OptionElement> getAddressQuestionValueOptions(SelectedValue selectedValue) {
+    // Check whether the selected value is a valid address.
+    ImmutableMap<String, EsriServiceAreaValidationOption> addressOptions =
+        esriServiceAreaValidationConfig.getImmutableMap();
+    boolean valueIsAddress =
+        addressOptions.entrySet().stream()
+            .anyMatch(entry -> entry.getValue().getLabel().equals(selectedValue.single()));
+
+    // Convert address options to displayable values.
+    AtomicBoolean isFirst = new AtomicBoolean(true);
+    return addressOptions.entrySet().stream()
+        .map(
+            entry -> {
+              String displayText = entry.getValue().getLabel();
+              // Select either the already-selected address value OR the first in the list of
+              // options if no address is selected.
+              boolean shouldSelect =
+                  valueIsAddress
+                      ? displayText.equals(selectedValue.single())
+                      : isFirst.getAndSet(false);
+              return OptionElement.builder()
+                  .value(entry.getKey())
+                  .displayText(displayText)
+                  .selected(shouldSelect)
+                  .build();
+            })
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  // Returns a list of OptionElements representing features for Map questions.
+  private ImmutableList<OptionElement> getMapQuestionValueOptions(
+      MapQuestionDefinition question, SelectedValue selectedValue) {
+    // Get JSON data from the provided map question
+    String geoJsonEndpoint = question.getMapValidationPredicates().geoJsonEndpoint();
+    return geoJsonDataRepository
+        .getMostRecentGeoJsonDataRowForEndpoint(geoJsonEndpoint)
+        .toCompletableFuture()
+        .join()
+        .map(geoJsonDataModel -> geoJsonDataModel.getGeoJson().features())
+        .orElse(ImmutableList.of())
+        .stream()
+        .map(
+            feature -> {
+              String featureId = feature.id();
+              boolean shouldSelect = selectedValue.multiple().contains(featureId);
+              return OptionElement.builder()
+                  .value(featureId)
+                  .displayText(featureId)
+                  .selected(shouldSelect)
+                  .build();
+            })
+        .collect(ImmutableList.toImmutableList());
   }
 
   /**
@@ -1464,7 +1519,9 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     String questionFieldName = fieldNamePrefix + "-question";
     String questionFieldValue = formData.get(questionFieldName);
     if (!StringUtils.isNumeric(questionFieldValue) || !formData.containsKey(questionFieldName)) {
-      return subconditionBuilder.build();
+      ImmutableList<String> invalidInputIds =
+          validateInputFields ? ImmutableList.of(questionFieldName) : ImmutableList.of();
+      return subconditionBuilder.invalidInputIds(invalidInputIds).build();
     }
 
     Long questionId = Long.valueOf(questionFieldValue);
@@ -1494,7 +1551,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     // Populate the selected value, depending on whether this is a multi-value question type.
     SelectedValue selectedValue =
         selectedQuestion
-                .map(question -> question.getQuestionType().isMultiOptionType())
+                .map(question -> question.getQuestionType().isMultiOptionType() || question.isMap())
                 .orElse(false)
             ? SelectedValue.multiple(multiValueSelections)
             : SelectedValue.single(inputFieldValue);
@@ -1505,7 +1562,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       // First input field
       // Ignore cases where the user selected a multi-value question.
       if (selectedQuestion.isPresent()
-          && !selectedQuestion.get().getQuestionType().isMultiOptionType()
+          && !selectedValue.getKind().equals(SelectedValue.Kind.MULTIPLE)
           && inputFieldValue.isBlank()) {
         invalidFieldIds.add(inputFieldId);
       }

@@ -18,20 +18,37 @@
           class="usa-sr-only"
           th:text="${'Condition ' + conditionId + ' subcondition ' + subconditionId}"
         ></legend>
-        <div class="usa-form-group margin-top-0">
+        <div
+          class="usa-form-group margin-top-0"
+          th:with="questionIsInvalid=${model.invalidInputIds.contains(questionDropdownId)},
+          questionErrorMessageId=${'condition-' + conditionId + '-subcondition-' + subconditionId + '-questionError'}"
+        >
           <label class="usa-label" th:for="${questionDropdownId}"
-            >[[#{label.predicateQuestion}]]<span class="usa-hint--required"
-              >*</span
+            >[[#{label.predicateQuestion}]]<abbr
+              title="required"
+              class="usa-hint usa-hint--required"
+              aria-hidden="true"
+              >*</abbr
             ></label
           >
+          <span
+            class="usa-error-message"
+            th:if="${questionIsInvalid}"
+            th:id="${questionErrorMessageId}"
+            th:text="#{toast.errorMessageOutline(#{validation.questionRequired})}"
+          ></span>
           <select
             class="usa-select cf-predicate-question-select"
+            th:classappend="${questionIsInvalid} ? 'usa-input--error' : ''"
             th:id="${questionDropdownId}"
             th:name="${questionDropdownId}"
             th:data-scalar-target-id="${scalarDropDownId}"
             th:hx-post="${model.hxEditSubconditionEndpoint()}"
             th:hx-vals='|{"conditionId": "${conditionId}", "subconditionId": "${subconditionId}"}|'
             th:hx-target="${'#predicate-condition-' + conditionId + '-subcondition-list'}"
+            th:aria-invalid="${questionIsInvalid}"
+            th:aria-describedby="${questionIsInvalid ? questionErrorMessageId : ''}"
+            aria-required="true"
             hx-swap="outerHTML"
             th:data-should-autofocus="${model.autofocus}"
           >
@@ -45,6 +62,7 @@
               th:value="${question.value()}"
               th:text="${question.displayText()}"
               th:selected="${question.selected()}"
+              th:data-question-name="${question.adminName()}"
             ></option>
           </select>
         </div>
@@ -53,7 +71,9 @@
             class="usa-form-group cf-predicate-scalar-select tablet:grid-col margin-top-0"
           >
             <label class="usa-label" th:for="${scalarDropDownId}"
-              >[[#{label.predicateField}]]<span class="usa-hint--required"
+              >[[#{label.predicateField}]]<span
+                class="usa-hint usa-hint--required"
+                aria-hidden="true"
                 >*</span
               ></label
             >
@@ -63,6 +83,7 @@
               th:name="${scalarDropDownId}"
               th:data-operator-target-id="${operatorDropdownId}"
               th:disabled="${!model.hasSelectedQuestion}"
+              aria-required="true"
             >
               <option
                 th:selected="${!model.hasSelectedQuestion}"
@@ -82,7 +103,9 @@
             class="usa-form-group cf-predicate-operator-select tablet:grid-col margin-top-0"
           >
             <label class="usa-label" th:for="${operatorDropdownId}"
-              >[[#{label.predicateState}]]<span class="usa-hint--required"
+              >[[#{label.predicateState}]]<span
+                class="usa-hint usa-hint--required"
+                aria-hidden="true"
                 >*</span
               ></label
             >
@@ -93,6 +116,7 @@
               th:disabled="${!model.hasSelectedQuestion}"
               th:data-condition-id="${conditionId}"
               th:data-subcondition-id="${subconditionId}"
+              aria-required="true"
             >
               <option
                 th:selected="${!model.hasSelectedQuestion}"

@@ -262,6 +262,12 @@ public abstract class QuestionDefinition {
     return getQuestionType().equals(QuestionType.ADDRESS);
   }
 
+  /** True if the question is an {@link MapQuestionDefinition}. */
+  @JsonIgnore
+  public final boolean isMap() {
+    return getQuestionType().equals(QuestionType.MAP);
+  }
+
   /**
    * A repeated question definition references an enumerator question definition that determines the
    * entities the repeated question definition asks its question for.
@@ -375,18 +381,9 @@ public abstract class QuestionDefinition {
     return validate(Optional.empty());
   }
 
-  /**
-   * Validate that all required fields are present and valid for the question.
-   *
-   * <p>If {@code previousDefinition} is provided, only the admin names of the new {@link
-   * QuestionOption} need to pass validation.
-   *
-   * @param previousDefinition the optional previous version of the {@link QuestionDefinition}
-   * @throws IllegalArgumentException if the previousDefinition is not of the same type as this
-   *     definition.
-   */
   public final ImmutableSet<CiviFormError> validate(
-      Optional<QuestionDefinition> previousDefinition) {
+      Optional<QuestionDefinition> previousDefinition,
+      boolean requireLegacyRepeatedEntitySelector) {
     if (previousDefinition.isPresent()
         && previousDefinition.get().getQuestionType() != getQuestionType()) {
       throw new IllegalArgumentException(
@@ -416,12 +413,29 @@ public abstract class QuestionDefinition {
               String.format("Administrative identifier '%s' is not allowed", getName())));
     }
 
-    if (isRepeated() && !questionTextContainsRepeatedEntityNameFormatString()) {
+    if (requireLegacyRepeatedEntitySelector
+        && isRepeated()
+        && !questionTextContainsRepeatedEntityNameFormatString()) {
       errors.add(CiviFormError.of("Repeated questions must reference '$this' in the text"));
     }
 
     errors.addAll(internalValidate(previousDefinition));
     return errors.build();
+  }
+
+  /**
+   * Validate that all required fields are present and valid for the question.
+   *
+   * <p>If {@code previousDefinition} is provided, only the admin names of the new {@link
+   * QuestionOption} need to pass validation.
+   *
+   * @param previousDefinition the optional previous version of the {@link QuestionDefinition}
+   * @throws IllegalArgumentException if the previousDefinition is not of the same type as this
+   *     definition.
+   */
+  public final ImmutableSet<CiviFormError> validate(
+      Optional<QuestionDefinition> previousDefinition) {
+    return validate(previousDefinition, /* requireLegacyRepeatedEntitySelector= */ true);
   }
 
   @Override

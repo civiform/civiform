@@ -69,7 +69,7 @@ public class Swagger2SchemaGeneratorTest {
             .build();
 
     OpenApiSchemaSettings settings =
-        new OpenApiSchemaSettings("baseUrl", "email123@example.com", true);
+        new OpenApiSchemaSettings("baseUrl", "email123@example.com", /* allowHttpScheme= */ true);
 
     var generator = new Swagger2SchemaGenerator(settings);
     String actual = generator.createSchema(programDefinition);
@@ -268,7 +268,7 @@ definitions:
             .build();
 
     OpenApiSchemaSettings settings =
-        new OpenApiSchemaSettings("baseUrl", "email123@example.com", true);
+        new OpenApiSchemaSettings("baseUrl", "email123@example.com", /* allowHttpScheme= */ true);
 
     var generator = new Swagger2SchemaGenerator(settings);
     String actual = generator.createSchema(programDefinition);
@@ -820,7 +820,7 @@ definitions:
             .build();
 
     OpenApiSchemaSettings settings =
-        new OpenApiSchemaSettings("baseUrl", "email123@example.com", true);
+        new OpenApiSchemaSettings("baseUrl", "email123@example.com", /* allowHttpScheme= */ true);
 
     var generator = new Swagger2SchemaGenerator(settings);
     String actual = generator.createSchema(programDefinition);

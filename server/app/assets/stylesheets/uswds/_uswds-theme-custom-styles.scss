@@ -19,6 +19,12 @@ See the radio-option below as an example.
 */
 
 @use 'uswds-core' as *;
+@use 'usa-hint';
+@use 'usa-form' as *;
+@use 'usa-form-group' as *;
+@use 'usa-input' as *;
+@use 'usa-label' as *;
+@use 'usa-error-message' as *;
 
 .cf-radio-option:focus-within {
   @include u-border('blue-40v');
@@ -444,4 +450,57 @@ button.usa-button.usa-button--unstyled.htmx-request {
 
 fieldset .usa-error-message {
   font-size: initial;
+}
+
+// Add asterisk for required fields
+.usa-label:has(~ input.usa-input[required]:enabled)::after,
+.usa-label:has(~ textarea.usa-textarea[required]:enabled)::after,
+.usa-label:has(~ select.usa-select[required]:enabled)::after,
+.usa-legend:has(
+    ~ .checkbox-group
+      .usa-checkbox
+      input.usa-checkbox__input[type='checkbox'][required]:enabled
+  )::after,
+.usa-legend:has(
+    ~ .usa-radio input.usa-radio__input[type='radio'][required]:enabled
+  )::after {
+  @extend .usa-hint;
+  @extend .usa-hint--required;
+  content: ' *';
+  white-space: nowrap;
+}
+
+/*
+Multiple .usa-checkbox typically display in a flat vertical list. Apply .checkbox-group to
+a wrapping element along with the .checkbox-group-col-# to display the checkboxes
+in up to 4 columns.  Reverts to a single list at tablet screen sizes
+ 
+Example with two column checkbox list
+
+<div class="checkbox-group checkbox-group-col-2">
+  <div class="usa-checkbox">...</div>
+  <div class="usa-checkbox">...</div>
+</div>
+*/
+.checkbox-group {
+  display: grid;
+  grid-template-columns: 1fr;
+  column-gap: 1rem;
+  row-gap: 0.2rem;
+
+  @each $cols in (2, 3, 4) {
+    &-col-#{$cols} {
+      @include at-media('tablet') {
+        grid-template-columns: repeat(#{$cols}, 1fr);
+      }
+    }
+  }
+}
+
+// Fancy dashed line used to separate snippets of sample code.
+hr.code-separator {
+  @include u-border-color('base');
+  @include u-border('1px', 'dashed');
+  @include u-margin-y(4);
+  @include u-margin-x(0);
 }

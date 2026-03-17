@@ -1041,18 +1041,22 @@ class FastForwardCiviformAdminActor {
       await this.adminPrograms.goToEditBlockEligibilityPredicatePage(
         this.programName,
         blockDef.block,
+        /* expandedFormLogicEnabled= */ true,
       )
     })
 
     await this.removeEligibilityFromBlockDefinition(blockDef)
 
     await test.step(`Add eligibility predicate to block ${blockDef.block}`, async () => {
-      await this.adminPredicates.addPredicates({
-        questionName: blockDef.questions[0],
-        scalar: 'text',
-        operator: 'is equal to',
-        value: blockDef.eligibilityValue,
-      })
+      await this.adminPredicates.addPredicates(
+        /* expandedFormLogicEnabled= */ true,
+        {
+          questionName: blockDef.questions[0],
+          scalar: 'text',
+          operator: 'is equal to',
+          value: blockDef.eligibilityValue,
+        },
+      )
     })
 
     await this.gotoEditDraftProgramPage()
@@ -1064,6 +1068,7 @@ class FastForwardCiviformAdminActor {
         await this.adminPrograms.goToEditBlockEligibilityPredicatePage(
           this.programName,
           blockDef.block,
+          /* expandedFormLogicEnabled= */ true,
         )
       })
 
@@ -1075,13 +1080,9 @@ class FastForwardCiviformAdminActor {
     blockDef: BlockDefinition,
   ) {
     await test.step(`Remove eligibility if already configured on block ${blockDef.block}`, async () => {
-      const removeExistingEligibilityButtonLocator = this.page.getByRole(
-        'button',
-        {name: 'Remove existing eligibility condition'},
-      )
-
-      if (await removeExistingEligibilityButtonLocator.isEnabled()) {
-        await this.adminPredicates.clickRemovePredicateButton('eligibility')
+      if (await this.page.getByText('Condition 1', {exact: true}).isVisible()) {
+        await this.adminPredicates.clickDeleteAllConditionsButton()
+        await this.adminPredicates.clickSaveAndExitButton()
       }
     })
   }

@@ -23,6 +23,7 @@ import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.program.BlockDefinition;
+import services.program.CantAddQuestionToBlockException;
 import services.program.IllegalApiBridgeStateException;
 import services.program.IllegalPredicateOrderingException;
 import services.program.ProgramBlockAdditionResult;
@@ -34,6 +35,8 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
+import services.question.exceptions.QuestionNotFoundException;
+import services.settings.SettingsManifest;
 import views.admin.programs.BlockType;
 import views.admin.programs.ProgramBlocksView;
 import views.components.ToastMessage;
@@ -48,6 +51,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
   private final MessagesApi messagesApi;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public AdminProgramBlocksController(
@@ -58,7 +62,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
       RequestChecker requestChecker,
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
-      MessagesApi messagesApi) {
+      MessagesApi messagesApi,
+      SettingsManifest settingsManifest) {
     super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
@@ -67,6 +72,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
     this.messagesApi = checkNotNull(messagesApi);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /**
@@ -140,15 +146,34 @@ public final class AdminProgramBlocksController extends CiviFormController {
 
     try {
       ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result;
-      if (enumeratorId.isPresent()) {
-        result = programService.addRepeatedBlockToProgram(programId, enumeratorId.get());
+      if (enumeratorId.isPresent() && BlockType.ENUMERATOR.equals(blockType.orElse(null))) {
+        // Create a nested enumerator (enumerator under another enumerator)
+        // This feature requires the enumerator improvements flag to be enabled
+        if (!settingsManifest.getEnumeratorImprovementsEnabled(request)) {
+          return badRequest("Nested repeated sets require ENUMERATOR_IMPROVEMENTS_ENABLED flag");
+        }
+        result =
+            programService.addNestedRepeatedSetToProgram(
+                programId,
+                enumeratorId.get(),
+                messagesApi.preferred(request),
+                settingsManifest.getEnumeratorImprovementsEnabled(request));
+      } else if (enumeratorId.isPresent()) {
+        result =
+            programService.addRepeatedBlockToProgram(
+                programId,
+                enumeratorId.get(),
+                messagesApi.preferred(request),
+                settingsManifest.getEnumeratorImprovementsEnabled(request));
       } else {
         result =
             programService.addBlockToProgram(
                 programId,
                 BlockType.ENUMERATOR.equals(blockType.orElse(null))
                     ? Optional.of(true)
-                    : Optional.empty());
+                    : Optional.empty(),
+                messagesApi.preferred(request),
+                settingsManifest.getEnumeratorImprovementsEnabled(request));
       }
       ProgramDefinition program = result.getResult().program();
       BlockDefinition block =
@@ -164,14 +189,18 @@ public final class AdminProgramBlocksController extends CiviFormController {
 
       // If it's an enumerator, also add the first repeated block.
       if (BlockType.ENUMERATOR.equals(blockType.orElse(null))) {
-        result = programService.addRepeatedBlockToProgram(programId, addedBlockId);
+        result =
+            programService.addRepeatedBlockToProgram(
+                programId,
+                addedBlockId,
+                messagesApi.preferred(request),
+                settingsManifest.getEnumeratorImprovementsEnabled(request));
         if (result.isError()) {
           ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
           return renderEditViewWithMessage(request, program, block, Optional.of(message));
         }
         addedBlockId++;
       }
-
       return redirect(routes.AdminProgramBlocksController.edit(programId, addedBlockId).url());
     } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
       return notFound(e.toString());
@@ -190,6 +219,33 @@ public final class AdminProgramBlocksController extends CiviFormController {
     requestChecker.throwIfProgramNotDraft(programId);
 
     try {
+      // Auto-add newly created question to the block if one was just created
+      Optional<String> newQuestionIdParam =
+          request.queryString(views.components.ProgramQuestionBank.NEWLY_CREATED_QUESTION_ID_PARAM);
+      if (newQuestionIdParam.isPresent()) {
+        try {
+          long newQuestionId = Long.parseLong(newQuestionIdParam.get());
+          programService.addQuestionsToBlock(
+              programId,
+              blockId,
+              ImmutableList.of(newQuestionId),
+              settingsManifest.getEnumeratorImprovementsEnabled(request));
+          // Redirect without the newQuestionId parameter to reload the page cleanly
+          return redirect(routes.AdminProgramBlocksController.edit(programId, blockId).url())
+              .flashing(request.flash().data());
+        } catch (NumberFormatException e) {
+          // Invalid question ID format, ignore and continue
+        } catch (ProgramNotFoundException
+            | ProgramBlockDefinitionNotFoundException
+            | QuestionNotFoundException
+            | CantAddQuestionToBlockException e) {
+          // If adding fails, show the block without the new question and flash an error toast
+          // message
+          return redirect(routes.AdminProgramBlocksController.edit(programId, blockId).url())
+              .flashing("error", "Question created, but could not be added to the program block");
+        }
+      }
+
       ProgramDefinition program = programService.getFullProgramDefinition(programId);
       BlockDefinition block = program.getBlockDefinition(blockId);
 

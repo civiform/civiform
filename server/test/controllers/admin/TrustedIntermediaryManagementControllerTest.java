@@ -15,7 +15,9 @@ import org.junit.Test;
 import play.data.FormFactory;
 import repository.AccountRepository;
 import repository.ResetPostgres;
+import services.settings.SettingsManifest;
 import views.admin.ti.EditTrustedIntermediaryGroupView;
+import views.admin.ti.TrustedIntermediaryGroupListPageView;
 import views.admin.ti.TrustedIntermediaryGroupListView;
 
 public class TrustedIntermediaryManagementControllerTest extends ResetPostgres {
@@ -43,7 +45,9 @@ public class TrustedIntermediaryManagementControllerTest extends ResetPostgres {
             instanceOf(TrustedIntermediaryGroupListView.class),
             instanceOf(EditTrustedIntermediaryGroupView.class),
             accountRepository,
-            instanceOf(FormFactory.class));
+            instanceOf(FormFactory.class),
+            instanceOf(SettingsManifest.class),
+            instanceOf(TrustedIntermediaryGroupListPageView.class));
   }
 
   @Test

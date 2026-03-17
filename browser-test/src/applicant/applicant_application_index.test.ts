@@ -211,8 +211,6 @@ test.describe('applicant program index page', () => {
     const externalProgramName = 'External Program'
 
     test.beforeEach(async ({page, adminPrograms, seeding}) => {
-      await enableFeatureFlag(page, 'external_program_cards_enabled')
-
       await test.step('seed categories', async () => {
         await seeding.seedProgramsAndCategories()
         await page.goto('/')
@@ -857,6 +855,22 @@ test.describe('applicant program index page', () => {
 
     await validateScreenshot(page, 'program-index-page-initial-load')
   })
+
+  test('shows immigration status info banner on home page when enabled', async ({
+    page,
+  }) => {
+    await enableFeatureFlag(page, 'immigration_status_info_banner_enabled')
+
+    await page.goto('/')
+    await waitForPageJsLoad(page)
+
+    await validateScreenshot(
+      page.getByRole('region', {
+        name: 'Immigration status informational alert',
+      }),
+      'immigration-status-info-banner',
+    )
+  })
 })
 
 test.describe('applicant program index page with images', () => {
@@ -1112,46 +1126,7 @@ test.describe('applicant program index page with images', () => {
     })
   })
 
-  test('External program card is not shown when feature flag is off', async ({
-    page,
-    adminPrograms,
-    applicantQuestions,
-  }) => {
-    const externalProgramName = 'External Program'
-
-    await test.step('add external program as an admin', async () => {
-      await loginAsAdmin(page)
-
-      // Feature flag must be enabled to be able to add an external program
-      await enableFeatureFlag(page, 'external_program_cards_enabled')
-      await adminPrograms.addExternalProgram(
-        externalProgramName,
-        /* shortDescription= */ 'description',
-        /* externalLink= */ 'https://usa.gov',
-        ProgramVisibility.PUBLIC,
-      )
-      await adminPrograms.publishProgram(externalProgramName)
-      await logout(page)
-    })
-
-    await test.step('disable feature flag', async () => {
-      await disableFeatureFlag(page, 'external_program_cards_enabled')
-    })
-
-    await test.step('external program card is not shown to applicant', async () => {
-      await applicantQuestions.expectProgramsinCorrectSections(
-        {
-          expectedProgramsInMyApplicationsSection: [],
-          expectedProgramsInProgramsAndServicesSection: [],
-          expectedProgramsInRecommendedSection: [],
-          expectedProgramsInOtherProgramsSection: [],
-        },
-        /* filtersOn= */ false,
-      )
-    })
-  })
-
-  test('External program cards are show when feature flag is on', async ({
+  test('External program cards', async ({
     page,
     adminPrograms,
     applicantQuestions,
@@ -1162,8 +1137,6 @@ test.describe('applicant program index page with images', () => {
     const externalProgramBLink = `${BASE_URL}/programs#simulated_difference`
 
     await test.step('add external programs', async () => {
-      await enableFeatureFlag(page, 'external_program_cards_enabled')
-
       await loginAsAdmin(page)
       await adminPrograms.addExternalProgram(
         externalProgramAName,
@@ -1277,10 +1250,6 @@ test.describe('applicant program index page with images', () => {
   }) => {
     const externalProgramName = 'External Program'
     const externalProgramLink = `${BASE_URL}/programs`
-
-    await test.step('enable required features', async () => {
-      await enableFeatureFlag(page, 'external_program_cards_enabled')
-    })
 
     await test.step('seed categories', async () => {
       // The program filtering feature requires seeding the categories. This

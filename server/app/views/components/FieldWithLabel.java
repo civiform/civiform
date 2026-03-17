@@ -73,6 +73,7 @@ public class FieldWithLabel {
   private String id = "";
   private String labelText = "";
   private Optional<String> subLabelText = Optional.empty();
+  private Optional<String> description = Optional.empty();
   private Optional<String> autocomplete = Optional.empty();
   protected String placeholderText = "";
   private String screenReaderText = "";
@@ -209,6 +210,11 @@ public class FieldWithLabel {
 
   public FieldWithLabel setSubLabelText(String subLabelText) {
     this.subLabelText = Optional.of(subLabelText);
+    return this;
+  }
+
+  public FieldWithLabel setDescription(String description) {
+    this.description = Optional.of(description);
     return this;
   }
 
@@ -553,6 +559,18 @@ public class FieldWithLabel {
     return applyAttrsClassesAndLabel(inputFieldTag);
   }
 
+  public DivTag getUSWDSNumberTag() {
+    InputTag inputFieldTag = TagCreator.input();
+    inputFieldTag.withType(getFieldType());
+    applyAttributesFromMap(inputFieldTag);
+    if (this.fieldType.equals("number")) {
+      numberTagApplyAttrs(inputFieldTag);
+    } else {
+      throw new RuntimeException("number tag expected");
+    }
+    return applyUSWDSAttrsClassesAndLabel(inputFieldTag);
+  }
+
   public DivTag getDateTag() {
     return getNonNumberInputTag(false);
   }
@@ -654,6 +672,11 @@ public class FieldWithLabel {
             TagCreator.p()
                 .withClasses("text-xs", "text-gray-500", "pb-3", "text-base px-1")
                 .with(span(subLabelText.orElse(""))))
+        .condWith(
+            description.isPresent(),
+            TagCreator.p()
+                .withClasses("font-ui-sm", "text-base")
+                .with(span(description.orElse(""))))
         .with(div(fieldTag, buildFieldErrorsTag(fieldErrorsId)).withClasses("flex", "flex-col"))
         .condWith(markdownSupported, buildMarkdownIndicator())
         .withClasses(

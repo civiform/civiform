@@ -192,11 +192,13 @@ public abstract class Modal {
     }
 
     public static RepeatOpenBehavior alwaysShow() {
-      return new AutoValue_Modal_RepeatOpenBehavior(false, Optional.empty(), Group.NONE);
+      return new AutoValue_Modal_RepeatOpenBehavior(
+          /* showOnlyOnce= */ false, /* bypassUrl= */ Optional.empty(), Group.NONE);
     }
 
     public static RepeatOpenBehavior showOnlyOnce(Group group) {
-      return new AutoValue_Modal_RepeatOpenBehavior(true, Optional.empty(), group);
+      return new AutoValue_Modal_RepeatOpenBehavior(
+          /* showOnlyOnce= */ true, /* bypassUrl= */ Optional.empty(), group);
     }
 
     public static RepeatOpenBehavior showOnlyOnce(Group group, String bypassUrl) {

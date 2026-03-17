@@ -1,6 +1,5 @@
 package controllers.applicant;
 
-import static controllers.applicant.ApplicantProgramBlocksController.ADDRESS_JSON_SESSION_KEY;
 import static controllers.applicant.ApplicantRequestedAction.NEXT_BLOCK;
 import static controllers.applicant.ApplicantRequestedAction.PREVIOUS_BLOCK;
 import static controllers.applicant.ApplicantRequestedAction.REVIEW_PAGE;
@@ -128,12 +127,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Result result =
         subject
-            .edit(
-                request,
-                programId,
-                "1",
-                /* questionName= */ Optional.empty(),
-                /* isFromUrlCall= */ true)
+            .edit(request, programId, "1", /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -158,8 +152,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     fakeRequest(),
                     programSlug,
                     /* blockId= */ "1",
-                    /* questionName= */ Optional.empty(),
-                    /* isFromUrlCall= */ true))
+                    /* questionName= */ Optional.empty()))
         .isInstanceOf(RuntimeException.class)
         .hasMessage("Could not parse value from '' to a numeric value");
   }
@@ -179,12 +172,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Result result =
         subject
-            .edit(
-                request,
-                programSlug,
-                /* blockId= */ "1",
-                /* questionName= */ Optional.empty(),
-                /* isFromUrlCall= */ true)
+            .edit(request, programSlug, /* blockId= */ "1", /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(OK);
@@ -204,8 +192,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 programId,
                 /* blockId= */ "1",
-                /* questionName= */ Optional.empty(),
-                /* isFromUrlCall= */ true)
+                /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -233,8 +220,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     applicant.id,
                     programSlug,
                     /* blockId= */ "1",
-                    /* questionName= */ Optional.empty(),
-                    /* isFromUrlCall= */ false))
+                    /* questionName= */ Optional.empty()))
         .isInstanceOf(RuntimeException.class)
         .hasMessage("Could not parse value from '' to a numeric value");
   }
@@ -259,8 +245,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 programSlug,
                 /* blockId= */ "1",
-                /* questionName= */ Optional.empty(),
-                /* isFromUrlCall= */ true)
+                /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(OK);
@@ -278,8 +263,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 badApplicantId,
                 programId,
                 /* blockId= */ "1",
-                /* questionName= */ Optional.empty(),
-                /* isFromUrlCall= */ false)
+                /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -302,8 +286,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 draftProgramId,
                 /* blockId= */ "1",
-                /* questionName= */ Optional.empty(),
-                /* isFromUrlCall= */ false)
+                /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -329,8 +312,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 draftProgramId,
                 /* blockId= */ "1",
-                /* questionName= */ Optional.empty(),
-                /* isFromUrlCall= */ false)
+                /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -339,7 +321,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void editWithApplicantId_obsoleteProgram_isOk() {
-    ProgramModel obsoleteProgram = ProgramBuilder.newObsoleteProgram("program").build();
+    ProgramModel obsoleteProgram =
+        ProgramBuilder.newObsoleteProgram("program")
+            .withBlock("block")
+            .withQuestionDefinition(
+                testQuestionBank().nameApplicantName().getQuestionDefinition(),
+                /* optional= */ false)
+            .build();
     String obsoleteProgramId = Long.toString(obsoleteProgram.id);
 
     Result result =
@@ -349,8 +337,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 obsoleteProgramId,
                 /* blockId= */ "1",
-                /* questionName= */ Optional.empty(),
-                /* isFromUrlCall= */ false)
+                /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -368,8 +355,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 programId + 1000,
                 /* blockId= */ "1",
-                /* questionName= */ Optional.empty(),
-                /* isFromUrlCall= */ false)
+                /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -387,8 +373,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 programId,
                 /* blockId= */ "1",
-                /* questionName= */ Optional.empty(),
-                /* isFromUrlCall= */ false)
+                /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -406,8 +391,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 programId,
                 /* blockId= */ "9999",
-                /* questionName= */ Optional.empty(),
-                /* isFromUrlCall= */ false)
+                /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -428,8 +412,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 programId,
                 /* blockId= */ "1",
-                /* questionName= */ Optional.empty(),
-                /* isFromUrlCall= */ false)
+                /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -448,8 +431,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 request,
                 Long.toString(program.id),
                 /* blockId= */ "1",
-                /* questionName= */ Optional.empty(),
-                /* isFromUrlCall= */ true)
+                /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -474,8 +456,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     fakeRequest(),
                     programSlug,
                     /* blockId= */ "1",
-                    /* questionName= */ Optional.empty(),
-                    /* isFromUrlCall= */ true))
+                    /* questionName= */ Optional.empty()))
         .isInstanceOf(RuntimeException.class)
         .hasMessage("Could not parse value from '' to a numeric value");
   }
@@ -495,12 +476,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Result result =
         subject
-            .review(
-                request,
-                programSlug,
-                /* blockId= */ "1",
-                /* questionName= */ Optional.empty(),
-                /* isFromUrlCall= */ true)
+            .review(request, programSlug, /* blockId= */ "1", /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(OK);
@@ -520,8 +496,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 programId,
                 /* blockId= */ "1",
-                /* questionName= */ Optional.empty(),
-                /* isFromUrlCall= */ true)
+                /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -550,8 +525,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     applicant.id,
                     programSlug,
                     /* blockId= */ "1",
-                    /* questionName= */ Optional.empty(),
-                    /* isFromUrlCall= */ true))
+                    /* questionName= */ Optional.empty()))
         .isInstanceOf(RuntimeException.class)
         .hasMessage("Could not parse value from 'program' to a numeric value");
   }
@@ -577,8 +551,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 programSlug,
                 /* blockId= */ "1",
-                /* questionName= */ Optional.empty(),
-                /* isFromUrlCall= */ true)
+                /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(OK);
@@ -595,8 +568,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 request,
                 Long.toString(program.id),
                 /* previousBlockIndex= */ 0,
-                /* inReview= */ true,
-                /* isFromUrlCall= */ true)
+                /* inReview= */ true)
             .toCompletableFuture()
             .join();
 
@@ -619,11 +591,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     assertThatThrownBy(
             () ->
                 subject.previous(
-                    fakeRequest(),
-                    programSlug,
-                    /* previousBlockIndex= */ 0,
-                    /* inReview= */ true,
-                    /* isFromUrlCall= */ true))
+                    fakeRequest(), programSlug, /* previousBlockIndex= */ 0, /* inReview= */ true))
         .isInstanceOf(RuntimeException.class)
         .hasMessage("Could not parse value from 'program' to a numeric value");
   }
@@ -643,12 +611,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Result result =
         subject
-            .previous(
-                request,
-                programSlug,
-                /* previousBlockIndex= */ 0,
-                /* inReview= */ true,
-                /* isFromUrlCall= */ true)
+            .previous(request, programSlug, /* previousBlockIndex= */ 0, /* inReview= */ true)
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(OK);
@@ -667,8 +630,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 Long.toString(program.id),
                 /* previousBlockIndex= */ 0,
-                /* inReview= */ true,
-                /* isFromUrlCall= */ true)
+                /* inReview= */ true)
             .toCompletableFuture()
             .join();
 
@@ -697,8 +659,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     applicant.id,
                     programSlug,
                     /* previousBlockIndex= */ 0,
-                    /* inReview= */ true,
-                    /* isFromUrlCall= */ true))
+                    /* inReview= */ true))
         .isInstanceOf(RuntimeException.class)
         .hasMessage("Could not parse value from 'program' to a numeric value");
   }
@@ -725,8 +686,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 programSlug,
                 /* previousBlockIndex= */ 0,
-                /* inReview= */ true,
-                /* isFromUrlCall= */ true)
+                /* inReview= */ true)
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(OK);
@@ -738,8 +698,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Result result =
         subject
-            .previousWithApplicantId(
-                fakeRequest(), applicant.id, programId, 0, true, /* isFromUrlCall= */ true)
+            .previousWithApplicantId(fakeRequest(), applicant.id, programId, 0, true)
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(OK);
@@ -756,8 +715,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Result result =
         subject
-            .previousWithApplicantId(
-                fakeRequest(), applicant.id, draftProgramId, 0, true, /* isFromUrlCall= */ true)
+            .previousWithApplicantId(fakeRequest(), applicant.id, draftProgramId, 0, true)
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
@@ -776,8 +734,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Result result =
         subject
-            .previousWithApplicantId(
-                fakeRequest(), applicant.id, draftProgramId, 0, true, /* isFromUrlCall= */ true)
+            .previousWithApplicantId(fakeRequest(), applicant.id, draftProgramId, 0, true)
             .toCompletableFuture()
             .join();
 
@@ -786,13 +743,19 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void previousWithApplicantId_obsoleteProgram_isOk() {
-    ProgramModel obsoleteProgram = ProgramBuilder.newObsoleteProgram("program").build();
+    ProgramModel obsoleteProgram =
+        ProgramBuilder.newObsoleteProgram("program")
+            .withBlock("name")
+            .withQuestionDefinition(
+                testQuestionBank().nameApplicantName().getQuestionDefinition(),
+                /* optional= */ false)
+            .build();
+
     String obsoleteProgramId = Long.toString(obsoleteProgram.id);
 
     Result result =
         subject
-            .previousWithApplicantId(
-                fakeRequest(), applicant.id, obsoleteProgramId, 0, true, /* isFromUrlCall= */ true)
+            .previousWithApplicantId(fakeRequest(), applicant.id, obsoleteProgramId, 0, true)
             .toCompletableFuture()
             .join();
 
@@ -1162,10 +1125,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     String previousRoute =
         routes.ApplicantProgramBlocksController.previous(
-                Long.toString(program.id),
-                /* previousBlockIndex= */ 0,
-                /* inReview= */ false,
-                /* isFromUrlCall= */ false)
+                Long.toString(program.id), /* previousBlockIndex= */ 0, /* inReview= */ false)
             .url();
     assertThat(result.redirectLocation()).hasValue(previousRoute);
   }
@@ -1205,9 +1165,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     String reviewRoute =
-        routes.ApplicantProgramReviewController.review(
-                Long.toString(program.id), /* isFromUrlCall= */ false)
-            .url();
+        routes.ApplicantProgramReviewController.review(Long.toString(program.id)).url();
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
   }
 
@@ -1407,10 +1365,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     String nextBlockEditRoute =
         routes.ApplicantProgramBlocksController.edit(
-                Long.toString(program.id),
-                /* blockId= */ "2",
-                /* questionName= */ Optional.empty(),
-                /* isFromUrlCall= */ false)
+                Long.toString(program.id), /* blockId= */ "2", /* questionName= */ Optional.empty())
             .url();
     assertThat(result.redirectLocation()).hasValue(nextBlockEditRoute);
   }
@@ -1448,9 +1403,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     String reviewRoute =
-        routes.ApplicantProgramReviewController.review(
-                Long.toString(program.id), /* isFromUrlCall= */ false)
-            .url();
+        routes.ApplicantProgramReviewController.review(Long.toString(program.id)).url();
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
   }
 
@@ -1526,10 +1479,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Integer previousBlockIndex = 2;
     String previousRoute =
         routes.ApplicantProgramBlocksController.previous(
-                Long.toString(program.id),
-                previousBlockIndex,
-                /* inReview= */ false,
-                /* isFromUrlCall= */ false)
+                Long.toString(program.id), previousBlockIndex, /* inReview= */ false)
             .url();
     assertThat(result.redirectLocation()).hasValue(previousRoute);
   }
@@ -1565,9 +1515,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     String reviewRoute =
-        routes.ApplicantProgramReviewController.review(
-                Long.toString(program.id), /* isFromUrlCall= */ false)
-            .url();
+        routes.ApplicantProgramReviewController.review(Long.toString(program.id)).url();
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
   }
 
@@ -1676,9 +1624,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     // check that the address correction screen is skipped and the user is redirected to the review
     // screen
     String reviewRoute =
-        routes.ApplicantProgramReviewController.review(
-                Long.toString(program.id), /* isFromUrlCall= */ false)
-            .url();
+        routes.ApplicantProgramReviewController.review(Long.toString(program.id)).url();
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
     assertThat(result.status()).isEqualTo(SEE_OTHER);
 
@@ -1720,9 +1666,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
 
     String reviewRoute =
-        routes.ApplicantProgramReviewController.review(
-                Long.toString(program.id), /* isFromUrlCall= */ false)
-            .url();
+        routes.ApplicantProgramReviewController.review(Long.toString(program.id)).url();
 
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
   }
@@ -1735,12 +1679,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Result result =
         subject
-            .addFile(
-                request,
-                programId,
-                /* blockId= */ "1",
-                /* inReview= */ false,
-                /* isFromUrlCall= */ true)
+            .addFile(request, programId, /* blockId= */ "1", /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -1763,11 +1702,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     assertThatThrownBy(
             () ->
                 subject.addFile(
-                    fakeRequest(),
-                    programSlug,
-                    /* blockId= */ "1",
-                    /* inReview= */ false,
-                    /* isFromUrlCall= */ true))
+                    fakeRequest(), programSlug, /* blockId= */ "1", /* inReview= */ false))
         .isInstanceOf(RuntimeException.class)
         .hasMessage("Could not parse value from 'program' to a numeric value");
   }
@@ -1793,12 +1728,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Result result =
         subject
-            .addFile(
-                request,
-                programSlug,
-                /* blockId= */ "1",
-                /* inReview= */ false,
-                /* isFromUrlCall= */ true)
+            .addFile(request, programSlug, /* blockId= */ "1", /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -1820,12 +1750,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Result result =
         subject
             .addFileWithApplicantId(
-                request,
-                applicant.id,
-                programId,
-                /* blockId= */ "1",
-                /* inReview= */ false,
-                /* isFromUrlCall= */ true)
+                request, applicant.id, programId, /* blockId= */ "1", /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -1854,8 +1779,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     applicant.id,
                     programSlug,
                     /* blockId= */ "1",
-                    /* inReview= */ false,
-                    /* isFromUrlCall= */ true))
+                    /* inReview= */ false))
         .isInstanceOf(RuntimeException.class)
         .hasMessage("Could not parse value from 'program' to a numeric value");
   }
@@ -1883,12 +1807,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Result result =
         subject
             .addFileWithApplicantId(
-                request,
-                applicant.id,
-                programSlug,
-                /* blockId= */ "1",
-                /* inReview= */ false,
-                /* isFromUrlCall= */ true)
+                request, applicant.id, programSlug, /* blockId= */ "1", /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -1910,8 +1829,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 badApplicantId,
                 programId,
                 /* blockId= */ "2",
-                /* inReview= */ false,
-                /* isFromUrlCall= */ false)
+                /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -1934,8 +1852,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 draftProgramId,
                 /* blockId= */ "1",
-                /* inReview= */ false,
-                /* isFromUrlCall= */ false)
+                /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -1960,8 +1877,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 draftProgramId,
                 /* blockId= */ "1",
-                /* inReview= */ false,
-                /* isFromUrlCall= */ false)
+                /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -1984,8 +1900,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 obsoleteProgramId,
                 /* blockId= */ "1",
-                /* inReview= */ false,
-                /* isFromUrlCall= */ false)
+                /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -2003,8 +1918,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 badProgramId,
                 /* blockId= */ "2",
-                /* inReview= */ false,
-                /* isFromUrlCall= */ false)
+                /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -2023,8 +1937,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 programId,
                 badBlockId,
-                /* inReview= */ false,
-                /* isFromUrlCall= */ false)
+                /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -2043,8 +1956,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 programId,
                 badBlockId,
-                /* inReview= */ false,
-                /* isFromUrlCall= */ false)
+                /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -2058,12 +1970,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Result result =
         subject
             .addFileWithApplicantId(
-                fakeRequest(),
-                applicant.id,
-                programId,
-                /* blockId= */ "2",
-                /* inReview= */ false,
-                /* isFromUrlCall= */ false)
+                fakeRequest(), applicant.id, programId, /* blockId= */ "2", /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -2090,18 +1997,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Result result =
         subject
             .addFileWithApplicantId(
-                request.build(),
-                applicant.id,
-                programId,
-                /* blockId= */ "1",
-                /* inReview= */ false,
-                /* isFromUrlCall= */ false)
+                request.build(), applicant.id, programId, /* blockId= */ "1", /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
-        .contains(String.format("/programs/%s/blocks/1/edit?isFromUrlCall=false", program.id));
+        .contains(String.format("/programs/%s/blocks/1/edit", program.id));
 
     applicant.refresh();
     String applicantData = applicant.getApplicantData().asJsonString();
@@ -2145,8 +2047,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 programId,
                 /* blockId= */ "1",
-                /* inReview= */ false,
-                /* isFromUrlCall= */ false)
+                /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -2162,8 +2063,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 programId,
                 /* blockId= */ "1",
-                /* inReview= */ false,
-                /* isFromUrlCall= */ false)
+                /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -2192,12 +2092,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     subject
         .addFileWithApplicantId(
-            requestOne.build(),
-            applicant.id,
-            programId,
-            /* blockId= */ "1",
-            /* inReview= */ false,
-            /* isFromUrlCall= */ false)
+            requestOne.build(), applicant.id, programId, /* blockId= */ "1", /* inReview= */ false)
         .toCompletableFuture()
         .join();
 
@@ -2209,12 +2104,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     subject
         .addFileWithApplicantId(
-            requestTwo.build(),
-            applicant.id,
-            programId,
-            /* blockId= */ "1",
-            /* inReview= */ false,
-            /* isFromUrlCall= */ false)
+            requestTwo.build(), applicant.id, programId, /* blockId= */ "1", /* inReview= */ false)
         .toCompletableFuture()
         .join();
 
@@ -2226,8 +2116,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             programId,
             /* blockId= */ "1",
             /* fileKeyToRemove= */ "keyTwo",
-            /* inReview= */ false,
-            /* isFromUrlCall= */ false)
+            /* inReview= */ false)
         .toCompletableFuture()
         .join();
 
@@ -2239,29 +2128,37 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     subject
         .addFileWithApplicantId(
-            requestFour.build(),
-            applicant.id,
-            programId,
-            /* blockId= */ "1",
-            /* inReview= */ false,
-            /* isFromUrlCall= */ false)
+            requestFour.build(), applicant.id, programId, /* blockId= */ "1", /* inReview= */ false)
         .toCompletableFuture()
         .join();
 
     applicant.refresh();
+    // Verify the applicant has the correct files.
     String applicantData = applicant.getApplicantData().asJsonString();
     assertThat(applicantData).contains("keyOne", "fileNameOne");
     assertThat(applicantData).contains("keyThree", "fileNameThree");
+    assertThat(applicantData).doesNotContain("keyTwo", "fileNameTwo");
 
     // Assert that corresponding entries were created in the stored file repo.
     var storedFileRepo = instanceOf(StoredFileRepository.class);
-    int storedFileCount =
+    // Verify the files exist.
+    var storedFiles =
         storedFileRepo
-            .lookupFiles(ImmutableList.of("keyOne", "keyTwo"))
+            .lookupFiles(ImmutableList.of("keyOne", "keyTwo", "keyThree"))
             .toCompletableFuture()
-            .join()
-            .size();
-    assertThat(storedFileCount).isEqualTo(2);
+            .join();
+    assertThat(storedFiles.size()).isEqualTo(3);
+    // Verify the files all have the ACL.
+    storedFiles.forEach(
+        file -> {
+          assertThat(file.getAcls().hasApplicantReadPermission(applicant.id))
+              .withFailMessage(
+                  () ->
+                      "Failed key: %s wanted: %d acl: %s"
+                          .formatted(
+                              file.getName(), applicant.id, file.getAcls().getApplicantReadAcls()))
+              .isTrue();
+        });
   }
 
   @Test
@@ -2280,8 +2177,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 programId,
                 /* blockId= */ "1",
-                /* inReview= */ false,
-                /* isFromUrlCall= */ false)
+                /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -2294,8 +2190,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 programId,
                 /* blockId= */ "1",
-                /* inReview= */ false,
-                /* isFromUrlCall= */ false)
+                /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -2331,8 +2226,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 programId,
                 /* blockId= */ "1",
                 /* fileKeyToRemove= */ "fake-key",
-                /* inReview= */ false,
-                /* isFromUrlCall= */ true)
+                /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -2362,8 +2256,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     programSlug,
                     /* blockId= */ "1",
                     /* fileKeyToRemove= */ "fake-key",
-                    /* inReview= */ false,
-                    /* isFromUrlCall= */ true))
+                    /* inReview= */ false))
         .isInstanceOf(RuntimeException.class)
         .hasMessage("Could not parse value from 'program' to a numeric value");
   }
@@ -2397,8 +2290,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 programSlug,
                 /* blockId= */ "1",
                 /* fileKeyToRemove= */ "fake-key",
-                /* inReview= */ false,
-                /* isFromUrlCall= */ true)
+                /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -2424,8 +2316,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 programId,
                 /* blockId= */ "1",
                 /* fileKeyToRemove= */ "fake-key",
-                /* inReview= */ false,
-                /* isFromUrlCall= */ false)
+                /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -2448,8 +2339,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 draftProgramId,
                 /* blockId= */ "2",
                 /* fileKeyToRemove= */ "fake-key",
-                /* inReview= */ false,
-                /* isFromUrlCall= */ false)
+                /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -2475,8 +2365,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 draftProgramId,
                 /* blockId= */ "1",
                 /* fileKeyToRemove= */ "fake-key",
-                /* inReview= */ false,
-                /* isFromUrlCall= */ false)
+                /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -2496,8 +2385,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 programId,
                 /* blockId= */ "1",
                 /* fileKeyToRemove= */ "fake-key",
-                /* inReview= */ false,
-                /* isFromUrlCall= */ true)
+                /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -2524,8 +2412,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     programSlug,
                     /* blockId= */ "1",
                     /* fileKeyToRemove= */ "fake-key",
-                    /* inReview= */ false,
-                    /* isFromUrlCall= */ true))
+                    /* inReview= */ false))
         .isInstanceOf(RuntimeException.class)
         .hasMessage("Could not parse value from 'program' to a numeric value");
   }
@@ -2556,8 +2443,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 programSlug,
                 /* blockId= */ "1",
                 /* fileKeyToRemove= */ "fake-key",
-                /* inReview= */ false,
-                /* isFromUrlCall= */ true)
+                /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -2584,8 +2470,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 obsoleteProgramId,
                 /* blockId= */ "1",
                 /* fileKeyToRemove= */ "fake-key",
-                /* inReview= */ false,
-                /* isFromUrlCall= */ false)
+                /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -2603,8 +2488,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 badProgramId,
                 /* blockId= */ "2",
                 /* fileKeyToRemove= */ "fake-key",
-                /* inReview= */ false,
-                /* isFromUrlCall= */ false)
+                /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -2628,8 +2512,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 programId,
                 badBlockId,
                 /* fileKeyToRemove= */ "fake-key",
-                /* inReview= */ false,
-                /* isFromUrlCall= */ false)
+                /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -2653,8 +2536,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 programId,
                 dateQuestionBlockId,
                 /* fileKeyToRemove= */ "fake-key",
-                /* inReview= */ false,
-                /* isFromUrlCall= */ false)
+                /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -2679,8 +2561,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 programId,
                 /* blockId= */ "1",
                 /* fileKeyToRemove= */ "key-to-remove",
-                /* inReview= */ false,
-                /* isFromUrlCall= */ false)
+                /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -2715,8 +2596,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 programId,
                 /* blockId= */ "1",
                 /* fileKeyToRemove= */ "key-to-remove",
-                /* inReview= */ false,
-                /* isFromUrlCall= */ false)
+                /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -2764,8 +2644,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 programId,
                 /* blockId= */ "1",
                 /* fileKeyToRemove= */ "key-to-remove",
-                /* inReview= */ false,
-                /* isFromUrlCall= */ false)
+                /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -2804,8 +2683,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 programId,
                 /* blockId= */ "1",
                 /* fileKeyToRemove= */ "key-to-remove",
-                /* inReview= */ false,
-                /* isFromUrlCall= */ false)
+                /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -2842,8 +2720,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 programId,
                 /* blockId= */ "1",
                 /* fileKeyToRemove= */ "does-not-exist",
-                /* inReview= */ false,
-                /* isFromUrlCall= */ false)
+                /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -2861,7 +2738,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         fakeRequestBuilder()
-            .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
+            .bodyForm(
+                ImmutableMap.of(
+                    AddressCorrectionBlockView.ADDRESS_JSON_FIELD_NAME,
+                    createAddressSuggestionsJson()))
             .build();
 
     Result result =
@@ -2889,7 +2769,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         fakeRequestBuilder()
-            .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
+            .bodyForm(
+                ImmutableMap.of(
+                    AddressCorrectionBlockView.ADDRESS_JSON_FIELD_NAME,
+                    createAddressSuggestionsJson()))
             .build();
     Result result =
         subject
@@ -2918,7 +2801,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         fakeRequestBuilder()
-            .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
+            .bodyForm(
+                ImmutableMap.of(
+                    AddressCorrectionBlockView.ADDRESS_JSON_FIELD_NAME,
+                    createAddressSuggestionsJson()))
             .build();
     Result result =
         subject
@@ -2945,7 +2831,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         fakeRequestBuilder()
-            .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
+            .bodyForm(
+                ImmutableMap.of(
+                    AddressCorrectionBlockView.ADDRESS_JSON_FIELD_NAME,
+                    createAddressSuggestionsJson()))
             .build();
     Result result =
         subject
@@ -2968,7 +2857,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         fakeRequestBuilder()
-            .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
+            .bodyForm(
+                ImmutableMap.of(
+                    AddressCorrectionBlockView.ADDRESS_JSON_FIELD_NAME,
+                    createAddressSuggestionsJson()))
             .build();
 
     Result result =
@@ -2990,7 +2882,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   public void confirmAddress_noAddressJson_throws() {
     Request request =
         fakeRequestBuilder()
-            // Don't set the ADDRESS_JSON_SESSION_KEY on the session
+            // Don't set ADDRESS_JSON_FIELD_NAME in the form body
             .bodyForm(
                 ImmutableMap.of(
                     AddressCorrectionBlockView.SELECTED_ADDRESS_NAME,
@@ -3052,12 +2944,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .join();
     // Check that we're taken to the address correction screen with some suggestions
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(result.session().get(ADDRESS_JSON_SESSION_KEY)).isPresent();
-
     // Then, send a confirmAddress request but don't fill in SELECTED_ADDRESS_NAME in the form body
     Request request =
         fakeRequestBuilder()
-            .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
+            .bodyForm(
+                ImmutableMap.of(
+                    AddressCorrectionBlockView.ADDRESS_JSON_FIELD_NAME,
+                    createAddressSuggestionsJson()))
             .build();
 
     Result confirmAddressResult =
@@ -3076,10 +2969,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     assertThat(confirmAddressResult.status()).isEqualTo(SEE_OTHER);
     String nextBlockEditRoute =
         routes.ApplicantProgramBlocksController.edit(
-                Long.toString(program.id),
-                /* blockId= */ "2",
-                /* questionName= */ Optional.empty(),
-                /* isFromUrlCall= */ false)
+                Long.toString(program.id), /* blockId= */ "2", /* questionName= */ Optional.empty())
             .url();
     assertThat(confirmAddressResult.redirectLocation()).hasValue(nextBlockEditRoute);
 
@@ -3130,12 +3020,15 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         addressSuggestionJsonSerializer.serialize(ImmutableList.of(addressSuggestion));
 
     // The selected address (set in the body form with the key SELECTED_ADDRESS_NAME) should match
-    // one of the address
-    // suggestions (set in the session with the key ADDRESS_JSON_SESSION_KEY).
+    // one of the address suggestions (set in the form with the key ADDRESS_JSON_FIELD_NAME).
     Request request =
         fakeRequestBuilder()
-            .session(ADDRESS_JSON_SESSION_KEY, addressSuggestionString)
-            .bodyForm(ImmutableMap.of(AddressCorrectionBlockView.SELECTED_ADDRESS_NAME, address))
+            .bodyForm(
+                ImmutableMap.of(
+                    AddressCorrectionBlockView.SELECTED_ADDRESS_NAME,
+                    address,
+                    AddressCorrectionBlockView.ADDRESS_JSON_FIELD_NAME,
+                    addressSuggestionString))
             .build();
     Result result =
         subject
@@ -3153,10 +3046,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     String nextBlockEditRoute =
         routes.ApplicantProgramBlocksController.edit(
-                Long.toString(program.id),
-                /* blockId= */ "2",
-                /* questionName= */ Optional.empty(),
-                /* isFromUrlCall= */ false)
+                Long.toString(program.id), /* blockId= */ "2", /* questionName= */ Optional.empty())
             .url();
     assertThat(result.redirectLocation()).hasValue(nextBlockEditRoute);
 
@@ -3184,10 +3074,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         fakeRequestBuilder()
-            .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
             .bodyForm(
                 ImmutableMap.of(
-                    AddressCorrectionBlockView.SELECTED_ADDRESS_NAME, SUGGESTED_ADDRESS))
+                    AddressCorrectionBlockView.SELECTED_ADDRESS_NAME,
+                    SUGGESTED_ADDRESS,
+                    AddressCorrectionBlockView.ADDRESS_JSON_FIELD_NAME,
+                    createAddressSuggestionsJson()))
             .build();
     Result result =
         subject
@@ -3204,9 +3096,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     // Check that the user is redirected to the review page
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     String reviewRoute =
-        routes.ApplicantProgramReviewController.review(
-                Long.toString(program.id), /* isFromUrlCall= */ false)
-            .url();
+        routes.ApplicantProgramReviewController.review(Long.toString(program.id)).url();
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
 
     // Check that the selected suggested address is saved
@@ -3231,10 +3121,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         fakeRequestBuilder()
-            .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
             .bodyForm(
                 ImmutableMap.of(
-                    AddressCorrectionBlockView.SELECTED_ADDRESS_NAME, SUGGESTED_ADDRESS))
+                    AddressCorrectionBlockView.SELECTED_ADDRESS_NAME,
+                    SUGGESTED_ADDRESS,
+                    AddressCorrectionBlockView.ADDRESS_JSON_FIELD_NAME,
+                    createAddressSuggestionsJson()))
             .build();
     Result result =
         subject
@@ -3253,10 +3145,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Integer previousBlockIndex = 0;
     String previousBlockEditRoute =
         routes.ApplicantProgramBlocksController.previous(
-                Long.toString(program.id),
-                previousBlockIndex,
-                /* inReview= */ false,
-                /* isFromUrlCall= */ false)
+                Long.toString(program.id), previousBlockIndex, /* inReview= */ false)
             .url();
     assertThat(result.redirectLocation()).hasValue(previousBlockEditRoute);
 
@@ -3308,11 +3197,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     // Then, choose the original address during address correction
     Request confirmAddressRequest =
         fakeRequestBuilder()
-            .session(ADDRESS_JSON_SESSION_KEY, createAddressSuggestionsJson())
             .bodyForm(
                 ImmutableMap.of(
                     AddressCorrectionBlockView.SELECTED_ADDRESS_NAME,
-                    AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE))
+                    AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE,
+                    AddressCorrectionBlockView.ADDRESS_JSON_FIELD_NAME,
+                    createAddressSuggestionsJson()))
             .build();
 
     Result confirmAddressResult =
@@ -3331,10 +3221,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     assertThat(confirmAddressResult.status()).isEqualTo(SEE_OTHER);
     String nextBlockEditRoute =
         routes.ApplicantProgramBlocksController.edit(
-                Long.toString(program.id),
-                /* blockId= */ "2",
-                /* questionName= */ Optional.empty(),
-                /* isFromUrlCall= */ false)
+                Long.toString(program.id), /* blockId= */ "2", /* questionName= */ Optional.empty())
             .url();
     assertThat(confirmAddressResult.redirectLocation()).hasValue(nextBlockEditRoute);
 

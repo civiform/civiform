@@ -1,12 +1,15 @@
 package services.session;
 
 import auth.CiviFormProfile;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.concurrent.CompletableFuture;
+import java.util.Base64;
 import javax.inject.Inject;
 import javax.inject.Provider;
+import play.libs.Json;
 import services.settings.SettingsManifest;
 
 /** Service responsible for managing session timeout logic in CiviForm. */
@@ -25,14 +28,15 @@ public final class SessionTimeoutService {
    * duration.
    *
    * @param profile the user's profile
-   * @return a future that completes with true if the session has timed out, false otherwise
+   * @param sessionStartTimeInMillis the session start time in milliseconds
+   * @return true if the session has timed out, false otherwise
    */
-  public CompletableFuture<Boolean> isSessionTimedOut(CiviFormProfile profile) {
+  public boolean isSessionTimedOut(CiviFormProfile profile, long sessionStartTimeInMillis) {
 
     if (isSessionTimedOutDueToInactivity(profile)) {
-      return CompletableFuture.completedFuture(true);
+      return true;
     }
-    return isSessionTimedOutDueToSessionLength(profile);
+    return isSessionTimedOutDueToSessionLength(sessionStartTimeInMillis);
   }
 
   private boolean isSessionTimedOutDueToInactivity(CiviFormProfile profile) {
@@ -48,40 +52,28 @@ public final class SessionTimeoutService {
    * Calculates the timeout data for the user's session.
    *
    * @param profile the user's profile
-   * @return a future that completes with the timeout data for the user's session
+   * @param sessionStartTimeInMillis the session start time in milliseconds
+   * @return the timeout data for the user's session
    */
-  public CompletableFuture<TimeoutData> calculateTimeoutData(CiviFormProfile profile) {
+  public TimeoutData calculateTimeoutData(CiviFormProfile profile, long sessionStartTimeInMillis) {
     long currentTime = clock.instant().getEpochSecond();
+    long sessionStartTimeInSeconds = sessionStartTimeInMillis / 1000;
 
-    return profile
-        .getSessionStartTime()
-        .thenApply(
-            optionalSessionStartTimeInMillis -> {
-              long sessionStartTimeInMillis =
-                  optionalSessionStartTimeInMillis.orElse(currentTime * 1000L);
-              long sessionStartTimeInSeconds = sessionStartTimeInMillis / 1000;
+    int inactivityMinutes = getSessionInactivityTimeoutMinutes();
+    int totalLengthMinutes = getMaximumSessionDurationMinutes();
+    int inactivityWarningMinutes =
+        settingsManifest.get().getSessionInactivityWarningThresholdMinutes().orElseThrow();
+    int durationWarningMinutes =
+        settingsManifest.get().getSessionDurationWarningThresholdMinutes().orElseThrow();
 
-              int inactivityMinutes = getSessionInactivityTimeoutMinutes();
-              int totalLengthMinutes = getMaximumSessionDurationMinutes();
-              int inactivityWarningMinutes =
-                  settingsManifest
-                      .get()
-                      .getSessionInactivityWarningThresholdMinutes()
-                      .orElseThrow();
-              int durationWarningMinutes =
-                  settingsManifest.get().getSessionDurationWarningThresholdMinutes().orElseThrow();
-
-              long lastActivityTimeInSeconds =
-                  profile.getProfileData().getLastActivityTime(clock) / 1000;
-              return new TimeoutData(
-                  calculateTimeoutLimit(lastActivityTimeInSeconds, inactivityMinutes),
-                  calculateTimeoutLimit(sessionStartTimeInSeconds, totalLengthMinutes),
-                  calculateWarningTime(
-                      lastActivityTimeInSeconds, inactivityMinutes, inactivityWarningMinutes),
-                  calculateWarningTime(
-                      sessionStartTimeInSeconds, totalLengthMinutes, durationWarningMinutes),
-                  currentTime);
-            });
+    long lastActivityTimeInSeconds = profile.getProfileData().getLastActivityTime(clock) / 1000;
+    return new TimeoutData(
+        calculateTimeoutLimit(lastActivityTimeInSeconds, inactivityMinutes),
+        calculateTimeoutLimit(sessionStartTimeInSeconds, totalLengthMinutes),
+        calculateWarningTime(
+            lastActivityTimeInSeconds, inactivityMinutes, inactivityWarningMinutes),
+        calculateWarningTime(sessionStartTimeInSeconds, totalLengthMinutes, durationWarningMinutes),
+        currentTime);
   }
 
   private long calculateTimeoutLimit(long startTimeInSeconds, int timeoutMinutes) {
@@ -97,16 +89,10 @@ public final class SessionTimeoutService {
         .getEpochSecond();
   }
 
-  private CompletableFuture<Boolean> isSessionTimedOutDueToSessionLength(CiviFormProfile profile) {
+  private boolean isSessionTimedOutDueToSessionLength(long sessionStartTimeInMillis) {
     long currentTimeInMillis = clock.millis();
     long maxSessionDurationInMillis = getMaxSessionDurationMillis();
-    return profile
-        .getSessionStartTime()
-        .thenApply(
-            optionalSessionStartTime -> {
-              long sessionStartTimeInMillis = optionalSessionStartTime.orElse(currentTimeInMillis);
-              return (currentTimeInMillis - sessionStartTimeInMillis) > maxSessionDurationInMillis;
-            });
+    return (currentTimeInMillis - sessionStartTimeInMillis) > maxSessionDurationInMillis;
   }
 
   private long getInactivityTimeoutMillis() {
@@ -130,5 +116,19 @@ public final class SessionTimeoutService {
       long totalTimeout,
       long inactivityWarning,
       long totalWarning,
-      long currentTime) {}
+      long currentTime) {
+    private ObjectNode timestamps() {
+      return Json.newObject()
+          .put("inactivityWarning", inactivityWarning)
+          .put("inactivityTimeout", inactivityTimeout)
+          .put("totalWarning", totalWarning)
+          .put("totalTimeout", totalTimeout)
+          .put("currentTime", currentTime);
+    }
+
+    public String cookieValue() {
+      return Base64.getEncoder()
+          .encodeToString(Json.stringify(timestamps()).getBytes(StandardCharsets.UTF_8));
+    }
+  }
 }

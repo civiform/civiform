@@ -528,7 +528,7 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     assertThat(blocks.get(3).getId()).isEqualTo("4-0");
     Path questionPath = enumerationPath.atIndex(0).join("household_members_name");
-    assertThat(blocks.get(3).getQuestions().get(0).getContextualizedScalars())
+    assertThat(blocks.get(3).getVisibleQuestions().get(0).getContextualizedScalars())
         .containsExactlyInAnyOrderEntriesOf(
             ImmutableMap.of(
                 questionPath.join(Scalar.FIRST_NAME), ScalarType.STRING,
@@ -543,7 +543,7 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     assertThat(blocks.get(5).getId()).isEqualTo("4-1");
     questionPath = enumerationPath.atIndex(1).join("household_members_name");
-    assertThat(blocks.get(5).getQuestions().get(0).getContextualizedScalars())
+    assertThat(blocks.get(5).getVisibleQuestions().get(0).getContextualizedScalars())
         .containsExactlyInAnyOrderEntriesOf(
             ImmutableMap.of(
                 questionPath.join(Scalar.FIRST_NAME),
@@ -564,7 +564,7 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     assertThat(blocks.get(7).getId()).isEqualTo("4-2");
     questionPath = enumerationPath.atIndex(2).join("household_members_name");
-    assertThat(blocks.get(7).getQuestions().get(0).getContextualizedScalars())
+    assertThat(blocks.get(7).getVisibleQuestions().get(0).getContextualizedScalars())
         .containsExactlyInAnyOrderEntriesOf(
             ImmutableMap.of(
                 questionPath.join(Scalar.FIRST_NAME),
@@ -585,7 +585,7 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     assertThat(blocks.get(9).getId()).isEqualTo("6-2-0");
     questionPath = deepEnumerationPath.atIndex(0).join("household_members_days_worked");
-    assertThat(blocks.get(9).getQuestions().get(0).getContextualizedScalars())
+    assertThat(blocks.get(9).getVisibleQuestions().get(0).getContextualizedScalars())
         .containsExactlyInAnyOrderEntriesOf(
             ImmutableMap.of(
                 questionPath.join(Scalar.NUMBER),
@@ -597,7 +597,7 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     assertThat(blocks.get(10).getId()).isEqualTo("6-2-1");
     questionPath = deepEnumerationPath.atIndex(1).join("household_members_days_worked");
-    assertThat(blocks.get(10).getQuestions().get(0).getContextualizedScalars())
+    assertThat(blocks.get(10).getVisibleQuestions().get(0).getContextualizedScalars())
         .containsExactlyInAnyOrderEntriesOf(
             ImmutableMap.of(
                 questionPath.join(Scalar.NUMBER),
@@ -985,9 +985,9 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
     ProgramDefinition program =
         ProgramBuilder.newActiveProgram()
             .withBlock() // Block is completed
-            .withQuestionDefinition(nameQuestion, true)
+            .withQuestionDefinition(nameQuestion, /* optional= */ true)
             .withBlock() // Block incomplete; this is what predicate is based on
-            .withQuestionDefinition(colorQuestion, false)
+            .withQuestionDefinition(colorQuestion, /* optional= */ false)
             .buildDefinition();
     QuestionAnswerer.addMetadata(
         applicantData,
@@ -1007,9 +1007,9 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
     ProgramDefinition program =
         ProgramBuilder.newActiveProgram()
             .withBlock() // Block is completed
-            .withQuestionDefinition(nameQuestion, true)
+            .withQuestionDefinition(nameQuestion, /* optional= */ true)
             .withBlock() // Block incomplete; this is what predicate is based on
-            .withQuestionDefinition(colorQuestion, false)
+            .withQuestionDefinition(colorQuestion, /* optional= */ false)
             .buildDefinition();
     QuestionAnswerer.addMetadata(
         applicantData,
@@ -1029,9 +1029,9 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
     ProgramDefinition program =
         ProgramBuilder.newActiveProgram()
             .withBlock() // Block is completed
-            .withQuestionDefinition(nameQuestion, false)
+            .withQuestionDefinition(nameQuestion, /* optional= */ false)
             .withBlock() // Block incomplete; this is what predicate is based on
-            .withQuestionDefinition(colorQuestion, false)
+            .withQuestionDefinition(colorQuestion, /* optional= */ false)
             .buildDefinition();
     QuestionAnswerer.addMetadata(
         applicantData,

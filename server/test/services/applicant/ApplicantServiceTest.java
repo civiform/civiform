@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static support.FakeRequestBuilder.fakeRequest;
-import static support.FakeRequestBuilder.fakeRequestBuilder;
 import static support.TestProgramUtility.createProgramWithNongatingEligibility;
 
 import auth.CiviFormProfile;
@@ -163,7 +162,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     programService = instanceOf(ProgramService.class);
 
     emailSendClient = Mockito.mock(EmailSendClient.class);
-    FieldUtils.writeField(subject, "emailSendClient", emailSendClient, true);
+    FieldUtils.writeField(subject, "emailSendClient", emailSendClient, /* forceAccess= */ true);
 
     messagesApi = instanceOf(MessagesApi.class);
   }
@@ -1241,7 +1240,13 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     subject
         .stageAndUpdateIfValid(
-            applicant.id, progDef.id(), "1", updates, false, false, /* apiBridgeEnabled= */ false)
+            applicant.id,
+            progDef.id(),
+            "1",
+            updates,
+            /* addressServiceAreaValidationEnabled= */ false,
+            /* forceUpdate= */ false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -1361,7 +1366,13 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     subject
         .stageAndUpdateIfValid(
-            applicant.id, progDef.id(), "1", updates, false, false, /* apiBridgeEnabled= */ false)
+            applicant.id,
+            progDef.id(),
+            "1",
+            updates,
+            /* addressServiceAreaValidationEnabled= */ false,
+            /* forceUpdate= */ false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -2991,27 +3002,10 @@ public class ApplicantServiceTest extends ResetPostgres {
                 ProgramType.EXTERNAL)
             .build();
 
-    // External program is not included in 'unapplied' list when external program card feature is
-    // disabled
-    Request request =
-        fakeRequestBuilder().addCiviFormSetting("EXTERNAL_PROGRAM_CARDS_ENABLED", "false").build();
-    ApplicantService.ApplicationPrograms result =
-        subject
-            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile, request)
-            .toCompletableFuture()
-            .join();
-    // programDefinition is created during test set up.
-    assertThat(result.unapplied().stream().map(p -> p.program().id()))
-        .containsExactly(programDefinition.id());
-
-    // External program is included in 'unapplied' list when external program card feature is
-    // enabled
-    Request requestWithFeature =
-        fakeRequestBuilder().addCiviFormSetting("EXTERNAL_PROGRAM_CARDS_ENABLED", "true").build();
+    // External program is included in 'unapplied' list
     ApplicantService.ApplicationPrograms resultWithFeature =
         subject
-            .relevantProgramsForApplicant(
-                applicant.id, trustedIntermediaryProfile, requestWithFeature)
+            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile, fakeRequest())
             .toCompletableFuture()
             .join();
     assertThat(resultWithFeature.unapplied().stream().map(p -> p.program().id()))
@@ -4393,7 +4387,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     QuestionDefinition questionDefinition = blockDefinition.getQuestionDefinition(0);
 
     programService.setProgramQuestionDefinitionAddressCorrectionEnabled(
-        program.id, blockDefinition.id(), questionDefinition.getId(), true);
+        program.id,
+        blockDefinition.id(),
+        questionDefinition.getId(),
+        /* addressCorrectionEnabled= */ true);
 
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(questionDefinition, applicant, applicantData, Optional.empty());
@@ -4505,7 +4502,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     QuestionDefinition questionDefinition = blockDefinition.getQuestionDefinition(0);
 
     programService.setProgramQuestionDefinitionAddressCorrectionEnabled(
-        program.id, blockDefinition.id(), questionDefinition.getId(), true);
+        program.id,
+        blockDefinition.id(),
+        questionDefinition.getId(),
+        /* addressCorrectionEnabled= */ true);
 
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(questionDefinition, applicant, applicantData, Optional.empty());
@@ -4599,7 +4599,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     QuestionDefinition questionDefinition = blockDefinition.getQuestionDefinition(0);
 
     programService.setProgramQuestionDefinitionAddressCorrectionEnabled(
-        program.id, blockDefinition.id(), questionDefinition.getId(), true);
+        program.id,
+        blockDefinition.id(),
+        questionDefinition.getId(),
+        /* addressCorrectionEnabled= */ true);
 
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(questionDefinition, applicant, applicantData, Optional.empty());
@@ -4707,7 +4710,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     QuestionDefinition questionDefinition = blockDefinition.getQuestionDefinition(0);
 
     programService.setProgramQuestionDefinitionAddressCorrectionEnabled(
-        program.id, blockDefinition.id(), questionDefinition.getId(), true);
+        program.id,
+        blockDefinition.id(),
+        questionDefinition.getId(),
+        /* addressCorrectionEnabled= */ true);
 
     programDefinition = programService.getFullProgramDefinition(program.id);
     blockDefinition = programDefinition.getBlockDefinition(blockDefinition.id());
@@ -4791,7 +4797,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     QuestionDefinition questionDefinition = blockDefinition.getQuestionDefinition(0);
 
     programService.setProgramQuestionDefinitionAddressCorrectionEnabled(
-        program.id, blockDefinition.id(), questionDefinition.getId(), true);
+        program.id,
+        blockDefinition.id(),
+        questionDefinition.getId(),
+        /* addressCorrectionEnabled= */ true);
 
     programDefinition = programService.getFullProgramDefinition(program.id);
     blockDefinition = programDefinition.getBlockDefinition(blockDefinition.id());

@@ -38,7 +38,6 @@ import modules.MainModule;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
-import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.CategoryRepository;
 import services.AlertType;
@@ -94,9 +93,8 @@ public class ProgramFormBuilder extends BaseHtmlView {
 
   /** Builds the form using program form data. */
   protected final FormTag buildProgramForm(
-      Request request, ProgramForm program, ProgramEditStatus programEditStatus) {
+      ProgramForm program, ProgramEditStatus programEditStatus) {
     return buildProgramForm(
-        request,
         program.getAdminName(),
         program.getAdminDescription(),
         program.getLocalizedDisplayName(),
@@ -117,9 +115,8 @@ public class ProgramFormBuilder extends BaseHtmlView {
 
   /* Builds the form using program definition data. */
   protected final FormTag buildProgramForm(
-      Request request, ProgramDefinition program, ProgramEditStatus programEditStatus) {
+      ProgramDefinition program, ProgramEditStatus programEditStatus) {
     return buildProgramForm(
-        request,
         program.adminName(),
         program.adminDescription(),
         program.localizedName().getDefault(),
@@ -151,7 +148,6 @@ public class ProgramFormBuilder extends BaseHtmlView {
   }
 
   private FormTag buildProgramForm(
-      Request request,
       String adminName,
       String adminDescription,
       String displayName,
@@ -171,8 +167,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
     boolean isDefaultProgram = programType.equals(ProgramType.DEFAULT);
     boolean isPreScreenerForm = programType.equals(ProgramType.PRE_SCREENER_FORM);
     boolean isExternalProgram = programType.equals(ProgramType.EXTERNAL);
-    boolean isExternalProgramCardsEnabled =
-        settingsManifest.getExternalProgramCardsEnabled(request);
+    boolean isExternalProgramCardsEnabled = settingsManifest.getExternalProgramCardsEnabled();
 
     boolean disableProgramEligibility = isPreScreenerForm || isExternalProgram;
     boolean disableLongDescription = isPreScreenerForm || isExternalProgram;

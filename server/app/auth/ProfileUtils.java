@@ -4,8 +4,6 @@ import auth.controllers.MissingOptionalException;
 import com.google.common.base.Preconditions;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.ApiKeyModel;
 import org.pac4j.core.context.WebContext;
@@ -13,6 +11,7 @@ import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.profile.BasicUserProfile;
 import org.pac4j.core.profile.ProfileManager;
 import org.pac4j.play.PlayWebContext;
+import play.libs.typedmap.TypedKey;
 import play.mvc.Http;
 
 // NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING ProfileUtils
@@ -21,6 +20,8 @@ import play.mvc.Http;
 public class ProfileUtils {
   private final SessionStore sessionStore;
   private final ProfileFactory profileFactory;
+  public static final TypedKey<CiviFormProfile> CURRENT_USER_PROFILE =
+      TypedKey.create("currentUserProfile");
 
   @Inject
   public ProfileUtils(SessionStore sessionStore, ProfileFactory profileFactory) {
@@ -89,21 +90,6 @@ public class ProfileUtils {
 
     return IDCS_PLACEHOLDER_EMAIL_LOWERCASE.equals(userEmailLowercase)
         || IDCS_PLACEHOLDER_TEST_EMAIL_LOWERCASE.equals(userEmailLowercase);
-  }
-
-  /** Return true if the account referenced by the profile exists. */
-  public CompletionStage<Boolean> validCiviFormProfile(CiviFormProfile profile) {
-    return profile
-        .getAccount()
-        .thenApply(account -> true)
-        .exceptionally(
-            ex -> {
-              Throwable cause = (ex instanceof CompletionException) ? ex.getCause() : ex;
-              if (cause instanceof AccountNonexistentException) {
-                return false;
-              }
-              throw new CompletionException(cause);
-            });
   }
 
   /** Retrieves the applicant id from the user profile, if present. */

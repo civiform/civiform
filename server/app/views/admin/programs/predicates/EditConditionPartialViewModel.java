@@ -2,6 +2,7 @@ package views.admin.programs.predicates;
 
 import com.google.common.collect.ImmutableList;
 import controllers.admin.AdminProgramBlockPredicatesController.OptionElement;
+import controllers.admin.AdminProgramBlockPredicatesController.QuestionOptionElement;
 import controllers.admin.AdminProgramBlockPredicatesController.ScalarOptionElement;
 import controllers.admin.routes;
 import java.util.Optional;
@@ -17,7 +18,7 @@ public record EditConditionPartialViewModel(
     PredicateUseCase predicateUseCase,
     PredicateLogicalOperator subconditionLogicalOperator,
     ImmutableList<EditSubconditionPartialViewModel> subconditions,
-    ImmutableList<OptionElement> questionOptions,
+    ImmutableList<QuestionOptionElement> questionOptions,
     ImmutableList<ScalarOptionElement> scalarOptions,
     ImmutableList<OptionElement> operatorOptions,
     ImmutableList<OptionElement> valueOptions,

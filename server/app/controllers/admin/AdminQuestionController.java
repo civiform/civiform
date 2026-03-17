@@ -45,6 +45,7 @@ import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
+import services.settings.SettingsManifest;
 import views.admin.questions.MapQuestionSettingsFiltersListPartialView;
 import views.admin.questions.MapQuestionSettingsFiltersListPartialViewModel;
 import views.admin.questions.MapQuestionSettingsFiltersPartialView;
@@ -61,6 +62,7 @@ public final class AdminQuestionController extends CiviFormController {
   private final QuestionEditView editView;
   private final FormFactory formFactory;
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
+  private final SettingsManifest settingsManifest;
 
   private final MapQuestionSettingsFiltersPartialView mapQuestionSettingsFiltersPartialView;
   private final MapQuestionSettingsFiltersListPartialView mapQuestionSettingsFiltersListPartialView;
@@ -72,6 +74,7 @@ public final class AdminQuestionController extends CiviFormController {
       QuestionService service,
       QuestionsListView listView,
       QuestionEditView editView,
+      SettingsManifest settingsManifest,
       FormFactory formFactory,
       MapQuestionSettingsFiltersPartialView mapQuestionSettingsFiltersPartialView,
       MapQuestionSettingsFiltersListPartialView mapQuestionSettingsFiltersListPartialView,
@@ -80,6 +83,7 @@ public final class AdminQuestionController extends CiviFormController {
     this.service = checkNotNull(service);
     this.listView = checkNotNull(listView);
     this.editView = checkNotNull(editView);
+    this.settingsManifest = checkNotNull(settingsManifest);
     this.formFactory = checkNotNull(formFactory);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.mapQuestionSettingsFiltersPartialView = mapQuestionSettingsFiltersPartialView;
@@ -175,7 +179,12 @@ public final class AdminQuestionController extends CiviFormController {
 
   /** Return a HTML page containing a form to create a new question in the draft version. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result newOne(Request request, String type, String redirectUrl) {
+  public Result newOne(
+      Request request,
+      String type,
+      String redirectUrl,
+      Optional<String> enumeratorQuestionOptional,
+      Optional<String> isRepeatingBlockOptional) {
     QuestionType questionType;
     try {
       questionType = QuestionType.of(type);
@@ -190,9 +199,15 @@ public final class AdminQuestionController extends CiviFormController {
             .join()
             .getUpToDateEnumeratorQuestions();
     try {
+      boolean isRepeatingBlock = isRepeatingBlockOptional.map(Boolean::parseBoolean).orElse(true);
       return ok(
           editView.renderNewQuestionForm(
-              request, questionType, enumeratorQuestionDefinitions, redirectUrl));
+              request,
+              questionType,
+              enumeratorQuestionDefinitions,
+              enumeratorQuestionOptional,
+              redirectUrl,
+              isRepeatingBlock));
     } catch (UnsupportedQuestionTypeException e) {
       return badRequest(e.getMessage());
     }
@@ -218,7 +233,11 @@ public final class AdminQuestionController extends CiviFormController {
       return badRequest(e.getMessage());
     }
 
-    ErrorAnd<QuestionDefinition, CiviFormError> result = service.create(questionDefinition);
+    boolean requireLegacyRepeatedEntitySelector =
+        !settingsManifest.getEnumeratorImprovementsEnabled(request);
+
+    ErrorAnd<QuestionDefinition, CiviFormError> result =
+        service.create(questionDefinition, requireLegacyRepeatedEntitySelector);
     if (result.isError()) {
       ToastMessage errorMessage = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
       ReadOnlyQuestionService roService =
@@ -236,11 +255,14 @@ public final class AdminQuestionController extends CiviFormController {
       return badRequest(e.toString());
     }
 
-    String successMessage = String.format("question %s created", questionForm.getQuestionName());
+    String successMessage =
+        String.format(
+            "question %s created and added to the program block", questionForm.getQuestionName());
     String redirectUrl =
         questionForm.getRedirectUrl().isEmpty()
             ? routes.AdminQuestionController.index(Optional.empty()).url()
-            : questionForm.getRedirectUrl();
+            : views.components.ProgramQuestionBank.addNewlyCreatedQuestionIdParam(
+                questionForm.getRedirectUrl(), result.getResult().getId());
     return withSuccessMessage(redirect(redirectUrl), successMessage);
   }
 
@@ -282,7 +304,7 @@ public final class AdminQuestionController extends CiviFormController {
    * to edit them.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public CompletionStage<Result> edit(Request request, Long id) {
+  public CompletionStage<Result> edit(Request request, Long id, String redirectUrl) {
     return service
         .getReadOnlyQuestionService()
         .thenApplyAsync(
@@ -301,7 +323,9 @@ public final class AdminQuestionController extends CiviFormController {
                       .getActiveAndDraftQuestions()
                       .getDraftQuestionDefinition(questionDefinition.getName());
               if (possibleDraft.isPresent() && possibleDraft.get().getId() != id) {
-                return redirect(routes.AdminQuestionController.edit(possibleDraft.get().getId()))
+                return redirect(
+                        routes.AdminQuestionController.edit(
+                            possibleDraft.get().getId(), redirectUrl))
                     .flashing(request.flash().data());
               }
 
@@ -313,9 +337,15 @@ public final class AdminQuestionController extends CiviFormController {
                         .flash()
                         .get(FlashKey.CONCURRENT_UPDATE)
                         .map(m -> ToastMessage.errorNonLocalized(m));
+                Optional<String> optionalRedirectUrl =
+                    redirectUrl.isBlank() ? Optional.empty() : Optional.of(redirectUrl);
                 return ok(
                     editView.renderEditQuestionForm(
-                        request, questionDefinition, maybeEnumerationQuestion, message));
+                        request,
+                        questionDefinition,
+                        maybeEnumerationQuestion,
+                        message,
+                        optionalRedirectUrl));
               } catch (InvalidQuestionTypeException e) {
                 return badRequest(
                     invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));
@@ -335,6 +365,11 @@ public final class AdminQuestionController extends CiviFormController {
     } catch (InvalidQuestionTypeException e) {
       return badRequest(invalidQuestionTypeMessage(questionType));
     }
+
+    String redirectUrl =
+        questionForm.getRedirectUrl().isEmpty()
+            ? routes.AdminQuestionController.index(Optional.empty()).url()
+            : questionForm.getRedirectUrl();
 
     ReadOnlyQuestionService roService =
         service.getReadOnlyQuestionService().toCompletableFuture().join();
@@ -357,14 +392,17 @@ public final class AdminQuestionController extends CiviFormController {
 
     ErrorAnd<QuestionDefinition, CiviFormError> errorAndUpdatedQuestionDefinition;
     try {
-      errorAndUpdatedQuestionDefinition = service.update(maybeExisting, questionDefinition);
+      boolean requireLegacyRepeatedEntitySelector =
+          !settingsManifest.getEnumeratorImprovementsEnabled(request);
+      errorAndUpdatedQuestionDefinition =
+          service.update(maybeExisting, questionDefinition, requireLegacyRepeatedEntitySelector);
     } catch (InvalidUpdateException e) {
       // Ill-formed update request.
       return badRequest(e.toString());
     } catch (ConcurrentUpdateException e) {
       // If there was a concurrent update, load a fresh edit form so the admin sees the concurrently
       // made changes.
-      return redirect(routes.AdminQuestionController.edit(id))
+      return redirect(routes.AdminQuestionController.edit(id, redirectUrl))
           .flashing(
               FlashKey.CONCURRENT_UPDATE,
               "The question was updated by another user while the edit page was open in your"
@@ -388,8 +426,7 @@ public final class AdminQuestionController extends CiviFormController {
     }
 
     String successMessage = String.format("question %s updated", questionForm.getQuestionName());
-    return withSuccessMessage(
-        redirect(routes.AdminQuestionController.index(Optional.empty())), successMessage);
+    return withSuccessMessage(redirect(redirectUrl), successMessage);
   }
 
   private Result withSuccessMessage(Result result, String message) {

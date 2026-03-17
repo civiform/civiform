@@ -18,6 +18,7 @@ import java.util.Map;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.ProgramModel;
+import models.QuestionModel;
 import org.codehaus.plexus.util.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +27,7 @@ import play.data.FormFactory;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import play.test.Helpers;
+import repository.GeoJsonDataRepository;
 import repository.ProgramRepository;
 import repository.ResetPostgres;
 import repository.VersionRepository;
@@ -96,6 +98,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
             instanceOf(ProfileUtils.class),
             instanceOf(VersionRepository.class),
             instanceOf(EsriServiceAreaValidationConfig.class),
+            instanceOf(GeoJsonDataRepository.class),
             settingsManifest);
     programWithThreeBlocks =
         ProgramBuilder.newDraftProgram("first program")
@@ -420,6 +423,89 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void update_eligibilityMessage_unselectedQuestion_returnsCurrentPage() throws Exception {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    ProgramModel programWithEligibilityMessage =
+        ProgramBuilder.newDraftProgram("new program")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
+            .build();
+
+    Result result =
+        controller.updatePredicate(
+            fakeRequestBuilder()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "predicateAction",
+                        PredicateAction.ELIGIBLE_BLOCK.name(),
+                        "root-node-type",
+                        "AND",
+                        "condition-1-node-type",
+                        "AND",
+                        "condition-1-subcondition-1-question",
+                        "-Select-",
+                        "eligibilityMessage",
+                        ""))
+                .build(),
+            programWithEligibilityMessage.id,
+            /* blockDefinitionId= */ 1L,
+            PredicateUseCase.ELIGIBILITY.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.header("HX-Redirect")).isEmpty();
+    String content = Helpers.contentAsString(result);
+    assertThat(content).contains("Error: You must select a question.");
+  }
+
+  @Test
+  public void update_eligibilityMessage_unfilledValueAndUnselectedQuestion_returnsCurrentPage()
+      throws Exception {
+    when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
+    ProgramModel programWithEligibilityMessage =
+        ProgramBuilder.newDraftProgram("new program")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
+            .build();
+
+    Result result =
+        controller.updatePredicate(
+            fakeRequestBuilder()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "predicateAction",
+                        PredicateAction.ELIGIBLE_BLOCK.name(),
+                        "root-node-type",
+                        "AND",
+                        "condition-1-node-type",
+                        "AND",
+                        "condition-2-node-type",
+                        "AND",
+                        "condition-1-subcondition-1-question",
+                        String.valueOf(testQuestionBank.nameApplicantName().id),
+                        "condition-1-subcondition-1-scalar",
+                        Scalar.FIRST_NAME.name(),
+                        "condition-1-subcondition-1-operator",
+                        Operator.EQUAL_TO.name(),
+                        "condition-1-subcondition-1-value",
+                        "",
+                        "condition-2-subcondition-1-question",
+                        "-Select-",
+                        "eligibilityMessage",
+                        ""))
+                .build(),
+            programWithEligibilityMessage.id,
+            /* blockDefinitionId= */ 1L,
+            PredicateUseCase.ELIGIBILITY.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.header("HX-Redirect")).isEmpty();
+    String content = Helpers.contentAsString(result);
+    // Multiple invalid fields should be present.
+    assertThat(content).contains("Error: This field is required.");
+    assertThat(content).contains("Error: You must select a question.");
+  }
+
+  @Test
   public void update_eligibilityMessage_savesEmptyMessage() throws Exception {
     when(settingsManifest.getExpandedFormLogicEnabled(any())).thenReturn(true);
     ProgramModel programWithEligibilityMessage =
@@ -653,10 +739,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
     String content = Helpers.contentAsString(result);
     assertThat(StringUtils.deleteWhitespace(content))
-        .contains(
-            String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.addressApplicantAddress().id));
+        .contains(createOptionTagForSelectedQuestion(testQuestionBank.addressApplicantAddress()));
     // Verify only scalars applicable to the selected question are shown
     assertThat(content).contains("service area");
     assertThat(content)
@@ -691,9 +774,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     // Verify that the question with id addressApplicantAddress is not selected.
     assertThat(StringUtils.deleteWhitespace(content))
         .doesNotContain(
-            String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.addressApplicantAddress().id));
+            createOptionTagForSelectedQuestion(testQuestionBank.addressApplicantAddress()));
     // Without a question selected, verify the form is in its default state with 4 default inputs
     // (question, scalar, operator value) and
     // scalar/operator/value/delete subcondition disabled.
@@ -778,14 +859,9 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     String content = Helpers.contentAsString(result);
     assertThat(StringUtils.deleteWhitespace(content))
         .doesNotContain(
-            String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.addressApplicantAddress().id));
+            createOptionTagForSelectedQuestion(testQuestionBank.addressApplicantAddress()));
     assertThat(StringUtils.deleteWhitespace(content))
-        .contains(
-            String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.dropdownApplicantIceCream().id));
+        .contains(createOptionTagForSelectedQuestion(testQuestionBank.dropdownApplicantIceCream()));
     assertThat(StringUtils.countMatches(content, "Add condition")).isEqualTo(1);
   }
 
@@ -809,15 +885,10 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
     String content = Helpers.contentAsString(result);
     assertThat(StringUtils.deleteWhitespace(content))
-        .contains(
-            String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.addressApplicantAddress().id));
+        .contains(createOptionTagForSelectedQuestion(testQuestionBank.addressApplicantAddress()));
     assertThat(StringUtils.deleteWhitespace(content))
         .doesNotContain(
-            String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.dropdownApplicantIceCream().id));
+            createOptionTagForSelectedQuestion(testQuestionBank.dropdownApplicantIceCream()));
     assertThat(StringUtils.countMatches(content, "Add condition")).isEqualTo(1);
   }
 
@@ -868,14 +939,9 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     String content = Helpers.contentAsString(result);
     assertThat(StringUtils.deleteWhitespace(content))
         .doesNotContain(
-            String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.addressApplicantAddress().id));
+            createOptionTagForSelectedQuestion(testQuestionBank.addressApplicantAddress()));
     assertThat(StringUtils.deleteWhitespace(content))
-        .contains(
-            String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.dropdownApplicantIceCream().id));
+        .contains(createOptionTagForSelectedQuestion(testQuestionBank.dropdownApplicantIceCream()));
     assertThat(StringUtils.countMatches(content, "Add sub-condition")).isEqualTo(1);
   }
 
@@ -901,15 +967,10 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
     String content = Helpers.contentAsString(result);
     assertThat(StringUtils.deleteWhitespace(content))
-        .contains(
-            String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.addressApplicantAddress().id));
+        .contains(createOptionTagForSelectedQuestion(testQuestionBank.addressApplicantAddress()));
     assertThat(StringUtils.deleteWhitespace(content))
         .doesNotContain(
-            String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.dropdownApplicantIceCream().id));
+            createOptionTagForSelectedQuestion(testQuestionBank.dropdownApplicantIceCream()));
     assertThat(StringUtils.countMatches(content, "Add sub-condition")).isEqualTo(1);
   }
 
@@ -943,10 +1004,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     String contentWithoutWhitespace = StringUtils.deleteWhitespace(content);
     assertThat(content).doesNotContain("firstname");
     assertThat(contentWithoutWhitespace)
-        .doesNotContain(
-            String.format(
-                "<optionvalue=\"%d\"selected=\"selected\">",
-                testQuestionBank.nameApplicantName().id));
+        .doesNotContain(createOptionTagForSelectedQuestion(testQuestionBank.nameApplicantName()));
     assertThat(content).contains("#predicate-conditions-list");
     assertThat(contentWithoutWhitespace).doesNotContain("Condition1");
     assertThat(StringUtils.countMatches(content, "Add condition")).isEqualTo(1);
@@ -1005,5 +1063,14 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     }
 
     return conditionMap;
+  }
+
+  // Create a (no-whitespace) option tag string for a given question that matches the format used in
+  // the form. Used to check that the correct question is selected in the form after an edit.
+  private static String createOptionTagForSelectedQuestion(QuestionModel questionModel) {
+    return String.format(
+        "<optionvalue=\"%d\"data-question-name=\"%s\"selected=\"selected\">",
+        questionModel.id,
+        StringUtils.deleteWhitespace(questionModel.getQuestionDefinition().getName()));
   }
 }

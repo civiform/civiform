@@ -139,7 +139,7 @@ public class QuestionConfigTest extends ResetPostgres {
         assertThat(maybeConfig.get().renderFormatted()).contains("Yes");
       }
       default -> {
-        var unused =
+        var _ =
             fail(
                 "Unhandled question type: %s. Please add a configuration in"
                     + " QuestionConfig.buildQuestionConfig and add an explicit case statement for"

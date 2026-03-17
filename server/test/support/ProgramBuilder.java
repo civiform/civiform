@@ -416,7 +416,13 @@ public class ProgramBuilder {
   public BlockBuilder withEnumeratorBlock() {
     long blockId = Long.valueOf(numBlocks.incrementAndGet());
     return BlockBuilder.newBlock(
-        this, blockId, "", "", Optional.empty(), /* isEnumerator= */ Optional.of(true));
+        this,
+        blockId,
+        "",
+        /* namePrefix= */ "",
+        "",
+        Optional.empty(),
+        /* isEnumerator= */ Optional.of(true));
   }
 
   /** Returns the {@link ProgramDefinition} built from this {@link ProgramBuilder}. */
@@ -468,6 +474,29 @@ public class ProgramBuilder {
           BlockDefinition.builder()
               .setId(id)
               .setName(name)
+              .setNamePrefix(Optional.of(""))
+              .setDescription(description)
+              .setLocalizedName(LocalizedStrings.withDefaultValue(name))
+              .setLocalizedDescription(LocalizedStrings.withDefaultValue(description))
+              .setEnumeratorId(enumeratorId)
+              .setIsEnumerator(isEnumerator);
+      return blockBuilder;
+    }
+
+    private static BlockBuilder newBlock(
+        ProgramBuilder programBuilder,
+        long id,
+        String name,
+        String namePrefix,
+        String description,
+        Optional<Long> enumeratorId,
+        Optional<Boolean> isEnumerator) {
+      BlockBuilder blockBuilder = new BlockBuilder(programBuilder);
+      blockBuilder.blockDefBuilder =
+          BlockDefinition.builder()
+              .setId(id)
+              .setName(name)
+              .setNamePrefix(Optional.of(namePrefix))
               .setDescription(description)
               .setLocalizedName(LocalizedStrings.withDefaultValue(name))
               .setLocalizedDescription(LocalizedStrings.withDefaultValue(description))

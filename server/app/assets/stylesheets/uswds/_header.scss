@@ -1,0 +1,29 @@
+/*
+This contains customizations for the ".usa-header"
+*/
+
+@use 'uswds-core' as *;
+
+.usa-header {
+  .cf-admin-header-logo {
+    width: 81px;
+    height: 41px;
+    min-width: 81px;
+
+    @include at-media('desktop') {
+      width: 170px;
+      height: 100px;
+    }
+  }
+
+  // Minor adjustments to make usa-buttons work in the header
+  .usa-nav__primary > .usa-nav__primary-item > a.usa-button {
+    color: white;
+    width: 100%;
+
+    &:hover,
+    &:visited {
+      color: white;
+    }
+  }
+}

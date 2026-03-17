@@ -1,0 +1,42 @@
+/*
+This file contains GENERIC additions that really should be exposed
+by USWDS already.
+*/
+
+@use 'uswds-core' as *;
+
+// Flexbox: flex-direction - row-reverse
+.flex-row-reverse {
+  flex-direction: row-reverse;
+}
+
+.mobile-lg\:flex-row-reverse {
+  @include at-media(mobile-lg) {
+    flex-direction: row-reverse;
+  }
+}
+
+.tablet\:flex-row-reverse {
+  @include at-media(tablet) {
+    flex-direction: row-reverse;
+  }
+}
+
+.desktop\:flex-row-reverse {
+  @include at-media(desktop) {
+    flex-direction: row-reverse;
+  }
+}
+
+.desktop-lg\:flex-row-reverse {
+  @include at-media(desktop-lg) {
+    flex-direction: row-reverse;
+  }
+}
+
+.widescreen\:flex-row-reverse {
+  @include at-media(widescreen) {
+    flex-direction: row-reverse;
+  }
+}
+// END Flexbox: flex-direction - row-reverse

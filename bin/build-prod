@@ -44,7 +44,7 @@ docker buildx build "${PLATFORM_ARG[@]}" "${BUILD_ARGS[@]}"
 
 # Load the image from the cache
 echo "load ${IMAGE} build"
-docker buildx build --load "${BUILD_ARGS[@]}"
+docker buildx build --load "${PLATFORM_ARG[@]}" "${BUILD_ARGS[@]}"
 
 if [[ "${PUSH_IMAGE}" ]]; then
   docker::do_dockerhub_login

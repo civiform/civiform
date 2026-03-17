@@ -56,13 +56,17 @@ test.describe('Applicant navigation flow', () => {
         await adminPrograms.goToEditBlockEligibilityPredicatePage(
           secondProgramName,
           'Screen 1',
+          /* expandedFormLogicEnabled= */ true,
         )
-        await adminPredicates.addPredicates({
-          questionName: 'nav-predicate-number-q',
-          scalar: 'number',
-          operator: 'is equal to',
-          value: secondProgramCorrectAnswer,
-        })
+        await adminPredicates.addPredicates(
+          /* expandedFormLogicEnabled= */ true,
+          {
+            questionName: 'nav-predicate-number-q',
+            scalar: 'number',
+            operator: 'is equal to',
+            value: secondProgramCorrectAnswer,
+          },
+        )
 
         await adminPrograms.publishAllDrafts()
         await logout(page)

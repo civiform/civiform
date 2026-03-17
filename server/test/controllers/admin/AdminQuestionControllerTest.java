@@ -154,6 +154,58 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void create_repeatedQuestion_withoutThisReference_flagEnabled_redirectsOnSuccess() {
+    QuestionModel enumeratorQuestion = testQuestionBank.enumeratorApplicantHouseholdMembers();
+    ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
+    formData
+        .put("questionName", "name")
+        .put("questionDescription", "desc")
+        .put("enumeratorId", String.valueOf(enumeratorQuestion.id))
+        .put("questionType", "TEXT")
+        .put("questionText", "What color is this repeated entity?")
+        .put("questionHelpText", "help text without legacy repeated entity selector");
+    RequestBuilder requestBuilder =
+        fakeRequestBuilder()
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
+            .bodyForm(formData.build());
+
+    ImmutableSet<Long> questionIdsBefore = retrieveAllQuestionIds();
+    Result result = controller.create(requestBuilder.build(), "text");
+
+    assertThat(result.redirectLocation())
+        .hasValue(routes.AdminQuestionController.index(Optional.empty()).url());
+    assertThat(result.flash().get(FlashKey.SUCCESS).get()).contains("created");
+
+    ImmutableSet<Long> questionIdsAfter = retrieveAllQuestionIds();
+    assertThat(questionIdsAfter.size()).isEqualTo(questionIdsBefore.size() + 1);
+  }
+
+  @Test
+  public void create_repeatedQuestion_withoutThisReference_flagDisabled_returnsValidationError() {
+    QuestionModel enumeratorQuestion = testQuestionBank.enumeratorApplicantHouseholdMembers();
+    ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
+    formData
+        .put("questionName", "name")
+        .put("questionDescription", "desc")
+        .put("enumeratorId", String.valueOf(enumeratorQuestion.id))
+        .put("questionType", "TEXT")
+        .put("questionText", "What color is this repeated entity?")
+        .put("questionHelpText", "help text without placeholder");
+    RequestBuilder requestBuilder =
+        fakeRequestBuilder()
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "false")
+            .bodyForm(formData.build());
+
+    ImmutableSet<Long> questionIdsBefore = retrieveAllQuestionIds();
+    Result result = controller.create(requestBuilder.build(), "text");
+
+    assertThat(result.status()).isEqualTo(OK);
+    String unescaped = StringEscapeUtils.unescapeHtml4(contentAsString(result));
+    assertThat(unescaped).contains("Repeated questions must reference '$this' in the text");
+    assertThat(retrieveAllQuestionIds().size()).isEqualTo(questionIdsBefore.size());
+  }
+
+  @Test
   public void create_failsWithErrorMessageAndPopulatedFields() {
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData.put("questionName", "name");
@@ -185,7 +237,8 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
   @Test
   public void edit_invalidIDReturnsBadRequest() {
-    Result result = controller.edit(fakeRequest(), 9999L).toCompletableFuture().join();
+    Result result =
+        controller.edit(fakeRequest(), 9999L, /* redirectUrl= */ "").toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
 
@@ -200,18 +253,23 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     assertThat(publishedQuestion.id).isNotEqualTo(draftQuestion.id);
 
     Result result =
-        controller.edit(fakeRequest(), publishedQuestion.id).toCompletableFuture().join();
+        controller
+            .edit(fakeRequest(), publishedQuestion.id, /* redirectUrl= */ "")
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
-        .hasValue(routes.AdminQuestionController.edit(draftQuestion.id).url());
+        .hasValue(
+            routes.AdminQuestionController.edit(draftQuestion.id, /* redirectUrl= */ "").url());
   }
 
   @Test
   public void edit_returnsPopulatedForm() {
     QuestionModel question = testQuestionBank.nameApplicantName();
     Request request = fakeRequestBuilder().addCSRFToken().build();
-    Result result = controller.edit(request, question.id).toCompletableFuture().join();
+    Result result =
+        controller.edit(request, question.id, /* redirectUrl= */ "").toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Edit name question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
@@ -222,7 +280,11 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   public void edit_repeatedQuestion_hasEnumeratorName() {
     QuestionModel repeatedQuestion = testQuestionBank.nameRepeatedApplicantHouseholdMemberName();
     Request request = fakeRequestBuilder().addCSRFToken().build();
-    Result result = controller.edit(request, repeatedQuestion.id).toCompletableFuture().join();
+    Result result =
+        controller
+            .edit(request, repeatedQuestion.id, /* redirectUrl= */ "")
+            .toCompletableFuture()
+            .join();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Edit name question");
     assertThat(contentAsString(result)).contains("applicant household members");
@@ -291,25 +353,110 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   @Test
   public void newOne_returnsExpectedForm() {
     Request request = fakeRequestBuilder().addCSRFToken().build();
-    Result result = controller.newOne(request, "text", "/some/redirect/url");
+    Result result =
+        controller.newOne(
+            request,
+            "text",
+            "/some/redirect/url",
+            /* enumeratorQuestionOptional= */ Optional.empty(),
+            /* isRepeatingBlockOptional= */ Optional.empty());
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("New text question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
     assertThat(contentAsString(result)).contains("/some/redirect/url");
+    assertThat(contentAsString(result))
+        .doesNotContain(
+            "id=\"question-enumerator-select\" name=\"enumeratorId\" disabled"
+                + " readonly=\"readonly\"");
+  }
+
+  @Test
+  public void newOne_enumeratorSelected_disablesEnumeratorSelect() {
+    Request request = fakeRequestBuilder().addCSRFToken().build();
+    Result result =
+        controller.newOne(
+            request,
+            "text",
+            "/some/redirect/url",
+            /* enumeratorQuestionOptional= */ Optional.of("10"),
+            /* isRepeatingBlockOptional= */ Optional.of("true"));
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("New text question");
+    assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
+    assertThat(contentAsString(result)).contains("/some/redirect/url");
+    assertThat(contentAsString(result))
+        .contains(
+            "id=\"question-enumerator-select\" name=\"enumeratorId\" disabled"
+                + " readonly=\"readonly\"");
+  }
+
+  @Test
+  public void newOne_flagEnabled_truncatesRepeatedQuestionInformationMessage() {
+    Request request =
+        fakeRequestBuilder()
+            .addCSRFToken()
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
+            .build();
+    Result result =
+        controller.newOne(
+            request,
+            "text",
+            "/some/redirect/url",
+            /* enumeratorQuestionOptional= */ Optional.empty(),
+            /* isRepeatingBlockOptional= */ Optional.empty());
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result))
+        .contains("By selecting an enumerator, you are creating a repeated question - a question")
+        .doesNotContain("Please reference the applicant-defined repeated entity name")
+        .doesNotContain("To reference the repeated entities containing this one, use");
   }
 
   @Test
   public void newOne_returnsFailureForInvalidQuestionType() {
-    Result result = controller.newOne(fakeRequest(), "nope", "/some/redirect/url");
+    Result result =
+        controller.newOne(
+            fakeRequest(),
+            "nope",
+            "/some/redirect/url",
+            /* enumeratorQuestionOptional= */ Optional.empty(),
+            /* isRepeatingBlockOptional= */ Optional.empty());
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
 
   @Test
   public void newOne_absoluteRedirectUrl_throws() {
-    assertThatThrownBy(() -> controller.newOne(fakeRequest(), "text", "https://www.example.com"))
+    assertThatThrownBy(
+            () ->
+                controller.newOne(
+                    fakeRequest(),
+                    "text",
+                    "https://www.example.com",
+                    /* enumeratorQuestionOptional= */ Optional.empty(),
+                    /* isRepeatingBlockOptional= */ Optional.empty()))
         .isInstanceOf(RuntimeException.class)
         .hasMessageContainingAll("Invalid absolute URL.");
+  }
+
+  @Test
+  public void newOne_nonRepeatingBlock_disablesEnumeratorSelect() {
+    Request request = fakeRequestBuilder().addCSRFToken().build();
+    Result result =
+        controller.newOne(
+            request,
+            "text",
+            "/some/redirect/url",
+            /* enumeratorQuestionOptional= */ Optional.empty(),
+            /* isRepeatingBlockOptional= */ Optional.of("false"));
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("New text question");
+    assertThat(contentAsString(result))
+        .contains(
+            "id=\"question-enumerator-select\" name=\"enumeratorId\" disabled"
+                + " readonly=\"readonly\"");
   }
 
   @Test
@@ -339,6 +486,8 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             originalNameQuestion.getQuestionDefinition().getQuestionType().toString());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
+
+    // Redirects to the question index page since redirectUrl is not explicitly set
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminQuestionController.index(Optional.empty()).url());
     assertThat(result.flash().get(FlashKey.SUCCESS).get()).contains("updated");
@@ -354,6 +503,39 @@ public class AdminQuestionControllerTest extends ResetPostgres {
         .isEqualTo("a new description");
     assertThat(updatedNameQuestion.getQuestionTags())
         .isEqualTo(ImmutableList.of(QuestionTag.DEMOGRAPHIC_PII));
+  }
+
+  @Test
+  public void update_redirectsToRedirectUrlAfterUpdateIfOneIsSet() {
+    // We can only update draft questions, so save this in the DRAFT version.
+    QuestionModel originalNameQuestion =
+        testQuestionBank.maybeSave(
+            this.createNameQuestionDuplicate(testQuestionBank.nameApplicantName()),
+            LifecycleStage.DRAFT);
+
+    String redirectUrl = routes.AdminProgramBlocksController.edit(1L, 1L).url();
+
+    ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
+    formData
+        .put("questionName", originalNameQuestion.getQuestionDefinition().getName())
+        .put("questionDescription", "a new description")
+        .put("questionType", originalNameQuestion.getQuestionDefinition().getQuestionType().name())
+        .put("questionText", "question text updated")
+        .put("questionHelpText", "a new help text")
+        .put("questionExportState", "DEMOGRAPHIC_PII")
+        .put("concurrencyToken", originalNameQuestion.getConcurrencyToken().toString())
+        .put("redirectUrl", redirectUrl);
+    RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(formData.build());
+
+    Result result =
+        controller.update(
+            requestBuilder.build(),
+            originalNameQuestion.getQuestionDefinition().getId(),
+            originalNameQuestion.getQuestionDefinition().getQuestionType().toString());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue(redirectUrl);
+    assertThat(result.flash().get(FlashKey.SUCCESS).get()).contains("updated");
   }
 
   @Test
@@ -810,10 +992,13 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             question.getQuestionDefinition().getId(),
             question.getQuestionDefinition().getQuestionType().toString());
 
+    // URL the user will be sent to after successful submission of the question form
+    String redirectUrl = routes.AdminQuestionController.index(Optional.empty()).url();
+
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.flash().data()).containsKey(FlashKey.CONCURRENT_UPDATE);
     assertThat(result.redirectLocation())
-        .hasValue(routes.AdminQuestionController.edit(question.id).url());
+        .hasValue(routes.AdminQuestionController.edit(question.id, redirectUrl).url());
   }
 
   @Test
@@ -841,10 +1026,13 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             question.getQuestionDefinition().getId(),
             question.getQuestionDefinition().getQuestionType().toString());
 
+    // URL the user will be sent to after successful submission of the question form
+    String redirectUrl = routes.AdminQuestionController.index(Optional.empty()).url();
+
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.flash().data()).containsKey(FlashKey.CONCURRENT_UPDATE);
     assertThat(result.redirectLocation())
-        .hasValue(routes.AdminQuestionController.edit(question.id).url());
+        .hasValue(routes.AdminQuestionController.edit(question.id, redirectUrl).url());
   }
 
   @Test

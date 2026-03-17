@@ -3,6 +3,7 @@ package auth.saml;
 import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
 import auth.CiviFormProfileMerger;
+import auth.NewGuestMergeLaunchStage;
 import auth.ProfileFactory;
 import auth.ProfileUtils;
 import auth.Role;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.StringJoiner;
+import java.util.function.Function;
 import javax.inject.Provider;
 import models.ApplicantModel;
 import org.pac4j.core.context.CallContext;
@@ -27,6 +29,7 @@ import org.pac4j.saml.profile.SAML2Profile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.AccountRepository;
+import repository.DatabaseExecutionContext;
 
 public class SamlProfileCreator extends AuthenticatorProfileCreator {
 
@@ -46,14 +49,20 @@ public class SamlProfileCreator extends AuthenticatorProfileCreator {
       SAML2Configuration configuration,
       SAML2Client client,
       ProfileFactory profileFactory,
-      Provider<AccountRepository> applicantRepositoryProvider) {
+      Provider<AccountRepository> applicantRepositoryProvider,
+      DatabaseExecutionContext dbExecutionContext) {
     super();
     this.profileFactory = Preconditions.checkNotNull(profileFactory);
     this.applicantRepositoryProvider = Preconditions.checkNotNull(applicantRepositoryProvider);
     this.civiFormProfileMerger =
-        new CiviFormProfileMerger(profileFactory, applicantRepositoryProvider);
+        new CiviFormProfileMerger(profileFactory, applicantRepositoryProvider, dbExecutionContext);
     this.saml2Client = client;
     this.saml2Configuration = configuration;
+    // TODO(#12696): Handle enhanced logout.
+    // Warning because enhanced logout is behind a feature flag.
+    logger.warn("SAML support does not handle enhanced logout.");
+    // TODO(#12695): Handle Trusted Intermediaries.
+    logger.error("SAML support does not handle trusted intermediaries.");
   }
 
   @Override
@@ -77,8 +86,16 @@ public class SamlProfileCreator extends AuthenticatorProfileCreator {
     Optional<ApplicantModel> existingApplicant = getExistingApplicant(profile);
     Optional<CiviFormProfile> guestProfile =
         profileUtils.optionalCurrentUserProfile(callContext.webContext());
+    Function<Optional<CiviFormProfile>, UserProfile> mergeFunction =
+        (cProfile) -> this.mergeCiviFormProfile(cProfile, profile);
     return civiFormProfileMerger.mergeProfiles(
-        existingApplicant, guestProfile, profile, this::mergeCiviFormProfile);
+        existingApplicant,
+        guestProfile,
+        mergeFunction,
+        // SAML is not currently used so we won't bother with supporting the
+        // launch progression. It will be enabled when the launch is promoted
+        // to the default.
+        NewGuestMergeLaunchStage.OFF);
   }
 
   @VisibleForTesting

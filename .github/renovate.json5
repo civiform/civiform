@@ -27,6 +27,10 @@
       matchPackageNames: ["com.google.auto.value:{/,}**"],
     },
     {
+      matchPackageNames: ["com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer"],
+      versioning: "regex:^(?<major>\\d{4})(?<minor>\\d{2})(?<patch>\\d{2})\\.(?<build>\\d+)$",
+    },
+    {
       groupName: "awssdk",
       matchPackageNames: ["software.amazon.awssdk:{/,}**"],
       prHeader: "Release Notes: https://github.com/aws/aws-sdk-java-v2/blob/master/CHANGELOG.md"
@@ -51,17 +55,14 @@
     },
     {
       groupName: "jdk and jre",
-      // Allow for version 17.*
+      // Allow for version 25.*
       // 
       // Examples of what this should match are:
-      //   17.0.12_7-jdk-alpine
-      //   17.0.12_7-jre-alpine
-      //   17.0.12-10
-      allowedVersions: "/^17\\.([0-9]*)\\.([0-9]*)([-_]?)([0-9]*)(-?.*)$/",
-      matchPackageNames: [
-        "bellsoft/liberica-openjdk-alpine{/,}**",
-        "eclipse-temurin{/,}**",
-      ],
+      //   25.0.12_7-jdk-alpine
+      //   25.0.12_7-jre-alpine
+      //   25.0.12-10
+      allowedVersions: "/^25\\.([0-9]*)\\.([0-9]*)([-_]?)([0-9]*)(-?.*)$/",
+      matchPackageNames: ["eclipse-temurin{/,}**"],
     },
     {
       groupName: "jupiter",

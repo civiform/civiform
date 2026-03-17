@@ -738,13 +738,17 @@ test.describe('view program statuses', () => {
         await adminPrograms.goToEditBlockEligibilityPredicatePage(
           eligibilityProgramName,
           'Screen 1',
+          /* expandedFormLogicEnabled= */ true,
         )
-        await adminPredicates.addPredicates({
-          questionName: eligibilityQuestionId,
-          scalar: 'number',
-          operator: 'is equal to',
-          value: '5',
-        })
+        await adminPredicates.addPredicates(
+          /* expandedFormLogicEnabled= */ true,
+          {
+            questionName: eligibilityQuestionId,
+            scalar: 'number',
+            operator: 'is equal to',
+            value: '5',
+          },
+        )
         await adminPrograms.gotoAdminProgramsPage()
         await adminPrograms.publishProgram(eligibilityProgramName)
         await logout(page)

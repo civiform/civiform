@@ -107,6 +107,7 @@ test.describe('Translation tag showing as expected', () => {
           description: `${language} description`,
           blockName: `${language} block name`,
           blockDescription: `${language} block description`,
+          confirmationMsg: `${language} confirmation message`,
           statuses: [],
         })
       }

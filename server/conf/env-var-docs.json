@@ -681,6 +681,11 @@
           {"val": "https://my-civiform.org", "should_match": true},
           {"val": "my-civiform.org", "should_match": false}
         ]
+      },
+      "IMMIGRATION_STATUS_INFO_BANNER_LEARN_MORE_URL": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "The HREF for providing more information for the immigration status informational banner.",
+        "type": "string"
       }
     }
   },
@@ -929,21 +934,27 @@
         "type": "bool",
         "required": false
       },
-      "MAP_QUESTION_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "Enable allowing CiviForm admins to add a map question to their programs.",
-        "type": "bool",
-        "required": false
-      },
       "YES_NO_QUESTION_ENABLED": {
         "mode": "ADMIN_READABLE",
         "description": "Enables being able to add a new yes/no question.",
         "type": "bool",
         "required": false
       },
-      "SETTINGS_CACHE_ENABLED": {
+      "EXTERNAL_PROGRAM_CARDS_ENABLED": {
         "mode": "ADMIN_READABLE",
-        "description": "Enables reading settings from the cache instead of directly from the database.",
+        "description": "Enable showing external program cards.",
+        "type": "bool",
+        "required": false
+      },
+      "LOGIN_DROPDOWN_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enables a dropdown for login that has both applicant and admin login.",
+        "type": "bool",
+        "required": false
+      },
+      "IMMIGRATION_STATUS_INFO_BANNER_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enable showing an immigration status informational banner to applicants.",
         "type": "bool",
         "required": false
       }
@@ -954,13 +965,7 @@
     "members": {
       "SESSION_TIMEOUT_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration.",
-        "type": "bool",
-        "required": false
-      },
-      "EXTERNAL_PROGRAM_CARDS_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enable showing external program cards.",
+        "description": "(NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration. Inactivity timeout is always enforced when enabled. Maximum duration enforcement additionally requires SESSION_REPLAY_PROTECTION_ENABLED=true.",
         "type": "bool",
         "required": false
       },
@@ -988,12 +993,6 @@
         "type": "bool",
         "required": false
       },
-      "LOGIN_DROPDOWN_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enables new dropdown for login that has both applicant and admin login.",
-        "type": "bool",
-        "required": false
-      },
       "ENUMERATOR_IMPROVEMENTS_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Enables improvements which make it easier for admins to work with enumerators.",
@@ -1003,6 +1002,24 @@
       "ADMIN_UI_MIGRATION_SC_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Enable the admin UI migration in Thymeleaf.",
+        "type": "bool",
+        "required": false
+      },
+      "ADMIN_UI_MIGRATION_SC_EXTENDED_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enable extended options in the admin UI migration in Thymeleaf.",
+        "type": "bool",
+        "required": false
+      },
+      "NEW_APPLICANT_GUEST_MERGING_STRATEGY_ENABLED": {
+        "mode": "ADMIN_READABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enable the new applicant-guest merging strategy.",
+        "type": "bool",
+        "required": false
+      },
+      "NEW_APPLICANT_GUEST_MERGING_STRATEGY_DRY_RUN_ENABLED": {
+        "mode": "ADMIN_READABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enable dry run logging for the new applicant-guest merging strategy.",
         "type": "bool",
         "required": false
       }

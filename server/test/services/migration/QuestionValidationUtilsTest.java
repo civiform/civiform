@@ -36,9 +36,9 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
 
   // Use TestQuestionBank static methods for creating test questions
   private static final QuestionDefinition NAME_QUESTION =
-      createQuestionDefinition("name", 1L, QuestionType.TEXT, Optional.empty());
+      createQuestionDefinition("name", 1L, QuestionType.TEXT, /* enumeratorId= */ Optional.empty());
   private static final QuestionDefinition AGE_QUESTION =
-      createQuestionDefinition("age", 2L, QuestionType.TEXT, Optional.empty());
+      createQuestionDefinition("age", 2L, QuestionType.TEXT, /* enumeratorId= */ Optional.empty());
   private static final QuestionDefinition REPEATED_NAME_QUESTION =
       createQuestionDefinition("repeated_name", 3L, QuestionType.TEXT, Optional.of(1L));
   private static final String PROGRAM_NAME_1 = "Program 1";
@@ -110,7 +110,8 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
             .withOptionalQuestion(NAME_QUESTION)
             .withRequiredQuestionDefinition(AGE_QUESTION)
             .withRequiredQuestionDefinition(
-                createQuestionDefinition("phone", 3L, QuestionType.TEXT, Optional.empty()))
+                createQuestionDefinition(
+                    "phone", 3L, QuestionType.TEXT, /* enumeratorId= */ Optional.empty()))
             .buildDefinition();
     ImmutableList<QuestionDefinition> questions = ImmutableList.of(NAME_QUESTION);
 
@@ -273,7 +274,8 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
   @Test
   public void validateYesNoQuestions_mixedQuestionTypes_onlyValidatesYesNo() {
     QuestionDefinition textQuestion =
-        createQuestionDefinition("text-question", 1L, QuestionType.TEXT, Optional.empty());
+        createQuestionDefinition(
+            "text-question", 1L, QuestionType.TEXT, /* enumeratorId= */ Optional.empty());
     QuestionDefinition dropdownQuestion =
         createDropdownQuestionDefinition(
             "dropdown-question", 2L, ImmutableList.of("custom-option-1", "custom-option-2"));
@@ -317,7 +319,8 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
   @Test
   public void validateYesNoQuestions_noYesNoQuestions_noErrors() {
     QuestionDefinition textQuestion =
-        createQuestionDefinition("text-question", 1L, QuestionType.TEXT, Optional.empty());
+        createQuestionDefinition(
+            "text-question", 1L, QuestionType.TEXT, /* enumeratorId= */ Optional.empty());
     QuestionDefinition dropdownQuestion =
         createDropdownQuestionDefinition(
             "dropdown-question", 2L, ImmutableList.of("option-1", "option-2"));

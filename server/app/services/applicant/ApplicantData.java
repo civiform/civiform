@@ -117,7 +117,7 @@ public class ApplicantData extends CfJsonDocumentContext {
     try {
       // The ".." in the path scans the entire document.
       applicantData.getDocumentContext().set("$..updated_at", 0);
-    } catch (PathNotFoundException unused) {
+    } catch (PathNotFoundException _) {
       // Metadata may be missing in unit tests. No harm, no foul.
     }
   }

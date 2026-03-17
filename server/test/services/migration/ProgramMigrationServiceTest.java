@@ -20,9 +20,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import controllers.admin.ProgramMigrationWrapper;
-import java.util.ArrayList;
+import helpers.UniqueAdminNameGenerator;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import models.CategoryModel;
@@ -71,13 +70,17 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
   private static final String DROPDOWN_QUESTION_NAME = "dropdownQuestion";
 
   private static final QuestionDefinition QUESTION_1 =
-      createQuestionDefinition(QUESTION_1_NAME, 1L, QuestionType.TEXT, Optional.empty());
+      createQuestionDefinition(
+          QUESTION_1_NAME, 1L, QuestionType.TEXT, /* enumeratorId= */ Optional.empty());
   private static final QuestionDefinition QUESTION_2 =
-      createQuestionDefinition(QUESTION_2_NAME, 2L, QuestionType.TEXT, Optional.empty());
+      createQuestionDefinition(
+          QUESTION_2_NAME, 2L, QuestionType.TEXT, /* enumeratorId= */ Optional.empty());
   private static final QuestionDefinition QUESTION_3 =
-      createQuestionDefinition(QUESTION_3_NAME, 3L, QuestionType.ADDRESS, Optional.empty());
+      createQuestionDefinition(
+          QUESTION_3_NAME, 3L, QuestionType.ADDRESS, /* enumeratorId= */ Optional.empty());
   private static final QuestionDefinition ENUMERATOR =
-      createQuestionDefinition("enumerator", 4L, QuestionType.ENUMERATOR, Optional.empty());
+      createQuestionDefinition(
+          "enumerator", 4L, QuestionType.ENUMERATOR, /* enumeratorId= */ Optional.empty());
   private static final QuestionDefinition REPEATED =
       createQuestionDefinition("repeated", 5L, QuestionType.TEXT, Optional.of(4L));
   private static final QuestionDefinition VALID_YES_NO_QUESTION =
@@ -106,7 +109,8 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
           instanceOf(QuestionRepository.class),
           instanceOf(QuestionService.class),
           instanceOf(VersionRepository.class),
-          instanceOf(TransactionManager.class));
+          instanceOf(TransactionManager.class),
+          instanceOf(UniqueAdminNameGenerator.class));
   ApplicationStatusesRepository applicationStatusesRepository;
   private QuestionRepository questionRepository;
   private TransactionManager transactionManager;
@@ -136,7 +140,8 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
             instanceOf(QuestionRepository.class),
             instanceOf(QuestionService.class),
             instanceOf(VersionRepository.class),
-            instanceOf(TransactionManager.class));
+            instanceOf(TransactionManager.class),
+            instanceOf(UniqueAdminNameGenerator.class));
 
     ErrorAnd<String, String> result =
         badMapperService.serialize(
@@ -309,40 +314,6 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void generateUniqueAdminName_generatesCorrectAdminNames() {
-    resourceCreator.insertQuestion("name-question");
-    resourceCreator.insertQuestion("name-question -_- a");
-    resourceCreator.insertQuestion("name-question -_- b");
-
-    String newAdminName = service.generateUniqueAdminName("name-question", new ArrayList<>());
-    assertThat(newAdminName).isEqualTo("name-question -_- c");
-    // Even though there is no existing match, this method should still return a unique name, since
-    // it assumed that the caller has checked for an existing match before calling.
-    String unmatchedAdminName =
-        service.generateUniqueAdminName("admin-name-unmatched", new ArrayList<>());
-    assertThat(unmatchedAdminName).isEqualTo("admin-name-unmatched -_- a");
-  }
-
-  @Test
-  public void generateUniqueAdminName_generatesCorrectAdminNamesForAdminNamesWithSuffixes() {
-    resourceCreator.insertQuestion("name-question");
-    resourceCreator.insertQuestion("name-question -_- a");
-    resourceCreator.insertQuestion("name-question -_- b");
-
-    String newAdminName = service.generateUniqueAdminName("name-question -_- a", new ArrayList<>());
-    assertThat(newAdminName).isEqualTo("name-question -_- c");
-  }
-
-  @Test
-  public void
-      generateUniqueAdminName_generatesCorrectAdminNamesWhenAlreadyGeneratedNameMightConflict() {
-    List<String> namesSoFar = List.of("name-question -_- a", "name-question -_- b");
-
-    String newAdminName = service.generateUniqueAdminName("name-question -_- a", namesSoFar);
-    assertThat(newAdminName).isEqualTo("name-question -_- c");
-  }
-
-  @Test
   public void prepForExport_clearsNotificationPreferences() {
     ProgramDefinition program =
         ProgramBuilder.newActiveProgram()
@@ -419,7 +390,8 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
             .buildDefinition();
 
     ErrorAnd<ProgramModel, String> savedProgram =
-        service.saveImportedProgram(programDefinition, null, ImmutableMap.of());
+        service.saveImportedProgram(
+            programDefinition, /* questionDefinitions= */ null, ImmutableMap.of());
 
     assertThat(savedProgram.hasResult()).isTrue();
     assertThat(savedProgram.getResult().getProgramDefinition().adminName())
@@ -471,7 +443,10 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     // Q3 has the same name as Q1 would have after adding a deduping suffix
     QuestionDefinition question3 =
         createQuestionDefinition(
-            QUESTION_1_NAME + " -_- a", 3L, QuestionType.ADDRESS, Optional.empty());
+            QUESTION_1_NAME + " -_- a",
+            3L,
+            QuestionType.ADDRESS,
+            /* enumeratorId= */ Optional.empty());
     ProgramDefinition programDefinition =
         ProgramBuilder.newProgram("program1", PROGRAM_ID_1)
             .withBlock("Block A")
@@ -644,7 +619,8 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
             .withProgramType(ProgramType.DEFAULT)
             .buildDefinition();
     QuestionDefinition question =
-        createQuestionDefinition(QUESTION_1_NAME, 1L, QuestionType.TEXT, Optional.empty());
+        createQuestionDefinition(
+            QUESTION_1_NAME, 1L, QuestionType.TEXT, /* enumeratorId= */ Optional.empty());
     ImmutableList<QuestionDefinition> questionDefinitions = ImmutableList.of(question);
 
     service.saveImportedProgram(programDefinition, questionDefinitions, ImmutableMap.of());
@@ -774,7 +750,10 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
   public void validateQuestionKeyUniqueness_importTwoConflictingKeys_throws() {
     QuestionDefinition conflictingQuestion =
         createQuestionDefinition(
-            QUESTION_1_NAME + "01_023", 2L, QuestionType.TEXT, Optional.empty());
+            QUESTION_1_NAME + "01_023",
+            2L,
+            QuestionType.TEXT,
+            /* enumeratorId= */ Optional.empty());
     ImmutableList<QuestionDefinition> questions = ImmutableList.of(QUESTION_1, conflictingQuestion);
 
     Exception e =
@@ -792,7 +771,10 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     resourceCreator.insertQuestion(QUESTION_1_NAME);
     QuestionDefinition conflictingQuestion =
         createQuestionDefinition(
-            QUESTION_1_NAME + "01_023", 2L, QuestionType.TEXT, Optional.empty());
+            QUESTION_1_NAME + "01_023",
+            2L,
+            QuestionType.TEXT,
+            /* enumeratorId= */ Optional.empty());
     ImmutableList<QuestionDefinition> questions = ImmutableList.of(conflictingQuestion);
 
     Exception e =

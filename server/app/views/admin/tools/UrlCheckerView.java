@@ -6,9 +6,9 @@ import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import services.BundledAssetsFinder;
 import services.settings.SettingsManifest;
-import views.admin.AdminLayoutBaseView;
+import views.admin.TransitionalLayoutBaseView;
 
-public class UrlCheckerView extends AdminLayoutBaseView<UrlCheckerViewModel> {
+public class UrlCheckerView extends TransitionalLayoutBaseView<UrlCheckerViewModel> {
   @Inject
   public UrlCheckerView(
       TemplateEngine templateEngine,
@@ -25,7 +25,7 @@ public class UrlCheckerView extends AdminLayoutBaseView<UrlCheckerViewModel> {
   }
 
   @Override
-  protected String pageTitle() {
+  protected String pageTitle(UrlCheckerViewModel model) {
     return "URL Checker";
   }
 

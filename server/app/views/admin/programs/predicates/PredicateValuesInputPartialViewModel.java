@@ -35,7 +35,9 @@ public record PredicateValuesInputPartialViewModel(
     implements BaseViewModel {
   public boolean isMultiValueQuestion() throws InvalidQuestionTypeException {
     if (questionType.isPresent()) {
-      return QuestionType.fromLabel(questionType.get()).isMultiOptionType();
+      QuestionType selectedQuestionType = QuestionType.fromLabel(questionType.get());
+      return selectedQuestionType.isMultiOptionType()
+          || selectedQuestionType.equals(QuestionType.MAP);
     }
     return false;
   }

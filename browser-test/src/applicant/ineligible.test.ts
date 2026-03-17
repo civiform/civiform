@@ -35,13 +35,17 @@ test.describe('Ineligible Page Tests', () => {
         await adminPrograms.goToEditBlockEligibilityPredicatePage(
           programName,
           'Screen 1',
+          /* expandedFormLogicEnabled= */ true,
         )
-        await adminPredicates.addPredicates({
-          questionName: eligibilityQuestionId,
-          scalar: 'number',
-          operator: 'is greater than',
-          value: '0',
-        })
+        await adminPredicates.addPredicates(
+          /* expandedFormLogicEnabled= */ true,
+          {
+            questionName: eligibilityQuestionId,
+            scalar: 'number',
+            operator: 'is greater than',
+            value: '0',
+          },
+        )
 
         await adminPrograms.gotoAdminProgramsPage()
         await adminPrograms.publishProgram(programName)
@@ -134,8 +138,12 @@ test.describe('Ineligible Page Tests', () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         'Screen 1',
+        /* expandedFormLogicEnabled= */ true,
       )
-      await adminPredicates.updateEligibilityMessage(eligibilityMsg)
+      await adminPredicates.updateEligibilityMessage(
+        eligibilityMsg,
+        /* expandedFormLogicEnabled= */ true,
+      )
       await adminPrograms.publishProgram(programName)
       await logout(page)
     })
@@ -259,7 +267,6 @@ test.describe('Ineligible Page Tests', () => {
 
     await test.step('Expect first block edit', async () => {
       await applicantQuestions.validateQuestionIsOnPage(questionText)
-      expect(page.url().split('/').pop()).toEqual('edit?isFromUrlCall=false')
     })
   })
 
@@ -298,7 +305,6 @@ test.describe('Ineligible Page Tests', () => {
 
     await test.step('Expect block review page', async () => {
       await applicantQuestions.validateQuestionIsOnPage(questionText)
-      expect(page.url().split('/').pop()).toEqual('review?isFromUrlCall=false')
     })
   })
 

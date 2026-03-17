@@ -47,6 +47,7 @@ import models.LifecycleStage;
 import models.ProgramNotificationPreference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.i18n.Messages;
 import repository.CategoryRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
@@ -169,7 +170,10 @@ public final class DevDatabaseSeedTask {
     }
   }
 
-  public void insertMinimalSampleProgram(ImmutableList<QuestionDefinition> createdSampleQuestions) {
+  public void insertMinimalSampleProgram(
+      ImmutableList<QuestionDefinition> createdSampleQuestions,
+      Messages messages,
+      boolean enumeratorImprovementsEnabled) {
     try {
       ErrorAnd<ProgramDefinition, CiviFormError> programDefinitionResult =
           programService.createProgramDefinition(
@@ -189,7 +193,9 @@ public final class DevDatabaseSeedTask {
               ImmutableList.of(),
               /* categoryIds= */ ImmutableList.of(),
               /* applicationSteps= */ ImmutableList.of(
-                  new ApplicationStep("step 1 title", "step 1 description")));
+                  new ApplicationStep("step 1 title", "step 1 description")),
+              messages,
+              enumeratorImprovementsEnabled);
       if (programDefinitionResult.isError()) {
         throw new RuntimeException(programDefinitionResult.getErrors().toString());
       }
@@ -221,7 +227,9 @@ public final class DevDatabaseSeedTask {
   }
 
   public void insertComprehensiveSampleProgram(
-      ImmutableList<QuestionDefinition> createdSampleQuestions) {
+      ImmutableList<QuestionDefinition> createdSampleQuestions,
+      Messages messages,
+      boolean enumeratorImprovementsEnabled) {
     try {
       ErrorAnd<ProgramDefinition, CiviFormError> programDefinitionResult =
           programService.createProgramDefinition(
@@ -241,7 +249,9 @@ public final class DevDatabaseSeedTask {
               ImmutableList.of(),
               /* categoryIds= */ ImmutableList.of(),
               /* applicationSteps= */ ImmutableList.of(
-                  new ApplicationStep("step 1 title", "step 1 description")));
+                  new ApplicationStep("step 1 title", "step 1 description")),
+              messages,
+              enumeratorImprovementsEnabled);
       if (programDefinitionResult.isError()) {
         throw new RuntimeException(programDefinitionResult.getErrors().toString());
       }
@@ -281,7 +291,8 @@ public final class DevDatabaseSeedTask {
 
       blockId =
           programService
-              .addBlockToProgram(programId, Optional.empty())
+              .addBlockToProgram(
+                  programId, Optional.empty(), messages, enumeratorImprovementsEnabled)
               .getResult()
               .maybeAddedBlock()
               .get()
@@ -302,7 +313,8 @@ public final class DevDatabaseSeedTask {
 
       blockId =
           programService
-              .addBlockToProgram(programId, Optional.of(true))
+              .addBlockToProgram(
+                  programId, Optional.of(true), messages, enumeratorImprovementsEnabled)
               .getResult()
               .maybeAddedBlock()
               .get()
@@ -320,7 +332,8 @@ public final class DevDatabaseSeedTask {
       long enumeratorBlockId = blockId;
       blockId =
           programService
-              .addRepeatedBlockToProgram(programId, enumeratorBlockId)
+              .addRepeatedBlockToProgram(
+                  programId, enumeratorBlockId, messages, enumeratorImprovementsEnabled)
               .getResult()
               .maybeAddedBlock()
               .get()
@@ -343,7 +356,8 @@ public final class DevDatabaseSeedTask {
 
       blockId =
           programService
-              .addBlockToProgram(programId, Optional.empty())
+              .addBlockToProgram(
+                  programId, Optional.empty(), messages, enumeratorImprovementsEnabled)
               .getResult()
               .maybeAddedBlock()
               .get()
@@ -361,7 +375,8 @@ public final class DevDatabaseSeedTask {
 
       blockId =
           programService
-              .addBlockToProgram(programId, Optional.empty())
+              .addBlockToProgram(
+                  programId, Optional.empty(), messages, enumeratorImprovementsEnabled)
               .getResult()
               .maybeAddedBlock()
               .get()
@@ -391,7 +406,8 @@ public final class DevDatabaseSeedTask {
       // Add file upload as optional to make local testing easier.
       blockId =
           programService
-              .addBlockToProgram(programId, Optional.empty())
+              .addBlockToProgram(
+                  programId, Optional.empty(), messages, enumeratorImprovementsEnabled)
               .getResult()
               .maybeAddedBlock()
               .get()

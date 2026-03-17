@@ -142,7 +142,15 @@ public final class ProfileFactory {
   public CiviFormProfile wrap(ApplicantModel applicant) {
     CiviFormProfileData profileData = new CiviFormProfileData(applicant.getAccount().id, clock);
     CiviFormProfile profile = wrapProfileData(profileData);
-    profile.getAccount().thenAccept(account -> profile.storeApplicantIdInProfile(account)).join();
+    profile
+        .getAccount()
+        .thenAccept(
+            account -> {
+              profile.storeApplicantIdInProfile(account);
+              addActiveSession(account, profileData);
+              account.save();
+            })
+        .join();
     return profile;
   }
 
