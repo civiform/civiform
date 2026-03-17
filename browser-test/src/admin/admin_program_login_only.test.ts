@@ -31,9 +31,9 @@ test.describe('login only program', () => {
         ProgramVisibility.PUBLIC,
       )
       await expect(
-        page.locator(
-          '[aria-label="Login only program"] input[type="checkbox"]',
-        ),
+        page.getByRole('checkbox', {
+          name: 'Require applicants to log in to apply to this program',
+        }),
       ).toBeDisabled()
     })
   })
