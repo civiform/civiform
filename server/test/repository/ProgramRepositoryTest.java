@@ -407,50 +407,44 @@ public class ProgramRepositoryTest extends ResetPostgres {
   public void createOrUpdateDraft_programModelWithNullQuestion_doesNotSaveNullQuestionToDraft() {
     // This test demonstrates the bug: createOrUpdateDraft(ProgramModel) calls
     // getShallowProgramDefinition which, on a cache miss, falls back to
-    // program.getProgramDefinition(). That definition can contain null-question sentinels
-    // (e.g. when a ProgramModel is constructed in memory with unresolved question
-    // references). On the update-existing-draft path there is no null-question guard,
-    // so the incomplete definition is persisted directly to the DB.
+    // program.getProgramDefinition(). That definition can contain null-question sentinels.
+    // On the update-existing-draft path there is no null-question guard, so the incomplete
+    // definition is persisted directly to the DB.
 
-    // Build an active program with a real question so a draft can be created.
-    QuestionModel realQuestion = resourceCreator.insertQuestion("realQuestion");
-    ProgramModel activeProgram =
-        ProgramBuilder.newActiveProgram("nullQuestionProg")
-            .withBlock("Screen 1")
-            .withRequiredQuestion(realQuestion)
-            .build();
-
-    // Create an initial draft — the next call to createOrUpdateDraft will take
-    // the update-existing-draft branch (lines 250-267) rather than creating a new one.
+    // Create an active program (no questions) and an initial draft so that the second
+    // createOrUpdateDraft call takes the update-existing-draft path (lines 250-267).
+    ProgramModel activeProgram = resourceCreator.insertActiveProgram("nullQuestionProg");
     repo.createOrUpdateDraft(activeProgram);
 
-    // Build a ProgramModel whose getProgramDefinition() returns a definition that
-    // contains a null-question sentinel. This mirrors the state that arises when
-    // the question-definition cache misses and the program was built with unresolved
-    // question references (e.g. via ProgramBuilder.withRequiredQuestion(nullQuestion)).
+    // Build a ProgramModel whose getProgramDefinition() contains a null-question sentinel.
+    // toProgram() sets this.programDefinition directly (no DB round-trip), so
+    // getProgramDefinition() on this model returns the null-question definition.
     QuestionDefinition nullQuestionDef =
         new TestQuestionBank(false).nullQuestion().getQuestionDefinition();
     BlockDefinition blockWithNullQuestion =
-        activeProgram.getProgramDefinition().blockDefinitions().get(0).toBuilder()
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("Screen 1")
+            .setDescription("Screen 1")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Screen 1"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Screen 1"))
             .setProgramQuestionDefinitions(
                 ImmutableList.of(
                     ProgramQuestionDefinition.create(
                         nullQuestionDef, Optional.of(activeProgram.getProgramDefinition().id()))))
             .build();
-    // toProgram() sets this.programDefinition = definition directly (no DB round-trip),
-    // so getProgramDefinition() on this model returns the null-question definition.
     ProgramModel programWithNullQuestion =
         activeProgram.getProgramDefinition().toBuilder()
             .setBlockDefinitions(ImmutableList.of(blockWithNullQuestion))
             .build()
             .toProgram();
 
-    // getShallowProgramDefinition falls back to getProgramDefinition() (cache is disabled),
-    // returning the null-question definition. The update-existing-draft path then saves
-    // it straight to the DB without checking for null questions.
+    // getShallowProgramDefinition falls back to getProgramDefinition() (cache is disabled for
+    // null-question definitions). The update-existing-draft path saves it without a guard.
     ProgramModel updatedDraft = repo.createOrUpdateDraft(programWithNullQuestion);
 
-    // The saved draft must not contain null-question sentinels, but it does.
+    // The saved draft must not contain null-question sentinels, but it does — demonstrating
+    // the bug.
     assertThat(
             updatedDraft.getProgramDefinition().blockDefinitions().stream()
                 .noneMatch(BlockDefinition::hasNullQuestion))
