@@ -9,7 +9,6 @@ import {
   CF_RESET_FILTERS_BUTTON,
   CF_LOCATION_COUNT,
   LOCATIONS_LAYER,
-  POPUP_LAYER,
   MAP_LIBRE_POPUP_CLASS,
   MapData,
   mapQuerySelector,
@@ -76,11 +75,10 @@ const applyLocationFilters = (
 
   const locationCheckboxContainers = queryLocationCheckboxes(mapId)
 
-  const popupContent = mapQuerySelector(mapId, POPUP_LAYER) as HTMLElement
-  let openPopupFeatureId = null
-  if (popupContent) {
-    openPopupFeatureId = popupContent.getAttribute(DATA_FEATURE_ID)
-  }
+  // Close any open popups when filters change
+  document
+    .querySelectorAll(MAP_LIBRE_POPUP_CLASS)
+    .forEach((popup) => popup.remove())
 
   let visibleCount = 0
   locationCheckboxContainers.forEach((container) => {
@@ -98,10 +96,6 @@ const applyLocationFilters = (
       visibleCount++
     } else {
       containerElement.classList.add(CF_FILTER_HIDDEN)
-      if (featureId == openPopupFeatureId) {
-        const popup = popupContent.closest(MAP_LIBRE_POPUP_CLASS)
-        if (popup) popup.remove()
-      }
     }
   })
 
