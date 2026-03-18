@@ -2353,7 +2353,8 @@ public final class ProgramService {
   private QuestionDefinition createQuestionCopy(
       QuestionDefinition questionDefinition,
       ProgramDefinition programDefinition,
-      BlockDefinition blockDefinition) {
+      BlockDefinition blockDefinition)
+      throws ProgramBlockDefinitionNotFoundException {
     try {
       // Get the question ID of the parent block's enumerator question
       Optional<Long> enumeratorQuestionId =
@@ -2373,7 +2374,7 @@ public final class ProgramService {
                 questionDefinition.getName(), blockDefinition.getFullName()));
       }
       return maybeCopy.getResult();
-    } catch (UnsupportedQuestionTypeException | ProgramBlockDefinitionNotFoundException e) {
+    } catch (UnsupportedQuestionTypeException e) {
       throw new RuntimeException(e);
     }
   }
