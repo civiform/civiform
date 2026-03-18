@@ -729,7 +729,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   .withCondDisabled(!isEnumeratorBlockComplete)
                   .withClasses(
                       ButtonStyles.SOLID_BLUE_WITH_ICON,
-                      ReferenceClasses.OPEN_QUESTION_BANK_BUTTON);
+                      ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
+                      "my-4");
 
       div.with(blockInfoDisplay, buttons, visibilityPredicateDisplay);
       maybeEligibilityPredicateDisplay.ifPresent(div::with);
