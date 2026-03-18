@@ -757,7 +757,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
           programQuestions.with(
               AlertComponent.renderSlimInfoAlert(
                   messages.at(MessageKey.ALERT_REPEATED_SET_ADD_QUESTION_DISABLED.getKeyName()),
-                  "maxw-mobile-lg"));
+                  "maxw-mobile-lg",
+                  "margin-bottom-1"));
         }
         programQuestions.with(addQuestion);
 
