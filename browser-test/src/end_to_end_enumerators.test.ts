@@ -1102,10 +1102,35 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           await page.getByRole('link', {name: 'Text', exact: true}).click()
         })
 
-        await expect(page.getByLabel('Question enumerator')).toBeDisabled()
+        await expect(page.getByLabel('Question enumerator')).toHaveAttribute(
+          'readonly',
+          'readonly',
+        )
         await expect(
           page.getByLabel('Question enumerator').locator('option[selected]'),
         ).toHaveText('pets enumerator')
+      })
+
+      await test.step('Verify that adding a non-repeated question creates a copy that is associated with the enumerator', async () => {
+        await test.step('Go to the block edit page', async () => {
+          await adminPrograms.gotoEditDraftProgramPage(
+            'Enumerator test program',
+          )
+          await navigateToRepeatedScreen(page, 4, 2)
+        })
+
+        await test.step('Add a non-repeated question to the repeated screen', async () => {
+          await adminPrograms.addQuestionFromQuestionBank(
+            'income-non-repeated-question',
+          )
+        })
+
+        await test.step('Verify that a copy of the question is added to the screen', async () => {
+          await navigateToRepeatedScreen(page, 4, 2)
+          await expect(
+            page.getByText('Admin ID: income-non-repeated-question -_- a'),
+          ).toBeVisible()
+        })
       })
     })
 
@@ -1215,8 +1240,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await page.getByRole('link', {name: 'Text', exact: true}).click()
       })
 
-      await test.step('Verify that the "Question enumerator" dropdown is disabled', async () => {
-        await expect(page.getByLabel('Question enumerator')).toBeDisabled()
+      await test.step('Verify that the "Question enumerator" dropdown is read only', async () => {
+        await expect(page.getByLabel('Question enumerator')).toHaveAttribute(
+          'readonly',
+          'readonly',
+        )
       })
     })
   })
