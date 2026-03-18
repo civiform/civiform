@@ -107,7 +107,7 @@ public final class VersionRepository {
     // 1. For all Draft Programs, map their questions to the program.
     // 2. For all Active Programs not in the Draft, do the same
     // 3. Skip Tombstoned Programs - While the application no longer
-    // supports Tombstoning programs, we still need to handle that fact that the
+    // supports Tombstoning programs, we still need to handle the fact that the
     // data supports it.
     //
     // This relies on a few application invariants:
