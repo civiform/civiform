@@ -1042,6 +1042,14 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         expect((alertBounds?.y ?? 0) + (alertBounds?.height ?? 0)).toBeLessThan(
           buttonBounds?.y ?? 0,
         )
+
+        await validateScreenshot(
+          questionsSection,
+          'repeated-questions-section-before-save',
+          {
+            fullPage: false,
+          },
+        )
       })
 
       await test.step('Save an enumerator question on the parent repeated set screen', async () => {
