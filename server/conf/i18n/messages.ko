@@ -1197,8 +1197,12 @@ text.repeatedSet.questionDescription=
 text.repeatedSet.screenNameDescription=
 #An additional description explaining what the add question button does
 text.repeatedSet.addQuestionDescription=
+# Information shown to admins when they are adding a question to a repeated screen.
+text.repeatedQuestions.description=Add the questions you would like to be asked about each object or individual listed by the applicant. If a question you add is not already associated with the repeated set, the question will be duplicated for this repeated set in the question bank.
 # Heading above the repeated set question in the program block editor
 heading.repeatedSet.question=
+# Heading above the questions section on repeated screens in the admin program screen editor.
+heading.repeatedQuestions=Repeated questions
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
 description.repeatedSet.listedEntity=
 # Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
