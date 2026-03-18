@@ -722,16 +722,14 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   .withClasses(
                       "usa-button",
                       "usa-button--outline",
-                      ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
-                      "my-4")
+                      ReferenceClasses.OPEN_QUESTION_BANK_BUTTON)
                   .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
                   .withText(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName()))
               : makeSvgTextButton("Add a question", Icons.ADD)
                   .withCondDisabled(!isEnumeratorBlockComplete)
                   .withClasses(
                       ButtonStyles.SOLID_BLUE_WITH_ICON,
-                      ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
-                      "my-4");
+                      ReferenceClasses.OPEN_QUESTION_BANK_BUTTON);
 
       div.with(blockInfoDisplay, buttons, visibilityPredicateDisplay);
       maybeEligibilityPredicateDisplay.ifPresent(div::with);
