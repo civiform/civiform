@@ -126,7 +126,7 @@ public final class PdfExporter {
             answersOnlyActive,
             answersOnlyHidden,
             applicantNameWithApplicationId,
-            application.getApplicant().id,
+            application.getOriginalApplicantId().orElse(application.getApplicant().id),
             application.getProgram().getProgramDefinition(),
             application.getLatestStatus(),
             getSubmitTime(application.getSubmitTime()),

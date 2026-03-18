@@ -179,7 +179,7 @@ public final class JsonExporterService {
 
     return ApplicationExportData.builder()
         .setAdminName(programDefinition.adminName())
-        .setApplicantId(application.getApplicant().id)
+        .setApplicantId(application.getOriginalApplicantId().orElse(application.getApplicant().id))
         .setApplicationId(application.id)
         .setProgramId(application.getProgram().id)
         .setLanguageTag(application.getApplicantData().preferredLocale().toLanguageTag())
