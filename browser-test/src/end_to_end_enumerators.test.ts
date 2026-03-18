@@ -997,6 +997,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       page,
     }) => {
       const blockPanel = page.getByTestId('block-panel-edit')
+      const questionsSection = blockPanel.locator('#questions-section')
       const addQuestionButton = blockPanel.getByRole('button', {
         name: 'Add question',
       })
@@ -1017,8 +1018,30 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Verify add-question is disabled and alert is visible before enumerator question is saved', async () => {
+        await expect(
+          questionsSection.getByText('Repeated questions', {exact: true}),
+        ).toBeVisible()
+        await expect(
+          questionsSection.getByText(
+            'Add the questions you would like to be asked about each object or individual listed by the applicant.',
+          ),
+        ).toBeVisible()
+        await expect(questionsSection).not.toHaveClass(/maxw-mobile-lg/)
+        await expect(
+          questionsSection.locator('p').filter({
+            hasText: 'Add the questions you would like to be asked',
+          }),
+        ).toHaveClass(/maxw-mobile-lg/)
         await expect(addQuestionButton).toBeDisabled()
         await expect(repeatedSetAlert).toBeVisible()
+
+        const alertBounds = await repeatedSetAlert.boundingBox()
+        const buttonBounds = await addQuestionButton.boundingBox()
+        expect(alertBounds).not.toBeNull()
+        expect(buttonBounds).not.toBeNull()
+        expect((alertBounds?.y ?? 0) + (alertBounds?.height ?? 0)).toBeLessThan(
+          buttonBounds?.y ?? 0,
+        )
       })
 
       await test.step('Save an enumerator question on the parent repeated set screen', async () => {

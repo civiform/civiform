@@ -664,7 +664,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
         div()
             .withId(QUESTIONS_SECTION_ID)
             .withClasses("my-4")
-            .withCondClass(showRepeatedQuestionsSectionStyling, "maxw-mobile-lg")
             .with(
                 div(showRepeatedQuestionsSectionStyling
                         ? messages.at(MessageKey.HEADING_REPEATED_QUESTIONS.getKeyName())
@@ -673,7 +672,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 iff(
                     showRepeatedQuestionsSectionStyling,
                     p(messages.at(MessageKey.TEXT_REPEATED_QUESTIONS_DESCRIPTION.getKeyName()))
-                        .withClasses("text-base", "text-sm", "margin-bottom-1")));
+                        .withClasses(
+                            "text-gray-cool-50",
+                            "font-ui-sm",
+                            "margin-bottom-1",
+                            "maxw-mobile-lg")));
 
     ImmutableList.Builder<DivTag> questionCardsBuilder = ImmutableList.builder();
 
@@ -719,7 +722,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   .withClasses(
                       "usa-button",
                       "usa-button--outline",
-                      "usa-button-group__item",
                       ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
                       "my-4")
                   .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
@@ -751,15 +753,29 @@ public final class ProgramBlocksView extends ProgramBaseView {
               .map(parent -> parent.enumeratorId().isEmpty())
               .orElse(false);
 
-      programQuestions.with(addQuestion);
-      if (enumeratorImprovementsEnabled && !isEnumeratorBlockComplete) {
-        programQuestions.with(
-            AlertComponent.renderSlimInfoAlert(
-                messages.at(MessageKey.ALERT_REPEATED_SET_ADD_QUESTION_DISABLED.getKeyName())));
+      if (showRepeatedQuestionsSectionStyling) {
+        if (!isEnumeratorBlockComplete) {
+          programQuestions.with(
+              AlertComponent.renderSlimInfoAlert(
+                  messages.at(MessageKey.ALERT_REPEATED_SET_ADD_QUESTION_DISABLED.getKeyName()),
+                  "maxw-mobile-lg"));
+        }
+        programQuestions.with(addQuestion);
+
+        return div.with(
+            programQuestions,
+            iff(
+                enumeratorImprovementsEnabled,
+                renderAddRepeatedScreenButtons(
+                    messages,
+                    blockHasEnumeratorQuestion,
+                    optionalParentEnumeratorBlock,
+                    shouldShowNestedButton)));
       }
 
       return div.with(
           programQuestions,
+          addQuestion,
           iff(
               enumeratorImprovementsEnabled,
               renderAddRepeatedScreenButtons(
@@ -884,7 +900,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .withClasses("text-lg", "font-bold", "margin-bottom-05")
                 .withTabindex(-1),
             p(messages.at(MessageKey.TEXT_REPEATED_SET_QUESTION_DESCRIPTION.getKeyName()))
-                .withClasses("text-base", "text-sm"),
+                .withClasses("text-gray-cool-50", "font-ui-sm"),
             questionCard);
   }
 
