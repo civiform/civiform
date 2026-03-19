@@ -1062,15 +1062,15 @@ banner.minute=1 мин.
 #------------------------------------------------------------------------------#
 
 # Header for data security banner alert
-label.immigrationStatusInfoBanner.heading=Immigrants and refugees are welcome here
+label.immigrationStatusInfoBanner.heading=Здесь рады иммигрантам и беженцам
 # Aria-label for data security banner alert
-label.immigrationStatusInfoBanner.label=Immigration status informational alert
+label.immigrationStatusInfoBanner.label=Оповещение об иммиграционном статусе
 # Text in the data security banner explaining how user data is protected when no learn more link is configured
-banner.immigrationStatusInfoBanner.body=We will not ask about your citizenship or immigration status.
+banner.immigrationStatusInfoBanner.body=Мы не будем задавать вопросов о вашем гражданстве или иммиграционном статусе.
 # Text in the data security banner explaining how user data is protected - the placeholder says 'here' and is a link to more information
-banner.immigrationStatusInfoBanner.bodyWithLink=We will not ask about your citizenship or immigration status. You can learn more {0}.
+banner.immigrationStatusInfoBanner.bodyWithLink=Мы не будем задавать вопросов о вашем гражданстве или иммиграционном статусе. Узнать больше можно {0}.
 # Link for more info about the data security banner
-banner.immigrationStatusInfoBanner.linkText=here
+banner.immigrationStatusInfoBanner.linkText=здесь
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
@@ -1176,7 +1176,7 @@ input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
 input.repeatedSet.maxEntities=
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
-alert.repeatedSet.addQuestionDisabled=A repeated set question must first be added before repeated questions can be. Please navigate to the parent screen to add a repeated set question.
+alert.repeatedSet.addQuestionDisabled=Перед добавлением повторяющихся вопросов необходимо добавить вопросы для повторяющегося набора. Чтобы сделать это, перейдите на основной экран.
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
 alert.repeatedSet.newQuestion=Creating a repeated set will add a new question to the question bank.
 # Submission button for creating a new repeated set
@@ -1198,11 +1198,11 @@ text.repeatedSet.screenNameDescription=
 #An additional description explaining what the add question button does
 text.repeatedSet.addQuestionDescription=
 # Information shown to admins when they are adding a question to a repeated screen.
-text.repeatedQuestions.description=Add the questions you would like to be asked about each object or individual listed by the applicant. If a question you add is not already associated with the repeated set, the question will be duplicated for this repeated set in the question bank.
+text.repeatedQuestions.description=Добавьте нужные вопросы по всем объектам или людям, указанным заявителем. Если добавленный вопрос еще не связан с повторяющимся набором, он будет продублирован в текущем повторяющемся наборе в банке вопросов.
 # Heading above the repeated set question in the program block editor
 heading.repeatedSet.question=
 # Heading above the questions section on repeated screens in the admin program screen editor.
-heading.repeatedQuestions=Repeated questions
+heading.repeatedQuestions=Повторяющиеся вопросы
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
 description.repeatedSet.listedEntity=
 # Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
@@ -1218,7 +1218,7 @@ description.repeatedSet.chooseExistingQuestion=
 # A button for admins to add a repeated screen to a program
 button.addRepeatedScreen=
 # A button for admins to add a nested repeated set to a program
-button.addNestedRepeatedSet=Add nested repeated set
+button.addNestedRepeatedSet=Добавить вложенный повторяющийся набор
 # A button for admins to add a pre-existing enumerator question to a program
 button.addQuestion=
 
