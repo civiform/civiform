@@ -5,6 +5,7 @@ import {
   logout,
   validateAccessibility,
   validateScreenshot,
+  waitForPageJsLoad,
 } from '../../support'
 
 test.describe('Applicant navigation flow', () => {
