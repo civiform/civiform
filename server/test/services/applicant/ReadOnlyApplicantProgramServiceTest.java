@@ -301,9 +301,10 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
     assertThat(inProgressBlocks).hasSize(1);
     assertThat(inProgressBlocks.get(0).getName()).isEqualTo("Block one");
 
-    Optional<Block> firstIncompleteBlock = subject.getFirstIncompleteOrStaticBlock();
+    Optional<Block> firstIncompleteBlock =
+        subject.getFirstBlockRequiringAction(/* includeStatic= */ true);
     Optional<Block> firstIncompleteExcludingStatic =
-        subject.getFirstIncompleteBlockExcludingStatic();
+        subject.getFirstBlockRequiringAction(/* includeStatic= */ false);
 
     assertThat(firstIncompleteBlock.isPresent()).isTrue();
     assertThat(firstIncompleteBlock.get().getName()).isEqualTo("Block one");
@@ -466,8 +467,9 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
             jsonPathPredicateGeneratorFactory, applicant, applicantData, program);
 
     ImmutableList<Block> allBlocks = subject.getAllActiveBlocks();
-    Optional<Block> maybeBlock = subject.getFirstIncompleteOrStaticBlock();
-    Optional<Block> maybeBlockExcludeStatic = subject.getFirstIncompleteBlockExcludingStatic();
+    Optional<Block> maybeBlock = subject.getFirstBlockRequiringAction(/* includeStatic= */ true);
+    Optional<Block> maybeBlockExcludeStatic =
+        subject.getFirstBlockRequiringAction(/* includeStatic= */ false);
 
     assertThat(allBlocks).hasSize(2);
     assertThat(maybeBlock).isNotEmpty();
@@ -1130,7 +1132,7 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
         new ReadOnlyApplicantProgramService(
             jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
 
-    Optional<Block> maybeBlock = subject.getFirstIncompleteOrStaticBlock();
+    Optional<Block> maybeBlock = subject.getFirstBlockRequiringAction(/* includeStatic= */ true);
 
     assertThat(maybeBlock).isNotEmpty();
     assertThat(maybeBlock.get().getName()).isEqualTo("Block one");
@@ -1147,10 +1149,71 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     assertThat(subject.getInProgressBlocks().get(0).getName()).isEqualTo("Block one");
 
-    Optional<Block> maybeBlock = subject.getFirstIncompleteOrStaticBlock();
+    Optional<Block> maybeBlock = subject.getFirstBlockRequiringAction(/* includeStatic= */ true);
 
     assertThat(maybeBlock).isNotEmpty();
     assertThat(maybeBlock.get().getName()).isEqualTo("Block two");
+  }
+
+  @Test
+  public void
+      getFirstBlockRequiringAction_returnsBlockWithUncorrectedAddress_whenAddressPreFilled() {
+    ProgramDefinition programWithCorrection =
+        ProgramBuilder.newDraftProgram("Program with correction")
+            .withBlock("Block one")
+            .withRequiredQuestionDefinition(nameQuestion)
+            .withBlock("Block two")
+            .withRequiredCorrectedAddressQuestion(testQuestionBank.addressApplicantAddress())
+            .buildDefinition();
+
+    answerNameQuestion(programWithCorrection.id());
+    answerAddressQuestion(programWithCorrection.id());
+
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramService(
+            jsonPathPredicateGeneratorFactory, applicant, applicantData, programWithCorrection);
+
+    Optional<Block> maybeBlock = subject.getFirstBlockRequiringAction(/* includeStatic= */ true);
+
+    assertThat(maybeBlock).isNotEmpty();
+    assertThat(maybeBlock.get().getName()).isEqualTo("Block two");
+  }
+
+  @Test
+  public void getFirstBlockRequiringAction_skipsBlockWithCorrectedAddress() {
+    ProgramDefinition programWithCorrection =
+        ProgramBuilder.newDraftProgram("Program with corrected address")
+            .withBlock("Block one")
+            .withRequiredQuestionDefinition(nameQuestion)
+            .withBlock("Block two")
+            .withRequiredCorrectedAddressQuestion(testQuestionBank.addressApplicantAddress())
+            .buildDefinition();
+
+    answerNameQuestion(programWithCorrection.id());
+
+    Path addressPath = Path.create("applicant.applicant_address");
+    QuestionAnswerer.answerAddressQuestion(
+        applicantData,
+        addressPath,
+        "123 Rhode St.",
+        "",
+        "Seattle",
+        "WA",
+        "12345",
+        "Corrected",
+        47.6,
+        -122.3,
+        1234L,
+        ImmutableList.of());
+    QuestionAnswerer.addMetadata(applicantData, addressPath, programWithCorrection.id(), 12345L);
+
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramService(
+            jsonPathPredicateGeneratorFactory, applicant, applicantData, programWithCorrection);
+
+    Optional<Block> maybeBlock = subject.getFirstBlockRequiringAction(/* includeStatic= */ true);
+
+    assertThat(maybeBlock).isEmpty();
   }
 
   @Test

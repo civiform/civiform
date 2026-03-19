@@ -1471,7 +1471,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     Optional<String> nextBlockIdMaybe =
         inReview
-            ? roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().map(Block::getId)
+            ? roApplicantProgramService
+                .getFirstBlockRequiringAction(/* includeStatic= */ false)
+                .map(Block::getId)
             : roApplicantProgramService.getInProgressBlockAfter(blockId).map(Block::getId);
     return nextBlockIdMaybe
         .map(

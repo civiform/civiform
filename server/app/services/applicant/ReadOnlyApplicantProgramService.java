@@ -387,17 +387,18 @@ public final class ReadOnlyApplicantProgramService {
     return -1;
   }
 
-  /** Returns the first block with an unanswered question or static block. */
-  public Optional<Block> getFirstIncompleteOrStaticBlock() {
+  /**
+   * Returns the first block that requires action from the applicant. A block requires action if it
+   * is incomplete, if it has an address question that needs correction, or (if {@code
+   * includeStatic} is true) if it contains static content.
+   */
+  public Optional<Block> getFirstBlockRequiringAction(boolean includeStatic) {
     return getInProgressBlocks().stream()
-        .filter(block -> !block.isCompletedInProgramWithoutErrors() || block.containsStatic())
-        .findFirst();
-  }
-
-  /** Returns the first block with an unanswered question. */
-  public Optional<Block> getFirstIncompleteBlockExcludingStatic() {
-    return getInProgressBlocks().stream()
-        .filter(block -> !block.isCompletedInProgramWithoutErrors())
+        .filter(
+            block ->
+                !block.isCompletedInProgramWithoutErrors()
+                    || block.hasAddressQuestionWithUncorrectedAddress()
+                    || (includeStatic && block.containsStatic()))
         .findFirst();
   }
 
