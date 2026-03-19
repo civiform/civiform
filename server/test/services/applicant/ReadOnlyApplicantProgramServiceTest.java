@@ -1166,8 +1166,10 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
             .withRequiredCorrectedAddressQuestion(testQuestionBank.addressApplicantAddress())
             .buildDefinition();
 
-    answerNameQuestion(programWithCorrection.id());
-    answerAddressQuestion(programWithCorrection.id());
+    // Answer all questions in a DIFFERENT program (without correction).
+    long otherProgramId = programWithCorrection.id() + 1;
+    answerNameQuestion(otherProgramId);
+    answerAddressQuestion(otherProgramId);
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(

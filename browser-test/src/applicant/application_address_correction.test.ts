@@ -130,7 +130,7 @@ test.describe('address correction single-block, single-address program', () => {
           'CA',
           '92373',
         )
-        await page.click('text="متابعة"')
+        await page.getByText('متابعة').click()
       })
 
       await test.step('Validate address correction page rendered right to left', async () => {
@@ -305,6 +305,80 @@ test.describe('address correction single-block, single-address program', () => {
 
     await logout(page)
   })
+})
+
+test.describe('require address correction when address is pre-filled', () => {
+  const programWithCorrection = 'Program with correction'
+  const programWithoutCorrection = 'Program without correction'
+  const addressQuestionId = 'address-q'
+
+  test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+    await loginAsAdmin(page)
+
+    await enableFeatureFlag(page, 'esri_address_correction_enabled')
+
+    await adminQuestions.addAddressQuestion({
+      questionName: addressQuestionId,
+      questionText: 'address question',
+    })
+
+    await adminPrograms.addProgram(programWithoutCorrection)
+    await adminPrograms.editProgramBlockUsingSpec(programWithoutCorrection, {
+      name: 'address block',
+      questions: [{name: addressQuestionId}],
+    })
+
+    await adminPrograms.addProgram(programWithCorrection)
+    await adminPrograms.editProgramBlockUsingSpec(programWithCorrection, {
+      name: 'address block',
+      questions: [{name: addressQuestionId}],
+    })
+    await adminPrograms.clickAddressCorrectionToggleByName(addressQuestionId)
+
+    await adminPrograms.gotoAdminProgramsPage()
+    await adminPrograms.publishProgram(programWithCorrection)
+
+    await logout(page)
+  })
+
+  if (isLocalDevEnvironment()) {
+    test('address pre-filled from program without correction requires correction', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await test.step('Submit program without correction, filling in address', async () => {
+        await applicantQuestions.applyProgram(programWithoutCorrection)
+        await applicantQuestions.answerAddressQuestion(
+          'Legit Address',
+          '',
+          'Redlands',
+          'CA',
+          '92373',
+        )
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.clickSubmitApplication()
+      })
+
+      await test.step('Apply to program with correction and verify address block is shown', async () => {
+        await applicantQuestions.gotoApplicantHomePage()
+        await applicantQuestions.applyProgram(programWithCorrection)
+        // The applicant should be directed to the address block
+        // even though the address is already answered, because it
+        // hasn't been through address correction.
+        await applicantQuestions.expectTitle(
+          page,
+          'Program with correction — 1 of 2',
+        )
+      })
+
+      await test.step('Click continue and verify address correction page is shown', async () => {
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.expectVerifyAddressPage(true)
+      })
+
+      await logout(page)
+    })
+  }
 })
 
 if (isLocalDevEnvironment()) {

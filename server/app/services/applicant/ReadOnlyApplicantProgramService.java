@@ -251,7 +251,8 @@ public final class ReadOnlyApplicantProgramService {
    * answered yet (i.e. we cannot determine whether the predicate is true or false), it is included
    * in this list.
    *
-   * <p>This list does not include blocks that were completely filled out in a different program.
+   * <p>This list does not include blocks that were completely filled out in a different program,
+   * unless the block has an address question that still needs correction.
    *
    * @return a list of {@link Block}s that were completed by the applicant in this session or still
    *     need to be completed for this program
@@ -261,11 +262,12 @@ public final class ReadOnlyApplicantProgramService {
       currentBlockList =
           getBlocks(
               block ->
-                  // Return all blocks that contain errors, were answered in this program, or
-                  // contain a static question.
+                  // Return all blocks that contain errors, were answered in this program,
+                  // contain a static question, or have an address needing correction.
                   (!block.isAnsweredWithoutErrors()
                           || block.wasAnsweredInProgram(programDefinition.id())
-                          || block.containsStatic())
+                          || block.containsStatic()
+                          || block.hasAddressQuestionWithUncorrectedAddress())
                       && showBlock(block));
     }
     return currentBlockList;
