@@ -1062,15 +1062,15 @@ banner.minute=1분
 #------------------------------------------------------------------------------#
 
 # Header for data security banner alert
-label.immigrationStatusInfoBanner.heading=Immigrants and refugees are welcome here
+label.immigrationStatusInfoBanner.heading=이민지와 난민을 환영합니다
 # Aria-label for data security banner alert
-label.immigrationStatusInfoBanner.label=Immigration status informational alert
+label.immigrationStatusInfoBanner.label=이민 신분 관련 알림
 # Text in the data security banner explaining how user data is protected when no learn more link is configured
-banner.immigrationStatusInfoBanner.body=We will not ask about your citizenship or immigration status.
+banner.immigrationStatusInfoBanner.body=귀하의 시민권이나 이민 신분에 대해 묻지 않습니다.
 # Text in the data security banner explaining how user data is protected - the placeholder says 'here' and is a link to more information
-banner.immigrationStatusInfoBanner.bodyWithLink=We will not ask about your citizenship or immigration status. You can learn more {0}.
+banner.immigrationStatusInfoBanner.bodyWithLink=귀하의 시민권이나 이민 신분에 대해 묻지 않습니다. {0}에서 자세한 내용을 확인하세요.
 # Link for more info about the data security banner
-banner.immigrationStatusInfoBanner.linkText=here
+banner.immigrationStatusInfoBanner.linkText=여기
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
@@ -1130,10 +1130,10 @@ ariaLabel.categories=카테고리
 # Title of the warning modal that appears when the user has been inactive for a while
 session.inactivity.warning.title=세션 비활성 경고
 # Title of the session timeout warning modals
-session.warning.title=Session ending soon
+session.warning.title=세션 곧 종료
 # Text on a button on a session ending soon modal that gives users the options to save and log in
-session.login.button.loggedIn=Log in
-session.login.button.guest=Log in or create an account
+session.login.button.loggedIn=로그인
+session.login.button.guest=로그인 또는 계정 생성
 # Message shown in a modal asking the user if they want to extend their session due to inactivity
 session.inactivity.warning.message=활동이 없어 세션이 곧 만료됩니다. 세션을 연장하시겠습니까?
 # Title of a modal dialog displayed when a user's session is about to expire due to session length limit
@@ -1147,9 +1147,9 @@ session.extended.success=세션이 연장되었습니다
 # Error message shown when there was a problem extending the user's session
 session.extended.error=세션을 연장할 수 없습니다
 # Message shown to guest users warning that their session is about to expire due to session length
-session.length.warning.message.guest=Your session is about to expire. Please save your work and log in or create an account to continue.
+session.length.warning.message.guest=세션이 곧 만료됩니다. 작업을 저장하고, 계속 진행하려면 로그인하거나 계정을 생성해 주세요.
 # Message shown to logged-in users warning that their session is about to expire due to session length
-session.length.warning.message.loggedIn=Your session is about to expire. Please save your work and log back in to continue. You will not lose your progress in the application.
+session.length.warning.message.loggedIn=세션이 곧 만료됩니다. 작업을 저장하고, 계속 진행하려면 다시 로그인해 주세요. 신청서 진행 상황은 유지됩니다.
 
 #------------------------------------------------------------------------------#
 #  ADMIN PROGRAM BLOCK EDIT                                                    #
@@ -1176,9 +1176,9 @@ input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
 input.repeatedSet.maxEntities=
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
-alert.repeatedSet.addQuestionDisabled=A repeated set question must first be added before repeated questions can be. Please navigate to the parent screen to add a repeated set question.
+alert.repeatedSet.addQuestionDisabled=먼저 반복 세트 질문을 추가해야 반복 질문을 추가할 수 있습니다. 반복 세트 질문을 추가하려면 상위 화면으로 이동해 주세요.
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
-alert.repeatedSet.newQuestion=Creating a repeated set will add a new question to the question bank.
+alert.repeatedSet.newQuestion=반복 세트를 생성하면 질문 은행에 새 질문이 추가됩니다.
 # Submission button for creating a new repeated set
 button.repeatedSet.submitNew=
 # Button for admins to add a new repeated set
@@ -1198,11 +1198,11 @@ text.repeatedSet.screenNameDescription=
 #An additional description explaining what the add question button does
 text.repeatedSet.addQuestionDescription=
 # Information shown to admins when they are adding a question to a repeated screen.
-text.repeatedQuestions.description=Add the questions you would like to be asked about each object or individual listed by the applicant. If a question you add is not already associated with the repeated set, the question will be duplicated for this repeated set in the question bank.
+text.repeatedQuestions.description=신청자가 나열한 각 대상 또는 개인에 대해 질문할 문항을 추가하세요. 추가한 질문이 아직 반복 세트와 연결되지 않은 경우, 해당 질문은 질문 은행에 이 반복 세트용으로 복제됩니다.
 # Heading above the repeated set question in the program block editor
 heading.repeatedSet.question=
 # Heading above the questions section on repeated screens in the admin program screen editor.
-heading.repeatedQuestions=Repeated questions
+heading.repeatedQuestions=반복 질문
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
 description.repeatedSet.listedEntity=
 # Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
@@ -1218,7 +1218,7 @@ description.repeatedSet.chooseExistingQuestion=
 # A button for admins to add a repeated screen to a program
 button.addRepeatedScreen=
 # A button for admins to add a nested repeated set to a program
-button.addNestedRepeatedSet=Add nested repeated set
+button.addNestedRepeatedSet=중첩된 반복 세트 추가
 # A button for admins to add a pre-existing enumerator question to a program
 button.addQuestion=
 
