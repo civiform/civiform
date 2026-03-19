@@ -1062,15 +1062,15 @@ banner.minute=1 na minuto
 #------------------------------------------------------------------------------#
 
 # Header for data security banner alert
-label.immigrationStatusInfoBanner.heading=Immigrants and refugees are welcome here
+label.immigrationStatusInfoBanner.heading=Tinatanggap ang mga imigrante at refugee dito
 # Aria-label for data security banner alert
-label.immigrationStatusInfoBanner.label=Immigration status informational alert
+label.immigrationStatusInfoBanner.label=Alerto sa impormasyon tungkol sa katayuan sa imigrasyon
 # Text in the data security banner explaining how user data is protected when no learn more link is configured
-banner.immigrationStatusInfoBanner.body=We will not ask about your citizenship or immigration status.
+banner.immigrationStatusInfoBanner.body=Hindi kami magtatanong tungkol sa iyong pagkamamamayan o katayuan sa imigrasyon.
 # Text in the data security banner explaining how user data is protected - the placeholder says 'here' and is a link to more information
-banner.immigrationStatusInfoBanner.bodyWithLink=We will not ask about your citizenship or immigration status. You can learn more {0}.
+banner.immigrationStatusInfoBanner.bodyWithLink=Hindi kami magtatanong tungkol sa iyong pagkamamamayan o katayuan sa imigrasyon. Maaari mong dagdagan ang iyong nalalaman {0}.
 # Link for more info about the data security banner
-banner.immigrationStatusInfoBanner.linkText=here
+banner.immigrationStatusInfoBanner.linkText=dito
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
@@ -1147,9 +1147,9 @@ session.extended.success=Na-extend na ang session
 # Error message shown when there was a problem extending the user's session
 session.extended.error=Hindi na-extend ang session
 # Message shown to guest users warning that their session is about to expire due to session length
-session.length.warning.message.guest=Your session is about to expire. Please save your work and log in or create an account to continue.
+session.length.warning.message.guest=Malapit nang matapos ang iyong sesyon. Mangyaring i-save ang iyong trabaho at mag-log in o gumawa ng account upang magpatuloy.
 # Message shown to logged-in users warning that their session is about to expire due to session length
-session.length.warning.message.loggedIn=Your session is about to expire. Please save your work and log back in to continue. You will not lose your progress in the application.
+session.length.warning.message.loggedIn=Malapit nang matapos ang iyong sesyon. Mangyaring i-save ang iyong trabaho at mag-log in muli upang magpatuloy. Hindi mawawala ang iyong nagawa na sa application.
 
 #------------------------------------------------------------------------------#
 #  ADMIN PROGRAM BLOCK EDIT                                                    #
@@ -1176,7 +1176,7 @@ input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
 input.repeatedSet.maxEntities=
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
-alert.repeatedSet.addQuestionDisabled=A repeated set question must first be added before repeated questions can be. Please navigate to the parent screen to add a repeated set question.
+alert.repeatedSet.addQuestionDisabled=
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
 alert.repeatedSet.newQuestion=Creating a repeated set will add a new question to the question bank.
 # Submission button for creating a new repeated set
