@@ -1369,6 +1369,7 @@ export class AdminPrograms {
   }
 
   async openQuestionBank() {
+    await waitForPageJsLoad(this.page)
     await this.page.getByRole('button', {name: /^Add( a)? question$/}).click()
     await this.waitForQuestionBankAnimationToFinish()
   }
