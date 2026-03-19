@@ -40,7 +40,7 @@ public class SessionController extends Controller {
         .optionalCurrentUserProfile(request)
         .map(
             profile -> {
-              profile.getProfileData().updateLastActivityTime(clock);
+              profile.getProfileData().updateLastSessionActivityTime(clock);
               return ok();
             })
         .orElse(unauthorized());
