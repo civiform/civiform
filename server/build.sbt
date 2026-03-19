@@ -83,7 +83,7 @@ lazy val root = (project in file("."))
       "org.glassfish.jaxb" % "jaxb-runtime" % "4.0.6",
 
       // Code autogeneration
-      "org.projectlombok" % "lombok" % "1.18.42" % "provided",
+      "org.projectlombok" % "lombok" % "1.18.44" % "provided",
 
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
@@ -142,7 +142,7 @@ lazy val root = (project in file("."))
 
       // OpenAPI 3.x Dependencies
       "io.swagger.core.v3" % "swagger-core" % "2.2.45",
-      "io.swagger.parser.v3" % "swagger-parser" % "2.1.38",
+      "io.swagger.parser.v3" % "swagger-parser" % "2.1.39",
 
       // JSON Schema validation
       "com.networknt" % "json-schema-validator" % "2.0.1",
