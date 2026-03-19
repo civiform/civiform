@@ -1062,15 +1062,15 @@ banner.minute=1 phút
 #------------------------------------------------------------------------------#
 
 # Header for data security banner alert
-label.immigrationStatusInfoBanner.heading=Immigrants and refugees are welcome here
+label.immigrationStatusInfoBanner.heading=Người nhập cư và người tị nạn sẽ được chào đón ở đây
 # Aria-label for data security banner alert
-label.immigrationStatusInfoBanner.label=Immigration status informational alert
+label.immigrationStatusInfoBanner.label=Cảnh báo thông tin về tình trạng nhập cư
 # Text in the data security banner explaining how user data is protected when no learn more link is configured
-banner.immigrationStatusInfoBanner.body=We will not ask about your citizenship or immigration status.
+banner.immigrationStatusInfoBanner.body=Chúng tôi sẽ không hỏi về tư cách công dân hoặc tình trạng nhập cư của bạn.
 # Text in the data security banner explaining how user data is protected - the placeholder says 'here' and is a link to more information
-banner.immigrationStatusInfoBanner.bodyWithLink=We will not ask about your citizenship or immigration status. You can learn more {0}.
+banner.immigrationStatusInfoBanner.bodyWithLink=Chúng tôi sẽ không hỏi về tư cách công dân hoặc tình trạng nhập cư của bạn. Bạn có thể tìm hiểu thêm {0}.
 # Link for more info about the data security banner
-banner.immigrationStatusInfoBanner.linkText=here
+banner.immigrationStatusInfoBanner.linkText=tại đây
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
@@ -1130,10 +1130,10 @@ ariaLabel.categories=Danh mục
 # Title of the warning modal that appears when the user has been inactive for a while
 session.inactivity.warning.title=Cảnh báo về phiên không hoạt động
 # Title of the session timeout warning modals
-session.warning.title=Session ending soon
+session.warning.title=Phiên làm việc sắp kết thúc
 # Text on a button on a session ending soon modal that gives users the options to save and log in
-session.login.button.loggedIn=Log in
-session.login.button.guest=Log in or create an account
+session.login.button.loggedIn=Đăng nhập
+session.login.button.guest=Đăng nhập hoặc tạo tài khoản
 # Message shown in a modal asking the user if they want to extend their session due to inactivity
 session.inactivity.warning.message=Phiên của bạn sẽ sớm hết hạn do không hoạt động. Bạn có muốn gia hạn phiên của mình không?
 # Title of a modal dialog displayed when a user's session is about to expire due to session length limit
@@ -1147,9 +1147,9 @@ session.extended.success=Đã gia hạn phiên thành công
 # Error message shown when there was a problem extending the user's session
 session.extended.error=Không gia hạn được phiên
 # Message shown to guest users warning that their session is about to expire due to session length
-session.length.warning.message.guest=Your session is about to expire. Please save your work and log in or create an account to continue.
+session.length.warning.message.guest=Phiên làm việc của bạn sắp hết hạn. Vui lòng lưu công việc của bạn và đăng nhập hoặc tạo tài khoản để tiếp tục.
 # Message shown to logged-in users warning that their session is about to expire due to session length
-session.length.warning.message.loggedIn=Your session is about to expire. Please save your work and log back in to continue. You will not lose your progress in the application.
+session.length.warning.message.loggedIn=Phiên làm việc của bạn sắp hết hạn. Vui lòng lưu công việc của bạn và đăng nhập lại để tiếp tục. Bạn sẽ không bị mất tiến trình làm việc trong ứng dụng.
 
 #------------------------------------------------------------------------------#
 #  ADMIN PROGRAM BLOCK EDIT                                                    #
@@ -1178,7 +1178,7 @@ input.repeatedSet.maxEntities=
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
 alert.repeatedSet.addQuestionDisabled=
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
-alert.repeatedSet.newQuestion=Creating a repeated set will add a new question to the question bank.
+alert.repeatedSet.newQuestion=Việc tạo một bộ câu hỏi lặp lại sẽ thêm một câu hỏi mới vào ngân hàng câu hỏi.
 # Submission button for creating a new repeated set
 button.repeatedSet.submitNew=
 # Button for admins to add a new repeated set
