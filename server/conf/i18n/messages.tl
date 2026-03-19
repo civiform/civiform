@@ -1198,7 +1198,7 @@ text.repeatedSet.screenNameDescription=
 #An additional description explaining what the add question button does
 text.repeatedSet.addQuestionDescription=
 # Information shown to admins when they are adding a question to a repeated screen.
-text.repeatedQuestions.description=Add the questions you would like to be asked about each object or individual listed by the applicant. If a question you add is not already associated with the repeated set, the question will be duplicated for this repeated set in the question bank.
+text.repeatedQuestions.description=
 # Heading above the repeated set question in the program block editor
 heading.repeatedSet.question=
 # Heading above the questions section on repeated screens in the admin program screen editor.
@@ -1218,7 +1218,7 @@ description.repeatedSet.chooseExistingQuestion=
 # A button for admins to add a repeated screen to a program
 button.addRepeatedScreen=
 # A button for admins to add a nested repeated set to a program
-button.addNestedRepeatedSet=Add nested repeated set
+button.addNestedRepeatedSet=
 # A button for admins to add a pre-existing enumerator question to a program
 button.addQuestion=
 
