@@ -1130,10 +1130,10 @@ ariaLabel.categories=Mga Kategorya
 # Title of the warning modal that appears when the user has been inactive for a while
 session.inactivity.warning.title=Babala sa Kawalan ng Aktibidad ng Session
 # Title of the session timeout warning modals
-session.warning.title=Session ending soon
+session.warning.title=Malapit nang matapos ang sesyon
 # Text on a button on a session ending soon modal that gives users the options to save and log in
-session.login.button.loggedIn=Log in
-session.login.button.guest=Log in or create an account
+session.login.button.loggedIn=Mag-log in
+session.login.button.guest=Mag-log in o gumawa ng account
 # Message shown in a modal asking the user if they want to extend their session due to inactivity
 session.inactivity.warning.message=Mag-e-expire ang iyong session dahil sa kawalan ng aktibidad. Gusto mo bang i-extend ang iyong session?
 # Title of a modal dialog displayed when a user's session is about to expire due to session length limit
@@ -1178,7 +1178,7 @@ input.repeatedSet.maxEntities=
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
 alert.repeatedSet.addQuestionDisabled=
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
-alert.repeatedSet.newQuestion=Creating a repeated set will add a new question to the question bank.
+alert.repeatedSet.newQuestion=Ang paggawa ng isang inuulit na set ay magdaragdag ng bagong tanong sa kaban ng mga tanong.
 # Submission button for creating a new repeated set
 button.repeatedSet.submitNew=
 # Button for admins to add a new repeated set
