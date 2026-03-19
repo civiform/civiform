@@ -1202,7 +1202,7 @@ text.repeatedQuestions.description=Add the questions you would like to be asked 
 # Heading above the repeated set question in the program block editor
 heading.repeatedSet.question=
 # Heading above the questions section on repeated screens in the admin program screen editor.
-heading.repeatedQuestions=Repeated questions
+heading.repeatedQuestions=
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
 description.repeatedSet.listedEntity=
 # Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
