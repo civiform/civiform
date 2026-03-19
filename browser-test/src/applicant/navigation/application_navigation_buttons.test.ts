@@ -206,6 +206,7 @@ test.describe('Applicant navigation flow', () => {
         // The date question is required, so expect the error modal.
         await applicantQuestions.expectErrorOnPreviousModal()
 
+        await waitForPageJsLoad(page)
         await validateAccessibility(page)
         await validateScreenshot(page, 'error-on-previous-modal', {
           fullPage: false,
