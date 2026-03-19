@@ -778,25 +778,23 @@ export class AdminPrograms {
     // The block info shows us we are viewing a block.
     expect(this.page.locator('id=block-info-display-' + blockId)).not.toBeNull()
     // The absence of one of the edit buttons ensures it is the read only view.
-    expect(
-      await this.page.locator('id=block-description-modal-button').count(),
-    ).toEqual(0)
+    await expect(
+      this.page.locator('id=block-description-modal-button'),
+    ).toHaveCount(0)
   }
 
   /**
    * Expects a question card with a specified text label in it.
    */
   async expectQuestionCardWithLabel(questionName: string, label: string) {
-    expect(
-      await this.page
-        .locator(
-          this.withinQuestionCardSelectorInProgramView(
-            questionName,
-            `p:has-text("${label}")`,
-          ),
-        )
-        .count(),
-    ).toBe(1)
+    await expect(
+      this.page.locator(
+        this.withinQuestionCardSelectorInProgramView(
+          questionName,
+          `p:has-text("${label}")`,
+        ),
+      ),
+    ).toHaveCount(1)
   }
 
   /**
@@ -806,16 +804,14 @@ export class AdminPrograms {
     questionName: string,
     universal: boolean,
   ) {
-    expect(
-      await this.page
-        .locator(
-          this.withinQuestionCardSelectorInProgramView(
-            questionName,
-            '.cf-universal-badge',
-          ),
-        )
-        .count(),
-    ).toBe(universal ? 1 : 0)
+    await expect(
+      this.page.locator(
+        this.withinQuestionCardSelectorInProgramView(
+          questionName,
+          '.cf-universal-badge',
+        ),
+      ),
+    ).toHaveCount(universal ? 1 : 0)
   }
 
   // Question card within a program edit or read only page
@@ -1214,7 +1210,7 @@ export class AdminPrograms {
     expect(await this.page.innerText('id=program-title')).toContain(programName)
     // The only element for editing should be one top level button
     await expect(this.page.locator('#header_edit_button')).toBeVisible()
-    expect(await this.page.locator('id=block-edit-form').count()).toEqual(0)
+    await expect(this.page.locator('id=block-edit-form')).toHaveCount(0)
   }
 
   // Removes questions from given block in program.
@@ -1373,7 +1369,7 @@ export class AdminPrograms {
   }
 
   async openQuestionBank() {
-    await this.page.click('button:has-text("Add a question")')
+    await this.page.getByRole('button', {name: /^Add( a)? question$/}).click()
     await this.waitForQuestionBankAnimationToFinish()
   }
 
@@ -2122,7 +2118,7 @@ export class AdminPrograms {
     programName: string,
   ) {
     const emailsAfter = await extractEmailsForRecipient(this.page, userEmail)
-    expect(emailsAfter.length).toEqual(numEmailsBefore + 1)
+    expect(emailsAfter).toHaveLength(numEmailsBefore + 1)
     const sentEmail = emailsAfter[emailsAfter.length - 1]
     expect(sentEmail.Subject).toEqual(
       `[Test Message] An update on your application ${programName}`,

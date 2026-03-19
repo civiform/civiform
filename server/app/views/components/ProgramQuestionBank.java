@@ -210,7 +210,8 @@ public final class ProgramQuestionBank {
                       .withClasses(AdminStyles.SEMIBOLD_HEADER))
               .with(
                   AlertComponent.renderSlimInfoAlert(
-                      "Questions associated with a different enumerator can't be used."))
+                      "Questions that are associated with a different repeated set are not"
+                          + " available to be added."))
               .with(
                   each(previouslyUsedForRepeatedSetQuestions, qd -> renderQuestionDefinition(qd))));
     }

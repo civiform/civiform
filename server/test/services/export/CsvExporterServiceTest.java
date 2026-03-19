@@ -132,6 +132,32 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
   }
 
   @Test
+  public void export_whenOriginalApplicantIdIsSet_usesOriginalApplicantId() throws Exception {
+    ProgramModel fakeProgram = FakeProgramBuilder.newActiveProgram("fake-program").build();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    long originalApplicantId = 99999L;
+    ApplicationModel application =
+        FakeApplicationFiller.newFillerFor(fakeProgram, applicant).submit().getApplication();
+    application.setOriginalApplicantId(originalApplicantId);
+    application.save();
+
+    CSVRecord record = getParsedRecords(fakeProgram.id).get(0);
+
+    assertThat(record.get("Applicant ID")).isEqualTo(String.valueOf(originalApplicantId));
+  }
+
+  @Test
+  public void export_whenOriginalApplicantIdIsNotSet_usesCurrentApplicantId() throws Exception {
+    ProgramModel fakeProgram = FakeProgramBuilder.newActiveProgram("fake-program").build();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    FakeApplicationFiller.newFillerFor(fakeProgram, applicant).submit();
+
+    CSVRecord record = getParsedRecords(fakeProgram.id).get(0);
+
+    assertThat(record.get("Applicant ID")).isEqualTo(applicant.id.toString());
+  }
+
+  @Test
   public void getDemographicsCsv_metadataColumns() throws Exception {
     // Times are expected to be exported in instance local time, so we choose
     // multiple timezones here to verify they're updated.

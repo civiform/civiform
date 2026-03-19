@@ -48,8 +48,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20260102.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.42.9",
-      "software.amazon.awssdk" % "ses" % "2.42.9",
+      "software.amazon.awssdk" % "s3" % "2.42.15",
+      "software.amazon.awssdk" % "ses" % "2.42.15",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
@@ -83,7 +83,7 @@ lazy val root = (project in file("."))
       "org.glassfish.jaxb" % "jaxb-runtime" % "4.0.6",
 
       // Code autogeneration
-      "org.projectlombok" % "lombok" % "1.18.42" % "provided",
+      "org.projectlombok" % "lombok" % "1.18.44" % "provided",
 
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
@@ -118,7 +118,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.5",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.25",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.26",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.7",
@@ -141,8 +141,8 @@ lazy val root = (project in file("."))
       "io.swagger" % "swagger-parser" % "1.0.75",
 
       // OpenAPI 3.x Dependencies
-      "io.swagger.core.v3" % "swagger-core" % "2.2.44",
-      "io.swagger.parser.v3" % "swagger-parser" % "2.1.38",
+      "io.swagger.core.v3" % "swagger-core" % "2.2.45",
+      "io.swagger.parser.v3" % "swagger-parser" % "2.1.39",
 
       // JSON Schema validation
       "com.networknt" % "json-schema-validator" % "2.0.1",

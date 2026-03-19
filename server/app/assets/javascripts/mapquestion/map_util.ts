@@ -81,6 +81,7 @@ export const LOCATIONS_LAYER = 'locations-layer'
 export const LOCATIONS_SOURCE = 'locations'
 export const SELECTED_LOCATION_ICON = 'locationMarkerIconSelected'
 export const POPUP_LAYER = 'open-popup'
+export const MAP_LIBRE_POPUP_CLASS = '.maplibregl-popup'
 
 export const DEFAULT_MAP_STYLE: StyleSpecification = {
   version: 8,
