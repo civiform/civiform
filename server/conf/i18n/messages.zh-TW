@@ -1062,15 +1062,15 @@ banner.minute=1 分鐘
 #------------------------------------------------------------------------------#
 
 # Header for data security banner alert
-label.immigrationStatusInfoBanner.heading=Immigrants and refugees are welcome here
+label.immigrationStatusInfoBanner.heading=歡迎移民與難民
 # Aria-label for data security banner alert
-label.immigrationStatusInfoBanner.label=Immigration status informational alert
+label.immigrationStatusInfoBanner.label=移民身份資訊警示
 # Text in the data security banner explaining how user data is protected when no learn more link is configured
-banner.immigrationStatusInfoBanner.body=We will not ask about your citizenship or immigration status.
+banner.immigrationStatusInfoBanner.body=我們不會過問您的公民或移民身份。
 # Text in the data security banner explaining how user data is protected - the placeholder says 'here' and is a link to more information
-banner.immigrationStatusInfoBanner.bodyWithLink=We will not ask about your citizenship or immigration status. You can learn more {0}.
+banner.immigrationStatusInfoBanner.bodyWithLink=我們不會過問您的公民或移民身份。您可在 {0} 進一步了解。
 # Link for more info about the data security banner
-banner.immigrationStatusInfoBanner.linkText=here
+banner.immigrationStatusInfoBanner.linkText=此處
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
@@ -1130,10 +1130,10 @@ ariaLabel.categories=類別
 # Title of the warning modal that appears when the user has been inactive for a while
 session.inactivity.warning.title=工作階段閒置警告
 # Title of the session timeout warning modals
-session.warning.title=Session ending soon
+session.warning.title=工作階段即將結束
 # Text on a button on a session ending soon modal that gives users the options to save and log in
-session.login.button.loggedIn=Log in
-session.login.button.guest=Log in or create an account
+session.login.button.loggedIn=登入
+session.login.button.guest=登入或創建帳號
 # Message shown in a modal asking the user if they want to extend their session due to inactivity
 session.inactivity.warning.message=由於閒置過久，您的工作階段即將結束。要延長工作階段嗎？
 # Title of a modal dialog displayed when a user's session is about to expire due to session length limit
@@ -1147,9 +1147,9 @@ session.extended.success=已成功延長工作階段
 # Error message shown when there was a problem extending the user's session
 session.extended.error=無法延長工作階段
 # Message shown to guest users warning that their session is about to expire due to session length
-session.length.warning.message.guest=Your session is about to expire. Please save your work and log in or create an account to continue.
+session.length.warning.message.guest=您的工作階段即將結束。請儲存工作，並登入或創建帳號來繼續。
 # Message shown to logged-in users warning that their session is about to expire due to session length
-session.length.warning.message.loggedIn=Your session is about to expire. Please save your work and log back in to continue. You will not lose your progress in the application.
+session.length.warning.message.loggedIn=您的工作階段即將結束。請儲存工作，並重新登入來繼續。您不會遺失申請進度。
 
 #------------------------------------------------------------------------------#
 #  ADMIN PROGRAM BLOCK EDIT                                                    #
@@ -1176,9 +1176,9 @@ input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
 input.repeatedSet.maxEntities=
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
-alert.repeatedSet.addQuestionDisabled=A repeated set question must first be added before repeated questions can be. Please navigate to the parent screen to add a repeated set question.
+alert.repeatedSet.addQuestionDisabled=新增重複問題前，必須先新增重複題組。請至上一層畫面新增重複題組。
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
-alert.repeatedSet.newQuestion=Creating a repeated set will add a new question to the question bank.
+alert.repeatedSet.newQuestion=建立重複題組將在題庫中新增一道題目。
 # Submission button for creating a new repeated set
 button.repeatedSet.submitNew=
 # Button for admins to add a new repeated set
@@ -1198,11 +1198,11 @@ text.repeatedSet.screenNameDescription=
 #An additional description explaining what the add question button does
 text.repeatedSet.addQuestionDescription=
 # Information shown to admins when they are adding a question to a repeated screen.
-text.repeatedQuestions.description=Add the questions you would like to be asked about each object or individual listed by the applicant. If a question you add is not already associated with the repeated set, the question will be duplicated for this repeated set in the question bank.
+text.repeatedQuestions.description=請針對申請人列出的每個物件或個人，新增您想問的問題。若您新增的問題尚未與該重複題組關聯，該問題將在題庫中複製進此重複題組。
 # Heading above the repeated set question in the program block editor
 heading.repeatedSet.question=
 # Heading above the questions section on repeated screens in the admin program screen editor.
-heading.repeatedQuestions=Repeated questions
+heading.repeatedQuestions=重複的問題
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
 description.repeatedSet.listedEntity=
 # Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
@@ -1218,7 +1218,7 @@ description.repeatedSet.chooseExistingQuestion=
 # A button for admins to add a repeated screen to a program
 button.addRepeatedScreen=
 # A button for admins to add a nested repeated set to a program
-button.addNestedRepeatedSet=Add nested repeated set
+button.addNestedRepeatedSet=新增巢狀重複題組
 # A button for admins to add a pre-existing enumerator question to a program
 button.addQuestion=
 
