@@ -1147,7 +1147,7 @@ session.extended.success=Kulanka si guul leh ayaa loo mudo dheereeyay
 # Error message shown when there was a problem extending the user's session
 session.extended.error=Waa lagu guul daraystay in la mudo dheereeyo kulanka
 # Message shown to guest users warning that their session is about to expire due to session length
-session.length.warning.message.guest=Kullankaaga wakhtigiisu wuu dhacayaa. Fadlan kaydi shaqadaada oo soo gal ama samee kooto si loo sii wado.
+session.length.warning.message.guest=Kullankaaga wuu dhici rabaa. Fadlan kaydi shaqadaada oo gal ama samee koonto si aad u sii wado.
 # Message shown to logged-in users warning that their session is about to expire due to session length
 session.length.warning.message.loggedIn=Kullankaaga wakhtigiisu wuu dhacayaa. Fadlan dib u so gel si loo sii wado. Ma waayi doontid horumarkaaga gudaha codsiga.
 
