@@ -1068,9 +1068,9 @@ label.immigrationStatusInfoBanner.label=Alerta informativa sobre estado migrator
 # Text in the data security banner explaining how user data is protected when no learn more link is configured
 banner.immigrationStatusInfoBanner.body=No te preguntaremos acerca de tu ciudadanía ni tu estado migratorio.
 # Text in the data security banner explaining how user data is protected - the placeholder says 'here' and is a link to more information
-banner.immigrationStatusInfoBanner.bodyWithLink=We will not ask about your citizenship or immigration status. You can learn more {0}.
+banner.immigrationStatusInfoBanner.bodyWithLink=No te preguntaremos acerca de tu ciudadanía ni tu estado migratorio. Puedes obtener más información al respecto {0}.
 # Link for more info about the data security banner
-banner.immigrationStatusInfoBanner.linkText=here
+banner.immigrationStatusInfoBanner.linkText=aquí
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
