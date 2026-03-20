@@ -1070,7 +1070,7 @@ banner.immigrationStatusInfoBanner.body=We will not ask about your citizenship o
 # Text in the data security banner explaining how user data is protected - the placeholder says 'here' and is a link to more information
 banner.immigrationStatusInfoBanner.bodyWithLink=We will not ask about your citizenship or immigration status. You can learn more {0}.
 # Link for more info about the data security banner
-banner.immigrationStatusInfoBanner.linkText=here
+banner.immigrationStatusInfoBanner.linkText=halkan
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
