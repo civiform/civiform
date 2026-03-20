@@ -1149,7 +1149,7 @@ session.extended.error=No se pudo extender la sesión
 # Message shown to guest users warning that their session is about to expire due to session length
 session.length.warning.message.guest=Tu sesión está por caducar. Guarda tu progreso y, luego, inicia sesión o crea una cuenta para continuar.
 # Message shown to logged-in users warning that their session is about to expire due to session length
-session.length.warning.message.loggedIn=Your session is about to expire. Please save your work and log back in to continue. You will not lose your progress in the application.
+session.length.warning.message.loggedIn=Tu sesión está por caducar. Guarda tu progreso y vuelve a iniciar sesión para continuar. No perderás dicho progreso en la aplicación.
 
 #------------------------------------------------------------------------------#
 #  ADMIN PROGRAM BLOCK EDIT                                                    #
