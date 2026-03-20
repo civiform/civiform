@@ -1068,7 +1068,7 @@ label.immigrationStatusInfoBanner.label=Immigration status informational alert
 # Text in the data security banner explaining how user data is protected when no learn more link is configured
 banner.immigrationStatusInfoBanner.body=We will not ask about your citizenship or immigration status.
 # Text in the data security banner explaining how user data is protected - the placeholder says 'here' and is a link to more information
-banner.immigrationStatusInfoBanner.bodyWithLink=We will not ask about your citizenship or immigration status. You can learn more {0}.
+banner.immigrationStatusInfoBanner.bodyWithLink=Ma waydiin doono wax ku saabsan muwaadinimada ama heerka sharciga socdaalka. Waxaad ka bar kartaa wax badan {0}.\n 
 # Link for more info about the data security banner
 banner.immigrationStatusInfoBanner.linkText=halkan
 
