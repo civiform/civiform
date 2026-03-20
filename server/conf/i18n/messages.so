@@ -1066,7 +1066,7 @@ label.immigrationStatusInfoBanner.heading=Muhaajiriinta iyo qaxootiga waxaa lagu
 # Aria-label for data security banner alert
 label.immigrationStatusInfoBanner.label=Digniinta macluumaadka heerka socdaalka
 # Text in the data security banner explaining how user data is protected when no learn more link is configured
-banner.immigrationStatusInfoBanner.body=Ma waydiin doono wax ku saabsan muwaadinimadaada ama heerka sharciga socdaalka.
+banner.immigrationStatusInfoBanner.body=Waxba kaama weydiineyno muwaadinnimadaada ama heerka socdaalkaaga.
 # Text in the data security banner explaining how user data is protected - the placeholder says 'here' and is a link to more information
 banner.immigrationStatusInfoBanner.bodyWithLink=Ma waydiin doono wax ku saabsan muwaadinimada ama heerka sharciga socdaalka. Waxaad ka bar kartaa wax badan {0}.\n 
 # Link for more info about the data security banner
