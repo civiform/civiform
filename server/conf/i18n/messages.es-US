@@ -1133,7 +1133,7 @@ session.inactivity.warning.title=Advertencia de inactividad de la sesión
 session.warning.title=La sesión terminará pronto
 # Text on a button on a session ending soon modal that gives users the options to save and log in
 session.login.button.loggedIn=Iniciar sesión
-session.login.button.guest=Log in or create an account
+session.login.button.guest=Iniciar sesión o crear una cuenta
 # Message shown in a modal asking the user if they want to extend their session due to inactivity
 session.inactivity.warning.message=Tu sesión vencerá pronto debido a la inactividad. ¿Quieres extender tu sesión?
 # Title of a modal dialog displayed when a user's session is about to expire due to session length limit
