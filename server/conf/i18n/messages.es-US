@@ -1064,7 +1064,7 @@ banner.minute=1 minuto
 # Header for data security banner alert
 label.immigrationStatusInfoBanner.heading=Immigrants and refugees are welcome here
 # Aria-label for data security banner alert
-label.immigrationStatusInfoBanner.label=Alerta informativa sobre estado migratorio
+label.immigrationStatusInfoBanner.label=Alerta informativa sobre estatus migratorio
 # Text in the data security banner explaining how user data is protected when no learn more link is configured
 banner.immigrationStatusInfoBanner.body=No te preguntaremos acerca de tu ciudadanía ni tu estatus migratorio.
 # Text in the data security banner explaining how user data is protected - the placeholder says 'here' and is a link to more information
