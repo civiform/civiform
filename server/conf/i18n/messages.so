@@ -1064,7 +1064,7 @@ banner.minute=1 daqiiqo
 # Header for data security banner alert
 label.immigrationStatusInfoBanner.heading=Muhaajiriinta iyo qaxootiga waxaa lagu soo dhaweynayaa halkan
 # Aria-label for data security banner alert
-label.immigrationStatusInfoBanner.label=Digniinta heerka socdaalka ee macluumaadka
+label.immigrationStatusInfoBanner.label=Digniinta macluumaadka heerka socdaalka
 # Text in the data security banner explaining how user data is protected when no learn more link is configured
 banner.immigrationStatusInfoBanner.body=Ma waydiin doono wax ku saabsan muwaadinimadaada ama heerka sharciga socdaalka.
 # Text in the data security banner explaining how user data is protected - the placeholder says 'here' and is a link to more information
