@@ -1130,7 +1130,7 @@ ariaLabel.categories=Qaybaha
 # Title of the warning modal that appears when the user has been inactive for a while
 session.inactivity.warning.title=Digniinta Dhaqdhaqaaq La''aanta ku''aadan Kulanka
 # Title of the session timeout warning modals
-session.warning.title=Session ending soon
+session.warning.title=Kullanka dhawaan dhammaanaya
 # Text on a button on a session ending soon modal that gives users the options to save and log in
 session.login.button.loggedIn=Log in
 session.login.button.guest=Log in or create an account
