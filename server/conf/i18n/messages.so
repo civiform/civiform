@@ -1149,7 +1149,7 @@ session.extended.error=Waa lagu guul daraystay in la mudo dheereeyo kulanka
 # Message shown to guest users warning that their session is about to expire due to session length
 session.length.warning.message.guest=Kullankaaga wuu dhici rabaa. Fadlan kaydi shaqadaada oo gal ama samee koonto si aad u sii wado.
 # Message shown to logged-in users warning that their session is about to expire due to session length
-session.length.warning.message.loggedIn=Kullankaaga wakhtigiisu wuu dhacayaa. Fadlan dib u so gel si loo sii wado. Ma waayi doontid horumarkaaga gudaha codsiga.
+session.length.warning.message.loggedIn=Kullankaaga wuu dhici rabaa. Fadlan keydi shaqadaada oo dib u gal si aad u sii wadid. Ma lumineysid hormarkaaga ee arjiga.
 
 #------------------------------------------------------------------------------#
 #  ADMIN PROGRAM BLOCK EDIT                                                    #
