@@ -230,7 +230,7 @@ public final class ProgramSlugHandler {
     try {
       return programRepository.getSlug(programId);
     } catch (ProgramNotFoundException e) {
-      throw new RuntimeException(e);
+      throw new ProgramNotFoundException(programId);
     }
   }
 
