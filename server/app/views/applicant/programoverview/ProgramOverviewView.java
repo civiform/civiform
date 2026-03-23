@@ -108,6 +108,9 @@ public class ProgramOverviewView extends ApplicantBaseView {
 
     // This works for logged-in and logged-out applicants
     String actionUrl = applicantRoutes.edit(profile, applicantId, programDefinition.id()).url();
+    if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+      actionUrl = applicantRoutes.edit(profile, applicantId, programDefinition.slug()).url();
+    }
     context.setVariable("actionUrl", actionUrl);
     context.setVariable("goBackToAdminUrl", getGoBackToAdminUrl(programDefinition));
 

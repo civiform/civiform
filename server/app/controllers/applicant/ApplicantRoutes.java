@@ -38,17 +38,6 @@ public final class ApplicantRoutes {
   }
 
   /**
-   * Returns the route corresponding to the applicant show action. Used when there is no
-   * account/applicant created yet when browsing the home page.
-   *
-   * @param programId - ID of the program to view
-   * @return Route for the program view action
-   */
-  public Call show(long programId) {
-    return controllers.applicant.routes.ApplicantProgramsController.show(String.valueOf(programId));
-  }
-
-  /**
    * Returns the program overview page
    *
    * @param programSlug - slug of the program to view
@@ -75,10 +64,16 @@ public final class ApplicantRoutes {
     }
   }
 
+  // TODO:#11090 Remove method when routes are no longer hit
   public Call edit(long programId) {
     return routes.ApplicantProgramsController.edit(Long.toString(programId));
   }
 
+  public Call edit(String programSlug) {
+    return routes.ApplicantProgramsController.edit(programSlug);
+  }
+
+  // TODO:#11090 Remove method when routes are no longer hit
   /**
    * Returns the route corresponding to the applicant edit action.
    *
@@ -93,6 +88,23 @@ public final class ApplicantRoutes {
           applicantId, Long.toString(programId));
     } else {
       return edit(programId);
+    }
+  }
+
+  /**
+   * Returns the route corresponding to the applicant edit action.
+   *
+   * @param profile - Profile corresponding to the logged-in user (applicant or TI).
+   * @param applicantId - ID of applicant for whom the action should be performed.
+   * @param programSlug - slug of program to edit
+   * @return Route for the applicant edit action
+   */
+  public Call edit(CiviFormProfile profile, long applicantId, String programSlug) {
+    if (includeApplicantIdInRoute(profile)) {
+      return controllers.applicant.routes.ApplicantProgramsController.editWithApplicantId(
+          applicantId, programSlug);
+    } else {
+      return edit(programSlug);
     }
   }
 
@@ -140,12 +152,13 @@ public final class ApplicantRoutes {
     }
   }
 
+  // TODO:#11090 Remove method when routes are no longer hit
   /**
    * Returns the route corresponding to the applicant block edit action.
    *
    * @param profile - Profile corresponding to the logged-in user (applicant or TI).
    * @param applicantId - ID of applicant for whom the action should be performed.
-   * @param programId - ID of program to review
+   * @param programId - ID of program to edit
    * @param blockId - ID of the block to edit
    * @param questionName - Name of question being edited, if applicable
    * @return Route for the applicant block edit action
@@ -165,14 +178,26 @@ public final class ApplicantRoutes {
   }
 
   /**
-   * Returns the route corresponding to the applicant block edit action without an applicant ID.
+   * Returns the route corresponding to the applicant block edit action.
    *
-   * @param programId - ID of program to edit
+   * @param profile - Profile corresponding to the logged-in user (applicant or TI).
+   * @param applicantId - ID of applicant for whom the action should be performed.
+   * @param programSlug - slug of program to edit
+   * @param blockId - ID of the block to edit
+   * @param questionName - Name of question being edited, if applicable
    * @return Route for the applicant block edit action
    */
-  public Call blockEdit(long programId) {
-    return routes.ApplicantProgramBlocksController.edit(
-        Long.toString(programId), /* blockId= */ "1", /* questionName= */ Optional.empty());
+  public Call blockEdit(
+      CiviFormProfile profile,
+      long applicantId,
+      String programSlug,
+      String blockId,
+      Optional<String> questionName) {
+    if (includeApplicantIdInRoute(profile)) {
+      return routes.ApplicantProgramBlocksController.editWithApplicantId(
+          applicantId, programSlug, blockId, questionName);
+    }
+    return routes.ApplicantProgramBlocksController.edit(programSlug, blockId, questionName);
   }
 
   /**
