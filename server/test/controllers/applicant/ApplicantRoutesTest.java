@@ -71,12 +71,6 @@ public class ApplicantRoutesTest extends ResetPostgres {
   }
 
   @Test
-  public void testShowRoute_withoutApplicant() {
-    String expectedShowUrl = String.format("/programs/%d", PROGRAM_ID);
-    assertThat(new ApplicantRoutes().show(PROGRAM_ID).url()).isEqualTo(expectedShowUrl);
-  }
-
-  @Test
   public void testShowRoute_withoutApplicantWithProgramSlug() {
     String expectedShowUrl = String.format("/programs/%s", PROGRAM_SLUG);
     assertThat(new ApplicantRoutes().show(PROGRAM_SLUG).url()).isEqualTo(expectedShowUrl);

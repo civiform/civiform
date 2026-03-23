@@ -1199,6 +1199,17 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
               if (canNavigateAwayFromBlockImmediately(
                   formData, applicantRequestedAction, optionalBlockBeforeUpdate)) {
+                if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+                  return redirectToRequestedPage(
+                      profile,
+                      applicantId,
+                      programSlugHandler.getProgramSlug(String.valueOf(programId)),
+                      blockId,
+                      inReview,
+                      applicantRequestedAction,
+                      readOnlyApplicantProgramService,
+                      /* flashingMap= */ ImmutableMap.of());
+                }
                 return redirectToRequestedPage(
                     profile,
                     applicantId,
@@ -1318,6 +1329,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request);
 
+    String programSlug = programSlugHandler.getProgramSlug(String.valueOf(programId));
+
     // Validation errors: re-render this block with errors and previously entered data.
     if (thisBlockUpdated.hasErrors()) {
       ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode;
@@ -1343,12 +1356,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     errorDisplayMode,
                     applicantRoutes,
                     submittingProfile);
-            final String programSlug;
-            try {
-              programSlug = programService.getSlug(programId);
-            } catch (ProgramNotFoundException e) {
-              return notFound(e.toString());
-            }
             return ok(applicantProgramBlockEditView.render(request, applicationParams, programSlug))
                 .as(Http.MimeTypes.HTML);
           });
@@ -1402,7 +1409,17 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
 
     Map<String, String> flashingMap = new HashMap<>();
-
+    if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+      return redirectToRequestedPage(
+          profile,
+          applicantId,
+          programSlug,
+          blockId,
+          inReview,
+          applicantRequestedAction,
+          roApplicantProgramService,
+          flashingMap);
+    }
     return redirectToRequestedPage(
         profile,
         applicantId,
@@ -1445,6 +1462,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         });
   }
 
+  // TODO: remove this method when remove program slug feature flag
   /** Returns the correct page based on the given {@code applicantRequestedAction}. */
   private CompletionStage<Result> redirectToRequestedPage(
       CiviFormProfile profile,
@@ -1487,6 +1505,50 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             () ->
                 supplyAsync(
                     () -> redirect(applicantRoutes.review(profile, applicantId, programId))));
+  }
+
+  /** Returns the correct page based on the given {@code applicantRequestedAction}. */
+  private CompletionStage<Result> redirectToRequestedPage(
+      CiviFormProfile profile,
+      long applicantId,
+      String programSlug,
+      String blockId,
+      boolean inReview,
+      ApplicantRequestedAction applicantRequestedAction,
+      ReadOnlyApplicantProgramService roApplicantProgramService,
+      Map<String, String> flashingMap) {
+    if (applicantRequestedAction == REVIEW_PAGE) {
+      return supplyAsync(() -> redirect(applicantRoutes.review(profile, applicantId, programSlug)));
+    }
+    if (applicantRequestedAction == PREVIOUS_BLOCK) {
+      int currentBlockIndex = roApplicantProgramService.getBlockIndex(blockId);
+      return supplyAsync(
+          () ->
+              redirect(
+                  applicantRoutes
+                      .blockPreviousOrReview(
+                          profile, applicantId, programSlug, currentBlockIndex, inReview)
+                      .url()));
+    }
+
+    Optional<String> nextBlockIdMaybe =
+        inReview
+            ? roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().map(Block::getId)
+            : roApplicantProgramService.getInProgressBlockAfter(blockId).map(Block::getId);
+    return nextBlockIdMaybe
+        .map(
+            nextBlockId ->
+                supplyAsync(
+                    () ->
+                        redirect(
+                                applicantRoutes.blockEditOrBlockReview(
+                                    profile, applicantId, programSlug, nextBlockId, inReview))
+                            .flashing(flashingMap)))
+        // No next block so go to the program review page.
+        .orElseGet(
+            () ->
+                supplyAsync(
+                    () -> redirect(applicantRoutes.review(profile, applicantId, programSlug))));
   }
 
   /**
