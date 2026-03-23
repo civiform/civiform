@@ -57,20 +57,20 @@ public class SessionTimeoutServiceTest {
 
   @Test
   public void isSessionTimedOut_noTimeout() {
-    long lastActivityTime = getTimeMinutesAgo(10);
-    when(profileData.getLastActivityTime(clock)).thenReturn(lastActivityTime);
+    long lastSessionActivityTime = getTimeMinutesAgo(10);
+    when(profileData.getLastSessionActivityTime(clock)).thenReturn(lastSessionActivityTime);
 
-    boolean result = sessionTimeoutService.isSessionTimedOut(profile, lastActivityTime);
+    boolean result = sessionTimeoutService.isSessionTimedOut(profile, lastSessionActivityTime);
 
     assertThat(result).isFalse();
   }
 
   @Test
   public void isSessionTimedOut_inactivityTimeout() {
-    long lastActivityTime = getTimeMinutesAgo(INACTIVITY_TIMEOUT_MINUTES + 1);
-    when(profileData.getLastActivityTime(clock)).thenReturn(lastActivityTime);
+    long lastSessionActivityTime = getTimeMinutesAgo(INACTIVITY_TIMEOUT_MINUTES + 1);
+    when(profileData.getLastSessionActivityTime(clock)).thenReturn(lastSessionActivityTime);
 
-    boolean result = sessionTimeoutService.isSessionTimedOut(profile, lastActivityTime);
+    boolean result = sessionTimeoutService.isSessionTimedOut(profile, lastSessionActivityTime);
 
     assertThat(result).isTrue();
   }
@@ -78,7 +78,7 @@ public class SessionTimeoutServiceTest {
   @Test
   public void isSessionTimedOut_totalDurationTimeout() {
     long sessionStartTime = getTimeMinutesAgo(MAX_SESSION_DURATION_MINUTES + 1);
-    when(profileData.getLastActivityTime(clock))
+    when(profileData.getLastSessionActivityTime(clock))
         .thenReturn(CURRENT_TIME * 1000 - 10 * 60 * 1000); // Recent activity
 
     boolean result = sessionTimeoutService.isSessionTimedOut(profile, sessionStartTime);
@@ -89,19 +89,19 @@ public class SessionTimeoutServiceTest {
   @Test
   public void calculateTimeoutData_allValuesPresent() {
     long sessionStartTime = getTimeMinutesAgo(30);
-    long lastActivityTime = getTimeMinutesAgo(10);
-    when(profileData.getLastActivityTime(clock)).thenReturn(lastActivityTime);
+    long lastSessionActivityTime = getTimeMinutesAgo(10);
+    when(profileData.getLastSessionActivityTime(clock)).thenReturn(lastSessionActivityTime);
 
     SessionTimeoutService.TimeoutData timeoutData =
         sessionTimeoutService.calculateTimeoutData(profile, sessionStartTime);
 
     assertThat(timeoutData.inactivityTimeout())
-        .isEqualTo(lastActivityTime / 1000 + INACTIVITY_TIMEOUT_MINUTES * 60);
+        .isEqualTo(lastSessionActivityTime / 1000 + INACTIVITY_TIMEOUT_MINUTES * 60);
     assertThat(timeoutData.totalTimeout())
         .isEqualTo(sessionStartTime / 1000 + MAX_SESSION_DURATION_MINUTES * 60);
     assertThat(timeoutData.inactivityWarning())
         .isEqualTo(
-            lastActivityTime / 1000
+            lastSessionActivityTime / 1000
                 + (INACTIVITY_TIMEOUT_MINUTES - INACTIVITY_WARNING_MINUTES) * 60);
     assertThat(timeoutData.totalWarning())
         .isEqualTo(
@@ -122,7 +122,7 @@ public class SessionTimeoutServiceTest {
   @Test
   public void missingMaxSessionDuration_throwsException() {
     when(settings.getMaximumSessionDurationMinutes()).thenReturn(Optional.empty());
-    when(profileData.getLastActivityTime(clock)).thenReturn(getTimeMinutesAgo(10));
+    when(profileData.getLastSessionActivityTime(clock)).thenReturn(getTimeMinutesAgo(10));
 
     assertThatThrownBy(
             () -> sessionTimeoutService.isSessionTimedOut(profile, getTimeMinutesAgo(10)))
@@ -132,20 +132,22 @@ public class SessionTimeoutServiceTest {
   @Test
   public void missingSessionDurationWarningThreshold_throwsException() {
     when(settings.getSessionDurationWarningThresholdMinutes()).thenReturn(Optional.empty());
-    long lastActivityTime = getTimeMinutesAgo(10);
-    when(profileData.getLastActivityTime(clock)).thenReturn(lastActivityTime);
+    long lastSessionActivityTime = getTimeMinutesAgo(10);
+    when(profileData.getLastSessionActivityTime(clock)).thenReturn(lastSessionActivityTime);
 
-    assertThatThrownBy(() -> sessionTimeoutService.calculateTimeoutData(profile, lastActivityTime))
+    assertThatThrownBy(
+            () -> sessionTimeoutService.calculateTimeoutData(profile, lastSessionActivityTime))
         .isInstanceOf(NoSuchElementException.class);
   }
 
   @Test
   public void missingSessionInactivityWarningThreshold_throwsException() {
     when(settings.getSessionInactivityWarningThresholdMinutes()).thenReturn(Optional.empty());
-    long lastActivityTime = getTimeMinutesAgo(10);
-    when(profileData.getLastActivityTime(clock)).thenReturn(lastActivityTime);
+    long lastSessionActivityTime = getTimeMinutesAgo(10);
+    when(profileData.getLastSessionActivityTime(clock)).thenReturn(lastSessionActivityTime);
 
-    assertThatThrownBy(() -> sessionTimeoutService.calculateTimeoutData(profile, lastActivityTime))
+    assertThatThrownBy(
+            () -> sessionTimeoutService.calculateTimeoutData(profile, lastSessionActivityTime))
         .isInstanceOf(NoSuchElementException.class);
   }
 }

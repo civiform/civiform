@@ -41,11 +41,12 @@ public final class SessionTimeoutService {
 
   private boolean isSessionTimedOutDueToInactivity(CiviFormProfile profile) {
     long currentTimeInMillis = clock.millis();
-    long lastActivityTimeInMillis = profile.getProfileData().getLastActivityTime(clock);
+    long lastSessionActivityTimeInMillis =
+        profile.getProfileData().getLastSessionActivityTime(clock);
 
     long inactivityTimeoutInMillis = getInactivityTimeoutMillis();
 
-    return (currentTimeInMillis - lastActivityTimeInMillis) > inactivityTimeoutInMillis;
+    return (currentTimeInMillis - lastSessionActivityTimeInMillis) > inactivityTimeoutInMillis;
   }
 
   /**
@@ -66,12 +67,13 @@ public final class SessionTimeoutService {
     int durationWarningMinutes =
         settingsManifest.get().getSessionDurationWarningThresholdMinutes().orElseThrow();
 
-    long lastActivityTimeInSeconds = profile.getProfileData().getLastActivityTime(clock) / 1000;
+    long lastSessionActivityTimeInSeconds =
+        profile.getProfileData().getLastSessionActivityTime(clock) / 1000;
     return new TimeoutData(
-        calculateTimeoutLimit(lastActivityTimeInSeconds, inactivityMinutes),
+        calculateTimeoutLimit(lastSessionActivityTimeInSeconds, inactivityMinutes),
         calculateTimeoutLimit(sessionStartTimeInSeconds, totalLengthMinutes),
         calculateWarningTime(
-            lastActivityTimeInSeconds, inactivityMinutes, inactivityWarningMinutes),
+            lastSessionActivityTimeInSeconds, inactivityMinutes, inactivityWarningMinutes),
         calculateWarningTime(sessionStartTimeInSeconds, totalLengthMinutes, durationWarningMinutes),
         currentTime);
   }

@@ -131,7 +131,7 @@ public class CiviFormSessionFilterTest extends WithApplication {
     Result result = executeFilter(request);
 
     assertThat(result.status()).isEqualTo(200);
-    verify(mockProfileData, never()).updateLastActivityTime(clock);
+    verify(mockProfileData, never()).updateLastSessionActivityTime(clock);
   }
 
   @Test
@@ -235,7 +235,7 @@ public class CiviFormSessionFilterTest extends WithApplication {
     Result result = executeFilter(request);
 
     verify(sessionTimeoutService).calculateTimeoutData(eq(mockProfile), anyLong());
-    verify(mockProfileData).updateLastActivityTime(clock);
+    verify(mockProfileData).updateLastSessionActivityTime(clock);
 
     Optional<Http.Cookie> cookie = result.cookies().get(TIMEOUT_COOKIE_NAME);
     assertThat(cookie).isPresent();

@@ -25,12 +25,7 @@ import repository.DatabaseExecutionContext;
 public class CiviFormProfileData extends CommonProfile {
   public static final String SESSION_ID = "sessionId";
 
-  /**
-   * TODO: There are two "last activity time" implementations: this session-level attribute (used
-   * for session timeout) and {@link models.AccountModel#getLastActivityTime()} (DB column, updated
-   * on every save). Reconcile into one or rename to clarify their distinct purposes.
-   */
-  public static final String LAST_ACTIVITY_TIME = "lastActivityTime";
+  public static final String LAST_SESSION_ACTIVITY_TIME = "lastSessionActivityTime";
 
   // It is crucial that serialization of this class does not change, so that user profiles continue
   // to be honored and in-progress applications are not lost.
@@ -51,7 +46,7 @@ public class CiviFormProfileData extends CommonProfile {
   public CiviFormProfileData(Long accountId, Clock clock) {
     this();
     this.setId(accountId.toString());
-    addAttribute(LAST_ACTIVITY_TIME, clock.instant().toEpochMilli());
+    addAttribute(LAST_SESSION_ACTIVITY_TIME, clock.instant().toEpochMilli());
   }
 
   /**
@@ -79,8 +74,8 @@ public class CiviFormProfileData extends CommonProfile {
     return getAttributeAsString(SESSION_ID);
   }
 
-  public void updateLastActivityTime(Clock clock) {
-    addAttribute(LAST_ACTIVITY_TIME, clock.instant().toEpochMilli());
+  public void updateLastSessionActivityTime(Clock clock) {
+    addAttribute(LAST_SESSION_ACTIVITY_TIME, clock.instant().toEpochMilli());
   }
 
   /**
@@ -89,8 +84,9 @@ public class CiviFormProfileData extends CommonProfile {
    * is not present. This effectively gives legacy sessions a fresh activity timestamp when the
    * timeout feature is first enabled.
    */
-  public long getLastActivityTime(Clock clock) {
-    return (Long) getAttributes().getOrDefault(LAST_ACTIVITY_TIME, clock.instant().toEpochMilli());
+  public long getLastSessionActivityTime(Clock clock) {
+    return (Long)
+        getAttributes().getOrDefault(LAST_SESSION_ACTIVITY_TIME, clock.instant().toEpochMilli());
   }
 
   /**
