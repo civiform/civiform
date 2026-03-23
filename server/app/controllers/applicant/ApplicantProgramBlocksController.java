@@ -1088,7 +1088,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
   @Secure
   public CompletionStage<Result> hxSelectFileForUpload(
-      Request request, String programParam, String blockId) {
+      Request request, long programId, String blockId) {
     if (!settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
       return CompletableFuture.completedFuture(notFound());
     }
@@ -1099,24 +1099,18 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
 
     return hxSelectFileForUploadWithApplicantId(
-        request, optionalApplicantId.get(), programParam, blockId);
+        request, optionalApplicantId.get(), programId, blockId);
   }
 
   @Secure
   public CompletionStage<Result> hxSelectFileForUploadWithApplicantId(
-      Request request, long applicantId, String programParam, String blockId) {
+      Request request, long applicantId, long programId, String blockId) {
     if (!settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
       return CompletableFuture.completedFuture(notFound());
     }
 
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, programSlugUrlEnabled)
-        .thenCompose(
-            programId -> {
-              // TODO: Perform file upload
-              return CompletableFuture.completedFuture(ok());
-            });
+    // TODO: Perform file upload
+    return CompletableFuture.completedFuture(ok());
   }
 
   /**
