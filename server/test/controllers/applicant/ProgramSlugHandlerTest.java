@@ -641,4 +641,11 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
     assertThat(resultSlug).isEqualTo(programSlug);
   }
+
+  @Test
+  public void getProgramSlug_withBadProgramId_throwsRuntimeException() throws Exception {
+    assertThatThrownBy(() -> instanceOf(ProgramSlugHandler.class).getProgramSlug("1234"))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("services.program.ProgramNotFoundException: Program not found for ID: 1234");
+  }
 }
