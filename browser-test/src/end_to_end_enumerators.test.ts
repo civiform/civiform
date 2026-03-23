@@ -1103,6 +1103,10 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Verify that the repeated question associated with this enumerator is in the previously-used section', async () => {
+        const previouslyUsedSection = page.locator(
+          '#question-bank-previously-used',
+        )
+
         await expect(
           page.getByRole('heading', {
             name: 'Previously used for this repeated set',
@@ -1114,10 +1118,12 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           ),
         ).toBeVisible()
         await expect(
-          page.getByText('Admin ID: enumerator-pets-repeated-colors'),
+          previouslyUsedSection.getByText(
+            'Admin ID: enumerator-pets-repeated-colors',
+          ),
         ).toBeVisible()
         await validateScreenshot(
-          page.locator('#question-bank-previously-used'),
+          previouslyUsedSection,
           'question-bank-previously-used-section',
           {
             fullPage: false,
