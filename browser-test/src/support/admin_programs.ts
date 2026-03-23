@@ -1369,11 +1369,26 @@ export class AdminPrograms {
   }
 
   async openQuestionBank() {
+    const questionBankContainer = this.page.locator(
+      '#cf-question-bank-container',
+    )
+    if (await questionBankContainer.isVisible()) {
+      await this.waitForQuestionBankAnimationToFinish()
+      return
+    }
+
     await this.page.getByRole('button', {name: /^Add( a)? question$/}).click()
     await this.waitForQuestionBankAnimationToFinish()
   }
 
   async closeQuestionBank() {
+    const questionBankContainer = this.page.locator(
+      '#cf-question-bank-container',
+    )
+    if (!(await questionBankContainer.isVisible())) {
+      return
+    }
+
     await this.page.click('button.cf-close-question-bank-button')
     await this.waitForQuestionBankAnimationToFinish()
   }
@@ -1404,6 +1419,17 @@ export class AdminPrograms {
         : '#question-bank-nonuniversal ' + loc,
     )
     return titles.allTextContents()
+  }
+
+  async questionBankNamesInSection(sectionId: string): Promise<string[]> {
+    const titles = this.page.locator(
+      `#${sectionId} .cf-question-bank-element:visible .cf-question-title`,
+    )
+    return titles.allTextContents()
+  }
+
+  async previouslyUsedQuestionBankNames(): Promise<string[]> {
+    return this.questionBankNamesInSection('question-bank-previously-used')
   }
 
   /**
