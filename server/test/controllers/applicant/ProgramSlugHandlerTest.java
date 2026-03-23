@@ -29,6 +29,7 @@ import play.i18n.Lang;
 import play.i18n.Langs;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.ClassLoaderExecutionContext;
+import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.AccountRepository;
 import repository.ProgramRepository;
@@ -470,6 +471,59 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
         .contains(
             controllers.applicant.routes.ApplicantProgramsController.edit(
                     String.valueOf(programDefinition.id()))
+                .url());
+  }
+
+  @Test
+  public void showProgramPreview_withProgramSlugFlag_withPreScreener_loadsFirstBlockPage() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActivePreScreenerForm("test pre-screener").buildDefinition();
+
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+
+    Langs mockLangs = mock(Langs.class);
+    when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
+
+    SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
+    Request request = fakeRequestBuilder().build();
+    when(mockSettingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    ApplicationModel app =
+        new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.ACTIVE);
+    app.save();
+
+    LanguageUtils languageUtils =
+        new LanguageUtils(
+            instanceOf(AccountRepository.class),
+            mockLangs,
+            mockSettingsManifest,
+            instanceOf(MessagesApi.class));
+    CiviFormController controller = instanceOf(CiviFormController.class);
+    ApplicantRoutes applicantRoutes = instanceOf(ApplicantRoutes.class);
+
+    ProgramSlugHandler handler =
+        new ProgramSlugHandler(
+            instanceOf(ClassLoaderExecutionContext.class),
+            instanceOf(ApplicantService.class),
+            instanceOf(ProfileUtils.class),
+            instanceOf(ProgramService.class),
+            languageUtils,
+            applicantRoutes,
+            instanceOf(ProgramOverviewView.class),
+            instanceOf(MessagesApi.class),
+            mockSettingsManifest,
+            instanceOf(ProgramRepository.class));
+    Result result =
+        handler
+            .showProgramPreview(controller, request, programDefinition.slug())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+
+    assertThat(result.redirectLocation())
+        .contains(
+            controllers.applicant.routes.ApplicantProgramsController.edit(programDefinition.slug())
                 .url());
   }
 
