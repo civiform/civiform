@@ -1140,6 +1140,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(
           page.getByText('Admin ID: enumerator-ete-repeated-name'),
         ).toBeHidden()
+        await adminPrograms.closeQuestionBank()
       })
 
       await test.step('Add the previously-used repeated question and verify the previously-used section no longer appears', async () => {
