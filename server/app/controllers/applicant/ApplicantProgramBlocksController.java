@@ -1086,6 +1086,39 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             });
   }
 
+  @Secure
+  public CompletionStage<Result> hxSelectFileForUpload(
+      Request request, String programParam, String blockId) {
+    if (!settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
+      return CompletableFuture.completedFuture(notFound());
+    }
+
+    Optional<Long> optionalApplicantId = getApplicantId(request);
+    if (optionalApplicantId.isEmpty()) {
+      return CompletableFuture.completedFuture(badRequest());
+    }
+
+    return hxSelectFileForUploadWithApplicantId(
+        request, optionalApplicantId.get(), programParam, blockId);
+  }
+
+  @Secure
+  public CompletionStage<Result> hxSelectFileForUploadWithApplicantId(
+      Request request, long applicantId, String programParam, String blockId) {
+    if (!settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
+      return CompletableFuture.completedFuture(notFound());
+    }
+
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    return programSlugHandler
+        .resolveProgramParam(programParam, applicantId, programSlugUrlEnabled)
+        .thenCompose(
+            programId -> {
+              // TODO: Perform file upload
+              return CompletableFuture.completedFuture(ok());
+            });
+  }
+
   /**
    * Accepts, validates and saves submission of applicant data for {@code blockId}.
    *
