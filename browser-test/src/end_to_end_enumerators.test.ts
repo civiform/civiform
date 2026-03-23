@@ -1103,10 +1103,6 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Verify that the repeated question associated with this enumerator is in the previously-used section', async () => {
-        const previouslyUsedSection = page.locator(
-          '#question-bank-previously-used',
-        )
-
         await expect(
           page.getByRole('heading', {
             name: 'Previously used for this repeated set',
@@ -1118,12 +1114,10 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           ),
         ).toBeVisible()
         await expect(
-          previouslyUsedSection.getByText(
-            'Admin ID: enumerator-pets-repeated-colors',
-          ),
+          page.getByText('Admin ID: enumerator-pets-repeated-colors'),
         ).toBeVisible()
         await validateScreenshot(
-          previouslyUsedSection,
+          page.locator('#question-bank-previously-used'),
           'question-bank-previously-used-section',
           {
             fullPage: false,
@@ -1139,6 +1133,17 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       await test.step('Verify that the question bank does not have repeated questions that are associated with other enumerators', async () => {
         await expect(
           page.getByText('Admin ID: enumerator-ete-repeated-name'),
+        ).toBeHidden()
+      })
+
+      await test.step('Add the previously-used repeated question and verify the previously-used section no longer appears', async () => {
+        await adminPrograms.addQuestionFromQuestionBank(
+          'enumerator-pets-repeated-colors',
+        )
+
+        await page.getByRole('button', {name: 'Add question'}).click()
+        await expect(
+          page.locator('#question-bank-previously-used'),
         ).toBeHidden()
         await page.getByRole('button', {name: 'Close'}).click()
       })

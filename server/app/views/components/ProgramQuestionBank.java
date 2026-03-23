@@ -25,8 +25,10 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Stream;
 import org.apache.http.client.utils.URIBuilder;
+import play.i18n.Messages;
 import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
+import services.MessageKey;
 import services.ProgramBlockValidation;
 import services.ProgramBlockValidation.AddQuestionResult;
 import services.ProgramBlockValidationFactory;
@@ -56,6 +58,7 @@ public final class ProgramQuestionBank {
   private final ProgramQuestionBankParams params;
   private final ProgramBlockValidationFactory programBlockValidationFactory;
   private final SettingsManifest settingsManifest;
+  private final Messages messages;
   private final Http.Request request;
 
   /**
@@ -72,10 +75,12 @@ public final class ProgramQuestionBank {
       ProgramQuestionBankParams params,
       ProgramBlockValidationFactory programBlockValidationFactory,
       SettingsManifest settingsManifest,
+      Messages messages,
       Http.Request request) {
     this.params = checkNotNull(params);
     this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.messages = checkNotNull(messages);
     this.request = checkNotNull(request);
   }
 
@@ -206,12 +211,11 @@ public final class ProgramQuestionBank {
               .withId("question-bank-previously-used")
               .withClasses(ReferenceClasses.SORTABLE_QUESTIONS_CONTAINER)
               .with(
-                  h2("Previously used for this repeated set")
+                  h2(messages.at(MessageKey.HEADING_REPEATED_SET_PREVIOUSLY_USED.getKeyName()))
                       .withClasses(AdminStyles.SEMIBOLD_HEADER))
               .with(
                   AlertComponent.renderSlimInfoAlert(
-                      "Questions that are associated with a different repeated set are not"
-                          + " available to be added."))
+                      messages.at(MessageKey.ALERT_REPEATED_SET_PREVIOUSLY_USED.getKeyName())))
               .with(
                   each(previouslyUsedForRepeatedSetQuestions, qd -> renderQuestionDefinition(qd))));
     }
