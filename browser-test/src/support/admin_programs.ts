@@ -1934,7 +1934,7 @@ export class AdminPrograms {
     })
     await this.page.click(':is(button:has-text("Address correction"))')
     await responsePromise
-    await this.page.waitForLoadState()
+    await waitForPageJsLoad(this.page)
   }
 
   async clickAddressCorrectionToggleByName(questionName: string) {
