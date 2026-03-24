@@ -1219,6 +1219,53 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void getFirstBlockRequiringAction_skipsBlockWithCorrectedAddress_fromAnotherProgram() {
+    ProgramDefinition programWithCorrection1 =
+        ProgramBuilder.newDraftProgram("Program with corrected address 1")
+            .withBlock("Block one")
+            .withRequiredQuestionDefinition(nameQuestion)
+            .withBlock("Block two")
+            .withRequiredCorrectedAddressQuestion(testQuestionBank.addressApplicantAddress())
+            .buildDefinition();
+
+    ProgramDefinition programWithCorrection2 =
+        ProgramBuilder.newDraftProgram("Program with corrected address 2")
+            .withBlock("Block one")
+            .withRequiredQuestionDefinition(nameQuestion)
+            .withBlock("Block two")
+            .withRequiredCorrectedAddressQuestion(testQuestionBank.addressApplicantAddress())
+            .buildDefinition();
+
+    answerNameQuestion(programWithCorrection1.id());
+
+    Path addressPath = Path.create("applicant.applicant_address");
+    QuestionAnswerer.answerAddressQuestion(
+        applicantData,
+        addressPath,
+        "123 Rhode St.",
+        "",
+        "Seattle",
+        "WA",
+        "12345",
+        "Corrected",
+        47.6,
+        -122.3,
+        1234L,
+        ImmutableList.of());
+    QuestionAnswerer.addMetadata(applicantData, addressPath, programWithCorrection1.id(), 12345L);
+
+    answerNameQuestion(programWithCorrection2.id());
+
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramService(
+            jsonPathPredicateGeneratorFactory, applicant, applicantData, programWithCorrection2);
+
+    Optional<Block> maybeBlock = subject.getFirstBlockRequiringAction(/* includeStatic= */ true);
+
+    assertThat(maybeBlock).isEmpty();
+  }
+
+  @Test
   public void preferredLanguageSupported_returnsTrueForDefaults() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
