@@ -940,6 +940,119 @@ public class BlockTest {
   }
 
   @Test
+  public void hasAddressQuestionWithUncorrectedAddress_noAddressQuestion_returnsFalse() {
+    ApplicantData applicantData = new ApplicantData();
+    long programId = 5L;
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("name")
+            .setDescription("desc")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("desc"))
+            .addQuestion(ProgramQuestionDefinition.create(NAME_QUESTION, Optional.of(programId)))
+            .build();
+
+    Block block = makeUnrepeatedBlock("id", blockDefinition, new ApplicantModel(), applicantData);
+    assertThat(block.hasAddressQuestionWithUncorrectedAddress()).isFalse();
+  }
+
+  @Test
+  public void hasAddressQuestionWithUncorrectedAddress_correctionDisabled_returnsFalse() {
+    ApplicantData applicantData = new ApplicantData();
+    long programId = 5L;
+    ProgramQuestionDefinition pqd =
+        ProgramQuestionDefinition.create(
+                testQuestionBank.addressApplicantAddress().getQuestionDefinition(),
+                Optional.of(programId))
+            .setAddressCorrectionEnabled(false);
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("name")
+            .setDescription("desc")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("desc"))
+            .addQuestion(pqd)
+            .build();
+
+    Path path = Path.create("applicant.applicant_address");
+    QuestionAnswerer.answerAddressQuestion(
+        applicantData, path, "123 Rhode St.", "", "Seattle", "WA", "12345");
+    QuestionAnswerer.addMetadata(applicantData, path, programId, 12345L);
+
+    Block block = makeUnrepeatedBlock("id", blockDefinition, new ApplicantModel(), applicantData);
+    assertThat(block.hasAddressQuestionWithUncorrectedAddress()).isFalse();
+  }
+
+  @Test
+  public void hasAddressQuestionWithUncorrectedAddress_answeredNotCorrected_returnsTrue() {
+    ApplicantData applicantData = new ApplicantData();
+    long programId = 5L;
+    ProgramQuestionDefinition pqd =
+        ProgramQuestionDefinition.create(
+                testQuestionBank.addressApplicantAddress().getQuestionDefinition(),
+                Optional.of(programId))
+            .setAddressCorrectionEnabled(true);
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("name")
+            .setDescription("desc")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("desc"))
+            .addQuestion(pqd)
+            .build();
+
+    Path path = Path.create("applicant.applicant_address");
+    QuestionAnswerer.answerAddressQuestion(
+        applicantData, path, "123 Rhode St.", "", "Seattle", "WA", "12345");
+    QuestionAnswerer.addMetadata(applicantData, path, programId, 12345L);
+
+    Block block = makeUnrepeatedBlock("id", blockDefinition, new ApplicantModel(), applicantData);
+    assertThat(block.hasAddressQuestionWithUncorrectedAddress()).isTrue();
+  }
+
+  @Test
+  public void hasAddressQuestionWithUncorrectedAddress_alreadyCorrected_returnsFalse() {
+    ApplicantData applicantData = new ApplicantData();
+    long programId = 5L;
+    ProgramQuestionDefinition pqd =
+        ProgramQuestionDefinition.create(
+                testQuestionBank.addressApplicantAddress().getQuestionDefinition(),
+                Optional.of(programId))
+            .setAddressCorrectionEnabled(true);
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("name")
+            .setDescription("desc")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("desc"))
+            .addQuestion(pqd)
+            .build();
+
+    Path path = Path.create("applicant.applicant_address");
+    QuestionAnswerer.answerAddressQuestion(
+        applicantData,
+        path,
+        "123 Rhode St.",
+        "",
+        "Seattle",
+        "WA",
+        "12345",
+        "Corrected",
+        47.6,
+        -122.3,
+        1234L,
+        ImmutableList.of());
+    QuestionAnswerer.addMetadata(applicantData, path, programId, 12345L);
+
+    Block block = makeUnrepeatedBlock("id", blockDefinition, new ApplicantModel(), applicantData);
+    assertThat(block.hasAddressQuestionWithUncorrectedAddress()).isFalse();
+  }
+
+  @Test
   public void getQuestions_filtersOutHiddenQuestions() {
     ApplicantData applicantData = new ApplicantData();
     long programId = 5L;
