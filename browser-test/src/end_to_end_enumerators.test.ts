@@ -745,9 +745,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(blockPanel.locator('#questions-section')).toBeHidden()
       })
 
-      await test.step('Validate that "Add a question" button is not visible', async () => {
+      await test.step('Validate that "Add question" button is not visible', async () => {
         await expect(
-          blockPanel.getByRole('button', {name: 'Add a question'}),
+          blockPanel.getByRole('button', {name: 'Add question'}),
         ).toBeHidden()
       })
 
@@ -997,8 +997,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       page,
     }) => {
       const blockPanel = page.getByTestId('block-panel-edit')
+      const questionsSection = blockPanel.locator('#questions-section')
       const addQuestionButton = blockPanel.getByRole('button', {
-        name: 'Add a question',
+        name: 'Add question',
       })
       const repeatedSetAlert = blockPanel.getByRole('alert').filter({
         hasText:
@@ -1016,6 +1017,25 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         )
       })
 
+      await test.step('Verify repeated questions section content before enumerator question is saved', async () => {
+        await expect(
+          questionsSection.getByText('Repeated questions', {exact: true}),
+        ).toBeVisible()
+        await expect(
+          questionsSection.getByText(
+            'Add the questions you would like to be asked about each object or individual listed by the applicant.',
+          ),
+        ).toBeVisible()
+
+        await validateScreenshot(
+          questionsSection,
+          'repeated-questions-section-before-save',
+          {
+            fullPage: false,
+          },
+        )
+      })
+
       await test.step('Verify add-question is disabled and alert is visible before enumerator question is saved', async () => {
         await expect(addQuestionButton).toBeDisabled()
         await expect(repeatedSetAlert).toBeVisible()
@@ -1026,7 +1046,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await fillOutEnumeratorQuestionFormCorrectly(page)
       })
 
-      await test.step('Return to repeated screen and verify Add a question is enabled and alert is hidden', async () => {
+      await test.step('Return to repeated screen and verify Add question is enabled and alert is hidden', async () => {
         await navigateToRepeatedScreen(page, 3, 2)
         await expect(addQuestionButton).toBeEnabled()
         await expect(repeatedSetAlert).toBeHidden()
@@ -1076,36 +1096,101 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Verify that the question bank has all non-repeated questions', async () => {
-        await page.getByRole('button', {name: 'Add a question'}).click()
+        await page.getByRole('button', {name: 'Add question'}).click()
         await expect(
           page.getByText('Admin ID: income-non-repeated-question'),
         ).toBeVisible()
       })
 
-      await test.step('Verify that the question bank has the repeated question that is associated with this enumerator', async () => {
+      await test.step('Verify that the repeated question associated with this enumerator is in the previously-used section', async () => {
+        const previouslyUsedSection = page.locator(
+          '#question-bank-previously-used',
+        )
+
         await expect(
-          page.getByText('Admin ID: enumerator-pets-repeated-colors'),
+          page.getByRole('heading', {
+            name: 'Previously used for this repeated set',
+          }),
         ).toBeVisible()
+        await expect(
+          page.getByText(
+            'Questions that are associated with a different repeated set are not available to be added.',
+          ),
+        ).toBeVisible()
+        await expect(
+          previouslyUsedSection.getByText(
+            'Admin ID: enumerator-pets-repeated-colors',
+          ),
+        ).toBeVisible()
+        await validateScreenshot(
+          previouslyUsedSection,
+          'question-bank-previously-used-section',
+          {
+            fullPage: false,
+          },
+        )
+        await expect(
+          page
+            .locator('#question-bank-nonuniversal')
+            .getByText('Admin ID: enumerator-pets-repeated-colors'),
+        ).toBeHidden()
       })
 
       await test.step('Verify that the question bank does not have repeated questions that are associated with other enumerators', async () => {
         await expect(
           page.getByText('Admin ID: enumerator-ete-repeated-name'),
         ).toBeHidden()
+        await adminPrograms.closeQuestionBank()
+      })
+
+      await test.step('Add the previously-used repeated question and verify the previously-used section no longer appears', async () => {
+        await adminPrograms.addQuestionFromQuestionBank(
+          'enumerator-pets-repeated-colors',
+        )
+
+        await page.getByRole('button', {name: 'Add question'}).click()
+        await expect(
+          page.locator('#question-bank-previously-used'),
+        ).toBeHidden()
         await page.getByRole('button', {name: 'Close'}).click()
       })
 
       await test.step('Verify that creating a repeated question pre-selects the enumerator question.', async () => {
         await test.step('Add a new text question to the screen', async () => {
-          await page.getByRole('button', {name: 'Add a question'}).click()
+          await page.getByRole('button', {name: 'Add question'}).click()
           await page.getByRole('button', {name: 'Create new question'}).click()
           await page.getByRole('link', {name: 'Text', exact: true}).click()
         })
 
-        await expect(page.getByLabel('Question enumerator')).toBeDisabled()
+        await expect(page.getByLabel('Question enumerator')).toHaveAttribute(
+          'readonly',
+          'readonly',
+        )
         await expect(
           page.getByLabel('Question enumerator').locator('option[selected]'),
         ).toHaveText('pets enumerator')
+      })
+
+      await test.step('Verify that adding a non-repeated question creates a copy that is associated with the enumerator', async () => {
+        await test.step('Go to the block edit page', async () => {
+          await adminPrograms.gotoEditDraftProgramPage(
+            'Enumerator test program',
+          )
+          await navigateToRepeatedScreen(page, 4, 2)
+        })
+
+        await test.step('Add a non-repeated question to the repeated screen', async () => {
+          await adminPrograms.addQuestionFromQuestionBank(
+            'income-non-repeated-question',
+          )
+        })
+
+        await test.step('Verify that a copy of the question is added to the screen', async () => {
+          await navigateToRepeatedScreen(page, 4, 2)
+          await expect(
+            page.getByText('Admin ID: income-non-repeated-question -_- a'),
+          ).toBeVisible()
+        })
       })
     })
 
@@ -1215,8 +1300,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await page.getByRole('link', {name: 'Text', exact: true}).click()
       })
 
-      await test.step('Verify that the "Question enumerator" dropdown is disabled', async () => {
-        await expect(page.getByLabel('Question enumerator')).toBeDisabled()
+      await test.step('Verify that the "Question enumerator" dropdown is read only', async () => {
+        await expect(page.getByLabel('Question enumerator')).toHaveAttribute(
+          'readonly',
+          'readonly',
+        )
       })
     })
   })

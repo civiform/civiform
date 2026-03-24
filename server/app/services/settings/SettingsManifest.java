@@ -1137,6 +1137,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("ENUMERATOR_IMPROVEMENTS_ENABLED", request);
   }
 
+  /**
+   * (NOT FOR PRODUCTION USE) Enables improvements which allow for file upload questions on the same
+   * page as other question types. Uses a new file upload method that uploads applicant files
+   * through CiviForm servers.
+   */
+  public boolean getFileUploadQuestionImprovementsEnabled(RequestHeader request) {
+    return getBool("FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED", request);
+  }
+
   /** (NOT FOR PRODUCTION USE) Enable the admin UI migration in Thymeleaf. */
   public boolean getAdminUiMigrationScEnabled(RequestHeader request) {
     return getBool("ADMIN_UI_MIGRATION_SC_ENABLED", request);
@@ -2433,6 +2442,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "ENUMERATOR_IMPROVEMENTS_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables improvements which make it easier for"
                               + " admins to work with enumerators.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables improvements which allow for file"
+                              + " upload questions on the same page as other question types. Uses a"
+                              + " new file upload method that uploads applicant files through"
+                              + " CiviForm servers.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),

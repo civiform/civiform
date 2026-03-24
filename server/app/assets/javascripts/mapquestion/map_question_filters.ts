@@ -9,7 +9,7 @@ import {
   CF_RESET_FILTERS_BUTTON,
   CF_LOCATION_COUNT,
   LOCATIONS_LAYER,
-  POPUP_LAYER,
+  MAP_LIBRE_POPUP_CLASS,
   MapData,
   mapQuerySelector,
   CF_FILTER_HIDDEN,
@@ -75,11 +75,10 @@ const applyLocationFilters = (
 
   const locationCheckboxContainers = queryLocationCheckboxes(mapId)
 
-  const popupContent = mapQuerySelector(mapId, POPUP_LAYER) as HTMLElement
-  let openPopupFeatureId = null
-  if (popupContent) {
-    openPopupFeatureId = popupContent.getAttribute(DATA_FEATURE_ID)
-  }
+  // Close any open popups when filters change
+  document
+    .querySelectorAll(MAP_LIBRE_POPUP_CLASS)
+    .forEach((popup) => popup.remove())
 
   let visibleCount = 0
   locationCheckboxContainers.forEach((container) => {
@@ -97,10 +96,6 @@ const applyLocationFilters = (
       visibleCount++
     } else {
       containerElement.classList.add(CF_FILTER_HIDDEN)
-      if (featureId == openPopupFeatureId) {
-        const popup = popupContent.parentElement?.parentElement
-        if (popup) popup.remove()
-      }
     }
   })
 
@@ -108,7 +103,7 @@ const applyLocationFilters = (
   resetPagination(mapId)
 }
 
-const featureMatchesFilters = (
+export const featureMatchesFilters = (
   feature: Feature<Geometry, GeoJsonProperties> | undefined,
   filters: {[key: string]: string},
 ): boolean => {
@@ -119,7 +114,7 @@ const featureMatchesFilters = (
   )
 }
 
-const getFilters = (mapId: string): {[key: string]: string} => {
+export const getFilters = (mapId: string): {[key: string]: string} => {
   const activeFilters: {[key: string]: string} = {}
   const filterSelectOptions = queryMapSelectOptions(mapId)
 

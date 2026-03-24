@@ -2636,6 +2636,65 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void
+      addQuestionsToBlock_isRepeatedBlockWithNonEnumeratorQuestion_enumeratorImprovementsEnabled_createsQuestionCopy()
+          throws Exception {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withName("enumerator")
+            .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
+            .withRepeatedBlock("repeatedBlock")
+            .buildDefinition();
+
+    programDefinition =
+        ps.addQuestionsToBlock(
+            programDefinition.id(),
+            2L,
+            ImmutableList.of(nameQuestion.getId()),
+            /* enumeratorImprovementsEnabled= */ true);
+    assertThat(programDefinition.getBlockDefinitionByIndex(0).get().hasEnumeratorQuestion())
+        .isTrue();
+
+    BlockDefinition repeatedBlock = programDefinition.getBlockDefinitionByIndex(1).get();
+    assertThat(repeatedBlock.isRepeated()).isTrue();
+    assertThat(programDefinition.hasQuestion(nameQuestion)).isFalse();
+    assertThat(repeatedBlock.getQuestionCount()).isEqualTo(1);
+
+    QuestionDefinition repeatedQuestion = repeatedBlock.getQuestionDefinition(0);
+    assertThat(repeatedQuestion.getEnumeratorId().get())
+        .isEqualTo(testQuestionBank.enumeratorApplicantHouseholdMembers().id);
+    assertThat(repeatedQuestion.getName()).isEqualTo(nameQuestion.getName() + " -_- a");
+  }
+
+  @Test
+  public void
+      addQuestionsToBlock_isRepeatedBlockWithNonEnumeratorQuestion_enumeratorImprovementsDisabled_throws()
+          throws Exception {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withName("enumerator")
+            .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
+            .withRepeatedBlock("repeatedBlock")
+            .buildDefinition();
+
+    assertThatThrownBy(
+            () ->
+                ps.addQuestionsToBlock(
+                    programDefinition.id(),
+                    2L,
+                    ImmutableList.of(nameQuestion.getId()),
+                    /* enumeratorImprovementsEnabled= */ false))
+        .isInstanceOf(CantAddQuestionToBlockException.class)
+        .hasMessage(
+            String.format(
+                "Can't add question to the block. Error: %s. Program ID %d, block ID %d, question"
+                    + " ID %d",
+                "ENUMERATOR_MISMATCH", programDefinition.id(), 2L, nameQuestion.getId()));
+  }
+
+  @Test
   public void removeQuestionsFromBlock_withoutQuestion_throwsQuestionNotFoundException()
       throws Exception {
     QuestionDefinition questionA = nameQuestion;

@@ -176,13 +176,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
         .hasMessage("Could not parse value from '' to a numeric value");
   }
 
-  /**
-   * Tests that reviewWithApplicantId() returns OK when the feature is enabled and is from url call
-   * with a program slug. reviewWithApplicantId() also returns OK for other combinations: when the
-   * feature is disabled OR when the call is not from a URL OR when the program param is a program
-   * slug (not numeric), AND the program ID was properly retrieved. We don't test all combinations
-   * here because the ProgramSlugHandler tests have a comprehensive test cover for them.
-   */
+  /** Tests that reviewWithApplicantId() returns OK when the feature is enabled. */
   @Test
   public void
       reviewWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_isOk() {

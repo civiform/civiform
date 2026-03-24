@@ -1179,6 +1179,8 @@ input.repeatedSet.maxEntities=Maximum entity count
 alert.repeatedSet.addQuestionDisabled=A repeated set question must first be added before repeated questions can be. Please navigate to the parent screen to add a repeated set question.
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
 alert.repeatedSet.newQuestion=Creating a repeated set will add a new question to the question bank.
+# Alert shown in the question bank section listing repeated questions that are already associated with this repeated set
+alert.repeatedSet.previouslyUsed=Questions that are associated with a different repeated set are not available to be added.
 # Submission button for creating a new repeated set
 button.repeatedSet.submitNew=Create repeated set
 # Button for admins to add a new repeated set
@@ -1197,8 +1199,14 @@ text.repeatedSet.questionDescription=Add a repeated set that will ask residents 
 text.repeatedSet.screenNameDescription=To give the applicant context, we will display the applicant-defined label(s) for the listed entity they are answering questions for on this screen. You can optionally add more text to the screen name to provide further context. For example, "Jennifer - Background Information".
 #An additional description explaining what the add question button does
 text.repeatedSet.addQuestionDescription=Add a repeated set that will ask residents to add objects or individuals to a list. If a repeated set has already been added and you would like to select a different one, delete the question below.
+# Information shown to admins when they are adding a question to a repeated screen.
+text.repeatedQuestions.description=Add the questions you would like to be asked about each object or individual listed by the applicant. If a question you add is not already associated with the repeated set, the question will be duplicated for this repeated set in the question bank.
 # Heading above the repeated set question in the program block editor
 heading.repeatedSet.question=Repeated set question
+# Heading shown above repeated questions in the question bank that are already associated with this repeated set
+heading.repeatedSet.previouslyUsed=Previously used for this repeated set
+# Heading above the questions section on repeated screens in the admin program screen editor.
+heading.repeatedQuestions=Repeated questions
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
 description.repeatedSet.listedEntity=Specify the type of individuals or objects an applicant will need to list out. Please add these in the singular form, e.g. "household member" or "income source."
 # Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
