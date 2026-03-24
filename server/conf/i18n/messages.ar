@@ -1130,9 +1130,9 @@ ariaLabel.categories=الفئات
 # Title of the warning modal that appears when the user has been inactive for a while
 session.inactivity.warning.title=تحذير بشأن عدم نشاط الجلسة
 # Title of the session timeout warning modals
-session.warning.title=Session ending soon
+session.warning.title=الجلسة على وشك الانتهاء
 # Text on a button on a session ending soon modal that gives users the options to save and log in
-session.login.button.loggedIn=Log in
+session.login.button.loggedIn=تسجيل الدخول
 session.login.button.guest=Log in or create an account
 # Message shown in a modal asking the user if they want to extend their session due to inactivity
 session.inactivity.warning.message=ستنتهي صلاحية جلستك قريبًا بسبب عدم النشاط. هل يهمّك تمديدها؟
