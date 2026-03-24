@@ -1070,7 +1070,7 @@ banner.immigrationStatusInfoBanner.body=لن نطلب منك تقديم معلو
 # Text in the data security banner explaining how user data is protected - the placeholder says 'here' and is a link to more information
 banner.immigrationStatusInfoBanner.bodyWithLink=لن نطلب منك تقديم معلومات عن جنسيتك أو حالة الهجرة الخاصة بك. يمكنك الاطلاع على المزيد {0}.
 # Link for more info about the data security banner
-banner.immigrationStatusInfoBanner.linkText=here
+banner.immigrationStatusInfoBanner.linkText=هنا
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
