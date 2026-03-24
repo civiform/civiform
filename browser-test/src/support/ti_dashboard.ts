@@ -22,14 +22,17 @@ export class TIDashboard {
     } else {
       await page.click('text="View and add clients"')
     }
+    await waitForPageJsLoad(page)
   }
 
   async goToAccountSettingsPage(page: Page) {
     await page.getByRole('link', {name: 'Account settings'}).click()
+    await waitForPageJsLoad(page)
   }
 
   async goToProgramsPageForCurrentClient() {
     await this.page.click('text="CiviForm"')
+    await waitForPageJsLoad(this.page)
   }
 
   async createClient(client: ClientInformation) {
@@ -56,7 +59,6 @@ export class TIDashboard {
     await this.page.getByRole('button', {name: 'Save'}).click()
     await waitForPageJsLoad(this.page)
     await this.gotoTIDashboardPage(this.page)
-    await waitForPageJsLoad(this.page)
   }
 
   async createMultipleClients(nameBase: string, copies: number) {
@@ -75,7 +77,6 @@ export class TIDashboard {
       await waitForPageJsLoad(this.page)
     }
     await this.gotoTIDashboardPage(this.page)
-    await waitForPageJsLoad(this.page)
   }
 
   async updateClientEmailAddress(client: ClientInformation, newEmail: string) {
@@ -296,7 +297,6 @@ export class TIDashboard {
   async createClientAndApply(client: ClientInformation) {
     await this.gotoTIDashboardPage(this.page)
     await this.createClient(client)
-    await waitForPageJsLoad(this.page)
     await this.clickOnViewApplications()
   }
 }
