@@ -48,7 +48,7 @@ test.describe('User HTTP sessions', {tag: ['@parallel-candidate']}, () => {
 
       const profile = JSON.parse(matches![0]) as Profile
       expect(profile.id).toEqual('1')
-      expect(profile.roles.length).toEqual(1)
+      expect(profile.roles).toHaveLength(1)
       expect(profile.roles[0]).toEqual('ROLE_APPLICANT')
       expect(profile.clientName).toEqual('GuestClient')
     })
@@ -84,7 +84,7 @@ test.describe('User HTTP sessions', {tag: ['@parallel-candidate']}, () => {
       expect(matches).not.toBeNull()
 
       const profile = JSON.parse(matches![0]) as Profile
-      expect(profile.roles.length).toEqual(1)
+      expect(profile.roles).toHaveLength(1)
       expect(profile.roles[0]).toEqual('ROLE_APPLICANT')
       expect(profile.clientName).toEqual('GuestClient')
     })

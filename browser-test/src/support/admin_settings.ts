@@ -1,6 +1,7 @@
 import {expect} from './civiform_fixtures'
 import {Page} from '@playwright/test'
 import {BASE_URL} from './config'
+import {waitForPageJsLoad} from './wait'
 
 export class AdminSettings {
   public page!: Page
@@ -11,6 +12,7 @@ export class AdminSettings {
 
   async gotoAdminSettings() {
     await this.page.goto(BASE_URL + `/admin/settings`)
+    await waitForPageJsLoad(this.page)
     await expect(
       this.page.getByRole('heading', {name: 'Settings', exact: true}),
     ).toBeVisible()

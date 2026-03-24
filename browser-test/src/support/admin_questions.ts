@@ -296,11 +296,9 @@ export class AdminQuestions {
 
   async expectQuestionNotExist(questionName: string) {
     await this.gotoAdminQuestionsPage()
-    expect(
-      await this.page
-        .locator(this.selectQuestionTableRow(questionName))
-        .count(),
-    ).toEqual(0)
+    await expect(
+      this.page.locator(this.selectQuestionTableRow(questionName)),
+    ).toHaveCount(0)
   }
 
   async expectQuestionProgramReferencesText({
