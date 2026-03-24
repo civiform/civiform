@@ -1149,7 +1149,7 @@ session.extended.error=تعذَّر تمديد الجلسة
 # Message shown to guest users warning that their session is about to expire due to session length
 session.length.warning.message.guest=جلستك على وشك الانتهاء. يُرجى حفظ عملك وتسجيل الدخول أو إنشاء حساب للمتابعة.
 # Message shown to logged-in users warning that their session is about to expire due to session length
-session.length.warning.message.loggedIn=Your session is about to expire. Please save your work and log back in to continue. You will not lose your progress in the application.
+session.length.warning.message.loggedIn=جلستك على وشك الانتهاء. يُرجى حفظ عملك وتسجيل الدخول مرة أخرى للمتابعة. لن تفقد تقدمك في التطبيق.
 
 #------------------------------------------------------------------------------#
 #  ADMIN PROGRAM BLOCK EDIT                                                    #
