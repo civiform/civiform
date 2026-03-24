@@ -615,22 +615,36 @@ public final class QuestionsListView extends BaseHtmlView {
             !referencingPrograms.usedPrograms().isEmpty(),
             div()
                 .with(
-                    referencingPreviewProgramList(
-                        "This question is used in:", referencingPrograms.usedPrograms()))
+                    referencingProgramList(
+                        "This question is used in:",
+                        () ->
+                            referencingPrograms.usedPrograms().stream()
+                                .map(p -> p.localizedName().getDefault())
+                                .iterator()))
                 .withClass(ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_USED))
         .condWith(
             !referencingPrograms.addedPrograms().isEmpty(),
             div()
                 .with(
-                    referencingPreviewProgramList(
-                        "This question is added to:", referencingPrograms.addedPrograms()))
+                    referencingProgramList(
+                        "This question is added to:",
+                        () ->
+                            referencingPrograms.addedPrograms().stream()
+                                .map(p -> p.localizedName().getDefault())
+                                .iterator()))
                 .withClass(ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_ADDED))
         .condWith(
             !referencingPrograms.removedPrograms().isEmpty(),
             div()
                 .with(
+                    // TODO(#3162): Add ability to view a published program. Then add links to the
+                    // specific block that references the question.
                     referencingProgramList(
-                        "This question is removed from:", referencingPrograms.removedPrograms()))
+                        "This question is removed from:",
+                        () ->
+                            referencingPrograms.removedPrograms().stream()
+                                .map(p -> p.localizedName().getDefault())
+                                .iterator()))
                 .withClass(ReferenceClasses.ADMIN_QUESTION_PROGRAM_REFERENCE_COUNTS_REMOVED))
         .with(
             p("Note: This list does not automatically refresh. If edits are made to a program"
@@ -648,36 +662,14 @@ public final class QuestionsListView extends BaseHtmlView {
             .build());
   }
 
-  private DivTag referencingPreviewProgramList(
-      String title, ImmutableList<PublishProgramPreview> referencingPrograms) {
+  private DivTag referencingProgramList(String title, Iterable<String> programNames) {
     return div()
         .with(p(title).withClass("font-semibold"))
         .with(
             div()
                 .with(
                     ul().withClasses("list-disc", "list-inside")
-                        .with(
-                            each(
-                                referencingPrograms,
-                                programReference ->
-                                    li(programReference.localizedName().getDefault())))));
-  }
-
-  private DivTag referencingProgramList(
-      String title, ImmutableList<ProgramDefinition> referencingPrograms) {
-    // TODO(#3162): Add ability to view a published program. Then add links to the
-    // specific block that references the question.
-    return div()
-        .with(p(title).withClass("font-semibold"))
-        .with(
-            div()
-                .with(
-                    ul().withClasses("list-disc", "list-inside")
-                        .with(
-                            each(
-                                referencingPrograms,
-                                programReference ->
-                                    li(programReference.localizedName().getDefault())))));
+                        .with(each(programNames, name -> li(name)))));
   }
 
   private ButtonTag renderQuestionEditLink(QuestionDefinition definition, boolean isVisible) {
