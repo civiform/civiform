@@ -1066,7 +1066,7 @@ label.immigrationStatusInfoBanner.heading=نرحّب بالمهاجرين وال
 # Aria-label for data security banner alert
 label.immigrationStatusInfoBanner.label=تنبيه يتضمّن معلومات حول حالة الهجرة
 # Text in the data security banner explaining how user data is protected when no learn more link is configured
-banner.immigrationStatusInfoBanner.body=We will not ask about your citizenship or immigration status.
+banner.immigrationStatusInfoBanner.body=لن نطلب منك تقديم معلومات عن جنسيتك أو حالة الهجرة الخاصة بك.
 # Text in the data security banner explaining how user data is protected - the placeholder says 'here' and is a link to more information
 banner.immigrationStatusInfoBanner.bodyWithLink=We will not ask about your citizenship or immigration status. You can learn more {0}.
 # Link for more info about the data security banner
