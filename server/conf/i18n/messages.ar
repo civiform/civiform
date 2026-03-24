@@ -1062,7 +1062,7 @@ banner.minute=دقيقة واحدة
 #------------------------------------------------------------------------------#
 
 # Header for data security banner alert
-label.immigrationStatusInfoBanner.heading=Immigrants and refugees are welcome here
+label.immigrationStatusInfoBanner.heading=نرحّب بالمهاجرين واللاجئين هنا
 # Aria-label for data security banner alert
 label.immigrationStatusInfoBanner.label=Immigration status informational alert
 # Text in the data security banner explaining how user data is protected when no learn more link is configured
