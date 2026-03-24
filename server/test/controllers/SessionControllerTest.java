@@ -48,7 +48,7 @@ public class SessionControllerTest {
     Result result = controller.extendSession(request);
 
     assertThat(result.status()).isEqualTo(Http.Status.OK);
-    verify(mockProfileData).updateLastActivityTime(clock);
+    verify(mockProfileData).updateLastSessionActivityTime(clock);
   }
 
   @Test
@@ -59,7 +59,7 @@ public class SessionControllerTest {
     Result result = controller.extendSession(request);
 
     assertThat(result.status()).isEqualTo(Http.Status.BAD_REQUEST);
-    verify(mockProfileData, never()).updateLastActivityTime(any());
+    verify(mockProfileData, never()).updateLastSessionActivityTime(any());
   }
 
   @Test
@@ -74,6 +74,6 @@ public class SessionControllerTest {
     Result result = controller.extendSession(request);
 
     assertThat(result.status()).isEqualTo(Http.Status.UNAUTHORIZED);
-    verify(mockProfileData, never()).updateLastActivityTime(any());
+    verify(mockProfileData, never()).updateLastSessionActivityTime(any());
   }
 }

@@ -769,7 +769,9 @@ public final class ApplicantService {
   private CompletableFuture<Void> validateApplicationForSubmission(
       ReadOnlyApplicantProgramService roApplicantProgramService, long programId) {
     // Check that all blocks have been answered.
-    if (!roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().isEmpty()) {
+    if (!roApplicantProgramService
+        .getFirstBlockRequiringAction(/* includeStatic= */ false)
+        .isEmpty()) {
       throw new ApplicationOutOfDateException();
     }
 

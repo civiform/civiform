@@ -29,8 +29,10 @@ import play.i18n.Lang;
 import play.i18n.Langs;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.ClassLoaderExecutionContext;
+import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.AccountRepository;
+import repository.ProgramRepository;
 import repository.VersionRepository;
 import services.applicant.ApplicantService;
 import services.program.ProgramDefinition;
@@ -175,7 +177,9 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             languageUtils,
             applicantRoutes,
             instanceOf(ProgramOverviewView.class),
-            instanceOf(MessagesApi.class));
+            instanceOf(MessagesApi.class),
+            instanceOf(SettingsManifest.class),
+            instanceOf(ProgramRepository.class));
     Result result =
         handler
             .showProgram(controller, fakeRequest(), programDefinition.slug())
@@ -213,7 +217,9 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             languageUtils,
             applicantRoutes,
             instanceOf(ProgramOverviewView.class),
-            instanceOf(MessagesApi.class));
+            instanceOf(MessagesApi.class),
+            instanceOf(SettingsManifest.class),
+            instanceOf(ProgramRepository.class));
     Result result =
         handler
             .showProgram(controller, fakeRequest(), programDefinition.slug())
@@ -259,7 +265,9 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             languageUtils,
             applicantRoutes,
             instanceOf(ProgramOverviewView.class),
-            instanceOf(MessagesApi.class));
+            instanceOf(MessagesApi.class),
+            instanceOf(SettingsManifest.class),
+            instanceOf(ProgramRepository.class));
     Result result =
         handler
             .showProgram(controller, fakeRequest(), programDefinition.slug())
@@ -301,7 +309,9 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             languageUtils,
             applicantRoutes,
             instanceOf(ProgramOverviewView.class),
-            instanceOf(MessagesApi.class));
+            instanceOf(MessagesApi.class),
+            instanceOf(SettingsManifest.class),
+            instanceOf(ProgramRepository.class));
     Result result =
         handler
             .showProgram(controller, fakeRequest(), programDefinition.slug())
@@ -348,7 +358,9 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             languageUtils,
             applicantRoutes,
             instanceOf(ProgramOverviewView.class),
-            instanceOf(MessagesApi.class));
+            instanceOf(MessagesApi.class),
+            instanceOf(SettingsManifest.class),
+            instanceOf(ProgramRepository.class));
     Result result =
         handler
             .showProgram(controller, fakeRequest(), programDefinition.slug())
@@ -395,7 +407,9 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             languageUtils,
             applicantRoutes,
             instanceOf(ProgramOverviewView.class),
-            instanceOf(MessagesApi.class));
+            instanceOf(MessagesApi.class),
+            instanceOf(SettingsManifest.class),
+            instanceOf(ProgramRepository.class));
     Result result =
         handler
             .showProgramPreview(controller, fakeRequest(), programDefinition.slug())
@@ -442,7 +456,9 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             languageUtils,
             applicantRoutes,
             instanceOf(ProgramOverviewView.class),
-            instanceOf(MessagesApi.class));
+            instanceOf(MessagesApi.class),
+            instanceOf(SettingsManifest.class),
+            instanceOf(ProgramRepository.class));
     Result result =
         handler
             .showProgramPreview(controller, fakeRequest(), programDefinition.slug())
@@ -455,6 +471,59 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
         .contains(
             controllers.applicant.routes.ApplicantProgramsController.edit(
                     String.valueOf(programDefinition.id()))
+                .url());
+  }
+
+  @Test
+  public void showProgramPreview_withProgramSlugFlag_withPreScreener_loadsFirstBlockPage() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActivePreScreenerForm("test pre-screener").buildDefinition();
+
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+
+    Langs mockLangs = mock(Langs.class);
+    when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
+
+    SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
+    Request request = fakeRequestBuilder().build();
+    when(mockSettingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    ApplicationModel app =
+        new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.ACTIVE);
+    app.save();
+
+    LanguageUtils languageUtils =
+        new LanguageUtils(
+            instanceOf(AccountRepository.class),
+            mockLangs,
+            mockSettingsManifest,
+            instanceOf(MessagesApi.class));
+    CiviFormController controller = instanceOf(CiviFormController.class);
+    ApplicantRoutes applicantRoutes = instanceOf(ApplicantRoutes.class);
+
+    ProgramSlugHandler handler =
+        new ProgramSlugHandler(
+            instanceOf(ClassLoaderExecutionContext.class),
+            instanceOf(ApplicantService.class),
+            instanceOf(ProfileUtils.class),
+            instanceOf(ProgramService.class),
+            languageUtils,
+            applicantRoutes,
+            instanceOf(ProgramOverviewView.class),
+            instanceOf(MessagesApi.class),
+            mockSettingsManifest,
+            instanceOf(ProgramRepository.class));
+    Result result =
+        handler
+            .showProgramPreview(controller, request, programDefinition.slug())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+
+    assertThat(result.redirectLocation())
+        .contains(
+            controllers.applicant.routes.ApplicantProgramsController.edit(programDefinition.slug())
                 .url());
   }
 
@@ -604,5 +673,33 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
     // Verify it returns the active program ID
     assertThat(resultId).isEqualTo(programDefinition.id());
+  }
+
+  @Test
+  public void getProgramSlug_withProgramSlug() {
+    String programSlug = "test-program";
+
+    String resultSlug = instanceOf(ProgramSlugHandler.class).getProgramSlug(programSlug);
+
+    assertThat(resultSlug).isEqualTo(programSlug);
+  }
+
+  @Test
+  public void getProgramSlug_withProgramId() {
+    String programSlug = "test-program";
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram(programSlug, "desc").buildDefinition();
+
+    String resultSlug =
+        instanceOf(ProgramSlugHandler.class).getProgramSlug(String.valueOf(programDefinition.id()));
+
+    assertThat(resultSlug).isEqualTo(programSlug);
+  }
+
+  @Test
+  public void getProgramSlug_withBadProgramId_throwsRuntimeException() throws Exception {
+    assertThatThrownBy(() -> instanceOf(ProgramSlugHandler.class).getProgramSlug("1234"))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("services.program.ProgramNotFoundException: Program not found for ID: 1234");
   }
 }

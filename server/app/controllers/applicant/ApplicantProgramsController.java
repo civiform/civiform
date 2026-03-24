@@ -257,7 +257,20 @@ public final class ApplicantProgramsController extends CiviFormController {
                   .thenApplyAsync(
                       roApplicantService -> {
                         Optional<Block> blockMaybe =
-                            roApplicantService.getFirstIncompleteOrStaticBlock();
+                            roApplicantService.getFirstBlockRequiringAction(
+                                /* includeStatic= */ true);
+                        if (programSlugUrlEnabled) {
+                          return blockMaybe.flatMap(
+                              block ->
+                                  Optional.of(
+                                      found(
+                                          applicantRoutes.blockEdit(
+                                              profile,
+                                              applicantId,
+                                              programSlugHandler.getProgramSlug(programParam),
+                                              block.getId(),
+                                              /* questionName= */ Optional.empty()))));
+                        }
                         return blockMaybe.flatMap(
                             block ->
                                 Optional.of(
