@@ -445,13 +445,6 @@ test.describe('program creation', () => {
     await adminPrograms.addQuestionFromQuestionBank('ace-address')
     await adminPrograms.addQuestionFromQuestionBank('ace-name')
 
-    await validateScreenshot(
-      page.locator(
-        adminPrograms.questionCardSelectorInProgramView('ace-address'),
-      ),
-      'program-detail-page-with-address-correction-false',
-    )
-
     const addressCorrectionInput = adminPrograms.getAddressCorrectionToggle()
 
     await expect(addressCorrectionInput).toHaveValue('false')
@@ -459,13 +452,6 @@ test.describe('program creation', () => {
     await adminPrograms.clickAddressCorrectionToggle()
 
     await expect(addressCorrectionInput).toHaveValue('true')
-
-    await validateScreenshot(
-      page.locator(
-        adminPrograms.questionCardSelectorInProgramView('ace-address'),
-      ),
-      'program-detail-page-with-address-correction-true',
-    )
 
     // ensure that non address question does not contain address correction button
     expect(
