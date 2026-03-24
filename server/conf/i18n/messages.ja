@@ -1179,6 +1179,8 @@ input.repeatedSet.maxEntities=
 alert.repeatedSet.addQuestionDisabled=繰り返しの質問を追加する前に、まず繰り返しセットの質問を追加する必要があります。繰り返しセットの質問を追加するには、親画面に移動してください。
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
 alert.repeatedSet.newQuestion=繰り返しセットを作成すると、質問バンクに新しい質問が追加されます。
+# Alert shown in the question bank section listing repeated questions that are already associated with this repeated set
+alert.repeatedSet.previouslyUsed=Questions that are associated with a different repeated set are not available to be added.
 # Submission button for creating a new repeated set
 button.repeatedSet.submitNew=
 # Button for admins to add a new repeated set
@@ -1201,6 +1203,8 @@ text.repeatedSet.addQuestionDescription=
 text.repeatedQuestions.description=申請者が挙げた各対象または個人について尋ねる質問を追加してください。追加した質問がまだこの繰り返しセットに関連付けられていない場合、その質問はこの繰り返しセット用として質問バンクに複製されます。
 # Heading above the repeated set question in the program block editor
 heading.repeatedSet.question=
+# Heading shown above repeated questions in the question bank that are already associated with this repeated set
+heading.repeatedSet.previouslyUsed=Previously used for this repeated set
 # Heading above the questions section on repeated screens in the admin program screen editor.
 heading.repeatedQuestions=繰り返しの質問
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
