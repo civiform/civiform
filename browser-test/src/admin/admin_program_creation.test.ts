@@ -191,7 +191,7 @@ test.describe('program creation', () => {
     })
 
     await test.step('On program creation, admin can fill in the program slug.', async () => {
-      expect(await page.locator('#program-slug').count()).toEqual(1)
+      await expect(page.locator('#program-slug')).toHaveCount(1)
 
       await adminPrograms.submitProgramDetailsEdits()
       await adminProgramImage.expectProgramImagePage()
@@ -1472,7 +1472,7 @@ async function expectQuestionsOrderWithinBlock(
   const actualQuestions = await page
     .locator('.cf-program-question')
     .allTextContents()
-  expect(actualQuestions.length).toEqual(expectedQuestions.length)
+  expect(actualQuestions).toHaveLength(expectedQuestions.length)
   for (let i = 0; i < actualQuestions.length; i++) {
     expect(actualQuestions[i]).toContain(expectedQuestions[i])
   }

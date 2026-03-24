@@ -380,15 +380,15 @@ export class ApplicantQuestions {
       has: this.page.locator(`:text("${programName}")`),
     })
     const tag = isEligible ? '.cf-eligible-tag' : '.cf-not-eligible-tag'
-    expect(await cardLocator.locator(tag).count()).toEqual(1)
+    await expect(cardLocator.locator(tag)).toHaveCount(1)
   }
 
   async seeNoEligibilityTags(programName: string) {
     const cardLocator = this.page.locator('.cf-application-card', {
       has: this.page.locator(`:text("${programName}")`),
     })
-    expect(await cardLocator.locator('.cf-eligible-tag').count()).toEqual(0)
-    expect(await cardLocator.locator('.cf-not-eligible-tag').count()).toEqual(0)
+    await expect(cardLocator.locator('.cf-eligible-tag')).toHaveCount(0)
+    await expect(cardLocator.locator('.cf-not-eligible-tag')).toHaveCount(0)
   }
 
   async expectPrograms({
@@ -793,9 +793,9 @@ export class ApplicantQuestions {
     )
 
     if (wantEligiblePrograms.length == 0) {
-      expect(await programLocator.count()).toEqual(0)
+      await expect(programLocator).toHaveCount(0)
     } else {
-      expect(await programLocator.count()).toEqual(wantEligiblePrograms.length)
+      await expect(programLocator).toHaveCount(wantEligiblePrograms.length)
       const allProgramTitles = await programLocator.allTextContents()
       expect(allProgramTitles.sort()).toEqual(wantEligiblePrograms.sort())
     }
@@ -848,20 +848,20 @@ export class ApplicantQuestions {
     const questionLocator = this.page.locator('.cf-applicant-summary-row', {
       has: this.page.locator(`:text("${questionText}")`),
     })
-    expect(await questionLocator.count()).toEqual(1)
-    expect(
-      await questionLocator.locator('.cf-applicant-not-eligible-text').count(),
-    ).toEqual(1)
+    await expect(questionLocator).toHaveCount(1)
+    await expect(
+      questionLocator.locator('.cf-applicant-not-eligible-text'),
+    ).toHaveCount(1)
   }
 
   async expectQuestionHasNoEligibilityIndicator(questionText: string) {
     const questionLocator = this.page.locator('.cf-applicant-summary-row', {
       has: this.page.locator(`:text("${questionText}")`),
     })
-    expect(await questionLocator.count()).toEqual(1)
-    expect(
-      await questionLocator.locator('.cf-applicant-not-eligible-text').count(),
-    ).toEqual(0)
+    await expect(questionLocator).toHaveCount(1)
+    await expect(
+      questionLocator.locator('.cf-applicant-not-eligible-text'),
+    ).toHaveCount(0)
   }
 
   async expectVerifyAddressPage(hasAddressSuggestions: boolean) {
@@ -893,7 +893,7 @@ export class ApplicantQuestions {
     const questionLocator = this.page.locator('.cf-applicant-summary-row', {
       has: this.page.locator(`:text("${questionText}")`),
     })
-    expect(await questionLocator.count()).toEqual(1)
+    await expect(questionLocator).toHaveCount(1)
     const summaryRowText = await questionLocator.innerText()
     expect(summaryRowText.includes(answerText)).toBeTruthy()
   }

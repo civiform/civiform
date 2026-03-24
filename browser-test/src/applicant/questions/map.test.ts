@@ -74,6 +74,7 @@ if (isLocalDevEnvironment()) {
         const locationsList = page.getByRole('group', {
           name: 'Location selection',
         })
+
         await test.step('Verify locations list container exists', async () => {
           await expect(locationsList).toBeVisible()
         })
@@ -201,8 +202,8 @@ if (isLocalDevEnvironment()) {
           const selectButtons = page.getByRole('button', {
             name: /select.*location/i,
           })
-          const selectButtonsCount = await selectButtons.count()
-          expect(selectButtonsCount).toBe(1)
+          const selectButtonsCount = selectButtons
+          await expect(selectButtonsCount).toHaveCount(1)
           await selectButtons.first().click()
 
           const selectButtonAfter = page.getByRole('button', {
@@ -303,6 +304,7 @@ if (isLocalDevEnvironment()) {
           name: 'Location selection',
         })
         const checkboxes = locationsList.getByRole('checkbox')
+
         await test.step('Verify initial locations list state', async () => {
           await expect(checkboxes).toHaveCount(EXPECTED_LOCATION_COUNT)
         })
@@ -315,6 +317,7 @@ if (isLocalDevEnvironment()) {
         })
 
         const previousButton = page.getByText('Previous', {exact: true})
+
         await test.step('Go back to previous page', async () => {
           await expect(previousButton).toBeVisible()
           await previousButton.click()
@@ -455,6 +458,7 @@ if (isLocalDevEnvironment()) {
         const locationsLists = page.getByRole('group', {
           name: 'Location selection',
         })
+
         await test.step('Verify both maps have location lists', async () => {
           await expect(locationsLists).toHaveCount(2)
         })
