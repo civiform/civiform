@@ -22,12 +22,12 @@ export class TIDashboard {
     } else {
       await page.click('text="View and add clients"')
     }
-    await waitForPageJsLoad(page)
+    await waitForPageJsLoad(this.page)
   }
 
   async goToAccountSettingsPage(page: Page) {
     await page.getByRole('link', {name: 'Account settings'}).click()
-    await waitForPageJsLoad(page)
+    await waitForPageJsLoad(this.page)
   }
 
   async goToProgramsPageForCurrentClient() {
