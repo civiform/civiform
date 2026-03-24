@@ -331,17 +331,14 @@ export class ApplicantQuestions {
 
   async clickBreadcrumbHomeLink() {
     await this.page.getByRole('link', {name: 'Home'}).click()
-    await waitForPageJsLoad(this.page)
   }
 
   async clickBreadcrumbProgramLink(programName: string) {
     await this.page.getByRole('link', {name: `${programName}`}).click()
-    await waitForPageJsLoad(this.page)
   }
 
   async clickApplyToAnotherProgramButton() {
     await this.page.click('text="Apply to another program"')
-    await waitForPageJsLoad(this.page)
   }
 
   async clickApplyToProgramsButton() {
@@ -351,12 +348,10 @@ export class ApplicantQuestions {
 
   async clickBack() {
     await this.page.click('text="Back"')
-    await waitForPageJsLoad(this.page)
   }
 
   async clickBackToHomepageButton() {
     await this.page.click('text="Back to homepage"')
-    await waitForPageJsLoad(this.page)
   }
 
   /**
