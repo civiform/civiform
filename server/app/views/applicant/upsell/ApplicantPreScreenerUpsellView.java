@@ -68,6 +68,12 @@ public class ApplicantPreScreenerUpsellView extends ApplicantBaseView {
         applicantRoutes
             .review(params.profile(), params.applicantId(), params.completedProgramId())
             .url();
+    if (settingsManifest.getProgramSlugUrlsEnabled(params.request())) {
+      goBackHref =
+          applicantRoutes
+              .review(params.profile(), params.applicantId(), params.completedProgramSlug())
+              .url();
+    }
     context.setVariable("goBackHref", goBackHref);
 
     // Create account or login alert

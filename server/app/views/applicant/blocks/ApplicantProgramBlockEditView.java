@@ -150,7 +150,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
 
       if (applicationParams.errorDisplayMode()
           == ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW) {
-        setErrorContextForReview(context, applicationParams);
+        setErrorContextForReview(context, applicationParams, programSlug, request);
       } else {
         setErrorContextForPrevious(context, applicationParams);
       }
@@ -192,13 +192,16 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
 
   // Function to set context for the review action
   private void setErrorContextForReview(
-      ThymeleafModule.PlayThymeleafContext context, ApplicationBaseViewParams applicationParams) {
+      ThymeleafModule.PlayThymeleafContext context,
+      ApplicationBaseViewParams applicationParams,
+      String programSlug,
+      Request request) {
     setErrorContextForFormModal(
         context,
         getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE),
         MessageKey.MODAL_ERROR_SAVING_CONTENT_REVIEW.getKeyName(),
         MessageKey.MODAL_ERROR_SAVING_CONTINUE_BUTTON_REVIEW.getKeyName(),
-        reviewWithoutSaving(applicationParams));
+        reviewWithoutSaving(applicationParams, programSlug, request));
   }
 
   private String getFormAction(
@@ -238,7 +241,14 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
         .url();
   }
 
-  private String reviewWithoutSaving(ApplicationBaseViewParams params) {
+  private String reviewWithoutSaving(
+      ApplicationBaseViewParams params, String programSlug, Request request) {
+    if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+      return params
+          .applicantRoutes()
+          .review(params.profile(), params.applicantId(), programSlug)
+          .url();
+    }
     return params
         .applicantRoutes()
         .review(params.profile(), params.applicantId(), params.programId())

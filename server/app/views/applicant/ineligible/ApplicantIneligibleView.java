@@ -107,6 +107,11 @@ public class ApplicantIneligibleView extends ApplicantBaseView {
 
     String goBackHref =
         applicantRoutes.review(params.profile(), params.applicantId(), program.id()).url();
+
+    if (settingsManifest.getProgramSlugUrlsEnabled(params.request())) {
+      goBackHref =
+          applicantRoutes.review(params.profile(), params.applicantId(), program.slug()).url();
+    }
     context.setVariable("goBackHref", goBackHref);
 
     return templateEngine.process("applicant/ineligible/ApplicantIneligibleTemplate", context);

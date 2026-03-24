@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
+import controllers.applicant.ProgramSlugHandler;
 import controllers.routes;
 import java.util.Optional;
 import modules.ThymeleafModule;
@@ -37,6 +38,7 @@ public abstract class ApplicantBaseView {
   protected final SettingsManifest settingsManifest;
   protected final LanguageUtils languageUtils;
   protected final boolean isDevOrStaging;
+  protected final ProgramSlugHandler programSlugHandler;
   protected static final String THEME_PRIMARY_HEX = "#005ea2";
   protected static final String THEME_PRIMARY_DARKER_HEX = "#162e51";
 
@@ -47,7 +49,8 @@ public abstract class ApplicantBaseView {
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
-      DeploymentType deploymentType) {
+      DeploymentType deploymentType,
+      ProgramSlugHandler programSlugHandler) {
     this.templateEngine = checkNotNull(templateEngine);
     this.playThymeleafContextFactory = checkNotNull(playThymeleafContextFactory);
     this.bundledAssetsFinder = checkNotNull(bundledAssetsFinder);
@@ -55,6 +58,7 @@ public abstract class ApplicantBaseView {
     this.settingsManifest = checkNotNull(settingsManifest);
     this.languageUtils = checkNotNull(languageUtils);
     this.isDevOrStaging = checkNotNull(deploymentType).isDevOrStaging();
+    this.programSlugHandler = checkNotNull(programSlugHandler);
   }
 
   protected ThymeleafModule.PlayThymeleafContext createThymeleafContext(
@@ -318,6 +322,19 @@ public abstract class ApplicantBaseView {
           applicantId.isPresent() && profile.isPresent()
               ? applicantRoutes.review(profile.get(), applicantId.get(), programId).url()
               : applicantRoutes.review(programId).url();
+      if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+        // need someway to have access to the program slug from here... it won't be in the route,
+        // right?
+        // i don't want to add business logic in the view (yuck)
+        // although it is temporary...
+
+        // this throws a runtime exception... how would that be handled if it's thrown here?
+        String programSlug = programSlugHandler.getProgramSlug(String.valueOf(programId));
+        submitRedirectUri =
+            applicantId.isPresent() && profile.isPresent()
+                ? applicantRoutes.review(profile.get(), applicantId.get(), programSlug).url()
+                : applicantRoutes.review(programSlug).url();
+      }
       return submitRedirectUri;
     }
     // If the language was changed during a block update, redirect to /block/edit or /block/review

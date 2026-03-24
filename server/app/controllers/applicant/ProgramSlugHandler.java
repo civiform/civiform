@@ -17,6 +17,7 @@ import models.DisplayMode;
 import org.apache.commons.lang3.StringUtils;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.ClassLoaderExecutionContext;
+import play.mvc.Call;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
@@ -307,8 +308,12 @@ public final class ProgramSlugHandler {
       String programSlug,
       Http.Request request,
       CiviFormProfile profile) {
+    Call reviewRoute = applicantRoutes.review(profile, applicantId, programId);
+    if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+      reviewRoute = applicantRoutes.review(profile, applicantId, programSlug);
+    }
     return controller
-        .redirect(applicantRoutes.review(profile, applicantId, programId))
+        .redirect(reviewRoute)
         .flashing(FlashKey.REDIRECTED_FROM_PROGRAM_SLUG, programSlug)
         // If we had a redirectTo session key that redirected us here, remove it so that it doesn't
         // get used again.

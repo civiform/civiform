@@ -140,7 +140,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
                         Optional<Result> applicationUpdatedOptional =
                             updateApplicationToLatestProgramVersionIfNeeded(
-                                applicantId, programId, profile);
+                                applicantId, programId, profile, request);
                         if (applicationUpdatedOptional.isPresent()) {
                           return applicationUpdatedOptional.get();
                         }
@@ -260,7 +260,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
               CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
               Optional<Result> applicationUpdatedOptional =
-                  updateApplicationToLatestProgramVersionIfNeeded(applicantId, programId, profile);
+                  updateApplicationToLatestProgramVersionIfNeeded(
+                      applicantId, programId, profile, request);
               if (applicationUpdatedOptional.isPresent()) {
                 return CompletableFuture.completedFuture(applicationUpdatedOptional.get());
               }
@@ -333,6 +334,16 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 if (cause instanceof ApplicationSubmissionException) {
                   Call reviewPage =
                       applicantRoutes.review(submittingProfile, applicantId, programId);
+                  if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+                    final String programSlug;
+                    try {
+                      programSlug = programService.getSlug(programId);
+                    } catch (ProgramNotFoundException e) {
+                      return notFound(e.toString());
+                    }
+                    reviewPage =
+                        applicantRoutes.review(submittingProfile, applicantId, programSlug);
+                  }
                   String errorMsg =
                       messagesApi
                           .preferred(request)
@@ -346,6 +357,16 @@ public class ApplicantProgramReviewController extends CiviFormController {
                           .at(MessageKey.TOAST_APPLICATION_OUT_OF_DATE.getKeyName());
                   Call reviewPage =
                       applicantRoutes.review(submittingProfile, applicantId, programId);
+                  if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+                    final String programSlug;
+                    try {
+                      programSlug = programService.getSlug(programId);
+                    } catch (ProgramNotFoundException e) {
+                      return notFound(e.toString());
+                    }
+                    reviewPage =
+                        applicantRoutes.review(submittingProfile, applicantId, programSlug);
+                  }
                   return redirect(reviewPage).flashing(FlashKey.ERROR, errorMsg);
                 }
                 if (cause instanceof ApplicationNotEligibleException) {
@@ -369,6 +390,16 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 if (cause instanceof DuplicateApplicationException) {
                   Call reviewPage =
                       applicantRoutes.review(submittingProfile, applicantId, programId);
+                  if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+                    final String programSlug;
+                    try {
+                      programSlug = programService.getSlug(programId);
+                    } catch (ProgramNotFoundException e) {
+                      return notFound(e.toString());
+                    }
+                    reviewPage =
+                        applicantRoutes.review(submittingProfile, applicantId, programSlug);
+                  }
                   return found(reviewPage).flashing(FlashKey.DUPLICATE_SUBMISSION, "true");
                 }
                 throw new RuntimeException(cause);
@@ -404,12 +435,23 @@ public class ApplicantProgramReviewController extends CiviFormController {
    * @return {@link Result} if application was updated; empty if not
    */
   public Optional<Result> updateApplicationToLatestProgramVersionIfNeeded(
-      long applicantId, long programId, CiviFormProfile profile) {
+      long applicantId, long programId, CiviFormProfile profile, Http.Request request) {
     return applicantService
         .updateApplicationToLatestProgramVersion(applicantId, programId)
         .map(
-            latestProgramId ->
-                redirect(applicantRoutes.review(profile, applicantId, latestProgramId).url())
-                    .flashing(FlashKey.SHOW_FAST_FORWARDED_MESSAGE, "true"));
+            latestProgramId -> {
+              String reviewPage =
+                  applicantRoutes.review(profile, applicantId, latestProgramId).url();
+              if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+                final String programSlug;
+                try {
+                  programSlug = programService.getSlug(programId);
+                } catch (ProgramNotFoundException e) {
+                  return notFound(e.toString());
+                }
+                reviewPage = applicantRoutes.review(profile, applicantId, programSlug).url();
+              }
+              return redirect(reviewPage).flashing(FlashKey.SHOW_FAST_FORWARDED_MESSAGE, "true");
+            });
   }
 }

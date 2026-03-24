@@ -40,6 +40,8 @@ public abstract class UpsellParams {
   // Program ID of the program that was just applied to
   abstract long completedProgramId();
 
+  abstract String completedProgramSlug();
+
   abstract LocalizedStrings customConfirmationMessage();
 
   // Localized string for the date the application was submitted
@@ -70,6 +72,8 @@ public abstract class UpsellParams {
     public abstract Builder setProgramShortDescription(String programShortDescription);
 
     public abstract Builder setCompletedProgramId(long programId);
+
+    public abstract Builder setCompletedProgramSlug(String programSlug);
 
     public abstract Builder setCustomConfirmationMessage(
         LocalizedStrings customConfirmationMessage);

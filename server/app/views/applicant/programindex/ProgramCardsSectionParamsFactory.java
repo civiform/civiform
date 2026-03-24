@@ -247,6 +247,12 @@ public final class ProgramCardsSectionParamsFactory {
             haveApplicant
                 ? applicantRoutes.review(profile.get(), applicantId.get(), programId).url()
                 : applicantRoutes.review(programId).url();
+        if (programSlugUrlEnabled) {
+          actionUrl =
+              haveApplicant
+                  ? applicantRoutes.review(profile.get(), applicantId.get(), programSlug).url()
+                  : applicantRoutes.review(programSlug).url();
+        }
       } else if (optionalLifecycleStage.get() == LifecycleStage.DRAFT) {
         // DRAFT lifecycle stage means they have started but not submitted an application. Redirect
         // them to where they left off in the application.

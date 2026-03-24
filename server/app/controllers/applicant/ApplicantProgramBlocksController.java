@@ -474,7 +474,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       (v) -> {
                         Optional<Result> applicationUpdatedOptional =
                             updateApplicationToLatestProgramVersionIfNeeded(
-                                applicantId, programId, profile);
+                                applicantId, programId, profile, request);
                         if (applicationUpdatedOptional.isPresent()) {
                           return applicationUpdatedOptional.get();
                         }
@@ -602,7 +602,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
               Optional<Result> applicationUpdatedOptional =
-                  updateApplicationToLatestProgramVersionIfNeeded(applicantId, programId, profile);
+                  updateApplicationToLatestProgramVersionIfNeeded(
+                      applicantId, programId, profile, request);
               if (applicationUpdatedOptional.isPresent()) {
                 return applicationUpdatedOptional.get();
               }
@@ -1181,7 +1182,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
               Optional<Result> applicationUpdatedOptional =
-                  updateApplicationToLatestProgramVersionIfNeeded(applicantId, programId, profile);
+                  updateApplicationToLatestProgramVersionIfNeeded(
+                      applicantId, programId, profile, request);
               if (applicationUpdatedOptional.isPresent()) {
                 return CompletableFuture.completedFuture(applicationUpdatedOptional.get());
               }
@@ -1199,6 +1201,26 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
               if (canNavigateAwayFromBlockImmediately(
                   formData, applicantRequestedAction, optionalBlockBeforeUpdate)) {
+
+                if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+                  final String programSlug;
+                  try {
+                    programSlug = programService.getSlug(programId);
+                  } catch (ProgramNotFoundException e) {
+                    return supplyAsync(() -> notFound(e.toString()));
+                  }
+                  return redirectToRequestedPageWithProgramSlugUrls(
+                      profile,
+                      applicantId,
+                      programId,
+                      programSlug,
+                      blockId,
+                      inReview,
+                      applicantRequestedAction,
+                      readOnlyApplicantProgramService,
+                      /* flashingMap= */ ImmutableMap.of());
+                }
+
                 return redirectToRequestedPage(
                     profile,
                     applicantId,
@@ -1403,6 +1425,25 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     Map<String, String> flashingMap = new HashMap<>();
 
+    if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+      final String programSlug;
+      try {
+        programSlug = programService.getSlug(programId);
+      } catch (ProgramNotFoundException e) {
+        return supplyAsync(() -> notFound(e.toString()));
+      }
+      return redirectToRequestedPageWithProgramSlugUrls(
+          profile,
+          applicantId,
+          programId,
+          programSlug,
+          blockId,
+          inReview,
+          applicantRequestedAction,
+          roApplicantProgramService,
+          flashingMap);
+    }
+
     return redirectToRequestedPage(
         profile,
         applicantId,
@@ -1489,6 +1530,53 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             () ->
                 supplyAsync(
                     () -> redirect(applicantRoutes.review(profile, applicantId, programId))));
+  }
+
+  /** Returns the correct page based on the given {@code applicantRequestedAction}. */
+  private CompletionStage<Result> redirectToRequestedPageWithProgramSlugUrls(
+      CiviFormProfile profile,
+      long applicantId,
+      long programId,
+      String programSlug,
+      String blockId,
+      boolean inReview,
+      ApplicantRequestedAction applicantRequestedAction,
+      ReadOnlyApplicantProgramService roApplicantProgramService,
+      Map<String, String> flashingMap) {
+    if (applicantRequestedAction == REVIEW_PAGE) {
+      return supplyAsync(() -> redirect(applicantRoutes.review(profile, applicantId, programSlug)));
+    }
+    if (applicantRequestedAction == PREVIOUS_BLOCK) {
+      int currentBlockIndex = roApplicantProgramService.getBlockIndex(blockId);
+      return supplyAsync(
+          () ->
+              redirect(
+                  applicantRoutes
+                      .blockPreviousOrReview(
+                          profile, applicantId, programId, programSlug, currentBlockIndex, inReview)
+                      .url()));
+    }
+
+    Optional<String> nextBlockIdMaybe =
+        inReview
+            ? roApplicantProgramService
+                .getFirstBlockRequiringAction(/* includeStatic= */ false)
+                .map(Block::getId)
+            : roApplicantProgramService.getInProgressBlockAfter(blockId).map(Block::getId);
+    return nextBlockIdMaybe
+        .map(
+            nextBlockId ->
+                supplyAsync(
+                    () ->
+                        redirect(
+                                applicantRoutes.blockEditOrBlockReview(
+                                    profile, applicantId, programSlug, nextBlockId, inReview))
+                            .flashing(flashingMap)))
+        // No next block so go to the program review page.
+        .orElseGet(
+            () ->
+                supplyAsync(
+                    () -> redirect(applicantRoutes.review(profile, applicantId, programSlug))));
   }
 
   /**
@@ -1729,12 +1817,23 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    * @return {@link Result} if application was updated; empty if not
    */
   private Optional<Result> updateApplicationToLatestProgramVersionIfNeeded(
-      long applicantId, long programId, CiviFormProfile profile) {
+      long applicantId, long programId, CiviFormProfile profile, Http.Request request) {
     return applicantService
         .updateApplicationToLatestProgramVersion(applicantId, programId)
         .map(
-            latestProgramId ->
-                redirect(applicantRoutes.review(profile, applicantId, latestProgramId).url())
-                    .flashing(FlashKey.SHOW_FAST_FORWARDED_MESSAGE, "true"));
+            (latestProgramId) -> {
+              String reviewPage =
+                  applicantRoutes.review(profile, applicantId, latestProgramId).url();
+              if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+                final String programSlug;
+                try {
+                  programSlug = programService.getSlug(latestProgramId);
+                } catch (ProgramNotFoundException e) {
+                  return notFound(e.toString());
+                }
+                reviewPage = applicantRoutes.review(profile, applicantId, programSlug).url();
+              }
+              return redirect(reviewPage).flashing(FlashKey.SHOW_FAST_FORWARDED_MESSAGE, "true");
+            });
   }
 }

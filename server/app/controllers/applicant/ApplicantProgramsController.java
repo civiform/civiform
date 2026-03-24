@@ -287,9 +287,16 @@ public final class ApplicantProgramsController extends CiviFormController {
                       resultMaybe -> {
                         if (resultMaybe.isEmpty()) {
                           return supplyAsync(
-                              () ->
-                                  redirect(
-                                      applicantRoutes.review(profile, applicantId, programId)));
+                              () -> {
+                                if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+                                  String programSlug =
+                                      programSlugHandler.getProgramSlug(programParam);
+                                  return redirect(
+                                      applicantRoutes.review(profile, applicantId, programSlug));
+                                }
+                                return redirect(
+                                    applicantRoutes.review(profile, applicantId, programId));
+                              });
                         }
                         return supplyAsync(resultMaybe::get);
                       },
