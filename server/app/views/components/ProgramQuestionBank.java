@@ -25,8 +25,10 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Stream;
 import org.apache.http.client.utils.URIBuilder;
+import play.i18n.Messages;
 import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
+import services.MessageKey;
 import services.ProgramBlockValidation;
 import services.ProgramBlockValidation.AddQuestionResult;
 import services.ProgramBlockValidationFactory;
@@ -56,6 +58,7 @@ public final class ProgramQuestionBank {
   private final ProgramQuestionBankParams params;
   private final ProgramBlockValidationFactory programBlockValidationFactory;
   private final SettingsManifest settingsManifest;
+  private final Messages messages;
   private final Http.Request request;
 
   /**
@@ -72,10 +75,12 @@ public final class ProgramQuestionBank {
       ProgramQuestionBankParams params,
       ProgramBlockValidationFactory programBlockValidationFactory,
       SettingsManifest settingsManifest,
+      Messages messages,
       Http.Request request) {
     this.params = checkNotNull(params);
     this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.messages = checkNotNull(messages);
     this.request = checkNotNull(request);
   }
 
@@ -177,12 +182,47 @@ public final class ProgramQuestionBank {
                     .reversed()
                     .thenComparing(qdef -> qdef.getName().toLowerCase(Locale.ROOT)))
             .collect(ImmutableList.toImmutableList());
-    ImmutableList<QuestionDefinition> universalQuestions =
-        allQuestions.stream().filter(q -> q.isUniversal()).collect(ImmutableList.toImmutableList());
-    ImmutableList<QuestionDefinition> nonUniversalQuestions =
+
+    boolean shouldShowPreviouslyUsedSection =
+        settingsManifest.getEnumeratorImprovementsEnabled(request)
+            && params.blockDefinition().isRepeated();
+
+    ImmutableList<QuestionDefinition> previouslyUsedForRepeatedSetQuestions =
+        shouldShowPreviouslyUsedSection
+            ? allQuestions.stream()
+                .filter(q -> q.getEnumeratorId().isPresent())
+                .collect(ImmutableList.toImmutableList())
+            : ImmutableList.of();
+
+    ImmutableList<QuestionDefinition> remainingQuestions =
         allQuestions.stream()
+            .filter(q -> !(shouldShowPreviouslyUsedSection && q.getEnumeratorId().isPresent()))
+            .collect(ImmutableList.toImmutableList());
+
+    ImmutableList<QuestionDefinition> universalQuestions =
+        remainingQuestions.stream()
+            .filter(QuestionDefinition::isUniversal)
+            .collect(ImmutableList.toImmutableList());
+    ImmutableList<QuestionDefinition> nonUniversalQuestions =
+        remainingQuestions.stream()
             .filter(q -> !q.isUniversal())
             .collect(ImmutableList.toImmutableList());
+
+    if (!previouslyUsedForRepeatedSetQuestions.isEmpty()) {
+      contentDiv.with(
+          div()
+              .withId("question-bank-previously-used")
+              .withClasses(ReferenceClasses.SORTABLE_QUESTIONS_CONTAINER)
+              .with(
+                  h2(messages.at(MessageKey.HEADING_REPEATED_SET_PREVIOUSLY_USED.getKeyName()))
+                      .withClasses(AdminStyles.SEMIBOLD_HEADER))
+              .with(
+                  AlertComponent.renderSlimInfoAlert(
+                      messages.at(MessageKey.ALERT_REPEATED_SET_PREVIOUSLY_USED.getKeyName())))
+              .with(
+                  each(previouslyUsedForRepeatedSetQuestions, qd -> renderQuestionDefinition(qd))));
+    }
+
     if (!universalQuestions.isEmpty()) {
       contentDiv.with(
           div()

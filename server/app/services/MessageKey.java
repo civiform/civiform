@@ -49,6 +49,7 @@ public enum MessageKey {
   ALERT_NO_PROGRAMS_AVAILABLE("alert.noProgramsAvailable"),
   ALERT_REPEATED_SET_ADD_QUESTION_DISABLED("alert.repeatedSet.addQuestionDisabled"),
   ALERT_REPEATED_SET_NEW_QUESTION("alert.repeatedSet.newQuestion"),
+  ALERT_REPEATED_SET_PREVIOUSLY_USED("alert.repeatedSet.previouslyUsed"),
   ALERT_SUBMITTED("alert.submitted"), // North Star only
   BANNER_ERROR_SAVING_APPLICATION("banner.errorSavingApplication"),
   BANNER_CLIENT_INFO_UPDATED("banner.clientInfoUpdated"),
@@ -154,6 +155,7 @@ public enum MessageKey {
   HEADER_SEARCH("header.search"),
   HEADING_INFORMATION_ARIA_LABEL_PREFIX("heading.informationAriaLabelPrefix"), // North Star only
   HEADING_REPEATED_SET_CREATION_METHOD("heading.repeatedSet.creationMethod"),
+  HEADING_REPEATED_SET_PREVIOUSLY_USED("heading.repeatedSet.previouslyUsed"),
   HEADING_REPEATED_SET_QUESTION("heading.repeatedSet.question"),
   HEADING_REPEATED_QUESTIONS("heading.repeatedQuestions"),
   HEADING_REVIEW_AND_SUBMIT("heading.reviewAndSubmit"), // North Star only
