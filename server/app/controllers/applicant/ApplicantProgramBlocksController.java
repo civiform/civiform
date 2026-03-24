@@ -1103,7 +1103,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   @Secure
-  public CompletionStage<Result> hxSelectFileForUploadWithApplicantId(
+  private CompletionStage<Result> hxSelectFileForUploadWithApplicantId(
       Request request, long applicantId, long programId, String blockId) {
     if (!settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
       return CompletableFuture.completedFuture(notFound());
