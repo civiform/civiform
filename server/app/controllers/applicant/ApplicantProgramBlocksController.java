@@ -1098,17 +1098,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       return CompletableFuture.completedFuture(badRequest());
     }
 
-    return hxSelectFileForUploadWithApplicantId(
-        request, optionalApplicantId.get(), programId, blockId);
-  }
-
-  @Secure
-  private CompletionStage<Result> hxSelectFileForUploadWithApplicantId(
-      Request request, long applicantId, long programId, String blockId) {
-    if (!settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
-      return CompletableFuture.completedFuture(notFound());
-    }
-
     // TODO: Perform file upload
     return CompletableFuture.completedFuture(ok());
   }
