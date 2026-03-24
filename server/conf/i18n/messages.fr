@@ -1179,6 +1179,8 @@ input.repeatedSet.maxEntities=
 alert.repeatedSet.addQuestionDisabled=Une question d’ensemble répété doit d’abord être ajoutée avant de pouvoir ajouter des questions répétées. Veuillez accéder à l’écran parent pour ajouter une question d’ensemble répété.
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
 alert.repeatedSet.newQuestion=La création d’un ensemble répété ajoutera une nouvelle question à la banque de questions.
+# Alert shown in the question bank section listing repeated questions that are already associated with this repeated set
+alert.repeatedSet.previouslyUsed=Questions that are associated with a different repeated set are not available to be added.
 # Submission button for creating a new repeated set
 button.repeatedSet.submitNew=
 # Button for admins to add a new repeated set
@@ -1201,6 +1203,8 @@ text.repeatedSet.addQuestionDescription=
 text.repeatedQuestions.description=Ajoutez les questions que vous souhaitez poser pour chaque objet ou chaque personne mentionnée par le demandeur. Si une question que vous ajoutez n’est pas déjà associée à l’ensemble répété, elle sera dupliquée dans la banque de questions pour cet ensemble répété.
 # Heading above the repeated set question in the program block editor
 heading.repeatedSet.question=
+# Heading shown above repeated questions in the question bank that are already associated with this repeated set
+heading.repeatedSet.previouslyUsed=Previously used for this repeated set
 # Heading above the questions section on repeated screens in the admin program screen editor.
 heading.repeatedQuestions=Questions répétées
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
