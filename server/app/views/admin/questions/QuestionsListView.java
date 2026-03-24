@@ -25,6 +25,7 @@ import j2html.tags.specialized.PTag;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
@@ -657,7 +658,7 @@ public final class QuestionsListView extends BaseHtmlView {
             .build());
   }
 
-  private DivTag referencingProgramList(String title, Collection<String> programNames) {
+  private DivTag referencingProgramList(String title, List<String> programNames) {
     // TODO(#3162): Add ability to view a published program. Then add links to the
     // specific block that references the question.
     return div()
