@@ -637,8 +637,6 @@ public final class QuestionsListView extends BaseHtmlView {
             !referencingPrograms.removedPrograms().isEmpty(),
             div()
                 .with(
-                    // TODO(#3162): Add ability to view a published program. Then add links to the
-                    // specific block that references the question.
                     referencingProgramList(
                         "This question is removed from:",
                         () ->
@@ -663,6 +661,8 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   private DivTag referencingProgramList(String title, Iterable<String> programNames) {
+    // TODO(#3162): Add ability to view a published program. Then add links to the
+    // specific block that references the question.
     return div()
         .with(p(title).withClass("font-semibold"))
         .with(
