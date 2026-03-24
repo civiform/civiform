@@ -19,11 +19,12 @@ class AdminPrograms {
   private static REPEATED_SET_LISTED_ENTITY_INPUT_ID = 'listed-entity-input'
   private static REPEATED_SET_ADMIN_ID_INPUT_ID = 'enumerator-admin-id-input'
   private static REPEATED_SET_QUESTION_TEXT_INPUT_ID = 'question-text-input'
+  private static REPEATED_SET_AUTOFILL_LISTENER_ATTACHED_DATA_ATTRIBUTE =
+    'autofillListenerAttached'
   private static REPEATED_SET_PREVIOUS_ADMIN_ID_SUGGESTION_DATA_ATTRIBUTE =
     'previousAdminIdSuggestion'
   private static REPEATED_SET_PREVIOUS_QUESTION_TEXT_SUGGESTION_DATA_ATTRIBUTE =
     'previousQuestionTextSuggestion'
-  private static hasAttachedRepeatedSetAutofillListener = false
 
   static attachConfirmPreScreenerChangeListener() {
     addEventListenerToElements(
@@ -359,7 +360,7 @@ class AdminPrograms {
         return
       }
       if (targetElement.id === 'enumerator-setup') {
-        this.maybeAutofillRepeatedSetFormFields()
+        this.attachEventListenerToRepeatedSetFieldAutofill()
         if (document.getElementById('new-enumerator-question-form-errors')) {
           this.focusOnFirstEnumeratorFormField()
         } else {
@@ -414,24 +415,33 @@ class AdminPrograms {
   }
 
   static attachEventListenerToRepeatedSetFieldAutofill() {
-    if (this.hasAttachedRepeatedSetAutofillListener) {
+    const listedEntityInputElement = document.getElementById(
+      this.REPEATED_SET_LISTED_ENTITY_INPUT_ID,
+    ) as HTMLInputElement | null
+    if (!listedEntityInputElement) {
       return
     }
 
-    document.body.addEventListener('input', (event) => {
-      const target = event.target as HTMLElement | null
-      if (!(target instanceof HTMLInputElement)) {
-        return
-      }
-      if (target.id !== this.REPEATED_SET_LISTED_ENTITY_INPUT_ID) {
-        return
-      }
+    if (
+      listedEntityInputElement.dataset[
+        this.REPEATED_SET_AUTOFILL_LISTENER_ATTACHED_DATA_ATTRIBUTE
+      ] === 'true'
+    ) {
+      this.maybeAutofillRepeatedSetFormFields(listedEntityInputElement)
+      return
+    }
 
-      this.maybeAutofillRepeatedSetFormFields(target)
+    listedEntityInputElement.addEventListener('input', () => {
+      this.maybeAutofillRepeatedSetFormFields(listedEntityInputElement)
     })
 
-    this.hasAttachedRepeatedSetAutofillListener = true
-    this.maybeAutofillRepeatedSetFormFields()
+    listedEntityInputElement.dataset[
+      this.REPEATED_SET_AUTOFILL_LISTENER_ATTACHED_DATA_ATTRIBUTE
+    ] = 'true'
+
+    // Keep suggestions in sync when the form loads with a pre-filled entity,
+    // including the rerender after server-side validation errors.
+    this.maybeAutofillRepeatedSetFormFields(listedEntityInputElement)
   }
 
   static maybeAutofillRepeatedSetFormFields(

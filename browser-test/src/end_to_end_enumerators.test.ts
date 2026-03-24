@@ -812,6 +812,15 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       page,
     }) => {
       const blockPanel = page.getByTestId('block-panel-edit')
+      const listedEntityInput = blockPanel.getByRole('textbox', {
+        name: 'Listed entity',
+      })
+      const adminIdInput = blockPanel.getByRole('textbox', {
+        name: 'Repeated set admin ID',
+      })
+      const questionTextInput = blockPanel.getByRole('textbox', {
+        name: 'Question text',
+      })
 
       await test.step('Add a new repeated set and select its block', async () => {
         await page.getByRole('button', {name: 'Add screen'}).first().click()
@@ -820,33 +829,20 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Auto-fill admin id and question text from listed entity', async () => {
-        const listedEntityInput = blockPanel.getByRole('textbox', {
-          name: 'Listed entity',
-        })
         await listedEntityInput.fill('household member')
 
-        await expect(
-          blockPanel.getByRole('textbox', {name: 'Repeated set admin ID'}),
-        ).toHaveValue('household member repeated set')
-        await expect(
-          blockPanel.getByRole('textbox', {name: 'Question text'}),
-        ).toHaveValue('Please add each household member')
+        await expect(adminIdInput).toHaveValue('household member repeated set')
+        await expect(questionTextInput).toHaveValue(
+          'Please add each household member',
+        )
       })
 
       await test.step('Preserve manual edits for suggested fields', async () => {
-        const adminIdInput = blockPanel.getByRole('textbox', {
-          name: 'Repeated set admin ID',
-        })
         await adminIdInput.fill('custom repeated set id')
 
-        const questionTextInput = blockPanel.getByRole('textbox', {
-          name: 'Question text',
-        })
         await questionTextInput.fill('Custom repeated set prompt')
 
-        await blockPanel
-          .getByRole('textbox', {name: 'Listed entity'})
-          .fill('income source')
+        await listedEntityInput.fill('income source')
 
         await expect(adminIdInput).toHaveValue('custom repeated set id')
         await expect(questionTextInput).toHaveValue(
@@ -855,14 +851,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Resume auto-fill after clearing manual field', async () => {
-        const questionTextInput = blockPanel.getByRole('textbox', {
-          name: 'Question text',
-        })
         await questionTextInput.fill('')
 
-        await blockPanel
-          .getByRole('textbox', {name: 'Listed entity'})
-          .fill('household item')
+        await listedEntityInput.fill('household item')
 
         await expect(questionTextInput).toHaveValue(
           'Please add each household item',
