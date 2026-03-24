@@ -1179,6 +1179,8 @@ input.repeatedSet.maxEntities=
 alert.repeatedSet.addQuestionDisabled=新增重複問題前，必須先新增重複題組。請至上一層畫面新增重複題組。
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
 alert.repeatedSet.newQuestion=建立重複題組將在題庫中新增一道題目。
+# Alert shown in the question bank section listing repeated questions that are already associated with this repeated set
+alert.repeatedSet.previouslyUsed=Questions that are associated with a different repeated set are not available to be added.
 # Submission button for creating a new repeated set
 button.repeatedSet.submitNew=
 # Button for admins to add a new repeated set
@@ -1201,6 +1203,8 @@ text.repeatedSet.addQuestionDescription=
 text.repeatedQuestions.description=請針對申請人列出的每個物件或個人，新增您想問的問題。若您新增的問題尚未與該重複題組關聯，該問題將在題庫中複製進此重複題組。
 # Heading above the repeated set question in the program block editor
 heading.repeatedSet.question=
+# Heading shown above repeated questions in the question bank that are already associated with this repeated set
+heading.repeatedSet.previouslyUsed=Previously used for this repeated set
 # Heading above the questions section on repeated screens in the admin program screen editor.
 heading.repeatedQuestions=重複的問題
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
