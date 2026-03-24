@@ -1949,7 +1949,7 @@ export class AdminPrograms {
       .locator('button:has-text("Address correction")')
       .click()
     await responsePromise
-    await this.page.waitForLoadState()
+    await waitForPageJsLoad(this.page)
   }
 
   getPreScreenerFormToggle() {
