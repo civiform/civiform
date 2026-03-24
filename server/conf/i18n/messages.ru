@@ -1179,6 +1179,8 @@ input.repeatedSet.maxEntities=
 alert.repeatedSet.addQuestionDisabled=Перед добавлением повторяющихся вопросов необходимо добавить вопросы для повторяющегося набора. Чтобы сделать это, перейдите на основной экран.
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
 alert.repeatedSet.newQuestion=При создании повторяющегося набора новый вопрос будет добавлен в банк.
+# Alert shown in the question bank section listing repeated questions that are already associated with this repeated set
+alert.repeatedSet.previouslyUsed=Questions that are associated with a different repeated set are not available to be added.
 # Submission button for creating a new repeated set
 button.repeatedSet.submitNew=
 # Button for admins to add a new repeated set
@@ -1201,6 +1203,8 @@ text.repeatedSet.addQuestionDescription=
 text.repeatedQuestions.description=Добавьте нужные вопросы по всем объектам или людям, указанным заявителем. Если добавленный вопрос еще не связан с повторяющимся набором, он будет продублирован в текущем повторяющемся наборе в банке вопросов.
 # Heading above the repeated set question in the program block editor
 heading.repeatedSet.question=
+# Heading shown above repeated questions in the question bank that are already associated with this repeated set
+heading.repeatedSet.previouslyUsed=Previously used for this repeated set
 # Heading above the questions section on repeated screens in the admin program screen editor.
 heading.repeatedQuestions=Повторяющиеся вопросы
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
