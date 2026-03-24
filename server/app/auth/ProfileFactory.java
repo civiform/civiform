@@ -160,7 +160,7 @@ public final class ProfileFactory {
         .getAccount()
         .thenAccept(
             account -> {
-              account.addActiveSession(profileData.getSessionId(), clock);
+              addActiveSession(account, profileData);
               account.save();
             })
         .join();
