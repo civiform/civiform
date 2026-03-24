@@ -263,6 +263,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   blockDefinition,
                   csrfTag,
                   ProgramQuestionBank.shouldShowQuestionBank(request),
+                  messages,
                   request))
           .addMainContent(
               addFormEndpoints(
@@ -1722,6 +1723,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       BlockDefinition blockDefinition,
       InputTag csrfTag,
       ProgramQuestionBank.Visibility questionBankVisibility,
+      Messages messages,
       Request request) {
     String addQuestionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.create(
@@ -1745,6 +1747,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .build(),
             programBlockValidationFactory,
             settingsManifest,
+            messages,
             request);
     return qb.getContainer(questionBankVisibility);
   }
