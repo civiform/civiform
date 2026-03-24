@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import models.AccountModel;
 import models.ApiKeyModel;
 import models.ApplicantModel;
 import models.TrustedIntermediaryGroupModel;
@@ -100,7 +99,7 @@ public final class ProfileFactory {
             account -> {
               account.setGlobalAdmin(true);
               maybeAuthorityId.ifPresent(account::setAuthorityId);
-              addActiveSession(account, profileData);
+              account.addActiveSession(profileData.getSessionId(), clock);
               account.save();
             })
         .join();
@@ -145,7 +144,7 @@ public final class ProfileFactory {
         .thenAccept(
             account -> {
               profile.storeApplicantIdInProfile(account);
-              addActiveSession(account, profileData);
+              account.addActiveSession(profileData.getSessionId(), clock);
               account.save();
             })
         .join();
@@ -158,7 +157,7 @@ public final class ProfileFactory {
         .getAccount()
         .thenAccept(
             account -> {
-              addActiveSession(account, profileData);
+              account.addActiveSession(profileData.getSessionId(), clock);
               account.save();
             })
         .join();
@@ -186,7 +185,7 @@ public final class ProfileFactory {
                                   .getShallowProgramDefinition(program)));
               account.setEmailAddress(String.format("fake-local-admin-%d@example.com", account.id));
               account.setAuthorityId(generateFakeAdminAuthorityId());
-              addActiveSession(account, p);
+              account.addActiveSession(p.getSessionId(), clock);
               account.save();
             })
         .join();
@@ -215,7 +214,7 @@ public final class ProfileFactory {
                                   .get()
                                   .getShallowProgramDefinition(program)));
               account.setEmailAddress(String.format("fake-local-admin-%d@example.com", account.id));
-              addActiveSession(account, p);
+              account.addActiveSession(p.getSessionId(), clock);
               account.save();
             })
         .join();
@@ -250,7 +249,7 @@ public final class ProfileFactory {
             account -> {
               account.setAuthorityId(generateFakeAdminAuthorityId());
               account.setEmailAddress(email);
-              addActiveSession(account, tiProfileData);
+              account.addActiveSession(tiProfileData.getSessionId(), clock);
               account.save();
               accountRepository.addTrustedIntermediaryToGroup(group.id, email);
             })
@@ -263,10 +262,6 @@ public final class ProfileFactory {
     accountRepository.updateApplicant(tiApplicant);
 
     return tiProfileData;
-  }
-
-  private void addActiveSession(AccountModel account, CiviFormProfileData profileData) {
-    account.addActiveSession(profileData.getSessionId(), clock);
   }
 
   private static String generateFakeAdminAuthorityId() {
