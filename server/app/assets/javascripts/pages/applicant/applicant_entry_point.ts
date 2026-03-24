@@ -16,6 +16,7 @@ import * as azureDelete from '@/azure_delete'
 import * as azureUpload from '@/azure_upload'
 import * as phoneNumber from '@/phone'
 import * as htmx from '@/htmx'
+import * as questionImages from '@/question_images'
 import {SessionTimeoutHandler} from '@/session'
 
 declare global {
@@ -41,5 +42,6 @@ window.addEventListener('load', () => {
   azureDelete.init()
   azureUpload.init(AZURE_APPLICANT_FILEUPLOAD_FORM_ID)
   phoneNumber.init()
+  questionImages.init()
   SessionTimeoutHandler.init()
 })

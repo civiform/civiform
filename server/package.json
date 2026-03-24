@@ -48,6 +48,7 @@
     "dompurify": "3.3.2",
     "maplibre-gl": "^5.6.1",
     "markdown-it": "14.1.1",
+    "photoswipe": "^5.4.4",
     "swagger-ui-dist": "^5.18.2"
   },
   "browserslist": [
