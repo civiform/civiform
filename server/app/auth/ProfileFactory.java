@@ -155,7 +155,16 @@ public final class ProfileFactory {
   }
 
   public CiviFormProfileData createNewProgramAdmin() {
-    return create(new Role[] {Role.ROLE_PROGRAM_ADMIN});
+    CiviFormProfileData profileData = create(new Role[] {Role.ROLE_PROGRAM_ADMIN});
+    wrapProfileData(profileData)
+        .getAccount()
+        .thenAccept(
+            account -> {
+              account.addActiveSession(profileData.getSessionId(), clock);
+              account.save();
+            })
+        .join();
+    return profileData;
   }
 
   /**
