@@ -14,6 +14,14 @@ public abstract class StreamingMultipartUploadResult {
 
   public abstract Status getStatus();
 
+  public static Builder builder() {
+    return new AutoValue_StreamingMultipartUploadResult.Builder();
+  }
+
+  public static StreamingMultipartUploadResult success() {
+    return builder().setStatus(Status.SUCCESS).build();
+  }
+
   @AutoValue.Builder
   public abstract static class Builder {
     public abstract Builder setStatus(Status status);

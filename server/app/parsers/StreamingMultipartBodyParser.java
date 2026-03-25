@@ -23,12 +23,11 @@ import play.mvc.Http.MultipartFormData.FilePart;
  */
 public abstract class StreamingMultipartBodyParser
     extends BodyParser.DelegatingMultipartFormDataBodyParser<Void> {
-  private static final int MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MiB
   private static final int CHUNK_SIZE = 1024 * 1024; // 1 MiB
 
   public StreamingMultipartBodyParser(
-      Materializer materializer, DefaultHttpErrorHandler errorHandler) {
-    super(materializer, CHUNK_SIZE, MAX_FILE_SIZE, /* allowEmptyFiles= */ false, errorHandler);
+      Materializer materializer, DefaultHttpErrorHandler errorHandler, long maxFileSize) {
+    super(materializer, CHUNK_SIZE, maxFileSize, /* allowEmptyFiles= */ false, errorHandler);
   }
 
   // Override the method to create a file part handler that streams the file data to the destination

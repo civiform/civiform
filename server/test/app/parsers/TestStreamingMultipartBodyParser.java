@@ -17,7 +17,8 @@ public final class TestStreamingMultipartBodyParser extends StreamingMultipartBo
       Materializer materializer,
       DefaultHttpErrorHandler errorHandler,
       StreamingOutputBuffer outputBuffer) {
-    super(materializer, errorHandler);
+    long maxFileSize = 1024 * 1024 * 100L; // 100MB
+    super(materializer, errorHandler, maxFileSize);
     this.outputBuffer = outputBuffer;
   }
 
