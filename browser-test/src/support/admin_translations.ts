@@ -241,9 +241,9 @@ export class AdminTranslations {
   }
 
   async expectNoProgramImageDescription() {
-    expect(
-      await this.page.getByLabel('Program image description').count(),
-    ).toEqual(0)
+    await expect(
+      this.page.getByLabel('Program image description'),
+    ).toHaveCount(0)
   }
 
   async expectProgramImageDescriptionTranslation(

@@ -833,7 +833,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
         await expect(adminIdInput).toHaveValue('household member repeated set')
         await expect(questionTextInput).toHaveValue(
-          'Please add each household member',
+          'Please add each household member.',
         )
       })
 
@@ -856,7 +856,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await listedEntityInput.fill('household item')
 
         await expect(questionTextInput).toHaveValue(
-          'Please add each household item',
+          'Please add each household item.',
         )
       })
     })
