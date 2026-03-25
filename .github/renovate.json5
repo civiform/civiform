@@ -123,6 +123,12 @@
       ],
       labels: ["dependencies", "ignore-for-release"],
     },
+    // Keep localstack on v4.x due to licensing changes
+    {
+      matchPackageNames: ["localstack/localstack"],
+      matchManagers: ["docker-compose"],
+      allowedVersions: "<5.0.0",
+    },
     {
       matchPackageNames: ["postgres"],
       allowedVersions: "<17.0.0",
