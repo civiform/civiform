@@ -139,7 +139,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Optional<ToastMessage> message,
       ImmutableList<QuestionDefinition> questions,
       ImmutableList<QuestionDefinition> allPreviousVersionQuestions,
-      Messages messages) {
+      Messages messages,
+      Optional<QuestionDefinition> optionalInitialQuestion) {
     return render(
         request,
         program,
@@ -154,7 +155,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
         message,
         questions,
         allPreviousVersionQuestions,
-        messages);
+        messages,
+        optionalInitialQuestion);
   }
 
   public Content render(
@@ -167,7 +169,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Optional<ToastMessage> message,
       ImmutableList<QuestionDefinition> questions,
       ImmutableList<QuestionDefinition> allPreviousVersionQuestions,
-      Messages messages) {
+      Messages messages,
+      Optional<QuestionDefinition> optionalInitialQuestion) {
     InputTag csrfTag = makeCsrfTokenInputTag(request);
 
     String title =
@@ -250,7 +253,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                                         blockDescriptionEditModal.getButton(),
                                         blockDeleteScreenModal.getButton(),
                                         request,
-                                        messages)))));
+                                        messages,
+                                        optionalInitialQuestion)))));
 
     // Add top level UI that is only visible in the editable version.
     if (viewAllowsEditingProgram()) {
@@ -587,7 +591,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       ButtonTag blockDescriptionModalButton,
       ButtonTag blockDeleteModalButton,
       Request request,
-      Messages messages) {
+      Messages messages,
+      Optional<QuestionDefinition> optionalInitialQuestion) {
 
     boolean enumeratorImprovementsEnabled =
         settingsManifest.getEnumeratorImprovementsEnabled(request);
@@ -675,7 +680,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
               ProgramQuestionDefinition question = blockQuestions.get(index);
               QuestionDefinition questionDefinition =
                   findQuestionDefinition(question, allPreviousVersionQuestions);
-              boolean isInitialQuestion = isEnumeratorBlock && blockQuestions.size() == 1;
+//              boolean isInitialQuestion = isEnumeratorBlock && blockQuestions.size() == 1;
 
               questionCardsBuilder.add(
                   renderQuestion(
@@ -687,7 +692,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                       index,
                       blockQuestions.size(),
                       request,
-                      isInitialQuestion));
+                    false));
             });
 
     ImmutableList<DivTag> questionCards = questionCardsBuilder.build();
@@ -717,11 +722,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
       maybeEligibilityPredicateDisplay.ifPresent(div::with);
 
       if (isEnumeratorBlock) {
-        long initialQuestionId = 0;
+//        long initialQuestionId = 0;
         // If the enumerator block has only the initial question
-        if (questionCards.size() == 1) {
-          initialQuestionId = blockDefinition.programQuestionDefinitions().get(0).id();
-        }
+//        if (questionCards.size() == 1) {
+//          initialQuestionId = blockDefinition.programQuestionDefinitions().get(0).id();
+//        }
         return div.with(
             renderEnumeratorScreenContent(
                 blockHasEnumeratorQuestion,
@@ -730,10 +735,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 program.id(),
                 blockDefinition,
                 optionalEnumeratorCard,
-                /* optionalInitialQuestionCard= */ questionCards.size() == 1
-                    ? Optional.of(questionCards.get(0))
-                    : Optional.empty(),
-                initialQuestionId));
+                /* optionalInitialQuestionCard= */ optionalInitialQuestion.map(
+                  questionDefinition -> renderQuestion(
+                    Optional.of(csrfTag), program, blockDefinition, optionalInitialQuestion.get(), ProgramQuestionDefinition.create(optionalInitialQuestion.get(), Optional.of(program.id())), 0, 1, request, /* isInitialQuestion= */ true)),
+                optionalInitialQuestion));
       }
 
       return div.with(
@@ -824,7 +829,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       BlockDefinition blockDefinition,
       Optional<DivTag> optionalEnumeratorCard,
       Optional<DivTag> optionalInitialQuestionCard,
-      long initialQuestionId) {
+      Optional<QuestionDefinition> optionalInitialQuestion) {
     // If it's an empty enumerator block
     if (!blockHasEnumeratorQuestion || optionalEnumeratorCard.isEmpty()) {
       return renderEnumeratorSetupSection(
@@ -835,7 +840,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
           /* optionalQuestionForm= */ Optional.empty(),
           /* errorMessages= */ ImmutableSet.of(),
           optionalInitialQuestionCard,
-          initialQuestionId);
+          optionalInitialQuestion);
     } else {
       return renderEnumeratorSectionWithSelectedQuestion(
           messages, optionalEnumeratorCard, blockHasEnumeratorQuestion);
@@ -897,7 +902,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Optional<EnumeratorQuestionForm> optionalQuestionForm,
       ImmutableSet<CiviFormError> errorMessages,
       Optional<DivTag> optionalInitialQuestionCard,
-      long initialQuestionId) {
+      Optional<QuestionDefinition> optionalInitialQuestion) {
+
+    long initialQuestionId = optionalInitialQuestion.map(QuestionDefinition::getId).orElse(0L);
     return div(
             renderCreationMethodRadioButtons(messages),
             renderNewEnumeratorQuestionForm(
@@ -909,7 +916,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 errorMessages,
                 optionalInitialQuestionCard),
             iff(
-                optionalInitialQuestionCard.isPresent() && initialQuestionId > 0,
+                  optionalInitialQuestion.isPresent(),
+//                optionalInitialQuestionCard.isPresent() && initialQuestionId > 0,
                 renderDeleteQuestionFormWithoutContents(
                     makeCsrfTokenInputTag(request), programId, blockId, initialQuestionId)),
             renderChooseExistingQuestion(messages))
@@ -1707,6 +1715,13 @@ public final class ProgramBlocksView extends ProgramBaseView {
       ProgramQuestionBank.Visibility questionBankVisibility,
       Request request) {
     String addQuestionAction =
+      settingsManifest.getEnumeratorImprovementsEnabled(request) &&
+      blockDefinition.getIsEnumerator() &&
+      !blockDefinition.hasEnumeratorQuestion() ?
+        ProgramQuestionBank.addShowQuestionBankParam(
+        controllers.admin.routes.AdminProgramBlocksController.edit(
+              program.id(), blockDefinition.id())
+            .url()) :
         controllers.admin.routes.AdminProgramBlockQuestionsController.create(
                 program.id(), blockDefinition.id())
             .url();

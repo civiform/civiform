@@ -371,6 +371,18 @@ public final class ProgramQuestionBank {
     }
   }
 
+  public static String addInitialQuestionIdParam(String url, long questionId) {
+    try {
+      return new URIBuilder(url)
+        .setParameter(
+          "initialQuestion", String.valueOf(questionId))
+        .build()
+        .toString();
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   public static Visibility shouldShowQuestionBank(Http.Request request) {
     return request
             .queryString(ProgramQuestionBank.SHOW_QUESTION_BANK_PARAM)

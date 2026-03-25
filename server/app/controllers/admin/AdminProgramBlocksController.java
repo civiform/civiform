@@ -10,6 +10,8 @@ import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import controllers.FlashKey;
 import forms.BlockForm;
+
+import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
@@ -36,6 +38,7 @@ import services.program.ProgramService;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.QuestionNotFoundException;
+import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import views.admin.programs.BlockType;
 import views.admin.programs.ProgramBlocksView;
@@ -170,7 +173,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
               : result.getResult().maybeAddedBlock().get();
       if (result.isError()) {
         ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
-        return renderEditViewWithMessage(request, program, block, Optional.of(message));
+        return renderEditViewWithMessage(request, program, block, Optional.of(message), Optional.empty());
       }
 
       long addedBlockId = block.id();
@@ -185,7 +188,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
                 settingsManifest.getEnumeratorImprovementsEnabled(request));
         if (result.isError()) {
           ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
-          return renderEditViewWithMessage(request, program, block, Optional.of(message));
+          return renderEditViewWithMessage(request, program, block, Optional.of(message), Optional.empty());
         }
         addedBlockId++;
       }
@@ -207,11 +210,21 @@ public final class AdminProgramBlocksController extends CiviFormController {
   public Result edit(Request request, long programId, long blockId) {
     requestChecker.throwIfProgramNotDraft(programId);
 
+//    Optional<String> initialQuestionIdParam =
+//      request.queryString("initialQuestion");
+
+    DynamicForm requestData = formFactory.form().bindFromRequest(request);
+    Optional<String> initialQuestionId =
+      requestData.rawData().entrySet().stream()
+        .filter(formField -> formField.getKey().startsWith("question-"))
+        .map(Map.Entry::getValue)
+        .findFirst();
+
     try {
       // Auto-add newly created question to the block if one was just created
       Optional<String> newQuestionIdParam =
           request.queryString(views.components.ProgramQuestionBank.NEWLY_CREATED_QUESTION_ID_PARAM);
-      if (newQuestionIdParam.isPresent()) {
+      if (newQuestionIdParam.isPresent() && initialQuestionId.isEmpty()) {
         try {
           long newQuestionId = Long.parseLong(newQuestionIdParam.get());
           programService.addQuestionsToBlock(
@@ -240,7 +253,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
 
       Optional<ToastMessage> maybeToastMessage =
           request.flash().get(FlashKey.SUCCESS).map(ToastMessage::success);
-      return renderEditViewWithMessage(request, program, block, maybeToastMessage);
+      return renderEditViewWithMessage(request, program, block, maybeToastMessage, initialQuestionId);
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
       return notFound(e.toString());
     }
@@ -326,9 +339,22 @@ public final class AdminProgramBlocksController extends CiviFormController {
       Request request,
       ProgramDefinition program,
       BlockDefinition block,
-      Optional<ToastMessage> message) {
+      Optional<ToastMessage> message,
+      Optional<String> maybeInitialQuestionId) {
     ReadOnlyQuestionService roQuestionService =
         questionService.getReadOnlyQuestionService().toCompletableFuture().join();
+
+          Optional<QuestionDefinition> optionalInitialQuestion = Optional.empty();
+
+      if (maybeInitialQuestionId.isPresent()) {
+        try {
+          optionalInitialQuestion = Optional.of(
+            roQuestionService.getQuestionDefinition(Long.parseLong(maybeInitialQuestionId.get()))
+          );
+        } catch (QuestionNotFoundException e) {
+          throw new RuntimeException(e);
+        }
+      }
 
     return ok(
         editView.render(
@@ -338,7 +364,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
             message,
             roQuestionService.getUpToDateQuestions(),
             ImmutableList.of(),
-            messagesApi.preferred(request)));
+            messagesApi.preferred(request),
+            optionalInitialQuestion));
   }
 
   private Result renderReadOnlyViewWithMessage(
@@ -358,7 +385,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
             /* message= */ Optional.empty(),
             allQuestions,
             allPreviousVersionQuestions,
-            messagesApi.preferred(request)));
+            messagesApi.preferred(request),
+          Optional.empty()));
   }
 
   private Result renderEditViewWithMessage(
@@ -383,7 +411,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
               message,
               roQuestionService.getUpToDateQuestions(),
               ImmutableList.of(),
-              messagesApi.preferred(request)));
+              messagesApi.preferred(request),
+            Optional.empty()));
     } catch (ProgramBlockDefinitionNotFoundException e) {
       return notFound(e.toString());
     }
