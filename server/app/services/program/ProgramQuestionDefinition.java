@@ -73,7 +73,11 @@ public abstract class ProgramQuestionDefinition {
       @JsonProperty("optional") boolean optional,
       @JsonProperty("addressCorrectionEnabled") boolean addressCorrectionEnabled) {
     return new AutoValue_ProgramQuestionDefinition(
-        id, Optional.empty(), optional, Optional.empty(), addressCorrectionEnabled);
+        id,
+        /* programDefinitionId= */ Optional.empty(),
+        optional,
+        /* questionDefinition= */ Optional.empty(),
+        addressCorrectionEnabled);
   }
 
   /** Create a required program question definition. */

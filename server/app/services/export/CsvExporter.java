@@ -84,7 +84,9 @@ public final class CsvExporter implements AutoCloseable {
     for (Column column : columns) {
       switch (column.columnType()) {
         case APPLICANT_ANSWER -> printer.print(getValueFromQuestionMap(column, questionMap));
-        case APPLICANT_ID -> printer.print(application.getApplicant().id);
+        case APPLICANT_ID ->
+            printer.print(
+                application.getOriginalApplicantId().orElse(application.getApplicant().id));
         case APPLICATION_ID -> printer.print(application.id);
         case LANGUAGE ->
             printer.print(application.getApplicantData().preferredLocale().toLanguageTag());

@@ -270,7 +270,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
       ApplicationBaseViewParams params) {
     AtomicInteger ordinalErrorCount = new AtomicInteger(0);
 
-    return params.block().getQuestions().stream()
+    return params.block().getVisibleQuestions().stream()
         .collect(
             Collectors.toMap(
                 question -> question.getQuestionDefinition().getId(),

@@ -560,13 +560,13 @@ public class MultiOptionQuestionDefinitionTest {
                 1L,
                 "opt1",
                 LocalizedStrings.of(Locale.US, "option 1", Locale.GERMAN, "Option 1"),
-                Optional.of(true)),
+                /* displayInAnswerOptions= */ Optional.of(true)),
             QuestionOption.create(
                 2L,
                 2L,
                 "opt2",
                 LocalizedStrings.of(Locale.US, "option 2", Locale.GERMAN, "Option 2"),
-                Optional.of(true)));
+                /* displayInAnswerOptions= */ Optional.of(true)));
     QuestionDefinition definition =
         new QuestionDefinitionBuilder()
             .setQuestionType(QuestionType.DROPDOWN)
@@ -755,11 +755,23 @@ public class MultiOptionQuestionDefinitionTest {
     ImmutableList<QuestionOption> options =
         ImmutableList.of(
             QuestionOption.create(
-                1L, 1L, "opt1", LocalizedStrings.of(Locale.US, "option 1"), Optional.of(true)),
+                1L,
+                1L,
+                "opt1",
+                LocalizedStrings.of(Locale.US, "option 1"),
+                /* displayInAnswerOptions= */ Optional.of(true)),
             QuestionOption.create(
-                2L, 2L, "opt2", LocalizedStrings.of(Locale.US, "option 2"), Optional.of(true)),
+                2L,
+                2L,
+                "opt2",
+                LocalizedStrings.of(Locale.US, "option 2"),
+                /* displayInAnswerOptions= */ Optional.of(true)),
             QuestionOption.create(
-                3L, 3L, "opt3", LocalizedStrings.of(Locale.US, "option 3"), Optional.of(true)));
+                3L,
+                3L,
+                "opt3",
+                LocalizedStrings.of(Locale.US, "option 3"),
+                /* displayInAnswerOptions= */ Optional.of(true)));
 
     MultiOptionQuestionDefinition definition =
         new MultiOptionQuestionDefinition(
@@ -774,13 +786,29 @@ public class MultiOptionQuestionDefinitionTest {
     ImmutableList<QuestionOption> options =
         ImmutableList.of(
             QuestionOption.create(
-                1L, 1L, "opt1", LocalizedStrings.of(Locale.US, "option 1"), Optional.of(true)),
+                1L,
+                1L,
+                "opt1",
+                LocalizedStrings.of(Locale.US, "option 1"),
+                /* displayInAnswerOptions= */ Optional.of(true)),
             QuestionOption.create(
-                2L, 2L, "opt2", LocalizedStrings.of(Locale.US, "option 2"), Optional.of(false)),
+                2L,
+                2L,
+                "opt2",
+                LocalizedStrings.of(Locale.US, "option 2"),
+                /* displayInAnswerOptions= */ Optional.of(false)),
             QuestionOption.create(
-                3L, 3L, "opt3", LocalizedStrings.of(Locale.US, "option 3"), Optional.of(true)),
+                3L,
+                3L,
+                "opt3",
+                LocalizedStrings.of(Locale.US, "option 3"),
+                /* displayInAnswerOptions= */ Optional.of(true)),
             QuestionOption.create(
-                4L, 4L, "opt4", LocalizedStrings.of(Locale.US, "option 4"), Optional.of(false)));
+                4L,
+                4L,
+                "opt4",
+                LocalizedStrings.of(Locale.US, "option 4"),
+                /* displayInAnswerOptions= */ Optional.of(false)));
 
     MultiOptionQuestionDefinition definition =
         new MultiOptionQuestionDefinition(
@@ -819,10 +847,18 @@ public class MultiOptionQuestionDefinitionTest {
             QuestionOption.create(1L, "opt1", LocalizedStrings.of(Locale.US, "option 1")),
             // New option - visible
             QuestionOption.create(
-                2L, 2L, "opt2", LocalizedStrings.of(Locale.US, "option 2"), Optional.of(true)),
+                2L,
+                2L,
+                "opt2",
+                LocalizedStrings.of(Locale.US, "option 2"),
+                /* displayInAnswerOptions= */ Optional.of(true)),
             // New option - hidden
             QuestionOption.create(
-                3L, 3L, "opt3", LocalizedStrings.of(Locale.US, "option 3"), Optional.of(false)),
+                3L,
+                3L,
+                "opt3",
+                LocalizedStrings.of(Locale.US, "option 3"),
+                /* displayInAnswerOptions= */ Optional.of(false)),
             // Legacy option (no displayInAnswerOptions)
             QuestionOption.create(4L, "opt4", LocalizedStrings.of(Locale.US, "option 4")));
 
@@ -842,9 +878,17 @@ public class MultiOptionQuestionDefinitionTest {
     ImmutableList<QuestionOption> options =
         ImmutableList.of(
             QuestionOption.create(
-                1L, 1L, "opt1", LocalizedStrings.of(Locale.US, "option 1"), Optional.of(false)),
+                1L,
+                1L,
+                "opt1",
+                LocalizedStrings.of(Locale.US, "option 1"),
+                /* displayInAnswerOptions= */ Optional.of(false)),
             QuestionOption.create(
-                2L, 2L, "opt2", LocalizedStrings.of(Locale.US, "option 2"), Optional.of(false)));
+                2L,
+                2L,
+                "opt2",
+                LocalizedStrings.of(Locale.US, "option 2"),
+                /* displayInAnswerOptions= */ Optional.of(false)));
 
     MultiOptionQuestionDefinition definition =
         new MultiOptionQuestionDefinition(

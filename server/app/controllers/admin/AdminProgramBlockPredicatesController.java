@@ -130,6 +130,14 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   public record ScalarOptionElement(
       String value, String displayText, String scalarType, boolean selected) {}
 
+  /**
+   * Contains data for rendering an HTML option element with additional data attributes required for
+   * {@link Question} options.
+   */
+  @Builder
+  public record QuestionOptionElement(
+      String value, String displayText, String adminName, boolean selected) {}
+
   @Inject
   public AdminProgramBlockPredicatesController(
       PredicateGenerator predicateGenerator,
@@ -1232,15 +1240,16 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
    * Converts a list of {@link QuestionDefinition}s to a list of {@link OptionElement}s for use in a
    * select dropdown.
    */
-  private ImmutableList<OptionElement> getQuestionOptions(
+  private ImmutableList<QuestionOptionElement> getQuestionOptions(
       ImmutableList<QuestionDefinition> availableQuestions,
       Optional<QuestionDefinition> selectedQuestion) {
-    ImmutableList.Builder<OptionElement> questionOptions = new ImmutableList.Builder<>();
+    ImmutableList.Builder<QuestionOptionElement> questionOptions = new ImmutableList.Builder<>();
     for (QuestionDefinition question : availableQuestions) {
       questionOptions.add(
-          OptionElement.builder()
+          QuestionOptionElement.builder()
               .value(String.valueOf(question.getId()))
               .displayText(question.getQuestionText().getDefault())
+              .adminName(question.getName())
               .selected(
                   selectedQuestion.isPresent()
                       && question.getId() == selectedQuestion.get().getId())

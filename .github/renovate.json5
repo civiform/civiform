@@ -28,8 +28,7 @@
     },
     {
       matchPackageNames: ["com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer"],
-      versioning: "loose",
-      allowedVersions: "/^[0-9]{8}\\.[0-9]+$/",
+      versioning: "regex:^(?<major>\\d{4})(?<minor>\\d{2})(?<patch>\\d{2})\\.(?<build>\\d+)$",
     },
     {
       groupName: "awssdk",
@@ -56,21 +55,22 @@
     },
     {
       groupName: "jdk and jre",
-      // Allow for version 17.*
+      // Allow for version 25.*
       // 
       // Examples of what this should match are:
-      //   17.0.12_7-jdk-alpine
-      //   17.0.12_7-jre-alpine
-      //   17.0.12-10
-      allowedVersions: "/^17\\.([0-9]*)\\.([0-9]*)([-_]?)([0-9]*)(-?.*)$/",
-      matchPackageNames: [
-        "bellsoft/liberica-openjdk-alpine{/,}**",
-        "eclipse-temurin{/,}**",
-      ],
+      //   25.0.12_7-jdk-alpine
+      //   25.0.12_7-jre-alpine
+      //   25.0.12-10
+      allowedVersions: "/^25\\.([0-9]*)\\.([0-9]*)([-_]?)([0-9]*)(-?.*)$/",
+      matchPackageNames: ["eclipse-temurin{/,}**"],
     },
     {
       groupName: "jupiter",
       matchPackageNames: ["org.junit.jupiter:{/,}**"],
+    },
+    {
+      matchPackageNames: ["org.projectlombok:lombok"],
+      prHeader: "Release Notes: https://github.com/projectlombok/lombok/blob/master/doc/changelog.markdown",
     },
     {
       matchPackageNames: ["ch.qos.logback:logback-classic"],
@@ -103,8 +103,16 @@
       prHeader: "Release Notes: https://github.com/docker/setup-buildx-action/releases",
     },
     {
+      matchPackageNames: ["slackapi/slack-github-action"],
+      prHeader: "Release Notes: https://github.com/slackapi/slack-github-action/releases",
+    },
+    {
       matchPackageNames: ["io.swagger.core.v3:swagger-core"],
       prHeader: "Release Notes: https://github.com/swagger-api/swagger-core/releases",
+    },
+    {
+      matchPackageNames: ["io.swagger.parser.v3:swagger-parser"],
+      prHeader: "Release Notes: https://github.com/swagger-api/swagger-parser/releases",
     },
     {
       matchFileNames: [

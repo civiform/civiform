@@ -51,9 +51,7 @@ test.describe('Session timeout for admins', () => {
     })
 
     await test.step('Confirm toast appears confirming that session has been extended', async () => {
-      const toast = page
-        .getByRole('alert')
-        .getByText('Session successfully extended')
+      const toast = page.getByText('Session successfully extendedx')
       await expect(toast).toBeVisible()
     })
 
@@ -119,10 +117,13 @@ test.describe('Session timeout for applicants', () => {
       await validateScreenshot(page, 'applicant-session-length-warning-modal')
     })
 
-    await test.step('Click logout', async () => {
+    await test.step('Click login and confirm navigation to login page', async () => {
       const sessionLengthModal = page.locator('#session-length-warning-modal')
-      await sessionLengthModal.getByRole('button', {name: 'Logout'}).click()
-      await confirmUserIsLoggedOut(page)
+      const loginButton = sessionLengthModal.getByRole('button', {
+        name: 'Log in',
+      })
+      await loginButton.click()
+      await expect(page).toHaveURL(/\/programs/)
     })
   })
 })

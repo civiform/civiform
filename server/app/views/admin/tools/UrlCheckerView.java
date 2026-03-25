@@ -25,7 +25,7 @@ public class UrlCheckerView extends TransitionalLayoutBaseView<UrlCheckerViewMod
   }
 
   @Override
-  protected String pageTitle() {
+  protected String pageTitle(UrlCheckerViewModel model) {
     return "URL Checker";
   }
 

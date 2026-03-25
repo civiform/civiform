@@ -189,13 +189,17 @@ test.describe('Applicant program overview', () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         secondProgram,
         'Screen 1',
+        /* expandedFormLogicEnabled= */ true,
       )
-      await adminPredicates.addPredicates({
-        questionName: 'text question',
-        scalar: 'text',
-        operator: 'is equal to',
-        value: 'eligible',
-      })
+      await adminPredicates.addPredicates(
+        /* expandedFormLogicEnabled= */ true,
+        {
+          questionName: 'text question',
+          scalar: 'text',
+          operator: 'is equal to',
+          value: 'eligible',
+        },
+      )
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishProgram(secondProgram)
       await logout(page)

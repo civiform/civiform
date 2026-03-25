@@ -127,7 +127,7 @@ public final class ReadOnlyApplicantProgramService {
   public ImmutableList<String> getStoredFileKeys() {
     return getAllActiveBlocks().stream()
         .filter(Block::isFileUpload)
-        .flatMap(block -> block.getQuestions().stream())
+        .flatMap(block -> block.getVisibleQuestions().stream())
         .filter(ApplicantQuestion::isAnswered)
         .filter(ApplicantQuestion::isFileUploadQuestion)
         .map(ApplicantQuestion::createFileUploadQuestion)
@@ -155,7 +155,7 @@ public final class ReadOnlyApplicantProgramService {
     return getAllActiveBlocks().stream()
         .anyMatch(
             block ->
-                block.getQuestions().stream()
+                block.getVisibleQuestions().stream()
                     .anyMatch(
                         question ->
                             !isQuestionEligibleInBlock(block, question) && question.isAnswered()));
@@ -192,7 +192,19 @@ public final class ReadOnlyApplicantProgramService {
    * @return A stream of the questions in the program.
    */
   public Stream<ApplicantQuestion> getAllQuestions() {
-    return getBlocks((block) -> true).stream().flatMap((block) -> block.getQuestions().stream());
+    return getBlocks((block) -> true).stream()
+        .flatMap((block) -> block.getVisibleQuestions().stream());
+  }
+
+  /**
+   * Get a list of all {@link ApplicantQuestion}s in the program, including questions with any
+   * display mode (including HIDDEN). This should only be used for admin-facing features like
+   * exports.
+   *
+   * @return A stream of all questions in the program, including hidden questions.
+   */
+  public Stream<ApplicantQuestion> getAllQuestionsIncludingHidden() {
+    return getBlocks((block) -> true).stream().flatMap((block) -> block.getAllQuestions().stream());
   }
 
   /**
@@ -239,7 +251,8 @@ public final class ReadOnlyApplicantProgramService {
    * answered yet (i.e. we cannot determine whether the predicate is true or false), it is included
    * in this list.
    *
-   * <p>This list does not include blocks that were completely filled out in a different program.
+   * <p>This list does not include blocks that were completely filled out in a different program,
+   * unless the block has an address question that still needs correction.
    *
    * @return a list of {@link Block}s that were completed by the applicant in this session or still
    *     need to be completed for this program
@@ -249,11 +262,12 @@ public final class ReadOnlyApplicantProgramService {
       currentBlockList =
           getBlocks(
               block ->
-                  // Return all blocks that contain errors, were answered in this program, or
-                  // contain a static question.
+                  // Return all blocks that contain errors, were answered in this program,
+                  // contain a static question, or have an address needing correction.
                   (!block.isAnsweredWithoutErrors()
                           || block.wasAnsweredInProgram(programDefinition.id())
-                          || block.containsStatic())
+                          || block.containsStatic()
+                          || block.hasAddressQuestionWithUncorrectedAddress())
                       && showBlock(block));
     }
     return currentBlockList;
@@ -375,17 +389,18 @@ public final class ReadOnlyApplicantProgramService {
     return -1;
   }
 
-  /** Returns the first block with an unanswered question or static block. */
-  public Optional<Block> getFirstIncompleteOrStaticBlock() {
+  /**
+   * Returns the first block that requires action from the applicant. A block requires action if it
+   * is incomplete, if it has an address question that needs correction, or (if {@code
+   * includeStatic} is true) if it contains static content.
+   */
+  public Optional<Block> getFirstBlockRequiringAction(boolean includeStatic) {
     return getInProgressBlocks().stream()
-        .filter(block -> !block.isCompletedInProgramWithoutErrors() || block.containsStatic())
-        .findFirst();
-  }
-
-  /** Returns the first block with an unanswered question. */
-  public Optional<Block> getFirstIncompleteBlockExcludingStatic() {
-    return getInProgressBlocks().stream()
-        .filter(block -> !block.isCompletedInProgramWithoutErrors())
+        .filter(
+            block ->
+                !block.isCompletedInProgramWithoutErrors()
+                    || block.hasAddressQuestionWithUncorrectedAddress()
+                    || (includeStatic && block.containsStatic()))
         .findFirst();
   }
 
@@ -404,7 +419,8 @@ public final class ReadOnlyApplicantProgramService {
   public ImmutableList<AnswerData> getSummaryDataAllQuestions() {
     ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
     ImmutableList<Block> blocks = getBlocks((block) -> true);
-    addDataToBuilder(blocks, builder, /* showAnswerText= */ true);
+    addDataToBuilder(
+        blocks, builder, /* showAnswerText= */ true, /* includeHiddenQuestions= */ false);
     return builder.build();
   }
 
@@ -417,7 +433,22 @@ public final class ReadOnlyApplicantProgramService {
     // TODO: We need to be able to use this on the admin side with admin-specific l10n.
     ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
     ImmutableList<Block> activeBlocks = getAllActiveBlocks();
-    addDataToBuilder(activeBlocks, builder, /* showAnswerText= */ true);
+    addDataToBuilder(
+        activeBlocks, builder, /* showAnswerText= */ true, /* includeHiddenQuestions= */ false);
+    return builder.build();
+  }
+
+  /**
+   * Returns summary data for each question in the active blocks in this application. Active block
+   * is the block an applicant must complete for this program. This will include blocks that are
+   * hidden from the applicant.
+   */
+  public ImmutableList<AnswerData> getSummaryDataOnlyActiveForAdmin() {
+    // TODO: We need to be able to use this on the admin side with admin-specific l10n.
+    ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
+    ImmutableList<Block> activeBlocks = getAllActiveBlocks();
+    addDataToBuilder(
+        activeBlocks, builder, /* showAnswerText= */ true, /* includeHiddenQuestions= */ true);
     return builder.build();
   }
 
@@ -430,7 +461,8 @@ public final class ReadOnlyApplicantProgramService {
     // TODO: We need to be able to use this on the admin side with admin-specific l10n.
     ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
     ImmutableList<Block> hiddenBlocks = getAllHiddenBlocks();
-    addDataToBuilder(hiddenBlocks, builder, /* showAnswerText= */ false);
+    addDataToBuilder(
+        hiddenBlocks, builder, /* showAnswerText= */ false, /* includeHiddenQuestions= */ false);
     return builder.build();
   }
 
@@ -447,9 +479,12 @@ public final class ReadOnlyApplicantProgramService {
   private void addDataToBuilder(
       ImmutableList<Block> blocks,
       ImmutableList.Builder<AnswerData> builder,
-      boolean showAnswerText) {
+      boolean showAnswerText,
+      boolean includeHiddenQuestions) {
     for (Block block : blocks) {
-      ImmutableList<ApplicantQuestion> questions = block.getQuestions();
+      ImmutableList<ApplicantQuestion> questions =
+          includeHiddenQuestions ? block.getAllQuestions() : block.getVisibleQuestions();
+
       for (int questionIndex = 0; questionIndex < questions.size(); questionIndex++) {
         ApplicantQuestion applicantQuestion = questions.get(questionIndex);
         // Don't include static content in summary data.
@@ -627,6 +662,12 @@ public final class ReadOnlyApplicantProgramService {
         return false;
       }
     }
+
+    // Check if the block has any visible questions. If not, don't show it to applicants.
+    if (block.getVisibleQuestions().isEmpty()) {
+      return false;
+    }
+
     if (block.getVisibilityPredicate().isEmpty()) {
       // Default to show
       return true;

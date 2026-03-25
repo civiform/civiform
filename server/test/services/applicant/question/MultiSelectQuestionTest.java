@@ -43,10 +43,10 @@ public class MultiSelectQuestionTest extends ResetPostgres {
 
   private static final ImmutableList<QuestionOption> QUESTION_OPTIONS =
       ImmutableList.of(
-          QuestionOption.create(1L, "uno", LocalizedStrings.of(Locale.US, "valid")),
-          QuestionOption.create(2L, "dos", LocalizedStrings.of(Locale.US, "ok")),
-          QuestionOption.create(3L, "tres", LocalizedStrings.of(Locale.US, "third")),
-          QuestionOption.create(4L, "cuatro", LocalizedStrings.of(Locale.US, "fourth")));
+          QuestionOption.create(/* id= */ 1L, "uno", LocalizedStrings.of(Locale.US, "valid")),
+          QuestionOption.create(/* id= */ 2L, "dos", LocalizedStrings.of(Locale.US, "ok")),
+          QuestionOption.create(/* id= */ 3L, "tres", LocalizedStrings.of(Locale.US, "third")),
+          QuestionOption.create(/* id= */ 4L, "cuatro", LocalizedStrings.of(Locale.US, "fourth")));
 
   private static final MultiOptionQuestionDefinition CHECKBOX_QUESTION =
       new MultiOptionQuestionDefinition(CONFIG, QUESTION_OPTIONS, MultiOptionQuestionType.CHECKBOX);
@@ -90,7 +90,8 @@ public class MultiSelectQuestionTest extends ResetPostgres {
             ImmutableMap.of(
                 applicantQuestion.getContextualizedPath(),
                 ImmutableSet.of(
-                    ValidationErrorMessage.create(MessageKey.MULTI_SELECT_VALIDATION_TOO_FEW, 2))));
+                    ValidationErrorMessage.create(
+                        MessageKey.MULTI_SELECT_VALIDATION_TOO_FEW, /* args...= */ 2))));
   }
 
   @Test
@@ -98,9 +99,9 @@ public class MultiSelectQuestionTest extends ResetPostgres {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(CHECKBOX_QUESTION, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerMultiSelectQuestion(
-        applicantData, applicantQuestion.getContextualizedPath(), 0, 1L);
+        applicantData, applicantQuestion.getContextualizedPath(), /* index= */ 0, /* value= */ 1L);
     QuestionAnswerer.answerMultiSelectQuestion(
-        applicantData, applicantQuestion.getContextualizedPath(), 1, 2L);
+        applicantData, applicantQuestion.getContextualizedPath(), /* index= */ 1, /* value= */ 2L);
 
     MultiSelectQuestion multiSelectQuestion = new MultiSelectQuestion(applicantQuestion);
 
@@ -114,31 +115,7 @@ public class MultiSelectQuestionTest extends ResetPostgres {
         new ApplicantQuestion(CHECKBOX_QUESTION, applicant, applicantData, Optional.empty());
     // Put too few selections.
     QuestionAnswerer.answerMultiSelectQuestion(
-        applicantData, applicantQuestion.getContextualizedPath(), 0, 1L);
-
-    MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
-
-    assertThat(multiSelectQuestion.getValidationErrors())
-        .isEqualTo(
-            ImmutableMap.of(
-                applicantQuestion.getContextualizedPath(),
-                ImmutableSet.of(
-                    ValidationErrorMessage.create(MessageKey.MULTI_SELECT_VALIDATION_TOO_FEW, 2))));
-  }
-
-  @Test
-  public void tooManySelected_failsValidation() {
-    ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(CHECKBOX_QUESTION, applicant, applicantData, Optional.empty());
-    // Put too many selections.
-    QuestionAnswerer.answerMultiSelectQuestion(
-        applicantData, applicantQuestion.getContextualizedPath(), 0, 1L);
-    QuestionAnswerer.answerMultiSelectQuestion(
-        applicantData, applicantQuestion.getContextualizedPath(), 1, 2L);
-    QuestionAnswerer.answerMultiSelectQuestion(
-        applicantData, applicantQuestion.getContextualizedPath(), 2, 3L);
-    QuestionAnswerer.answerMultiSelectQuestion(
-        applicantData, applicantQuestion.getContextualizedPath(), 3, 4L);
+        applicantData, applicantQuestion.getContextualizedPath(), /* index= */ 0, /* value= */ 1L);
 
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 
@@ -148,7 +125,32 @@ public class MultiSelectQuestionTest extends ResetPostgres {
                 applicantQuestion.getContextualizedPath(),
                 ImmutableSet.of(
                     ValidationErrorMessage.create(
-                        MessageKey.MULTI_SELECT_VALIDATION_TOO_MANY, 3))));
+                        MessageKey.MULTI_SELECT_VALIDATION_TOO_FEW, /* args...= */ 2))));
+  }
+
+  @Test
+  public void tooManySelected_failsValidation() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(CHECKBOX_QUESTION, applicant, applicantData, Optional.empty());
+    // Put too many selections.
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), /* index= */ 0, /* value= */ 1L);
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), /* index= */ 1, /* value= */ 2L);
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), /* index= */ 2, /* value= */ 3L);
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), /* index= */ 3, /* value= */ 4L);
+
+    MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
+
+    assertThat(multiSelectQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.of(
+                applicantQuestion.getContextualizedPath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(
+                        MessageKey.MULTI_SELECT_VALIDATION_TOO_MANY, /* args=... */ 3))));
   }
 
   @Test
@@ -156,9 +158,9 @@ public class MultiSelectQuestionTest extends ResetPostgres {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(CHECKBOX_QUESTION, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerMultiSelectQuestion(
-        applicantData, applicantQuestion.getContextualizedPath(), 0, 1L);
+        applicantData, applicantQuestion.getContextualizedPath(), /* index= */ 0, /* value= */ 1L);
     QuestionAnswerer.answerMultiSelectQuestion(
-        applicantData, applicantQuestion.getContextualizedPath(), 1, 2L);
+        applicantData, applicantQuestion.getContextualizedPath(), /* index= */ 1, /* value= */ 2L);
 
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 
@@ -170,9 +172,9 @@ public class MultiSelectQuestionTest extends ResetPostgres {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(CHECKBOX_QUESTION, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerMultiSelectQuestion(
-        applicantData, applicantQuestion.getContextualizedPath(), 0, 1L);
+        applicantData, applicantQuestion.getContextualizedPath(), /* index= */ 0, /* value= */ 1L);
     QuestionAnswerer.answerMultiSelectQuestion(
-        applicantData, applicantQuestion.getContextualizedPath(), 1, 2L);
+        applicantData, applicantQuestion.getContextualizedPath(), /* index= */ 1, /* value= */ 2L);
 
     Optional<ImmutableList<String>> adminNames =
         applicantQuestion.createMultiSelectQuestion().getSelectedOptionAdminNames();
@@ -200,21 +202,29 @@ public class MultiSelectQuestionTest extends ResetPostgres {
     ImmutableList<QuestionOption> optionsWithSomeHidden =
         ImmutableList.of(
             QuestionOption.create(
-                1L, 1L, "uno", LocalizedStrings.of(Locale.US, "valid"), Optional.of(true)),
+                /* id= */ 1L,
+                /* displayOrder= */ 1L,
+                "uno",
+                LocalizedStrings.of(Locale.US, "valid"),
+                /* displayInAnswerOptions= */ Optional.of(true)),
             QuestionOption.create(
-                2L, 2L, "dos", LocalizedStrings.of(Locale.US, "ok"), Optional.of(true)),
+                /* id= */ 2L,
+                /* displayOrder= */ 2L,
+                "dos",
+                LocalizedStrings.of(Locale.US, "ok"),
+                /* displayInAnswerOptions= */ Optional.of(true)),
             QuestionOption.create(
-                3L,
-                3L,
+                /* id= */ 3L,
+                /* displayOrder= */ 3L,
                 "tres",
                 LocalizedStrings.of(Locale.US, "third"),
-                Optional.of(false)), // Hidden
+                /* displayInAnswerOptions= */ Optional.of(false)),
             QuestionOption.create(
-                4L,
-                4L,
+                /* id= */ 4L,
+                /* displayOrder= */ 4L,
                 "cuatro",
                 LocalizedStrings.of(Locale.US, "fourth"),
-                Optional.of(false))); // Hidden
+                /* displayInAnswerOptions= */ Optional.of(false)));
 
     MultiOptionQuestionDefinition questionWithHiddenOptions =
         new MultiOptionQuestionDefinition(
@@ -226,9 +236,15 @@ public class MultiSelectQuestionTest extends ResetPostgres {
 
     // Applicant tries to submit options including a removed one
     QuestionAnswerer.answerMultiSelectQuestion(
-        applicantData, applicantQuestion.getContextualizedPath(), 0, 1L); // Valid
+        applicantData,
+        applicantQuestion.getContextualizedPath(),
+        /* index= */ 0,
+        /* value= */ 1L); // Valid
     QuestionAnswerer.answerMultiSelectQuestion(
-        applicantData, applicantQuestion.getContextualizedPath(), 1, 3L); // Invalid - removed
+        applicantData,
+        applicantQuestion.getContextualizedPath(),
+        /* index= */ 1,
+        /* value= */ 3L); // Invalid - removed
 
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 
@@ -245,21 +261,29 @@ public class MultiSelectQuestionTest extends ResetPostgres {
     ImmutableList<QuestionOption> optionsWithSomeHidden =
         ImmutableList.of(
             QuestionOption.create(
-                1L, 1L, "uno", LocalizedStrings.of(Locale.US, "valid"), Optional.of(true)),
+                /* id= */ 1L,
+                /* displayOrder= */ 1L,
+                "uno",
+                LocalizedStrings.of(Locale.US, "valid"),
+                /* displayInAnswerOptions= */ Optional.of(true)),
             QuestionOption.create(
-                2L, 2L, "dos", LocalizedStrings.of(Locale.US, "ok"), Optional.of(true)),
+                /* id= */ 2L,
+                /* displayOrder= */ 2L,
+                "dos",
+                LocalizedStrings.of(Locale.US, "ok"),
+                /* displayInAnswerOptions= */ Optional.of(true)),
             QuestionOption.create(
-                3L,
-                3L,
+                /* id= */ 3L,
+                /* displayOrder= */ 3L,
                 "tres",
                 LocalizedStrings.of(Locale.US, "third"),
-                Optional.of(false)), // Hidden
+                /* displayInAnswerOptions= */ Optional.of(false)),
             QuestionOption.create(
-                4L,
-                4L,
+                /* id= */ 4L,
+                /* displayOrder= */ 4L,
                 "cuatro",
                 LocalizedStrings.of(Locale.US, "fourth"),
-                Optional.of(false))); // Hidden
+                /* displayInAnswerOptions= */ Optional.of(false)));
 
     MultiOptionQuestionDefinition questionWithHiddenOptions =
         new MultiOptionQuestionDefinition(
@@ -271,9 +295,9 @@ public class MultiSelectQuestionTest extends ResetPostgres {
 
     // Applicant selects only valid (displayable) options
     QuestionAnswerer.answerMultiSelectQuestion(
-        applicantData, applicantQuestion.getContextualizedPath(), 0, 1L);
+        applicantData, applicantQuestion.getContextualizedPath(), /* index= */ 0, /* value= */ 1L);
     QuestionAnswerer.answerMultiSelectQuestion(
-        applicantData, applicantQuestion.getContextualizedPath(), 1, 2L);
+        applicantData, applicantQuestion.getContextualizedPath(), /* index= */ 1, /* value= */ 2L);
 
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 
@@ -299,9 +323,9 @@ public class MultiSelectQuestionTest extends ResetPostgres {
 
     // Select any legacy options (all should be valid)
     QuestionAnswerer.answerMultiSelectQuestion(
-        applicantData, applicantQuestion.getContextualizedPath(), 0, 2L);
+        applicantData, applicantQuestion.getContextualizedPath(), /* index= */ 0, /* value= */ 2L);
     QuestionAnswerer.answerMultiSelectQuestion(
-        applicantData, applicantQuestion.getContextualizedPath(), 1, 3L);
+        applicantData, applicantQuestion.getContextualizedPath(), /* index= */ 1, /* value= */ 3L);
 
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 

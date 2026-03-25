@@ -60,6 +60,7 @@ import services.program.predicate.PredicateDefinition;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.QuestionNotFoundException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
@@ -1410,6 +1411,35 @@ public final class ProgramService {
         enumeratorImprovementsEnabled);
   }
 
+  /**
+   * Adds an empty nested enumerator {@link BlockDefinition} to the given program under a parent
+   * enumerator. The block should be added after the last repeated or nested repeated block with the
+   * same ancestor. See {@link ProgramDefinition#orderBlockDefinitions()} for more details about
+   * block positioning.
+   *
+   * @param programId the ID of the program to update
+   * @param parentEnumeratorBlockId ID of the parent enumerator block
+   * @return a {@link ProgramBlockAdditionResult} including the updated program and block if it
+   *     succeeded, or a set of errors with the unmodified program definition and no block if
+   *     failed.
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   * @throws ProgramBlockDefinitionNotFoundException when parentEnumeratorBlockId does not
+   *     correspond to an enumerator block in the Program.
+   */
+  public ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addNestedRepeatedSetToProgram(
+      long programId,
+      long parentEnumeratorBlockId,
+      Messages messages,
+      boolean enumeratorImprovementsEnabled)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
+    return addBlockToProgram(
+        programId,
+        Optional.of(parentEnumeratorBlockId),
+        /* isEnumerator= */ Optional.of(true),
+        messages,
+        enumeratorImprovementsEnabled);
+  }
+
   private ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addBlockToProgram(
       long programId,
       Optional<Long> enumeratorBlockId,
@@ -1606,9 +1636,20 @@ public final class ProgramService {
         questionService.getReadOnlyQuestionService().toCompletableFuture().join();
 
     for (long questionId : questionIds) {
+      QuestionDefinition questionDefinition = roQuestionService.getQuestionDefinition(questionId);
+
+      // If this is a repeated block and the question is not repeated
+      // Create a new question that is a copy and save that question before adding it to the block.
+      if (enumeratorImprovementsEnabled
+          && blockDefinition.isRepeated()
+          && !questionDefinition.isEnumerator()
+          && questionDefinition.getEnumeratorId().isEmpty()) {
+        questionDefinition =
+            createQuestionCopy(questionDefinition, programDefinition, blockDefinition);
+      }
+
       ProgramQuestionDefinition question =
-          ProgramQuestionDefinition.create(
-              roQuestionService.getQuestionDefinition(questionId), Optional.of(programId));
+          ProgramQuestionDefinition.create(questionDefinition, Optional.of(programId));
       AddQuestionResult canAddQuestion =
           programBlockValidationFactory
               .create()
@@ -2307,6 +2348,35 @@ public final class ProgramService {
             .collect(ImmutableList.toImmutableList());
 
     return updateProgramDefinitionWithBlockDefinitions(programDefinition, updatedBlockDefinitions);
+  }
+
+  private QuestionDefinition createQuestionCopy(
+      QuestionDefinition questionDefinition,
+      ProgramDefinition programDefinition,
+      BlockDefinition blockDefinition)
+      throws ProgramBlockDefinitionNotFoundException {
+    try {
+      // Get the question ID of the parent block's enumerator question
+      Optional<Long> enumeratorQuestionId =
+          Optional.of(
+              programDefinition
+                  .getBlockDefinition(blockDefinition.enumeratorId().get())
+                  .getEnumerationQuestionDefinition()
+                  .getId());
+      // Create the copy question, handle potential errors below
+      ErrorAnd<QuestionDefinition, CiviFormError> maybeCopy =
+          questionService.createCopy(questionDefinition, enumeratorQuestionId);
+      if (maybeCopy.isError()) {
+        throw new RuntimeException(
+            String.format(
+                "Unexpected error: Was not able to create a repeated copy of question %s in"
+                    + " block %s",
+                questionDefinition.getName(), blockDefinition.getFullName()));
+      }
+      return maybeCopy.getResult();
+    } catch (UnsupportedQuestionTypeException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /** Update the program with the new provided api bridge definitions */

@@ -37,9 +37,8 @@ Resources:
 - [ ] Create an Oncall issue for the next rotation, and assign to the next oncall
 - [ ] Check Security lists daily
 - [ ] Check #eng-ci Slack channel daily to monitor failed pushes and e2e test runs
-- [ ] Check [needs triage bugs](https://github.com/orgs/civiform/projects/1/views/50) daily to ensure there aren't any P0s
 - [ ] Once per shift, check Transifex to see if strings are ready to be sent for translation. See [Managing Translations](https://github.com/civiform/civiform/wiki/Exygy-Admin-Info#managing-translations) for detailed instructions.
-- [ ] Make some progress (< 2 days) on an issue from the [On Call board](https://github.com/orgs/civiform/projects/1/views/95) or a broken dependency update (see below)
+- [ ] Make a weeks worth of progress (4 days) on an issue from the [On Call board](https://github.com/orgs/civiform/projects/1/views/95), a broken dependency update (see below), or a more urgent issue if one was assigned to you from the EM or PM.
 - [ ] Check for dependency updates
   - Resolve mergeable dependency updates a few times per shift in batches of 3-5.
   - If there are broken dependency updates, pick one to look into during your shift. If it's a small fix that you can do in < 2 days, fix it and merge it.

@@ -203,7 +203,7 @@ public class DevToolsView extends BaseHtmlView {
   }
 
   private FormTag createForm(Request request, String buttonId, String buttonText, String url) {
-    return createForm(request, buttonId, buttonText, url, false);
+    return createForm(request, buttonId, buttonText, url, /* danger= */ false);
   }
 
   private FormTag createForm(

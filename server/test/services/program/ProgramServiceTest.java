@@ -482,7 +482,7 @@ public class ProgramServiceTest extends ResetPostgres {
             .withLocalizedShortDescription(Locale.CHINESE, "简短描述")
             .withLocalizedConfirmationMessage(Locale.CHINESE, "确认信息")
             .withBlock("Screen 1", "Screen 1 description")
-            .withQuestionDefinition(question, true)
+            .withQuestionDefinition(question, /* optional= */ true)
             .build();
 
     ProgramDefinition programDefinition =
@@ -1356,8 +1356,16 @@ public class ProgramServiceTest extends ResetPostgres {
         ImmutableMap.of(
             "/invalid_name_1",
             new ApiBridgeDefinition(
-                ImmutableList.of(new ApiBridgeDefinitionItem("", null, "")),
-                ImmutableList.of(new ApiBridgeDefinitionItem("", null, ""))));
+                ImmutableList.of(
+                    new ApiBridgeDefinitionItem(
+                        /* questionName= */ "",
+                        /* questionScalar= */ null,
+                        /* externalName= */ "")),
+                ImmutableList.of(
+                    new ApiBridgeDefinitionItem(
+                        /* questionName= */ "",
+                        /* questionScalar= */ null,
+                        /* externalName= */ ""))));
 
     ImmutableList<String> errors =
         ps
@@ -2628,6 +2636,65 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void
+      addQuestionsToBlock_isRepeatedBlockWithNonEnumeratorQuestion_enumeratorImprovementsEnabled_createsQuestionCopy()
+          throws Exception {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withName("enumerator")
+            .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
+            .withRepeatedBlock("repeatedBlock")
+            .buildDefinition();
+
+    programDefinition =
+        ps.addQuestionsToBlock(
+            programDefinition.id(),
+            2L,
+            ImmutableList.of(nameQuestion.getId()),
+            /* enumeratorImprovementsEnabled= */ true);
+    assertThat(programDefinition.getBlockDefinitionByIndex(0).get().hasEnumeratorQuestion())
+        .isTrue();
+
+    BlockDefinition repeatedBlock = programDefinition.getBlockDefinitionByIndex(1).get();
+    assertThat(repeatedBlock.isRepeated()).isTrue();
+    assertThat(programDefinition.hasQuestion(nameQuestion)).isFalse();
+    assertThat(repeatedBlock.getQuestionCount()).isEqualTo(1);
+
+    QuestionDefinition repeatedQuestion = repeatedBlock.getQuestionDefinition(0);
+    assertThat(repeatedQuestion.getEnumeratorId().get())
+        .isEqualTo(testQuestionBank.enumeratorApplicantHouseholdMembers().id);
+    assertThat(repeatedQuestion.getName()).isEqualTo(nameQuestion.getName() + " -_- a");
+  }
+
+  @Test
+  public void
+      addQuestionsToBlock_isRepeatedBlockWithNonEnumeratorQuestion_enumeratorImprovementsDisabled_throws()
+          throws Exception {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withName("enumerator")
+            .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
+            .withRepeatedBlock("repeatedBlock")
+            .buildDefinition();
+
+    assertThatThrownBy(
+            () ->
+                ps.addQuestionsToBlock(
+                    programDefinition.id(),
+                    2L,
+                    ImmutableList.of(nameQuestion.getId()),
+                    /* enumeratorImprovementsEnabled= */ false))
+        .isInstanceOf(CantAddQuestionToBlockException.class)
+        .hasMessage(
+            String.format(
+                "Can't add question to the block. Error: %s. Program ID %d, block ID %d, question"
+                    + " ID %d",
+                "ENUMERATOR_MISMATCH", programDefinition.id(), 2L, nameQuestion.getId()));
+  }
+
+  @Test
   public void removeQuestionsFromBlock_withoutQuestion_throwsQuestionNotFoundException()
       throws Exception {
     QuestionDefinition questionA = nameQuestion;
@@ -3002,7 +3069,8 @@ public class ProgramServiceTest extends ResetPostgres {
         .isFalse();
 
     programDefinition =
-        ps.setProgramQuestionDefinitionOptionality(programId, 1L, nameQuestion.getId(), true);
+        ps.setProgramQuestionDefinitionOptionality(
+            programId, 1L, nameQuestion.getId(), /* optional= */ true);
     assertThat(
             programDefinition
                 .getBlockDefinitionByIndex(0)
@@ -3013,7 +3081,8 @@ public class ProgramServiceTest extends ResetPostgres {
         .isTrue();
 
     programDefinition =
-        ps.setProgramQuestionDefinitionOptionality(programId, 1L, nameQuestion.getId(), false);
+        ps.setProgramQuestionDefinitionOptionality(
+            programId, 1L, nameQuestion.getId(), /* optional= */ false);
     assertThat(
             programDefinition
                 .getBlockDefinitionByIndex(0)
@@ -3052,7 +3121,10 @@ public class ProgramServiceTest extends ResetPostgres {
 
     assertThat(
             ps.setProgramQuestionDefinitionAddressCorrectionEnabled(
-                    programDefinition.id(), 1L, addressQuestion.getId(), true)
+                    programDefinition.id(),
+                    1L,
+                    addressQuestion.getId(),
+                    /* addressCorrectionEnabled= */ true)
                 .getBlockDefinitionByIndex(0)
                 .get()
                 .programQuestionDefinitions()
@@ -3063,7 +3135,10 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThatThrownBy(
             () ->
                 ps.setProgramQuestionDefinitionAddressCorrectionEnabled(
-                    programDefinition.id(), 1L, addressQuestion.getId(), false))
+                    programDefinition.id(),
+                    1L,
+                    addressQuestion.getId(),
+                    /* addressCorrectionEnabled= */ false))
         .isInstanceOf(BadRequestException.class);
   }
 
@@ -3912,19 +3987,25 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition programDefinition =
         ProgramBuilder.newDraftProgram()
             .withBlock("screen one")
-            .withQuestionDefinition(addressQuestion, false)
-            .withQuestionDefinition(secondaryAddressQuestion, false)
+            .withQuestionDefinition(addressQuestion, /* optional= */ false)
+            .withQuestionDefinition(secondaryAddressQuestion, /* optional= */ false)
             .buildDefinition();
 
     Long programId = programDefinition.id();
     Long blockDefinitionId = programDefinition.getLastBlockDefinition().id();
     ps.setProgramQuestionDefinitionAddressCorrectionEnabled(
-        programId, blockDefinitionId, addressQuestion.getId(), true);
+        programId,
+        blockDefinitionId,
+        addressQuestion.getId(),
+        /* addressCorrectionEnabled= */ true);
     assertThatExceptionOfType(ProgramQuestionDefinitionInvalidException.class)
         .isThrownBy(
             () ->
                 ps.setProgramQuestionDefinitionAddressCorrectionEnabled(
-                    programId, blockDefinitionId, secondaryAddressQuestion.getId(), true));
+                    programId,
+                    blockDefinitionId,
+                    secondaryAddressQuestion.getId(),
+                    /* addressCorrectionEnabled= */ true));
   }
 
   @Test
@@ -4111,12 +4192,23 @@ public class ProgramServiceTest extends ResetPostgres {
   public void createEmptyBlockDefinition_createsExpectedPrefix() {
     ErrorAnd<BlockDefinition, CiviFormError> result =
         ps.createEmptyBlockDefinition(
-            1l, Optional.of(2L), Optional.of(true), false, messages, true);
+            1l,
+            Optional.of(2L),
+            Optional.of(true),
+            /* isNested= */ false,
+            messages,
+            /* enumeratorImprovementsEnabled= */ true);
 
     assertThat(result.getResult().namePrefix().get()).isEqualTo("[parent label] - ");
 
     ErrorAnd<BlockDefinition, CiviFormError> nestedBlock =
-        ps.createEmptyBlockDefinition(1l, Optional.of(2L), Optional.of(true), true, messages, true);
+        ps.createEmptyBlockDefinition(
+            1l,
+            Optional.of(2L),
+            Optional.of(true),
+            /* isNested= */ true,
+            messages,
+            /* enumeratorImprovementsEnabled= */ true);
 
     assertThat(nestedBlock.getResult().namePrefix().get())
         .isEqualTo("[parent label] - [child label] - ");

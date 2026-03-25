@@ -1,0 +1,703 @@
+<!--/*@thymesVar id="model" type="views.dev.componentcatalog.fragments.RadioControl"*/-->
+<th:block
+  th:fragment="render(model)"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <table class="usa-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Required</th>
+        <th>Type</th>
+        <th>Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th colspan="4" scope="rowgroup">Attributes</th>
+      </tr>
+      <tr>
+        <td>id</td>
+        <td>required</td>
+        <td>string</td>
+        <td>Unique identifier for the radio group.</td>
+      </tr>
+      <tr>
+        <td>label</td>
+        <td>required</td>
+        <td>string</td>
+        <td>Legend text for the radio group fieldset.</td>
+      </tr>
+      <tr>
+        <td>name</td>
+        <td>required</td>
+        <td>string</td>
+        <td>Form field name shared by all radio buttons in the group.</td>
+      </tr>
+      <tr>
+        <td>aria-*</td>
+        <td>optional</td>
+        <td>string</td>
+        <td>
+          Any aria-* attributes on the group are passed through to rendered
+          elements.
+        </td>
+      </tr>
+      <tr>
+        <td>data-*</td>
+        <td>optional</td>
+        <td>string</td>
+        <td>
+          Any data-* attributes on the group are passed through to rendered
+          elements.
+        </td>
+      </tr>
+      <tr>
+        <td>disabled</td>
+        <td>optional</td>
+        <td>boolean</td>
+        <td>Set to "true" to disable all radio buttons in the group.</td>
+      </tr>
+      <tr>
+        <td>help-text</td>
+        <td>optional</td>
+        <td>string</td>
+        <td>Helper text displayed below the legend.</td>
+      </tr>
+      <tr>
+        <td>is-valid</td>
+        <td>optional</td>
+        <td>boolean</td>
+        <td>
+          Controls validation state. "true" or "false". Defaults to "true".
+        </td>
+      </tr>
+      <tr>
+        <td>readonly</td>
+        <td>optional</td>
+        <td>boolean</td>
+        <td>Set to "true" to make all radio buttons in the group read-only.</td>
+      </tr>
+      <tr>
+        <td>required</td>
+        <td>optional</td>
+        <td>boolean</td>
+        <td>Set to "true" to mark the group as required.</td>
+      </tr>
+      <tr>
+        <td>tiled</td>
+        <td>optional</td>
+        <td>boolean</td>
+        <td>
+          Set to "true" or "false" to use USWDS tile styling. Defaults to
+          "true".
+        </td>
+      </tr>
+      <tr>
+        <td>validation-class</td>
+        <td>optional</td>
+        <td>string</td>
+        <td>
+          Fully qualified Java class name used to derive client-side validation
+          constraints.
+        </td>
+      </tr>
+      <tr>
+        <td>validation-field</td>
+        <td>optional</td>
+        <td>string</td>
+        <td>
+          Field name within the validation class to extract Play Framework
+          validation constraints from.
+        </td>
+      </tr>
+      <tr>
+        <td>validation-message</td>
+        <td>optional</td>
+        <td>string</td>
+        <td>Error message displayed when the group is invalid.</td>
+      </tr>
+    </tbody>
+    <tbody>
+      <tr>
+        <th colspan="4" scope="rowgroup">
+          Nested content (&lt;item&gt; attributes)
+        </th>
+      </tr>
+      <tr>
+        <td>child &lt;item&gt; id</td>
+        <td>required</td>
+        <td>string</td>
+        <td>Unique identifier for this individual radio input.</td>
+      </tr>
+      <tr>
+        <td>child &lt;item&gt; value</td>
+        <td>required</td>
+        <td>string</td>
+        <td>The form value submitted when this radio button is selected.</td>
+      </tr>
+      <tr>
+        <td>child &lt;item&gt; description</td>
+        <td>optional</td>
+        <td>string</td>
+        <td>Additional descriptive text shown below the item label.</td>
+      </tr>
+      <tr>
+        <td>child &lt;item&gt; disabled</td>
+        <td>optional</td>
+        <td>boolean</td>
+        <td>Set to "true" to disable this individual radio button.</td>
+      </tr>
+      <tr>
+        <td>child &lt;item&gt; label</td>
+        <td>optional</td>
+        <td>string</td>
+        <td>Display label for this radio option.</td>
+      </tr>
+      <tr>
+        <td>child &lt;item&gt; selected</td>
+        <td>optional</td>
+        <td>boolean</td>
+        <td>Set to "true" to pre-select this option.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Sample 1: Basic Radio Group -->
+  <h2>Basic Radio Group</h2>
+
+  <cf:radio
+    th:id="${model.basicRadio.name()}"
+    th:name="${model.basicRadio.name()}"
+    th:label="${model.basicRadio.label()}"
+    required="true"
+  >
+    <item
+      th:each="item: ${model.basicRadio.options()}"
+      th:id="${item.id()}"
+      th:value="${item.value()}"
+      th:label="${item.label()}"
+    ></item>
+  </cf:radio>
+
+  <div class="usa-accordion usa-accordion--bordered margin-top-2">
+    <h3 class="usa-accordion__heading">
+      <button
+        type="button"
+        class="usa-accordion__button"
+        aria-expanded="false"
+        aria-controls="b-a1"
+      >
+        Code Sample
+      </button>
+    </h3>
+    <div id="b-a1" class="usa-accordion__content usa-prose">
+      <h4>Java</h4>
+      <pre><code class="language-java">public record BasicRadio(
+  String name,
+  String label,
+  ImmutableList&lt;RadioOption&gt; options) {
+
+  public BasicRadio() {
+    this(&quot;size&quot;,
+      &quot;Choose a size&quot;,
+      ImmutableList.of(
+        new RadioOption(&quot;size-small&quot;, &quot;small&quot;, &quot;Small&quot;),
+        new RadioOption(&quot;size-medium&quot;, &quot;medium&quot;, &quot;Medium&quot;),
+        new RadioOption(&quot;size-large&quot;, &quot;large&quot;, &quot;Large&quot;)));
+  }
+}
+
+public record RadioOption(String id, String value, String label) {}</code></pre>
+
+      <h4>Thymeleaf</h4>
+      <pre><code class="language-markup">&lt;cf:radio
+  th:name=&quot;${model.basicRadio.name()}&quot;
+  th:label=&quot;${model.basicRadio.label()}&quot;
+&gt;
+  &lt;item
+    th:each=&quot;item: ${model.basicRadio.options()}&quot;
+    th:id=&quot;${item.id()}&quot;
+    th:value=&quot;${item.value()}&quot;
+    th:label=&quot;${item.label()}&quot;
+  &gt;&lt;/item&gt;
+&lt;/cf:radio&gt;</code></pre>
+
+      <h4>Rendered HTML</h4>
+      <pre><code class="language-markup">&lt;div class=&quot;usa-form-group&quot;&gt;
+  &lt;fieldset class=&quot;usa-fieldset&quot;&gt;
+    &lt;legend class=&quot;usa-legend&quot;&gt;Choose a size&lt;/legend&gt;
+    &lt;div class=&quot;usa-radio&quot;&gt;
+      &lt;input
+        type=&quot;radio&quot;
+        class=&quot;usa-radio__input usa-radio__input--tile&quot;
+        id=&quot;size-small&quot;
+        name=&quot;size&quot;
+        value=&quot;small&quot; /&gt;
+      &lt;label class=&quot;usa-radio__label&quot; for=&quot;size-small&quot;&gt;Small&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;usa-radio&quot;&gt;
+      &lt;input
+        type=&quot;radio&quot;
+        class=&quot;usa-radio__input usa-radio__input--tile&quot;
+        id=&quot;size-medium&quot;
+        name=&quot;size&quot;
+        value=&quot;medium&quot; /&gt;
+      &lt;label class=&quot;usa-radio__label&quot; for=&quot;size-medium&quot;&gt;Medium&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;usa-radio&quot;&gt;
+      &lt;input
+        type=&quot;radio&quot;
+        class=&quot;usa-radio__input usa-radio__input--tile&quot;
+        id=&quot;size-large&quot;
+        name=&quot;size&quot;
+        value=&quot;large&quot; /&gt;
+      &lt;label class=&quot;usa-radio__label&quot; for=&quot;size-large&quot;&gt;Large&lt;/label&gt;
+    &lt;/div&gt;
+  &lt;/fieldset&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </div>
+
+  <hr class="code-separator" />
+
+  <!-- Sample 2: Radio Group with Help Text -->
+  <h2>Radio Group with Help Text</h2>
+
+  <cf:radio
+    th:id="${model.radioWithHelp.name()}"
+    th:name="${model.radioWithHelp.name()}"
+    th:label="${model.radioWithHelp.label()}"
+    th:help-text="${model.radioWithHelp.helpText()}"
+  >
+    <item
+      th:each="item: ${model.radioWithHelp.options()}"
+      th:id="${item.id()}"
+      th:value="${item.value()}"
+      th:label="${item.label()}"
+    ></item>
+  </cf:radio>
+
+  <div class="usa-accordion usa-accordion--bordered margin-top-2">
+    <h3 class="usa-accordion__heading">
+      <button
+        type="button"
+        class="usa-accordion__button"
+        aria-expanded="false"
+        aria-controls="b-a2"
+      >
+        Code Sample
+      </button>
+    </h3>
+    <div id="b-a2" class="usa-accordion__content usa-prose">
+      <h4>Java</h4>
+      <pre><code class="language-java">public record RadioWithHelp(
+  String name,
+  String label,
+  String helpText,
+  ImmutableList&lt;RadioOption&gt; options) {
+
+  public RadioWithHelp() {
+    this(&quot;contactMethod&quot;,
+      &quot;How would you like to be contacted?&quot;,
+      &quot;Select your preferred method of communication&quot;,
+      ImmutableList.of(
+        new RadioOption(&quot;contact-email&quot;, &quot;email&quot;, &quot;Email&quot;),
+        new RadioOption(&quot;contact-phone&quot;, &quot;phone&quot;, &quot;Phone&quot;),
+        new RadioOption(&quot;contact-mail&quot;, &quot;mail&quot;, &quot;Mail&quot;)));
+  }
+}
+
+public record RadioOption(String id, String value, String label) {}</code></pre>
+
+      <h4>Thymeleaf</h4>
+      <pre><code class="language-markup">&lt;cf:radio
+  th:name=&quot;${model.radioWithHelp.name()}&quot;
+  th:label=&quot;${model.radioWithHelp.label()}&quot;
+  th:help-text=&quot;${model.radioWithHelp.helpText()}&quot;
+&gt;
+  &lt;item
+    th:each=&quot;item: ${model.radioWithHelp.options()}&quot;
+    th:id=&quot;${item.id()}&quot;
+    th:value=&quot;${item.value()}&quot;
+    th:label=&quot;${item.label()}&quot;
+  &gt;&lt;/item&gt;
+&lt;/cf:radio&gt;</code></pre>
+
+      <h4>Rendered HTML</h4>
+      <pre><code class="language-markup">&lt;div class=&quot;usa-form-group&quot;&gt;
+  &lt;fieldset class=&quot;usa-fieldset&quot;&gt;
+    &lt;legend class=&quot;usa-legend&quot;&gt;How would you like to be contacted?&lt;/legend&gt;
+    &lt;div class=&quot;usa-hint&quot;&gt;Select your preferred method of communication&lt;/div&gt;
+    &lt;div class=&quot;usa-radio&quot;&gt;
+      &lt;input
+        type=&quot;radio&quot;
+        class=&quot;usa-radio__input usa-radio__input--tile&quot;
+        id=&quot;contact-email&quot;
+        name=&quot;contactMethod&quot;
+        value=&quot;email&quot; /&gt;
+      &lt;label class=&quot;usa-radio__label&quot; for=&quot;contact-email&quot;&gt;Email&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;usa-radio&quot;&gt;
+      &lt;input
+        type=&quot;radio&quot;
+        class=&quot;usa-radio__input usa-radio__input--tile&quot;
+        id=&quot;contact-phone&quot;
+        name=&quot;contactMethod&quot;
+        value=&quot;phone&quot; /&gt;
+      &lt;label class=&quot;usa-radio__label&quot; for=&quot;contact-phone&quot;&gt;Phone&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;usa-radio&quot;&gt;
+      &lt;input
+        type=&quot;radio&quot;
+        class=&quot;usa-radio__input usa-radio__input--tile&quot;
+        id=&quot;contact-mail&quot;
+        name=&quot;contactMethod&quot;
+        value=&quot;mail&quot; /&gt;
+      &lt;label class=&quot;usa-radio__label&quot; for=&quot;contact-mail&quot;&gt;Mail&lt;/label&gt;
+    &lt;/div&gt;
+  &lt;/fieldset&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </div>
+
+  <hr class="code-separator" />
+
+  <!-- Sample 3: Radio Group with Validation Error -->
+  <h2>Radio Group with Validation Error</h2>
+
+  <cf:radio
+    th:id="${model.radioWithError.name()}"
+    th:name="${model.radioWithError.name()}"
+    th:label="${model.radioWithError.label()}"
+    th:is-valid="${model.radioWithError.isValid()}"
+    th:validation-message="${model.radioWithError.validationMessage()}"
+    required="true"
+  >
+    <item
+      th:each="item: ${model.radioWithError.options()}"
+      th:id="${item.id()}"
+      th:value="${item.value()}"
+      th:label="${item.label()}"
+    ></item>
+  </cf:radio>
+
+  <div class="usa-accordion usa-accordion--bordered margin-top-2">
+    <h3 class="usa-accordion__heading">
+      <button
+        type="button"
+        class="usa-accordion__button"
+        aria-expanded="false"
+        aria-controls="b-a3"
+      >
+        Code Sample
+      </button>
+    </h3>
+    <div id="b-a3" class="usa-accordion__content usa-prose">
+      <h4>Java</h4>
+      <pre><code class="language-java">public record RadioWithError(
+  String name,
+  String label,
+  String isValid,
+  String validationMessage,
+  ImmutableList&lt;RadioOption&gt; options) {
+
+  public RadioWithError() {
+    this(&quot;paymentMethod&quot;,
+      &quot;Payment Method&quot;,
+      &quot;false&quot;,
+      &quot;Please select a payment method&quot;,
+      ImmutableList.of(
+        new RadioOption(&quot;payment-card&quot;, &quot;card&quot;, &quot;Credit Card&quot;),
+        new RadioOption(&quot;payment-bank&quot;, &quot;bank&quot;, &quot;Bank Transfer&quot;),
+        new RadioOption(&quot;payment-paypal&quot;, &quot;paypal&quot;, &quot;PayPal&quot;)));
+  }
+}
+
+public record RadioOption(String id, String value, String label) {}</code></pre>
+
+      <h4>Thymeleaf</h4>
+      <pre><code class="language-markup">&lt;cf:radio
+  th:name=&quot;${model.radioWithError.name()}&quot;
+  th:label=&quot;${model.radioWithError.label()}&quot;
+  th:is-valid=&quot;${model.radioWithError.isValid()}&quot;
+  th:validation-message=&quot;${model.radioWithError.validationMessage()}&quot;
+  required=&quot;true&quot;
+&gt;
+  &lt;item
+    th:each=&quot;item: ${model.radioWithError.options()}&quot;
+    th:id=&quot;${item.id()}&quot;
+    th:value=&quot;${item.value()}&quot;
+    th:label=&quot;${item.label()}&quot;
+  &gt;&lt;/item&gt;
+&lt;/cf:radio&gt;</code></pre>
+
+      <h4>Rendered HTML</h4>
+      <pre><code class="language-markup">&lt;div class=&quot;usa-form-group usa-form-group--error&quot;&gt;
+  &lt;fieldset class=&quot;usa-fieldset&quot;&gt;
+    &lt;legend class=&quot;usa-legend usa-legend--error&quot;&gt;Payment Method&lt;/legend&gt;
+    &lt;span id=&quot;paymentMethod-error&quot; class=&quot;usa-error-message&quot; role=&quot;alert&quot;&gt;
+      Please select a payment method
+    &lt;/span&gt;
+    &lt;div class=&quot;usa-radio&quot;&gt;
+      &lt;input
+        type=&quot;radio&quot;
+        class=&quot;usa-radio__input usa-radio__input--tile usa-radio__input--error&quot;
+        id=&quot;payment-card&quot;
+        name=&quot;paymentMethod&quot;
+        value=&quot;card&quot;
+        required=&quot;true&quot;
+        aria-describedby=&quot;paymentMethod-error&quot; /&gt;
+      &lt;label class=&quot;usa-radio__label&quot; for=&quot;payment-card&quot;&gt;Credit Card&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;usa-radio&quot;&gt;
+      &lt;input
+        type=&quot;radio&quot;
+        class=&quot;usa-radio__input usa-radio__input--tile usa-radio__input--error&quot;
+        id=&quot;payment-bank&quot;
+        name=&quot;paymentMethod&quot;
+        value=&quot;bank&quot;
+        required=&quot;true&quot;
+        aria-describedby=&quot;paymentMethod-error&quot; /&gt;
+      &lt;label class=&quot;usa-radio__label&quot; for=&quot;payment-bank&quot;&gt;Bank Transfer&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;usa-radio&quot;&gt;
+      &lt;input
+        type=&quot;radio&quot;
+        class=&quot;usa-radio__input usa-radio__input--tile usa-radio__input--error&quot;
+        id=&quot;payment-paypal&quot;
+        name=&quot;paymentMethod&quot;
+        value=&quot;paypal&quot;
+        required=&quot;true&quot;
+        aria-describedby=&quot;paymentMethod-error&quot; /&gt;
+      &lt;label class=&quot;usa-radio__label&quot; for=&quot;payment-paypal&quot;&gt;PayPal&lt;/label&gt;
+    &lt;/div&gt;
+  &lt;/fieldset&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </div>
+
+  <hr class="code-separator" />
+
+  <!-- Sample 4: Radio Group with Descriptions -->
+  <h2>Radio Group with Descriptions</h2>
+
+  <cf:radio
+    th:id="${model.radioWithDescriptions.name()}"
+    th:name="${model.radioWithDescriptions.name()}"
+    th:label="${model.radioWithDescriptions.label()}"
+  >
+    <item
+      th:each="item: ${model.radioWithDescriptions.options()}"
+      th:id="${item.id()}"
+      th:value="${item.value()}"
+      th:label="${item.label()}"
+      th:description="${item.description()}"
+    ></item>
+  </cf:radio>
+
+  <div class="usa-accordion usa-accordion--bordered margin-top-2">
+    <h3 class="usa-accordion__heading">
+      <button
+        type="button"
+        class="usa-accordion__button"
+        aria-expanded="false"
+        aria-controls="b-a4"
+      >
+        Code Sample
+      </button>
+    </h3>
+    <div id="b-a4" class="usa-accordion__content usa-prose">
+      <h4>Java</h4>
+      <pre><code class="language-java">public record RadioWithDescriptions(
+  String name,
+  String label,
+  ImmutableList&lt;RadioOptionWithDescription&gt; options) {
+
+  public RadioWithDescriptions() {
+    this(&quot;subscription&quot;,
+      &quot;Choose a subscription plan&quot;,
+      ImmutableList.of(
+        new RadioOptionWithDescription(
+          &quot;sub-basic&quot;, &quot;basic&quot;, &quot;Basic&quot;,
+          &quot;$9.99/month - Access to basic features&quot;),
+        new RadioOptionWithDescription(
+          &quot;sub-pro&quot;, &quot;pro&quot;, &quot;Professional&quot;,
+          &quot;$29.99/month - All features included&quot;),
+        new RadioOptionWithDescription(
+          &quot;sub-enterprise&quot;, &quot;enterprise&quot;, &quot;Enterprise&quot;,
+          &quot;Custom pricing - Dedicated support&quot;)));
+  }
+}
+
+public record RadioOptionWithDescription(
+  String id, String value, String label, String description) {}</code></pre>
+
+      <h4>Thymeleaf</h4>
+      <pre><code class="language-markup">&lt;cf:radio
+  th:name=&quot;${model.radioWithDescriptions.name()}&quot;
+  th:label=&quot;${model.radioWithDescriptions.label()}&quot;
+&gt;
+  &lt;item
+    th:each=&quot;item: ${model.radioWithDescriptions.options()}&quot;
+    th:id=&quot;${item.id()}&quot;
+    th:value=&quot;${item.value()}&quot;
+    th:label=&quot;${item.label()}&quot;
+    th:description=&quot;${item.description()}&quot;
+  &gt;&lt;/item&gt;
+&lt;/cf:radio&gt;</code></pre>
+
+      <h4>Rendered HTML</h4>
+      <pre><code class="language-markup">&lt;div class=&quot;usa-form-group&quot;&gt;
+  &lt;fieldset class=&quot;usa-fieldset&quot;&gt;
+    &lt;legend class=&quot;usa-legend&quot;&gt;Choose a subscription plan&lt;/legend&gt;
+    &lt;div class=&quot;usa-radio&quot;&gt;
+      &lt;input
+        type=&quot;radio&quot;
+        class=&quot;usa-radio__input usa-radio__input--tile&quot;
+        id=&quot;sub-basic&quot;
+        name=&quot;subscription&quot;
+        value=&quot;basic&quot; /&gt;
+      &lt;label class=&quot;usa-radio__label&quot; for=&quot;sub-basic&quot;&gt;
+        Basic
+        &lt;span class=&quot;usa-radio__label-description&quot;&gt;$9.99/month - Access to basic features&lt;/span&gt;
+      &lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;usa-radio&quot;&gt;
+      &lt;input
+        type=&quot;radio&quot;
+        class=&quot;usa-radio__input usa-radio__input--tile&quot;
+        id=&quot;sub-pro&quot;
+        name=&quot;subscription&quot;
+        value=&quot;pro&quot; /&gt;
+      &lt;label class=&quot;usa-radio__label&quot; for=&quot;sub-pro&quot;&gt;
+        Professional
+        &lt;span class=&quot;usa-radio__label-description&quot;&gt;$29.99/month - All features included&lt;/span&gt;
+      &lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;usa-radio&quot;&gt;
+      &lt;input
+        type=&quot;radio&quot;
+        class=&quot;usa-radio__input usa-radio__input--tile&quot;
+        id=&quot;sub-enterprise&quot;
+        name=&quot;subscription&quot;
+        value=&quot;enterprise&quot; /&gt;
+      &lt;label class=&quot;usa-radio__label&quot; for=&quot;sub-enterprise&quot;&gt;
+        Enterprise
+        &lt;span class=&quot;usa-radio__label-description&quot;&gt;Custom pricing - Dedicated support&lt;/span&gt;
+      &lt;/label&gt;
+    &lt;/div&gt;
+  &lt;/fieldset&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </div>
+
+  <hr class="code-separator" />
+
+  <!-- Sample 5: Non-Tiled Radio Group with Selected Option -->
+  <h2>Non-Tiled Radio Group with Selected Option</h2>
+
+  <cf:radio
+    th:id="${model.radioNonTiled.name()}"
+    th:name="${model.radioNonTiled.name()}"
+    th:label="${model.radioNonTiled.label()}"
+    th:tiled="${model.radioNonTiled.tiled()}"
+  >
+    <item
+      th:each="item: ${model.radioNonTiled.options()}"
+      th:id="${item.id()}"
+      th:value="${item.value()}"
+      th:label="${item.label()}"
+      th:selected="${item.selected()}"
+    ></item>
+  </cf:radio>
+
+  <div class="usa-accordion usa-accordion--bordered margin-top-2">
+    <h3 class="usa-accordion__heading">
+      <button
+        type="button"
+        class="usa-accordion__button"
+        aria-expanded="false"
+        aria-controls="b-a5"
+      >
+        Code Sample
+      </button>
+    </h3>
+    <div id="b-a5" class="usa-accordion__content usa-prose">
+      <h4>Java</h4>
+      <pre><code class="language-java">public record RadioNonTiled(
+  String name,
+  String label,
+  String tiled,
+  ImmutableList&lt;RadioOptionWithSelected&gt; options) {
+
+  public RadioNonTiled() {
+    this(&quot;delivery&quot;,
+      &quot;Delivery Speed&quot;,
+      &quot;false&quot;,
+      ImmutableList.of(
+        new RadioOptionWithSelected(
+          &quot;delivery-standard&quot;, &quot;standard&quot;, &quot;Standard (5-7 days)&quot;, true),
+        new RadioOptionWithSelected(
+          &quot;delivery-express&quot;, &quot;express&quot;, &quot;Express (2-3 days)&quot;, false),
+        new RadioOptionWithSelected(
+          &quot;delivery-overnight&quot;, &quot;overnight&quot;, &quot;Overnight&quot;, false)));
+  }
+}
+
+public record RadioOptionWithSelected(
+  String id, String value, String label, boolean selected) {}</code></pre>
+
+      <h4>Thymeleaf</h4>
+      <pre><code class="language-markup">&lt;cf:radio
+  th:name=&quot;${model.radioNonTiled.name()}&quot;
+  th:label=&quot;${model.radioNonTiled.label()}&quot;
+  th:tiled=&quot;${model.radioNonTiled.tiled()}&quot;
+&gt;
+  &lt;item
+    th:each=&quot;item: ${model.radioNonTiled.options()}&quot;
+    th:id=&quot;${item.id()}&quot;
+    th:value=&quot;${item.value()}&quot;
+    th:label=&quot;${item.label()}&quot;
+    th:selected=&quot;${item.selected()}&quot;
+  &gt;&lt;/item&gt;
+&lt;/cf:radio&gt;</code></pre>
+
+      <h4>Rendered HTML</h4>
+      <pre><code class="language-markup">&lt;div class=&quot;usa-form-group&quot;&gt;
+  &lt;fieldset class=&quot;usa-fieldset&quot;&gt;
+    &lt;legend class=&quot;usa-legend&quot;&gt;Delivery Speed&lt;/legend&gt;
+    &lt;div class=&quot;usa-radio&quot;&gt;
+      &lt;input
+        type=&quot;radio&quot;
+        class=&quot;usa-radio__input&quot;
+        id=&quot;delivery-standard&quot;
+        name=&quot;delivery&quot;
+        value=&quot;standard&quot;
+        checked=&quot;checked&quot; /&gt;
+      &lt;label class=&quot;usa-radio__label&quot; for=&quot;delivery-standard&quot;&gt;Standard (5-7 days)&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;usa-radio&quot;&gt;
+      &lt;input
+        type=&quot;radio&quot;
+        class=&quot;usa-radio__input&quot;
+        id=&quot;delivery-express&quot;
+        name=&quot;delivery&quot;
+        value=&quot;express&quot; /&gt;
+      &lt;label class=&quot;usa-radio__label&quot; for=&quot;delivery-express&quot;&gt;Express (2-3 days)&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;usa-radio&quot;&gt;
+      &lt;input
+        type=&quot;radio&quot;
+        class=&quot;usa-radio__input&quot;
+        id=&quot;delivery-overnight&quot;
+        name=&quot;delivery&quot;
+        value=&quot;overnight&quot; /&gt;
+      &lt;label class=&quot;usa-radio__label&quot; for=&quot;delivery-overnight&quot;&gt;Overnight&lt;/label&gt;
+    &lt;/div&gt;
+  &lt;/fieldset&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </div>
+</th:block>

@@ -439,25 +439,35 @@ test.describe('Admin can manage program translations', () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         screenName,
+        /* expandedFormLogicEnabled= */ true,
       )
-      await adminPredicates.addPredicates({
-        questionName: questionName,
-        scalar: 'text',
-        operator: 'is equal to',
-        value: 'eligible',
-      })
-      await adminPredicates.expectPredicateDisplayTextContains(
-        'Applicant is eligible if "eligibility-question-q" text is equal to "eligible"',
+      await adminPredicates.addPredicates(
+        /* expandedFormLogicEnabled= */ true,
+        {
+          questionName: questionName,
+          scalar: 'text',
+          operator: 'is equal to',
+          value: 'eligible',
+        },
       )
+      await expect(
+        page.getByText(
+          'Applicant is eligible if "eligibility-question-q" text is equal to "eligible"',
+        ),
+      ).not.toBeEmpty()
     })
 
     await test.step('Update translations', async () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         screenName,
+        /* expandedFormLogicEnabled= */ true,
       )
-      await adminPredicates.updateEligibilityMessage(eligibilityMsg)
-      await validateToastMessage(page, eligibilityMsg)
+      await adminPredicates.updateEligibilityMessage(
+        eligibilityMsg,
+        /* expandedFormLogicEnabled= */ true,
+      )
+      await validateToastMessage(page, 'Saved eligibility condition')
 
       await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
       await adminTranslations.selectLanguage('Spanish')
@@ -496,9 +506,46 @@ test.describe('Admin can manage program translations', () => {
       )
       await applicantQuestions.answerTextQuestion('ineligible')
       await page.click('text="Continuar"')
-      await validateScreenshot(
-        page,
-        'ineligible-view-with-translated-eligibility-msg',
+      await expect(page.locator('main')).toContainText(
+        'Spanish block eligibility message',
+      )
+    })
+
+    await test.step('Clear eligibility message', async () => {
+      await selectApplicantLanguage(page, 'en-US')
+      await logout(page)
+      await loginAsAdmin(page)
+      await adminPrograms.editProgram(programName)
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        screenName,
+        /* expandedFormLogicEnabled= */ true,
+      )
+      await adminPredicates.updateEligibilityMessage(
+        '',
+        /* expandedFormLogicEnabled= */ true,
+      )
+      await validateToastMessage(page, 'Saved eligibility condition')
+
+      await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+      await adminTranslations.selectLanguage('Spanish')
+      await adminTranslations.expectBlockTranslations(
+        'Spanish block name - bloque uno',
+        'Spanish block description',
+        '',
+      )
+
+      await adminPrograms.publishProgram(programName)
+      await logout(page)
+    })
+
+    await test.step('Verify that eligibility message does not show up on the applicant side', async () => {
+      await loginAsTestUser(page)
+      await selectApplicantLanguage(page, 'es-US')
+      await page.click('text="Editar"')
+
+      await expect(page.locator('main')).not.toContainText(
+        'Spanish block eligibility message',
       )
     })
   })

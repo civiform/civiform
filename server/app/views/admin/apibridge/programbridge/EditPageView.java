@@ -27,7 +27,7 @@ public class EditPageView extends TransitionalLayoutBaseView<EditPageViewModel> 
   }
 
   @Override
-  protected String pageTitle() {
+  protected String pageTitle(EditPageViewModel model) {
     return "Edit Program Bridge Definitions";
   }
 

@@ -54,6 +54,7 @@ public final class ProgramCardFactory {
     ImmutableList<String> programCategoryNames =
         displayProgram.categories().stream()
             .map(category -> category.getDefaultName())
+            .sorted()
             .collect(ImmutableList.toImmutableList());
 
     DivTag statusDiv = div();

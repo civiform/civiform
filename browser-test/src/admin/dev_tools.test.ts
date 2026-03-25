@@ -45,4 +45,10 @@ test.describe('developer tools', () => {
       expect(await page.innerText('h1')).not.toContain('Dev tools')
     })
   })
+
+  test('dev tools page is accessible', async ({page}) => {
+    await enableFeatureFlag(page, 'ADMIN_UI_MIGRATION_SC_ENABLED')
+    await page.goto('/dev/seed')
+    await validateAccessibility(page)
+  })
 })

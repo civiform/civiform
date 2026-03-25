@@ -22,14 +22,18 @@ import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.stream.Stream;
 import org.apache.http.client.utils.URIBuilder;
+import play.i18n.Messages;
 import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
+import services.MessageKey;
 import services.ProgramBlockValidation;
 import services.ProgramBlockValidation.AddQuestionResult;
 import services.ProgramBlockValidationFactory;
 import services.program.BlockDefinition;
+import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
@@ -45,6 +49,8 @@ public final class ProgramQuestionBank {
   // Url parameter used to force question bank open upon initial rendering
   // of program edit page.
   private static final String SHOW_QUESTION_BANK_PARAM = "sqb";
+  // Url parameter used to indicate a newly created question that should be auto-added to the block
+  public static final String NEWLY_CREATED_QUESTION_ID_PARAM = "newQuestionId";
   // Data attribute used to store which text is relevant when filtering
   // questions via the search bar.
   private static final String RELEVANT_FILTER_TEXT_DATA_ATTR = "relevantfiltertext";
@@ -52,6 +58,7 @@ public final class ProgramQuestionBank {
   private final ProgramQuestionBankParams params;
   private final ProgramBlockValidationFactory programBlockValidationFactory;
   private final SettingsManifest settingsManifest;
+  private final Messages messages;
   private final Http.Request request;
 
   /**
@@ -68,10 +75,12 @@ public final class ProgramQuestionBank {
       ProgramQuestionBankParams params,
       ProgramBlockValidationFactory programBlockValidationFactory,
       SettingsManifest settingsManifest,
+      Messages messages,
       Http.Request request) {
     this.params = checkNotNull(params);
     this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.messages = checkNotNull(messages);
     this.request = checkNotNull(request);
   }
 
@@ -156,8 +165,13 @@ public final class ProgramQuestionBank {
                                 CreateQuestionButton.renderCreateQuestionButton(
                                     params.questionCreateRedirectUrl(),
                                     /* isPrimaryButton= */ false,
+                                    getParentEnumeratorId(),
+                                    params.blockDefinition().isRepeated(),
                                     settingsManifest,
-                                    request)))));
+                                    request,
+                                    /* isEmptyBlock= */ params.blockDefinition().getQuestionCount()
+                                        == 0,
+                                    /* isQuestionPage= */ false)))));
 
     // Sort by last modified, since that's the default of the sort by dropdown
     ImmutableList<QuestionDefinition> allQuestions =
@@ -168,12 +182,47 @@ public final class ProgramQuestionBank {
                     .reversed()
                     .thenComparing(qdef -> qdef.getName().toLowerCase(Locale.ROOT)))
             .collect(ImmutableList.toImmutableList());
-    ImmutableList<QuestionDefinition> universalQuestions =
-        allQuestions.stream().filter(q -> q.isUniversal()).collect(ImmutableList.toImmutableList());
-    ImmutableList<QuestionDefinition> nonUniversalQuestions =
+
+    boolean shouldShowPreviouslyUsedSection =
+        settingsManifest.getEnumeratorImprovementsEnabled(request)
+            && params.blockDefinition().isRepeated();
+
+    ImmutableList<QuestionDefinition> previouslyUsedForRepeatedSetQuestions =
+        shouldShowPreviouslyUsedSection
+            ? allQuestions.stream()
+                .filter(q -> q.getEnumeratorId().isPresent())
+                .collect(ImmutableList.toImmutableList())
+            : ImmutableList.of();
+
+    ImmutableList<QuestionDefinition> remainingQuestions =
         allQuestions.stream()
+            .filter(q -> !(shouldShowPreviouslyUsedSection && q.getEnumeratorId().isPresent()))
+            .collect(ImmutableList.toImmutableList());
+
+    ImmutableList<QuestionDefinition> universalQuestions =
+        remainingQuestions.stream()
+            .filter(QuestionDefinition::isUniversal)
+            .collect(ImmutableList.toImmutableList());
+    ImmutableList<QuestionDefinition> nonUniversalQuestions =
+        remainingQuestions.stream()
             .filter(q -> !q.isUniversal())
             .collect(ImmutableList.toImmutableList());
+
+    if (!previouslyUsedForRepeatedSetQuestions.isEmpty()) {
+      contentDiv.with(
+          div()
+              .withId("question-bank-previously-used")
+              .withClasses(ReferenceClasses.SORTABLE_QUESTIONS_CONTAINER)
+              .with(
+                  h2(messages.at(MessageKey.HEADING_REPEATED_SET_PREVIOUSLY_USED.getKeyName()))
+                      .withClasses(AdminStyles.SEMIBOLD_HEADER))
+              .with(
+                  AlertComponent.renderSlimInfoAlert(
+                      messages.at(MessageKey.ALERT_REPEATED_SET_PREVIOUSLY_USED.getKeyName())))
+              .with(
+                  each(previouslyUsedForRepeatedSetQuestions, qd -> renderQuestionDefinition(qd))));
+    }
+
     if (!universalQuestions.isEmpty()) {
       contentDiv.with(
           div()
@@ -286,6 +335,28 @@ public final class ProgramQuestionBank {
   }
 
   /**
+   * If this is a repeated question, return the id of the enumerator question for the parent block.
+   */
+  private Optional<String> getParentEnumeratorId() {
+    if (!settingsManifest.getEnumeratorImprovementsEnabled(request)
+        || !params.blockDefinition().isRepeated()) {
+      return Optional.empty();
+    }
+
+    try {
+      BlockDefinition parentEnumeratorBlock =
+          params.program().getBlockDefinition(params.blockDefinition().enumeratorId().get());
+      if (!parentEnumeratorBlock.hasEnumeratorQuestion()) {
+        return Optional.empty();
+      }
+      return Optional.of(
+          Long.toString(parentEnumeratorBlock.getEnumerationQuestionDefinition().getId()));
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
    * Used to filter questions in the question bank.
    *
    * <p>Questions that are filtered out:
@@ -320,6 +391,22 @@ public final class ProgramQuestionBank {
     try {
       return new URIBuilder(url)
           .setParameter(ProgramQuestionBank.SHOW_QUESTION_BANK_PARAM, "true")
+          .build()
+          .toString();
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * Adds the newly created question ID to the URL so it can be auto-added to the block when the
+   * user returns from question creation.
+   */
+  public static String addNewlyCreatedQuestionIdParam(String url, long questionId) {
+    try {
+      return new URIBuilder(url)
+          .setParameter(
+              ProgramQuestionBank.NEWLY_CREATED_QUESTION_ID_PARAM, String.valueOf(questionId))
           .build()
           .toString();
     } catch (URISyntaxException e) {

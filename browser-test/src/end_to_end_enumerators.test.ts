@@ -10,6 +10,7 @@ import {
   waitForPageJsLoad,
 } from './support'
 import {Locator, Page} from '@playwright/test'
+import {waitForHtmxReady} from './support/wait'
 
 test.describe('End to end enumerator test', () => {
   const programName = 'Ete enumerator program'
@@ -633,28 +634,48 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
   })
 
   test.describe('Admin', () => {
-    test.beforeEach(async ({page, adminPrograms}) => {
+    test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
       await loginAsAdmin(page)
       await adminPrograms.addProgram('Enumerator test program')
-    })
 
-    test('can add an enumerator block and a repeated block to a program at once from the program block edit page', async ({
-      page,
-      adminPrograms,
-    }) => {
-      const blockPanel = page.getByTestId('block-panel-edit')
+      await test.step('Add questions to the program block', async () => {
+        await adminQuestions.addEnumeratorQuestion({
+          questionName: 'enumerator-ete-householdmembers',
+          description: 'desc',
+          questionText: 'Household members',
+          helpText: 'list household members',
+          maxNum: 4,
+        })
+        await adminQuestions.addNameQuestion({
+          questionName: 'enumerator-ete-repeated-name',
+          description: 'desc',
+          questionText: 'Name for $this',
+          helpText: 'full name for $this',
+          enumeratorName: 'enumerator-ete-householdmembers',
+        })
+        await adminQuestions.addNumberQuestion({
+          questionName: 'income-non-repeated-question',
+          description: 'desc',
+          questionText: 'Your monthly income',
+          helpText: 'Monthly income',
+        })
+      })
 
       await test.step('Go to the program block edit page', async () => {
         await adminPrograms.gotoEditDraftProgramPage('Enumerator test program')
       })
+    })
 
+    test('can add an enumerator block and a repeated block to a program at once from the program block edit page', async ({
+      page,
+    }) => {
+      const blockPanel = page.getByTestId('block-panel-edit')
       let initialBlockCount: number
+      const screenLinks = page.getByRole('link', {name: /Screen /})
       let enumeratorBlockLink: Locator
 
       await test.step('Record how many blocks are present in the block order panel', async () => {
-        initialBlockCount = await page
-          .getByRole('link', {name: /^Screen /})
-          .count()
+        initialBlockCount = await screenLinks.count()
       })
 
       await test.step('Click "Add screen" button and check that the dropdown appears', async () => {
@@ -667,21 +688,19 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
       await test.step('Click "Add repeated set" button', async () => {
         await page.getByRole('button', {name: 'Add repeated set'}).click()
-        await waitForPageJsLoad(page)
       })
 
       await test.step('Validate that two new blocks appear in the block order panel', async () => {
-        const newBlockCount = await page
-          .getByRole('link', {name: /Screen /})
-          .count()
-        expect(newBlockCount).toBe(initialBlockCount + 2)
+        await expect(screenLinks).toHaveCount(initialBlockCount + 2)
       })
 
       await test.step('Validate that the current block is the newly-created repeated block', async () => {
-        const currentBlockTitle = blockPanel.getByText(
-          '[parent label] - Screen 3 (repeated from 2)',
+        await expectCurrentBlockTitle(
+          /* isRepeatedBlock= */ true,
+          blockPanel,
+          /* expectedScreenNumber= */ 3,
+          /* repeatedFrom= */ 2,
         )
-        await expect(currentBlockTitle).toBeVisible()
       })
 
       await test.step('Validate that the enumerator block says repeated set', async () => {
@@ -696,7 +715,6 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
       await test.step('Click on the enumerator block in the block order panel', async () => {
         await enumeratorBlockLink.click()
-        await waitForPageJsLoad(page)
       })
 
       await test.step('Validate that "Repeated set creation method" radio buttons are visible', async () => {
@@ -727,9 +745,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(blockPanel.locator('#questions-section')).toBeHidden()
       })
 
-      await test.step('Validate that "Add a question" button is not visible', async () => {
+      await test.step('Validate that "Add question" button is not visible', async () => {
         await expect(
-          blockPanel.getByRole('button', {name: 'Add a question'}),
+          blockPanel.getByRole('button', {name: 'Add question'}),
         ).toBeHidden()
       })
 
@@ -742,48 +760,43 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
     test('can create a new enumerator question from the Program Block Edit page and add that question to the block', async ({
       page,
-      adminPrograms,
     }) => {
       const blockPanel = page.getByTestId('block-panel-edit')
-
-      await test.step('Go to the program block edit page', async () => {
-        await adminPrograms.gotoEditDraftProgramPage('Enumerator test program')
-      })
 
       await test.step('Add a new repeated set', async () => {
         await page.getByRole('button', {name: 'Add screen'}).first().click()
         await page.getByRole('button', {name: 'Add repeated set'}).click()
-        await waitForPageJsLoad(page)
       })
 
       await test.step('Select the repeated set block from the block order panel', async () => {
         await page.getByRole('link', {name: 'Screen 2'}).click()
-        await waitForPageJsLoad(page)
       })
 
-      await test.step('Fill out the new enumerator question form and submit it', async () => {
-        await blockPanel
-          .getByRole('textbox', {name: 'Listed entity'})
-          .fill('Pets')
-        await blockPanel
-          .getByRole('textbox', {name: 'Question text'})
-          .fill('List the names of your pets.')
-        await blockPanel
-          .getByRole('textbox', {name: 'Repeated set admin ID'})
-          .fill('pets enumerator')
-        await blockPanel.getByRole('textbox', {name: 'Hint text'}).fill('Hint')
-        await blockPanel
-          .getByRole('button', {name: 'Create repeated set'})
-          .click()
-        await waitForPageJsLoad(page)
+      await fillOutEnumeratorQuestionFormCorrectly(page)
+
+      const enumeratorQuestionCard = blockPanel
+        .getByTestId('question-div')
+        .getByText('List the names of your pets.')
+
+      await test.step('Validate that focus is sent to the repeated set question section heading', async () => {
+        await expect(
+          blockPanel.getByText('Repeated set question'),
+        ).toBeFocused()
       })
 
       await test.step('Validate that the new question card is now visible on the enumerator block', async () => {
-        await expect(
-          blockPanel
-            .getByTestId('question-div')
-            .getByText('List the names of your pets.'),
-        ).toBeVisible()
+        await expect(enumeratorQuestionCard).toBeVisible()
+      })
+
+      await test.step('Navigate to another block, return and make sure the enumerator question is still visible', async () => {
+        await navigateToRepeatedScreen(page, 3, 2)
+        await page.getByRole('link', {name: 'Screen 2'}).click()
+        await expectCurrentBlockTitle(
+          /* isRepeatedBlock= */ false,
+          blockPanel,
+          /* expectedScreenNumber= */ 2,
+        )
+        await expect(enumeratorQuestionCard).toBeVisible()
       })
 
       await test.step('Check that the new question is now on the question list page', async () => {
@@ -794,5 +807,752 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(page.getByText('Admin ID: pets enumerator')).toBeVisible()
       })
     })
+
+    test('error validation prevents user from submitting an invalid enumerator question form', async ({
+      page,
+    }) => {
+      const blockPanel = page.getByTestId('block-panel-edit')
+
+      await test.step('Add a new repeated set', async () => {
+        await page.getByRole('button', {name: 'Add screen'}).first().click()
+        await page.getByRole('button', {name: 'Add repeated set'}).click()
+      })
+
+      await test.step('Select the repeated set block from the block order panel', async () => {
+        await page.getByRole('link', {name: 'Screen 2'}).click()
+      })
+
+      await test.step('Submit the new enumerator question form without filling out all the required fields', async () => {
+        await blockPanel
+          .getByRole('textbox', {name: 'Listed entity'})
+          .fill('Pets')
+
+        await blockPanel
+          .getByRole('button', {name: 'Create repeated set'})
+          .click()
+        await waitForHtmxReady(page)
+      })
+
+      await test.step('Validate that the form is still visible and previous input is retained', async () => {
+        await expect(
+          blockPanel.locator('#new-enumerator-question-form'),
+        ).toBeVisible()
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'Listed entity'}),
+        ).toHaveValue('Pets')
+      })
+
+      await test.step('Validate that an error alert is shown with the correct error messages', async () => {
+        const errorAlert = blockPanel.getByRole('alert').filter({
+          hasText:
+            'Error: Question text cannot be blank. Administrative identifier cannot be blank.',
+        })
+        await expect(errorAlert).toBeVisible()
+      })
+
+      await fillOutEnumeratorQuestionFormCorrectly(page)
+
+      await test.step('Validate that the new question card is now visible on the enumerator block', async () => {
+        const enumeratorQuestionCard = blockPanel
+          .getByTestId('question-div')
+          .getByText('List the names of your pets.')
+        await expect(enumeratorQuestionCard).toBeVisible()
+      })
+
+      await test.step('Add a new repeated set', async () => {
+        await page.getByRole('button', {name: 'Add screen'}).first().click()
+        await page.getByRole('button', {name: 'Add repeated set'}).click()
+      })
+
+      await test.step('Select the repeated set block from the block order panel', async () => {
+        await page.getByRole('link', {name: 'Screen 4'}).click()
+      })
+
+      await test.step('Submit the new enumerator question form with a duplicate admin ID', async () => {
+        await blockPanel
+          .getByRole('textbox', {
+            name: 'Repeated set admin ID',
+          })
+          .fill('pets enumerator')
+
+        await blockPanel
+          .getByRole('button', {name: 'Create repeated set'})
+          .click()
+        await waitForHtmxReady(page)
+      })
+
+      await test.step('Verify that an error alert is shown with the duplicate admin ID message', async () => {
+        const errorAlert = blockPanel.getByRole('alert').filter({
+          hasText:
+            "Administrative identifier 'pets enumerator' generates " +
+            "JSON path 'pets_enumerator' which would conflict with " +
+            "the existing question with admin ID 'pets enumerator'.",
+        })
+        await expect(errorAlert).toBeVisible()
+      })
+
+      await test.step('Verify that focus is on the first input field of the enumerator form', async () => {
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'Listed entity'}),
+        ).toBeFocused()
+      })
+    })
+
+    test('can use the "Add repeated screen" button to add repeated screens', async ({
+      page,
+      adminPrograms,
+    }) => {
+      const blockPanel = page.getByTestId('block-panel-edit')
+      const addRepeatedScreenButton = blockPanel.getByRole('button', {
+        name: 'Add repeated screen',
+      })
+
+      await test.step('Add a new repeated set', async () => {
+        await page.getByRole('button', {name: 'Add screen'}).first().click()
+        await page.getByRole('button', {name: 'Add repeated set'}).click()
+      })
+
+      await test.step('Verify that the "Add repeated screen" button is not present on the repeated screen', async () => {
+        await expect(addRepeatedScreenButton).toBeHidden()
+      })
+
+      await test.step('Select the repeated set block from the block order panel', async () => {
+        await page.getByRole('link', {name: 'Screen 2'}).click()
+      })
+
+      await test.step('Verify that the "Add repeated screen" button is not present on the enumerator screen', async () => {
+        await expect(addRepeatedScreenButton).toBeHidden()
+      })
+
+      await fillOutEnumeratorQuestionFormCorrectly(page)
+
+      await test.step('Verify that the "Add repeated screen" button is now present and click the button', async () => {
+        await addRepeatedScreenButton.click()
+      })
+
+      await test.step('Go to the program block edit page', async () => {
+        await adminPrograms.gotoEditDraftProgramPage('Enumerator test program')
+      })
+
+      await test.step('Verify that we can add a repeated screen from another repeated screen', async () => {
+        await navigateToRepeatedScreen(page, 4, 2)
+        await addRepeatedScreenButton.click()
+        await expectCurrentBlockTitle(
+          /* isRepeatedBlock= */ true,
+          blockPanel,
+          /* expectedScreenNumber= */ 5,
+          /* repeatedFrom= */ 2,
+        )
+      })
+    })
+
+    test('"Add nested repeated set" button appears only on parent enumerator and direct repeated screens', async ({
+      page,
+    }) => {
+      const blockPanel = page.getByTestId('block-panel-edit')
+      const addNestedRepeatedSetButton = blockPanel.getByRole('button', {
+        name: 'Add nested repeated set',
+      })
+
+      await test.step('Add a new repeated set and verify nested button is hidden before parent enumerator question is saved', async () => {
+        await page.getByRole('button', {name: 'Add screen'}).first().click()
+        await page.getByRole('button', {name: 'Add repeated set'}).click()
+        await page.getByRole('link', {name: 'Screen 2'}).click()
+        await expect(addNestedRepeatedSetButton).toBeHidden()
+      })
+
+      await test.step('Save parent enumerator question and verify nested button appears on parent enumerator', async () => {
+        await fillOutEnumeratorQuestionFormCorrectly(page)
+        await expect(addNestedRepeatedSetButton).toBeVisible()
+      })
+
+      await test.step('Add a repeated screen and verify nested button appears on direct repeated screen', async () => {
+        await blockPanel
+          .getByRole('button', {name: 'Add repeated screen'})
+          .click()
+        await navigateToRepeatedScreen(page, 4, 2)
+        await expect(addNestedRepeatedSetButton).toBeVisible()
+      })
+
+      await test.step('Create nested repeated set and verify nested button is hidden on nested blocks', async () => {
+        await addNestedRepeatedSetButton.click()
+
+        await navigateToRepeatedScreen(page, 5, 2)
+        await expect(addNestedRepeatedSetButton).toBeHidden()
+
+        await fillOutEnumeratorQuestionFormCorrectly(page, {
+          listedEntity: 'Jobs',
+          questionText: 'List jobs for $this',
+          adminId: 'jobs enumerator',
+        })
+
+        await navigateToRepeatedScreen(page, 6, 5, {
+          childLabel: '[child label]',
+        })
+        await expect(addNestedRepeatedSetButton).toBeHidden()
+      })
+    })
+
+    test('repeated screen add-question button is disabled until enumerator question is saved', async ({
+      page,
+    }) => {
+      const blockPanel = page.getByTestId('block-panel-edit')
+      const questionsSection = blockPanel.locator('#questions-section')
+      const addQuestionButton = blockPanel.getByRole('button', {
+        name: 'Add question',
+      })
+      const repeatedSetAlert = blockPanel.getByRole('alert').filter({
+        hasText:
+          'A repeated set question must first be added before repeated questions can be. Please navigate to the parent screen to add a repeated set question.',
+      })
+
+      await test.step('Add a new repeated set and verify repeated screen is selected', async () => {
+        await page.getByRole('button', {name: 'Add screen'}).first().click()
+        await page.getByRole('button', {name: 'Add repeated set'}).click()
+        await expectCurrentBlockTitle(
+          /* isRepeatedBlock= */ true,
+          blockPanel,
+          /* expectedScreenNumber= */ 3,
+          /* repeatedFrom= */ 2,
+        )
+      })
+
+      await test.step('Verify repeated questions section content before enumerator question is saved', async () => {
+        await expect(
+          questionsSection.getByText('Repeated questions', {exact: true}),
+        ).toBeVisible()
+        await expect(
+          questionsSection.getByText(
+            'Add the questions you would like to be asked about each object or individual listed by the applicant.',
+          ),
+        ).toBeVisible()
+
+        await validateScreenshot(
+          questionsSection,
+          'repeated-questions-section-before-save',
+          {
+            fullPage: false,
+          },
+        )
+      })
+
+      await test.step('Verify add-question is disabled and alert is visible before enumerator question is saved', async () => {
+        await expect(addQuestionButton).toBeDisabled()
+        await expect(repeatedSetAlert).toBeVisible()
+      })
+
+      await test.step('Save an enumerator question on the parent repeated set screen', async () => {
+        await page.getByRole('link', {name: 'Screen 2'}).click()
+        await fillOutEnumeratorQuestionFormCorrectly(page)
+      })
+
+      await test.step('Return to repeated screen and verify Add question is enabled and alert is hidden', async () => {
+        await navigateToRepeatedScreen(page, 3, 2)
+        await expect(addQuestionButton).toBeEnabled()
+        await expect(repeatedSetAlert).toBeHidden()
+      })
+    })
+
+    test('can add repeated questions to repeated screens', async ({
+      page,
+      adminPrograms,
+      adminQuestions,
+    }) => {
+      const blockPanel = page.getByTestId('block-panel-edit')
+      const addRepeatedScreenButton = blockPanel.getByRole('button', {
+        name: 'Add repeated screen',
+      })
+
+      await test.step('Add a new repeated set', async () => {
+        await page.getByRole('button', {name: 'Add screen'}).first().click()
+        await page.getByRole('button', {name: 'Add repeated set'}).click()
+      })
+
+      await test.step('Select the repeated set block from the block order panel', async () => {
+        await page.getByRole('link', {name: 'Screen 2'}).click()
+      })
+
+      await fillOutEnumeratorQuestionFormCorrectly(page)
+
+      await test.step('Add a repeated question associated with this enumerator', async () => {
+        await adminQuestions.addTextQuestion({
+          questionName: 'enumerator-pets-repeated-colors',
+          description: 'desc',
+          questionText: "What is $this's favorite color?",
+          helpText: 'Favorite color for $this',
+          enumeratorName: 'pets enumerator',
+        })
+
+        await adminPrograms.gotoEditDraftProgramPage('Enumerator test program')
+      })
+
+      await test.step('Verify that the "Add repeated screen" button is now present and click the button', async () => {
+        await expect(addRepeatedScreenButton).toBeVisible()
+        await addRepeatedScreenButton.click()
+      })
+
+      await test.step('Click on the new repeated screen in the block order panel', async () => {
+        await navigateToRepeatedScreen(page, 4, 2)
+      })
+
+      await test.step('Verify that the question bank has all non-repeated questions', async () => {
+        await page.getByRole('button', {name: 'Add question'}).click()
+        await expect(
+          page.getByText('Admin ID: income-non-repeated-question'),
+        ).toBeVisible()
+      })
+
+      await test.step('Verify that the repeated question associated with this enumerator is in the previously-used section', async () => {
+        const previouslyUsedSection = page.locator(
+          '#question-bank-previously-used',
+        )
+
+        await expect(
+          page.getByRole('heading', {
+            name: 'Previously used for this repeated set',
+          }),
+        ).toBeVisible()
+        await expect(
+          page.getByText(
+            'Questions that are associated with a different repeated set are not available to be added.',
+          ),
+        ).toBeVisible()
+        await expect(
+          previouslyUsedSection.getByText(
+            'Admin ID: enumerator-pets-repeated-colors',
+          ),
+        ).toBeVisible()
+        await validateScreenshot(
+          previouslyUsedSection,
+          'question-bank-previously-used-section',
+          {
+            fullPage: false,
+          },
+        )
+        await expect(
+          page
+            .locator('#question-bank-nonuniversal')
+            .getByText('Admin ID: enumerator-pets-repeated-colors'),
+        ).toBeHidden()
+      })
+
+      await test.step('Verify that the question bank does not have repeated questions that are associated with other enumerators', async () => {
+        await expect(
+          page.getByText('Admin ID: enumerator-ete-repeated-name'),
+        ).toBeHidden()
+        await adminPrograms.closeQuestionBank()
+      })
+
+      await test.step('Add the previously-used repeated question and verify the previously-used section no longer appears', async () => {
+        await adminPrograms.addQuestionFromQuestionBank(
+          'enumerator-pets-repeated-colors',
+        )
+
+        await page.getByRole('button', {name: 'Add question'}).click()
+        await expect(
+          page.locator('#question-bank-previously-used'),
+        ).toBeHidden()
+        await page.getByRole('button', {name: 'Close'}).click()
+      })
+
+      await test.step('Verify that creating a repeated question pre-selects the enumerator question.', async () => {
+        await test.step('Add a new text question to the screen', async () => {
+          await page.getByRole('button', {name: 'Add question'}).click()
+          await page.getByRole('button', {name: 'Create new question'}).click()
+          await page.getByRole('link', {name: 'Text', exact: true}).click()
+        })
+
+        await expect(page.getByLabel('Question enumerator')).toHaveAttribute(
+          'readonly',
+          'readonly',
+        )
+        await expect(
+          page.getByLabel('Question enumerator').locator('option[selected]'),
+        ).toHaveText('pets enumerator')
+      })
+
+      await test.step('Verify that adding a non-repeated question creates a copy that is associated with the enumerator', async () => {
+        await test.step('Go to the block edit page', async () => {
+          await adminPrograms.gotoEditDraftProgramPage(
+            'Enumerator test program',
+          )
+          await navigateToRepeatedScreen(page, 4, 2)
+        })
+
+        await test.step('Add a non-repeated question to the repeated screen', async () => {
+          await adminPrograms.addQuestionFromQuestionBank(
+            'income-non-repeated-question',
+          )
+        })
+
+        await test.step('Verify that a copy of the question is added to the screen', async () => {
+          await navigateToRepeatedScreen(page, 4, 2)
+          await expect(
+            page.getByText('Admin ID: income-non-repeated-question -_- a'),
+          ).toBeVisible()
+        })
+      })
+    })
+
+    test('Enumerator block name edit retains prefix', async ({
+      page,
+      adminPrograms,
+    }) => {
+      await test.step('Go to the program block edit page', async () => {
+        await adminPrograms.gotoEditDraftProgramPage('Enumerator test program')
+      })
+
+      await test.step('Add a new repeated set', async () => {
+        await page.getByRole('button', {name: 'Add screen'}).first().click()
+        await page.getByRole('button', {name: 'Add repeated set'}).click()
+        await waitForPageJsLoad(page)
+      })
+
+      await navigateToRepeatedScreen(page, 3, 2)
+
+      const modalPrefix = page.getByTestId('name-prefix')
+
+      await test.step('check for correct enumerator description and uneditable prefix in screen editing modal', async () => {
+        await page
+          .getByRole('button', {name: 'Edit screen name and description'})
+          .click()
+        const modalDescription = page.getByTestId(
+          'repeated-set-prefix-description',
+        )
+        await expect(modalDescription).toBeVisible()
+        await expect(modalPrefix).toBeVisible()
+      })
+
+      await test.step('edit screen name, exit, and ensure prefix is still the same', async () => {
+        await expect(modalPrefix).toHaveText('[parent label] -')
+
+        await page.getByTestId('block-name-input').fill('name')
+
+        await page.getByTestId('save-button').click()
+
+        await page
+          .getByRole('button', {name: 'Edit screen name and description'})
+          .click()
+
+        const currentModalPrefix = page.getByTestId('name-prefix')
+        await expect(currentModalPrefix).toHaveText('[parent label] -')
+      })
+    })
+
+    test('Radio button swaps repeated set creation method', async ({
+      page,
+      adminPrograms,
+    }) => {
+      await test.step('Go to the program block edit page', async () => {
+        await adminPrograms.gotoEditDraftProgramPage('Enumerator test program')
+      })
+
+      await test.step('Add a new repeated set', async () => {
+        await page.getByRole('button', {name: 'Add screen'}).first().click()
+        await page.getByRole('button', {name: 'Add repeated set'}).click()
+        await waitForPageJsLoad(page)
+      })
+
+      await page.getByRole('link', {name: 'Screen 2'}).click()
+
+      await test.step('Check that Create New is preselected and create new partial view is visible', async () => {
+        const createNewButton = page.getByLabel('Create new')
+
+        const newEnumeratorQuestionFormButton = page.getByRole('button', {
+          name: 'Create repeated set',
+        })
+        await expect(createNewButton).toBeChecked()
+        await expect(newEnumeratorQuestionFormButton).toBeVisible()
+      })
+
+      await test.step('swap to choose existing and check existing partial view is visible', async () => {
+        const chooseExistingButton = page.getByRole('radio', {
+          name: 'Choose existing',
+        })
+
+        await chooseExistingButton.scrollIntoViewIfNeeded()
+        await expect(chooseExistingButton).toBeVisible()
+
+        // Uswds styling makes the label the clickable portion, trying to check the input will not work.
+        const chooseExistingLabel = page.getByTestId(
+          'choose-existing-radio-label',
+        )
+        await chooseExistingLabel.check()
+
+        const addQuestionButton = page.getByRole('button', {
+          name: 'Add question',
+        })
+        await expect(chooseExistingButton).toBeChecked()
+        await expect(addQuestionButton).toBeVisible()
+      })
+    })
+
+    test('disables enumerator dropdown when creating question from non-repeating screen', async ({
+      page,
+    }) => {
+      await test.step('Click on the first (non-repeating) screen', async () => {
+        await page.getByRole('link', {name: 'Screen 1'}).click()
+      })
+
+      await test.step('Add a new text question to the screen', async () => {
+        await page.getByRole('button', {name: 'Add a question'}).click()
+        await page.getByRole('button', {name: 'Create new question'}).click()
+        await page.getByRole('link', {name: 'Text', exact: true}).click()
+      })
+
+      await test.step('Verify that the "Question enumerator" dropdown is read only', async () => {
+        await expect(page.getByLabel('Question enumerator')).toHaveAttribute(
+          'readonly',
+          'readonly',
+        )
+      })
+    })
   })
+
+  test.describe('Applicant', () => {
+    const programName = 'Enumerator test program'
+    const repeatedQuestionName = 'enumerator-ete-repeated-name'
+    const nestedRepeatedQuestionName = 'enumerator-ete-nested-repeated-name'
+
+    test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(programName)
+
+      await adminPrograms.gotoEditDraftProgramPage(programName)
+
+      await test.step('Add a new repeated set', async () => {
+        await page.getByRole('button', {name: 'Add screen'}).first().click()
+        await page.getByRole('button', {name: 'Add repeated set'}).click()
+      })
+
+      await test.step('Select the repeated set block from the block order panel', async () => {
+        await page.getByRole('link', {name: 'Screen 2'}).click()
+      })
+
+      await fillOutEnumeratorQuestionFormCorrectly(page)
+
+      await adminQuestions.addNameQuestion({
+        questionName: 'enumerator-ete-repeated-name',
+        description: 'desc',
+        questionText: 'Name for $this',
+        helpText: 'full name for $this',
+        enumeratorName: 'pets enumerator',
+      })
+
+      await adminPrograms.gotoEditDraftProgramPage(programName)
+
+      await navigateToRepeatedScreen(page, 3, 2)
+
+      await test.step('Add repeated name question to the repeated screen', async () => {
+        await adminPrograms.addQuestionFromQuestionBank(repeatedQuestionName)
+      })
+
+      await test.step('Create nested repeated set from repeated screen', async () => {
+        const blockPanel = page.getByTestId('block-panel-edit')
+        await blockPanel
+          .getByRole('button', {name: 'Add nested repeated set'})
+          .click()
+
+        await navigateToRepeatedScreen(page, 4, 2)
+        await fillOutEnumeratorQuestionFormCorrectly(page, {
+          listedEntity: 'Jobs',
+          questionText: 'List jobs for $this',
+          adminId: 'jobs enumerator',
+        })
+      })
+
+      await test.step('Add nested repeated question to repeated screen under nested set', async () => {
+        await adminQuestions.addNameQuestion({
+          questionName: nestedRepeatedQuestionName,
+          description: 'desc',
+          questionText: 'First name for $this',
+          helpText: 'first name for $this',
+          enumeratorName: 'jobs enumerator',
+        })
+
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await navigateToRepeatedScreen(page, 5, 4, {
+          childLabel: '[child label]',
+        })
+        await adminPrograms.addQuestionFromQuestionBank(
+          nestedRepeatedQuestionName,
+        )
+      })
+
+      await test.step('Publish the program', async () => {
+        await adminPrograms.publishProgram(programName)
+      })
+
+      await logout(page)
+    })
+
+    test('sees repeated entity and nested repeated entity names in the screen name', async ({
+      applicantQuestions,
+      page,
+    }) => {
+      await test.step('Apply to the program', async () => {
+        await applicantQuestions.applyProgram(programName)
+      })
+
+      await test.step('Enter two repeated entity names on the enumerator screen', async () => {
+        await page.getByRole('button', {name: 'Add Pets'}).click()
+        await page.getByRole('textbox', {name: 'Pets name #1'}).fill('Bugs')
+      })
+
+      await test.step('Answer repeated and nested repeated questions', async () => {
+        await applicantQuestions.clickContinue()
+
+        await applicantQuestions.answerNameQuestion('Bugs', 'Bunny')
+        await applicantQuestions.clickContinue()
+
+        await page.getByRole('button', {name: 'Add Jobs'}).click()
+        await page.getByRole('textbox', {name: 'Jobs name #1'}).fill('Mechanic')
+        await applicantQuestions.clickContinue()
+
+        await applicantQuestions.answerNameQuestion('Wile', 'Coyote')
+        await page.getByRole('button', {name: 'Review and submit'}).click()
+      })
+
+      await test.step('Go to review screen and check repeated entity names in the screen names', async () => {
+        await expect(
+          page.getByText(`Bugs - Screen 3 (repeated from 2)`),
+        ).toBeVisible()
+        await expect(
+          page.getByText(`Bugs - Mechanic - Screen 5 (repeated from 4)`),
+        ).toBeVisible()
+      })
+    })
+
+    test('still supports $this placeholder in repeated question text', async ({
+      applicantQuestions,
+      page,
+    }) => {
+      await test.step('Apply to the program and add a repeated entity', async () => {
+        await applicantQuestions.applyProgram(programName)
+        await page.getByRole('button', {name: 'Add Pets'}).click()
+        await page.getByRole('textbox', {name: 'Pets name #1'}).fill('Bugs')
+      })
+
+      await test.step('Continue to repeated question and verify $this is replaced', async () => {
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.validateQuestionIsOnPage('Name for Bugs')
+      })
+    })
+
+    test('does not throw errors when repeated question text omits $this', async ({
+      adminPrograms,
+      adminQuestions,
+      applicantQuestions,
+      page,
+    }) => {
+      await test.step('Update repeated question text to omit $this and publish', async () => {
+        await loginAsAdmin(page)
+        await adminQuestions.gotoQuestionEditPage(repeatedQuestionName)
+        await page.getByRole('textbox', {name: 'Question text'}).fill('Name')
+        await adminQuestions.clickSubmitButtonAndNavigate('Update')
+        await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
+
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await adminPrograms.publishProgram(programName)
+        await logout(page)
+      })
+
+      await test.step('Apply and verify repeated question renders without $this', async () => {
+        await applicantQuestions.applyProgram(programName)
+        await page.getByRole('button', {name: 'Add Pets'}).click()
+        await page.getByRole('textbox', {name: 'Pets name #1'}).fill('Bugs')
+
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.validateQuestionIsOnPage('Name')
+      })
+    })
+  })
+
+  async function fillOutEnumeratorQuestionFormCorrectly(
+    page: Page,
+    options?: {
+      listedEntity?: string
+      questionText?: string
+      adminId?: string
+      hintText?: string
+    },
+  ) {
+    const blockPanel = page.getByTestId('block-panel-edit')
+    const {
+      listedEntity = 'Pets',
+      questionText = 'List the names of your pets.',
+      adminId = 'pets enumerator',
+      hintText = 'Hint',
+    } = options ?? {}
+
+    await test.step('Fill out the new enumerator question form and submit it', async () => {
+      const listedEntityInput = blockPanel.getByRole('textbox', {
+        name: 'Listed entity',
+      })
+      await expect(listedEntityInput).toHaveAttribute('aria-required', 'true')
+      await listedEntityInput.fill(listedEntity)
+
+      const questionTextInput = blockPanel.getByRole('textbox', {
+        name: 'Question text',
+      })
+      await expect(questionTextInput).toHaveAttribute('aria-required', 'true')
+      await questionTextInput.fill(questionText)
+
+      const adminIdInput = blockPanel.getByRole('textbox', {
+        name: 'Repeated set admin ID',
+      })
+      await expect(adminIdInput).toHaveAttribute('aria-required', 'true')
+      await adminIdInput.fill(adminId)
+
+      await blockPanel.getByRole('textbox', {name: 'Hint text'}).fill(hintText)
+      await blockPanel
+        .getByRole('button', {name: 'Create repeated set'})
+        .click()
+      await waitForHtmxReady(page)
+    })
+  }
+
+  async function expectCurrentBlockTitle(
+    isRepeatedBlock: boolean,
+    blockPanel: Locator,
+    expectedScreenNumber: number,
+    repeatedFrom?: number,
+  ) {
+    if (!isRepeatedBlock) {
+      await expect(
+        blockPanel.getByText(`Screen ${expectedScreenNumber}`, {
+          exact: true,
+        }),
+      ).toBeVisible()
+    } else {
+      await expect(
+        blockPanel.getByText(
+          `[parent label] - Screen ${expectedScreenNumber} (repeated from ${repeatedFrom})`,
+        ),
+      ).toBeVisible()
+    }
+  }
+
+  async function navigateToRepeatedScreen(
+    page: Page,
+    screenNumber: number,
+    repeatedFrom: number,
+    options?: {
+      parentLabel?: string
+      childLabel?: string
+    },
+  ) {
+    const {parentLabel = '[parent label]', childLabel} = options ?? {}
+    const repeatedLabel = childLabel
+      ? `${parentLabel} - ${childLabel}`
+      : parentLabel
+
+    await test.step('Navigate to repeated screen', async () => {
+      await page
+        .getByRole('link', {
+          name: `${repeatedLabel} - Screen ${screenNumber} (repeated from ${repeatedFrom})`,
+        })
+        .click()
+    })
+  }
 })

@@ -66,6 +66,15 @@ public class ProgramIndexView extends ApplicantBaseView {
         createThymeleafContext(request, applicantId, profile, personalInfo, messages);
 
     context.setVariable("pageTitle", messages.at(MessageKey.CONTENT_FIND_PROGRAMS.getKeyName()));
+    context.setVariable("showImmigrationStatusInfoBanner", true);
+    context.setVariable(
+        "immigrationStatusInfoBannerEnabled",
+        settingsManifest.getImmigrationStatusInfoBannerEnabled(request));
+    if (settingsManifest.getImmigrationStatusInfoBannerEnabled(request)) {
+      context.setVariable(
+          "immigrationStatusInfoBannerLearnMoreUrl",
+          settingsManifest.getImmigrationStatusInfoBannerLearnMoreUrl(request).orElse(""));
+    }
     Optional<ProgramSectionParams> myApplicationsSection = Optional.empty();
     Optional<ProgramSectionParams> preScreenerSection = Optional.empty();
     Optional<ProgramSectionParams> unfilteredSection = Optional.empty();

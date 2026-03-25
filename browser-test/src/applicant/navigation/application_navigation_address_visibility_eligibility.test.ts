@@ -79,14 +79,18 @@ test.describe('Applicant navigation flow', () => {
           await adminPrograms.goToEditBlockEligibilityPredicatePage(
             programName,
             screen1,
+            /* expandedFormLogicEnabled= */ true,
           )
 
-          await adminPredicates.addPredicates({
-            questionName: questionAddress,
-            scalar: 'service area',
-            operator: 'in service area',
-            value: 'Seattle',
-          })
+          await adminPredicates.addPredicates(
+            /* expandedFormLogicEnabled= */ true,
+            {
+              questionName: questionAddress,
+              scalar: 'service area',
+              operator: 'in service area',
+              value: 'Seattle',
+            },
+          )
 
           // Add the address visibility predicate
           await adminPrograms.goToBlockInProgram(programName, screen2)
@@ -94,15 +98,19 @@ test.describe('Applicant navigation flow', () => {
           await adminPrograms.goToEditBlockVisibilityPredicatePage(
             programName,
             screen2,
+            /* expandedFormLogicEnabled= */ true,
           )
 
-          await adminPredicates.addPredicates({
-            questionName: questionAddress,
-            action: 'shown if',
-            scalar: 'service area',
-            operator: 'in service area',
-            value: 'Seattle',
-          })
+          await adminPredicates.addPredicates(
+            /* expandedFormLogicEnabled= */ true,
+            {
+              questionName: questionAddress,
+              action: 'shown if',
+              scalar: 'service area',
+              operator: 'in service area',
+              value: 'Seattle',
+            },
+          )
 
           // Publish Program
           await adminPrograms.gotoAdminProgramsPage()

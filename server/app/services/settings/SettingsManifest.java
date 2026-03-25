@@ -777,6 +777,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("COMMON_INTAKE_MORE_RESOURCES_LINK_HREF", request);
   }
 
+  /** The HREF for providing more information for the immigration status informational banner. */
+  public Optional<String> getImmigrationStatusInfoBannerLearnMoreUrl(RequestHeader request) {
+    return getString("IMMIGRATION_STATUS_INFO_BANNER_LEARN_MORE_URL", request);
+  }
+
   /**
    * The [secret key](http://www.playframework.com/documentation/latest/ApplicationSecret) is used
    * to sign Play's session cookie. This must be changed for production.
@@ -1072,19 +1077,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED", request);
   }
 
-  /** Enable allowing CiviForm admins to add a map question to their programs. */
-  public boolean getMapQuestionEnabled(RequestHeader request) {
-    return getBool("MAP_QUESTION_ENABLED", request);
-  }
-
   /** Enables being able to add a new yes/no question. */
   public boolean getYesNoQuestionEnabled() {
     return getBool("YES_NO_QUESTION_ENABLED");
-  }
-
-  /** Enables reading settings from the cache instead of directly from the database. */
-  public boolean getSettingsCacheEnabled() {
-    return getBool("SETTINGS_CACHE_ENABLED");
   }
 
   /** Enable showing external program cards. */
@@ -1092,7 +1087,21 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("EXTERNAL_PROGRAM_CARDS_ENABLED");
   }
 
-  /** (NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration. */
+  /** Enables a dropdown for login that has both applicant and admin login. */
+  public boolean getLoginDropdownEnabled(RequestHeader request) {
+    return getBool("LOGIN_DROPDOWN_ENABLED", request);
+  }
+
+  /** Enable showing an immigration status informational banner to applicants. */
+  public boolean getImmigrationStatusInfoBannerEnabled(RequestHeader request) {
+    return getBool("IMMIGRATION_STATUS_INFO_BANNER_ENABLED", request);
+  }
+
+  /**
+   * (NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration.
+   * Inactivity timeout is always enforced when enabled. Maximum duration enforcement additionally
+   * requires SESSION_REPLAY_PROTECTION_ENABLED=true.
+   */
   public boolean getSessionTimeoutEnabled(RequestHeader request) {
     return getBool("SESSION_TIMEOUT_ENABLED", request);
   }
@@ -1121,19 +1130,20 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * (NOT FOR PRODUCTION USE) Enables new dropdown for login that has both applicant and admin
-   * login.
-   */
-  public boolean getLoginDropdownEnabled(RequestHeader request) {
-    return getBool("LOGIN_DROPDOWN_ENABLED", request);
-  }
-
-  /**
    * (NOT FOR PRODUCTION USE) Enables improvements which make it easier for admins to work with
    * enumerators.
    */
   public boolean getEnumeratorImprovementsEnabled(RequestHeader request) {
     return getBool("ENUMERATOR_IMPROVEMENTS_ENABLED", request);
+  }
+
+  /**
+   * (NOT FOR PRODUCTION USE) Enables improvements which allow for file upload questions on the same
+   * page as other question types. Uses a new file upload method that uploads applicant files
+   * through CiviForm servers.
+   */
+  public boolean getFileUploadQuestionImprovementsEnabled(RequestHeader request) {
+    return getBool("FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED", request);
   }
 
   /** (NOT FOR PRODUCTION USE) Enable the admin UI migration in Thymeleaf. */
@@ -1144,6 +1154,18 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** (NOT FOR PRODUCTION USE) Enable extended options in the admin UI migration in Thymeleaf. */
   public boolean getAdminUiMigrationScExtendedEnabled(RequestHeader request) {
     return getBool("ADMIN_UI_MIGRATION_SC_EXTENDED_ENABLED", request);
+  }
+
+  /** (NOT FOR PRODUCTION USE) Enable the new applicant-guest merging strategy. */
+  public boolean getNewApplicantGuestMergingStrategyEnabled() {
+    return getBool("NEW_APPLICANT_GUEST_MERGING_STRATEGY_ENABLED");
+  }
+
+  /**
+   * (NOT FOR PRODUCTION USE) Enable dry run logging for the new applicant-guest merging strategy.
+   */
+  public boolean getNewApplicantGuestMergingStrategyDryRunEnabled() {
+    return getBool("NEW_APPLICANT_GUEST_MERGING_STRATEGY_DRY_RUN_ENABLED");
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -2093,7 +2115,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           /* isRequired= */ false,
                           SettingType.STRING,
                           SettingMode.ADMIN_WRITEABLE,
-                          Pattern.compile("^(http://|https://).+")))))
+                          Pattern.compile("^(http://|https://).+")),
+                      SettingDescription.create(
+                          "IMMIGRATION_STATUS_INFO_BANNER_LEARN_MORE_URL",
+                          "The HREF for providing more information for the immigration status"
+                              + " informational banner.",
+                          /* isRequired= */ false,
+                          SettingType.STRING,
+                          SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Observability",
               SettingsSection.create(
@@ -2341,22 +2370,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "MAP_QUESTION_ENABLED",
-                          "Enable allowing CiviForm admins to add a map question to their"
-                              + " programs.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
                           "YES_NO_QUESTION_ENABLED",
                           "Enables being able to add a new yes/no question.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
-                          "SETTINGS_CACHE_ENABLED",
-                          "Enables reading settings from the cache instead of directly from the"
-                              + " database.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_READABLE),
@@ -2365,7 +2380,20 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "Enable showing external program cards.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE))))
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "LOGIN_DROPDOWN_ENABLED",
+                          "Enables a dropdown for login that has both applicant and admin login.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "IMMIGRATION_STATUS_INFO_BANNER_ENABLED",
+                          "Enable showing an immigration status informational banner to"
+                              + " applicants.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Experimental",
               SettingsSection.create(
@@ -2377,7 +2405,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingDescription.create(
                           "SESSION_TIMEOUT_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and"
-                              + " maximum duration.",
+                              + " maximum duration. Inactivity timeout is always enforced when"
+                              + " enabled. Maximum duration enforcement additionally requires"
+                              + " SESSION_REPLAY_PROTECTION_ENABLED=true.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
@@ -2409,16 +2439,18 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "LOGIN_DROPDOWN_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enables new dropdown for login that has both"
-                              + " applicant and admin login.",
+                          "ENUMERATOR_IMPROVEMENTS_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables improvements which make it easier for"
+                              + " admins to work with enumerators.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "ENUMERATOR_IMPROVEMENTS_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enables improvements which make it easier for"
-                              + " admins to work with enumerators.",
+                          "FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables improvements which allow for file"
+                              + " upload questions on the same page as other question types. Uses a"
+                              + " new file upload method that uploads applicant files through"
+                              + " CiviForm servers.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
@@ -2434,7 +2466,21 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " migration in Thymeleaf.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE))))
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "NEW_APPLICANT_GUEST_MERGING_STRATEGY_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enable the new applicant-guest merging"
+                              + " strategy.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "NEW_APPLICANT_GUEST_MERGING_STRATEGY_DRY_RUN_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enable dry run logging for the new"
+                              + " applicant-guest merging strategy.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_READABLE))))
           .put(
               "Miscellaneous",
               SettingsSection.create(

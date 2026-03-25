@@ -185,7 +185,7 @@ public class LanguageUtilsTest extends WithMockedProfiles {
 
   @Test
   public void shouldDisplayRtl_arabic() {
-    Lang arabic = new Lang(new Locale("ar"));
+    Lang arabic = new Lang(Locale.of("ar"));
     assertTrue(LanguageUtils.shouldDisplayRtl(arabic));
   }
 }

@@ -87,7 +87,8 @@ public class PdfExporterTest extends AbstractExporterTest {
     Path answerPath =
         fileQuestion
             .getQuestionDefinition()
-            .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH);
+            .getContextualizedPath(
+                /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
 
     QuestionAnswerer.answerFileQuestion(
         applicantFive.getApplicantData(), answerPath, "my-file-key");
@@ -139,7 +140,8 @@ public class PdfExporterTest extends AbstractExporterTest {
     Path answerPath =
         fileQuestion
             .getQuestionDefinition()
-            .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH);
+            .getContextualizedPath(
+                /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
 
     QuestionAnswerer.answerFileQuestionWithMultipleUpload(
         applicantFive.getApplicantData(),
@@ -196,7 +198,8 @@ public class PdfExporterTest extends AbstractExporterTest {
     Path answerPath =
         fileQuestion
             .getQuestionDefinition()
-            .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH);
+            .getContextualizedPath(
+                /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
 
     QuestionAnswerer.answerFileQuestion(
         applicantFive.getApplicantData(), answerPath, "my-file-key");
@@ -234,6 +237,88 @@ public class PdfExporterTest extends AbstractExporterTest {
 
   @Test
   public void
+      exportApplication_whenOriginalApplicantIdIsSet_fileLinksUseOriginalApplicantId_singleFile()
+          throws IOException, DocumentException {
+
+    QuestionModel fileQuestion = testQuestionBank.fileUploadApplicantFile();
+
+    createFakeProgramWithOptionalQuestion(fileQuestion);
+
+    Path answerPath =
+        fileQuestion
+            .getQuestionDefinition()
+            .getContextualizedPath(
+                /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+
+    QuestionAnswerer.answerFileQuestion(
+        applicantFive.getApplicantData(), answerPath, "my-file-key");
+
+    applicantFive.save();
+    applicationFive.setApplicantData(applicantFive.getApplicantData());
+    long originalApplicantId = 99999L;
+    applicationFive.setOriginalApplicantId(originalApplicantId);
+    applicationFive.save();
+
+    PdfExporter exporter = instanceOf(PdfExporter.class);
+
+    PdfExporter.InMemoryPdf result =
+        exporter.exportApplication(applicationFive, /* isAdmin= */ false);
+    PdfReader pdfReader = new PdfReader(result.getByteArray());
+
+    assertFileUploadLink(
+        pdfReader.getPageN(1),
+        0,
+        "http://localhost:9000/applicants/" + originalApplicantId + "/files/my-file-key");
+
+    pdfReader.close();
+  }
+
+  @Test
+  public void
+      exportApplication_whenOriginalApplicantIdIsSet_fileLinksUseOriginalApplicantId_multipleFiles()
+          throws IOException, DocumentException {
+
+    QuestionModel fileQuestion = testQuestionBank.fileUploadApplicantFile();
+
+    createFakeProgramWithOptionalQuestion(fileQuestion);
+
+    Path answerPath =
+        fileQuestion
+            .getQuestionDefinition()
+            .getContextualizedPath(
+                /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+
+    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+        applicantFive.getApplicantData(),
+        answerPath,
+        ImmutableList.of("my-file-key-1", "my-file-key-2"));
+
+    applicantFive.save();
+    applicationFive.setApplicantData(applicantFive.getApplicantData());
+    long originalApplicantId = 99999L;
+    applicationFive.setOriginalApplicantId(originalApplicantId);
+    applicationFive.save();
+
+    PdfExporter exporter = instanceOf(PdfExporter.class);
+
+    PdfExporter.InMemoryPdf result =
+        exporter.exportApplication(applicationFive, /* isAdmin= */ false);
+    PdfReader pdfReader = new PdfReader(result.getByteArray());
+
+    assertFileUploadLink(
+        pdfReader.getPageN(1),
+        0,
+        "http://localhost:9000/applicants/" + originalApplicantId + "/files/my-file-key-1");
+    assertFileUploadLink(
+        pdfReader.getPageN(1),
+        1,
+        "http://localhost:9000/applicants/" + originalApplicantId + "/files/my-file-key-2");
+
+    pdfReader.close();
+  }
+
+  @Test
+  public void
       exportApplication_optionalFileUploadWithFile_asApplicantUsesDifferentLinkWithSameContent()
           throws IOException, DocumentException {
 
@@ -244,7 +329,8 @@ public class PdfExporterTest extends AbstractExporterTest {
     Path answerPath =
         fileQuestion
             .getQuestionDefinition()
-            .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH);
+            .getContextualizedPath(
+                /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
 
     QuestionAnswerer.answerFileQuestionWithMultipleUpload(
         applicantFive.getApplicantData(),
@@ -422,6 +508,12 @@ public class PdfExporterTest extends AbstractExporterTest {
     assertThat(linesFromPdf.get(12)).isEqualTo("Application confirmation message");
     assertThat(linesFromPdf.get(13))
         .isEqualTo(programDef.localizedConfirmationMessage().getDefault());
+    assertThat(linesFromPdf.get(15)).isEqualTo("Statuses");
+    assertThat(linesFromPdf.get(17)).isEqualTo("(Default status)");
+    assertThat(linesFromPdf.get(18)).isEqualTo("Pending");
+    assertThat(linesFromPdf.get(19)).isEqualTo("We are reviewing your application!");
+    assertThat(linesFromPdf.get(21)).isEqualTo("approved");
+    assertThat(linesFromPdf.get(22)).isEqualTo("You are approved");
   }
 
   @Test

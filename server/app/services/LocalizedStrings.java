@@ -165,7 +165,7 @@ public abstract class LocalizedStrings {
   @JsonIgnore
   public String getDefault() {
     try {
-      return get(DEFAULT_LOCALE, true);
+      return get(DEFAULT_LOCALE, /* isRequired= */ true);
     } catch (TranslationNotFoundException e) {
       // This should never happen - US English should always be supported.
       throw new RuntimeException(e);
@@ -178,7 +178,7 @@ public abstract class LocalizedStrings {
    */
   public Optional<String> maybeGet(Locale locale) {
     try {
-      return Optional.of(get(locale, true));
+      return Optional.of(get(locale, /* isRequired= */ true));
     } catch (TranslationNotFoundException e) {
       return Optional.empty();
     }

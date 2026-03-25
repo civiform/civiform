@@ -55,6 +55,18 @@ test.describe(
       })
     })
 
+    test('editing the question from the publish modal redirects back to the program list page after update', async ({
+      adminPrograms,
+      adminQuestions,
+      page,
+    }) => {
+      await adminPrograms.openPublishAllDraftsModal()
+      await page.getByTestId(questionName).click()
+      await adminQuestions.updateQuestionText('updated')
+      await adminQuestions.clickSubmitButtonAndNavigate('Update')
+      await adminPrograms.expectAdminProgramsPage()
+    })
+
     test('validate screenshot', async ({adminPrograms}) => {
       await adminPrograms.openPublishAllDraftsModal()
       await validateScreenshot(

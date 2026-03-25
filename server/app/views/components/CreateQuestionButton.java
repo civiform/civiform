@@ -9,6 +9,7 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import java.util.Locale;
+import java.util.Optional;
 import play.mvc.Http;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
@@ -19,12 +20,41 @@ import views.style.StyleUtils;
  */
 public final class CreateQuestionButton {
 
+  /**
+   * Renders the "Create new question" button with a dropdown for each question type.
+   *
+   * <p>Set isEmptyBlock to true when the current block has no questions. Set isQuestionPage to true
+   * when rendering on the standalone questions list page.
+   */
+  public static DivTag renderCreateQuestionButton(
+      String questionCreateRedirectUrl,
+      boolean isPrimaryButton,
+      Optional<String> enumeratorQuestion,
+      SettingsManifest settingsManifest,
+      Http.Request request,
+      boolean isEmptyBlock,
+      boolean isQuestionPage) {
+    return renderCreateQuestionButton(
+        questionCreateRedirectUrl,
+        isPrimaryButton,
+        enumeratorQuestion,
+        /* isRepeatingBlock= */ true,
+        settingsManifest,
+        request,
+        isEmptyBlock,
+        isQuestionPage);
+  }
+
   /** Renders the "Create new question" button with a dropdown for each question type. */
   public static DivTag renderCreateQuestionButton(
       String questionCreateRedirectUrl,
       boolean isPrimaryButton,
+      Optional<String> enumeratorQuestion,
+      boolean isRepeatingBlock,
       SettingsManifest settingsManifest,
-      Http.Request request) {
+      Http.Request request,
+      boolean isEmptyBlock,
+      boolean isQuestionPage) {
     String parentId = "create-question-button";
     String dropdownId = parentId + "-dropdown";
     ButtonTag createNewQuestionButton =
@@ -58,14 +88,20 @@ public final class CreateQuestionButton {
       if (type == QuestionType.YES_NO && !settingsManifest.getYesNoQuestionEnabled()) {
         continue;
       }
-      if (type == QuestionType.MAP && !settingsManifest.getMapQuestionEnabled(request)) {
+      // Only filter Enumerator on program block pages, not on the standalone questions list page
+      if (type == QuestionType.ENUMERATOR
+          && !isQuestionPage
+          && (settingsManifest.getEnumeratorImprovementsEnabled(request) || !isEmptyBlock)) {
         continue;
       }
 
       String typeString = type.toString().toLowerCase(Locale.ROOT);
       String link =
           controllers.admin.routes.AdminQuestionController.newOne(
-                  typeString, questionCreateRedirectUrl)
+                  typeString,
+                  questionCreateRedirectUrl,
+                  enumeratorQuestion,
+                  Optional.of(Boolean.toString(isRepeatingBlock)))
               .url();
       ATag linkTag =
           a().withHref(link)

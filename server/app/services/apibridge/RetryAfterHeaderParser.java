@@ -47,7 +47,7 @@ public final class RetryAfterHeaderParser {
     try {
       long seconds = Long.parseLong(value);
       return Duration.ofSeconds(seconds);
-    } catch (NumberFormatException ignored) {
+    } catch (NumberFormatException _) {
       // no-op
     }
 
@@ -60,7 +60,7 @@ public final class RetryAfterHeaderParser {
       // Negative duration means the date is already in the past so run now
       return duration.isNegative() ? Duration.ZERO : duration;
 
-    } catch (DateTimeParseException ignored) {
+    } catch (DateTimeParseException _) {
       // no-op
     }
 

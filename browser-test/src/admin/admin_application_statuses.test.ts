@@ -273,7 +273,7 @@ test.describe('view program statuses', () => {
               page,
               testUserDisplayName(),
             )
-            expect(emailsAfter.length).toEqual(emailsBefore.length)
+            expect(emailsAfter).toHaveLength(emailsBefore.length)
           }
         })
 
@@ -576,7 +576,7 @@ test.describe('view program statuses', () => {
       expect(noStatusFilteredCsvContent).toContain(favoriteColorAnswer)
       const noStatusFilteredJsonContent =
         await adminPrograms.getJson(applyFilters)
-      expect(noStatusFilteredJsonContent.length).toEqual(1)
+      expect(noStatusFilteredJsonContent).toHaveLength(1)
       expect(
         noStatusFilteredJsonContent[0].application.statusesfavecolorq.text,
       ).toEqual(favoriteColorAnswer)
@@ -593,7 +593,7 @@ test.describe('view program statuses', () => {
       )
       const approvedStatusFilteredJsonContent =
         await adminPrograms.getJson(applyFilters)
-      expect(approvedStatusFilteredJsonContent.length).toEqual(0)
+      expect(approvedStatusFilteredJsonContent).toHaveLength(0)
     })
 
     test('application with status shows in default filter and status-specific filter', async ({
@@ -738,13 +738,17 @@ test.describe('view program statuses', () => {
         await adminPrograms.goToEditBlockEligibilityPredicatePage(
           eligibilityProgramName,
           'Screen 1',
+          /* expandedFormLogicEnabled= */ true,
         )
-        await adminPredicates.addPredicates({
-          questionName: eligibilityQuestionId,
-          scalar: 'number',
-          operator: 'is equal to',
-          value: '5',
-        })
+        await adminPredicates.addPredicates(
+          /* expandedFormLogicEnabled= */ true,
+          {
+            questionName: eligibilityQuestionId,
+            scalar: 'number',
+            operator: 'is equal to',
+            value: '5',
+          },
+        )
         await adminPrograms.gotoAdminProgramsPage()
         await adminPrograms.publishProgram(eligibilityProgramName)
         await logout(page)

@@ -1,0 +1,410 @@
+<!--/*@thymesVar id="model" type="views.dev.componentcatalog.fragments.ButtonControl"*/-->
+<th:block
+  th:fragment="render(model)"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <table class="usa-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Required</th>
+        <th>Type</th>
+        <th>Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th colspan="4" scope="rowgroup">Attributes</th>
+      </tr>
+      <tr>
+        <td>aria-*</td>
+        <td>optional</td>
+        <td>string</td>
+        <td>
+          Any aria-* attributes are passed through to the rendered button
+          element.
+        </td>
+      </tr>
+      <tr>
+        <td>data-*</td>
+        <td>optional</td>
+        <td>string</td>
+        <td>
+          Any data-* attributes are passed through to the rendered button
+          element.
+        </td>
+      </tr>
+      <tr>
+        <td>disabled</td>
+        <td>optional</td>
+        <td>boolean</td>
+        <td>Set to "true" to disable the button.</td>
+      </tr>
+      <tr>
+        <td>id</td>
+        <td>optional</td>
+        <td>string</td>
+        <td>Unique identifier for the button element.</td>
+      </tr>
+      <tr>
+        <td>inverse</td>
+        <td>optional</td>
+        <td>boolean</td>
+        <td>Set to "true" to apply inverse (dark background) styling.</td>
+      </tr>
+      <tr>
+        <td>name</td>
+        <td>optional</td>
+        <td>string</td>
+        <td>Button name attribute for form submission.</td>
+      </tr>
+      <tr>
+        <td>size</td>
+        <td>optional</td>
+        <td>string</td>
+        <td>Button size. Allowed value: "big".</td>
+      </tr>
+      <tr>
+        <td>text</td>
+        <td>optional</td>
+        <td>string</td>
+        <td>
+          Button label text. Alternative to providing nested content inside the
+          tag.
+        </td>
+      </tr>
+      <tr>
+        <td>type</td>
+        <td>optional</td>
+        <td>string</td>
+        <td>
+          Button type. Allowed values: button, submit, reset. Defaults to
+          "button".
+        </td>
+      </tr>
+      <tr>
+        <td>value</td>
+        <td>optional</td>
+        <td>string</td>
+        <td>Button value submitted with the form when clicked.</td>
+      </tr>
+      <tr>
+        <td>variant</td>
+        <td>optional</td>
+        <td>string</td>
+        <td>
+          Visual style variant. Allowed values: primary, secondary, outline,
+          accent-cool, accent-warm, base, unstyled. Defaults to "primary".
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Sample 1: Primary Button -->
+  <h2>Primary Button</h2>
+
+  <cf:button
+    th:id="${model.primaryButton.id()}"
+    th:text="${model.primaryButton.text()}"
+  />
+
+  <div class="usa-accordion usa-accordion--bordered margin-top-2">
+    <h3 class="usa-accordion__heading">
+      <button
+        type="button"
+        class="usa-accordion__button"
+        aria-expanded="false"
+        aria-controls="b-a1"
+      >
+        Code Sample
+      </button>
+    </h3>
+    <div id="b-a1" class="usa-accordion__content usa-prose">
+      <h4>Java</h4>
+      <pre><code class="language-java">public record PrimaryButton(
+  String id,
+  String text) {
+
+  public PrimaryButton() {
+    this(&quot;submitBtn&quot;,
+      &quot;Submit&quot;);
+  }
+}</code></pre>
+
+      <h4>Thymeleaf</h4>
+      <pre><code class="language-markup">&lt;cf:button
+  th:id=&quot;${model.primaryButton.id()}&quot;
+  th:text=&quot;${model.primaryButton.text()}&quot;
+/&gt;</code></pre>
+
+      <h4>Rendered HTML</h4>
+      <pre><code class="language-markup">&lt;button
+  type=&quot;button&quot;
+  class=&quot;usa-button&quot;
+  id=&quot;submitBtn&quot;&gt;Submit&lt;/button&gt;</code></pre>
+    </div>
+  </div>
+
+  <hr class="code-separator" />
+
+  <!-- Sample 2: Secondary Button with Type -->
+  <h2>Secondary Button (Submit Type)</h2>
+
+  <cf:button
+    th:id="${model.secondaryButton.id()}"
+    th:name="${model.secondaryButton.name()}"
+    th:text="${model.secondaryButton.text()}"
+    th:type="${model.secondaryButton.type()}"
+    th:variant="${model.secondaryButton.variant()}"
+  />
+
+  <div class="usa-accordion usa-accordion--bordered margin-top-2">
+    <h3 class="usa-accordion__heading">
+      <button
+        type="button"
+        class="usa-accordion__button"
+        aria-expanded="false"
+        aria-controls="b-a2"
+      >
+        Code Sample
+      </button>
+    </h3>
+    <div id="b-a2" class="usa-accordion__content usa-prose">
+      <h4>Java</h4>
+      <pre><code class="language-java">public record SecondaryButton(
+  String id,
+  String name,
+  String text,
+  String type,
+  String variant) {
+
+  public SecondaryButton() {
+    this(&quot;saveBtn&quot;,
+      &quot;save&quot;,
+      &quot;Save Draft&quot;,
+      &quot;submit&quot;,
+      &quot;secondary&quot;);
+  }
+}</code></pre>
+
+      <h4>Thymeleaf</h4>
+      <pre><code class="language-markup">&lt;cf:button
+  th:id=&quot;${model.secondaryButton.id()}&quot;
+  th:name=&quot;${model.secondaryButton.name()}&quot;
+  th:text=&quot;${model.secondaryButton.text()}&quot;
+  th:type=&quot;${model.secondaryButton.type()}&quot;
+  th:variant=&quot;${model.secondaryButton.variant()}&quot;
+/&gt;</code></pre>
+
+      <h4>Rendered HTML</h4>
+      <pre><code class="language-markup">&lt;button
+  type=&quot;submit&quot;
+  class=&quot;usa-button usa-button--secondary&quot;
+  id=&quot;saveBtn&quot;
+  name=&quot;save&quot;&gt;Save Draft&lt;/button&gt;</code></pre>
+    </div>
+  </div>
+
+  <hr class="code-separator" />
+
+  <!-- Sample 3: Outline Button (Big Size) -->
+  <h2>Outline Button (Big Size)</h2>
+
+  <cf:button
+    th:id="${model.outlineButton.id()}"
+    th:text="${model.outlineButton.text()}"
+    th:variant="${model.outlineButton.variant()}"
+    th:size="${model.outlineButton.size()}"
+  />
+
+  <div class="usa-accordion usa-accordion--bordered margin-top-2">
+    <h3 class="usa-accordion__heading">
+      <button
+        type="button"
+        class="usa-accordion__button"
+        aria-expanded="false"
+        aria-controls="b-a3"
+      >
+        Code Sample
+      </button>
+    </h3>
+    <div id="b-a3" class="usa-accordion__content usa-prose">
+      <h4>Java</h4>
+      <pre><code class="language-java">public record OutlineButton(
+  String id,
+  String text,
+  String variant,
+  String size) {
+
+  public OutlineButton() {
+    this(&quot;cancelBtn&quot;,
+      &quot;Cancel&quot;,
+      &quot;outline&quot;,
+      &quot;big&quot;);
+  }
+}</code></pre>
+
+      <h4>Thymeleaf</h4>
+      <pre><code class="language-markup">&lt;cf:button
+  th:id=&quot;${model.outlineButton.id()}&quot;
+  th:text=&quot;${model.outlineButton.text()}&quot;
+  th:variant=&quot;${model.outlineButton.variant()}&quot;
+  th:size=&quot;${model.outlineButton.size()}&quot;
+/&gt;</code></pre>
+
+      <h4>Rendered HTML</h4>
+      <pre><code class="language-markup">&lt;button
+  type=&quot;button&quot;
+  class=&quot;usa-button usa-button--outline usa-button--big&quot;
+  id=&quot;cancelBtn&quot;&gt;Cancel&lt;/button&gt;</code></pre>
+    </div>
+  </div>
+
+  <hr class="code-separator" />
+
+  <!-- Sample 4: Button with Data Attributes and ARIA -->
+  <h2>Button with Data Attributes</h2>
+
+  <cf:button
+    th:id="${model.dataButton.id()}"
+    th:name="${model.dataButton.name()}"
+    th:value="${model.dataButton.value()}"
+    th:text="${model.dataButton.text()}"
+    th:type="${model.dataButton.type()}"
+    th:variant="${model.dataButton.variant()}"
+    th:data-action="${model.dataButton.action()}"
+    th:data-confirm="${model.dataButton.confirm()}"
+    th:aria-label="${model.dataButton.ariaLabel()}"
+  />
+
+  <div class="usa-accordion usa-accordion--bordered margin-top-2">
+    <h3 class="usa-accordion__heading">
+      <button
+        type="button"
+        class="usa-accordion__button"
+        aria-expanded="false"
+        aria-controls="b-a5"
+      >
+        Code Sample
+      </button>
+    </h3>
+    <div id="b-a5" class="usa-accordion__content usa-prose">
+      <h4>Java</h4>
+      <pre><code class="language-java">public record DataButton(
+  String id,
+  String name,
+  String value,
+  String text,
+  String type,
+  String variant,
+  String action,
+  String confirm,
+  String ariaLabel) {
+
+  public DataButton() {
+    this(&quot;deleteBtn&quot;,
+      &quot;action&quot;,
+      &quot;delete&quot;,
+      &quot;Delete&quot;,
+      &quot;submit&quot;,
+      &quot;base&quot;,
+      &quot;delete-record&quot;,
+      &quot;Are you sure you want to delete this?&quot;,
+      &quot;Delete this record&quot;);
+  }
+}</code></pre>
+
+      <h4>Thymeleaf</h4>
+      <pre><code class="language-markup">&lt;cf:button
+  th:id=&quot;${model.dataButton.id()}&quot;
+  th:name=&quot;${model.dataButton.name()}&quot;
+  th:value=&quot;${model.dataButton.value()}&quot;
+  th:text=&quot;${model.dataButton.text()}&quot;
+  th:type=&quot;${model.dataButton.type()}&quot;
+  th:variant=&quot;${model.dataButton.variant()}&quot;
+  th:data-action=&quot;${model.dataButton.action()}&quot;
+  th:data-confirm=&quot;${model.dataButton.confirm()}&quot;
+  th:aria-label=&quot;${model.dataButton.ariaLabel()}&quot;
+/&gt;</code></pre>
+
+      <h4>Rendered HTML</h4>
+      <pre><code class="language-markup">&lt;button
+  type=&quot;submit&quot;
+  class=&quot;usa-button usa-button--base&quot;
+  id=&quot;deleteBtn&quot;
+  name=&quot;action&quot;
+  value=&quot;delete&quot;
+  data-action=&quot;delete-record&quot;
+  data-confirm=&quot;Are you sure you want to delete this?&quot;
+  aria-label=&quot;Delete this record&quot;&gt;Delete&lt;/button&gt;</code></pre>
+    </div>
+  </div>
+
+  <hr class="code-separator" />
+
+  <!-- Sample 5: Unstyled Button with Nested Content -->
+  <h2>Button with Icon (Nested Content)</h2>
+
+  <cf:button
+    th:id="${model.iconButton.id()}"
+    th:variant="${model.iconButton.variant()}"
+    th:aria-label="${model.iconButton.ariaLabel()}"
+  >
+    <cf:icon type="icon-delete" />
+    <span th:text="${model.iconButton.text()}"></span>
+  </cf:button>
+
+  <div class="usa-accordion usa-accordion--bordered margin-top-2">
+    <h3 class="usa-accordion__heading">
+      <button
+        type="button"
+        class="usa-accordion__button"
+        aria-expanded="false"
+        aria-controls="b-a6"
+      >
+        Code Sample
+      </button>
+    </h3>
+    <div id="b-a6" class="usa-accordion__content usa-prose">
+      <h4>Java</h4>
+      <pre><code class="language-java">public record IconButton(
+  String id,
+  String variant,
+  String ariaLabel,
+  String text) {
+
+  public IconButton() {
+    this(&quot;menuBtn&quot;,
+      &quot;accent-warm&quot;,
+      &quot;Delete&quot;,
+      &quot;Delete&quot;);
+  }
+}</code></pre>
+
+      <h4>Thymeleaf</h4>
+      <pre><code class="language-markup">&lt;cf:button
+  th:id=&quot;${model.iconButton.id()}&quot;
+  th:variant=&quot;${model.iconButton.variant()}&quot;
+  th:aria-label=&quot;${model.iconButton.ariaLabel()}&quot;
+&gt;
+  &lt;cf:icon type=&quot;icon-delete&quot; /&gt;
+  &lt;span th:text=&quot;${model.iconButton.text()}&quot;&gt;&lt;/span&gt;
+&lt;/cf:button&gt;</code></pre>
+
+      <h4>Rendered HTML</h4>
+      <pre><code class="language-markup">&lt;button
+  type=&quot;button&quot;
+  class=&quot;usa-button usa-button--accent-warm&quot;
+  id=&quot;menuBtn&quot;
+  aria-label=&quot;Delete&quot;&gt;
+  &lt;img
+    src=&quot;/assets/Images/uswds/icon-delete.svg&quot;
+    aria-hidden=&quot;true&quot;
+    role=&quot;img&quot;
+    alt=&quot;&quot;&gt;
+  &lt;span&gt;Delete&lt;/span&gt;
+&lt;/button&gt;</code></pre>
+    </div>
+  </div>
+</th:block>

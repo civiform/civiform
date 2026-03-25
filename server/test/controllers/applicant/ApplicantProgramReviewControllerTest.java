@@ -85,8 +85,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     Request request = fakeRequestBuilder().build();
     when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
 
-    Result result =
-        subject.review(request, programId, /* isFromUrlCall= */ true).toCompletableFuture().join();
+    Result result = subject.review(request, programId).toCompletableFuture().join();
 
     // Redirects to home since program IDs are not supported when feature is enabled and program
     // param expects a program slug
@@ -104,11 +103,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   @Test
   public void review_whenProgramSlugUrlsFeatureDisabledAndIsProgramIdFromUrl_isOk() {
     String programId = String.valueOf(activeProgram.id);
-    Result result =
-        subject
-            .review(fakeRequest(), programId, /* isFromUrlCall= */ true)
-            .toCompletableFuture()
-            .join();
+    Result result = subject.review(fakeRequest(), programId).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
   }
 
@@ -121,7 +116,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   @Test
   public void review_whenProgramSlugUrlsFeatureDisabledAndIsProgramSlugFromUrl_error() {
     String programSlug = activeProgram.getSlug();
-    assertThatThrownBy(() -> subject.review(fakeRequest(), programSlug, /* isFromUrlCall= */ true))
+    assertThatThrownBy(() -> subject.review(fakeRequest(), programSlug))
         .isInstanceOf(RuntimeException.class)
         .hasMessage("Could not parse value from '' to a numeric value");
   }
@@ -134,8 +129,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
     Result result =
         subject
-            .reviewWithApplicantId(
-                request, applicant.id, Long.toString(activeProgram.id), /* isFromUrlCall= */ true)
+            .reviewWithApplicantId(request, applicant.id, Long.toString(activeProgram.id))
             .toCompletableFuture()
             .join();
 
@@ -177,20 +171,12 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
       reviewWithApplicantId_whenProgramSlugUrlsFeatureDisabledAndIsProgramSlugFromUrl_error() {
     String programSlug = activeProgram.getSlug();
     assertThatThrownBy(
-            () ->
-                subject.reviewWithApplicantId(
-                    fakeRequest(), applicant.id, programSlug, /* isFromUrlCall= */ true))
+            () -> subject.reviewWithApplicantId(fakeRequest(), applicant.id, programSlug))
         .isInstanceOf(RuntimeException.class)
         .hasMessage("Could not parse value from '' to a numeric value");
   }
 
-  /**
-   * Tests that reviewWithApplicantId() returns OK when the feature is enabled and is from url call
-   * with a program slug. reviewWithApplicantId() also returns OK for other combinations: when the
-   * feature is disabled OR when the call is not from a URL OR when the program param is a program
-   * slug (not numeric), AND the program ID was properly retrieved. We don't test all combinations
-   * here because the ProgramSlugHandler tests have a comprehensive test cover for them.
-   */
+  /** Tests that reviewWithApplicantId() returns OK when the feature is enabled. */
   @Test
   public void
       reviewWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_isOk() {
@@ -200,7 +186,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
     Result result =
         subject
-            .reviewWithApplicantId(request, applicant.id, programSlug, /* isFromUrlCall= */ true)
+            .reviewWithApplicantId(request, applicant.id, programSlug)
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(OK);
@@ -331,7 +317,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     assertThat(result.redirectLocation().get())
         .isEqualTo(
             routes.ApplicantProgramReviewController.reviewWithApplicantId(
-                    tiApplicant.id, Long.toString(newProgramModel.id), /* isFromUrlCall= */ false)
+                    tiApplicant.id, Long.toString(newProgramModel.id))
                 .url());
 
     // An application was not submitted
@@ -375,8 +361,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     assertThat(result.redirectLocation().isPresent()).isTrue();
     assertThat(result.redirectLocation().get())
         .isEqualTo(
-            routes.ApplicantProgramReviewController.review(
-                    Long.toString(newProgramModel.id), /* isFromUrlCall= */ false)
+            routes.ApplicantProgramReviewController.review(Long.toString(newProgramModel.id))
                 .url());
 
     // An application was not submitted
@@ -471,11 +456,11 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
         fakeRequestBuilder()
             .call(
                 routes.ApplicantProgramReviewController.reviewWithApplicantId(
-                    applicantId, programIdStr, /* isFromUrlCall= */ false))
+                    applicantId, programIdStr))
             .header(skipUserProfile, "false")
             .build();
     return subject
-        .reviewWithApplicantId(request, applicantId, programIdStr, /* isFromUrlCall= */ false)
+        .reviewWithApplicantId(request, applicantId, programIdStr)
         .toCompletableFuture()
         .join();
   }

@@ -247,7 +247,8 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
         maybeErrorMessages.flatMap(
             errorMessages ->
                 Optional.ofNullable(
-                    errorMessages.getOrDefault(settingDescription.variableName(), null)));
+                    errorMessages.getOrDefault(
+                        settingDescription.variableName(), /* defaultValue= */ null)));
     Optional<DivTag> errors =
         maybeUpdateError.map(
             updateError ->

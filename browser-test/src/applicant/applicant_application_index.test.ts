@@ -855,6 +855,22 @@ test.describe('applicant program index page', () => {
 
     await validateScreenshot(page, 'program-index-page-initial-load')
   })
+
+  test('shows immigration status info banner on home page when enabled', async ({
+    page,
+  }) => {
+    await enableFeatureFlag(page, 'immigration_status_info_banner_enabled')
+
+    await page.goto('/')
+    await waitForPageJsLoad(page)
+
+    await validateScreenshot(
+      page.getByRole('region', {
+        name: 'Immigration status informational alert',
+      }),
+      'immigration-status-info-banner',
+    )
+  })
 })
 
 test.describe('applicant program index page with images', () => {

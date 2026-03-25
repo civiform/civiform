@@ -26,7 +26,7 @@ public final class AdminReportingPageView extends AdminLayoutBaseView<AdminRepor
   }
 
   @Override
-  protected String pageTitle() {
+  protected String pageTitle(AdminReportingPageViewModel model) {
     return "Reporting";
   }
 

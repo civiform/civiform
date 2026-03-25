@@ -109,10 +109,38 @@ public final class QuestionEditView extends BaseHtmlView {
       Request request,
       QuestionType questionType,
       ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions,
+      Optional<String> selectedEnumerator,
       String redirectUrl)
+      throws UnsupportedQuestionTypeException {
+    return renderNewQuestionForm(
+        request,
+        questionType,
+        enumeratorQuestionDefinitions,
+        selectedEnumerator,
+        redirectUrl,
+        /* isRepeatingBlock= */ false);
+  }
+
+  /** Render a fresh New Question Form. */
+  public Content renderNewQuestionForm(
+      Request request,
+      QuestionType questionType,
+      ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions,
+      Optional<String> selectedEnumerator,
+      String redirectUrl,
+      boolean isRepeatingBlock)
       throws UnsupportedQuestionTypeException {
     QuestionForm questionForm = QuestionFormBuilder.create(questionType);
     questionForm.setRedirectUrl(redirectUrl);
+    if (!isRepeatingBlock) {
+      questionForm.setEnumeratorSelectEnabled(false);
+    } else {
+      selectedEnumerator.ifPresent(
+          enumeratorId -> {
+            questionForm.setEnumeratorId(enumeratorId);
+            questionForm.setEnumeratorSelectEnabled(false);
+          });
+    }
     return renderNewQuestionForm(
         request, questionForm, enumeratorQuestionDefinitions, /* message= */ Optional.empty());
   }
@@ -156,9 +184,13 @@ public final class QuestionEditView extends BaseHtmlView {
       Request request,
       QuestionDefinition questionDefinition,
       Optional<QuestionDefinition> maybeEnumerationQuestionDefinition,
-      Optional<ToastMessage> message)
+      Optional<ToastMessage> message,
+      Optional<String> redirectUrl)
       throws InvalidQuestionTypeException {
     QuestionForm questionForm = QuestionFormBuilder.create(questionDefinition);
+    if (redirectUrl.isPresent()) {
+      questionForm.setRedirectUrl(redirectUrl.get());
+    }
     return renderEditQuestionForm(
         request,
         questionDefinition.getId(),
@@ -224,7 +256,9 @@ public final class QuestionEditView extends BaseHtmlView {
 
     SelectWithLabel enumeratorOption =
         enumeratorOptionsFromMaybeEnumerationQuestionDefinition(
-            maybeEnumerationQuestionDefinition, FormMode.VIEW);
+            maybeEnumerationQuestionDefinition,
+            questionForm.getEnumeratorSelectEnabled(),
+            FormMode.VIEW);
     DivTag formContent =
         buildQuestionContainer(title)
             .with(buildReadOnlyQuestionForm(questionForm, enumeratorOption, request));
@@ -319,7 +353,9 @@ public final class QuestionEditView extends BaseHtmlView {
     if (Strings.isNullOrEmpty(cancelUrl)) {
       cancelUrl = controllers.admin.routes.AdminQuestionController.index(Optional.empty()).url();
     }
-    FormTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOptions, true, request);
+    FormTag formTag =
+        buildSubmittableQuestionForm(
+            questionForm, enumeratorOptions, /* forCreate= */ true, request);
     formTag
         .withAction(
             controllers.admin.routes.AdminQuestionController.create(
@@ -345,8 +381,12 @@ public final class QuestionEditView extends BaseHtmlView {
       Request request) {
     SelectWithLabel enumeratorOption =
         enumeratorOptionsFromMaybeEnumerationQuestionDefinition(
-            maybeEnumerationQuestionDefinition, FormMode.EDIT);
-    FormTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOption, false, request);
+            maybeEnumerationQuestionDefinition,
+            questionForm.getEnumeratorSelectEnabled(),
+            FormMode.EDIT);
+    FormTag formTag =
+        buildSubmittableQuestionForm(
+            questionForm, enumeratorOption, /* forCreate= */ false, request);
     formTag.withAction(
         controllers.admin.routes.AdminQuestionController.update(
                 id, questionForm.getQuestionType().toString())
@@ -412,7 +452,7 @@ public final class QuestionEditView extends BaseHtmlView {
                 requiredFieldsExplanationContent());
     formTag.with(
         h2("Visible to applicants").withClasses("py-2", "mt-6", "font-semibold"),
-        repeatedQuestionInformation(),
+        repeatedQuestionInformation(request),
         FieldWithLabel.textArea()
             .setId("question-text-textarea")
             .setFieldName("questionText")
@@ -468,7 +508,9 @@ public final class QuestionEditView extends BaseHtmlView {
             .setDisabled(!submittable)
             .setValue(questionForm.getQuestionDescription())
             .getTextareaTag(),
-        enumeratorOptions.setDisabled(!forCreate).getSelectTag());
+        enumeratorOptions
+            .setReadOnly(!questionForm.getEnumeratorSelectEnabled() || !forCreate)
+            .getSelectTag());
 
     if (questionType.equals(QuestionType.MAP)) {
       formTag.with(
@@ -760,6 +802,7 @@ public final class QuestionEditView extends BaseHtmlView {
     return enumeratorOptions(
         options,
         questionForm.getEnumeratorId().map(String::valueOf).orElse(NO_ENUMERATOR_ID_STRING),
+        questionForm.getEnumeratorSelectEnabled(),
         FormMode.CREATE);
   }
 
@@ -768,7 +811,9 @@ public final class QuestionEditView extends BaseHtmlView {
    * question definition if available, or with just the no-enumerator option.
    */
   private SelectWithLabel enumeratorOptionsFromMaybeEnumerationQuestionDefinition(
-      Optional<QuestionDefinition> maybeEnumerationQuestionDefinition, FormMode formMode) {
+      Optional<QuestionDefinition> maybeEnumerationQuestionDefinition,
+      boolean enabled,
+      FormMode formMode) {
     String enumeratorName =
         maybeEnumerationQuestionDefinition
             .map(QuestionDefinition::getName)
@@ -784,54 +829,66 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setValue(enumeratorId)
                 .build()),
         enumeratorId,
+        enabled,
         formMode);
   }
 
   private SelectWithLabel enumeratorOptions(
-      ImmutableList<SelectWithLabel.OptionValue> options, String selected, FormMode formMode) {
+      ImmutableList<SelectWithLabel.OptionValue> options,
+      String selected,
+      boolean enabled,
+      FormMode formMode) {
     return new SelectWithLabel()
         .setId("question-enumerator-select")
         .setFieldName(QUESTION_ENUMERATOR_FIELD)
         .setLabelText("Question enumerator")
         .setOptions(options)
         .setValue(selected)
-        .setReadOnly(formMode.equals(FormMode.EDIT))
+        .setDisabled(formMode.equals(FormMode.EDIT))
+        .setReadOnly(formMode.equals(FormMode.EDIT) || !enabled)
         .setRequired(true);
   }
 
-  private DivTag repeatedQuestionInformation() {
-    return div()
-        .with(
-            p(
-                "By selecting an enumerator, you are creating a repeated question - a question that"
-                    + " is asked for each repeated entity enumerated by the applicant."),
-            p(
-                join(
-                    "Please reference the applicant-defined repeated entity name to give the"
-                        + " applicant context on which repeated entity they are answering the"
-                        + " question for by using ",
-                    em("\"$this\""),
-                    "in the ",
-                    strong("question's text"),
-                    " and optionally the ",
-                    strong("help text. "))),
-            p(
-                join(
-                    "To reference the repeated entities containing this one, use ",
-                    em("\"$this.parent\""),
-                    ", ",
-                    em("\"$this.parent.parent\""),
-                    ", etc.")))
-        .withId("repeated-question-information")
-        .withClasses(
-            "hidden",
-            "text-blue-600",
-            "text-sm",
-            "p-2",
-            "font-mono",
-            "border-4",
-            "border-blue-400",
-            "space-y-4");
+  private DivTag repeatedQuestionInformation(Request request) {
+    DivTag repeatedQuestionInfo =
+        div()
+            .with(
+                p(
+                    "By selecting an enumerator, you are creating a repeated question - a question"
+                        + " that is asked for each repeated entity enumerated by the applicant."))
+            .withId("repeated-question-information")
+            .withClasses(
+                "hidden",
+                "text-blue-600",
+                "text-sm",
+                "p-2",
+                "font-mono",
+                "border-4",
+                "border-blue-400",
+                "space-y-4");
+
+    if (!settingsManifest.getEnumeratorImprovementsEnabled(request)) {
+      repeatedQuestionInfo.with(
+          p(
+              join(
+                  "Please reference the applicant-defined repeated entity name to give the"
+                      + " applicant context on which repeated entity they are answering the"
+                      + " question for by using ",
+                  em("\"$this\""),
+                  "in the ",
+                  strong("question's text"),
+                  " and optionally the ",
+                  strong("help text. "))),
+          p(
+              join(
+                  "To reference the repeated entities containing this one, use ",
+                  em("\"$this.parent\""),
+                  ", ",
+                  em("\"$this.parent.parent\""),
+                  ", etc.")));
+    }
+
+    return repeatedQuestionInfo;
   }
 
   private DivTag administrativeNameField(String adminName, boolean editExistingQuestion) {

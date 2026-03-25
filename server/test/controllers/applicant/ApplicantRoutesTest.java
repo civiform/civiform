@@ -71,12 +71,6 @@ public class ApplicantRoutesTest extends ResetPostgres {
   }
 
   @Test
-  public void testShowRoute_withoutApplicant() {
-    String expectedShowUrl = String.format("/programs/%d", PROGRAM_ID);
-    assertThat(new ApplicantRoutes().show(PROGRAM_ID).url()).isEqualTo(expectedShowUrl);
-  }
-
-  @Test
   public void testShowRoute_withoutApplicantWithProgramSlug() {
     String expectedShowUrl = String.format("/programs/%s", PROGRAM_SLUG);
     assertThat(new ApplicantRoutes().show(PROGRAM_SLUG).url()).isEqualTo(expectedShowUrl);
@@ -104,7 +98,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
 
-    String expectedEditUrl = String.format("/programs/%d/edit?isFromUrlCall=false", PROGRAM_ID);
+    String expectedEditUrl = String.format("/programs/%d/edit", PROGRAM_ID);
     assertThat(new ApplicantRoutes().edit(applicantProfile, APPLICANT_ID, PROGRAM_ID).url())
         .isEqualTo(expectedEditUrl);
   }
@@ -118,9 +112,27 @@ public class ApplicantRoutesTest extends ResetPostgres {
     CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedEditUrl =
-        String.format(
-            "/applicants/%d/programs/%d/edit?isFromUrlCall=false", APPLICANT_ID, PROGRAM_ID);
+        String.format("/applicants/%d/programs/%d/edit", APPLICANT_ID, PROGRAM_ID);
     assertThat(new ApplicantRoutes().edit(adminProfile, APPLICANT_ID, PROGRAM_ID).url())
+        .isEqualTo(expectedEditUrl);
+  }
+
+  @Test
+  public void testEditRoute_withProgramSlug() {
+    String expectedEditUrl = String.format("/programs/%s/edit", PROGRAM_SLUG);
+    assertThat(new ApplicantRoutes().edit(PROGRAM_SLUG).url()).isEqualTo(expectedEditUrl);
+  }
+
+  @Test
+  public void testEditRoute_withProgramSlug_WithApplicantId() {
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.addAttribute(
+        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedEditUrl = String.format("/programs/%s/edit", PROGRAM_SLUG);
+    assertThat(new ApplicantRoutes().edit(applicantProfile, APPLICANT_ID, PROGRAM_SLUG).url())
         .isEqualTo(expectedEditUrl);
   }
 
@@ -132,7 +144,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
 
-    String expectedReviewUrl = String.format("/programs/%d/review?isFromUrlCall=false", PROGRAM_ID);
+    String expectedReviewUrl = String.format("/programs/%d/review", PROGRAM_ID);
     assertThat(new ApplicantRoutes().review(applicantProfile, APPLICANT_ID, PROGRAM_ID).url())
         .isEqualTo(expectedReviewUrl);
   }
@@ -146,15 +158,14 @@ public class ApplicantRoutesTest extends ResetPostgres {
     CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedReviewUrl =
-        String.format(
-            "/applicants/%d/programs/%d/review?isFromUrlCall=false", APPLICANT_ID, PROGRAM_ID);
+        String.format("/applicants/%d/programs/%d/review", APPLICANT_ID, PROGRAM_ID);
     assertThat(new ApplicantRoutes().review(adminProfile, APPLICANT_ID, PROGRAM_ID).url())
         .isEqualTo(expectedReviewUrl);
   }
 
   @Test
   public void testReviewRoute_withoutApplicant() {
-    String expectedShowUrl = String.format("/programs/%d/review?isFromUrlCall=false", PROGRAM_ID);
+    String expectedShowUrl = String.format("/programs/%d/review", PROGRAM_ID);
     assertThat(new ApplicantRoutes().review(PROGRAM_ID).url()).isEqualTo(expectedShowUrl);
   }
 
@@ -194,7 +205,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedBlockEditUrl =
-        String.format("/programs/%d/blocks/%s/edit?isFromUrlCall=false", PROGRAM_ID, BLOCK_ID);
+        String.format("/programs/%d/blocks/%s/edit", PROGRAM_ID, BLOCK_ID);
     assertThat(
             new ApplicantRoutes()
                 .blockEdit(applicantProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, Optional.empty())
@@ -212,11 +223,27 @@ public class ApplicantRoutesTest extends ResetPostgres {
 
     String expectedBlockEditUrl =
         String.format(
-            "/applicants/%d/programs/%d/blocks/%s/edit?isFromUrlCall=false",
-            APPLICANT_ID, PROGRAM_ID, BLOCK_ID);
+            "/applicants/%d/programs/%d/blocks/%s/edit", APPLICANT_ID, PROGRAM_ID, BLOCK_ID);
     assertThat(
             new ApplicantRoutes()
                 .blockEdit(adminProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, Optional.empty())
+                .url())
+        .isEqualTo(expectedBlockEditUrl);
+  }
+
+  @Test
+  public void testBlockEditRoute_withProgramSlug() {
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.addAttribute(
+        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedBlockEditUrl =
+        String.format("/programs/%s/blocks/%s/edit", PROGRAM_SLUG, BLOCK_ID);
+    assertThat(
+            new ApplicantRoutes()
+                .blockEdit(applicantProfile, APPLICANT_ID, PROGRAM_SLUG, BLOCK_ID, Optional.empty())
                 .url())
         .isEqualTo(expectedBlockEditUrl);
   }
@@ -230,7 +257,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedBlockReviewUrl =
-        String.format("/programs/%d/blocks/%s/review?isFromUrlCall=false", PROGRAM_ID, BLOCK_ID);
+        String.format("/programs/%d/blocks/%s/review", PROGRAM_ID, BLOCK_ID);
     assertThat(
             new ApplicantRoutes()
                 .blockReview(applicantProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, Optional.empty())
@@ -248,8 +275,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
 
     String expectedBlockReviewUrl =
         String.format(
-            "/applicants/%d/programs/%d/blocks/%s/review?isFromUrlCall=false",
-            APPLICANT_ID, PROGRAM_ID, BLOCK_ID);
+            "/applicants/%d/programs/%d/blocks/%s/review", APPLICANT_ID, PROGRAM_ID, BLOCK_ID);
     assertThat(
             new ApplicantRoutes()
                 .blockReview(adminProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, Optional.empty())
@@ -270,8 +296,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
     boolean inReviewBoolean = Boolean.parseBoolean(inReview);
     String expectedUrl =
         String.format(
-            "/programs/%d/blocks/%s/%s?isFromUrlCall=false",
-            PROGRAM_ID, BLOCK_ID, inReviewBoolean ? "review" : "edit");
+            "/programs/%d/blocks/%s/%s", PROGRAM_ID, BLOCK_ID, inReviewBoolean ? "review" : "edit");
     assertThat(
             new ApplicantRoutes()
                 .blockEditOrBlockReview(
@@ -291,7 +316,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
     boolean inReviewBoolean = Boolean.parseBoolean(inReview);
     String expectedBlockReviewUrl =
         String.format(
-            "/applicants/%d/programs/%d/blocks/%s/%s?isFromUrlCall=false",
+            "/applicants/%d/programs/%d/blocks/%s/%s",
             APPLICANT_ID, PROGRAM_ID, BLOCK_ID, inReviewBoolean ? "review" : "edit");
     assertThat(
             new ApplicantRoutes()
@@ -380,8 +405,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
 
     String expectedPreviousUrl =
         String.format(
-            "/programs/%d/blocks/%d/previous/%s?isFromUrlCall=false",
-            PROGRAM_ID, CURRENT_BLOCK_INDEX - 1, inReview);
+            "/programs/%d/blocks/%d/previous/%s", PROGRAM_ID, CURRENT_BLOCK_INDEX - 1, inReview);
     assertThat(
             new ApplicantRoutes()
                 .blockPreviousOrReview(
@@ -404,7 +428,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
 
     String expectedPreviousUrl =
         String.format(
-            "/applicants/%d/programs/%d/blocks/%d/previous/%s?isFromUrlCall=false",
+            "/applicants/%d/programs/%d/blocks/%d/previous/%s",
             APPLICANT_ID, PROGRAM_ID, CURRENT_BLOCK_INDEX - 1, inReview);
     assertThat(
             new ApplicantRoutes()
@@ -427,8 +451,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
 
     String expectedPreviousUrl =
-        String.format(
-            "/programs/%d/blocks/%d/previous/%s?isFromUrlCall=false", PROGRAM_ID, 0, false);
+        String.format("/programs/%d/blocks/%d/previous/%s", PROGRAM_ID, 0, false);
     assertThat(
             new ApplicantRoutes()
                 .blockPreviousOrReview(
@@ -449,7 +472,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
 
-    String expectedReviewUrl = String.format("/programs/%d/review?isFromUrlCall=false", PROGRAM_ID);
+    String expectedReviewUrl = String.format("/programs/%d/review", PROGRAM_ID);
 
     assertThat(
             new ApplicantRoutes()
@@ -471,7 +494,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
 
-    String expectedReviewUrl = String.format("/programs/%d/review?isFromUrlCall=false", PROGRAM_ID);
+    String expectedReviewUrl = String.format("/programs/%d/review", PROGRAM_ID);
 
     assertThat(
             new ApplicantRoutes()

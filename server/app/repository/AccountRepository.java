@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.CiviFormProfile;
+import auth.NewGuestMergeLaunchStage;
 import auth.oidc.IdTokens;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
@@ -254,17 +255,14 @@ public final class AccountRepository {
    *
    * @return The updated newer applicant.
    */
-  public CompletionStage<ApplicantModel> mergeApplicantsOlderIntoNewer(
+  public ApplicantModel mergeApplicantsOlderIntoNewer(
       ApplicantModel applicant1, ApplicantModel applicant2, AccountModel account) {
-    return supplyAsync(
-        () ->
-            transactionManager.execute(
-                () -> {
-                  applicant1.setAccount(account).save();
-                  applicant2.setAccount(account).save();
-                  return mergeApplicantsOlderIntoNewer(applicant1, applicant2).saveAndReturn();
-                }),
-        dbExecutionContext);
+    return transactionManager.execute(
+        () -> {
+          applicant1.setAccount(account).save();
+          applicant2.setAccount(account).save();
+          return mergeApplicantsOlderIntoNewer(applicant1, applicant2).saveAndReturn();
+        });
   }
 
   /**
@@ -286,6 +284,30 @@ public final class AccountRepository {
 
     newer.getApplicantData().mergeFrom(older.getApplicantData());
     return newer;
+  }
+
+  /**
+   * Merge data from {@code mergeFrom} to {@code mergeTo}.
+   *
+   * <p>This is part of an in-progress and incomplete method.
+   *
+   * @param newMergeStage what launch stage the new merge feature is at. Must be DRY_RUN OR ENABLED.
+   */
+  public void mergeApplicants(
+      ApplicantModel mergeFrom, ApplicantModel mergeTo, NewGuestMergeLaunchStage newMergeStage) {
+    boolean logOnly =
+        switch (newMergeStage) {
+          case DRY_RUN -> true;
+          case ENABLED -> false;
+          default ->
+              throw new IllegalArgumentException(
+                  "New merge launch stage should not be " + newMergeStage);
+        };
+    // TODO(#11389): Implement new merge logic.
+    logger.error("New merge logic is not implemented");
+    if (logOnly) {
+      logger.info("New Merge Logic Dry Run");
+    }
   }
 
   public List<TrustedIntermediaryGroupModel> listTrustedIntermediaryGroups() {

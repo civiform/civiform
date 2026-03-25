@@ -10,10 +10,19 @@ public class SettingsSectionTest {
   @Test
   public void shouldDisplay() {
     var hiddenSetting =
-        SettingDescription.create("HIDDEN_NAME", "", true, SettingType.STRING, SettingMode.HIDDEN);
+        SettingDescription.create(
+            "HIDDEN_NAME",
+            /* variableDescription= */ "",
+            /* isRequired= */ true,
+            SettingType.STRING,
+            SettingMode.HIDDEN);
     var readableSetting =
         SettingDescription.create(
-            "READABLE_NAME", "", true, SettingType.STRING, SettingMode.ADMIN_READABLE);
+            "READABLE_NAME",
+            /* variableDescription= */ "",
+            /* isRequired= */ true,
+            SettingType.STRING,
+            SettingMode.ADMIN_READABLE);
 
     assertThat(
             SettingsSection.create(

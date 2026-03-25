@@ -38,6 +38,7 @@ export type SubconditionValue = {
   firstValue: string | undefined
   secondValue: string | undefined
   multiValues: MultiValueSpec[] | undefined
+  selectValue: string | undefined
 }
 
 export type MultiValueSpec = {
@@ -73,14 +74,53 @@ export class AdminPredicates {
     )
   }
 
-  async updateEligibilityMessage(eligibilityMsg: string) {
-    await this.page.getByLabel('Eligibility Message').fill(eligibilityMsg)
-    await this.page
-      .getByRole('button', {name: 'Save eligibility message'})
-      .click()
+  async updateEligibilityMessage(
+    eligibilityMsg: string,
+    expandedFormLogicEnabled: boolean = false,
+  ) {
+    if (expandedFormLogicEnabled) {
+      await this.page
+        .getByLabel('Display message shown to ineligible applicants')
+        .fill(eligibilityMsg)
+      await this.clickSaveAndExitButton()
+    } else {
+      await this.page.getByLabel('Eligibility Message').fill(eligibilityMsg)
+      await this.page
+        .getByRole('button', {name: 'Save eligibility message'})
+        .click()
+    }
   }
 
-  async addPredicates(...predicateSpecs: PredicateSpec[]) {
+  // (Overload) Add predicates using the legacy predicate view
+  // If expandedFormLogicEnabled is false or not provided, will add predicates using the legacy view.
+  // If expandedFormLogicEnabled is true, will add predicates using the updated predicate logic view.
+  async addPredicates(...predicateSpecs: PredicateSpec[]): Promise<void>
+
+  async addPredicates(
+    expandedFormLogicEnabled: boolean,
+    ...predicateSpecs: PredicateSpec[]
+  ): Promise<void>
+
+  async addPredicates(
+    expandedFormLogicOrSpec: boolean | PredicateSpec,
+    ...predicateSpecs: PredicateSpec[]
+  ) {
+    // Set default flag value.
+    let expandedFormLogicEnabled = false
+    // Deal with the overload by checking the type of the first parameter.
+    // If it's a boolean, it's the expandedFormLogicEnabled flag.
+    // Else it's a PredicateSpec and we should add it to the list of specs to configure.
+    if (typeof expandedFormLogicOrSpec === 'boolean') {
+      expandedFormLogicEnabled = expandedFormLogicOrSpec
+    } else {
+      predicateSpecs.unshift(expandedFormLogicOrSpec)
+    }
+
+    if (expandedFormLogicEnabled) {
+      await this.addSubconditionsFromPredicateSpecs(predicateSpecs)
+      return
+    }
+
     for (const predicateSpec of predicateSpecs) {
       await this.selectQuestionForPredicate(predicateSpec.questionName)
     }
@@ -94,6 +134,54 @@ export class AdminPredicates {
     }
 
     await this.clickSaveConditionButton()
+  }
+
+  // Add subconditions in new predicate view, given a list of legacy PredicateSpecs.
+  private async addSubconditionsFromPredicateSpecs(
+    predicateSpecs: PredicateSpec[],
+  ) {
+    for (let i = 0; i < predicateSpecs.length; i++) {
+      const conditionId = i + 1
+      await this.addAndExpectCondition(conditionId)
+      const questionText = await this.getQuestionText(
+        conditionId,
+        1,
+        predicateSpecs[i].questionName,
+      )
+      await this.configureSubcondition({
+        conditionId: conditionId,
+        subconditionId: 1,
+        questionText: questionText,
+        scalar: predicateSpecs[i].scalar,
+        operator: predicateSpecs[i].operator,
+        value: {
+          firstValue:
+            predicateSpecs[i].value ??
+            predicateSpecs[i].complexValues?.[0].value ??
+            undefined,
+          secondValue: predicateSpecs[i].complexValues?.[0].secondValue,
+          multiValues: predicateSpecs[i].values?.map((cv) => ({
+            adminName: cv,
+            text: cv,
+            checked: true,
+          })),
+        },
+      })
+    }
+
+    if (
+      ['hidden if', 'shown if'].includes(
+        predicateSpecs[0]?.action?.toLowerCase() ?? '',
+      )
+    ) {
+      const visibilityBehavior =
+        predicateSpecs[0].action?.toLowerCase() === 'hidden if'
+          ? 'HIDE_BLOCK'
+          : 'SHOW_BLOCK'
+      await this.selectVisibilityAction(visibilityBehavior)
+    }
+
+    await this.clickSaveAndExitButton()
   }
 
   async selectQuestionForPredicate(questionName: string) {
@@ -217,18 +305,16 @@ export class AdminPredicates {
       const visibilityActionText =
         visibilityBehavior === 'HIDE_BLOCK' ? 'hidden if' : 'shown if'
 
-      const visibilityDropdownsCount = await this.page
-        .getByLabel(
-          'Screen is ' +
-            visibilityActionText +
-            ' ' +
-            logicalOperatorDisplayText +
-            ' conditions are true:',
-        )
-        .count()
+      const visibilityDropdownsCount = this.page.getByLabel(
+        'Screen is ' +
+          visibilityActionText +
+          ' ' +
+          logicalOperatorDisplayText +
+          ' conditions are true:',
+      )
 
       // Expect two dropdowns: one for visibility behavior and another for logic
-      expect(visibilityDropdownsCount).toBe(2)
+      await expect(visibilityDropdownsCount).toHaveCount(2)
     }
   }
 
@@ -318,12 +404,29 @@ export class AdminPredicates {
 
   async getQuestionId(questionName: string): Promise<string> {
     const questionNameField = this.page.getByTestId(questionName)
-    expect((await questionNameField.all()).length).toEqual(1)
+    await expect(questionNameField).toHaveCount(1)
 
     const questionId = await questionNameField.getAttribute('data-question-id')
     expect(questionId).not.toBeNull()
 
     return questionId as string
+  }
+
+  // Gets the displayed question text for a given question name if it's present in the subcondition dropdown options.
+  async getQuestionText(
+    conditionId: number,
+    subconditionId: number,
+    questionName: string,
+  ): Promise<string> {
+    const questionOptionField = this.page.locator(
+      `#condition-${conditionId}-subcondition-${subconditionId}-question option[data-question-name="${questionName}"]`,
+    )
+    await expect(questionOptionField).toHaveCount(1)
+
+    const questionText = await questionOptionField.innerText()
+    expect(questionText).not.toBeNull()
+
+    return questionText
   }
 
   /**
@@ -387,6 +490,12 @@ export class AdminPredicates {
 
     if (operator) {
       await this.selectOperator(conditionId, subconditionId, operator)
+    }
+
+    // Deal with address questions in a special way, since the value field uses a select element.
+    if (scalar && scalar.toLowerCase().includes('service area')) {
+      value.selectValue = value.firstValue
+      value.firstValue = undefined
     }
 
     await this.fillValue(conditionId, subconditionId, value)
@@ -520,6 +629,13 @@ export class AdminPredicates {
       ).toHaveCount(0)
     }
 
+    if (value.selectValue !== undefined) {
+      const valueSelect = this.page.locator(
+        `#condition-${conditionId}-subcondition-${subconditionId}-value:enabled`,
+      )
+      await valueSelect.selectOption({label: value.selectValue})
+    }
+
     if (Array.isArray(value.multiValues)) {
       for (let count = 1; count <= value.multiValues.length; count++) {
         const checkboxLabel = this.page.locator(
@@ -633,11 +749,13 @@ export class AdminPredicates {
     subconditionId: number,
     questionText: string,
   ) {
+    // Newline characters don't get displayed in the dropdown option, so filter out here
+    const displayedQuestionText = questionText.replace(/\n+ /g, '')
     await this.page
       .locator(
         `#condition-${conditionId}-subcondition-${subconditionId}-question`,
       )
-      .selectOption(questionText)
+      .selectOption(displayedQuestionText)
 
     await waitForHtmxReady(this.page)
   }

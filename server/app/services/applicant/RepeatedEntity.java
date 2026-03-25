@@ -62,7 +62,7 @@ public abstract class RepeatedEntity {
   }
 
   /** Creates an instance of RepeatedEntity, using AutoValue. */
-  private static RepeatedEntity create(
+  static RepeatedEntity create(
       EnumeratorQuestionDefinition enumeratorQuestionDefinition,
       Optional<PredicateDefinition> visibility,
       Optional<RepeatedEntity> parent,

@@ -1,0 +1,27 @@
+#! /usr/bin/env bash
+
+# DOC: Do a dry run of Renovate using the local version of the renovate.json5 config.
+# DOC: Must have GITHUB_TOKEN set to pass into the container.
+
+set -euo pipefail
+
+if [[ -z "${GITHUB_TOKEN:-}" ]]; then
+  echo "GITHUB_TOKEN must be set."
+  exit 1
+fi
+
+OUTFILE="renovate-debug-output.txt"
+
+# FORCE_COLOR because it turns it off due to the pipe, and then
+# we strip out the colors when writing to the file.
+docker run --rm \
+  -e LOG_LEVEL=debug \
+  -e FORCE_COLOR=1 \
+  -e RENOVATE_DRY_RUN=true \
+  -e RENOVATE_TOKEN="${GITHUB_TOKEN:-}" \
+  -e RENOVATE_CONFIG_FILE=/tmp/renovate.json5 \
+  -e RENOVATE_REQUIRE_CONFIG=ignored \
+  -v "$(pwd)/.github/renovate.json5:/tmp/renovate.json5:ro" \
+  renovate/renovate civiform/civiform 2>&1 | tee >(sed 's/\x1b\[[0-9;]*m//g' >"${OUTFILE}")
+
+echo "Done. Debug output written to ${OUTFILE}."
