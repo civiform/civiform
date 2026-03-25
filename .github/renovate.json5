@@ -9,6 +9,8 @@
   schedule: ["after 4am", "before 10am"],
   // Github label(s) applied to the generated pull request, unless overridden below
   labels: ["dependencies"],
+  // Amount of time to wait after a release before opening a PR, to avoid chasing yanked or broken releases.
+  minimumReleaseAge: "3 days",
   // These files deviate from standard compose naming convention. 
   // This makes sure renovate finds them.
   "docker-compose": {
