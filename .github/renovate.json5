@@ -69,6 +69,10 @@
       matchPackageNames: ["org.junit.jupiter:{/,}**"],
     },
     {
+      matchPackageNames: ["org.projectlombok:lombok"],
+      prHeader: "Release Notes: https://github.com/projectlombok/lombok/blob/master/doc/changelog.markdown",
+    },
+    {
       matchPackageNames: ["ch.qos.logback:logback-classic"],
       prHeader: "Release Notes: https://logback.qos.ch/news.html",
     },
@@ -99,8 +103,16 @@
       prHeader: "Release Notes: https://github.com/docker/setup-buildx-action/releases",
     },
     {
+      matchPackageNames: ["slackapi/slack-github-action"],
+      prHeader: "Release Notes: https://github.com/slackapi/slack-github-action/releases",
+    },
+    {
       matchPackageNames: ["io.swagger.core.v3:swagger-core"],
       prHeader: "Release Notes: https://github.com/swagger-api/swagger-core/releases",
+    },
+    {
+      matchPackageNames: ["io.swagger.parser.v3:swagger-parser"],
+      prHeader: "Release Notes: https://github.com/swagger-api/swagger-parser/releases",
     },
     {
       matchFileNames: [
