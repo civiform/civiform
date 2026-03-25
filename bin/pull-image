@@ -3,7 +3,7 @@
 # DOC: Pull the latest development environment docker image from Docker Hub
 # DOC: unless USE_LOCAL_CIVIFORM or CI (set in GitHub actions) is set. May
 # DOC: specify what to pull with a flag
-# DOC: e.g. "--formatter", "--localstack", or "--all" (the default).
+# DOC: e.g. "--formatter", or "--all" (the default).
 # DOC: If multiple flags are passed, all but the first will be ignored.
 # DOC: Use "--help" to display all pull image options
 
@@ -28,8 +28,6 @@ function pull_all() {
 
   # Explicitly pull dev dependencies. (in parallel)
   docker pull civiform/oidc-provider:latest &
-  docker pull mcr.microsoft.com/azure-storage/azurite &
-  docker pull localstack/localstack &
 
   docker pull civiform/formatter:latest &
   docker pull civiform/civiform-browser-test:latest &
@@ -67,16 +65,6 @@ while [ "${1:-}" != "" ]; do
       docker tag civiform/formatter:latest civiform-formatter
       ;;
 
-    "--localstack")
-      echo "Pull localstack docker image"
-      docker pull localstack/localstack
-      ;;
-
-    "--azurite")
-      echo "Pull azurite docker image"
-      docker pull mcr.microsoft.com/azure-storage/azurite
-      ;;
-
     "--oidc-provider")
       echo "Pull oidc-provider docker image"
       docker pull civiform/oidc-provider:latest
@@ -103,11 +91,9 @@ while [ "${1:-}" != "" ]; do
       echo ""
       echo "Update one or more specific images"
       echo ""
-      echo "  --azurite             Microsoft Azurite"
       echo "  --browser-tests       CiviForm Browser Test"
       echo "  --dev                 CiviForm Development"
       echo "  --formatter           CiviForm Formatter"
-      echo "  --localstack          Localstack (AWS emulator)"
       echo "  --mock-web-services   CiviForm Mock Web Services"
       echo "  --oidc-provider       CiviForm OIDC Provider"
       echo ""
