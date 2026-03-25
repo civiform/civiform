@@ -297,9 +297,7 @@ export class AdminQuestions {
   async expectQuestionNotExist(questionName: string) {
     await this.gotoAdminQuestionsPage()
     await expect(
-      this.page
-        .locator(this.selectQuestionTableRow(questionName))
-        ,
+      this.page.locator(this.selectQuestionTableRow(questionName)),
     ).toHaveCount(0)
   }
 

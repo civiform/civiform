@@ -1086,6 +1086,22 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             });
   }
 
+  @Secure
+  public CompletionStage<Result> hxSelectFileForUpload(
+      Request request, long programId, String blockId) {
+    if (!settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
+      return CompletableFuture.completedFuture(notFound());
+    }
+
+    Optional<Long> optionalApplicantId = getApplicantId(request);
+    if (optionalApplicantId.isEmpty()) {
+      return CompletableFuture.completedFuture(badRequest());
+    }
+
+    // TODO: Perform file upload
+    return CompletableFuture.completedFuture(ok());
+  }
+
   /**
    * Accepts, validates and saves submission of applicant data for {@code blockId}.
    *

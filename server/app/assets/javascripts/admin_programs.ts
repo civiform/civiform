@@ -130,6 +130,13 @@ class AdminPrograms {
       /* shouldDisable= */ disableNotificationPreferences,
     )
 
+    // Login only applications
+    const diableLoginOnly = programType === ProgramType.EXTERNAL
+    this.updateUSWDSCheckboxesDisabledState(
+      /* fieldSelectors= */ '[id^="login-only-applications"]',
+      /* shouldDisable= */ diableLoginOnly,
+    )
+
     // Long program description
     const disableLongDescription =
       programType === ProgramType.PRE_SCREENER_FORM ||
