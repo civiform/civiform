@@ -35,15 +35,7 @@
     {
       groupName: "awssdk",
       matchPackageNames: ["software.amazon.awssdk:{/,}**"],
-      prHeader: "Release Notes: https://github.com/aws/aws-sdk-java-v2/blob/master/CHANGELOG.md"
-    },
-    {
-      matchPackageNames: ["github/codeql-action"],
-      prHeader: "Release Notes: https://github.com/github/codeql-action/blob/main/CHANGELOG.md",
-    },
-    {
-      matchPackageNames: ["org.checkerframework:dataflow-errorprone"],
-      prHeader: "Release Notes: https://checkerframework.org/CHANGELOG.md",
+      prHeader: "Release Notes: https://github.com/aws/aws-sdk-java-v2/blob/master/CHANGELOG.md",
     },
     {
       groupName: "guava",
@@ -71,14 +63,6 @@
       matchPackageNames: ["org.junit.jupiter:{/,}**"],
     },
     {
-      matchPackageNames: ["org.projectlombok:lombok"],
-      prHeader: "Release Notes: https://github.com/projectlombok/lombok/blob/master/doc/changelog.markdown",
-    },
-    {
-      matchPackageNames: ["ch.qos.logback:logback-classic"],
-      prHeader: "Release Notes: https://logback.qos.ch/news.html",
-    },
-    {
       groupName: "microsoft graph",
       matchPackageNames: ["com.microsoft.graph:{/,}**"],
       prHeader: "Release Notes: https://github.com/microsoftgraph/msgraph-sdk-java/blob/main/CHANGELOG.md"
@@ -94,27 +78,6 @@
         "@playwright/test{/,}**",
         "mcr.microsoft.com/playwright{/,}**",
       ],
-    },
-    {
-      groupName: "sass-embedded",
-      matchPackageNames: ["sass-emdedded"],
-      prHeader: "Release Notes: https://github.com/sass/embedded-host-node/blob/main/CHANGELOG.md"
-    },
-    {
-      matchPackageNames: ["docker/setup-buildx-action"],
-      prHeader: "Release Notes: https://github.com/docker/setup-buildx-action/releases",
-    },
-    {
-      matchPackageNames: ["slackapi/slack-github-action"],
-      prHeader: "Release Notes: https://github.com/slackapi/slack-github-action/releases",
-    },
-    {
-      matchPackageNames: ["io.swagger.core.v3:swagger-core"],
-      prHeader: "Release Notes: https://github.com/swagger-api/swagger-core/releases",
-    },
-    {
-      matchPackageNames: ["io.swagger.parser.v3:swagger-parser"],
-      prHeader: "Release Notes: https://github.com/swagger-api/swagger-parser/releases",
     },
     {
       matchFileNames: [
@@ -134,10 +97,6 @@
     {
       matchPackageNames: ["postgres"],
       allowedVersions: "<17.0.0",
-    },
-    {
-      matchPackageNames: ["prom/prometheus"],
-      prHeader: "Release Notes: https://github.com/prometheus/prometheus/releases",
     },
     {
       groupName: "tailwindcss",
@@ -161,6 +120,48 @@
       commitMessageExtra: "to latest commit",
       rebaseWhen: "always",
       description: "Ensures Docker images use SHA256 digests for security and reproducibility.",
+    },
+
+    // prHeader-only rules below here. They add noise masking actual config settings.
+    {
+      matchPackageNames: ["ch.qos.logback:logback-classic"],
+      prHeader: "Release Notes: https://logback.qos.ch/news.html",
+    },
+    {
+      matchPackageNames: ["docker/setup-buildx-action"],
+      prHeader: "Release Notes: https://github.com/docker/setup-buildx-action/releases",
+    },
+    {
+      matchPackageNames: ["github/codeql-action"],
+      prHeader: "Release Notes: https://github.com/github/codeql-action/blob/main/CHANGELOG.md",
+    },
+    {
+      matchPackageNames: ["io.swagger.core.v3:swagger-core"],
+      prHeader: "Release Notes: https://github.com/swagger-api/swagger-core/releases",
+    },
+    {
+      matchPackageNames: ["io.swagger.parser.v3:swagger-parser"],
+      prHeader: "Release Notes: https://github.com/swagger-api/swagger-parser/releases",
+    },
+    {
+      matchPackageNames: ["org.checkerframework:dataflow-errorprone"],
+      prHeader: "Release Notes: https://checkerframework.org/CHANGELOG.md",
+    },
+    {
+      matchPackageNames: ["org.projectlombok:lombok"],
+      prHeader: "Release Notes: https://github.com/projectlombok/lombok/blob/master/doc/changelog.markdown",
+    },
+    {
+      matchPackageNames: ["prom/prometheus"],
+      prHeader: "Release Notes: https://github.com/prometheus/prometheus/releases",
+    },
+    {
+      matchPackageNames: ["sass-emdedded"],
+      prHeader: "Release Notes: https://github.com/sass/embedded-host-node/blob/main/CHANGELOG.md",
+    },
+    {
+      matchPackageNames: ["slackapi/slack-github-action"],
+      prHeader: "Release Notes: https://github.com/slackapi/slack-github-action/releases",
     },
   ],
 }
