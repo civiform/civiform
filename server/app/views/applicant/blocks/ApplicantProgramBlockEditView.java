@@ -18,7 +18,6 @@ import models.ApplicantModel.Suffix;
 import models.GeoJsonDataModel;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
-import play.mvc.Http;
 import play.mvc.Http.Request;
 import repository.GeoJsonDataRepository;
 import services.BundledAssetsFinder;
@@ -184,7 +183,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
   private void setErrorContextForPrevious(
       ThymeleafModule.PlayThymeleafContext context,
       ApplicationBaseViewParams applicationParams,
-      Http.Request request) {
+      Request request) {
     setErrorContextForFormModal(
         context,
         getFormAction(applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK),
@@ -231,7 +230,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
             .url();
   }
 
-  private String previousWithoutSaving(ApplicationBaseViewParams params, Http.Request request) {
+  private String previousWithoutSaving(ApplicationBaseViewParams params, Request request) {
     if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
       return params
           .applicantRoutes()
@@ -410,6 +409,8 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
                 params.blockIndex(),
                 params.inReview())
             .url();
+    String reviewRoute =
+        applicantRoutes.review(params.profile(), params.applicantId(), params.programId()).url();
     if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
       previousBlockRoute =
           applicantRoutes
@@ -421,16 +422,14 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
                   params.blockIndex(),
                   params.inReview())
               .url();
-    }
-    context.setVariable("previousBlockWithoutFile", params.baseUrl() + previousBlockRoute);
-    String reviewRoute =
-        applicantRoutes.review(params.profile(), params.applicantId(), params.programId()).url();
-    if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+
       reviewRoute =
           applicantRoutes
               .review(params.profile(), params.applicantId(), params.programSlug())
               .url();
     }
+
+    context.setVariable("previousBlockWithoutFile", params.baseUrl() + previousBlockRoute);
     context.setVariable("reviewPageWithoutFile", params.baseUrl() + reviewRoute);
   }
 }
