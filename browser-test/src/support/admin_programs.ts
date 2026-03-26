@@ -788,14 +788,12 @@ export class AdminPrograms {
    */
   async expectQuestionCardWithLabel(questionName: string, label: string) {
     await expect(
-      this.page
-        .locator(
-          this.withinQuestionCardSelectorInProgramView(
-            questionName,
-            `p:has-text("${label}")`,
-          ),
-        )
-        ,
+      this.page.locator(
+        this.withinQuestionCardSelectorInProgramView(
+          questionName,
+          `p:has-text("${label}")`,
+        ),
+      ),
     ).toHaveCount(1)
   }
 
@@ -807,14 +805,12 @@ export class AdminPrograms {
     universal: boolean,
   ) {
     await expect(
-      this.page
-        .locator(
-          this.withinQuestionCardSelectorInProgramView(
-            questionName,
-            '.cf-universal-badge',
-          ),
-        )
-        ,
+      this.page.locator(
+        this.withinQuestionCardSelectorInProgramView(
+          questionName,
+          '.cf-universal-badge',
+        ),
+      ),
     ).toHaveCount(universal ? 1 : 0)
   }
 

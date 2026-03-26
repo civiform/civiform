@@ -31,15 +31,11 @@ export class AdminProgramImage {
   }
 
   async expectHasContinueButton() {
-    await expect(this.page.locator(this.continueButtonLocator)).toHaveCount(
-      1,
-    )
+    await expect(this.page.locator(this.continueButtonLocator)).toHaveCount(1)
   }
 
   async expectNoContinueButton() {
-    await expect(this.page.locator(this.continueButtonLocator)).toHaveCount(
-      0,
-    )
+    await expect(this.page.locator(this.continueButtonLocator)).toHaveCount(0)
   }
 
   async setImageDescription(description: string) {
