@@ -399,11 +399,14 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
                     params.blockIndex(),
                     params.inReview())
                 .url());
-    context.setVariable(
-        "reviewPageWithoutFile",
-        params.baseUrl()
-            + applicantRoutes
-                .review(params.profile(), params.applicantId(), params.programId())
-                .url());
+    String reviewRoute =
+        applicantRoutes.review(params.profile(), params.applicantId(), params.programId()).url();
+    if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+      reviewRoute =
+          applicantRoutes
+              .review(params.profile(), params.applicantId(), params.programSlug())
+              .url();
+    }
+    context.setVariable("reviewPageWithoutFile", params.baseUrl() + reviewRoute);
   }
 }

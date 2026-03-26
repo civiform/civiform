@@ -110,6 +110,11 @@ public final class ReadOnlyApplicantProgramService {
     return this.programDefinition.id();
   }
 
+  /** Returns the ID of the program. */
+  public String getProgramSlug() {
+    return this.programDefinition.slug();
+  }
+
   /** Returns the ProgramType of the program. */
   public ProgramType getProgramType() {
     return this.programDefinition.programType();

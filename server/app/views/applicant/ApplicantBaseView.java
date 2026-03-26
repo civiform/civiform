@@ -299,6 +299,7 @@ public abstract class ApplicantBaseView {
             .url();
   }
 
+  // TODO #12929: use program slug review and blockEditOrBlockReview routes
   /**
    * Calculate the redirect location after the language is changed. If the current request is a
    * POST, the redirect is be mapped to the associated GET uri.
@@ -322,19 +323,6 @@ public abstract class ApplicantBaseView {
           applicantId.isPresent() && profile.isPresent()
               ? applicantRoutes.review(profile.get(), applicantId.get(), programId).url()
               : applicantRoutes.review(programId).url();
-      if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
-        // need someway to have access to the program slug from here... it won't be in the route,
-        // right?
-        // i don't want to add business logic in the view (yuck)
-        // although it is temporary...
-
-        // this throws a runtime exception... how would that be handled if it's thrown here?
-        String programSlug = programSlugHandler.getProgramSlug(String.valueOf(programId));
-        submitRedirectUri =
-            applicantId.isPresent() && profile.isPresent()
-                ? applicantRoutes.review(profile.get(), applicantId.get(), programSlug).url()
-                : applicantRoutes.review(programSlug).url();
-      }
       return submitRedirectUri;
     }
     // If the language was changed during a block update, redirect to /block/edit or /block/review

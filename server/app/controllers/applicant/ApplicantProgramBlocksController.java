@@ -1694,6 +1694,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .setProgramDescription(roApplicantProgramService.getProgramDescription())
         .setProgramShortDescription(roApplicantProgramService.getProgramShortDescription())
         .setProgramId(programId)
+        .setProgramSlug(roApplicantProgramService.getProgramSlug())
         .setBlock(block)
         .setInReview(inReview)
         .setBlockIndex(roApplicantProgramService.getBlockIndex(blockId))
