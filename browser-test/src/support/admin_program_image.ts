@@ -31,13 +31,13 @@ export class AdminProgramImage {
   }
 
   async expectHasContinueButton() {
-    expect(await this.page.locator(this.continueButtonLocator).count()).toEqual(
+    await expect(this.page.locator(this.continueButtonLocator)).toHaveCount(
       1,
     )
   }
 
   async expectNoContinueButton() {
-    expect(await this.page.locator(this.continueButtonLocator).count()).toEqual(
+    await expect(this.page.locator(this.continueButtonLocator)).toHaveCount(
       0,
     )
   }
@@ -158,16 +158,16 @@ export class AdminProgramImage {
 
   /** Expects that the program card preview does not contain an image. */
   async expectNoImagePreview() {
-    expect(
-      await this.page.locator('.cf-application-card').locator('img').count(),
-    ).toEqual(0)
+    await expect(
+      this.page.locator('.cf-application-card').locator('img'),
+    ).toHaveCount(0)
   }
 
   /** Expects that the program card preview contains an image. */
   async expectImagePreview() {
-    expect(
-      await this.page.locator('.cf-application-card').locator('img').count(),
-    ).toEqual(1)
+    await expect(
+      this.page.locator('.cf-application-card').locator('img'),
+    ).toHaveCount(1)
   }
 
   async expectDisabledTranslationButton() {

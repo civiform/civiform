@@ -305,7 +305,7 @@ export class AdminPredicates {
       const visibilityActionText =
         visibilityBehavior === 'HIDE_BLOCK' ? 'hidden if' : 'shown if'
 
-      const visibilityDropdownsCount = await this.page
+      const visibilityDropdownsCount = this.page
         .getByLabel(
           'Screen is ' +
             visibilityActionText +
@@ -313,10 +313,10 @@ export class AdminPredicates {
             logicalOperatorDisplayText +
             ' conditions are true:',
         )
-        .count()
+        
 
       // Expect two dropdowns: one for visibility behavior and another for logic
-      expect(visibilityDropdownsCount).toBe(2)
+      await expect(visibilityDropdownsCount).toHaveCount(2)
     }
   }
 
@@ -406,7 +406,7 @@ export class AdminPredicates {
 
   async getQuestionId(questionName: string): Promise<string> {
     const questionNameField = this.page.getByTestId(questionName)
-    expect((await questionNameField.all()).length).toEqual(1)
+    await expect((questionNameField)).toHaveCount(1)
 
     const questionId = await questionNameField.getAttribute('data-question-id')
     expect(questionId).not.toBeNull()
@@ -423,7 +423,7 @@ export class AdminPredicates {
     const questionOptionField = this.page.locator(
       `#condition-${conditionId}-subcondition-${subconditionId}-question option[data-question-name="${questionName}"]`,
     )
-    expect((await questionOptionField.all()).length).toEqual(1)
+    await expect((questionOptionField)).toHaveCount(1)
 
     const questionText = await questionOptionField.innerText()
     expect(questionText).not.toBeNull()

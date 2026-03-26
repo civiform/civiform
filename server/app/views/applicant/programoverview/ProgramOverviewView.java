@@ -103,12 +103,12 @@ public class ProgramOverviewView extends ApplicantBaseView {
     context.setVariable("showEligibilityAlert", showEligibilityAlert);
     context.setVariable("createAccountLink", controllers.routes.LoginController.register().url());
     context.setVariable("loginOnly", programDefinition.loginOnly());
-    context.setVariable(
-        "loginLink", controllers.routes.LoginController.applicantLogin(Optional.empty()).url());
 
     // This works for logged-in and logged-out applicants
     String actionUrl = applicantRoutes.edit(profile, applicantId, programDefinition.id()).url();
     context.setVariable("actionUrl", actionUrl);
+    context.setVariable(
+        "loginLink", controllers.routes.LoginController.applicantLogin(Optional.of(actionUrl)));
     context.setVariable("goBackToAdminUrl", getGoBackToAdminUrl(programDefinition));
 
     return templateEngine.process("applicant/programoverview/ProgramOverviewTemplate", context);
