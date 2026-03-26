@@ -18,6 +18,7 @@ import models.ApplicantModel.Suffix;
 import models.GeoJsonDataModel;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
+import play.mvc.Http;
 import play.mvc.Http.Request;
 import repository.GeoJsonDataRepository;
 import services.BundledAssetsFinder;
@@ -142,7 +143,8 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
       context.setVariable(
           "previousFormAction",
           getFormAction(applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK));
-      context.setVariable("previousWithoutSaving", previousWithoutSaving(applicationParams));
+      context.setVariable(
+          "previousWithoutSaving", previousWithoutSaving(applicationParams, request));
       context.setVariable(
           "reviewFormAction",
           getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE));
@@ -151,7 +153,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
           == ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW) {
         setErrorContextForReview(context, applicationParams, request);
       } else {
-        setErrorContextForPrevious(context, applicationParams);
+        setErrorContextForPrevious(context, applicationParams, request);
       }
 
       // TODO(#6910): Why am I unable to access static vars directly from Thymeleaf
@@ -180,13 +182,15 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
 
   // Function to set context for the previous action
   private void setErrorContextForPrevious(
-      ThymeleafModule.PlayThymeleafContext context, ApplicationBaseViewParams applicationParams) {
+      ThymeleafModule.PlayThymeleafContext context,
+      ApplicationBaseViewParams applicationParams,
+      Http.Request request) {
     setErrorContextForFormModal(
         context,
         getFormAction(applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK),
         MessageKey.MODAL_ERROR_SAVING_CONTENT_PREVIOUS.getKeyName(),
         MessageKey.MODAL_ERROR_SAVING_CONTINUE_BUTTON_PREVIOUS.getKeyName(),
-        previousWithoutSaving(applicationParams));
+        previousWithoutSaving(applicationParams, request));
   }
 
   // Function to set context for the review action
@@ -227,7 +231,19 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
             .url();
   }
 
-  private String previousWithoutSaving(ApplicationBaseViewParams params) {
+  private String previousWithoutSaving(ApplicationBaseViewParams params, Http.Request request) {
+    if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+      return params
+          .applicantRoutes()
+          .blockPreviousOrReview(
+              params.profile(),
+              params.applicantId(),
+              params.programId(),
+              params.programSlug(),
+              params.blockIndex(),
+              params.inReview())
+          .url();
+    }
     return params
         .applicantRoutes()
         .blockPreviousOrReview(
@@ -385,17 +401,28 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
         settingsManifest
             .getFileUploadAllowedFileTypeSpecifiers()
             .orElse(ALLOWED_FILE_TYPE_SPECIFIERS_FALLBACK));
-    context.setVariable(
-        "previousBlockWithoutFile",
-        params.baseUrl()
-            + applicantRoutes
-                .blockPreviousOrReview(
-                    params.profile(),
-                    params.applicantId(),
-                    params.programId(),
-                    params.blockIndex(),
-                    params.inReview())
-                .url());
+    String previousBlockRoute =
+        applicantRoutes
+            .blockPreviousOrReview(
+                params.profile(),
+                params.applicantId(),
+                params.programId(),
+                params.blockIndex(),
+                params.inReview())
+            .url();
+    if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+      previousBlockRoute =
+          applicantRoutes
+              .blockPreviousOrReview(
+                  params.profile(),
+                  params.applicantId(),
+                  params.programId(),
+                  params.programSlug(),
+                  params.blockIndex(),
+                  params.inReview())
+              .url();
+    }
+    context.setVariable("previousBlockWithoutFile", params.baseUrl() + previousBlockRoute);
     String reviewRoute =
         applicantRoutes.review(params.profile(), params.applicantId(), params.programId()).url();
     if (settingsManifest.getProgramSlugUrlsEnabled(request)) {

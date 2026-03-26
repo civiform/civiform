@@ -144,7 +144,18 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
   }
 
   private String getBlockEditUrl(Params params, Block block, Request request) {
+    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     if (block.isAnsweredWithoutErrors()) {
+      if (programSlugUrlEnabled) {
+        return applicantRoutes
+            .blockReview(
+                params.profile(),
+                params.applicantId(),
+                params.programSlug(),
+                block.getId(),
+                Optional.empty())
+            .url();
+      }
       return applicantRoutes
           .blockReview(
               params.profile(),
@@ -154,7 +165,7 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
               Optional.empty())
           .url();
     } else {
-      if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+      if (programSlugUrlEnabled) {
         return applicantRoutes
             .blockEdit(
                 params.profile(),
