@@ -10,7 +10,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
-import controllers.applicant.ProgramSlugHandler;
 import controllers.routes;
 import java.util.Optional;
 import modules.ThymeleafModule;
@@ -38,7 +37,6 @@ public abstract class ApplicantBaseView {
   protected final SettingsManifest settingsManifest;
   protected final LanguageUtils languageUtils;
   protected final boolean isDevOrStaging;
-  protected final ProgramSlugHandler programSlugHandler;
   protected static final String THEME_PRIMARY_HEX = "#005ea2";
   protected static final String THEME_PRIMARY_DARKER_HEX = "#162e51";
 
@@ -49,8 +47,7 @@ public abstract class ApplicantBaseView {
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
-      DeploymentType deploymentType,
-      ProgramSlugHandler programSlugHandler) {
+      DeploymentType deploymentType) {
     this.templateEngine = checkNotNull(templateEngine);
     this.playThymeleafContextFactory = checkNotNull(playThymeleafContextFactory);
     this.bundledAssetsFinder = checkNotNull(bundledAssetsFinder);
@@ -58,7 +55,6 @@ public abstract class ApplicantBaseView {
     this.settingsManifest = checkNotNull(settingsManifest);
     this.languageUtils = checkNotNull(languageUtils);
     this.isDevOrStaging = checkNotNull(deploymentType).isDevOrStaging();
-    this.programSlugHandler = checkNotNull(programSlugHandler);
   }
 
   protected ThymeleafModule.PlayThymeleafContext createThymeleafContext(
