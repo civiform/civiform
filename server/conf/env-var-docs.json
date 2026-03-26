@@ -952,6 +952,12 @@
         "description": "Enable showing an immigration status informational banner to applicants.",
         "type": "bool",
         "required": false
+      },
+      "LOGIN_LINK_INSTEAD_OF_REGISTER_LINK_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enables using login link instead of register link for applicants.",
+        "type": "bool",
+        "required": false
       }
     }
   },
