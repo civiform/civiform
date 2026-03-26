@@ -829,7 +829,8 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Auto-fill admin id and question text from listed entity', async () => {
-        await listedEntityInput.fill('household member')
+        // Adding extra spaces to test normalization of the listed entity input.
+        await listedEntityInput.fill('household     member')
 
         await expect(adminIdInput).toHaveValue('household member repeated set')
         await expect(questionTextInput).toHaveValue(
