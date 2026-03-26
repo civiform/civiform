@@ -886,6 +886,7 @@ export class AdminPrograms {
     await this.expectDraftProgram(programName)
     await this.gotoEditDraftProgramPage(programName)
     await this.page.click('button:has-text("Edit program image")')
+    await waitForPageJsLoad(this.page)
     await this.expectProgramImagePage()
   }
 
@@ -1949,7 +1950,7 @@ export class AdminPrograms {
       .locator('button:has-text("Address correction")')
       .click()
     await responsePromise
-    await waitForPageJsLoad(this.page)
+    await waitForHtmxReady(this.page)
   }
 
   getPreScreenerFormToggle() {
