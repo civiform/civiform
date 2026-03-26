@@ -1169,6 +1169,10 @@ input.repeatedSet.listedEntity=
 input.repeatedSet.adminId=
 # A text input field asking admins for the text that will prompt applicants to list out the entity
 input.repeatedSet.questionText=
+# Autofill suggestion template shown in the admin ID field when applicant selects a listed entity. {0} is the listed entity name.
+input.repeatedSet.adminIdAutofillSuggestion={0} repeated set
+# Autofill suggestion template shown in the question text field when applicant selects a listed entity. {0} is the listed entity name.
+input.repeatedSet.questionTextAutofillSuggestion=Please add each {0}.
 # A text input field for admins to add a hint that will help applicants decide what entities to list out
 input.repeatedSet.hintText=
 # A form field where admins set the minimum number of entities that applicants must list
