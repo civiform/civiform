@@ -229,7 +229,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
               programId,
               blockId,
               ImmutableList.of(newQuestionId),
-              settingsManifest.getEnumeratorImprovementsEnabled(request));
+              settingsManifest.getEnumeratorImprovementsEnabled(request),
+              settingsManifest.getFileUploadQuestionImprovementsEnabled(request));
           // Redirect without the newQuestionId parameter to reload the page cleanly
           return redirect(routes.AdminProgramBlocksController.edit(programId, blockId).url())
               .flashing(request.flash().data());

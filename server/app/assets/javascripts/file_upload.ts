@@ -56,7 +56,15 @@ export function init() {
     // If we don't have the div showing the latest file upload (from the older single-file upload
     // behavior), then multiple file upload feature is enabled, in that case, submit the form
     // as soon as the applicant selects a file so it immediately uploads the file.
-    if (validateFileUploadQuestion(blockForm) && !uploadedDivs.length) {
+    // When file upload improvements are enabled, HTMX handles the upload so we skip
+    // the form submit.
+    const fileUploadImprovementsEnabled =
+      blockForm.getAttribute('data-file-upload-improvements-enabled') === 'true'
+    if (
+      validateFileUploadQuestion(blockForm) &&
+      !uploadedDivs.length &&
+      !fileUploadImprovementsEnabled
+    ) {
       const elementsToDisable = document.querySelectorAll(
         '.cf-disable-when-uploading',
       )

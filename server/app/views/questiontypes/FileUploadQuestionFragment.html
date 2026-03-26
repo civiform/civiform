@@ -73,6 +73,9 @@
     th:data-file-limit-mb="${maxFileSizeMb}"
     th:disabled="${!fileUploadQuestion.canUploadFile()}"
     th:aria-required="${!question.isOptional()}"
+    th:hx-post="${fileUploadImprovementsEnabled} ? ${hxSelectFileForUploadUrl}"
+    th:hx-trigger="${fileUploadImprovementsEnabled} ? 'change'"
+    th:hx-encoding="${fileUploadImprovementsEnabled} ? 'multipart/form-data'"
   />
 </div>
 

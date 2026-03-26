@@ -132,13 +132,32 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
         questionParams.values().stream().anyMatch(param -> param.shouldShowErrorsWithModal());
     context.setVariable("showErrorModal", showErrorModal);
 
+    boolean fileUploadImprovementsEnabled =
+      settingsManifest.getFileUploadQuestionImprovementsEnabled(request);
+
     // Include file upload specific parameters.
-    if (applicationParams.block().isFileUpload()) {
+    if (applicationParams.block().isFileUpload() && !fileUploadImprovementsEnabled) {
       this.addFileUploadParameters(request, applicationParams, context);
 
       return templateEngine.process(
           "applicant/blocks/ApplicantProgramFileUploadBlockEditTemplate", context);
     } else {
+
+      context.setVariable("fileUploadImprovementsEnabled", fileUploadImprovementsEnabled);
+      context.setVariable(
+        "maxFileSizeMb", applicationParams.applicantStorageClient().getFileLimitMb());
+      context.setVariable(
+        "fileUploadAllowedFileTypeSpecifiers",
+        settingsManifest
+          .getFileUploadAllowedFileTypeSpecifiers()
+          .orElse(ALLOWED_FILE_TYPE_SPECIFIERS_FALLBACK));
+      context.setVariable(
+        "hxSelectFileForUploadUrl",
+        controllers.applicant.routes.ApplicantProgramBlocksController
+          .hxSelectFileForUpload(
+            applicationParams.programId(),
+            applicationParams.block().getId())
+          .url());
 
       context.setVariable(
           "previousFormAction",
