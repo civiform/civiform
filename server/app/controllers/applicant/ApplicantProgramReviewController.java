@@ -329,20 +329,19 @@ public class ApplicantProgramReviewController extends CiviFormController {
             classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
+              ReadOnlyApplicantProgramService roApplicantProgramService =
+                  readOnlyApplicantProgramServiceFuture.join();
               if (ex instanceof CompletionException) {
                 Throwable cause = ex.getCause();
                 if (cause instanceof ApplicationSubmissionException) {
                   Call reviewPage =
                       applicantRoutes.review(submittingProfile, applicantId, programId);
                   if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
-                    final String programSlug;
-                    try {
-                      programSlug = programService.getSlug(programId);
-                    } catch (ProgramNotFoundException e) {
-                      return notFound(e.toString());
-                    }
                     reviewPage =
-                        applicantRoutes.review(submittingProfile, applicantId, programSlug);
+                        applicantRoutes.review(
+                            submittingProfile,
+                            applicantId,
+                            roApplicantProgramService.getProgramSlug());
                   }
                   String errorMsg =
                       messagesApi
@@ -358,21 +357,15 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   Call reviewPage =
                       applicantRoutes.review(submittingProfile, applicantId, programId);
                   if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
-                    final String programSlug;
-                    try {
-                      programSlug = programService.getSlug(programId);
-                    } catch (ProgramNotFoundException e) {
-                      return notFound(e.toString());
-                    }
                     reviewPage =
-                        applicantRoutes.review(submittingProfile, applicantId, programSlug);
+                        applicantRoutes.review(
+                            submittingProfile,
+                            applicantId,
+                            roApplicantProgramService.getProgramSlug());
                   }
                   return redirect(reviewPage).flashing(FlashKey.ERROR, errorMsg);
                 }
                 if (cause instanceof ApplicationNotEligibleException) {
-                  ReadOnlyApplicantProgramService roApplicantProgramService =
-                      readOnlyApplicantProgramServiceFuture.join();
-
                   try {
                     ProgramDefinition programDefinition =
                         programService.getFullProgramDefinition(programId);
@@ -391,14 +384,11 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   Call reviewPage =
                       applicantRoutes.review(submittingProfile, applicantId, programId);
                   if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
-                    final String programSlug;
-                    try {
-                      programSlug = programService.getSlug(programId);
-                    } catch (ProgramNotFoundException e) {
-                      return notFound(e.toString());
-                    }
                     reviewPage =
-                        applicantRoutes.review(submittingProfile, applicantId, programSlug);
+                        applicantRoutes.review(
+                            submittingProfile,
+                            applicantId,
+                            roApplicantProgramService.getProgramSlug());
                   }
                   return found(reviewPage).flashing(FlashKey.DUPLICATE_SUBMISSION, "true");
                 }

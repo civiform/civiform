@@ -110,7 +110,7 @@ public final class ReadOnlyApplicantProgramService {
     return this.programDefinition.id();
   }
 
-  /** Returns the ID of the program. */
+  /** Returns the slug of the program. */
   public String getProgramSlug() {
     return this.programDefinition.slug();
   }

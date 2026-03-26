@@ -75,8 +75,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
     this.mapDataRepository = mapDataRepository;
   }
 
-  public String render(
-      Request request, ApplicationBaseViewParams applicationParams, String programSlug) {
+  public String render(Request request, ApplicationBaseViewParams applicationParams) {
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
             request,
@@ -95,7 +94,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
             applicationParams.messages());
     context.setVariable("pageTitle", pageTitle);
     context.setVariable("homeUrl", index(applicationParams));
-    context.setVariable("programOverviewUrl", programOverview(applicationParams, programSlug));
+    context.setVariable("programOverviewUrl", programOverview(applicationParams));
     context.setVariable("goBackToAdminUrl", getGoBackToAdminUrl(applicationParams));
     context.setVariable("loginOnly", applicationParams.loginOnly());
     context.setVariable(
@@ -150,7 +149,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
 
       if (applicationParams.errorDisplayMode()
           == ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW) {
-        setErrorContextForReview(context, applicationParams, programSlug, request);
+        setErrorContextForReview(context, applicationParams, request);
       } else {
         setErrorContextForPrevious(context, applicationParams);
       }
@@ -194,14 +193,13 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
   private void setErrorContextForReview(
       ThymeleafModule.PlayThymeleafContext context,
       ApplicationBaseViewParams applicationParams,
-      String programSlug,
       Request request) {
     setErrorContextForFormModal(
         context,
         getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE),
         MessageKey.MODAL_ERROR_SAVING_CONTENT_REVIEW.getKeyName(),
         MessageKey.MODAL_ERROR_SAVING_CONTINUE_BUTTON_REVIEW.getKeyName(),
-        reviewWithoutSaving(applicationParams, programSlug, request));
+        reviewWithoutSaving(applicationParams, request));
   }
 
   private String getFormAction(
@@ -241,12 +239,11 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
         .url();
   }
 
-  private String reviewWithoutSaving(
-      ApplicationBaseViewParams params, String programSlug, Request request) {
+  private String reviewWithoutSaving(ApplicationBaseViewParams params, Request request) {
     if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
       return params
           .applicantRoutes()
-          .review(params.profile(), params.applicantId(), programSlug)
+          .review(params.profile(), params.applicantId(), params.programSlug())
           .url();
     }
     return params
@@ -260,14 +257,14 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
     return params.applicantRoutes().index(params.profile(), params.applicantId()).url();
   }
 
-  private String programOverview(ApplicationBaseViewParams params, String programSlug) {
+  private String programOverview(ApplicationBaseViewParams params) {
     if (params.profile().isTrustedIntermediary()) {
       return params
           .applicantRoutes()
-          .show(params.profile(), params.applicantId(), programSlug)
+          .show(params.profile(), params.applicantId(), params.programSlug())
           .url();
     }
-    return params.applicantRoutes().show(programSlug).url();
+    return params.applicantRoutes().show(params.programSlug()).url();
   }
 
   private String getFileUploadSignedRequestKey(ApplicationBaseViewParams params) {

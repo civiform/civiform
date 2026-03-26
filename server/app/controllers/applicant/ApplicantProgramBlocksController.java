@@ -505,15 +505,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                                 ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS,
                                 applicantRoutes,
                                 profile);
-
-                        final String programSlug;
-                        try {
-                          programSlug = programService.getSlug(programId);
-                        } catch (ProgramNotFoundException e) {
-                          return notFound(e.toString());
-                        }
-                        return ok(applicantProgramBlockEditView.render(
-                                request, applicationParams, programSlug))
+                        return ok(applicantProgramBlockEditView.render(request, applicationParams))
                             .as(Http.MimeTypes.HTML);
                       },
                       classLoaderExecutionContext.current())
@@ -629,14 +621,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         .setBannerToastMessage(flashSuccessBanner)
                         .setBannerMessage(successBannerMessage)
                         .build();
-                final String programSlug;
-                try {
-                  programSlug = programService.getSlug(programId);
-                } catch (ProgramNotFoundException e) {
-                  return notFound(e.toString());
-                }
-                return ok(applicantProgramBlockEditView.render(
-                        request, applicationParams, programSlug))
+                return ok(applicantProgramBlockEditView.render(request, applicationParams))
                     .as(Http.MimeTypes.HTML);
               } else {
                 return notFound();
@@ -1365,13 +1350,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     errorDisplayMode,
                     applicantRoutes,
                     submittingProfile);
-            final String programSlug;
-            try {
-              programSlug = programService.getSlug(programId);
-            } catch (ProgramNotFoundException e) {
-              return notFound(e.toString());
-            }
-            return ok(applicantProgramBlockEditView.render(request, applicationParams, programSlug))
+            return ok(applicantProgramBlockEditView.render(request, applicationParams))
                 .as(Http.MimeTypes.HTML);
           });
     }
