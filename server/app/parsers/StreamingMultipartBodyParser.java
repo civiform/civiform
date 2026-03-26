@@ -1,0 +1,87 @@
+package parsers;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
+import org.apache.pekko.stream.Materializer;
+import org.apache.pekko.stream.javadsl.Sink;
+import org.apache.pekko.util.ByteString;
+import play.http.DefaultHttpErrorHandler;
+import play.libs.streams.Accumulator;
+import play.mvc.BodyParser;
+import play.mvc.Http.MultipartFormData.FilePart;
+
+/**
+ * Abstract class for performing a streaming upload of multipart form data.
+ *
+ * <p>This class extends the Play Framework's {@code DelegatingMultipartFormDataBodyParser}, but
+ * overrides the parsing logic to allow for streaming the multipart form data directly to a
+ * destination (e.g., file system, cloud storage)
+ *
+ * <p>Subclasses provide the implementation for handling the streaming, e.g. to different cloud
+ * storage providers or a local file system.
+ */
+public abstract class StreamingMultipartBodyParser
+    extends BodyParser.DelegatingMultipartFormDataBodyParser<Void> {
+  private static final int CHUNK_SIZE = 1024 * 1024; // 1 MiB
+
+  public StreamingMultipartBodyParser(
+      Materializer materializer, DefaultHttpErrorHandler errorHandler, long maxFileSize) {
+    super(materializer, CHUNK_SIZE, maxFileSize, /* allowEmptyFiles= */ false, errorHandler);
+  }
+
+  // Override the method to create a file part handler that streams the file data to the destination
+  @Override
+  public Function<play.core.parsers.Multipart.FileInfo, Accumulator<ByteString, FilePart<Void>>>
+      createFilePartHandler() {
+    return fileInfo -> {
+      String bucketName = getBucketName();
+      String fileKey = getFileKey();
+      Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> uploadSink =
+          createUploadSink(bucketName, fileKey, CHUNK_SIZE);
+
+      // Map upload sink to an output value
+      Sink<ByteString, CompletionStage<FilePart<Void>>> mappedSink =
+          uploadSink.mapMaterializedValue(
+              completionStage -> {
+                // Map the completion stage to a FilePart with the appropriate metadata
+                return completionStage.thenApply(
+                    uploadResult -> {
+                      // Here we can construct a FilePart with the metadata and the result of the
+                      // upload
+                      return new FilePart<Void>(
+                          fileInfo.partName(),
+                          fileInfo.fileName(),
+                          fileInfo.contentType().getOrElse(() -> "text/plain"),
+                          (Void) null // The actual file content is streamed, so this can be null
+                          );
+                    });
+              });
+
+      // Create an accumulator that streams the file data to the mapped upload sink
+      return Accumulator.fromSink(mappedSink);
+    };
+  }
+
+  // Method to allow for implementations for multiple storage providers
+  // Chooses between implemented Pekko connectors based on environment.
+  // For available Pekko connectors, see:
+  // https://pekko.apache.org/docs/pekko-connectors/1.2/index.html
+  // TODO: Add support for storage providers - currently a no-op sink that discards the data.
+  protected Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> createUploadSink(
+      String bucketName, String fileKey, long chunkSize) {
+    // Default implementation can be a no-op sink that simply discards the data
+    return Sink.<ByteString>ignore()
+        .mapMaterializedValue(
+            completionStage -> {
+              // Return a completed future with a default result, since this is just a placeholder
+              return CompletableFuture.completedFuture(StreamingMultipartUploadResult.success());
+            });
+  }
+
+  // Abstract method to provide the file path for the location of this upload in cloud storage
+  protected abstract String getFileKey();
+
+  // Abstract method to provide the destination for streaming the file, e.g., a cloud storage bucket
+  protected abstract String getBucketName();
+}

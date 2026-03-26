@@ -3,7 +3,6 @@ package repository;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -464,42 +463,6 @@ public class AccountRepositoryTest extends ResetPostgres {
 
   @Test
   public void addIdTokenAndPrune() {
-    when(mockSettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(false);
-    AccountModel account = new AccountModel();
-    String fakeEmail = "fake email";
-    account.setEmailAddress(fakeEmail);
-    account.addActiveSession("sessionId1", VALID_SESSION_CLOCK);
-    account.storeIdTokenInActiveSession("sessionId1", "idToken1");
-    account.addActiveSession("sessionId2", VALID_SESSION_CLOCK);
-    account.storeIdTokenInActiveSession("sessionId2", "idToken2");
-    account.save();
-    long accountId = account.id;
-
-    // Create a JWT that just expired.
-    LocalDateTime now = LocalDateTime.now(Clock.systemUTC());
-    Instant timeInPast = now.minus(1, ChronoUnit.SECONDS).toInstant(ZoneOffset.UTC);
-    JWT expiredJwt = getJwtWithExpirationTime(timeInPast);
-
-    repo.addIdTokenAndPrune(account, "sessionId1", expiredJwt.serialize());
-
-    // Create a JWT that won't expire for an hour.
-    Instant timeInFuture = now.plus(1, ChronoUnit.HOURS).toInstant(ZoneOffset.UTC);
-    JWT validJwt = getJwtWithExpirationTime(timeInFuture);
-
-    repo.addIdTokenAndPrune(account, "sessionId2", validJwt.serialize());
-
-    Optional<AccountModel> retrievedAccount = repo.lookupAccount(accountId);
-    assertThat(retrievedAccount).isNotEmpty();
-    // Expired token
-    assertThat(retrievedAccount.get().getIdTokens().getIdToken("sessionId1")).isEmpty();
-    // Valid token
-    assertThat(retrievedAccount.get().getIdTokens().getIdToken("sessionId2"))
-        .hasValue(validJwt.serialize());
-  }
-
-  @Test
-  public void addIdTokenAndPrune_sessionReplayEnabled() {
-    when(mockSettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
     AccountModel account = new AccountModel();
     String fakeEmail = "fake email";
     account.setEmailAddress(fakeEmail);
@@ -539,7 +502,6 @@ public class AccountRepositoryTest extends ResetPostgres {
     listAppender.start();
     logger.addAppender(listAppender);
 
-    when(mockSettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
     AccountModel account = new AccountModel();
     String fakeEmail = "fake email";
     account.setEmailAddress(fakeEmail);
