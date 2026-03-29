@@ -102,6 +102,7 @@ public class ProgramOverviewView extends ApplicantBaseView {
 
     context.setVariable("showEligibilityAlert", showEligibilityAlert);
     context.setVariable("createAccountLink", controllers.routes.LoginController.register().url());
+    context.setVariable("loginOnly", programDefinition.loginOnly());
 
     // in case if CE's decide they want to use login link instead of register link
     String programOverviewPageUrl =
@@ -112,15 +113,13 @@ public class ProgramOverviewView extends ApplicantBaseView {
           controllers.routes.LoginController.applicantLogin(Optional.of(programOverviewPageUrl))
               .url());
     }
-
-    context.setVariable("loginOnly", programDefinition.loginOnly());
-
     context.setVariable(
         "loginLink",
         controllers.routes.LoginController.applicantLogin(Optional.of(programOverviewPageUrl)));
 
     // This works for logged-in and logged-out applicants
     String actionUrl = applicantRoutes.edit(profile, applicantId, programDefinition.id()).url();
+
     if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
       actionUrl = applicantRoutes.edit(profile, applicantId, programDefinition.slug()).url();
     }
