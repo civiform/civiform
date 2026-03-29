@@ -161,7 +161,8 @@ public class ProgramIndexView extends ApplicantBaseView {
     context.setVariable("createAccountLink", routes.LoginController.register().url());
     if (settingsManifest.getLoginLinkInsteadOfRegisterLinkEnabled(request)) {
       context.setVariable(
-          "loginLink", controllers.routes.LoginController.applicantLogin(Optional.empty()).url());
+          "createAccountLink",
+          controllers.routes.LoginController.applicantLogin(Optional.empty()).url());
     }
     context.setVariable("isGuest", personalInfo.getType() == GUEST);
     context.setVariable("hasProfile", profile.isPresent());
