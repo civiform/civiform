@@ -96,9 +96,14 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
     // loginOnly programs
     context.setVariable("loginOnly", params.loginOnly());
     context.setVariable("createAccountLink", controllers.routes.LoginController.register().url());
-    if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+    if (settingsManifest.getLoginLinkInsteadOfRegisterLinkEnabled(request)) {
       context.setVariable(
-          "loginLink", controllers.routes.LoginController.applicantLogin(Optional.empty()).url());
+          "createAccountLink",
+          controllers.routes.LoginController.applicantLogin(
+              Optional.of(
+                  applicantRoutes
+                      .review(params.profile(), params.applicantId(), params.programId())
+                      .url())));
     }
 
     boolean isTi = params.profile().isTrustedIntermediary();
