@@ -210,6 +210,34 @@ public class LoginControllerTest {
   }
 
   @Test
+  public void register_withRegisterUri_redirectsToRedirectUrl() {
+    Config configWithRegisterUri =
+        ConfigFactory.parseMap(
+            ImmutableMap.of("applicant_register_uri", "https://register.example.com/signup"));
+
+    LoginController controllerWithRegisterUri =
+        new LoginController(
+            mockAdminClient,
+            mockApplicantClient,
+            mockHttpActionAdapter,
+            mockSessionStore,
+            configWithRegisterUri,
+            mockProfileUtils);
+
+    Http.Request request = fakeRequestBuilder().build();
+
+    Result result = controllerWithRegisterUri.register(request, Optional.of("www.google.com"));
+
+    assertThat(result.status()).isEqualTo(Http.Status.SEE_OTHER);
+    assertThat(result.redirectLocation()).isPresent();
+    assertThat(result.redirectLocation().get()).isEqualTo("https://register.example.com/signup");
+    // Should set redirectTo in session to come back to applicant login after registration
+    assertThat(result.session().get(REDIRECT_TO_SESSION_KEY)).isPresent();
+    assertThat(result.session().get(REDIRECT_TO_SESSION_KEY).get())
+        .isEqualTo("/applicantLogin?redirectTo=www.google.com");
+  }
+
+  @Test
   public void register_withNoRegisterUri_redirectsToRedirectUrl() {
     Config configWithRegisterUri =
         ConfigFactory.parseMap(ImmutableMap.of("applicant_register_uri", ""));
