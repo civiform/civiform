@@ -133,7 +133,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
     context.setVariable("showErrorModal", showErrorModal);
 
     boolean fileUploadImprovementsEnabled =
-      settingsManifest.getFileUploadQuestionImprovementsEnabled(request);
+        settingsManifest.getFileUploadQuestionImprovementsEnabled(request);
 
     // Include file upload specific parameters.
     if (applicationParams.block().isFileUpload() && !fileUploadImprovementsEnabled) {
@@ -145,19 +145,17 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
 
       context.setVariable("fileUploadImprovementsEnabled", fileUploadImprovementsEnabled);
       context.setVariable(
-        "maxFileSizeMb", applicationParams.applicantStorageClient().getFileLimitMb());
+          "maxFileSizeMb", applicationParams.applicantStorageClient().getFileLimitMb());
       context.setVariable(
-        "fileUploadAllowedFileTypeSpecifiers",
-        settingsManifest
-          .getFileUploadAllowedFileTypeSpecifiers()
-          .orElse(ALLOWED_FILE_TYPE_SPECIFIERS_FALLBACK));
+          "fileUploadAllowedFileTypeSpecifiers",
+          settingsManifest
+              .getFileUploadAllowedFileTypeSpecifiers()
+              .orElse(ALLOWED_FILE_TYPE_SPECIFIERS_FALLBACK));
       context.setVariable(
-        "hxSelectFileForUploadUrl",
-        controllers.applicant.routes.ApplicantProgramBlocksController
-          .hxSelectFileForUpload(
-            applicationParams.programId(),
-            applicationParams.block().getId())
-          .url());
+          "hxSelectFileForUploadUrl",
+          controllers.applicant.routes.ApplicantProgramBlocksController.hxSelectFileForUpload(
+                  applicationParams.programId(), applicationParams.block().getId())
+              .url());
 
       context.setVariable(
           "previousFormAction",
