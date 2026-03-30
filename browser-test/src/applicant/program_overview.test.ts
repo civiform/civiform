@@ -1,4 +1,4 @@
-import { expect, test } from '../support/civiform_fixtures'
+import {expect, test} from '../support/civiform_fixtures'
 import {
   ClientInformation,
   loginAsAdmin,
@@ -11,13 +11,13 @@ import {
   waitForPageJsLoad,
   enableFeatureFlag,
 } from '../support'
-import { Eligibility, ProgramLifecycle } from '../support/admin_programs'
+import {Eligibility, ProgramLifecycle} from '../support/admin_programs'
 
 test.describe('Applicant program overview', () => {
   const programName = 'test'
   const questionText = 'This is a text question'
 
-  test.beforeEach(async ({ page, adminPrograms, adminQuestions }) => {
+  test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
     await test.step('create a new program with one text question', async () => {
       await loginAsAdmin(page)
       await adminQuestions.addTextQuestion({
@@ -27,7 +27,7 @@ test.describe('Applicant program overview', () => {
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockUsingSpec(programName, {
         description: 'First block',
-        questions: [{ name: 'text question', isOptional: false }],
+        questions: [{name: 'text question', isOptional: false}],
       })
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishProgram(programName)
@@ -47,28 +47,28 @@ test.describe('Applicant program overview', () => {
         ProgramLifecycle.ACTIVE,
       )
       await page
-        .getByRole('textbox', { name: 'Long program description' })
+        .getByRole('textbox', {name: 'Long program description'})
         .fill(
           'This is the _program long description_ with markdown\n' +
-          '[This is a link](https://www.example.com)\n' +
-          'This is a list:\n' +
-          '* Item 1\n' +
-          '* Item 2\n' +
-          '\n' +
-          'There are some empty lines below this that should be preserved\n' +
-          '\n' +
-          '\n' +
-          'Autodetected link: https://www.example.com\n',
+            '[This is a link](https://www.example.com)\n' +
+            'This is a list:\n' +
+            '* Item 1\n' +
+            '* Item 2\n' +
+            '\n' +
+            'There are some empty lines below this that should be preserved\n' +
+            '\n' +
+            '\n' +
+            'Autodetected link: https://www.example.com\n',
         )
 
       await page
-        .getByRole('textbox', { name: 'Step 1 description' })
+        .getByRole('textbox', {name: 'Step 1 description'})
         .fill(
           'This is the _application step_ with markdown\n' +
-          'Autodetected link: https://www.example.com\n' +
-          'This is a list:\n' +
-          '* Item 1\n' +
-          '* Item 2\n',
+            'Autodetected link: https://www.example.com\n' +
+            'This is a list:\n' +
+            '* Item 1\n' +
+            '* Item 2\n',
         )
       await adminPrograms.submitProgramDetailsEdits()
       await adminPrograms.publishAllDrafts()
@@ -86,7 +86,7 @@ test.describe('Applicant program overview', () => {
   })
 
   test.describe('after starting an application', () => {
-    test.beforeEach(async ({ applicantQuestions }) => {
+    test.beforeEach(async ({applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('first answer')
       await applicantQuestions.clickContinue()
@@ -132,7 +132,7 @@ test.describe('Applicant program overview', () => {
         ProgramLifecycle.ACTIVE,
       )
       await page
-        .getByRole('textbox', { name: 'Long program description' })
+        .getByRole('textbox', {name: 'Long program description'})
         .fill('')
       await adminPrograms.submitProgramDetailsEdits()
       await adminPrograms.publishAllDrafts()
@@ -144,7 +144,7 @@ test.describe('Applicant program overview', () => {
     })
   })
 
-  test('shows the application steps', async ({ page }) => {
+  test('shows the application steps', async ({page}) => {
     await page.goto(`/programs/${programName}`)
     await expect(
       page.getByRole('listitem').getByRole('heading', {
@@ -160,7 +160,7 @@ test.describe('Applicant program overview', () => {
         ) /* 'description' is the text on the first application step */,
     ).toBeVisible()
 
-    await expect(page.getByRole('list').filter({ hasText: 'title' })).toHaveCount(
+    await expect(page.getByRole('list').filter({hasText: 'title'})).toHaveCount(
       1,
     )
   })
@@ -185,7 +185,7 @@ test.describe('Applicant program overview', () => {
       await adminPrograms.addProgram(secondProgram)
       await adminPrograms.editProgramBlockUsingSpec(secondProgram, {
         description: 'First block',
-        questions: [{ name: 'text question', isOptional: false }],
+        questions: [{name: 'text question', isOptional: false}],
       })
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         secondProgram,
@@ -301,7 +301,7 @@ test.describe('Applicant program overview', () => {
     })
 
     await test.step(`clicks on visit homepage button and it takes me to home page`, async () => {
-      await page.click('#visit-home-page-button')
+      await page.locator('#visit-home-page-button').click()
       expect(page.url()).toContain('/programs')
       await expect(
         page.getByRole('heading', {
@@ -358,7 +358,7 @@ test.describe('Applicant program overview', () => {
     applicantProgramOverview: applicantProgramOverview,
   }) => {
     await page.goto(`/programs/${programName}`)
-    await page.getByRole('link', { name: 'Start an application' }).click()
+    await page.getByRole('link', {name: 'Start an application'}).click()
     await applicantProgramOverview.expectFirstPageOfApplication()
   })
 
@@ -371,7 +371,7 @@ test.describe('Applicant program overview', () => {
 
     await test.step('verify "logged in as" and logout button are visible', async () => {
       await expect(page.getByText('Logged in as')).toBeVisible()
-      await expect(page.getByRole('button', { name: 'Logout' })).toBeVisible()
+      await expect(page.getByRole('button', {name: 'Logout'})).toBeVisible()
     })
 
     const stepsAndAlertsLocator = page.getByTestId('steps-and-alerts')
@@ -379,13 +379,13 @@ test.describe('Applicant program overview', () => {
     await test.step('verify there is no create account alert but, rather, a "Start an application" button', async () => {
       await expect(page.locator('#create-account')).toBeHidden()
       await expect(
-        stepsAndAlertsLocator.getByRole('link', { name: 'Start an application' }),
+        stepsAndAlertsLocator.getByRole('link', {name: 'Start an application'}),
       ).toBeVisible()
     })
 
     await test.step('click on 2nd "Start an application" button and verify that it goes to the application', async () => {
       await stepsAndAlertsLocator
-        .getByRole('link', { name: 'Start an application' })
+        .getByRole('link', {name: 'Start an application'})
         .click()
       await applicantProgramOverview.expectFirstPageOfApplication()
     })
@@ -397,11 +397,11 @@ test.describe('Applicant program overview', () => {
   }) => {
     await page.goto(`/programs/${programName}`)
 
-    await expect(page.getByRole('button', { name: 'Log in' })).toBeVisible()
+    await expect(page.getByRole('button', {name: 'Log in'})).toBeVisible()
 
     await test.step('verify the create account alert is visible', async () => {
       await expect(
-        page.getByRole('button', { name: 'Start application with an account' }),
+        page.getByRole('button', {name: 'Start application with an account'}),
       ).toBeVisible()
       await expect(
         page.getByRole('heading', {
@@ -412,7 +412,7 @@ test.describe('Applicant program overview', () => {
 
     await test.step('click "Start application as a guest" and verify that it goes to the application', async () => {
       await page
-        .getByRole('button', { name: 'Start application as a guest' })
+        .getByRole('button', {name: 'Start application as a guest'})
         .click()
       await applicantProgramOverview.expectFirstPageOfApplication()
     })
@@ -429,11 +429,14 @@ test.describe('Applicant program overview', () => {
         name: 'Start application with an account',
       })
       await expect(createAccountButton).toBeVisible()
-      await expect(createAccountButton).toHaveAttribute('href', '/applicantLogin?redirectTo=%2Fprograms%2Ftest')
+      await expect(createAccountButton).toHaveAttribute(
+        'href',
+        '/applicantLogin?redirectTo=%2Fprograms%2Ftest',
+      )
     })
   })
 
-  test('renders right to left', async ({ page }) => {
+  test('renders right to left', async ({page}) => {
     await page.goto(`/programs/${programName}`)
     await selectApplicantLanguage(page, 'ar')
 
@@ -452,7 +455,7 @@ test.describe('Applicant program overview', () => {
 test.describe('Applicant program overview for login only program', () => {
   const programName = 'loginonly'
 
-  test.beforeEach(async ({ page, adminPrograms }) => {
+  test.beforeEach(async ({page, adminPrograms}) => {
     await test.step('create a new program', async () => {
       await loginAsAdmin(page)
       await adminPrograms.addProgram(programName)
@@ -471,16 +474,16 @@ test.describe('Applicant program overview for login only program', () => {
 
     await page.goto(`/programs/${programName}`)
     await expect(
-      page.getByRole('link', { name: 'Sign in to start an application' }).first(),
+      page.getByRole('link', {name: 'Sign in to start an application'}).first(),
     ).toBeVisible()
 
     await expect(
-      page.getByRole('button', { name: 'Start application as a guest' }),
+      page.getByRole('button', {name: 'Start application as a guest'}),
     ).toBeHidden()
 
     await expect(
       page
-        .getByRole('button', { name: 'Start application with an account' })
+        .getByRole('button', {name: 'Start application with an account'})
         .first(),
     ).toBeVisible()
 
@@ -501,7 +504,7 @@ test.describe('Applicant program overview for login only program', () => {
     await page.goto(`/programs/${programName}`)
 
     await expect(
-      page.getByRole('link', { name: 'Start an application' }).first(),
+      page.getByRole('link', {name: 'Start an application'}).first(),
     ).toBeVisible()
   })
 })
@@ -509,7 +512,7 @@ test.describe('Applicant program overview for login only program', () => {
 test.describe('guest cannot complete applications for login only program', () => {
   const programName = 'loginonly'
 
-  test.beforeEach(async ({ page, adminPrograms, adminQuestions }) => {
+  test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
     await test.step('create a new program', async () => {
       await loginAsAdmin(page)
       await adminPrograms.addProgram(programName)
@@ -521,7 +524,7 @@ test.describe('guest cannot complete applications for login only program', () =>
 
       await adminPrograms.editProgramBlockUsingSpec(programName, {
         description: 'First block',
-        questions: [{ name: 'name', isOptional: false }],
+        questions: [{name: 'name', isOptional: false}],
       })
       await adminPrograms.goToProgramDescriptionPage(programName)
       await adminPrograms.setProgramToLoginOnly(true)
@@ -536,7 +539,7 @@ test.describe('guest cannot complete applications for login only program', () =>
   }) => {
     await loginAsTestUser(page)
     await page.goto(`/programs/${programName}`)
-    await page.getByRole('link', { name: 'Start an application' }).first().click()
+    await page.getByRole('link', {name: 'Start an application'}).first().click()
     await waitForPageJsLoad(page)
 
     // logged in user can see the application page
@@ -560,9 +563,9 @@ test.describe('guest cannot complete applications for login only program', () =>
     ).toBeVisible()
     await expect(
       page
-        .getByRole('button', { name: 'Sign in to start an application' })
+        .getByRole('button', {name: 'Sign in to start an application'})
         .first(),
     ).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Log in' })).toBeVisible()
+    await expect(page.getByRole('button', {name: 'Log in'})).toBeVisible()
   })
 })
