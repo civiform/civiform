@@ -18,8 +18,7 @@ public final class AwsS3MultipartUploadSinkProvider
   }
 
   // Get the base sink for AWS S3 multipart upload, which will be composed with additional stages
-  // below.
-  // This helps with testability, since we can mock this method.
+  // below. This helps with testability, since we can mock this method.
   @Override
   protected Sink<ByteString, CompletionStage<MultipartUploadResult>> getBaseSink(
       String bucketName, String fileKey) {
