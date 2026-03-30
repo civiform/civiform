@@ -17,12 +17,17 @@ public final class AwsS3MultipartUploadSinkProvider
     this.storageServiceName = StorageServiceName.AWS_S3;
   }
 
+  // Get the base sink for AWS S3 multipart upload, which will be composed with additional stages
+  // below.
+  // This helps with testability, since we can mock this method.
   @Override
   protected Sink<ByteString, CompletionStage<MultipartUploadResult>> getBaseSink(
       String bucketName, String fileKey) {
     return S3.multipartUpload(bucketName, fileKey);
   }
 
+  // Get the composed sink for AWS S3 multipart upload, which maps the MultipartUploadResult to the
+  // custom result class.
   @Override
   public Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> getUploadSink(
       String bucketName, String fileKey) {
