@@ -45,7 +45,7 @@ lazy val root = (project in file("."))
       "org.thymeleaf" % "thymeleaf" % "3.1.3.RELEASE",
       "org.commonmark" % "commonmark" % "0.27.1",
       "org.commonmark" % "commonmark-ext-autolink" % "0.27.1",
-      "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20260102.1",
+      "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20260313.1",
 
       // Amazon AWS SDK
       "software.amazon.awssdk" % "s3" % "2.42.22",
