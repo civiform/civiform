@@ -41,9 +41,11 @@
       ></div>
     </th:block>
     <th:block th:case="'File Upload'">
-      <div
-        th:replace="~{questiontypes/FileUploadQuestionFragment :: file-upload(${question}, ${questionRendererParams})}"
-      ></div>
+      <th:block th:if="${fileUploadImprovementsEnabled}">
+        <div
+          th:replace="~{questiontypes/FileUploadQuestionFragment :: file-upload(${question}, ${questionRendererParams})}"
+        ></div>
+      </th:block>
     </th:block>
     <th:block th:case="'ID'">
       <div

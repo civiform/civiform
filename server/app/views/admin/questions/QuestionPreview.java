@@ -82,6 +82,13 @@ public class QuestionPreview extends ApplicantBaseView {
         "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(params.request()));
     context.setVariable("nameSuffixOptions", ApplicantModel.Suffix.values());
     context.setVariable("isYesNoQuestionEnabled", settingsManifest.getYesNoQuestionEnabled());
+    context.setVariable(
+        "fileUploadImprovementsEnabled",
+        settingsManifest.getFileUploadQuestionImprovementsEnabled(params.request()));
+    context.setVariable("maxFileSizeMb", 100);
+    context.setVariable(
+        "fileUploadAllowedFileTypeSpecifiers",
+        settingsManifest.getFileUploadAllowedFileTypeSpecifiers().orElse("image/*,.pdf"));
     context.setVariable("isPreview", true);
     context.setVariable("homeUrl", index(params, applicantRoutes));
     return templateEngine.process("admin/questions/QuestionPreviewFragment", context);
