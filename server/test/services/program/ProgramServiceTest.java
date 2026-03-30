@@ -538,8 +538,7 @@ public class ProgramServiceTest extends ResetPostgres {
             /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
             messages,
-            /* enumeratorImprovementsEnabled= */ false,
-            /* fileUploadQuestionImprovementsEnabled= */ false);
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.getResult()).isNotNull();
@@ -567,8 +566,7 @@ public class ProgramServiceTest extends ResetPostgres {
             /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
             messages,
-            /* enumeratorImprovementsEnabled= */ false,
-            /* fileUploadQuestionImprovementsEnabled= */ false);
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.getResult().notificationPreferences())
@@ -596,8 +594,7 @@ public class ProgramServiceTest extends ResetPostgres {
             /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
             messages,
-            /* enumeratorImprovementsEnabled= */ false,
-            /* fileUploadQuestionImprovementsEnabled= */ false);
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.getResult().blockDefinitions()).hasSize(1);
@@ -627,8 +624,7 @@ public class ProgramServiceTest extends ResetPostgres {
             /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
             messages,
-            /* enumeratorImprovementsEnabled= */ false,
-            /* fileUploadQuestionImprovementsEnabled= */ false);
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
@@ -660,8 +656,7 @@ public class ProgramServiceTest extends ResetPostgres {
             /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
             messages,
-            /* enumeratorImprovementsEnabled= */ false,
-            /* fileUploadQuestionImprovementsEnabled= */ false);
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
@@ -691,8 +686,7 @@ public class ProgramServiceTest extends ResetPostgres {
             /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
             messages,
-            /* enumeratorImprovementsEnabled= */ false,
-            /* fileUploadQuestionImprovementsEnabled= */ false);
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
@@ -719,8 +713,7 @@ public class ProgramServiceTest extends ResetPostgres {
         /* categoryIds= */ ImmutableList.of(),
         ImmutableList.of(new ApplicationStep("title", "description")),
         messages,
-        /* enumeratorImprovementsEnabled= */ false,
-        /* fileUploadQuestionImprovementsEnabled= */ false);
+        /* enumeratorImprovementsEnabled= */ false);
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.createProgramDefinition(
@@ -740,8 +733,7 @@ public class ProgramServiceTest extends ResetPostgres {
             /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
             messages,
-            /* enumeratorImprovementsEnabled= */ false,
-            /* fileUploadQuestionImprovementsEnabled= */ false);
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
@@ -770,8 +762,7 @@ public class ProgramServiceTest extends ResetPostgres {
             /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
             messages,
-            /* enumeratorImprovementsEnabled= */ false,
-            /* fileUploadQuestionImprovementsEnabled= */ false);
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
@@ -832,8 +823,7 @@ public class ProgramServiceTest extends ResetPostgres {
             /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
             messages,
-            /* enumeratorImprovementsEnabled= */ false,
-            /* fileUploadQuestionImprovementsEnabled= */ false);
+            /* enumeratorImprovementsEnabled= */ false);
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
     assertThat(result.getErrors())
@@ -860,8 +850,7 @@ public class ProgramServiceTest extends ResetPostgres {
             /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
             messages,
-            /* enumeratorImprovementsEnabled= */ false,
-            /* fileUploadQuestionImprovementsEnabled= */ false);
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
@@ -888,8 +877,7 @@ public class ProgramServiceTest extends ResetPostgres {
             /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
             messages,
-            /* enumeratorImprovementsEnabled= */ false,
-            /* fileUploadQuestionImprovementsEnabled= */ false);
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
@@ -915,8 +903,7 @@ public class ProgramServiceTest extends ResetPostgres {
         /* categoryIds= */ ImmutableList.of(),
         ImmutableList.of(new ApplicationStep("title", "description")),
         messages,
-        /* enumeratorImprovementsEnabled= */ false,
-        /* fileUploadQuestionImprovementsEnabled= */ false);
+        /* enumeratorImprovementsEnabled= */ false);
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.createProgramDefinition(
             "name-two",
@@ -935,8 +922,7 @@ public class ProgramServiceTest extends ResetPostgres {
             /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
             messages,
-            /* enumeratorImprovementsEnabled= */ false,
-            /* fileUploadQuestionImprovementsEnabled= */ false);
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
@@ -962,8 +948,7 @@ public class ProgramServiceTest extends ResetPostgres {
         /* categoryIds= */ ImmutableList.of(),
         ImmutableList.of(new ApplicationStep("title", "description")),
         messages,
-        /* enumeratorImprovementsEnabled= */ false,
-        /* fileUploadQuestionImprovementsEnabled= */ false);
+        /* enumeratorImprovementsEnabled= */ false);
 
     Optional<ProgramDefinition> preScreenerForm = ps.getPreScreenerForm();
     assertThat(preScreenerForm).isPresent();
@@ -987,8 +972,7 @@ public class ProgramServiceTest extends ResetPostgres {
             /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
             messages,
-            /* enumeratorImprovementsEnabled= */ false,
-            /* fileUploadQuestionImprovementsEnabled= */ false);
+            /* enumeratorImprovementsEnabled= */ false);
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
     assertThat(result.getResult().programType()).isEqualTo(ProgramType.PRE_SCREENER_FORM);
@@ -1672,8 +1656,7 @@ public class ProgramServiceTest extends ResetPostgres {
         /* categoryIds= */ ImmutableList.of(),
         ImmutableList.of(new ApplicationStep("title", "description")),
         messages,
-        /* enumeratorImprovementsEnabled= */ false,
-        /* fileUploadQuestionImprovementsEnabled= */ false);
+        /* enumeratorImprovementsEnabled= */ false);
 
     Optional<ProgramDefinition> preScreenerForm = ps.getPreScreenerForm();
     assertThat(preScreenerForm).isPresent();
@@ -1731,8 +1714,7 @@ public class ProgramServiceTest extends ResetPostgres {
             /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
             messages,
-            /* enumeratorImprovementsEnabled= */ false,
-            /* fileUploadQuestionImprovementsEnabled= */ false);
+            /* enumeratorImprovementsEnabled= */ false);
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateProgramDefinition(
@@ -1777,8 +1759,7 @@ public class ProgramServiceTest extends ResetPostgres {
             /* categoryIds= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")),
             messages,
-            /* enumeratorImprovementsEnabled= */ false,
-            /* fileUploadQuestionImprovementsEnabled= */ false);
+            /* enumeratorImprovementsEnabled= */ false);
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateProgramDefinition(
@@ -2248,8 +2229,7 @@ public class ProgramServiceTest extends ResetPostgres {
             /* programId= */ programDefinition.id(),
             /* isEnumerator= */ Optional.empty(),
             messages,
-            /* enumeratorImprovementsEnabled= */ false,
-            /* fileUploadQuestionImprovementsEnabled= */ false);
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(result.isError()).isFalse();
     assertThat(result.hasResult()).isTrue();
@@ -2285,8 +2265,7 @@ public class ProgramServiceTest extends ResetPostgres {
             /* programId= */ programDefinition.id(),
             /* isEnumerator= */ Optional.empty(),
             messages,
-            /* enumeratorImprovementsEnabled= */ false,
-            /* fileUploadQuestionImprovementsEnabled= */ false);
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(result.isError()).isFalse();
     assertThat(result.hasResult()).isTrue();
@@ -2313,8 +2292,7 @@ public class ProgramServiceTest extends ResetPostgres {
             /* programId= */ programDefinition.id(),
             /* isEnumerator= */ Optional.of(true),
             messages,
-            /* enumeratorImprovementsEnabled= */ false,
-            /* fileUploadQuestionImprovementsEnabled= */ false);
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(result.isError()).isFalse();
     assertThat(result.hasResult()).isTrue();
@@ -3271,8 +3249,7 @@ public class ProgramServiceTest extends ResetPostgres {
             /* programId= */ programDefinition.id(),
             /* isEnumerator= */ Optional.empty(),
             messages,
-            /* enumeratorImprovementsEnabled= */ false,
-            /* fileUploadQuestionImprovementsEnabled= */ false);
+            /* enumeratorImprovementsEnabled= */ false);
     Optional<LocalizedStrings> eligibilityMsg =
         Optional.of(LocalizedStrings.of(Locale.US, "custom eligibility message"));
 
@@ -3298,8 +3275,7 @@ public class ProgramServiceTest extends ResetPostgres {
             /* programId= */ programDefinition.id(),
             /* isEnumerator= */ Optional.empty(),
             messages,
-            /* enumeratorImprovementsEnabled= */ false,
-            /* fileUploadQuestionImprovementsEnabled= */ false);
+            /* enumeratorImprovementsEnabled= */ false);
     Optional<LocalizedStrings> firstEligibilityMsg =
         Optional.of(LocalizedStrings.of(Locale.US, "first custom eligibility message"));
     Optional<LocalizedStrings> secondEligibilityMsg =
@@ -4230,8 +4206,7 @@ public class ProgramServiceTest extends ResetPostgres {
             Optional.of(true),
             /* isNested= */ false,
             messages,
-            /* enumeratorImprovementsEnabled= */ true,
-            /* fileUploadQuestionImprovementsEnabled= */ false);
+            /* enumeratorImprovementsEnabled= */ true);
 
     assertThat(result.getResult().namePrefix().get()).isEqualTo("[parent label] - ");
 
@@ -4242,8 +4217,7 @@ public class ProgramServiceTest extends ResetPostgres {
             Optional.of(true),
             /* isNested= */ true,
             messages,
-            /* enumeratorImprovementsEnabled= */ true,
-            /* fileUploadQuestionImprovementsEnabled= */ false);
+            /* enumeratorImprovementsEnabled= */ true);
 
     assertThat(nestedBlock.getResult().namePrefix().get())
         .isEqualTo("[parent label] - [child label] - ");
