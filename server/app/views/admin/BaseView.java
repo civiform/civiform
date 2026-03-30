@@ -9,11 +9,11 @@ import org.thymeleaf.TemplateEngine;
 import play.mvc.Http;
 import services.settings.SettingsManifest;
 import views.CspUtil;
-import views.admin.shared.FeatureFlag;
 import views.admin.shared.Footer;
 import views.admin.shared.LayoutParams;
 import views.admin.shared.TemplateGlobals;
 import views.html.helper.CSRF;
+import views.shared.FeatureFlags;
 
 /**
  * {@link BaseView} class contains the structure and bare essentials to render the supplied
@@ -142,12 +142,7 @@ public abstract class BaseView<TModel extends BaseViewModel> {
 
     // Set values for feature flags
     context.setVariable(
-        "featureFlag",
-        FeatureFlag.builder()
-            .isAdminUiMigrationScEnabled(settingsManifest.getAdminUiMigrationScEnabled(request))
-            .isAdminUiMigrationScExtendedEnabled(
-                settingsManifest.getAdminUiMigrationScExtendedEnabled(request))
-            .build());
+        "featureFlags", FeatureFlags.fromSettingsManifest(settingsManifest, request));
 
     // This gives the Thymeleaf template a reference to this view class. Methods can be added
     // to the view to aid in custom formatting. Ideally keep these to a minimum and prefer
