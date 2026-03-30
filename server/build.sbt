@@ -80,7 +80,7 @@ lazy val root = (project in file("."))
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "jakarta.xml.bind" % "jakarta.xml.bind-api" % "4.0.5",
       "jakarta.activation" % "jakarta.activation-api" % "2.1.4",
-      "org.glassfish.jaxb" % "jaxb-runtime" % "4.0.6",
+      "org.glassfish.jaxb" % "jaxb-runtime" % "4.0.7",
 
       // Code autogeneration
       "org.projectlombok" % "lombok" % "1.18.44" % "provided",
