@@ -5,7 +5,7 @@ import javax.inject.Inject;
 import org.apache.pekko.stream.Materializer;
 import org.apache.pekko.stream.javadsl.Sink;
 import org.apache.pekko.util.ByteString;
-import parsers.cloud.StreamingMultipartUploadSinks;
+import parsers.cloud.MultipartUploadSinks;
 import play.http.DefaultHttpErrorHandler;
 import services.cloud.StorageServiceName;
 
@@ -18,7 +18,7 @@ public final class TestStreamingMultipartBodyParser extends StreamingMultipartBo
   public TestStreamingMultipartBodyParser(
       Materializer materializer,
       DefaultHttpErrorHandler errorHandler,
-      StreamingMultipartUploadSinks streamingMultipartUploadSinks,
+      MultipartUploadSinks streamingMultipartUploadSinks,
       StreamingOutputBuffer outputBuffer) {
     long maxFileSize = 1024 * 1024 * 100L; // 100MB
     super(materializer, errorHandler, streamingMultipartUploadSinks, maxFileSize);

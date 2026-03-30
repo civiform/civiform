@@ -5,7 +5,7 @@ import java.util.function.Function;
 import org.apache.pekko.stream.Materializer;
 import org.apache.pekko.stream.javadsl.Sink;
 import org.apache.pekko.util.ByteString;
-import parsers.cloud.StreamingMultipartUploadSinks;
+import parsers.cloud.MultipartUploadSinks;
 import play.http.DefaultHttpErrorHandler;
 import play.libs.streams.Accumulator;
 import play.mvc.BodyParser;
@@ -24,12 +24,12 @@ import play.mvc.Http.MultipartFormData.FilePart;
 public abstract class StreamingMultipartBodyParser
     extends BodyParser.DelegatingMultipartFormDataBodyParser<Void> {
   private static final int CHUNK_SIZE = 1024 * 1024; // 1 MiB
-  private final StreamingMultipartUploadSinks uploadSinks;
+  private final MultipartUploadSinks uploadSinks;
 
   public StreamingMultipartBodyParser(
       Materializer materializer,
       DefaultHttpErrorHandler errorHandler,
-      StreamingMultipartUploadSinks streamingMultipartUploadSinks,
+      MultipartUploadSinks streamingMultipartUploadSinks,
       long maxFileSize) {
     super(materializer, CHUNK_SIZE, maxFileSize, /* allowEmptyFiles= */ false, errorHandler);
     this.uploadSinks = streamingMultipartUploadSinks;
