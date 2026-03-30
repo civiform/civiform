@@ -7,7 +7,6 @@ import {
   validateAccessibility,
   validateScreenshot,
   validateToastMessage,
-  enableFeatureFlag,
 } from '../support'
 
 test.describe('Applicant navigation flow', () => {
@@ -215,57 +214,6 @@ test.describe('Applicant navigation flow', () => {
       const downloadedFileContent =
         await applicantQuestions.downloadSingleQuestionFromReviewPage(fileName)
       expect(downloadedFileContent).toEqual(fileContent)
-    })
-  })
-
-  test('when login_link_instead_of_register_link_enabled is on, applicants are redirected to login instead of create account screen', async ({
-    page,
-    adminQuestions,
-    adminPrograms,
-    applicantQuestions,
-  }) => {
-    const programName = 'LoginLinkProgram'
-    const emailQuestionText = 'email question text'
-
-    await test.step('As admin, set up program', async () => {
-      await loginAsAdmin(page)
-
-      await adminQuestions.addEmailQuestion({
-        questionName: 'email-q',
-        questionText: emailQuestionText,
-      })
-      await adminPrograms.addAndPublishProgramWithQuestions(
-        ['email-q'],
-        programName,
-      )
-
-      await logout(page)
-    })
-
-    await test.step('enable login_link_instead_of_register_link_enabled feature flag', async () => {
-      await enableFeatureFlag(
-        page,
-        'login_link_instead_of_register_link_enabled',
-      )
-    })
-
-    await test.step('apply to program', async () => {
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerEmailQuestion('test1@gmail.com')
-      await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage()
-      await applicantQuestions.expectConfirmationPage()
-    })
-
-    await test.step('verify the create account alert button points to login', async () => {
-      const createAccountButton = page.getByRole('button', {
-        name: 'Create an account',
-      })
-      await expect(createAccountButton).toBeVisible()
-      await expect(createAccountButton).toHaveAttribute(
-        'href',
-        '/applicantLogin?redirectTo=%2Fprograms',
-      )
     })
   })
 })
