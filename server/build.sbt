@@ -48,8 +48,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20260102.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.42.15",
-      "software.amazon.awssdk" % "ses" % "2.42.15",
+      "software.amazon.awssdk" % "s3" % "2.42.22",
+      "software.amazon.awssdk" % "ses" % "2.42.22",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
@@ -60,7 +60,7 @@ lazy val root = (project in file("."))
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.10",
-      "com.google.cloud.sql" % "postgres-socket-factory" % "1.28.1",
+      "com.google.cloud.sql" % "postgres-socket-factory" % "1.28.2",
       "com.h2database" % "h2" % "2.4.240" % Test,
 
       // Metrics collection and export for Prometheus
@@ -118,13 +118,13 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.5",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.26",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.27",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.7",
 
       // Apache libraries for testing subnets
-      "commons-net" % "commons-net" % "3.12.0",
+      "commons-net" % "commons-net" % "3.13.0",
 
       // Url detector for program descriptions.
       "com.linkedin.urls" % "url-detector" % "0.1.17",
