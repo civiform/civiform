@@ -102,7 +102,7 @@ public class LoginController extends Controller {
         .addingToSession(
             request,
             REDIRECT_TO_SESSION_KEY,
-            routes.LoginController.applicantLogin(Optional.empty()).url());
+            routes.LoginController.applicantLogin(redirectTo).url());
   }
 
   // Logic taken from org.pac4j.play.deadbolt2.Pac4jHandler.beforeAuthCheck.
