@@ -128,6 +128,7 @@ lazy val root = (project in file("."))
 
       // Apache libraries for external Pekko connectors
       "org.apache.pekko" %% "pekko-connectors-s3" % "1.3.0",
+      "org.apache.pekko" %% "pekko-connectors-google-cloud-storage" % "1.3.0",
 
       // Explicitly include Pekko libraries that otherwise would be
       // incompatible due to version mismatches with the default versions.

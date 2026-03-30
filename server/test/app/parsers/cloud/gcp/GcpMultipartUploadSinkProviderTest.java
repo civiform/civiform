@@ -1,4 +1,4 @@
-package parsers.cloud.aws;
+package parsers.cloud.gcp;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -12,7 +12,7 @@ import static org.mockito.Mockito.when;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import org.apache.pekko.actor.ActorSystem;
-import org.apache.pekko.stream.connectors.s3.MultipartUploadResult;
+import org.apache.pekko.stream.connectors.googlecloud.storage.StorageObject;
 import org.apache.pekko.stream.javadsl.Sink;
 import org.apache.pekko.stream.javadsl.Source;
 import org.apache.pekko.util.ByteString;
@@ -22,25 +22,24 @@ import org.junit.Test;
 import parsers.StreamingMultipartUploadResult;
 import services.cloud.StorageServiceName;
 
-public class AwsS3MultipartUploadSinkProviderTest {
+public class GcpMultipartUploadSinkProviderTest {
   private static final String FILE_KEY = "test-file-key";
-  private static final Integer CHUNK_SIZE = 1024 * 1024; // 1 MBSSSS
+  private static final Integer CHUNK_SIZE = 1024 * 1024; // 1 MB
 
-  private AwsS3MultipartUploadSinkProvider uploadSinkProvider;
-  private Sink<ByteString, CompletionStage<MultipartUploadResult>> fakeAwsSink;
+  private GcpMultipartUploadSinkProvider uploadSinkProvider;
+  private Sink<ByteString, CompletionStage<StorageObject>> fakeGcpSink;
   private ActorSystem system;
 
   @Before
   public void setUp() {
     system = ActorSystem.create("TestSystem");
 
-    uploadSinkProvider = spy(new AwsS3MultipartUploadSinkProvider());
-    MultipartUploadResult mockResult = mock(MultipartUploadResult.class);
-    fakeAwsSink = Sink.fold(mockResult, (acc, next) -> acc);
+    uploadSinkProvider = spy(new GcpMultipartUploadSinkProvider());
+    StorageObject mockResult = mock(StorageObject.class);
+    fakeGcpSink = Sink.fold(mockResult, (acc, next) -> acc);
 
-    when(mockResult.getKey()).thenReturn(FILE_KEY);
-    when(uploadSinkProvider.getBaseSink(anyString(), anyString(), anyInt()))
-        .thenReturn(fakeAwsSink);
+    when(mockResult.name()).thenReturn(FILE_KEY);
+    doReturn(fakeGcpSink).when(uploadSinkProvider).getBaseSink(anyString(), anyString(), anyInt());
   }
 
   @After
@@ -49,21 +48,21 @@ public class AwsS3MultipartUploadSinkProviderTest {
   }
 
   @Test
-  public void getUploadSink_successfulUpload_returnsAwsSuccess() throws Exception {
+  public void getUploadSink_successfulUpload_returnsGcpSuccess() throws Exception {
     StreamingMultipartUploadResult result = runSink();
 
     assertThat(result.getStatus()).isEqualTo(StreamingMultipartUploadResult.Status.SUCCESS);
-    assertThat(result.getStorageServiceName()).isEqualTo(StorageServiceName.AWS_S3);
+    assertThat(result.getStorageServiceName()).isEqualTo(StorageServiceName.GCP_S3);
     assertThat(result.getStoredFilePath().get()).isEqualTo(FILE_KEY);
   }
 
   @Test
   public void getUploadSink_uploadFails_returnsFailure() throws Exception {
-    // Set up an internal AWS failure
-    RuntimeException s3Exception = new RuntimeException("Access denied to S3 bucket");
-    Sink<ByteString, CompletionStage<MultipartUploadResult>> failingBaseSink =
+    // Set up an internal GCP failure
+    RuntimeException gcpException = new RuntimeException("Access denied to GCP bucket");
+    Sink<ByteString, CompletionStage<StorageObject>> failingBaseSink =
         Sink.<ByteString>cancelled()
-            .mapMaterializedValue(_ -> CompletableFuture.failedFuture(s3Exception));
+            .mapMaterializedValue(_ -> CompletableFuture.failedFuture(gcpException));
     doReturn(failingBaseSink)
         .when(uploadSinkProvider)
         .getBaseSink(anyString(), anyString(), anyInt());
@@ -71,8 +70,8 @@ public class AwsS3MultipartUploadSinkProviderTest {
     StreamingMultipartUploadResult result = runSink();
 
     assertThat(result.getStatus()).isEqualTo(StreamingMultipartUploadResult.Status.FAILURE);
-    assertThat(result.getStorageServiceName()).isEqualTo(StorageServiceName.AWS_S3);
-    assertThat(result.getErrorMessage().get()).contains(s3Exception.getMessage());
+    assertThat(result.getStorageServiceName()).isEqualTo(StorageServiceName.GCP_S3);
+    assertThat(result.getErrorMessage().get()).contains(gcpException.getMessage());
     assertThat(result.getStoredFilePath()).isEmpty();
   }
 
