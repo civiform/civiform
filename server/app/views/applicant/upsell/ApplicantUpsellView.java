@@ -113,7 +113,9 @@ public class ApplicantUpsellView extends ApplicantBaseView {
     context.setVariable("downloadHref", downloadHref);
 
     // Create account or login alert
-    context.setVariable("createAccountLink", controllers.routes.LoginController.register().url());
+    context.setVariable(
+        "createAccountLink",
+        controllers.routes.LoginController.register(Optional.of(applyToProgramsUrl)).url());
 
     // Cards section
     Optional<ProgramSectionParams> cardsSection = Optional.empty();

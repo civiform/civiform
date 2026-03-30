@@ -458,7 +458,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
       String logInMessage = messages.at(MessageKey.BUTTON_LOGIN.getKeyName());
       String logInLink = routes.LoginController.applicantLogin(Optional.empty()).url();
       String createAnAccountMessage = messages.at(MessageKey.BUTTON_CREATE_ACCOUNT.getKeyName());
-      String createAnAccountLink = routes.LoginController.register().url();
+      String createAnAccountLink = routes.LoginController.register(Optional.empty()).url();
 
       DivTag loggedInAsDiv =
           div(
