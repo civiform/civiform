@@ -1,3 +1,4 @@
+import {Buffer} from 'buffer'
 import {expect} from './civiform_fixtures'
 import {Page, Locator} from '@playwright/test'
 import {readFileSync, writeFileSync, unlinkSync} from 'fs'
@@ -117,7 +118,7 @@ export class ApplicantQuestions {
   }
 
   /** Creates a file with the given size in MB and uploads it to the file upload question. */
-  async answerFileUploadQuestionWithMbSize(mbSize: int) {
+  async answerFileUploadQuestionWithMbSize(mbSize: number) {
     const filePath = 'file-size-' + mbSize + '-mb.pdf'
     writeFileSync(filePath, 'C'.repeat(mbSize * 1024 * 1024))
     await this.page.setInputFiles('input[type=file]', filePath)
@@ -331,14 +332,17 @@ export class ApplicantQuestions {
 
   async clickBreadcrumbHomeLink() {
     await this.page.getByRole('link', {name: 'Home'}).click()
+    await waitForPageJsLoad(this.page)
   }
 
   async clickBreadcrumbProgramLink(programName: string) {
     await this.page.getByRole('link', {name: `${programName}`}).click()
+    await waitForPageJsLoad(this.page)
   }
 
   async clickApplyToAnotherProgramButton() {
     await this.page.click('text="Apply to another program"')
+    await waitForPageJsLoad(this.page)
   }
 
   async clickApplyToProgramsButton() {
@@ -348,10 +352,12 @@ export class ApplicantQuestions {
 
   async clickBack() {
     await this.page.click('text="Back"')
+    await waitForPageJsLoad(this.page)
   }
 
   async clickBackToHomepageButton() {
     await this.page.click('text="Back to homepage"')
+    await waitForPageJsLoad(this.page)
   }
 
   /**
@@ -380,15 +386,15 @@ export class ApplicantQuestions {
       has: this.page.locator(`:text("${programName}")`),
     })
     const tag = isEligible ? '.cf-eligible-tag' : '.cf-not-eligible-tag'
-    expect(await cardLocator.locator(tag).count()).toEqual(1)
+    await expect(cardLocator.locator(tag)).toHaveCount(1)
   }
 
   async seeNoEligibilityTags(programName: string) {
     const cardLocator = this.page.locator('.cf-application-card', {
       has: this.page.locator(`:text("${programName}")`),
     })
-    expect(await cardLocator.locator('.cf-eligible-tag').count()).toEqual(0)
-    expect(await cardLocator.locator('.cf-not-eligible-tag').count()).toEqual(0)
+    await expect(cardLocator.locator('.cf-eligible-tag')).toHaveCount(0)
+    await expect(cardLocator.locator('.cf-not-eligible-tag')).toHaveCount(0)
   }
 
   async expectPrograms({
@@ -793,9 +799,9 @@ export class ApplicantQuestions {
     )
 
     if (wantEligiblePrograms.length == 0) {
-      expect(await programLocator.count()).toEqual(0)
+      await expect(programLocator).toHaveCount(0)
     } else {
-      expect(await programLocator.count()).toEqual(wantEligiblePrograms.length)
+      await expect(programLocator).toHaveCount(wantEligiblePrograms.length)
       const allProgramTitles = await programLocator.allTextContents()
       expect(allProgramTitles.sort()).toEqual(wantEligiblePrograms.sort())
     }
@@ -848,20 +854,20 @@ export class ApplicantQuestions {
     const questionLocator = this.page.locator('.cf-applicant-summary-row', {
       has: this.page.locator(`:text("${questionText}")`),
     })
-    expect(await questionLocator.count()).toEqual(1)
-    expect(
-      await questionLocator.locator('.cf-applicant-not-eligible-text').count(),
-    ).toEqual(1)
+    await expect(questionLocator).toHaveCount(1)
+    await expect(
+      questionLocator.locator('.cf-applicant-not-eligible-text'),
+    ).toHaveCount(1)
   }
 
   async expectQuestionHasNoEligibilityIndicator(questionText: string) {
     const questionLocator = this.page.locator('.cf-applicant-summary-row', {
       has: this.page.locator(`:text("${questionText}")`),
     })
-    expect(await questionLocator.count()).toEqual(1)
-    expect(
-      await questionLocator.locator('.cf-applicant-not-eligible-text').count(),
-    ).toEqual(0)
+    await expect(questionLocator).toHaveCount(1)
+    await expect(
+      questionLocator.locator('.cf-applicant-not-eligible-text'),
+    ).toHaveCount(0)
   }
 
   async expectVerifyAddressPage(hasAddressSuggestions: boolean) {
@@ -893,7 +899,7 @@ export class ApplicantQuestions {
     const questionLocator = this.page.locator('.cf-applicant-summary-row', {
       has: this.page.locator(`:text("${questionText}")`),
     })
-    expect(await questionLocator.count()).toEqual(1)
+    await expect(questionLocator).toHaveCount(1)
     const summaryRowText = await questionLocator.innerText()
     expect(summaryRowText.includes(answerText)).toBeTruthy()
   }
@@ -938,15 +944,6 @@ export class ApplicantQuestions {
         .locator('.cf-applicant-question-text')
         .filter({hasText: questionText}),
     ).toBeVisible()
-  }
-
-  async validateNoPreviouslyAnsweredText(questionText: string) {
-    const questionLocator = this.page.locator('.cf-applicant-summary-row', {
-      has: this.page.locator(`:text("${questionText}")`),
-    })
-    await expect(
-      questionLocator.locator('.cf-applicant-question-previously-answered'),
-    ).toBeHidden()
   }
 
   async validatePreviouslyAnsweredText(questionText: string) {

@@ -263,6 +263,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   blockDefinition,
                   csrfTag,
                   ProgramQuestionBank.shouldShowQuestionBank(request),
+                  messages,
                   request))
           .addMainContent(
               addFormEndpoints(
@@ -657,11 +658,26 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   settingsManifest.getExpandedFormLogicEnabled(request)));
     }
 
+    boolean showRepeatedQuestionsSectionStyling =
+        enumeratorImprovementsEnabled && blockDefinition.isRepeated();
+
     DivTag programQuestions =
         div()
             .withId(QUESTIONS_SECTION_ID)
             .withClasses("my-4")
-            .with(div("Questions").withClasses("text-lg", "font-bold", "py-2"));
+            .with(
+                div(showRepeatedQuestionsSectionStyling
+                        ? messages.at(MessageKey.HEADING_REPEATED_QUESTIONS.getKeyName())
+                        : "Questions")
+                    .withClasses("text-lg", "font-bold", "py-2"),
+                iff(
+                    showRepeatedQuestionsSectionStyling,
+                    p(messages.at(MessageKey.TEXT_REPEATED_QUESTIONS_DESCRIPTION.getKeyName()))
+                        .withClasses(
+                            "text-gray-cool-50",
+                            "font-ui-sm",
+                            "margin-bottom-1",
+                            "maxw-mobile-lg")));
 
     ImmutableList.Builder<DivTag> questionCardsBuilder = ImmutableList.builder();
 
@@ -700,12 +716,22 @@ public final class ProgramBlocksView extends ProgramBaseView {
               canDeleteBlock(program, blockDefinition),
               enumeratorImprovementsEnabled);
       ButtonTag addQuestion =
-          makeSvgTextButton("Add a question", Icons.ADD)
-              .withCondDisabled(!isEnumeratorBlockComplete)
-              .withClasses(
-                  ButtonStyles.SOLID_BLUE_WITH_ICON,
-                  ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
-                  "my-4");
+          showRepeatedQuestionsSectionStyling
+              ? button("")
+                  .withType("button")
+                  .withCondDisabled(!isEnumeratorBlockComplete)
+                  .withClasses(
+                      "usa-button",
+                      "usa-button--outline",
+                      ReferenceClasses.OPEN_QUESTION_BANK_BUTTON)
+                  .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
+                  .withText(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName()))
+              : makeSvgTextButton("Add a question", Icons.ADD)
+                  .withCondDisabled(!isEnumeratorBlockComplete)
+                  .withClasses(
+                      ButtonStyles.SOLID_BLUE_WITH_ICON,
+                      ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
+                      "my-4");
 
       div.with(blockInfoDisplay, buttons, visibilityPredicateDisplay);
       maybeEligibilityPredicateDisplay.ifPresent(div::with);
@@ -727,13 +753,30 @@ public final class ProgramBlocksView extends ProgramBaseView {
               .map(parent -> parent.enumeratorId().isEmpty())
               .orElse(false);
 
+      if (showRepeatedQuestionsSectionStyling) {
+        if (!isEnumeratorBlockComplete) {
+          programQuestions.with(
+              AlertComponent.renderSlimInfoAlert(
+                  messages.at(MessageKey.ALERT_REPEATED_SET_ADD_QUESTION_DISABLED.getKeyName()),
+                  "maxw-mobile-lg",
+                  "margin-bottom-1"));
+        }
+        programQuestions.with(addQuestion);
+
+        return div.with(
+            programQuestions,
+            iff(
+                enumeratorImprovementsEnabled,
+                renderAddRepeatedScreenButtons(
+                    messages,
+                    blockHasEnumeratorQuestion,
+                    optionalParentEnumeratorBlock,
+                    shouldShowNestedButton)));
+      }
+
       return div.with(
           programQuestions,
           addQuestion,
-          iff(
-              enumeratorImprovementsEnabled && !isEnumeratorBlockComplete,
-              AlertComponent.renderSlimInfoAlert(
-                  messages.at(MessageKey.ALERT_REPEATED_SET_ADD_QUESTION_DISABLED.getKeyName()))),
           iff(
               enumeratorImprovementsEnabled,
               renderAddRepeatedScreenButtons(
@@ -858,7 +901,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .withClasses("text-lg", "font-bold", "margin-bottom-05")
                 .withTabindex(-1),
             p(messages.at(MessageKey.TEXT_REPEATED_SET_QUESTION_DESCRIPTION.getKeyName()))
-                .withClasses("text-base", "text-sm"),
+                .withClasses("text-gray-cool-50", "font-ui-sm"),
             questionCard);
   }
 
@@ -1048,6 +1091,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .setDescription(
                     messages.at(MessageKey.DESCRIPTION_REPEATED_SET_ADMIN_ID.getKeyName()))
                 .setRequired(true)
+                .setAttribute(
+                    "data-admin-id-autofill-template",
+                    messages.at(
+                        MessageKey.INPUT_REPEATED_SET_ADMIN_ID_AUTOFILL_SUGGESTION.getKeyName()))
                 .getUSWDSInputTag(),
             FieldWithLabel.textArea()
                 .setId("question-text-input")
@@ -1057,6 +1104,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .setDescription(
                     messages.at(MessageKey.DESCRIPTION_REPEATED_SET_QUESTION_TEXT.getKeyName()))
                 .setRequired(true)
+                .setAttribute(
+                    "data-question-text-autofill-template",
+                    messages.at(
+                        MessageKey.INPUT_REPEATED_SET_QUESTION_TEXT_AUTOFILL_SUGGESTION
+                            .getKeyName()))
                 .getUSWDSTextareaTag(),
             FieldWithLabel.textArea()
                 .setId("hint-text-input")
@@ -1680,6 +1732,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       BlockDefinition blockDefinition,
       InputTag csrfTag,
       ProgramQuestionBank.Visibility questionBankVisibility,
+      Messages messages,
       Request request) {
     String addQuestionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.create(
@@ -1703,6 +1756,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .build(),
             programBlockValidationFactory,
             settingsManifest,
+            messages,
             request);
     return qb.getContainer(questionBankVisibility);
   }

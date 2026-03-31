@@ -44,8 +44,8 @@
     background-color: #005ea2;
   }
 
-  .usa-button.usa-button--outline,
-  .usa-button.usa-button--unstyled {
+  .usa-button.usa-button--outline:not(:disabled),
+  .usa-button.usa-button--unstyled:not(:disabled) {
     background-color: white;
     color: #005ea2;
   }

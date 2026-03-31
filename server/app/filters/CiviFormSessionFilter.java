@@ -69,7 +69,8 @@ public class CiviFormSessionFilter extends EssentialFilter {
             request
                 .attrs()
                 .getOptional(ProfileUtils.CURRENT_USER_PROFILE)
-                .ifPresent(profile -> profile.getProfileData().updateLastActivityTime(clock));
+                .ifPresent(
+                    profile -> profile.getProfileData().updateLastSessionActivityTime(clock));
             return next.apply(request);
           }
 
@@ -114,8 +115,7 @@ public class CiviFormSessionFilter extends EssentialFilter {
                         Optional<SessionDetails> optionalSession =
                             account.getActiveSession(profile.getProfileData().getSessionId());
 
-                        if (settingsManifest.get().getSessionReplayProtectionEnabled()
-                            && optionalSession.isEmpty()) {
+                        if (optionalSession.isEmpty()) {
                           return redirectToLogout();
                         }
 
@@ -134,7 +134,7 @@ public class CiviFormSessionFilter extends EssentialFilter {
                           }
 
                           // Update last activity time
-                          profile.getProfileData().updateLastActivityTime(clock);
+                          profile.getProfileData().updateLastSessionActivityTime(clock);
 
                           return next.apply(request)
                               .map(

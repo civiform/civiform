@@ -28,6 +28,7 @@ import services.settings.SettingsManifest;
 import views.CspUtil;
 import views.components.Icons;
 import views.html.helper.CSRF;
+import views.shared.FeatureFlags;
 
 public abstract class ApplicantBaseView {
   protected final TemplateEngine templateEngine;
@@ -64,6 +65,10 @@ public abstract class ApplicantBaseView {
       ApplicantPersonalInfo applicantPersonalInfo,
       Messages messages) {
     ThymeleafModule.PlayThymeleafContext context = playThymeleafContextFactory.create(request);
+
+    context.setVariable(
+        "featureFlags", FeatureFlags.fromSettingsManifest(settingsManifest, request));
+
     context.setVariable("civiformImageTag", settingsManifest.getCiviformImageTag().get());
     context.setVariable("addNoIndexMetaTag", settingsManifest.getStagingAddNoindexMetaTag());
     context.setVariable("favicon", settingsManifest.getFaviconUrl().orElse(""));
@@ -172,16 +177,12 @@ public abstract class ApplicantBaseView {
       context.setVariable("extendSessionUrl", routes.SessionController.extendSession().url());
     }
 
-    boolean sessionReplayProtectionEnabled = settingsManifest.getSessionReplayProtectionEnabled();
-    context.setVariable("sessionReplayProtectionEnabled", sessionReplayProtectionEnabled);
-    if (sessionReplayProtectionEnabled) {
-      int sessionDurationMinutes = settingsManifest.getMaximumSessionDurationMinutes().get();
-      String sessionExpirationBanner =
-          messages.at(
-              MessageKey.BANNER_SESSION_EXPIRATION.getKeyName(),
-              getSessionDurationMessage(sessionDurationMinutes, messages));
-      context.setVariable("sessionReplayBanner", sessionExpirationBanner);
-    }
+    int sessionDurationMinutes = settingsManifest.getMaximumSessionDurationMinutes().get();
+    String sessionExpirationBanner =
+        messages.at(
+            MessageKey.BANNER_SESSION_EXPIRATION.getKeyName(),
+            getSessionDurationMessage(sessionDurationMinutes, messages));
+    context.setVariable("sessionReplayBanner", sessionExpirationBanner);
 
     boolean loginDropdownEnabled = settingsManifest.getLoginDropdownEnabled(request);
     context.setVariable("loginDropdownEnabled", loginDropdownEnabled);

@@ -49,6 +49,7 @@ public enum MessageKey {
   ALERT_NO_PROGRAMS_AVAILABLE("alert.noProgramsAvailable"),
   ALERT_REPEATED_SET_ADD_QUESTION_DISABLED("alert.repeatedSet.addQuestionDisabled"),
   ALERT_REPEATED_SET_NEW_QUESTION("alert.repeatedSet.newQuestion"),
+  ALERT_REPEATED_SET_PREVIOUSLY_USED("alert.repeatedSet.previouslyUsed"),
   ALERT_SUBMITTED("alert.submitted"), // North Star only
   BANNER_ERROR_SAVING_APPLICATION("banner.errorSavingApplication"),
   BANNER_CLIENT_INFO_UPDATED("banner.clientInfoUpdated"),
@@ -154,7 +155,9 @@ public enum MessageKey {
   HEADER_SEARCH("header.search"),
   HEADING_INFORMATION_ARIA_LABEL_PREFIX("heading.informationAriaLabelPrefix"), // North Star only
   HEADING_REPEATED_SET_CREATION_METHOD("heading.repeatedSet.creationMethod"),
+  HEADING_REPEATED_SET_PREVIOUSLY_USED("heading.repeatedSet.previouslyUsed"),
   HEADING_REPEATED_SET_QUESTION("heading.repeatedSet.question"),
+  HEADING_REPEATED_QUESTIONS("heading.repeatedQuestions"),
   HEADING_REVIEW_AND_SUBMIT("heading.reviewAndSubmit"), // North Star only
   HEADING_SUCCESS_ARIA_LABEL_PREFIX("heading.successAriaLabelPrefix"), // North Star only
   ID_VALIDATION_NUMBER_REQUIRED("validation.numberRequired"),
@@ -162,10 +165,13 @@ public enum MessageKey {
   ID_VALIDATION_TOO_SHORT("validation.idTooShort"),
   INPUT_LISTED_ENTITY("input.repeatedSet.listedEntity"),
   INPUT_REPEATED_SET_ADMIN_ID("input.repeatedSet.adminId"),
+  INPUT_REPEATED_SET_ADMIN_ID_AUTOFILL_SUGGESTION("input.repeatedSet.adminIdAutofillSuggestion"),
   INPUT_REPEATED_SET_HINT_TEXT("input.repeatedSet.hintText"),
   INPUT_REPEATED_SET_MIN_ENTITIES("input.repeatedSet.minEntities"),
   INPUT_REPEATED_SET_MAX_ENTITIES("input.repeatedSet.maxEntities"),
   INPUT_REPEATED_SET_QUESTION_TEXT("input.repeatedSet.questionText"),
+  INPUT_REPEATED_SET_QUESTION_TEXT_AUTOFILL_SUGGESTION(
+      "input.repeatedSet.questionTextAutofillSuggestion"),
   INVALID_INPUT("validation.invalidInput"),
   LABEL_NEW_REPEATED_SET_FORM("label.repeatedSet.newSetForm"),
   LANGUAGE_LABEL_SR("label.languageSr"),
@@ -231,6 +237,7 @@ public enum MessageKey {
   TAG_MAY_QUALIFY("tag.mayQualify"),
   TAG_MAY_QUALIFY_TI("tag.mayQualifyTi"),
   TEXT_NESTED_REPEATED_SET("text.nestedRepeatedSet"),
+  TEXT_REPEATED_QUESTIONS_DESCRIPTION("text.repeatedQuestions.description"),
   TEXT_REPEATED_SET("text.repeatedSet"),
   TEXT_REPEATED_SET_QUESTION_DESCRIPTION("text.repeatedSet.questionDescription"),
   TEXT_REPEATED_SET_ADD_QUESTION_DESCRIPTION("text.repeatedSet.addQuestionDescription"),

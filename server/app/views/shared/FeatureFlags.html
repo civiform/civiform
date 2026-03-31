@@ -1,0 +1,8 @@
+<!--/*@thymesVar id="featureFlags" type="views.shared.FeatureFlags"*/-->
+<th:block>
+  <script
+    id="feature-flags-data"
+    type="application/json"
+    th:utext="${featureFlags.toJson()}"
+  ></script>
+</th:block>

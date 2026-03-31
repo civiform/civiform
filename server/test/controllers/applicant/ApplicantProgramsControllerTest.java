@@ -449,6 +449,29 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void edit_whenFeatureEnabledAndIsProgramSlugFromUrl_redirectsToFirstBlock() {
+    String programName = "program-name";
+
+    ProgramModel program =
+        ProgramBuilder.newActiveProgram(programName)
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
+            .build();
+
+    Request request = fakeRequestBuilder().build();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    Result result = controller.edit(request, program.getSlug()).toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(FOUND);
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.ApplicantProgramBlocksController.edit(
+                    programName, "1", /* questionName= */ Optional.empty())
+                .url());
+  }
+
+  @Test
   public void edit_redirectToOtherUrl() {
     ProgramModel program = ProgramBuilder.newActiveProgram().build();
     String programId = String.valueOf(program.id);
@@ -461,7 +484,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void editWithApplicanId_whenFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
+  public void editWithApplicantId_whenFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
     ProgramModel program = ProgramBuilder.newActiveProgram().build();
     String programId = String.valueOf(program.id);
 
@@ -478,6 +501,34 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     // param expects a program slug
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
+  public void
+      editWithApplicantId_whenFeatureEnabledAndIsProgramSlugFromUrl_redirectsToFirstBlock() {
+    String programName = "program-name";
+
+    ProgramModel program =
+        ProgramBuilder.newActiveProgram(programName)
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
+            .build();
+
+    Request request = fakeRequestBuilder().build();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    Result result =
+        controller
+            .editWithApplicantId(request, currentApplicant.id, program.getSlug())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(FOUND);
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.ApplicantProgramBlocksController.edit(
+                    programName, "1", /* questionName= */ Optional.empty())
+                .url());
   }
 
   @Test
@@ -633,10 +684,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void
-      showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithSingleHoursAndMinutes() {
+  public void showWithApplicantId_showsMessageWithSingleHoursAndMinutes() {
     SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
-    when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
     when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(90));
 
     setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));
@@ -661,10 +710,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void
-      showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithHoursAndMinutes() {
+  public void showWithApplicantId_showsMessageWithHoursAndMinutes() {
     SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
-    when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
     when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(130));
 
     setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));
@@ -689,10 +736,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void
-      showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithSingleMinute() {
+  public void showWithApplicantId_showsMessageWithSingleMinute() {
     SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
-    when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
     when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(1));
 
     setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));
@@ -716,10 +761,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void
-      showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithMultipleMinutes() {
+  public void showWithApplicantId_showsMessageWithMultipleMinutes() {
     SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
-    when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
     when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(5));
 
     setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));
@@ -743,10 +786,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void
-      showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithMultipleHoursAndSingleMinute() {
+  public void showWithApplicantId_showsMessageWithMultipleHoursAndSingleMinute() {
     SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
-    when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
     when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(121));
 
     setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));
@@ -771,9 +812,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithOneHour() {
+  public void showWithApplicantId_showsMessageWithOneHour() {
     SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
-    when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
     when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(60));
 
     setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));
@@ -797,10 +837,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void
-      showWithApplicantId_withSessionReplayProtectionEnabled_showsMessageWithMultipleHours() {
+  public void showWithApplicantId_showsMessageWithMultipleHours() {
     SettingsManifest spySettingsManifest = spy(instanceOf(SettingsManifest.class));
-    when(spySettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
     when(spySettingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(120));
 
     setupInjectorWithExtraBinding(bind(SettingsManifest.class).toInstance(spySettingsManifest));

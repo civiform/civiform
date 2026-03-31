@@ -15,8 +15,8 @@ test.describe('Pagination', () => {
     await waitForPageJsLoad(page)
 
     await tiDashboard.createMultipleClients('myname', 10)
-    const cardCount = await page.locator('.usa-card__container').count()
-    expect(cardCount).toBe(10)
+    const cardCount = page.locator('.usa-card__container')
+    await expect(cardCount).toHaveCount(10)
 
     // No 'Previous' button
     expect(await page.innerHTML('.usa-pagination__list')).not.toContain(
@@ -54,8 +54,8 @@ test.describe('Pagination', () => {
     await tiDashboard.createMultipleClients('myname', 11)
 
     // Page 1 should still only show 10 clients
-    const cardCount = await page.locator('.usa-card__container').count()
-    expect(cardCount).toBe(10)
+    const cardCount = page.locator('.usa-card__container')
+    await expect(cardCount).toHaveCount(10)
 
     // No 'Previous' button because we're on the 1st page
     expect(await page.innerHTML('.usa-pagination__list')).not.toContain(
@@ -80,8 +80,8 @@ test.describe('Pagination', () => {
     // Going to page 2
     await page.click('[aria-label=Page2]')
 
-    const page2CardCount = await page.locator('.usa-card__container').count()
-    expect(page2CardCount).toBe(1)
+    const page2CardCount = page.locator('.usa-card__container')
+    await expect(page2CardCount).toHaveCount(1)
 
     // Now there should be a 'Previous' button
     expect(await page.innerHTML('.usa-pagination__list')).toContain(

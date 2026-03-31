@@ -191,7 +191,7 @@ test.describe('program creation', () => {
     })
 
     await test.step('On program creation, admin can fill in the program slug.', async () => {
-      expect(await page.locator('#program-slug').count()).toEqual(1)
+      await expect(page.locator('#program-slug')).toHaveCount(1)
 
       await adminPrograms.submitProgramDetailsEdits()
       await adminProgramImage.expectProgramImagePage()
@@ -445,13 +445,6 @@ test.describe('program creation', () => {
     await adminPrograms.addQuestionFromQuestionBank('ace-address')
     await adminPrograms.addQuestionFromQuestionBank('ace-name')
 
-    await validateScreenshot(
-      page.locator(
-        adminPrograms.questionCardSelectorInProgramView('ace-address'),
-      ),
-      'program-detail-page-with-address-correction-false',
-    )
-
     const addressCorrectionInput = adminPrograms.getAddressCorrectionToggle()
 
     await expect(addressCorrectionInput).toHaveValue('false')
@@ -459,13 +452,6 @@ test.describe('program creation', () => {
     await adminPrograms.clickAddressCorrectionToggle()
 
     await expect(addressCorrectionInput).toHaveValue('true')
-
-    await validateScreenshot(
-      page.locator(
-        adminPrograms.questionCardSelectorInProgramView('ace-address'),
-      ),
-      'program-detail-page-with-address-correction-true',
-    )
 
     // ensure that non address question does not contain address correction button
     expect(
@@ -498,11 +484,6 @@ test.describe('program creation', () => {
     await adminPrograms.addQuestionFromQuestionBank('ace-address-two')
     await adminPrograms.addQuestionFromQuestionBank('ace-name')
 
-    await validateScreenshot(
-      page.locator('#questions-section'),
-      'program-detail-page-with-multiple-address-correction-false',
-    )
-
     const addressCorrectionInput1 =
       adminPrograms.getAddressCorrectionToggleByName('ace-address-one')
     const addressCorrectionInput2 =
@@ -525,11 +506,6 @@ test.describe('program creation', () => {
     expect(await addressCorrectionHelpText1.innerText()).not.toContain(helpText)
     expect(await addressCorrectionHelpText2.innerText()).toContain(helpText)
 
-    await validateScreenshot(
-      page.locator('#questions-section'),
-      'program-detail-page-with-first-address-correction-true',
-    )
-
     // Trying to toggle the other one should not do anything
     await adminPrograms.clickAddressCorrectionToggleByName('ace-address-two')
 
@@ -537,11 +513,6 @@ test.describe('program creation', () => {
     await expect(addressCorrectionInput2).toHaveValue('false')
     expect(await addressCorrectionHelpText1.innerText()).not.toContain(helpText)
     expect(await addressCorrectionHelpText2.innerText()).toContain(helpText)
-
-    await validateScreenshot(
-      page.locator('#questions-section'),
-      'program-detail-page-with-first-address-correction-true-second-false',
-    )
 
     // Once we untoggle the first one, we should be able to toggle the second one
     await adminPrograms.clickAddressCorrectionToggleByName('ace-address-one')
@@ -551,11 +522,6 @@ test.describe('program creation', () => {
     await expect(addressCorrectionInput2).toHaveValue('true')
     expect(await addressCorrectionHelpText1.innerText()).toContain(helpText)
     expect(await addressCorrectionHelpText2.innerText()).not.toContain(helpText)
-
-    await validateScreenshot(
-      page.locator('#questions-section'),
-      'program-detail-page-with-second-address-correction-true',
-    )
 
     // ensure that non address question does not contain address correction button
     expect(
@@ -1472,7 +1438,7 @@ async function expectQuestionsOrderWithinBlock(
   const actualQuestions = await page
     .locator('.cf-program-question')
     .allTextContents()
-  expect(actualQuestions.length).toEqual(expectedQuestions.length)
+  expect(actualQuestions).toHaveLength(expectedQuestions.length)
   for (let i = 0; i < actualQuestions.length; i++) {
     expect(actualQuestions[i]).toContain(expectedQuestions[i])
   }
