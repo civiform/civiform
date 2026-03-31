@@ -92,12 +92,14 @@ public class LoginController extends Controller {
   public Result register(Http.Request request, Optional<String> redirectTo) {
     String registerUrl =
         config.hasPath("applicant_register_uri") ? config.getString("applicant_register_uri") : "";
-    if (!registerUrl.isBlank()) {
+    if (registerUrl.isBlank()) {
       logger.warn("Register uri is expected, but not set in the config.");
       if (redirectTo.isEmpty()) {
-        String loginUrl = routes.LoginController.applicantLogin(Optional.of(redirectTo)).url();
-        return redirect(loginUrl);
+        return login(request, applicantClient);
       }
+        return login(request, applicantClient)
+          .addingToSession(request, REDIRECT_TO_SESSION_KEY, redirectTo.get());
+
     }
     // Redirect to the registration URL - then, when the user visits the site again, automatically
     // log them in.
