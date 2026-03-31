@@ -145,7 +145,7 @@ public final class VersionRepository {
         });
   }
 
-  /** Build a map from Question ID to Name for all questions in {@code active} and {@code draft}. */
+  /** Build a map from question ID to name for all questions in {@code active} and {@code draft}. */
   private ImmutableMap<Long, String> buildQuestionIdToNameMap(
       VersionModel active, VersionModel draft) {
     ImmutableMap<Long, String> activeQuestionIdToName = getQuestionIdToNameMap(active);
@@ -161,13 +161,13 @@ public final class VersionRepository {
    *
    * <p>Skips tombstoned questions.
    *
-   * @param questionIdToName map from Question ID to Name.
-   * @param questionToProgramResultMap map to populate data into.
+   * @param questionIdToName map from question ID to name.
+   * @param questionToProgramDataMap map to populate data into.
    */
   private void reverseMapDraftProgramQuestions(
       VersionModel draft,
       ImmutableMap<Long, String> questionIdToName,
-      Map<String, Set<PublishProgramPreview>> questionToProgramResultMap) {
+      Map<String, Set<PublishProgramPreview>> questionToProgramDataMap) {
     for (ProgramModel program : getProgramsForVersion(draft)) {
       ProgramDefinition def = programRepository.getShallowProgramDefinition(program);
       if (draft.programIsTombstoned(def.adminName())) {
@@ -176,7 +176,7 @@ public final class VersionRepository {
       PublishProgramPreview ref =
           new PublishProgramPreview(def.adminName(), def.displayMode(), def.localizedName());
       for (String questionName : getProgramQuestionNames(def, questionIdToName)) {
-        questionToProgramResultMap.computeIfAbsent(questionName, k -> Sets.newHashSet()).add(ref);
+        questionToProgramDataMap.computeIfAbsent(questionName, k -> Sets.newHashSet()).add(ref);
       }
     }
   }
@@ -187,14 +187,14 @@ public final class VersionRepository {
    * <p>Skips any programs present or tombstoned in {@code draft} as the draft versions may have
    * altered them.
    *
-   * @param questionIdToName map from Question ID to Name.
-   * @param questionToProgramResultMap map to populate data into.
+   * @param questionIdToName map from question ID to name.
+   * @param questionToProgramDataMap map to populate data into.
    */
   private void reverseMapUniquelyActiveProgramQuestions(
       VersionModel draft,
       VersionModel active,
       ImmutableMap<Long, String> questionIdToName,
-      Map<String, Set<PublishProgramPreview>> questionToProgramResultMap) {
+      Map<String, Set<PublishProgramPreview>> questionToProgramDataMap) {
     ImmutableSet<String> draftProgramNames = getProgramNamesForVersion(draft);
     for (ProgramModel program : getProgramsForVersion(active)) {
       ProgramDefinition def = programRepository.getShallowProgramDefinition(program);
@@ -209,7 +209,7 @@ public final class VersionRepository {
       PublishProgramPreview ref =
           new PublishProgramPreview(def.adminName(), def.displayMode(), def.localizedName());
       for (String questionName : getProgramQuestionNames(def, questionIdToName)) {
-        questionToProgramResultMap.computeIfAbsent(questionName, k -> Sets.newHashSet()).add(ref);
+        questionToProgramDataMap.computeIfAbsent(questionName, k -> Sets.newHashSet()).add(ref);
       }
     }
   }
