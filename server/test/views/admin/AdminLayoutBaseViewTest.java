@@ -3,14 +3,10 @@ package views.admin;
 import static org.assertj.core.api.Assertions.assertThat;
 import static support.FakeRequestBuilder.fakeRequest;
 
-import auth.ProfileUtils;
 import controllers.WithMockedProfiles;
-import modules.ThymeleafModule;
 import org.junit.Before;
 import org.junit.Test;
-import org.thymeleaf.TemplateEngine;
-import services.BundledAssetsFinder;
-import services.settings.SettingsManifest;
+import views.shared.LayoutDeps;
 
 public class AdminLayoutBaseViewTest extends WithMockedProfiles {
   private record CustomViewModel() implements BaseViewModel {}
@@ -18,19 +14,8 @@ public class AdminLayoutBaseViewTest extends WithMockedProfiles {
   public static class CustomView extends AdminLayoutBaseView<CustomViewModel> {
     private final String pageTemplate;
 
-    public CustomView(
-        TemplateEngine templateEngine,
-        ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
-        SettingsManifest settingsManifest,
-        BundledAssetsFinder bundledAssetsFinder,
-        ProfileUtils profileUtils,
-        String pageTemplate) {
-      super(
-          templateEngine,
-          playThymeleafContextFactory,
-          settingsManifest,
-          bundledAssetsFinder,
-          profileUtils);
+    public CustomView(LayoutDeps layoutDeps, String pageTemplate) {
+      super(layoutDeps);
       this.pageTemplate = pageTemplate;
     }
 
@@ -46,13 +31,7 @@ public class AdminLayoutBaseViewTest extends WithMockedProfiles {
   }
 
   private CustomView createView(String pageTemplate) {
-    return new CustomView(
-        instanceOf(TemplateEngine.class),
-        instanceOf(ThymeleafModule.PlayThymeleafContextFactory.class),
-        instanceOf(SettingsManifest.class),
-        instanceOf(BundledAssetsFinder.class),
-        instanceOf(ProfileUtils.class),
-        pageTemplate);
+    return new CustomView(instanceOf(LayoutDeps.class), pageTemplate);
   }
 
   @Before

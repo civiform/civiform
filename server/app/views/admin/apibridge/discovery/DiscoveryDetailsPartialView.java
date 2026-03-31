@@ -1,20 +1,15 @@
 package views.admin.apibridge.discovery;
 
 import com.google.inject.Inject;
-import modules.ThymeleafModule;
-import org.thymeleaf.TemplateEngine;
-import services.settings.SettingsManifest;
 import views.admin.BaseView;
+import views.shared.BaseViewDeps;
 
 /** View setup for rendering the DiscoveryDetailsPartial.html */
 public class DiscoveryDetailsPartialView extends BaseView<DiscoveryDetailsPartialViewModel> {
 
   @Inject
-  public DiscoveryDetailsPartialView(
-      TemplateEngine templateEngine,
-      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
-      SettingsManifest settingsManifest) {
-    super(templateEngine, playThymeleafContextFactory, settingsManifest);
+  public DiscoveryDetailsPartialView(BaseViewDeps baseViewDeps) {
+    super(baseViewDeps);
   }
 
   @Override

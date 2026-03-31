@@ -1,10 +1,8 @@
 package views.admin.programs.predicates;
 
 import javax.inject.Inject;
-import modules.ThymeleafModule;
-import org.thymeleaf.TemplateEngine;
-import services.settings.SettingsManifest;
 import views.admin.BaseView;
+import views.shared.BaseViewDeps;
 
 /**
  * Partial view for rendering EditConditionPartial.html. This partial is used for editing a
@@ -12,11 +10,8 @@ import views.admin.BaseView;
  */
 public final class EditConditionPartialView extends BaseView<EditConditionPartialViewModel> {
   @Inject
-  public EditConditionPartialView(
-      TemplateEngine templateEngine,
-      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
-      SettingsManifest settingsManifest) {
-    super(templateEngine, playThymeleafContextFactory, settingsManifest);
+  public EditConditionPartialView(BaseViewDeps baseViewDeps) {
+    super(baseViewDeps);
   }
 
   @Override
