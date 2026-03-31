@@ -1332,6 +1332,50 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void
+      update_withProgramSlugUrlsEnabled_requestedActionNext_redirectsToEditNextBlockWithProgramSlug() {
+
+    Request request =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
+                    "FirstName",
+                    Path.create("applicant.applicant_name").join(Scalar.LAST_NAME).toString(),
+                    "LastName"))
+            .build();
+
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("block 1")
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
+            .withBlock("block 2")
+            .withRequiredQuestion(testQuestionBank().addressApplicantAddress())
+            .build();
+
+    Result result =
+        subject
+            .updateWithApplicantId(
+                request,
+                applicant.id,
+                program.id,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper(NEXT_BLOCK))
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    String nextBlockEditRoute =
+        routes.ApplicantProgramBlocksController.edit(
+                program.getSlug(), /* blockId= */ "2", /* questionName= */ Optional.empty())
+            .url();
+    assertThat(result.redirectLocation()).hasValue(nextBlockEditRoute);
+  }
+
+  @Test
   public void update_withNextBlock_requestedActionNext_redirectsToEditNextBlock() {
     program =
         ProgramBuilder.newActiveProgram()
@@ -1672,6 +1716,46 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void
+      update_completedProgram_withProgramSlugUrlsEnabled_redirectsToReviewPageWithProgramSlug() {
+    Request request =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
+                    "FirstName",
+                    Path.create("applicant.applicant_name").join(Scalar.LAST_NAME).toString(),
+                    "LastName"))
+            .build();
+
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("block 1")
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
+            .build();
+
+    Result result =
+        subject
+            .updateWithApplicantId(
+                request,
+                applicant.id,
+                program.id,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+
+    String reviewRoute = routes.ApplicantProgramReviewController.review(program.getSlug()).url();
+
+    assertThat(result.redirectLocation()).hasValue(reviewRoute);
+  }
+
+  @Test
   public void addFile_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
     Request request = fakeRequestBuilder().build();
     when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
@@ -1707,13 +1791,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         .hasMessage("Could not parse value from 'program' to a numeric value");
   }
 
-  /**
-   * Tests that addFile() redirects to another page when the feature is enabled and is from url call
-   * with a program slug. addFile() also redirects for other combinations: when the feature is
-   * disabled OR when the call is not from a URL OR when the program param is a program slug (not
-   * numeric), AND the program ID was properly retrieved. We don't test all combinations here
-   * because the ProgramSlugHandler tests have a comprehensive test cover for them.
-   */
   @Test
   public void addFile_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_works() {
     ProgramModel activeProgram =
@@ -1732,12 +1809,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .toCompletableFuture()
             .join();
 
-    // When addFile() is successful, it calls addFileWithApplicantId() which redirects to a
-    // different route. We don't test which specific route here since that is covered on the
-    // updateFileWithApplicantId() unit tests. Instead, we can just verify the redirect route is
-    // for the same program.
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation().get()).contains(Long.toString(activeProgram.id));
+    assertThat(result.redirectLocation().get()).contains(programSlug);
   }
 
   @Test
@@ -1784,13 +1857,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         .hasMessage("Could not parse value from 'program' to a numeric value");
   }
 
-  /**
-   * Tests that addFileWithApplicantId() redirects to another page when the feature is enabled and
-   * is from url call with a program slug. addFile() also redirects for other combinations: when the
-   * feature is disabled OR when the call is not from a URL OR when the program param is a program
-   * slug (not numeric), AND the program ID was properly retrieved. We don't test all combinations
-   * here because the ProgramSlugHandler tests have a comprehensive test cover for them.
-   */
   @Test
   public void
       addFileWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_works() {
@@ -1811,10 +1877,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .toCompletableFuture()
             .join();
 
-    // When addFileWithApplicantId() it redirects to a different route. Next test verify the
-    // possible outcomes in more detail.
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation().get()).contains(Long.toString(activeProgram.id));
+    assertThat(result.redirectLocation().get()).contains(programSlug);
   }
 
   @Test
@@ -2261,14 +2325,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         .hasMessage("Could not parse value from 'program' to a numeric value");
   }
 
-  /**
-   * Tests that removeFile() redirects to another page when the feature is enabled and is from url
-   * call with a program slug. removeFileWithApplicantId() also redirects for other combinations:
-   * when the feature is disabled OR when the call is not from a URL OR when the program param is a
-   * program slug (not numeric), AND the program ID was properly retrieved. We don't test all
-   * combinations here because the ProgramSlugHandler tests have a comprehensive test cover for
-   * them.
-   */
   @Test
   public void
       removeFileWithApplicantid_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_works() {
@@ -2295,7 +2351,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation().get()).contains(Long.toString(activeProgram.id));
+    assertThat(result.redirectLocation().get()).contains(programSlug);
   }
 
   @Test
@@ -2417,13 +2473,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         .hasMessage("Could not parse value from 'program' to a numeric value");
   }
 
-  /**
-   * Tests that removeFile() redirects to another page when the feature is enabled and is from url
-   * call with a program slug. removeFile() also redirects for other combinations: when the feature
-   * is disabled OR when the call is not from a URL OR when the program param is a program slug (not
-   * numeric), AND the program ID was properly retrieved. We don't test all combinations here
-   * because the ProgramSlugHandler tests have a comprehensive test cover for them.
-   */
   @Test
   public void removeFile_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_works() {
     ProgramModel activeProgram =
@@ -2447,11 +2496,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .toCompletableFuture()
             .join();
 
-    // When removeFile() is successful, it calls removeFileWithApplicantId() which redirects to a
-    // different route. We don't test which specific route here since that is covered on the
-    // next unit tests in detail.
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation().get()).contains(Long.toString(activeProgram.id));
+    assertThat(result.redirectLocation().get()).contains(programSlug);
   }
 
   @Test
@@ -3063,6 +3109,87 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void
+      confirmAddress_withProgramSlugUrlsEnabled_requestedActionNext_savesSuggestionAndRedirectsToNextWithProgramSlug() {
+
+    String address = "456 Suggested Ave, Seattle, Washington, 99999";
+    AddressSuggestion addressSuggestion =
+        AddressSuggestion.builder()
+            .setAddress(
+                Address.builder()
+                    .setStreet("456 Suggested Ave")
+                    .setLine2("")
+                    .setCity("Seattle")
+                    .setState("WA")
+                    .setZip("99999")
+                    .build())
+            .setScore(90)
+            .setLocation(
+                AddressLocation.builder()
+                    .setLatitude(3.0)
+                    .setLongitude(3.1)
+                    .setWellKnownId(4)
+                    .build())
+            .setSingleLineAddress(address)
+            .build();
+    String addressSuggestionString =
+        addressSuggestionJsonSerializer.serialize(ImmutableList.of(addressSuggestion));
+
+    // The selected address (set in the body form with the key SELECTED_ADDRESS_NAME) should match
+    // one of the address suggestions (set in the form with the key ADDRESS_JSON_FIELD_NAME).
+    Request request =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    AddressCorrectionBlockView.SELECTED_ADDRESS_NAME,
+                    address,
+                    AddressCorrectionBlockView.ADDRESS_JSON_FIELD_NAME,
+                    addressSuggestionString))
+            .build();
+
+    when(settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("block 1")
+            .withRequiredCorrectedAddressQuestion(testQuestionBank().addressApplicantAddress())
+            .withBlock("block 2")
+            .withRequiredQuestion(testQuestionBank().dropdownApplicantIceCream())
+            .build();
+
+    Result result =
+        subject
+            .confirmAddressWithApplicantId(
+                request,
+                applicant.id,
+                program.id,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper(NEXT_BLOCK))
+            .toCompletableFuture()
+            .join();
+
+    // Check that the user is redirected to the next block
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    String nextBlockEditRoute =
+        routes.ApplicantProgramBlocksController.edit(
+                program.getSlug(), /* blockId= */ "2", /* questionName= */ Optional.empty())
+            .url();
+    assertThat(result.redirectLocation()).hasValue(nextBlockEditRoute);
+
+    // Check that the selected suggested address is saved
+    applicant.refresh();
+    String applicantData = applicant.getApplicantData().asJsonString();
+    assertThat(applicantData).contains("456 Suggested Ave");
+    assertThat(applicantData).contains("Seattle");
+    assertThat(applicantData).contains("99999");
+    assertThat(applicantData).contains("Corrected");
+
+    // Check that the address suggestions are cleared from the session
+    assertThat(result.session()).isNull();
+  }
+
+  @Test
   public void confirmAddress_requestedActionReview_addressSavedAndRedirectedToReview() {
     program =
         ProgramBuilder.newActiveProgram()
@@ -3148,6 +3275,54 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 Long.toString(program.id), previousBlockIndex, /* inReview= */ false)
             .url();
     assertThat(result.redirectLocation()).hasValue(previousBlockEditRoute);
+
+    // Check that the selected suggested address is saved
+    applicant.refresh();
+    String applicantData = applicant.getApplicantData().asJsonString();
+    assertThat(applicantData).contains(SUGGESTED_ADDRESS_STREET);
+    assertThat(applicantData).contains("Corrected");
+  }
+
+  @Test
+  public void
+      confirmAddress_withProgramSlugUrlsEnabled_requestedActionPrevious_redirectedToReviewScreenWithProgramSlug() {
+    Request request =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    AddressCorrectionBlockView.SELECTED_ADDRESS_NAME,
+                    SUGGESTED_ADDRESS,
+                    AddressCorrectionBlockView.ADDRESS_JSON_FIELD_NAME,
+                    createAddressSuggestionsJson()))
+            .build();
+
+    when(settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("block 1")
+            .withRequiredCorrectedAddressQuestion(testQuestionBank().addressApplicantAddress())
+            .withBlock("block 2")
+            .withRequiredQuestion(testQuestionBank().dropdownApplicantIceCream())
+            .build();
+
+    Result result =
+        subject
+            .confirmAddressWithApplicantId(
+                request,
+                applicant.id,
+                program.id,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper(ApplicantRequestedAction.PREVIOUS_BLOCK))
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    // The 1st block was filled in and there is no previous block, so should be redirected to review
+    // screen
+    String reviewRoute = routes.ApplicantProgramReviewController.review(program.getSlug()).url();
+    assertThat(result.redirectLocation()).hasValue(reviewRoute);
 
     // Check that the selected suggested address is saved
     applicant.refresh();

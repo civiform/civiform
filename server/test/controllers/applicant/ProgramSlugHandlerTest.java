@@ -528,6 +528,60 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void showProgramPreview_withProgramSlugFlag_disabledProgram_redirectsToReviewPage() {
+
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("disabled program", DisplayMode.DISABLED).buildDefinition();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+
+    Langs mockLangs = mock(Langs.class);
+    when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
+
+    SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
+    Request request = fakeRequestBuilder().build();
+    when(mockSettingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    ApplicationModel app =
+        new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.ACTIVE);
+    app.save();
+
+    LanguageUtils languageUtils =
+        new LanguageUtils(
+            instanceOf(AccountRepository.class),
+            mockLangs,
+            mockSettingsManifest,
+            instanceOf(MessagesApi.class));
+    CiviFormController controller = instanceOf(CiviFormController.class);
+    ApplicantRoutes applicantRoutes = instanceOf(ApplicantRoutes.class);
+
+    ProgramSlugHandler handler =
+        new ProgramSlugHandler(
+            instanceOf(ClassLoaderExecutionContext.class),
+            instanceOf(ApplicantService.class),
+            instanceOf(ProfileUtils.class),
+            instanceOf(ProgramService.class),
+            languageUtils,
+            applicantRoutes,
+            instanceOf(ProgramOverviewView.class),
+            instanceOf(MessagesApi.class),
+            mockSettingsManifest,
+            instanceOf(ProgramRepository.class));
+    Result result =
+        handler
+            .showProgramPreview(controller, request, programDefinition.slug())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+
+    assertThat(result.redirectLocation())
+        .contains(
+            controllers.applicant.routes.ApplicantProgramReviewController.review(
+                    programDefinition.slug())
+                .url());
+  }
+
+  @Test
   public void showProgram_withExternalProgram_returnsBadRequest() {
     // Create an external program
     ProgramModel externalProgram =

@@ -400,6 +400,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
         settingsManifest
             .getFileUploadAllowedFileTypeSpecifiers()
             .orElse(ALLOWED_FILE_TYPE_SPECIFIERS_FALLBACK));
+
     String previousBlockRoute =
         applicantRoutes
             .blockPreviousOrReview(
@@ -411,6 +412,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
             .url();
     String reviewRoute =
         applicantRoutes.review(params.profile(), params.applicantId(), params.programId()).url();
+
     if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
       previousBlockRoute =
           applicantRoutes
