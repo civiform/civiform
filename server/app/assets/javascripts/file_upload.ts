@@ -1,5 +1,6 @@
 import {addEventListenerToElements, assertNotNull} from '@/util'
 import {isFileTooLarge} from '@/file_upload_util'
+import {featureFlags} from '@/global/shared/feature_flags'
 
 const UPLOAD_ATTR = 'data-upload-text'
 const UPLOADED_FILE_ATTR = 'data-uploaded-files'
@@ -59,7 +60,7 @@ export function init() {
     // When file upload improvements are enabled, HTMX handles the upload so we skip
     // the form submit.
     const fileUploadImprovementsEnabled =
-      blockForm.getAttribute('data-file-upload-improvements-enabled') === 'true'
+      featureFlags().isFileUploadQuestionImprovementsEnabled
     if (
       validateFileUploadQuestion(blockForm) &&
       !uploadedDivs.length &&

@@ -1,6 +1,6 @@
 <div id="sample-question" class="margin-y-4 flex-5">
   <th:block
-    th:if="${question.getType().getLabel() == 'File Upload' && !fileUploadImprovementsEnabled}"
+    th:if="${question.getType().getLabel() == 'File Upload' && !featureFlags.isFileUploadQuestionImprovementsEnabled()}"
   >
     <div
       th:replace="~{questiontypes/FileUploadQuestionFragment :: file-upload(${question}, ${questionRendererParams})}"
@@ -8,7 +8,7 @@
   </th:block>
 
   <div
-    th:if="${question.getType().getLabel() != 'File Upload' || fileUploadImprovementsEnabled}"
+    th:if="${question.getType().getLabel() != 'File Upload' || featureFlags.isFileUploadQuestionImprovementsEnabled()}"
     th:replace="~{questiontypes/QuestionFragment :: applicant-question(${question}, ${questionRendererParams}, ${stateAbbreviations}, ${enumMaxEntityCount})}"
   ></div>
   <div

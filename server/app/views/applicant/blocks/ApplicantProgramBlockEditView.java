@@ -132,18 +132,15 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
         questionParams.values().stream().anyMatch(param -> param.shouldShowErrorsWithModal());
     context.setVariable("showErrorModal", showErrorModal);
 
-    boolean fileUploadImprovementsEnabled =
-        settingsManifest.getFileUploadQuestionImprovementsEnabled(request);
-
     // Include file upload specific parameters.
-    if (applicationParams.block().isFileUpload() && !fileUploadImprovementsEnabled) {
+    if (applicationParams.block().isFileUpload()
+        && !settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
       this.addFileUploadParameters(request, applicationParams, context);
 
       return templateEngine.process(
           "applicant/blocks/ApplicantProgramFileUploadBlockEditTemplate", context);
     } else {
 
-      context.setVariable("fileUploadImprovementsEnabled", fileUploadImprovementsEnabled);
       context.setVariable(
           "maxFileSizeMb", applicationParams.applicantStorageClient().getFileLimitMb());
       context.setVariable(

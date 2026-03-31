@@ -41,7 +41,9 @@
       ></div>
     </th:block>
     <th:block th:case="'File Upload'">
-      <th:block th:if="${fileUploadImprovementsEnabled}">
+      <th:block
+        th:if="${featureFlags.isFileUploadQuestionImprovementsEnabled()}"
+      >
         <div
           th:replace="~{questiontypes/FileUploadQuestionFragment :: file-upload(${question}, ${questionRendererParams})}"
         ></div>
