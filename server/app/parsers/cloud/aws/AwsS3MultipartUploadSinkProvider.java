@@ -13,8 +13,7 @@ import services.cloud.StorageServiceName;
 public final class AwsS3MultipartUploadSinkProvider
     extends GenericMultipartUploadSinkProvider<MultipartUploadResult> {
   public AwsS3MultipartUploadSinkProvider() {
-    super();
-    this.storageServiceName = StorageServiceName.AWS_S3;
+    super(StorageServiceName.AWS_S3);
   }
 
   // Get the base sink for AWS S3 multipart upload, which will be composed with additional stages

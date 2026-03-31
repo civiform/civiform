@@ -11,7 +11,7 @@ public final class NoOpMultipartUploadSinkProvider
     extends GenericMultipartUploadSinkProvider<Void> {
 
   public NoOpMultipartUploadSinkProvider(StorageServiceName storageServiceName) {
-    this.storageServiceName = storageServiceName;
+    super(storageServiceName);
   }
 
   @Override
@@ -21,7 +21,7 @@ public final class NoOpMultipartUploadSinkProvider
   }
 
   @Override
-  // Do nothing, and then return a result of INVALID_STATUS
+  // Do nothing, and then return a result of NOT_IMPLEMENTED
   public Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> getUploadSink(
       String bucketName, String fileKey) {
     return getBaseSink(bucketName, fileKey)
@@ -30,7 +30,7 @@ public final class NoOpMultipartUploadSinkProvider
               // Return a completed future with no result, since this is just a placeholder
               return CompletableFuture.completedFuture(
                   StreamingMultipartUploadResult.builder()
-                      .setStatus(StreamingMultipartUploadResult.Status.INVALID_STATUS)
+                      .setStatus(StreamingMultipartUploadResult.Status.NOT_IMPLEMENTED)
                       .setStorageServiceName(storageServiceName)
                       .build());
             });

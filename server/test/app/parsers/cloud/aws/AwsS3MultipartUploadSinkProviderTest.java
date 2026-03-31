@@ -11,7 +11,6 @@ import static org.mockito.Mockito.when;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import org.apache.pekko.actor.ActorSystem;
-import org.apache.pekko.stream.Materializer;
 import org.apache.pekko.stream.connectors.s3.MultipartUploadResult;
 import org.apache.pekko.stream.javadsl.Sink;
 import org.apache.pekko.stream.javadsl.Source;
@@ -29,13 +28,9 @@ public class AwsS3MultipartUploadSinkProviderTest {
   private Sink<ByteString, CompletionStage<MultipartUploadResult>> fakeAwsSink;
   private ActorSystem system;
 
-  // The materializer is used under the hood here, but not called directly.
-  private Materializer unused;
-
   @Before
   public void setUp() {
     system = ActorSystem.create("TestSystem");
-    unused = Materializer.createMaterializer(system);
 
     uploadSinkProvider = spy(new AwsS3MultipartUploadSinkProvider());
     MultipartUploadResult mockResult = mock(MultipartUploadResult.class);

@@ -12,7 +12,7 @@ public abstract class StreamingMultipartUploadResult {
   public enum Status {
     SUCCESS,
     FAILURE,
-    INVALID_STATUS // Should not reach this state
+    NOT_IMPLEMENTED // Should not reach this state
   }
 
   public abstract Status getStatus();

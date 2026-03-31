@@ -6,7 +6,6 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException.BadValue;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import org.apache.pekko.stream.connectors.s3.javadsl.S3;
 import org.apache.pekko.stream.javadsl.Sink;
 import org.apache.pekko.util.ByteString;
 import parsers.StreamingMultipartUploadResult;
@@ -40,7 +39,7 @@ public final class MultipartUploadSinks {
 
   // Return the StorageServiceName for the currently selected cloud storage provider
   private StorageServiceName getStorageService() {
-    String storageProvider = checkNotNull(config).getString("cloud.storage");
+    String storageProvider = config.getString("cloud.storage");
     return StorageServiceName.forString(storageProvider)
         .orElseThrow(
             () ->

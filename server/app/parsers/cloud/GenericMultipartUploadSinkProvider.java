@@ -8,7 +8,11 @@ import parsers.StreamingMultipartUploadResult;
 import services.cloud.StorageServiceName;
 
 public abstract class GenericMultipartUploadSinkProvider<T> {
-  protected StorageServiceName storageServiceName;
+  protected final StorageServiceName storageServiceName;
+
+  public GenericMultipartUploadSinkProvider(StorageServiceName storageServiceName) {
+    this.storageServiceName = storageServiceName;
+  }
 
   // Get the composed sink to upload to the cloud storage provider, returning a custom result class.
   public abstract Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> getUploadSink(
