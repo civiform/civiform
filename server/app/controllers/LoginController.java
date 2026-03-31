@@ -95,7 +95,8 @@ public class LoginController extends Controller {
     if (registerUrl.isBlank()) {
       logger.warn("Register uri is expected, but not set in the config.");
       if (redirectTo.isEmpty()) {
-        return login(request, applicantClient);
+        return login(request, applicantClient)
+            .removingFromSession(request, REDIRECT_TO_SESSION_KEY);
       }
       return login(request, applicantClient)
           .addingToSession(request, REDIRECT_TO_SESSION_KEY, redirectTo.get());
