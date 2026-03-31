@@ -154,8 +154,12 @@ public abstract class ApplicantBaseView {
             + "</a>");
     context.setVariable(
         "endSessionLinkAriaLabel", messages.at(MessageKey.END_YOUR_SESSION.getKeyName()));
-    context.setVariable(
-        "loginLink", routes.LoginController.applicantLogin(Optional.of(request.uri())).url());
+    String loginUrl =
+        controllers.routes.LoginController.applicantLogin(Optional.of(request.uri())).url();
+    context.setVariable("loginLink", loginUrl);
+    String registerUrl =
+        controllers.routes.LoginController.register(Optional.of(request.uri())).url();
+    context.setVariable("createAccountLink", registerUrl);
     if (!isGuest) {
       context.setVariable(
           "loggedInAs", getAccountIdentifier(isTi, profile, applicantPersonalInfo, messages));

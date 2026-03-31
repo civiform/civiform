@@ -112,11 +112,6 @@ public class ApplicantUpsellView extends ApplicantBaseView {
             .url();
     context.setVariable("downloadHref", downloadHref);
 
-    // Create account or login alert
-    context.setVariable(
-        "createAccountLink",
-        controllers.routes.LoginController.register(Optional.of(applyToProgramsUrl)).url());
-
     // Cards section
     Optional<ProgramSectionParams> cardsSection = Optional.empty();
     if (settingsManifest.getSuggestProgramsOnApplicationConfirmationPage(params.request())) {

@@ -70,10 +70,6 @@ public class ApplicantPreScreenerUpsellView extends ApplicantBaseView {
             .url();
     context.setVariable("goBackHref", goBackHref);
 
-    // Create account or login alert
-    context.setVariable(
-        "createAccountLink", controllers.routes.LoginController.register(Optional.empty()).url());
-
     if (params.eligiblePrograms().isPresent()) {
       Locale userLocale = params.messages().lang().toLocale();
 
