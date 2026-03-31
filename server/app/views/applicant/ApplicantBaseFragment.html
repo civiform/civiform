@@ -20,6 +20,8 @@
 
   <title th:text="${pageTitle}"></title>
 
+  <th:block th:insert="~{shared/FeatureFlags}" />
+
   <th:block th:if="${useBundlerDevServer}">
     <script
       th:if="${viteClientUrl}"
