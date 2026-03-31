@@ -135,7 +135,7 @@ public final class VersionRepository {
               draft, combinedQuestionIdToName, questionToProgramResultMap);
 
           // 2. For all Active Programs not in the Draft, do the same.
-          mapActiveProgramQuestionIdsToName(
+          mapUniquelyActiveProgramQuestionIdsToName(
               draft, active, combinedQuestionIdToName, questionToProgramResultMap);
 
           return questionToProgramResultMap.entrySet().stream()
@@ -184,12 +184,13 @@ public final class VersionRepository {
   /**
    * Map all active program question IDs to their Names.
    *
-   * <p>Skips any programs present or tombstoned in {@code draft}.
+   * <p>Skips any programs present or tombstoned in {@code draft} as the draft versions may have
+   * altered them.
    *
    * @param questionIdToName map from Question ID to Name.
    * @param questionToProgramResultMap map to populate data into.
    */
-  private void mapActiveProgramQuestionIdsToName(
+  private void mapUniquelyActiveProgramQuestionIdsToName(
       VersionModel draft,
       VersionModel active,
       ImmutableMap<Long, String> questionIdToName,
