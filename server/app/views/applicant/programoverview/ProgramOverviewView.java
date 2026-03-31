@@ -100,8 +100,6 @@ public class ProgramOverviewView extends ApplicantBaseView {
       context.setVariable("isEligible", isEligible);
     }
 
-    String programOverviewPageUrl =
-        applicantRoutes.show(profile, applicantId, programDefinition.slug()).url();
     context.setVariable("showEligibilityAlert", showEligibilityAlert);
     context.setVariable("loginOnly", programDefinition.loginOnly());
 
