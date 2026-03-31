@@ -1089,6 +1089,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("IMMIGRATION_STATUS_INFO_BANNER_ENABLED", request);
   }
 
+  /** Enables using login link instead of register link for applicants. */
+  public boolean getLoginLinkInsteadOfRegisterLinkEnabled(RequestHeader request) {
+    return getBool("LOGIN_LINK_INSTEAD_OF_REGISTER_LINK_ENABLED", request);
+  }
+
   /** (NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration. */
   public boolean getSessionTimeoutEnabled(RequestHeader request) {
     return getBool("SESSION_TIMEOUT_ENABLED", request);
@@ -2372,6 +2377,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "IMMIGRATION_STATUS_INFO_BANNER_ENABLED",
                           "Enable showing an immigration status informational banner to"
                               + " applicants.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "LOGIN_LINK_INSTEAD_OF_REGISTER_LINK_ENABLED",
+                          "Enables using login link instead of register link for applicants.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))

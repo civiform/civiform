@@ -9,6 +9,7 @@ import {
   validateScreenshot,
   selectApplicantLanguage,
   waitForPageJsLoad,
+  enableFeatureFlag,
 } from '../support'
 import {Eligibility, ProgramLifecycle} from '../support/admin_programs'
 
@@ -300,7 +301,7 @@ test.describe('Applicant program overview', () => {
     })
 
     await test.step(`clicks on visit homepage button and it takes me to home page`, async () => {
-      await page.click('#visit-home-page-button')
+      await page.locator('#visit-home-page-button').click()
       expect(page.url()).toContain('/programs')
       await expect(
         page.getByRole('heading', {
@@ -414,6 +415,24 @@ test.describe('Applicant program overview', () => {
         .getByRole('button', {name: 'Start application as a guest'})
         .click()
       await applicantProgramOverview.expectFirstPageOfApplication()
+    })
+  })
+
+  test('when login_link_instead_of_register_link_enabled is on, start application with account redirects to login', async ({
+    page,
+  }) => {
+    await enableFeatureFlag(page, 'login_link_instead_of_register_link_enabled')
+    await page.goto(`/programs/${programName}`)
+
+    await test.step('verify the create account alert button points to login', async () => {
+      const createAccountButton = page.getByRole('button', {
+        name: 'Start application with an account',
+      })
+      await expect(createAccountButton).toBeVisible()
+      await expect(createAccountButton).toHaveAttribute(
+        'href',
+        '/applicantLogin?redirectTo=%2Fprograms%2Ftest',
+      )
     })
   })
 
