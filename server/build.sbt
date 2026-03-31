@@ -127,7 +127,7 @@ lazy val root = (project in file("."))
       "commons-net" % "commons-net" % "3.12.0",
 
       // Apache libraries for external Pekko connectors
-      "org.apache.pekko" %% "pekko-connectors-s3" % "1.2.0",
+      "org.apache.pekko" %% "pekko-connectors-s3" % "1.3.0",
 
       // Explicitly include Pekko libraries that otherwise would be
       // incompatible due to version mismatches with the default versions.
