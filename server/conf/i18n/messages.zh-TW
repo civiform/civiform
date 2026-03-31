@@ -67,6 +67,7 @@ label.primaryNavigation=主要導覽
 label.agencyIdentifier=代理商 ID
 # Aria-label for guest session alert
 label.guestSessionAlert=僅供參考的訪客工作階段警告
+
 # Link to skip to the main content of the page
 link.skipToMainContent=跳至主要內容
 
@@ -1057,6 +1058,21 @@ banner.hour=1 小時
 banner.minute=1 分鐘
 
 #------------------------------------------------------------------------------#
+# DATA SECURITY BANNER - alert explaining data protection to users             #
+#------------------------------------------------------------------------------#
+
+# Header for data security banner alert
+label.immigrationStatusInfoBanner.heading=歡迎移民與難民
+# Aria-label for data security banner alert
+label.immigrationStatusInfoBanner.label=移民身份資訊警示
+# Text in the data security banner explaining how user data is protected when no learn more link is configured
+banner.immigrationStatusInfoBanner.body=我們不會過問您的公民或移民身份。
+# Text in the data security banner explaining how user data is protected - the placeholder says 'here' and is a link to more information
+banner.immigrationStatusInfoBanner.bodyWithLink=我們不會過問您的公民或移民身份。您可在 {0} 進一步了解。
+# Link for more info about the data security banner
+banner.immigrationStatusInfoBanner.linkText=此處
+
+#------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
 # Note for developers: these messages aren't used in static text, but instead they #
 #  are seeded into the database, since these will be admin defined in the future #
@@ -1113,24 +1129,27 @@ ariaLabel.categories=類別
 
 # Title of the warning modal that appears when the user has been inactive for a while
 session.inactivity.warning.title=工作階段閒置警告
-
+# Title of the session timeout warning modals
+session.warning.title=工作階段即將結束
+# Text on a button on a session ending soon modal that gives users the options to save and log in
+session.login.button.loggedIn=登入
+session.login.button.guest=登入或創建帳號
 # Message shown in a modal asking the user if they want to extend their session due to inactivity
 session.inactivity.warning.message=由於閒置過久，您的工作階段即將結束。要延長工作階段嗎？
-
 # Title of a modal dialog displayed when a user's session is about to expire due to session length limit
 session.length.warning.title=工作階段時間長度警告
-
 # Message shown in a modal warning the user their session will end soon due to session length limit
 session.length.warning.message=基於時間長度限制，您的工作階段即將結束。請儲存工作，並視需要重新登入。
-
 # Text on a button that allows users to extend their session when shown timeout warnings
 session.extend.button=延長工作階段
-
 # Success message shown when the user's session is successfully extended after clicking the extend button
 session.extended.success=已成功延長工作階段
-
 # Error message shown when there was a problem extending the user's session
 session.extended.error=無法延長工作階段
+# Message shown to guest users warning that their session is about to expire due to session length
+session.length.warning.message.guest=您的工作階段即將結束。請儲存工作，並登入或創建帳號來繼續。
+# Message shown to logged-in users warning that their session is about to expire due to session length
+session.length.warning.message.loggedIn=您的工作階段即將結束。請儲存工作，並重新登入來繼續。您不會遺失申請進度。
 
 #------------------------------------------------------------------------------#
 #  ADMIN PROGRAM BLOCK EDIT                                                    #
@@ -1150,14 +1169,22 @@ input.repeatedSet.listedEntity=
 input.repeatedSet.adminId=
 # A text input field asking admins for the text that will prompt applicants to list out the entity
 input.repeatedSet.questionText=
+# Autofill suggestion template shown in the admin ID field when applicant selects a listed entity. {0} is the listed entity name.
+input.repeatedSet.adminIdAutofillSuggestion={0} repeated set
+# Autofill suggestion template shown in the question text field when applicant selects a listed entity. {0} is the listed entity name.
+input.repeatedSet.questionTextAutofillSuggestion=Please add each {0}.
 # A text input field for admins to add a hint that will help applicants decide what entities to list out
 input.repeatedSet.hintText=
 # A form field where admins set the minimum number of entities that applicants must list
 input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
 input.repeatedSet.maxEntities=
+# Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
+alert.repeatedSet.addQuestionDisabled=新增重複問題前，必須先新增重複題組。請至上一層畫面新增重複題組。
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
-alert.repeatedSet.newQuestion=
+alert.repeatedSet.newQuestion=建立重複題組將在題庫中新增一道題目。
+# Alert shown in the question bank section listing repeated questions that are already associated with this repeated set
+alert.repeatedSet.previouslyUsed=Questions that are associated with a different repeated set are not available to be added.
 # Submission button for creating a new repeated set
 button.repeatedSet.submitNew=
 # Button for admins to add a new repeated set
@@ -1170,6 +1197,39 @@ text.nestedRepeatedSet=
 text.repeatedSet.prefix=父標籤
 # An uneditable prefix for the enumerator screen name representing the nested repeated object that will be enumerated
 text.repeatedSet.nestedPrefix=子標籤
+# Instructions for admins on how to add or change the repeated set question in a program block
+text.repeatedSet.questionDescription=
+#An additional description explaining the uneditable prefix within the screen editing modal
+text.repeatedSet.screenNameDescription=
+#An additional description explaining what the add question button does
+text.repeatedSet.addQuestionDescription=
+# Information shown to admins when they are adding a question to a repeated screen.
+text.repeatedQuestions.description=請針對申請人列出的每個物件或個人，新增您想問的問題。若您新增的問題尚未與該重複題組關聯，該問題將在題庫中複製進此重複題組。
+# Heading above the repeated set question in the program block editor
+heading.repeatedSet.question=
+# Heading shown above repeated questions in the question bank that are already associated with this repeated set
+heading.repeatedSet.previouslyUsed=Previously used for this repeated set
+# Heading above the questions section on repeated screens in the admin program screen editor.
+heading.repeatedQuestions=重複的問題
+# Informative text above the listed entity input field to help admins understand what to enter in that field.
+description.repeatedSet.listedEntity=
+# Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
+description.repeatedSet.adminId=
+# An informative description above the question text input field to help admins understand what to enter in that field.
+description.repeatedSet.questionText=
+# An informative description above the hint text input field to help admins understand what to enter in that field.
+description.repeatedSet.hintText=
+#An informative description below the option to create a new repeated set question
+description.repeatedSet.createNewQuestion=
+#An informative description below the option to choose an existing question
+description.repeatedSet.chooseExistingQuestion=
+# A button for admins to add a repeated screen to a program
+button.addRepeatedScreen=
+# A button for admins to add a nested repeated set to a program
+button.addNestedRepeatedSet=新增巢狀重複題組
+# A button for admins to add a pre-existing enumerator question to a program
+button.addQuestion=
+
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #
@@ -1220,3 +1280,70 @@ reportingProgram.timeToCompleteP75=完成時間（第 75 頁）
 reportingProgram.timeToCompleteP99=完成時間（第 99 頁）
 # Text on button to download CSV file
 reportingProgram.downloadCsv=下載 CSV
+
+#------------------------------------------------------------------------------#
+#  DEV TOOLS - text for the developer tools page                               #
+#------------------------------------------------------------------------------#
+# The text on the button to go to the home page from the dev tools page.
+devtools.homepage=
+
+# Heading for the seed section of the dev tools page.
+devtools.seed.title=
+# Description for the seed section of the dev tools page.
+devtools.seed.description=
+# Button text to seed sample programs and categories.
+devtools.seed.programs=
+# Button text to seed sample questions.
+devtools.seed.questions=
+# Button text to clear the entire database (irreversible action).
+devtools.seed.clear=
+
+# Heading for the caching section of the dev tools page.
+devtools.cache.title=
+# Description for the caching section of the dev tools page.
+devtools.cache.description=
+# Button text to clear the cache.
+devtools.cache.clear=
+
+# Heading for the durable jobs section of the dev tools page.
+devtools.jobs.title=
+# Description for the durable jobs section of the dev tools page.
+devtools.jobs.description=
+# Label for the dropdown to select a durable job to run.
+devtools.jobs.select=
+# Button text to run the selected durable job.
+devtools.jobs.run=
+
+# Heading for the icons section of the dev tools page.
+devtools.icons.title=
+# Description for the icons section of the dev tools page.
+devtools.icons.description=
+# Button text to view all SVG icons.
+devtools.icons.view=
+
+# Heading for the Localstack section of the dev tools page.
+devtools.localstack.title=
+# Description for the Localstack section of the dev tools page.
+devtools.localstack.description=
+# Button text to view SES emails in Localstack.
+devtools.localstack.ses=
+# Button text to view the S3 private bucket in Localstack.
+devtools.localstack.private=
+# Button text to view the S3 public bucket in Localstack.
+devtools.localstack.public=
+
+# Heading for the address tools section of the dev tools page.
+devtools.address.title=
+# Description for the address tools section of the dev tools page.
+devtools.address.description=
+# Button text to go to the address tools page.
+devtools.address.go=
+
+# Heading for the session tools section of the dev tools page.
+devtools.session.title=
+# Description for the session tools section of the dev tools page.
+devtools.session.description=
+# Button text to view the current pac4j profile.
+devtools.session.pac4j=
+# Button text to view the current Play session.
+devtools.session.play=
