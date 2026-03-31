@@ -24,7 +24,7 @@ import services.cloud.StorageServiceName;
 
 public class AwsS3MultipartUploadSinkProviderTest {
   private static final String FILE_KEY = "test-file-key";
-  private static final Integer CHUNK_SIZE = 1024 * 1024; // 1 MBSSSS
+  private static final Integer CHUNK_SIZE = 1024 * 1024; // 1 MB
 
   private AwsS3MultipartUploadSinkProvider uploadSinkProvider;
   private Sink<ByteString, CompletionStage<MultipartUploadResult>> fakeAwsSink;
