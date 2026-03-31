@@ -87,14 +87,15 @@ export const loginAsTestUser = async (
   loginButton = 'a:has-text("Log in")',
   isTi = false,
   displayName: string = '',
+  url: string = '',
 ) => {
   await test.step('Login as Test User', async () => {
     switch (TEST_USER_AUTH_STRATEGY) {
       case AuthStrategy.FAKE_OIDC:
-        await loginAsTestUserFakeOidc(page, loginButton, isTi)
+        await loginAsTestUserFakeOidc(page, loginButton, isTi, url)
         break
       case AuthStrategy.AWS_STAGING:
-        await loginAsTestUserAwsStaging(page, loginButton, isTi)
+        await loginAsTestUserAwsStaging(page, loginButton, isTi, url)
         break
       case AuthStrategy.SEATTLE_STAGING:
         await loginAsTestUserSeattleStaging(page, loginButton)
@@ -131,6 +132,7 @@ async function loginAsTestUserAwsStaging(
   page: Page,
   loginButton: string,
   isTi: boolean,
+  url: string,
 ) {
   await Promise.all([
     // eslint-disable-next-line playwright/no-networkidle
@@ -140,8 +142,9 @@ async function loginAsTestUserAwsStaging(
 
   await page.fill('input[name=username]', TEST_USER_LOGIN)
   await page.fill('input[name=password]', TEST_USER_PASSWORD)
+  const waitUrl = url || (isTi ? '**/admin/**' : /.*\/programs.*/)
   await Promise.all([
-    page.waitForURL(isTi ? '**/admin/**' : /.*\/programs.*/, {
+    page.waitForURL(waitUrl, {
       // eslint-disable-next-line playwright/no-networkidle
       waitUntil: 'networkidle',
     }),
@@ -155,6 +158,7 @@ async function loginAsTestUserFakeOidc(
   page: Page,
   loginButton: string,
   isTi: boolean,
+  url: string,
 ) {
   await page.click(loginButton)
   await page.waitForURL('**/interaction/*')
@@ -183,7 +187,12 @@ async function loginAsTestUserFakeOidc(
   // A screen is shown prompting the user to authorize a set of scopes.
   // This screen is skipped if the user has already logged in once.
   await page.click('button:has-text("Continue")')
-  await page.waitForURL(isTi ? '**/admin/**' : /\/programs.*/)
+  waitForPageJsLoad(page)
+  if (url) {
+    await page.waitForURL(url)
+  } else {
+    await page.waitForURL(isTi ? '**/admin/**' : /\/programs.*/)
+  }
 }
 
 export const testUserDisplayName = () => {

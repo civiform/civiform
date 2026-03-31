@@ -128,10 +128,17 @@ test.describe('Applicant auth', () => {
     })
 
     await test.step('Log-in as user to merge accounts', async () => {
-      await loginAsTestUser(page)
+      await loginAsTestUser(
+        page,
+        'a:has-text("Log in")',
+        false,
+        '',
+        '**/considerSignIn**',
+      )
     })
 
     await test.step('Verify the user now has access to the application', async () => {
+      await page.goto('/programs/')
       const applicationCardLocator = page.getByRole('heading', {
         name: programName,
       })
@@ -176,10 +183,17 @@ test.describe('Applicant auth', () => {
     })
 
     await test.step('Log-in as user to merge accounts', async () => {
-      await loginAsTestUser(page)
+      await loginAsTestUser(
+        page,
+        'a:has-text("Log in")',
+        false,
+        '',
+        '**/considerSignIn**',
+      )
     })
 
     await test.step('Verify the user does not see a submitted application', async () => {
+      await page.goto('/programs/')
       const applicationCardLocator = page.getByRole('heading', {
         name: programName,
       })
