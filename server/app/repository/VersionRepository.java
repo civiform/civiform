@@ -135,7 +135,7 @@ public final class VersionRepository {
               draft, combinedQuestionIdToName, questionToProgramResultMap);
 
           // 2. For all Active Programs not in the Draft, do the same.
-          reverseMapUniquelyActiveProgramQuestions(
+          reverseMapUniqueActiveProgramQuestions(
               draft, active, combinedQuestionIdToName, questionToProgramResultMap);
 
           return questionToProgramResultMap.entrySet().stream()
@@ -190,7 +190,7 @@ public final class VersionRepository {
    * @param questionIdToName map from question ID to name.
    * @param questionToProgramDataMap map to populate data into.
    */
-  private void reverseMapUniquelyActiveProgramQuestions(
+  private void reverseMapUniqueActiveProgramQuestions(
       VersionModel draft,
       VersionModel active,
       ImmutableMap<Long, String> questionIdToName,
