@@ -39,7 +39,7 @@ public class MultipartUploadSinksTest {
 
   @Test
   public void getSinkForCloudProvider_awsS3_returnsAwsSink() throws Exception {
-    createSpiedUploadSink(StorageServiceName.AWS_S3.getString());
+    createUploadSink(StorageServiceName.AWS_S3.getString());
 
     assertThat(uploadSinks.getUploadSinkProvider().getClass())
         .isEqualTo(AwsS3MultipartUploadSinkProvider.class);
@@ -47,7 +47,7 @@ public class MultipartUploadSinksTest {
 
   @Test
   public void getSinkForCloudProvider_azure_returnsInvalid() throws Exception {
-    createSpiedUploadSink(StorageServiceName.AZURE_BLOB.getString());
+    createUploadSink(StorageServiceName.AZURE_BLOB.getString());
 
     StreamingMultipartUploadResult result = runSink();
 
@@ -58,7 +58,7 @@ public class MultipartUploadSinksTest {
 
   @Test
   public void getSinkForCloudProvider_invalidCloudProviderConfigured_throws() throws Exception {
-    BadValue e = assertThrows(BadValue.class, () -> createSpiedUploadSink("AN_ACTUAL_CLOUD"));
+    BadValue e = assertThrows(BadValue.class, () -> createUploadSink("AN_ACTUAL_CLOUD"));
 
     assertThat(e).hasMessageContaining("AN_ACTUAL_CLOUD is not a valid storage provider.");
   }
@@ -72,7 +72,7 @@ public class MultipartUploadSinksTest {
     return completionStage.toCompletableFuture().get();
   }
 
-  private void createSpiedUploadSink(String storageProvider) {
+  private void createUploadSink(String storageProvider) {
     config = ConfigFactory.parseMap(ImmutableMap.of("cloud.storage", storageProvider));
     uploadSinks = new MultipartUploadSinks(config);
   }
