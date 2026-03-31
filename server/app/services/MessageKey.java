@@ -165,10 +165,13 @@ public enum MessageKey {
   ID_VALIDATION_TOO_SHORT("validation.idTooShort"),
   INPUT_LISTED_ENTITY("input.repeatedSet.listedEntity"),
   INPUT_REPEATED_SET_ADMIN_ID("input.repeatedSet.adminId"),
+  INPUT_REPEATED_SET_ADMIN_ID_AUTOFILL_SUGGESTION("input.repeatedSet.adminIdAutofillSuggestion"),
   INPUT_REPEATED_SET_HINT_TEXT("input.repeatedSet.hintText"),
   INPUT_REPEATED_SET_MIN_ENTITIES("input.repeatedSet.minEntities"),
   INPUT_REPEATED_SET_MAX_ENTITIES("input.repeatedSet.maxEntities"),
   INPUT_REPEATED_SET_QUESTION_TEXT("input.repeatedSet.questionText"),
+  INPUT_REPEATED_SET_QUESTION_TEXT_AUTOFILL_SUGGESTION(
+      "input.repeatedSet.questionTextAutofillSuggestion"),
   INVALID_INPUT("validation.invalidInput"),
   LABEL_NEW_REPEATED_SET_FORM("label.repeatedSet.newSetForm"),
   LANGUAGE_LABEL_SR("label.languageSr"),

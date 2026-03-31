@@ -808,6 +808,60 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
+    test('auto-fills and preserves editable repeated set suggestions', async ({
+      page,
+    }) => {
+      const blockPanel = page.getByTestId('block-panel-edit')
+      const listedEntityInput = blockPanel.getByRole('textbox', {
+        name: 'Listed entity',
+      })
+      const adminIdInput = blockPanel.getByRole('textbox', {
+        name: 'Repeated set admin ID',
+      })
+      const questionTextInput = blockPanel.getByRole('textbox', {
+        name: 'Question text',
+      })
+
+      await test.step('Add a new repeated set and select its block', async () => {
+        await page.getByRole('button', {name: 'Add screen'}).first().click()
+        await page.getByRole('button', {name: 'Add repeated set'}).click()
+        await page.getByRole('link', {name: 'Screen 2'}).click()
+      })
+
+      await test.step('Auto-fill admin id and question text from listed entity', async () => {
+        // Adding extra spaces to test normalization of the listed entity input.
+        await listedEntityInput.fill('household     member')
+
+        await expect(adminIdInput).toHaveValue('household member repeated set')
+        await expect(questionTextInput).toHaveValue(
+          'Please add each household member.',
+        )
+      })
+
+      await test.step('Preserve manual edits for suggested fields', async () => {
+        await adminIdInput.fill('custom repeated set id')
+
+        await questionTextInput.fill('Custom repeated set prompt')
+
+        await listedEntityInput.fill('income source')
+
+        await expect(adminIdInput).toHaveValue('custom repeated set id')
+        await expect(questionTextInput).toHaveValue(
+          'Custom repeated set prompt',
+        )
+      })
+
+      await test.step('Resume auto-fill after clearing manual field', async () => {
+        await questionTextInput.fill('')
+
+        await listedEntityInput.fill('household item')
+
+        await expect(questionTextInput).toHaveValue(
+          'Please add each household item.',
+        )
+      })
+    })
+
     test('error validation prevents user from submitting an invalid enumerator question form', async ({
       page,
     }) => {
@@ -826,6 +880,10 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await blockPanel
           .getByRole('textbox', {name: 'Listed entity'})
           .fill('Pets')
+        await blockPanel.getByRole('textbox', {name: 'Question text'}).fill('')
+        await blockPanel
+          .getByRole('textbox', {name: 'Repeated set admin ID'})
+          .fill('')
 
         await blockPanel
           .getByRole('button', {name: 'Create repeated set'})
@@ -869,16 +927,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Submit the new enumerator question form with a duplicate admin ID', async () => {
-        await blockPanel
-          .getByRole('textbox', {
-            name: 'Repeated set admin ID',
-          })
-          .fill('pets enumerator')
-
-        await blockPanel
-          .getByRole('button', {name: 'Create repeated set'})
-          .click()
-        await waitForHtmxReady(page)
+        await fillOutEnumeratorQuestionFormCorrectly(page, {
+          adminId: 'pets enumerator',
+        })
       })
 
       await test.step('Verify that an error alert is shown with the duplicate admin ID message', async () => {

@@ -34,10 +34,10 @@ lazy val root = (project in file("."))
 
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "3.0.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.21.1",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.21.1",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.21.1",
-      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.21.1",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.21.2",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.21.2",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.21.2",
+      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.21.2",
       "com.google.inject.extensions" % "guice-assistedinject" % "6.0.0",
 
       // Templating
@@ -45,11 +45,11 @@ lazy val root = (project in file("."))
       "org.thymeleaf" % "thymeleaf" % "3.1.3.RELEASE",
       "org.commonmark" % "commonmark" % "0.27.1",
       "org.commonmark" % "commonmark-ext-autolink" % "0.27.1",
-      "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20260102.1",
+      "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20260313.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.42.15",
-      "software.amazon.awssdk" % "ses" % "2.42.15",
+      "software.amazon.awssdk" % "s3" % "2.42.22",
+      "software.amazon.awssdk" % "ses" % "2.42.22",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
@@ -60,7 +60,7 @@ lazy val root = (project in file("."))
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.10",
-      "com.google.cloud.sql" % "postgres-socket-factory" % "1.28.1",
+      "com.google.cloud.sql" % "postgres-socket-factory" % "1.28.2",
       "com.h2database" % "h2" % "2.4.240" % Test,
 
       // Metrics collection and export for Prometheus
@@ -118,13 +118,13 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.5",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.26",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.27",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.7",
 
       // Apache libraries for testing subnets
-      "commons-net" % "commons-net" % "3.12.0",
+      "commons-net" % "commons-net" % "3.13.0",
 
       // Url detector for program descriptions.
       "com.linkedin.urls" % "url-detector" % "0.1.17",
@@ -323,8 +323,8 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.21.1",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.21.1",
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.21.2",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.21.2",
   "com.fasterxml.jackson.core" % "jackson-annotations" % "2.21"
 )
 
