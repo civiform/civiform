@@ -1,0 +1,189 @@
+#!/usr/bin/env python3
+
+import argparse
+import os
+import sys
+import time
+
+try:
+    import requests
+except ImportError:
+    print("ERROR: Python module 'requests' is required. Install it with 'pip install requests'.")
+    sys.exit(1)
+
+BASE_URL = "https://rest.api.transifex.com"
+
+
+def paginate(url, headers, params=None):
+    results = []
+    while url:
+        response = requests.get(url, headers=headers, params=params)
+        response.raise_for_status()
+        body = response.json()
+        results.extend(body.get("data", []))
+        url = body.get("links", {}).get("next")
+        params = None
+    return results
+
+
+def get_resources(project_id, headers):
+    url = f"{BASE_URL}/resources"
+    params = {"filter[project]": project_id}
+    return paginate(url, headers, params)
+
+
+def get_untranslated_translations(resource_id, language_id, headers):
+    url = f"{BASE_URL}/resource_translations"
+    params = {
+        "filter[resource]": resource_id,
+        "filter[language]": language_id,
+        "filter[translated]": "false",
+    }
+    return paginate(url, headers, params)
+
+
+def get_resource_string(string_id, headers):
+    url = f"{BASE_URL}/resource_strings/{string_id}"
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    return response.json().get("data", {})
+
+
+def update_tags(string_id, tags, headers):
+    url = f"{BASE_URL}/resource_strings/{string_id}"
+    payload = {
+        "data": {
+            "id": string_id,
+            "type": "resource_strings",
+            "attributes": {
+                "tags": tags,
+            },
+        }
+    }
+    response = requests.patch(url, headers=headers, json=payload)
+    response.raise_for_status()
+    return response.json()
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description=(
+            "Tag untranslated Transifex source strings with 'locked' when they are not already locked "
+            "and they do not have translation instructions or context."
+        )
+    )
+    parser.add_argument("--org-slug", default="civiform", help="Transifex organization slug")
+    parser.add_argument("--project-slug", default="civiform", help="Transifex project slug")
+    parser.add_argument("--language-code", default="fr", help="Language code used to identify untranslated strings")
+    parser.add_argument(
+        "--api-token",
+        help="Transifex API token. If omitted, reads from TRANSIFEX_API_TOKEN environment variable.",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="List strings that would be tagged without updating Transifex.",
+    )
+    parser.add_argument(
+        "--pause",
+        type=float,
+        default=0.1,
+        help="Seconds to pause between updates to avoid rate limits.",
+    )
+    return parser.parse_args()
+
+
+def main():
+    args = parse_args()
+    api_token = args.api_token or os.environ.get("TRANSIFEX_API_TOKEN")
+    if not api_token:
+        print("ERROR: must provide a Transifex API token via --api-token or TRANSIFEX_API_TOKEN")
+        sys.exit(1)
+
+    headers = {
+        "Authorization": f"Bearer {api_token}",
+        "Content-Type": "application/vnd.api+json",
+    }
+
+    project_id = f"o:{args.org_slug}:p:{args.project_slug}"
+    language_id = f"l:{args.language_code}"
+
+    print(f"Target project: {project_id}")
+    print(f"Target language: {language_id}")
+    print("\nFetching resources...")
+
+    resources = get_resources(project_id, headers)
+    print(f"Found {len(resources)} resources.")
+
+    total_tagged = 0
+    total_locked = 0
+    total_skipped_context = 0
+    total_errors = 0
+
+    for resource in resources:
+        resource_id = resource["id"]
+        resource_name = resource.get("attributes", {}).get("name", resource_id)
+        print(f"\nProcessing resource: {resource_name}")
+
+        translations = get_untranslated_translations(resource_id, language_id, headers)
+        untranslated_string_ids = {
+            t["relationships"]["resource_string"]["data"]["id"]
+            for t in translations
+            if t.get("relationships", {}).get("resource_string", {}).get("data")
+        }
+
+        if not untranslated_string_ids:
+            print("  No untranslated strings found.")
+            continue
+
+        print(f"  Found {len(untranslated_string_ids)} untranslated strings. Checking tags & context...")
+
+        tagged_count = 0
+        skipped_locked = 0
+        skipped_has_context = 0
+
+        for string_id in sorted(untranslated_string_ids):
+            try:
+                resource_string = get_resource_string(string_id, headers)
+                attributes = resource_string.get("attributes", {})
+                current_tags = attributes.get("tags") or []
+                context = (attributes.get("context") or "").strip()
+                instructions = (attributes.get("instructions") or "").strip()
+
+                if "locked" in current_tags:
+                    skipped_locked += 1
+                    continue
+
+                if context or instructions:
+                    skipped_has_context += 1
+                    continue
+
+                print(f"    Locking string: {string_id}")
+                if not args.dry_run:
+                    update_tags(string_id, current_tags + ["locked"], headers)
+                    time.sleep(args.pause)
+                tagged_count += 1
+            except requests.exceptions.HTTPError as exc:
+                print(f"    Error processing {string_id}: {exc}")
+                total_errors += 1
+
+        print(
+            f"  Summary: tagged={tagged_count}, skipped_locked={skipped_locked}, "
+            f"skipped_context_or_instructions={skipped_has_context}"
+        )
+
+        total_tagged += tagged_count
+        total_locked += skipped_locked
+        total_skipped_context += skipped_has_context
+
+    print(
+        f"\nFinished. total_tagged={total_tagged}, total_skipped_locked={total_locked}, "
+        f"total_skipped_context_or_instructions={total_skipped_context}, total_errors={total_errors}"
+    )
+
+    if total_errors:
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
