@@ -29,8 +29,6 @@ import java.util.Locale;
 import java.util.Optional;
 import models.QuestionDisplayMode;
 import models.QuestionTag;
-import modules.ThymeleafModule;
-import org.thymeleaf.TemplateEngine;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
@@ -60,6 +58,7 @@ import views.components.LinkElement;
 import views.components.Modal;
 import views.components.SelectWithLabel;
 import views.components.ToastMessage;
+import views.shared.BaseViewDeps;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -70,9 +69,8 @@ public final class QuestionEditView extends BaseHtmlView {
   private final Messages messages;
   private final QuestionService questionService;
   private final SettingsManifest settingsManifest;
-  private final ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
-  private final TemplateEngine templateEngine;
   private final GeoJsonDataRepository geoJsonDataRepository;
+  private final BaseViewDeps baseViewDeps;
 
   private static final String NO_ENUMERATOR_DISPLAY_STRING = "does not repeat";
   private static final String NO_ENUMERATOR_ID_STRING = "";
@@ -91,17 +89,15 @@ public final class QuestionEditView extends BaseHtmlView {
       MessagesApi messagesApi,
       QuestionService questionService,
       SettingsManifest settingsManifest,
-      TemplateEngine templateEngine,
-      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
+      BaseViewDeps baseViewDeps,
       GeoJsonDataRepository geoJsonDataRepository) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     // Use the default language for CiviForm, since this is an admin view and not applicant-facing.
     this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
     this.questionService = checkNotNull(questionService);
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.templateEngine = checkNotNull(templateEngine);
-    this.playThymeleafContextFactory = checkNotNull(playThymeleafContextFactory);
     this.geoJsonDataRepository = checkNotNull(geoJsonDataRepository);
+    this.baseViewDeps = checkNotNull(baseViewDeps);
   }
 
   /** Render a fresh New Question Form. */
@@ -578,8 +574,7 @@ public final class QuestionEditView extends BaseHtmlView {
 
       return QuestionConfig.buildQuestionConfigUsingThymeleaf(
           request,
-          new MapQuestionSettingsPartialView(
-              templateEngine, playThymeleafContextFactory, settingsManifest),
+          new MapQuestionSettingsPartialView(baseViewDeps),
           getMapQuestionSettingsPartialViewModel((MapQuestionForm) questionForm, possibleKeys));
     }
     return QuestionConfig.buildQuestionConfig(questionForm, messages, settingsManifest, request);

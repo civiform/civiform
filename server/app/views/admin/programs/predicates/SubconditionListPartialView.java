@@ -1,10 +1,8 @@
 package views.admin.programs.predicates;
 
 import javax.inject.Inject;
-import modules.ThymeleafModule;
-import org.thymeleaf.TemplateEngine;
-import services.settings.SettingsManifest;
 import views.admin.BaseView;
+import views.shared.BaseViewDeps;
 
 /**
  * Partial view for rendering SubconditionListPartial.html. This partial is used for displaying a
@@ -12,11 +10,8 @@ import views.admin.BaseView;
  */
 public final class SubconditionListPartialView extends BaseView<SubconditionListPartialViewModel> {
   @Inject
-  public SubconditionListPartialView(
-      TemplateEngine templateEngine,
-      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
-      SettingsManifest settingsManifest) {
-    super(templateEngine, playThymeleafContextFactory, settingsManifest);
+  public SubconditionListPartialView(BaseViewDeps baseViewDeps) {
+    super(baseViewDeps);
   }
 
   @Override
