@@ -131,11 +131,11 @@ public final class VersionRepository {
           Map<String, Set<PublishProgramPreview>> questionToProgramResultMap = Maps.newHashMap();
 
           // 1. For all Draft Programs, map their questions to the program.
-          mapDraftProgramQuestionIdsToName(
+          reverseMapDraftProgramQuestions(
               draft, combinedQuestionIdToName, questionToProgramResultMap);
 
           // 2. For all Active Programs not in the Draft, do the same.
-          mapUniquelyActiveProgramQuestionIdsToName(
+          reverseMapUniquelyActiveProgramQuestions(
               draft, active, combinedQuestionIdToName, questionToProgramResultMap);
 
           return questionToProgramResultMap.entrySet().stream()
@@ -157,14 +157,14 @@ public final class VersionRepository {
   }
 
   /**
-   * Map all draft program question IDs to their Names.
+   * Map all draft program questions to the program names that use them.
    *
    * <p>Skips tombstoned questions.
    *
    * @param questionIdToName map from Question ID to Name.
    * @param questionToProgramResultMap map to populate data into.
    */
-  private void mapDraftProgramQuestionIdsToName(
+  private void reverseMapDraftProgramQuestions(
       VersionModel draft,
       ImmutableMap<Long, String> questionIdToName,
       Map<String, Set<PublishProgramPreview>> questionToProgramResultMap) {
@@ -182,7 +182,7 @@ public final class VersionRepository {
   }
 
   /**
-   * Map all active program question IDs to their Names.
+   * Map all active program questions to the program names that use them.
    *
    * <p>Skips any programs present or tombstoned in {@code draft} as the draft versions may have
    * altered them.
@@ -190,7 +190,7 @@ public final class VersionRepository {
    * @param questionIdToName map from Question ID to Name.
    * @param questionToProgramResultMap map to populate data into.
    */
-  private void mapUniquelyActiveProgramQuestionIdsToName(
+  private void reverseMapUniquelyActiveProgramQuestions(
       VersionModel draft,
       VersionModel active,
       ImmutableMap<Long, String> questionIdToName,
