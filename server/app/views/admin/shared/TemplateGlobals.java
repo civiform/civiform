@@ -11,6 +11,7 @@ import lombok.Builder;
  * @param pageIntro Page intro shown below the {@link #pageHeading }
  * @param cspNonce CSP Nonce value used for scripts and styles elements
  * @param csrfToken CSRF Token used when submitting forms
+ * @param isDev Is development mode
  */
 @Builder
 public record TemplateGlobals(
@@ -18,4 +19,5 @@ public record TemplateGlobals(
     String pageHeading,
     Optional<String> pageIntro,
     String cspNonce,
-    String csrfToken) {}
+    String csrfToken,
+    Boolean isDev) {}
