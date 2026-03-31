@@ -124,57 +124,93 @@ public final class VersionRepository {
                       () -> new IllegalStateException("Called when no draft exists to preview."));
           VersionModel active = getActiveVersion();
 
-          ImmutableSet<String> draftProgramNames = getProgramNamesForVersion(draft);
-
-          // Build a map from question ID to Name across all Active/Draft programs.
-          ImmutableMap<Long, String> activeQuestionIdToName = getQuestionIdToNameMap(active);
-          ImmutableMap<Long, String> draftQuestionIdToName = getQuestionIdToNameMap(draft);
-          Map<Long, String> combinedQuestionIdToNameMap = Maps.newHashMap();
-          combinedQuestionIdToNameMap.putAll(activeQuestionIdToName);
-          combinedQuestionIdToNameMap.putAll(draftQuestionIdToName);
+          // Combine Active and Draft questions into one lookup table.
           ImmutableMap<Long, String> combinedQuestionIdToName =
-              ImmutableMap.copyOf(combinedQuestionIdToNameMap);
+              buildQuestionIdToNameMap(active, draft);
 
-          Map<String, Set<PublishProgramPreview>> result = Maps.newHashMap();
+          Map<String, Set<PublishProgramPreview>> questionToProgramResultMap = Maps.newHashMap();
 
           // 1. For all Draft Programs, map their questions to the program.
-          // Ignoring Tombstoned programs.
-          for (ProgramModel program : getProgramsForVersion(draft)) {
-            ProgramDefinition def = programRepository.getShallowProgramDefinition(program);
-            if (draft.programIsTombstoned(def.adminName())) {
-              continue;
-            }
-            PublishProgramPreview ref =
-                new PublishProgramPreview(def.adminName(), def.displayMode(), def.localizedName());
-            for (String questionName : getProgramQuestionNames(def, combinedQuestionIdToName)) {
-              result.computeIfAbsent(questionName, k -> Sets.newHashSet()).add(ref);
-            }
-          }
+          mapDraftProgramQuestionIdsToName(
+              draft, combinedQuestionIdToName, questionToProgramResultMap);
 
           // 2. For all Active Programs not in the Draft, do the same.
-          // Ignoring Tombstoned programs in Active.
-          for (ProgramModel program : getProgramsForVersion(active)) {
-            ProgramDefinition def = programRepository.getShallowProgramDefinition(program);
-            // Skip programs in the Draft.
-            if (draftProgramNames.contains(def.adminName())
-                // Tombstoning is no longer supported so we can't assume
-                // if it is included in the draft program names, so verify the
-                // status explicitly.
-                || draft.programIsTombstoned(def.adminName())) {
-              continue;
-            }
-            PublishProgramPreview ref =
-                new PublishProgramPreview(def.adminName(), def.displayMode(), def.localizedName());
-            for (String questionName : getProgramQuestionNames(def, activeQuestionIdToName)) {
-              result.computeIfAbsent(questionName, k -> Sets.newHashSet()).add(ref);
-            }
-          }
+          mapActiveProgramQuestionIdsToName(
+              draft, active, combinedQuestionIdToName, questionToProgramResultMap);
 
-          return result.entrySet().stream()
+          return questionToProgramResultMap.entrySet().stream()
               .collect(
                   ImmutableMap.toImmutableMap(
                       Entry::getKey, e -> ImmutableSet.copyOf(e.getValue())));
         });
+  }
+
+  /** Build a map from Question ID to Name for all questions in {@code active} and {@code draft}. */
+  private ImmutableMap<Long, String> buildQuestionIdToNameMap(
+      VersionModel active, VersionModel draft) {
+    ImmutableMap<Long, String> activeQuestionIdToName = getQuestionIdToNameMap(active);
+    ImmutableMap<Long, String> draftQuestionIdToName = getQuestionIdToNameMap(draft);
+    Map<Long, String> combinedQuestionIdToNameMap = Maps.newHashMap();
+    combinedQuestionIdToNameMap.putAll(activeQuestionIdToName);
+    combinedQuestionIdToNameMap.putAll(draftQuestionIdToName);
+    return ImmutableMap.copyOf(combinedQuestionIdToNameMap);
+  }
+
+  /**
+   * Map all draft program question IDs to their Names.
+   *
+   * <p>Skips tombstoned questions.
+   *
+   * @param questionIdToName map from Question ID to Name.
+   * @param questionToProgramResultMap map to populate data into.
+   */
+  private void mapDraftProgramQuestionIdsToName(
+      VersionModel draft,
+      ImmutableMap<Long, String> questionIdToName,
+      Map<String, Set<PublishProgramPreview>> questionToProgramResultMap) {
+    for (ProgramModel program : getProgramsForVersion(draft)) {
+      ProgramDefinition def = programRepository.getShallowProgramDefinition(program);
+      if (draft.programIsTombstoned(def.adminName())) {
+        continue;
+      }
+      PublishProgramPreview ref =
+          new PublishProgramPreview(def.adminName(), def.displayMode(), def.localizedName());
+      for (String questionName : getProgramQuestionNames(def, questionIdToName)) {
+        questionToProgramResultMap.computeIfAbsent(questionName, k -> Sets.newHashSet()).add(ref);
+      }
+    }
+  }
+
+  /**
+   * Map all active program question IDs to their Names.
+   *
+   * <p>Skips any programs present or tombstoned in {@code draft}.
+   *
+   * @param questionIdToName map from Question ID to Name.
+   * @param questionToProgramResultMap map to populate data into.
+   */
+  private void mapActiveProgramQuestionIdsToName(
+      VersionModel draft,
+      VersionModel active,
+      ImmutableMap<Long, String> questionIdToName,
+      Map<String, Set<PublishProgramPreview>> questionToProgramResultMap) {
+    ImmutableSet<String> draftProgramNames = getProgramNamesForVersion(draft);
+    for (ProgramModel program : getProgramsForVersion(active)) {
+      ProgramDefinition def = programRepository.getShallowProgramDefinition(program);
+      // Skip programs in the Draft.
+      if (draftProgramNames.contains(def.adminName())
+          // Tombstoning is no longer supported so we can't assume
+          // if it is included in the draft program names, so verify the
+          // status explicitly.
+          || draft.programIsTombstoned(def.adminName())) {
+        continue;
+      }
+      PublishProgramPreview ref =
+          new PublishProgramPreview(def.adminName(), def.displayMode(), def.localizedName());
+      for (String questionName : getProgramQuestionNames(def, questionIdToName)) {
+        questionToProgramResultMap.computeIfAbsent(questionName, k -> Sets.newHashSet()).add(ref);
+      }
+    }
   }
 
   /**
