@@ -126,6 +126,16 @@ lazy val root = (project in file("."))
       // Apache libraries for testing subnets
       "commons-net" % "commons-net" % "3.13.0",
 
+      // Apache libraries for external Pekko connectors
+      "org.apache.pekko" %% "pekko-connectors-s3" % "1.3.0",
+
+      // Explicitly include Pekko libraries that otherwise would be
+      // incompatible due to version mismatches with the default versions.
+      "org.apache.pekko" %% "pekko-actor-typed" % "1.1.5",
+      "org.apache.pekko" %% "pekko-serialization-jackson" % "1.1.5",
+      "org.apache.pekko" %% "pekko-slf4j" % "1.1.5",
+      "org.apache.pekko" %% "pekko-stream-testkit" % "1.1.5",
+
       // Url detector for program descriptions.
       "com.linkedin.urls" % "url-detector" % "0.1.17",
 
