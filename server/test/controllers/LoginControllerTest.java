@@ -253,6 +253,14 @@ public class LoginControllerTest {
 
     Http.Request request = fakeRequestBuilder().build();
 
+    // Setup redirect action for applicant login
+    RedirectionAction redirectAction = new FoundAction("https://auth.example.com/login");
+    when(mockApplicantClient.getRedirectionAction(any(CallContext.class)))
+        .thenReturn(Optional.of(redirectAction));
+
+    Result mockResult = play.mvc.Results.redirect("https://auth.example.com/login");
+    when(mockHttpActionAdapter.adapt(any(), any())).thenReturn(mockResult);
+
     Result result =
         controllerWithRegisterUri.register(
             request, Optional.of("https://register.example.com/signup"));
@@ -260,7 +268,7 @@ public class LoginControllerTest {
     assertThat(result.status()).isEqualTo(Http.Status.SEE_OTHER);
     assertThat(result.session().get(REDIRECT_TO_SESSION_KEY)).isPresent();
     assertThat(result.session().get(REDIRECT_TO_SESSION_KEY).get())
-        .isEqualTo("/applicantLogin?redirectTo=https%3A%2F%2Fregister.example.com%2Fsignup");
+        .isEqualTo("https://register.example.com/signup");
   }
 
   @Test
