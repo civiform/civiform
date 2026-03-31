@@ -97,9 +97,8 @@ public class LoginController extends Controller {
       if (redirectTo.isEmpty()) {
         return login(request, applicantClient);
       }
-        return login(request, applicantClient)
+      return login(request, applicantClient)
           .addingToSession(request, REDIRECT_TO_SESSION_KEY, redirectTo.get());
-
     }
     // Redirect to the registration URL - then, when the user visits the site again, automatically
     // log them in.
