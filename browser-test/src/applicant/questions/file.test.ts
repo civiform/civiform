@@ -1,5 +1,6 @@
 import {test, expect} from '../../support/civiform_fixtures'
 import {
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -7,6 +8,7 @@ import {
   waitForPageJsLoad,
   loginAsTestUser,
 } from '../../support'
+import {waitForHtmxReady} from '../../support/wait'
 
 test.describe('file upload applicant flow', () => {
   test.describe('required file upload question', () => {
@@ -1231,6 +1233,52 @@ test.describe('file upload applicant flow', () => {
           )
         expect(downloadedFileContent).toEqual('some old text')
       })
+    })
+  })
+})
+
+test.describe('file upload improvements feature flag enabled', () => {
+  const programName = 'File upload improvements program'
+  const fileUploadQuestionText = 'File upload improvements question'
+
+  test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+    await loginAsAdmin(page)
+
+    await adminQuestions.addFileUploadQuestion({
+      questionName: 'file-upload-improvements-q',
+      questionText: fileUploadQuestionText,
+    })
+    await adminPrograms.addAndPublishProgramWithQuestions(
+      ['file-upload-improvements-q'],
+      programName,
+    )
+
+    await logout(page)
+  })
+
+  test('selecting a file does not trigger form submission', async ({
+    page,
+    applicantQuestions,
+  }) => {
+    let urlBeforeUpload: string
+
+    await test.step('Enable feature flag and navigate to file upload question', async () => {
+      await enableFeatureFlag(page, 'FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED')
+      await applicantQuestions.applyProgram(programName)
+      urlBeforeUpload = page.url()
+    })
+
+    await test.step('Select a file and wait for htmx response', async () => {
+      await applicantQuestions.answerFileUploadQuestion(
+        'some file content',
+        'test-file.txt',
+      )
+      await waitForHtmxReady(page)
+    })
+
+    await test.step('Verify page did not navigate', async () => {
+      expect(page.url()).toBe(urlBeforeUpload)
+      await applicantQuestions.validateQuestionIsOnPage(fileUploadQuestionText)
     })
   })
 })

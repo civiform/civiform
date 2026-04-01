@@ -8,7 +8,7 @@
   </th:block>
 
   <div
-    th:if="${question.getType().getLabel() != 'File Upload' || featureFlags.isFileUploadQuestionImprovementsEnabled()}"
+    th:unless="${question.getType().getLabel() == 'File Upload' && !featureFlags.isFileUploadQuestionImprovementsEnabled()}"
     th:replace="~{questiontypes/QuestionFragment :: applicant-question(${question}, ${questionRendererParams}, ${stateAbbreviations}, ${enumMaxEntityCount})}"
   ></div>
   <div
