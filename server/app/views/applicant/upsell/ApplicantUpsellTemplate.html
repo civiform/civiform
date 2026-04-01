@@ -80,7 +80,7 @@
 
               <div th:if="${isGuest}">
                 <div
-                  th:replace="~{applicant/shared/CreateAccountAlertFragment :: createAccount(${createAccountLink}, ${loginLink}, #{button.createAnAccount}, #{content.loginToExistingAccount})}"
+                  th:replace="~{applicant/shared/CreateAccountAlertFragment :: createAccount(${createAccountLink}, ${upsellLoginUrl}, #{button.createAnAccount}, #{content.loginToExistingAccount})}"
                 ></div>
               </div>
 

@@ -177,7 +177,7 @@ public class LoginControllerTest {
     Result mockResult = play.mvc.Results.redirect("https://auth.example.com/login");
     when(mockHttpActionAdapter.adapt(any(), any())).thenReturn(mockResult);
 
-    Result result = controller.register(request);
+    Result result = controller.register(request, Optional.empty());
 
     // With no register URI configured, should redirect to login
     assertThat(result.status()).isEqualTo(Http.Status.SEE_OTHER);
@@ -200,13 +200,75 @@ public class LoginControllerTest {
 
     Http.Request request = fakeRequestBuilder().build();
 
-    Result result = controllerWithRegisterUri.register(request);
+    Result result = controllerWithRegisterUri.register(request, Optional.empty());
 
     assertThat(result.status()).isEqualTo(Http.Status.SEE_OTHER);
     assertThat(result.redirectLocation()).isPresent();
     assertThat(result.redirectLocation().get()).isEqualTo("https://register.example.com/signup");
     // Should set redirectTo in session to come back to applicant login after registration
     assertThat(result.session().get(REDIRECT_TO_SESSION_KEY)).isPresent();
+  }
+
+  @Test
+  public void register_withRegisterUri_redirectsToRedirectUrl() {
+    Config configWithRegisterUri =
+        ConfigFactory.parseMap(
+            ImmutableMap.of("applicant_register_uri", "https://register.example.com/signup"));
+
+    LoginController controllerWithRegisterUri =
+        new LoginController(
+            mockAdminClient,
+            mockApplicantClient,
+            mockHttpActionAdapter,
+            mockSessionStore,
+            configWithRegisterUri,
+            mockProfileUtils);
+
+    Http.Request request = fakeRequestBuilder().build();
+
+    Result result = controllerWithRegisterUri.register(request, Optional.of("www.google.com"));
+
+    assertThat(result.status()).isEqualTo(Http.Status.SEE_OTHER);
+    assertThat(result.redirectLocation()).isPresent();
+    assertThat(result.redirectLocation().get()).isEqualTo("https://register.example.com/signup");
+    // Should set redirectTo in session to come back to applicant login after registration
+    assertThat(result.session().get(REDIRECT_TO_SESSION_KEY)).isPresent();
+    assertThat(result.session().get(REDIRECT_TO_SESSION_KEY).get())
+        .isEqualTo("/applicantLogin?redirectTo=www.google.com");
+  }
+
+  @Test
+  public void register_withNoRegisterUri_redirectsToRedirectUrl() {
+    Config configWithRegisterUri =
+        ConfigFactory.parseMap(ImmutableMap.of("applicant_register_uri", ""));
+
+    LoginController controllerWithRegisterUri =
+        new LoginController(
+            mockAdminClient,
+            mockApplicantClient,
+            mockHttpActionAdapter,
+            mockSessionStore,
+            configWithRegisterUri,
+            mockProfileUtils);
+
+    Http.Request request = fakeRequestBuilder().build();
+
+    // Setup redirect action for applicant login
+    RedirectionAction redirectAction = new FoundAction("https://auth.example.com/login");
+    when(mockApplicantClient.getRedirectionAction(any(CallContext.class)))
+        .thenReturn(Optional.of(redirectAction));
+
+    Result mockResult = play.mvc.Results.redirect("https://auth.example.com/login");
+    when(mockHttpActionAdapter.adapt(any(), any())).thenReturn(mockResult);
+
+    Result result =
+        controllerWithRegisterUri.register(
+            request, Optional.of("https://register.example.com/signup"));
+
+    assertThat(result.status()).isEqualTo(Http.Status.SEE_OTHER);
+    assertThat(result.session().get(REDIRECT_TO_SESSION_KEY)).isPresent();
+    assertThat(result.session().get(REDIRECT_TO_SESSION_KEY).get())
+        .isEqualTo("https://register.example.com/signup");
   }
 
   @Test

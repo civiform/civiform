@@ -8,7 +8,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
-import controllers.routes;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -158,7 +157,6 @@ public class ProgramIndexView extends ApplicantBaseView {
         // The applicant portal name should always be set (there is a
         // default setting as well).
         settingsManifest.getApplicantPortalName(request).get());
-    context.setVariable("createAccountLink", routes.LoginController.register().url());
     context.setVariable("isGuest", personalInfo.getType() == GUEST);
     context.setVariable("hasProfile", profile.isPresent());
     context.setVariable("categoryOptions", relevantCategories);

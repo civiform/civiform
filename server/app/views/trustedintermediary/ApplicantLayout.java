@@ -255,7 +255,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 .with(
                     div(
                             getLanguageForm(request, messages, profile, applicantId),
-                            authDisplaySection(applicantPersonalInfo, profile, messages))
+                            authDisplaySection(applicantPersonalInfo, profile, messages, request))
                         .withClasses(
                             "flex",
                             "flex-row",
@@ -444,7 +444,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
    * page but hasn't tried applying to anything yet), we don't show the "End session" link.
    */
   private DivTag authDisplaySection(
-      ApplicantPersonalInfo personalInfo, Optional<CiviFormProfile> profile, Messages messages) {
+      ApplicantPersonalInfo personalInfo,
+      Optional<CiviFormProfile> profile,
+      Messages messages,
+      Http.Request request) {
     DivTag outsideDiv = div().withClasses("flex", "flex-col", "justify-center", "pr-4");
 
     boolean isTi = profile.map(CiviFormProfile::isTrustedIntermediary).orElse(false);
@@ -456,9 +459,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
       // Ending a guest session is equivalent to "logging out" the guest.
       String endSessionLink = org.pac4j.play.routes.LogoutController.logout().url();
       String logInMessage = messages.at(MessageKey.BUTTON_LOGIN.getKeyName());
-      String logInLink = routes.LoginController.applicantLogin(Optional.empty()).url();
+      String logInLink = routes.LoginController.applicantLogin(Optional.of(request.uri())).url();
       String createAnAccountMessage = messages.at(MessageKey.BUTTON_CREATE_ACCOUNT.getKeyName());
-      String createAnAccountLink = routes.LoginController.register().url();
+      String createAnAccountLink =
+          routes.LoginController.register(Optional.of(request.uri())).url();
 
       DivTag loggedInAsDiv =
           div(

@@ -89,12 +89,17 @@ public class LoginController extends Controller {
         .addingToSession(request, REDIRECT_TO_SESSION_KEY, redirectTo.get());
   }
 
-  public Result register(Http.Request request) {
+  public Result register(Http.Request request, Optional<String> redirectTo) {
     String registerUrl =
         config.hasPath("applicant_register_uri") ? config.getString("applicant_register_uri") : "";
     if (registerUrl.isBlank()) {
       logger.warn("Register uri is expected, but not set in the config.");
-      return login(request, applicantClient);
+      if (redirectTo.isEmpty()) {
+        return login(request, applicantClient)
+            .removingFromSession(request, REDIRECT_TO_SESSION_KEY);
+      }
+      return login(request, applicantClient)
+          .addingToSession(request, REDIRECT_TO_SESSION_KEY, redirectTo.get());
     }
     // Redirect to the registration URL - then, when the user visits the site again, automatically
     // log them in.
@@ -102,7 +107,7 @@ public class LoginController extends Controller {
         .addingToSession(
             request,
             REDIRECT_TO_SESSION_KEY,
-            routes.LoginController.applicantLogin(Optional.empty()).url());
+            routes.LoginController.applicantLogin(redirectTo).url());
   }
 
   // Logic taken from org.pac4j.play.deadbolt2.Pac4jHandler.beforeAuthCheck.
