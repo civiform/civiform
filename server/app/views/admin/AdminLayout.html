@@ -148,5 +148,10 @@
         th:insert="~{${layoutParams.pageTemplate()} :: scripts} ?: ~{}"
       ></th:block>
     </div>
+
+    <th:block
+      th:if="${templateGlobals.isDev()}"
+      th:insert="~{admin/shared/DevInfo.html}"
+    />
   </body>
 </html>

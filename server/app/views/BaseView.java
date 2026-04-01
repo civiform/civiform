@@ -6,7 +6,14 @@ import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.Environment;
 import play.mvc.Http;
+import play.routing.HandlerDef;
+import play.routing.Router;
 import services.settings.SettingsManifest;
+import services.tooling.sql.RequestSqlCollector;
+import views.CspUtil;
+import views.admin.shared.DevInfo;
+import views.admin.shared.Footer;
+import views.admin.shared.SqlInfo;
 import views.html.helper.CSRF;
 import views.shared.BaseViewDeps;
 import views.shared.FeatureFlags;
@@ -141,6 +148,26 @@ public abstract class BaseView<TModel extends BaseViewModel> {
     // This gives the Thymeleaf template the typed data model for the page template. Methods
     // can be added to the model to aid in more complex logic needs of the template.
     context.setVariable("model", model);
+
+    HandlerDef handlerDef = request.attrs().get(Router.Attrs.HANDLER_DEF);
+    String controller = handlerDef.controller(); // e.g. "controllers.HomeController"
+    String method = handlerDef.method(); // e.g. "index"
+    String verb = handlerDef.verb(); // e.g. "GET"
+    String path = handlerDef.path(); // e.g. "/users/:id"
+
+    context.setVariable(
+        "devInfo",
+        DevInfo.builder()
+            .layoutTemplate(layoutTemplate().get().getPath())
+            .pageTemplate(pageTemplate())
+            .controller(controller)
+            .method(method)
+            .verb(verb)
+            .path(path)
+            .model(model)
+            .build());
+
+    context.setVariable("sqlInfo", SqlInfo.builder().model(RequestSqlCollector.get()).build());
 
     // Allow each view to add custom items to the Thymeleaf content. In most cases prefer not
     // adding extra variables to the context. Instead prefer adding data fields/methods to the model

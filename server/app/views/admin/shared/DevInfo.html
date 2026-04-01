@@ -1,0 +1,17 @@
+<!--/*@thymesVar id="devInfo" type="views.admin.shared.DevInfo"*/-->
+<!--/*@thymesVar id="sqlInfo" type="views.admin.shared.SqlInfo"*/-->
+<th:block>
+  <script
+    th:if="${devInfo != null}"
+    id="__dev_info__"
+    type="application/json"
+    th:inline="none"
+    th:utext="${devInfo.toJson()}"
+  ></script>
+  <script
+    th:if="${sqlInfo != null}"
+    id="__ebean_sql__"
+    type="application/json"
+    th:utext="${sqlInfo.toJson()}"
+  ></script>
+</th:block>
