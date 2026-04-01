@@ -131,10 +131,10 @@ lazy val root = (project in file("."))
 
       // Explicitly include Pekko libraries that otherwise would be
       // incompatible due to version mismatches with the default versions.
-      "org.apache.pekko" %% "pekko-actor-typed" % "1.1.5",
-      "org.apache.pekko" %% "pekko-serialization-jackson" % "1.1.5",
-      "org.apache.pekko" %% "pekko-slf4j" % "1.1.5",
-      "org.apache.pekko" %% "pekko-stream-testkit" % "1.1.5",
+      "org.apache.pekko" %% "pekko-actor-typed" % "1.4.0",
+      "org.apache.pekko" %% "pekko-serialization-jackson" % "1.4.0",
+      "org.apache.pekko" %% "pekko-slf4j" % "1.4.0",
+      "org.apache.pekko" %% "pekko-stream-testkit" % "1.4.0",
 
       // Url detector for program descriptions.
       "com.linkedin.urls" % "url-detector" % "0.1.17",
