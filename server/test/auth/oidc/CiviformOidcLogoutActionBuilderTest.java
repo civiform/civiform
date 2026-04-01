@@ -60,7 +60,7 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
 
   @Before
   public void setup() {
-    oidcConfig = CfTestHelpers.getOidcConfiguration(oidcHost, oidcPort);
+    oidcConfig = CfTestHelpers.getOidcClient(oidcHost, oidcPort).getConfiguration();
     Clock clock = Clock.fixed(Instant.ofEpochSecond(10), ZoneOffset.UTC);
     civiFormProfileData = new CiviFormProfileData(accountId, clock);
 
