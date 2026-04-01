@@ -10,6 +10,7 @@ import org.apache.pekko.stream.javadsl.Sink;
 import org.apache.pekko.util.ByteString;
 import parsers.StreamingMultipartUploadResult;
 import parsers.cloud.aws.AwsS3MultipartUploadSinkProvider;
+import parsers.cloud.gcp.GcpMultipartUploadSinkProvider;
 import services.cloud.StorageServiceName;
 
 public final class MultipartUploadSinks {
@@ -24,6 +25,7 @@ public final class MultipartUploadSinks {
     uploadSinkProvider =
         switch (storageServiceName) {
           case S3, AWS_S3 -> new AwsS3MultipartUploadSinkProvider();
+          case GCP_S3 -> new GcpMultipartUploadSinkProvider();
           default -> new NoOpMultipartUploadSinkProvider(storageServiceName);
         };
   }
@@ -33,8 +35,8 @@ public final class MultipartUploadSinks {
   // For available Pekko connectors, see:
   // https://pekko.apache.org/docs/pekko-connectors/1.2/index.html
   public Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> getSinkForCloudProvider(
-      String bucketName, String fileKey) {
-    return uploadSinkProvider.getUploadSink(bucketName, fileKey);
+      String bucketName, String fileKey, int chunkSize) {
+    return uploadSinkProvider.getUploadSink(bucketName, fileKey, chunkSize);
   }
 
   // Return the StorageServiceName for the currently selected cloud storage provider

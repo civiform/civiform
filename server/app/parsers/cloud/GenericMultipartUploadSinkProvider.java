@@ -16,11 +16,11 @@ public abstract class GenericMultipartUploadSinkProvider<T> {
 
   // Get the composed sink to upload to the cloud storage provider, returning a custom result class.
   public abstract Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> getUploadSink(
-      String bucketName, String fileKey);
+      String bucketName, String fileKey, int chunkSize);
 
   // Split out the call to cloud storage providers for improved testability
   protected abstract Sink<ByteString, CompletionStage<T>> getBaseSink(
-      String bucketName, String fileKey);
+      String bucketName, String fileKey, int chunkSize);
 
   // Construct a failed upload result for the given storage service from a supplied throwable.
   protected StreamingMultipartUploadResult failedResult(Throwable throwable) {
