@@ -1,5 +1,6 @@
 import {addEventListenerToElements, assertNotNull} from '@/util'
 import {isFileTooLarge} from '@/file_upload_util'
+import {featureFlags} from '@/global/shared/feature_flags'
 
 const UPLOAD_ATTR = 'data-upload-text'
 const UPLOADED_FILE_ATTR = 'data-uploaded-files'
@@ -56,7 +57,15 @@ export function init() {
     // If we don't have the div showing the latest file upload (from the older single-file upload
     // behavior), then multiple file upload feature is enabled, in that case, submit the form
     // as soon as the applicant selects a file so it immediately uploads the file.
-    if (validateFileUploadQuestion(blockForm) && !uploadedDivs.length) {
+    // When file upload improvements are enabled, HTMX handles the upload so we skip
+    // the form submit.
+    const fileUploadImprovementsEnabled =
+      featureFlags().isFileUploadQuestionImprovementsEnabled
+    if (
+      validateFileUploadQuestion(blockForm) &&
+      !uploadedDivs.length &&
+      !fileUploadImprovementsEnabled
+    ) {
       const elementsToDisable = document.querySelectorAll(
         '.cf-disable-when-uploading',
       )

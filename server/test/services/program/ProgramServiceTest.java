@@ -1500,7 +1500,8 @@ public class ProgramServiceTest extends ResetPostgres {
         program.id(),
         1L,
         ImmutableList.of(question.getId()),
-        /* enumeratorImprovementsEnabled= */ false);
+        /* enumeratorImprovementsEnabled= */ false,
+        /* fileUploadQuestionImprovementsEnabled= */ false);
 
     ProgramDefinition found =
         ps.updateProgramDefinition(
@@ -2001,7 +2002,8 @@ public class ProgramServiceTest extends ResetPostgres {
         program.id(),
         1L,
         ImmutableList.of(question.getId()),
-        /* enumeratorImprovementsEnabled= */ false);
+        /* enumeratorImprovementsEnabled= */ false,
+        /* fileUploadQuestionImprovementsEnabled= */ false);
 
     ProgramDefinition found = ps.getFullProgramDefinition(program.id());
 
@@ -2588,7 +2590,8 @@ public class ProgramServiceTest extends ResetPostgres {
                     program.id,
                     1L,
                     ImmutableList.of(questionA.getId()),
-                    /* enumeratorImprovementsEnabled= */ false))
+                    /* enumeratorImprovementsEnabled= */ false,
+                    /* fileUploadQuestionImprovementsEnabled= */ false))
         .isInstanceOf(CantAddQuestionToBlockException.class)
         .hasMessage(
             String.format(
@@ -2613,7 +2616,8 @@ public class ProgramServiceTest extends ResetPostgres {
             program.id(),
             1L,
             ImmutableList.of(questionB.getId()),
-            /* enumeratorImprovementsEnabled= */ false);
+            /* enumeratorImprovementsEnabled= */ false,
+            /* fileUploadQuestionImprovementsEnabled= */ false);
 
     assertThat(program.hasQuestion(questionA)).isTrue();
     assertThat(program.hasQuestion(questionB)).isTrue();
@@ -2629,7 +2633,8 @@ public class ProgramServiceTest extends ResetPostgres {
             program.id(),
             1L,
             ImmutableList.of(enumeratorQuestion.getId()),
-            /* enumeratorImprovementsEnabled= */ false);
+            /* enumeratorImprovementsEnabled= */ false,
+            /* fileUploadQuestionImprovementsEnabled= */ false);
 
     assertThat(program.hasQuestion(enumeratorQuestion)).isTrue();
     assertThat(program.getBlockDefinitionByIndex(0).get().getIsEnumerator()).isTrue();
@@ -2652,7 +2657,8 @@ public class ProgramServiceTest extends ResetPostgres {
             programDefinition.id(),
             2L,
             ImmutableList.of(nameQuestion.getId()),
-            /* enumeratorImprovementsEnabled= */ true);
+            /* enumeratorImprovementsEnabled= */ true,
+            /* fileUploadQuestionImprovementsEnabled= */ false);
     assertThat(programDefinition.getBlockDefinitionByIndex(0).get().hasEnumeratorQuestion())
         .isTrue();
 
@@ -2685,7 +2691,8 @@ public class ProgramServiceTest extends ResetPostgres {
                     programDefinition.id(),
                     2L,
                     ImmutableList.of(nameQuestion.getId()),
-                    /* enumeratorImprovementsEnabled= */ false))
+                    /* enumeratorImprovementsEnabled= */ false,
+                    /* fileUploadQuestionImprovementsEnabled= */ false))
         .isInstanceOf(CantAddQuestionToBlockException.class)
         .hasMessage(
             String.format(
@@ -2751,7 +2758,8 @@ public class ProgramServiceTest extends ResetPostgres {
             program.id(),
             1L,
             ImmutableList.of(enumeratorQuestion.getId()),
-            /* enumeratorImprovementsEnabled= */ false);
+            /* enumeratorImprovementsEnabled= */ false,
+            /* fileUploadQuestionImprovementsEnabled= */ false);
 
     assertThat(program.hasQuestion(enumeratorQuestion)).isTrue();
     assertThat(program.getBlockDefinitionByIndex(0).get().getIsEnumerator()).isTrue();
@@ -2782,7 +2790,8 @@ public class ProgramServiceTest extends ResetPostgres {
             programDefinition.id(),
             1L,
             ImmutableList.of(enumeratorQuestion.getId()),
-            /* enumeratorImprovementsEnabled= */ true);
+            /* enumeratorImprovementsEnabled= */ true,
+            /* fileUploadQuestionImprovementsEnabled= */ false);
 
     assertThat(programDefinition.hasQuestion(enumeratorQuestion)).isTrue();
     assertThat(programDefinition.getBlockDefinitionByIndex(0).get().getIsEnumerator()).isTrue();
