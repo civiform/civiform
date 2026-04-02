@@ -237,8 +237,7 @@ public class FileUploadQuestionTest extends ResetPostgres {
     StoredFileRepository storedFileRepository = instanceOf(StoredFileRepository.class);
 
     Optional<String> result =
-        FileUploadQuestion.getOriginalFileNameForFileKey(
-                storedFileRepository, "nonexistent-key")
+        FileUploadQuestion.getOriginalFileNameForFileKey(storedFileRepository, "nonexistent-key")
             .toCompletableFuture()
             .join();
 
@@ -256,8 +255,7 @@ public class FileUploadQuestionTest extends ResetPostgres {
 
     Optional<String> result =
         FileUploadQuestion.getOriginalFileNameForFileKey(
-                storedFileRepository,
-                "applicant-1/program-2/block-3/uuid-key")
+                storedFileRepository, "applicant-1/program-2/block-3/uuid-key")
             .toCompletableFuture()
             .join();
 
@@ -274,8 +272,7 @@ public class FileUploadQuestionTest extends ResetPostgres {
 
     Optional<String> result =
         FileUploadQuestion.getOriginalFileNameForFileKey(
-                storedFileRepository,
-                "applicant-1/program-2/block-3/uuid-key-no-name")
+                storedFileRepository, "applicant-1/program-2/block-3/uuid-key-no-name")
             .toCompletableFuture()
             .join();
 
