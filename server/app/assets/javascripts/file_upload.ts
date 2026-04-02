@@ -39,6 +39,7 @@ export function init() {
     window.addEventListener('beforeunload', (e: BeforeUnloadEvent) => {
       if (fileUploadInProgress) {
         e.preventDefault()
+        // Deprecated in favor of preventDefault() but included for legacy browser support
         e.returnValue = true
       }
     })
