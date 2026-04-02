@@ -33,29 +33,29 @@ export function init() {
     },
   )
   // Global variable to track if file upload is in progress to prevent navigating away
-  let fileUploadInProgress = false
+  let fileUploadInProgress = false;
 
   if (featureFlags().isFileUploadQuestionImprovementsEnabled) {
     window.addEventListener('beforeunload', (e: BeforeUnloadEvent) => {
       if (fileUploadInProgress) {
-        e.preventDefault()
+        e.preventDefault();
         e.returnValue = true
       }
     })
 
     document.body.addEventListener('htmx:beforeRequest', () => {
-      fileUploadInProgress = true
-      document.body.classList.add(CF_FILE_UPLOADING_CLASS)
+      fileUploadInProgress = true;
+      document.body.classList.add(CF_FILE_UPLOADING_CLASS);
     })
 
     document.body.addEventListener('htmx:afterRequest', () => {
-      fileUploadInProgress = false
-      document.body.classList.remove(CF_FILE_UPLOADING_CLASS)
+      fileUploadInProgress = false;
+      document.body.classList.remove(CF_FILE_UPLOADING_CLASS);
     })
 
     document.body.addEventListener('htmx:responseError', () => {
-      fileUploadInProgress = false
-      document.body.classList.remove(CF_FILE_UPLOADING_CLASS)
+      fileUploadInProgress = false;
+      document.body.classList.remove(CF_FILE_UPLOADING_CLASS);
     })
   }
 
@@ -86,7 +86,10 @@ export function init() {
     // as soon as the applicant selects a file so it immediately uploads the file.
     // When file upload improvements are enabled, HTMX handles the upload so we skip
     // the form submit.
-    if (validateFileUploadQuestion(blockForm) && !uploadedDivs.length) {
+    if (
+      validateFileUploadQuestion(blockForm) &&
+      !uploadedDivs.length
+    ) {
       const elementsToDisable = document.querySelectorAll(
         '.cf-disable-when-uploading',
       )
