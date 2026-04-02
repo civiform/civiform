@@ -76,14 +76,13 @@ export default defineConfig({
   build: {
     // Output to the location Play will look for assets
     outDir: 'app/assets/dist',
-    minify: 'esbuild',
     emptyOutDir: true,
     // Up the warning size limit past our largest chunk
     chunkSizeWarningLimit: 1100,
     // Generate source maps
     sourcemap: true,
-    // Set up the main entrypoint chunks
-    rollupOptions: {
+    rolldownOptions: {
+      // Set up the main entrypoint chunks
       input: {
         applicant: resolve(__dirname, assetPaths.applicant),
         admin: resolve(__dirname, assetPaths.admin),
@@ -94,43 +93,49 @@ export default defineConfig({
         maplibregl: resolve(__dirname, assetPaths.maplibregl_css),
         tailwind: resolve(__dirname, assetPaths.tailwind),
       },
-      // Set up the output file naming conventions
-      output: {
-        // entryFileNames align with the rollupOptions for javascript files. No hash is
-        // on these files so they can have a deterministic name to reference in the
-        // application, Play's AssetsFinder will add it.
-        entryFileNames: '[name].bundle.js',
-        // chunkFileNames align with manualChunks and include a hash in the file name for cache busting purposes
-        chunkFileNames: '[hash]-[name].chunk.js',
-        // assetFileNames are for non-javascript files
-        assetFileNames: (assetInfo) => {
-          if (assetInfo.names?.[0]?.endsWith('.css')) {
-            return '[name].min.css'
-          }
-          // Keep fonts in their respective folders for USWDS to load correctly
-          if (assetInfo.names?.[0]?.match(/\.(woff2?|ttf|eot)$/)) {
-            return 'fonts/[name][extname]'
-          }
-          // Keep images in their respective folders for USWDS to load correctly
-          if (assetInfo.names?.[0]?.match(/\.(png|jpe?g|svg|gif|webp)$/)) {
-            return 'img/[name][extname]'
-          }
-
-          return '[name][extname]'
-        },
-        // This splits vendor dependencies into separate chunks
-        manualChunks: {
-          'vendor-htmx': ['htmx.org'],
-          'vendor-markdown': ['markdown-it', 'dompurify'],
-          'vendor-maps': ['maplibre-gl'],
-        },
-      },
       onwarn(warning, warn) {
         // Suppress eval warnings from htmx
         if (warning.code === 'EVAL' && warning.id?.includes('htmx')) {
           return
         }
         warn(warning)
+      },
+      // Set up the output file naming conventions and vendor chunk splitting
+      output: {
+        // entryFileNames align with the rolldownOptions for javascript files. No hash is
+        // on these files so they can have a deterministic name to reference in the
+        // application, Play's AssetsFinder will add it.
+        entryFileNames: '[name].bundle.js',
+        // chunkFileNames include a hash in the file name for cache busting purposes
+        chunkFileNames: '[hash]-[name].chunk.js',
+        // assetFileNames are for non-javascript files
+        assetFileNames: (assetInfo) => {
+          // names[] is the current Rolldown API; name (string) is deprecated but kept for
+          // backwards compatibility with Rollup. Prefer names[0] and fall back to name.
+          const name = assetInfo.names?.[0] ?? assetInfo.name ?? ''
+          if (name.match(/\.(css|scss)$/)) {
+            return '[name].min.css'
+          }
+          // Keep fonts in their respective folders for USWDS to load correctly
+          if (name.match(/\.(woff2?|ttf|eot)$/)) {
+            return 'fonts/[name][extname]'
+          }
+          // Keep images in their respective folders for USWDS to load correctly
+          if (name.match(/\.(png|jpe?g|svg|gif|webp)$/)) {
+            return 'img/[name][extname]'
+          }
+
+          return '[name][extname]'
+        },
+        // Split vendor dependencies into separate chunks for cache efficiency.
+        // Each group matches vendor modules by their resolved module ID path.
+        codeSplitting: {
+          groups: [
+            {name: 'vendor-htmx', test: /htmx\.org/},
+            {name: 'vendor-markdown', test: /markdown-it|dompurify/},
+            {name: 'vendor-maps', test: /maplibre-gl/},
+          ],
+        },
       },
     },
     // Target modern browsers (no IE11)

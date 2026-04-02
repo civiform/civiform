@@ -144,7 +144,10 @@ public class BaseHtmlLayout {
     }
 
     bundle.addHeadScripts(
-        script().withSrc(bundledAssetsFinder.getUswdsJsInit()).withType("text/javascript"));
+        script()
+            .withSrc(bundledAssetsFinder.getUswdsJsInit())
+            .withType("text/javascript")
+            .attr("crossorigin"));
 
     // Add default stylesheets.
     bundle.addStylesheets(
@@ -287,6 +290,7 @@ public class BaseHtmlLayout {
         div()
             .withClasses("usa-banner__content", "usa-accordion__content", "sm: ml-0", "sm:pl-4")
             .withId("gov-banner-default-default")
+            .isHidden()
             .with(
                 div()
                     .withClasses("grid-row", "grid-gap-lg")
