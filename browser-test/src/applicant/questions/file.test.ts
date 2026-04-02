@@ -1344,3 +1344,45 @@ test.describe('for login only program, guest cannot see file upload question', (
     })
   })
 })
+
+test.describe('file upload question with file upload improvements feature flag enabled', () => {
+  const programName = 'File upload improvements program'
+  const fileUploadQuestionText = 'File upload improvements question'
+
+  test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+    await enableFeatureFlag(page, 'FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED')
+    await loginAsAdmin(page)
+
+    await adminQuestions.addFileUploadQuestion({
+      questionName: 'file-upload-improvements-q',
+      questionText: fileUploadQuestionText,
+    })
+    await adminPrograms.addAndPublishProgramWithQuestions(
+      ['file-upload-improvements-q'],
+      programName,
+    )
+    await logout(page)
+  })
+
+  test('sees popup if navigating away before upload is complete', async ({
+    applicantQuestions,
+    page,
+  }) => {
+    await applicantQuestions.applyProgram(programName)
+
+    await page.evaluate(() => {
+      document.body.dispatchEvent(new Event('htmx:beforeRequest'))
+    })
+
+    const initialUrl = page.url()
+
+    page.on('dialog', async (dialog) => {
+      expect(dialog.type()).toBe('beforeunload')
+      await dialog.dismiss()
+    })
+
+    await page.locator('#header-return-home').click()
+
+    expect(page.url()).toBe(initialUrl)
+  })
+})
