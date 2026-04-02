@@ -10,6 +10,7 @@ const FILE_NAME_DIGIT_SUFFIX_REGEX = /(.*)(-\d*)(\..*)?$/
 // Matches a file name with a file type at the end.
 // Groups are [1] The file name [2] The file type.
 const FILE_NAME_REGEX = /(.*)(\..*)$/
+const CF_FILE_UPLOADING_CLASS = 'cf-file-uploading'
 
 export function init() {
   // Don't add extra logic if we don't have a block form with a
@@ -31,6 +32,32 @@ export function init() {
       onActionButtonClicked(e, blockForm)
     },
   )
+  // Global variable to track if file upload is in progress to prevent navigating away
+  let fileUploadInProgress = false
+
+  if (featureFlags().isFileUploadQuestionImprovementsEnabled) {
+    window.addEventListener('beforeunload', (e: BeforeUnloadEvent) => {
+      if (fileUploadInProgress) {
+        e.preventDefault()
+        e.returnValue = true
+      }
+    })
+
+    document.body.addEventListener('htmx:beforeRequest', () => {
+      fileUploadInProgress = true
+      document.body.classList.add(CF_FILE_UPLOADING_CLASS)
+    })
+
+    document.body.addEventListener('htmx:afterRequest', () => {
+      fileUploadInProgress = false
+      document.body.classList.remove(CF_FILE_UPLOADING_CLASS)
+    })
+
+    document.body.addEventListener('htmx:responseError', () => {
+      fileUploadInProgress = false
+      document.body.classList.remove(CF_FILE_UPLOADING_CLASS)
+    })
+  }
 
   blockForm.addEventListener('submit', (event) => {
     // Prevent submission of a file upload form if no file has been
@@ -59,13 +86,7 @@ export function init() {
     // as soon as the applicant selects a file so it immediately uploads the file.
     // When file upload improvements are enabled, HTMX handles the upload so we skip
     // the form submit.
-    const fileUploadImprovementsEnabled =
-      featureFlags().isFileUploadQuestionImprovementsEnabled
-    if (
-      validateFileUploadQuestion(blockForm) &&
-      !uploadedDivs.length &&
-      !fileUploadImprovementsEnabled
-    ) {
+    if (validateFileUploadQuestion(blockForm) && !uploadedDivs.length) {
       const elementsToDisable = document.querySelectorAll(
         '.cf-disable-when-uploading',
       )
@@ -74,8 +95,10 @@ export function init() {
         elementToDisable.setAttribute('aria-disabled', 'true')
         elementToDisable.setAttribute('href', '#')
       })
-      document.body.classList.add('cf-file-uploading')
-      blockForm.submit()
+      if (!featureFlags().isFileUploadQuestionImprovementsEnabled) {
+        document.body.classList.add(CF_FILE_UPLOADING_CLASS)
+        blockForm.submit()
+      }
     }
   })
 
