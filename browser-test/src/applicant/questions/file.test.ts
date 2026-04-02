@@ -1348,17 +1348,18 @@ test.describe('for login only program, guest cannot see file upload question', (
 test.describe('file upload question with file upload improvements feature flag enabled', () => {
   const programName = 'File upload improvements program'
   const fileUploadQuestionText = 'File upload improvements question'
+  const fileUploadImprevementsQuestionName = 'file-upload-improvements-q'
 
   test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
     await enableFeatureFlag(page, 'FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED')
     await loginAsAdmin(page)
 
     await adminQuestions.addFileUploadQuestion({
-      questionName: 'file-upload-improvements-q',
+      questionName: fileUploadImprevementsQuestionName,
       questionText: fileUploadQuestionText,
     })
     await adminPrograms.addAndPublishProgramWithQuestions(
-      ['file-upload-improvements-q'],
+      [fileUploadImprevementsQuestionName],
       programName,
     )
     await logout(page)
@@ -1381,7 +1382,11 @@ test.describe('file upload question with file upload improvements feature flag e
       await dialog.dismiss()
     })
 
-    await page.locator('#header-return-home').click()
+    await page
+      .getByRole('link', {
+        name: 'TestCity CiviForm',
+      })
+      .click()
 
     expect(page.url()).toBe(initialUrl)
   })
