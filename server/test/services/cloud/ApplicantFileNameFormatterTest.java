@@ -62,4 +62,20 @@ public class ApplicantFileNameFormatterTest {
                     "applicant-1/program-2/block-3-4/${filename}", /* applicantId= */ 0))
         .isInstanceOf(IllegalArgumentException.class);
   }
+
+  @Test
+  public void formatFileUploadQuestionFilenameWithUuid() {
+    String result =
+      ApplicantFileNameFormatter.formatFileUploadQuestionFilenameWithUuid(
+        /* applicantId= */ 1L, /* programId= */ 2L, /* blockId= */ "3-4", "report.pdf");
+    assertThat(result).startsWith("applicant-1/program-2/block-3-4/");
+    assertThat(result).endsWith(".pdf");
+    assertThat(ApplicantFileNameFormatter.isApplicantOwnedFileKey(result, /* applicantId= */ 1L))
+      .isTrue();
+    // Each call generates a unique key.
+    String result2 =
+      ApplicantFileNameFormatter.formatFileUploadQuestionFilenameWithUuid(
+        /* applicantId= */ 1L, /* programId= */ 2L, /* blockId= */ "3-4", "report.pdf");
+    assertThat(result).isNotEqualTo(result2);
+  }
 }

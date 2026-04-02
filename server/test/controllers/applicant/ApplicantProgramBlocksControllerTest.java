@@ -3237,6 +3237,41 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     assertThat(confirmAddressResult.session()).isNull();
   }
 
+  @Test
+  public void hxSelectFileForUpload_generatesUuidFileKeyAndStoresOriginalName() {
+    program =
+      ProgramBuilder.newActiveProgram()
+        .withBlock("block 1")
+        .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
+        .build();
+
+    RequestBuilder requestBuilder = fakeRequestBuilder();
+    Request request =
+      requestBuilder
+        .bodyMultipart(
+          java.util.Map.of(),
+          java.util.List.of(
+            new play.mvc.Http.MultipartFormData.FilePart<>(
+              "file", "my-document.pdf", "application/pdf", null)))
+        .build();
+    when(settingsManifest.getFileUploadQuestionImprovementsEnabled(request)).thenReturn(true);
+
+    Result result =
+      subject
+        .hxSelectFileForUpload(request, program.id, /* blockId= */ "1")
+        .toCompletableFuture()
+        .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+
+    applicant.refresh();
+    String applicantData = applicant.getApplicantData().asJsonString();
+    assertThat(applicantData).contains("my-document.pdf");
+    assertThat(applicantData).contains("applicant-");
+    assertThat(applicantData).contains(".pdf");
+    assertThat(applicantData).doesNotContain("my-document.pdf\",\"file_key_list");
+  }
+
   private RequestBuilder addQueryString(
       RequestBuilder request, ImmutableMap<String, String> query) {
     String queryString =

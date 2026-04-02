@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.i18n.MessagesApi;
+import play.libs.Files;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Http.Request;
@@ -51,6 +52,7 @@ import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.FileUploadQuestion;
+import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.ApplicantStorageClient;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
@@ -76,7 +78,10 @@ import views.trustedintermediary.ApplicationBaseViewParams;
  * check the current profile so that an unauthorized user cannot access another applicant's data!
  */
 public final class ApplicantProgramBlocksController extends CiviFormController {
-  private static final ImmutableSet<String> STRIPPED_FORM_FIELDS = ImmutableSet.of("csrfToken");
+  // "file" is stripped because file uploads are handled separately by
+  // hxSelectFileForUpload, not by the form submission.
+  private static final ImmutableSet<String> STRIPPED_FORM_FIELDS =
+      ImmutableSet.of("csrfToken", "file");
 
   private final ApplicantService applicantService;
   private final MessagesApi messagesApi;
@@ -1098,8 +1103,110 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       return CompletableFuture.completedFuture(badRequest());
     }
 
-    // TODO: Perform file upload
-    return CompletableFuture.completedFuture(ok());
+    long applicantId = optionalApplicantId.get();
+
+    Http.MultipartFormData<Files.TemporaryFile> body = request.body().asMultipartFormData();
+    if (body == null) {
+      return CompletableFuture.completedFuture(badRequest());
+    }
+
+    Http.MultipartFormData.FilePart<Files.TemporaryFile> filePart = body.getFile("file");
+    if (filePart == null) {
+      return CompletableFuture.completedFuture(badRequest());
+    }
+
+    String originalFileName = filePart.getFilename();
+    String fileKey =
+        ApplicantFileNameFormatter.formatFileUploadQuestionFilenameWithUuid(
+            applicantId, programId, blockId, originalFileName);
+
+    return checkApplicantAuthorization(request, applicantId)
+        .thenComposeAsync(
+            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            roApplicantProgramService -> {
+              Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
+
+              if (block.isEmpty() || !block.get().isFileUpload()) {
+                return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
+              }
+
+              FileUploadQuestion fileUploadQuestion =
+                  block.get().getVisibleQuestions().stream()
+                      .filter(question -> question.getType().equals(QuestionType.FILEUPLOAD))
+                      .findAny()
+                      .get()
+                      .createFileUploadQuestion();
+
+              if (!fileUploadQuestion.canUploadFile()) {
+                return failedFuture(
+                    new IllegalArgumentException(
+                        String.format(
+                            "Cannot upload additional files for question"
+                                + " %s, in program %s, block %s, for"
+                                + " applicant %s.",
+                            fileUploadQuestion
+                                .getApplicantQuestion()
+                                .getQuestionDefinition()
+                                .getId(),
+                            programId,
+                            blockId,
+                            applicantId)));
+              }
+
+              ImmutableMap.Builder<String, String> fileUploadQuestionFormData =
+                  new ImmutableMap.Builder<>();
+              Optional<ImmutableList<String>> keysOptional =
+                  fileUploadQuestion.getFileKeyListValue();
+              Optional<ImmutableList<String>> originalFileNamesOptional =
+                  fileUploadQuestion.getOriginalFileNameListValue();
+              int newIndex = keysOptional.map(ImmutableList::size).orElse(0);
+
+              // Preserve existing file keys.
+              if (keysOptional.isPresent()) {
+                for (int i = 0; i < keysOptional.get().size(); i++) {
+                  fileUploadQuestionFormData.put(
+                      fileUploadQuestion.getFileKeyListPathForIndex(i).toString(),
+                      keysOptional.get().get(i));
+                }
+              }
+
+              // Preserve existing original file names.
+              if (originalFileNamesOptional.isPresent()) {
+                for (int i = 0; i < originalFileNamesOptional.get().size(); i++) {
+                  fileUploadQuestionFormData.put(
+                      fileUploadQuestion.getOriginalFileNameListPathForIndex(i).toString(),
+                      originalFileNamesOptional.get().get(i));
+                }
+              }
+
+              // Append new file key and original file name.
+              fileUploadQuestionFormData.put(
+                  fileUploadQuestion.getFileKeyListPathForIndex(newIndex).toString(), fileKey);
+              fileUploadQuestionFormData.put(
+                  fileUploadQuestion.getOriginalFileNameListPathForIndex(newIndex).toString(),
+                  originalFileName);
+
+              return getOrMakeFileRecord(fileKey, Optional.of(originalFileName), applicantId)
+                  .thenComposeAsync(
+                      storedFile ->
+                          applicantService.stageAndUpdateIfValid(
+                              applicantId,
+                              programId,
+                              blockId,
+                              fileUploadQuestionFormData.build(),
+                              settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
+                              false,
+                              settingsManifest.getApiBridgeEnabled(request)));
+            },
+            classLoaderExecutionContext.current())
+        .thenApplyAsync(
+            // TODO(#12974): Return a successful file upload partial
+            roApplicantProgramService -> ok(""),
+            classLoaderExecutionContext.current())
+        // TODO(#12974): Return a file upload partial with an error message
+        .exceptionally(ex -> internalServerError());
   }
 
   /**
