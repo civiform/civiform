@@ -27,10 +27,14 @@ export default defineConfig({
     cors: true,
     strictPort: true, // Make Vite error if the default port is in use, otherwise it will try the next port up.
     fs: {
-      // Allow serving files from node_modules and project root
+      // Vite v8 requires explicit allow entries for paths it needs to serve as
+      // static assets. The USWDS dist path is needed so the dev server can serve
+      // fonts and images referenced via $theme-font-path and $theme-image-path
+      // in the USWDS SCSS config.
       allow: [
         resolve(__dirname, 'app/assets'),
         resolve(__dirname, 'node_modules'),
+        resolve(__dirname, 'node_modules/@uswds/uswds/dist'),
       ],
     },
     // Pre-compile on startup for faster loading of the first page hit
