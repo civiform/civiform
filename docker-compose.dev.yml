@@ -14,7 +14,10 @@ services:
       - 3390:3390
 
   civiform:
-    build: .
+    build:
+      context: .
+      args:
+        - SBT_VERSION
     volumes: *sbt-volumes
     stdin_open: true # docker run -i
     tty: true # docker run -t
