@@ -1344,3 +1344,53 @@ test.describe('for login only program, guest cannot see file upload question', (
     })
   })
 })
+
+test.describe('file upload question with file upload improvements feature flag enabled', () => {
+  const programName = 'File upload improvements program'
+  const fileUploadQuestionText = 'File upload improvements question'
+  const fileUploadImprevementsQuestionName = 'file-upload-improvements-q'
+
+  test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+    await enableFeatureFlag(page, 'FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED')
+    await loginAsAdmin(page)
+
+    await adminQuestions.addFileUploadQuestion({
+      questionName: fileUploadImprevementsQuestionName,
+      questionText: fileUploadQuestionText,
+    })
+    await adminPrograms.addAndPublishProgramWithQuestions(
+      [fileUploadImprevementsQuestionName],
+      programName,
+    )
+    await logout(page)
+  })
+
+  test('sees popup if navigating away before upload is complete', async ({
+    applicantQuestions,
+    page,
+  }) => {
+    await applicantQuestions.applyProgram(programName)
+
+    // Dispatch the event artificially because the HTMX request completes
+    // instantly in tests, so we need to simulate an in-flight upload to
+    // have time to attempt navigation.
+    await page.evaluate(() => {
+      document.body.dispatchEvent(new Event('htmx:beforeRequest'))
+    })
+
+    const initialUrl = page.url()
+
+    page.on('dialog', async (dialog) => {
+      expect(dialog.type()).toBe('beforeunload')
+      await dialog.dismiss()
+    })
+
+    await page
+      .getByRole('link', {
+        name: 'TestCity CiviForm',
+      })
+      .click()
+
+    expect(page.url()).toBe(initialUrl)
+  })
+})
