@@ -104,8 +104,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
       Request request, long applicantId, String programParam) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels("/applicants/:applicantId/programs/:programParam/review", programParam)
@@ -117,9 +117,9 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
   public CompletionStage<Result> reviewInternal(
       Request request, long applicantId, String programParam) {
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, programSlugUrlEnabled)
+        .resolveProgramParam(programParam, applicantId, programSlugUrlsEnabled)
         .thenCompose(
             programId -> {
               CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request);
@@ -218,8 +218,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
   public CompletionStage<Result> review(Request request, String programParam) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels("/programs/:programParam/review", programParam)
@@ -343,7 +343,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 if (cause instanceof ApplicationSubmissionException) {
                   Call reviewPage =
                       applicantRoutes.review(submittingProfile, applicantId, programId);
-                  if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+                  if (programSlugUrlsEnabled) {
                     reviewPage =
                         applicantRoutes.review(
                             submittingProfile,
@@ -363,7 +363,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                           .at(MessageKey.TOAST_APPLICATION_OUT_OF_DATE.getKeyName());
                   Call reviewPage =
                       applicantRoutes.review(submittingProfile, applicantId, programId);
-                  if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+                  if (programSlugUrlsEnabled) {
                     reviewPage =
                         applicantRoutes.review(
                             submittingProfile,
@@ -390,7 +390,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 if (cause instanceof DuplicateApplicationException) {
                   Call reviewPage =
                       applicantRoutes.review(submittingProfile, applicantId, programId);
-                  if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+                  if (programSlugUrlsEnabled) {
                     reviewPage =
                         applicantRoutes.review(
                             submittingProfile,
@@ -432,14 +432,14 @@ public class ApplicantProgramReviewController extends CiviFormController {
    * @return {@link Result} if application was updated; empty if not
    */
   public Optional<Result> updateApplicationToLatestProgramVersionIfNeeded(
-      long applicantId, long programId, CiviFormProfile profile, boolean programSlugUrlEnabled) {
+      long applicantId, long programId, CiviFormProfile profile, boolean programSlugUrlsEnabled) {
     return applicantService
         .updateApplicationToLatestProgramVersion(applicantId, programId)
         .map(
             latestProgramId -> {
               String reviewPage =
                   applicantRoutes.review(profile, applicantId, latestProgramId).url();
-              if (programSlugUrlEnabled) {
+              if (programSlugUrlsEnabled) {
                 final String programSlug;
                 try {
                   programSlug = programService.getSlug(programId);

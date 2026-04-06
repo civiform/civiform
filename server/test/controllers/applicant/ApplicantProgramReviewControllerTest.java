@@ -524,7 +524,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     Result result =
         subject
             .updateApplicationToLatestProgramVersionIfNeeded(
-                applicant.id, programDefinition.id(), profile, request)
+                applicant.id, programDefinition.id(), profile, /* programSlugUrlsEnabled= */ true)
             .get();
 
     // assertThat(result.status()).isEqualTo(FOUND);
