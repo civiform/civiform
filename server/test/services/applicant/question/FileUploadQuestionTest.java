@@ -10,10 +10,12 @@ import java.util.OptionalInt;
 import java.util.OptionalLong;
 import junitparams.JUnitParamsRunner;
 import models.ApplicantModel;
+import models.StoredFileModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import repository.ResetPostgres;
+import repository.StoredFileRepository;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.question.QuestionAnswerer;
@@ -228,5 +230,52 @@ public class FileUploadQuestionTest extends ResetPostgres {
         applicantData, applicantQuestion.getContextualizedPath(), ImmutableList.of("filekey1"));
 
     assertThat(fileUploadQuestion.canUploadFile()).isTrue();
+  }
+
+  @Test
+  public void getOriginalFileNameForFileKey_keyNotFound_returnsEmpty() {
+    StoredFileRepository storedFileRepository = instanceOf(StoredFileRepository.class);
+
+    Optional<String> result =
+        FileUploadQuestion.getOriginalFileNameForFileKey(storedFileRepository, "nonexistent-key")
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void getOriginalFileNameForFileKey_findsOriginalName() {
+    StoredFileRepository storedFileRepository = instanceOf(StoredFileRepository.class);
+
+    StoredFileModel storedFile = new StoredFileModel();
+    storedFile.setName("applicant-1/program-2/block-3/uuid-key");
+    storedFile.setOriginalFileName("report.pdf");
+    storedFileRepository.insert(storedFile).toCompletableFuture().join();
+
+    Optional<String> result =
+        FileUploadQuestion.getOriginalFileNameForFileKey(
+                storedFileRepository, "applicant-1/program-2/block-3/uuid-key")
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result).contains("report.pdf");
+  }
+
+  @Test
+  public void getOriginalFileNameForFileKey_noOriginalName_returnsEmpty() {
+    StoredFileRepository storedFileRepository = instanceOf(StoredFileRepository.class);
+
+    StoredFileModel storedFile = new StoredFileModel();
+    storedFile.setName("applicant-1/program-2/block-3/uuid-key-no-name");
+    storedFileRepository.insert(storedFile).toCompletableFuture().join();
+
+    Optional<String> result =
+        FileUploadQuestion.getOriginalFileNameForFileKey(
+                storedFileRepository, "applicant-1/program-2/block-3/uuid-key-no-name")
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result).isEmpty();
   }
 }

@@ -4,6 +4,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
+import java.util.concurrent.CompletionStage;
+import models.StoredFileModel;
+import repository.StoredFileRepository;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
@@ -118,6 +121,17 @@ public final class FileUploadQuestion extends AbstractQuestion {
   public Optional<String> getFileNameForIndex(int index) {
     Optional<String> fileNameOptional = getOriginalFileNameValueForIndex(index);
     return fileNameOptional.isPresent() ? fileNameOptional : getFileKeyValueForIndex(index);
+  }
+
+  /**
+   * Looks up the original file name for a given file key by querying the database for the
+   * corresponding {@link StoredFileModel}.
+   */
+  public static CompletionStage<Optional<String>> getOriginalFileNameForFileKey(
+      StoredFileRepository storedFileRepository, String fileKey) {
+    return storedFileRepository
+        .lookupFile(fileKey)
+        .thenApply(maybeFile -> maybeFile.flatMap(StoredFileModel::getOriginalFileName));
   }
 
   public FileUploadQuestionDefinition getQuestionDefinition() {
