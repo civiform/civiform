@@ -85,7 +85,7 @@ public class QuestionPreview extends ApplicantBaseView {
     context.setVariable("maxFileSizeMb", 100);
     context.setVariable(
         "fileUploadAllowedFileTypeSpecifiers",
-        settingsManifest.getFileUploadAllowedFileTypeSpecifiers().orElse(".jpg,.jpeg,.png,.pdf"));
+        settingsManifest.getFileUploadAllowedFileTypeSpecifiers().orElse("image/*,.pdf"));
     context.setVariable("isPreview", true);
     context.setVariable("homeUrl", index(params, applicantRoutes));
     return templateEngine.process("admin/questions/QuestionPreviewFragment", context);
