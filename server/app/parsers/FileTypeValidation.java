@@ -1,6 +1,7 @@
 package parsers;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import java.util.Locale;
@@ -17,6 +18,9 @@ public final class FileTypeValidation {
 
   // Magic byte signatures for common file types, mapped to their MIME types.
   // Ordered longest-first so more specific signatures match before shorter prefixes.
+  // References:
+  //   https://en.wikipedia.org/wiki/List_of_file_signatures
+  //   https://labex.io/tutorials/java-how-to-detect-file-types-in-java-438487
   private static final ImmutableMap<byte[], String> MAGIC_BYTES =
       ImmutableMap.<byte[], String>builder()
           .put(new byte[] {(byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}, "image/png")
@@ -33,12 +37,17 @@ public final class FileTypeValidation {
           .put(new byte[] {0x4D, 0x5A}, "application/x-executable") // PE/MZ executable
           .build();
 
-  // Allowed MIME type prefixes for uploaded files
-  private static final ImmutableMap<String, Boolean> ALLOWED_TYPES =
-      ImmutableMap.<String, Boolean>builder()
-          .put("image/", true)
-          .put("application/pdf", true)
-          .build();
+  // Maps file extension specifiers (e.g. ".pdf") to MIME types
+  private static final ImmutableMap<String, String> EXTENSION_TO_MIME =
+      ImmutableMap.of(
+          ".pdf", "application/pdf",
+          ".bmp", "image/bmp",
+          ".gif", "image/gif",
+          ".jpg", "image/jpeg",
+          ".jpeg", "image/jpeg",
+          ".png", "image/png",
+          ".tiff", "image/tiff",
+          ".webp", "image/webp");
 
   private FileTypeValidation() {}
 
@@ -49,11 +58,17 @@ public final class FileTypeValidation {
    * @param headerBytes the first bytes of the file (at least {@link #HEADER_SIZE} bytes)
    * @param declaredContentType the content type declared in the multipart upload
    * @param fileName the original filename, for error reporting
+   * @param allowedFileTypeSpecifiers comma-separated file type specifiers from config (e.g.
+   *     "image/*,.pdf")
    * @throws FileUploadTypeException if the detected type doesn't match declared, or is disallowed
    */
   public static void validateHeaderBytes(
-      ByteString headerBytes, String declaredContentType, String fileName) {
-    if (!isAllowedType(declaredContentType)) {
+      ByteString headerBytes,
+      String declaredContentType,
+      String fileName,
+      String allowedFileTypeSpecifiers) {
+    ImmutableList<String> allowedTypes = parseSpecifiers(allowedFileTypeSpecifiers);
+    if (!isAllowedType(declaredContentType, allowedTypes)) {
       throw new FileUploadTypeException(
           String.format(
               "File \"%s\": declared content type \"%s\" is not an allowed upload type.",
@@ -67,7 +82,7 @@ public final class FileTypeValidation {
           String.format("File \"%s\": could not verify file type from content bytes.", fileName));
     }
 
-    if (!isAllowedType(detectedType)) {
+    if (!isAllowedType(detectedType, allowedTypes)) {
       throw new FileUploadTypeException(
           String.format(
               "File \"%s\": detected file type \"%s\" is not an allowed upload type.",
@@ -124,14 +139,39 @@ public final class FileTypeValidation {
     return true;
   }
 
-  private static boolean isAllowedType(String mimeType) {
+  /**
+   * Parses a comma-separated file type specifiers string (e.g. "image/*,.pdf") into a list of MIME
+   * type matchers. Wildcard specifiers like "image/*" become prefix matchers ("image/"), and
+   * extension specifiers like ".pdf" are mapped to their MIME types.
+   */
+  static ImmutableList<String> parseSpecifiers(String specifiers) {
+    ImmutableList.Builder<String> builder = ImmutableList.builder();
+    for (String spec : Splitter.on(',').trimResults().omitEmptyStrings().split(specifiers)) {
+      String normalized = spec.toLowerCase(Locale.ROOT);
+      if (normalized.endsWith("/*")) {
+        // Wildcard MIME type (e.g. "image/*") -> prefix match ("image/")
+        builder.add(normalized.substring(0, normalized.length() - 1));
+      } else if (normalized.startsWith(".")) {
+        // Extension specifier (e.g. ".pdf") -> look up MIME type
+        String mime = EXTENSION_TO_MIME.get(normalized);
+        if (mime != null) {
+          builder.add(mime);
+        }
+      } else {
+        // Assume it's a full MIME type
+        builder.add(normalized);
+      }
+    }
+    return builder.build();
+  }
+
+  private static boolean isAllowedType(String mimeType, ImmutableList<String> allowedTypes) {
     if (mimeType == null) {
       return false;
     }
     String normalized = mimeType.toLowerCase(Locale.ROOT).trim();
-    for (String allowed : ALLOWED_TYPES.keySet()) {
+    for (String allowed : allowedTypes) {
       if (allowed.endsWith("/")) {
-        // Prefix match (e.g. "image/")
         if (normalized.startsWith(allowed)) {
           return true;
         }

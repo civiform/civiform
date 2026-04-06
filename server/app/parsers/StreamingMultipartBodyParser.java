@@ -13,6 +13,7 @@ import play.http.DefaultHttpErrorHandler;
 import play.libs.streams.Accumulator;
 import play.mvc.BodyParser;
 import play.mvc.Http.MultipartFormData.FilePart;
+import services.settings.SettingsManifest;
 
 /**
  * Abstract class for performing a streaming upload of multipart form data.
@@ -27,15 +28,22 @@ import play.mvc.Http.MultipartFormData.FilePart;
 public abstract class StreamingMultipartBodyParser
     extends BodyParser.DelegatingMultipartFormDataBodyParser<Void> {
   private static final int CHUNK_SIZE = 1024 * 1024; // 1 MiB
+  private static final String DEFAULT_ALLOWED_FILE_TYPES = "image/*,.pdf";
   private final MultipartUploadSinks uploadSinks;
+  private final String allowedFileTypeSpecifiers;
 
   public StreamingMultipartBodyParser(
       Materializer materializer,
       DefaultHttpErrorHandler errorHandler,
       MultipartUploadSinks streamingMultipartUploadSinks,
+      SettingsManifest settingsManifest,
       long maxFileSize) {
     super(materializer, CHUNK_SIZE, maxFileSize, /* allowEmptyFiles= */ false, errorHandler);
     this.uploadSinks = streamingMultipartUploadSinks;
+    this.allowedFileTypeSpecifiers =
+        settingsManifest
+            .getFileUploadAllowedFileTypeSpecifiers()
+            .orElse(DEFAULT_ALLOWED_FILE_TYPES);
   }
 
   // Override the method to create a file part handler that streams the file data to the destination
@@ -69,7 +77,7 @@ public abstract class StreamingMultipartBodyParser
                       // Validate once we have enough bytes
                       if (headerBytes.get().size() >= FileTypeValidation.HEADER_SIZE) {
                         FileTypeValidation.validateHeaderBytes(
-                            headerBytes.get(), contentType, fileName);
+                            headerBytes.get(), contentType, fileName, allowedFileTypeSpecifiers);
                       }
                     }
 

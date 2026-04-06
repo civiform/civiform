@@ -7,6 +7,7 @@ import org.apache.pekko.util.ByteString;
 import org.junit.Test;
 
 public class FileTypeValidationTest {
+  private static final String ALLOWED_SPECIFIERS = "image/*,.pdf";
 
   @Test
   public void detectType_png() {
@@ -161,7 +162,7 @@ public class FileTypeValidationTest {
     };
     // Should not throw
     FileTypeValidation.validateHeaderBytes(
-        ByteString.fromArray(pngHeader), "image/png", "test.png");
+        ByteString.fromArray(pngHeader), "image/png", "test.png", ALLOWED_SPECIFIERS);
   }
 
   @Test
@@ -186,7 +187,7 @@ public class FileTypeValidationTest {
       0x00
     };
     FileTypeValidation.validateHeaderBytes(
-        ByteString.fromArray(pngHeader), "image/x-png", "test.png");
+        ByteString.fromArray(pngHeader), "image/x-png", "test.png", ALLOWED_SPECIFIERS);
   }
 
   @Test
@@ -198,7 +199,7 @@ public class FileTypeValidationTest {
     assertThatThrownBy(
             () ->
                 FileTypeValidation.validateHeaderBytes(
-                    ByteString.fromArray(pdfHeader), "image/png", "fake.png"))
+                    ByteString.fromArray(pdfHeader), "image/png", "fake.png", ALLOWED_SPECIFIERS))
         .isInstanceOf(FileUploadTypeException.class)
         .hasMessageContaining("does not match detected type");
   }
@@ -226,7 +227,10 @@ public class FileTypeValidationTest {
     assertThatThrownBy(
             () ->
                 FileTypeValidation.validateHeaderBytes(
-                    ByteString.fromArray(pngHeader), "application/pdf", "fake.pdf"))
+                    ByteString.fromArray(pngHeader),
+                    "application/pdf",
+                    "fake.pdf",
+                    ALLOWED_SPECIFIERS))
         .isInstanceOf(FileUploadTypeException.class)
         .hasMessageContaining("does not match detected type");
   }
@@ -240,7 +244,10 @@ public class FileTypeValidationTest {
     assertThatThrownBy(
             () ->
                 FileTypeValidation.validateHeaderBytes(
-                    ByteString.fromArray(unknownHeader), "application/x-executable", "malware.exe"))
+                    ByteString.fromArray(unknownHeader),
+                    "application/x-executable",
+                    "malware.exe",
+                    ALLOWED_SPECIFIERS))
         .isInstanceOf(FileUploadTypeException.class)
         .hasMessageContaining("not an allowed upload type");
   }
@@ -254,7 +261,10 @@ public class FileTypeValidationTest {
     assertThatThrownBy(
             () ->
                 FileTypeValidation.validateHeaderBytes(
-                    ByteString.fromArray(unknownHeader), "image/svg+xml", "drawing.svg"))
+                    ByteString.fromArray(unknownHeader),
+                    "image/svg+xml",
+                    "drawing.svg",
+                    ALLOWED_SPECIFIERS))
         .isInstanceOf(FileUploadTypeException.class)
         .hasMessageContaining("could not verify file type");
   }
@@ -266,6 +276,6 @@ public class FileTypeValidationTest {
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
     };
     FileTypeValidation.validateHeaderBytes(
-        ByteString.fromArray(pdfHeader), "application/pdf", "doc.pdf");
+        ByteString.fromArray(pdfHeader), "application/pdf", "doc.pdf", ALLOWED_SPECIFIERS);
   }
 }
