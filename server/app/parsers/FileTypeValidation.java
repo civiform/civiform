@@ -9,8 +9,8 @@ import org.apache.pekko.util.ByteString;
 
 /**
  * Validates uploaded file content by comparing magic bytes (file header signatures) against the
- * declared content type. Throws {@link FileTypeMismatchException} when the actual file type does
- * not match what was declared, or when the detected type is not an allowed upload type.
+ * declared content type. Throws {@link FileUploadTypeException} when the actual file type does not
+ * match what was declared, or when the detected type is not an allowed upload type.
  */
 public final class FileTypeValidation {
   static final int HEADER_SIZE = 16;
@@ -49,26 +49,33 @@ public final class FileTypeValidation {
    * @param headerBytes the first bytes of the file (at least {@link #HEADER_SIZE} bytes)
    * @param declaredContentType the content type declared in the multipart upload
    * @param fileName the original filename, for error reporting
-   * @throws FileTypeMismatchException if the detected type doesn't match declared, or is disallowed
+   * @throws FileUploadTypeException if the detected type doesn't match declared, or is disallowed
    */
   public static void validateHeaderBytes(
       ByteString headerBytes, String declaredContentType, String fileName) {
+    if (!isAllowedType(declaredContentType)) {
+      throw new FileUploadTypeException(
+          String.format(
+              "File \"%s\": declared content type \"%s\" is not an allowed upload type.",
+              fileName, declaredContentType));
+    }
+
     String detectedType = detectType(headerBytes);
 
     if (detectedType == null) {
-      throw new FileTypeMismatchException(
+      throw new FileUploadTypeException(
           String.format("File \"%s\": could not verify file type from content bytes.", fileName));
     }
 
     if (!isAllowedType(detectedType)) {
-      throw new FileTypeMismatchException(
+      throw new FileUploadTypeException(
           String.format(
               "File \"%s\": detected file type \"%s\" is not an allowed upload type.",
               fileName, detectedType));
     }
 
     if (!typesMatch(detectedType, declaredContentType)) {
-      throw new FileTypeMismatchException(
+      throw new FileUploadTypeException(
           String.format(
               "File \"%s\": declared content type \"%s\" does not match detected type \"%s\".",
               fileName, declaredContentType, detectedType));
