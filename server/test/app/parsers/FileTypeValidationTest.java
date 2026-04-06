@@ -199,7 +199,7 @@ public class FileTypeValidationTest {
             () ->
                 FileTypeValidation.validateHeaderBytes(
                     ByteString.fromArray(pdfHeader), "image/png", "fake.png"))
-        .isInstanceOf(FileTypeMismatchException.class)
+        .isInstanceOf(FileUploadTypeException.class)
         .hasMessageContaining("does not match detected type");
   }
 
@@ -227,7 +227,7 @@ public class FileTypeValidationTest {
             () ->
                 FileTypeValidation.validateHeaderBytes(
                     ByteString.fromArray(pngHeader), "application/pdf", "fake.pdf"))
-        .isInstanceOf(FileTypeMismatchException.class)
+        .isInstanceOf(FileUploadTypeException.class)
         .hasMessageContaining("does not match detected type");
   }
 
@@ -241,8 +241,8 @@ public class FileTypeValidationTest {
             () ->
                 FileTypeValidation.validateHeaderBytes(
                     ByteString.fromArray(unknownHeader), "application/x-executable", "malware.exe"))
-        .isInstanceOf(FileTypeMismatchException.class)
-        .hasMessageContaining("could not verify file type from content bytes");
+        .isInstanceOf(FileUploadTypeException.class)
+        .hasMessageContaining("not an allowed upload type");
   }
 
   @Test
@@ -255,7 +255,7 @@ public class FileTypeValidationTest {
             () ->
                 FileTypeValidation.validateHeaderBytes(
                     ByteString.fromArray(unknownHeader), "image/svg+xml", "drawing.svg"))
-        .isInstanceOf(FileTypeMismatchException.class)
+        .isInstanceOf(FileUploadTypeException.class)
         .hasMessageContaining("could not verify file type");
   }
 
