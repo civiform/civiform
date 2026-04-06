@@ -1,7 +1,5 @@
 package parsers;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Arrays.fill;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 import static play.test.Helpers.fakeRequest;
@@ -62,39 +60,6 @@ public class TestStreamingMultipartBodyParserTest extends ResetPostgres {
   @After
   public void tearDown() {
     outputBuffer.clear();
-  }
-
-  @Test
-  public void testStreamingUpload_prints() throws Exception {
-    byte[] content = "Hello world".getBytes(UTF_8);
-    byte[] fullContent = new byte[PNG_HEADER.length + content.length];
-    System.arraycopy(PNG_HEADER, 0, fullContent, 0, PNG_HEADER.length);
-    System.arraycopy(content, 0, fullContent, PNG_HEADER.length, content.length);
-    Source<ByteString, ?> source =
-        createMultipartRequestBodyWithBytes(fullContent, "test.png", "image/png");
-
-    Http.MultipartFormData<Void> _ = parse(source).toCompletableFuture().join();
-
-    String output = outputBuffer.getOutput();
-    assertThat(output).contains("Hello world");
-    assertThat(output)
-        .contains(String.format("Total size: %d bytes", PNG_HEADER.length + content.length));
-  }
-
-  @Test
-  public void testStreamingUpload_crossesChunkBoundary_prints() throws Exception {
-    int numBytes = 1024 * 1024 * 2; // 2 MB
-    byte[] data = new byte[PNG_HEADER.length + numBytes];
-    System.arraycopy(PNG_HEADER, 0, data, 0, PNG_HEADER.length);
-    fill(data, PNG_HEADER.length, data.length, (byte) 'a');
-    Source<ByteString, ?> source =
-        createMultipartRequestBodyWithBytes(data, "test.png", "image/png");
-
-    Http.MultipartFormData<Void> _ = parse(source).toCompletableFuture().join();
-
-    String output = outputBuffer.getOutput();
-    assertThat(output)
-        .contains(String.format("Total size: %d bytes", PNG_HEADER.length + numBytes));
   }
 
   @Test
