@@ -183,12 +183,12 @@ public final class ProgramSlugHandler {
    *
    * @param programParam The program parameter (either slug or numeric ID)
    * @param applicantId The applicant ID for slug resolution
-   * @param programSlugUrlEnabled Whether program slug URLs feature is enabled
+   * @param programSlugUrlsEnabled Whether program slug URLs feature is enabled
    * @return CompletionStage containing the resolved program ID
    */
   public CompletionStage<Long> resolveProgramParam(
-      String programParam, Long applicantId, Boolean programSlugUrlEnabled) {
-    if (programSlugUrlEnabled) {
+      String programParam, Long applicantId, Boolean programSlugUrlsEnabled) {
+    if (programSlugUrlsEnabled) {
       if (StringUtils.isNumeric(programParam)) {
         // This should have been previously handled by the caller, since we don't support program
         // ids (numeric) when feature is enabled and call comes directly from the URL

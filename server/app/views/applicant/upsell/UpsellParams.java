@@ -40,6 +40,7 @@ public abstract class UpsellParams {
   // Program ID of the program that was just applied to
   abstract long completedProgramId();
 
+  // Program slug of the program that was just applied to
   abstract String completedProgramSlug();
 
   abstract LocalizedStrings customConfirmationMessage();

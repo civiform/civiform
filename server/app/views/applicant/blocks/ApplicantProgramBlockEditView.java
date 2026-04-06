@@ -139,20 +139,23 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
           "applicant/blocks/ApplicantProgramFileUploadBlockEditTemplate", context);
     } else {
 
+      boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+
       context.setVariable(
           "previousFormAction",
           getFormAction(applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK));
       context.setVariable(
-          "previousWithoutSaving", previousWithoutSaving(applicationParams, request));
+          "previousWithoutSaving",
+          previousWithoutSaving(applicationParams, programSlugUrlsEnabled));
       context.setVariable(
           "reviewFormAction",
           getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE));
 
       if (applicationParams.errorDisplayMode()
           == ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW) {
-        setErrorContextForReview(context, applicationParams, request);
+        setErrorContextForReview(context, applicationParams, programSlugUrlsEnabled);
       } else {
-        setErrorContextForPrevious(context, applicationParams, request);
+        setErrorContextForPrevious(context, applicationParams, programSlugUrlsEnabled);
       }
 
       // TODO(#6910): Why am I unable to access static vars directly from Thymeleaf
@@ -183,26 +186,26 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
   private void setErrorContextForPrevious(
       ThymeleafModule.PlayThymeleafContext context,
       ApplicationBaseViewParams applicationParams,
-      Request request) {
+      boolean programSlugUrlsEnabled) {
     setErrorContextForFormModal(
         context,
         getFormAction(applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK),
         MessageKey.MODAL_ERROR_SAVING_CONTENT_PREVIOUS.getKeyName(),
         MessageKey.MODAL_ERROR_SAVING_CONTINUE_BUTTON_PREVIOUS.getKeyName(),
-        previousWithoutSaving(applicationParams, request));
+        previousWithoutSaving(applicationParams, programSlugUrlsEnabled));
   }
 
   // Function to set context for the review action
   private void setErrorContextForReview(
       ThymeleafModule.PlayThymeleafContext context,
       ApplicationBaseViewParams applicationParams,
-      Request request) {
+      boolean programSlugUrlsEnabled) {
     setErrorContextForFormModal(
         context,
         getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE),
         MessageKey.MODAL_ERROR_SAVING_CONTENT_REVIEW.getKeyName(),
         MessageKey.MODAL_ERROR_SAVING_CONTINUE_BUTTON_REVIEW.getKeyName(),
-        reviewWithoutSaving(applicationParams, request));
+        reviewWithoutSaving(applicationParams, programSlugUrlsEnabled));
   }
 
   private String getFormAction(
@@ -230,8 +233,9 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
             .url();
   }
 
-  private String previousWithoutSaving(ApplicationBaseViewParams params, Request request) {
-    if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+  private String previousWithoutSaving(
+      ApplicationBaseViewParams params, boolean programSlugUrlsEnabled) {
+    if (programSlugUrlsEnabled) {
       return params
           .applicantRoutes()
           .blockPreviousOrReview(
@@ -254,8 +258,9 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
         .url();
   }
 
-  private String reviewWithoutSaving(ApplicationBaseViewParams params, Request request) {
-    if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+  private String reviewWithoutSaving(
+      ApplicationBaseViewParams params, boolean programSlugUrlsEnabled) {
+    if (programSlugUrlsEnabled) {
       return params
           .applicantRoutes()
           .review(params.profile(), params.applicantId(), params.programSlug())
@@ -401,18 +406,8 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
             .getFileUploadAllowedFileTypeSpecifiers()
             .orElse(ALLOWED_FILE_TYPE_SPECIFIERS_FALLBACK));
 
-    String previousBlockRoute =
-        applicantRoutes
-            .blockPreviousOrReview(
-                params.profile(),
-                params.applicantId(),
-                params.programId(),
-                params.blockIndex(),
-                params.inReview())
-            .url();
-    String reviewRoute =
-        applicantRoutes.review(params.profile(), params.applicantId(), params.programId()).url();
-
+    final String previousBlockRoute;
+    final String reviewRoute;
     if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
       previousBlockRoute =
           applicantRoutes
@@ -429,6 +424,18 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
           applicantRoutes
               .review(params.profile(), params.applicantId(), params.programSlug())
               .url();
+    } else {
+      previousBlockRoute =
+          applicantRoutes
+              .blockPreviousOrReview(
+                  params.profile(),
+                  params.applicantId(),
+                  params.programId(),
+                  params.blockIndex(),
+                  params.inReview())
+              .url();
+      reviewRoute =
+          applicantRoutes.review(params.profile(), params.applicantId(), params.programId()).url();
     }
 
     context.setVariable("previousBlockWithoutFile", params.baseUrl() + previousBlockRoute);

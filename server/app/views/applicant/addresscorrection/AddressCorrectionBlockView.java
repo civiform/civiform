@@ -7,7 +7,6 @@ import controllers.applicant.ApplicantRoutes;
 import java.util.Optional;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
-import play.mvc.Http;
 import play.mvc.Http.Request;
 import services.AlertSettings;
 import services.AlertType;
@@ -73,7 +72,8 @@ public class AddressCorrectionBlockView extends ApplicantBaseView {
     context.setVariable("programTitle", params.programTitle());
     context.setVariable("programShortDescription", params.programShortDescription());
     context.setVariable("confirmAddressAction", getFormAction(params, applicantRequestedAction));
-    context.setVariable("goBackAction", goBackAction(params, request));
+    context.setVariable(
+        "goBackAction", goBackAction(params, settingsManifest.getProgramSlugUrlsEnabled(request)));
     context.setVariable("addressSuggestionGroup", addressSuggestionGroup);
     context.setVariable("isEligibilityEnabled", isEligibilityEnabled);
     context.setVariable("applicationParams", params);
@@ -117,8 +117,8 @@ public class AddressCorrectionBlockView extends ApplicantBaseView {
         .url();
   }
 
-  private String goBackAction(ApplicationBaseViewParams params, Http.Request request) {
-    if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+  private String goBackAction(ApplicationBaseViewParams params, boolean programSlugUrlsEnabled) {
+    if (programSlugUrlsEnabled) {
       return applicantRoutes
           .blockEditOrBlockReview(
               params.profile(),

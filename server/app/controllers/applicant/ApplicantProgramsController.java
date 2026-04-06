@@ -227,8 +227,8 @@ public final class ApplicantProgramsController extends CiviFormController {
       Request request, long applicantId, String programParam) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels("/applicants/:applicantId/programs/:programParam/edit", programParam)
@@ -240,9 +240,9 @@ public final class ApplicantProgramsController extends CiviFormController {
 
   private CompletionStage<Result> editInternal(
       Request request, long applicantId, String programParam) {
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, programSlugUrlEnabled)
+        .resolveProgramParam(programParam, applicantId, programSlugUrlsEnabled)
         .thenCompose(
             programId -> {
               CiviFormProfile profile = profileUtils.currentUserProfile(request);
@@ -259,7 +259,7 @@ public final class ApplicantProgramsController extends CiviFormController {
                         Optional<Block> blockMaybe =
                             roApplicantService.getFirstBlockRequiringAction(
                                 /* includeStatic= */ true);
-                        if (programSlugUrlEnabled) {
+                        if (programSlugUrlsEnabled) {
                           return blockMaybe.flatMap(
                               block ->
                                   Optional.of(
@@ -325,8 +325,8 @@ public final class ApplicantProgramsController extends CiviFormController {
   public CompletionStage<Result> edit(Request request, String programParam) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels("/programs/:programParam/edit", programParam)

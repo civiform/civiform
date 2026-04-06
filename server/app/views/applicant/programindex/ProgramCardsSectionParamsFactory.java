@@ -121,7 +121,7 @@ public final class ProgramCardsSectionParamsFactory {
       ApplicantPersonalInfo personalInfo) {
     ProgramCardParams.Builder cardBuilder = ProgramCardParams.builder();
     ProgramDefinition program = programDatum.program();
-    Boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    Boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
 
     String actionUrl =
         getActionUrl(
@@ -133,7 +133,7 @@ public final class ProgramCardsSectionParamsFactory {
             programDatum.latestApplicationLifecycleStage(),
             applicantId,
             profile,
-            programSlugUrlEnabled);
+            programSlugUrlsEnabled);
 
     boolean isGuest = personalInfo.getType() == GUEST;
 
@@ -224,7 +224,7 @@ public final class ProgramCardsSectionParamsFactory {
       Optional<LifecycleStage> optionalLifecycleStage,
       Optional<Long> applicantId,
       Optional<CiviFormProfile> profile,
-      Boolean programSlugUrlEnabled) {
+      Boolean programSlugUrlsEnabled) {
     if (programType.equals(ProgramType.EXTERNAL)) {
       return programExternalLink;
     }
@@ -247,7 +247,7 @@ public final class ProgramCardsSectionParamsFactory {
             haveApplicant
                 ? applicantRoutes.review(profile.get(), applicantId.get(), programId).url()
                 : applicantRoutes.review(programId).url();
-        if (programSlugUrlEnabled) {
+        if (programSlugUrlsEnabled) {
           actionUrl =
               haveApplicant
                   ? applicantRoutes.review(profile.get(), applicantId.get(), programSlug).url()
@@ -260,7 +260,7 @@ public final class ProgramCardsSectionParamsFactory {
             haveApplicant
                 ? applicantRoutes.edit(profile.get(), applicantId.get(), programId).url()
                 : applicantRoutes.edit(programId).url();
-        if (programSlugUrlEnabled) {
+        if (programSlugUrlsEnabled) {
           actionUrl =
               haveApplicant
                   ? applicantRoutes.edit(profile.get(), applicantId.get(), programSlug).url()
@@ -274,7 +274,7 @@ public final class ProgramCardsSectionParamsFactory {
           haveApplicant
               ? applicantRoutes.edit(profile.get(), applicantId.get(), programId).url()
               : applicantRoutes.edit(programId).url();
-      if (programSlugUrlEnabled) {
+      if (programSlugUrlsEnabled) {
         actionUrl =
             haveApplicant
                 ? applicantRoutes.edit(profile.get(), applicantId.get(), programSlug).url()

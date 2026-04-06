@@ -140,7 +140,10 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
                         Optional<Result> applicationUpdatedOptional =
                             updateApplicationToLatestProgramVersionIfNeeded(
-                                applicantId, programId, profile, request);
+                                applicantId,
+                                programId,
+                                profile,
+                                settingsManifest.getProgramSlugUrlsEnabled(request));
                         if (applicationUpdatedOptional.isPresent()) {
                           return applicationUpdatedOptional.get();
                         }
@@ -261,7 +264,10 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
               Optional<Result> applicationUpdatedOptional =
                   updateApplicationToLatestProgramVersionIfNeeded(
-                      applicantId, programId, profile, request);
+                      applicantId,
+                      programId,
+                      profile,
+                      settingsManifest.getProgramSlugUrlsEnabled(request));
               if (applicationUpdatedOptional.isPresent()) {
                 return CompletableFuture.completedFuture(applicationUpdatedOptional.get());
               }
@@ -331,6 +337,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
             ex -> {
               ReadOnlyApplicantProgramService roApplicantProgramService =
                   readOnlyApplicantProgramServiceFuture.join();
+              boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
               if (ex instanceof CompletionException) {
                 Throwable cause = ex.getCause();
                 if (cause instanceof ApplicationSubmissionException) {
@@ -425,14 +432,14 @@ public class ApplicantProgramReviewController extends CiviFormController {
    * @return {@link Result} if application was updated; empty if not
    */
   public Optional<Result> updateApplicationToLatestProgramVersionIfNeeded(
-      long applicantId, long programId, CiviFormProfile profile, Http.Request request) {
+      long applicantId, long programId, CiviFormProfile profile, boolean programSlugUrlEnabled) {
     return applicantService
         .updateApplicationToLatestProgramVersion(applicantId, programId)
         .map(
             latestProgramId -> {
               String reviewPage =
                   applicantRoutes.review(profile, applicantId, latestProgramId).url();
-              if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+              if (programSlugUrlEnabled) {
                 final String programSlug;
                 try {
                   programSlug = programService.getSlug(programId);

@@ -105,12 +105,13 @@ public class ApplicantIneligibleView extends ApplicantBaseView {
     String applyHref = applicantRoutes.index(params.profile(), params.applicantId()).url();
     context.setVariable("applyHref", applyHref);
 
-    String goBackHref =
-        applicantRoutes.review(params.profile(), params.applicantId(), program.id()).url();
-
+    final String goBackHref;
     if (settingsManifest.getProgramSlugUrlsEnabled(params.request())) {
       goBackHref =
           applicantRoutes.review(params.profile(), params.applicantId(), program.slug()).url();
+    } else {
+      goBackHref =
+          applicantRoutes.review(params.profile(), params.applicantId(), program.id()).url();
     }
     context.setVariable("goBackHref", goBackHref);
 
