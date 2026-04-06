@@ -1,6 +1,9 @@
 package parsers;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
+import java.util.Locale;
 import java.util.Map;
 import org.apache.pekko.util.ByteString;
 
@@ -27,6 +30,7 @@ public final class FileTypeValidation {
               "image/webp") // RIFF header; further check for WEBP below
           .put(new byte[] {0x49, 0x49, 0x2A, 0x00}, "image/tiff") // Little-endian TIFF
           .put(new byte[] {0x4D, 0x4D, 0x00, 0x2A}, "image/tiff") // Big-endian TIFF
+          .put(new byte[] {0x4D, 0x5A}, "application/x-executable") // PE/MZ executable
           .build();
 
   // Allowed MIME type prefixes for uploaded files
@@ -117,7 +121,7 @@ public final class FileTypeValidation {
     if (mimeType == null) {
       return false;
     }
-    String normalized = mimeType.toLowerCase().trim();
+    String normalized = mimeType.toLowerCase(Locale.ROOT).trim();
     for (String allowed : ALLOWED_TYPES.keySet()) {
       if (allowed.endsWith("/")) {
         // Prefix match (e.g. "image/")
@@ -138,8 +142,8 @@ public final class FileTypeValidation {
     if (detected == null || declared == null) {
       return false;
     }
-    String normalizedDetected = detected.toLowerCase().trim();
-    String normalizedDeclared = declared.toLowerCase().trim();
+    String normalizedDetected = detected.toLowerCase(Locale.ROOT).trim();
+    String normalizedDeclared = declared.toLowerCase(Locale.ROOT).trim();
 
     // Exact match
     if (normalizedDetected.equals(normalizedDeclared)) {
@@ -147,8 +151,8 @@ public final class FileTypeValidation {
     }
 
     // Same family match (e.g. image/jpeg matches image/*)
-    String detectedFamily = normalizedDetected.split("/")[0];
-    String declaredFamily = normalizedDeclared.split("/")[0];
+    String detectedFamily = Iterables.get(Splitter.on('/').split(normalizedDetected), 0);
+    String declaredFamily = Iterables.get(Splitter.on('/').split(normalizedDeclared), 0);
     return detectedFamily.equals(declaredFamily);
   }
 }
