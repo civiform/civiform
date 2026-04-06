@@ -13,11 +13,31 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http;
+import play.mvc.Http.MultipartFormData;
 import play.mvc.Http.RequestHeader;
 import repository.ResetPostgres;
 
 public class TestStreamingMultipartBodyParserTest extends ResetPostgres {
   private static final String MULTIPART_BOUNDARY = "boundary";
+  // Valid PNG header bytes for tests that need to pass file type validation
+  private static final byte[] PNG_HEADER = {
+    (byte) 0x89,
+    0x50,
+    0x4E,
+    0x47,
+    0x0D,
+    0x0A,
+    0x1A,
+    0x0A,
+    0x00,
+    0x00,
+    0x00,
+    0x0D,
+    0x49,
+    0x48,
+    0x44,
+    0x52
+  };
 
   private RequestHeader requestHeader;
   private Materializer materializer;
@@ -45,28 +65,35 @@ public class TestStreamingMultipartBodyParserTest extends ResetPostgres {
 
   @Test
   public void testStreamingUpload_prints() throws Exception {
-    Source<ByteString, ?> source = createMultipartRequestBody("Hello world");
+    byte[] content = "Hello world".getBytes();
+    byte[] fullContent = new byte[PNG_HEADER.length + content.length];
+    System.arraycopy(PNG_HEADER, 0, fullContent, 0, PNG_HEADER.length);
+    System.arraycopy(content, 0, fullContent, PNG_HEADER.length, content.length);
+    Source<ByteString, ?> source =
+        createMultipartRequestBodyWithBytes(fullContent, "test.png", "image/png");
 
     Http.MultipartFormData<Void> _ = parse(source).toCompletableFuture().join();
 
     String output = outputBuffer.getOutput();
     assertThat(output).contains("Hello world");
-    assertThat(output).contains("Total size: 11 bytes");
+    assertThat(output)
+        .contains(String.format("Total size: %d bytes", PNG_HEADER.length + content.length));
   }
 
   @Test
   public void testStreamingUpload_crossesChunkBoundary_prints() throws Exception {
     int numBytes = 1024 * 1024 * 2; // 2 MB
-    char[] chars = new char[numBytes];
-    fill(chars, 'a');
-    String data = new String(chars);
-    Source<ByteString, ?> source = createMultipartRequestBody(data);
+    byte[] data = new byte[PNG_HEADER.length + numBytes];
+    System.arraycopy(PNG_HEADER, 0, data, 0, PNG_HEADER.length);
+    fill(data, PNG_HEADER.length, data.length, (byte) 'a');
+    Source<ByteString, ?> source =
+        createMultipartRequestBodyWithBytes(data, "test.png", "image/png");
 
     Http.MultipartFormData<Void> _ = parse(source).toCompletableFuture().join();
 
     String output = outputBuffer.getOutput();
-    assertThat(output).contains(data);
-    assertThat(output).contains(String.format("Total size: %d bytes", numBytes));
+    assertThat(output)
+        .contains(String.format("Total size: %d bytes", PNG_HEADER.length + numBytes));
   }
 
   @Test
@@ -77,7 +104,8 @@ public class TestStreamingMultipartBodyParserTest extends ResetPostgres {
             .header(
                 "Content-Type", "multipart/form-data; boundary=" + "--WRONG--" + MULTIPART_BOUNDARY)
             .build();
-    Source<ByteString, ?> source = createMultipartRequestBody("Hello world");
+    Source<ByteString, ?> source =
+        createMultipartRequestBodyWithBytes(PNG_HEADER, "test.png", "image/png");
 
     RuntimeException e =
         assertThrows(RuntimeException.class, () -> parse(source).toCompletableFuture().join());
@@ -100,19 +128,137 @@ public class TestStreamingMultipartBodyParserTest extends ResetPostgres {
             });
   }
 
-  // Create a request body, given content
-  private Source<ByteString, ?> createMultipartRequestBody(String content) {
-    String requestBody =
+  @Test
+  public void testStreamingUpload_validPng_succeeds() throws Exception {
+    byte[] pngHeader = {
+      (byte) 0x89,
+      0x50,
+      0x4E,
+      0x47,
+      0x0D,
+      0x0A,
+      0x1A,
+      0x0A,
+      0x00,
+      0x00,
+      0x00,
+      0x0D,
+      0x49,
+      0x48,
+      0x44,
+      0x52,
+      0x00,
+      0x00,
+      0x00,
+      0x01
+    };
+    Source<ByteString, ?> source =
+        createMultipartRequestBodyWithBytes(pngHeader, "test.png", "image/png");
+
+    MultipartFormData<Void> result = parse(source).toCompletableFuture().join();
+
+    assertThat(result).isNotNull();
+  }
+
+  @Test
+  public void testStreamingUpload_validPdf_succeeds() throws Exception {
+    byte[] pdfHeader = {
+      0x25,
+      0x50,
+      0x44,
+      0x46,
+      0x2D,
+      0x31,
+      0x2E,
+      0x34,
+      0x0A,
+      0x25,
+      (byte) 0xC3,
+      (byte) 0xA4,
+      (byte) 0xC3,
+      (byte) 0xBC,
+      (byte) 0xC3,
+      (byte) 0xB6,
+      0x0A,
+      0x31
+    };
+    Source<ByteString, ?> source =
+        createMultipartRequestBodyWithBytes(pdfHeader, "doc.pdf", "application/pdf");
+
+    MultipartFormData<Void> result = parse(source).toCompletableFuture().join();
+
+    assertThat(result).isNotNull();
+  }
+
+  @Test
+  public void testStreamingUpload_mismatchedType_throws() throws Exception {
+    // PNG magic bytes but declared as application/pdf
+    byte[] pngHeader = {
+      (byte) 0x89,
+      0x50,
+      0x4E,
+      0x47,
+      0x0D,
+      0x0A,
+      0x1A,
+      0x0A,
+      0x00,
+      0x00,
+      0x00,
+      0x0D,
+      0x49,
+      0x48,
+      0x44,
+      0x52,
+      0x00,
+      0x00,
+      0x00,
+      0x01
+    };
+    Source<ByteString, ?> source =
+        createMultipartRequestBodyWithBytes(pngHeader, "fake.pdf", "application/pdf");
+
+    RuntimeException e =
+        assertThrows(RuntimeException.class, () -> parse(source).toCompletableFuture().join());
+
+    assertThat(e).hasMessageContaining("does not match detected type");
+  }
+
+  @Test
+  public void testStreamingUpload_disallowedType_throws() throws Exception {
+    byte[] unknownHeader = {
+      0x4D, 0x5A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00
+    };
+    Source<ByteString, ?> source =
+        createMultipartRequestBodyWithBytes(
+            unknownHeader, "malware.exe", "application/x-executable");
+
+    RuntimeException e =
+        assertThrows(RuntimeException.class, () -> parse(source).toCompletableFuture().join());
+
+    assertThat(e).hasMessageContaining("not an allowed upload type");
+  }
+
+  private Source<ByteString, ?> createMultipartRequestBodyWithBytes(
+      byte[] content, String filename, String contentType) {
+    String header =
         "--"
             + MULTIPART_BOUNDARY
             + "\r\n"
-            + "Content-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\n"
-            + "Content-Type: text/plain\r\n\r\n"
-            + content
-            + "\r\n"
-            + "--"
-            + MULTIPART_BOUNDARY
-            + "--\r\n";
-    return Source.single(ByteString.fromString(requestBody));
+            + "Content-Disposition: form-data; name=\"file\"; filename=\""
+            + filename
+            + "\"\r\n"
+            + "Content-Type: "
+            + contentType
+            + "\r\n\r\n";
+    String footer = "\r\n--" + MULTIPART_BOUNDARY + "--\r\n";
+
+    ByteString body =
+        ByteString.fromString(header)
+            .concat(ByteString.fromArray(content))
+            .concat(ByteString.fromString(footer));
+    return Source.single(body);
   }
 }

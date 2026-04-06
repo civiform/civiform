@@ -1,8 +1,11 @@
 package parsers;
 
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import org.apache.pekko.stream.Materializer;
+import org.apache.pekko.stream.javadsl.Flow;
+import org.apache.pekko.stream.javadsl.Keep;
 import org.apache.pekko.stream.javadsl.Sink;
 import org.apache.pekko.util.ByteString;
 import parsers.cloud.MultipartUploadSinks;
@@ -45,23 +48,54 @@ public abstract class StreamingMultipartBodyParser
       Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> uploadSink =
           createUploadSink(bucketName, fileKey);
 
-      // Map upload sink to an output value
+      String contentType = fileInfo.contentType().getOrElse(() -> "text/plain");
+      String fileName = fileInfo.fileName();
+
+      // Holds captured header bytes - thread-safe
+      AtomicReference<ByteString> headerBytes = new AtomicReference<>(ByteString.emptyByteString());
+
+      // Sniff first 16 bytes for file type detection
+      Flow<ByteString, ByteString, ?> sniffingFlow =
+          Flow.of(ByteString.class)
+              .map(
+                  bytes -> {
+                    ByteString currentHeader = headerBytes.get();
+
+                    if (currentHeader.size() < FileTypeValidation.HEADER_SIZE) {
+                      int remaining = FileTypeValidation.HEADER_SIZE - currentHeader.size();
+                      ByteString slice = bytes.take(remaining);
+                      headerBytes.set(currentHeader.concat(slice));
+
+                      // Validate once we have enough bytes
+                      if (headerBytes.get().size() >= FileTypeValidation.HEADER_SIZE) {
+                        FileTypeValidation.validateHeaderBytes(
+                            headerBytes.get(), contentType, fileName);
+                      }
+                    }
+
+                    return bytes;
+                  });
+
+      // Map upload sink to an output value, prepending the sniffing flow
       Sink<ByteString, CompletionStage<FilePart<Void>>> mappedSink =
-          uploadSink.mapMaterializedValue(
-              completionStage -> {
-                // Map the completion stage to a FilePart with the appropriate metadata
-                return completionStage.thenApply(
-                    uploadResult -> {
-                      // Here we can construct a FilePart with the metadata and the result of the
-                      // upload
-                      return new FilePart<Void>(
-                          fileInfo.partName(),
-                          fileInfo.fileName(),
-                          fileInfo.contentType().getOrElse(() -> "text/plain"),
-                          (Void) null // The actual file content is streamed, so this can be null
-                          );
-                    });
-              });
+          sniffingFlow
+              .toMat(uploadSink, Keep.right())
+              .mapMaterializedValue(
+                  completionStage -> {
+                    // Map the completion stage to a FilePart with the appropriate metadata
+                    return completionStage.thenApply(
+                        uploadResult -> {
+                          // Here we can construct a FilePart with the metadata and the result of
+                          // the
+                          // upload
+                          return new FilePart<Void>(
+                              fileInfo.partName(),
+                              fileName,
+                              contentType,
+                              null // The actual file content is streamed, so this can be null
+                              );
+                        });
+                  });
 
       // Create an accumulator that streams the file data to the mapped upload sink
       return Accumulator.fromSink(mappedSink);
