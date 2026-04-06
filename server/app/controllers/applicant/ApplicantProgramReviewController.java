@@ -140,10 +140,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
                         Optional<Result> applicationUpdatedOptional =
                             updateApplicationToLatestProgramVersionIfNeeded(
-                                applicantId,
-                                programId,
-                                profile,
-                                settingsManifest.getProgramSlugUrlsEnabled(request));
+                                applicantId, programId, profile, programSlugUrlsEnabled);
                         if (applicationUpdatedOptional.isPresent()) {
                           return applicationUpdatedOptional.get();
                         }
@@ -341,14 +338,15 @@ public class ApplicantProgramReviewController extends CiviFormController {
               if (ex instanceof CompletionException) {
                 Throwable cause = ex.getCause();
                 if (cause instanceof ApplicationSubmissionException) {
-                  Call reviewPage =
-                      applicantRoutes.review(submittingProfile, applicantId, programId);
+                  Call reviewPage;
                   if (programSlugUrlsEnabled) {
                     reviewPage =
                         applicantRoutes.review(
                             submittingProfile,
                             applicantId,
                             roApplicantProgramService.getProgramSlug());
+                  } else {
+                    reviewPage = applicantRoutes.review(submittingProfile, applicantId, programId);
                   }
                   String errorMsg =
                       messagesApi
@@ -361,14 +359,15 @@ public class ApplicantProgramReviewController extends CiviFormController {
                       messagesApi
                           .preferred(request)
                           .at(MessageKey.TOAST_APPLICATION_OUT_OF_DATE.getKeyName());
-                  Call reviewPage =
-                      applicantRoutes.review(submittingProfile, applicantId, programId);
+                  final Call reviewPage;
                   if (programSlugUrlsEnabled) {
                     reviewPage =
                         applicantRoutes.review(
                             submittingProfile,
                             applicantId,
                             roApplicantProgramService.getProgramSlug());
+                  } else {
+                    reviewPage = applicantRoutes.review(submittingProfile, applicantId, programId);
                   }
                   return redirect(reviewPage).flashing(FlashKey.ERROR, errorMsg);
                 }
@@ -388,14 +387,15 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   }
                 }
                 if (cause instanceof DuplicateApplicationException) {
-                  Call reviewPage =
-                      applicantRoutes.review(submittingProfile, applicantId, programId);
+                  final Call reviewPage;
                   if (programSlugUrlsEnabled) {
                     reviewPage =
                         applicantRoutes.review(
                             submittingProfile,
                             applicantId,
                             roApplicantProgramService.getProgramSlug());
+                  } else {
+                    reviewPage = applicantRoutes.review(submittingProfile, applicantId, programId);
                   }
                   return found(reviewPage).flashing(FlashKey.DUPLICATE_SUBMISSION, "true");
                 }
@@ -437,8 +437,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
         .updateApplicationToLatestProgramVersion(applicantId, programId)
         .map(
             latestProgramId -> {
-              String reviewPage =
-                  applicantRoutes.review(profile, applicantId, latestProgramId).url();
+              final String reviewPage;
               if (programSlugUrlsEnabled) {
                 final String programSlug;
                 try {
@@ -447,6 +446,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   return notFound(e.toString());
                 }
                 reviewPage = applicantRoutes.review(profile, applicantId, programSlug).url();
+              } else {
+                reviewPage = applicantRoutes.review(profile, applicantId, latestProgramId).url();
               }
               return redirect(reviewPage).flashing(FlashKey.SHOW_FAST_FORWARDED_MESSAGE, "true");
             });

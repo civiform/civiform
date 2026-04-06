@@ -821,7 +821,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         return supplyAsync(
                             () -> {
                               CiviFormProfile profile = profileUtils.currentUserProfile(request);
-                              if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+                              if (programSlugUrlsEnabled) {
                                 String programSlug =
                                     programSlugHandler.getProgramSlug(programParam);
                                 return redirect(
@@ -1078,7 +1078,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         return supplyAsync(
                             () -> {
                               CiviFormProfile profile = profileUtils.currentUserProfile(request);
-                              if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+                              if (programSlugUrlsEnabled) {
                                 String programSlug =
                                     programSlugHandler.getProgramSlug(programParam);
                                 return redirect(
@@ -1194,13 +1194,14 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               CiviFormProfile profile = profileUtils.currentUserProfile(request);
               ReadOnlyApplicantProgramService readOnlyApplicantProgramService =
                   applicantProgramServiceCompletableFuture.join();
+              boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
 
               Optional<Result> applicationUpdatedOptional =
                   updateApplicationToLatestProgramVersionIfNeeded(
                       applicantId,
                       programId,
                       profile,
-                      settingsManifest.getProgramSlugUrlsEnabled(request),
+                      programSlugUrlsEnabled,
                       readOnlyApplicantProgramService);
               if (applicationUpdatedOptional.isPresent()) {
                 return CompletableFuture.completedFuture(applicationUpdatedOptional.get());
@@ -1226,7 +1227,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     applicantRequestedAction,
                     readOnlyApplicantProgramService,
                     /* flashingMap= */ ImmutableMap.of(),
-                    settingsManifest.getProgramSlugUrlsEnabled(request));
+                    programSlugUrlsEnabled);
               }
               return applicantService
                   .stageAndUpdateIfValid(

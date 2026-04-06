@@ -308,9 +308,11 @@ public final class ProgramSlugHandler {
       String programSlug,
       Http.Request request,
       CiviFormProfile profile) {
-    Call reviewRoute = applicantRoutes.review(profile, applicantId, programId);
+    final Call reviewRoute;
     if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
       reviewRoute = applicantRoutes.review(profile, applicantId, programSlug);
+    } else {
+      reviewRoute = applicantRoutes.review(profile, applicantId, programId);
     }
     return controller
         .redirect(reviewRoute)
