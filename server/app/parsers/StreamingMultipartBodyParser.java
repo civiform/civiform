@@ -1,5 +1,6 @@
 package parsers;
 
+import com.google.common.collect.ImmutableList;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -28,22 +29,23 @@ import services.settings.SettingsManifest;
 public abstract class StreamingMultipartBodyParser
     extends BodyParser.DelegatingMultipartFormDataBodyParser<Void> {
   private static final int CHUNK_SIZE = 1024 * 1024; // 1 MiB
-  private static final String DEFAULT_ALLOWED_FILE_TYPES = ".jpg,.jpeg,.png,.pdf";
   private final MultipartUploadSinks uploadSinks;
-  private final String allowedFileTypeSpecifiers;
+  private final ImmutableList<String> allowedFileTypes;
+  private final FileTypeValidation fileTypeValidation;
 
   public StreamingMultipartBodyParser(
       Materializer materializer,
       DefaultHttpErrorHandler errorHandler,
       MultipartUploadSinks streamingMultipartUploadSinks,
       SettingsManifest settingsManifest,
+      FileTypeValidation fileTypeValidation,
       long maxFileSize) {
     super(materializer, CHUNK_SIZE, maxFileSize, /* allowEmptyFiles= */ false, errorHandler);
     this.uploadSinks = streamingMultipartUploadSinks;
-    this.allowedFileTypeSpecifiers =
-        settingsManifest
-            .getFileUploadAllowedFileTypeSpecifiers()
-            .orElse(DEFAULT_ALLOWED_FILE_TYPES);
+    this.fileTypeValidation = fileTypeValidation;
+    this.allowedFileTypes =
+        FileTypeValidation.parseSpecifiers(
+            settingsManifest.getFileUploadAllowedFileTypeSpecifiers().get());
   }
 
   // Override the method to create a file part handler that streams the file data to the destination
@@ -76,8 +78,8 @@ public abstract class StreamingMultipartBodyParser
 
                       // Validate once we have enough bytes
                       if (headerBytes.get().size() >= FileTypeValidation.HEADER_SIZE) {
-                        FileTypeValidation.validateHeaderBytes(
-                            headerBytes.get(), contentType, fileName, allowedFileTypeSpecifiers);
+                        fileTypeValidation.validateHeaderBytes(
+                            headerBytes.get(), contentType, fileName, allowedFileTypes);
                       }
                     }
 

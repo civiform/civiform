@@ -21,9 +21,16 @@ public final class TestStreamingMultipartBodyParser extends StreamingMultipartBo
       DefaultHttpErrorHandler errorHandler,
       MultipartUploadSinks streamingMultipartUploadSinks,
       SettingsManifest settingsManifest,
+      FileTypeValidation fileTypeValidation,
       StreamingOutputBuffer outputBuffer) {
     long maxFileSize = 1024 * 1024 * 100L; // 100MB
-    super(materializer, errorHandler, streamingMultipartUploadSinks, settingsManifest, maxFileSize);
+    super(
+        materializer,
+        errorHandler,
+        streamingMultipartUploadSinks,
+        settingsManifest,
+        fileTypeValidation,
+        maxFileSize);
     this.outputBuffer = outputBuffer;
   }
 

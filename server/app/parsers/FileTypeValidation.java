@@ -3,11 +3,11 @@ package parsers;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import javax.inject.Inject;
 import org.apache.pekko.util.ByteString;
 
 /**
@@ -17,244 +17,208 @@ import org.apache.pekko.util.ByteString;
  */
 public final class FileTypeValidation {
 
+  @Inject
+  public FileTypeValidation() {}
+
   static final int HEADER_SIZE = 16;
 
-  /** All supported file types. */
   private static final ImmutableList<FileType> FILE_TYPES =
       ImmutableList.of(
           FileType.of(
-              ".png",
+              ImmutableList.of(".png"),
               "image/png",
-              "image/*",
               new byte[][] {{(byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}}),
           FileType.of(
-              ".jpg",
+              ImmutableList.of(".jpg", ".jpeg"),
               "image/jpeg",
-              "image/*",
               new byte[][] {{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF}}),
           FileType.of(
-              ".jpeg",
-              "image/jpeg",
-              "image/*",
-              new byte[][] {{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF}}),
-          FileType.of(
-              ".gif",
+              ImmutableList.of(".gif"),
               "image/gif",
-              "image/*",
               new byte[][] {
                 {(byte) 0x47, 0x49, 0x46, 0x38, 0x37, 0x61},
                 {(byte) 0x47, 0x49, 0x46, 0x38, 0x39, 0x61}
               }),
           FileType.of(
-              ".pdf", "application/pdf", null, new byte[][] {{0x25, 0x50, 0x44, 0x46, 0x2D}}),
-          FileType.of(".bmp", "image/bmp", "image/*", new byte[][] {{0x42, 0x4D}}),
+              ImmutableList.of(".pdf"),
+              "application/pdf",
+              new byte[][] {{0x25, 0x50, 0x44, 0x46, 0x2D}}),
+          FileType.of(ImmutableList.of(".bmp"), "image/bmp", new byte[][] {{0x42, 0x4D}}),
           FileType.of(
-              ".webp",
+              ImmutableList.of(".webp"),
               "image/webp",
-              "image/*",
-              new byte[][] {
-                {0x52, 0x49, 0x46, 0x46} // RIFF
-              }),
+              new byte[][] {{0x52, 0x49, 0x46, 0x46}}), // RIFF
           FileType.of(
-              ".tiff",
+              ImmutableList.of(".tiff"),
               "image/tiff",
-              "image/*",
               new byte[][] {
                 {0x49, 0x49, 0x2A, 0x00},
                 {0x4D, 0x4D, 0x00, 0x2A}
               }),
-          FileType.of(".zip", "application/zip", null, new byte[][] {{0x50, 0x4B, 0x03, 0x04}}));
+          FileType.of(
+              ImmutableList.of(".zip"), "application/zip", new byte[][] {{0x50, 0x4B, 0x03, 0x04}}),
+          FileType.of(
+              ImmutableList.of(".xlsx"),
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+              new byte[][] {{0x50, 0x4B, 0x03, 0x04}}));
 
-  private static final ImmutableSet<String> ZIP_BASED_TYPES =
-      ImmutableSet.of(
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-          "application/vnd.openxmlformats-officedocument.presentationml.presentation");
+  static {
+    int maxSig =
+        FILE_TYPES.stream()
+            .flatMap(ft -> ft.magicSignatures().stream())
+            .mapToInt(ByteString::size)
+            .max()
+            .orElse(0);
+    if (maxSig > HEADER_SIZE) {
+      throw new IllegalStateException(
+          String.format(
+              "FileTypeValidation: a magic signature (%d bytes) exceeds HEADER_SIZE (%d).",
+              maxSig, HEADER_SIZE));
+    }
+  }
 
-  /** Extension → FileType lookup (moved here to avoid static init cycle). */
-  private static final ImmutableMap<String, FileType> BY_EXTENSION =
+  private static final ImmutableMap<String, FileType> FILE_TYPE_BY_EXTENSION =
       FILE_TYPES.stream()
-          .collect(
-              ImmutableMap.toImmutableMap(
-                  t -> t.extension().toLowerCase(Locale.ROOT), t -> t, (a, b) -> a));
+          .flatMap(
+              ft ->
+                  ft.extensions().stream().map(ext -> Map.entry(ext.toLowerCase(Locale.ROOT), ft)))
+          .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
 
-  private FileTypeValidation() {}
-
-  public static void validateHeaderBytes(
+  public void validateHeaderBytes(
       ByteString headerBytes,
       String declaredContentType,
       String fileName,
-      String allowedFileTypeSpecifiers) {
+      ImmutableList<String> allowedTypes) {
 
-    ImmutableList<String> allowedTypes = parseSpecifiers(allowedFileTypeSpecifiers);
+    String declaredNormalized =
+        declaredContentType == null ? "" : declaredContentType.toLowerCase(Locale.ROOT).trim();
 
-    if (!isAllowedType(declaredContentType, allowedTypes)) {
+    if (!isAllowedType(declaredNormalized, allowedTypes)) {
       throw new FileUploadTypeException(
           String.format(
               "File \"%s\": declared content type \"%s\" is not an allowed upload type.",
               fileName, declaredContentType));
     }
 
-    FileType detected = detectType(headerBytes);
-
-    if (detected == null) {
+    ImmutableList<FileType> matches = detectTypes(headerBytes);
+    if (matches.isEmpty()) {
       throw new FileUploadTypeException(
           String.format("File \"%s\": could not verify file type from content bytes.", fileName));
     }
 
-    if (!isAllowedType(detected.mimeType(), allowedTypes)) {
+    if (matches.stream().noneMatch(ft -> isAllowedType(ft.mimeType(), allowedTypes))) {
       throw new FileUploadTypeException(
           String.format(
               "File \"%s\": detected file type \"%s\" is not an allowed upload type.",
-              fileName, detected.mimeType()));
+              fileName, matches.get(0).mimeType()));
     }
 
-    if (!typesMatch(detected.mimeType(), declaredContentType)) {
+    Optional<FileType> declaredMatch =
+        matches.stream().filter(ft -> ft.mimeType().equals(declaredNormalized)).findFirst();
+    if (declaredMatch.isEmpty()) {
       throw new FileUploadTypeException(
           String.format(
               "File \"%s\": declared content type \"%s\" does not match detected type \"%s\".",
-              fileName, declaredContentType, detected.mimeType()));
+              fileName, declaredContentType, matches.get(0).mimeType()));
+    }
+
+    String extension = extensionOf(fileName);
+    if (extension != null && !declaredMatch.get().extensions().contains(extension)) {
+      throw new FileUploadTypeException(
+          String.format(
+              "File \"%s\": filename extension \"%s\" does not match detected type \"%s\".",
+              fileName, extension, declaredMatch.get().mimeType()));
     }
   }
 
-  /** Detects the file type from magic bytes. */
-  static FileType detectType(ByteString headerBytes) {
-    if (headerBytes == null) {
+  private static String extensionOf(String fileName) {
+    if (fileName == null) {
       return null;
     }
-
-    if (isRiffWebp(headerBytes)) {
-      return FILE_TYPES.stream()
-          .filter(t -> "image/webp".equals(t.mimeType()))
-          .findFirst()
-          .orElse(null);
+    int dot = fileName.lastIndexOf('.');
+    if (dot < 0) {
+      return null;
     }
+    return fileName.substring(dot).toLowerCase(Locale.ROOT);
+  }
 
-    for (FileType type : FILE_TYPES) {
-      if (type.matches(headerBytes)) {
-        return type;
-      }
+  static ImmutableList<FileType> detectTypes(ByteString headerBytes) {
+    if (headerBytes == null) {
+      return ImmutableList.of();
     }
-
-    return null;
+    boolean isWebp = isRiffWebp(headerBytes);
+    return FILE_TYPES.stream()
+        .filter(ft -> ft.matches(headerBytes))
+        // The WEBP entry's magic is just "RIFF", a generic container header.
+        // Only accept the match when bytes 8-11 also spell "WEBP".
+        .filter(ft -> !"image/webp".equals(ft.mimeType()) || isWebp)
+        .collect(ImmutableList.toImmutableList());
   }
 
   private static boolean isRiffWebp(ByteString bytes) {
     return bytes.length() >= 12
-        && bytes.apply(0) == 0x52
-        && bytes.apply(1) == 0x49
-        && bytes.apply(2) == 0x46
-        && bytes.apply(3) == 0x46
         && bytes.apply(8) == 0x57
         && bytes.apply(9) == 0x45
         && bytes.apply(10) == 0x42
         && bytes.apply(11) == 0x50;
   }
 
-  static ImmutableList<String> parseSpecifiers(String specifiers) {
-    ImmutableList.Builder<String> builder = ImmutableList.builder();
-
-    for (String spec : Splitter.on(',').trimResults().omitEmptyStrings().split(specifiers)) {
-      String normalized = spec.toLowerCase(Locale.ROOT);
-
-      if (normalized.endsWith("/*")) {
-        builder.add(normalized.substring(0, normalized.length() - 1));
-      } else if (normalized.startsWith(".")) {
-        String mime = toMime(normalized);
-        if (mime != null) {
-          builder.add(mime);
-        }
-      } else {
-        builder.add(normalized);
-      }
-    }
-
-    return builder.build();
+  /** Parses a comma-separated list of MIME types, wildcards, and extensions. */
+  public static ImmutableList<String> parseSpecifiers(String specifiers) {
+    return Splitter.on(',')
+        .trimResults()
+        .omitEmptyStrings()
+        .splitToStream(specifiers)
+        .map(spec -> spec.toLowerCase(Locale.ROOT))
+        .flatMap(spec -> normalizeSpecifier(spec).stream())
+        .collect(ImmutableList.toImmutableList());
   }
 
-  private static boolean isAllowedType(String mimeType, ImmutableList<String> allowedTypes) {
-    if (mimeType == null) {
+  private static Optional<String> normalizeSpecifier(String normalized) {
+    if (normalized.endsWith("/*")) {
+      return Optional.of(normalized);
+    }
+    if (normalized.startsWith(".")) {
+      return fromExtension(normalized).map(FileType::mimeType);
+    }
+    return Optional.of(normalized);
+  }
+
+  private static boolean isAllowedType(String normalizedMime, ImmutableList<String> allowedTypes) {
+    if (normalizedMime == null || normalizedMime.isEmpty()) {
       return false;
     }
-
-    String normalized = mimeType.toLowerCase(Locale.ROOT).trim();
-
-    for (String allowed : allowedTypes) {
-      if (allowed.endsWith("/")) {
-        if (normalized.startsWith(allowed)) {
-          return true;
-        }
-      } else if (normalized.equals(allowed)) {
-        return true;
-      }
-    }
-
-    return false;
+    return allowedTypes.stream()
+        .anyMatch(
+            allowed ->
+                allowed.endsWith("/*")
+                    ? normalizedMime.startsWith(allowed.substring(0, allowed.length() - 1))
+                    : normalizedMime.equals(allowed));
   }
 
-  private static boolean typesMatch(String detected, String declared) {
-    if (detected == null || declared == null) {
-      return false;
-    }
-
-    String d = detected.toLowerCase(Locale.ROOT).trim();
-    String dec = declared.toLowerCase(Locale.ROOT).trim();
-
-    if (d.equals(dec)) {
-      return true;
-    }
-
-    if (d.equals("application/zip") && ZIP_BASED_TYPES.contains(dec)) {
-      return true;
-    }
-
-    String detectedFamily = Iterables.get(Splitter.on('/').split(d), 0);
-    String declaredFamily = Iterables.get(Splitter.on('/').split(dec), 0);
-
-    return detectedFamily.equals(declaredFamily);
-  }
-
-  /** Map helpers moved here to avoid static initialization cycles. */
-  static FileType fromExtension(String extension) {
+  static Optional<FileType> fromExtension(String extension) {
     if (extension == null) {
-      return null;
+      return Optional.empty();
     }
-    return BY_EXTENSION.get(extension.toLowerCase(Locale.ROOT));
-  }
-
-  static String toMime(String extension) {
-    FileType type = fromExtension(extension);
-    return type != null ? type.mimeType() : null;
+    return Optional.ofNullable(FILE_TYPE_BY_EXTENSION.get(extension.toLowerCase(Locale.ROOT)));
   }
 
   /** Represents a file type with one or more magic byte signatures. */
-  private record FileType(
-      String extension, String mimeType, String wildcardMime, List<byte[]> magicSignatures) {
+  record FileType(
+      ImmutableList<String> extensions,
+      String mimeType,
+      ImmutableList<ByteString> magicSignatures) {
 
-    static FileType of(
-        String extension, String mimeType, String wildcardMime, byte[][] signatures) {
-      return new FileType(extension, mimeType, wildcardMime, Arrays.asList(signatures));
+    static FileType of(ImmutableList<String> extensions, String mimeType, byte[][] signatures) {
+      ImmutableList<ByteString> sigs =
+          Arrays.stream(signatures)
+              .map(sig -> ByteString.fromArray(Arrays.copyOf(sig, sig.length)))
+              .collect(ImmutableList.toImmutableList());
+      return new FileType(extensions, mimeType, sigs);
     }
 
     boolean matches(ByteString data) {
-      for (byte[] sig : magicSignatures) {
-        if (data.length() < sig.length) {
-          continue;
-        }
-
-        boolean match = true;
-        for (int i = 0; i < sig.length; i++) {
-          if (data.apply(i) != sig[i]) {
-            match = false;
-            break;
-          }
-        }
-
-        if (match) {
-          return true;
-        }
-      }
-      return false;
+      return magicSignatures.stream().anyMatch(sig -> data.startsWith(sig, 0));
     }
   }
 }

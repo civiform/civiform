@@ -41,14 +41,6 @@ import views.trustedintermediary.ApplicationBaseViewParams;
 
 /** Renders a page for answering questions in a program screen (block). */
 public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
-  /**
-   * This fallback should not ever be reached, but it is here in the event that the {@link
-   * SettingsManifest} can't find it in the config to allow for basic functionality to continue.
-   * This should be kept in sync with the config value `file_upload_allowed_file_type_specifiers` in
-   * the application.conf file.
-   */
-  private static final String ALLOWED_FILE_TYPE_SPECIFIERS_FALLBACK = "image/*,.pdf";
-
   private final FileUploadViewStrategy fileUploadViewStrategy;
   private final GeoJsonDataRepository mapDataRepository;
 
@@ -145,9 +137,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
           "maxFileSizeMb", applicationParams.applicantStorageClient().getFileLimitMb());
       context.setVariable(
           "fileUploadAllowedFileTypeSpecifiers",
-          settingsManifest
-              .getFileUploadAllowedFileTypeSpecifiers()
-              .orElse(ALLOWED_FILE_TYPE_SPECIFIERS_FALLBACK));
+          settingsManifest.getFileUploadAllowedFileTypeSpecifiers().get());
       context.setVariable(
           "hxSelectFileForUploadUrl",
           controllers.applicant.routes.ApplicantProgramBlocksController.hxSelectFileForUpload(
@@ -389,9 +379,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
     context.setVariable("maxFileSizeMb", params.applicantStorageClient().getFileLimitMb());
     context.setVariable(
         "fileUploadAllowedFileTypeSpecifiers",
-        settingsManifest
-            .getFileUploadAllowedFileTypeSpecifiers()
-            .orElse(ALLOWED_FILE_TYPE_SPECIFIERS_FALLBACK));
+        settingsManifest.getFileUploadAllowedFileTypeSpecifiers().get());
     context.setVariable(
         "previousBlockWithoutFile",
         params.baseUrl()
