@@ -28,7 +28,7 @@ import services.settings.SettingsManifest;
 public abstract class StreamingMultipartBodyParser
     extends BodyParser.DelegatingMultipartFormDataBodyParser<Void> {
   private static final int CHUNK_SIZE = 1024 * 1024; // 1 MiB
-  private static final String DEFAULT_ALLOWED_FILE_TYPES = "image/*,.pdf";
+  private static final String DEFAULT_ALLOWED_FILE_TYPES = ".jpg,.jpeg,.png,.pdf";
   private final MultipartUploadSinks uploadSinks;
   private final String allowedFileTypeSpecifiers;
 
