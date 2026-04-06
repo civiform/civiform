@@ -242,7 +242,7 @@ public class FileTypeValidationTest {
                 FileTypeValidation.validateHeaderBytes(
                     ByteString.fromArray(unknownHeader), "application/x-executable", "malware.exe"))
         .isInstanceOf(FileTypeMismatchException.class)
-        .hasMessageContaining("not an allowed upload type");
+        .hasMessageContaining("could not verify file type from content bytes");
   }
 
   @Test

@@ -1,5 +1,6 @@
 package parsers;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.fill;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
@@ -41,15 +42,15 @@ public class TestStreamingMultipartBodyParserTest extends ResetPostgres {
 
   private RequestHeader requestHeader;
   private Materializer materializer;
-  private StreamingOutputBuffer outputBuffer;
+  private parsers.StreamingOutputBuffer outputBuffer;
 
-  private TestStreamingMultipartBodyParser parser;
+  private parsers.TestStreamingMultipartBodyParser parser;
 
   @Before
   public void setUp() {
-    parser = instanceOf(TestStreamingMultipartBodyParser.class);
+    parser = instanceOf(parsers.TestStreamingMultipartBodyParser.class);
     materializer = instanceOf(Materializer.class);
-    outputBuffer = instanceOf(StreamingOutputBuffer.class);
+    outputBuffer = instanceOf(parsers.StreamingOutputBuffer.class);
 
     requestHeader =
         fakeRequest()
@@ -65,7 +66,7 @@ public class TestStreamingMultipartBodyParserTest extends ResetPostgres {
 
   @Test
   public void testStreamingUpload_prints() throws Exception {
-    byte[] content = "Hello world".getBytes();
+    byte[] content = "Hello world".getBytes(UTF_8);
     byte[] fullContent = new byte[PNG_HEADER.length + content.length];
     System.arraycopy(PNG_HEADER, 0, fullContent, 0, PNG_HEADER.length);
     System.arraycopy(content, 0, fullContent, PNG_HEADER.length, content.length);
