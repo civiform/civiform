@@ -1134,9 +1134,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
               FileUploadQuestion fileUploadQuestion =
                   block.get().getVisibleQuestions().stream()
-                      .filter(question -> question.getType().equals(QuestionType.FILEUPLOAD))
+                      .filter(question -> question.getType() == QuestionType.FILEUPLOAD)
                       .findAny()
-                      .get()
+                      .orElseThrow()
                       .createFileUploadQuestion();
 
               if (!fileUploadQuestion.canUploadFile()) {
@@ -1206,7 +1206,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             roApplicantProgramService -> ok(""),
             classLoaderExecutionContext.current())
         // TODO(#12974): Return a file upload partial with an error message
-        .exceptionally(ex -> internalServerError());
+        .exceptionallyAsync(ex -> internalServerError(), classLoaderExecutionContext.current());
   }
 
   /**

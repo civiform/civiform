@@ -1,6 +1,10 @@
 package services.cloud;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 import java.util.UUID;
+import org.apache.commons.io.FilenameUtils;
 
 /**
  * FileNameFormatter provides methods for formatting uploaded file names with a key prefix that
@@ -31,14 +35,17 @@ public final class ApplicantFileNameFormatter {
    */
   public static String formatFileUploadQuestionFilenameWithUuid(
       long applicantId, long programId, String blockId, String originalFileName) {
-    String extension = "";
-    int dotIndex = originalFileName.lastIndexOf('.');
-    if (dotIndex >= 0) {
-      extension = originalFileName.substring(dotIndex);
-    }
+    checkArgument(applicantId > 0, "applicantId must be > 0");
+    checkArgument(programId > 0, "programId must be > 0");
+    checkArgument(isNotBlank(blockId), "blockId must not be null or empty");
+    checkArgument(isNotBlank(originalFileName), "originalFileName must not be null or empty");
     return String.format(
-        "applicant-%d/program-%d/block-%s/%s%s",
-        applicantId, programId, blockId, UUID.randomUUID(), extension);
+        "applicant-%d/program-%d/block-%s/%s.%s",
+        applicantId,
+        programId,
+        blockId,
+        UUID.randomUUID(),
+        FilenameUtils.getExtension(originalFileName));
   }
 
   /** Check if the formatted file key matches the applicant id */
