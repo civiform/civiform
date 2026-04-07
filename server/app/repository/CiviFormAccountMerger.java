@@ -28,9 +28,9 @@ public final class CiviFormAccountMerger {
    * <p>When drafts must be merged the code will keep the most relevant one, however note that there
    * is no real data in a draft other than the creation time.
    *
-   * <p>When a Guest Active application is moved it will have originalApplicantId set to the
-   * Guest Applicant. Drafts will not have it set because their data is not consumed by an external
-   * user, and it serves no purpose then.
+   * <p>When a Guest Active application is moved it will have originalApplicantId set to the Guest
+   * Applicant. Drafts will not have it set because their data is not consumed by an external user,
+   * and it serves no purpose then.
    *
    * @param newMergeStage what launch stage the new merge feature is at. Must be DRY_RUN OR ENABLED.
    */
