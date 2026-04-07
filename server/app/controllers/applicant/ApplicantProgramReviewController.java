@@ -338,7 +338,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
               if (ex instanceof CompletionException) {
                 Throwable cause = ex.getCause();
                 if (cause instanceof ApplicationSubmissionException) {
-                  Call reviewPage;
+                  final Call reviewPage;
                   if (programSlugUrlsEnabled) {
                     reviewPage =
                         applicantRoutes.review(
