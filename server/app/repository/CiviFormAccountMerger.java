@@ -70,7 +70,7 @@ public final class CiviFormAccountMerger {
   /// 1. For programs only in guest, move them to the cfUser
   /// 2. For programs in both:
   ///    1. Obsolete are moved over
-  ///    2. For other states based on the 'material' version:
+  ///    2. Reconciled based on the versions present:
   ///
   /// An important note on reasoning about what is kept pertains to the
   /// impact of Drafts.
