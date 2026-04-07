@@ -80,7 +80,7 @@ public class TestStreamingMultipartBodyParserTest extends ResetPostgres {
   }
 
   // Run the parser and throw on errors
-  private CompletionStage<Http.MultipartFormData<Void>> parse(Source<ByteString, ?> source) {
+  private CompletionStage<Http.MultipartFormData<String>> parse(Source<ByteString, ?> source) {
     return parser
         .apply(requestHeader)
         .run(source, materializer)

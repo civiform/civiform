@@ -6,6 +6,7 @@ import org.apache.pekko.stream.Materializer;
 import org.apache.pekko.stream.javadsl.Sink;
 import org.apache.pekko.util.ByteString;
 import parsers.cloud.MultipartUploadSinks;
+import play.core.parsers.Multipart;
 import play.http.DefaultHttpErrorHandler;
 import services.cloud.StorageServiceName;
 
@@ -66,7 +67,7 @@ public final class TestStreamingMultipartBodyParser extends StreamingMultipartBo
   }
 
   @Override
-  protected String getFileKey() {
+  protected String getFileKey(Multipart.FileInfo fileInfo) {
     return "";
   }
 }
