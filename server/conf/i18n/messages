@@ -670,6 +670,7 @@ validation.noPoBox=Please enter a valid address. We do not accept PO Boxes.
 title.confirmAddress=Confirm your address
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
 content.confirmAddressLine1=We were not able to find your address.
+content.confirmAddressLine1.v2=Address confirmation needed.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=Please check your address for spelling or choose an option from the list provided.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
