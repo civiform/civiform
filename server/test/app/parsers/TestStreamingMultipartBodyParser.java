@@ -8,29 +8,22 @@ import org.apache.pekko.util.ByteString;
 import parsers.cloud.MultipartUploadSinks;
 import play.http.DefaultHttpErrorHandler;
 import services.cloud.StorageServiceName;
-import services.settings.SettingsManifest;
 
 // A no-op implementation of the StreamingMultipartBodyParser for testing purposes
 // Prints the content of the input byte string, with a summary at the end of the total size.
 public final class TestStreamingMultipartBodyParser extends StreamingMultipartBodyParser {
-  private StreamingOutputBuffer outputBuffer;
+  private final parsers.StreamingOutputBuffer outputBuffer;
 
   @Inject
   public TestStreamingMultipartBodyParser(
       Materializer materializer,
       DefaultHttpErrorHandler errorHandler,
       MultipartUploadSinks streamingMultipartUploadSinks,
-      SettingsManifest settingsManifest,
       FileTypeValidation fileTypeValidation,
-      StreamingOutputBuffer outputBuffer) {
+      parsers.StreamingOutputBuffer outputBuffer) {
     long maxFileSize = 1024 * 1024 * 100L; // 100MB
     super(
-        materializer,
-        errorHandler,
-        streamingMultipartUploadSinks,
-        settingsManifest,
-        fileTypeValidation,
-        maxFileSize);
+        materializer, errorHandler, streamingMultipartUploadSinks, fileTypeValidation, maxFileSize);
     this.outputBuffer = outputBuffer;
   }
 

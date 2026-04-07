@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import org.apache.pekko.stream.javadsl.Flow;
 import org.apache.pekko.util.ByteString;
 import org.apache.tika.Tika;
+import services.settings.SettingsManifest;
 
 /**
  * Validates uploaded file content by looking up the MIME type for the filename's extension,
@@ -17,9 +18,14 @@ import org.apache.tika.Tika;
  * bytes actually match that type. Throws {@link FileUploadTypeException} on any mismatch.
  */
 public final class FileTypeValidation {
+  private final ImmutableList<String> allowedFileTypes;
 
   @Inject
-  public FileTypeValidation() {}
+  public FileTypeValidation(SettingsManifest settingsManifest) {
+    this.allowedFileTypes =
+        FileTypeValidation.parseSpecifiers(
+            settingsManifest.getFileUploadAllowedFileTypeSpecifiers().get());
+  }
 
   private static final Tika TIKA = new Tika();
 
@@ -86,8 +92,7 @@ public final class FileTypeValidation {
    * stream and validates them against the filename extension and allowed upload types. Throws
    * {@link FileUploadTypeException} on the validating element if the file is not acceptable.
    */
-  public Flow<ByteString, ByteString, ?> sniffingFlow(
-      String fileName, ImmutableList<String> allowedTypes) {
+  public Flow<ByteString, ByteString, ?> sniffingFlow(String fileName) {
     AtomicReference<ByteString> headerBytes = new AtomicReference<>(ByteString.emptyByteString());
 
     return Flow.of(ByteString.class)
@@ -102,7 +107,7 @@ public final class FileTypeValidation {
 
                 // Validate once we have enough bytes
                 if (headerBytes.get().size() >= FileTypeValidation.HEADER_SIZE) {
-                  validateHeaderBytes(headerBytes.get(), fileName, allowedTypes);
+                  validateHeaderBytes(headerBytes.get(), fileName, allowedFileTypes);
                 }
               }
 

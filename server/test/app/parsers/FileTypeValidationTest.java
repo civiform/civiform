@@ -5,9 +5,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableList;
 import org.apache.pekko.util.ByteString;
+import org.junit.Before;
 import org.junit.Test;
+import repository.ResetPostgres;
 
-public class FileTypeValidationTest {
+public class FileTypeValidationTest extends ResetPostgres {
   private static final ImmutableList<String> ALLOWED =
       FileTypeValidation.parseSpecifiers("image/*,.pdf,.xlsx");
 
@@ -15,6 +17,12 @@ public class FileTypeValidationTest {
   private static final byte[] PDF_MAGIC = {0x25, 0x50, 0x44, 0x46, 0x2D, 0x31, 0x2E, 0x34};
   private static final byte[] ZIP_MAGIC = {0x50, 0x4B, 0x03, 0x04};
   private static final byte[] UNKNOWN = {0x00, 0x01, 0x02, 0x03};
+  private FileTypeValidation validator;
+
+  @Before
+  public void setup() {
+    validator = instanceOf(FileTypeValidation.class);
+  }
 
   @Test
   public void parseSpecifiers_translatesExtensionsAndPreservesWildcards() {
@@ -29,22 +37,19 @@ public class FileTypeValidationTest {
 
   @Test
   public void validateHeaderBytes_realPng_passes() {
-    new FileTypeValidation()
-        .validateHeaderBytes(ByteString.fromArray(PNG_MAGIC), "photo.png", ALLOWED);
+    validator.validateHeaderBytes(ByteString.fromArray(PNG_MAGIC), "photo.png", ALLOWED);
   }
 
   @Test
   public void validateHeaderBytes_realXlsx_passes() {
-    new FileTypeValidation()
-        .validateHeaderBytes(ByteString.fromArray(ZIP_MAGIC), "budget.xlsx", ALLOWED);
+    validator.validateHeaderBytes(ByteString.fromArray(ZIP_MAGIC), "budget.xlsx", ALLOWED);
   }
 
   @Test
   public void validateHeaderBytes_pdfBytesNamedPng_throws() {
     assertThatThrownBy(
             () ->
-                new FileTypeValidation()
-                    .validateHeaderBytes(ByteString.fromArray(PDF_MAGIC), "fake.png", ALLOWED))
+                validator.validateHeaderBytes(ByteString.fromArray(PDF_MAGIC), "fake.png", ALLOWED))
         .isInstanceOf(FileUploadTypeException.class)
         .hasMessageContaining("do not match extension");
   }
@@ -53,8 +58,7 @@ public class FileTypeValidationTest {
   public void validateHeaderBytes_pngBytesNamedPdf_throws() {
     assertThatThrownBy(
             () ->
-                new FileTypeValidation()
-                    .validateHeaderBytes(ByteString.fromArray(PNG_MAGIC), "fake.pdf", ALLOWED))
+                validator.validateHeaderBytes(ByteString.fromArray(PNG_MAGIC), "fake.pdf", ALLOWED))
         .isInstanceOf(FileUploadTypeException.class)
         .hasMessageContaining("do not match extension");
   }
@@ -63,8 +67,8 @@ public class FileTypeValidationTest {
   public void validateHeaderBytes_unknownExtension_throws() {
     assertThatThrownBy(
             () ->
-                new FileTypeValidation()
-                    .validateHeaderBytes(ByteString.fromArray(UNKNOWN), "malware.exe", ALLOWED))
+                validator.validateHeaderBytes(
+                    ByteString.fromArray(UNKNOWN), "malware.exe", ALLOWED))
         .isInstanceOf(FileUploadTypeException.class)
         .hasMessageContaining("not a supported upload type");
   }
@@ -72,9 +76,7 @@ public class FileTypeValidationTest {
   @Test
   public void validateHeaderBytes_noExtension_throws() {
     assertThatThrownBy(
-            () ->
-                new FileTypeValidation()
-                    .validateHeaderBytes(ByteString.fromArray(PNG_MAGIC), "photo", ALLOWED))
+            () -> validator.validateHeaderBytes(ByteString.fromArray(PNG_MAGIC), "photo", ALLOWED))
         .isInstanceOf(FileUploadTypeException.class)
         .hasMessageContaining("not a supported upload type");
   }
@@ -84,8 +86,8 @@ public class FileTypeValidationTest {
     ImmutableList<String> imagesOnly = FileTypeValidation.parseSpecifiers("image/*");
     assertThatThrownBy(
             () ->
-                new FileTypeValidation()
-                    .validateHeaderBytes(ByteString.fromArray(PDF_MAGIC), "doc.pdf", imagesOnly))
+                validator.validateHeaderBytes(
+                    ByteString.fromArray(PDF_MAGIC), "doc.pdf", imagesOnly))
         .isInstanceOf(FileUploadTypeException.class)
         .hasMessageContaining("not an allowed upload type");
   }
@@ -94,8 +96,7 @@ public class FileTypeValidationTest {
   public void validateHeaderBytes_unknownBytesForKnownExtension_throws() {
     assertThatThrownBy(
             () ->
-                new FileTypeValidation()
-                    .validateHeaderBytes(ByteString.fromArray(UNKNOWN), "photo.png", ALLOWED))
+                validator.validateHeaderBytes(ByteString.fromArray(UNKNOWN), "photo.png", ALLOWED))
         .isInstanceOf(FileUploadTypeException.class)
         .hasMessageContaining("do not match extension");
   }

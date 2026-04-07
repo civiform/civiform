@@ -227,4 +227,20 @@ public class TestStreamingMultipartBodyParserTest extends ResetPostgres {
             .concat(ByteString.fromString(footer));
     return Source.single(body);
   }
+
+  // Create a request body, given content
+  private Source<ByteString, ?> createMultipartRequestBody(String content) {
+    String requestBody =
+        "--"
+            + MULTIPART_BOUNDARY
+            + "\r\n"
+            + "Content-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\n"
+            + "Content-Type: text/plain\r\n\r\n"
+            + content
+            + "\r\n"
+            + "--"
+            + MULTIPART_BOUNDARY
+            + "--\r\n";
+    return Source.single(ByteString.fromString(requestBody));
+  }
 }

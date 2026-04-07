@@ -1,6 +1,5 @@
 package parsers;
 
-import com.google.common.collect.ImmutableList;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import org.apache.pekko.stream.Materializer;
@@ -13,7 +12,6 @@ import play.http.DefaultHttpErrorHandler;
 import play.libs.streams.Accumulator;
 import play.mvc.BodyParser;
 import play.mvc.Http.MultipartFormData.FilePart;
-import services.settings.SettingsManifest;
 
 /**
  * Abstract class for performing a streaming upload of multipart form data.
@@ -29,22 +27,17 @@ public abstract class StreamingMultipartBodyParser
     extends BodyParser.DelegatingMultipartFormDataBodyParser<Void> {
   private static final int CHUNK_SIZE = 1024 * 1024; // 1 MiB
   private final MultipartUploadSinks uploadSinks;
-  private final ImmutableList<String> allowedFileTypes;
   private final FileTypeValidation fileTypeValidation;
 
   public StreamingMultipartBodyParser(
       Materializer materializer,
       DefaultHttpErrorHandler errorHandler,
       MultipartUploadSinks streamingMultipartUploadSinks,
-      SettingsManifest settingsManifest,
       FileTypeValidation fileTypeValidation,
       long maxFileSize) {
     super(materializer, CHUNK_SIZE, maxFileSize, /* allowEmptyFiles= */ false, errorHandler);
     this.uploadSinks = streamingMultipartUploadSinks;
     this.fileTypeValidation = fileTypeValidation;
-    this.allowedFileTypes =
-        FileTypeValidation.parseSpecifiers(
-            settingsManifest.getFileUploadAllowedFileTypeSpecifiers().get());
   }
 
   // Override the method to create a file part handler that streams the file data to the destination
@@ -60,8 +53,7 @@ public abstract class StreamingMultipartBodyParser
       String contentType = fileInfo.contentType().getOrElse(() -> "text/plain");
       String fileName = fileInfo.fileName();
 
-      Flow<ByteString, ByteString, ?> sniffingFlow =
-          fileTypeValidation.sniffingFlow(fileName, allowedFileTypes);
+      Flow<ByteString, ByteString, ?> sniffingFlow = fileTypeValidation.sniffingFlow(fileName);
 
       // Map upload sink to an output value, prepending the sniffing flow
       Sink<ByteString, CompletionStage<FilePart<Void>>> mappedSink =
