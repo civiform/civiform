@@ -104,8 +104,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
       Request request, long applicantId, String programParam) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels("/applicants/:applicantId/programs/:programParam/review", programParam)
@@ -117,9 +117,9 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
   public CompletionStage<Result> reviewInternal(
       Request request, long applicantId, String programParam) {
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, programSlugUrlEnabled)
+        .resolveProgramParam(programParam, applicantId, programSlugUrlsEnabled)
         .thenCompose(
             programId -> {
               CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request);
@@ -140,7 +140,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
                         Optional<Result> applicationUpdatedOptional =
                             updateApplicationToLatestProgramVersionIfNeeded(
-                                applicantId, programId, profile);
+                                applicantId, programId, profile, programSlugUrlsEnabled);
                         if (applicationUpdatedOptional.isPresent()) {
                           return applicationUpdatedOptional.get();
                         }
@@ -215,8 +215,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
   public CompletionStage<Result> review(Request request, String programParam) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels("/programs/:programParam/review", programParam)
@@ -260,7 +260,11 @@ public class ApplicantProgramReviewController extends CiviFormController {
               CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
               Optional<Result> applicationUpdatedOptional =
-                  updateApplicationToLatestProgramVersionIfNeeded(applicantId, programId, profile);
+                  updateApplicationToLatestProgramVersionIfNeeded(
+                      applicantId,
+                      programId,
+                      profile,
+                      settingsManifest.getProgramSlugUrlsEnabled(request));
               if (applicationUpdatedOptional.isPresent()) {
                 return CompletableFuture.completedFuture(applicationUpdatedOptional.get());
               }
@@ -328,11 +332,22 @@ public class ApplicantProgramReviewController extends CiviFormController {
             classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
+              ReadOnlyApplicantProgramService roApplicantProgramService =
+                  readOnlyApplicantProgramServiceFuture.join();
+              boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
               if (ex instanceof CompletionException) {
                 Throwable cause = ex.getCause();
                 if (cause instanceof ApplicationSubmissionException) {
-                  Call reviewPage =
-                      applicantRoutes.review(submittingProfile, applicantId, programId);
+                  final Call reviewPage;
+                  if (programSlugUrlsEnabled) {
+                    reviewPage =
+                        applicantRoutes.review(
+                            submittingProfile,
+                            applicantId,
+                            roApplicantProgramService.getProgramSlug());
+                  } else {
+                    reviewPage = applicantRoutes.review(submittingProfile, applicantId, programId);
+                  }
                   String errorMsg =
                       messagesApi
                           .preferred(request)
@@ -344,14 +359,19 @@ public class ApplicantProgramReviewController extends CiviFormController {
                       messagesApi
                           .preferred(request)
                           .at(MessageKey.TOAST_APPLICATION_OUT_OF_DATE.getKeyName());
-                  Call reviewPage =
-                      applicantRoutes.review(submittingProfile, applicantId, programId);
+                  final Call reviewPage;
+                  if (programSlugUrlsEnabled) {
+                    reviewPage =
+                        applicantRoutes.review(
+                            submittingProfile,
+                            applicantId,
+                            roApplicantProgramService.getProgramSlug());
+                  } else {
+                    reviewPage = applicantRoutes.review(submittingProfile, applicantId, programId);
+                  }
                   return redirect(reviewPage).flashing(FlashKey.ERROR, errorMsg);
                 }
                 if (cause instanceof ApplicationNotEligibleException) {
-                  ReadOnlyApplicantProgramService roApplicantProgramService =
-                      readOnlyApplicantProgramServiceFuture.join();
-
                   try {
                     ProgramDefinition programDefinition =
                         programService.getFullProgramDefinition(programId);
@@ -367,8 +387,16 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   }
                 }
                 if (cause instanceof DuplicateApplicationException) {
-                  Call reviewPage =
-                      applicantRoutes.review(submittingProfile, applicantId, programId);
+                  final Call reviewPage;
+                  if (programSlugUrlsEnabled) {
+                    reviewPage =
+                        applicantRoutes.review(
+                            submittingProfile,
+                            applicantId,
+                            roApplicantProgramService.getProgramSlug());
+                  } else {
+                    reviewPage = applicantRoutes.review(submittingProfile, applicantId, programId);
+                  }
                   return found(reviewPage).flashing(FlashKey.DUPLICATE_SUBMISSION, "true");
                 }
                 throw new RuntimeException(cause);
@@ -404,12 +432,24 @@ public class ApplicantProgramReviewController extends CiviFormController {
    * @return {@link Result} if application was updated; empty if not
    */
   public Optional<Result> updateApplicationToLatestProgramVersionIfNeeded(
-      long applicantId, long programId, CiviFormProfile profile) {
+      long applicantId, long programId, CiviFormProfile profile, boolean programSlugUrlsEnabled) {
     return applicantService
         .updateApplicationToLatestProgramVersion(applicantId, programId)
         .map(
-            latestProgramId ->
-                redirect(applicantRoutes.review(profile, applicantId, latestProgramId).url())
-                    .flashing(FlashKey.SHOW_FAST_FORWARDED_MESSAGE, "true"));
+            latestProgramId -> {
+              final String reviewPage;
+              if (programSlugUrlsEnabled) {
+                final String programSlug;
+                try {
+                  programSlug = programService.getSlug(programId);
+                } catch (ProgramNotFoundException e) {
+                  return notFound(e.toString());
+                }
+                reviewPage = applicantRoutes.review(profile, applicantId, programSlug).url();
+              } else {
+                reviewPage = applicantRoutes.review(profile, applicantId, latestProgramId).url();
+              }
+              return redirect(reviewPage).flashing(FlashKey.SHOW_FAST_FORWARDED_MESSAGE, "true");
+            });
   }
 }

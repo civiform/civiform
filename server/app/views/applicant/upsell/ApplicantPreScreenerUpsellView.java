@@ -64,10 +64,19 @@ public class ApplicantPreScreenerUpsellView extends ApplicantBaseView {
         "<a href=\"" + linkHref + "\" target=\"_blank\" class=\"usa-link\">" + linkText + "</a>";
     context.setVariable("moreResourcesLinkHtml", linkHtml);
 
-    String goBackHref =
-        applicantRoutes
-            .review(params.profile(), params.applicantId(), params.completedProgramId())
-            .url();
+    final String goBackHref;
+    if (settingsManifest.getProgramSlugUrlsEnabled(params.request())) {
+      goBackHref =
+          applicantRoutes
+              .review(params.profile(), params.applicantId(), params.completedProgramSlug())
+              .url();
+    } else {
+      goBackHref =
+          applicantRoutes
+              .review(params.profile(), params.applicantId(), params.completedProgramId())
+              .url();
+    }
+
     context.setVariable("goBackHref", goBackHref);
 
     if (params.eligiblePrograms().isPresent()) {

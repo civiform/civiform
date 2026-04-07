@@ -309,6 +309,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return languageFormDiv;
   }
 
+  // TODO #12929: use program slug review and blockEditOrBlockReview routes
   /**
    * Calculate the redirect location after the language is changed. If the current request is a
    * POST, the redirect is be mapped to the associated GET uri.
