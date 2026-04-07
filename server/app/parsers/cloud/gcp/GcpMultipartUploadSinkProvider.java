@@ -1,30 +1,32 @@
-package parsers.cloud.aws;
+package parsers.cloud.gcp;
 
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
-import org.apache.pekko.stream.connectors.s3.MultipartUploadResult;
-import org.apache.pekko.stream.connectors.s3.javadsl.S3;
+import org.apache.pekko.http.javadsl.model.ContentTypes;
+import org.apache.pekko.stream.connectors.googlecloud.storage.StorageObject;
+import org.apache.pekko.stream.connectors.googlecloud.storage.javadsl.GCStorage;
 import org.apache.pekko.stream.javadsl.Sink;
 import org.apache.pekko.util.ByteString;
 import parsers.StreamingMultipartUploadResult;
 import parsers.cloud.GenericMultipartUploadSinkProvider;
 import services.cloud.StorageServiceName;
 
-public final class AwsS3MultipartUploadSinkProvider
-    extends GenericMultipartUploadSinkProvider<MultipartUploadResult> {
-  public AwsS3MultipartUploadSinkProvider() {
-    super(StorageServiceName.AWS_S3);
+public class GcpMultipartUploadSinkProvider
+    extends GenericMultipartUploadSinkProvider<StorageObject> {
+  public GcpMultipartUploadSinkProvider() {
+    super(StorageServiceName.GCP_S3);
   }
 
-  // Get the base sink for AWS S3 multipart upload, which will be composed with additional stages
+  // Get the base sink for GCP resumable upload, which will be composed with additional stages
   // below. This helps with testability, since we can mock this method.
+  // TODO: Add a ContentType parameter to this method, once we add the content type parsing.
   @Override
-  protected Sink<ByteString, CompletionStage<MultipartUploadResult>> getBaseSink(
+  protected Sink<ByteString, CompletionStage<StorageObject>> getBaseSink(
       String bucketName, String fileKey, int chunkSize) {
-    return S3.multipartUpload(bucketName, fileKey);
+    return GCStorage.resumableUpload(bucketName, fileKey, ContentTypes.TEXT_PLAIN_UTF8, chunkSize);
   }
 
-  // Get the composed sink for AWS S3 multipart upload, which maps the MultipartUploadResult to the
+  // Get the composed sink for the GCP resumable upload, which maps the StoredObject to the
   // custom result class.
   @Override
   public Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> getUploadSink(
@@ -34,11 +36,11 @@ public final class AwsS3MultipartUploadSinkProvider
             completionStage ->
                 completionStage
                     .thenApply(
-                        awsResult -> {
+                        gcpResult -> {
                           return StreamingMultipartUploadResult.builder()
                               .setStatus(StreamingMultipartUploadResult.Status.SUCCESS)
-                              .setStorageServiceName(StorageServiceName.AWS_S3)
-                              .setStoredFilePath(Optional.of(awsResult.getKey()))
+                              .setStorageServiceName(storageServiceName)
+                              .setStoredFilePath(Optional.of(gcpResult.name()))
                               .build();
                         })
                     .exceptionally(

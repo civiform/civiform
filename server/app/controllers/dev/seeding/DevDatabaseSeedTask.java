@@ -213,7 +213,8 @@ public final class DevDatabaseSeedTask {
           programId,
           blockId,
           ImmutableList.of(nameQuestionId),
-          /* enumeratorImprovementsEnabled= */ false);
+          /* enumeratorImprovementsEnabled= */ false,
+          /* fileUploadQuestionImprovementsEnabled= */ false);
       programService.setProgramQuestionDefinitionOptionality(
           programId, blockId, nameQuestionId, true);
 
@@ -287,7 +288,8 @@ public final class DevDatabaseSeedTask {
               getCreatedId(DATE_QUESTION_DEFINITION, createdSampleQuestions),
               getCreatedId(DROPDOWN_QUESTION_DEFINITION, createdSampleQuestions),
               getCreatedId(PHONE_QUESTION_DEFINITION, createdSampleQuestions)),
-          /* enumeratorImprovementsEnabled= */ false);
+          /* enumeratorImprovementsEnabled= */ false,
+          /* fileUploadQuestionImprovementsEnabled= */ false);
 
       blockId =
           programService
@@ -309,7 +311,8 @@ public final class DevDatabaseSeedTask {
               getCreatedId(NAME_QUESTION_DEFINITION, createdSampleQuestions),
               getCreatedId(NUMBER_QUESTION_DEFINITION, createdSampleQuestions),
               getCreatedId(TEXT_QUESTION_DEFINITION, createdSampleQuestions)),
-          /* enumeratorImprovementsEnabled= */ false);
+          /* enumeratorImprovementsEnabled= */ false,
+          /* fileUploadQuestionImprovementsEnabled= */ false);
 
       blockId =
           programService
@@ -327,7 +330,8 @@ public final class DevDatabaseSeedTask {
           programId,
           blockId,
           ImmutableList.of(enumeratorId),
-          /* enumeratorImprovementsEnabled= */ false);
+          /* enumeratorImprovementsEnabled= */ false,
+          /* fileUploadQuestionImprovementsEnabled= */ false);
       // Create repeated screens based on enumerator.
       long enumeratorBlockId = blockId;
       blockId =
@@ -352,7 +356,8 @@ public final class DevDatabaseSeedTask {
                   .create(dateEnumeratedQuestionDefinition(enumeratorId))
                   .getResult()
                   .getId()),
-          /* enumeratorImprovementsEnabled= */ false);
+          /* enumeratorImprovementsEnabled= */ false,
+          /* fileUploadQuestionImprovementsEnabled= */ false);
 
       blockId =
           programService
@@ -371,7 +376,8 @@ public final class DevDatabaseSeedTask {
           programId,
           blockId,
           ImmutableList.of(radioButtonQuestionId),
-          /* enumeratorImprovementsEnabled= */ false);
+          /* enumeratorImprovementsEnabled= */ false,
+          /* fileUploadQuestionImprovementsEnabled= */ false);
 
       blockId =
           programService
@@ -390,7 +396,8 @@ public final class DevDatabaseSeedTask {
           blockId,
           ImmutableList.of(
               getCreatedId(DATE_PREDICATE_QUESTION_DEFINITION, createdSampleQuestions)),
-          /* enumeratorImprovementsEnabled= */ false);
+          /* enumeratorImprovementsEnabled= */ false,
+          /* fileUploadQuestionImprovementsEnabled= */ false);
       // Add a predicate based on the "favorite season" radio button question in Block 3
       LeafOperationExpressionNode operation =
           LeafOperationExpressionNode.create(
@@ -420,7 +427,8 @@ public final class DevDatabaseSeedTask {
           programId,
           blockId,
           ImmutableList.of(fileQuestionId),
-          /* enumeratorImprovementsEnabled= */ false);
+          /* enumeratorImprovementsEnabled= */ false,
+          /* fileUploadQuestionImprovementsEnabled= */ false);
       programService.setProgramQuestionDefinitionOptionality(
           programId, blockId, fileQuestionId, true);
 

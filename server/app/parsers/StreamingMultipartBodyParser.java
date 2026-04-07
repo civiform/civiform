@@ -76,7 +76,7 @@ public abstract class StreamingMultipartBodyParser
   protected Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> createUploadSink(
       String bucketName, String fileKey) {
     // Default implementation can be a no-op sink that simply discards the data
-    return uploadSinks.getSinkForCloudProvider(bucketName, fileKey);
+    return uploadSinks.getSinkForCloudProvider(bucketName, fileKey, CHUNK_SIZE);
   }
 
   // Abstract method to provide the file path for the location of this upload in cloud storage

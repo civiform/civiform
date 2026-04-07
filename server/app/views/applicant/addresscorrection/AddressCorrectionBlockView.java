@@ -72,7 +72,8 @@ public class AddressCorrectionBlockView extends ApplicantBaseView {
     context.setVariable("programTitle", params.programTitle());
     context.setVariable("programShortDescription", params.programShortDescription());
     context.setVariable("confirmAddressAction", getFormAction(params, applicantRequestedAction));
-    context.setVariable("goBackAction", goBackAction(params));
+    context.setVariable(
+        "goBackAction", goBackAction(params, settingsManifest.getProgramSlugUrlsEnabled(request)));
     context.setVariable("addressSuggestionGroup", addressSuggestionGroup);
     context.setVariable("isEligibilityEnabled", isEligibilityEnabled);
     context.setVariable("applicationParams", params);
@@ -116,7 +117,17 @@ public class AddressCorrectionBlockView extends ApplicantBaseView {
         .url();
   }
 
-  private String goBackAction(ApplicationBaseViewParams params) {
+  private String goBackAction(ApplicationBaseViewParams params, boolean programSlugUrlsEnabled) {
+    if (programSlugUrlsEnabled) {
+      return applicantRoutes
+          .blockEditOrBlockReview(
+              params.profile(),
+              params.applicantId(),
+              params.programSlug(),
+              params.block().getId(),
+              params.inReview())
+          .url();
+    }
     return applicantRoutes
         .blockEditOrBlockReview(
             params.profile(),

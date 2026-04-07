@@ -42,6 +42,8 @@ public abstract class ApplicationBaseViewParams {
 
   public abstract long programId();
 
+  public abstract String programSlug();
+
   public abstract boolean loginOnly();
 
   public abstract Block block();
@@ -91,6 +93,8 @@ public abstract class ApplicationBaseViewParams {
     public abstract Builder setProgramShortDescription(String programShortDescription);
 
     public abstract Builder setProgramId(long programId);
+
+    public abstract Builder setProgramSlug(String programSlug);
 
     public abstract Builder setBlock(Block block);
 

@@ -48,8 +48,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20260313.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.42.23",
-      "software.amazon.awssdk" % "ses" % "2.42.23",
+      "software.amazon.awssdk" % "s3" % "2.42.28",
+      "software.amazon.awssdk" % "ses" % "2.42.28",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
@@ -88,13 +88,13 @@ lazy val root = (project in file("."))
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "13.0.2-PLAY3.0",
-      "org.pac4j" % "pac4j-core" % "6.4.0",
+      "org.pac4j" % "pac4j-core" % "6.4.1",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "6.4.0",
+      "org.pac4j" % "pac4j-http" % "6.4.1",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "6.4.0",
+      "org.pac4j" % "pac4j-oidc" % "6.4.1",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "6.4.0",
+      "org.pac4j" % "pac4j-saml" % "6.4.1",
 
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.13.0",
@@ -128,13 +128,14 @@ lazy val root = (project in file("."))
 
       // Apache libraries for external Pekko connectors
       "org.apache.pekko" %% "pekko-connectors-s3" % "1.3.0",
+      "org.apache.pekko" %% "pekko-connectors-google-cloud-storage" % "1.3.0",
 
       // Explicitly include Pekko libraries that otherwise would be
       // incompatible due to version mismatches with the default versions.
-      "org.apache.pekko" %% "pekko-actor-typed" % "1.1.5",
-      "org.apache.pekko" %% "pekko-serialization-jackson" % "1.1.5",
-      "org.apache.pekko" %% "pekko-slf4j" % "1.1.5",
-      "org.apache.pekko" %% "pekko-stream-testkit" % "1.1.5",
+      "org.apache.pekko" %% "pekko-actor-typed" % "1.4.0",
+      "org.apache.pekko" %% "pekko-serialization-jackson" % "1.4.0",
+      "org.apache.pekko" %% "pekko-slf4j" % "1.4.0",
+      "org.apache.pekko" %% "pekko-stream-testkit" % "1.4.0",
 
       // Url detector for program descriptions.
       "com.linkedin.urls" % "url-detector" % "0.1.17",

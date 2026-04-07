@@ -70,20 +70,23 @@ public final class ProgramBlockValidation {
       ProgramDefinition program,
       BlockDefinition block,
       QuestionDefinition question,
-      boolean enumeratorImprovementsEnabled) {
+      boolean enumeratorImprovementsEnabled,
+      boolean fileUploadQuestionImprovementsEnabled) {
     if (version.getTombstonedQuestionNames().contains(question.getName())) {
       return AddQuestionResult.QUESTION_TOMBSTONED;
     }
     if (program.hasQuestion(question)) {
       return AddQuestionResult.DUPLICATE;
     }
-    if ((!enumeratorImprovementsEnabled && block.hasEnumeratorQuestion()) || block.isFileUpload()) {
+    if ((!enumeratorImprovementsEnabled && block.hasEnumeratorQuestion())
+        || (block.isFileUpload() && !fileUploadQuestionImprovementsEnabled)) {
       return AddQuestionResult.BLOCK_IS_SINGLE_QUESTION;
     }
     if (enumeratorImprovementsEnabled && question.isEnumerator() && !block.getIsEnumerator()) {
       return AddQuestionResult.ENUMERATOR_ON_NON_ENUMERATOR_BLOCK;
     }
-    if (block.getQuestionCount() > 0 && isSingleBlockQuestion(question)) {
+    if (block.getQuestionCount() > 0
+        && isSingleBlockQuestion(question, fileUploadQuestionImprovementsEnabled)) {
       return AddQuestionResult.CANT_ADD_SINGLE_BLOCK_QUESTION_TO_NON_EMPTY_BLOCK;
     }
     if (!question.getEnumeratorId().equals(getEnumeratorQuestionId(program, block))
@@ -98,9 +101,11 @@ public final class ProgramBlockValidation {
     return AddQuestionResult.ELIGIBLE;
   }
 
-  private boolean isSingleBlockQuestion(QuestionDefinition question) {
+  private boolean isSingleBlockQuestion(
+      QuestionDefinition question, boolean fileUploadQuestionImprovementsEnabled) {
     return switch (question.getQuestionType()) {
-      case ENUMERATOR, FILEUPLOAD -> true;
+      case ENUMERATOR -> true;
+      case FILEUPLOAD -> !fileUploadQuestionImprovementsEnabled;
       default -> false;
     };
   }

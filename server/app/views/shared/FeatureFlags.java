@@ -17,7 +17,9 @@ import services.settings.SettingsManifest;
  */
 @Builder
 public record FeatureFlags(
-    boolean isAdminUiMigrationScEnabled, boolean isAdminUiMigrationScExtendedEnabled) {
+    boolean isAdminUiMigrationScEnabled,
+    boolean isAdminUiMigrationScExtendedEnabled,
+    boolean isFileUploadQuestionImprovementsEnabled) {
 
   /** Create an instance of this record from the {@link SettingsManifest} */
   public static FeatureFlags fromSettingsManifest(
@@ -26,6 +28,8 @@ public record FeatureFlags(
         .isAdminUiMigrationScEnabled(settingsManifest.getAdminUiMigrationScEnabled(request))
         .isAdminUiMigrationScExtendedEnabled(
             settingsManifest.getAdminUiMigrationScExtendedEnabled(request))
+        .isFileUploadQuestionImprovementsEnabled(
+            settingsManifest.getFileUploadQuestionImprovementsEnabled(request))
         .build();
   }
 

@@ -143,24 +143,35 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
   }
 
   private String getBlockEditUrl(Params params, Block block, Request request) {
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     if (block.isAnsweredWithoutErrors()) {
+      if (programSlugUrlsEnabled) {
+        return applicantRoutes
+            .blockReview(
+                params.profile(),
+                params.applicantId(),
+                params.programSlug(),
+                block.getId(),
+                /* questionName= */ Optional.empty())
+            .url();
+      }
       return applicantRoutes
           .blockReview(
               params.profile(),
               params.applicantId(),
               params.programId(),
               block.getId(),
-              Optional.empty())
+              /* questionName= */ Optional.empty())
           .url();
     } else {
-      if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+      if (programSlugUrlsEnabled) {
         return applicantRoutes
             .blockEdit(
                 params.profile(),
                 params.applicantId(),
                 params.programSlug(),
                 block.getId(),
-                Optional.empty())
+                /* questionName= */ Optional.empty())
             .url();
       }
       return applicantRoutes
@@ -169,7 +180,7 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
               params.applicantId(),
               params.programId(),
               block.getId(),
-              Optional.empty())
+              /* questionName= */ Optional.empty())
           .url();
     }
   }
