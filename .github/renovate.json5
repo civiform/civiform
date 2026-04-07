@@ -110,7 +110,7 @@
     {
       "groupName": "vite and vitest",
       "matchPackagePatterns": ["^vite", "^@vitejs/", "^@vitest/"]
-    }
+    },
     {
       // Using groupName null prevents all the GitHub Actions updates being done in a single commit
       groupName: null,
