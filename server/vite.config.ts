@@ -2,6 +2,7 @@ import {defineConfig} from 'vite'
 import {configDefaults} from 'vitest/config'
 import {viteStaticCopy} from 'vite-plugin-static-copy'
 import {resolve} from 'node:path'
+import fs from 'node:fs'
 
 // Asset paths to reference in the below config
 const assetPaths = {
@@ -91,7 +92,6 @@ export default defineConfig({
         applicant: resolve(__dirname, assetPaths.applicant),
         admin: resolve(__dirname, assetPaths.admin),
         uswdsinit_js: resolve(__dirname, assetPaths.uswdsinit_js),
-        uswds_js: resolve(__dirname, assetPaths.uswds_js),
         uswds_css: resolve(__dirname, assetPaths.uswds_css),
         northstar_css: resolve(__dirname, assetPaths.northstar_css),
         maplibregl: resolve(__dirname, assetPaths.maplibregl_css),
@@ -185,6 +185,18 @@ export default defineConfig({
         },
       ],
     }),
+    // USWDS JS is copied verbatim (not bundled through Rolldown) so it remains a classic
+    // IIFE script. Bundling it through Rolldown converts it to an ES module (CJS interop),
+    // which prevents HTMX from executing it in swapped content and breaks the USWDS file upload view.
+    {
+      name: 'copy-uswds-js',
+      writeBundle() {
+        fs.copyFileSync(
+          resolve(__dirname, assetPaths.uswds_js),
+          resolve(__dirname, 'app/assets/dist/uswds_js.bundle.js'),
+        )
+      },
+    },
   ],
 
   test: {

@@ -41,7 +41,7 @@
     th:nonce="${cspNonce}"
     th:src="${uswdsJsInit}"
     type="text/javascript"
-    crossorigin
+    th:crossorigin="${useBundlerDevServer ? 'anonymous' : null}"
   ></script>
 
   <style th:inline="css" th:nonce="${cspNonce}">
@@ -61,7 +61,8 @@
   <script
     th:nonce="${cspNonce}"
     th:src="${uswdsJsBundle}"
-    type="module"
+    type="text/javascript"
+    th:crossorigin="${useBundlerDevServer ? 'anonymous' : null}"
   ></script>
   <link
     th:href="${mapLibreGLStylesheet}"
