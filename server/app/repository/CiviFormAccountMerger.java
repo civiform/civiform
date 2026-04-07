@@ -159,10 +159,10 @@ public final class CiviFormAccountMerger {
         """
         Merging CiviForm User and Guest User:
           CiviForm:
-            Account: id %d
+            Account  : id %d
             Applicant: id %d creation: %s
           Guest
-            Account: id %d
+            Account  : id %d
             Applicant: id %d creation: %s
 
         """
@@ -241,7 +241,13 @@ public final class CiviFormAccountMerger {
     Preconditions.checkState(cfHasDraft || cfHasActive);
     Preconditions.checkState(guestHasDraft || guestHasActive);
 
-    StringBuilder logMessage = new StringBuilder("Reconciling Program id %d".formatted(programId));
+    StringBuilder logMessage =
+        new StringBuilder(
+            """
+            Reconciling Program id %d
+
+            """
+                .formatted(programId));
 
     // Always move the guest's obsolete apps to cfUser.
     StringJoiner obsoleteIds = new StringJoiner(", ");
@@ -324,7 +330,7 @@ public final class CiviFormAccountMerger {
               * CF User:
                 * Application id %d
                 * Submitted: %s
-              * CF User:
+              * Guest User:
                 * Application id %d
                 * Submitted: %s
 
@@ -343,7 +349,10 @@ public final class CiviFormAccountMerger {
           """
               .formatted(guestActive.id));
       if (applyChanges) {
-        guestActive.setLifecycleStage(LifecycleStage.OBSOLETE).setApplicant(cfUser);
+        guestActive
+            .setLifecycleStage(LifecycleStage.OBSOLETE)
+            .setOriginalApplicantId(guestUser.id)
+            .setApplicant(cfUser);
         guestActive.save();
       }
 
@@ -377,7 +386,8 @@ public final class CiviFormAccountMerger {
             .formatted(guestActive.id, cfUser.getAccount().id));
     // Move the guest app to the cfUser
     if (applyChanges) {
-      guestActive.setOriginalApplicantId(guestUser.id).setApplicant(cfUser);
+      guestActive.setOriginalApplicantId(guestUser.id);
+      guestActive.setApplicant(cfUser);
       guestActive.save();
     }
 
@@ -507,7 +517,6 @@ public final class CiviFormAccountMerger {
     if (applyChanges) {
       // Delete the CF draft, keep the guest.
       cfDraft.delete();
-
       guestDraft.setApplicant(cfUser).save();
     }
     return """
