@@ -33,6 +33,10 @@
       type="text/css"
       rel="stylesheet"
     />
+
+    <!--/* Add feature flag json blob */-->
+    <th:block th:insert="~{shared/FeatureFlags}" />
+
     <!--/* Scripts to be added before body content. Keep these to a minimum  */-->
     <script
       th:each="script: ${layoutParams.headScripts()}"

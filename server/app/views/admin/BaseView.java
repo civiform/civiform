@@ -1,19 +1,19 @@
 package views.admin;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
+import play.Environment;
 import play.mvc.Http;
 import services.settings.SettingsManifest;
 import views.CspUtil;
-import views.admin.shared.FeatureFlag;
 import views.admin.shared.Footer;
 import views.admin.shared.LayoutParams;
 import views.admin.shared.TemplateGlobals;
 import views.html.helper.CSRF;
+import views.shared.BaseViewDeps;
+import views.shared.FeatureFlags;
 
 /**
  * {@link BaseView} class contains the structure and bare essentials to render the supplied
@@ -26,15 +26,14 @@ public abstract class BaseView<TModel extends BaseViewModel> {
       "data:image/x-icon;base64,AAABAAEAEBAAAAEAIACcAQAAFgAAAIlQTkcNChoKAAAADUlIRFIAAAAQAAAAEAgGAAAAH/P/YQAAAWNJREFUOE9j/A8EDBQAxsFjwKuPPxgK5h1n2HnhCdhDDtqSDJNSrBikhbgYDIrWMVx78gHFo7vrPRnsgWrgXvBp28lw5s4bhuZIYwY+LjaGltXnGXg4WRmOt/uBDZAT5WEo9tOFG6KvIMwgwM0GMeDui88MmnmrGWZn2TLEO6iCFd169pHh/P23DCGWigzGJesZzNXEGGZm2GAEN9gAkLN923YxXOoPZtCQ5sdQBHKBiYoowxSgl2CAnZWZgZGRAeKC3RefMni37mS40BfEoCUjgNUA9DC4NSWMQUGMB2LAozdfGVSyVjJMT7dmSHZWBxtw+dF7hjXH7jGUB+ozWFVuYlCS4GMoD9CDG26gKMwAdgUsHUT07WPYf+UZQ1OECYMQDztD06pzDGwsTAynuwIYjAiFAcjYD19/MRTNP8Gw+cwjhj///oGjcTLQzzLC3OBYwBuIFKRkhBfINWQQ5QVyvQAAuEmo0TDmRP4AAAAASUVORK5CYII=";
   private final TemplateEngine templateEngine;
   private final ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
+  private final Environment environment;
   protected final SettingsManifest settingsManifest;
 
-  public BaseView(
-      TemplateEngine templateEngine,
-      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
-      SettingsManifest settingsManifest) {
-    this.templateEngine = checkNotNull(templateEngine);
-    this.playThymeleafContextFactory = checkNotNull(playThymeleafContextFactory);
-    this.settingsManifest = checkNotNull(settingsManifest);
+  public BaseView(BaseViewDeps baseViewDeps) {
+    this.templateEngine = baseViewDeps.templateEngine();
+    this.playThymeleafContextFactory = baseViewDeps.playThymeleafContextFactory();
+    this.settingsManifest = baseViewDeps.settingsManifest();
+    this.environment = baseViewDeps.environment();
   }
 
   /** Page title text */
@@ -128,6 +127,7 @@ public abstract class BaseView<TModel extends BaseViewModel> {
             .pageIntro(pageIntro(model))
             .cspNonce(CspUtil.getNonce(request))
             .csrfToken(CSRF.getToken(request.asScala()).value())
+            .isDev(environment.isDev())
             .build());
 
     // Set values for the footer
@@ -142,12 +142,7 @@ public abstract class BaseView<TModel extends BaseViewModel> {
 
     // Set values for feature flags
     context.setVariable(
-        "featureFlag",
-        FeatureFlag.builder()
-            .isAdminUiMigrationScEnabled(settingsManifest.getAdminUiMigrationScEnabled(request))
-            .isAdminUiMigrationScExtendedEnabled(
-                settingsManifest.getAdminUiMigrationScExtendedEnabled(request))
-            .build());
+        "featureFlags", FeatureFlags.fromSettingsManifest(settingsManifest, request));
 
     // This gives the Thymeleaf template a reference to this view class. Methods can be added
     // to the view to aid in custom formatting. Ideally keep these to a minimum and prefer

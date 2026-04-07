@@ -1,10 +1,8 @@
 package views.admin.programs.predicates;
 
 import javax.inject.Inject;
-import modules.ThymeleafModule;
-import org.thymeleaf.TemplateEngine;
-import services.settings.SettingsManifest;
 import views.admin.BaseView;
+import views.shared.BaseViewDeps;
 
 /**
  * Partial view for rendering PredicateValuesInputPartial.html. This partial is used for entering
@@ -13,11 +11,8 @@ import views.admin.BaseView;
 public final class PredicateValuesInputPartialView
     extends BaseView<PredicateValuesInputPartialViewModel> {
   @Inject
-  public PredicateValuesInputPartialView(
-      TemplateEngine templateEngine,
-      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
-      SettingsManifest settingsManifest) {
-    super(templateEngine, playThymeleafContextFactory, settingsManifest);
+  public PredicateValuesInputPartialView(BaseViewDeps baseViewDeps) {
+    super(baseViewDeps);
   }
 
   @Override

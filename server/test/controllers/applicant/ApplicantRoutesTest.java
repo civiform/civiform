@@ -170,6 +170,39 @@ public class ApplicantRoutesTest extends ResetPostgres {
   }
 
   @Test
+  public void testReviewRoute_withProgramSlug_forApplicantWithIdInProfile_newSchemaEnabled() {
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.addAttribute(
+        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedReviewUrl = String.format("/programs/%s/review", PROGRAM_SLUG);
+    assertThat(new ApplicantRoutes().review(applicantProfile, APPLICANT_ID, PROGRAM_SLUG).url())
+        .isEqualTo(expectedReviewUrl);
+  }
+
+  @Test
+  @Parameters({"TI", "CIVIFORM"})
+  public void testReviewRoute_withProgramSlug_forAdminTypes(ADMIN_TYPE adminType) {
+    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
+
+    profileData.addRole(getRoleForAdmin(adminType));
+    CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedReviewUrl =
+        String.format("/applicants/%d/programs/%s/review", APPLICANT_ID, PROGRAM_SLUG);
+    assertThat(new ApplicantRoutes().review(adminProfile, APPLICANT_ID, PROGRAM_SLUG).url())
+        .isEqualTo(expectedReviewUrl);
+  }
+
+  @Test
+  public void testReviewRoute_withProgramSlug_withoutApplicant() {
+    String expectedShowUrl = String.format("/programs/%s/review", PROGRAM_SLUG);
+    assertThat(new ApplicantRoutes().review(PROGRAM_SLUG).url()).isEqualTo(expectedShowUrl);
+  }
+
+  @Test
   public void testSubmitRoute_forApplicantWithIdInProfile_newSchemaEnabled() {
     CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
@@ -322,6 +355,88 @@ public class ApplicantRoutesTest extends ResetPostgres {
             new ApplicantRoutes()
                 .blockEditOrBlockReview(
                     adminProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID, inReviewBoolean)
+                .url())
+        .isEqualTo(expectedBlockReviewUrl);
+  }
+
+  @Test
+  public void testBlockReviewRoute_withProgramSlug_forApplicantWithIdInProfile_newSchemaEnabled() {
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.addAttribute(
+        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedBlockReviewUrl =
+        String.format("/programs/%s/blocks/%s/review", PROGRAM_SLUG, BLOCK_ID);
+    assertThat(
+            new ApplicantRoutes()
+                .blockReview(
+                    applicantProfile, APPLICANT_ID, PROGRAM_SLUG, BLOCK_ID, Optional.empty())
+                .url())
+        .isEqualTo(expectedBlockReviewUrl);
+  }
+
+  @Test
+  @Parameters({"TI", "CIVIFORM"})
+  public void testBlockReviewRoute_withProgramSlug_forAdminTypes(ADMIN_TYPE adminType) {
+    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
+
+    profileData.addRole(getRoleForAdmin(adminType));
+    CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedBlockReviewUrl =
+        String.format(
+            "/applicants/%d/programs/%s/blocks/%s/review", APPLICANT_ID, PROGRAM_SLUG, BLOCK_ID);
+    assertThat(
+            new ApplicantRoutes()
+                .blockReview(adminProfile, APPLICANT_ID, PROGRAM_SLUG, BLOCK_ID, Optional.empty())
+                .url())
+        .isEqualTo(expectedBlockReviewUrl);
+  }
+
+  @Test
+  @Parameters({"true", "false"})
+  public void
+      testBlockEditOrBlockReviewRoute_withProgramSlug_forApplicantWithIdInProfile_newSchemaEnabled(
+          String inReview) {
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.addAttribute(
+        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    boolean inReviewBoolean = Boolean.parseBoolean(inReview);
+    String expectedUrl =
+        String.format(
+            "/programs/%s/blocks/%s/%s",
+            PROGRAM_SLUG, BLOCK_ID, inReviewBoolean ? "review" : "edit");
+    assertThat(
+            new ApplicantRoutes()
+                .blockEditOrBlockReview(
+                    applicantProfile, APPLICANT_ID, PROGRAM_SLUG, BLOCK_ID, inReviewBoolean)
+                .url())
+        .isEqualTo(expectedUrl);
+  }
+
+  @Test
+  @Parameters({"TI, true", "TI, false", "CIVIFORM, true", "CIVIFORM, false"})
+  public void testBlockReviewRoute_withProgramSlug_forAdminTypes(
+      ADMIN_TYPE adminType, String inReview) {
+    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
+
+    profileData.addRole(getRoleForAdmin(adminType));
+    CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
+
+    boolean inReviewBoolean = Boolean.parseBoolean(inReview);
+    String expectedBlockReviewUrl =
+        String.format(
+            "/applicants/%d/programs/%s/blocks/%s/%s",
+            APPLICANT_ID, PROGRAM_SLUG, BLOCK_ID, inReviewBoolean ? "review" : "edit");
+    assertThat(
+            new ApplicantRoutes()
+                .blockEditOrBlockReview(
+                    adminProfile, APPLICANT_ID, PROGRAM_SLUG, BLOCK_ID, inReviewBoolean)
                 .url())
         .isEqualTo(expectedBlockReviewUrl);
   }
@@ -502,6 +617,53 @@ public class ApplicantRoutesTest extends ResetPostgres {
                     applicantProfile,
                     APPLICANT_ID,
                     PROGRAM_ID,
+                    /* currentBlockIndex= */ -1,
+                    /* inReview= */ false)
+                .url())
+        .isEqualTo(expectedReviewUrl);
+  }
+
+  @Test
+  public void testPreviousOrReviewRoute_withProgramSlug_currentBlockIndexZero_returnsReviewUrl() {
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.addAttribute(
+        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedReviewUrl = String.format("/programs/%s/review", PROGRAM_SLUG);
+
+    assertThat(
+            new ApplicantRoutes()
+                .blockPreviousOrReview(
+                    applicantProfile,
+                    APPLICANT_ID,
+                    PROGRAM_ID,
+                    PROGRAM_SLUG,
+                    /* currentBlockIndex= */ 0,
+                    /* inReview= */ false)
+                .url())
+        .isEqualTo(expectedReviewUrl);
+  }
+
+  @Test
+  public void
+      testPreviousOrReviewRoute_withProgramSlug_currentBlockIndexNegativeOne_returnsReviewUrl() {
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.addAttribute(
+        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedReviewUrl = String.format("/programs/%s/review", PROGRAM_SLUG);
+
+    assertThat(
+            new ApplicantRoutes()
+                .blockPreviousOrReview(
+                    applicantProfile,
+                    APPLICANT_ID,
+                    PROGRAM_ID,
+                    PROGRAM_SLUG,
                     /* currentBlockIndex= */ -1,
                     /* inReview= */ false)
                 .url())

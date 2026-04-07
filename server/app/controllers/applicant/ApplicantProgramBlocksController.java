@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.i18n.MessagesApi;
+import play.libs.Files;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Http.Request;
@@ -51,6 +52,7 @@ import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.FileUploadQuestion;
+import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.ApplicantStorageClient;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
@@ -76,7 +78,10 @@ import views.trustedintermediary.ApplicationBaseViewParams;
  * check the current profile so that an unauthorized user cannot access another applicant's data!
  */
 public final class ApplicantProgramBlocksController extends CiviFormController {
-  private static final ImmutableSet<String> STRIPPED_FORM_FIELDS = ImmutableSet.of("csrfToken");
+  // "file" is stripped because file uploads are handled separately by
+  // hxSelectFileForUpload, not by the form submission.
+  private static final ImmutableSet<String> STRIPPED_FORM_FIELDS =
+      ImmutableSet.of("csrfToken", "file");
 
   private final ApplicantService applicantService;
   private final MessagesApi messagesApi;
@@ -153,8 +158,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Optional<String> questionName) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels(
@@ -171,9 +176,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       String programParam,
       String blockId,
       Optional<String> questionName) {
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, programSlugUrlEnabled)
+        .resolveProgramParam(programParam, applicantId, programSlugUrlsEnabled)
         .thenCompose(
             programId -> {
               return editOrReview(
@@ -198,8 +203,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Request request, String programParam, String blockId, Optional<String> questionName) {
     // Redirect home when the program slug URL feature is enabled and the program param could be
     // a program slug but it is actually a program id (numeric).
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels("/programs/:programParam/blocks/:blockId/edit", programParam)
@@ -231,8 +236,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Optional<String> questionName) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels(
@@ -251,9 +256,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       String blockId,
       Optional<String> questionName) {
 
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, programSlugUrlEnabled)
+        .resolveProgramParam(programParam, applicantId, programSlugUrlsEnabled)
         .thenCompose(
             programId -> {
               return editOrReview(
@@ -285,8 +290,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Request request, String programParam, String blockId, Optional<String> questionName) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels("/programs/:programParam/blocks/:blockId/review", programParam)
@@ -430,8 +435,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean inReview) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels(
@@ -442,7 +447,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
 
     return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, programSlugUrlEnabled)
+        .resolveProgramParam(programParam, applicantId, programSlugUrlsEnabled)
         .thenCompose(
             programId -> {
               CompletionStage<ApplicantPersonalInfo> applicantStage =
@@ -472,15 +477,20 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       applicantAuthCompletableFuture, applicantProgramServiceCompletableFuture)
                   .thenApplyAsync(
                       (v) -> {
+                        ReadOnlyApplicantProgramService roApplicantProgramService =
+                            applicantProgramServiceCompletableFuture.join();
+
                         Optional<Result> applicationUpdatedOptional =
                             updateApplicationToLatestProgramVersionIfNeeded(
-                                applicantId, programId, profile);
+                                applicantId,
+                                programId,
+                                profile,
+                                programSlugUrlsEnabled,
+                                roApplicantProgramService);
                         if (applicationUpdatedOptional.isPresent()) {
                           return applicationUpdatedOptional.get();
                         }
 
-                        ReadOnlyApplicantProgramService roApplicantProgramService =
-                            applicantProgramServiceCompletableFuture.join();
                         ImmutableList<Block> blocks =
                             roApplicantProgramService.getAllActiveBlocks();
                         String blockId = blocks.get(previousBlockIndex).getId();
@@ -505,15 +515,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                                 ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS,
                                 applicantRoutes,
                                 profile);
-
-                        final String programSlug;
-                        try {
-                          programSlug = programService.getSlug(programId);
-                        } catch (ProgramNotFoundException e) {
-                          return notFound(e.toString());
-                        }
-                        return ok(applicantProgramBlockEditView.render(
-                                request, applicationParams, programSlug))
+                        return ok(applicantProgramBlockEditView.render(request, applicationParams))
                             .as(Http.MimeTypes.HTML);
                       },
                       classLoaderExecutionContext.current())
@@ -552,8 +554,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Request request, String programParam, int previousBlockIndex, boolean inReview) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels(
@@ -602,7 +604,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
               Optional<Result> applicationUpdatedOptional =
-                  updateApplicationToLatestProgramVersionIfNeeded(applicantId, programId, profile);
+                  updateApplicationToLatestProgramVersionIfNeeded(
+                      applicantId,
+                      programId,
+                      profile,
+                      settingsManifest.getProgramSlugUrlsEnabled(request),
+                      roApplicantProgramService);
               if (applicationUpdatedOptional.isPresent()) {
                 return applicationUpdatedOptional.get();
               }
@@ -628,14 +635,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         .setBannerToastMessage(flashSuccessBanner)
                         .setBannerMessage(successBannerMessage)
                         .build();
-                final String programSlug;
-                try {
-                  programSlug = programService.getSlug(programId);
-                } catch (ProgramNotFoundException e) {
-                  return notFound(e.toString());
-                }
-                return ok(applicantProgramBlockEditView.render(
-                        request, applicationParams, programSlug))
+                return ok(applicantProgramBlockEditView.render(request, applicationParams))
                     .as(Http.MimeTypes.HTML);
               } else {
                 return notFound();
@@ -681,8 +681,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean inReview) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels(
@@ -713,8 +713,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean inReview) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels(
@@ -726,7 +726,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
 
     return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, programSlugUrlEnabled)
+        .resolveProgramParam(programParam, applicantId, programSlugUrlsEnabled)
         .thenCompose(
             programId -> {
               CompletionStage<ApplicantPersonalInfo> applicantStage =
@@ -826,6 +826,15 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         return supplyAsync(
                             () -> {
                               CiviFormProfile profile = profileUtils.currentUserProfile(request);
+                              if (programSlugUrlsEnabled) {
+                                String programSlug =
+                                    programSlugHandler.getProgramSlug(programParam);
+                                return redirect(
+                                    applicantRoutes
+                                        .blockEditOrBlockReview(
+                                            profile, applicantId, programSlug, blockId, inReview)
+                                        .url());
+                              }
                               return redirect(
                                   applicantRoutes
                                       .blockEditOrBlockReview(
@@ -861,8 +870,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Request request, String programParam, String blockId, boolean inReview) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels("/programs/:programParam/blocks/:blockId/addFile/:inReview", programParam)
@@ -886,8 +895,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Request request, long applicantId, String programParam, String blockId, boolean inReview) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels(
@@ -898,7 +907,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
 
     return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, programSlugUrlEnabled)
+        .resolveProgramParam(programParam, applicantId, programSlugUrlsEnabled)
         .thenCompose(
             programId -> {
               CompletionStage<ApplicantPersonalInfo> applicantStage =
@@ -1074,6 +1083,15 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         return supplyAsync(
                             () -> {
                               CiviFormProfile profile = profileUtils.currentUserProfile(request);
+                              if (programSlugUrlsEnabled) {
+                                String programSlug =
+                                    programSlugHandler.getProgramSlug(programParam);
+                                return redirect(
+                                    applicantRoutes
+                                        .blockEditOrBlockReview(
+                                            profile, applicantId, programSlug, blockId, inReview)
+                                        .url());
+                              }
                               return redirect(
                                   applicantRoutes
                                       .blockEditOrBlockReview(
@@ -1098,8 +1116,110 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       return CompletableFuture.completedFuture(badRequest());
     }
 
-    // TODO: Perform file upload
-    return CompletableFuture.completedFuture(ok());
+    long applicantId = optionalApplicantId.get();
+
+    Http.MultipartFormData<Files.TemporaryFile> body = request.body().asMultipartFormData();
+    if (body == null) {
+      return CompletableFuture.completedFuture(badRequest());
+    }
+
+    Http.MultipartFormData.FilePart<Files.TemporaryFile> filePart = body.getFile("file");
+    if (filePart == null) {
+      return CompletableFuture.completedFuture(badRequest());
+    }
+
+    String originalFileName = filePart.getFilename();
+    String fileKey =
+        ApplicantFileNameFormatter.formatFileUploadQuestionFilenameWithUuid(
+            applicantId, programId, blockId, originalFileName);
+
+    return checkApplicantAuthorization(request, applicantId)
+        .thenComposeAsync(
+            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            roApplicantProgramService -> {
+              Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
+
+              if (block.isEmpty() || !block.get().isFileUpload()) {
+                return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
+              }
+
+              FileUploadQuestion fileUploadQuestion =
+                  block.get().getVisibleQuestions().stream()
+                      .filter(question -> question.getType() == QuestionType.FILEUPLOAD)
+                      .findAny()
+                      .orElseThrow()
+                      .createFileUploadQuestion();
+
+              if (!fileUploadQuestion.canUploadFile()) {
+                return failedFuture(
+                    new IllegalArgumentException(
+                        String.format(
+                            "Cannot upload additional files for question"
+                                + " %s, in program %s, block %s, for"
+                                + " applicant %s.",
+                            fileUploadQuestion
+                                .getApplicantQuestion()
+                                .getQuestionDefinition()
+                                .getId(),
+                            programId,
+                            blockId,
+                            applicantId)));
+              }
+
+              ImmutableMap.Builder<String, String> fileUploadQuestionFormData =
+                  new ImmutableMap.Builder<>();
+              Optional<ImmutableList<String>> keysOptional =
+                  fileUploadQuestion.getFileKeyListValue();
+              Optional<ImmutableList<String>> originalFileNamesOptional =
+                  fileUploadQuestion.getOriginalFileNameListValue();
+              int newIndex = keysOptional.map(ImmutableList::size).orElse(0);
+
+              // Preserve existing file keys.
+              if (keysOptional.isPresent()) {
+                for (int i = 0; i < keysOptional.get().size(); i++) {
+                  fileUploadQuestionFormData.put(
+                      fileUploadQuestion.getFileKeyListPathForIndex(i).toString(),
+                      keysOptional.get().get(i));
+                }
+              }
+
+              // Preserve existing original file names.
+              if (originalFileNamesOptional.isPresent()) {
+                for (int i = 0; i < originalFileNamesOptional.get().size(); i++) {
+                  fileUploadQuestionFormData.put(
+                      fileUploadQuestion.getOriginalFileNameListPathForIndex(i).toString(),
+                      originalFileNamesOptional.get().get(i));
+                }
+              }
+
+              // Append new file key and original file name.
+              fileUploadQuestionFormData.put(
+                  fileUploadQuestion.getFileKeyListPathForIndex(newIndex).toString(), fileKey);
+              fileUploadQuestionFormData.put(
+                  fileUploadQuestion.getOriginalFileNameListPathForIndex(newIndex).toString(),
+                  originalFileName);
+
+              return getOrMakeFileRecord(fileKey, Optional.of(originalFileName), applicantId)
+                  .thenComposeAsync(
+                      storedFile ->
+                          applicantService.stageAndUpdateIfValid(
+                              applicantId,
+                              programId,
+                              blockId,
+                              fileUploadQuestionFormData.build(),
+                              settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
+                              false,
+                              settingsManifest.getApiBridgeEnabled(request)));
+            },
+            classLoaderExecutionContext.current())
+        .thenApplyAsync(
+            // TODO(#12974): Return a successful file upload partial
+            roApplicantProgramService -> ok(""),
+            classLoaderExecutionContext.current())
+        // TODO(#12974): Return a file upload partial with an error message
+        .exceptionallyAsync(ex -> internalServerError(), classLoaderExecutionContext.current());
   }
 
   /**
@@ -1195,17 +1315,22 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .thenComposeAsync(
             (v) -> {
               CiviFormProfile profile = profileUtils.currentUserProfile(request);
+              ReadOnlyApplicantProgramService readOnlyApplicantProgramService =
+                  applicantProgramServiceCompletableFuture.join();
+              boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
 
               Optional<Result> applicationUpdatedOptional =
-                  updateApplicationToLatestProgramVersionIfNeeded(applicantId, programId, profile);
+                  updateApplicationToLatestProgramVersionIfNeeded(
+                      applicantId,
+                      programId,
+                      profile,
+                      programSlugUrlsEnabled,
+                      readOnlyApplicantProgramService);
               if (applicationUpdatedOptional.isPresent()) {
                 return CompletableFuture.completedFuture(applicationUpdatedOptional.get());
               }
 
               ImmutableMap<String, String> formData = formDataCompletableFuture.join();
-
-              ReadOnlyApplicantProgramService readOnlyApplicantProgramService =
-                  applicantProgramServiceCompletableFuture.join();
 
               Optional<Block> optionalBlockBeforeUpdate =
                   readOnlyApplicantProgramService.getActiveBlock(blockId);
@@ -1215,6 +1340,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
               if (canNavigateAwayFromBlockImmediately(
                   formData, applicantRequestedAction, optionalBlockBeforeUpdate)) {
+
                 return redirectToRequestedPage(
                     profile,
                     applicantId,
@@ -1223,7 +1349,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     inReview,
                     applicantRequestedAction,
                     readOnlyApplicantProgramService,
-                    /* flashingMap= */ ImmutableMap.of());
+                    /* flashingMap= */ ImmutableMap.of(),
+                    programSlugUrlsEnabled);
               }
               return applicantService
                   .stageAndUpdateIfValid(
@@ -1359,13 +1486,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     errorDisplayMode,
                     applicantRoutes,
                     submittingProfile);
-            final String programSlug;
-            try {
-              programSlug = programService.getSlug(programId);
-            } catch (ProgramNotFoundException e) {
-              return notFound(e.toString());
-            }
-            return ok(applicantProgramBlockEditView.render(request, applicationParams, programSlug))
+            return ok(applicantProgramBlockEditView.render(request, applicationParams))
                 .as(Http.MimeTypes.HTML);
           });
     }
@@ -1427,7 +1548,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         inReview,
         applicantRequestedAction,
         roApplicantProgramService,
-        flashingMap);
+        flashingMap,
+        settingsManifest.getProgramSlugUrlsEnabled(request));
   }
 
   private CompletionStage<Result> renderIneligiblePage(
@@ -1470,19 +1592,40 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean inReview,
       ApplicantRequestedAction applicantRequestedAction,
       ReadOnlyApplicantProgramService roApplicantProgramService,
-      Map<String, String> flashingMap) {
+      Map<String, String> flashingMap,
+      boolean programSlugUrlsEnabled) {
     if (applicantRequestedAction == REVIEW_PAGE) {
+      if (programSlugUrlsEnabled) {
+        return supplyAsync(
+            () ->
+                redirect(
+                    applicantRoutes.review(
+                        profile, applicantId, roApplicantProgramService.getProgramSlug())));
+      }
       return supplyAsync(() -> redirect(applicantRoutes.review(profile, applicantId, programId)));
     }
     if (applicantRequestedAction == PREVIOUS_BLOCK) {
       int currentBlockIndex = roApplicantProgramService.getBlockIndex(blockId);
       return supplyAsync(
-          () ->
-              redirect(
+          () -> {
+            if (programSlugUrlsEnabled) {
+              return redirect(
                   applicantRoutes
                       .blockPreviousOrReview(
-                          profile, applicantId, programId, currentBlockIndex, inReview)
-                      .url()));
+                          profile,
+                          applicantId,
+                          programId,
+                          roApplicantProgramService.getProgramSlug(),
+                          currentBlockIndex,
+                          inReview)
+                      .url());
+            }
+            return redirect(
+                applicantRoutes
+                    .blockPreviousOrReview(
+                        profile, applicantId, programId, currentBlockIndex, inReview)
+                    .url());
+          });
     }
 
     Optional<String> nextBlockIdMaybe =
@@ -1495,16 +1638,34 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .map(
             nextBlockId ->
                 supplyAsync(
-                    () ->
-                        redirect(
+                    () -> {
+                      if (programSlugUrlsEnabled) {
+                        return redirect(
                                 applicantRoutes.blockEditOrBlockReview(
-                                    profile, applicantId, programId, nextBlockId, inReview))
-                            .flashing(flashingMap)))
+                                    profile,
+                                    applicantId,
+                                    roApplicantProgramService.getProgramSlug(),
+                                    nextBlockId,
+                                    inReview))
+                            .flashing(flashingMap);
+                      }
+                      return redirect(
+                              applicantRoutes.blockEditOrBlockReview(
+                                  profile, applicantId, programId, nextBlockId, inReview))
+                          .flashing(flashingMap);
+                    }))
         // No next block so go to the program review page.
         .orElseGet(
             () ->
                 supplyAsync(
-                    () -> redirect(applicantRoutes.review(profile, applicantId, programId))));
+                    () -> {
+                      if (programSlugUrlsEnabled) {
+                        return redirect(
+                            applicantRoutes.review(
+                                profile, applicantId, roApplicantProgramService.getProgramSlug()));
+                      }
+                      return redirect(applicantRoutes.review(profile, applicantId, programId));
+                    }));
   }
 
   /**
@@ -1622,6 +1783,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .setProgramDescription(roApplicantProgramService.getProgramDescription())
         .setProgramShortDescription(roApplicantProgramService.getProgramShortDescription())
         .setProgramId(programId)
+        .setProgramSlug(roApplicantProgramService.getProgramSlug())
         .setBlock(block)
         .setInReview(inReview)
         .setBlockIndex(roApplicantProgramService.getBlockIndex(blockId))
@@ -1745,12 +1907,22 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    * @return {@link Result} if application was updated; empty if not
    */
   private Optional<Result> updateApplicationToLatestProgramVersionIfNeeded(
-      long applicantId, long programId, CiviFormProfile profile) {
+      long applicantId,
+      long programId,
+      CiviFormProfile profile,
+      boolean programSlugUrlsEnabled,
+      ReadOnlyApplicantProgramService roApplicantProgramService) {
     return applicantService
         .updateApplicationToLatestProgramVersion(applicantId, programId)
         .map(
-            latestProgramId ->
-                redirect(applicantRoutes.review(profile, applicantId, latestProgramId).url())
-                    .flashing(FlashKey.SHOW_FAST_FORWARDED_MESSAGE, "true"));
+            (latestProgramId) -> {
+              String reviewPage =
+                  applicantRoutes.review(profile, applicantId, latestProgramId).url();
+              if (programSlugUrlsEnabled) {
+                String programSlug = roApplicantProgramService.getProgramSlug();
+                reviewPage = applicantRoutes.review(profile, applicantId, programSlug).url();
+              }
+              return redirect(reviewPage).flashing(FlashKey.SHOW_FAST_FORWARDED_MESSAGE, "true");
+            });
   }
 }

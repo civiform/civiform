@@ -16,6 +16,13 @@ class AdminPrograms {
   private static PROGRAM_LINK_ATTRIBUTE = 'data-copyable-program-link'
   private static DISABLED_TEXT_CLASS = 'read-only:text-gray-500'
   private static DISABLED_BACKGROUND_CLASS = 'read-only:bg-gray-100'
+  private static REPEATED_SET_LISTED_ENTITY_INPUT_ID = 'listed-entity-input'
+  private static REPEATED_SET_ADMIN_ID_INPUT_ID = 'enumerator-admin-id-input'
+  private static REPEATED_SET_QUESTION_TEXT_INPUT_ID = 'question-text-input'
+  private static REPEATED_SET_PREVIOUS_ADMIN_ID_SUGGESTION_DATA_ATTRIBUTE =
+    'previousAdminIdSuggestion'
+  private static REPEATED_SET_PREVIOUS_QUESTION_TEXT_SUGGESTION_DATA_ATTRIBUTE =
+    'previousQuestionTextSuggestion'
 
   static attachConfirmPreScreenerChangeListener() {
     addEventListenerToElements(
@@ -410,6 +417,88 @@ class AdminPrograms {
       firstInputField.focus()
     }
   }
+
+  static attachEventListenerToRepeatedSetFieldAutofill() {
+    const listedEntityInputElement = document.getElementById(
+      this.REPEATED_SET_LISTED_ENTITY_INPUT_ID,
+    ) as HTMLInputElement | null
+    if (!listedEntityInputElement) {
+      return
+    }
+
+    listedEntityInputElement.addEventListener('input', () => {
+      this.maybeAutofillRepeatedSetFormFields(listedEntityInputElement)
+    })
+  }
+
+  static maybeAutofillRepeatedSetFormFields(
+    listedEntityInput?: HTMLInputElement,
+  ) {
+    const listedEntity = listedEntityInput
+      ? listedEntityInput
+      : (document.getElementById(
+          this.REPEATED_SET_LISTED_ENTITY_INPUT_ID,
+        ) as HTMLInputElement | null)
+
+    const adminIdInput = document.getElementById(
+      this.REPEATED_SET_ADMIN_ID_INPUT_ID,
+    ) as HTMLInputElement | null
+    const questionTextInput = document.getElementById(
+      this.REPEATED_SET_QUESTION_TEXT_INPUT_ID,
+    ) as HTMLTextAreaElement | null
+
+    if (!listedEntity || !adminIdInput || !questionTextInput) {
+      return
+    }
+
+    const normalizedListedEntity = this.normalizeRepeatedSetEntity(
+      listedEntity.value,
+    )
+    // Get i18n message templates from data attributes
+    const adminIdTemplate = adminIdInput.dataset.adminIdAutofillTemplate ?? ''
+    const questionTextTemplate =
+      questionTextInput.dataset.questionTextAutofillTemplate ?? ''
+    const suggestedAdminId =
+      normalizedListedEntity.length > 0 && adminIdTemplate
+        ? adminIdTemplate.replace('{0}', normalizedListedEntity)
+        : ''
+    const suggestedQuestionText =
+      normalizedListedEntity.length > 0 && questionTextTemplate
+        ? questionTextTemplate.replace('{0}', normalizedListedEntity)
+        : ''
+
+    this.maybeSetAutofillValue(
+      adminIdInput,
+      suggestedAdminId,
+      this.REPEATED_SET_PREVIOUS_ADMIN_ID_SUGGESTION_DATA_ATTRIBUTE,
+    )
+    this.maybeSetAutofillValue(
+      questionTextInput,
+      suggestedQuestionText,
+      this.REPEATED_SET_PREVIOUS_QUESTION_TEXT_SUGGESTION_DATA_ATTRIBUTE,
+    )
+  }
+
+  static maybeSetAutofillValue(
+    input: HTMLInputElement | HTMLTextAreaElement,
+    suggestion: string,
+    previousSuggestionDataAttribute: string,
+  ) {
+    const previousSuggestion =
+      input.dataset[previousSuggestionDataAttribute] ?? ''
+
+    // Only overwrite when untouched by admins (still equal to previous suggestion)
+    // or when admins intentionally clear the field.
+    if (input.value === '' || input.value === previousSuggestion) {
+      input.value = suggestion
+    }
+
+    input.dataset[previousSuggestionDataAttribute] = suggestion
+  }
+
+  static normalizeRepeatedSetEntity(entity: string): string {
+    return entity.trim().replace(/\s+/g, ' ').toLowerCase()
+  }
 }
 
 export function init() {
@@ -422,4 +511,5 @@ export function init() {
   AdminPrograms.attachEventListenersToHideEditTiInHiddenMode()
   AdminPrograms.attachEventListenerToHtmxSwap()
   AdminPrograms.attachEventListenerToEnumeratorCreationMethod()
+  AdminPrograms.attachEventListenerToRepeatedSetFieldAutofill()
 }

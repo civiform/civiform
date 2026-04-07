@@ -1091,6 +1091,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .setDescription(
                     messages.at(MessageKey.DESCRIPTION_REPEATED_SET_ADMIN_ID.getKeyName()))
                 .setRequired(true)
+                .setAttribute(
+                    "data-admin-id-autofill-template",
+                    messages.at(
+                        MessageKey.INPUT_REPEATED_SET_ADMIN_ID_AUTOFILL_SUGGESTION.getKeyName()))
                 .getUSWDSInputTag(),
             FieldWithLabel.textArea()
                 .setId("question-text-input")
@@ -1100,6 +1104,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .setDescription(
                     messages.at(MessageKey.DESCRIPTION_REPEATED_SET_QUESTION_TEXT.getKeyName()))
                 .setRequired(true)
+                .setAttribute(
+                    "data-question-text-autofill-template",
+                    messages.at(
+                        MessageKey.INPUT_REPEATED_SET_QUESTION_TEXT_AUTOFILL_SUGGESTION
+                            .getKeyName()))
                 .getUSWDSTextareaTag(),
             FieldWithLabel.textArea()
                 .setId("hint-text-input")

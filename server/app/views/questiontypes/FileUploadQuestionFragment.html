@@ -73,6 +73,9 @@
     th:data-file-limit-mb="${maxFileSizeMb}"
     th:disabled="${!fileUploadQuestion.canUploadFile()}"
     th:aria-required="${!question.isOptional()}"
+    th:hx-post="${featureFlags.isFileUploadQuestionImprovementsEnabled() && !isPreview} ? ${hxSelectFileForUploadUrl}"
+    th:hx-trigger="${featureFlags.isFileUploadQuestionImprovementsEnabled() && !isPreview} ? 'change'"
+    th:hx-encoding="${featureFlags.isFileUploadQuestionImprovementsEnabled() && !isPreview} ? 'multipart/form-data'"
   />
 </div>
 

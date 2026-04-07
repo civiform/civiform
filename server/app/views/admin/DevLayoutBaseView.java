@@ -1,14 +1,11 @@
 package views.admin;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.common.collect.ImmutableList;
 import modules.ThymeleafModule;
-import org.thymeleaf.TemplateEngine;
 import play.mvc.Http;
 import services.BundledAssetsFinder;
-import services.settings.SettingsManifest;
 import views.admin.shared.AdminCommonHeader;
+import views.shared.LayoutDeps;
 
 /**
  * {@link DevLayoutBaseView} is used to render the supplied Thymeleaf page template. This view is
@@ -19,13 +16,9 @@ import views.admin.shared.AdminCommonHeader;
 public abstract class DevLayoutBaseView<TModel extends BaseViewModel> extends BaseView<TModel> {
   private final BundledAssetsFinder bundledAssetsFinder;
 
-  public DevLayoutBaseView(
-      TemplateEngine templateEngine,
-      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
-      SettingsManifest settingsManifest,
-      BundledAssetsFinder bundledAssetsFinder) {
-    super(templateEngine, playThymeleafContextFactory, settingsManifest);
-    this.bundledAssetsFinder = checkNotNull(bundledAssetsFinder);
+  public DevLayoutBaseView(LayoutDeps layoutDeps) {
+    super(layoutDeps.baseViewDeps());
+    this.bundledAssetsFinder = layoutDeps.bundledAssetsFinder();
   }
 
   /** Override to set the active page for top header navigation. */

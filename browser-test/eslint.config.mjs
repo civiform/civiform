@@ -47,6 +47,7 @@ export default [
                 ...globals.browser,
                 ...globals.commonjs,
                 "window.htmx": "writable",
+                process: "readonly",
             },
             parser: tsParser,
             ecmaVersion: "latest",

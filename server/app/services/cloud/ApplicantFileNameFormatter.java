@@ -1,5 +1,11 @@
 package services.cloud;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
+import java.util.UUID;
+import org.apache.commons.io.FilenameUtils;
+
 /**
  * FileNameFormatter provides methods for formatting uploaded file names with a key prefix that
  * links them to an applicant, program, and block. These prefixed file names are stored in the
@@ -21,6 +27,25 @@ public final class ApplicantFileNameFormatter {
 
     return String.format(
         "applicant-%d/program-%d/block-%s/${filename}", applicantId, programId, blockId);
+  }
+
+  /**
+   * Generates a file key with a random UUID as the filename, preserving the original file's
+   * extension. Used in the new HTMX file upload flow where the server generates the storage name.
+   */
+  public static String formatFileUploadQuestionFilenameWithUuid(
+      long applicantId, long programId, String blockId, String originalFileName) {
+    checkArgument(applicantId > 0, "applicantId must be > 0");
+    checkArgument(programId > 0, "programId must be > 0");
+    checkArgument(isNotBlank(blockId), "blockId must not be null or empty");
+    checkArgument(isNotBlank(originalFileName), "originalFileName must not be null or empty");
+    return String.format(
+        "applicant-%d/program-%d/block-%s/%s.%s",
+        applicantId,
+        programId,
+        blockId,
+        UUID.randomUUID(),
+        FilenameUtils.getExtension(originalFileName));
   }
 
   /** Check if the formatted file key matches the applicant id */

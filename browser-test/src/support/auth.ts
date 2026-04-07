@@ -21,15 +21,15 @@ enum AuthStrategy {
 
 export const logout = async (page: Page, closeToast = true) => {
   await test.step('Logout', async () => {
-    await page.click('#logout-button')
+    await page.locator('#logout-button').click()
     // If the user logged in through OIDC previously - during logout they are
     // redirected to dev-oidc:PORT/session/end page. There they need to confirm
     // logout.
     if (page.url().match('dev-oidc.*/session/end')) {
-      const pageContent = await page.textContent('html')
+      const pageContent = await page.locator('html').textContent()
       if (pageContent!.includes('Do you want to sign-out from')) {
         // OIDC central provider confirmation page
-        await page.click('button:has-text("Yes")')
+        await page.locator('button:has-text("Yes")').click()
       }
     }
 
@@ -45,32 +45,32 @@ export const logout = async (page: Page, closeToast = true) => {
 
 export const loginAsAdmin = async (page: Page) => {
   await test.step('Login as Civiform Admin', async () => {
-    await page.click('#debug-content-modal-button')
-    await page.click('#admin')
+    await page.locator('#debug-content-modal-button').click()
+    await page.locator('#admin').click()
     await waitForPageJsLoad(page)
   })
 }
 
 export const loginAsProgramAdmin = async (page: Page) => {
   await test.step('Login as Program Admin', async () => {
-    await page.click('#debug-content-modal-button')
-    await page.click('#program-admin')
+    await page.locator('#debug-content-modal-button').click()
+    await page.locator('#program-admin').click()
     await waitForPageJsLoad(page)
   })
 }
 
 export const loginAsCiviformAndProgramAdmin = async (page: Page) => {
   await test.step('Login as Civiform and Program Admin', async () => {
-    await page.click('#debug-content-modal-button')
-    await page.click('#dual-admin')
+    await page.locator('#debug-content-modal-button').click()
+    await page.locator('#dual-admin').click()
     await waitForPageJsLoad(page)
   })
 }
 
 export const loginAsTrustedIntermediary = async (page: Page) => {
   await test.step('Login as Trusted Intermediary', async () => {
-    await page.click('#debug-content-modal-button')
-    await page.click('#trusted-intermediary')
+    await page.locator('#debug-content-modal-button').click()
+    await page.locator('#trusted-intermediary').click()
     await waitForPageJsLoad(page)
   })
 }
@@ -87,14 +87,15 @@ export const loginAsTestUser = async (
   loginButton = 'a:has-text("Log in")',
   isTi = false,
   displayName: string = '',
+  url: string = '',
 ) => {
   await test.step('Login as Test User', async () => {
     switch (TEST_USER_AUTH_STRATEGY) {
       case AuthStrategy.FAKE_OIDC:
-        await loginAsTestUserFakeOidc(page, loginButton, isTi)
+        await loginAsTestUserFakeOidc(page, loginButton, isTi, url)
         break
       case AuthStrategy.AWS_STAGING:
-        await loginAsTestUserAwsStaging(page, loginButton, isTi)
+        await loginAsTestUserAwsStaging(page, loginButton, isTi, url)
         break
       case AuthStrategy.SEATTLE_STAGING:
         await loginAsTestUserSeattleStaging(page, loginButton)
@@ -113,16 +114,16 @@ export const loginAsTestUser = async (
 }
 
 async function loginAsTestUserSeattleStaging(page: Page, loginButton: string) {
-  await page.click(loginButton)
+  await page.locator(loginButton).click()
   // Wait for the IDCS login page to make sure we've followed all redirects.
   // If running this against a site with a real IDCS (i.e. staging) and this
   // test fails with a timeout try re-running the tests. Sometimes there are
   // just transient network hiccups that will pass on a second run.
   // In short: If using a real IDCS retry test if this has a timeout failure.
   await page.waitForURL('**/#/login*')
-  await page.fill('input[name=userName]', TEST_USER_LOGIN)
-  await page.fill('input[name=password]', TEST_USER_PASSWORD)
-  await page.click('button:has-text("Login"):not([disabled])')
+  await page.locator('input[name=userName]').fill(TEST_USER_LOGIN)
+  await page.locator('input[name=password]').fill(TEST_USER_PASSWORD)
+  await page.locator('button:has-text("Login"):not([disabled])').click()
   // eslint-disable-next-line playwright/no-wait-for-navigation
   await page.waitForNavigation({waitUntil: 'networkidle'})
 }
@@ -131,17 +132,19 @@ async function loginAsTestUserAwsStaging(
   page: Page,
   loginButton: string,
   isTi: boolean,
+  url: string,
 ) {
   await Promise.all([
     // eslint-disable-next-line playwright/no-networkidle
     page.waitForURL('**/u/login*', {waitUntil: 'networkidle'}),
-    page.click(loginButton),
+    page.locator(loginButton).click(),
   ])
 
-  await page.fill('input[name=username]', TEST_USER_LOGIN)
-  await page.fill('input[name=password]', TEST_USER_PASSWORD)
+  await page.locator('input[name=username]').fill(TEST_USER_LOGIN)
+  await page.locator('input[name=password]').fill(TEST_USER_PASSWORD)
+  const waitUrl = url || (isTi ? '**/admin/**' : /.*\/programs.*/)
   await Promise.all([
-    page.waitForURL(isTi ? '**/admin/**' : /.*\/programs.*/, {
+    page.waitForURL(waitUrl, {
       // eslint-disable-next-line playwright/no-networkidle
       waitUntil: 'networkidle',
     }),
@@ -155,15 +158,16 @@ async function loginAsTestUserFakeOidc(
   page: Page,
   loginButton: string,
   isTi: boolean,
+  url: string,
 ) {
-  await page.click(loginButton)
+  await page.locator(loginButton).click()
   await page.waitForURL('**/interaction/*')
 
   // If the user has previously signed in to the provider, a prompt is shown
   // to reauthorize rather than sign-in. In this case, click "Continue" instead
   // and skip filling out any login information. If we want to support logging
   // in as multiple users, this will need to be adjusted.
-  const pageText = await page.innerText('html')
+  const pageText = await page.locator('html').innerText()
   if (
     pageText.includes(
       'the client is asking you to confirm previously given authorization',
@@ -174,16 +178,21 @@ async function loginAsTestUserFakeOidc(
     )
   }
 
-  await page.fill('input[name=login]', TEST_USER_LOGIN)
-  await page.fill('input[name=password]', TEST_USER_PASSWORD)
+  await page.locator('input[name=login]').fill(TEST_USER_LOGIN)
+  await page.locator('input[name=password]').fill(TEST_USER_PASSWORD)
 
-  await page.click('button:has-text("Sign-in"):not([disabled])')
+  await page.locator('button:has-text("Sign-in"):not([disabled])').click()
   await page.waitForURL('**/interaction/*')
 
   // A screen is shown prompting the user to authorize a set of scopes.
   // This screen is skipped if the user has already logged in once.
-  await page.click('button:has-text("Continue")')
-  await page.waitForURL(isTi ? '**/admin/**' : /\/programs.*/)
+  await page.locator('button:has-text("Continue")').click()
+  await waitForPageJsLoad(page)
+  if (url) {
+    await page.waitForURL(url)
+  } else {
+    await page.waitForURL(isTi ? '**/admin/**' : /\/programs.*/)
+  }
 }
 
 export const testUserDisplayName = () => {

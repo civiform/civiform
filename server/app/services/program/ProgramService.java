@@ -1618,7 +1618,8 @@ public final class ProgramService {
       long programId,
       long blockDefinitionId,
       ImmutableList<Long> questionIds,
-      boolean enumeratorImprovementsEnabled)
+      boolean enumeratorImprovementsEnabled,
+      boolean fileUploadQuestionImprovementsEnabled)
       throws CantAddQuestionToBlockException,
           QuestionNotFoundException,
           ProgramNotFoundException,
@@ -1657,7 +1658,8 @@ public final class ProgramService {
                   programDefinition,
                   blockDefinition,
                   question.getQuestionDefinition(),
-                  enumeratorImprovementsEnabled);
+                  enumeratorImprovementsEnabled,
+                  fileUploadQuestionImprovementsEnabled);
       if (canAddQuestion != AddQuestionResult.ELIGIBLE) {
         throw new CantAddQuestionToBlockException(
             programDefinition, blockDefinition, question.getQuestionDefinition(), canAddQuestion);

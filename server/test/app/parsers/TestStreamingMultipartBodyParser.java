@@ -5,7 +5,9 @@ import javax.inject.Inject;
 import org.apache.pekko.stream.Materializer;
 import org.apache.pekko.stream.javadsl.Sink;
 import org.apache.pekko.util.ByteString;
+import parsers.cloud.MultipartUploadSinks;
 import play.http.DefaultHttpErrorHandler;
+import services.cloud.StorageServiceName;
 
 // A no-op implementation of the StreamingMultipartBodyParser for testing purposes
 // Prints the content of the input byte string, with a summary at the end of the total size.
@@ -16,9 +18,10 @@ public final class TestStreamingMultipartBodyParser extends StreamingMultipartBo
   public TestStreamingMultipartBodyParser(
       Materializer materializer,
       DefaultHttpErrorHandler errorHandler,
+      MultipartUploadSinks streamingMultipartUploadSinks,
       StreamingOutputBuffer outputBuffer) {
     long maxFileSize = 1024 * 1024 * 100L; // 100MB
-    super(materializer, errorHandler, maxFileSize);
+    super(materializer, errorHandler, streamingMultipartUploadSinks, maxFileSize);
     this.outputBuffer = outputBuffer;
   }
 
@@ -26,7 +29,7 @@ public final class TestStreamingMultipartBodyParser extends StreamingMultipartBo
   // successful result.
   @Override
   protected Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> createUploadSink(
-      String bucketName, String fileKey, long chunkSize) {
+      String bucketName, String fileKey) {
     return Sink.<ByteString, ByteString>fold(
             ByteString.emptyByteString(),
             (acc, chunk) -> {
@@ -46,7 +49,10 @@ public final class TestStreamingMultipartBodyParser extends StreamingMultipartBo
 
                       // Return a completed future with a default result, since this is just a
                       // placeholder
-                      return StreamingMultipartUploadResult.success();
+                      return StreamingMultipartUploadResult.builder()
+                          .setStatus(StreamingMultipartUploadResult.Status.SUCCESS)
+                          .setStorageServiceName(StorageServiceName.S3)
+                          .build();
                     }));
   }
 

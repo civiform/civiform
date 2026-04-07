@@ -1,6 +1,6 @@
 <!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
 <!--/*@thymesVar id="layoutParams" type="views.admin.shared.LayoutParams"*/-->
-<!--/*@thymesVar id="featureFlag" type="views.admin.shared.FeatureFlag"*/-->
+<!--/*@thymesVar id="featureFlags" type="views.shared.FeatureFlags"*/-->
 <!doctype html>
 <html lang="en-US" xmlns:th="http://www.thymeleaf.org">
   <head>
@@ -34,6 +34,9 @@
       type="text/css"
       rel="stylesheet"
     />
+
+    <th:block th:insert="~{shared/FeatureFlags}" />
+
     <!--/* Scripts to be added before body content. Keep these to a minimum  */-->
     <script
       th:each="script: ${layoutParams.headScripts()}"
@@ -50,21 +53,21 @@
   <!--/* Body sets HTMX header so the CSRF token is always there */-->
   <body th:hx-headers='|{"CSRF-TOKEN":"${templateGlobals.csrfToken()}"}|'>
     <th:block
-      th:if="${featureFlag.isAdminUiMigrationScExtendedEnabled()}"
+      th:if="${featureFlags.isAdminUiMigrationScExtendedEnabled()}"
       th:insert="~{admin/shared/Banner}"
     ></th:block>
     <th:block
-      th:unless="${featureFlag.isAdminUiMigrationScExtendedEnabled()}"
+      th:unless="${featureFlags.isAdminUiMigrationScExtendedEnabled()}"
       th:insert="~{admin/shared/TransitionalAdminCommonHeader}"
     ></th:block>
 
     <div
       class="bg-white maxw-full margin-x-auto desktop-lg:maxw-desktop-lg"
-      th:classappend="${featureFlag.isAdminUiMigrationScExtendedEnabled()} ? '' : 'padding-top-8 padding-bottom-4'"
+      th:classappend="${featureFlags.isAdminUiMigrationScExtendedEnabled()} ? '' : 'padding-top-8 padding-bottom-4'"
     >
       <!--/* Header navigation */-->
       <th:block
-        th:if="${featureFlag.isAdminUiMigrationScExtendedEnabled()}"
+        th:if="${featureFlags.isAdminUiMigrationScExtendedEnabled()}"
         th:insert="~{admin/shared/AdminCommonHeader}"
       ></th:block>
 
@@ -117,7 +120,7 @@
 
       <!--/* Footer */-->
       <th:block
-        th:if="${featureFlag.isAdminUiMigrationScExtendedEnabled()}"
+        th:if="${featureFlags.isAdminUiMigrationScExtendedEnabled()}"
         th:insert="~{admin/shared/Footer}"
       ></th:block>
 
