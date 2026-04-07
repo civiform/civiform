@@ -2,7 +2,6 @@ import {defineConfig} from 'vite'
 import {configDefaults} from 'vitest/config'
 import {viteStaticCopy} from 'vite-plugin-static-copy'
 import {resolve} from 'node:path'
-import fs from 'node:fs'
 
 // Asset paths to reference in the below config
 const assetPaths = {
@@ -168,35 +167,38 @@ export default defineConfig({
   },
 
   plugins: [
-    // Files that need to be copied to asset folder that don't run through the bundler
+    // Files copied verbatim (not bundled through Rolldown) into their expected output paths.
+    // vite-plugin-static-copy v4 always preserves directory structure; rename.stripBase
+    // strips the source prefix so files land directly under dest rather than nested under
+    // the full node_modules path.
+    //
+    // USWDS JS must remain a classic IIFE script — it must NOT be processed by Rolldown,
+    // which would wrap it with ES module interop and prevent HTMX from executing it in
+    // swapped content (HTMX only runs classic scripts, not type="module" scripts).
     viteStaticCopy({
       targets: [
         {
+          src: assetPaths.uswds_js,
+          dest: '.',
+          rename: 'uswds_js.bundle.js',
+        },
+        {
           src: assetPaths.swaggerui_css,
           dest: 'swagger-ui',
+          rename: {stripBase: true},
         },
         {
           src: assetPaths.swaggerui_js,
           dest: 'swagger-ui',
+          rename: {stripBase: true},
         },
         {
           src: assetPaths.swaggeruipreset_js,
           dest: 'swagger-ui',
+          rename: {stripBase: true},
         },
       ],
     }),
-    // USWDS JS is copied verbatim (not bundled through Rolldown) so it remains a classic
-    // IIFE script. Bundling it through Rolldown converts it to an ES module (CJS interop),
-    // which prevents HTMX from executing it in swapped content and breaks the USWDS file upload view.
-    {
-      name: 'copy-uswds-js',
-      writeBundle() {
-        fs.copyFileSync(
-          resolve(__dirname, assetPaths.uswds_js),
-          resolve(__dirname, 'app/assets/dist/uswds_js.bundle.js'),
-        )
-      },
-    },
   ],
 
   test: {
