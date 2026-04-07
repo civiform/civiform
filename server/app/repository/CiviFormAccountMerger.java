@@ -447,10 +447,7 @@ public final class CiviFormAccountMerger {
 
     StringBuilder logMessage =
         new StringBuilder(
-            """
-            CF User does not have a Submitted Application, Guest does.
-            """
-                .formatted(guestUser.id, guestUser.getWhenCreated()));
+            "CF User does not have a Submitted Application, Guest does.");
 
     logMessage.append(
         """
