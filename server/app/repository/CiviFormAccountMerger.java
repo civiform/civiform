@@ -446,8 +446,7 @@ public final class CiviFormAccountMerger {
       boolean applyChanges) {
 
     StringBuilder logMessage =
-        new StringBuilder(
-            "CF User does not have a Submitted Application, Guest does.");
+        new StringBuilder("CF User does not have a Submitted Application, Guest does.");
 
     logMessage.append(
         """
