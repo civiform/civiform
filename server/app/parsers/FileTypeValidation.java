@@ -3,132 +3,62 @@ package parsers;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import java.util.Arrays;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 import javax.inject.Inject;
+import org.apache.pekko.stream.javadsl.Flow;
 import org.apache.pekko.util.ByteString;
+import org.apache.tika.Tika;
 
 /**
- * Validates uploaded file content by comparing magic bytes (file header signatures) against the
- * declared content type. Throws {@link FileUploadTypeException} when the actual file type does not
- * match what was declared, or when the detected type is not an allowed upload type.
+ * Validates uploaded file content by looking up the MIME type for the filename's extension,
+ * checking it against the allowed upload types, and confirming with Apache Tika that the file's
+ * bytes actually match that type. Throws {@link FileUploadTypeException} on any mismatch.
  */
 public final class FileTypeValidation {
 
   @Inject
   public FileTypeValidation() {}
 
-  static final int HEADER_SIZE = 16;
+  private static final Tika TIKA = new Tika();
 
-  private static final ImmutableList<FileType> FILE_TYPES =
-      ImmutableList.of(
-          FileType.of(
-              ImmutableList.of(".png"),
-              "image/png",
-              new byte[][] {{(byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}}),
-          FileType.of(
-              ImmutableList.of(".jpg", ".jpeg"),
-              "image/jpeg",
-              new byte[][] {{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF}}),
-          FileType.of(
-              ImmutableList.of(".gif"),
-              "image/gif",
-              new byte[][] {
-                {(byte) 0x47, 0x49, 0x46, 0x38, 0x37, 0x61},
-                {(byte) 0x47, 0x49, 0x46, 0x38, 0x39, 0x61}
-              }),
-          FileType.of(
-              ImmutableList.of(".pdf"),
-              "application/pdf",
-              new byte[][] {{0x25, 0x50, 0x44, 0x46, 0x2D}}),
-          FileType.of(ImmutableList.of(".bmp"), "image/bmp", new byte[][] {{0x42, 0x4D}}),
-          FileType.of(
-              ImmutableList.of(".webp"),
-              "image/webp",
-              new byte[][] {{0x52, 0x49, 0x46, 0x46}}), // RIFF
-          FileType.of(
-              ImmutableList.of(".tiff"),
-              "image/tiff",
-              new byte[][] {
-                {0x49, 0x49, 0x2A, 0x00},
-                {0x4D, 0x4D, 0x00, 0x2A}
-              }),
-          FileType.of(
-              ImmutableList.of(".zip"), "application/zip", new byte[][] {{0x50, 0x4B, 0x03, 0x04}}),
-          FileType.of(
-              ImmutableList.of(".xlsx"),
-              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-              new byte[][] {{0x50, 0x4B, 0x03, 0x04}}));
+  private static final int HEADER_SIZE = 16;
 
-  static {
-    int maxSig =
-        FILE_TYPES.stream()
-            .flatMap(ft -> ft.magicSignatures().stream())
-            .mapToInt(ByteString::size)
-            .max()
-            .orElse(0);
-    if (maxSig > HEADER_SIZE) {
-      throw new IllegalStateException(
-          String.format(
-              "FileTypeValidation: a magic signature (%d bytes) exceeds HEADER_SIZE (%d).",
-              maxSig, HEADER_SIZE));
-    }
+  private static final ImmutableMap<String, String> MIME_BY_EXTENSION =
+      ImmutableMap.<String, String>builder()
+          .put(".png", "image/png")
+          .put(".jpg", "image/jpeg")
+          .put(".jpeg", "image/jpeg")
+          .put(".gif", "image/gif")
+          .put(".pdf", "application/pdf")
+          .put(".bmp", "image/bmp")
+          .put(".webp", "image/webp")
+          .put(".tiff", "image/tiff")
+          // xlsx is a ZIP container, and Tika's byte-prefix detection reports it as
+          // application/zip. Accepted risk: a plain .zip renamed to .xlsx passes as xlsx.
+          .put(".xlsx", "application/zip")
+          .build();
+
+  /** Parses a comma-separated list of MIME types, wildcards, and extensions. */
+  public static ImmutableList<String> parseSpecifiers(String specifiers) {
+    return Splitter.on(',')
+        .trimResults()
+        .omitEmptyStrings()
+        .splitToStream(specifiers)
+        .map(spec -> spec.toLowerCase(Locale.ROOT))
+        .flatMap(spec -> Stream.ofNullable(normalizeSpecifier(spec)))
+        .collect(ImmutableList.toImmutableList());
   }
 
-  private static final ImmutableMap<String, FileType> FILE_TYPE_BY_EXTENSION =
-      FILE_TYPES.stream()
-          .flatMap(
-              ft ->
-                  ft.extensions().stream().map(ext -> Map.entry(ext.toLowerCase(Locale.ROOT), ft)))
-          .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
-
-  public void validateHeaderBytes(
-      ByteString headerBytes,
-      String declaredContentType,
-      String fileName,
-      ImmutableList<String> allowedTypes) {
-
-    String declaredNormalized =
-        declaredContentType == null ? "" : declaredContentType.toLowerCase(Locale.ROOT).trim();
-
-    if (!isAllowedType(declaredNormalized, allowedTypes)) {
-      throw new FileUploadTypeException(
-          String.format(
-              "File \"%s\": declared content type \"%s\" is not an allowed upload type.",
-              fileName, declaredContentType));
+  private static String normalizeSpecifier(String normalized) {
+    if (normalized.endsWith("/*")) {
+      return normalized;
     }
-
-    ImmutableList<FileType> matches = detectTypes(headerBytes);
-    if (matches.isEmpty()) {
-      throw new FileUploadTypeException(
-          String.format("File \"%s\": could not verify file type from content bytes.", fileName));
+    if (normalized.startsWith(".")) {
+      return MIME_BY_EXTENSION.get(normalized);
     }
-
-    if (matches.stream().noneMatch(ft -> isAllowedType(ft.mimeType(), allowedTypes))) {
-      throw new FileUploadTypeException(
-          String.format(
-              "File \"%s\": detected file type \"%s\" is not an allowed upload type.",
-              fileName, matches.get(0).mimeType()));
-    }
-
-    Optional<FileType> declaredMatch =
-        matches.stream().filter(ft -> ft.mimeType().equals(declaredNormalized)).findFirst();
-    if (declaredMatch.isEmpty()) {
-      throw new FileUploadTypeException(
-          String.format(
-              "File \"%s\": declared content type \"%s\" does not match detected type \"%s\".",
-              fileName, declaredContentType, matches.get(0).mimeType()));
-    }
-
-    String extension = extensionOf(fileName);
-    if (extension != null && !declaredMatch.get().extensions().contains(extension)) {
-      throw new FileUploadTypeException(
-          String.format(
-              "File \"%s\": filename extension \"%s\" does not match detected type \"%s\".",
-              fileName, extension, declaredMatch.get().mimeType()));
-    }
+    return normalized;
   }
 
   private static String extensionOf(String fileName) {
@@ -142,83 +72,67 @@ public final class FileTypeValidation {
     return fileName.substring(dot).toLowerCase(Locale.ROOT);
   }
 
-  static ImmutableList<FileType> detectTypes(ByteString headerBytes) {
-    if (headerBytes == null) {
-      return ImmutableList.of();
-    }
-    boolean isWebp = isRiffWebp(headerBytes);
-    return FILE_TYPES.stream()
-        .filter(ft -> ft.matches(headerBytes))
-        // The WEBP entry's magic is just "RIFF", a generic container header.
-        // Only accept the match when bytes 8-11 also spell "WEBP".
-        .filter(ft -> !"image/webp".equals(ft.mimeType()) || isWebp)
-        .collect(ImmutableList.toImmutableList());
-  }
-
-  private static boolean isRiffWebp(ByteString bytes) {
-    return bytes.length() >= 12
-        && bytes.apply(8) == 0x57
-        && bytes.apply(9) == 0x45
-        && bytes.apply(10) == 0x42
-        && bytes.apply(11) == 0x50;
-  }
-
-  /** Parses a comma-separated list of MIME types, wildcards, and extensions. */
-  public static ImmutableList<String> parseSpecifiers(String specifiers) {
-    return Splitter.on(',')
-        .trimResults()
-        .omitEmptyStrings()
-        .splitToStream(specifiers)
-        .map(spec -> spec.toLowerCase(Locale.ROOT))
-        .flatMap(spec -> normalizeSpecifier(spec).stream())
-        .collect(ImmutableList.toImmutableList());
-  }
-
-  private static Optional<String> normalizeSpecifier(String normalized) {
-    if (normalized.endsWith("/*")) {
-      return Optional.of(normalized);
-    }
-    if (normalized.startsWith(".")) {
-      return fromExtension(normalized).map(FileType::mimeType);
-    }
-    return Optional.of(normalized);
-  }
-
-  private static boolean isAllowedType(String normalizedMime, ImmutableList<String> allowedTypes) {
-    if (normalizedMime == null || normalizedMime.isEmpty()) {
-      return false;
-    }
+  private static boolean isAllowedType(String mimeType, ImmutableList<String> allowedTypes) {
     return allowedTypes.stream()
         .anyMatch(
             allowed ->
                 allowed.endsWith("/*")
-                    ? normalizedMime.startsWith(allowed.substring(0, allowed.length() - 1))
-                    : normalizedMime.equals(allowed));
+                    ? mimeType.startsWith(allowed.substring(0, allowed.length() - 1))
+                    : mimeType.equals(allowed));
   }
 
-  static Optional<FileType> fromExtension(String extension) {
-    if (extension == null) {
-      return Optional.empty();
-    }
-    return Optional.ofNullable(FILE_TYPE_BY_EXTENSION.get(extension.toLowerCase(Locale.ROOT)));
+  /**
+   * Returns a pass-through {@link Flow} that captures the first {@link #HEADER_SIZE} bytes of the
+   * stream and validates them against the filename extension and allowed upload types. Throws
+   * {@link FileUploadTypeException} on the validating element if the file is not acceptable.
+   */
+  public Flow<ByteString, ByteString, ?> sniffingFlow(
+      String fileName, ImmutableList<String> allowedTypes) {
+    AtomicReference<ByteString> headerBytes = new AtomicReference<>(ByteString.emptyByteString());
+
+    return Flow.of(ByteString.class)
+        .map(
+            bytes -> {
+              ByteString currentHeader = headerBytes.get();
+
+              if (currentHeader.size() < FileTypeValidation.HEADER_SIZE) {
+                int remaining = FileTypeValidation.HEADER_SIZE - currentHeader.size();
+                ByteString slice = bytes.take(remaining);
+                headerBytes.set(currentHeader.concat(slice));
+
+                // Validate once we have enough bytes
+                if (headerBytes.get().size() >= FileTypeValidation.HEADER_SIZE) {
+                  validateHeaderBytes(headerBytes.get(), fileName, allowedTypes);
+                }
+              }
+
+              return bytes;
+            });
   }
 
-  /** Represents a file type with one or more magic byte signatures. */
-  record FileType(
-      ImmutableList<String> extensions,
-      String mimeType,
-      ImmutableList<ByteString> magicSignatures) {
+  void validateHeaderBytes(
+      ByteString headerBytes, String fileName, ImmutableList<String> allowedTypes) {
 
-    static FileType of(ImmutableList<String> extensions, String mimeType, byte[][] signatures) {
-      ImmutableList<ByteString> sigs =
-          Arrays.stream(signatures)
-              .map(sig -> ByteString.fromArray(Arrays.copyOf(sig, sig.length)))
-              .collect(ImmutableList.toImmutableList());
-      return new FileType(extensions, mimeType, sigs);
+    String extension = extensionOf(fileName);
+    String expected = MIME_BY_EXTENSION.get(extension);
+    if (expected == null) {
+      throw new FileUploadTypeException(
+          String.format(
+              "File %s: extension %s is not a supported upload type.", fileName, extension));
     }
 
-    boolean matches(ByteString data) {
-      return magicSignatures.stream().anyMatch(sig -> data.startsWith(sig, 0));
+    if (!isAllowedType(expected, allowedTypes)) {
+      throw new FileUploadTypeException(
+          String.format(
+              "File %s: file type %s is not an allowed upload type.", fileName, expected));
+    }
+
+    String detected = TIKA.detect(headerBytes.toArray());
+    if (!expected.equals(detected)) {
+      throw new FileUploadTypeException(
+          String.format(
+              "File %s: content bytes do not match extension %s (detected %s).",
+              fileName, extension, detected));
     }
   }
 }

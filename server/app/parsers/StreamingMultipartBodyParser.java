@@ -2,7 +2,6 @@ package parsers;
 
 import com.google.common.collect.ImmutableList;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import org.apache.pekko.stream.Materializer;
 import org.apache.pekko.stream.javadsl.Flow;
@@ -61,30 +60,8 @@ public abstract class StreamingMultipartBodyParser
       String contentType = fileInfo.contentType().getOrElse(() -> "text/plain");
       String fileName = fileInfo.fileName();
 
-      // Holds captured header bytes - thread-safe
-      AtomicReference<ByteString> headerBytes = new AtomicReference<>(ByteString.emptyByteString());
-
-      // Sniff first 16 bytes for file type detection
       Flow<ByteString, ByteString, ?> sniffingFlow =
-          Flow.of(ByteString.class)
-              .map(
-                  bytes -> {
-                    ByteString currentHeader = headerBytes.get();
-
-                    if (currentHeader.size() < FileTypeValidation.HEADER_SIZE) {
-                      int remaining = FileTypeValidation.HEADER_SIZE - currentHeader.size();
-                      ByteString slice = bytes.take(remaining);
-                      headerBytes.set(currentHeader.concat(slice));
-
-                      // Validate once we have enough bytes
-                      if (headerBytes.get().size() >= FileTypeValidation.HEADER_SIZE) {
-                        fileTypeValidation.validateHeaderBytes(
-                            headerBytes.get(), contentType, fileName, allowedFileTypes);
-                      }
-                    }
-
-                    return bytes;
-                  });
+          fileTypeValidation.sniffingFlow(fileName, allowedFileTypes);
 
       // Map upload sink to an output value, prepending the sniffing flow
       Sink<ByteString, CompletionStage<FilePart<Void>>> mappedSink =

@@ -187,7 +187,7 @@ public class TestStreamingMultipartBodyParserTest extends ResetPostgres {
     RuntimeException e =
         assertThrows(RuntimeException.class, () -> parse(source).toCompletableFuture().join());
 
-    assertThat(e).hasMessageContaining("does not match detected type");
+    assertThat(e).hasMessageContaining("do not match extension");
   }
 
   @Test
@@ -204,7 +204,7 @@ public class TestStreamingMultipartBodyParserTest extends ResetPostgres {
     RuntimeException e =
         assertThrows(RuntimeException.class, () -> parse(source).toCompletableFuture().join());
 
-    assertThat(e).hasMessageContaining("not an allowed upload type");
+    assertThat(e).hasMessageContaining("not a supported upload type");
   }
 
   private Source<ByteString, ?> createMultipartRequestBodyWithBytes(
