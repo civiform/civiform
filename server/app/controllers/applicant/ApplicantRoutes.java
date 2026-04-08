@@ -318,6 +318,7 @@ public final class ApplicantRoutes {
     }
   }
 
+  // TODO:#11090 Remove method when routes are no longer hit
   /**
    * Returns the route corresponding to the applicant confirm address action.
    *
@@ -337,16 +338,52 @@ public final class ApplicantRoutes {
       String blockId,
       boolean inReview,
       ApplicantRequestedAction applicantRequestedAction) {
+    String programIdStr = Long.toString(programId);
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
           applicantId,
-          programId,
+          programIdStr,
           blockId,
           inReview,
           new ApplicantRequestedActionWrapper(applicantRequestedAction));
     } else {
       return routes.ApplicantProgramBlocksController.confirmAddress(
-          programId,
+          programIdStr,
+          blockId,
+          inReview,
+          new ApplicantRequestedActionWrapper(applicantRequestedAction));
+    }
+  }
+
+  /**
+   * Returns the route corresponding to the applicant confirm address action.
+   *
+   * @param profile profile corresponding to the logged-in user (applicant or TI).
+   * @param applicantId ID of applicant for whom the action should be performed.
+   * @param programSlug slug of program to review
+   * @param blockId ID of the block containing the address
+   * @param inReview true if executing the review action (as opposed to edit)
+   * @param applicantRequestedAction the page the applicant would like to see after the updates are
+   *     made
+   * @return route for the applicant confirm address action
+   */
+  public Call confirmAddress(
+      CiviFormProfile profile,
+      long applicantId,
+      String programSlug,
+      String blockId,
+      boolean inReview,
+      ApplicantRequestedAction applicantRequestedAction) {
+    if (includeApplicantIdInRoute(profile)) {
+      return routes.ApplicantProgramBlocksController.confirmAddressWithApplicantId(
+          applicantId,
+          programSlug,
+          blockId,
+          inReview,
+          new ApplicantRequestedActionWrapper(applicantRequestedAction));
+    } else {
+      return routes.ApplicantProgramBlocksController.confirmAddress(
+          programSlug,
           blockId,
           inReview,
           new ApplicantRequestedActionWrapper(applicantRequestedAction));
@@ -385,7 +422,7 @@ public final class ApplicantRoutes {
    *
    * @param profile profile corresponding to the logged-in user (applicant or TI).
    * @param applicantId ID of applicant for whom the action should be performed.
-   * @param programId ID of program to review
+   * @param programSlug slug of program to review
    * @param programSlug slug of the program to review
    * @param currentBlockIndex index of the current block
    * @param inReview true if executing the review action (as opposed to edit)
@@ -394,18 +431,18 @@ public final class ApplicantRoutes {
   public Call blockPreviousOrReview(
       CiviFormProfile profile,
       long applicantId,
-      long programId,
       String programSlug,
       int currentBlockIndex,
       boolean inReview) {
     int previousBlockIndex = currentBlockIndex - 1;
     if (previousBlockIndex >= 0) {
-      return blockPrevious(profile, applicantId, programId, previousBlockIndex, inReview);
+      return blockPrevious(profile, applicantId, programSlug, previousBlockIndex, inReview);
     } else {
       return review(profile, applicantId, programSlug);
     }
   }
 
+  // TODO:#11090 Remove method when routes are no longer hit
   private Call blockPrevious(
       CiviFormProfile profile,
       long applicantId,
@@ -421,6 +458,21 @@ public final class ApplicantRoutes {
         programIdStr, previousBlockIndex, inReview);
   }
 
+  private Call blockPrevious(
+      CiviFormProfile profile,
+      long applicantId,
+      String programSlug,
+      int previousBlockIndex,
+      boolean inReview) {
+    if (includeApplicantIdInRoute(profile)) {
+      return routes.ApplicantProgramBlocksController.previousWithApplicantId(
+          applicantId, programSlug, previousBlockIndex, inReview);
+    }
+    return routes.ApplicantProgramBlocksController.previous(
+        programSlug, previousBlockIndex, inReview);
+  }
+
+  // TODO:#11090 Remove method when routes are no longer hit
   /**
    * Returns the route corresponding to the applicant add file action.
    *
@@ -442,29 +494,26 @@ public final class ApplicantRoutes {
   }
 
   /**
-   * Returns the route corresponding to the applicant remove file action.
+   * Returns the route corresponding to the applicant add file action.
    *
    * @param profile profile corresponding to the logged-in user (applicant or TI).
    * @param applicantId ID of applicant for whom the action should be performed.
-   * @param programId ID of program to review
+   * @param programSlug slug of program to review
    * @param blockId ID of the block containing file upload question
-   * @param fileKey the key for the stored file.
+   * @param inReview true if executing the review action (as opposed to edit)
    * @return route for the applicant update file action
    */
-  public Call removeFile(
+  public Call addFile(
       CiviFormProfile profile,
       long applicantId,
-      long programId,
+      String programSlug,
       String blockId,
-      String fileKey,
       boolean inReview) {
-    String programIdStr = Long.toString(programId);
     if (includeApplicantIdInRoute(profile)) {
-      return routes.ApplicantProgramBlocksController.removeFileWithApplicantId(
-          applicantId, programIdStr, blockId, fileKey, inReview);
+      return routes.ApplicantProgramBlocksController.addFileWithApplicantId(
+          applicantId, programSlug, blockId, inReview);
     }
-    return routes.ApplicantProgramBlocksController.removeFile(
-        programIdStr, blockId, fileKey, inReview);
+    return routes.ApplicantProgramBlocksController.addFile(programSlug, blockId, inReview);
   }
 
   /**

@@ -115,7 +115,8 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
     context.setVariable("eligibilityAlertSettings", applicationParams.eligibilityAlertSettings());
 
     Map<Long, ApplicantQuestionRendererParams> questionParams =
-        getApplicantQuestionRendererParams(applicationParams);
+        getApplicantQuestionRendererParams(
+            applicationParams, settingsManifest.getProgramSlugUrlsEnabled(request));
     context.setVariable("questionRendererParams", questionParams);
     context.setVariable(
         "submitFormAction", getFormAction(applicationParams, ApplicantRequestedAction.NEXT_BLOCK));
@@ -235,16 +236,31 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
         .url();
   }
 
-  private String redirectWithFile(ApplicationBaseViewParams params) {
-    return params.baseUrl()
-        + applicantRoutes
-            .addFile(
-                params.profile(),
-                params.applicantId(),
-                params.programId(),
-                params.block().getId(),
-                params.inReview())
-            .url();
+  private String redirectWithFile(
+      ApplicationBaseViewParams params, boolean programSlugUrlsEnabled) {
+    final String addFileRoute;
+    if (programSlugUrlsEnabled) {
+      addFileRoute =
+          applicantRoutes
+              .addFile(
+                  params.profile(),
+                  params.applicantId(),
+                  params.programSlug(),
+                  params.block().getId(),
+                  params.inReview())
+              .url();
+    } else {
+      addFileRoute =
+          applicantRoutes
+              .addFile(
+                  params.profile(),
+                  params.applicantId(),
+                  params.programId(),
+                  params.block().getId(),
+                  params.inReview())
+              .url();
+    }
+    return params.baseUrl() + addFileRoute;
   }
 
   private String previousWithoutSaving(
@@ -255,7 +271,6 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
           .blockPreviousOrReview(
               params.profile(),
               params.applicantId(),
-              params.programId(),
               params.programSlug(),
               params.blockIndex(),
               params.inReview())
@@ -308,7 +323,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
 
   // Returns a mapping from Question ID to Renderer params for that question.
   private Map<Long, ApplicantQuestionRendererParams> getApplicantQuestionRendererParams(
-      ApplicationBaseViewParams params) {
+      ApplicationBaseViewParams params, boolean programSlugUrlsEnabled) {
     AtomicInteger ordinalErrorCount = new AtomicInteger(0);
 
     return params.block().getVisibleQuestions().stream()
@@ -337,7 +352,8 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
                         params
                             .applicantStorageClient()
                             .getSignedUploadRequest(
-                                getFileUploadSignedRequestKey(params), redirectWithFile(params));
+                                getFileUploadSignedRequestKey(params),
+                                redirectWithFile(params, programSlugUrlsEnabled));
                     paramsBuilder.setSignedFileUploadRequest(signedRequest);
                   }
                   return paramsBuilder.build();
@@ -428,7 +444,6 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
               .blockPreviousOrReview(
                   params.profile(),
                   params.applicantId(),
-                  params.programId(),
                   params.programSlug(),
                   params.blockIndex(),
                   params.inReview())

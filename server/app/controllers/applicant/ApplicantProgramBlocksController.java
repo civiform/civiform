@@ -314,10 +314,21 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   public CompletionStage<Result> confirmAddressWithApplicantId(
       Request request,
       long applicantId,
-      long programId,
+      String programParam,
       String blockId,
       boolean inReview,
       ApplicantRequestedActionWrapper applicantRequestedActionWrapper) {
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+
+    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
+      metricCounters
+          .getUrlWithProgramIdCall()
+          .labels(
+              "/applicants/:applicantId/programs/:programParam/blocks/:blockId/confirmAddress/:inReview/:applicantRequestedActionWrapper",
+              programParam)
+          .inc();
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
     DynamicForm form = formFactory.form().bindFromRequest(request);
     Optional<String> selectedAddress =
         Optional.ofNullable(form.get(AddressCorrectionBlockView.SELECTED_ADDRESS_NAME));
@@ -327,22 +338,27 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     ImmutableList<AddressSuggestion> suggestions =
         addressSuggestionJsonSerializer.deserialize(
             maybeAddressJson.orElseThrow(() -> new RuntimeException("Address JSON missing")));
-    return confirmAddressWithSuggestions(
-        request,
-        applicantId,
-        programId,
-        blockId,
-        inReview,
-        selectedAddress,
-        suggestions,
-        applicantRequestedActionWrapper.getAction());
+    return programSlugHandler
+        .resolveProgramParam(programParam, applicantId, programSlugUrlsEnabled)
+        .thenCompose(
+            programId -> {
+              return confirmAddressWithSuggestions(
+                  request,
+                  applicantId,
+                  programId,
+                  blockId,
+                  inReview,
+                  selectedAddress,
+                  suggestions,
+                  applicantRequestedActionWrapper.getAction());
+            });
   }
 
   /** Handles the applicant's selection from the address correction options. */
   @Secure
   public CompletionStage<Result> confirmAddress(
       Request request,
-      long programId,
+      String programParam,
       String blockId,
       boolean inReview,
       ApplicantRequestedActionWrapper applicantRequestedActionWrapper) {
@@ -355,7 +371,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     return confirmAddressWithApplicantId(
         request,
         applicantId.orElseThrow(),
-        programId,
+        programParam,
         blockId,
         inReview,
         applicantRequestedActionWrapper);
@@ -1614,7 +1630,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       .blockPreviousOrReview(
                           profile,
                           applicantId,
-                          programId,
                           roApplicantProgramService.getProgramSlug(),
                           currentBlockIndex,
                           inReview)

@@ -638,7 +638,6 @@ public class ApplicantRoutesTest extends ResetPostgres {
                 .blockPreviousOrReview(
                     applicantProfile,
                     APPLICANT_ID,
-                    PROGRAM_ID,
                     PROGRAM_SLUG,
                     /* currentBlockIndex= */ 0,
                     /* inReview= */ false)
@@ -662,7 +661,6 @@ public class ApplicantRoutesTest extends ResetPostgres {
                 .blockPreviousOrReview(
                     applicantProfile,
                     APPLICANT_ID,
-                    PROGRAM_ID,
                     PROGRAM_SLUG,
                     /* currentBlockIndex= */ -1,
                     /* inReview= */ false)
