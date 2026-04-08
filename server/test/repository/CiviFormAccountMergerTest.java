@@ -363,13 +363,13 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
     merger.mergeApplicants(cfUser, guestUser, NewGuestMergeLaunchStage.DRY_RUN);
 
     // Verify cfUser's applications are unchanged.
-    ImmutableMap<Long, ApplicationModel> cfIdToApplication = buildIdToApplications(cfUser);
+    ImmutableMap<Long, ApplicationModel> cfIdToApplication = buildIdToApplications(cfUser.id);
     assertThat(cfIdToApplication.keySet()).containsExactlyInAnyOrder(cfActive.id, cfDraft.id);
     assertThat(cfIdToApplication.get(cfActive.id).getLifecycleStage()).isEqualTo(ACTIVE);
     assertThat(cfIdToApplication.get(cfDraft.id).getLifecycleStage()).isEqualTo(DRAFT);
 
     // Verify guestUser's applications are unchanged.
-    ImmutableMap<Long, ApplicationModel> guestIdToApplication = buildIdToApplications(guestUser);
+    ImmutableMap<Long, ApplicationModel> guestIdToApplication = buildIdToApplications(guestUser.id);
     assertThat(guestIdToApplication.keySet()).containsExactlyInAnyOrder(guestDraft.id);
     assertThat(guestIdToApplication.get(guestDraft.id).getLifecycleStage()).isEqualTo(DRAFT);
 
@@ -401,7 +401,7 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
     merger.mergeApplicants(cfUser, guestUser, NewGuestMergeLaunchStage.ENABLED);
 
     // Verify.
-    ImmutableMap<Long, ApplicationModel> idToApplication = buildIdToApplications(cfUser);
+    ImmutableMap<Long, ApplicationModel> idToApplication = buildIdToApplications(cfUser.id);
 
     // CF's active and draft are preserved with their original lifecycle stages.
     assertThat(idToApplication.keySet()).containsExactlyInAnyOrder(cfActive.id, cfDraft.id);
@@ -431,7 +431,7 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
     merger.mergeApplicants(cfUser, guestUser, NewGuestMergeLaunchStage.DRY_RUN);
 
     // Verify cfUser's applications are unchanged.
-    ImmutableMap<Long, ApplicationModel> cfIdToApplication = buildIdToApplications(cfUser);
+    ImmutableMap<Long, ApplicationModel> cfIdToApplication = buildIdToApplications(cfUser.id);
     assertThat(cfIdToApplication.keySet()).containsExactlyInAnyOrder(cfDraft.id);
     assertThat(cfIdToApplication.get(cfDraft.id).getLifecycleStage()).isEqualTo(DRAFT);
 
