@@ -105,9 +105,9 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
               cfObsolete.id, guestObsolete.id, guestActive.id, cfActive.id, cfDraft.id);
 
       assertThat(idToApplication.get(guestObsolete.id).getOriginalApplicantId())
-          .hasValue(guestUser.getAccount().id);
+          .hasValue(guestUser.id);
       assertThat(idToApplication.get(guestActive.id).getOriginalApplicantId())
-          .hasValue(guestUser.getAccount().id);
+          .hasValue(guestUser.id);
 
       assertThat(idToApplication.get(cfObsolete.id).getLifecycleStage()).isEqualTo(OBSOLETE);
       assertThat(idToApplication.get(guestObsolete.id).getLifecycleStage()).isEqualTo(OBSOLETE);
@@ -122,9 +122,9 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
               cfObsolete.id, guestObsolete.id, cfActive.id, guestActive.id, guestDraft.id);
 
       assertThat(idToApplication.get(guestObsolete.id).getOriginalApplicantId())
-          .hasValue(guestUser.getAccount().id);
+          .hasValue(guestUser.id);
       assertThat(idToApplication.get(guestActive.id).getOriginalApplicantId())
-          .hasValue(guestUser.getAccount().id);
+          .hasValue(guestUser.id);
 
       assertThat(idToApplication.get(cfObsolete.id).getLifecycleStage()).isEqualTo(OBSOLETE);
       assertThat(idToApplication.get(guestObsolete.id).getLifecycleStage()).isEqualTo(OBSOLETE);
@@ -169,9 +169,8 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
     assertThat(idToApplication.get(guestDraft.id).getLifecycleStage()).isEqualTo(DRAFT);
 
     assertThat(idToApplication.get(guestObsolete.id).getOriginalApplicantId())
-        .hasValue(guestUser.getAccount().id);
-    assertThat(idToApplication.get(guestActive.id).getOriginalApplicantId())
-        .hasValue(guestUser.getAccount().id);
+        .hasValue(guestUser.id);
+    assertThat(idToApplication.get(guestActive.id).getOriginalApplicantId()).hasValue(guestUser.id);
   }
 
   @Test
@@ -263,8 +262,7 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
         .containsExactlyInAnyOrder(guestActive.id, guestDraft.id);
     assertThat(idToApplication.get(guestActive.id).getLifecycleStage()).isEqualTo(ACTIVE);
     assertThat(idToApplication.get(guestDraft.id).getLifecycleStage()).isEqualTo(DRAFT);
-    assertThat(idToApplication.get(guestActive.id).getOriginalApplicantId())
-        .hasValue(guestUser.getAccount().id);
+    assertThat(idToApplication.get(guestActive.id).getOriginalApplicantId()).hasValue(guestUser.id);
     // CF's draft is deleted.
     assertThat(applRepo.getApplication(cfDraft.id).toCompletableFuture().join()).isEmpty();
   }
