@@ -1,7 +1,7 @@
 import {defineConfig} from 'vite'
 import {configDefaults} from 'vitest/config'
 import {viteStaticCopy} from 'vite-plugin-static-copy'
-import {resolve} from 'node:path'
+import path, {resolve} from 'node:path'
 
 // Asset paths to reference in the below config
 const assetPaths = {
@@ -180,7 +180,15 @@ export default defineConfig({
         {
           src: assetPaths.uswds_js,
           dest: '.',
-          rename: 'uswds_js.bundle.js',
+          // rename is string|RenameObject|RenameFunc — can't combine a string rename
+          // with {stripBase: true} directly. This function replicates stripBase:true by
+          // navigating up by the source directory depth, then uses the desired filename.
+          rename: (_name, _ext, fullPath) => {
+            const depth = path
+              .relative(__dirname, path.dirname(fullPath))
+              .split(path.sep).length
+            return '../'.repeat(depth) + 'uswds_js.bundle.js'
+          },
         },
         {
           src: assetPaths.swaggerui_css,
