@@ -71,6 +71,8 @@ import views.applicant.blocks.ApplicantProgramBlockEditView;
 import views.applicant.ineligible.ApplicantIneligibleView;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererParams;
+import views.questiontypes.FileUploadQuestionPartialView;
+import views.questiontypes.FileUploadQuestionPartialViewModel;
 import views.trustedintermediary.ApplicationBaseViewParams;
 
 /**
@@ -100,7 +102,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final ApplicantRoutes applicantRoutes;
   private final EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator;
   private final MonitoringMetricCounters metricCounters;
-  private final views.questiontypes.FileKeyInputsViewPartial fileKeyInputsViewPartial;
+  private final FileUploadQuestionPartialView fileUploadQuestionPartialView;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -125,7 +127,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ApplicantRoutes applicantRoutes,
       EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator,
       MonitoringMetricCounters metricCounters,
-      views.questiontypes.FileKeyInputsViewPartial fileKeyInputsViewPartial) {
+      FileUploadQuestionPartialView fileUploadQuestionPartialView) {
     super(profileUtils, versionRepository);
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
@@ -144,7 +146,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.programService = checkNotNull(programService);
     this.programSlugHandler = checkNotNull(programSlugHandler);
     this.metricCounters = checkNotNull(metricCounters);
-    this.fileKeyInputsViewPartial = checkNotNull(fileKeyInputsViewPartial);
+    this.fileUploadQuestionPartialView = checkNotNull(fileUploadQuestionPartialView);
   }
 
   /**
@@ -1218,6 +1220,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                               settingsManifest.getApiBridgeEnabled(request)));
             },
             classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            _ -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+            classLoaderExecutionContext.current())
         .thenApplyAsync(
             roApplicantProgramService -> {
               FileUploadQuestion stagedQuestion =
@@ -1230,11 +1235,14 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       .findAny()
                       .orElseThrow()
                       .createFileUploadQuestion();
-              return ok(fileKeyInputsViewPartial.renderOob(stagedQuestion)).as("text/html");
+              return ok(fileUploadQuestionPartialView.render(
+                      request,
+                      FileUploadQuestionPartialViewModel.builder()
+                          .fileUploadQuestion(stagedQuestion)
+                          .build()))
+                  .as(Http.MimeTypes.HTML);
             },
-            classLoaderExecutionContext.current())
-        // TODO(#12974): Return a file upload partial with an error message
-        .exceptionallyAsync(ex -> internalServerError(), classLoaderExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   /**

@@ -1,6 +1,7 @@
 import {addEventListenerToElements, assertNotNull} from '@/util'
 import {isFileTooLarge} from '@/file_upload_util'
 import {featureFlags} from '@/global/shared/feature_flags'
+import {default as uswdsFileInput} from '@uswds/uswds/js/usa-file-input'
 
 const UPLOAD_ATTR = 'data-upload-text'
 const UPLOADED_FILE_ATTR = 'data-uploaded-files'
@@ -44,19 +45,64 @@ export function init() {
       }
     })
 
-    document.body.addEventListener('htmx:beforeRequest', () => {
+    document.body.addEventListener('htmx:beforeRequest', (event: Event) => {
+      // If the selected file is invalid (missing / too large), cancel the
+      // htmx request so we don't show both the client-side validation banner
+      // and a generic server-error banner and reset the input + USWDS
+      // preview so the applicant can pick a different file.
+      if (!validateFileUploadQuestion(blockForm)) {
+        event.preventDefault()
+        const fileInput =
+          blockForm.querySelector<HTMLInputElement>('input[type=file]')
+        if (fileInput) {
+          fileInput.value = ''
+          uswdsFileInput.off(blockForm)
+          uswdsFileInput.on(blockForm)
+        }
+        return
+      }
+
       fileUploadInProgress = true
       document.body.classList.add(CF_FILE_UPLOADING_CLASS)
+
+      const uploadFailedError = document.getElementById(
+        'cf-fileupload-upload-failed-error',
+      )
+      if (uploadFailedError) {
+        uploadFailedError.hidden = true
+      }
     })
 
     document.body.addEventListener('htmx:afterRequest', () => {
       fileUploadInProgress = false
       document.body.classList.remove(CF_FILE_UPLOADING_CLASS)
+
+      const fileInput =
+        blockForm.querySelector<HTMLInputElement>('input[type=file]')
+      if (fileInput) {
+        fileInput.value = ''
+        uswdsFileInput.off(blockForm)
+        uswdsFileInput.on(blockForm)
+      }
     })
 
     document.body.addEventListener('htmx:responseError', () => {
       fileUploadInProgress = false
       document.body.classList.remove(CF_FILE_UPLOADING_CLASS)
+
+      const uploadFailedError = document.getElementById(
+        'cf-fileupload-upload-failed-error',
+      )
+      if (uploadFailedError) {
+        uploadFailedError.hidden = false
+      }
+      const fileInput =
+        blockForm.querySelector<HTMLInputElement>('input[type=file]')
+      if (fileInput) {
+        fileInput.value = ''
+        uswdsFileInput.off(blockForm)
+        uswdsFileInput.on(blockForm)
+      }
     })
   }
 

@@ -32,9 +32,11 @@
   </div>
 
   <!--/* Display errors */-->
-  <div
-    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fileUploadQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams}, ${questionId})}"
-  ></div>
+  <div id="cf-fileupload-validation-errors">
+    <div
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fileUploadQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams}, ${questionId})}"
+    ></div>
+  </div>
 
   <!--/* Errors always rendered in the DOM and hidden, but shown by file_upload.ts when needed. */-->
   <div
@@ -61,6 +63,18 @@
       ></p>
     </div>
   </div>
+  <div
+    class="usa-alert usa-alert--error usa-alert--slim"
+    hidden
+    id="cf-fileupload-upload-failed-error"
+  >
+    <div class="usa-alert__body">
+      <p
+        class="usa-alert__text"
+        th:text="#{toast.errorMessageOutline(#{validation.fileUploadFailed})}"
+      ></p>
+    </div>
+  </div>
 
   <input
     th:id="${inputId}"
@@ -76,7 +90,7 @@
     th:hx-post="${featureFlags.isFileUploadQuestionImprovementsEnabled() && !isPreview} ? ${hxSelectFileForUploadUrl}"
     th:hx-trigger="${featureFlags.isFileUploadQuestionImprovementsEnabled() && !isPreview} ? 'change'"
     th:hx-encoding="${featureFlags.isFileUploadQuestionImprovementsEnabled() && !isPreview} ? 'multipart/form-data'"
-    th:hx-swap="${featureFlags.isFileUploadQuestionImprovementsEnabled() && !isPreview} ? 'none'"
+    hx-swap="none"
   />
 
   <th:block
@@ -126,6 +140,21 @@
   </th:block>
 </div>
 
+<!--/* OOB-capable errors region rendered after an htmx upload. Targets the
+     page-load #cf-fileupload-validation-errors wrapper by selector so the id
+     only lives in one place in the source template. */-->
+<div
+  th:fragment="file-upload-errors(fileUploadQuestion, oob)"
+  th:hx-swap-oob="${oob} ? 'outerHTML:#cf-fileupload-validation-errors'"
+  th:id="${oob} ? 'cf-fileupload-validation-errors'"
+>
+  <div
+    class="cf-question-error-message cf-applicant-question-errors"
+    th:each="error : ${fileUploadQuestion.getValidationErrors().get(fileUploadQuestion.getApplicantQuestion().getContextualizedPath())}"
+    th:text="#{toast.errorMessageOutline(#{${error.key.getKeyName()}(${error.args})})}"
+  ></div>
+</div>
+
 <ul
   class="grid"
   data-th-attr="aria-label=#{label.uploadedFiles}"
@@ -143,17 +172,11 @@
         class="overflow-hidden grid-col flex-fill"
         th:text="${fileName}"
       ></span>
+      <!-- TODO: Add remove file endpoint -->
       <a
+        href="#"
         role="button"
         th:aria-label="#{link.removeFileSr(${fileName})}"
-        th:href="${applicationParams.applicantRoutes() != null ? applicationParams.applicantRoutes().removeFile(
-          applicationParams.profile(),
-          applicationParams.applicantId(),
-          applicationParams.programId(),
-          applicationParams.block().id,
-          fileKey,
-          applicationParams.inReview()
-        ).url(): '#'}"
         th:text="#{link.removeFile}"
       ></a>
     </li>
