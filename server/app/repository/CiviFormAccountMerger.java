@@ -243,14 +243,14 @@ public final class CiviFormAccountMerger {
     // details.
     //
     // For ease of readability, the code will handle Application states
-    // from earlier to later in the lifecycle: Obsolete, Active/Active, Draft
+    // from earlier to later in the lifecycle: Obsolete, Active, Draft
 
     boolean cfHasActive = cfUserApps.active().isPresent();
     boolean cfHasDraft = cfUserApps.draft().isPresent();
     boolean guestHasActive = guestUserApps.active().isPresent();
     boolean guestHasDraft = guestUserApps.draft().isPresent();
-    // Both users must have at least a Draft/Active for this method to be
-    // useful. The application doesn't allow for Obsolete without an Active.
+    // Both users must have at least a Draft or Active for this method to be
+    // useful. (The system doesn't allow for Obsolete without an Active.)
     Preconditions.checkState(cfHasDraft || cfHasActive);
     Preconditions.checkState(guestHasDraft || guestHasActive);
 
