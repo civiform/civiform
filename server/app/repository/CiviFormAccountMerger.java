@@ -99,11 +99,13 @@ public final class CiviFormAccountMerger {
   /// persisted. As noted above, the Draft is not particularly useful, but we
   /// still treat it as such baring just deleting them.
   ///
-  /// [Design-doc](https://docs.google.com/document/d/1qq5lLXMgAxMvrsZzcyKEmZsQAtnCt6lcpkqQ836IWhE/edit?tab=t.0#heading=h.w8d3omccpuw1)
-  ///
   ///  @return a log message indicating what changes occurred.
   private String mergeGuestApplicationsIntoCfUser(
       ApplicantModel cfUser, ApplicantModel guestUser, boolean applyChanges) {
+    // It is a bug of the formatter that this can't be in the markdown above
+    // https://github.com/google/google-java-format/issues/1369
+    // Design Doc:
+    // https://docs.google.com/document/d/1qq5lLXMgAxMvrsZzcyKEmZsQAtnCt6lcpkqQ836IWhE/edit?tab=t.0#heading=h.w8d3omccpuw1
     Map<Long, List<ApplicationModel>> guestAppsByProgram =
         guestUser.getApplications().stream()
             .collect(Collectors.groupingBy(app -> app.getProgram().id));

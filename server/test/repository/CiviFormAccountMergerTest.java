@@ -33,15 +33,15 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
     SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
     merger = new CiviFormAccountMerger();
     acctRepo =
-      new AccountRepository(
-        instanceOf(DatabaseExecutionContext.class),
-        instanceOf(Clock.class),
-        mockSettingsManifest);
+        new AccountRepository(
+            instanceOf(DatabaseExecutionContext.class),
+            instanceOf(Clock.class),
+            mockSettingsManifest);
     applRepo =
-      new ApplicationRepository(
-        instanceOf(ProgramRepository.class),
-        acctRepo,
-        instanceOf(DatabaseExecutionContext.class));
+        new ApplicationRepository(
+            instanceOf(ProgramRepository.class),
+            acctRepo,
+            instanceOf(DatabaseExecutionContext.class));
   }
 
   public enum Newer {
@@ -54,7 +54,7 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
   public void mergeApplicants_bothActive_oneNewer(Newer newerApplication) {
     var program = resourceCreator.insertActiveProgram("test-program");
     ApplicantModel cfUser =
-      resourceCreator.insertApplicantWithAccount(Optional.of("cf@example.com"));
+        resourceCreator.insertApplicantWithAccount(Optional.of("cf@example.com"));
     ApplicantModel guestUser = resourceCreator.insertApplicantWithAccount();
 
     Instant older = Instant.now().minusSeconds(60);
@@ -65,15 +65,15 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
     // Drafts are not so important that we need to test every combination of their existence
     // alongside the Actives.
     ApplicationModel cfObsolete =
-      resourceCreator.insertApplication(cfUser, program, LifecycleStage.OBSOLETE);
+        resourceCreator.insertApplication(cfUser, program, LifecycleStage.OBSOLETE);
     ApplicationModel cfActive = resourceCreator.insertApplication(cfUser, program, ACTIVE);
     ApplicationModel cfDraft =
-      resourceCreator.insertApplication(cfUser, program, LifecycleStage.DRAFT);
+        resourceCreator.insertApplication(cfUser, program, LifecycleStage.DRAFT);
     ApplicationModel guestObsolete =
-      resourceCreator.insertApplication(guestUser, program, LifecycleStage.OBSOLETE);
+        resourceCreator.insertApplication(guestUser, program, LifecycleStage.OBSOLETE);
     ApplicationModel guestActive = resourceCreator.insertApplication(guestUser, program, ACTIVE);
     ApplicationModel guestDraft =
-      resourceCreator.insertApplication(guestUser, program, LifecycleStage.DRAFT);
+        resourceCreator.insertApplication(guestUser, program, LifecycleStage.DRAFT);
 
     switch (newerApplication) {
       case CIVIFORM -> {
@@ -94,20 +94,20 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
 
     // Verify.
     List<ApplicationModel> cfApps =
-      acctRepo.lookupApplicantSync(cfUser.id).orElseThrow().getApplications();
+        acctRepo.lookupApplicantSync(cfUser.id).orElseThrow().getApplications();
     ImmutableMap<Long, ApplicationModel> idToApplication =
-      cfApps.stream().collect(ImmutableMap.toImmutableMap(a -> a.id, a -> a));
+        cfApps.stream().collect(ImmutableMap.toImmutableMap(a -> a.id, a -> a));
 
     if (newerApplication.equals(Newer.CIVIFORM)) {
       assertThat(cfApps)
-        .extracting(a -> a.id)
-        .containsExactlyInAnyOrder(
-          cfObsolete.id, guestObsolete.id, guestActive.id, cfActive.id, cfDraft.id);
+          .extracting(a -> a.id)
+          .containsExactlyInAnyOrder(
+              cfObsolete.id, guestObsolete.id, guestActive.id, cfActive.id, cfDraft.id);
 
       assertThat(idToApplication.get(guestObsolete.id).getOriginalApplicantId())
-        .hasValue(guestUser.getAccount().id);
+          .hasValue(guestUser.getAccount().id);
       assertThat(idToApplication.get(guestActive.id).getOriginalApplicantId())
-        .hasValue(guestUser.getAccount().id);
+          .hasValue(guestUser.getAccount().id);
 
       assertThat(idToApplication.get(cfObsolete.id).getLifecycleStage()).isEqualTo(OBSOLETE);
       assertThat(idToApplication.get(guestObsolete.id).getLifecycleStage()).isEqualTo(OBSOLETE);
@@ -117,14 +117,14 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
     } else if (newerApplication.equals(Newer.GUEST)) {
       // Guest active is moved to cfUser; CF active is obsoleted.
       assertThat(cfApps)
-        .extracting(a -> a.id)
-        .containsExactlyInAnyOrder(
-          cfObsolete.id, guestObsolete.id, cfActive.id, guestActive.id, guestDraft.id);
+          .extracting(a -> a.id)
+          .containsExactlyInAnyOrder(
+              cfObsolete.id, guestObsolete.id, cfActive.id, guestActive.id, guestDraft.id);
 
       assertThat(idToApplication.get(guestObsolete.id).getOriginalApplicantId())
-        .hasValue(guestUser.getAccount().id);
+          .hasValue(guestUser.getAccount().id);
       assertThat(idToApplication.get(guestActive.id).getOriginalApplicantId())
-        .hasValue(guestUser.getAccount().id);
+          .hasValue(guestUser.getAccount().id);
 
       assertThat(idToApplication.get(cfObsolete.id).getLifecycleStage()).isEqualTo(OBSOLETE);
       assertThat(idToApplication.get(guestObsolete.id).getLifecycleStage()).isEqualTo(OBSOLETE);
@@ -139,15 +139,15 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
     var programA = resourceCreator.insertActiveProgram("program-a");
     var programB = resourceCreator.insertActiveProgram("program-b");
     ApplicantModel cfUser =
-      resourceCreator.insertApplicantWithAccount(Optional.of("cf@example.com"));
+        resourceCreator.insertApplicantWithAccount(Optional.of("cf@example.com"));
     ApplicantModel guestUser = resourceCreator.insertApplicantWithAccount();
 
     ApplicationModel cfApp = resourceCreator.insertApplication(cfUser, programA, ACTIVE);
     ApplicationModel guestObsolete =
-      resourceCreator.insertApplication(guestUser, programB, LifecycleStage.OBSOLETE);
+        resourceCreator.insertApplication(guestUser, programB, LifecycleStage.OBSOLETE);
     ApplicationModel guestActive = resourceCreator.insertApplication(guestUser, programB, ACTIVE);
     ApplicationModel guestDraft =
-      resourceCreator.insertApplication(guestUser, programB, LifecycleStage.DRAFT);
+        resourceCreator.insertApplication(guestUser, programB, LifecycleStage.DRAFT);
     cfUser.refresh();
     guestUser.refresh();
 
@@ -156,35 +156,35 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
 
     // Verify.
     ImmutableMap<Long, ApplicationModel> idToApplication =
-      acctRepo.lookupApplicantSync(cfUser.id).orElseThrow().getApplications().stream()
-              .collect(ImmutableMap.toImmutableMap(a -> a.id, a -> a));
+        acctRepo.lookupApplicantSync(cfUser.id).orElseThrow().getApplications().stream()
+            .collect(ImmutableMap.toImmutableMap(a -> a.id, a -> a));
 
     assertThat(idToApplication.keySet())
-      .containsExactlyInAnyOrder(cfApp.id, guestObsolete.id, guestActive.id, guestDraft.id);
+        .containsExactlyInAnyOrder(cfApp.id, guestObsolete.id, guestActive.id, guestDraft.id);
 
     assertThat(idToApplication.get(cfApp.id).getLifecycleStage()).isEqualTo(ACTIVE);
     assertThat(idToApplication.get(guestObsolete.id).getLifecycleStage())
-      .isEqualTo(LifecycleStage.OBSOLETE);
+        .isEqualTo(LifecycleStage.OBSOLETE);
     assertThat(idToApplication.get(guestActive.id).getLifecycleStage()).isEqualTo(ACTIVE);
     assertThat(idToApplication.get(guestDraft.id).getLifecycleStage()).isEqualTo(DRAFT);
 
     assertThat(idToApplication.get(guestObsolete.id).getOriginalApplicantId())
-      .hasValue(guestUser.getAccount().id);
+        .hasValue(guestUser.getAccount().id);
     assertThat(idToApplication.get(guestActive.id).getOriginalApplicantId())
-      .hasValue(guestUser.getAccount().id);
+        .hasValue(guestUser.getAccount().id);
   }
 
   @Test
   public void mergeApplicants_bothDraft_guestDraftKept() {
     var program = resourceCreator.insertActiveProgram("test-program");
     ApplicantModel cfUser =
-      resourceCreator.insertApplicantWithAccount(Optional.of("cf@example.com"));
+        resourceCreator.insertApplicantWithAccount(Optional.of("cf@example.com"));
     ApplicantModel guestUser = resourceCreator.insertApplicantWithAccount();
 
     ApplicationModel cfDraft =
-      resourceCreator.insertApplication(cfUser, program, LifecycleStage.DRAFT);
+        resourceCreator.insertApplication(cfUser, program, LifecycleStage.DRAFT);
     ApplicationModel guestDraft =
-      resourceCreator.insertApplication(guestUser, program, LifecycleStage.DRAFT);
+        resourceCreator.insertApplication(guestUser, program, LifecycleStage.DRAFT);
     cfUser.refresh();
     guestUser.refresh();
 
@@ -193,7 +193,7 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
 
     // Verify.
     List<ApplicationModel> cfApps =
-      acctRepo.lookupApplicantSync(cfUser.id).orElseThrow().getApplications();
+        acctRepo.lookupApplicantSync(cfUser.id).orElseThrow().getApplications();
 
     // Guest draft is moved to cfUser.
     assertThat(cfApps).extracting(a -> a.id).containsExactly(guestDraft.id);
@@ -205,14 +205,14 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
   public void mergeApplicants_cfActiveAndDraft_guestDraft_cfApplicationsKept() {
     var program = resourceCreator.insertActiveProgram("test-program");
     ApplicantModel cfUser =
-      resourceCreator.insertApplicantWithAccount(Optional.of("cf@example.com"));
+        resourceCreator.insertApplicantWithAccount(Optional.of("cf@example.com"));
     ApplicantModel guestUser = resourceCreator.insertApplicantWithAccount();
 
     ApplicationModel cfActive = resourceCreator.insertApplication(cfUser, program, ACTIVE);
     ApplicationModel cfDraft =
-      resourceCreator.insertApplication(cfUser, program, LifecycleStage.DRAFT);
+        resourceCreator.insertApplication(cfUser, program, LifecycleStage.DRAFT);
     ApplicationModel guestDraft =
-      resourceCreator.insertApplication(guestUser, program, LifecycleStage.DRAFT);
+        resourceCreator.insertApplication(guestUser, program, LifecycleStage.DRAFT);
     cfUser.refresh();
     guestUser.refresh();
 
@@ -221,8 +221,8 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
 
     // Verify.
     ImmutableMap<Long, ApplicationModel> idToApplication =
-      acctRepo.lookupApplicantSync(cfUser.id).orElseThrow().getApplications().stream()
-              .collect(ImmutableMap.toImmutableMap(a -> a.id, a -> a));
+        acctRepo.lookupApplicantSync(cfUser.id).orElseThrow().getApplications().stream()
+            .collect(ImmutableMap.toImmutableMap(a -> a.id, a -> a));
 
     // CF's active and draft are preserved with their original lifecycle stages.
     assertThat(idToApplication.keySet()).containsExactlyInAnyOrder(cfActive.id, cfDraft.id);
@@ -237,14 +237,14 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
   public void mergeApplicants_cfDraft_guestActiveAndDraft_guestApplicationsKept() {
     var program = resourceCreator.insertActiveProgram("test-program");
     ApplicantModel cfUser =
-      resourceCreator.insertApplicantWithAccount(Optional.of("cf@example.com"));
+        resourceCreator.insertApplicantWithAccount(Optional.of("cf@example.com"));
     ApplicantModel guestUser = resourceCreator.insertApplicantWithAccount();
 
     ApplicationModel cfDraft =
-      resourceCreator.insertApplication(cfUser, program, LifecycleStage.DRAFT);
+        resourceCreator.insertApplication(cfUser, program, LifecycleStage.DRAFT);
     ApplicationModel guestActive = resourceCreator.insertApplication(guestUser, program, ACTIVE);
     ApplicationModel guestDraft =
-      resourceCreator.insertApplication(guestUser, program, LifecycleStage.DRAFT);
+        resourceCreator.insertApplication(guestUser, program, LifecycleStage.DRAFT);
     cfUser.refresh();
     guestUser.refresh();
 
@@ -253,18 +253,18 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
 
     // Verify
     List<ApplicationModel> cfApps =
-      acctRepo.lookupApplicantSync(cfUser.id).orElseThrow().getApplications();
+        acctRepo.lookupApplicantSync(cfUser.id).orElseThrow().getApplications();
     ImmutableMap<Long, ApplicationModel> idToApplication =
-      cfApps.stream().collect(ImmutableMap.toImmutableMap(a -> a.id, a -> a));
+        cfApps.stream().collect(ImmutableMap.toImmutableMap(a -> a.id, a -> a));
 
     // Guest active and draft are moved to cfUser.
     assertThat(cfApps)
-      .extracting(a -> a.id)
-      .containsExactlyInAnyOrder(guestActive.id, guestDraft.id);
+        .extracting(a -> a.id)
+        .containsExactlyInAnyOrder(guestActive.id, guestDraft.id);
     assertThat(idToApplication.get(guestActive.id).getLifecycleStage()).isEqualTo(ACTIVE);
     assertThat(idToApplication.get(guestDraft.id).getLifecycleStage()).isEqualTo(DRAFT);
     assertThat(idToApplication.get(guestActive.id).getOriginalApplicantId())
-      .hasValue(guestUser.getAccount().id);
+        .hasValue(guestUser.getAccount().id);
     // CF's draft is deleted.
     assertThat(applRepo.getApplication(cfDraft.id).toCompletableFuture().join()).isEmpty();
   }
