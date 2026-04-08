@@ -108,7 +108,7 @@ public final class BundledAssetsFinder {
   public String getUswdsJsBundle() {
     return useDevServer
         ? bundlerPath("node_modules/@uswds/uswds/dist/js/uswds.min.js")
-        : bundlerPath("dist/uswds_js.bundle.js");
+        : bundlerPath("dist/uswds.min.js");
   }
 
   public String getSwaggerUiCss() {

@@ -1,7 +1,7 @@
 import {defineConfig} from 'vite'
 import {configDefaults} from 'vitest/config'
 import {viteStaticCopy} from 'vite-plugin-static-copy'
-import path, {resolve} from 'node:path'
+import {resolve} from 'node:path'
 
 // Asset paths to reference in the below config
 const assetPaths = {
@@ -112,10 +112,8 @@ export default defineConfig({
         // chunkFileNames include a hash in the file name for cache busting purposes
         chunkFileNames: '[hash]-[name].chunk.js',
         // assetFileNames are for non-javascript files
-        assetFileNames: (assetInfo) => {
-          // names[] is the current Rolldown API; name (string) is deprecated but kept for
-          // backwards compatibility with Rollup. Prefer names[0] and fall back to name.
-          const name = assetInfo.names?.[0] ?? assetInfo.name ?? ''
+        assetFileNames: (assetInfo: {names?: string[]}) => {
+          const name = assetInfo.names?.[0] ?? ''
           if (name.match(/\.(css|scss)$/)) {
             return '[name].min.css'
           }
@@ -180,15 +178,7 @@ export default defineConfig({
         {
           src: assetPaths.uswds_js,
           dest: '.',
-          // rename is string|RenameObject|RenameFunc — can't combine a string rename
-          // with {stripBase: true} directly. This function replicates stripBase:true by
-          // navigating up by the source directory depth, then uses the desired filename.
-          rename: (_name, _ext, fullPath) => {
-            const depth = path
-              .relative(__dirname, path.dirname(fullPath))
-              .split(path.sep).length
-            return '../'.repeat(depth) + 'uswds_js.bundle.js'
-          },
+          rename: {stripBase: true},
         },
         {
           src: assetPaths.swaggerui_css,
