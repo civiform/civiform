@@ -51,6 +51,73 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
 
   @Test
   @Parameters({"CIVIFORM", "GUEST"})
+  public void mergeApplicants_dryRun_bothActive_oneNewer_noChanges(Newer newerApplication) {
+    var program = resourceCreator.insertActiveProgram("test-program");
+    ApplicantModel cfUser =
+        resourceCreator.insertApplicantWithAccount(Optional.of("cf@example.com"));
+    ApplicantModel guestUser = resourceCreator.insertApplicantWithAccount();
+
+    Instant older = Instant.now().minusSeconds(60);
+    Instant newer = Instant.now();
+
+    ApplicationModel cfObsolete =
+        resourceCreator.insertApplication(cfUser, program, LifecycleStage.OBSOLETE);
+    ApplicationModel cfActive = resourceCreator.insertApplication(cfUser, program, ACTIVE);
+    ApplicationModel cfDraft =
+        resourceCreator.insertApplication(cfUser, program, LifecycleStage.DRAFT);
+    ApplicationModel guestObsolete =
+        resourceCreator.insertApplication(guestUser, program, LifecycleStage.OBSOLETE);
+    ApplicationModel guestActive = resourceCreator.insertApplication(guestUser, program, ACTIVE);
+    ApplicationModel guestDraft =
+        resourceCreator.insertApplication(guestUser, program, LifecycleStage.DRAFT);
+
+    switch (newerApplication) {
+      case CIVIFORM -> {
+        guestActive.setSubmitTimeForTest(older).save();
+        cfActive.setSubmitTimeForTest(newer).save();
+      }
+      case GUEST -> {
+        cfActive.setSubmitTimeForTest(older).save();
+        guestActive.setSubmitTimeForTest(newer).save();
+      }
+    }
+    cfUser.refresh();
+    guestUser.refresh();
+
+    // Execute with DRY_RUN — no DB changes should occur.
+    merger.mergeApplicants(cfUser, guestUser, NewGuestMergeLaunchStage.DRY_RUN);
+
+    // Verify cfUser's applications are unchanged.
+    ImmutableMap<Long, ApplicationModel> cfIdToApplication =
+        acctRepo.lookupApplicantSync(cfUser.id).orElseThrow().getApplications().stream()
+            .collect(ImmutableMap.toImmutableMap(a -> a.id, a -> a));
+    assertThat(cfIdToApplication.keySet())
+        .containsExactlyInAnyOrder(cfObsolete.id, cfActive.id, cfDraft.id);
+    assertThat(cfIdToApplication.get(cfObsolete.id).getLifecycleStage()).isEqualTo(OBSOLETE);
+    assertThat(cfIdToApplication.get(cfActive.id).getLifecycleStage()).isEqualTo(ACTIVE);
+    assertThat(cfIdToApplication.get(cfDraft.id).getLifecycleStage()).isEqualTo(DRAFT);
+
+    // Verify guestUser's applications are unchanged.
+    ImmutableMap<Long, ApplicationModel> guestIdToApplication =
+        acctRepo.lookupApplicantSync(guestUser.id).orElseThrow().getApplications().stream()
+            .collect(ImmutableMap.toImmutableMap(a -> a.id, a -> a));
+    assertThat(guestIdToApplication.keySet())
+        .containsExactlyInAnyOrder(guestObsolete.id, guestActive.id, guestDraft.id);
+    assertThat(guestIdToApplication.get(guestObsolete.id).getLifecycleStage()).isEqualTo(OBSOLETE);
+    assertThat(guestIdToApplication.get(guestActive.id).getLifecycleStage()).isEqualTo(ACTIVE);
+    assertThat(guestIdToApplication.get(guestDraft.id).getLifecycleStage()).isEqualTo(DRAFT);
+
+    // Verify no originalApplicantId was set on any application.
+    assertThat(cfIdToApplication.values())
+        .extracting(ApplicationModel::getOriginalApplicantId)
+        .allMatch(Optional::isEmpty);
+    assertThat(guestIdToApplication.values())
+        .extracting(ApplicationModel::getOriginalApplicantId)
+        .allMatch(Optional::isEmpty);
+  }
+
+  @Test
+  @Parameters({"CIVIFORM", "GUEST"})
   public void mergeApplicants_bothActive_oneNewer(Newer newerApplication) {
     var program = resourceCreator.insertActiveProgram("test-program");
     ApplicantModel cfUser =
