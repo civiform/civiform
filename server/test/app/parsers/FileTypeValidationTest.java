@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableList;
+import java.util.concurrent.atomic.AtomicReference;
+import org.apache.pekko.stream.javadsl.Source;
 import org.apache.pekko.util.ByteString;
 import org.junit.Before;
 import org.junit.Test;
@@ -90,6 +92,23 @@ public class FileTypeValidationTest extends ResetPostgres {
                     ByteString.fromArray(PDF_MAGIC), "doc.pdf", imagesOnly))
         .isInstanceOf(FileUploadTypeException.class)
         .hasMessageContaining("not an allowed upload type");
+  }
+
+  @Test
+  public void sniffingFlow_fileSmallerThanHeaderSize_throws() {
+    ByteString tinyBytes = ByteString.fromArray(new byte[] {0x00, 0x01, 0x02, 0x03});
+    AtomicReference<String> detectedRef = new AtomicReference<>(null);
+
+    assertThatThrownBy(
+            () ->
+                Source.single(tinyBytes)
+                    .via(validator.sniffingFlow("photo.png", detectedRef))
+                    .runWith(org.apache.pekko.stream.javadsl.Sink.ignore(), mat)
+                    .toCompletableFuture()
+                    .join())
+        .hasCauseInstanceOf(FileUploadTypeException.class)
+        .hasMessageContaining("too small");
+    assertThat(detectedRef.get()).isNull();
   }
 
   @Test

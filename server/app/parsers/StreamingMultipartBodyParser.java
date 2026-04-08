@@ -1,6 +1,7 @@
 package parsers;
 
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import org.apache.pekko.stream.Materializer;
 import org.apache.pekko.stream.javadsl.Flow;
@@ -50,10 +51,11 @@ public abstract class StreamingMultipartBodyParser
       Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> uploadSink =
           createUploadSink(bucketName, fileKey);
 
-      String contentType = fileInfo.contentType().getOrElse(() -> "text/plain");
       String fileName = fileInfo.fileName();
 
-      Flow<ByteString, ByteString, ?> sniffingFlow = fileTypeValidation.sniffingFlow(fileName);
+      AtomicReference<String> detectedMimeTypeRef = new AtomicReference<>(null);
+      Flow<ByteString, ByteString, ?> sniffingFlow =
+          fileTypeValidation.sniffingFlow(fileName, detectedMimeTypeRef);
 
       // Map upload sink to an output value, prepending the sniffing flow
       Sink<ByteString, CompletionStage<FilePart<Void>>> mappedSink =
@@ -70,7 +72,7 @@ public abstract class StreamingMultipartBodyParser
                           return new FilePart<Void>(
                               fileInfo.partName(),
                               fileName,
-                              contentType,
+                              detectedMimeTypeRef.get(),
                               null // The actual file content is streamed, so this can be null
                               );
                         });
