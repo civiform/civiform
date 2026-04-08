@@ -28,6 +28,7 @@ import services.settings.SettingsManifest;
 import views.CspUtil;
 import views.components.Icons;
 import views.html.helper.CSRF;
+import views.shared.FeatureFlags;
 
 public abstract class ApplicantBaseView {
   protected final TemplateEngine templateEngine;
@@ -64,6 +65,10 @@ public abstract class ApplicantBaseView {
       ApplicantPersonalInfo applicantPersonalInfo,
       Messages messages) {
     ThymeleafModule.PlayThymeleafContext context = playThymeleafContextFactory.create(request);
+
+    context.setVariable(
+        "featureFlags", FeatureFlags.fromSettingsManifest(settingsManifest, request));
+
     context.setVariable("civiformImageTag", settingsManifest.getCiviformImageTag().get());
     context.setVariable("addNoIndexMetaTag", settingsManifest.getStagingAddNoindexMetaTag());
     context.setVariable("favicon", settingsManifest.getFaviconUrl().orElse(""));
@@ -154,7 +159,12 @@ public abstract class ApplicantBaseView {
             + "</a>");
     context.setVariable(
         "endSessionLinkAriaLabel", messages.at(MessageKey.END_YOUR_SESSION.getKeyName()));
-    context.setVariable("loginLink", routes.LoginController.applicantLogin(Optional.empty()).url());
+    String loginUrl =
+        controllers.routes.LoginController.applicantLogin(Optional.of(request.uri())).url();
+    context.setVariable("loginLink", loginUrl);
+    String registerUrl =
+        controllers.routes.LoginController.register(Optional.of(request.uri())).url();
+    context.setVariable("createAccountLink", registerUrl);
     if (!isGuest) {
       context.setVariable(
           "loggedInAs", getAccountIdentifier(isTi, profile, applicantPersonalInfo, messages));
@@ -291,6 +301,7 @@ public abstract class ApplicantBaseView {
             .url();
   }
 
+  // TODO #12929: use program slug review and blockEditOrBlockReview routes
   /**
    * Calculate the redirect location after the language is changed. If the current request is a
    * POST, the redirect is be mapped to the associated GET uri.

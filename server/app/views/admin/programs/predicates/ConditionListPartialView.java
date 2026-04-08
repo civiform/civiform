@@ -1,10 +1,8 @@
 package views.admin.programs.predicates;
 
 import javax.inject.Inject;
-import modules.ThymeleafModule;
-import org.thymeleaf.TemplateEngine;
-import services.settings.SettingsManifest;
 import views.admin.BaseView;
+import views.shared.BaseViewDeps;
 
 /**
  * Partial view for rendering ConditionListPartial.html. This partial is used for displaying a list
@@ -12,11 +10,8 @@ import views.admin.BaseView;
  */
 public final class ConditionListPartialView extends BaseView<ConditionListPartialViewModel> {
   @Inject
-  public ConditionListPartialView(
-      TemplateEngine templateEngine,
-      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
-      SettingsManifest settingsManifest) {
-    super(templateEngine, playThymeleafContextFactory, settingsManifest);
+  public ConditionListPartialView(BaseViewDeps baseViewDeps) {
+    super(baseViewDeps);
   }
 
   @Override

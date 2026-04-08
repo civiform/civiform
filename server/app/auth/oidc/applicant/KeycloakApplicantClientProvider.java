@@ -94,7 +94,7 @@ public class KeycloakApplicantClientProvider extends GenericOidcClientProvider {
     config.setUseNonce(true);
     config.setDisablePkce(true);
     config.setClientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST);
-    config.setPreferredJwsAlgorithm(JWSAlgorithm.RS256);
+    config.setIdTokenSigningAlgorithm(JWSAlgorithm.RS256);
 
     return config;
   }

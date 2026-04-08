@@ -49,6 +49,7 @@ public final class UpsellController extends CiviFormController {
   private final ApplicantPreScreenerUpsellView preScreenerUpsellView;
   private final MessagesApi messagesApi;
   private final PdfExporterService pdfExporterService;
+  private final ProgramSlugHandler programSlugHandler;
 
   @Inject
   public UpsellController(
@@ -61,7 +62,8 @@ public final class UpsellController extends CiviFormController {
       ApplicantPreScreenerUpsellView applicantPreScreenerUpsellView,
       MessagesApi messagesApi,
       PdfExporterService pdfExporterService,
-      VersionRepository versionRepository) {
+      VersionRepository versionRepository,
+      ProgramSlugHandler programSlugHandler) {
     super(profileUtils, versionRepository);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.applicantService = checkNotNull(applicantService);
@@ -71,6 +73,7 @@ public final class UpsellController extends CiviFormController {
     this.preScreenerUpsellView = checkNotNull(applicantPreScreenerUpsellView);
     this.messagesApi = checkNotNull(messagesApi);
     this.pdfExporterService = checkNotNull(pdfExporterService);
+    this.programSlugHandler = checkNotNull(programSlugHandler);
   }
 
   @Secure
@@ -155,6 +158,8 @@ public final class UpsellController extends CiviFormController {
                       .setMessages(messagesApi.preferred(request))
                       .setBannerMessage(toastMessageValue)
                       .setCompletedProgramId(programId)
+                      .setCompletedProgramSlug(
+                          programSlugHandler.getProgramSlug(String.valueOf(programId)))
                       .setCustomConfirmationMessage(
                           roApplicantProgramService.join().getCustomConfirmationMessage())
                       .setApplicantId(applicantId)

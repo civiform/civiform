@@ -34,10 +34,10 @@ lazy val root = (project in file("."))
 
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "3.0.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.21.1",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.21.1",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.21.1",
-      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.21.1",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.21.2",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.21.2",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.21.2",
+      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.21.2",
       "com.google.inject.extensions" % "guice-assistedinject" % "6.0.0",
 
       // Templating
@@ -45,11 +45,11 @@ lazy val root = (project in file("."))
       "org.thymeleaf" % "thymeleaf" % "3.1.3.RELEASE",
       "org.commonmark" % "commonmark" % "0.27.1",
       "org.commonmark" % "commonmark-ext-autolink" % "0.27.1",
-      "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20260102.1",
+      "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20260313.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.42.22",
-      "software.amazon.awssdk" % "ses" % "2.42.22",
+      "software.amazon.awssdk" % "s3" % "2.42.28",
+      "software.amazon.awssdk" % "ses" % "2.42.28",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
@@ -80,7 +80,7 @@ lazy val root = (project in file("."))
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "jakarta.xml.bind" % "jakarta.xml.bind-api" % "4.0.5",
       "jakarta.activation" % "jakarta.activation-api" % "2.1.4",
-      "org.glassfish.jaxb" % "jaxb-runtime" % "4.0.6",
+      "org.glassfish.jaxb" % "jaxb-runtime" % "4.0.7",
 
       // Code autogeneration
       "org.projectlombok" % "lombok" % "1.18.44" % "provided",
@@ -88,13 +88,13 @@ lazy val root = (project in file("."))
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "13.0.2-PLAY3.0",
-      "org.pac4j" % "pac4j-core" % "6.3.3",
+      "org.pac4j" % "pac4j-core" % "6.4.1",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "6.3.3",
+      "org.pac4j" % "pac4j-http" % "6.4.1",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "6.3.3",
+      "org.pac4j" % "pac4j-oidc" % "6.4.1",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "6.3.3",
+      "org.pac4j" % "pac4j-saml" % "6.4.1",
 
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.13.0",
@@ -118,13 +118,24 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.5",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.26",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.27",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.7",
 
       // Apache libraries for testing subnets
-      "commons-net" % "commons-net" % "3.12.0",
+      "commons-net" % "commons-net" % "3.13.0",
+
+      // Apache libraries for external Pekko connectors
+      "org.apache.pekko" %% "pekko-connectors-s3" % "1.3.0",
+      "org.apache.pekko" %% "pekko-connectors-google-cloud-storage" % "1.3.0",
+
+      // Explicitly include Pekko libraries that otherwise would be
+      // incompatible due to version mismatches with the default versions.
+      "org.apache.pekko" %% "pekko-actor-typed" % "1.4.0",
+      "org.apache.pekko" %% "pekko-serialization-jackson" % "1.4.0",
+      "org.apache.pekko" %% "pekko-slf4j" % "1.4.0",
+      "org.apache.pekko" %% "pekko-stream-testkit" % "1.4.0",
 
       // Url detector for program descriptions.
       "com.linkedin.urls" % "url-detector" % "0.1.17",
@@ -323,8 +334,8 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.21.1",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.21.1",
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.21.2",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.21.2",
   "com.fasterxml.jackson.core" % "jackson-annotations" % "2.21"
 )
 

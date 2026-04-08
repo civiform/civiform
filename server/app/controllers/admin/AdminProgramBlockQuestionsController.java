@@ -108,7 +108,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
           programId,
           blockId,
           latestQuestionIds,
-          settingsManifest.getEnumeratorImprovementsEnabled(request));
+          settingsManifest.getEnumeratorImprovementsEnabled(request),
+          settingsManifest.getFileUploadQuestionImprovementsEnabled(request));
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
@@ -181,7 +182,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
               programId,
               blockId,
               latestQuestionIds,
-              settingsManifest.getEnumeratorImprovementsEnabled(request));
+              settingsManifest.getEnumeratorImprovementsEnabled(request),
+              settingsManifest.getFileUploadQuestionImprovementsEnabled(request));
       blockDefinition = programDefinition.getBlockDefinition(blockId);
       programQuestionDefinition =
           blockDefinition.programQuestionDefinitions().stream()

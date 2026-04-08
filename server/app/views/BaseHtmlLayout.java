@@ -36,6 +36,7 @@ import services.settings.SettingsManifest;
 import views.components.Icons;
 import views.components.SessionTimeoutModals;
 import views.components.ToastMessage;
+import views.shared.FeatureFlags;
 import views.trustedintermediary.ApplicantLayout;
 
 // NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING BaseHtmlLayout
@@ -127,6 +128,15 @@ public class BaseHtmlLayout {
               .setDuration(0);
       bundle.addToastMessages(privacyBanner);
     }
+
+    var featureFlagJson =
+        FeatureFlags.fromSettingsManifest(settingsManifest, bundle.getRequest()).toJson();
+
+    bundle.addHeadScripts(
+        script()
+            .with(rawHtml(featureFlagJson))
+            .withType("application/json")
+            .withId("feature-flags-data"));
 
     if (bundledAssetsFinder.useBundlerDevServer()) {
       bundle.addHeadScripts(

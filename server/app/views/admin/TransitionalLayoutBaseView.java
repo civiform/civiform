@@ -1,16 +1,13 @@
 package views.admin;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import modules.ThymeleafModule;
-import org.thymeleaf.TemplateEngine;
 import play.mvc.Http;
 import services.BundledAssetsFinder;
-import services.settings.SettingsManifest;
 import views.admin.shared.AdminCommonHeader;
+import views.shared.LayoutDeps;
 
 /**
  * {@link TransitionalLayoutBaseView} is used to render the supplied Thymeleaf page template. This
@@ -26,15 +23,10 @@ public abstract class TransitionalLayoutBaseView<TModel extends BaseViewModel>
   private final BundledAssetsFinder bundledAssetsFinder;
   protected final ProfileUtils profileUtils;
 
-  public TransitionalLayoutBaseView(
-      TemplateEngine templateEngine,
-      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
-      SettingsManifest settingsManifest,
-      BundledAssetsFinder bundledAssetsFinder,
-      ProfileUtils profileUtils) {
-    super(templateEngine, playThymeleafContextFactory, settingsManifest);
-    this.bundledAssetsFinder = checkNotNull(bundledAssetsFinder);
-    this.profileUtils = checkNotNull(profileUtils);
+  public TransitionalLayoutBaseView(LayoutDeps layoutDeps) {
+    super(layoutDeps.baseViewDeps());
+    this.bundledAssetsFinder = layoutDeps.bundledAssetsFinder();
+    this.profileUtils = layoutDeps.profileUtils();
   }
 
   /** Override to set the active page for top header navigation. */

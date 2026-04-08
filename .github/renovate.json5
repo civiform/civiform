@@ -72,6 +72,10 @@
       matchPackageNames: ["org.pac4j:pac4j{/,}**"],
     },
     {
+      groupName: "pekko",
+      matchPackageNames: ["org.apache.pekko:**"],
+    },
+    {
       groupName: "playwright",
       matchPackageNames: [
         "playwright{/,}**",

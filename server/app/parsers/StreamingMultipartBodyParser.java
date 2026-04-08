@@ -1,11 +1,11 @@
 package parsers;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import org.apache.pekko.stream.Materializer;
 import org.apache.pekko.stream.javadsl.Sink;
 import org.apache.pekko.util.ByteString;
+import parsers.cloud.MultipartUploadSinks;
 import play.http.DefaultHttpErrorHandler;
 import play.libs.streams.Accumulator;
 import play.mvc.BodyParser;
@@ -24,10 +24,15 @@ import play.mvc.Http.MultipartFormData.FilePart;
 public abstract class StreamingMultipartBodyParser
     extends BodyParser.DelegatingMultipartFormDataBodyParser<Void> {
   private static final int CHUNK_SIZE = 1024 * 1024; // 1 MiB
+  private final MultipartUploadSinks uploadSinks;
 
   public StreamingMultipartBodyParser(
-      Materializer materializer, DefaultHttpErrorHandler errorHandler, long maxFileSize) {
+      Materializer materializer,
+      DefaultHttpErrorHandler errorHandler,
+      MultipartUploadSinks streamingMultipartUploadSinks,
+      long maxFileSize) {
     super(materializer, CHUNK_SIZE, maxFileSize, /* allowEmptyFiles= */ false, errorHandler);
+    this.uploadSinks = streamingMultipartUploadSinks;
   }
 
   // Override the method to create a file part handler that streams the file data to the destination
@@ -38,7 +43,7 @@ public abstract class StreamingMultipartBodyParser
       String bucketName = getBucketName();
       String fileKey = getFileKey();
       Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> uploadSink =
-          createUploadSink(bucketName, fileKey, CHUNK_SIZE);
+          createUploadSink(bucketName, fileKey);
 
       // Map upload sink to an output value
       Sink<ByteString, CompletionStage<FilePart<Void>>> mappedSink =
@@ -69,14 +74,9 @@ public abstract class StreamingMultipartBodyParser
   // https://pekko.apache.org/docs/pekko-connectors/1.2/index.html
   // TODO: Add support for storage providers - currently a no-op sink that discards the data.
   protected Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> createUploadSink(
-      String bucketName, String fileKey, long chunkSize) {
+      String bucketName, String fileKey) {
     // Default implementation can be a no-op sink that simply discards the data
-    return Sink.<ByteString>ignore()
-        .mapMaterializedValue(
-            completionStage -> {
-              // Return a completed future with a default result, since this is just a placeholder
-              return CompletableFuture.completedFuture(StreamingMultipartUploadResult.success());
-            });
+    return uploadSinks.getSinkForCloudProvider(bucketName, fileKey, CHUNK_SIZE);
   }
 
   // Abstract method to provide the file path for the location of this upload in cloud storage
