@@ -781,6 +781,8 @@ placeholder.entityName={0} name
 validation.fileRequired=Please select a file.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Your file is too large. Please choose a file less than {0} MB.
+# An error shown to the user when an upload fails for an unexpected reason (e.g. a network or storage error, or a disallowed file type) and asks them to try again.
+validation.fileUploadFailed=There was an issue with the file you chose. Please choose a different file and try again.
 # Text shown on a tag while a file is uploading.
 label.uploading=Uploading
 # Label applied to a list of uploaded files
