@@ -76,13 +76,86 @@
     th:hx-post="${featureFlags.isFileUploadQuestionImprovementsEnabled() && !isPreview} ? ${hxSelectFileForUploadUrl}"
     th:hx-trigger="${featureFlags.isFileUploadQuestionImprovementsEnabled() && !isPreview} ? 'change'"
     th:hx-encoding="${featureFlags.isFileUploadQuestionImprovementsEnabled() && !isPreview} ? 'multipart/form-data'"
+    th:hx-swap="${featureFlags.isFileUploadQuestionImprovementsEnabled() && !isPreview} ? 'none'"
   />
+
+  <th:block
+    th:if="${featureFlags.isFileUploadQuestionImprovementsEnabled() && !isPreview}"
+  >
+    <div
+      th:replace="~{questiontypes/FileUploadQuestionFragment :: file-key-field(${fileUploadQuestion}, false, false)}"
+    ></div>
+    <div
+      th:replace="~{questiontypes/FileUploadQuestionFragment :: file-list-display(${fileUploadQuestion}, false)}"
+    ></div>
+  </th:block>
 </div>
 
 <!--/* Fragment for rendering file key fields within hidden inputs */-->
-<div th:fragment="file-key-field(fileUploadQuestion, clearData)">
+<div
+  id="cf-fileupload-file-key-inputs"
+  th:fragment="file-key-field(fileUploadQuestion, clearData, oob)"
+  th:hx-swap-oob="${oob} ? 'true'"
+>
+  <!--/* Singular path is preserved for backwards compatibility with the
+       non-improvements (cloud direct-upload) flow. */-->
   <input
+    type="hidden"
     th:name="${fileUploadQuestion.getFileKeyPath()}"
     th:value="${clearData ? '' : fileUploadQuestion.getFileKeyValue().orElse('')}"
   />
+  <th:block
+    th:if="${!clearData and fileUploadQuestion.getFileKeyListValue().isPresent()}"
+  >
+    <input
+      th:each="fileKey, iter : ${fileUploadQuestion.getFileKeyListValue().get()}"
+      th:name="${fileUploadQuestion.getFileKeyListPathForIndex(iter.index)}"
+      th:value="${fileKey}"
+      type="hidden"
+    />
+  </th:block>
+  <th:block
+    th:if="${!clearData and fileUploadQuestion.getOriginalFileNameListValue().isPresent()}"
+  >
+    <input
+      th:each="name, iter : ${fileUploadQuestion.getOriginalFileNameListValue().get()}"
+      th:name="${fileUploadQuestion.getOriginalFileNameListPathForIndex(iter.index)}"
+      th:value="${name}"
+      type="hidden"
+    />
+  </th:block>
 </div>
+
+<ul
+  class="grid"
+  data-th-attr="aria-label=#{label.uploadedFiles}"
+  id="cf-fileupload-file-list"
+  th:fragment="file-list-display(fileUploadQuestion, oob)"
+  th:hx-swap-oob="${oob} ? 'true'"
+>
+  <th:block th:if="${fileUploadQuestion.getFileKeyListValue().isPresent()}">
+    <li
+      class="grid-row margin-y-1"
+      th:each="fileKey, iter : ${fileUploadQuestion.getFileKeyListValue().get()}"
+      th:with="fileName=${fileUploadQuestion.getFileNameForIndex(iter.index).orElse(fileKey)}"
+    >
+      <span
+        class="overflow-hidden grid-col flex-fill"
+        th:text="${fileName}"
+      ></span>
+      <a
+        role="button"
+        th:aria-label="#{link.removeFileSr(${fileName})}"
+        th:href="${applicationParams.applicantRoutes() != null ? applicationParams.applicantRoutes().removeFile(
+          applicationParams.profile(),
+          applicationParams.applicantId(),
+          applicationParams.programId(),
+          applicationParams.block().id,
+          fileKey,
+          applicationParams.inReview()
+        ).url(): '#'}"
+        th:text="#{link.removeFile}"
+      ></a>
+    </li>
+  </th:block>
+</ul>

@@ -100,6 +100,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final ApplicantRoutes applicantRoutes;
   private final EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator;
   private final MonitoringMetricCounters metricCounters;
+  private final views.questiontypes.FileKeyInputsViewPartial fileKeyInputsViewPartial;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -123,7 +124,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ProgramSlugHandler programSlugHandler,
       ApplicantRoutes applicantRoutes,
       EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator,
-      MonitoringMetricCounters metricCounters) {
+      MonitoringMetricCounters metricCounters,
+      views.questiontypes.FileKeyInputsViewPartial fileKeyInputsViewPartial) {
     super(profileUtils, versionRepository);
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
@@ -142,6 +144,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.programService = checkNotNull(programService);
     this.programSlugHandler = checkNotNull(programSlugHandler);
     this.metricCounters = checkNotNull(metricCounters);
+    this.fileKeyInputsViewPartial = checkNotNull(fileKeyInputsViewPartial);
   }
 
   /**
@@ -1211,13 +1214,24 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                               blockId,
                               fileUploadQuestionFormData.build(),
                               settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
-                              false,
+                              /* forceUpdate= */ true,
                               settingsManifest.getApiBridgeEnabled(request)));
             },
             classLoaderExecutionContext.current())
         .thenApplyAsync(
-            // TODO(#12974): Return a successful file upload partial
-            roApplicantProgramService -> ok(""),
+            roApplicantProgramService -> {
+              FileUploadQuestion stagedQuestion =
+                  roApplicantProgramService
+                      .getActiveBlock(blockId)
+                      .orElseThrow()
+                      .getVisibleQuestions()
+                      .stream()
+                      .filter(q -> q.getType() == QuestionType.FILEUPLOAD)
+                      .findAny()
+                      .orElseThrow()
+                      .createFileUploadQuestion();
+              return ok(fileKeyInputsViewPartial.renderOob(stagedQuestion)).as("text/html");
+            },
             classLoaderExecutionContext.current())
         // TODO(#12974): Return a file upload partial with an error message
         .exceptionallyAsync(ex -> internalServerError(), classLoaderExecutionContext.current());

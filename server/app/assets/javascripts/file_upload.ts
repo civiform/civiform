@@ -237,7 +237,14 @@ function validateFileUploadQuestion(blockForm: Element): boolean {
   const fileInput = assertNotNull(
     blockForm.querySelector<HTMLInputElement>('input[type=file]'),
   )
-  const isFileUploaded = fileInput.value != ''
+  // A file is considered uploaded if either the user just picked one in this session,
+  // or there is at least one previously-uploaded file already persisted as a hidden
+  // file_key_list[i] input inside #cf-fileupload-file-key-inputs.
+  const hasPreviouslyUploadedFile =
+    blockForm.querySelector<HTMLInputElement>(
+      '#cf-fileupload-file-key-inputs input[name*="file_key_list"][value]:not([value=""])',
+    ) != null
+  const isFileUploaded = fileInput.value != '' || hasPreviouslyUploadedFile
 
   const fileNotSelectedErrorDiv = document.getElementById(
     'cf-fileupload-required-error',
