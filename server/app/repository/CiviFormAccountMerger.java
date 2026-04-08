@@ -17,6 +17,40 @@ public final class CiviFormAccountMerger {
   private static final Logger logger = LoggerFactory.getLogger(CiviFormAccountMerger.class);
 
   /**
+   * A container for the CiviForm User's applications. We don't need obsolete records for the CF
+   * user as compared to the Guest.
+   */
+  private record CfUserApps(Optional<ApplicationModel> active, Optional<ApplicationModel> draft) {}
+
+  /** A container for the Guest User's applications. */
+  private record GuestUserApps(
+      List<ApplicationModel> obsolete,
+      Optional<ApplicationModel> active,
+      Optional<ApplicationModel> draft) {}
+
+  // Collect the applications into the nicer structure.
+  private GuestUserApps categorizeGuestApps(List<ApplicationModel> apps) {
+    List<ApplicationModel> obsolete =
+        apps.stream()
+            .filter(a -> a.getLifecycleStage() == LifecycleStage.OBSOLETE)
+            .collect(Collectors.toList());
+    Optional<ApplicationModel> active =
+        apps.stream().filter(a -> a.getLifecycleStage() == LifecycleStage.ACTIVE).findFirst();
+    Optional<ApplicationModel> draft =
+        apps.stream().filter(a -> a.getLifecycleStage() == LifecycleStage.DRAFT).findFirst();
+    return new GuestUserApps(obsolete, active, draft);
+  }
+
+  // Collect the applications into the nicer structure.
+  private CfUserApps categorizeCfApps(List<ApplicationModel> apps) {
+    Optional<ApplicationModel> active =
+        apps.stream().filter(a -> a.getLifecycleStage() == LifecycleStage.ACTIVE).findFirst();
+    Optional<ApplicationModel> draft =
+        apps.stream().filter(a -> a.getLifecycleStage() == LifecycleStage.DRAFT).findFirst();
+    return new CfUserApps(active, draft);
+  }
+
+  /**
    * Merge data from the two Applicants.
    *
    * <p>This is part of an in-progress and incomplete method.
@@ -53,18 +87,6 @@ public final class CiviFormAccountMerger {
     String log = mergeGuestApplicationsIntoCfUser(civiformUser, guestUser, applyChanges);
     logger.info(log);
   }
-
-  /**
-   * A container for the CiviForm User's applications. We don't need obsolete records for the CF
-   * user as compared to the Guest.
-   */
-  private record CfUserApps(Optional<ApplicationModel> active, Optional<ApplicationModel> draft) {}
-
-  /** A container for the Guest User's applications. */
-  private record GuestUserApps(
-      List<ApplicationModel> obsolete,
-      Optional<ApplicationModel> active,
-      Optional<ApplicationModel> draft) {}
 
   /// Merge logic:
   /// 1. For programs only in guest, move them to the cfUser
@@ -106,6 +128,10 @@ public final class CiviFormAccountMerger {
     // https://github.com/google/google-java-format/issues/1369
     // Design Doc:
     // https://docs.google.com/document/d/1qq5lLXMgAxMvrsZzcyKEmZsQAtnCt6lcpkqQ836IWhE/edit?tab=t.0#heading=h.w8d3omccpuw1
+
+    // Collect the user apps into lookup tables keyed on Program IDs.
+    // We don't collect into a GuestUserApps immediately here as the List is
+    // valuable.
     Map<Long, List<ApplicationModel>> guestAppsByProgram =
         guestUser.getApplications().stream()
             .collect(Collectors.groupingBy(app -> app.getProgram().id));
@@ -121,14 +147,15 @@ public final class CiviFormAccountMerger {
     // to render the final display nicer.
     StringBuilder logMessageMove = new StringBuilder();
     StringBuilder logMessageMerge = new StringBuilder();
+
     // Evaluate each of the guest's programs.
     for (Map.Entry<Long, List<ApplicationModel>> entry : guestAppsByProgram.entrySet()) {
       long programId = entry.getKey();
       List<ApplicationModel> guestApps = entry.getValue();
-      GuestUserApps guestUserApps = categorizeGuestApps(guestApps);
 
       boolean bothHaveProgram = cfAppsByProgram.containsKey(programId);
       if (bothHaveProgram) {
+        GuestUserApps guestUserApps = categorizeGuestApps(guestApps);
         // Merge the applications.
         CfUserApps cfUserApps = cfAppsByProgram.get(programId);
         var log =
@@ -136,12 +163,16 @@ public final class CiviFormAccountMerger {
                 cfUser, guestUser, cfUserApps, guestUserApps, programId, applyChanges);
         logMessageMerge.append(log);
       } else {
-        // Just move over the applications.
+        // The CiviForm User doesn't have the program so just move over the
+        // applications.
         StringJoiner programIds = new StringJoiner(", ");
         for (ApplicationModel app : guestApps) {
           programIds.add(app.id.toString());
           if (applyChanges) {
-            app.setOriginalApplicantId(guestUser.id);
+            // Don't set on Drafts as there's no utility.
+            if (!app.getLifecycleStage().equals(LifecycleStage.DRAFT)) {
+              app.setOriginalApplicantId(guestUser.id);
+            }
             app.setApplicant(cfUser);
             app.save();
           }
@@ -188,26 +219,6 @@ public final class CiviFormAccountMerger {
     }
 
     return finalLogMessage.toString();
-  }
-
-  private GuestUserApps categorizeGuestApps(List<ApplicationModel> apps) {
-    List<ApplicationModel> obsolete =
-        apps.stream()
-            .filter(a -> a.getLifecycleStage() == LifecycleStage.OBSOLETE)
-            .collect(Collectors.toList());
-    Optional<ApplicationModel> active =
-        apps.stream().filter(a -> a.getLifecycleStage() == LifecycleStage.ACTIVE).findFirst();
-    Optional<ApplicationModel> draft =
-        apps.stream().filter(a -> a.getLifecycleStage() == LifecycleStage.DRAFT).findFirst();
-    return new GuestUserApps(obsolete, active, draft);
-  }
-
-  private CfUserApps categorizeCfApps(List<ApplicationModel> apps) {
-    Optional<ApplicationModel> active =
-        apps.stream().filter(a -> a.getLifecycleStage() == LifecycleStage.ACTIVE).findFirst();
-    Optional<ApplicationModel> draft =
-        apps.stream().filter(a -> a.getLifecycleStage() == LifecycleStage.DRAFT).findFirst();
-    return new CfUserApps(active, draft);
   }
 
   /**
