@@ -57,13 +57,13 @@ public final class CiviFormAccountMerger {
    *
    * <p>The {@code civiformUser} Account and Applicant will be retained in the database with {@code
    * guestUser} merged into it. When merging question answers, {@code guestApp}'s data will take
-   * precedence.
+   * precedence because it is newer.
    *
-   * <p>When drafts must be merged the code will keep the most relevant one, however note that there
+   * <p>When draft applications must be merged the code will keep the most relevant one, however note that there
    * is no real data in a draft other than the creation time.
    *
    * <p>When a Guest Active application is moved it will have originalApplicantId set to the Guest
-   * Applicant. Drafts will not have it set because their data is not consumed by an external user,
+   * Applicant to allow for matching across api data pulls. Drafts will not have it set because draft applications are not pulled by the api.
    * and it serves no purpose then.
    *
    * @param newMergeStage what launch stage the new merge feature is at. Must be DRY_RUN OR ENABLED.
@@ -322,7 +322,7 @@ public final class CiviFormAccountMerger {
    * <p>The system has an invariant that an Active application shouldn't be older than an Obsolete
    * one, so we must keep the newer Active.
    *
-   * @param applyChanges if database changes should be applied. If off the return will log what
+   * @param applyChanges if database changes should be applied. If false the return will log what
    *     would have occurred.
    * @return a log message indicating what changes occurred.
    */
@@ -339,7 +339,7 @@ public final class CiviFormAccountMerger {
     StringBuilder logMessage =
         new StringBuilder(
             """
-            CiviForm User and Guest both have a Active application.
+            CiviForm User and Guest both have an Active application.
               * CF User:
                 * Application id %d
                 * Submitted: %s
@@ -371,7 +371,7 @@ public final class CiviFormAccountMerger {
 
       if (guestUserApps.draft().isPresent()) {
         var guestDraft = guestUserApps.draft().get();
-        logMessage.append("  * Deleting Guest Draft id %d".formatted(guestDraft.id));
+        logMessage.append("  * Deleting Guest draft application id %d".formatted(guestDraft.id));
         if (applyChanges) {
           guestDraft.delete();
         }
@@ -407,7 +407,7 @@ public final class CiviFormAccountMerger {
     // Delete the CF draft if it exists.
     if (cfUserApps.draft().isPresent()) {
       var cfDraft = cfUserApps.draft().get();
-      logMessage.append("  * Deleting CF Draft id %d".formatted(cfDraft.id));
+      logMessage.append("  * Deleting CF draft application id %d".formatted(cfDraft.id));
       if (applyChanges) {
         cfDraft.delete();
       }
@@ -418,7 +418,7 @@ public final class CiviFormAccountMerger {
       var guestDraft = guestUserApps.draft().get();
       logMessage.append(
           """
-            * Moving Guest Draft id %d to CFUser Account id %d
+            * Moving Guest draft application id %d to CFUser Account id %d
           """
               .formatted(guestDraft.id, cfUser.getAccount().id));
       if (applyChanges) {
@@ -434,7 +434,7 @@ public final class CiviFormAccountMerger {
    * Reconciles when the CF User has an Active application and the Guest does not, but implicitly
    * has a Draft one.
    *
-   * @param applyChanges if database changes should be applied. If off the return will log what
+   * @param applyChanges if database changes should be applied. If false the return will log what
    *     would have occurred.
    * @return a log message indicating what changes occurred.
    */
@@ -459,7 +459,7 @@ public final class CiviFormAccountMerger {
    * Reconciles when the CF user does not have an Active application and implicitly has a Draft, and
    * the Guest User has an Active application.
    *
-   * @param applyChanges if database changes should be applied. If off the return will log what
+   * @param applyChanges if database changes should be applied. If false the return will log what
    *     would have occurred.
    * @return a log message indicating what changes occurred.
    */
@@ -515,7 +515,7 @@ public final class CiviFormAccountMerger {
   /**
    * Reconciles when both only have a Draft.
    *
-   * @param applyChanges if database changes should be applied. If off the return will log what
+   * @param applyChanges if database changes should be applied. If false the return will log what
    *     would have occurred.
    * @return a log message indicating what changes occurred.
    */
@@ -535,7 +535,7 @@ public final class CiviFormAccountMerger {
     return """
     CiviForm User and Guest both only have a Draft Application.
       * Deleting CiviForm Draft application id %d
-      * Moving Guest Draft application id %d
+      * Moving Guest Draft application id %d to CiviForm Applicant id %d
     """
         .formatted(cfDraft.id, guestDraft.id);
   }
