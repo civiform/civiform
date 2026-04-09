@@ -64,6 +64,13 @@ public class ApplicantFileNameFormatterTest {
   }
 
   @Test
+  public void formatFilenameApplicantLookupPrefixString() {
+    String prefix =
+        ApplicantFileNameFormatter.formatFilenameApplicantLookupPrefixString(/* applicantId= */ 1L);
+    assertThat(FILE_NAME).startsWith(prefix);
+  }
+
+  @Test
   public void formatFileUploadQuestionFilenameWithUuid() {
     String result =
         ApplicantFileNameFormatter.formatFileUploadQuestionFilenameWithUuid(
