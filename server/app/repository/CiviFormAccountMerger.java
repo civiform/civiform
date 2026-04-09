@@ -59,12 +59,12 @@ public final class CiviFormAccountMerger {
    * guestUser} merged into it. When merging question answers, {@code guestApp}'s data will take
    * precedence because it is newer.
    *
-   * <p>When draft applications must be merged the code will keep the most relevant one, however note that there
-   * is no real data in a draft application other than the creation time.
+   * <p>When draft applications must be merged the code will keep the most relevant one, however
+   * note that there is no real data in a draft application other than the creation time.
    *
    * <p>When a Guest active application is moved it will have originalApplicantId set to the Guest
-   * applicant to allow for matching across api data pulls. Draft applications will not have it set because draft applications are not pulled by the api.
-   * and it serves no purpose then.
+   * applicant to allow for matching across api data pulls. Draft applications will not have it set
+   * because draft applications are not pulled by the api. and it serves no purpose then.
    *
    * @param newMergeStage what launch stage the new merge feature is at. Must be DRY_RUN OR ENABLED.
    */
@@ -285,7 +285,8 @@ public final class CiviFormAccountMerger {
     final String log;
     if (cfHasActive) {
       if (guestHasActive) {
-        // Handle all cases where both have active applications. Either may have a draft application too.
+        // Handle all cases where both have active applications. Either may have a draft application
+        // too.
         log = reconcileBothWithActives(cfUser, guestUser, cfUserApps, guestUserApps, applyChanges);
       } else {
         // Handle CF user having an active application, Guest does not, but it implicitly
@@ -293,7 +294,8 @@ public final class CiviFormAccountMerger {
         log = reconcileCfActiveGuestNoActive(cfUserApps, guestUserApps, applyChanges);
       }
     } else if (guestHasActive) {
-      // Guest user has an active application, CF user does not, but it  implicitly has a draft application.
+      // Guest user has an active application, CF user does not, but it  implicitly has a draft
+      // application.
       log =
           reconcileCfNoActiveGuestActive(
               cfUser, guestUser, cfUserApps, guestUserApps, applyChanges);
