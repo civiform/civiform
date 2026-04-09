@@ -160,7 +160,7 @@ public final class CiviFormAccountMerger {
         // Merge the applications.
         CfUserApps cfUserApps = cfAppsByProgram.get(programId);
         var log =
-            reconcileAppsForProgram(
+            reconcileApplicationsForProgram(
                 cfUser, guestUser, cfUserApps, guestUserApps, programId, applyChanges);
         logMessageMerge.append(log);
       } else {
@@ -227,7 +227,7 @@ public final class CiviFormAccountMerger {
    *
    * @return a log message indicating what changes occurred.
    */
-  private String reconcileAppsForProgram(
+  private String reconcileApplicationsForProgram(
       ApplicantModel cfUser,
       ApplicantModel guestUser,
       CfUserApps cfUserApps,
@@ -298,24 +298,26 @@ public final class CiviFormAccountMerger {
       if (guestHasActive) {
         // Handle all cases where both have Active applications. Either may have a Draft application
         // too.
-        log = reconcileBothWithActives(cfUser, guestUser, cfUserApps, guestUserApps, applyChanges);
+        log =
+            reconcileApplicationsBothWithActives(
+                cfUser, guestUser, cfUserApps, guestUserApps, applyChanges);
       } else {
         // Handle CF user having an Active application, Guest does not, but it implicitly
         // has a Draft application.
-        log = reconcileCfActiveGuestNoActive(cfUserApps, guestUserApps, applyChanges);
+        log = reconcileApplicationsCfActiveGuestNoActive(cfUserApps, guestUserApps, applyChanges);
       }
     } else if (guestHasActive) {
       // Guest user has an Active application, CF user does not, but it  implicitly has a draft
       // application.
       log =
-          reconcileCfNoActiveGuestActive(
+          reconcileApplicationsCfNoActiveGuestActive(
               cfUser, guestUser, cfUserApps, guestUserApps, applyChanges);
     }
     // Both only have a Draft application.
     else if (cfHasDraft && guestHasDraft) {
       // IDE static analysis checker confirms these are always true at this
       // point but explicitly specifying for readability.
-      log = reconcileBothWithDraftOnly(cfUser, cfUserApps, guestUserApps, applyChanges);
+      log = reconcileApplicationsBothWithDraftOnly(cfUser, cfUserApps, guestUserApps, applyChanges);
     } else {
       // IDE static analysis checker confirms this is not reachable but putting
       // here for readability, and future change detection.
@@ -339,7 +341,7 @@ public final class CiviFormAccountMerger {
    *     would have occurred.
    * @return a log message indicating what changes occurred.
    */
-  private static String reconcileBothWithActives(
+  private static String reconcileApplicationsBothWithActives(
       ApplicantModel cfUser,
       ApplicantModel guestUser,
       CfUserApps cfUserApps,
@@ -459,7 +461,7 @@ public final class CiviFormAccountMerger {
    *     would have occurred.
    * @return a log message indicating what changes occurred.
    */
-  private String reconcileCfActiveGuestNoActive(
+  private String reconcileApplicationsCfActiveGuestNoActive(
       CfUserApps cfUserApps, GuestUserApps guestUserApps, boolean applyChanges) {
 
     // Keep the CF user data as is, delete the Guest Draft application.
@@ -487,7 +489,7 @@ public final class CiviFormAccountMerger {
    *     would have occurred.
    * @return a log message indicating what changes occurred.
    */
-  private static String reconcileCfNoActiveGuestActive(
+  private static String reconcileApplicationsCfNoActiveGuestActive(
       ApplicantModel cfUser,
       ApplicantModel guestUser,
       CfUserApps cfUserApps,
@@ -548,7 +550,7 @@ public final class CiviFormAccountMerger {
    *     would have occurred.
    * @return a log message indicating what changes occurred.
    */
-  private static String reconcileBothWithDraftOnly(
+  private static String reconcileApplicationsBothWithDraftOnly(
       ApplicantModel cfUser,
       CfUserApps cfUserApps,
       GuestUserApps guestUserApps,
