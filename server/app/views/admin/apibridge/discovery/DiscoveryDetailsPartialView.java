@@ -1,7 +1,7 @@
 package views.admin.apibridge.discovery;
 
 import com.google.inject.Inject;
-import views.admin.BaseView;
+import views.BaseView;
 import views.shared.BaseViewDeps;
 
 /** View setup for rendering the DiscoveryDetailsPartial.html */

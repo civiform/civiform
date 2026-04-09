@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import lombok.Builder;
 import services.apibridge.ApiBridgeServiceDto;
-import views.admin.BaseViewModel;
+import views.BaseViewModel;
 
 /** Contains all the properties for rendering the DiscoveryDetailsPartial.html */
 @Builder

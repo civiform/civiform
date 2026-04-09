@@ -5,11 +5,17 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
+import java.util.Optional;
 import modules.ThymeleafModule;
 import play.mvc.Http;
 import services.BundledAssetsFinder;
+import views.BaseView;
+import views.BaseViewModel;
+import views.LayoutTemplate;
 import views.admin.shared.AdminCommonHeader;
+import views.admin.shared.Footer;
 import views.shared.LayoutDeps;
+import views.shared.ScriptElementSettings;
 
 /**
  * {@link AdminLayoutBaseView} is used to render the supplied Thymeleaf page template. This view is
@@ -45,11 +51,21 @@ public abstract class AdminLayoutBaseView<TModel extends BaseViewModel> extends 
             .isOnlyProgramAdmin(profile.isOnlyProgramAdmin())
             .isApiBridgeEnabled(settingsManifest.getApiBridgeEnabled(request))
             .build());
+
+    // Set values for the footer
+    context.setVariable(
+        "footer",
+        Footer.builder()
+            .technicalSupportEmail(
+                settingsManifest
+                    .getSupportEmailAddress(request)
+                    .orElse("SUPPORT EMAIL ADDRESS MISSING"))
+            .build());
   }
 
   @Override
-  protected final String layoutTemplate() {
-    return LayoutTemplate.ADMIN_LAYOUT;
+  protected final Optional<LayoutTemplate> layoutTemplate() {
+    return Optional.of(LayoutTemplate.ADMIN_LAYOUT);
   }
 
   @Override

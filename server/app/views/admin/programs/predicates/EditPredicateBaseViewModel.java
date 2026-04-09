@@ -2,7 +2,7 @@ package views.admin.programs.predicates;
 
 import com.google.common.collect.ImmutableList;
 import services.program.predicate.PredicateExpressionNodeType;
-import views.admin.BaseViewModel;
+import views.BaseViewModel;
 
 /**
  * A base view model for pages that need to edit a predicate. It includes methods that are shared
