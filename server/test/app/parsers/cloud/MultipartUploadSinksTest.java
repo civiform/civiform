@@ -19,6 +19,7 @@ import org.junit.Test;
 import parsers.StreamingMultipartUploadResult;
 import parsers.cloud.aws.AwsS3MultipartUploadSinkProvider;
 import parsers.cloud.gcp.GcpMultipartUploadSinkProvider;
+import services.cloud.BucketType;
 import services.cloud.StorageServiceName;
 
 public class MultipartUploadSinksTest {
@@ -75,7 +76,8 @@ public class MultipartUploadSinksTest {
 
   private StreamingMultipartUploadResult runSink() throws Exception {
     Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> sink =
-        checkNotNull(uploadSinks).getSinkForCloudProvider("bucket", FILE_KEY, CHUNK_SIZE);
+        checkNotNull(uploadSinks)
+            .getSinkForCloudProvider(BucketType.PRIVATE_BUCKET, FILE_KEY, CHUNK_SIZE);
     CompletionStage<StreamingMultipartUploadResult> completionStage =
         Source.single(ByteString.fromString("test")).runWith(sink, system);
 

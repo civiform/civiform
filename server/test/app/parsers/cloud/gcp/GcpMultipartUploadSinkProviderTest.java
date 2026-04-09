@@ -2,6 +2,7 @@ package parsers.cloud.gcp;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
@@ -9,6 +10,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import com.typesafe.config.Config;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import org.apache.pekko.actor.ActorSystem;
@@ -20,9 +22,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import parsers.StreamingMultipartUploadResult;
+import repository.ResetPostgres;
+import services.cloud.BucketType;
 import services.cloud.StorageServiceName;
 
-public class GcpMultipartUploadSinkProviderTest {
+public class GcpMultipartUploadSinkProviderTest extends ResetPostgres {
   private static final String FILE_KEY = "test-file-key";
   private static final Integer CHUNK_SIZE = 1024 * 1024; // 1 MB
 
@@ -34,12 +38,14 @@ public class GcpMultipartUploadSinkProviderTest {
   public void setUp() {
     system = ActorSystem.create("TestSystem");
 
-    uploadSinkProvider = spy(new GcpMultipartUploadSinkProvider());
+    uploadSinkProvider = spy(new GcpMultipartUploadSinkProvider(instanceOf(Config.class)));
     StorageObject mockResult = mock(StorageObject.class);
     fakeGcpSink = Sink.fold(mockResult, (acc, next) -> acc);
 
     when(mockResult.name()).thenReturn(FILE_KEY);
-    doReturn(fakeGcpSink).when(uploadSinkProvider).getBaseSink(anyString(), anyString(), anyInt());
+    doReturn(fakeGcpSink)
+        .when(uploadSinkProvider)
+        .getBaseSink(any(BucketType.class), anyString(), anyInt());
   }
 
   @After
@@ -65,7 +71,7 @@ public class GcpMultipartUploadSinkProviderTest {
             .mapMaterializedValue(_ -> CompletableFuture.failedFuture(gcpException));
     doReturn(failingBaseSink)
         .when(uploadSinkProvider)
-        .getBaseSink(anyString(), anyString(), anyInt());
+        .getBaseSink(any(BucketType.class), anyString(), anyInt());
 
     StreamingMultipartUploadResult result = runSink();
 
@@ -77,7 +83,8 @@ public class GcpMultipartUploadSinkProviderTest {
 
   private StreamingMultipartUploadResult runSink() throws Exception {
     Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> sink =
-        checkNotNull(uploadSinkProvider.getUploadSink("bucket", FILE_KEY, CHUNK_SIZE));
+        checkNotNull(
+            uploadSinkProvider.getUploadSink(BucketType.PRIVATE_BUCKET, FILE_KEY, CHUNK_SIZE));
     CompletionStage<StreamingMultipartUploadResult> completionStage =
         Source.single(ByteString.fromString("test")).runWith(sink, system);
 

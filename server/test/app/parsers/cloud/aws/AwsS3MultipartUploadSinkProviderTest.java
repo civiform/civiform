@@ -2,6 +2,7 @@ package parsers.cloud.aws;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
@@ -9,6 +10,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import com.typesafe.config.Config;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import org.apache.pekko.actor.ActorSystem;
@@ -20,9 +22,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import parsers.StreamingMultipartUploadResult;
+import repository.ResetPostgres;
+import services.cloud.BucketType;
 import services.cloud.StorageServiceName;
 
-public class AwsS3MultipartUploadSinkProviderTest {
+public class AwsS3MultipartUploadSinkProviderTest extends ResetPostgres {
   private static final String FILE_KEY = "test-file-key";
   private static final Integer CHUNK_SIZE = 1024 * 1024; // 1 MB
 
@@ -34,13 +38,14 @@ public class AwsS3MultipartUploadSinkProviderTest {
   public void setUp() {
     system = ActorSystem.create("TestSystem");
 
-    uploadSinkProvider = spy(new AwsS3MultipartUploadSinkProvider());
+    uploadSinkProvider = spy(new AwsS3MultipartUploadSinkProvider(instanceOf(Config.class)));
     MultipartUploadResult mockResult = mock(MultipartUploadResult.class);
     fakeAwsSink = Sink.fold(mockResult, (acc, next) -> acc);
 
     when(mockResult.getKey()).thenReturn(FILE_KEY);
-    when(uploadSinkProvider.getBaseSink(anyString(), anyString(), anyInt()))
-        .thenReturn(fakeAwsSink);
+    doReturn(fakeAwsSink)
+        .when(uploadSinkProvider)
+        .getBaseSink(any(BucketType.class), anyString(), anyInt());
   }
 
   @After
@@ -66,7 +71,7 @@ public class AwsS3MultipartUploadSinkProviderTest {
             .mapMaterializedValue(_ -> CompletableFuture.failedFuture(s3Exception));
     doReturn(failingBaseSink)
         .when(uploadSinkProvider)
-        .getBaseSink(anyString(), anyString(), anyInt());
+        .getBaseSink(any(BucketType.class), anyString(), anyInt());
 
     StreamingMultipartUploadResult result = runSink();
 
@@ -78,7 +83,8 @@ public class AwsS3MultipartUploadSinkProviderTest {
 
   private StreamingMultipartUploadResult runSink() throws Exception {
     Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> sink =
-        checkNotNull(uploadSinkProvider.getUploadSink("bucket", FILE_KEY, CHUNK_SIZE));
+        checkNotNull(
+            uploadSinkProvider.getUploadSink(BucketType.PRIVATE_BUCKET, FILE_KEY, CHUNK_SIZE));
     CompletionStage<StreamingMultipartUploadResult> completionStage =
         Source.single(ByteString.fromString("test")).runWith(sink, system);
 
