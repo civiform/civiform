@@ -1,5 +1,6 @@
 package parsers.cloud.aws;
 
+import com.typesafe.config.Config;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import org.apache.pekko.stream.connectors.s3.MultipartUploadResult;
@@ -8,19 +9,24 @@ import org.apache.pekko.stream.javadsl.Sink;
 import org.apache.pekko.util.ByteString;
 import parsers.StreamingMultipartUploadResult;
 import parsers.cloud.GenericMultipartUploadSinkProvider;
+import services.cloud.BucketType;
 import services.cloud.StorageServiceName;
 
 public final class AwsS3MultipartUploadSinkProvider
     extends GenericMultipartUploadSinkProvider<MultipartUploadResult> {
-  public AwsS3MultipartUploadSinkProvider() {
+  private final Config config;
+
+  public AwsS3MultipartUploadSinkProvider(Config config) {
     super(StorageServiceName.AWS_S3);
+    this.config = config;
   }
 
   // Get the base sink for AWS S3 multipart upload, which will be composed with additional stages
   // below. This helps with testability, since we can mock this method.
   @Override
   protected Sink<ByteString, CompletionStage<MultipartUploadResult>> getBaseSink(
-      String bucketName, String fileKey, int chunkSize) {
+      BucketType bucketType, String fileKey, int chunkSize) {
+    String bucketName = getBucketName(bucketType);
     return S3.multipartUpload(bucketName, fileKey);
   }
 
@@ -28,8 +34,8 @@ public final class AwsS3MultipartUploadSinkProvider
   // custom result class.
   @Override
   public Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> getUploadSink(
-      String bucketName, String fileKey, int chunkSize) {
-    return getBaseSink(bucketName, fileKey, chunkSize)
+      BucketType bucketType, String fileKey, int chunkSize) {
+    return getBaseSink(bucketType, fileKey, chunkSize)
         .mapMaterializedValue(
             completionStage ->
                 completionStage
@@ -45,5 +51,13 @@ public final class AwsS3MultipartUploadSinkProvider
                         throwable -> {
                           return failedResult(throwable);
                         }));
+  }
+
+  @Override
+  protected String getBucketName(BucketType bucketType) {
+    return switch (bucketType) {
+      case PRIVATE_BUCKET -> config.getString("aws.s3.bucket");
+      case PUBLIC_BUCKET -> config.getString("aws.s3.public_bucket");
+    };
   }
 }

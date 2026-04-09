@@ -5,6 +5,7 @@ import java.util.concurrent.CompletionStage;
 import org.apache.pekko.stream.javadsl.Sink;
 import org.apache.pekko.util.ByteString;
 import parsers.StreamingMultipartUploadResult;
+import services.cloud.BucketType;
 import services.cloud.StorageServiceName;
 
 public final class NoOpMultipartUploadSinkProvider
@@ -17,15 +18,15 @@ public final class NoOpMultipartUploadSinkProvider
   @Override
   // No-op sink for base
   protected Sink<ByteString, CompletionStage<Void>> getBaseSink(
-      String bucketName, String fileKey, int chunkSize) {
+      BucketType bucketType, String fileKey, int chunkSize) {
     return Sink.<ByteString>ignore().mapMaterializedValue(result -> result.thenApply(done -> null));
   }
 
   @Override
   // Do nothing, and then return a result of NOT_IMPLEMENTED
   public Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> getUploadSink(
-      String bucketName, String fileKey, int chunkSize) {
-    return getBaseSink(bucketName, fileKey, chunkSize)
+      BucketType bucketType, String fileKey, int chunkSize) {
+    return getBaseSink(bucketType, fileKey, chunkSize)
         .mapMaterializedValue(
             completionStage -> {
               // Return a completed future with no result, since this is just a placeholder
@@ -35,5 +36,10 @@ public final class NoOpMultipartUploadSinkProvider
                       .setStorageServiceName(storageServiceName)
                       .build());
             });
+  }
+
+  @Override
+  protected String getBucketName(BucketType bucketType) {
+    return "";
   }
 }
