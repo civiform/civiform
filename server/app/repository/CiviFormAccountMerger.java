@@ -250,10 +250,20 @@ public final class CiviFormAccountMerger {
     boolean cfHasDraft = cfUserApps.draft().isPresent();
     boolean guestHasActive = guestUserApps.active().isPresent();
     boolean guestHasDraft = guestUserApps.draft().isPresent();
-    // Both users must have at least a draft or Active application for this method to be
-    // useful. (The system doesn't allow for Obsolete without an Active application.)
-    Preconditions.checkState(cfHasDraft || cfHasActive);
-    Preconditions.checkState(guestHasDraft || guestHasActive);
+    // Both users must have at least an Active or Draft application for this method to be useful.
+    // (The system doesn't allow for Obsolete without an Active application.)
+    Preconditions.checkState(
+        cfHasActive || cfHasDraft,
+        "CiviForm user must have at least one of an Active (%s) or Draft (%s) Application but does"
+            + " not.",
+        cfHasActive,
+        cfHasDraft);
+    Preconditions.checkState(
+        guestHasActive || guestHasDraft,
+        "Guest user must have at least one of an Active (%s) or Draft (%s) Application but does"
+            + " not.",
+        guestHasActive,
+        guestHasDraft);
 
     StringBuilder logMessage =
         new StringBuilder(
