@@ -57,7 +57,7 @@ public final class CiviFormAccountMerger {
    *
    * <p>The {@code civiformUser} Account and Applicant will be retained in the database with {@code
    * guestUser} merged into it. When merging question answers, {@code guestApp}'s data will take
-   * precedence.
+   * precedence because it is newer.
    *
    * <p>When drafts must be merged the code will keep the most relevant one, however note that there
    * is no real data in a draft other than the creation time.
