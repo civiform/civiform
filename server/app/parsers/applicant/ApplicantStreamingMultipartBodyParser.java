@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 import javax.inject.Inject;
 import org.apache.pekko.stream.Materializer;
 import org.apache.pekko.util.ByteString;
+import parsers.FileTypeValidation;
 import parsers.StreamingMultipartBodyParser;
 import parsers.cloud.MultipartUploadSinks;
 import play.core.parsers.Multipart;
@@ -47,9 +48,15 @@ public final class ApplicantStreamingMultipartBodyParser extends StreamingMultip
       Materializer materializer,
       DefaultHttpErrorHandler errorHandler,
       MultipartUploadSinks streamingMultipartUploadSinks,
+      FileTypeValidation fileTypeValidation,
       Config config,
       ProfileUtils profileUtils) {
-    super(materializer, errorHandler, streamingMultipartUploadSinks, MAX_FILE_SIZE);
+    super(
+        materializer,
+        errorHandler,
+        streamingMultipartUploadSinks,
+        fileTypeValidation,
+        MAX_FILE_SIZE);
     this.profileUtils = checkNotNull(profileUtils);
     this.bucketName = resolvePrivateApplicantBucket(checkNotNull(config));
   }

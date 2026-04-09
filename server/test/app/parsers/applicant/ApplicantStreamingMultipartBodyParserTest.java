@@ -21,6 +21,7 @@ import org.apache.pekko.stream.javadsl.Source;
 import org.apache.pekko.util.ByteString;
 import org.junit.Before;
 import org.junit.Test;
+import parsers.FileTypeValidation;
 import parsers.StreamingMultipartUploadResult;
 import parsers.cloud.MultipartUploadSinks;
 import play.http.DefaultHttpErrorHandler;
@@ -33,6 +34,27 @@ public class ApplicantStreamingMultipartBodyParserTest extends ResetPostgres {
   private static final long APPLICANT_ID = 42L;
   private static final long PROGRAM_ID = 7L;
   private static final String BLOCK_ID = "3";
+  // Valid PDF header bytes (%PDF-1.4 + comment line), at least 16 bytes for FileTypeValidation
+  private static final byte[] PDF_HEADER = {
+    0x25,
+    0x50,
+    0x44,
+    0x46,
+    0x2D,
+    0x31,
+    0x2E,
+    0x34,
+    0x0A,
+    0x25,
+    (byte) 0xC3,
+    (byte) 0xA4,
+    (byte) 0xC3,
+    (byte) 0xBC,
+    (byte) 0xC3,
+    (byte) 0xB6,
+    0x0A,
+    0x31
+  };
 
   private ApplicantStreamingMultipartBodyParser parser;
   private Materializer materializer;
@@ -69,7 +91,12 @@ public class ApplicantStreamingMultipartBodyParserTest extends ResetPostgres {
 
     parser =
         new ApplicantStreamingMultipartBodyParser(
-            materializer, errorHandler, sinks, config, profileUtils);
+            materializer,
+            errorHandler,
+            sinks,
+            instanceOf(FileTypeValidation.class),
+            config,
+            profileUtils);
   }
 
   @Test
@@ -89,7 +116,7 @@ public class ApplicantStreamingMultipartBodyParserTest extends ResetPostgres {
             .header("Content-Type", "multipart/form-data; boundary=" + MULTIPART_BOUNDARY)
             .build();
 
-    Source<ByteString, ?> source = createMultipartRequestBody("hello.pdf", "Hello world");
+    Source<ByteString, ?> source = createMultipartRequestBody("hello.pdf", PDF_HEADER);
 
     CompletionStage<play.libs.F.Either<play.mvc.Result, Http.MultipartFormData<String>>> stage =
         parser.apply(request).run(source, materializer);
@@ -106,20 +133,17 @@ public class ApplicantStreamingMultipartBodyParserTest extends ResetPostgres {
     assertThat(fileKey).endsWith(".pdf");
   }
 
-  private Source<ByteString, ?> createMultipartRequestBody(String filename, String content) {
-    String requestBody =
-        "--"
-            + MULTIPART_BOUNDARY
-            + "\r\n"
-            + "Content-Disposition: form-data; name=\"file\"; filename=\""
-            + filename
-            + "\"\r\n"
-            + "Content-Type: application/pdf\r\n\r\n"
-            + content
-            + "\r\n"
-            + "--"
-            + MULTIPART_BOUNDARY
-            + "--\r\n";
-    return Source.single(ByteString.fromString(requestBody));
+  private Source<ByteString, ?> createMultipartRequestBody(String filename, byte[] content) {
+    ByteString header =
+        ByteString.fromString(
+            "--"
+                + MULTIPART_BOUNDARY
+                + "\r\n"
+                + "Content-Disposition: form-data; name=\"file\"; filename=\""
+                + filename
+                + "\"\r\n"
+                + "Content-Type: application/pdf\r\n\r\n");
+    ByteString footer = ByteString.fromString("\r\n--" + MULTIPART_BOUNDARY + "--\r\n");
+    return Source.single(header.concat(ByteString.fromArray(content)).concat(footer));
   }
 }

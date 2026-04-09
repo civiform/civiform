@@ -61,7 +61,7 @@ public abstract class StreamingMultipartBodyParser
           fileTypeValidation.sniffingFlow(fileName, detectedMimeTypeRef);
 
       // Map upload sink to an output value, prepending the sniffing flow
-      Sink<ByteString, CompletionStage<FilePart<Void>>> mappedSink =
+      Sink<ByteString, CompletionStage<FilePart<String>>> mappedSink =
           sniffingFlow
               .toMat(uploadSink, Keep.right())
               .mapMaterializedValue(
@@ -72,12 +72,8 @@ public abstract class StreamingMultipartBodyParser
                           // Here we can construct a FilePart with the metadata and the result of
                           // the
                           // upload
-                          return new FilePart<Void>(
-                              fileInfo.partName(),
-                              fileName,
-                              detectedMimeTypeRef.get(),
-                              null // The actual file content is streamed, so this can be null
-                              );
+                          return new FilePart<String>(
+                              fileInfo.partName(), fileName, detectedMimeTypeRef.get(), fileKey);
                         });
                   });
 
