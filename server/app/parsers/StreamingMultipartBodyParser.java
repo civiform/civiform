@@ -52,6 +52,9 @@ public abstract class StreamingMultipartBodyParser
           createUploadSink(bucketName, fileKey);
 
       String fileName = fileInfo.fileName();
+      if (fileName == null || fileName.isBlank()) {
+        throw new FileUploadTypeException("Uploaded file has no filename.");
+      }
 
       AtomicReference<String> detectedMimeTypeRef = new AtomicReference<>(null);
       Flow<ByteString, ByteString, ?> sniffingFlow =

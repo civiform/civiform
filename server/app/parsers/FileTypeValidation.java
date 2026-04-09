@@ -168,8 +168,7 @@ public final class FileTypeValidation {
   String validateHeaderBytes(
       ByteString headerBytes, String fileName, ImmutableList<String> allowedTypes) {
 
-    String extension =
-        fileName == null ? "" : FilenameUtils.getExtension(fileName).toLowerCase(Locale.ROOT);
+    String extension = FilenameUtils.getExtension(fileName).toLowerCase(Locale.ROOT);
     String expectedMimeType = extension.isEmpty() ? null : MIME_BY_EXTENSION.get("." + extension);
     if (expectedMimeType == null) {
       throw new FileUploadTypeException(
