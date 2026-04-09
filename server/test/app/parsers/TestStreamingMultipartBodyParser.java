@@ -32,7 +32,7 @@ public final class TestStreamingMultipartBodyParser extends StreamingMultipartBo
   // successful result.
   @Override
   protected Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> createUploadSink(
-      String bucketName, String fileKey) {
+      BucketType bucketType, String fileKey) {
     return Sink.<ByteString, ByteString>fold(
             ByteString.emptyByteString(),
             (acc, chunk) -> {
@@ -57,13 +57,6 @@ public final class TestStreamingMultipartBodyParser extends StreamingMultipartBo
                           .setStorageServiceName(StorageServiceName.S3)
                           .build();
                     }));
-  }
-
-  // For testing purposes, we can return dummy values for the bucket name and file key
-
-  @Override
-  protected String getBucketName() {
-    return "";
   }
 
   @Override

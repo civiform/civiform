@@ -12,7 +12,6 @@ import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
 import auth.ProfileFactory;
 import auth.ProfileUtils;
-import com.typesafe.config.Config;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import org.apache.pekko.stream.Materializer;
@@ -27,6 +26,7 @@ import parsers.cloud.MultipartUploadSinks;
 import play.http.DefaultHttpErrorHandler;
 import play.mvc.Http;
 import repository.ResetPostgres;
+import services.cloud.BucketType;
 import services.cloud.StorageServiceName;
 
 public class ApplicantStreamingMultipartBodyParserTest extends ResetPostgres {
@@ -64,10 +64,9 @@ public class ApplicantStreamingMultipartBodyParserTest extends ResetPostgres {
   public void setUp() {
     materializer = instanceOf(Materializer.class);
     DefaultHttpErrorHandler errorHandler = instanceOf(DefaultHttpErrorHandler.class);
-    Config config = instanceOf(Config.class);
 
     MultipartUploadSinks sinks = mock(MultipartUploadSinks.class);
-    when(sinks.getSinkForCloudProvider(anyString(), anyString(), anyInt()))
+    when(sinks.getSinkForCloudProvider(any(BucketType.class), anyString(), anyInt()))
         .thenAnswer(
             invocation ->
                 Sink.<ByteString, ByteString>fold(ByteString.emptyByteString(), ByteString::concat)
@@ -91,18 +90,7 @@ public class ApplicantStreamingMultipartBodyParserTest extends ResetPostgres {
 
     parser =
         new ApplicantStreamingMultipartBodyParser(
-            materializer,
-            errorHandler,
-            sinks,
-            instanceOf(FileTypeValidation.class),
-            config,
-            profileUtils);
-  }
-
-  @Test
-  public void getBucketName_resolvesFromConfig() {
-    // The bucket is resolved at construction time from cloud.storage.
-    assertThat(parser.getBucketName()).isNotEmpty();
+            materializer, errorHandler, sinks, instanceOf(FileTypeValidation.class), profileUtils);
   }
 
   @Test

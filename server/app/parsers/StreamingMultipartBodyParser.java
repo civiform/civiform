@@ -14,6 +14,7 @@ import play.http.DefaultHttpErrorHandler;
 import play.libs.streams.Accumulator;
 import play.mvc.BodyParser;
 import play.mvc.Http.MultipartFormData.FilePart;
+import services.cloud.BucketType;
 
 /**
  * Abstract class for performing a streaming upload of multipart form data.
@@ -49,7 +50,7 @@ public abstract class StreamingMultipartBodyParser
     return fileInfo -> {
       String fileKey = getFileKey(fileInfo);
       Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> uploadSink =
-          createUploadSink(getBucketName(), fileKey);
+          createUploadSink(getBucketType(), fileKey);
 
       String fileName = fileInfo.fileName();
       if (fileName == null || fileName.isBlank()) {
@@ -85,13 +86,15 @@ public abstract class StreamingMultipartBodyParser
   // Chooses between Pekko connector sinks based on the configured storage provider.
   // https://pekko.apache.org/docs/pekko-connectors/1.2/index.html
   protected Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> createUploadSink(
-      String bucketName, String fileKey) {
-    return uploadSinks.getSinkForCloudProvider(bucketName, fileKey, CHUNK_SIZE);
+      BucketType bucketType, String fileKey) {
+    return uploadSinks.getSinkForCloudProvider(bucketType, fileKey, CHUNK_SIZE);
   }
 
   /** Returns the file path within cloud storage for this upload. */
   protected abstract String getFileKey(Multipart.FileInfo fileInfo);
 
-  /** Returns the destination bucket for streaming the file. */
-  protected abstract String getBucketName();
+  /** Returns the bucket type for streaming the file. Defaults to private. */
+  protected BucketType getBucketType() {
+    return BucketType.PRIVATE_BUCKET;
+  }
 }

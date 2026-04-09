@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.ProfileFactory;
 import auth.ProfileUtils;
-import com.typesafe.config.Config;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,7 +36,6 @@ public final class ApplicantStreamingMultipartBodyParser extends StreamingMultip
       Pattern.compile("/programs/(\\d+)/blocks/([^/]+)(/|$)");
 
   private final ProfileUtils profileUtils;
-  private final String bucketName;
 
   private long applicantId;
   private long programId;
@@ -49,7 +47,6 @@ public final class ApplicantStreamingMultipartBodyParser extends StreamingMultip
       DefaultHttpErrorHandler errorHandler,
       MultipartUploadSinks streamingMultipartUploadSinks,
       FileTypeValidation fileTypeValidation,
-      Config config,
       ProfileUtils profileUtils) {
     super(
         materializer,
@@ -58,7 +55,6 @@ public final class ApplicantStreamingMultipartBodyParser extends StreamingMultip
         fileTypeValidation,
         MAX_FILE_SIZE);
     this.profileUtils = checkNotNull(profileUtils);
-    this.bucketName = resolvePrivateApplicantBucket(checkNotNull(config));
   }
 
   @Override
@@ -85,21 +81,8 @@ public final class ApplicantStreamingMultipartBodyParser extends StreamingMultip
   }
 
   @Override
-  protected String getBucketName() {
-    return bucketName;
-  }
-
-  @Override
   protected String getFileKey(Multipart.FileInfo fileInfo) {
     return ApplicantFileNameFormatter.formatFileUploadQuestionFilenameWithUuid(
         applicantId, programId, blockId, fileInfo.fileName());
-  }
-
-  private static String resolvePrivateApplicantBucket(Config config) {
-    String storageProvider = config.getString("cloud.storage");
-    return switch (storageProvider) {
-      case "gcp", "gcp-s3" -> config.getString("gcp.s3.bucket");
-      default -> config.getString("aws.s3.bucket");
-    };
   }
 }
