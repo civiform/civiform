@@ -2,6 +2,8 @@ package parsers.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static play.test.Helpers.fakeRequest;
@@ -14,14 +16,17 @@ import com.typesafe.config.Config;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import org.apache.pekko.stream.Materializer;
+import org.apache.pekko.stream.javadsl.Sink;
 import org.apache.pekko.stream.javadsl.Source;
 import org.apache.pekko.util.ByteString;
 import org.junit.Before;
 import org.junit.Test;
+import parsers.StreamingMultipartUploadResult;
 import parsers.cloud.MultipartUploadSinks;
 import play.http.DefaultHttpErrorHandler;
 import play.mvc.Http;
 import repository.ResetPostgres;
+import services.cloud.StorageServiceName;
 
 public class ApplicantStreamingMultipartBodyParserTest extends ResetPostgres {
   private static final String MULTIPART_BOUNDARY = "boundary";
@@ -37,8 +42,21 @@ public class ApplicantStreamingMultipartBodyParserTest extends ResetPostgres {
   public void setUp() {
     materializer = instanceOf(Materializer.class);
     DefaultHttpErrorHandler errorHandler = instanceOf(DefaultHttpErrorHandler.class);
-    MultipartUploadSinks sinks = instanceOf(MultipartUploadSinks.class);
     Config config = instanceOf(Config.class);
+
+    MultipartUploadSinks sinks = mock(MultipartUploadSinks.class);
+    when(sinks.getSinkForCloudProvider(anyString(), anyString(), anyInt()))
+        .thenAnswer(
+            invocation ->
+                Sink.<ByteString, ByteString>fold(ByteString.emptyByteString(), ByteString::concat)
+                    .mapMaterializedValue(
+                        stage ->
+                            stage.thenApply(
+                                bytes ->
+                                    StreamingMultipartUploadResult.builder()
+                                        .setStatus(StreamingMultipartUploadResult.Status.SUCCESS)
+                                        .setStorageServiceName(StorageServiceName.S3)
+                                        .build())));
 
     profileUtils = mock(ProfileUtils.class);
     CiviFormProfile profile = mock(CiviFormProfile.class);
