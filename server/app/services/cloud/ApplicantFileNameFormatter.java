@@ -30,6 +30,16 @@ public final class ApplicantFileNameFormatter {
   }
 
   /**
+   * Returns the filename prefix string to identify this applicant's file in a filename.
+   *
+   * <p>The result will have a trailing / to ensure it does not match entries in which it otherwise
+   * would be a substring of other applicant data.
+   */
+  public static String formatFilenameApplicantLookupPrefixString(long applicantId) {
+    return String.format("applicant-%d/", applicantId);
+  }
+
+  /**
    * Generates a file key with a random UUID as the filename, preserving the original file's
    * extension. Used in the new HTMX file upload flow where the server generates the storage name.
    */

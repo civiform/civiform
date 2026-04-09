@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.StoredFileModel;
+import services.cloud.ApplicantFileNameFormatter;
 
 /**
  * StoredFileRepository performs complicated operations on {@link StoredFileModel} that involve
@@ -51,6 +52,24 @@ public final class StoredFileRepository {
                 .setProfileLocation(queryProfileLocationBuilder.create("lookupFiles"))
                 .where()
                 .in("name", keyNames)
+                .findList(),
+        dbExecutionContext);
+  }
+
+  public CompletionStage<List<StoredFileModel>> lookupFilesByApplicant(Long applicantId) {
+    // The strict prefix of the file name from the start of the name pattern.
+    String fileNamePrefix =
+        ApplicantFileNameFormatter.formatFilenameApplicantLookupPrefixString(applicantId);
+    return supplyAsync(
+        () ->
+            database
+                .find(StoredFileModel.class)
+                .setLabel("StoredFile.findListByApplicant")
+                .setProfileLocation(queryProfileLocationBuilder.create("lookupFilesByApplicant"))
+                .where()
+                // Note: The indexes only support exact and prefix pattern
+                // matches as this is doing.
+                .like("name", fileNamePrefix + "%")
                 .findList(),
         dbExecutionContext);
   }
