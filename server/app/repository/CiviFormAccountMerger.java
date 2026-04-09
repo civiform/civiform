@@ -80,11 +80,12 @@ public final class CiviFormAccountMerger {
               throw new IllegalArgumentException(
                   "New merge launch stage is not supported: " + newMergeStage);
         };
+    // 1. Merge Applications.
+    String log = mergeGuestApplicationsIntoCfUser(civiformUser, guestUser, applyChanges);
     // TODO(#11389): Steps 2 and 3 are not yet implemented.
     // 2. Update File references for guest to allow CF App
     //    * Set CFApp in ApplicantReadAcls
     // 3. Merge CFApp question answers and PAI into guest data and store in CF App
-    String log = mergeGuestApplicationsIntoCfUser(civiformUser, guestUser, applyChanges);
     logger.info(log);
   }
 
@@ -239,7 +240,7 @@ public final class CiviFormAccountMerger {
     // * The logged in CiviForm user's data over the Guest's.
     // * Newer over older.
     //
-    // See the comment on mergeGuestApplicationIntoCFUser for more
+    // See the comment on mergeGuestApplicationsIntoCfUser for more
     // details.
     //
     // For ease of readability, the code will handle application states
@@ -318,7 +319,7 @@ public final class CiviFormAccountMerger {
   /**
    * Reconciles when both users have an Active application.
    *
-   * <p>Keeps whichever Active application is newest along with its Draft application; if present.
+   * <p>Keeps whichever Active application is newest along with its Draft application, if present.
    * The other Active application is obsoleted and its Draft application deleted.
    *
    * <p>The system has an invariant that an Active application shouldn't be older than an obsolete
@@ -364,6 +365,7 @@ public final class CiviFormAccountMerger {
           """
               .formatted(guestActive.id, cfUser.id));
       if (applyChanges) {
+        // Guest's is older to obsolete it.
         guestActive
             .setLifecycleStage(LifecycleStage.OBSOLETE)
             .setOriginalApplicantId(guestUser.id)
@@ -375,20 +377,21 @@ public final class CiviFormAccountMerger {
         var guestDraft = guestUserApps.draft().get();
         logMessage.append("  * Deleting Guest Draft application id %d".formatted(guestDraft.id));
         if (applyChanges) {
+          // Guest's Active is obsoleted so delete its draft since there is
+          // not direct association anymore.
           guestDraft.delete();
         }
       }
       return logMessage.toString();
     }
 
-    // Guest's Active is Newer.
+    // Guest's Active is Newer so keep it and obsolete the CiviForm user's.
     logMessage.append(
         """
           * Keeping Guest user application
           * Obsoleting CF user Active application id %d
         """
             .formatted(cfActive.id));
-    // Obsolete CF app.
     if (applyChanges) {
       cfActive.setLifecycleStage(LifecycleStage.OBSOLETE);
       cfActive.save();
@@ -399,14 +402,16 @@ public final class CiviFormAccountMerger {
           * Moving Guest Active application id %d to CiviForm applicant id %d
         """
             .formatted(guestActive.id, cfUser.id));
-    // Move the guest app to the cfUser
+    // Move the guest's Active to the CF user since it is newer, associating
+    // it with the guest applicant.
     if (applyChanges) {
       guestActive.setOriginalApplicantId(guestUser.id);
       guestActive.setApplicant(cfUser);
       guestActive.save();
     }
 
-    // Delete the CF Draft if it exists.
+    // If there are Drafts: Move the Guest's and delete the CiviForm user's
+    // since we are using the Guest's Active and ont the CiviForm user's.
     if (cfUserApps.draft().isPresent()) {
       var cfDraft = cfUserApps.draft().get();
       logMessage.append("  * Deleting CF Draft application id %d".formatted(cfDraft.id));
@@ -436,6 +441,10 @@ public final class CiviFormAccountMerger {
    * Reconciles when the CF user has an Active application and the Guest does not, but implicitly
    * has a Draft application.
    *
+   * <p>The guest's Draft is removed in favor of the CiviForm user's, if present, and they will see
+   * the submitted application they have in the CiviForm user's account. They can then decide if
+   * they actually want to resubmit.
+   *
    * @param applyChanges if database changes should be applied. If false the return will log what
    *     would have occurred.
    * @return a log message indicating what changes occurred.
@@ -445,7 +454,6 @@ public final class CiviFormAccountMerger {
 
     // Keep the CF user data as is, delete the Guest Draft application.
     if (applyChanges) {
-      // delete the entry
       guestUserApps.draft().orElseThrow().delete();
     }
 
@@ -460,6 +468,10 @@ public final class CiviFormAccountMerger {
   /**
    * Reconciles when the CF user does not have an Active application and implicitly has a draft
    * application, and the Guest user has an Active application.
+   *
+   * <p>The guest's applications are moved to the CiviForm User, and the CiviForm user's Draft is
+   * removed if present. This will provide the same view of the program to the guest post-login as
+   * they had before.
    *
    * @param applyChanges if database changes should be applied. If false the return will log what
    *     would have occurred.
@@ -481,10 +493,11 @@ public final class CiviFormAccountMerger {
         """
             .formatted(cfUserApps.draft.orElseThrow().id));
     if (applyChanges) {
-      // There must be a Draft since there is no Active.
+      // There must be a Draft since there is no Active
       cfUserApps.draft().orElseThrow().delete();
     }
 
+    // Move the guests Active and Draft over.
     var guestActive = guestUserApps.active().orElseThrow();
     logMessage.append(
         """
@@ -492,6 +505,7 @@ public final class CiviFormAccountMerger {
         """
             .formatted(guestActive.id, cfUser.id));
     if (applyChanges) {
+      // Move the guest's Active over and associate it with the guest applicant.
       guestActive.setOriginalApplicantId(guestUser.id);
       guestActive.setApplicant(cfUser);
       guestActive.save();
@@ -516,6 +530,9 @@ public final class CiviFormAccountMerger {
 
   /**
    * Reconciles when both only have a Draft application.
+   *
+   * <p>Keeps the guest's Draft. There is no material difference to the user but if we ever look at
+   * creation dates, the guest's will be more relevant.
    *
    * @param applyChanges if database changes should be applied. If false the return will log what
    *     would have occurred.
