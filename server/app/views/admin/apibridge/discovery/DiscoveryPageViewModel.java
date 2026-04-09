@@ -1,7 +1,7 @@
 package views.admin.apibridge.discovery;
 
 import controllers.admin.apibridge.routes;
-import views.admin.BaseViewModel;
+import views.BaseViewModel;
 
 /** Contains all the properties for rendering the DiscoveryPage.html */
 public record DiscoveryPageViewModel() implements BaseViewModel {

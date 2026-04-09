@@ -1,7 +1,7 @@
 package views.admin.programs.predicates;
 
 import javax.inject.Inject;
-import views.admin.BaseView;
+import views.BaseView;
 import views.shared.BaseViewDeps;
 
 /**

@@ -6,7 +6,7 @@ import forms.MapQuestionForm;
 import java.util.List;
 import java.util.OptionalInt;
 import lombok.Builder;
-import views.admin.BaseViewModel;
+import views.BaseViewModel;
 
 @Builder
 public record MapQuestionSettingsPartialViewModel(
