@@ -117,7 +117,7 @@ public final class QuestionConfig {
         return Optional.of(
             config.addDateQuestionConfig((DateQuestionForm) questionForm, messages).getContainer());
       case MAP: // fallthrough intended - MAP question configuration is handled in
-        // QuestionEditView.getQuestionConfig
+      // QuestionEditView.getQuestionConfig
       case CURRENCY: // fallthrough intended - no options
       case NAME: // fallthrough intended - no options
       case EMAIL: // fallthrough intended
