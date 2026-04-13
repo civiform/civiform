@@ -119,7 +119,7 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
 
   @Test
   @Parameters({"CIVIFORM", "GUEST"})
-  public void mergeApplicants_bothActive_oneNewer(Newer newerApplication) {
+  public void mergeApplicants_bothActive_oneNewer_enabled_appliesChanges(Newer newerApplication) {
     var program = resourceCreator.insertActiveProgram("test-program");
     ApplicantModel cfUser =
         resourceCreator.insertApplicantWithAccount(Optional.of("cf@example.com"));
@@ -338,9 +338,9 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
     List<ApplicationModel> cfApps =
         acctRepo.lookupApplicantSync(cfUser.id).orElseThrow().getApplications();
 
-    // Guest draft is moved to cfUser.
+    // The guest's Draft is kept and the CiviForm users is not because the
+    // user saw the guest's most recently.
     assertThat(cfApps).extracting(a -> a.id).containsExactly(guestDraft.id);
-    // CF draft is deleted
     assertThat(applRepo.getApplication(cfDraft.id).toCompletableFuture().join()).isEmpty();
   }
 

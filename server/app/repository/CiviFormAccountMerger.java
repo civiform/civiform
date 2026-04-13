@@ -117,10 +117,10 @@ public final class CiviFormAccountMerger {
   /// A Draft application not kept is deleted. An Active application not kept will be
   ///  obsoleted.
   ///
-  /// If there is an Active and Draft application for either user, the Active application
-  /// will be reconciled and only the kept ones Draft application will be
-  /// persisted. As noted above, the Draft application is not particularly useful, but we
-  /// still treat it as such baring just deleting them.
+  /// If there is an Active and Draft application on either user, the Active application will be
+  /// reconciled and the associated Draft application will be persisted. As Noted above, the Draft
+  /// application is not particularly useful, but we prefer to keep the Draft associated with
+  /// whichever Active was maintained as the Active for consistency.
   ///
   ///  @return a log message indicating what changes occurred.
   private String mergeGuestApplicationsIntoCfUser(
@@ -237,7 +237,7 @@ public final class CiviFormAccountMerger {
 
     // To reconcile applications, we prefer:
     // * Active applications over Draft applications.
-    // * The logged in CiviForm user's data over the Guest's.
+    // * The logged in CiviForm user's applications over the guest's.
     // * Newer over older.
     //
     // See the comment on mergeGuestApplicationsIntoCfUser for more
@@ -543,8 +543,8 @@ public final class CiviFormAccountMerger {
   /**
    * Reconciles when both only have a Draft application.
    *
-   * <p>Keeps the guest's Draft. There is no material difference to the user but if we ever look at
-   * creation dates, the guest's will be more relevant.
+   * <p>Keeps the guest's Draft. There is no material difference to the user, but if we ever look at
+   * creation dates the guest's will be more relevant as it's the last one the user saw.
    *
    * @param applyChanges if database changes should be applied. If false the return will log what
    *     would have occurred.
