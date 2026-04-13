@@ -10,6 +10,7 @@ import auth.NewGuestMergeLaunchStage;
 import com.google.common.collect.ImmutableMap;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import junitparams.JUnitParamsRunner;
@@ -17,9 +18,11 @@ import junitparams.Parameters;
 import models.ApplicantModel;
 import models.ApplicationModel;
 import models.LifecycleStage;
+import models.StoredFileModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import services.cloud.ApplicantFileNameFormatter;
 import services.settings.SettingsManifest;
 
 @RunWith(JUnitParamsRunner.class)
@@ -27,11 +30,13 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
   private CiviFormAccountMerger merger;
   private AccountRepository acctRepo;
   private ApplicationRepository applRepo;
+  private StoredFileRepository storedFileRepository;
 
   @Before
   public void setupApplicantRepository() {
     SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
-    merger = new CiviFormAccountMerger(() -> instanceOf(StoredFileRepository.class));
+    storedFileRepository = instanceOf(StoredFileRepository.class);
+    merger = new CiviFormAccountMerger(() -> storedFileRepository);
     acctRepo =
         new AccountRepository(
             instanceOf(DatabaseExecutionContext.class),
@@ -484,5 +489,93 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
     assertThat(idToApplication.get(guestActive.id).getOriginalApplicantId()).hasValue(guestUser.id);
     // CF's draft is deleted.
     assertThat(applRepo.getApplication(cfDraft.id).toCompletableFuture().join()).isEmpty();
+  }
+
+  @Test
+  public void mergeGuestFilesIntoCfUser_dryRun_doesNotAddCfUserToAcl() {
+    ApplicantModel cfUser =
+        resourceCreator.insertApplicantWithAccount(Optional.of("cf@example.com"));
+    ApplicantModel guestUser = resourceCreator.insertApplicantWithAccount();
+    cfUser.refresh();
+    guestUser.refresh();
+
+    StoredFileModel guestFile = insertFileForApplicant(guestUser.id);
+
+    merger.mergeApplicants(cfUser, guestUser, NewGuestMergeLaunchStage.DRY_RUN);
+
+    StoredFileModel fileAfterMerge = lookupFile(guestFile.id);
+    assertThat(fileAfterMerge.getAcls().getApplicantReadAcls()).doesNotContain(cfUser.id);
+  }
+
+  @Test
+  @Parameters({"0", "1", "2"})
+  public void mergeGuestFilesIntoCfUser_enabled_addsCfUserToAcl(int numFiles) {
+    ApplicantModel cfUser =
+        resourceCreator.insertApplicantWithAccount(Optional.of("cf@example.com"));
+    ApplicantModel guestUser = resourceCreator.insertApplicantWithAccount();
+    cfUser.refresh();
+    guestUser.refresh();
+    List<Long> fileIds = new ArrayList<>();
+    for (int i = 0; i < numFiles; i++) {
+      fileIds.add(insertFileForApplicant(guestUser.id, /* programId= */ i).id);
+    }
+
+    merger.mergeApplicants(cfUser, guestUser, NewGuestMergeLaunchStage.ENABLED);
+
+    for (Long fileId : fileIds) {
+      StoredFileModel fileAfterMerge = lookupFile(fileId);
+      assertThat(fileAfterMerge.getAcls().getApplicantReadAcls()).containsExactly(cfUser.id);
+    }
+
+    assertThat(lookupUserFiles(cfUser.id)).isEmpty();
+    assertThat(lookupUserFiles(guestUser.id)).containsExactlyElementsOf(fileIds);
+  }
+
+  @Test
+  public void mergeGuestFilesIntoCfUser_enabled_cfUserFilesNotAffected() {
+    ApplicantModel cfUser =
+        resourceCreator.insertApplicantWithAccount(Optional.of("cf@example.com"));
+    ApplicantModel guestUser = resourceCreator.insertApplicantWithAccount();
+    cfUser.refresh();
+    guestUser.refresh();
+
+    StoredFileModel cfFile = insertFileForApplicant(cfUser.id);
+    StoredFileModel guestFile = insertFileForApplicant(guestUser.id);
+
+    merger.mergeApplicants(cfUser, guestUser, NewGuestMergeLaunchStage.ENABLED);
+
+    // CF user's own file ACLs are not modified.
+    assertThat(lookupFile(cfFile.id).getAcls().getApplicantReadAcls())
+        .doesNotContain(cfUser.id, guestUser.id);
+    // Guest file gets cfUser added.
+    assertThat(lookupFile(guestFile.id).getAcls().getApplicantReadAcls())
+        .containsExactly(cfUser.id);
+  }
+
+  private StoredFileModel insertFileForApplicant(long applicantId) {
+    return insertFileForApplicant(applicantId, /* programId= */ 1L);
+  }
+
+  private StoredFileModel insertFileForApplicant(long applicantId, long programId) {
+    StoredFileModel file = new StoredFileModel();
+    file.setName(
+        ApplicantFileNameFormatter.formatFileUploadQuestionFilename(
+            applicantId, programId, /* blockId= */ "1"));
+    file.save();
+    return file;
+  }
+
+  private StoredFileModel lookupFile(long fileId) {
+    return storedFileRepository.lookupFile(fileId).toCompletableFuture().join().orElseThrow();
+  }
+
+  private List<Long> lookupUserFiles(long applicantId) {
+    return storedFileRepository
+        .lookupFilesByApplicant(applicantId)
+        .toCompletableFuture()
+        .join()
+        .stream()
+        .map(f -> f.id)
+        .toList();
   }
 }
