@@ -90,7 +90,7 @@ public final class CiviFormAccountMerger {
   }
 
   /// Merge logic:
-  /// 1. For programs only in guest, move them to the cfUser
+  /// 1. For programs only in guest, move their applications to the cfUser
   /// 2. For programs in both:
   ///    1. Obsolete applications are moved over
   ///    2. Active and Draft applications are reconciled based on the versions present:
