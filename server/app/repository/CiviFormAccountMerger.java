@@ -63,9 +63,9 @@ public final class CiviFormAccountMerger {
 
   /** A container for the Guest user's applications. */
   private record GuestUserApps(
-    List<ApplicationModel> obsolete,
-    Optional<ApplicationModel> active,
-    Optional<ApplicationModel> draft) {}
+      List<ApplicationModel> obsolete,
+      Optional<ApplicationModel> active,
+      Optional<ApplicationModel> draft) {}
 
   // Collect the applications into the nicer structure.
   private GuestUserApps categorizeGuestApps(List<ApplicationModel> apps) {
