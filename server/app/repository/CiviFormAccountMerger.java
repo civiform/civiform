@@ -64,7 +64,7 @@ public final class CiviFormAccountMerger {
    *
    * <p>When a Guest Active application is moved it will have originalApplicantId set to the Guest
    * applicant to allow for matching across api data pulls. Draft applications will not have it set
-   * because Draft applications are not pulled by the api. and it serves no purpose then.
+   * because Draft applications are not pulled by the api and it serves no purpose then.
    *
    * @param newMergeStage what launch stage the new merge feature is at. Must be DRY_RUN OR ENABLED.
    */
@@ -92,8 +92,8 @@ public final class CiviFormAccountMerger {
   /// Merge logic:
   /// 1. For programs only in guest, move them to the cfUser
   /// 2. For programs in both:
-  ///    1. Obsolete are moved over
-  ///    2. Reconciled based on the versions present:
+  ///    1. Obsolete applications are moved over
+  ///    2. Active and Draft applications are reconciled based on the versions present:
   ///
   /// An important note on reasoning about what is kept pertains to the
   /// impact of Draft applications.
