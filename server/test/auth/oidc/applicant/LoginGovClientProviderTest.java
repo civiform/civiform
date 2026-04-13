@@ -30,6 +30,7 @@ import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.DatabaseExecutionContext;
 import repository.ResetPostgres;
+import repository.StoredFileRepository;
 import support.CfTestHelpers;
 
 @RunWith(JUnitParamsRunner.class)
@@ -49,6 +50,7 @@ public class LoginGovClientProviderTest extends ResetPostgres {
   public void setup() {
     AccountRepository accountRepository = instanceOf(AccountRepository.class);
     ProfileFactory profileFactory = instanceOf(ProfileFactory.class);
+    var storedFileRepository = instanceOf(StoredFileRepository.class);
     Config config =
         ConfigFactory.parseMap(
             ImmutableMap.<String, String>builder()
@@ -62,7 +64,10 @@ public class LoginGovClientProviderTest extends ResetPostgres {
     loginGovProvider =
         new LoginGovClientProvider(
             OidcClientProviderParams.create(
-                config, profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)),
+                config,
+                profileFactory,
+                CfTestHelpers.userRepositoryProvider(accountRepository),
+                () -> storedFileRepository),
             instanceOf(DatabaseExecutionContext.class));
   }
 

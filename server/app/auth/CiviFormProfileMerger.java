@@ -11,6 +11,7 @@ import org.pac4j.core.profile.UserProfile;
 import repository.AccountRepository;
 import repository.CiviFormAccountMerger;
 import repository.DatabaseExecutionContext;
+import repository.StoredFileRepository;
 import repository.TransactionManager;
 
 /** Helper class for common {@code UserProfile} merging logic. */
@@ -25,10 +26,11 @@ public final class CiviFormProfileMerger {
   public CiviFormProfileMerger(
       ProfileFactory profileFactory,
       Provider<AccountRepository> applicantRepositoryProvider,
+      Provider<StoredFileRepository> storedFileRepositoryProvider,
       DatabaseExecutionContext dbExecutionContext) {
     this.profileFactory = profileFactory;
     this.applicantRepositoryProvider = applicantRepositoryProvider;
-    this.accountMerger = new CiviFormAccountMerger();
+    this.accountMerger = new CiviFormAccountMerger(storedFileRepositoryProvider);
     this.dbExecutionContext = dbExecutionContext;
     this.transactionManager = new TransactionManager();
   }

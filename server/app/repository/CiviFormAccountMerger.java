@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
+import javax.inject.Provider;
 import models.ApplicantModel;
 import models.ApplicationModel;
 import models.LifecycleStage;
@@ -15,6 +16,11 @@ import org.slf4j.LoggerFactory;
 
 public final class CiviFormAccountMerger {
   private static final Logger logger = LoggerFactory.getLogger(CiviFormAccountMerger.class);
+  private final Provider<StoredFileRepository> storedFileRepositoryProvider;
+
+  public CiviFormAccountMerger(Provider<StoredFileRepository> storedFileRepositoryProvider) {
+    this.storedFileRepositoryProvider = storedFileRepositoryProvider;
+  }
 
   /**
    * A container for the CiviForm user's applications. We don't need obsolete records for the CF
@@ -82,11 +88,12 @@ public final class CiviFormAccountMerger {
         };
     // 1. Merge Applications.
     String log = mergeGuestApplicationsIntoCfUser(civiformUser, guestUser, applyChanges);
-    // TODO(#11389): Steps 2 and 3 are not yet implemented.
+    String fileMergeLog = mergeGuestFilesIntoCfUser(civiformUser, guestUser, applyChanges);
     // 2. Update File references for guest to allow CF App
     //    * Set CFApp in ApplicantReadAcls
     // 3. Merge CFApp question answers and PAI into guest data and store in CF App
-    logger.info(log);
+    // TODO(#11389): Step 3 is not yet implemented.
+    logger.info("{}{}", log, fileMergeLog);
   }
 
   /// Merge logic:
@@ -569,5 +576,11 @@ public final class CiviFormAccountMerger {
       * Moving Guest Draft application id %d to CiviForm applicant id %d
     """
         .formatted(cfDraft.id, guestDraft.id, cfUser.id);
+  }
+
+  private String mergeGuestFilesIntoCfUser(
+      ApplicantModel civiformUser, ApplicantModel guestUser, boolean applyChanges) {
+
+    return "";
   }
 }

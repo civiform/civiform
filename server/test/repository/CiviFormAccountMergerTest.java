@@ -31,7 +31,7 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
   @Before
   public void setupApplicantRepository() {
     SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
-    merger = new CiviFormAccountMerger();
+    merger = new CiviFormAccountMerger(() -> instanceOf(StoredFileRepository.class));
     acctRepo =
         new AccountRepository(
             instanceOf(DatabaseExecutionContext.class),
