@@ -2,7 +2,7 @@ package views.questiontypes;
 
 import lombok.Builder;
 import services.applicant.question.FileUploadQuestion;
-import views.admin.BaseViewModel;
+import views.BaseViewModel;
 
 @Builder(toBuilder = true)
 public class FileUploadQuestionPartialViewModel implements BaseViewModel {
