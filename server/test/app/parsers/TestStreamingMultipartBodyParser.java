@@ -12,16 +12,18 @@ import services.cloud.StorageServiceName;
 // A no-op implementation of the StreamingMultipartBodyParser for testing purposes
 // Prints the content of the input byte string, with a summary at the end of the total size.
 public final class TestStreamingMultipartBodyParser extends StreamingMultipartBodyParser {
-  private StreamingOutputBuffer outputBuffer;
+  private final parsers.StreamingOutputBuffer outputBuffer;
 
   @Inject
   public TestStreamingMultipartBodyParser(
       Materializer materializer,
       DefaultHttpErrorHandler errorHandler,
       MultipartUploadSinks streamingMultipartUploadSinks,
-      StreamingOutputBuffer outputBuffer) {
+      FileTypeValidation fileTypeValidation,
+      parsers.StreamingOutputBuffer outputBuffer) {
     long maxFileSize = 1024 * 1024 * 100L; // 100MB
-    super(materializer, errorHandler, streamingMultipartUploadSinks, maxFileSize);
+    super(
+        materializer, errorHandler, streamingMultipartUploadSinks, fileTypeValidation, maxFileSize);
     this.outputBuffer = outputBuffer;
   }
 

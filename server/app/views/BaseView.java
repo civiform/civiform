@@ -1,4 +1,4 @@
-package views.admin;
+package views;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
@@ -7,13 +7,12 @@ import org.thymeleaf.TemplateEngine;
 import play.Environment;
 import play.mvc.Http;
 import services.settings.SettingsManifest;
-import views.CspUtil;
-import views.admin.shared.Footer;
-import views.admin.shared.LayoutParams;
-import views.admin.shared.TemplateGlobals;
 import views.html.helper.CSRF;
 import views.shared.BaseViewDeps;
 import views.shared.FeatureFlags;
+import views.shared.LayoutParams;
+import views.shared.ScriptElementSettings;
+import views.shared.TemplateGlobals;
 
 /**
  * {@link BaseView} class contains the structure and bare essentials to render the supplied
@@ -68,8 +67,8 @@ public abstract class BaseView<TModel extends BaseViewModel> {
    *
    * <p>HTMX partials would be a reason not to set a layout.
    */
-  protected String layoutTemplate() {
-    return null;
+  protected Optional<LayoutTemplate> layoutTemplate() {
+    return Optional.empty();
   }
 
   /**
@@ -130,16 +129,6 @@ public abstract class BaseView<TModel extends BaseViewModel> {
             .isDev(environment.isDev())
             .build());
 
-    // Set values for the footer
-    context.setVariable(
-        "footer",
-        Footer.builder()
-            .technicalSupportEmail(
-                settingsManifest
-                    .getSupportEmailAddress(request)
-                    .orElse("SUPPORT EMAIL ADDRESS MISSING"))
-            .build());
-
     // Set values for feature flags
     context.setVariable(
         "featureFlags", FeatureFlags.fromSettingsManifest(settingsManifest, request));
@@ -159,8 +148,8 @@ public abstract class BaseView<TModel extends BaseViewModel> {
     customizeContext(request, context);
 
     // If a layout template is set render the page template with the layout
-    if (layoutTemplate() != null) {
-      return templateEngine.process(layoutTemplate(), context);
+    if (layoutTemplate().isPresent()) {
+      return templateEngine.process(layoutTemplate().get().getPath(), context);
     }
 
     // Render the page template without a layout

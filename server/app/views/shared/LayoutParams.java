@@ -1,10 +1,9 @@
-package views.admin.shared;
+package views.shared;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import lombok.Builder;
-import views.admin.LayoutType;
-import views.admin.ScriptElementSettings;
+import views.LayoutType;
 
 /**
  * This record contains values used by layout templates
