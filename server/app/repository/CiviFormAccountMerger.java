@@ -90,9 +90,10 @@ public final class CiviFormAccountMerger {
   }
 
   /// Merge logic:
-  /// 1. For programs only in guest, move their applications to the cfUser
-  /// 2. For programs in both:
-  ///    1. Obsolete applications are moved over
+  /// 1. For programs only present in the guest user, move their applications
+  ///  to the cfUser
+  /// 2. For programs present in both users:
+  ///    1. Obsolete applications are moved from the guest to CiviForm user.
   ///    2. Active and Draft applications are reconciled based on the versions present:
   ///
   /// An important note on reasoning about what is kept pertains to the
@@ -237,7 +238,6 @@ public final class CiviFormAccountMerger {
 
     // To reconcile applications, we prefer:
     // * Active applications over Draft applications.
-    // * The logged in CiviForm user's applications over the guest's.
     // * Newer over older.
     //
     // See the comment on mergeGuestApplicationsIntoCfUser for more
