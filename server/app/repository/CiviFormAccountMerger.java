@@ -11,6 +11,7 @@ import javax.inject.Provider;
 import models.ApplicantModel;
 import models.ApplicationModel;
 import models.LifecycleStage;
+import models.StoredFileModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,12 +89,12 @@ public final class CiviFormAccountMerger {
         };
     // 1. Merge Applications.
     String log = mergeGuestApplicationsIntoCfUser(civiformUser, guestUser, applyChanges);
-    String fileMergeLog = mergeGuestFilesIntoCfUser(civiformUser, guestUser, applyChanges);
-    // 2. Update File references for guest to allow CF App
-    //    * Set CFApp in ApplicantReadAcls
+    // 2. Update the guest's file references to permit the CF users to read
+    // them.
+    String fileMergeLog = mergeGuestFilesIntoCfUser(civiformUser.id, guestUser.id, applyChanges);
     // 3. Merge CFApp question answers and PAI into guest data and store in CF App
     // TODO(#11389): Step 3 is not yet implemented.
-    logger.info("{}{}", log, fileMergeLog);
+    logger.info("{}\n{}", log, fileMergeLog);
   }
 
   /// Merge logic:
@@ -579,8 +580,30 @@ public final class CiviFormAccountMerger {
   }
 
   private String mergeGuestFilesIntoCfUser(
-      ApplicantModel civiformUser, ApplicantModel guestUser, boolean applyChanges) {
+      Long civiformUserId, Long guestUserId, boolean applyChanges) {
+    var guestFiles =
+        storedFileRepositoryProvider
+            .get()
+            .lookupFilesByApplicant(guestUserId)
+            .toCompletableFuture()
+            .join();
+    StringJoiner fileIds = new StringJoiner(", ");
+    for (StoredFileModel file : guestFiles) {
+      fileIds.add(file.id.toString());
+      if (applyChanges) {
+        file.getAcls().addApplicantToReaders(civiformUserId);
+        file.save();
+      }
+    }
 
-    return "";
+    var logMessage = fileIds.toString();
+    if (logMessage.isBlank()) {
+      return "Guest user has no files to merge with CiviForm user.";
+    }
+
+    return """
+    Giving the CiviForm user read permissions to the guest's file IDs: %s
+    """
+        .formatted(fileIds);
   }
 }
