@@ -54,7 +54,11 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     this.profileFactory = Preconditions.checkNotNull(params.profileFactory());
     this.accountRepositoryProvider = Preconditions.checkNotNull(params.accountRepositoryProvider());
     this.civiFormProfileMerger =
-        new CiviFormProfileMerger(profileFactory, accountRepositoryProvider, dbExecutionContext);
+        new CiviFormProfileMerger(
+            profileFactory,
+            accountRepositoryProvider,
+            Preconditions.checkNotNull(params.storedFileRepositoryProvider()),
+            dbExecutionContext);
     this.settingsManifest =
         new SettingsManifest(Preconditions.checkNotNull(params.configuration()));
   }

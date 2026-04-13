@@ -28,6 +28,7 @@ import org.pac4j.oidc.profile.OidcProfile;
 import repository.AccountRepository;
 import repository.DatabaseExecutionContext;
 import repository.ResetPostgres;
+import repository.StoredFileRepository;
 import support.CfTestHelpers;
 
 @RunWith(JUnitParamsRunner.class)
@@ -91,13 +92,15 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
             .setPhoneNumber(phoneNumberAttribute)
             .build();
 
+    var storedFileRepository = instanceOf(StoredFileRepository.class);
     return new IdcsApplicantProfileCreator(
         oidcConfig,
         client,
         OidcClientProviderParams.create(
             civiformConfig,
             profileFactory,
-            CfTestHelpers.userRepositoryProvider(accountRepository)),
+            CfTestHelpers.userRepositoryProvider(accountRepository),
+            () -> storedFileRepository),
         standardClaimsAttributeNames,
         instanceOf(DatabaseExecutionContext.class));
   }

@@ -18,6 +18,7 @@ import play.api.test.Helpers;
 import repository.AccountRepository;
 import repository.DatabaseExecutionContext;
 import repository.ResetPostgres;
+import repository.StoredFileRepository;
 import support.CfTestHelpers;
 
 @RunWith(JUnitParamsRunner.class)
@@ -31,6 +32,7 @@ public class GenericOidcClientProviderTest extends ResetPostgres {
   @Before
   public void setup() {
     AccountRepository accountProvider = instanceOf(AccountRepository.class);
+    var storedFileRepository = instanceOf(StoredFileRepository.class);
     ProfileFactory profileFactory = instanceOf(ProfileFactory.class);
     Config config =
         ConfigFactory.parseMap(
@@ -52,7 +54,10 @@ public class GenericOidcClientProviderTest extends ResetPostgres {
     genericOidcProvider =
         new GenericOidcClientProvider(
             OidcClientProviderParams.create(
-                config, profileFactory, CfTestHelpers.userRepositoryProvider(accountProvider)),
+                config,
+                profileFactory,
+                CfTestHelpers.userRepositoryProvider(accountProvider),
+                () -> storedFileRepository),
             instanceOf(DatabaseExecutionContext.class));
   }
 

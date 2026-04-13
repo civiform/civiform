@@ -19,6 +19,7 @@ import org.pac4j.oidc.profile.OidcProfile;
 import repository.AccountRepository;
 import repository.DatabaseExecutionContext;
 import repository.ResetPostgres;
+import repository.StoredFileRepository;
 import support.CfTestHelpers;
 
 public class GenericApplicantProfileCreatorTest extends ResetPostgres {
@@ -36,11 +37,13 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
   private GenericApplicantProfileCreator oidcProfileAdapter;
   private ProfileFactory profileFactory;
   private static AccountRepository accountRepository;
+  private static StoredFileRepository storedFileRepository;
 
   @Before
   public void setup() {
     accountRepository = instanceOf(AccountRepository.class);
     profileFactory = instanceOf(ProfileFactory.class);
+    storedFileRepository = instanceOf(StoredFileRepository.class);
     OidcClient client = CfTestHelpers.getOidcClient("dev-oidc", 3390);
     OidcConfiguration client_config = CfTestHelpers.getOidcConfiguration("dev-oidc", 3390);
     // Just need some complete adaptor to access methods.
@@ -49,7 +52,9 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
             client_config,
             client,
             OidcClientProviderParams.create(
-                profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)),
+                profileFactory,
+                CfTestHelpers.userRepositoryProvider(accountRepository),
+                () -> storedFileRepository),
             StandardClaimsAttributeNames.builder()
                 .setEmail(EMAIL_ATTRIBUTE_NAME)
                 .setLocale(Optional.of(LOCALE_ATTRIBUTE_NAME))
@@ -72,7 +77,9 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
             client_config,
             client,
             OidcClientProviderParams.create(
-                profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)),
+                profileFactory,
+                CfTestHelpers.userRepositoryProvider(accountRepository),
+                () -> storedFileRepository),
             StandardClaimsAttributeNames.builder()
                 .setEmail(EMAIL_ATTRIBUTE_NAME)
                 .setLocale(Optional.of(LOCALE_ATTRIBUTE_NAME))

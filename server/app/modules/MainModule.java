@@ -19,6 +19,7 @@ import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import repository.AccountRepository;
+import repository.StoredFileRepository;
 
 /**
  * This class is a Guice module that tells Guice how to bind several different types. This Guice
@@ -59,7 +60,9 @@ public class MainModule extends AbstractModule {
   public OidcClientProviderParams provideOidcClientProviderParams(
       Config config,
       ProfileFactory profileFactory,
-      Provider<AccountRepository> accountRepositoryProvider) {
-    return OidcClientProviderParams.create(config, profileFactory, accountRepositoryProvider);
+      Provider<AccountRepository> accountRepositoryProvider,
+      Provider<StoredFileRepository> storedFileRepositoryProvider) {
+    return OidcClientProviderParams.create(
+        config, profileFactory, accountRepositoryProvider, storedFileRepositoryProvider);
   }
 }
