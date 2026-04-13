@@ -142,11 +142,6 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
 
       boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
 
-      if (applicationParams.block().isFileUpload()) {
-        context.setVariable("fileUploadViewStrategy", fileUploadViewStrategy);
-        context.setVariable("fileUploadFooterTags", fileUploadViewStrategy.footerTags(request));
-      }
-
       context.setVariable(
           "maxFileSizeMb", applicationParams.applicantStorageClient().getFileLimitMb());
       context.setVariable(
@@ -417,7 +412,6 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
       ApplicationBaseViewParams params,
       ThymeleafModule.PlayThymeleafContext context) {
     context.setVariable("fileUploadViewStrategy", fileUploadViewStrategy);
-    context.setVariable("fileUploadFooterTags", fileUploadViewStrategy.footerTags(request));
     context.setVariable("maxFileSizeMb", params.applicantStorageClient().getFileLimitMb());
     context.setVariable(
         "fileUploadAllowedFileTypeSpecifiers",
