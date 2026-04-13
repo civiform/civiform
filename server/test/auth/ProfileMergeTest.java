@@ -74,7 +74,7 @@ public class ProfileMergeTest extends ResetPostgres {
             /* client= */ null,
             profileFactory,
             CfTestHelpers.userRepositoryProvider(accountRepository),
-            CfTestHelpers.storedFileRepositoryProvider(storedFileRepository),
+            () -> storedFileRepository,
             instanceOf(DatabaseExecutionContext.class));
   }
 
