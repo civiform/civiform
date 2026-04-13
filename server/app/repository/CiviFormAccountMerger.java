@@ -17,18 +17,6 @@ public final class CiviFormAccountMerger {
   private static final Logger logger = LoggerFactory.getLogger(CiviFormAccountMerger.class);
 
   /**
-   * A container for the CiviForm user's applications. We don't need obsolete records for the CF
-   * user as compared to the Guest.
-   */
-  private record CfUserApps(Optional<ApplicationModel> active, Optional<ApplicationModel> draft) {}
-
-  /** A container for the Guest user's applications. */
-  private record GuestUserApps(
-      List<ApplicationModel> obsolete,
-      Optional<ApplicationModel> active,
-      Optional<ApplicationModel> draft) {}
-
-  /**
    * Merge data from the two applicants.
    *
    * <p>This is part of an in-progress and incomplete method.
@@ -66,6 +54,18 @@ public final class CiviFormAccountMerger {
     // 3. Merge CFApp question answers and PAI into guest data and store in CF App
     logger.info(log);
   }
+
+  /**
+   * A container for the CiviForm user's applications. We don't need obsolete records for the CF
+   * user as compared to the Guest.
+   */
+  private record CfUserApps(Optional<ApplicationModel> active, Optional<ApplicationModel> draft) {}
+
+  /** A container for the Guest user's applications. */
+  private record GuestUserApps(
+    List<ApplicationModel> obsolete,
+    Optional<ApplicationModel> active,
+    Optional<ApplicationModel> draft) {}
 
   // Collect the applications into the nicer structure.
   private GuestUserApps categorizeGuestApps(List<ApplicationModel> apps) {
