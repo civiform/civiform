@@ -93,8 +93,6 @@ public abstract class StreamingMultipartBodyParser
   /** Returns the file path within cloud storage for this upload. */
   protected abstract String getFileKey(Multipart.FileInfo fileInfo);
 
-  /** Returns the bucket type for streaming the file. Defaults to private. */
-  protected BucketType getBucketType() {
-    return BucketType.PRIVATE_BUCKET;
-  }
+  /** Returns the bucket type for streaming the file. */
+  protected abstract BucketType getBucketType();
 }

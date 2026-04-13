@@ -20,6 +20,7 @@ import play.libs.streams.Accumulator;
 import play.mvc.Http;
 import play.mvc.Result;
 import services.cloud.ApplicantFileNameFormatter;
+import services.cloud.BucketType;
 
 /**
  * Applicant file upload implementation of the streaming multipart parser.
@@ -78,6 +79,11 @@ public final class ApplicantStreamingMultipartBodyParser extends StreamingMultip
             .filter(Objects::nonNull)
             .orElseThrow(() -> new IllegalStateException("No applicant id on request"));
     return super.apply(request);
+  }
+
+  @Override
+  protected BucketType getBucketType() {
+    return BucketType.PRIVATE_BUCKET;
   }
 
   @Override

@@ -8,6 +8,7 @@ import org.apache.pekko.util.ByteString;
 import parsers.cloud.MultipartUploadSinks;
 import play.core.parsers.Multipart;
 import play.http.DefaultHttpErrorHandler;
+import services.cloud.BucketType;
 import services.cloud.StorageServiceName;
 
 // A no-op implementation of the StreamingMultipartBodyParser for testing purposes
@@ -57,6 +58,11 @@ public final class TestStreamingMultipartBodyParser extends StreamingMultipartBo
                           .setStorageServiceName(StorageServiceName.S3)
                           .build();
                     }));
+  }
+
+  @Override
+  protected BucketType getBucketType() {
+    return BucketType.PRIVATE_BUCKET;
   }
 
   @Override
