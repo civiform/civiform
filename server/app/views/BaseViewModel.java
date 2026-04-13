@@ -1,4 +1,4 @@
-package views.admin;
+package views;
 
 /**
  * Sentinel interface designating a {@code class} or {@code record} as a valid type to serve as a

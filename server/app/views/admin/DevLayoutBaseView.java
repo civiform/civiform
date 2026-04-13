@@ -1,11 +1,16 @@
 package views.admin;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Optional;
 import modules.ThymeleafModule;
 import play.mvc.Http;
 import services.BundledAssetsFinder;
+import views.BaseView;
+import views.BaseViewModel;
+import views.LayoutTemplate;
 import views.admin.shared.AdminCommonHeader;
 import views.shared.LayoutDeps;
+import views.shared.ScriptElementSettings;
 
 /**
  * {@link DevLayoutBaseView} is used to render the supplied Thymeleaf page template. This view is
@@ -40,8 +45,8 @@ public abstract class DevLayoutBaseView<TModel extends BaseViewModel> extends Ba
   }
 
   @Override
-  protected final String layoutTemplate() {
-    return LayoutTemplate.ADMIN_LAYOUT;
+  protected final Optional<LayoutTemplate> layoutTemplate() {
+    return Optional.of(LayoutTemplate.ADMIN_LAYOUT);
   }
 
   @Override
