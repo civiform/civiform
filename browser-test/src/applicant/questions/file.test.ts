@@ -1371,9 +1371,11 @@ test.describe('file upload question with file upload improvements feature flag e
   }) => {
     await applicantQuestions.applyProgram(programName)
 
-    // Dispatch the event artificially because the HTMX request completes
-    // instantly in tests, so we need to simulate an in-flight upload to
-    // have time to attempt navigation.
+    // Select a file so the htmx:beforeRequest handler passes validation,
+    // then dispatch the event artificially because the HTMX request
+    // completes instantly in tests, so we need to simulate an in-flight
+    // upload to have time to attempt navigation.
+    await applicantQuestions.answerFileUploadQuestion('test content')
     await page.evaluate(() => {
       document.body.dispatchEvent(new Event('htmx:beforeRequest'))
     })
