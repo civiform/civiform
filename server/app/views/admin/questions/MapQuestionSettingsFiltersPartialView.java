@@ -1,7 +1,7 @@
 package views.admin.questions;
 
 import javax.inject.Inject;
-import views.admin.BaseView;
+import views.BaseView;
 import views.shared.BaseViewDeps;
 
 public final class MapQuestionSettingsFiltersPartialView

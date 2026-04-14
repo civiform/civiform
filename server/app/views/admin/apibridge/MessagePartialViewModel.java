@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
 import services.AlertType;
-import views.admin.BaseViewModel;
+import views.BaseViewModel;
 
 /** Contains all the properties for rendering the MessagePartial.html */
 public record MessagePartialViewModel(AlertType alertType, ImmutableList<String> messages)

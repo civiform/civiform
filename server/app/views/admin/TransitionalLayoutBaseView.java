@@ -3,11 +3,16 @@ package views.admin;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
+import java.util.Optional;
 import modules.ThymeleafModule;
 import play.mvc.Http;
 import services.BundledAssetsFinder;
+import views.BaseView;
+import views.BaseViewModel;
+import views.LayoutTemplate;
 import views.admin.shared.AdminCommonHeader;
 import views.shared.LayoutDeps;
+import views.shared.ScriptElementSettings;
 
 /**
  * {@link TransitionalLayoutBaseView} is used to render the supplied Thymeleaf page template. This
@@ -49,8 +54,8 @@ public abstract class TransitionalLayoutBaseView<TModel extends BaseViewModel>
   }
 
   @Override
-  protected final String layoutTemplate() {
-    return LayoutTemplate.TRANSITIONAL_LAYOUT;
+  protected final Optional<LayoutTemplate> layoutTemplate() {
+    return Optional.of(LayoutTemplate.TRANSITIONAL_LAYOUT);
   }
 
   @Override

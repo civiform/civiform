@@ -1,7 +1,7 @@
 package views.admin.apibridge.programbridge.fragments;
 
 import com.google.inject.Inject;
-import views.admin.BaseView;
+import views.BaseView;
 import views.shared.BaseViewDeps;
 
 /** View object for rendering the program bridge edit pages form */

@@ -1,7 +1,7 @@
 package views.admin.tools;
 
 import controllers.admin.tools.routes;
-import views.admin.BaseViewModel;
+import views.BaseViewModel;
 
 public record UrlCheckerViewModel() implements BaseViewModel {
   public String testUrlEndpoint() {

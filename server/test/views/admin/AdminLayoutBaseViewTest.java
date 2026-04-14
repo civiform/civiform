@@ -6,6 +6,7 @@ import static support.FakeRequestBuilder.fakeRequest;
 import controllers.WithMockedProfiles;
 import org.junit.Before;
 import org.junit.Test;
+import views.BaseViewModel;
 import views.shared.LayoutDeps;
 
 public class AdminLayoutBaseViewTest extends WithMockedProfiles {

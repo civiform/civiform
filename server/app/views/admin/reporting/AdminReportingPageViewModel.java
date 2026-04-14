@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import modules.MainModule;
 import services.reporting.ReportingService.MonthlyStats;
-import views.admin.BaseViewModel;
+import views.BaseViewModel;
 
 @Data
 @Builder

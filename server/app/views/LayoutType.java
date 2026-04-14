@@ -1,4 +1,4 @@
-package views.admin;
+package views;
 
 /**
  * LayoutType controls main page content layout. Used to determine if content uses the full

@@ -1,15 +1,20 @@
 package parsers;
 
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import org.apache.pekko.stream.Materializer;
+import org.apache.pekko.stream.javadsl.Flow;
+import org.apache.pekko.stream.javadsl.Keep;
 import org.apache.pekko.stream.javadsl.Sink;
 import org.apache.pekko.util.ByteString;
 import parsers.cloud.MultipartUploadSinks;
+import play.core.parsers.Multipart;
 import play.http.DefaultHttpErrorHandler;
 import play.libs.streams.Accumulator;
 import play.mvc.BodyParser;
 import play.mvc.Http.MultipartFormData.FilePart;
+import services.cloud.BucketType;
 
 /**
  * Abstract class for performing a streaming upload of multipart form data.
@@ -19,69 +24,75 @@ import play.mvc.Http.MultipartFormData.FilePart;
  * destination (e.g., file system, cloud storage)
  *
  * <p>Subclasses provide the implementation for handling the streaming, e.g. to different cloud
- * storage providers or a local file system.
+ * storage providers or a local file system. Each {@link FilePart} produced by this parser carries
+ * the cloud-storage file key as its ref so the action can read it back.
  */
 public abstract class StreamingMultipartBodyParser
-    extends BodyParser.DelegatingMultipartFormDataBodyParser<Void> {
+    extends BodyParser.DelegatingMultipartFormDataBodyParser<String> {
   private static final int CHUNK_SIZE = 1024 * 1024; // 1 MiB
   private final MultipartUploadSinks uploadSinks;
+  private final FileTypeValidation fileTypeValidation;
 
   public StreamingMultipartBodyParser(
       Materializer materializer,
       DefaultHttpErrorHandler errorHandler,
       MultipartUploadSinks streamingMultipartUploadSinks,
+      FileTypeValidation fileTypeValidation,
       long maxFileSize) {
     super(materializer, CHUNK_SIZE, maxFileSize, /* allowEmptyFiles= */ false, errorHandler);
     this.uploadSinks = streamingMultipartUploadSinks;
+    this.fileTypeValidation = fileTypeValidation;
   }
 
-  // Override the method to create a file part handler that streams the file data to the destination
   @Override
-  public Function<play.core.parsers.Multipart.FileInfo, Accumulator<ByteString, FilePart<Void>>>
+  public Function<Multipart.FileInfo, Accumulator<ByteString, FilePart<String>>>
       createFilePartHandler() {
     return fileInfo -> {
-      String bucketName = getBucketName();
-      String fileKey = getFileKey();
+      String fileKey = getFileKey(fileInfo);
       Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> uploadSink =
-          createUploadSink(bucketName, fileKey);
+          createUploadSink(getBucketType(), fileKey);
 
-      // Map upload sink to an output value
-      Sink<ByteString, CompletionStage<FilePart<Void>>> mappedSink =
-          uploadSink.mapMaterializedValue(
-              completionStage -> {
-                // Map the completion stage to a FilePart with the appropriate metadata
-                return completionStage.thenApply(
-                    uploadResult -> {
-                      // Here we can construct a FilePart with the metadata and the result of the
-                      // upload
-                      return new FilePart<Void>(
-                          fileInfo.partName(),
-                          fileInfo.fileName(),
-                          fileInfo.contentType().getOrElse(() -> "text/plain"),
-                          (Void) null // The actual file content is streamed, so this can be null
-                          );
-                    });
-              });
+      String fileName = fileInfo.fileName();
+      if (fileName == null || fileName.isBlank()) {
+        throw new FileUploadTypeException("Uploaded file has no filename.");
+      }
+
+      AtomicReference<String> detectedMimeTypeRef = new AtomicReference<>(null);
+      Flow<ByteString, ByteString, ?> sniffingFlow =
+          fileTypeValidation.sniffingFlow(fileName, detectedMimeTypeRef);
+
+      // Map upload sink to an output value, prepending the sniffing flow
+      Sink<ByteString, CompletionStage<FilePart<String>>> mappedSink =
+          sniffingFlow
+              .toMat(uploadSink, Keep.right())
+              .mapMaterializedValue(
+                  completionStage -> {
+                    // Map the completion stage to a FilePart with the appropriate metadata
+                    return completionStage.thenApply(
+                        uploadResult -> {
+                          // Here we can construct a FilePart with the metadata and the result of
+                          // the
+                          // upload
+                          return new FilePart<String>(
+                              fileInfo.partName(), fileName, detectedMimeTypeRef.get(), fileKey);
+                        });
+                  });
 
       // Create an accumulator that streams the file data to the mapped upload sink
       return Accumulator.fromSink(mappedSink);
     };
   }
 
-  // Method to allow for implementations for multiple storage providers
-  // Chooses between implemented Pekko connectors based on environment.
-  // For available Pekko connectors, see:
+  // Chooses between Pekko connector sinks based on the configured storage provider.
   // https://pekko.apache.org/docs/pekko-connectors/1.2/index.html
-  // TODO: Add support for storage providers - currently a no-op sink that discards the data.
   protected Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> createUploadSink(
-      String bucketName, String fileKey) {
-    // Default implementation can be a no-op sink that simply discards the data
-    return uploadSinks.getSinkForCloudProvider(bucketName, fileKey, CHUNK_SIZE);
+      BucketType bucketType, String fileKey) {
+    return uploadSinks.getSinkForCloudProvider(bucketType, fileKey, CHUNK_SIZE);
   }
 
-  // Abstract method to provide the file path for the location of this upload in cloud storage
-  protected abstract String getFileKey();
+  /** Returns the file path within cloud storage for this upload. */
+  protected abstract String getFileKey(Multipart.FileInfo fileInfo);
 
-  // Abstract method to provide the destination for streaming the file, e.g., a cloud storage bucket
-  protected abstract String getBucketName();
+  /** Returns the bucket type for streaming the file. */
+  protected abstract BucketType getBucketType();
 }

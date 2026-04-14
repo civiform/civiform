@@ -3,7 +3,7 @@ package views.admin.questions;
 import controllers.admin.routes;
 import java.util.List;
 import lombok.Builder;
-import views.admin.BaseViewModel;
+import views.BaseViewModel;
 
 @Builder
 public record MapQuestionSettingsFiltersPartialViewModel(

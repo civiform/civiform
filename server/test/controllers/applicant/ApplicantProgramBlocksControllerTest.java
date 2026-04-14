@@ -3427,7 +3427,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 java.util.Map.of(),
                 java.util.List.of(
                     new play.mvc.Http.MultipartFormData.FilePart<>(
-                        "file", "my-document.pdf", "application/pdf", null)))
+                        "file", "my-document.pdf", "application/pdf", "applicant-test-file-key")))
             .build();
     when(settingsManifest.getFileUploadQuestionImprovementsEnabled(request)).thenReturn(true);
 

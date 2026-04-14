@@ -1,8 +1,8 @@
 package views.dev.componentcatalog;
 
 import com.google.inject.Inject;
+import views.LayoutType;
 import views.admin.DevLayoutBaseView;
-import views.admin.LayoutType;
 import views.shared.LayoutDeps;
 
 public class CatalogPageView extends DevLayoutBaseView<CatalogPageViewModel> {

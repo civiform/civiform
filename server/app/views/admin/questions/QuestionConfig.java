@@ -40,9 +40,9 @@ import services.question.YesNoQuestionOption;
 import services.question.types.DateQuestionDefinition.DateValidationOption;
 import services.question.types.DateQuestionDefinition.DateValidationOption.DateType;
 import services.settings.SettingsManifest;
+import views.BaseView;
+import views.BaseViewModel;
 import views.ViewUtils;
-import views.admin.BaseView;
-import views.admin.BaseViewModel;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
@@ -117,7 +117,7 @@ public final class QuestionConfig {
         return Optional.of(
             config.addDateQuestionConfig((DateQuestionForm) questionForm, messages).getContainer());
       case MAP: // fallthrough intended - MAP question configuration is handled in
-        // QuestionEditView.getQuestionConfig
+      // QuestionEditView.getQuestionConfig
       case CURRENCY: // fallthrough intended - no options
       case NAME: // fallthrough intended - no options
       case EMAIL: // fallthrough intended
