@@ -37,7 +37,7 @@ public final class CiviFormAccountMerger {
    *
    * <p>When a Guest Active application is moved it will have originalApplicantId set to the Guest
    * applicant to allow for matching across api data pulls. Draft applications will not have it set
-   * because Draft applications are not pulled by the api. and it serves no purpose then.
+   * because Draft applications are not pulled by the api and it serves no purpose then.
    *
    * @param newMergeStage what launch stage the new merge feature is at. Must be DRY_RUN OR ENABLED.
    */
@@ -53,14 +53,17 @@ public final class CiviFormAccountMerger {
               throw new IllegalArgumentException(
                   "New merge launch stage is not supported: " + newMergeStage);
         };
+    StringBuilder finalLogMessage = new StringBuilder();
     // 1. Merge Applications.
-    String log = mergeGuestApplicationsIntoCfUser(civiformUser, guestUser, applyChanges);
+    String mergeLog = mergeGuestApplicationsIntoCfUser(civiformUser, guestUser, applyChanges);
+    finalLogMessage.append(mergeLog);
     // 2. Update the guest's file references to permit the CF users to read
     // them.
     String fileMergeLog = mergeGuestFilesIntoCfUser(civiformUser.id, guestUser.id, applyChanges);
+    finalLogMessage.append("\n").append(fileMergeLog);
     // 3. Merge CFApp question answers and PAI into guest data and store in CF App
     // TODO(#11389): Step 3 is not yet implemented.
-    logger.info("{}\n{}", log, fileMergeLog);
+    logger.info("{}", finalLogMessage);
   }
 
   /**
@@ -579,8 +582,14 @@ public final class CiviFormAccountMerger {
         .formatted(cfDraft.id, guestDraft.id, cfUser.id);
   }
 
-  private String mergeGuestFilesIntoCfUser(
-      Long civiformUserId, Long guestUserId, boolean applyChanges) {
+  /**
+   * Add {@code cfUserId} to the read ACL for all files {@code guestUserId} created.
+   *
+   * @param applyChanges if database changes should be applied. If false the return will log what
+   *     would have occurred.
+   * @return a log message indicating what changes occurred.
+   */
+  private String mergeGuestFilesIntoCfUser(Long cfUserId, Long guestUserId, boolean applyChanges) {
     var guestFiles =
         storedFileRepositoryProvider
             .get()
@@ -591,14 +600,14 @@ public final class CiviFormAccountMerger {
     for (StoredFileModel file : guestFiles) {
       fileIds.add(file.id.toString());
       if (applyChanges) {
-        file.getAcls().addApplicantToReaders(civiformUserId);
+        file.getAcls().addApplicantToReaders(cfUserId);
         file.save();
       }
     }
 
     var logMessage = fileIds.toString();
     if (logMessage.isBlank()) {
-      return "Guest user has no files to merge with CiviForm user.";
+      return "Guest user has no files to merge.";
     }
 
     return """

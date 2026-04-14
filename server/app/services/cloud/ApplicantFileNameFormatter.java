@@ -33,7 +33,7 @@ public final class ApplicantFileNameFormatter {
    * Returns the filename prefix string to identify this applicant's file in a filename.
    *
    * <p>The result will have a trailing / to ensure it does not match entries in which it otherwise
-   * would be a substring of other applicant data.
+   * would be a substring of other applicant's files.
    */
   public static String formatFilenameApplicantLookupPrefixString(long applicantId) {
     return String.format("applicant-%d/", applicantId);

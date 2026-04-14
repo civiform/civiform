@@ -524,7 +524,9 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
 
     for (Long fileId : fileIds) {
       StoredFileModel fileAfterMerge = lookupFile(fileId);
-      assertThat(fileAfterMerge.getAcls().getApplicantReadAcls()).containsExactly(cfUser.id);
+      assertThat(fileAfterMerge.getAcls().getApplicantReadAcls())
+          .withFailMessage(() -> "File id %d".formatted(fileId))
+          .containsExactly(cfUser.id);
     }
 
     assertThat(lookupUserFiles(cfUser.id)).isEmpty();
