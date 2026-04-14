@@ -80,13 +80,21 @@ public class SchemaView extends BaseHtmlView {
                 link()
                     .withRel("stylesheet")
                     .withHref(bundledAssetsFinder.getSwaggerUiCss())
-                    .attr("nonce", cspNonce))
+                    .attr("nonce", cspNonce)
+                    .condAttr(
+                        bundledAssetsFinder.useBundlerDevServer(), "crossorigin", "anonymous"))
             .addHeadScripts(
-                script().withSrc(bundledAssetsFinder.getSwaggerUiJs()).attr("nonce", cspNonce))
+                script()
+                    .withSrc(bundledAssetsFinder.getSwaggerUiJs())
+                    .attr("nonce", cspNonce)
+                    .condAttr(
+                        bundledAssetsFinder.useBundlerDevServer(), "crossorigin", "anonymous"))
             .addHeadScripts(
                 script()
                     .withSrc(bundledAssetsFinder.getSwaggeruiPresetJs())
-                    .attr("nonce", cspNonce))
+                    .attr("nonce", cspNonce)
+                    .condAttr(
+                        bundledAssetsFinder.useBundlerDevServer(), "crossorigin", "anonymous"))
             .addMainContent(
                 div(
                         h1("API schema").withClasses("ml-4"),
@@ -201,7 +209,7 @@ public class SchemaView extends BaseHtmlView {
             div().withId(swaggerUiId),
             script(
                     rawHtml(
-                        """
+"""
 document.addEventListener('DOMContentLoaded', () => {
     SwaggerUIBundle({
         url: '%s',

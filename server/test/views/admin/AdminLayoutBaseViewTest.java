@@ -51,7 +51,7 @@ public class AdminLayoutBaseViewTest extends WithMockedProfiles {
     assertThat(result.isBlank()).isFalse();
     assertThat(result).contains("-uswds_css.min.css");
     assertThat(result).contains("-uswdsinit_js.bundle.js");
-    assertThat(result).contains("-uswds_js.bundle.js");
+    assertThat(result).contains("-uswds.min.js");
     assertThat(result).contains("-admin.bundle.js");
     assertThat(result).contains("page-title-1");
     assertThat(result).contains("page-content-1");
@@ -70,7 +70,7 @@ public class AdminLayoutBaseViewTest extends WithMockedProfiles {
     assertThat(result.isBlank()).isFalse();
     assertThat(result).contains("-uswds_css.min.css");
     assertThat(result).contains("-uswdsinit_js.bundle.js");
-    assertThat(result).contains("-uswds_js.bundle.js");
+    assertThat(result).contains("-uswds.min.js");
     assertThat(result).contains("-admin.bundle.js");
     assertThat(result).contains("page-title-1");
     assertThat(result).contains("page-content-1");
