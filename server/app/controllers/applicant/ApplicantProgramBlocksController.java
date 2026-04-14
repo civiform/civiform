@@ -1200,12 +1200,17 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 }
               }
 
+              // Deduplicate the display name so users can distinguish files.
+              ImmutableList<String> existingNames =
+                  originalFileNamesOptional.orElse(ImmutableList.of());
+              String uniqueFileName = getUniqueFileName(originalFileName, existingNames);
+
               // Append new file key and original file name.
               fileUploadQuestionFormData.put(
                   fileUploadQuestion.getFileKeyListPathForIndex(newIndex).toString(), fileKey);
               fileUploadQuestionFormData.put(
                   fileUploadQuestion.getOriginalFileNameListPathForIndex(newIndex).toString(),
-                  originalFileName);
+                  uniqueFileName);
 
               return getOrMakeFileRecord(fileKey, Optional.of(originalFileName), applicantId)
                   .thenComposeAsync(
@@ -1239,10 +1244,132 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       request,
                       FileUploadQuestionPartialViewModel.builder()
                           .fileUploadQuestion(stagedQuestion)
+                          .hxRemoveFileUrl(
+                              routes.ApplicantProgramBlocksController.hxRemoveFile(
+                                      programId, blockId)
+                                  .url())
                           .build()))
                   .as(Http.MimeTypes.HTML);
             },
-            classLoaderExecutionContext.current());
+            classLoaderExecutionContext.current())
+        .exceptionallyAsync(ex -> internalServerError(), classLoaderExecutionContext.current());
+  }
+
+  /**
+   * HTMX endpoint that removes a previously-uploaded file from the applicant's answer for the file
+   * upload question in {@code blockId}. Returns an HTML partial with OOB swaps to update the file
+   * list and hidden inputs.
+   */
+  @Secure
+  public CompletionStage<Result> hxRemoveFile(Request request, long programId, String blockId) {
+    if (!settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
+      return CompletableFuture.completedFuture(notFound());
+    }
+
+    Optional<Long> optionalApplicantId = getApplicantId(request);
+    if (optionalApplicantId.isEmpty()) {
+      return CompletableFuture.completedFuture(badRequest());
+    }
+
+    long applicantId = optionalApplicantId.get();
+
+    Map<String, String[]> formData =
+        request.body().asFormUrlEncoded() != null ? request.body().asFormUrlEncoded() : Map.of();
+    String[] fileKeyValues = formData.getOrDefault("fileKey", new String[0]);
+    if (fileKeyValues.length == 0 || fileKeyValues[0].isBlank()) {
+      return CompletableFuture.completedFuture(badRequest());
+    }
+    String fileKey = fileKeyValues[0];
+
+    return checkApplicantAuthorization(request, applicantId)
+        .thenComposeAsync(
+            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            roApplicantProgramService -> {
+              Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
+
+              if (block.isEmpty() || !block.get().isFileUpload()) {
+                return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
+              }
+
+              FileUploadQuestion fileUploadQuestion =
+                  block.get().getVisibleQuestions().stream()
+                      .filter(question -> question.getType() == QuestionType.FILEUPLOAD)
+                      .findAny()
+                      .orElseThrow()
+                      .createFileUploadQuestion();
+
+              ImmutableMap.Builder<String, String> fileUploadQuestionFormData =
+                  new ImmutableMap.Builder<>();
+              Optional<ImmutableList<String>> keysOptional =
+                  fileUploadQuestion.getFileKeyListValue();
+              Optional<ImmutableList<String>> originalFileNamesOptional =
+                  fileUploadQuestion.getOriginalFileNameListValue();
+
+              int fileKeyIndexRemoved = -1;
+
+              if (keysOptional.isPresent()) {
+                ImmutableList<String> keys = keysOptional.get();
+                for (int i = 0; i < keys.size(); i++) {
+                  String keyValue = keys.get(i);
+                  boolean removeKey = keyValue.equals(fileKey);
+                  if (removeKey) {
+                    fileKeyIndexRemoved = i;
+                  }
+                  fileUploadQuestionFormData.put(
+                      fileUploadQuestion.getFileKeyListPathForIndex(i).toString(),
+                      removeKey ? "" : keyValue);
+                }
+              }
+
+              if (originalFileNamesOptional.isPresent() && fileKeyIndexRemoved >= 0) {
+                ImmutableList<String> originalFileNames = originalFileNamesOptional.get();
+                for (int i = 0; i < originalFileNames.size(); i++) {
+                  fileUploadQuestionFormData.put(
+                      fileUploadQuestion.getOriginalFileNameListPathForIndex(i).toString(),
+                      i == fileKeyIndexRemoved ? "" : originalFileNames.get(i));
+                }
+              }
+
+              return applicantService.stageAndUpdateIfValid(
+                  applicantId,
+                  programId,
+                  blockId,
+                  fileUploadQuestionFormData.build(),
+                  settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
+                  /* forceUpdate= */ true,
+                  settingsManifest.getApiBridgeEnabled(request));
+            },
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            _ -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+            classLoaderExecutionContext.current())
+        .thenApplyAsync(
+            roApplicantProgramService -> {
+              FileUploadQuestion stagedQuestion =
+                  roApplicantProgramService
+                      .getActiveBlock(blockId)
+                      .orElseThrow()
+                      .getVisibleQuestions()
+                      .stream()
+                      .filter(q -> q.getType() == QuestionType.FILEUPLOAD)
+                      .findAny()
+                      .orElseThrow()
+                      .createFileUploadQuestion();
+              return ok(fileUploadQuestionPartialView.render(
+                      request,
+                      FileUploadQuestionPartialViewModel.builder()
+                          .fileUploadQuestion(stagedQuestion)
+                          .hxRemoveFileUrl(
+                              routes.ApplicantProgramBlocksController.hxRemoveFile(
+                                      programId, blockId)
+                                  .url())
+                          .build()))
+                  .as(Http.MimeTypes.HTML);
+            },
+            classLoaderExecutionContext.current())
+        .exceptionallyAsync(ex -> internalServerError(), classLoaderExecutionContext.current());
   }
 
   /**
@@ -1853,6 +1980,37 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   /** Gets StoredFileModel for {@code key}, creating one if it is not present. */
+  /**
+   * Returns a file name that is unique among {@code existingNames}. If {@code name} already exists,
+   * appends "-2" before the extension (e.g. "report.pdf" becomes "report-2.pdf"). If that also
+   * exists, increments the suffix.
+   */
+  private static String getUniqueFileName(String name, ImmutableList<String> existingNames) {
+    // Pattern: (baseName)(-digits)?(extension)?
+    java.util.regex.Pattern digitSuffix = java.util.regex.Pattern.compile("(.*)(-\\d+)(\\..+)?$");
+    java.util.regex.Pattern extensionOnly = java.util.regex.Pattern.compile("(.*)(\\..+)$");
+
+    while (existingNames.contains(name)) {
+      java.util.regex.Matcher digitMatcher = digitSuffix.matcher(name);
+      if (digitMatcher.matches()) {
+        int next = Integer.parseInt(digitMatcher.group(2).substring(1)) + 1;
+        name =
+            digitMatcher.group(1)
+                + "-"
+                + next
+                + (digitMatcher.group(3) != null ? digitMatcher.group(3) : "");
+      } else {
+        java.util.regex.Matcher extMatcher = extensionOnly.matcher(name);
+        if (extMatcher.matches()) {
+          name = extMatcher.group(1) + "-2" + extMatcher.group(2);
+        } else {
+          name = name + "-2";
+        }
+      }
+    }
+    return name;
+  }
+
   private CompletionStage<StoredFileModel> getOrMakeFileRecord(
       String key, Optional<String> originalFileName, long applicantId) {
     return storedFileRepository

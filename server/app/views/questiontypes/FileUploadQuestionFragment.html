@@ -166,19 +166,22 @@
     <li
       class="grid-row margin-y-1"
       th:each="fileKey, iter : ${fileUploadQuestion.getFileKeyListValue().get()}"
+      th:if="${!#strings.isEmpty(fileKey)}"
       th:with="fileName=${fileUploadQuestion.getFileNameForIndex(iter.index).orElse(fileKey)}"
     >
       <span
         class="overflow-hidden grid-col flex-fill"
         th:text="${fileName}"
       ></span>
-      <!-- TODO: Add remove file endpoint -->
-      <a
-        href="#"
-        role="button"
+      <button
+        type="button"
+        class="usa-button usa-button--unstyled"
         th:aria-label="#{link.removeFileSr(${fileName})}"
         th:text="#{link.removeFile}"
-      ></a>
+        th:hx-post="${hxRemoveFileUrl}"
+        th:attr='hx-vals=|{"fileKey":"${fileKey}"}|'
+        hx-swap="none"
+      ></button>
     </li>
   </th:block>
 </ul>

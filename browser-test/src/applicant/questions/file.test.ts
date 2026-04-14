@@ -1504,6 +1504,91 @@ test.describe('file upload htmx upload flow', () => {
     await expect(fileInput).toHaveValue('')
   })
 
+  test('server error shows upload failed banner', async ({
+    page,
+    applicantQuestions,
+    applicantFileQuestion,
+  }) => {
+    await applicantQuestions.applyProgram(programName)
+
+    await page.route(
+      (url) => url.pathname.includes('hxSelectFileForUpload'),
+      async (route) => {
+        await route.fulfill({status: 500, body: ''})
+      },
+    )
+
+    await applicantQuestions.answerFileUploadQuestion(
+      'some content',
+      'test.txt',
+    )
+
+    await applicantFileQuestion.expectUploadFailedErrorShown()
+  })
+
+  test('can remove an uploaded file', async ({
+    page,
+    applicantQuestions,
+    applicantFileQuestion,
+  }) => {
+    await applicantQuestions.applyProgram(programName)
+
+    await applicantQuestions.answerFileUploadQuestion('first', 'file1.txt')
+    await waitForHtmxReady(page)
+
+    await applicantQuestions.answerFileUploadQuestion('second', 'file2.txt')
+    await waitForHtmxReady(page)
+
+    await applicantFileQuestion.expectFileNameDisplayed('file1.txt')
+    await applicantFileQuestion.expectFileNameDisplayed('file2.txt')
+
+    await applicantFileQuestion.removeFileUpload('file1.txt')
+    await waitForHtmxReady(page)
+
+    await applicantFileQuestion.expectFileNameCount('file1.txt', 0)
+    await applicantFileQuestion.expectFileNameDisplayed('file2.txt')
+  })
+
+  test('can remove all files and re-upload', async ({
+    page,
+    applicantQuestions,
+    applicantFileQuestion,
+  }) => {
+    await applicantQuestions.applyProgram(programName)
+
+    await applicantQuestions.answerFileUploadQuestion('content', 'only.txt')
+    await waitForHtmxReady(page)
+
+    await applicantFileQuestion.expectFileNameDisplayed('only.txt')
+
+    await applicantFileQuestion.removeFileUpload('only.txt')
+    await waitForHtmxReady(page)
+
+    await applicantFileQuestion.expectFileNameCount('only.txt', 0)
+
+    await applicantQuestions.answerFileUploadQuestion('new content', 'new.txt')
+    await waitForHtmxReady(page)
+
+    await applicantFileQuestion.expectFileNameDisplayed('new.txt')
+  })
+
+  test('duplicate file names are deduplicated', async ({
+    page,
+    applicantQuestions,
+    applicantFileQuestion,
+  }) => {
+    await applicantQuestions.applyProgram(programName)
+
+    await applicantQuestions.answerFileUploadQuestion('first', 'report.txt')
+    await waitForHtmxReady(page)
+
+    await applicantQuestions.answerFileUploadQuestion('second', 'report.txt')
+    await waitForHtmxReady(page)
+
+    await applicantFileQuestion.expectFileNameDisplayed('report.txt')
+    await applicantFileQuestion.expectFileNameDisplayed('report-2.txt')
+  })
+
   test('too large file does not trigger upload', async ({
     page,
     applicantQuestions,

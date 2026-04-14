@@ -12,6 +12,7 @@ const FILE_NAME_DIGIT_SUFFIX_REGEX = /(.*)(-\d*)(\..*)?$/
 // Groups are [1] The file name [2] The file type.
 const FILE_NAME_REGEX = /(.*)(\..*)$/
 const CF_FILE_UPLOADING_CLASS = 'cf-file-uploading'
+const UPLOAD_FAILED_ERROR_ID = 'cf-fileupload-upload-failed-error'
 
 export function init() {
   // Don't add extra logic if we don't have a block form with a
@@ -52,57 +53,34 @@ export function init() {
       // preview so the applicant can pick a different file.
       if (!validateFileUploadQuestion(blockForm)) {
         event.preventDefault()
-        const fileInput =
-          blockForm.querySelector<HTMLInputElement>('input[type=file]')
-        if (fileInput) {
-          fileInput.value = ''
-          uswdsFileInput.off(blockForm)
-          uswdsFileInput.on(blockForm)
-        }
+        resetFileInput(blockForm)
         return
       }
 
       fileUploadInProgress = true
       document.body.classList.add(CF_FILE_UPLOADING_CLASS)
 
-      const uploadFailedError = document.getElementById(
-        'cf-fileupload-upload-failed-error',
-      )
+      const uploadFailedError = document.getElementById(UPLOAD_FAILED_ERROR_ID)
       if (uploadFailedError) {
         uploadFailedError.hidden = true
       }
     })
 
-    document.body.addEventListener('htmx:afterRequest', () => {
+    document.body.addEventListener('htmx:afterOnLoad', () => {
       fileUploadInProgress = false
       document.body.classList.remove(CF_FILE_UPLOADING_CLASS)
-
-      const fileInput =
-        blockForm.querySelector<HTMLInputElement>('input[type=file]')
-      if (fileInput) {
-        fileInput.value = ''
-        uswdsFileInput.off(blockForm)
-        uswdsFileInput.on(blockForm)
-      }
+      resetFileInput(blockForm)
     })
 
     document.body.addEventListener('htmx:responseError', () => {
       fileUploadInProgress = false
       document.body.classList.remove(CF_FILE_UPLOADING_CLASS)
 
-      const uploadFailedError = document.getElementById(
-        'cf-fileupload-upload-failed-error',
-      )
+      const uploadFailedError = document.getElementById(UPLOAD_FAILED_ERROR_ID)
       if (uploadFailedError) {
         uploadFailedError.hidden = false
       }
-      const fileInput =
-        blockForm.querySelector<HTMLInputElement>('input[type=file]')
-      if (fileInput) {
-        fileInput.value = ''
-        uswdsFileInput.off(blockForm)
-        uswdsFileInput.on(blockForm)
-      }
+      resetFileInput(blockForm)
     })
   }
 
@@ -212,6 +190,16 @@ export function getUniqueName(name: string, existingNames: string[]) {
   }
 
   return name
+}
+
+function resetFileInput(blockForm: HTMLElement) {
+  const fileInput =
+    blockForm.querySelector<HTMLInputElement>('input[type=file]')
+  if (fileInput) {
+    fileInput.value = ''
+    uswdsFileInput.off(blockForm)
+    uswdsFileInput.on(blockForm)
+  }
 }
 
 function onActionButtonClicked(e: Event, blockForm: Element) {
