@@ -1394,3 +1394,130 @@ test.describe('file upload question with file upload improvements feature flag e
     expect(page.url()).toBe(initialUrl)
   })
 })
+
+test.describe('file upload htmx upload flow', () => {
+  const programName = 'File upload htmx flow program'
+  const fileUploadQuestionText = 'File upload htmx flow question'
+
+  test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+    await enableFeatureFlag(page, 'FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED')
+    await loginAsAdmin(page)
+
+    await adminQuestions.addFileUploadQuestion({
+      questionName: 'file-upload-htmx-q',
+      questionText: fileUploadQuestionText,
+    })
+    await adminPrograms.addAndPublishProgramWithQuestions(
+      ['file-upload-htmx-q'],
+      programName,
+    )
+    await logout(page)
+  })
+
+  test('uploaded file appears in file list', async ({
+    page,
+    applicantQuestions,
+    applicantFileQuestion,
+  }) => {
+    await applicantQuestions.applyProgram(programName)
+
+    await applicantQuestions.answerFileUploadQuestion(
+      'some file content',
+      'test-file.txt',
+    )
+    await waitForHtmxReady(page)
+
+    await applicantFileQuestion.expectFileNameDisplayed('test-file.txt')
+  })
+
+  test('can upload multiple files', async ({
+    page,
+    applicantQuestions,
+    applicantFileQuestion,
+  }) => {
+    await applicantQuestions.applyProgram(programName)
+
+    await applicantQuestions.answerFileUploadQuestion('first file', 'file1.txt')
+    await waitForHtmxReady(page)
+
+    await applicantQuestions.answerFileUploadQuestion(
+      'second file',
+      'file2.txt',
+    )
+    await waitForHtmxReady(page)
+
+    await applicantFileQuestion.expectFileNameDisplayed('file1.txt')
+    await applicantFileQuestion.expectFileNameDisplayed('file2.txt')
+  })
+
+  test('can continue after uploading', async ({page, applicantQuestions}) => {
+    await applicantQuestions.applyProgram(programName)
+
+    await applicantQuestions.answerFileUploadQuestion(
+      'some content',
+      'uploaded.txt',
+    )
+    await waitForHtmxReady(page)
+
+    await applicantQuestions.clickContinue()
+
+    await applicantQuestions.expectReviewPage()
+    await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+      fileUploadQuestionText,
+      'uploaded.txt',
+    )
+  })
+
+  test('clicking continue without any file shows error', async ({
+    applicantQuestions,
+    applicantFileQuestion,
+  }) => {
+    await applicantQuestions.applyProgram(programName)
+
+    await applicantQuestions.clickContinue()
+
+    await applicantQuestions.validateQuestionIsOnPage(fileUploadQuestionText)
+    await applicantFileQuestion.expectFileSelectionErrorShown()
+  })
+
+  test('file input resets after successful upload', async ({
+    page,
+    applicantQuestions,
+  }) => {
+    await applicantQuestions.applyProgram(programName)
+
+    await applicantQuestions.answerFileUploadQuestion(
+      'some content',
+      'test.txt',
+    )
+    await waitForHtmxReady(page)
+
+    const fileInput = page.getByLabel('Drag file here')
+    await expect(fileInput).toHaveValue('')
+  })
+
+  test('too large file does not trigger upload', async ({
+    page,
+    applicantQuestions,
+  }) => {
+    await applicantQuestions.applyProgram(programName)
+
+    let uploadRequestCount = 0
+    await page.route(
+      (url) => url.pathname.includes('hxSelectFileForUpload'),
+      async (route) => {
+        uploadRequestCount++
+        await route.continue()
+      },
+    )
+
+    await applicantQuestions.answerFileUploadQuestionWithMbSize(101)
+    await waitForHtmxReady(page)
+
+    expect(uploadRequestCount).toBe(0)
+
+    await expect(
+      page.getByRole('list', {name: 'Uploaded files'}).locator('li'),
+    ).toHaveCount(0)
+  })
+})

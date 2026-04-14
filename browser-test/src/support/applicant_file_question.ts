@@ -5,6 +5,7 @@ import {Page} from '@playwright/test'
 export class ApplicantFileQuestion {
   private fileSelectionErrorLocator = '#cf-fileupload-required-error'
   private fileTooLargeErrorLocator = '#cf-fileupload-too-large-error'
+  private uploadFailedErrorLocator = '#cf-fileupload-upload-failed-error'
   private continueButtonLocator = '#fileupload-continue-button'
   private continueFormLocator = '#cf-fileupload-continue-form'
   private skipButtonLocator = '#fileupload-skip-button'
@@ -23,6 +24,12 @@ export class ApplicantFileQuestion {
 
   async expectQuestionErrorHidden() {
     await expect(this.page.locator(this.questionErrorLocator)).toBeHidden()
+  }
+
+  async expectFileSelectionErrorShown() {
+    await expect(
+      this.page.locator(this.fileSelectionErrorLocator),
+    ).toBeVisible()
   }
 
   async expectFileSelectionErrorHidden() {
@@ -105,6 +112,14 @@ export class ApplicantFileQuestion {
 
   async clickDelete() {
     await this.page.locator(this.deleteButtonLocator).click()
+  }
+
+  async expectUploadFailedErrorShown() {
+    await expect(this.page.locator(this.uploadFailedErrorLocator)).toBeVisible()
+  }
+
+  async expectUploadFailedErrorHidden() {
+    await expect(this.page.locator(this.uploadFailedErrorLocator)).toBeHidden()
   }
 
   async removeFileUpload(fileName: string) {
