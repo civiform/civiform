@@ -49,8 +49,9 @@ public class AwsS3MultipartUploadSinkProviderTest {
     fakeAwsSink = Sink.fold(mockResult, (acc, next) -> acc);
 
     when(mockResult.getKey()).thenReturn(FILE_KEY);
-    when(uploadSinkProvider.getBaseSink(any(BucketType.class), anyString(), anyInt()))
-        .thenReturn(fakeAwsSink);
+    doReturn(fakeAwsSink)
+        .when(uploadSinkProvider)
+        .getBaseSink(any(BucketType.class), anyString(), anyInt());
   }
 
   @After
