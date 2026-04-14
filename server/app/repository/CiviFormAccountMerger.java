@@ -55,12 +55,13 @@ public final class CiviFormAccountMerger {
         };
     StringBuilder finalLogMessage = new StringBuilder();
     // 1. Merge Applications.
-    String mergeLog = mergeGuestApplicationsIntoCfUser(civiformUser, guestUser, applyChanges);
-    finalLogMessage.append(mergeLog);
+    String applicationLog = mergeGuestApplicationsIntoCfUser(civiformUser,
+      guestUser, applyChanges);
+    finalLogMessage.append(applicationLog);
     // 2. Update the guest's file references to permit the CF users to read
     // them.
-    String fileMergeLog = mergeGuestFilesIntoCfUser(civiformUser.id, guestUser.id, applyChanges);
-    finalLogMessage.append("\n").append(fileMergeLog);
+    String fileLog = mergeGuestFilesIntoCfUser(civiformUser.id, guestUser.id, applyChanges);
+    finalLogMessage.append("\n").append(fileLog);
     // 3. Merge CFApp question answers and PAI into guest data and store in CF App
     // TODO(#11389): Step 3 is not yet implemented.
     logger.info("{}", finalLogMessage);
