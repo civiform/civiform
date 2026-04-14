@@ -161,6 +161,7 @@
   id="cf-fileupload-file-list"
   th:fragment="file-list-display(fileUploadQuestion, oob)"
   th:hx-swap-oob="${oob} ? 'true'"
+  th:data-has-uploaded-files="${fileUploadQuestion.hasUploadedFiles()}"
 >
   <th:block th:if="${fileUploadQuestion.getFileKeyListValue().isPresent()}">
     <li

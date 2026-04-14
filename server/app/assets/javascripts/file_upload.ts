@@ -60,10 +60,7 @@ export function init() {
       fileUploadInProgress = true
       document.body.classList.add(CF_FILE_UPLOADING_CLASS)
 
-      const uploadFailedError = document.getElementById(UPLOAD_FAILED_ERROR_ID)
-      if (uploadFailedError) {
-        uploadFailedError.hidden = true
-      }
+      setUploadFailedErrorVisible(false)
     })
 
     document.body.addEventListener('htmx:afterOnLoad', () => {
@@ -76,10 +73,7 @@ export function init() {
       fileUploadInProgress = false
       document.body.classList.remove(CF_FILE_UPLOADING_CLASS)
 
-      const uploadFailedError = document.getElementById(UPLOAD_FAILED_ERROR_ID)
-      if (uploadFailedError) {
-        uploadFailedError.hidden = false
-      }
+      setUploadFailedErrorVisible(true)
       resetFileInput(blockForm)
     })
   }
@@ -192,7 +186,14 @@ export function getUniqueName(name: string, existingNames: string[]) {
   return name
 }
 
-function resetFileInput(blockForm: HTMLElement) {
+const setUploadFailedErrorVisible = (visible: boolean) => {
+  const uploadFailedError = document.getElementById(UPLOAD_FAILED_ERROR_ID)
+  if (uploadFailedError) {
+    uploadFailedError.hidden = !visible
+  }
+}
+
+const resetFileInput = (blockForm: HTMLElement) => {
   const fileInput =
     blockForm.querySelector<HTMLInputElement>('input[type=file]')
   if (fileInput) {
@@ -271,13 +272,9 @@ function validateFileUploadQuestion(blockForm: Element): boolean {
   const fileInput = assertNotNull(
     blockForm.querySelector<HTMLInputElement>('input[type=file]'),
   )
-  // A file is considered uploaded if either the user just picked one in this session,
-  // or there is at least one previously-uploaded file already persisted as a hidden
-  // file_key_list[i] input inside #cf-fileupload-file-key-inputs.
   const hasPreviouslyUploadedFile =
-    blockForm.querySelector<HTMLInputElement>(
-      '#cf-fileupload-file-key-inputs input[name*="file_key_list"][value]:not([value=""])',
-    ) != null
+    document.getElementById('cf-fileupload-file-list')?.dataset
+      .hasUploadedFiles === 'true'
   const isFileUploaded = fileInput.value != '' || hasPreviouslyUploadedFile
 
   const fileNotSelectedErrorDiv = document.getElementById(

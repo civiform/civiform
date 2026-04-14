@@ -73,6 +73,13 @@ public final class FileUploadQuestion extends AbstractQuestion {
    * Returns {@code true} if an additional file can be added according to the maximum files set on
    * the current question definition.
    */
+  /** Returns {@code true} if at least one non-empty file key has been uploaded. */
+  public boolean hasUploadedFiles() {
+    return getFileKeyListValue()
+        .map(keys -> keys.stream().anyMatch(k -> k != null && !k.isEmpty()))
+        .orElse(false);
+  }
+
   public boolean canUploadFile() {
     // Max can't be zero, so if there are no values, we can always upload a new one.
     if (!getFileKeyListValue().isPresent()) {
@@ -132,6 +139,64 @@ public final class FileUploadQuestion extends AbstractQuestion {
     return storedFileRepository
         .lookupFile(fileKey)
         .thenApply(maybeFile -> maybeFile.flatMap(StoredFileModel::getOriginalFileName));
+  }
+
+  /**
+   * Builds form data that preserves all existing file keys and original file names, then appends a
+   * new entry at the end.
+   */
+  public ImmutableMap<String, String> buildFormDataForAdd(String newFileKey, String newFileName) {
+    ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
+    Optional<ImmutableList<String>> keys = getFileKeyListValue();
+    Optional<ImmutableList<String>> names = getOriginalFileNameListValue();
+    int newIndex = keys.map(ImmutableList::size).orElse(0);
+
+    if (keys.isPresent()) {
+      for (int i = 0; i < keys.get().size(); i++) {
+        formData.put(getFileKeyListPathForIndex(i).toString(), keys.get().get(i));
+      }
+    }
+    if (names.isPresent()) {
+      for (int i = 0; i < names.get().size(); i++) {
+        formData.put(getOriginalFileNameListPathForIndex(i).toString(), names.get().get(i));
+      }
+    }
+
+    formData.put(getFileKeyListPathForIndex(newIndex).toString(), newFileKey);
+    formData.put(getOriginalFileNameListPathForIndex(newIndex).toString(), newFileName);
+    return formData.build();
+  }
+
+  /**
+   * Builds form data that preserves all existing file keys and original file names, but blanks out
+   * the entry matching {@code fileKeyToRemove}.
+   */
+  public ImmutableMap<String, String> buildFormDataForRemove(String fileKeyToRemove) {
+    ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
+    Optional<ImmutableList<String>> keys = getFileKeyListValue();
+    Optional<ImmutableList<String>> names = getOriginalFileNameListValue();
+    int removedIndex = -1;
+
+    if (keys.isPresent()) {
+      for (int i = 0; i < keys.get().size(); i++) {
+        String keyValue = keys.get().get(i);
+        boolean remove = keyValue.equals(fileKeyToRemove);
+        if (remove) {
+          removedIndex = i;
+        }
+        formData.put(getFileKeyListPathForIndex(i).toString(), remove ? "" : keyValue);
+      }
+    }
+
+    if (names.isPresent() && removedIndex >= 0) {
+      for (int i = 0; i < names.get().size(); i++) {
+        formData.put(
+            getOriginalFileNameListPathForIndex(i).toString(),
+            i == removedIndex ? "" : names.get().get(i));
+      }
+    }
+
+    return formData.build();
   }
 
   public FileUploadQuestionDefinition getQuestionDefinition() {
