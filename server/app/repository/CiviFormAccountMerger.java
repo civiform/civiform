@@ -62,7 +62,7 @@ public final class CiviFormAccountMerger {
     // TODO(#11389): Step 3 is not yet implemented.
     logger.info("{}\n{}", log, fileMergeLog);
   }
-  
+
   /**
    * A container for the CiviForm user's applications. We don't need obsolete records for the CF
    * user as compared to the Guest.
@@ -71,32 +71,31 @@ public final class CiviFormAccountMerger {
 
   /** A container for the Guest user's applications. */
   private record GuestUserApps(
-    List<ApplicationModel> obsolete,
-    Optional<ApplicationModel> active,
-    Optional<ApplicationModel> draft) {}
+      List<ApplicationModel> obsolete,
+      Optional<ApplicationModel> active,
+      Optional<ApplicationModel> draft) {}
 
   // Collect the applications into the nicer structure.
   private GuestUserApps categorizeGuestApps(List<ApplicationModel> apps) {
     List<ApplicationModel> obsolete =
-      apps.stream()
-          .filter(a -> a.getLifecycleStage() == LifecycleStage.OBSOLETE)
-          .collect(Collectors.toList());
+        apps.stream()
+            .filter(a -> a.getLifecycleStage() == LifecycleStage.OBSOLETE)
+            .collect(Collectors.toList());
     Optional<ApplicationModel> active =
-      apps.stream().filter(a -> a.getLifecycleStage() == LifecycleStage.ACTIVE).findFirst();
+        apps.stream().filter(a -> a.getLifecycleStage() == LifecycleStage.ACTIVE).findFirst();
     Optional<ApplicationModel> draft =
-      apps.stream().filter(a -> a.getLifecycleStage() == LifecycleStage.DRAFT).findFirst();
+        apps.stream().filter(a -> a.getLifecycleStage() == LifecycleStage.DRAFT).findFirst();
     return new GuestUserApps(obsolete, active, draft);
   }
 
   // Collect the applications into the nicer structure.
   private CfUserApps categorizeCfApps(List<ApplicationModel> apps) {
     Optional<ApplicationModel> active =
-      apps.stream().filter(a -> a.getLifecycleStage() == LifecycleStage.ACTIVE).findFirst();
+        apps.stream().filter(a -> a.getLifecycleStage() == LifecycleStage.ACTIVE).findFirst();
     Optional<ApplicationModel> draft =
-      apps.stream().filter(a -> a.getLifecycleStage() == LifecycleStage.DRAFT).findFirst();
+        apps.stream().filter(a -> a.getLifecycleStage() == LifecycleStage.DRAFT).findFirst();
     return new CfUserApps(active, draft);
   }
-
 
   /// Merge logic:
   /// 1. For programs only present in the guest user, move their applications
