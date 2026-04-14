@@ -80,7 +80,7 @@ public class TestStreamingMultipartBodyParserTest extends ResetPostgres {
   }
 
   // Run the parser and throw on errors
-  private CompletionStage<Http.MultipartFormData<Void>> parse(Source<ByteString, ?> source) {
+  private CompletionStage<Http.MultipartFormData<String>> parse(Source<ByteString, ?> source) {
     return parser
         .apply(requestHeader)
         .run(source, materializer)
@@ -121,7 +121,7 @@ public class TestStreamingMultipartBodyParserTest extends ResetPostgres {
     Source<ByteString, ?> source =
         createMultipartRequestBodyWithBytes(pngHeader, "test.png", "image/png");
 
-    MultipartFormData<Void> result = parse(source).toCompletableFuture().join();
+    MultipartFormData<String> result = parse(source).toCompletableFuture().join();
 
     assertThat(result).isNotNull();
   }
@@ -151,7 +151,7 @@ public class TestStreamingMultipartBodyParserTest extends ResetPostgres {
     Source<ByteString, ?> source =
         createMultipartRequestBodyWithBytes(pdfHeader, "doc.pdf", "application/pdf");
 
-    MultipartFormData<Void> result = parse(source).toCompletableFuture().join();
+    MultipartFormData<String> result = parse(source).toCompletableFuture().join();
 
     assertThat(result).isNotNull();
   }
