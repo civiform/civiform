@@ -1371,12 +1371,18 @@ test.describe('file upload question with file upload improvements feature flag e
   }) => {
     await applicantQuestions.applyProgram(programName)
 
-    // Select a file so the htmx:beforeRequest handler passes validation,
-    // then dispatch the event artificially because the HTMX request
-    // completes instantly in tests, so we need to simulate an in-flight
-    // upload to have time to attempt navigation.
-    await applicantQuestions.answerFileUploadQuestion('test content')
+    // Set a file on the input using DataTransfer (which does NOT trigger
+    // the change event, so no real HTMX upload starts) and then dispatch
+    // htmx:beforeRequest to flip the fileUploadInProgress flag.  This
+    // avoids the race where a real HTMX upload completes instantly and
+    // htmx:afterRequest resets the flag before we can attempt navigation.
     await page.evaluate(() => {
+      const fileInput = document.querySelector(
+        'input[type=file]',
+      ) as HTMLInputElement
+      const dt = new DataTransfer()
+      dt.items.add(new File(['test'], 'test.txt', {type: 'text/plain'}))
+      fileInput.files = dt.files
       document.body.dispatchEvent(new Event('htmx:beforeRequest'))
     })
 
