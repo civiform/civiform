@@ -5,6 +5,8 @@ import java.util.Optional;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.Environment;
+import play.i18n.Messages;
+import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.routing.HandlerDef;
 import play.routing.Router;
@@ -32,31 +34,34 @@ public abstract class BaseView<TModel extends BaseViewModel> {
       "data:image/x-icon;base64,AAABAAEAEBAAAAEAIACcAQAAFgAAAIlQTkcNChoKAAAADUlIRFIAAAAQAAAAEAgGAAAAH/P/YQAAAWNJREFUOE9j/A8EDBQAxsFjwKuPPxgK5h1n2HnhCdhDDtqSDJNSrBikhbgYDIrWMVx78gHFo7vrPRnsgWrgXvBp28lw5s4bhuZIYwY+LjaGltXnGXg4WRmOt/uBDZAT5WEo9tOFG6KvIMwgwM0GMeDui88MmnmrGWZn2TLEO6iCFd169pHh/P23DCGWigzGJesZzNXEGGZm2GAEN9gAkLN923YxXOoPZtCQ5sdQBHKBiYoowxSgl2CAnZWZgZGRAeKC3RefMni37mS40BfEoCUjgNUA9DC4NSWMQUGMB2LAozdfGVSyVjJMT7dmSHZWBxtw+dF7hjXH7jGUB+ozWFVuYlCS4GMoD9CDG26gKMwAdgUsHUT07WPYf+UZQ1OECYMQDztD06pzDGwsTAynuwIYjAiFAcjYD19/MRTNP8Gw+cwjhj///oGjcTLQzzLC3OBYwBuIFKRkhBfINWQQ5QVyvQAAuEmo0TDmRP4AAAAASUVORK5CYII=";
   private final TemplateEngine templateEngine;
   private final ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
+  private final MessagesApi messagesApi;
   private final Environment environment;
+
   protected final SettingsManifest settingsManifest;
 
   public BaseView(BaseViewDeps baseViewDeps) {
     this.templateEngine = baseViewDeps.templateEngine();
     this.playThymeleafContextFactory = baseViewDeps.playThymeleafContextFactory();
     this.settingsManifest = baseViewDeps.settingsManifest();
+    this.messagesApi = baseViewDeps.messagesApi();
     this.environment = baseViewDeps.environment();
   }
 
   /** Page title text */
-  protected String pageTitle(TModel model) {
+  protected String pageTitle(TModel model, Messages messages) {
     return "";
   }
 
   /**
-   * Page heading text. Populates that page's H1. If not overridden uses the ${@link
-   * #pageTitle(TModel)}
+   * Page heading text. Populates that page's H1. If not overridden uses the {@link
+   * #pageTitle(TModel, Messages)}
    */
-  protected String pageHeading(TModel model) {
-    return pageTitle(model);
+  protected String pageHeading(TModel model, Messages messages) {
+    return pageTitle(model, messages);
   }
 
   /** Page intro shown below the {@link #pageHeading } */
-  protected Optional<String> pageIntro(TModel model) {
+  protected Optional<String> pageIntro(TModel model, Messages messages) {
     return Optional.empty();
   }
 
@@ -105,6 +110,8 @@ public abstract class BaseView<TModel extends BaseViewModel> {
    * @return Rendered template
    */
   public final String render(Http.Request request, TModel model) {
+    Messages messages = messagesApi.preferred(request);
+
     ThymeleafModule.PlayThymeleafContext context = playThymeleafContextFactory.create(request);
 
     // Set layout specific values. These should not need to be used outside of
@@ -128,9 +135,9 @@ public abstract class BaseView<TModel extends BaseViewModel> {
     context.setVariable(
         "templateGlobals",
         TemplateGlobals.builder()
-            .pageTitle(pageTitle(model))
-            .pageHeading(pageHeading(model))
-            .pageIntro(pageIntro(model))
+            .pageTitle(pageTitle(model, messages))
+            .pageHeading(pageHeading(model, messages))
+            .pageIntro(pageIntro(model, messages))
             .cspNonce(CspUtil.getNonce(request))
             .csrfToken(CSRF.getToken(request.asScala()).value())
             .isDev(environment.isDev())

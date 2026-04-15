@@ -2,6 +2,7 @@ package views.dev;
 
 import javax.inject.Inject;
 import modules.ThymeleafModule;
+import play.i18n.Messages;
 import play.mvc.Http;
 import views.admin.AdminLayout;
 import views.admin.AdminLayoutBaseView;
@@ -28,7 +29,7 @@ public final class DevToolsPageView extends AdminLayoutBaseView<DevToolsPageView
   }
 
   @Override
-  protected String pageTitle(DevToolsPageViewModel model) {
+  protected String pageTitle(DevToolsPageViewModel model, Messages messages) {
     return "Dev Tools";
   }
 

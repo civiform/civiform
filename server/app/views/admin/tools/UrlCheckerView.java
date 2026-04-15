@@ -1,6 +1,7 @@
 package views.admin.tools;
 
 import com.google.inject.Inject;
+import play.i18n.Messages;
 import views.admin.TransitionalLayoutBaseView;
 import views.shared.LayoutDeps;
 
@@ -11,7 +12,7 @@ public class UrlCheckerView extends TransitionalLayoutBaseView<UrlCheckerViewMod
   }
 
   @Override
-  protected String pageTitle(UrlCheckerViewModel model) {
+  protected String pageTitle(UrlCheckerViewModel model, Messages messages) {
     return "URL Checker";
   }
 
