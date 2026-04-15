@@ -1,6 +1,7 @@
 package views.admin.apibridge.programbridge;
 
 import com.google.inject.Inject;
+import play.i18n.Messages;
 import views.admin.AdminLayout;
 import views.admin.TransitionalLayoutBaseView;
 import views.shared.LayoutDeps;
@@ -13,7 +14,7 @@ public class EditPageView extends TransitionalLayoutBaseView<EditPageViewModel> 
   }
 
   @Override
-  protected String pageTitle(EditPageViewModel model) {
+  protected String pageTitle(EditPageViewModel model, Messages messages) {
     return "Edit Program Bridge Definitions";
   }
 

@@ -1,6 +1,7 @@
 package views.dev.componentcatalog;
 
 import com.google.inject.Inject;
+import play.i18n.Messages;
 import views.LayoutType;
 import views.admin.DevLayoutBaseView;
 import views.shared.LayoutDeps;
@@ -13,7 +14,7 @@ public class CatalogPageView extends DevLayoutBaseView<CatalogPageViewModel> {
   }
 
   @Override
-  protected String pageTitle(CatalogPageViewModel model) {
+  protected String pageTitle(CatalogPageViewModel model, Messages messages) {
     return model.getLabel();
   }
 

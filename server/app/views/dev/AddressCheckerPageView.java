@@ -2,6 +2,7 @@ package views.dev;
 
 import javax.inject.Inject;
 import modules.ThymeleafModule;
+import play.i18n.Messages;
 import play.mvc.Http;
 import views.admin.AdminLayout;
 import views.admin.AdminLayoutBaseView;
@@ -15,7 +16,7 @@ public final class AddressCheckerPageView extends AdminLayoutBaseView<AddressChe
   }
 
   @Override
-  protected String pageTitle(AddressCheckerPageViewModel model) {
+  protected String pageTitle(AddressCheckerPageViewModel model, Messages messages) {
     return "Address Checker";
   }
 
