@@ -57,7 +57,7 @@ public final class CiviFormAccountMerger {
     // 1. Merge Applications.
     String applicationLog = mergeGuestApplicationsIntoCfUser(civiformUser, guestUser, applyChanges);
     finalLogMessage.append(applicationLog);
-    // 2. Update the guest's file references to permit the CF users to read
+    // 2. Update the guest's file references to permit the CF user to read
     // them.
     String fileLog = mergeGuestFilesIntoCfUser(civiformUser.id, guestUser.id, applyChanges);
     finalLogMessage.append("\n").append(fileLog);
