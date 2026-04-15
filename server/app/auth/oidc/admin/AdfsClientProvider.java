@@ -14,6 +14,7 @@ import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import repository.AccountRepository;
 import repository.DatabaseExecutionContext;
+import repository.StoredFileRepository;
 
 /** Provider class for the AD OIDC Client. */
 public class AdfsClientProvider implements Provider<OidcClient> {
@@ -22,6 +23,7 @@ public class AdfsClientProvider implements Provider<OidcClient> {
   private final String baseUrl;
   private final ProfileFactory profileFactory;
   private final Provider<AccountRepository> accountRepositoryProvider;
+  private final Provider<StoredFileRepository> storedFileRepositoryProvider;
   private final DatabaseExecutionContext dbExecutionContext;
 
   @Inject
@@ -29,10 +31,12 @@ public class AdfsClientProvider implements Provider<OidcClient> {
       Config configuration,
       ProfileFactory profileFactory,
       Provider<AccountRepository> accountRepositoryProvider,
+      Provider<StoredFileRepository> storedFileRepositoryProvider,
       DatabaseExecutionContext dbExecutionContext) {
     this.configuration = checkNotNull(configuration);
     this.profileFactory = checkNotNull(profileFactory);
     this.accountRepositoryProvider = checkNotNull(accountRepositoryProvider);
+    this.storedFileRepositoryProvider = storedFileRepositoryProvider;
     this.dbExecutionContext = dbExecutionContext;
     this.baseUrl = configuration.getString("base_url");
   }
@@ -91,7 +95,10 @@ public class AdfsClientProvider implements Provider<OidcClient> {
             config,
             client,
             OidcClientProviderParams.create(
-                configuration, profileFactory, accountRepositoryProvider),
+                configuration,
+                profileFactory,
+                accountRepositoryProvider,
+                storedFileRepositoryProvider),
             dbExecutionContext));
 
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());

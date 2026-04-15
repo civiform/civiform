@@ -69,6 +69,17 @@ public class StoredFileAclsTest extends ResetPostgres {
     assertThat(acl.hasProgramReadPermission(account)).isEqualTo(hasAccess);
   }
 
+  @Test
+  public void addApplicantToReaders() {
+    var acls = new StoredFileAcls();
+
+    acls.addApplicantToReaders(1L);
+    assertThat(acls.getApplicantReadAcls()).containsExactly(1L);
+
+    acls.addApplicantToReaders(2L);
+    assertThat(acls.getApplicantReadAcls()).containsExactly(1L, 2L);
+  }
+
   // NamedParameters is necessary in Junit4 because the json contains commas
   // which is also @Parameters argument delimiter.
   /** Test data for an account that administers 'program-one'. */

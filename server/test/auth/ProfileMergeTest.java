@@ -26,6 +26,7 @@ import org.pac4j.saml.profile.SAML2Profile;
 import repository.AccountRepository;
 import repository.DatabaseExecutionContext;
 import repository.ResetPostgres;
+import repository.StoredFileRepository;
 import support.CfTestHelpers;
 
 public class ProfileMergeTest extends ResetPostgres {
@@ -33,7 +34,6 @@ public class ProfileMergeTest extends ResetPostgres {
   private IdcsApplicantProfileCreator idcsApplicantProfileCreator;
   private SamlProfileCreator samlProfileCreator;
   private ProfileFactory profileFactory;
-  private static AccountRepository accountRepository;
   private Database database;
 
   @Before
@@ -44,7 +44,8 @@ public class ProfileMergeTest extends ResetPostgres {
   @Before
   public void setupFactory() {
     profileFactory = instanceOf(ProfileFactory.class);
-    accountRepository = instanceOf(AccountRepository.class);
+    var accountRepository = instanceOf(AccountRepository.class);
+    var storedFileRepository = instanceOf(StoredFileRepository.class);
     OidcClient client = CfTestHelpers.getOidcClient("dev-oidc", 3390);
     OidcConfiguration client_config = CfTestHelpers.getOidcConfiguration("dev-oidc", 3390);
 
@@ -62,7 +63,9 @@ public class ProfileMergeTest extends ResetPostgres {
             client_config,
             client,
             OidcClientProviderParams.create(
-                profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)),
+                profileFactory,
+                CfTestHelpers.userRepositoryProvider(accountRepository),
+                () -> storedFileRepository),
             standardClaimsAttributeNames,
             instanceOf(DatabaseExecutionContext.class));
     samlProfileCreator =
@@ -71,6 +74,7 @@ public class ProfileMergeTest extends ResetPostgres {
             /* client= */ null,
             profileFactory,
             CfTestHelpers.userRepositoryProvider(accountRepository),
+            () -> storedFileRepository,
             instanceOf(DatabaseExecutionContext.class));
   }
 

@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.AccountRepository;
 import repository.DatabaseExecutionContext;
+import repository.StoredFileRepository;
 
 // TODO(#3856): Update with a non deprecated saml impl.
 @SuppressWarnings("deprecation")
@@ -26,6 +27,7 @@ public class LoginRadiusClientProvider implements Provider<SAML2Client> {
   private final Config configuration;
   private final ProfileFactory profileFactory;
   private final Provider<AccountRepository> applicantRepositoryProvider;
+  private final Provider<StoredFileRepository> storedFileRepositoryProvider;
   private final DatabaseExecutionContext dbExecutionContext;
   private final String baseUrl;
 
@@ -34,10 +36,12 @@ public class LoginRadiusClientProvider implements Provider<SAML2Client> {
       Config configuration,
       ProfileFactory profileFactory,
       Provider<AccountRepository> applicantRepositoryProvider,
+      Provider<StoredFileRepository> storedFileRepositoryProvider,
       DatabaseExecutionContext dbExecutionContext) {
     this.configuration = checkNotNull(configuration);
     this.profileFactory = checkNotNull(profileFactory);
     this.applicantRepositoryProvider = checkNotNull(applicantRepositoryProvider);
+    this.storedFileRepositoryProvider = storedFileRepositoryProvider;
     this.dbExecutionContext = dbExecutionContext;
     this.baseUrl = configuration.getString("base_url");
   }
@@ -67,7 +71,12 @@ public class LoginRadiusClientProvider implements Provider<SAML2Client> {
 
     client.setProfileCreator(
         new SamlProfileCreator(
-            config, client, profileFactory, applicantRepositoryProvider, dbExecutionContext));
+            config,
+            client,
+            profileFactory,
+            applicantRepositoryProvider,
+            storedFileRepositoryProvider,
+            dbExecutionContext));
 
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
     client.setCallbackUrl(baseUrl + "/callback");

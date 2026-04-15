@@ -7,14 +7,21 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
+import javax.inject.Provider;
 import models.ApplicantModel;
 import models.ApplicationModel;
 import models.LifecycleStage;
+import models.StoredFileModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class CiviFormAccountMerger {
   private static final Logger logger = LoggerFactory.getLogger(CiviFormAccountMerger.class);
+  private final Provider<StoredFileRepository> storedFileRepositoryProvider;
+
+  public CiviFormAccountMerger(Provider<StoredFileRepository> storedFileRepositoryProvider) {
+    this.storedFileRepositoryProvider = storedFileRepositoryProvider;
+  }
 
   /**
    * Merge data from the two applicants.
@@ -46,13 +53,17 @@ public final class CiviFormAccountMerger {
               throw new IllegalArgumentException(
                   "New merge launch stage is not supported: " + newMergeStage);
         };
+    StringBuilder finalLogMessage = new StringBuilder();
     // 1. Merge Applications.
-    String log = mergeGuestApplicationsIntoCfUser(civiformUser, guestUser, applyChanges);
-    // TODO(#11389): Steps 2 and 3 are not yet implemented.
-    // 2. Update File references for guest to allow CF App
-    //    * Set CFApp in ApplicantReadAcls
+    String applicationLog = mergeGuestApplicationsIntoCfUser(civiformUser, guestUser, applyChanges);
+    finalLogMessage.append(applicationLog);
+    // 2. Update the guest's file references to permit the CF user to read
+    // them.
+    String fileLog = mergeGuestFilesIntoCfUser(civiformUser.id, guestUser.id, applyChanges);
+    finalLogMessage.append("\n").append(fileLog);
     // 3. Merge CFApp question answers and PAI into guest data and store in CF App
-    logger.info(log);
+    // TODO(#11389): Step 3 is not yet implemented.
+    logger.info("{}", finalLogMessage);
   }
 
   /**
@@ -569,5 +580,39 @@ public final class CiviFormAccountMerger {
       * Moving Guest Draft application id %d to CiviForm applicant id %d
     """
         .formatted(cfDraft.id, guestDraft.id, cfUser.id);
+  }
+
+  /**
+   * Add {@code cfUserId} to the read ACL for all files {@code guestUserId} created.
+   *
+   * @param applyChanges if database changes should be applied. If false the return will log what
+   *     would have occurred.
+   * @return a log message indicating what changes occurred.
+   */
+  private String mergeGuestFilesIntoCfUser(Long cfUserId, Long guestUserId, boolean applyChanges) {
+    var guestFiles =
+        storedFileRepositoryProvider
+            .get()
+            .lookupFilesByApplicant(guestUserId)
+            .toCompletableFuture()
+            .join();
+    StringJoiner fileIds = new StringJoiner(", ");
+    for (StoredFileModel file : guestFiles) {
+      fileIds.add(file.id.toString());
+      if (applyChanges) {
+        file.getAcls().addApplicantToReaders(cfUserId);
+        file.save();
+      }
+    }
+
+    var logMessage = fileIds.toString();
+    if (logMessage.isBlank()) {
+      return "Guest user has no files to merge.";
+    }
+
+    return """
+    Giving the CiviForm user read permissions to the guest's file IDs: %s
+    """
+        .formatted(fileIds);
   }
 }
