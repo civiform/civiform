@@ -1,6 +1,7 @@
 package views.admin.ti;
 
 import javax.inject.Inject;
+import play.i18n.Messages;
 import views.admin.AdminLayout;
 import views.admin.AdminLayoutBaseView;
 import views.shared.LayoutDeps;
@@ -13,7 +14,7 @@ public final class TrustedIntermediaryGroupListPageView
   }
 
   @Override
-  protected String pageTitle(TrustedIntermediaryGroupListPageViewModel model) {
+  protected String pageTitle(TrustedIntermediaryGroupListPageViewModel model, Messages messages) {
     return "Manage Trusted Intermediaries";
   }
 

@@ -1,6 +1,7 @@
 package views.admin.apibridge.discovery;
 
 import com.google.inject.Inject;
+import play.i18n.Messages;
 import views.admin.AdminLayout;
 import views.admin.TransitionalLayoutBaseView;
 import views.shared.LayoutDeps;
@@ -14,7 +15,7 @@ public class DiscoveryPageView extends TransitionalLayoutBaseView<DiscoveryPageV
   }
 
   @Override
-  protected String pageTitle(DiscoveryPageViewModel model) {
+  protected String pageTitle(DiscoveryPageViewModel model, Messages messages) {
     return "API Bridge Discovery";
   }
 

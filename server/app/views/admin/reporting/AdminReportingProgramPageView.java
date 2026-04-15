@@ -1,6 +1,7 @@
 package views.admin.reporting;
 
 import javax.inject.Inject;
+import play.i18n.Messages;
 import views.admin.AdminLayout;
 import views.admin.AdminLayoutBaseView;
 import views.shared.LayoutDeps;
@@ -13,7 +14,7 @@ public final class AdminReportingProgramPageView
   }
 
   @Override
-  protected String pageTitle(AdminReportingProgramPageViewModel model) {
+  protected String pageTitle(AdminReportingProgramPageViewModel model, Messages messages) {
     return "Reporting";
   }
 

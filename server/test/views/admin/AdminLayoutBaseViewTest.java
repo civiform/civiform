@@ -6,6 +6,7 @@ import static support.FakeRequestBuilder.fakeRequest;
 import controllers.WithMockedProfiles;
 import org.junit.Before;
 import org.junit.Test;
+import play.i18n.Messages;
 import views.BaseViewModel;
 import views.shared.LayoutDeps;
 
@@ -21,7 +22,7 @@ public class AdminLayoutBaseViewTest extends WithMockedProfiles {
     }
 
     @Override
-    protected String pageTitle(CustomViewModel model) {
+    protected String pageTitle(CustomViewModel model, Messages messages) {
       return "page-title-1";
     }
 
