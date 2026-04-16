@@ -1375,7 +1375,25 @@ test.describe('file upload question with file upload improvements feature flag e
     // instantly in tests, so we need to simulate an in-flight upload to
     // have time to attempt navigation.
     await page.evaluate(() => {
-      document.body.dispatchEvent(new Event('htmx:beforeRequest'))
+      const fileInput = document.querySelector(
+        '.cf-question-fileupload input[type=file]',
+      ) as HTMLInputElement
+
+      // Set a mock file so validation passes
+      const dataTransfer = new DataTransfer()
+      dataTransfer.items.add(
+        new File(['test'], 'test.txt', {type: 'text/plain'}),
+      )
+      fileInput.files = dataTransfer.files
+
+      // Dispatch on the file input with bubbles: true to match real HTMX
+      // behavior, where events are dispatched on the element and bubble up
+      fileInput.dispatchEvent(
+        new CustomEvent('htmx:beforeRequest', {
+          bubbles: true,
+          detail: {elt: fileInput},
+        }),
+      )
     })
 
     const initialUrl = page.url()
