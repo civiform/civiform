@@ -225,6 +225,7 @@ function validateFileUploadQuestion(fileInput: HTMLInputElement): boolean {
   const fileTooLargeErrorDiv = questionDiv.querySelector<HTMLElement>(
     '[data-fileupload-error="too-large"]',
   )
+
   if (isFileTooLargeResult) {
     showError(fileTooLargeErrorDiv, fileInput)
   } else {
