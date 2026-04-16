@@ -52,9 +52,7 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
             client_config,
             client,
             OidcClientProviderParams.create(
-                profileFactory,
-                CfTestHelpers.userRepositoryProvider(accountRepository),
-                () -> storedFileRepository),
+                profileFactory, () -> accountRepository, () -> storedFileRepository),
             StandardClaimsAttributeNames.builder()
                 .setEmail(EMAIL_ATTRIBUTE_NAME)
                 .setLocale(Optional.of(LOCALE_ATTRIBUTE_NAME))
@@ -77,9 +75,7 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
             client_config,
             client,
             OidcClientProviderParams.create(
-                profileFactory,
-                CfTestHelpers.userRepositoryProvider(accountRepository),
-                () -> storedFileRepository),
+                profileFactory, () -> accountRepository, () -> storedFileRepository),
             StandardClaimsAttributeNames.builder()
                 .setEmail(EMAIL_ATTRIBUTE_NAME)
                 .setLocale(Optional.of(LOCALE_ATTRIBUTE_NAME))

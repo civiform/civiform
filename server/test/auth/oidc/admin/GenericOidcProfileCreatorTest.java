@@ -43,10 +43,7 @@ public class GenericOidcProfileCreatorTest extends ResetPostgres {
             client_config,
             client,
             OidcClientProviderParams.create(
-                serverConfig,
-                profileFactory,
-                CfTestHelpers.userRepositoryProvider(accountRepository),
-                () -> storedFileRepository),
+                serverConfig, profileFactory, () -> accountRepository, () -> storedFileRepository),
             instanceOf(DatabaseExecutionContext.class));
   }
 

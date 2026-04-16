@@ -97,10 +97,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
         oidcConfig,
         client,
         OidcClientProviderParams.create(
-            civiformConfig,
-            profileFactory,
-            CfTestHelpers.userRepositoryProvider(accountRepository),
-            () -> storedFileRepository),
+            civiformConfig, profileFactory, () -> accountRepository, () -> storedFileRepository),
         standardClaimsAttributeNames,
         instanceOf(DatabaseExecutionContext.class));
   }

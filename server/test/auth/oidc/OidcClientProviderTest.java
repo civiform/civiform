@@ -24,7 +24,6 @@ import repository.AccountRepository;
 import repository.DatabaseExecutionContext;
 import repository.ResetPostgres;
 import repository.StoredFileRepository;
-import support.CfTestHelpers;
 
 @RunWith(JUnitParamsRunner.class)
 public class OidcClientProviderTest extends ResetPostgres {
@@ -58,10 +57,7 @@ public class OidcClientProviderTest extends ResetPostgres {
     oidcClientProvider =
         new IdcsClientProvider(
             OidcClientProviderParams.create(
-                config,
-                profileFactory,
-                CfTestHelpers.userRepositoryProvider(accountRepository),
-                () -> storedFileRepository),
+                config, profileFactory, () -> accountRepository, () -> storedFileRepository),
             instanceOf(DatabaseExecutionContext.class));
   }
 
@@ -119,10 +115,7 @@ public class OidcClientProviderTest extends ResetPostgres {
     OidcClientProvider oidcClientProvider =
         new IdcsClientProvider(
             OidcClientProviderParams.create(
-                config,
-                profileFactory,
-                CfTestHelpers.userRepositoryProvider(accountRepository),
-                () -> storedFileRepository),
+                config, profileFactory, () -> accountRepository, () -> storedFileRepository),
             instanceOf(DatabaseExecutionContext.class));
 
     OidcClient client = oidcClientProvider.get();
@@ -198,7 +191,7 @@ public class OidcClientProviderTest extends ResetPostgres {
                       OidcClientProviderParams.create(
                           bad_secret_config,
                           profileFactory,
-                          CfTestHelpers.userRepositoryProvider(accountRepository),
+                          () -> accountRepository,
                           () -> storedFileRepository),
                       instanceOf(DatabaseExecutionContext.class));
               badOidcClientProvider.get();

@@ -31,7 +31,6 @@ import repository.AccountRepository;
 import repository.DatabaseExecutionContext;
 import repository.ResetPostgres;
 import repository.StoredFileRepository;
-import support.CfTestHelpers;
 
 @RunWith(JUnitParamsRunner.class)
 public class LoginGovClientProviderTest extends ResetPostgres {
@@ -64,10 +63,7 @@ public class LoginGovClientProviderTest extends ResetPostgres {
     loginGovProvider =
         new LoginGovClientProvider(
             OidcClientProviderParams.create(
-                config,
-                profileFactory,
-                CfTestHelpers.userRepositoryProvider(accountRepository),
-                () -> storedFileRepository),
+                config, profileFactory, () -> accountRepository, () -> storedFileRepository),
             instanceOf(DatabaseExecutionContext.class));
   }
 
