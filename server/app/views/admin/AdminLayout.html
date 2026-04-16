@@ -1,5 +1,5 @@
-<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
-<!--/*@thymesVar id="layoutParams" type="views.admin.shared.LayoutParams"*/-->
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="layoutParams" type="views.shared.LayoutParams"*/-->
 <!--/*@thymesVar id="featureFlags" type="views.shared.FeatureFlags"*/-->
 <!doctype html>
 <html lang="en-US" xmlns:th="http://www.thymeleaf.org">
@@ -47,6 +47,7 @@
       th:defer="${script.defer()}"
       th:integrity="${script.integrity()}"
       th:id="${script.id()}"
+      th:crossorigin="${#strings.equals(script.type(), 'text/javascript') ? 'anonymous' : null}"
     ></script>
   </head>
 
@@ -139,6 +140,7 @@
         th:defer="${script.defer()}"
         th:integrity="${script.integrity()}"
         th:id="${script.id()}"
+        th:crossorigin="${#strings.equals(script.type(), 'text/javascript') ? 'anonymous' : null}"
       ></script>
 
       <!--/* Optional page specific scripts. These should be load last. */-->

@@ -33,11 +33,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.pac4j.play.java.Secure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import parsers.applicant.ApplicantStreamingMultipartBodyParser;
 import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.i18n.MessagesApi;
-import play.libs.Files;
 import play.libs.concurrent.ClassLoaderExecutionContext;
+import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
@@ -52,7 +53,6 @@ import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.FileUploadQuestion;
-import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.ApplicantStorageClient;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
@@ -1121,6 +1121,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   @Secure
+  @BodyParser.Of(ApplicantStreamingMultipartBodyParser.class)
   public CompletionStage<Result> hxSelectFileForUpload(
       Request request, long programId, String blockId) {
     if (!settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
@@ -1134,20 +1135,20 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     long applicantId = optionalApplicantId.get();
 
-    Http.MultipartFormData<Files.TemporaryFile> body = request.body().asMultipartFormData();
+    // The body has already been streamed to cloud storage by
+    // ApplicantStreamingMultipartBodyParser. Each FilePart's ref carries the generated fileKey.
+    Http.MultipartFormData<String> body = request.body().asMultipartFormData();
     if (body == null) {
       return CompletableFuture.completedFuture(badRequest());
     }
 
-    Http.MultipartFormData.FilePart<Files.TemporaryFile> filePart = body.getFile("file");
+    Http.MultipartFormData.FilePart<String> filePart = body.getFile("file");
     if (filePart == null) {
       return CompletableFuture.completedFuture(badRequest());
     }
 
     String originalFileName = filePart.getFilename();
-    String fileKey =
-        ApplicantFileNameFormatter.formatFileUploadQuestionFilenameWithUuid(
-            applicantId, programId, blockId, originalFileName);
+    String fileKey = filePart.getRef();
 
     return checkApplicantAuthorization(request, applicantId)
         .thenComposeAsync(

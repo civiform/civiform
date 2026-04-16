@@ -27,10 +27,14 @@ export default defineConfig({
     cors: true,
     strictPort: true, // Make Vite error if the default port is in use, otherwise it will try the next port up.
     fs: {
-      // Allow serving files from node_modules and project root
+      // Vite v8 requires explicit allow entries for paths it needs to serve as
+      // static assets. The USWDS dist path is needed so the dev server can serve
+      // fonts and images referenced via $theme-font-path and $theme-image-path
+      // in the USWDS SCSS config.
       allow: [
         resolve(__dirname, 'app/assets'),
         resolve(__dirname, 'node_modules'),
+        resolve(__dirname, 'node_modules/@uswds/uswds/dist'),
       ],
     },
     // Pre-compile on startup for faster loading of the first page hit
@@ -76,54 +80,21 @@ export default defineConfig({
   build: {
     // Output to the location Play will look for assets
     outDir: 'app/assets/dist',
-    minify: 'esbuild',
     emptyOutDir: true,
     // Up the warning size limit past our largest chunk
     chunkSizeWarningLimit: 1100,
     // Generate source maps
     sourcemap: true,
-    // Set up the main entrypoint chunks
-    rollupOptions: {
+    rolldownOptions: {
+      // Set up the main entrypoint chunks
       input: {
         applicant: resolve(__dirname, assetPaths.applicant),
         admin: resolve(__dirname, assetPaths.admin),
         uswdsinit_js: resolve(__dirname, assetPaths.uswdsinit_js),
-        uswds_js: resolve(__dirname, assetPaths.uswds_js),
         uswds_css: resolve(__dirname, assetPaths.uswds_css),
         northstar_css: resolve(__dirname, assetPaths.northstar_css),
         maplibregl: resolve(__dirname, assetPaths.maplibregl_css),
         tailwind: resolve(__dirname, assetPaths.tailwind),
-      },
-      // Set up the output file naming conventions
-      output: {
-        // entryFileNames align with the rollupOptions for javascript files. No hash is
-        // on these files so they can have a deterministic name to reference in the
-        // application, Play's AssetsFinder will add it.
-        entryFileNames: '[name].bundle.js',
-        // chunkFileNames align with manualChunks and include a hash in the file name for cache busting purposes
-        chunkFileNames: '[hash]-[name].chunk.js',
-        // assetFileNames are for non-javascript files
-        assetFileNames: (assetInfo) => {
-          if (assetInfo.names?.[0]?.endsWith('.css')) {
-            return '[name].min.css'
-          }
-          // Keep fonts in their respective folders for USWDS to load correctly
-          if (assetInfo.names?.[0]?.match(/\.(woff2?|ttf|eot)$/)) {
-            return 'fonts/[name][extname]'
-          }
-          // Keep images in their respective folders for USWDS to load correctly
-          if (assetInfo.names?.[0]?.match(/\.(png|jpe?g|svg|gif|webp)$/)) {
-            return 'img/[name][extname]'
-          }
-
-          return '[name][extname]'
-        },
-        // This splits vendor dependencies into separate chunks
-        manualChunks: {
-          'vendor-htmx': ['htmx.org'],
-          'vendor-markdown': ['markdown-it', 'dompurify'],
-          'vendor-maps': ['maplibre-gl'],
-        },
       },
       onwarn(warning, warn) {
         // Suppress eval warnings from htmx
@@ -131,6 +102,41 @@ export default defineConfig({
           return
         }
         warn(warning)
+      },
+      // Set up the output file naming conventions and vendor chunk splitting
+      output: {
+        // entryFileNames align with the rolldownOptions for javascript files. No hash is
+        // on these files so they can have a deterministic name to reference in the
+        // application, Play's AssetsFinder will add it.
+        entryFileNames: '[name].bundle.js',
+        // chunkFileNames include a hash in the file name for cache busting purposes
+        chunkFileNames: '[hash]-[name].chunk.js',
+        // assetFileNames are for non-javascript files
+        assetFileNames: (assetInfo: {names?: string[]}) => {
+          const name = assetInfo.names?.[0] ?? ''
+          if (name.match(/\.(css|scss)$/)) {
+            return '[name].min.css'
+          }
+          // Keep fonts in their respective folders for USWDS to load correctly
+          if (name.match(/\.(woff2?|ttf|eot)$/)) {
+            return 'fonts/[name][extname]'
+          }
+          // Keep images in their respective folders for USWDS to load correctly
+          if (name.match(/\.(png|jpe?g|svg|gif|webp)$/)) {
+            return 'img/[name][extname]'
+          }
+
+          return '[name][extname]'
+        },
+        // Split vendor dependencies into separate chunks for cache efficiency.
+        // Each group matches vendor modules by their resolved module ID path.
+        codeSplitting: {
+          groups: [
+            {name: 'vendor-htmx', test: /htmx\.org/},
+            {name: 'vendor-markdown', test: /markdown-it|dompurify/},
+            {name: 'vendor-maps', test: /maplibre-gl/},
+          ],
+        },
       },
     },
     // Target modern browsers (no IE11)
@@ -159,20 +165,35 @@ export default defineConfig({
   },
 
   plugins: [
-    // Files that need to be copied to asset folder that don't run through the bundler
+    // Files copied verbatim (not bundled through Rolldown) into their expected output paths.
+    // vite-plugin-static-copy v4 always preserves directory structure; rename.stripBase
+    // strips the source prefix so files land directly under dest rather than nested under
+    // the full node_modules path.
+    //
+    // USWDS JS must remain a classic IIFE script — it must NOT be processed by Rolldown,
+    // which would wrap it with ES module interop and prevent HTMX from executing it in
+    // swapped content (HTMX only runs classic scripts, not type="module" scripts).
     viteStaticCopy({
       targets: [
         {
+          src: assetPaths.uswds_js,
+          dest: '.',
+          rename: {stripBase: true},
+        },
+        {
           src: assetPaths.swaggerui_css,
           dest: 'swagger-ui',
+          rename: {stripBase: true},
         },
         {
           src: assetPaths.swaggerui_js,
           dest: 'swagger-ui',
+          rename: {stripBase: true},
         },
         {
           src: assetPaths.swaggeruipreset_js,
           dest: 'swagger-ui',
+          rename: {stripBase: true},
         },
       ],
     }),

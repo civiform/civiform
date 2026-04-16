@@ -112,6 +112,11 @@ public class ApplicationModel extends BaseModel {
     return this.applicant;
   }
 
+  public ApplicationModel setApplicant(ApplicantModel applicant) {
+    this.applicant = applicant;
+    return this;
+  }
+
   public Optional<Long> getOriginalApplicantId() {
     return Optional.ofNullable(this.originalApplicantId);
   }

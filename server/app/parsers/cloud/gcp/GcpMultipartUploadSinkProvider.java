@@ -1,5 +1,6 @@
 package parsers.cloud.gcp;
 
+import com.typesafe.config.Config;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import org.apache.pekko.http.javadsl.model.ContentTypes;
@@ -9,12 +10,16 @@ import org.apache.pekko.stream.javadsl.Sink;
 import org.apache.pekko.util.ByteString;
 import parsers.StreamingMultipartUploadResult;
 import parsers.cloud.GenericMultipartUploadSinkProvider;
+import services.cloud.BucketType;
 import services.cloud.StorageServiceName;
 
 public class GcpMultipartUploadSinkProvider
     extends GenericMultipartUploadSinkProvider<StorageObject> {
-  public GcpMultipartUploadSinkProvider() {
+  private final Config config;
+
+  public GcpMultipartUploadSinkProvider(Config config) {
     super(StorageServiceName.GCP_S3);
+    this.config = config;
   }
 
   // Get the base sink for GCP resumable upload, which will be composed with additional stages
@@ -22,16 +27,17 @@ public class GcpMultipartUploadSinkProvider
   // TODO: Add a ContentType parameter to this method, once we add the content type parsing.
   @Override
   protected Sink<ByteString, CompletionStage<StorageObject>> getBaseSink(
-      String bucketName, String fileKey, int chunkSize) {
-    return GCStorage.resumableUpload(bucketName, fileKey, ContentTypes.TEXT_PLAIN_UTF8, chunkSize);
+      BucketType bucketType, String fileKey, int chunkSize) {
+    return GCStorage.resumableUpload(
+        getBucketName(bucketType), fileKey, ContentTypes.TEXT_PLAIN_UTF8, chunkSize);
   }
 
   // Get the composed sink for the GCP resumable upload, which maps the StoredObject to the
   // custom result class.
   @Override
   public Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> getUploadSink(
-      String bucketName, String fileKey, int chunkSize) {
-    return getBaseSink(bucketName, fileKey, chunkSize)
+      BucketType bucketType, String fileKey, int chunkSize) {
+    return getBaseSink(bucketType, fileKey, chunkSize)
         .mapMaterializedValue(
             completionStage ->
                 completionStage
@@ -47,5 +53,12 @@ public class GcpMultipartUploadSinkProvider
                         throwable -> {
                           return failedResult(throwable);
                         }));
+  }
+
+  private String getBucketName(BucketType bucketType) {
+    return switch (bucketType) {
+      case PRIVATE_BUCKET -> config.getString("gcp.s3.bucket");
+      case PUBLIC_BUCKET -> config.getString("gcp.s3.public_bucket");
+    };
   }
 }

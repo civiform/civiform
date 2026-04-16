@@ -1,4 +1,4 @@
-package views.admin;
+package views.shared;
 
 import lombok.Builder;
 
