@@ -1,8 +1,8 @@
-import {addEventListenerToElements, assertNotNull} from '@/util'
+import {addEventListenerToElements} from '@/util'
 import {isFileTooLarge} from '@/file_upload_util'
 import {featureFlags} from '@/global/shared/feature_flags'
+import {HtmxRequest} from '@/htmx_request'
 
-const UPLOAD_ATTR = 'data-upload-text'
 const UPLOADED_FILE_ATTR = 'data-uploaded-files'
 // Matches a file name with a number "-<number>" at the end. For example "file-2.png"
 // Groups are: [1] The file name [2] The "-<number>" [3] - The file type, if it exists (e.g. .png), null otherwise.
@@ -11,6 +11,8 @@ const FILE_NAME_DIGIT_SUFFIX_REGEX = /(.*)(-\d*)(\..*)?$/
 // Groups are [1] The file name [2] The file type.
 const FILE_NAME_REGEX = /(.*)(\..*)$/
 const CF_FILE_UPLOADING_CLASS = 'cf-file-uploading'
+const CF_FILE_UPLOAD_QUESTION_SELECTOR = '.cf-question-fileupload'
+import {default as uswdsFileInput} from '@uswds/uswds/js/usa-file-input'
 
 export function init() {
   // Don't add extra logic if we don't have a block form with a
@@ -19,107 +21,134 @@ export function init() {
   if (!blockForm) {
     return
   }
-  const fileUploadQuestion = blockForm.querySelector('.cf-question-fileupload')
+  const fileUploadQuestion = blockForm.querySelector(
+    CF_FILE_UPLOAD_QUESTION_SELECTOR,
+  )
   if (!fileUploadQuestion) {
     // If there's no file upload question on the page, don't add extra logic.
     return
   }
 
-  addEventListenerToElements(
-    '.file-upload-action-button',
-    'click',
-    (e: Event) => {
-      onActionButtonClicked(e, blockForm)
-    },
-  )
-  // Global variable to track if file upload is in progress to prevent navigating away
-  let fileUploadInProgress = false
-
   if (featureFlags().isFileUploadQuestionImprovementsEnabled) {
+    // Track the number of file uploads in progress to prevent navigating away
+    let fileUploadsInProgress = 0
+
     window.addEventListener('beforeunload', (e: BeforeUnloadEvent) => {
-      if (fileUploadInProgress) {
+      if (fileUploadsInProgress > 0) {
         e.preventDefault()
         // Deprecated in favor of preventDefault() but included for legacy browser support
         e.returnValue = true
       }
     })
 
-    document.body.addEventListener('htmx:beforeRequest', () => {
-      fileUploadInProgress = true
-      document.body.classList.add(CF_FILE_UPLOADING_CLASS)
-    })
+    document.body.addEventListener('htmx:beforeRequest', (event) => {
+      if (!isFileUploadHtmxEvent(event)) return
+      const fileInput = event.target as HTMLInputElement
 
-    document.body.addEventListener('htmx:afterRequest', () => {
-      fileUploadInProgress = false
-      document.body.classList.remove(CF_FILE_UPLOADING_CLASS)
-    })
-
-    document.body.addEventListener('htmx:responseError', () => {
-      fileUploadInProgress = false
-      document.body.classList.remove(CF_FILE_UPLOADING_CLASS)
-    })
-  }
-
-  blockForm.addEventListener('submit', (event) => {
-    // Prevent submission of a file upload form if no file has been
-    // selected. Note: For optional file uploads, a distinct skip button
-    // is shown.
-    if (!validateFileUploadQuestion(blockForm)) {
-      event.preventDefault()
-      return false
-    }
-    return true
-  })
-
-  const uploadedDivs = blockForm.querySelectorAll(`[${UPLOAD_ATTR}]`)
-
-  blockForm.addEventListener('change', (event) => {
-    const files = (event.target! as HTMLInputElement).files
-    const file = assertNotNull(files)[0]
-    if (uploadedDivs.length) {
-      const uploadedDiv: HTMLDivElement = uploadedDivs[0] as HTMLDivElement
-      const uploadText = assertNotNull(uploadedDiv.getAttribute(UPLOAD_ATTR))
-      uploadedDiv.innerText = uploadText.replace('{0}', file.name)
-    }
-
-    // If we don't have the div showing the latest file upload (from the older single-file upload
-    // behavior), then multiple file upload feature is enabled, in that case, submit the form
-    // as soon as the applicant selects a file so it immediately uploads the file.
-    // When file upload improvements are enabled, HTMX handles the upload so we skip
-    // the form submit.
-    if (validateFileUploadQuestion(blockForm) && !uploadedDivs.length) {
-      const elementsToDisable = document.querySelectorAll(
-        '.cf-disable-when-uploading',
-      )
-      elementsToDisable.forEach((elementToDisable) => {
-        elementToDisable.setAttribute('disabled', '')
-        elementToDisable.setAttribute('aria-disabled', 'true')
-        elementToDisable.setAttribute('href', '#')
-      })
-      if (!featureFlags().isFileUploadQuestionImprovementsEnabled) {
-        document.body.classList.add(CF_FILE_UPLOADING_CLASS)
-        blockForm.submit()
+      // We validate both on the beforeRequest and onchange so that we block the request
+      // to the server if the client invalidates the upload
+      if (!validateFileUploadQuestion(fileInput)) {
+        event.preventDefault()
+        resetFileInput(event)
+        return
       }
-    }
-  })
+      fileUploadsInProgress++
+      document.body.classList.add(CF_FILE_UPLOADING_CLASS)
+      toggleDisabledState()
+    })
 
-  const uploadedFilesAttribute = blockForm
-    .querySelector(`[${UPLOADED_FILE_ATTR}]`)
-    ?.getAttribute(UPLOADED_FILE_ATTR)
+    document.body.addEventListener('htmx:afterOnLoad', (event) => {
+      if (!isFileUploadHtmxEvent(event)) return
+      fileUploadsInProgress--
+      if (fileUploadsInProgress <= 0) {
+        fileUploadsInProgress = 0
+        document.body.classList.remove(CF_FILE_UPLOADING_CLASS)
+      }
+      toggleDisabledState()
+      resetFileInput(event)
+    })
 
-  if (uploadedFilesAttribute) {
-    const uploadedFilesArray = JSON.parse(uploadedFilesAttribute) as string[]
-    blockForm.addEventListener('formdata', (event) => {
-      const formData = event.formData
-      const file = formData.get('file') as File
+    document.body.addEventListener('htmx:responseError', (event) => {
+      if (!isFileUploadHtmxEvent(event)) return
+      fileUploadsInProgress--
+      if (fileUploadsInProgress <= 0) {
+        fileUploadsInProgress = 0
+        document.body.classList.remove(CF_FILE_UPLOADING_CLASS)
+      }
+    })
+
+    document.body.addEventListener('htmx:configRequest', (event) => {
+      if (!isFileUploadHtmxEvent(event)) return
+      const customEvent = event as CustomEvent<HtmxRequest>
+      const triggerElt = customEvent.detail.elt
+
+      const questionDiv = triggerElt.closest(CF_FILE_UPLOAD_QUESTION_SELECTOR)
+      if (!questionDiv) return
+
+      const uploadedFilesAttribute = questionDiv
+        .querySelector(`[${UPLOADED_FILE_ATTR}]`)
+        ?.getAttribute(UPLOADED_FILE_ATTR)
+
+      if (!uploadedFilesAttribute) return
+      const uploadedFilesArray = JSON.parse(uploadedFilesAttribute) as string[]
+
+      const formData = customEvent.detail.formData
+      const file = formData.get('file')
+      if (!(file instanceof File)) return
 
       const newName = getUniqueName(file.name, uploadedFilesArray)
-      if (file.name != newName) {
-        // Rename uploaded file, if a file with the same name has already been uploaded.
+
+      if (file.name !== newName) {
         formData.delete('file')
         formData.append('file', file, newName)
       }
     })
+
+    addEventListenerToElements('#cf-block-form', 'change', (event) => {
+      const fileInput = event.target as HTMLInputElement
+      validateFileUploadQuestion(fileInput)
+    })
+  } else {
+    blockForm.addEventListener('change', (event) => {
+      const fileInput = event.target as HTMLInputElement
+      if (!fileInput || fileInput.type !== 'file') return
+      const questionDiv = fileInput.closest(CF_FILE_UPLOAD_QUESTION_SELECTOR)
+      if (!questionDiv) return
+
+      if (validateFileUploadQuestion(fileInput)) {
+        const elementsToDisable = document.querySelectorAll(
+          '.cf-disable-when-uploading',
+        )
+        elementsToDisable.forEach((elementToDisable) => {
+          elementToDisable.setAttribute('disabled', '')
+          elementToDisable.setAttribute('aria-disabled', 'true')
+          elementToDisable.setAttribute('href', '#')
+        })
+        if (!featureFlags().isFileUploadQuestionImprovementsEnabled) {
+          document.body.classList.add(CF_FILE_UPLOADING_CLASS)
+          blockForm.submit()
+        }
+      }
+    })
+
+    const uploadedFilesAttribute = blockForm
+      .querySelector(`[${UPLOADED_FILE_ATTR}]`)
+      ?.getAttribute(UPLOADED_FILE_ATTR)
+
+    if (uploadedFilesAttribute) {
+      const uploadedFilesArray = JSON.parse(uploadedFilesAttribute) as string[]
+      blockForm.addEventListener('formdata', (event) => {
+        const formData = event.formData
+        const file = formData.get('file') as File
+
+        const newName = getUniqueName(file.name, uploadedFilesArray)
+        if (file.name != newName) {
+          // Rename uploaded file, if a file with the same name has already been uploaded.
+          formData.delete('file')
+          formData.append('file', file, newName)
+        }
+      })
+    }
   }
 }
 
@@ -168,80 +197,22 @@ export function getUniqueName(name: string, existingNames: string[]) {
   return name
 }
 
-function onActionButtonClicked(e: Event, blockForm: Element) {
-  const buttonTarget = e.currentTarget as HTMLElement
-  const fileInput = assertNotNull(
-    blockForm.querySelector<HTMLInputElement>('input[type=file]'),
-  )
-
-  if (fileInput.value != '') {
-    modifySuccessActionRedirect(buttonTarget, blockForm)
-    return
-  }
-
-  const redirectWithoutFile = buttonTarget.dataset.redirectWithoutFile
-  if (redirectWithoutFile) {
-    // If there's no file uploaded but the button provides a redirect
-    // that can be used even when there's no file, invoke that redirect.
-    // See {@link views.applicant.ApplicantFileUploadRenderer.java}.
-    window.location.href = redirectWithoutFile
-    // This will prevent form submission, which is important because we
-    // don't want to send an empty file to cloud storage providers or
-    // store an empty file key in our database.
-    e.preventDefault()
-  }
-}
-
-/**
- * Modifies the "success_action_redirect"-named <input> to have the correct redirect
- * location based on the button that was clicked.next
- *
- * Context: When a user submits a file upload, the <form> data is first sent to the
- * cloud storage provider (CSP) to store the file. Once the file is successfully uploaded,
- * the CSP invokes the URL specified by the "success_action_redirect" input to redirect
- * the user appropriately. The "Save&next", "Previous", and "Review" buttons should
- * all upload the file to the CSP, but should redirect to different places after the
- * upload is successful. Since there's only one "success_action_redirect" input in
- * the form, we need to manually edit that input to redirect to the right place.
- *
- * Each button stores a 'redirectWithFile' key in their data that specifies the correct
- * redirect, so this function modifies the "success_action_redirect" input to use the
- * redirect stored in the button. See {@link views.applicant.ApplicantFileUploadRenderer.java}.
- */
-function modifySuccessActionRedirect(
-  buttonTarget: HTMLElement,
-  blockForm: Element,
-) {
-  const redirectWithFile = assertNotNull(buttonTarget.dataset.redirectWithFile)
-  // Note: success_action_redirect is AWS-specific. We'll need to
-  // handle Azure differently if/when we decide to support it.
-  const successActionRedirectInput = assertNotNull(
-    blockForm.querySelector<HTMLInputElement>(
-      'input[name="success_action_redirect"]',
-    ),
-  )
-  successActionRedirectInput.value = redirectWithFile
-}
-
 /**
  * Validates the file upload question, showing an error if no file has been uploaded
  * and hiding the error otherwise.
  *
  * @returns true if a file was uploaded and false otherwise.
  */
-function validateFileUploadQuestion(blockForm: Element): boolean {
-  // Note: Currently, a file upload question must be on a screen by itself with no
-  // other questions (file upload or otherwise). This method implementation assumes
-  // that there is a single question on the page. If we later allow file upload
-  // questions to be with other questions, we'll need to update this method.
-  const fileInput = assertNotNull(
-    blockForm.querySelector<HTMLInputElement>('input[type=file]'),
-  )
+function validateFileUploadQuestion(fileInput: HTMLInputElement): boolean {
+  if (!fileInput || fileInput.type !== 'file') return false
+  const questionDiv = fileInput.closest(CF_FILE_UPLOAD_QUESTION_SELECTOR)
+  if (!questionDiv) return false
+
   const isFileUploaded = fileInput.value != ''
 
-  const fileNotSelectedErrorDiv = document.getElementById(
-    'cf-fileupload-required-error',
-  ) as HTMLElement
+  const fileNotSelectedErrorDiv = questionDiv.querySelector<HTMLElement>(
+    '[data-fileupload-error="required"]',
+  )
   if (!isFileUploaded) {
     showError(fileNotSelectedErrorDiv, fileInput)
   } else {
@@ -249,9 +220,9 @@ function validateFileUploadQuestion(blockForm: Element): boolean {
   }
 
   const isFileTooLargeResult = isFileTooLarge(fileInput)
-  const fileTooLargeErrorDiv = document.getElementById(
-    'cf-fileupload-too-large-error',
-  ) as HTMLElement
+  const fileTooLargeErrorDiv = questionDiv.querySelector<HTMLElement>(
+    '[data-fileupload-error="too-large"]',
+  )
   if (isFileTooLargeResult) {
     showError(fileTooLargeErrorDiv, fileInput)
   } else {
@@ -300,5 +271,36 @@ function hideError(errorDiv: HTMLElement | null, fileInput: HTMLInputElement) {
   if (ariaDescribedBy.includes(errorId)) {
     const ariaDescribedByWithoutError = ariaDescribedBy.replace(errorId, '')
     fileInput.setAttribute('aria-describedby', ariaDescribedByWithoutError)
+  }
+}
+
+const isFileUploadHtmxEvent = (event: Event) => {
+  const detail = (event as CustomEvent).detail as
+    | {elt?: HTMLElement}
+    | undefined
+  return detail?.elt?.closest(CF_FILE_UPLOAD_QUESTION_SELECTOR) != null
+}
+
+const toggleDisabledState = () => {
+  const elements = document.querySelectorAll('.cf-disable-when-uploading')
+  elements.forEach((element) => {
+    element.toggleAttribute('disabled')
+    element.toggleAttribute('aria-disabled')
+  })
+}
+
+const resetFileInput = (event: Event) => {
+  const detail = (event as CustomEvent).detail as
+    | {elt?: HTMLElement}
+    | undefined
+  const questionDiv = detail?.elt?.closest(CF_FILE_UPLOAD_QUESTION_SELECTOR)
+  if (!questionDiv) return
+
+  const fileInput =
+    questionDiv.querySelector<HTMLInputElement>('input[type=file]')
+  if (fileInput) {
+    fileInput.value = ''
+    uswdsFileInput.off(questionDiv)
+    uswdsFileInput.on(questionDiv)
   }
 }

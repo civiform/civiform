@@ -76,6 +76,7 @@
     th:hx-post="${featureFlags.isFileUploadQuestionImprovementsEnabled() && !isPreview} ? ${hxSelectFileForUploadUrl}"
     th:hx-trigger="${featureFlags.isFileUploadQuestionImprovementsEnabled() && !isPreview} ? 'change'"
     th:hx-encoding="${featureFlags.isFileUploadQuestionImprovementsEnabled() && !isPreview} ? 'multipart/form-data'"
+    th:hx-vals='|{"questionId": ${question.getQuestionDefinition().getId()}}|'
   />
 </div>
 

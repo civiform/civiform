@@ -2,6 +2,7 @@
 // For more info about fields on an htmx request see https://htmx.org/events/#htmx:configRequest
 export interface HtmxRequest {
   formData: FormData
+  elt: HTMLElement
 }
 
 // TypeScript interface for htmx:afterSwap event https://htmx.org/events/#htmx:afterSwap
