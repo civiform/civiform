@@ -489,57 +489,32 @@ public final class ApplicantRoutes {
       String blockId,
       String fileKey,
       boolean inReview) {
-    String programIdStr = Long.toString(programId);
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.removeFileWithApplicantId(
-          applicantId, programIdStr, blockId, fileKey, inReview);
+          applicantId, programId, blockId, fileKey, inReview);
     }
     return routes.ApplicantProgramBlocksController.removeFile(
-        programIdStr, blockId, fileKey, inReview);
+        programId, blockId, fileKey, inReview);
   }
 
-  // TODO:#11090 Remove method when routes are no longer hit
   /**
    * Returns the route corresponding to the applicant add file action.
    *
    * @param profile profile corresponding to the logged-in user (applicant or TI).
    * @param applicantId ID of applicant for whom the action should be performed.
-   * @param programId ID of program to review
+   * @param programId ID of program
    * @param blockId ID of the block containing file upload question
    * @param inReview true if executing the review action (as opposed to edit)
    * @return route for the applicant update file action
    */
   public Call addFile(
       CiviFormProfile profile, long applicantId, long programId, String blockId, boolean inReview) {
-    String programIdStr = Long.toString(programId);
+    // String programIdStr = Long.toString(programId);
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.addFileWithApplicantId(
-          applicantId, programIdStr, blockId, inReview);
+          applicantId, programId, blockId, inReview);
     }
-    return routes.ApplicantProgramBlocksController.addFile(programIdStr, blockId, inReview);
-  }
-
-  /**
-   * Returns the route corresponding to the applicant add file action.
-   *
-   * @param profile profile corresponding to the logged-in user (applicant or TI).
-   * @param applicantId ID of applicant for whom the action should be performed.
-   * @param programSlug slug of program to review
-   * @param blockId ID of the block containing file upload question
-   * @param inReview true if executing the review action (as opposed to edit)
-   * @return route for the applicant update file action
-   */
-  public Call addFile(
-      CiviFormProfile profile,
-      long applicantId,
-      String programSlug,
-      String blockId,
-      boolean inReview) {
-    if (includeApplicantIdInRoute(profile)) {
-      return routes.ApplicantProgramBlocksController.addFileWithApplicantId(
-          applicantId, programSlug, blockId, inReview);
-    }
-    return routes.ApplicantProgramBlocksController.addFile(programSlug, blockId, inReview);
+    return routes.ApplicantProgramBlocksController.addFile(programId, blockId, inReview);
   }
 
   // TODO:#11090 Remove method when routes are no longer hit

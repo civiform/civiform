@@ -678,8 +678,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    * Used by the file upload question. Removes the specified file and re-renders the question block.
    *
    * @param request the HTTP request containing context and session information
-   * @param programParam the program identifier, which can be either a program slug or program ID,
-   *     depending on feature configuration
+   * @param programId ID of the program
    * @param blockId the unique identifier of the specific block within the program containing the
    *     file upload question
    * @param fileKeyToRemove the file key of the specific file to be removed from the applicant's
@@ -690,22 +689,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    */
   @Secure
   public CompletionStage<Result> removeFile(
-      Request request,
-      String programParam,
-      String blockId,
-      String fileKeyToRemove,
-      boolean inReview) {
-    // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled
-    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
-      metricCounters
-          .getUrlWithProgramIdCall()
-          .labels(
-              "/programs/:programParam/blocks/:blockId/removeFile/:fileKey/:inReview", programParam)
-          .inc();
-      return CompletableFuture.completedFuture(redirectToHome());
-    }
+      Request request, Long programId, String blockId, String fileKeyToRemove, boolean inReview) {
 
     Optional<Long> optionalApplicantId = getApplicantId(request);
     if (optionalApplicantId.isEmpty()) {
@@ -716,151 +700,127 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     Long applicantId = optionalApplicantId.get();
     return removeFileWithApplicantId(
-        request, applicantId, programParam, blockId, fileKeyToRemove, inReview);
+        request, applicantId, programId, blockId, fileKeyToRemove, inReview);
   }
 
   @Secure
   public CompletionStage<Result> removeFileWithApplicantId(
       Request request,
       long applicantId,
-      String programParam,
+      Long programId,
       String blockId,
       String fileKeyToRemove,
       boolean inReview) {
-    // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled
     boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
-      metricCounters
-          .getUrlWithProgramIdCall()
-          .labels(
-              "/applicants/:applicantId/programs/:programParam/blocks/:blockId/removeFile/:fileKey/:inReview"
-                  + " ",
-              programParam)
-          .inc();
-      return CompletableFuture.completedFuture(redirectToHome());
-    }
 
-    return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, programSlugUrlsEnabled)
-        .thenCompose(
-            programId -> {
-              CompletionStage<ApplicantPersonalInfo> applicantStage =
-                  this.applicantService.getPersonalInfo(applicantId);
+    CompletionStage<ApplicantPersonalInfo> applicantStage =
+        this.applicantService.getPersonalInfo(applicantId);
 
-              return applicantStage
-                  .thenComposeAsync(
-                      v -> checkApplicantAuthorization(request, applicantId),
-                      classLoaderExecutionContext.current())
-                  .thenComposeAsync(
-                      v -> checkProgramAuthorization(request, programId),
-                      classLoaderExecutionContext.current())
-                  .thenComposeAsync(
-                      v ->
-                          applicantService.getReadOnlyApplicantProgramService(
-                              applicantId, programId),
-                      classLoaderExecutionContext.current())
-                  .thenComposeAsync(
-                      (roApplicantProgramService) -> {
-                        Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
+    return applicantStage
+        .thenComposeAsync(
+            v -> checkApplicantAuthorization(request, applicantId),
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            v -> checkProgramAuthorization(request, programId),
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            (roApplicantProgramService) -> {
+              Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
 
-                        if (block.isEmpty() || !block.get().isFileUpload()) {
-                          return failedFuture(
-                              new ProgramBlockNotFoundException(programId, blockId));
-                        }
+              if (block.isEmpty() || !block.get().isFileUpload()) {
+                return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
+              }
 
-                        FileUploadQuestion fileUploadQuestion =
-                            block.get().getVisibleQuestions().stream()
-                                .filter(
-                                    question -> question.getType().equals(QuestionType.FILEUPLOAD))
-                                .findAny()
-                                .get()
-                                .createFileUploadQuestion();
+              FileUploadQuestion fileUploadQuestion =
+                  block.get().getVisibleQuestions().stream()
+                      .filter(question -> question.getType().equals(QuestionType.FILEUPLOAD))
+                      .findAny()
+                      .get()
+                      .createFileUploadQuestion();
 
-                        ImmutableMap.Builder<String, String> fileUploadQuestionFormData =
-                            new ImmutableMap.Builder<>();
-                        Optional<ImmutableList<String>> keysOptional =
-                            fileUploadQuestion.getFileKeyListValue();
-                        Optional<ImmutableList<String>> originalFileNamesOptional =
-                            fileUploadQuestion.getOriginalFileNameListValue();
+              ImmutableMap.Builder<String, String> fileUploadQuestionFormData =
+                  new ImmutableMap.Builder<>();
+              Optional<ImmutableList<String>> keysOptional =
+                  fileUploadQuestion.getFileKeyListValue();
+              Optional<ImmutableList<String>> originalFileNamesOptional =
+                  fileUploadQuestion.getOriginalFileNameListValue();
 
-                        int fileKeyIndexRemoved = -1;
+              int fileKeyIndexRemoved = -1;
 
-                        if (keysOptional.isPresent()) {
-                          ImmutableList<String> keys = keysOptional.get();
-                          // Write all existing keys back to the form data, except the one we want
-                          // to delete.
-                          for (int i = 0; i < keys.size(); i++) {
-                            String keyValue = keys.get(i);
-                            boolean removeKey = false;
-                            if (keyValue.equals(fileKeyToRemove)) {
-                              removeKey = true;
-                              fileKeyIndexRemoved = i;
-                            }
-                            fileUploadQuestionFormData.put(
-                                fileUploadQuestion.getFileKeyListPathForIndex(i).toString(),
-                                removeKey ? "" : keyValue);
-                          }
-                        }
+              if (keysOptional.isPresent()) {
+                ImmutableList<String> keys = keysOptional.get();
+                // Write all existing keys back to the form data, except the one we want
+                // to delete.
+                for (int i = 0; i < keys.size(); i++) {
+                  String keyValue = keys.get(i);
+                  boolean removeKey = false;
+                  if (keyValue.equals(fileKeyToRemove)) {
+                    removeKey = true;
+                    fileKeyIndexRemoved = i;
+                  }
+                  fileUploadQuestionFormData.put(
+                      fileUploadQuestion.getFileKeyListPathForIndex(i).toString(),
+                      removeKey ? "" : keyValue);
+                }
+              }
 
-                        if (originalFileNamesOptional.isPresent() && (fileKeyIndexRemoved >= 0)) {
-                          // Write all existing original file names back to the form data, except
-                          // the one that was removed from the file keys list.
-                          ImmutableList<String> originalFileNames = originalFileNamesOptional.get();
-                          for (int i = 0; i < originalFileNames.size(); i++) {
-                            String originalFileNameValue = originalFileNames.get(i);
-                            fileUploadQuestionFormData.put(
-                                fileUploadQuestion
-                                    .getOriginalFileNameListPathForIndex(i)
-                                    .toString(),
-                                i == fileKeyIndexRemoved ? "" : originalFileNameValue);
-                          }
-                        }
+              if (originalFileNamesOptional.isPresent() && (fileKeyIndexRemoved >= 0)) {
+                // Write all existing original file names back to the form data, except
+                // the one that was removed from the file keys list.
+                ImmutableList<String> originalFileNames = originalFileNamesOptional.get();
+                for (int i = 0; i < originalFileNames.size(); i++) {
+                  String originalFileNameValue = originalFileNames.get(i);
+                  fileUploadQuestionFormData.put(
+                      fileUploadQuestion.getOriginalFileNameListPathForIndex(i).toString(),
+                      i == fileKeyIndexRemoved ? "" : originalFileNameValue);
+                }
+              }
 
-                        // Always force an update so that we save the change even if removing the
-                        // last file from a required question.
-                        return applicantService.stageAndUpdateIfValid(
-                            applicantId,
-                            programId,
-                            blockId,
-                            fileUploadQuestionFormData.build(),
-                            settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
-                            /* forceUpdate= */ true,
-                            settingsManifest.getApiBridgeEnabled(request));
-                      },
-                      classLoaderExecutionContext.current())
-                  .thenComposeAsync(
-                      roApplicantProgramService -> {
-                        Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
+              // Always force an update so that we save the change even if removing the
+              // last file from a required question.
+              return applicantService.stageAndUpdateIfValid(
+                  applicantId,
+                  programId,
+                  blockId,
+                  fileUploadQuestionFormData.build(),
+                  settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
+                  /* forceUpdate= */ true,
+                  settingsManifest.getApiBridgeEnabled(request));
+            },
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            roApplicantProgramService -> {
+              Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
 
-                        if (block.isEmpty() || !block.get().isFileUpload()) {
-                          return failedFuture(
-                              new ProgramBlockNotFoundException(programId, blockId));
-                        }
+              if (block.isEmpty() || !block.get().isFileUpload()) {
+                return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
+              }
 
-                        // Re-direct back to the current page.
-                        return supplyAsync(
-                            () -> {
-                              CiviFormProfile profile = profileUtils.currentUserProfile(request);
-                              if (programSlugUrlsEnabled) {
-                                String programSlug =
-                                    programSlugHandler.getProgramSlug(programParam);
-                                return redirect(
-                                    applicantRoutes
-                                        .blockEditOrBlockReview(
-                                            profile, applicantId, programSlug, blockId, inReview)
-                                        .url());
-                              }
-                              return redirect(
-                                  applicantRoutes
-                                      .blockEditOrBlockReview(
-                                          profile, applicantId, programId, blockId, inReview)
-                                      .url());
-                            });
-                      },
-                      classLoaderExecutionContext.current())
-                  .exceptionally(this::handleUpdateExceptions);
-            });
+              // Re-direct back to the current page.
+              return supplyAsync(
+                  () -> {
+                    CiviFormProfile profile = profileUtils.currentUserProfile(request);
+                    if (programSlugUrlsEnabled) {
+                      String programSlug =
+                          programSlugHandler.getProgramSlug(String.valueOf(programId));
+                      return redirect(
+                          applicantRoutes
+                              .blockEditOrBlockReview(
+                                  profile, applicantId, programSlug, blockId, inReview)
+                              .url());
+                    }
+                    return redirect(
+                        applicantRoutes
+                            .blockEditOrBlockReview(
+                                profile, applicantId, programId, blockId, inReview)
+                            .url());
+                  });
+            },
+            classLoaderExecutionContext.current())
+        .exceptionally(this::handleUpdateExceptions);
   }
 
   /**
@@ -873,8 +833,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    * file.
    *
    * @param request the HTTP request containing context and session information
-   * @param programParam the program identifier, which can be either a program slug or program ID,
-   *     depending on feature configuration
+   * @param programId ID of the program
    * @param blockId the unique identifier of the specific block within the program containing the
    *     file upload question
    * @param inReview indicates whether the applicant is currently in review mode (true) or edit mode
@@ -883,17 +842,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    */
   @Secure
   public CompletionStage<Result> addFile(
-      Request request, String programParam, String blockId, boolean inReview) {
-    // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled
-    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
-      metricCounters
-          .getUrlWithProgramIdCall()
-          .labels("/programs/:programParam/blocks/:blockId/addFile/:inReview", programParam)
-          .inc();
-      return CompletableFuture.completedFuture(redirectToHome());
-    }
+      Request request, long programId, String blockId, boolean inReview) {
+    // boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
 
     Optional<Long> optionalApplicantId = getApplicantId(request);
     if (optionalApplicantId.isEmpty()) {
@@ -903,221 +853,190 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
 
     Long applicantId = optionalApplicantId.get();
-    return addFileWithApplicantId(request, applicantId, programParam, blockId, inReview);
+    return addFileWithApplicantId(request, applicantId, programId, blockId, inReview);
   }
 
   @Secure
   public CompletionStage<Result> addFileWithApplicantId(
-      Request request, long applicantId, String programParam, String blockId, boolean inReview) {
-    // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled
+      Request request, long applicantId, long programId, String blockId, boolean inReview) {
     boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
-      metricCounters
-          .getUrlWithProgramIdCall()
-          .labels(
-              "/applicants/:applicantId/programs/:programParam/blocks/:blockId/addFile/:inReview",
-              programParam)
-          .inc();
-      return CompletableFuture.completedFuture(redirectToHome());
-    }
 
-    return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, programSlugUrlsEnabled)
-        .thenCompose(
-            programId -> {
-              CompletionStage<ApplicantPersonalInfo> applicantStage =
-                  applicantService.getPersonalInfo(applicantId);
+    CompletionStage<ApplicantPersonalInfo> applicantStage =
+        applicantService.getPersonalInfo(applicantId);
 
-              return applicantStage
+    return applicantStage
+        .thenComposeAsync(
+            v -> checkApplicantAuthorization(request, applicantId),
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            v -> checkProgramAuthorization(request, programId),
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            (roApplicantProgramService) -> {
+              Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
+
+              if (block.isEmpty() || !block.get().isFileUpload()) {
+                return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
+              }
+
+              Optional<String> bucket = request.queryString("bucket");
+              Optional<String> key = request.queryString("key");
+
+              // Original file name is only set for Azure, where we have to generate a
+              // UUID when uploading a file to Azure Blob storage because we cannot upload
+              // a file without a name. For AWS, the file key and original file name are
+              // the same. For the future, GCS supports POST uploads so this field won't
+              // be needed either: <link>
+              // https://cloud.google.com/storage/docs/xml-api/post-object-forms </link>
+              // This is only really needed for Azure blob storage.
+              Optional<String> originalFileName = request.queryString("originalFileName");
+
+              if (bucket.isEmpty() || key.isEmpty()) {
+                return failedFuture(
+                    new IllegalArgumentException("missing file key and bucket names"));
+              }
+
+              FileUploadQuestion fileUploadQuestion =
+                  block.get().getVisibleQuestions().stream()
+                      .filter(question -> question.getType().equals(QuestionType.FILEUPLOAD))
+                      .findAny()
+                      .get()
+                      .createFileUploadQuestion();
+
+              ImmutableMap.Builder<String, String> fileUploadQuestionFormData =
+                  new ImmutableMap.Builder<>();
+              Optional<ImmutableList<String>> keysOptional =
+                  fileUploadQuestion.getFileKeyListValue();
+              Optional<ImmutableList<String>> originalFileNamesOptional =
+                  fileUploadQuestion.getOriginalFileNameListValue();
+
+              if (keysOptional.isPresent()) {
+                ImmutableList<String> keys = keysOptional.get();
+
+                if (!fileUploadQuestion.canUploadFile()) {
+                  return failedFuture(
+                      new IllegalArgumentException(
+                          String.format(
+                              "Cannot upload additional files for question %s, in program"
+                                  + " %s, block %s, for applicant %s.",
+                              fileUploadQuestion
+                                  .getApplicantQuestion()
+                                  .getQuestionDefinition()
+                                  .getId(),
+                              programId,
+                              blockId,
+                              applicantId)));
+                }
+
+                boolean appendValue = true;
+
+                // Write the existing keys so that we don't delete any.
+                for (int i = 0; i < keys.size(); i++) {
+                  String keyValue = keys.get(i);
+                  fileUploadQuestionFormData.put(
+                      fileUploadQuestion.getFileKeyListPathForIndex(i).toString(), keyValue);
+                  // Key already exists in question, no need to append it. But we may want
+                  // to render some kind of error in this case in the future, since it
+                  // means the user essentially "replaced" whatever file already existed
+                  // with that same name. Alternatively, we could prevent this on the
+                  // client-side.
+                  if (keyValue.equals(key.get())) {
+                    appendValue = false;
+                  }
+                }
+
+                if (appendValue) {
+                  fileUploadQuestionFormData.put(
+                      fileUploadQuestion.getFileKeyListPathForIndex(keys.size()).toString(),
+                      key.get());
+                }
+              } else {
+                fileUploadQuestionFormData.put(
+                    fileUploadQuestion.getFileKeyListPathForIndex(0).toString(), key.get());
+              }
+
+              // Original file names are only set for Azure deployments, when the form
+              // contains the original file name field. The value will be stored in the
+              // file record.
+              if (originalFileName.isPresent()) {
+                // If there are no originalFileNames in the question data, we don't need
+                // to append.
+                if (originalFileNamesOptional.isPresent()) {
+                  ImmutableList<String> originalFileNames = originalFileNamesOptional.get();
+
+                  // Write the existing filenames so that we don't delete any.
+                  for (int i = 0; i < originalFileNames.size(); i++) {
+                    String originalFileNameValue = originalFileNames.get(i);
+                    fileUploadQuestionFormData.put(
+                        fileUploadQuestion.getOriginalFileNameListPathForIndex(i).toString(),
+                        originalFileNameValue);
+                    // We do not need to check if this original file name already exists.
+                    // Original file names are stored in the record and not used to
+                    // reference the file in storage, so collisions in the names do not
+                    // affect the application.
+                    //
+                    // The actual file key is a UID in this case, and we've already
+                    // checked for key collisions above.
+                  }
+
+                  fileUploadQuestionFormData.put(
+                      fileUploadQuestion
+                          .getOriginalFileNameListPathForIndex(originalFileNames.size())
+                          .toString(),
+                      originalFileName.get());
+                } else {
+                  fileUploadQuestionFormData.put(
+                      fileUploadQuestion.getOriginalFileNameListPathForIndex(0).toString(),
+                      originalFileName.get());
+                }
+              }
+
+              return getOrMakeFileRecord(key.get(), originalFileName, applicantId)
                   .thenComposeAsync(
-                      v -> checkApplicantAuthorization(request, applicantId),
-                      classLoaderExecutionContext.current())
-                  .thenComposeAsync(
-                      v -> checkProgramAuthorization(request, programId),
-                      classLoaderExecutionContext.current())
-                  .thenComposeAsync(
-                      v ->
-                          applicantService.getReadOnlyApplicantProgramService(
-                              applicantId, programId),
-                      classLoaderExecutionContext.current())
-                  .thenComposeAsync(
-                      (roApplicantProgramService) -> {
-                        Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
+                      _ ->
+                          applicantService.stageAndUpdateIfValid(
+                              applicantId,
+                              programId,
+                              blockId,
+                              fileUploadQuestionFormData.build(),
+                              settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
+                              false,
+                              settingsManifest.getApiBridgeEnabled(request)));
+            },
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            roApplicantProgramService -> {
+              Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
 
-                        if (block.isEmpty() || !block.get().isFileUpload()) {
-                          return failedFuture(
-                              new ProgramBlockNotFoundException(programId, blockId));
-                        }
+              if (block.isEmpty() || !block.get().isFileUpload()) {
+                return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
+              }
 
-                        Optional<String> bucket = request.queryString("bucket");
-                        Optional<String> key = request.queryString("key");
-
-                        // Original file name is only set for Azure, where we have to generate a
-                        // UUID when uploading a file to Azure Blob storage because we cannot upload
-                        // a file without a name. For AWS, the file key and original file name are
-                        // the same. For the future, GCS supports POST uploads so this field won't
-                        // be needed either: <link>
-                        // https://cloud.google.com/storage/docs/xml-api/post-object-forms </link>
-                        // This is only really needed for Azure blob storage.
-                        Optional<String> originalFileName = request.queryString("originalFileName");
-
-                        if (bucket.isEmpty() || key.isEmpty()) {
-                          return failedFuture(
-                              new IllegalArgumentException("missing file key and bucket names"));
-                        }
-
-                        FileUploadQuestion fileUploadQuestion =
-                            block.get().getVisibleQuestions().stream()
-                                .filter(
-                                    question -> question.getType().equals(QuestionType.FILEUPLOAD))
-                                .findAny()
-                                .get()
-                                .createFileUploadQuestion();
-
-                        ImmutableMap.Builder<String, String> fileUploadQuestionFormData =
-                            new ImmutableMap.Builder<>();
-                        Optional<ImmutableList<String>> keysOptional =
-                            fileUploadQuestion.getFileKeyListValue();
-                        Optional<ImmutableList<String>> originalFileNamesOptional =
-                            fileUploadQuestion.getOriginalFileNameListValue();
-
-                        if (keysOptional.isPresent()) {
-                          ImmutableList<String> keys = keysOptional.get();
-
-                          if (!fileUploadQuestion.canUploadFile()) {
-                            return failedFuture(
-                                new IllegalArgumentException(
-                                    String.format(
-                                        "Cannot upload additional files for question %s, in program"
-                                            + " %s, block %s, for applicant %s.",
-                                        fileUploadQuestion
-                                            .getApplicantQuestion()
-                                            .getQuestionDefinition()
-                                            .getId(),
-                                        programId,
-                                        blockId,
-                                        applicantId)));
-                          }
-
-                          boolean appendValue = true;
-
-                          // Write the existing keys so that we don't delete any.
-                          for (int i = 0; i < keys.size(); i++) {
-                            String keyValue = keys.get(i);
-                            fileUploadQuestionFormData.put(
-                                fileUploadQuestion.getFileKeyListPathForIndex(i).toString(),
-                                keyValue);
-                            // Key already exists in question, no need to append it. But we may want
-                            // to render some kind of error in this case in the future, since it
-                            // means the user essentially "replaced" whatever file already existed
-                            // with that same name. Alternatively, we could prevent this on the
-                            // client-side.
-                            if (keyValue.equals(key.get())) {
-                              appendValue = false;
-                            }
-                          }
-
-                          if (appendValue) {
-                            fileUploadQuestionFormData.put(
-                                fileUploadQuestion
-                                    .getFileKeyListPathForIndex(keys.size())
-                                    .toString(),
-                                key.get());
-                          }
-                        } else {
-                          fileUploadQuestionFormData.put(
-                              fileUploadQuestion.getFileKeyListPathForIndex(0).toString(),
-                              key.get());
-                        }
-
-                        // Original file names are only set for Azure deployments, when the form
-                        // contains the original file name field. The value will be stored in the
-                        // file record.
-                        if (originalFileName.isPresent()) {
-                          // If there are no originalFileNames in the question data, we don't need
-                          // to append.
-                          if (originalFileNamesOptional.isPresent()) {
-                            ImmutableList<String> originalFileNames =
-                                originalFileNamesOptional.get();
-
-                            // Write the existing filenames so that we don't delete any.
-                            for (int i = 0; i < originalFileNames.size(); i++) {
-                              String originalFileNameValue = originalFileNames.get(i);
-                              fileUploadQuestionFormData.put(
-                                  fileUploadQuestion
-                                      .getOriginalFileNameListPathForIndex(i)
-                                      .toString(),
-                                  originalFileNameValue);
-                              // We do not need to check if this original file name already exists.
-                              // Original file names are stored in the record and not used to
-                              // reference the file in storage, so collisions in the names do not
-                              // affect the application.
-                              //
-                              // The actual file key is a UID in this case, and we've already
-                              // checked for key collisions above.
-                            }
-
-                            fileUploadQuestionFormData.put(
-                                fileUploadQuestion
-                                    .getOriginalFileNameListPathForIndex(originalFileNames.size())
-                                    .toString(),
-                                originalFileName.get());
-                          } else {
-                            fileUploadQuestionFormData.put(
-                                fileUploadQuestion
-                                    .getOriginalFileNameListPathForIndex(0)
-                                    .toString(),
-                                originalFileName.get());
-                          }
-                        }
-
-                        return getOrMakeFileRecord(key.get(), originalFileName, applicantId)
-                            .thenComposeAsync(
-                                _ ->
-                                    applicantService.stageAndUpdateIfValid(
-                                        applicantId,
-                                        programId,
-                                        blockId,
-                                        fileUploadQuestionFormData.build(),
-                                        settingsManifest.getEsriAddressServiceAreaValidationEnabled(
-                                            request),
-                                        false,
-                                        settingsManifest.getApiBridgeEnabled(request)));
-                      },
-                      classLoaderExecutionContext.current())
-                  .thenComposeAsync(
-                      roApplicantProgramService -> {
-                        Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
-
-                        if (block.isEmpty() || !block.get().isFileUpload()) {
-                          return failedFuture(
-                              new ProgramBlockNotFoundException(programId, blockId));
-                        }
-
-                        // Re-direct back to the current page.
-                        return supplyAsync(
-                            () -> {
-                              CiviFormProfile profile = profileUtils.currentUserProfile(request);
-                              if (programSlugUrlsEnabled) {
-                                String programSlug =
-                                    programSlugHandler.getProgramSlug(programParam);
-                                return redirect(
-                                    applicantRoutes
-                                        .blockEditOrBlockReview(
-                                            profile, applicantId, programSlug, blockId, inReview)
-                                        .url());
-                              }
-                              return redirect(
-                                  applicantRoutes
-                                      .blockEditOrBlockReview(
-                                          profile, applicantId, programId, blockId, inReview)
-                                      .url());
-                            });
-                      },
-                      classLoaderExecutionContext.current())
-                  .exceptionally(this::handleUpdateExceptions);
-            });
+              // Re-direct back to the current page.
+              return supplyAsync(
+                  () -> {
+                    CiviFormProfile profile = profileUtils.currentUserProfile(request);
+                    if (programSlugUrlsEnabled) {
+                      String programSlug =
+                          programSlugHandler.getProgramSlug(String.valueOf(programId));
+                      return redirect(
+                          applicantRoutes
+                              .blockEditOrBlockReview(
+                                  profile, applicantId, programSlug, blockId, inReview)
+                              .url());
+                    }
+                    return redirect(
+                        applicantRoutes
+                            .blockEditOrBlockReview(
+                                profile, applicantId, programId, blockId, inReview)
+                            .url());
+                  });
+            },
+            classLoaderExecutionContext.current())
+        .exceptionally(this::handleUpdateExceptions);
   }
 
   @Secure
