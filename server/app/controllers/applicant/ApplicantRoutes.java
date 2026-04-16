@@ -472,6 +472,32 @@ public final class ApplicantRoutes {
         programSlug, previousBlockIndex, inReview);
   }
 
+  /**
+   * Returns the route corresponding to the applicant remove file action.
+   *
+   * @param profile profile corresponding to the logged-in user (applicant or TI).
+   * @param applicantId ID of applicant for whom the action should be performed.
+   * @param programId ID of program to review
+   * @param blockId ID of the block containing file upload question
+   * @param fileKey the key for the stored file.
+   * @return route for the applicant update file action
+   */
+  public Call removeFile(
+      CiviFormProfile profile,
+      long applicantId,
+      long programId,
+      String blockId,
+      String fileKey,
+      boolean inReview) {
+    String programIdStr = Long.toString(programId);
+    if (includeApplicantIdInRoute(profile)) {
+      return routes.ApplicantProgramBlocksController.removeFileWithApplicantId(
+          applicantId, programIdStr, blockId, fileKey, inReview);
+    }
+    return routes.ApplicantProgramBlocksController.removeFile(
+        programIdStr, blockId, fileKey, inReview);
+  }
+
   // TODO:#11090 Remove method when routes are no longer hit
   /**
    * Returns the route corresponding to the applicant add file action.
@@ -516,6 +542,7 @@ public final class ApplicantRoutes {
     return routes.ApplicantProgramBlocksController.addFile(programSlug, blockId, inReview);
   }
 
+  // TODO:#11090 Remove method when routes are no longer hit
   /**
    * Returns the route corresponding to the applicant update block action.
    *
@@ -538,13 +565,48 @@ public final class ApplicantRoutes {
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramBlocksController.updateWithApplicantId(
           applicantId,
-          programId,
+          String.valueOf(programId),
           blockId,
           inReview,
           new ApplicantRequestedActionWrapper(applicantRequestedAction));
     } else {
       return routes.ApplicantProgramBlocksController.update(
-          programId,
+          String.valueOf(programId),
+          blockId,
+          inReview,
+          new ApplicantRequestedActionWrapper(applicantRequestedAction));
+    }
+  }
+
+  /**
+   * Returns the route corresponding to the applicant update block action.
+   *
+   * @param profile profile corresponding to the logged-in user (applicant or TI).
+   * @param applicantId ID of applicant for whom the action should be performed.
+   * @param programSlug slug of program to review
+   * @param blockId ID of the block to be updated
+   * @param inReview true if executing the review action (as opposed to edit)
+   * @param applicantRequestedAction the page the applicant would like to see after the updates are
+   *     made
+   * @return route for the applicant update block action
+   */
+  public Call updateBlock(
+      CiviFormProfile profile,
+      long applicantId,
+      String programSlug,
+      String blockId,
+      boolean inReview,
+      ApplicantRequestedAction applicantRequestedAction) {
+    if (includeApplicantIdInRoute(profile)) {
+      return routes.ApplicantProgramBlocksController.updateWithApplicantId(
+          applicantId,
+          programSlug,
+          blockId,
+          inReview,
+          new ApplicantRequestedActionWrapper(applicantRequestedAction));
+    } else {
+      return routes.ApplicantProgramBlocksController.update(
+          programSlug,
           blockId,
           inReview,
           new ApplicantRequestedActionWrapper(applicantRequestedAction));

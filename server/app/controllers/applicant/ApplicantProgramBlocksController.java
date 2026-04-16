@@ -1265,12 +1265,18 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   public CompletionStage<Result> updateWithApplicantId(
       Request request,
       long applicantId,
-      long programId,
+      String programParam,
       String blockId,
       boolean inReview,
       ApplicantRequestedActionWrapper applicantRequestedActionWrapper) {
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId);
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    Long programId =
+        programSlugHandler
+            .resolveProgramParam(programParam, applicantId, programSlugUrlsEnabled)
+            .toCompletableFuture()
+            .join();
 
     CompletableFuture<ReadOnlyApplicantProgramService> applicantProgramServiceCompletableFuture =
         applicantStage
@@ -1334,7 +1340,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               CiviFormProfile profile = profileUtils.currentUserProfile(request);
               ReadOnlyApplicantProgramService readOnlyApplicantProgramService =
                   applicantProgramServiceCompletableFuture.join();
-              boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
 
               Optional<Result> applicationUpdatedOptional =
                   updateApplicationToLatestProgramVersionIfNeeded(
@@ -1433,7 +1438,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure
   public CompletionStage<Result> update(
       Request request,
-      long programId,
+      String programParam,
       String blockId,
       boolean inReview,
       ApplicantRequestedActionWrapper applicantRequestedActionWrapper) {
@@ -1446,7 +1451,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     return updateWithApplicantId(
         request,
         applicantId.orElseThrow(),
-        programId,
+        programParam,
         blockId,
         inReview,
         applicantRequestedActionWrapper);
@@ -1791,30 +1796,37 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
           getEligibilityAlertSettings(roApplicantProgramService, request, programId, blockId);
     }
 
-    return ApplicationBaseViewParams.builder()
-        .setRequest(request)
-        .setMessages(messagesApi.preferred(request))
-        .setApplicantId(applicantId)
-        .setProgramTitle(roApplicantProgramService.getProgramTitle())
-        .setProgramDescription(roApplicantProgramService.getProgramDescription())
-        .setProgramShortDescription(roApplicantProgramService.getProgramShortDescription())
-        .setProgramId(programId)
-        .setProgramSlug(roApplicantProgramService.getProgramSlug())
-        .setBlock(block)
-        .setInReview(inReview)
-        .setBlockIndex(roApplicantProgramService.getBlockIndex(blockId))
-        .setTotalBlockCount(roApplicantProgramService.getAllActiveBlocks().size())
-        .setApplicantPersonalInfo(personalInfo)
-        .setPreferredLanguageSupported(roApplicantProgramService.preferredLanguageSupported())
-        .setApplicantStorageClient(applicantStorageClient)
-        .setBaseUrl(baseUrl)
-        .setErrorDisplayMode(errorDisplayMode)
-        .setApplicantSelectedQuestionName(questionName)
-        .setApplicantRoutes(applicantRoutes)
-        .setProfile(profile)
-        .setBlockList(roApplicantProgramService.getAllActiveBlocks())
-        .setEligibilityAlertSettings(eligibilityAlertSettings)
-        .setLoginOnly(roApplicantProgramService.isProgramOnlyForLoggedInApplicants());
+    ApplicationBaseViewParams.Builder paramsBuilder =
+        ApplicationBaseViewParams.builder()
+            .setRequest(request)
+            .setMessages(messagesApi.preferred(request))
+            .setApplicantId(applicantId)
+            .setProgramTitle(roApplicantProgramService.getProgramTitle())
+            .setProgramDescription(roApplicantProgramService.getProgramDescription())
+            .setProgramShortDescription(roApplicantProgramService.getProgramShortDescription())
+            .setProgramId(programId)
+            .setProgramSlug(roApplicantProgramService.getProgramSlug())
+            .setBlock(block)
+            .setInReview(inReview)
+            .setBlockIndex(roApplicantProgramService.getBlockIndex(blockId))
+            .setTotalBlockCount(roApplicantProgramService.getAllActiveBlocks().size())
+            .setApplicantPersonalInfo(personalInfo)
+            .setPreferredLanguageSupported(roApplicantProgramService.preferredLanguageSupported())
+            .setApplicantStorageClient(applicantStorageClient)
+            .setBaseUrl(baseUrl)
+            .setErrorDisplayMode(errorDisplayMode)
+            .setApplicantSelectedQuestionName(questionName)
+            .setApplicantRoutes(applicantRoutes)
+            .setProfile(profile)
+            .setBlockList(roApplicantProgramService.getAllActiveBlocks())
+            .setEligibilityAlertSettings(eligibilityAlertSettings)
+            .setLoginOnly(roApplicantProgramService.isProgramOnlyForLoggedInApplicants());
+
+    if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+      paramsBuilder.setProgramSlug(programSlugHandler.getProgramSlug(String.valueOf(programId)));
+    }
+
+    return paramsBuilder;
   }
 
   private ApplicationBaseViewParams buildApplicationBaseViewParams(
