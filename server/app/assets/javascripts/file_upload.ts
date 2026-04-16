@@ -14,6 +14,9 @@ const CF_FILE_UPLOADING_CLASS = 'cf-file-uploading'
 const CF_FILE_UPLOAD_QUESTION_SELECTOR = '.cf-question-fileupload'
 import {default as uswdsFileInput} from '@uswds/uswds/js/usa-file-input'
 
+// Track the number of file uploads in progress to prevent navigating away
+let fileUploadsInProgress = 0
+
 export function init() {
   // Don't add extra logic if we don't have a block form with a
   // file upload question.
@@ -30,9 +33,6 @@ export function init() {
   }
 
   if (featureFlags().isFileUploadQuestionImprovementsEnabled) {
-    // Track the number of file uploads in progress to prevent navigating away
-    let fileUploadsInProgress = 0
-
     window.addEventListener('beforeunload', (e: BeforeUnloadEvent) => {
       if (fileUploadsInProgress > 0) {
         e.preventDefault()
@@ -75,6 +75,8 @@ export function init() {
         fileUploadsInProgress = 0
         document.body.classList.remove(CF_FILE_UPLOADING_CLASS)
       }
+
+      toggleDisabledState()
     })
 
     document.body.addEventListener('htmx:configRequest', (event) => {
@@ -208,7 +210,7 @@ function validateFileUploadQuestion(fileInput: HTMLInputElement): boolean {
   const questionDiv = fileInput.closest(CF_FILE_UPLOAD_QUESTION_SELECTOR)
   if (!questionDiv) return false
 
-  const isFileUploaded = fileInput.value != ''
+  const isFileUploaded = fileInput.value !== ''
 
   const fileNotSelectedErrorDiv = questionDiv.querySelector<HTMLElement>(
     '[data-fileupload-error="required"]',
@@ -284,8 +286,13 @@ const isFileUploadHtmxEvent = (event: Event) => {
 const toggleDisabledState = () => {
   const elements = document.querySelectorAll('.cf-disable-when-uploading')
   elements.forEach((element) => {
-    element.toggleAttribute('disabled')
-    element.toggleAttribute('aria-disabled')
+    if (fileUploadsInProgress > 0) {
+      element.setAttribute('disabled', '')
+      element.setAttribute('aria-disabled', 'true')
+    } else {
+      element.removeAttribute('disabled')
+      element.removeAttribute('aria-disabled')
+    }
   })
 }
 
@@ -293,7 +300,9 @@ const resetFileInput = (event: Event) => {
   const detail = (event as CustomEvent).detail as
     | {elt?: HTMLElement}
     | undefined
-  const questionDiv = detail?.elt?.closest(CF_FILE_UPLOAD_QUESTION_SELECTOR)
+  const questionDiv = detail?.elt?.closest(
+    CF_FILE_UPLOAD_QUESTION_SELECTOR,
+  ) as HTMLElement
   if (!questionDiv) return
 
   const fileInput =

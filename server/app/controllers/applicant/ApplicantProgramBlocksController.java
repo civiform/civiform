@@ -1131,7 +1131,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       return CompletableFuture.completedFuture(badRequest());
     }
 
-    long questionId = Long.parseLong(formFactory.form().bindFromRequest(request).get("questionId"));
+    String questionId = formFactory.form().bindFromRequest(request).get("questionId");
+    if (questionId == null) {
+      return CompletableFuture.completedFuture(badRequest());
+    }
 
     String originalFileName = filePart.getFilename();
     String fileKey = filePart.getRef();
@@ -1153,7 +1156,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       .filter(
                           question ->
                               question.getType() == QuestionType.FILEUPLOAD
-                                  && question.getQuestionDefinition().getId() == questionId)
+                                  && question.getQuestionDefinition().getId()
+                                      == Long.parseLong(questionId))
                       .findFirst()
                       .orElseThrow()
                       .createFileUploadQuestion();
