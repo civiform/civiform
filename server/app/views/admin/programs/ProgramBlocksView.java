@@ -737,6 +737,22 @@ public final class ProgramBlocksView extends ProgramBaseView {
       maybeEligibilityPredicateDisplay.ifPresent(div::with);
 
       if (isEnumeratorBlock) {
+        Optional<QuestionDefinition> initialQuestion =
+            !blockHasEnumeratorQuestion
+                ? request
+                    .queryString("initialQuestionId")
+                    .flatMap(
+                        idStr -> {
+                          try {
+                            long id = Long.parseLong(idStr);
+                            return allQuestions.stream()
+                                .filter(q -> q.getId() == id)
+                                .findFirst();
+                          } catch (NumberFormatException e) {
+                            return Optional.empty();
+                          }
+                        })
+                : Optional.empty();
         return div.with(
             renderEnumeratorScreenContent(
                 blockHasEnumeratorQuestion,
@@ -744,7 +760,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 messages,
                 program.id(),
                 blockDefinition,
-                questionCards.isEmpty() ? Optional.empty() : Optional.of(questionCards.get(0))));
+                questionCards.isEmpty() ? Optional.empty() : Optional.of(questionCards.get(0)),
+                initialQuestion));
       }
 
       // For repeated blocks, check if parent enumerator is at first level (not nested)
@@ -859,7 +876,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Messages messages,
       Long programId,
       BlockDefinition blockDefinition,
-      Optional<DivTag> optionalQuestionCard) {
+      Optional<DivTag> optionalQuestionCard,
+      Optional<QuestionDefinition> initialQuestion) {
     // If it's an empty enumerator block
     if (!blockHasEnumeratorQuestion || optionalQuestionCard.isEmpty()) {
       return renderEnumeratorSetupSection(
@@ -868,7 +886,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
           programId,
           blockDefinition.id(),
           /* optionalQuestionForm= */ Optional.empty(),
-          /* errorMessages= */ ImmutableSet.of());
+          /* errorMessages= */ ImmutableSet.of(),
+          initialQuestion);
     } else {
       return renderEnumeratorSectionWithSelectedQuestion(
           messages, optionalQuestionCard, blockHasEnumeratorQuestion, blockDefinition);
@@ -960,11 +979,18 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Long programId,
       Long blockId,
       Optional<EnumeratorQuestionForm> optionalQuestionForm,
-      ImmutableSet<CiviFormError> errorMessages) {
+      ImmutableSet<CiviFormError> errorMessages,
+      Optional<QuestionDefinition> initialQuestion) {
     return div(
             renderCreationMethodRadioButtons(messages),
             renderNewEnumeratorQuestionForm(
-                request, messages, programId, blockId, optionalQuestionForm, errorMessages),
+                request,
+                messages,
+                programId,
+                blockId,
+                optionalQuestionForm,
+                errorMessages,
+                initialQuestion),
             renderChooseExistingQuestion(messages))
         .withId("enumerator-setup")
         .withClass("maxw-mobile-lg");
@@ -1049,7 +1075,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Long programId,
       Long blockId,
       Optional<EnumeratorQuestionForm> optionalQuestionForm,
-      ImmutableSet<CiviFormError> errorMessages) {
+      ImmutableSet<CiviFormError> errorMessages,
+      Optional<QuestionDefinition> initialQuestion) {
     InputTag csrfTag = makeCsrfTokenInputTag(request);
     return form(csrfTag)
         .withClasses("usa-summary-box", "bg-white", "border-gray-300")
@@ -1136,6 +1163,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                         .map(EnumeratorQuestionForm::getMaxEntities)
                         .orElse(OptionalInt.empty()))
                 .getUSWDSNumberTag(),
+            renderInitialQuestionSection(initialQuestion, messages),
             div(
                     AlertComponent.renderSlimInfoAlert(
                         messages.at(MessageKey.ALERT_REPEATED_SET_NEW_QUESTION.getKeyName())),
@@ -1144,6 +1172,49 @@ public final class ProgramBlocksView extends ProgramBaseView {
                         .withId("create-repeated-set-button")
                         .withClasses("usa-button", "usa-button--primary", "margin-top-105"))
                 .withClasses("border-top", "border-gray-300", "padding-top-3", "margin-top-3"));
+  }
+
+  /**
+   * Renders the initial question section within the enumerator setup form. If an initial question
+   * has been selected, shows a preview of it and a hidden input carrying its ID. Always shows an
+   * "Add a question" button to open the question bank for selection or change.
+   */
+  private DivTag renderInitialQuestionSection(
+      Optional<QuestionDefinition> initialQuestion, Messages messages) {
+    DivTag section =
+        div()
+            .withClasses("border-top", "border-gray-300", "padding-top-3", "margin-top-3")
+            .with(
+                p("Initial question (optional)").withClasses("font-bold", "margin-bottom-05"),
+                p("An initial question is shown per entity row on the enumerator screen instead"
+                        + " of the free-text name input.")
+                    .withClasses("text-gray-cool-50", "font-ui-sm", "margin-bottom-1"));
+
+    if (initialQuestion.isPresent()) {
+      QuestionDefinition q = initialQuestion.get();
+      section.with(
+          input()
+              .withType("hidden")
+              .withName("initialQuestionId")
+              .withValue(String.valueOf(q.getId())),
+          div()
+              .withClasses("usa-summary-box", "bg-gray-50", "border-gray-300", "padding-2",
+                  "margin-bottom-1")
+              .with(
+                  p("Selected: " + q.getQuestionText().getDefault())
+                      .withClasses("font-bold", "margin-0"),
+                  p("Admin ID: " + q.getName())
+                      .withClasses("text-gray-cool-50", "font-ui-sm", "margin-0")));
+    }
+
+    section.with(
+        button("")
+            .withType("button")
+            .withClasses("usa-button", "usa-button--outline", ReferenceClasses.OPEN_QUESTION_BANK_BUTTON)
+            .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
+            .withText(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName())));
+
+    return section;
   }
 
   private DivTag renderBlockPanelTopButtons(
@@ -1734,10 +1805,20 @@ public final class ProgramBlocksView extends ProgramBaseView {
       ProgramQuestionBank.Visibility questionBankVisibility,
       Messages messages,
       Request request) {
+    boolean enumeratorImprovementsEnabled =
+        settingsManifest.getEnumeratorImprovementsEnabled(request);
+    boolean isEnumeratorSetup =
+        enumeratorImprovementsEnabled
+            && blockDefinition.getIsEnumerator()
+            && !blockDefinition.hasEnumeratorQuestion();
     String addQuestionAction =
-        controllers.admin.routes.AdminProgramBlockQuestionsController.create(
-                program.id(), blockDefinition.id())
-            .url();
+        isEnumeratorSetup
+            ? controllers.admin.routes.AdminProgramBlockQuestionsController.selectInitialQuestion(
+                    program.id(), blockDefinition.id())
+                .url()
+            : controllers.admin.routes.AdminProgramBlockQuestionsController.create(
+                    program.id(), blockDefinition.id())
+                .url();
 
     String redirectUrl =
         ProgramQuestionBank.addShowQuestionBankParam(

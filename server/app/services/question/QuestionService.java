@@ -248,6 +248,31 @@ public final class QuestionService {
     return create(copy, /* requireLegacyRepeatedEntitySelector= */ false);
   }
 
+  /**
+   * Creates a copy of the given QuestionDefinition for use as an initial question on an enumerator
+   * block. The copy gets a unique admin name, {@code enumeratorId} pointing to the enumerator
+   * question, and {@code isInitialQuestion=true}.
+   */
+  public ErrorAnd<QuestionDefinition, CiviFormError> createInitialQuestionCopy(
+      QuestionDefinition questionDefinition, long enumeratorQuestionId)
+      throws UnsupportedQuestionTypeException {
+    String newAdminName =
+        uniqueAdminNameGenerator.generate(
+            questionDefinition.getName(), /* newNamesSoFar= */ new ArrayList<>());
+
+    QuestionDefinition copy =
+        new QuestionDefinitionBuilder(questionDefinition)
+            .clearId()
+            .setName(newAdminName)
+            .setUniversal(false)
+            .setPrimaryApplicantInfoTags(ImmutableSet.of())
+            .setEnumeratorId(Optional.of(enumeratorQuestionId))
+            .setIsInitialQuestion(true)
+            .build();
+
+    return create(copy, /* requireLegacyRepeatedEntitySelector= */ false);
+  }
+
   /** If this question is archived but a new version has not been published yet, un-archive it. */
   public void restoreQuestion(Long id) throws InvalidUpdateException {
     Optional<QuestionModel> question =

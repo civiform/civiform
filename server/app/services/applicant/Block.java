@@ -147,6 +147,24 @@ public final class Block {
   }
 
   /**
+   * Returns the initial {@link ApplicantQuestion} for this enumerator block when enumerator
+   * improvements are enabled, or {@link Optional#empty()} otherwise.
+   *
+   * <p>The initial question is a real question shown per entity row on the enumerator screen
+   * instead of the legacy free-text entity name input.
+   *
+   * @param enumeratorImprovementsEnabled whether the enumerator improvements feature flag is on
+   */
+  public Optional<ApplicantQuestion> getInitialQuestion(boolean enumeratorImprovementsEnabled) {
+    if (!enumeratorImprovementsEnabled) {
+      return Optional.empty();
+    }
+    return getVisibleQuestions().stream()
+        .filter(q -> q.getQuestionDefinition().isInitialQuestion())
+        .findFirst();
+  }
+
+  /**
    * This block is a file upload block if its {@link BlockDefinition} contains a file upload
    * question.
    */

@@ -46,6 +46,7 @@ public final class QuestionDefinitionBuilder {
   private String validationPredicatesString = "";
   private QuestionType questionType;
   private LocalizedStrings entityType;
+  private Optional<Long> initialQuestionId = Optional.empty();
 
   public QuestionDefinitionBuilder() {
     // Cast the builder in order to avoid the "required" methods such as
@@ -69,6 +70,7 @@ public final class QuestionDefinitionBuilder {
       EnumeratorQuestionDefinition enumeratorQuestionDefinition =
           (EnumeratorQuestionDefinition) definition;
       entityType = enumeratorQuestionDefinition.getEntityType();
+      initialQuestionId = enumeratorQuestionDefinition.getInitialQuestionId();
     }
 
     if (definition.getQuestionType().isMultiOptionType()) {
@@ -186,6 +188,17 @@ public final class QuestionDefinitionBuilder {
     return this;
   }
 
+  public QuestionDefinitionBuilder setIsInitialQuestion(boolean isInitialQuestion) {
+    builder.setIsInitialQuestion(isInitialQuestion);
+    return this;
+  }
+
+  public QuestionDefinitionBuilder setInitialQuestionId(Optional<Long> initialQuestionId) {
+    // Stored on the EnumeratorQuestionDefinition; handled separately from the base config builder.
+    this.initialQuestionId = initialQuestionId;
+    return this;
+  }
+
   /**
    * Calls {@code build} and throws a {@link RuntimeException} if the {@link QuestionType} is
    * invalid.
@@ -282,7 +295,7 @@ public final class QuestionDefinitionBuilder {
           builder.setValidationPredicates(
               EnumeratorValidationPredicates.parse(validationPredicatesString));
         }
-        yield new EnumeratorQuestionDefinition(builder.build(), entityType);
+        yield new EnumeratorQuestionDefinition(builder.build(), entityType, initialQuestionId);
       }
       case STATIC -> {
         yield new StaticContentQuestionDefinition(builder.build());

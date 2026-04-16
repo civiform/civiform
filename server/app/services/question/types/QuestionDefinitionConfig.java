@@ -75,6 +75,13 @@ public abstract class QuestionDefinitionConfig {
   abstract Optional<ImmutableSet<QuestionSetting>> questionSettings();
 
   /**
+   * Whether this question is the "initial question" on an enumerator block. Initial questions are
+   * shown per entity row to replace the legacy free-text entity name input.
+   */
+  @JsonProperty("isInitialQuestion")
+  abstract boolean isInitialQuestion();
+
+  /**
    * Used to create a new {@link QuestionDefinitionConfig}. We default some fields here to avoid
    * having to explicitly set default values everywhere that is using a builder and not trying to
    * use these fields.
@@ -83,7 +90,8 @@ public abstract class QuestionDefinitionConfig {
     return new AutoValue_QuestionDefinitionConfig.Builder()
         .setUniversal(false)
         .setDisplayMode(QuestionDisplayMode.VISIBLE)
-        .setPrimaryApplicantInfoTags(ImmutableSet.of());
+        .setPrimaryApplicantInfoTags(ImmutableSet.of())
+        .setIsInitialQuestion(false);
   }
 
   /** Used to create a new {@link QuestionDefinitionConfig.Builder} based on an existing one. */
@@ -150,6 +158,9 @@ public abstract class QuestionDefinitionConfig {
 
     @JsonProperty("questionSettings")
     public abstract Builder setQuestionSettings(ImmutableSet<QuestionSetting> questionSettings);
+
+    @JsonProperty("isInitialQuestion")
+    public abstract Builder setIsInitialQuestion(boolean isInitialQuestion);
 
     public abstract QuestionDefinitionConfig build();
   }

@@ -10,6 +10,7 @@ import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
 
 /** Helper class for performing validation related to creating or modifying program blocks. */
 public final class ProgramBlockValidation {
@@ -86,11 +87,12 @@ public final class ProgramBlockValidation {
       return AddQuestionResult.ENUMERATOR_ON_NON_ENUMERATOR_BLOCK;
     }
     if (block.getQuestionCount() > 0
-        && isSingleBlockQuestion(question, fileUploadQuestionImprovementsEnabled)) {
+        && isSingleBlockQuestion(question)) {
       return AddQuestionResult.CANT_ADD_SINGLE_BLOCK_QUESTION_TO_NON_EMPTY_BLOCK;
     }
     if (!question.getEnumeratorId().equals(getEnumeratorQuestionId(program, block))
-        && !(enumeratorImprovementsEnabled && question.getEnumeratorId().isEmpty())) {
+        && !(enumeratorImprovementsEnabled && question.getEnumeratorId().isEmpty())
+        && !(enumeratorImprovementsEnabled && question.isInitialQuestion())) {
       return AddQuestionResult.ENUMERATOR_MISMATCH;
     }
     if (!activeAndDraftQuestions.getActiveQuestions().contains(question)
@@ -102,12 +104,8 @@ public final class ProgramBlockValidation {
   }
 
   private boolean isSingleBlockQuestion(
-      QuestionDefinition question, boolean fileUploadQuestionImprovementsEnabled) {
-    return switch (question.getQuestionType()) {
-      case ENUMERATOR -> true;
-      case FILEUPLOAD -> !fileUploadQuestionImprovementsEnabled;
-      default -> false;
-    };
+      QuestionDefinition question) {
+    return question.getQuestionType().equals(QuestionType.FILEUPLOAD);
   }
 
   /**

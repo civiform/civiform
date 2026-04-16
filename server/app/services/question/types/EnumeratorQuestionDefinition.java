@@ -29,11 +29,27 @@ public class EnumeratorQuestionDefinition extends QuestionDefinition {
   @JsonProperty("entityType")
   private final LocalizedStrings entityType;
 
+  @JsonProperty("initialQuestionId")
+  private final Optional<Long> initialQuestionId;
+
   public EnumeratorQuestionDefinition(
       @JsonProperty("config") QuestionDefinitionConfig config,
       @JsonProperty("entityType") LocalizedStrings entityType) {
+    this(config, entityType, Optional.empty());
+  }
+
+  public EnumeratorQuestionDefinition(
+      @JsonProperty("config") QuestionDefinitionConfig config,
+      @JsonProperty("entityType") LocalizedStrings entityType,
+      @JsonProperty("initialQuestionId") Optional<Long> initialQuestionId) {
     super(config);
     this.entityType = checkNotNull(entityType);
+    this.initialQuestionId = checkNotNull(initialQuestionId);
+  }
+
+  @JsonIgnore
+  public Optional<Long> getInitialQuestionId() {
+    return initialQuestionId;
   }
 
   @Override

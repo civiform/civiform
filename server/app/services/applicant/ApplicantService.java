@@ -91,7 +91,10 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
+import services.question.exceptions.InvalidQuestionTypeException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.exceptions.UnsupportedScalarTypeException;
+import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
 import services.settings.SettingsManifest;
@@ -284,7 +287,8 @@ public final class ApplicantService {
       ImmutableMap<String, String> updateMap,
       boolean addressServiceAreaValidationEnabled,
       boolean forceUpdate,
-      boolean apiBridgeEnabled) {
+      boolean apiBridgeEnabled,
+      boolean enumeratorImprovementsEnabled) {
     ImmutableSet<Update> updates =
         updateMap.entrySet().stream()
             .map(entry -> Update.create(Path.create(entry.getKey()), entry.getValue()))
@@ -309,7 +313,8 @@ public final class ApplicantService {
         updates,
         addressServiceAreaValidationEnabled,
         forceUpdate,
-        apiBridgeEnabled);
+        apiBridgeEnabled,
+        enumeratorImprovementsEnabled);
   }
 
   private CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
@@ -320,7 +325,8 @@ public final class ApplicantService {
       ImmutableSet<Update> updates,
       boolean addressServiceAreaValidationEnabled,
       boolean forceUpdate,
-      boolean apiBridgeEnabled) {
+      boolean apiBridgeEnabled,
+      boolean enumeratorImprovementsEnabled) {
     CompletableFuture<Optional<ApplicantModel>> applicantCompletableFuture =
         accountRepository.lookupApplicant(applicantId).toCompletableFuture();
 
@@ -386,7 +392,8 @@ public final class ApplicantService {
                               updates,
                               serviceAreaUpdate,
                               forceUpdate,
-                              apiBridgeEnabled);
+                              apiBridgeEnabled,
+                              enumeratorImprovementsEnabled);
                         },
                         classLoaderExecutionContext.current());
               }
@@ -398,7 +405,8 @@ public final class ApplicantService {
                   updates,
                   Optional.empty(),
                   forceUpdate,
-                  apiBridgeEnabled);
+                  apiBridgeEnabled,
+                  enumeratorImprovementsEnabled);
             },
             classLoaderExecutionContext.current())
         .thenCompose(
@@ -415,7 +423,8 @@ public final class ApplicantService {
       ImmutableSet<Update> updates,
       Optional<ServiceAreaUpdate> serviceAreaUpdate,
       boolean forceUpdate,
-      boolean apiBridgeEnabled) {
+      boolean apiBridgeEnabled,
+      boolean enumeratorImprovementsEnabled) {
     UpdateMetadata updateMetadata = UpdateMetadata.create(programDefinition.id(), clock.millis());
     ImmutableMap<Path, String> failedUpdates;
     try {
@@ -425,7 +434,8 @@ public final class ApplicantService {
               blockBeforeUpdate,
               updateMetadata,
               updates,
-              serviceAreaUpdate);
+              serviceAreaUpdate,
+              enumeratorImprovementsEnabled);
     } catch (UnsupportedScalarTypeException | PathNotInBlockException e) {
       return CompletableFuture.failedFuture(e);
     }
@@ -1557,10 +1567,12 @@ public final class ApplicantService {
       Block block,
       UpdateMetadata updateMetadata,
       ImmutableSet<Update> updates,
-      Optional<ServiceAreaUpdate> serviceAreaUpdate)
+      Optional<ServiceAreaUpdate> serviceAreaUpdate,
+      boolean enumeratorImprovementsEnabled)
       throws UnsupportedScalarTypeException, PathNotInBlockException {
     if (block.isEnumerator()) {
-      return stageEnumeratorUpdates(applicantData, block, updateMetadata, updates);
+      return stageEnumeratorUpdates(
+          applicantData, block, updateMetadata, updates, enumeratorImprovementsEnabled);
     } else {
       return stageNormalUpdates(applicantData, block, updateMetadata, updates, serviceAreaUpdate);
     }
@@ -1571,14 +1583,16 @@ public final class ApplicantService {
    *
    * @return any failures to update the applicant data, containing the desired {@link Path} as well
    *     as the raw string value that failed update.
-   * @throws PathNotInBlockException for updates that aren't {@link Scalar#ENTITY_NAME}, or {@link
-   *     Scalar#DELETE_ENTITY}.
+   * @throws PathNotInBlockException for updates that aren't {@link Scalar#ENTITY_NAME}, {@link
+   *     Scalar#DELETE_ENTITY}, or initial question scalars when enumerator improvements are
+   *     enabled.
    */
   private ImmutableMap<Path, String> stageEnumeratorUpdates(
       ApplicantData applicantData,
       Block block,
       UpdateMetadata updateMetadata,
-      ImmutableSet<Update> updates)
+      ImmutableSet<Update> updates,
+      boolean enumeratorImprovementsEnabled)
       throws PathNotInBlockException {
     Path enumeratorPath = block.getEnumeratorQuestion().getContextualizedPath();
 
@@ -1593,8 +1607,25 @@ public final class ApplicantService {
                         .equals(Path.empty().join(Scalar.DELETE_ENTITY)))
             .collect(ImmutableSet.toImmutableSet());
 
-    // If there are more updates than there are adds/changes and deletes, throw
-    Set<Update> unknownUpdates = Sets.difference(updates, Sets.union(addsAndChanges, deletes));
+    // When enumerator improvements are enabled and the block has an initial question, the form
+    // submits initial question field values (nested paths under each entity slot) instead of the
+    // legacy entity name text input.
+    ImmutableSet<Update> initialQuestionUpdates = ImmutableSet.of();
+    if (enumeratorImprovementsEnabled) {
+      Optional<ApplicantQuestion> maybeInitialQuestion = block.getInitialQuestion(true);
+      if (maybeInitialQuestion.isPresent()) {
+        initialQuestionUpdates =
+            updates.stream()
+                .filter(update -> isInitialQuestionUpdate(update.path(), enumeratorPath))
+                .collect(ImmutableSet.toImmutableSet());
+      }
+    }
+
+    // If there are more updates than there are adds/changes, deletes, and initial question
+    // updates, throw.
+    Set<Update> knownUpdates =
+        Sets.union(Sets.union(addsAndChanges, deletes), initialQuestionUpdates);
+    Set<Update> unknownUpdates = Sets.difference(updates, knownUpdates);
     if (!unknownUpdates.isEmpty()) {
       throw new PathNotInBlockException(block.getId(), unknownUpdates.iterator().next().path());
     }
@@ -1608,9 +1639,18 @@ public final class ApplicantService {
 
     // Add and change entity names BEFORE deleting, because if deletes happened first, then changed
     // entity names may not match the intended entities.
-    for (Update update : addsAndChanges) {
-      applicantData.putString(update.path().join(Scalar.ENTITY_NAME), update.value());
-      writeMetadataForPath(update.path(), applicantData, updateMetadata);
+    if (!initialQuestionUpdates.isEmpty()) {
+      stageInitialQuestionUpdates(
+          applicantData,
+          block,
+          updateMetadata,
+          initialQuestionUpdates,
+          enumeratorPath);
+    } else {
+      for (Update update : addsAndChanges) {
+        applicantData.putString(update.path().join(Scalar.ENTITY_NAME), update.value());
+        writeMetadataForPath(update.path(), applicantData, updateMetadata);
+      }
     }
 
     ImmutableList<Integer> deleteIndices =
@@ -1626,6 +1666,80 @@ public final class ApplicantService {
       writeMetadataForPath(enumeratorPath.withoutArrayReference(), applicantData, updateMetadata);
     }
     return ImmutableMap.of();
+  }
+
+  /**
+   * Returns true if the update path is an initial question field nested under an entity slot of the
+   * enumerator — i.e., it starts with the enumerator path but has additional path segments beyond
+   * the entity index.
+   */
+  private boolean isInitialQuestionUpdate(Path updatePath, Path enumeratorPath) {
+    return updatePath.startsWith(enumeratorPath)
+        && updatePath.segments().size() > enumeratorPath.segments().size();
+  }
+
+  /**
+   * Writes initial question field values to {@link ApplicantData} and derives each entity's {@code
+   * entity_name} string by joining the non-blank scalar values in declaration order.
+   */
+  private void stageInitialQuestionUpdates(
+      ApplicantData applicantData,
+      Block block,
+      UpdateMetadata updateMetadata,
+      ImmutableSet<Update> initialQuestionUpdates,
+      Path enumeratorPath) {
+    QuestionDefinition initialQuestionDef =
+        block.getInitialQuestion(true).get().getQuestionDefinition();
+
+    // Write each field value to its nested path inside the entity slot.
+    for (Update update : initialQuestionUpdates) {
+      applicantData.putString(update.path(), update.value());
+    }
+
+    // Derive entity_name for each entity index from the just-written values.
+    ImmutableSet<Integer> entityIndices =
+        initialQuestionUpdates.stream()
+            .map(
+                update ->
+                    getEntityIndexFromPath(update.path(), enumeratorPath.segments().size()))
+            .collect(ImmutableSet.toImmutableSet());
+
+    try {
+      ImmutableSet<Scalar> scalars = Scalar.getScalars(initialQuestionDef.getQuestionType());
+      for (int entityIndex : entityIndices) {
+        Path initialQuestionBase =
+            enumeratorPath
+                .atIndex(entityIndex)
+                .join(initialQuestionDef.getQuestionPathSegment());
+        String entityName =
+            scalars.stream()
+                .map(scalar -> applicantData.readString(initialQuestionBase.join(scalar)))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .filter(s -> !s.isBlank())
+                .collect(Collectors.joining(" "));
+        applicantData.putString(
+            enumeratorPath.atIndex(entityIndex).join(Scalar.ENTITY_NAME), entityName);
+        writeMetadataForPath(
+            enumeratorPath.atIndex(entityIndex), applicantData, updateMetadata);
+      }
+    } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
+      throw new RuntimeException(
+          "Unsupported initial question type: " + initialQuestionDef.getQuestionType(), e);
+    }
+  }
+
+  /**
+   * Walks up the path's parent chain until reaching the depth of the enumerator path, then returns
+   * the array index at that level. This extracts the entity index from an initial question update
+   * path such as {@code applicant.household_members[0].member_name.first_name}.
+   */
+  private int getEntityIndexFromPath(Path updatePath, int enumeratorDepth) {
+    Path current = updatePath;
+    while (current.segments().size() > enumeratorDepth) {
+      current = current.parentPath();
+    }
+    return current.arrayIndex();
   }
 
   /**

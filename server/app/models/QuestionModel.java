@@ -91,6 +91,15 @@ public class QuestionModel extends BaseModel {
 
   private @Constraints.Required QuestionDisplayMode displayMode;
 
+  /** Whether this question is the "initial question" on an enumerator block. */
+  private Boolean isInitialQuestion;
+
+  /**
+   * For enumerator questions: the ID of their associated initial question, if one has been
+   * configured.
+   */
+  private Long initialQuestionId;
+
   private UUID concurrencyToken;
 
   @ManyToMany(mappedBy = "questions")
@@ -192,6 +201,8 @@ public class QuestionModel extends BaseModel {
       builder.setConcurrencyToken(concurrencyToken);
     }
 
+    builder.setIsInitialQuestion(isInitialQuestion != null && isInitialQuestion);
+
     setEnumeratorEntityType(builder);
     setQuestionOptions(builder);
     setQuestionSettings(builder);
@@ -249,6 +260,7 @@ public class QuestionModel extends BaseModel {
       throws InvalidQuestionTypeException {
     if (QuestionType.of(questionType).equals(QuestionType.ENUMERATOR)) {
       builder.setEntityType(enumeratorEntityType);
+      builder.setInitialQuestionId(Optional.ofNullable(initialQuestionId));
     }
     return this;
   }
@@ -289,9 +301,12 @@ public class QuestionModel extends BaseModel {
       questionSettings = questionDefinition.getQuestionSettings().get();
     }
 
+    isInitialQuestion = questionDefinition.isInitialQuestion();
+
     if (questionDefinition.getQuestionType().equals(QuestionType.ENUMERATOR)) {
       EnumeratorQuestionDefinition enumerator = (EnumeratorQuestionDefinition) questionDefinition;
       enumeratorEntityType = enumerator.getEntityType();
+      initialQuestionId = enumerator.getInitialQuestionId().orElse(null);
     }
 
     // We must ensure we always initTags here. Otherwise, if we aren't

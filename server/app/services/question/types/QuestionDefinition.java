@@ -256,6 +256,18 @@ public abstract class QuestionDefinition {
     return config.enumeratorId().isPresent();
   }
 
+  /**
+   * Returns true if this question is the "initial question" on an enumerator block — the question
+   * shown per entity row to replace the legacy free-text entity name input.
+   *
+   * <p>This value is stored on the question model and propagated through {@link
+   * QuestionDefinitionConfig#isInitialQuestion()}.
+   */
+  @JsonIgnore
+  public final boolean isInitialQuestion() {
+    return config.isInitialQuestion();
+  }
+
   /** True if the question is an {@link AddressQuestionDefinition}. */
   @JsonIgnore
   public final boolean isAddress() {

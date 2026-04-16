@@ -37,9 +37,11 @@ import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.program.ProgramService;
 import services.question.QuestionService;
 import services.question.exceptions.InvalidQuestionTypeException;
+import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import views.admin.programs.ProgramBlocksView;
@@ -148,8 +150,16 @@ public class AdminProgramBlockQuestionsController extends Controller {
       return badRequest(e.getMessage());
     }
 
+    DynamicForm requestData = formFactory.form().bindFromRequest(request);
+    Optional<Long> initialQuestionIdOpt =
+        Optional.ofNullable(requestData.get("initialQuestionId"))
+            .filter(s -> !s.isBlank())
+            .map(Long::valueOf);
+
     ErrorAnd<QuestionDefinition, CiviFormError> result = questionService.create(questionDefinition);
     if (result.isError()) {
+      Optional<QuestionDefinition> initialQuestion =
+          resolveInitialQuestion(initialQuestionIdOpt);
       return ok(
           blockEditView
               .renderEnumeratorSetupSection(
@@ -158,19 +168,58 @@ public class AdminProgramBlockQuestionsController extends Controller {
                   programId,
                   blockId,
                   Optional.of(questionForm),
-                  result.getErrors())
+                  result.getErrors(),
+                  initialQuestion)
               .render());
     }
 
-    QuestionDefinition createdQuestionDefinition;
-
+    QuestionDefinition createdEnumeratorDefinition;
     try {
-      createdQuestionDefinition = result.getResult();
+      createdEnumeratorDefinition = result.getResult();
     } catch (RuntimeException e) {
       return internalServerError("Problem getting the newly-created question definition.");
     }
 
-    ImmutableList<Long> latestQuestionIds = ImmutableList.of(createdQuestionDefinition.getId());
+    // If an initial question was selected, create a copy and link it to the enumerator question.
+    if (initialQuestionIdOpt.isPresent()) {
+      Optional<QuestionDefinition> maybeOriginal = resolveInitialQuestion(initialQuestionIdOpt);
+      if (maybeOriginal.isPresent()) {
+        try {
+          ErrorAnd<QuestionDefinition, CiviFormError> initialResult =
+              questionService.createInitialQuestionCopy(
+                  maybeOriginal.get(), createdEnumeratorDefinition.getId());
+          if (!initialResult.isError()) {
+            QuestionDefinition createdInitialDefinition = initialResult.getResult();
+
+            // Update the enumerator question to record its initial question.
+            QuestionDefinition updatedEnumeratorDef =
+                new QuestionDefinitionBuilder(createdEnumeratorDefinition)
+                    .setInitialQuestionId(Optional.of(createdInitialDefinition.getId()))
+                    .unsafeBuild();
+            try {
+              questionService.update(
+                  Optional.of(createdEnumeratorDefinition), updatedEnumeratorDef);
+            } catch (InvalidUpdateException e) {
+              return internalServerError("Could not link initial question to enumerator: " + e.getMessage());
+            }
+
+            // Add the initial question to the block first.
+            programService.addQuestionsToBlock(
+                programId,
+                blockId,
+                ImmutableList.of(createdInitialDefinition.getId()),
+                settingsManifest.getEnumeratorImprovementsEnabled(request),
+                settingsManifest.getFileUploadQuestionImprovementsEnabled(request));
+          }
+        } catch (UnsupportedQuestionTypeException e) {
+          return badRequest("Unsupported initial question type: " + e.getMessage());
+        } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException | QuestionNotFoundException | CantAddQuestionToBlockException e) {
+          return internalServerError("Could not add initial question to block: " + e.getMessage());
+        }
+      }
+    }
+
+    ImmutableList<Long> latestQuestionIds = ImmutableList.of(createdEnumeratorDefinition.getId());
 
     ProgramDefinition programDefinition;
     BlockDefinition blockDefinition;
@@ -187,12 +236,12 @@ public class AdminProgramBlockQuestionsController extends Controller {
       blockDefinition = programDefinition.getBlockDefinition(blockId);
       programQuestionDefinition =
           blockDefinition.programQuestionDefinitions().stream()
-              .filter(pqd -> pqd.id() == createdQuestionDefinition.getId())
+              .filter(pqd -> pqd.id() == createdEnumeratorDefinition.getId())
               .findFirst()
               .orElseThrow(
                   () ->
                       new ProgramQuestionDefinitionNotFoundException(
-                          programId, blockId, createdQuestionDefinition.getId()));
+                          programId, blockId, createdEnumeratorDefinition.getId()));
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
@@ -214,7 +263,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
                         /* optionalCsrfTag= */ Optional.empty(),
                         programDefinition,
                         blockDefinition,
-                        createdQuestionDefinition,
+                        createdEnumeratorDefinition,
                         programQuestionDefinition,
                         /* questionIndex= */ 0, // Enumerator blocks have only one question
                         blockDefinition.getQuestionCount(),
@@ -222,6 +271,48 @@ public class AdminProgramBlockQuestionsController extends Controller {
                 /* blockHasEnumeratorQuestion= */ true,
                 blockDefinition)
             .render());
+  }
+
+  /** POST endpoint for selecting an initial question for an enumerator block setup. */
+  @Secure(authorizers = Labels.CIVIFORM_ADMIN)
+  public Result selectInitialQuestion(Request request, long programId, long blockId) {
+    requestChecker.throwIfProgramNotDraft(programId);
+
+    DynamicForm requestData = formFactory.form().bindFromRequest(request);
+    Optional<Long> questionId =
+        requestData.rawData().entrySet().stream()
+            .filter(formField -> formField.getKey().startsWith("question-"))
+            .map(Entry::getValue)
+            .map(Long::valueOf)
+            .findFirst();
+
+    if (questionId.isEmpty()) {
+      return badRequest("No question selected");
+    }
+
+    return redirect(
+        controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId).url()
+            + "?initialQuestionId=" + questionId.get());
+  }
+
+  /**
+   * Looks up the {@link QuestionDefinition} for the given initial question ID using the read-only
+   * question service. Returns empty if the ID is absent or the question cannot be found.
+   */
+  private Optional<QuestionDefinition> resolveInitialQuestion(Optional<Long> initialQuestionIdOpt) {
+    if (initialQuestionIdOpt.isEmpty()) {
+      return Optional.empty();
+    }
+    try {
+      return Optional.of(
+          questionService
+              .getReadOnlyQuestionService()
+              .toCompletableFuture()
+              .join()
+              .getQuestionDefinition(initialQuestionIdOpt.get()));
+    } catch (QuestionNotFoundException e) {
+      return Optional.empty();
+    }
   }
 
   /** POST endpoint for removing a question from a screen. */
