@@ -737,7 +737,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       maybeEligibilityPredicateDisplay.ifPresent(div::with);
 
       if (isEnumeratorBlock) {
-        Optional<QuestionDefinition> initialQuestion =
+        Optional<QuestionDefinition> optionalInitialQuestion =
             !blockHasEnumeratorQuestion
                 ? request
                     .queryString("initialQuestionId")
@@ -753,6 +753,18 @@ public final class ProgramBlocksView extends ProgramBaseView {
                           }
                         })
                 : Optional.empty();
+        Optional<DivTag> optionalInitialQuestionCard =
+            optionalInitialQuestion.map(
+                q ->
+                    renderQuestion(
+                        Optional.of(csrfTag),
+                        program,
+                        blockDefinition,
+                        q,
+                        ProgramQuestionDefinition.create(q, Optional.of(program.id())),
+                        /* questionIndex= */ 0,
+                        /* questionsCount= */ 1,
+                        request));
         return div.with(
             renderEnumeratorScreenContent(
                 blockHasEnumeratorQuestion,
@@ -761,7 +773,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 program.id(),
                 blockDefinition,
                 questionCards.isEmpty() ? Optional.empty() : Optional.of(questionCards.get(0)),
-                initialQuestion));
+                optionalInitialQuestionCard,
+                optionalInitialQuestion));
       }
 
       // For repeated blocks, check if parent enumerator is at first level (not nested)
@@ -877,7 +890,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Long programId,
       BlockDefinition blockDefinition,
       Optional<DivTag> optionalQuestionCard,
-      Optional<QuestionDefinition> initialQuestion) {
+      Optional<DivTag> optionalInitialQuestionCard,
+      Optional<QuestionDefinition> optionalInitialQuestion) {
     // If it's an empty enumerator block
     if (!blockHasEnumeratorQuestion || optionalQuestionCard.isEmpty()) {
       return renderEnumeratorSetupSection(
@@ -887,7 +901,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
           blockDefinition.id(),
           /* optionalQuestionForm= */ Optional.empty(),
           /* errorMessages= */ ImmutableSet.of(),
-          initialQuestion);
+          optionalInitialQuestionCard,
+          optionalInitialQuestion);
     } else {
       return renderEnumeratorSectionWithSelectedQuestion(
           messages, optionalQuestionCard, blockHasEnumeratorQuestion, blockDefinition);
@@ -980,7 +995,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Long blockId,
       Optional<EnumeratorQuestionForm> optionalQuestionForm,
       ImmutableSet<CiviFormError> errorMessages,
-      Optional<QuestionDefinition> initialQuestion) {
+      Optional<DivTag> optionalInitialQuestionCard,
+      Optional<QuestionDefinition> optionalInitialQuestion) {
+    long initialQuestionId = optionalInitialQuestion.map(QuestionDefinition::getId).orElse(0L);
+    Optional<Long> optionalInitialQuestionId = optionalInitialQuestion.map(QuestionDefinition::getId);
     return div(
             renderCreationMethodRadioButtons(messages),
             renderNewEnumeratorQuestionForm(
@@ -990,7 +1008,12 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 blockId,
                 optionalQuestionForm,
                 errorMessages,
-                initialQuestion),
+                optionalInitialQuestionCard,
+                optionalInitialQuestionId),
+            iff(
+                optionalInitialQuestion.isPresent(),
+                renderDeleteQuestionFormWithoutContents(
+                    makeCsrfTokenInputTag(request), programId, blockId, initialQuestionId)),
             renderChooseExistingQuestion(messages))
         .withId("enumerator-setup")
         .withClass("maxw-mobile-lg");
@@ -1076,7 +1099,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Long blockId,
       Optional<EnumeratorQuestionForm> optionalQuestionForm,
       ImmutableSet<CiviFormError> errorMessages,
-      Optional<QuestionDefinition> initialQuestion) {
+      Optional<DivTag> optionalInitialQuestionCard,
+      Optional<Long> optionalInitialQuestionId) {
     InputTag csrfTag = makeCsrfTokenInputTag(request);
     return form(csrfTag)
         .withClasses("usa-summary-box", "bg-white", "border-gray-300")
@@ -1163,58 +1187,40 @@ public final class ProgramBlocksView extends ProgramBaseView {
                         .map(EnumeratorQuestionForm::getMaxEntities)
                         .orElse(OptionalInt.empty()))
                 .getUSWDSNumberTag(),
-            renderInitialQuestionSection(initialQuestion, messages),
+            // When no initial question is selected, show the "Add question" button inside the form
+            // as a regular button (not submit) so it opens the question bank without triggering
+            // the hx-post. When a card is present, the hidden id input is included so that
+            // hxCreateEnumerator can create the initial question copy.
+            iff(
+                optionalInitialQuestionCard.isEmpty(),
+                input()
+                    .attr("aria-required", "true")
+                    .withType("button")
+                    .withValue(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName()))
+                    .withClasses(ReferenceClasses.OPEN_QUESTION_BANK_BUTTON)),
+            optionalInitialQuestionCard
+                .map(
+                    card ->
+                        div(
+                            optionalInitialQuestionId
+                                .map(
+                                    id ->
+                                        input()
+                                            .withType("hidden")
+                                            .withName("initialQuestionId")
+                                            .withValue(String.valueOf(id)))
+                                .orElse(input().withType("hidden")),
+                            card))
+                .orElse(div()),
             div(
                     AlertComponent.renderSlimInfoAlert(
                         messages.at(MessageKey.ALERT_REPEATED_SET_NEW_QUESTION.getKeyName())),
                     submitButton(
                             messages.at(MessageKey.BUTTON_REPEATED_SET_SUBMIT_NEW.getKeyName()))
                         .withId("create-repeated-set-button")
+                        .withForm("new-enumerator-question-form")
                         .withClasses("usa-button", "usa-button--primary", "margin-top-105"))
                 .withClasses("border-top", "border-gray-300", "padding-top-3", "margin-top-3"));
-  }
-
-  /**
-   * Renders the initial question section within the enumerator setup form. If an initial question
-   * has been selected, shows a preview of it and a hidden input carrying its ID. Always shows an
-   * "Add a question" button to open the question bank for selection or change.
-   */
-  private DivTag renderInitialQuestionSection(
-      Optional<QuestionDefinition> initialQuestion, Messages messages) {
-    DivTag section =
-        div()
-            .withClasses("border-top", "border-gray-300", "padding-top-3", "margin-top-3")
-            .with(
-                p("Initial question (optional)").withClasses("font-bold", "margin-bottom-05"),
-                p("An initial question is shown per entity row on the enumerator screen instead"
-                        + " of the free-text name input.")
-                    .withClasses("text-gray-cool-50", "font-ui-sm", "margin-bottom-1"));
-
-    if (initialQuestion.isPresent()) {
-      QuestionDefinition q = initialQuestion.get();
-      section.with(
-          input()
-              .withType("hidden")
-              .withName("initialQuestionId")
-              .withValue(String.valueOf(q.getId())),
-          div()
-              .withClasses("usa-summary-box", "bg-gray-50", "border-gray-300", "padding-2",
-                  "margin-bottom-1")
-              .with(
-                  p("Selected: " + q.getQuestionText().getDefault())
-                      .withClasses("font-bold", "margin-0"),
-                  p("Admin ID: " + q.getName())
-                      .withClasses("text-gray-cool-50", "font-ui-sm", "margin-0")));
-    }
-
-    section.with(
-        button("")
-            .withType("button")
-            .withClasses("usa-button", "usa-button--outline", ReferenceClasses.OPEN_QUESTION_BANK_BUTTON)
-            .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
-            .withText(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName())));
-
-    return section;
   }
 
   private DivTag renderBlockPanelTopButtons(
@@ -1733,6 +1739,23 @@ public final class ProgramBlocksView extends ProgramBaseView {
         .withMethod(HttpVerbs.POST)
         .withAction(deleteQuestionAction)
         .with(removeButton);
+  }
+
+  /**
+   * Renders an empty form targeting the delete endpoint for the initial question. The form has no
+   * visible contents; it is used by the {@code #block-questions-form} button in the initial
+   * question card to remove the initial question selection.
+   */
+  private FormTag renderDeleteQuestionFormWithoutContents(
+      InputTag csrfTag, long programDefinitionId, long blockDefinitionId, long initialQuestionId) {
+    String deleteQuestionAction =
+        controllers.admin.routes.AdminProgramBlockQuestionsController.delete(
+                programDefinitionId, blockDefinitionId, initialQuestionId)
+            .url();
+    return form(csrfTag)
+        .withId("block-questions-form")
+        .withMethod(HttpVerbs.POST)
+        .withAction(deleteQuestionAction);
   }
 
   /**

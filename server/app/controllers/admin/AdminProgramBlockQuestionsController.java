@@ -158,8 +158,6 @@ public class AdminProgramBlockQuestionsController extends Controller {
 
     ErrorAnd<QuestionDefinition, CiviFormError> result = questionService.create(questionDefinition);
     if (result.isError()) {
-      Optional<QuestionDefinition> initialQuestion =
-          resolveInitialQuestion(initialQuestionIdOpt);
       return ok(
           blockEditView
               .renderEnumeratorSetupSection(
@@ -169,7 +167,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
                   blockId,
                   Optional.of(questionForm),
                   result.getErrors(),
-                  initialQuestion)
+                  /* optionalInitialQuestionCard= */ Optional.empty(),
+                  /* optionalInitialQuestion= */ Optional.empty())
               .render());
     }
 
@@ -180,7 +179,11 @@ public class AdminProgramBlockQuestionsController extends Controller {
       return internalServerError("Problem getting the newly-created question definition.");
     }
 
-    // If an initial question was selected, create a copy and link it to the enumerator question.
+    // If an initial question was selected, prepare the copy now (before adding to the block).
+    // The enumerator question must be added to the block first so that addQuestionsToBlock
+    // preserves the block's isEnumerator flag; adding a non-enumerator question first would
+    // clear that flag and cause ENUMERATOR_ON_NON_ENUMERATOR_BLOCK when the enumerator is added.
+    Optional<QuestionDefinition> createdInitialDefinitionOpt = Optional.empty();
     if (initialQuestionIdOpt.isPresent()) {
       Optional<QuestionDefinition> maybeOriginal = resolveInitialQuestion(initialQuestionIdOpt);
       if (maybeOriginal.isPresent()) {
@@ -190,6 +193,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
                   maybeOriginal.get(), createdEnumeratorDefinition.getId());
           if (!initialResult.isError()) {
             QuestionDefinition createdInitialDefinition = initialResult.getResult();
+            createdInitialDefinitionOpt = Optional.of(createdInitialDefinition);
 
             // Update the enumerator question to record its initial question.
             QuestionDefinition updatedEnumeratorDef =
@@ -200,25 +204,18 @@ public class AdminProgramBlockQuestionsController extends Controller {
               questionService.update(
                   Optional.of(createdEnumeratorDefinition), updatedEnumeratorDef);
             } catch (InvalidUpdateException e) {
-              return internalServerError("Could not link initial question to enumerator: " + e.getMessage());
+              return internalServerError(
+                  "Could not link initial question to enumerator: " + e.getMessage());
             }
-
-            // Add the initial question to the block first.
-            programService.addQuestionsToBlock(
-                programId,
-                blockId,
-                ImmutableList.of(createdInitialDefinition.getId()),
-                settingsManifest.getEnumeratorImprovementsEnabled(request),
-                settingsManifest.getFileUploadQuestionImprovementsEnabled(request));
           }
         } catch (UnsupportedQuestionTypeException e) {
           return badRequest("Unsupported initial question type: " + e.getMessage());
-        } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException | QuestionNotFoundException | CantAddQuestionToBlockException e) {
-          return internalServerError("Could not add initial question to block: " + e.getMessage());
         }
       }
     }
 
+    // Add the enumerator question to the block first. This ensures the block retains its
+    // isEnumerator=true flag before the initial question (a non-enumerator type) is added.
     ImmutableList<Long> latestQuestionIds = ImmutableList.of(createdEnumeratorDefinition.getId());
 
     ProgramDefinition programDefinition;
@@ -242,6 +239,18 @@ public class AdminProgramBlockQuestionsController extends Controller {
                   () ->
                       new ProgramQuestionDefinitionNotFoundException(
                           programId, blockId, createdEnumeratorDefinition.getId()));
+
+      // Now add the initial question (after the enumerator, so isEnumerator flag is preserved).
+      if (createdInitialDefinitionOpt.isPresent()) {
+        programDefinition =
+            programService.addQuestionsToBlock(
+                programId,
+                blockId,
+                ImmutableList.of(createdInitialDefinitionOpt.get().getId()),
+                settingsManifest.getEnumeratorImprovementsEnabled(request),
+                settingsManifest.getFileUploadQuestionImprovementsEnabled(request));
+        blockDefinition = programDefinition.getBlockDefinition(blockId);
+      }
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
