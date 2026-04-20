@@ -37,6 +37,18 @@ export class ApplicantFileQuestion {
     await expect(this.page.locator(this.fileTooLargeErrorLocator)).toBeHidden()
   }
 
+  async expectLegacyFileTooLargeErrorShown() {
+    await expect(
+      this.page.locator('#cf-fileupload-too-large-error'),
+    ).toBeVisible()
+  }
+
+  async expectLegacyFileTooLargeErrorHidden() {
+    await expect(
+      this.page.locator('#cf-fileupload-too-large-error'),
+    ).toBeHidden()
+  }
+
   async expectFileNameDisplayed(fileName: string) {
     await expect(this.page.locator('body')).toContainText(fileName)
   }
