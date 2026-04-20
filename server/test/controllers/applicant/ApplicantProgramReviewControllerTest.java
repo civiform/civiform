@@ -296,7 +296,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
     answer(programDefinition.id());
 
-    var programId = programDefinition.id();
+    var programId = String.valueOf(programDefinition.id());
 
     ApplicantModel tiApplicant = createApplicant();
     createTIWithMockedProfile(tiApplicant);
@@ -345,7 +345,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
     answer(programDefinition.id());
 
-    var programId = programDefinition.id();
+    var programId = String.valueOf(programDefinition.id());
 
     Result result =
         blockController
@@ -578,7 +578,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
             .updateWithApplicantId(
                 request,
                 applicant.id,
-                programId,
+                String.valueOf(programId),
                 /* blockId= */ "1",
                 /* inReview= */ false,
                 new ApplicantRequestedActionWrapper())

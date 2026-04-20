@@ -47,7 +47,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
             .considerRegister(
                 request,
                 applicant.id,
-                programDefinition.id(),
+                String.valueOf(programDefinition.id()),
                 application.id,
                 redirectLocation,
                 application.getSubmitTime().toString())
