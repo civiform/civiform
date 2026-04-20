@@ -34,6 +34,7 @@ import services.export.PdfExporter;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.settings.SettingsManifest;
 import views.applicant.upsell.ApplicantPreScreenerUpsellView;
 import views.applicant.upsell.ApplicantUpsellView;
 import views.applicant.upsell.UpsellParams;
@@ -50,6 +51,7 @@ public final class UpsellController extends CiviFormController {
   private final MessagesApi messagesApi;
   private final PdfExporterService pdfExporterService;
   private final ProgramSlugHandler programSlugHandler;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public UpsellController(
@@ -63,7 +65,8 @@ public final class UpsellController extends CiviFormController {
       MessagesApi messagesApi,
       PdfExporterService pdfExporterService,
       VersionRepository versionRepository,
-      ProgramSlugHandler programSlugHandler) {
+      ProgramSlugHandler programSlugHandler,
+      SettingsManifest settingsManifest) {
     super(profileUtils, versionRepository);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.applicantService = checkNotNull(applicantService);
@@ -74,17 +77,25 @@ public final class UpsellController extends CiviFormController {
     this.messagesApi = checkNotNull(messagesApi);
     this.pdfExporterService = checkNotNull(pdfExporterService);
     this.programSlugHandler = checkNotNull(programSlugHandler);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   @Secure
   public CompletionStage<Result> considerRegister(
       Http.Request request,
       long applicantId,
-      long programId,
+      String programParam,
       long applicationId,
       String redirectTo,
       String submitTime) {
     CiviFormProfile profile = profileUtils.currentUserProfile(request);
+
+    long programId =
+        programSlugHandler
+            .resolveProgramParam(
+                programParam, applicantId, settingsManifest.getProgramSlugUrlsEnabled(request))
+            .toCompletableFuture()
+            .join();
 
     CompletableFuture<Boolean> isPreScreener =
         programService
@@ -158,8 +169,7 @@ public final class UpsellController extends CiviFormController {
                       .setMessages(messagesApi.preferred(request))
                       .setBannerMessage(toastMessageValue)
                       .setCompletedProgramId(programId)
-                      .setCompletedProgramSlug(
-                          programSlugHandler.getProgramSlug(String.valueOf(programId)))
+                      .setCompletedProgramSlug(programSlugHandler.getProgramSlug(programParam))
                       .setCustomConfirmationMessage(
                           roApplicantProgramService.join().getCustomConfirmationMessage())
                       .setApplicantId(applicantId)

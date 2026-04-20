@@ -328,16 +328,16 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     ImmutableList<AddressSuggestion> suggestions =
         addressSuggestionJsonSerializer.deserialize(
             maybeAddressJson.orElseThrow(() -> new RuntimeException("Address JSON missing")));
-    
-              return confirmAddressWithSuggestions(
-                  request,
-                  applicantId,
-                  programId,
-                  blockId,
-                  inReview,
-                  selectedAddress,
-                  suggestions,
-                  applicantRequestedActionWrapper.getAction());
+
+    return confirmAddressWithSuggestions(
+        request,
+        applicantId,
+        programId,
+        blockId,
+        inReview,
+        selectedAddress,
+        suggestions,
+        applicantRequestedActionWrapper.getAction());
   }
 
   /** Handles the applicant's selection from the address correction options. */
