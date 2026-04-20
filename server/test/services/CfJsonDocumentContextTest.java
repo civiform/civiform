@@ -8,6 +8,7 @@ import com.google.common.testing.EqualsTester;
 import com.jayway.jsonpath.PathNotFoundException;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
 import junitparams.JUnitParamsRunner;
@@ -815,6 +816,187 @@ public class CfJsonDocumentContextTest {
         .isTrue();
     assertThat(data.evalPredicate(JsonPathPredicate.create("$.applicant[?(@.one in [\"other\"])]")))
         .isFalse();
+  }
+
+  /**
+   * Parameterized cases for mergeFrom behavior.
+   *
+   * <p>JSON key naming convention:
+   *
+   * <ul>
+   *   <li>{@code copied_*} — key is unique to {@code other}; will be copied into the result.
+   *   <li>{@code conflict_*} — key exists in both target and {@code other} with different values;
+   *       the key remains in the result with target's value, and the path is reported as a
+   *       conflict.
+   *   <li>All other keys — either unique to target (retained as-is) or shared with the same value
+   *       (retained, no conflict).
+   * </ul>
+   *
+   * <p>Values for {@code conflict_*} keys use {@code retained_} in target and {@code dropped_} in
+   * {@code other} to make explicit which value survives and which is discarded.
+   */
+  private Object[][] mergeFromCases() {
+    return new Object[][] {
+      // ── Case 1: Key unique to other ─────────────────────────────────────────
+      // copied_b exists only in other → it is copied into target.
+      {
+        /* target   */ """
+                       {"unique_to_target":"target_val"}
+                       """,
+        /* other    */ """
+                       {"copied_b":"other_val"}
+                       """,
+        /* expected */ """
+                       {"unique_to_target":"target_val","copied_b":"other_val"}
+                       """,
+        /* conflicts */ new String[] {}
+      },
+
+      // ── Case 2: Key unique to target ─────────────────────────────────────────
+      // unique_to_target exists only in target → retained unchanged, nothing from other.
+      {
+        /* target   */ """
+                       {"unique_to_target":"retained_val"}
+                       """,
+        /* other    */ """
+                       {}
+                       """,
+        /* expected */ """
+                       {"unique_to_target":"retained_val"}
+                       """,
+        /* conflicts */ new String[] {}
+      },
+
+      // ── Case 3: Scalar conflict — different values ───────────────────────────
+      // conflict_key exists in both with different values.
+      // Target's value is kept in the result; other's value is discarded
+      // and the path is reported as a conflict.
+      {
+        /* target   */ """
+                       {"conflict_key":"retained_val"}
+                       """,
+        /* other    */ """
+                       {"conflict_key":"dropped_val"}
+                       """,
+        /* expected */ """
+                       {"conflict_key":"retained_val"}
+                       """,
+        /* conflicts */ new String[] {"conflict_key"}
+      },
+
+      // ── Case 4: Scalar — same value in both ──────────────────────────────────
+      // same_key exists in both with identical values.
+      // Retained with no conflict reported.
+      {
+        /* target   */ """
+                       {"same_key":"shared_val"}
+                       """,
+        /* other    */ """
+                       {"same_key":"shared_val"}
+                       """,
+        /* expected */ """
+                       {"same_key":"shared_val"}
+                       """,
+        /* conflicts */ new String[] {}
+      },
+
+      // ── Case 5: List — other's items appended ────────────────────────────────
+      // list_key exists in both as an array.
+      // Other's items are appended to target's list (not overwritten).
+      {
+        /* target   */ """
+                       {"list_key":["item1"]}
+                       """,
+        /* other    */ """
+                       {"list_key":["item2"]}
+                       """,
+        /* expected */ """
+                       {"list_key":["item1","item2"]}
+                       """,
+        /* conflicts */ new String[] {}
+      },
+
+      // ── Case 6: Nested map — unique key in other merged in ───────────────────
+      // obj.copied_b exists only in other's nested object → copied into target's obj.
+      {
+        /* target   */ """
+                       {"obj":{"a":"target_val"}}
+                       """,
+        /* other    */ """
+                       {"obj":{"copied_b":"other_val"}}
+                       """,
+        /* expected */ """
+                       {"obj":{"a":"target_val","copied_b":"other_val"}}
+                       """,
+        /* conflicts */ new String[] {}
+      },
+
+      // ── Case 7: Nested map — scalar conflict at nested path ──────────────────
+      // obj.conflict_nested_key exists in both with different values.
+      // Target's value kept in the result; conflict reported as "obj.conflict_nested_key".
+      {
+        /* target   */ """
+                       {"obj":{"conflict_nested_key":"retained_val"}}
+                       """,
+        /* other    */ """
+                       {"obj":{"conflict_nested_key":"dropped_val"}}
+                       """,
+        /* expected */ """
+                       {"obj":{"conflict_nested_key":"retained_val"}}
+                       """,
+        /* conflicts */ new String[] {"obj.conflict_nested_key"}
+      },
+
+      // ── Case 8: All cases combined ───────────────────────────────────────────
+      // unique_to_target                  — retained from target
+      // conflict_key                      — conflict: target value kept, other value dropped
+      // list                              — other's item appended to target's list
+      // obj.nested_unique_to_target       — retained from target's nested object
+      // obj.conflict_nested_key           — conflict at nested path
+      // copied_unique_to_other            — copied from other
+      // obj.copied_nested_unique_to_other — copied from other's nested object
+      {
+        /* target   */ """
+                       {"unique_to_target":"t","conflict_key":"retained_cv","list":["t1"],\
+                       "obj":{"nested_unique_to_target":"nt","conflict_nested_key":"retained_ncv"}}
+                       """,
+        /* other    */ """
+                       {"copied_unique_to_other":"o","conflict_key":"dropped_cv","list":["o1"],\
+                       "obj":{"copied_nested_unique_to_other":"no","conflict_nested_key":"dropped_ncv"}}
+                       """,
+        /* expected */ """
+                       {"unique_to_target":"t","conflict_key":"retained_cv","list":["t1","o1"],\
+                       "obj":{"nested_unique_to_target":"nt","conflict_nested_key":"retained_ncv",\
+                       "copied_nested_unique_to_other":"no"},"copied_unique_to_other":"o"}
+                       """,
+        /* conflicts */ new String[] {"conflict_key", "obj.conflict_nested_key"}
+      },
+    };
+  }
+
+  @Test
+  @Parameters(method = "mergeFromCases")
+  public void mergeFrom(
+      String targetJson, String otherJson, String expectedJson, String[] expectedConflictPaths) {
+    CfJsonDocumentContext target = new CfJsonDocumentContext(targetJson.strip());
+    CfJsonDocumentContext other = new CfJsonDocumentContext(otherJson.strip());
+    Map<?, ?> otherBefore = other.getDocumentContext().read("$", Map.class);
+
+    ImmutableList<Path> conflicts = target.mergeFrom(other);
+
+    // Verify the merged result matches the expected JSON (order-insensitive).
+    Map<?, ?> actual = target.getDocumentContext().read("$", Map.class);
+    Map<?, ?> expected =
+        new CfJsonDocumentContext(expectedJson.strip()).getDocumentContext().read("$", Map.class);
+    assertThat(actual).isEqualTo(expected);
+
+    // Verify the reported conflict paths.
+    assertThat(conflicts)
+        .extracting(Path::toString)
+        .containsExactlyInAnyOrder(expectedConflictPaths);
+
+    // Verify other is never modified.
+    assertThat(other.getDocumentContext().read("$", Map.class)).isEqualTo(otherBefore);
   }
 
   @Test
