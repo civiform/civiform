@@ -254,8 +254,8 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
   }
 
   private String redirectWithFile(ApplicationBaseViewParams params) {
-    String addFileRoute =
-        applicantRoutes
+    return params.baseUrl()
+        + applicantRoutes
             .addFile(
                 params.profile(),
                 params.applicantId(),
@@ -263,7 +263,6 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
                 params.block().getId(),
                 params.inReview())
             .url();
-    return params.baseUrl() + addFileRoute;
   }
 
   private String previousWithoutSaving(

@@ -18,6 +18,7 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.AccountModel;
 import models.ApplicationModel;
+import org.apache.commons.lang3.StringUtils;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.ClassLoaderExecutionContext;
@@ -31,6 +32,7 @@ import services.applicant.ReadOnlyApplicantProgramService;
 import services.applications.ApplicationService;
 import services.applications.PdfExporterService;
 import services.export.PdfExporter;
+import services.monitoring.MonitoringMetricCounters;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -52,6 +54,7 @@ public final class UpsellController extends CiviFormController {
   private final PdfExporterService pdfExporterService;
   private final ProgramSlugHandler programSlugHandler;
   private final SettingsManifest settingsManifest;
+  private final MonitoringMetricCounters metricCounters;
 
   @Inject
   public UpsellController(
@@ -66,7 +69,8 @@ public final class UpsellController extends CiviFormController {
       PdfExporterService pdfExporterService,
       VersionRepository versionRepository,
       ProgramSlugHandler programSlugHandler,
-      SettingsManifest settingsManifest) {
+      SettingsManifest settingsManifest,
+      MonitoringMetricCounters metricCounters) {
     super(profileUtils, versionRepository);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.applicantService = checkNotNull(applicantService);
@@ -78,6 +82,7 @@ public final class UpsellController extends CiviFormController {
     this.pdfExporterService = checkNotNull(pdfExporterService);
     this.programSlugHandler = checkNotNull(programSlugHandler);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.metricCounters = checkNotNull(metricCounters);
   }
 
   @Secure
@@ -90,10 +95,16 @@ public final class UpsellController extends CiviFormController {
       String submitTime) {
     CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
+    // Count when the program param is the program id (numeric) but it should be the program
+    // slug because the program slug URL is enabled
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
+      metricCounters.getUrlWithProgramIdCall().labels("/considerSignIn", programParam).inc();
+    }
+
     long programId =
         programSlugHandler
-            .resolveProgramParam(
-                programParam, applicantId, settingsManifest.getProgramSlugUrlsEnabled(request))
+            .resolveProgramParam(programParam, applicantId, programSlugUrlsEnabled)
             .toCompletableFuture()
             .join();
 
