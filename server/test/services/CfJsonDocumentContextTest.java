@@ -343,8 +343,9 @@ public class CfJsonDocumentContextTest {
 
     assertThat(data.asJsonString())
         .isEqualTo(
-            """
-{"applicant":{"children":[{},{"pets":[{"entity_name":"bubbles"},{"entity_name":"luna"},{"entity_name":"taco"}]}]}}""");
+"""
+{"applicant":{"children":[{},{"pets":[{"entity_name":"bubbles"},{"entity_name":"luna"},{"entity_name":"taco"}]}]}}\
+""");
   }
 
   @Test
@@ -355,7 +356,8 @@ public class CfJsonDocumentContextTest {
             {"applicant":{"children":[{},{"entity_name":"an old name","pets":[\
             {"entity_name":"bubbles"},\
             {"entity_name":"luna"},\
-            {"entity_name":"taco"}]}]}}""");
+            {"entity_name":"taco"}]}]}}\
+            """);
     Path path = Path.create("applicant.children[]");
     ImmutableList<String> childrenNames = ImmutableList.of("alice", "bob");
 
@@ -363,8 +365,9 @@ public class CfJsonDocumentContextTest {
 
     assertThat(data.asJsonString())
         .isEqualTo(
-            """
-{"applicant":{"children":[{"entity_name":"alice"},{"entity_name":"bob","pets":[{"entity_name":"bubbles"},{"entity_name":"luna"},{"entity_name":"taco"}]}]}}""");
+"""
+{"applicant":{"children":[{"entity_name":"alice"},{"entity_name":"bob","pets":[{"entity_name":"bubbles"},{"entity_name":"luna"},{"entity_name":"taco"}]}]}}\
+""");
   }
 
   @Test
@@ -410,7 +413,8 @@ public class CfJsonDocumentContextTest {
             """
             {"applicant":{"children":[\
             {"entity":"first child","name":{"first":"Billy", "last": "Bob"}},\
-            {"entity": "second child"}]}}""");
+            {"entity": "second child"}]}}\
+            """);
 
     Optional<String> found = data.readString(Path.create("applicant.children[0].name.first"));
 
@@ -430,7 +434,8 @@ public class CfJsonDocumentContextTest {
   public void readString_returnsEmptyWhenTypeMismatch() {
     String testData =
         """
-        { "applicant": { "object": { "number": 27 } } }""";
+        { "applicant": { "object": { "number": 27 } } }\
+        """;
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     Optional<String> found = data.readString(Path.create("applicant.object"));
@@ -442,7 +447,8 @@ public class CfJsonDocumentContextTest {
   public void readString_returnsEmptyForLists() {
     String testData =
         """
-        { "applicant": { "list":["hello", "world"] } }""";
+        { "applicant": { "list":["hello", "world"] } }\
+        """;
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     Optional<String> found = data.readString(Path.create("applicant.list"));
@@ -454,7 +460,8 @@ public class CfJsonDocumentContextTest {
   public void readLong_findsCorrectValue() throws Exception {
     String testData =
         """
-        { "applicant": { "age": 30 } }""";
+        { "applicant": { "age": 30 } }\
+        """;
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     Optional<Long> found = data.readLong(Path.create("applicant.age"));
@@ -466,7 +473,8 @@ public class CfJsonDocumentContextTest {
   public void readDouble_findsCorrectValue() throws Exception {
     String testData =
         """
-        { "applicant": { "monthly_income": 99.9 } }""";
+        { "applicant": { "monthly_income": 99.9 } }\
+        """;
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     Optional<Double> found = data.readDouble(Path.create("applicant.monthly_income"));
@@ -487,7 +495,8 @@ public class CfJsonDocumentContextTest {
   public void readLong_returnsEmptyWhenTypeMismatch() {
     String testData =
         """
-        { "applicant": { "object": { "name": "John" } } }""";
+        { "applicant": { "object": { "name": "John" } } }\
+        """;
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     Optional<Long> found = data.readLong(Path.create("applicant.object.name"));
@@ -499,7 +508,8 @@ public class CfJsonDocumentContextTest {
   public void readLongList_findsCorrectValue() {
     String testData =
         """
-        {"applicant":{"favorite_fruits":[1, 2]}}""";
+        {"applicant":{"favorite_fruits":[1, 2]}}\
+        """;
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     Optional<ImmutableList<Long>> found =
@@ -512,7 +522,8 @@ public class CfJsonDocumentContextTest {
   public void readLongList_withOneValue_findsCorrectValue() {
     String testData =
         """
-        {"applicant":{"favorite_fruits":[1]}}""";
+        {"applicant":{"favorite_fruits":[1]}}\
+        """;
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     Optional<ImmutableList<Long>> found =
@@ -533,7 +544,8 @@ public class CfJsonDocumentContextTest {
   public void readLongList_withTypeMismatch_returnsEmptyOptional() {
     String testData =
         """
-        { "applicant": { "object": { "name": "Khalid" } } }""";
+        { "applicant": { "object": { "name": "Khalid" } } }\
+        """;
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     Optional<ImmutableList<Long>> found = data.readLongList(Path.create("applicant.object.name"));
@@ -545,7 +557,8 @@ public class CfJsonDocumentContextTest {
   public void readStringList_findsCorrectValue() {
     String testData =
         """
-        {"applicant":{"favorite_fruits":["apple", "orange"]}}""";
+        {"applicant":{"favorite_fruits":["apple", "orange"]}}\
+        """;
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     Optional<ImmutableList<String>> found =
@@ -641,8 +654,9 @@ public class CfJsonDocumentContextTest {
   public void asPrettyJsonString_prettyPrintsDocumentAtPath() {
     String testData =
         """
-        { "deeply": { "nested": { "value": "long text to stop formatter de-wrapping" } }\
-         }""";
+        { "deeply": { "nested": { "value": "long text to stop formatter de-wrapping" } }
+        }
+        """;
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     String prettyJson = data.asPrettyJsonString(Path.create("$.deeply"));
@@ -654,14 +668,16 @@ public class CfJsonDocumentContextTest {
               "nested" : {
                 "value" : "long text to stop formatter de-wrapping"
               }
-            }""");
+            }\
+            """);
   }
 
   @Test
   public void asPrettyJsonString_prettyPrintsNullString() {
     String testData =
         """
-        { "deeply": { "nested": { "age": "null" } } }""";
+        { "deeply": { "nested": { "age": "null" } } }
+        """;
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     String prettyJson = data.asPrettyJsonString(Path.create("$.deeply.nested.age"));
@@ -674,7 +690,8 @@ public class CfJsonDocumentContextTest {
   public void asPrettyJsonString_prettyPrintsNullValue() {
     String testData =
         """
-        { "deeply": { "nested": { "age": null } } }""";
+        { "deeply": { "nested": { "age": null } } }
+        """;
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     String prettyJson = data.asPrettyJsonString(Path.create("$.deeply.nested.age"));
@@ -719,14 +736,16 @@ public class CfJsonDocumentContextTest {
 
     String expected =
         """
-        {"applicant":{"things":["dog","cat","horse"],"stuff":"cars"}}""";
+        {"applicant":{"things":["dog","cat","horse"],"stuff":"cars"}}\
+        """;
     assertThat(data.asJsonString()).isEqualTo(expected);
 
     data.maybeClearArray(Path.create("applicant.things[0]"));
 
     String nextExpected =
         """
-        {"applicant":{"stuff":"cars"}}""";
+        {"applicant":{"stuff":"cars"}}\
+        """;
     assertThat(data.asJsonString()).isEqualTo(nextExpected);
   }
 
@@ -740,7 +759,8 @@ public class CfJsonDocumentContextTest {
 
     String expected =
         """
-        {"applicant":{"things":["dog","cat","horse"],"stuff":"cars"}}""";
+        {"applicant":{"things":["dog","cat","horse"],"stuff":"cars"}}\
+        """;
     assertThat(data.asJsonString()).isEqualTo(expected);
 
     data.maybeClearArray(Path.create("applicant.cars"));
@@ -818,6 +838,24 @@ public class CfJsonDocumentContextTest {
         .isFalse();
   }
 
+  @Test
+  public void dateSerializationRoundTrips() {
+    // This is a regression test for Issue #2342, where dates were serialized
+    // at the start of the day in UTC, but were deserialized in the system default
+    // time zone. As such, if the system default time zone were behind UTC, it would
+    // be serialized as 2022-01-02 and deserialized as 2022-01-01.
+    // To ensure this tests the correct behavior, ensure the system default time zone
+    // is behind UTC.
+    assertThat(TimeZone.getDefault().getRawOffset()).isLessThan(0);
+
+    CfJsonDocumentContext data = new CfJsonDocumentContext();
+    data.putDate(Path.create("applicant.date"), "2022-01-02");
+
+    Optional<LocalDate> result = data.readDate(Path.create("applicant.date"));
+    assertThat(result.isPresent()).isTrue();
+    assertThat(result.get().toString()).isEqualTo("2022-01-02");
+  }
+
   /**
    * Parameterized cases for mergeFrom behavior.
    *
@@ -841,14 +879,14 @@ public class CfJsonDocumentContextTest {
       // copied_b exists only in other → it is copied into target.
       {
         /* target   */ """
-                       {"unique_to_target":"target_val"}
-                       """,
+        {"unique_to_target":"target_val"}
+        """,
         /* other    */ """
-                       {"copied_b":"other_val"}
-                       """,
+        {"copied_b":"other_val"}
+        """,
         /* expected */ """
-                       {"unique_to_target":"target_val","copied_b":"other_val"}
-                       """,
+        {"unique_to_target":"target_val","copied_b":"other_val"}
+        """,
         /* conflicts */ new String[] {}
       },
 
@@ -856,14 +894,14 @@ public class CfJsonDocumentContextTest {
       // unique_to_target exists only in target → retained unchanged, nothing from other.
       {
         /* target   */ """
-                       {"unique_to_target":"retained_val"}
-                       """,
+        {"unique_to_target":"retained_val"}
+        """,
         /* other    */ """
-                       {}
-                       """,
+        {}
+        """,
         /* expected */ """
-                       {"unique_to_target":"retained_val"}
-                       """,
+        {"unique_to_target":"retained_val"}
+        """,
         /* conflicts */ new String[] {}
       },
 
@@ -873,14 +911,14 @@ public class CfJsonDocumentContextTest {
       // and the path is reported as a conflict.
       {
         /* target   */ """
-                       {"conflict_key":"retained_val"}
-                       """,
+        {"conflict_key":"retained_val"}
+        """,
         /* other    */ """
-                       {"conflict_key":"dropped_val"}
-                       """,
+        {"conflict_key":"dropped_val"}
+        """,
         /* expected */ """
-                       {"conflict_key":"retained_val"}
-                       """,
+        {"conflict_key":"retained_val"}
+        """,
         /* conflicts */ new String[] {"conflict_key"}
       },
 
@@ -889,14 +927,14 @@ public class CfJsonDocumentContextTest {
       // Retained with no conflict reported.
       {
         /* target   */ """
-                       {"same_key":"shared_val"}
-                       """,
+        {"same_key":"shared_val"}
+        """,
         /* other    */ """
-                       {"same_key":"shared_val"}
-                       """,
+        {"same_key":"shared_val"}
+        """,
         /* expected */ """
-                       {"same_key":"shared_val"}
-                       """,
+        {"same_key":"shared_val"}
+        """,
         /* conflicts */ new String[] {}
       },
 
@@ -905,14 +943,14 @@ public class CfJsonDocumentContextTest {
       // Other's items are appended to target's list (not overwritten).
       {
         /* target   */ """
-                       {"list_key":["item1"]}
-                       """,
+        {"list_key":["item1"]}
+        """,
         /* other    */ """
-                       {"list_key":["item2"]}
-                       """,
+        {"list_key":["item2"]}
+        """,
         /* expected */ """
-                       {"list_key":["item1","item2"]}
-                       """,
+        {"list_key":["item1","item2"]}
+        """,
         /* conflicts */ new String[] {}
       },
 
@@ -920,14 +958,14 @@ public class CfJsonDocumentContextTest {
       // obj.copied_b exists only in other's nested object → copied into target's obj.
       {
         /* target   */ """
-                       {"obj":{"a":"target_val"}}
-                       """,
+        {"obj":{"a":"target_val"}}
+        """,
         /* other    */ """
-                       {"obj":{"copied_b":"other_val"}}
-                       """,
+        {"obj":{"copied_b":"other_val"}}
+        """,
         /* expected */ """
-                       {"obj":{"a":"target_val","copied_b":"other_val"}}
-                       """,
+        {"obj":{"a":"target_val","copied_b":"other_val"}}
+        """,
         /* conflicts */ new String[] {}
       },
 
@@ -936,14 +974,14 @@ public class CfJsonDocumentContextTest {
       // Target's value kept in the result; conflict reported as "obj.conflict_nested_key".
       {
         /* target   */ """
-                       {"obj":{"conflict_nested_key":"retained_val"}}
-                       """,
+        {"obj":{"conflict_nested_key":"retained_val"}}
+        """,
         /* other    */ """
-                       {"obj":{"conflict_nested_key":"dropped_val"}}
-                       """,
+        {"obj":{"conflict_nested_key":"dropped_val"}}
+        """,
         /* expected */ """
-                       {"obj":{"conflict_nested_key":"retained_val"}}
-                       """,
+        {"obj":{"conflict_nested_key":"retained_val"}}
+        """,
         /* conflicts */ new String[] {"obj.conflict_nested_key"}
       },
 
@@ -957,18 +995,18 @@ public class CfJsonDocumentContextTest {
       // obj.copied_nested_unique_to_other — copied from other's nested object
       {
         /* target   */ """
-                       {"unique_to_target":"t","conflict_key":"retained_cv","list":["t1"],\
-                       "obj":{"nested_unique_to_target":"nt","conflict_nested_key":"retained_ncv"}}
-                       """,
+        {"unique_to_target":"t","conflict_key":"retained_cv","list":["t1"],\
+        "obj":{"nested_unique_to_target":"nt","conflict_nested_key":"retained_value"}}
+        """,
         /* other    */ """
-                       {"copied_unique_to_other":"o","conflict_key":"dropped_cv","list":["o1"],\
-                       "obj":{"copied_nested_unique_to_other":"no","conflict_nested_key":"dropped_ncv"}}
-                       """,
+        {"copied_unique_to_other":"o","conflict_key":"dropped_cv","list":["o1"],\
+        "obj":{"copied_nested_unique_to_other":"no","conflict_nested_key":"dropped_value"}}
+        """,
         /* expected */ """
-                       {"unique_to_target":"t","conflict_key":"retained_cv","list":["t1","o1"],\
-                       "obj":{"nested_unique_to_target":"nt","conflict_nested_key":"retained_ncv",\
-                       "copied_nested_unique_to_other":"no"},"copied_unique_to_other":"o"}
-                       """,
+        {"unique_to_target":"t","conflict_key":"retained_cv","list":["t1","o1"],\
+        "obj":{"nested_unique_to_target":"nt","conflict_nested_key":"retained_value",\
+        "copied_nested_unique_to_other":"no"},"copied_unique_to_other":"o"}
+        """,
         /* conflicts */ new String[] {"conflict_key", "obj.conflict_nested_key"}
       },
     };
@@ -996,24 +1034,8 @@ public class CfJsonDocumentContextTest {
         .containsExactlyInAnyOrder(expectedConflictPaths);
 
     // Verify other is never modified.
-    assertThat(other.getDocumentContext().read("$", Map.class)).isEqualTo(otherBefore);
-  }
-
-  @Test
-  public void dateSerializationRoundTrips() {
-    // This is a regression test for Issue #2342, where dates were serialized
-    // at the start of the day in UTC, but were deserialized in the system default
-    // time zone. As such, if the system default time zone were behind UTC, it would
-    // be serialized as 2022-01-02 and deserialized as 2022-01-01.
-    // To ensure this tests the correct behavior, ensure the system default time zone
-    // is behind UTC.
-    assertThat(TimeZone.getDefault().getRawOffset()).isLessThan(0);
-
-    CfJsonDocumentContext data = new CfJsonDocumentContext();
-    data.putDate(Path.create("applicant.date"), "2022-01-02");
-
-    Optional<LocalDate> result = data.readDate(Path.create("applicant.date"));
-    assertThat(result.isPresent()).isTrue();
-    assertThat(result.get().toString()).isEqualTo("2022-01-02");
+    @SuppressWarnings("unchecked")
+    Map<?, ?> otherAfter = other.getDocumentContext().read("$", Map.class);
+    assertThat(otherAfter).isEqualTo(otherBefore);
   }
 }
