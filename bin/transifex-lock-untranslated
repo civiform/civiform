@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+# DOC: Add the locked text to strings in transifex when the label `lock-transifex-strings` is included on the pull request.
+# DOC: Only locks strings that are not already locked and do not have translation instructions or context.
+
 import argparse
 import os
 import sys
