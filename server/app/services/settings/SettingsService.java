@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Streams;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import controllers.BadRequestException;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -26,6 +27,7 @@ import play.libs.typedmap.TypedMap;
 import play.mvc.Http;
 import repository.SettingsGroupRepository;
 import services.ColorUtil;
+import services.program.ProgramService;
 
 /**
  * Service management of the resource backed by {@link SettingsGroupModel}.
@@ -48,15 +50,18 @@ public final class SettingsService {
   private final SettingsGroupRepository settingsGroupRepository;
   private final SettingsManifest settingsManifest;
   private final Environment environment;
+  private final Provider<ProgramService> programServiceProvider;
 
   @Inject
   public SettingsService(
       SettingsGroupRepository settingsGroupRepository,
       SettingsManifest settingsManifest,
-      Environment environment) {
+      Environment environment,
+      Provider<ProgramService> programServiceProvider) {
     this.settingsGroupRepository = checkNotNull(settingsGroupRepository);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.environment = checkNotNull(environment);
+    this.programServiceProvider = checkNotNull(programServiceProvider);
   }
 
   /**
@@ -175,6 +180,11 @@ public final class SettingsService {
                     throw new BadRequestException(
                         String.format("Invalid boolean value: %s", newValue));
                   }
+                  Optional<SettingsGroupUpdateResult.UpdateError> error =
+                      validateApplicationState(settingDescription, newValue);
+                  if (error.isPresent()) {
+                    validationErrors.put(settingDescription.variableName(), error.get());
+                  }
                 }
                 case ENUM -> validateEnum(settingDescription, newValue);
                 case INT -> {
@@ -183,8 +193,8 @@ public final class SettingsService {
                   }
                 }
 
-                  // LIST_OF_STRINGS included here for completeness since errorprone will produce a
-                  // warning if a case statement isn't exhaustive.
+                // LIST_OF_STRINGS included here for completeness since errorprone will produce a
+                // warning if a case statement isn't exhaustive.
                 case LIST_OF_STRINGS -> {}
                 case STRING -> {
                   Optional<SettingsGroupUpdateResult.UpdateError> error =
@@ -255,6 +265,16 @@ public final class SettingsService {
     return Optional.empty();
   }
 
+  private boolean hasFileUploadMixedBlocks() {
+    return programServiceProvider
+        .get()
+        .getActiveAndDraftPrograms()
+        .getMostRecentProgramDefinitions()
+        .stream()
+        .flatMap(pd -> pd.blockDefinitions().stream())
+        .anyMatch(bd -> bd.isFileUpload() && bd.getQuestionCount() > 1);
+  }
+
   /**
    * Inserts a new {@link SettingsGroupModel} if it finds admin writeable settings in the {@link
    * SettingsManifest} that are not in the current {@link SettingsGroupModel}.
@@ -305,6 +325,24 @@ public final class SettingsService {
       case ENUM -> settingDescription.allowableValues().get().stream().findFirst().get();
       case LIST_OF_STRINGS, STRING -> "CHANGE ME";
       case BOOLEAN -> "false";
+    };
+  }
+
+  private Optional<SettingsGroupUpdateResult.UpdateError> validateApplicationState(
+      SettingDescription settingDescription, String newValue) {
+    return switch (settingDescription.variableName()) {
+      case "FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED" -> {
+        if (newValue.equals("false") && hasFileUploadMixedBlocks()) {
+          yield Optional.of(
+              SettingsGroupUpdateResult.UpdateError.create(
+                  newValue,
+                  "Cannot disable file upload improvements while programs exist with"
+                      + " file upload questions on screens with other questions. Remove"
+                      + " file upload questions from mixed screens first."));
+        }
+        yield Optional.empty();
+      }
+      default -> Optional.empty();
     };
   }
 

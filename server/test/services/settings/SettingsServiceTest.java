@@ -132,7 +132,12 @@ public class SettingsServiceTest extends ResetPostgres {
 
     repo = instanceOf(SettingsGroupRepository.class);
     repo.clearCurrentSettingsCache();
-    settingsService = new SettingsService(repo, testManifest, instanceOf(Environment.class));
+    settingsService =
+        new SettingsService(
+            repo,
+            testManifest,
+            instanceOf(Environment.class),
+            () -> instanceOf(services.program.ProgramService.class));
   }
 
   @Test
