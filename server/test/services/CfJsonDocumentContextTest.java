@@ -8,6 +8,7 @@ import com.google.common.testing.EqualsTester;
 import com.jayway.jsonpath.PathNotFoundException;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
 import junitparams.JUnitParamsRunner;
@@ -342,8 +343,9 @@ public class CfJsonDocumentContextTest {
 
     assertThat(data.asJsonString())
         .isEqualTo(
-            """
-{"applicant":{"children":[{},{"pets":[{"entity_name":"bubbles"},{"entity_name":"luna"},{"entity_name":"taco"}]}]}}""");
+"""
+{"applicant":{"children":[{},{"pets":[{"entity_name":"bubbles"},{"entity_name":"luna"},{"entity_name":"taco"}]}]}}\
+""");
   }
 
   @Test
@@ -354,7 +356,8 @@ public class CfJsonDocumentContextTest {
             {"applicant":{"children":[{},{"entity_name":"an old name","pets":[\
             {"entity_name":"bubbles"},\
             {"entity_name":"luna"},\
-            {"entity_name":"taco"}]}]}}""");
+            {"entity_name":"taco"}]}]}}\
+            """);
     Path path = Path.create("applicant.children[]");
     ImmutableList<String> childrenNames = ImmutableList.of("alice", "bob");
 
@@ -362,8 +365,9 @@ public class CfJsonDocumentContextTest {
 
     assertThat(data.asJsonString())
         .isEqualTo(
-            """
-{"applicant":{"children":[{"entity_name":"alice"},{"entity_name":"bob","pets":[{"entity_name":"bubbles"},{"entity_name":"luna"},{"entity_name":"taco"}]}]}}""");
+"""
+{"applicant":{"children":[{"entity_name":"alice"},{"entity_name":"bob","pets":[{"entity_name":"bubbles"},{"entity_name":"luna"},{"entity_name":"taco"}]}]}}\
+""");
   }
 
   @Test
@@ -409,7 +413,8 @@ public class CfJsonDocumentContextTest {
             """
             {"applicant":{"children":[\
             {"entity":"first child","name":{"first":"Billy", "last": "Bob"}},\
-            {"entity": "second child"}]}}""");
+            {"entity": "second child"}]}}\
+            """);
 
     Optional<String> found = data.readString(Path.create("applicant.children[0].name.first"));
 
@@ -429,7 +434,8 @@ public class CfJsonDocumentContextTest {
   public void readString_returnsEmptyWhenTypeMismatch() {
     String testData =
         """
-        { "applicant": { "object": { "number": 27 } } }""";
+        { "applicant": { "object": { "number": 27 } } }\
+        """;
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     Optional<String> found = data.readString(Path.create("applicant.object"));
@@ -441,7 +447,8 @@ public class CfJsonDocumentContextTest {
   public void readString_returnsEmptyForLists() {
     String testData =
         """
-        { "applicant": { "list":["hello", "world"] } }""";
+        { "applicant": { "list":["hello", "world"] } }\
+        """;
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     Optional<String> found = data.readString(Path.create("applicant.list"));
@@ -453,7 +460,8 @@ public class CfJsonDocumentContextTest {
   public void readLong_findsCorrectValue() throws Exception {
     String testData =
         """
-        { "applicant": { "age": 30 } }""";
+        { "applicant": { "age": 30 } }\
+        """;
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     Optional<Long> found = data.readLong(Path.create("applicant.age"));
@@ -465,7 +473,8 @@ public class CfJsonDocumentContextTest {
   public void readDouble_findsCorrectValue() throws Exception {
     String testData =
         """
-        { "applicant": { "monthly_income": 99.9 } }""";
+        { "applicant": { "monthly_income": 99.9 } }\
+        """;
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     Optional<Double> found = data.readDouble(Path.create("applicant.monthly_income"));
@@ -486,7 +495,8 @@ public class CfJsonDocumentContextTest {
   public void readLong_returnsEmptyWhenTypeMismatch() {
     String testData =
         """
-        { "applicant": { "object": { "name": "John" } } }""";
+        { "applicant": { "object": { "name": "John" } } }\
+        """;
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     Optional<Long> found = data.readLong(Path.create("applicant.object.name"));
@@ -498,7 +508,8 @@ public class CfJsonDocumentContextTest {
   public void readLongList_findsCorrectValue() {
     String testData =
         """
-        {"applicant":{"favorite_fruits":[1, 2]}}""";
+        {"applicant":{"favorite_fruits":[1, 2]}}\
+        """;
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     Optional<ImmutableList<Long>> found =
@@ -511,7 +522,8 @@ public class CfJsonDocumentContextTest {
   public void readLongList_withOneValue_findsCorrectValue() {
     String testData =
         """
-        {"applicant":{"favorite_fruits":[1]}}""";
+        {"applicant":{"favorite_fruits":[1]}}\
+        """;
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     Optional<ImmutableList<Long>> found =
@@ -532,7 +544,8 @@ public class CfJsonDocumentContextTest {
   public void readLongList_withTypeMismatch_returnsEmptyOptional() {
     String testData =
         """
-        { "applicant": { "object": { "name": "Khalid" } } }""";
+        { "applicant": { "object": { "name": "Khalid" } } }\
+        """;
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     Optional<ImmutableList<Long>> found = data.readLongList(Path.create("applicant.object.name"));
@@ -544,7 +557,8 @@ public class CfJsonDocumentContextTest {
   public void readStringList_findsCorrectValue() {
     String testData =
         """
-        {"applicant":{"favorite_fruits":["apple", "orange"]}}""";
+        {"applicant":{"favorite_fruits":["apple", "orange"]}}\
+        """;
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     Optional<ImmutableList<String>> found =
@@ -640,8 +654,9 @@ public class CfJsonDocumentContextTest {
   public void asPrettyJsonString_prettyPrintsDocumentAtPath() {
     String testData =
         """
-        { "deeply": { "nested": { "value": "long text to stop formatter de-wrapping" } }\
-         }""";
+        { "deeply": { "nested": { "value": "long text to stop formatter de-wrapping" } }
+        }
+        """;
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     String prettyJson = data.asPrettyJsonString(Path.create("$.deeply"));
@@ -653,14 +668,16 @@ public class CfJsonDocumentContextTest {
               "nested" : {
                 "value" : "long text to stop formatter de-wrapping"
               }
-            }""");
+            }\
+            """);
   }
 
   @Test
   public void asPrettyJsonString_prettyPrintsNullString() {
     String testData =
         """
-        { "deeply": { "nested": { "age": "null" } } }""";
+        { "deeply": { "nested": { "age": "null" } } }
+        """;
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     String prettyJson = data.asPrettyJsonString(Path.create("$.deeply.nested.age"));
@@ -673,7 +690,8 @@ public class CfJsonDocumentContextTest {
   public void asPrettyJsonString_prettyPrintsNullValue() {
     String testData =
         """
-        { "deeply": { "nested": { "age": null } } }""";
+        { "deeply": { "nested": { "age": null } } }
+        """;
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     String prettyJson = data.asPrettyJsonString(Path.create("$.deeply.nested.age"));
@@ -718,14 +736,16 @@ public class CfJsonDocumentContextTest {
 
     String expected =
         """
-        {"applicant":{"things":["dog","cat","horse"],"stuff":"cars"}}""";
+        {"applicant":{"things":["dog","cat","horse"],"stuff":"cars"}}\
+        """;
     assertThat(data.asJsonString()).isEqualTo(expected);
 
     data.maybeClearArray(Path.create("applicant.things[0]"));
 
     String nextExpected =
         """
-        {"applicant":{"stuff":"cars"}}""";
+        {"applicant":{"stuff":"cars"}}\
+        """;
     assertThat(data.asJsonString()).isEqualTo(nextExpected);
   }
 
@@ -739,7 +759,8 @@ public class CfJsonDocumentContextTest {
 
     String expected =
         """
-        {"applicant":{"things":["dog","cat","horse"],"stuff":"cars"}}""";
+        {"applicant":{"things":["dog","cat","horse"],"stuff":"cars"}}\
+        """;
     assertThat(data.asJsonString()).isEqualTo(expected);
 
     data.maybeClearArray(Path.create("applicant.cars"));
@@ -833,5 +854,188 @@ public class CfJsonDocumentContextTest {
     Optional<LocalDate> result = data.readDate(Path.create("applicant.date"));
     assertThat(result.isPresent()).isTrue();
     assertThat(result.get().toString()).isEqualTo("2022-01-02");
+  }
+
+  /**
+   * Parameterized cases for mergeFrom behavior.
+   *
+   * <p>JSON key naming convention:
+   *
+   * <ul>
+   *   <li>{@code copied_*} — key is unique to {@code other}; will be copied into the result.
+   *   <li>{@code conflict_*} — key exists in both target and {@code other} with different values;
+   *       the key remains in the result with target's value, and the path is reported as a
+   *       conflict.
+   *   <li>All other keys — either unique to target (retained as-is) or shared with the same value
+   *       (retained, no conflict).
+   * </ul>
+   *
+   * <p>Values for {@code conflict_*} keys use {@code retained_} in target and {@code dropped_} in
+   * {@code other} to make explicit which value survives and which is discarded.
+   */
+  private Object[][] mergeFromCases() {
+    return new Object[][] {
+      // ── Case 1: Key unique to other ─────────────────────────────────────────
+      // copied_b exists only in other → it is copied into target.
+      {
+        /* target   */ """
+        {"unique_to_target":"target_val"}
+        """,
+        /* other    */ """
+        {"copied_b":"other_val"}
+        """,
+        /* expected */ """
+        {"unique_to_target":"target_val","copied_b":"other_val"}
+        """,
+        /* conflicts */ new String[] {}
+      },
+
+      // ── Case 2: Key unique to target ─────────────────────────────────────────
+      // unique_to_target exists only in target → retained unchanged, nothing from other.
+      {
+        /* target   */ """
+        {"unique_to_target":"retained_val"}
+        """,
+        /* other    */ """
+        {}
+        """,
+        /* expected */ """
+        {"unique_to_target":"retained_val"}
+        """,
+        /* conflicts */ new String[] {}
+      },
+
+      // ── Case 3: Scalar conflict — different values ───────────────────────────
+      // conflict_key exists in both with different values.
+      // Target's value is kept in the result; other's value is discarded
+      // and the path is reported as a conflict.
+      {
+        /* target   */ """
+        {"conflict_key":"retained_val"}
+        """,
+        /* other    */ """
+        {"conflict_key":"dropped_val"}
+        """,
+        /* expected */ """
+        {"conflict_key":"retained_val"}
+        """,
+        /* conflicts */ new String[] {"conflict_key"}
+      },
+
+      // ── Case 4: Scalar — same value in both ──────────────────────────────────
+      // same_key exists in both with identical values.
+      // Retained with no conflict reported.
+      {
+        /* target   */ """
+        {"same_key":"shared_val"}
+        """,
+        /* other    */ """
+        {"same_key":"shared_val"}
+        """,
+        /* expected */ """
+        {"same_key":"shared_val"}
+        """,
+        /* conflicts */ new String[] {}
+      },
+
+      // ── Case 5: List — other's items appended ────────────────────────────────
+      // list_key exists in both as an array.
+      // Other's items are appended to target's list (not overwritten).
+      {
+        /* target   */ """
+        {"list_key":["item1"]}
+        """,
+        /* other    */ """
+        {"list_key":["item2"]}
+        """,
+        /* expected */ """
+        {"list_key":["item1","item2"]}
+        """,
+        /* conflicts */ new String[] {}
+      },
+
+      // ── Case 6: Nested map — unique key in other merged in ───────────────────
+      // obj.copied_b exists only in other's nested object → copied into target's obj.
+      {
+        /* target   */ """
+        {"obj":{"a":"target_val"}}
+        """,
+        /* other    */ """
+        {"obj":{"copied_b":"other_val"}}
+        """,
+        /* expected */ """
+        {"obj":{"a":"target_val","copied_b":"other_val"}}
+        """,
+        /* conflicts */ new String[] {}
+      },
+
+      // ── Case 7: Nested map — scalar conflict at nested path ──────────────────
+      // obj.conflict_nested_key exists in both with different values.
+      // Target's value kept in the result; conflict reported as "obj.conflict_nested_key".
+      {
+        /* target   */ """
+        {"obj":{"conflict_nested_key":"retained_val"}}
+        """,
+        /* other    */ """
+        {"obj":{"conflict_nested_key":"dropped_val"}}
+        """,
+        /* expected */ """
+        {"obj":{"conflict_nested_key":"retained_val"}}
+        """,
+        /* conflicts */ new String[] {"obj.conflict_nested_key"}
+      },
+
+      // ── Case 8: All cases combined ───────────────────────────────────────────
+      // unique_to_target                  — retained from target
+      // conflict_key                      — conflict: target value kept, other value dropped
+      // list                              — other's item appended to target's list
+      // obj.nested_unique_to_target       — retained from target's nested object
+      // obj.conflict_nested_key           — conflict at nested path
+      // copied_unique_to_other            — copied from other
+      // obj.copied_nested_unique_to_other — copied from other's nested object
+      {
+        /* target   */ """
+        {"unique_to_target":"t","conflict_key":"retained_cv","list":["t1"],\
+        "obj":{"nested_unique_to_target":"nt","conflict_nested_key":"retained_value"}}
+        """,
+        /* other    */ """
+        {"copied_unique_to_other":"o","conflict_key":"dropped_cv","list":["o1"],\
+        "obj":{"copied_nested_unique_to_other":"no","conflict_nested_key":"dropped_value"}}
+        """,
+        /* expected */ """
+        {"unique_to_target":"t","conflict_key":"retained_cv","list":["t1","o1"],\
+        "obj":{"nested_unique_to_target":"nt","conflict_nested_key":"retained_value",\
+        "copied_nested_unique_to_other":"no"},"copied_unique_to_other":"o"}
+        """,
+        /* conflicts */ new String[] {"conflict_key", "obj.conflict_nested_key"}
+      },
+    };
+  }
+
+  @Test
+  @Parameters(method = "mergeFromCases")
+  public void mergeFrom(
+      String targetJson, String otherJson, String expectedJson, String[] expectedConflictPaths) {
+    CfJsonDocumentContext target = new CfJsonDocumentContext(targetJson.strip());
+    CfJsonDocumentContext other = new CfJsonDocumentContext(otherJson.strip());
+    Map<?, ?> otherBefore = other.getDocumentContext().read("$", Map.class);
+
+    ImmutableList<Path> conflicts = target.mergeFrom(other);
+
+    // Verify the merged result matches the expected JSON (order-insensitive).
+    Map<?, ?> actual = target.getDocumentContext().read("$", Map.class);
+    Map<?, ?> expected =
+        new CfJsonDocumentContext(expectedJson.strip()).getDocumentContext().read("$", Map.class);
+    assertThat(actual).isEqualTo(expected);
+
+    // Verify the reported conflict paths.
+    assertThat(conflicts)
+        .extracting(Path::toString)
+        .containsExactlyInAnyOrder(expectedConflictPaths);
+
+    // Verify other is never modified.
+    @SuppressWarnings("unchecked")
+    Map<?, ?> otherAfter = other.getDocumentContext().read("$", Map.class);
+    assertThat(otherAfter).isEqualTo(otherBefore);
   }
 }
