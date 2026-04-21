@@ -13,8 +13,10 @@ import com.google.common.collect.Streams;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import controllers.BadRequestException;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import models.SettingsGroupModel;
 import org.apache.commons.lang3.StringUtils;
@@ -27,6 +29,7 @@ import play.libs.typedmap.TypedMap;
 import play.mvc.Http;
 import repository.SettingsGroupRepository;
 import services.ColorUtil;
+import services.program.BlockDefinition;
 import services.program.ProgramService;
 
 /**
@@ -265,14 +268,16 @@ public final class SettingsService {
     return Optional.empty();
   }
 
-  private boolean hasFileUploadMixedBlocks() {
+  private List<String> getProgamNamesWithFileUploadMixedBlocks() {
     return programServiceProvider
         .get()
         .getActiveAndDraftPrograms()
         .getMostRecentProgramDefinitions()
         .stream()
         .flatMap(pd -> pd.blockDefinitions().stream())
-        .anyMatch(bd -> bd.isFileUpload() && bd.getQuestionCount() > 1);
+        .filter(bd -> bd.isFileUpload() && bd.getQuestionCount() > 1)
+        .map(BlockDefinition::name)
+        .collect(Collectors.toList());
   }
 
   /**
@@ -332,13 +337,17 @@ public final class SettingsService {
       SettingDescription settingDescription, String newValue) {
     return switch (settingDescription.variableName()) {
       case "FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED" -> {
-        if (newValue.equals("false") && hasFileUploadMixedBlocks()) {
+        List<String> programNames = getProgamNamesWithFileUploadMixedBlocks();
+        if (newValue.equals("false") && !programNames.isEmpty()) {
           yield Optional.of(
               SettingsGroupUpdateResult.UpdateError.create(
                   newValue,
-                  "Cannot disable file upload improvements while programs exist with"
-                      + " file upload questions on screens with other questions. Remove"
-                      + " file upload questions from mixed screens first."));
+                  "Cannot disable file upload improvements while programs exist with "
+                      + "file upload questions on screens with other questions. "
+                      + "Affected programs: "
+                      + String.join(", ", programNames)
+                      + ". "
+                      + "Remove file upload questions from mixed screens first."));
         }
         yield Optional.empty();
       }
