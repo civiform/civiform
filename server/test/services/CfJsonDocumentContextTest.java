@@ -8,6 +8,7 @@ import com.google.common.testing.EqualsTester;
 import com.jayway.jsonpath.PathNotFoundException;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
 import junitparams.JUnitParamsRunner;
@@ -654,8 +655,8 @@ public class CfJsonDocumentContextTest {
   public void asPrettyJsonString_prettyPrintsDocumentAtPath() {
     String testData =
         """
-        { "deeply": { "nested": { "value": "long text to stop formatter de-wrapping" } }\
-         }\
+        { "deeply": { "nested": { "value": "long text to stop formatter de-wrapping" } }
+        }
         """;
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
@@ -676,7 +677,7 @@ public class CfJsonDocumentContextTest {
   public void asPrettyJsonString_prettyPrintsNullString() {
     String testData =
         """
-        { "deeply": { "nested": { "age": "null" } } }\
+        { "deeply": { "nested": { "age": "null" } } }
         """;
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
@@ -690,7 +691,7 @@ public class CfJsonDocumentContextTest {
   public void asPrettyJsonString_prettyPrintsNullValue() {
     String testData =
         """
-        { "deeply": { "nested": { "age": null } } }\
+        { "deeply": { "nested": { "age": null } } }
         """;
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
