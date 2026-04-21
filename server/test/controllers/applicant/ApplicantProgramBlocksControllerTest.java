@@ -65,6 +65,7 @@ import support.ProgramBuilder;
 import views.applicant.addresscorrection.AddressCorrectionBlockView;
 import views.applicant.blocks.ApplicantProgramBlockEditView;
 import views.applicant.ineligible.ApplicantIneligibleView;
+import views.questiontypes.FileUploadQuestionPartialView;
 
 @RunWith(JUnitParamsRunner.class)
 public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
@@ -114,7 +115,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             instanceOf(ProgramSlugHandler.class),
             instanceOf(ApplicantRoutes.class),
             instanceOf(EligibilityAlertSettingsCalculator.class),
-            instanceOf(MonitoringMetricCounters.class));
+            instanceOf(MonitoringMetricCounters.class),
+            instanceOf(FileUploadQuestionPartialView.class));
   }
 
   @Test
@@ -3202,22 +3204,17 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void hxSelectFileForUpload_generatesUuidFileKeyAndStoresOriginalName() {
-    var fileUploadQuestion = testQuestionBank().fileUploadApplicantFile();
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
-            .withRequiredQuestion(fileUploadQuestion)
+            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
 
     RequestBuilder requestBuilder = fakeRequestBuilder();
     Request request =
         requestBuilder
             .bodyMultipart(
-                java.util.Map.of(
-                    "questionId",
-                    new String[] {
-                      String.valueOf(fileUploadQuestion.getQuestionDefinition().getId())
-                    }),
+                java.util.Map.of(),
                 java.util.List.of(
                     new play.mvc.Http.MultipartFormData.FilePart<>(
                         "file", "my-document.pdf", "application/pdf", "applicant-test-file-key")))

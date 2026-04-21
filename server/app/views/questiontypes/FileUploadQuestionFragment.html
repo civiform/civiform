@@ -32,11 +32,13 @@
   </div>
 
   <!--/* Display errors */-->
-  <div
-    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fileUploadQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams}, ${questionId})}"
-  ></div>
+  <div id="cf-fileupload-validation-errors">
+    <div
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fileUploadQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams}, ${questionId})}"
+    ></div>
+  </div>
 
-  <!--/* Errors always rendered in the DOM and hidden, but shown by applicant_file_upload.ts when needed. */-->
+  <!--/* Errors always rendered in the DOM and hidden, but shown by file_upload.ts when needed. */-->
   <div
     hidden
     class="usa-alert usa-alert--error usa-alert--slim"
@@ -61,6 +63,18 @@
       ></p>
     </div>
   </div>
+  <div
+    class="usa-alert usa-alert--error usa-alert--slim"
+    hidden
+    id="cf-fileupload-upload-failed-error"
+  >
+    <div class="usa-alert__body">
+      <p
+        class="usa-alert__text"
+        th:text="#{toast.errorMessageOutline(#{validation.fileUploadFailed})}"
+      ></p>
+    </div>
+  </div>
 
   <input
     th:id="${inputId}"
@@ -73,9 +87,101 @@
     th:data-file-limit-mb="${maxFileSizeMb}"
     th:disabled="${!fileUploadQuestion.canUploadFile()}"
     th:aria-required="${!question.isOptional()}"
-    th:hx-post="${!isPreview} ? ${hxSelectFileForUploadUrl}"
-    th:hx-trigger="${!isPreview} ? 'change'"
+    hx-swap="none"
     th:hx-encoding="${!isPreview} ? 'multipart/form-data'"
     th:hx-vals='|{"questionId": ${question.getQuestionDefinition().getId()}}|'
+    th:hx-post="${!isPreview} ? ${hxSelectFileForUploadUrl}"
+    th:hx-trigger="${!isPreview} ? 'change'"
   />
+
+  <th:block th:if="${!isPreview}">
+    <div
+      th:replace="~{questiontypes/FileUploadQuestionFragment :: file-key-field(${fileUploadQuestion}, false, false)}"
+    ></div>
+    <div
+      th:replace="~{questiontypes/FileUploadQuestionFragment :: file-list-display(${fileUploadQuestion}, false)}"
+    ></div>
+  </th:block>
 </div>
+
+<!--/* Fragment for rendering file key fields within hidden inputs */-->
+<div
+  id="cf-fileupload-file-key-inputs"
+  th:fragment="file-key-field(fileUploadQuestion, clearData, oob)"
+  th:hx-swap-oob="${oob} ? 'outerHTML:#' + ${questionId} + '-cf-fileupload-file-list'"
+>
+  <!--/* Singular path is preserved for backwards compatibility with the
+       non-improvements (cloud direct-upload) flow. */-->
+  <input
+    th:name="${fileUploadQuestion.getFileKeyPath()}"
+    th:value="${clearData ? '' : fileUploadQuestion.getFileKeyValue().orElse('')}"
+    type="hidden"
+  />
+  <th:block
+    th:if="${!clearData and fileUploadQuestion.getFileKeyListValue().isPresent()}"
+  >
+    <input
+      th:each="fileKey, iter : ${fileUploadQuestion.getFileKeyListValue().get()}"
+      th:name="${fileUploadQuestion.getFileKeyListPathForIndex(iter.index)}"
+      th:value="${fileKey}"
+      type="hidden"
+    />
+  </th:block>
+  <th:block
+    th:if="${!clearData and fileUploadQuestion.getOriginalFileNameListValue().isPresent()}"
+  >
+    <input
+      th:each="name, iter : ${fileUploadQuestion.getOriginalFileNameListValue().get()}"
+      th:name="${fileUploadQuestion.getOriginalFileNameListPathForIndex(iter.index)}"
+      th:value="${name}"
+      type="hidden"
+    />
+  </th:block>
+</div>
+
+<!--/* OOB-capable errors region rendered after an htmx upload. Targets the
+     page-load #cf-fileupload-validation-errors wrapper by selector so the id
+     only lives in one place in the source template. */-->
+<div
+  th:fragment="file-upload-errors(fileUploadQuestion, oob)"
+  th:hx-swap-oob="${oob} ? 'outerHTML:#cf-fileupload-validation-errors'"
+  th:id="${oob} ? 'cf-fileupload-validation-errors'"
+>
+  <div
+    class="cf-question-error-message cf-applicant-question-errors"
+    th:each="error : ${fileUploadQuestion.getValidationErrors().get(fileUploadQuestion.getApplicantQuestion().getContextualizedPath())}"
+    th:text="#{toast.errorMessageOutline(#{${error.key.getKeyName()}(${error.args})})}"
+  ></div>
+</div>
+
+<ul
+  class="grid"
+  data-th-attr="aria-label=#{label.uploadedFiles}"
+  th:data-has-uploaded-files="${fileUploadQuestion.hasUploadedFiles()}"
+  th:fragment="file-list-display(fileUploadQuestion, oob)"
+  th:hx-swap-oob="${oob} ? 'true'"
+  th:id="${questionId + 'cf-fileupload-file-list'}"
+>
+  <th:block th:if="${fileUploadQuestion.getFileKeyListValue().isPresent()}">
+    <li
+      class="grid-row margin-y-1"
+      th:each="fileKey, iter : ${fileUploadQuestion.getFileKeyListValue().get()}"
+      th:if="${!#strings.isEmpty(fileKey)}"
+      th:with="fileName=${fileUploadQuestion.getFileNameForIndex(iter.index).orElse(fileKey)}"
+    >
+      <span
+        class="overflow-hidden grid-col flex-fill"
+        th:text="${fileName}"
+      ></span>
+      <button
+        class="usa-button usa-button--unstyled"
+        hx-swap="none"
+        th:aria-label="#{link.removeFileSr(${fileName})}"
+        th:hx-post="${hxRemoveFileUrl}"
+        th:hx-vals='|{"fileKey":"${fileKey}"}|'
+        th:text="#{link.removeFile}"
+        type="button"
+      ></button>
+    </li>
+  </th:block>
+</ul>
