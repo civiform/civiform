@@ -53,7 +53,7 @@ export const init = () => {
     toggleDisabledState()
   })
 
-  document.body.addEventListener('htmx:afterOnLoad', (event) => {
+  document.body.addEventListener('htmx:afterRequest', (event) => {
     if (!isFileUploadHtmxEvent(event)) return
     fileUploadsInProgress--
     if (fileUploadsInProgress <= 0) {
@@ -61,17 +61,12 @@ export const init = () => {
       document.body.classList.remove(CF_FILE_UPLOADING_CLASS)
     }
     toggleDisabledState()
-    resetFileInput(event)
-  })
-
-  document.body.addEventListener('htmx:responseError', (event) => {
-    if (!isFileUploadHtmxEvent(event)) return
-    fileUploadsInProgress--
-    if (fileUploadsInProgress <= 0) {
-      fileUploadsInProgress = 0
-      document.body.classList.remove(CF_FILE_UPLOADING_CLASS)
+    const detail = (event as CustomEvent).detail as
+      | {successful?: boolean}
+      | undefined
+    if (detail?.successful) {
+      resetFileInput(event)
     }
-    toggleDisabledState()
   })
 
   document.body.addEventListener('htmx:configRequest', (event) => {

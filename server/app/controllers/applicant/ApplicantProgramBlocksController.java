@@ -1135,6 +1135,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     if (questionId == null) {
       return CompletableFuture.completedFuture(badRequest());
     }
+    long parsedQuestionId;
+    try {
+      parsedQuestionId = Long.parseLong(questionId);
+    } catch (NumberFormatException e) {
+      return CompletableFuture.completedFuture(badRequest());
+    }
 
     String originalFileName = filePart.getFilename();
     String fileKey = filePart.getRef();
@@ -1156,8 +1162,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       .filter(
                           question ->
                               question.getType() == QuestionType.FILEUPLOAD
-                                  && question.getQuestionDefinition().getId()
-                                      == Long.parseLong(questionId))
+                                  && question.getQuestionDefinition().getId() == parsedQuestionId)
                       .findFirst()
                       .orElseThrow()
                       .createFileUploadQuestion();
