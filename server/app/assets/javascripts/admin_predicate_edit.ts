@@ -361,7 +361,7 @@ export class AdminPredicateEdit {
       nodeOperatorSelect.querySelector('#visibility-predicate-action-select')
     const logicDropdown: HTMLSelectElement = assertNotNull(
       nodeOperatorSelect.querySelector('#root-node-type'),
-    )
+    ) as HTMLSelectElement
 
     if (visibilityBehaviorDropdown) {
       setTimeout(() => visibilityBehaviorDropdown.focus(), 100)
@@ -546,7 +546,7 @@ export class AdminPredicateEdit {
 
     const defaultInputField = assertNotNull(
       defaultInputContainer.querySelector('input.usa-input'),
-    )
+    ) as HTMLElement
     const csvInputContainer = document.querySelector(
       `#${firstValueInputGroupId} [data-csv-input-type]`,
     ) as HTMLElement | undefined
@@ -572,15 +572,15 @@ export class AdminPredicateEdit {
         document.querySelector(
           `#${firstValueInputGroupId} [data-age-input-type][data-first-input]`,
         ),
-      )
+      ) as HTMLElement
       const secondDateInputContainer = assertNotNull(
         document.querySelector(
           `#${secondValueGroupId} [data-default-input-type]`,
         ),
-      )
+      ) as HTMLElement
       const secondAgeInputContainer = assertNotNull(
         document.querySelector(`#${secondValueGroupId} [data-age-input-type]`),
-      )
+      ) as HTMLElement
       this.filterDateQuestionVisibleInputs(
         selectedOperatorValue,
         defaultInputContainer,
