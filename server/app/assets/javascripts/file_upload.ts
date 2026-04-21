@@ -5,7 +5,6 @@ import {
   isFileTooLarge,
   showError,
 } from '@/file_upload_util'
-import {HtmxRequest} from '@/htmx_request'
 import {default as uswdsFileInput} from '@uswds/uswds/js/usa-file-input'
 
 const UPLOADED_FILE_ATTR = 'data-uploaded-files'
@@ -61,18 +60,14 @@ export const init = () => {
       document.body.classList.remove(CF_FILE_UPLOADING_CLASS)
     }
     toggleDisabledState()
-    const detail = (event as CustomEvent).detail as
-      | {successful?: boolean}
-      | undefined
-    if (detail?.successful) {
+    if (event.detail.successful) {
       resetFileInput(event)
     }
   })
 
   document.body.addEventListener('htmx:configRequest', (event) => {
     if (!isFileUploadHtmxEvent(event)) return
-    const customEvent = event as CustomEvent<HtmxRequest>
-    const triggerElt = customEvent.detail.elt
+    const triggerElt = event.detail.elt
 
     const questionDiv = triggerElt.closest(CF_FILE_UPLOAD_QUESTION_SELECTOR)
     if (!questionDiv) return
@@ -84,7 +79,7 @@ export const init = () => {
     if (!uploadedFilesAttribute) return
     const uploadedFilesArray = JSON.parse(uploadedFilesAttribute) as string[]
 
-    const formData = customEvent.detail.formData
+    const formData = event.detail.formData
     const file = formData.get('file')
     if (!(file instanceof File)) return
 
