@@ -2,6 +2,7 @@ package services;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.jayway.jsonpath.DocumentContext;
@@ -671,6 +672,61 @@ public class CfJsonDocumentContext {
       }
     }
     return pathsRemoved.build();
+  }
+
+  /**
+   * Result of {@link #mergeQuestionAnswersFrom}, reporting which question-answer paths were copied
+   * and which were skipped.
+   *
+   * @param mergedPaths paths from {@code other} that were copied into this document because they
+   *     did not already exist.
+   * @param droppedPaths paths from {@code other} that were skipped because this document already
+   *     contained a value at that path.
+   */
+  public record MergeQaResult(
+      ImmutableList<String> mergedPaths, ImmutableList<String> droppedPaths) {}
+
+  /**
+   * Copies top-level question-answer entries from {@code other} into this document. Unlike {@link
+   * #mergeFrom}, this method does not recurse into children — each direct child of the {@code
+   * "applicant"} key is either copied whole or skipped entirely.
+   *
+   * <p>Both this document and {@code other} must have exactly one root key, {@code "applicant"},
+   * whose value is a map. Each entry in {@code other}'s applicant map is copied if no entry with
+   * the same key exists in this document; otherwise it is dropped.
+   *
+   * @param other the source document to copy question answers from. Not modified.
+   * @return a {@link MergeQaResult} summarizing which paths were merged and which were dropped.
+   * @throws IllegalArgumentException if either document does not have the expected structure.
+   */
+  public MergeQaResult mergeQuestionAnswersFrom(CfJsonDocumentContext other) {
+    checkLocked();
+    Path applicantPath = Path.create("applicant");
+    Map<?, ?> otherMap = other.jsonData.read("$", Map.class);
+
+    Preconditions.checkArgument(
+        otherMap.size() == 1 && otherMap.containsKey(applicantPath.keyName()),
+        "Expected a single 'applicant' root key, found %s",
+        otherMap.keySet());
+    Preconditions.checkArgument(
+        this.hasPath(applicantPath), "Target document does not have 'applicant'");
+    Preconditions.checkArgument(
+        otherMap.get(applicantPath.keyName()) instanceof Map, "'applicant' value must be a map");
+
+    Map<?, ?> questionAnswers = (Map<?, ?>) otherMap.get("applicant");
+
+    ImmutableList.Builder<String> mergedPaths = ImmutableList.builder();
+    ImmutableList.Builder<String> droppedPaths = ImmutableList.builder();
+    for (Map.Entry<?, ?> entry : questionAnswers.entrySet()) {
+      Path entryPath = applicantPath.join(entry.getKey().toString());
+      if (hasPath(entryPath)) {
+        droppedPaths.add(entryPath.toString());
+      } else {
+        this.put(entryPath, entry.getValue());
+        mergedPaths.add(entryPath.toString());
+      }
+    }
+    return new MergeQaResult(mergedPaths.build(), droppedPaths.build());
   }
 
   protected void checkLocked() {

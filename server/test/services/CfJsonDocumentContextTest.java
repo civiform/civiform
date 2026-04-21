@@ -17,6 +17,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import services.CfJsonDocumentContext.MergeQaResult;
 import services.applicant.predicate.JsonPathPredicate;
 
 @RunWith(JUnitParamsRunner.class)
@@ -1037,5 +1038,175 @@ public class CfJsonDocumentContextTest {
     @SuppressWarnings("unchecked")
     Map<?, ?> otherAfter = other.getDocumentContext().read("$", Map.class);
     assertThat(otherAfter).isEqualTo(otherBefore);
+  }
+
+  /**
+   * Parameterized cases for mergeQuestionAnswersFrom behavior.
+   *
+   * <p>Both target and other must have a single root key {@code "applicant"} whose value is a map.
+   * Each child of {@code "applicant"} in other is either:
+   *
+   * <ul>
+   *   <li>{@code copied_*} — key is unique to other; will be copied into the result.
+   *   <li>{@code conflict_*} — key already exists in target; will NOT be copied (no recursion).
+   * </ul>
+   *
+   * <p>The result's {@code mergedPaths} lists paths that were copied; {@code droppedPaths} lists
+   * paths that were skipped because they already existed in target.
+   */
+  private Object[][] mergeQuestionAnswersFromCases() {
+    return new Object[][] {
+      // ── Case 1: Key unique to other — copied ────────────────────────────────
+      {
+        /* target   */ """
+        {"applicant":{"existing_q":{"text":"val"}}}
+        """,
+        /* other    */ """
+        {"applicant":{"copied_q":{"text":"other_val"}}}
+        """,
+        /* expected */ """
+        {"applicant":{"existing_q":{"text":"val"},"copied_q":{"text":"other_val"}}}
+        """,
+        /* mergedPaths  */ new String[] {"applicant.copied_q"},
+        /* droppedPaths */ new String[] {}
+      },
+
+      // ── Case 2: Key exists in both — conflict, not copied (no recursion) ────
+      // Even though the nested values differ, the entire child is not copied
+      // because the key already exists in target.
+      {
+        /* target   */ """
+        {"applicant":{"conflict_q":{"text":"retained_val"}}}
+        """,
+        /* other    */ """
+        {"applicant":{"conflict_q":{"text":"dropped_val"}}}
+        """,
+        /* expected */ """
+        {"applicant":{"conflict_q":{"text":"retained_val"}}}
+        """,
+        /* mergedPaths  */ new String[] {},
+        /* droppedPaths */ new String[] {"applicant.conflict_q"}
+      },
+
+      // ── Case 3: Key exists in both with same value — still a conflict ────────
+      // Even when values are identical, the path is reported as dropped
+      // because the key already existed in target.
+      {
+        /* target   */ """
+        {"applicant":{"conflict_q":{"text":"same_val"}}}
+        """,
+        /* other    */ """
+        {"applicant":{"conflict_q":{"text":"same_val"}}}
+        """,
+        /* expected */ """
+        {"applicant":{"conflict_q":{"text":"same_val"}}}
+        """,
+        /* mergedPaths  */ new String[] {},
+        /* droppedPaths */ new String[] {"applicant.conflict_q"}
+      },
+
+      // ── Case 4: Empty other — nothing to merge ─────────────────────────────
+      {
+        /* target   */ """
+        {"applicant":{"existing_q":{"text":"val"}}}
+        """,
+        /* other    */ """
+        {"applicant":{}}
+        """,
+        /* expected */ """
+        {"applicant":{"existing_q":{"text":"val"}}}
+        """,
+        /* mergedPaths  */ new String[] {},
+        /* droppedPaths */ new String[] {}
+      },
+
+      // ── Case 5: Empty target applicant — all copied ─────────────────────────
+      {
+        /* target   */ """
+        {"applicant":{}}
+        """,
+        /* other    */ """
+        {"applicant":{"copied_q1":{"text":"v1"},"copied_q2":{"text":"v2"}}}
+        """,
+        /* expected */ """
+        {"applicant":{"copied_q1":{"text":"v1"},"copied_q2":{"text":"v2"}}}
+        """,
+        /* mergedPaths  */ new String[] {"applicant.copied_q1", "applicant.copied_q2"},
+        /* droppedPaths */ new String[] {}
+      },
+
+      // ── Case 6: Mixed — some copied, some conflicts ─────────────────────────
+      {
+        /* target   */ """
+        {"applicant":{"conflict_shared":{"text":"retained_val"},"only_target":{"text":"t"}}}
+        """,
+        /* other    */ """
+        {"applicant":{"copied_new":{"text":"new_val"},"conflict_shared":{"text":"dropped_val"}}}
+        """,
+        /* expected */ """
+        {"applicant":{"conflict_shared":{"text":"retained_val"},"only_target":{"text":"t"},\
+        "copied_new":{"text":"new_val"}}}
+        """,
+        /* mergedPaths  */ new String[] {"applicant.copied_new"},
+        /* droppedPaths */ new String[] {"applicant.conflict_shared"}
+      },
+    };
+  }
+
+  @Test
+  @Parameters(method = "mergeQuestionAnswersFromCases")
+  public void mergeQuestionAnswersFrom(
+      String targetJson,
+      String otherJson,
+      String expectedJson,
+      String[] expectedMergedPaths,
+      String[] expectedDroppedPaths) {
+    CfJsonDocumentContext target = new CfJsonDocumentContext(targetJson.strip());
+    CfJsonDocumentContext other = new CfJsonDocumentContext(otherJson.strip());
+    Map<?, ?> otherBefore = other.getDocumentContext().read("$", Map.class);
+
+    MergeQaResult result = target.mergeQuestionAnswersFrom(other);
+
+    // Verify the merged result matches the expected JSON (order-insensitive).
+    Map<?, ?> actual = target.getDocumentContext().read("$", Map.class);
+    Map<?, ?> expected =
+        new CfJsonDocumentContext(expectedJson.strip()).getDocumentContext().read("$", Map.class);
+    assertThat(actual).isEqualTo(expected);
+
+    // Verify merged and dropped paths.
+    assertThat(result.mergedPaths()).containsExactlyInAnyOrder(expectedMergedPaths);
+    assertThat(result.droppedPaths()).containsExactlyInAnyOrder(expectedDroppedPaths);
+
+    // Verify other is never modified.
+    @SuppressWarnings("unchecked")
+    Map<?, ?> otherAfter = other.getDocumentContext().read("$", Map.class);
+    assertThat(otherAfter).isEqualTo(otherBefore);
+  }
+
+  @Test
+  public void mergeQuestionAnswersFrom_rejectsNoApplicantKey() {
+    CfJsonDocumentContext target = new CfJsonDocumentContext("{\"applicant\":{}}");
+    CfJsonDocumentContext other = new CfJsonDocumentContext("{\"not_applicant\":{}}");
+
+    assertThatThrownBy(() -> target.mergeQuestionAnswersFrom(other))
+        .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  public void mergeQuestionAnswersFrom_rejectsMultipleRootKeys() {
+    CfJsonDocumentContext target = new CfJsonDocumentContext("{\"applicant\":{}}");
+    CfJsonDocumentContext other = new CfJsonDocumentContext("{\"applicant\":{},\"extra\":{}}");
+
+    assertThatThrownBy(() -> target.mergeQuestionAnswersFrom(other))
+        .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  public void mergeQuestionAnswersFrom_rejectsTargetWithoutApplicant() {
+    CfJsonDocumentContext target = new CfJsonDocumentContext("{\"not_applicant\":{}}");
+    CfJsonDocumentContext other = new CfJsonDocumentContext("{\"applicant\":{}}");
+
+    assertThatThrownBy(() -> target.mergeQuestionAnswersFrom(other))
+        .isInstanceOf(IllegalArgumentException.class);
   }
 }
