@@ -3,7 +3,7 @@
     th:if="${question.getType().getLabel() == 'File Upload' && !featureFlags.isFileUploadQuestionImprovementsEnabled()}"
   >
     <div
-      th:replace="~{questiontypes/FileUploadQuestionFragment :: file-upload(${question}, ${questionRendererParams})}"
+      th:replace="~{questiontypes/LegacyFileUploadQuestionFragment :: file-upload(${question}, ${questionRendererParams})}"
     ></div>
   </th:block>
 

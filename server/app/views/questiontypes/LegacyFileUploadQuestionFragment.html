@@ -36,11 +36,11 @@
     th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fileUploadQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams}, ${questionId})}"
   ></div>
 
-  <!--/* Errors always rendered in the DOM and hidden, but shown by applicant_file_upload.ts when needed. */-->
+  <!--/* Errors always rendered in the DOM and hidden, but shown by file_upload.ts when needed. */-->
   <div
     hidden
     class="usa-alert usa-alert--error usa-alert--slim"
-    data-fileupload-error="required"
+    id="cf-fileupload-required-error"
   >
     <div class="usa-alert__body">
       <p
@@ -52,7 +52,7 @@
   <div
     hidden
     class="usa-alert usa-alert--error usa-alert--slim"
-    data-fileupload-error="too-large"
+    id="cf-fileupload-too-large-error"
   >
     <div class="usa-alert__body">
       <p
@@ -73,9 +73,13 @@
     th:data-file-limit-mb="${maxFileSizeMb}"
     th:disabled="${!fileUploadQuestion.canUploadFile()}"
     th:aria-required="${!question.isOptional()}"
-    th:hx-post="${!isPreview} ? ${hxSelectFileForUploadUrl}"
-    th:hx-trigger="${!isPreview} ? 'change'"
-    th:hx-encoding="${!isPreview} ? 'multipart/form-data'"
-    th:hx-vals='|{"questionId": ${question.getQuestionDefinition().getId()}}|'
+  />
+</div>
+
+<!--/* Fragment for rendering file key fields within hidden inputs */-->
+<div th:fragment="file-key-field(fileUploadQuestion, clearData)">
+  <input
+    th:name="${fileUploadQuestion.getFileKeyPath()}"
+    th:value="${clearData ? '' : fileUploadQuestion.getFileKeyValue().orElse('')}"
   />
 </div>
