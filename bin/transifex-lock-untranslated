@@ -35,21 +35,14 @@ def get_resources(project_id, headers):
     return paginate(url, headers, params)
 
 
-def get_untranslated_translations(resource_id, language_id, headers):
-    url = f"{BASE_URL}/resource_translations"
+def find_resource_string_by_key(resource_id, key, headers):
+    url = f"{BASE_URL}/resource_strings"
     params = {
         "filter[resource]": resource_id,
-        "filter[language]": language_id,
-        "filter[translated]": "false",
+        "filter[key]": key,
     }
-    return paginate(url, headers, params)
-
-
-def get_resource_string(string_id, headers):
-    url = f"{BASE_URL}/resource_strings/{string_id}"
-    response = requests.get(url, headers=headers)
-    response.raise_for_status()
-    return response.json().get("data", {})
+    matches = paginate(url, headers, params)
+    return matches[0] if matches else None
 
 
 def update_tags(string_id, tags, headers):
@@ -71,13 +64,12 @@ def update_tags(string_id, tags, headers):
 def parse_args():
     parser = argparse.ArgumentParser(
         description=(
-            "Tag untranslated Transifex source strings with 'locked' when they are not already locked "
-            "and they do not have translation instructions or context."
+            "Tag Transifex source strings with 'locked' for message keys added in the PR diff, "
+            "skipping strings that are already locked or have translation instructions/context."
         )
     )
     parser.add_argument("--org-slug", default="civiform", help="Transifex organization slug")
     parser.add_argument("--project-slug", default="civiform", help="Transifex project slug")
-    parser.add_argument("--language-code", default="fr", help="Language code used to identify untranslated strings")
     parser.add_argument(
         "--api-token",
         help="Transifex API token. If omitted, reads from TRANSIFEX_API_TOKEN environment variable.",
@@ -86,6 +78,14 @@ def parse_args():
         "--dry-run",
         action="store_true",
         help="List strings that would be tagged without updating Transifex.",
+    )
+    parser.add_argument(
+        "--diff-file",
+        help=(
+            "Path to a file containing the messages diff (unified diff format). "
+            "If omitted, reads from the MESSAGES_DIFF environment variable. "
+            "Useful for local testing."
+        ),
     )
     parser.add_argument(
         "--pause",
@@ -99,6 +99,16 @@ def parse_args():
 def main():
     args = parse_args()
     api_token = args.api_token or os.environ.get("TRANSIFEX_API_TOKEN")
+
+    if args.diff_file:
+        with open(args.diff_file) as f:
+            messages_diff = f.read()
+    else:
+        messages_diff = os.environ.get("MESSAGES_DIFF", "")
+
+    if not messages_diff:
+        print("No changes detected in messages file. Exiting without making API calls.")
+        sys.exit(0)
     if not api_token:
         print("ERROR: must provide a Transifex API token via --api-token or TRANSIFEX_API_TOKEN")
         sys.exit(1)
@@ -108,81 +118,82 @@ def main():
         "Content-Type": "application/vnd.api+json",
     }
 
+    keys_to_lock = set()
+    for line in messages_diff.splitlines():
+        # Skip patch header lines like "+++ b/server/conf/i18n/messages".
+        if not line.startswith("+") or line.startswith("+++"):
+            continue
+        line = line[1:]
+        if "=" in line:
+            key = line.split("=", 1)[0].strip()
+            keys_to_lock.add(key)
+
+    if not keys_to_lock:
+        print("No added message keys found in diff. Exiting without making API calls.")
+        sys.exit(0)
+
     project_id = f"o:{args.org_slug}:p:{args.project_slug}"
-    language_id = f"l:{args.language_code}"
 
     print(f"Target project: {project_id}")
-    print(f"Target language: {language_id}")
+    print(f"Found {len(keys_to_lock)} added message keys in diff.")
     print("\nFetching resources...")
 
     resources = get_resources(project_id, headers)
     print(f"Found {len(resources)} resources.")
 
+    remaining_keys = set(keys_to_lock)
     total_tagged = 0
-    total_locked = 0
+    total_skipped_locked = 0
     total_skipped_context = 0
     total_errors = 0
 
     for resource in resources:
+        if not remaining_keys:
+            break
+
         resource_id = resource["id"]
         resource_name = resource.get("attributes", {}).get("name", resource_id)
-        print(f"\nProcessing resource: {resource_name}")
+        print(f"\nProcessing resource: {resource_name} ({len(remaining_keys)} keys to look up)")
 
-        translations = get_untranslated_translations(resource_id, language_id, headers)
-        untranslated_string_ids = {
-            t["relationships"]["resource_string"]["data"]["id"]
-            for t in translations
-            if t.get("relationships", {}).get("resource_string", {}).get("data")
-        }
-
-        if not untranslated_string_ids:
-            print("  No untranslated strings found.")
-            continue
-
-        print(f"  Found {len(untranslated_string_ids)} untranslated strings. Checking tags & context...")
-
-        tagged_count = 0
-        skipped_locked = 0
-        skipped_has_context = 0
-
-        for string_id in sorted(untranslated_string_ids):
+        for key in sorted(remaining_keys):
             try:
-                resource_string = get_resource_string(string_id, headers)
+                resource_string = find_resource_string_by_key(resource_id, key, headers)
+                if resource_string is None:
+                    continue
+
+                # Key found in this resource; don't search subsequent resources for it.
+                remaining_keys.discard(key)
+
                 attributes = resource_string.get("attributes", {})
                 current_tags = attributes.get("tags") or []
                 context = (attributes.get("context") or "").strip()
                 instructions = (attributes.get("instructions") or "").strip()
+                string_id = resource_string["id"]
 
                 if "locked" in current_tags:
-                    skipped_locked += 1
+                    total_skipped_locked += 1
                     continue
 
                 if context or instructions:
-                    skipped_has_context += 1
+                    total_skipped_context += 1
                     continue
 
-                print(f"    Locking string: {string_id}")
+                print(f"    Locking {key} ({string_id})")
                 if not args.dry_run:
                     update_tags(string_id, current_tags + ["locked"], headers)
                     time.sleep(args.pause)
-                tagged_count += 1
+                total_tagged += 1
             except requests.exceptions.HTTPError as exc:
-                print(f"    Error processing {string_id}: {exc}")
+                print(f"    Error processing key {key}: {exc}")
                 total_errors += 1
 
-        print(
-            f"  Summary: tagged={tagged_count}, skipped_locked={skipped_locked}, "
-            f"skipped_context_or_instructions={skipped_has_context}"
-        )
-
-        total_tagged += tagged_count
-        total_locked += skipped_locked
-        total_skipped_context += skipped_has_context
-
     print(
-        f"\nFinished. total_tagged={total_tagged}, total_skipped_locked={total_locked}, "
-        f"total_skipped_context_or_instructions={total_skipped_context}, total_errors={total_errors}"
+        f"\nFinished. total_tagged={total_tagged}, total_skipped_locked={total_skipped_locked}, "
+        f"total_skipped_context_or_instructions={total_skipped_context}, "
+        f"keys_not_found={len(remaining_keys)}, total_errors={total_errors}"
     )
+    if remaining_keys:
+        print(f"Keys not found in any resource: {sorted(remaining_keys)}")
 
     if total_errors:
         sys.exit(1)

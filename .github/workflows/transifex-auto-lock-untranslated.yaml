@@ -7,7 +7,6 @@ on:
 
 permissions:
   contents: read
-  pull-requests: read
 
 jobs:
   lock_untranslated_strings:
@@ -18,28 +17,30 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Check if source messages file was modified
-        id: check_messages
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd
         with:
-          script: |
-            const files = await github.rest.pulls.listFiles({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.payload.pull_request.number,
-            });
-            const messagesModified = files.data.some(file => file.filename === 'server/conf/i18n/messages');
-            core.setOutput('modified', messagesModified ? 'true' : 'false');
+          fetch-depth: 0
+
+      - name: Compute messages file diff
+        id: diff
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          git diff --merge-base "$BASE_SHA" "$HEAD_SHA" -- server/conf/i18n/messages > /tmp/messages.diff
+          if [ -s /tmp/messages.diff ]; then
+            echo "modified=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "modified=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Install Python dependencies
-        if: steps.check_messages.outputs.modified == 'true'
+        if: steps.diff.outputs.modified == 'true'
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install requests
 
       - name: Run Transifex lock script
-        if: steps.check_messages.outputs.modified == 'true'
+        if: steps.diff.outputs.modified == 'true'
         env:
           TRANSIFEX_API_TOKEN: ${{ secrets.TRANSIFEX_API_TOKEN }}
-        run: ./bin/transifex-lock-untranslated --language-code fr
+        run: ./bin/transifex-lock-untranslated --diff-file /tmp/messages.diff
