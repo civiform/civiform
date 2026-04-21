@@ -14,6 +14,8 @@ import models.LifecycleStage;
 import models.StoredFileModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import services.CfJsonDocumentContext.MergeQaResult;
+import services.applicant.ApplicantData;
 
 public final class CiviFormAccountMerger {
   private static final Logger logger = LoggerFactory.getLogger(CiviFormAccountMerger.class);
@@ -62,7 +64,8 @@ public final class CiviFormAccountMerger {
     String fileLog = mergeGuestFilesIntoCfUser(civiformUser.id, guestUser.id, applyChanges);
     finalLogMessage.append("\n").append(fileLog);
     // 3. Merge CFApp question answers and PAI into guest data and store in CF App
-    // TODO(#11389): Step 3 is not yet implemented.
+    String mergeQaLog = mergeQuestionAnswers(civiformUser, guestUser, applyChanges);
+    finalLogMessage.append("\n").append(mergeQaLog);
     logger.info("{}", finalLogMessage);
   }
 
@@ -614,5 +617,81 @@ public final class CiviFormAccountMerger {
     Giving the CiviForm user read permissions to the guest's file IDs: %s
     """
         .formatted(fileIds);
+  }
+
+  private static String mergeQuestionAnswers(
+      ApplicantModel civiformUser, ApplicantModel guestUser, boolean applyChanges) {
+    // Merge question answers in the Applicant object data.
+    // Use the guest's as the base, and supplement with the CiviForm users
+    // for any questions that are missing.
+    ApplicantData mergeData = new ApplicantData(guestUser.getApplicantData().asJsonString());
+    MergeQaResult qaMergeSummary =
+        mergeData.mergeQuestionAnswersFrom(civiformUser.getApplicantData());
+    if (applyChanges) {
+      civiformUser.setApplicantData(mergeData);
+    }
+
+    // Collect the CiviForm user answers that effectively supplement the
+    // guest's.  Determining this is a little backwards because as a
+    // narrative, we are supplementing the guest's data with the cf users,
+    // however programmatically we are copying guest data into the cf user.
+    // So to determine which cf user data is retained we track which of its
+    // pais exist but weren't overwritten.
+    StringJoiner cfPaisNotOverwritten = new StringJoiner(",");
+
+    // Merge question answers in the PAIs.  As above, prefer the guest's answers when present.
+    // Name.  First/Last are required in forms, the others are not.
+    if (guestUser.getFirstName().isPresent() && guestUser.getLastName().isPresent()) {
+      if (applyChanges) {
+        civiformUser.setUserName(
+            /* firstName= */ guestUser.getFirstName().get(),
+            /* middleName= */ guestUser.getMiddleName(),
+            /* lastName= */ guestUser.getLastName(),
+            /* nameSuffix= */ guestUser.getSuffix());
+      }
+
+    } else if (civiformUser.getFirstName().isPresent() && civiformUser.getLastName().isPresent()) {
+      cfPaisNotOverwritten.add("name");
+    }
+
+    // Email.
+    if (guestUser.getEmailAddress().isPresent()) {
+      if (applyChanges) {
+        civiformUser.setEmailAddress(guestUser.getEmailAddress().get());
+      }
+    } else if (civiformUser.getEmailAddress().isPresent()) {
+      cfPaisNotOverwritten.add("email");
+    }
+
+    // Phone number.
+    if (guestUser.getPhoneNumber().isPresent()) {
+      if (applyChanges) {
+        civiformUser.setPhoneNumber(guestUser.getPhoneNumber().get());
+      }
+    } else if (civiformUser.getPhoneNumber().isPresent()) {
+      cfPaisNotOverwritten.add("phone-number");
+    }
+
+    // Date of birth.
+    if (guestUser.getDateOfBirth().isPresent()) {
+      if (applyChanges) {
+        civiformUser.setDateOfBirth(guestUser.getDateOfBirth().get());
+      }
+    } else if (civiformUser.getDateOfBirth().isPresent()) {
+      cfPaisNotOverwritten.add("dob");
+    }
+
+    if (applyChanges) {
+      civiformUser.save();
+    }
+    return """
+    Using guest applicant data and supplementing with CiviForm user data:
+    * CiviForm question answers: %d copied %d not copied.
+    * CiviForm PAIs copied: %s
+    """
+        .formatted(
+            qaMergeSummary.mergedPaths().size(),
+            qaMergeSummary.droppedPaths().size(),
+            cfPaisNotOverwritten);
   }
 }
