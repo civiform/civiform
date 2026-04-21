@@ -359,13 +359,12 @@ export class AdminPredicateEdit {
     // Focus the first dropdown in the root node operator select.
     const visibilityBehaviorDropdown: HTMLSelectElement | null =
       nodeOperatorSelect.querySelector('#visibility-predicate-action-select')
-    const logicDropdown: HTMLSelectElement = assertNotNull(
-      nodeOperatorSelect.querySelector('#root-node-type'),
-    ) as HTMLSelectElement
+    const logicDropdown: HTMLSelectElement | null =
+      nodeOperatorSelect.querySelector('#root-node-type')
 
     if (visibilityBehaviorDropdown) {
       setTimeout(() => visibilityBehaviorDropdown.focus(), 100)
-    } else {
+    } else if (logicDropdown) {
       setTimeout(() => logicDropdown.focus(), 100)
     }
   }
@@ -544,8 +543,8 @@ export class AdminPredicateEdit {
       return
     }
 
-    const defaultInputField = assertNotNull(
-      defaultInputContainer.querySelector('input.usa-input'),
+    const defaultInputField = defaultInputContainer.querySelector(
+      'input.usa-input',
     ) as HTMLElement
     const csvInputContainer = document.querySelector(
       `#${firstValueInputGroupId} [data-csv-input-type]`,
@@ -568,18 +567,14 @@ export class AdminPredicateEdit {
     // Depending on the currently selected operator, filter visible input fields
     // Date operators vs. age operators vs. csv operators use different input fields.
     if (defaultInputField.hasAttribute('data-date-value')) {
-      const ageInputContainer = assertNotNull(
-        document.querySelector(
-          `#${firstValueInputGroupId} [data-age-input-type][data-first-input]`,
-        ),
+      const ageInputContainer = document.querySelector(
+        `#${firstValueInputGroupId} [data-age-input-type][data-first-input]`,
       ) as HTMLElement
-      const secondDateInputContainer = assertNotNull(
-        document.querySelector(
-          `#${secondValueGroupId} [data-default-input-type]`,
-        ),
+      const secondDateInputContainer = document.querySelector(
+        `#${secondValueGroupId} [data-default-input-type]`,
       ) as HTMLElement
-      const secondAgeInputContainer = assertNotNull(
-        document.querySelector(`#${secondValueGroupId} [data-age-input-type]`),
+      const secondAgeInputContainer = document.querySelector(
+        `#${secondValueGroupId} [data-age-input-type]`,
       ) as HTMLElement
       this.filterDateQuestionVisibleInputs(
         selectedOperatorValue,
