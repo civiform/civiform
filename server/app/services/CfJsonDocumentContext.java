@@ -687,9 +687,9 @@ public class CfJsonDocumentContext {
       ImmutableList<String> mergedPaths, ImmutableList<String> droppedPaths) {}
 
   /**
-   * Copies top-level question-answer entries from {@code other} into this document. Unlike {@link
-   * #mergeFrom}, this method does not recurse into children — each direct child of the {@code
-   * "applicant"} key is either copied whole or skipped entirely.
+   * Copies top-level question-answer entries from {@code other} into this document.
+   *
+   * <p>Each direct child of the {@code "applicant"} key is either copied whole or skipped entirely.
    *
    * <p>Both this document and {@code other} must have exactly one root key, {@code "applicant"},
    * whose value is a map. Each entry in {@code other}'s applicant map is copied if no entry with
@@ -703,15 +703,22 @@ public class CfJsonDocumentContext {
     checkLocked();
     Path applicantPath = Path.create("applicant");
     Map<?, ?> otherMap = other.jsonData.read("$", Map.class);
+    Map<?, ?> thisMap = this.jsonData.read("$", Map.class);
 
     Preconditions.checkArgument(
         otherMap.size() == 1 && otherMap.containsKey(applicantPath.keyName()),
-        "Expected a single 'applicant' root key, found %s",
+        "Expected a single 'applicant' root key in input, found %s",
         otherMap.keySet());
     Preconditions.checkArgument(
-        this.hasPath(applicantPath), "Target document does not have 'applicant'");
+        thisMap.size() == 1 && thisMap.containsKey(applicantPath.keyName()),
+        "Expected a single 'applicant' root key in target, found %s",
+        thisMap.keySet());
     Preconditions.checkArgument(
-        otherMap.get(applicantPath.keyName()) instanceof Map, "'applicant' value must be a map");
+        otherMap.get(applicantPath.keyName()) instanceof Map,
+        "Input 'applicant' value must be a map");
+    Preconditions.checkArgument(
+        thisMap.get(applicantPath.keyName()) instanceof Map,
+        "Target 'applicant' value must be a map");
 
     Map<?, ?> questionAnswers = (Map<?, ?>) otherMap.get("applicant");
 
