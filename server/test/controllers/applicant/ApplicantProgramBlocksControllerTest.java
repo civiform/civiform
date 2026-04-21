@@ -1348,7 +1348,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
 
     program =
-        ProgramBuilder.newActiveProgram()
+        ProgramBuilder.newActiveProgram("test-program")
             .withBlock("block 1")
             .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .withBlock("block 2")
@@ -1360,7 +1360,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .updateWithApplicantId(
                 request,
                 applicant.id,
-                String.valueOf(program.id),
+                program.getSlug(),
                 /* blockId= */ "1",
                 /* inReview= */ false,
                 new ApplicantRequestedActionWrapper(NEXT_BLOCK))
@@ -1741,7 +1741,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .updateWithApplicantId(
                 request,
                 applicant.id,
-                String.valueOf(program.id),
+                program.getSlug(),
                 /* blockId= */ "1",
                 /* inReview= */ false,
                 new ApplicantRequestedActionWrapper())
@@ -1753,42 +1753,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     String reviewRoute = routes.ApplicantProgramReviewController.review(program.getSlug()).url();
 
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
-  }
-
-  @Test
-  public void addFile_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
-    Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
-
-    Result result =
-        subject
-            .addFile(request, program.id, /* blockId= */ "1", /* inReview= */ false)
-            .toCompletableFuture()
-            .join();
-
-    // Redirects to home since program IDs are not supported when feature is enabled and program
-    // param expects a program slug
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation()).hasValue("/");
-  }
-
-  @Test
-  public void
-      addFileWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
-    Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
-
-    Result result =
-        subject
-            .addFileWithApplicantId(
-                request, applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)
-            .toCompletableFuture()
-            .join();
-
-    // Redirects to home since program IDs are not supported when feature is enabled and program
-    // param expects a program slug
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation()).hasValue("/");
   }
 
   @Test
@@ -2182,30 +2146,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void
-      removeFileWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
-    Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
-
-    Result result =
-        subject
-            .removeFileWithApplicantId(
-                request,
-                applicant.id,
-                program.id,
-                /* blockId= */ "1",
-                /* fileKeyToRemove= */ "fake-key",
-                /* inReview= */ false)
-            .toCompletableFuture()
-            .join();
-
-    // Redirects to home since program IDs are not supported when feature is enabled and program
-    // param expects a program slug
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation()).hasValue("/");
-  }
-
-  @Test
   public void removeFileWithApplicantId_invalidApplicant_returnsUnauthorized() {
     program =
         ProgramBuilder.newActiveProgram()
@@ -2274,28 +2214,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-  }
-
-  @Test
-  public void removeFile_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
-    Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
-
-    Result result =
-        subject
-            .removeFile(
-                request,
-                program.id,
-                /* blockId= */ "1",
-                /* fileKeyToRemove= */ "fake-key",
-                /* inReview= */ false)
-            .toCompletableFuture()
-            .join();
-
-    // Redirects to home since program IDs are not supported when feature is enabled and program
-    // param expects a program slug
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation()).hasValue("/");
   }
 
   @Test
