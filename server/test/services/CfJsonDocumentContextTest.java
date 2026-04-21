@@ -1185,8 +1185,16 @@ public class CfJsonDocumentContextTest {
 
   @Test
   public void mergeQuestionAnswersFrom_rejectsNoApplicantKey() {
-    CfJsonDocumentContext target = new CfJsonDocumentContext("{\"applicant\":{}}");
-    CfJsonDocumentContext other = new CfJsonDocumentContext("{\"not_applicant\":{}}");
+    CfJsonDocumentContext target =
+        new CfJsonDocumentContext(
+            """
+            {"applicant":{}}\
+            """);
+    CfJsonDocumentContext other =
+        new CfJsonDocumentContext(
+            """
+            {"not_applicant":{}}\
+            """);
 
     assertThatThrownBy(() -> target.mergeQuestionAnswersFrom(other))
         .isInstanceOf(IllegalArgumentException.class);
@@ -1194,8 +1202,16 @@ public class CfJsonDocumentContextTest {
 
   @Test
   public void mergeQuestionAnswersFrom_rejectsMultipleRootKeys() {
-    CfJsonDocumentContext target = new CfJsonDocumentContext("{\"applicant\":{}}");
-    CfJsonDocumentContext other = new CfJsonDocumentContext("{\"applicant\":{},\"extra\":{}}");
+    CfJsonDocumentContext target =
+        new CfJsonDocumentContext(
+            """
+            {"applicant":{}}\
+            """);
+    CfJsonDocumentContext other =
+        new CfJsonDocumentContext(
+            """
+            {"applicant":{},"extra":{}}\
+            """);
 
     assertThatThrownBy(() -> target.mergeQuestionAnswersFrom(other))
         .isInstanceOf(IllegalArgumentException.class);
@@ -1203,8 +1219,16 @@ public class CfJsonDocumentContextTest {
 
   @Test
   public void mergeQuestionAnswersFrom_rejectsTargetWithoutApplicant() {
-    CfJsonDocumentContext target = new CfJsonDocumentContext("{\"not_applicant\":{}}");
-    CfJsonDocumentContext other = new CfJsonDocumentContext("{\"applicant\":{}}");
+    CfJsonDocumentContext target =
+        new CfJsonDocumentContext(
+            """
+            {"not_applicant":{}}\
+            """);
+    CfJsonDocumentContext other =
+        new CfJsonDocumentContext(
+            """
+            {"applicant":{}}\
+            """);
 
     assertThatThrownBy(() -> target.mergeQuestionAnswersFrom(other))
         .isInstanceOf(IllegalArgumentException.class);
