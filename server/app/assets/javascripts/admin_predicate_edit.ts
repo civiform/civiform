@@ -1,4 +1,4 @@
-import {HtmxAfterSwapEvent} from '@/htmx_request'
+import {HtmxAfterSwapEvent} from '@/types/htmx'
 import {addEventListenerToElements, assertNotNull} from '@/util'
 
 export class AdminPredicateEdit {
@@ -23,11 +23,11 @@ export class AdminPredicateEdit {
   static INITIAL_PREDICATE_FORM_STATE: string
 
   static onHtmxAfterSwap(event: HtmxAfterSwapEvent): void {
-    const targetId: string = event.target.id
+    const targetId: string = event.detail.target.id
     // Update for changes to 'subcondition-container', and also refreshes of condition lists.
     // The predicate list refreshes occur when a condition is deleted.
     if (
-      event.target.classList.contains('subcondition-container') ||
+      event.detail.target.classList.contains('subcondition-container') ||
       targetId === 'predicate-conditions-list' ||
       this.SUBCONDITION_LIST_ID_REGEX.test(targetId)
     ) {
@@ -361,7 +361,7 @@ export class AdminPredicateEdit {
       nodeOperatorSelect.querySelector('#visibility-predicate-action-select')
     const logicDropdown: HTMLSelectElement = assertNotNull(
       nodeOperatorSelect.querySelector('#root-node-type'),
-    ) as HTMLSelectElement
+    )
 
     if (visibilityBehaviorDropdown) {
       setTimeout(() => visibilityBehaviorDropdown.focus(), 100)
@@ -546,7 +546,7 @@ export class AdminPredicateEdit {
 
     const defaultInputField = assertNotNull(
       defaultInputContainer.querySelector('input.usa-input'),
-    ) as HTMLElement
+    )
     const csvInputContainer = document.querySelector(
       `#${firstValueInputGroupId} [data-csv-input-type]`,
     ) as HTMLElement | undefined
@@ -572,15 +572,15 @@ export class AdminPredicateEdit {
         document.querySelector(
           `#${firstValueInputGroupId} [data-age-input-type][data-first-input]`,
         ),
-      ) as HTMLElement
+      )
       const secondDateInputContainer = assertNotNull(
         document.querySelector(
           `#${secondValueGroupId} [data-default-input-type]`,
         ),
-      ) as HTMLElement
+      )
       const secondAgeInputContainer = assertNotNull(
         document.querySelector(`#${secondValueGroupId} [data-age-input-type]`),
-      ) as HTMLElement
+      )
       this.filterDateQuestionVisibleInputs(
         selectedOperatorValue,
         defaultInputContainer,
@@ -755,8 +755,8 @@ export class AdminPredicateEdit {
     defaultInput: HTMLElement,
     csvInputContainer: HTMLElement,
   ) {
-    let hiddenElements = []
-    let shownElements = []
+    let hiddenElements
+    let shownElements
     if (AdminPredicateEdit.CSV_OPERATORS.includes(selectedOperatorValue)) {
       hiddenElements = [defaultInput]
       shownElements = [csvInputContainer]
@@ -789,8 +789,8 @@ export class AdminPredicateEdit {
   ) {
     const ageOperators = ['AGE_BETWEEN', 'AGE_OLDER_THAN', 'AGE_YOUNGER_THAN']
 
-    let hiddenElements: HTMLElement[] = []
-    let shownElements: HTMLElement[] = []
+    let hiddenElements: HTMLElement[]
+    let shownElements: HTMLElement[]
     if (ageOperators.includes(selectedOperatorValue)) {
       hiddenElements = [
         dateInputContainer,
