@@ -7,10 +7,6 @@ enum ProgramType {
   EXTERNAL = 'External program',
 }
 
-interface HtmxDetail {
-  target?: HTMLElement
-}
-
 class AdminPrograms {
   private static PROGRAM_CARDS_SELECTOR = '.cf-admin-program-card'
   private static PROGRAM_LINK_ATTRIBUTE = 'data-copyable-program-link'
@@ -360,10 +356,7 @@ class AdminPrograms {
 
   static attachEventListenerToHtmxSwap() {
     document.body.addEventListener('htmx:afterSwap', (e) => {
-      const targetElement = (e as CustomEvent<HtmxDetail>).detail.target
-      if (!targetElement) {
-        return
-      }
+      const targetElement = e.detail.target
       if (targetElement.id === 'enumerator-setup') {
         if (document.getElementById('new-enumerator-question-form-errors')) {
           this.focusOnFirstEnumeratorFormField()
