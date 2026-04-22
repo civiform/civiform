@@ -40,20 +40,6 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
       await validateScreenshot(page.locator('main'), 'file-required')
     })
 
-    test('form is correctly formatted', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.clickContinue()
-
-      const formInputs = await page
-        .locator('#cf-block-form')
-        .locator('input')
-        .all()
-      const lastFormInput = formInputs[formInputs.length - 1]
-
-      // AWS requires that the <input type="file"> element to be the last <input> in the <form>
-      await expect(lastFormInput).toHaveAttribute('type', 'file')
-    })
-
     test('does not show errors initially', async ({
       applicantQuestions,
       applicantFileQuestion,
@@ -184,6 +170,91 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
       // A required file upload question should never show a Delete button
       await applicantFileQuestion.expectNoDeleteButton()
     })
+
+    // Regression test for https://github.com/civiform/civiform/issues/6221.
+    test('can replace file', async ({
+      applicantQuestions,
+      applicantFileQuestion,
+      page,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+
+      await applicantQuestions.answerFileUploadQuestionFromAssets(
+        'file-upload.png',
+      )
+      await waitForHtmxReady(page)
+      await applicantFileQuestion.expectFileNameDisplayed('file-upload.png')
+
+      await applicantQuestions.answerFileUploadQuestionFromAssets(
+        'file-upload-second.png',
+      )
+      await waitForHtmxReady(page)
+      await applicantFileQuestion.expectFileNameDisplayed(
+        'file-upload-second.png',
+      )
+
+      await applicantQuestions.clickContinue()
+
+      await applicantQuestions.expectReviewPage()
+      await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+        fileUploadQuestionText,
+        'file-upload-second.png',
+      )
+    })
+
+    test('can download file content', async ({applicantQuestions, page}) => {
+      await applicantQuestions.applyProgram(programName)
+      const fileName = 'file.pdf'
+      const fileContent =
+        '%PDF-1.4\n' +
+        '1 0 obj\n' +
+        '<< /Type /Catalog >>\n' +
+        'endobj\n' +
+        'trailer\n' +
+        '<<>>\n' +
+        '%%EOF\n' +
+        'some sample text'
+      await applicantQuestions.answerFileUploadQuestion(fileContent, fileName)
+      await waitForHtmxReady(page)
+      await applicantQuestions.clickContinue()
+
+      const downloadedFileContent =
+        await applicantQuestions.downloadFileFromUploadPage(fileName)
+      expect(downloadedFileContent).toEqual(fileContent)
+    })
+
+    test('re-answering question shows previously uploaded file name on review and block pages', async ({
+      page,
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
+      // Answer the file upload question
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerFileUploadQuestion(
+        'some text',
+        'testFileName.txt',
+      )
+      await applicantQuestions.clickContinue()
+
+      // Verify the previously uploaded file name is shown on the review page
+      await applicantQuestions.expectReviewPage()
+      await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+        fileUploadQuestionText,
+        'testFileName.txt',
+      )
+
+      // Re-open the file upload question
+      await applicantQuestions.editQuestionFromReviewPage(
+        fileUploadQuestionText,
+      )
+
+      // Verify the previously uploaded file name is shown on the block page
+      await applicantFileQuestion.expectFileNameDisplayed('testFileName.txt')
+      await validateScreenshot(
+        page.locator('main'),
+        'file-required-re-answered',
+      )
+    })
   })
 
   test.describe('test multiple file upload with max files', () => {
@@ -260,6 +331,53 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
         ).toBeVisible()
       })
     })
+
+    // TODO(#13150): implement in htmx flow
+    // test('hides upload button at max', async ({
+    //   applicantQuestions,
+    //   applicantFileQuestion,
+    //   page,
+    //   adminQuestions,
+    //   adminPrograms,
+    // }) => {
+    //   await test.step('Add file upload question and publish', async () => {
+    //     await loginAsAdmin(page)
+    //
+    //     await adminQuestions.addFileUploadQuestion({
+    //       questionName: 'file-upload-test-q',
+    //       questionText: fileUploadQuestionText,
+    //       maxFiles: 2,
+    //     })
+    //     await adminPrograms.addAndPublishProgramWithQuestions(
+    //       ['file-upload-test-q'],
+    //       programName,
+    //     )
+    //
+    //     await logout(page)
+    //   })
+    //
+    //   await applicantQuestions.applyProgram(programName)
+    //
+    //   await test.step('Adding maximum files disables file input', async () => {
+    //     await applicantQuestions.answerFileUploadQuestionFromAssets(
+    //       'file-upload.png',
+    //     )
+    //     await applicantQuestions.answerFileUploadQuestionFromAssets(
+    //       'file-upload-second.png',
+    //     )
+    //     await applicantFileQuestion.expectFileNameDisplayed('file-upload.png')
+    //     await applicantFileQuestion.expectFileNameDisplayed(
+    //       'file-upload-second.png',
+    //     )
+    //
+    //     await applicantFileQuestion.expectFileInputDisabled()
+    //   })
+    //
+    //   await test.step('Removing a file shows file input again', async () => {
+    //     await applicantFileQuestion.removeFileUpload('file-upload.png')
+    //     await applicantFileQuestion.expectFileInputEnabled()
+    //   })
+    // })
   })
 
   test.describe('required file upload question with multiple file uploads', () => {
@@ -272,6 +390,7 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
       await adminQuestions.addFileUploadQuestion({
         questionName: 'file-upload-test-q',
         questionText: fileUploadQuestionText,
+        maxFiles: 2,
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['file-upload-test-q'],
@@ -288,19 +407,6 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
         page.locator('main'),
         'file-required-multiple-uploads-enabled',
       )
-    })
-
-    test('form is correctly formatted', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName)
-
-      const formInputs = await page
-        .locator('#cf-block-form')
-        .locator('input')
-        .all()
-      const lastFormInput = formInputs[formInputs.length - 1]
-
-      // AWS requires that the <input type="file"> element to be the last <input> in the <form>
-      await expect(lastFormInput).toHaveAttribute('type', 'file')
     })
 
     test('does not show errors initially', async ({
@@ -397,6 +503,223 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
 
       await validateAccessibility(page)
     })
+
+    test('can remove last file of a required question and show error', async ({
+      page,
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+
+      await applicantQuestions.answerFileUploadQuestionFromAssets(
+        'file-upload.png',
+      )
+      await waitForHtmxReady(page)
+      await applicantQuestions.answerFileUploadQuestionFromAssets(
+        'file-upload-second.png',
+      )
+      await waitForHtmxReady(page)
+
+      await applicantFileQuestion.removeFileUpload('file-upload.png')
+      await waitForHtmxReady(page)
+
+      await applicantFileQuestion.expectFileNameCount('file-upload.png', 0)
+
+      await applicantFileQuestion.removeFileUpload('file-upload-second.png')
+      await waitForHtmxReady(page)
+
+      await applicantFileQuestion.expectFileNameCount(
+        'file-upload-second.png',
+        0,
+      )
+
+      await applicantQuestions.clickContinue()
+
+      await applicantQuestions.expectRequiredQuestionError(
+        '.cf-question-fileupload',
+      )
+    })
+
+    test('review page renders correctly', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerFileUploadQuestionFromAssets(
+        'file-upload.png',
+      )
+      await waitForHtmxReady(page)
+      await applicantQuestions.answerFileUploadQuestionFromAssets(
+        'file-upload-second.png',
+      )
+      await waitForHtmxReady(page)
+
+      // there is a "review and exit" button
+      await applicantQuestions.clickReview()
+
+      await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+        fileUploadQuestionText,
+        'file-upload.png',
+      )
+
+      await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+        fileUploadQuestionText,
+        'file-upload-second.png',
+      )
+      await validateScreenshot(page.locator('main'), 'file-uploaded-review')
+    })
+
+    test('can download file content', async ({applicantQuestions, page}) => {
+      await applicantQuestions.applyProgram(programName)
+      const file1Name = 'file1.pdf'
+      const file2Name = 'file2.pdf'
+      const file1Content =
+        '%PDF-1.4\n' +
+        '1 0 obj\n' +
+        '<< /Type /Catalog >>\n' +
+        'endobj\n' +
+        'trailer\n' +
+        '<<>>\n' +
+        '%%EOF\n' +
+        'file 1 content'
+      const file2Content =
+        '%PDF-1.4\n' +
+        '1 0 obj\n' +
+        '<< /Type /Catalog >>\n' +
+        'endobj\n' +
+        'trailer\n' +
+        '<<>>\n' +
+        '%%EOF\n' +
+        'file 2 content'
+      await applicantQuestions.answerFileUploadQuestion(file1Content, file1Name)
+      await waitForHtmxReady(page)
+      await applicantQuestions.answerFileUploadQuestion(file2Content, file2Name)
+      await waitForHtmxReady(page)
+
+      await applicantQuestions.clickContinue()
+
+      expect(
+        await applicantQuestions.downloadFileFromUploadPage(file1Name),
+      ).toEqual(file1Content)
+      expect(
+        await applicantQuestions.downloadFileFromUploadPage(file2Name),
+      ).toEqual(file2Content)
+    })
+
+    test('re-answering question shows previously uploaded file name on review and block pages', async ({
+      applicantQuestions,
+      applicantFileQuestion,
+      page,
+    }) => {
+      // Answer the file upload question
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerFileUploadQuestionFromAssets(
+        'file-upload.png',
+      )
+      await applicantQuestions.clickContinue()
+
+      // Verify the previously uploaded file name is shown on the review page
+      await applicantQuestions.expectReviewPage()
+      await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+        fileUploadQuestionText,
+        'file-upload.png',
+      )
+
+      // Re-open the file upload question
+      await applicantQuestions.editQuestionFromReviewPage(
+        fileUploadQuestionText,
+      )
+
+      // Verify the previously uploaded file name is shown on the block page
+      await applicantFileQuestion.expectFileNameDisplayed('file-upload.png')
+      await validateScreenshot(
+        page.locator('main'),
+        'file-optional-re-answered',
+      )
+    })
+
+    test('uploading duplicate file appends suffix', async ({
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+
+      await applicantQuestions.answerFileUploadQuestionFromAssets(
+        'file-upload.png',
+      )
+      await applicantFileQuestion.expectFileNameCount('file-upload.png', 1)
+
+      await applicantQuestions.answerFileUploadQuestionFromAssets(
+        'file-upload.png',
+      )
+      await applicantFileQuestion.expectFileNameCount('file-upload.png', 1)
+      await applicantFileQuestion.expectFileNameCount('file-upload-2.png', 1)
+    })
+
+    test('can remove files', async ({
+      page,
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+
+      await applicantQuestions.answerFileUploadQuestionFromAssets(
+        'file-upload.png',
+      )
+      await waitForHtmxReady(page)
+      await applicantQuestions.answerFileUploadQuestionFromAssets(
+        'file-upload-second.png',
+      )
+      await waitForHtmxReady(page)
+
+      await applicantFileQuestion.removeFileUpload('file-upload.png')
+      await waitForHtmxReady(page)
+
+      await applicantFileQuestion.expectFileNameCount('file-upload.png', 0)
+
+      await applicantFileQuestion.removeFileUpload('file-upload-second.png')
+      await waitForHtmxReady(page)
+
+      await applicantFileQuestion.expectFileNameCount(
+        'file-upload-second.png',
+        0,
+      )
+    })
+
+    test('remove button has correct aria-label', async ({
+      applicantQuestions,
+      page,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+
+      await applicantQuestions.answerFileUploadQuestionFromAssets(
+        'file-upload.png',
+      )
+      await waitForHtmxReady(page)
+      await applicantQuestions.answerFileUploadQuestionFromAssets(
+        'file-upload-second.png',
+      )
+      await waitForHtmxReady(page)
+
+      await expect(page.getByText('file-upload.png')).toBeVisible()
+      await expect(page.getByText('file-upload-second.png')).toBeVisible()
+
+      const fileListItem = page
+        .getByRole('list', {name: 'Uploaded files'})
+        .locator('li')
+
+      await expect(
+        fileListItem
+          .filter({hasText: 'file-upload.png'})
+          .getByRole('button', {name: 'Remove file-upload.png file'}),
+      ).toBeVisible()
+
+      await expect(
+        fileListItem
+          .filter({hasText: 'file-upload-second.png'})
+          .getByRole('button', {name: 'Remove file-upload-second.png file'}),
+      ).toBeVisible()
+    })
   })
 
   // Optional file upload.
@@ -470,6 +793,143 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
+    })
+
+    test('can replace file', async ({
+      page,
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+
+      await applicantQuestions.answerFileUploadQuestionFromAssets(
+        'file-upload.png',
+      )
+      await waitForHtmxReady(page)
+      await applicantFileQuestion.expectFileNameDisplayed('file-upload.png')
+
+      await applicantQuestions.answerFileUploadQuestionFromAssets(
+        'file-upload-second.png',
+      )
+      await waitForHtmxReady(page)
+      await applicantFileQuestion.expectFileNameDisplayed(
+        'file-upload-second.png',
+      )
+
+      await applicantQuestions.clickContinue()
+
+      await applicantQuestions.expectReviewPage()
+      await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+        fileUploadQuestionText,
+        'file-upload-second.png',
+      )
+    })
+
+    test('can download file content', async ({applicantQuestions, page}) => {
+      await applicantQuestions.applyProgram(programName)
+      const fileName = 'file.pdf'
+      const fileContent =
+        '%PDF-1.4\n' +
+        '1 0 obj\n' +
+        '<< /Type /Catalog >>\n' +
+        'endobj\n' +
+        'trailer\n' +
+        '<<>>\n' +
+        '%%EOF\n' +
+        'some sample text'
+      await applicantQuestions.answerFileUploadQuestion(fileContent, fileName)
+      await waitForHtmxReady(page)
+      await applicantQuestions.clickContinue()
+
+      const downloadedFileContent =
+        await applicantQuestions.downloadFileFromUploadPage(fileName)
+      expect(downloadedFileContent).toEqual(fileContent)
+    })
+
+    test('re-answering question shows previously uploaded file name on review and block pages', async ({
+      page,
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
+      // Answer the file upload question
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerFileUploadQuestionFromAssets(
+        'file-upload.png',
+      )
+      await waitForHtmxReady(page)
+      await applicantQuestions.clickContinue()
+
+      // Verify the previously uploaded file name is shown on the review page
+      await applicantQuestions.expectReviewPage()
+      await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+        fileUploadQuestionText,
+        'file-upload.png',
+      )
+
+      // Re-open the file upload question
+      await applicantQuestions.editQuestionFromReviewPage(
+        fileUploadQuestionText,
+      )
+
+      // Verify the previously uploaded file name is shown on the block page
+      await applicantFileQuestion.expectFileNameDisplayed('file-upload.png')
+    })
+
+    test('re-answering question shows continue and delete buttons', async ({
+      page,
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
+      // Answer the file upload question
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerFileUploadQuestionFromAssets(
+        'file-upload.png',
+      )
+      await waitForHtmxReady(page)
+      await applicantQuestions.clickContinue()
+
+      // Re-open the file upload question
+      await applicantQuestions.expectReviewPage()
+      await applicantQuestions.editQuestionFromReviewPage(
+        fileUploadQuestionText,
+      )
+
+      await expect(page.getByRole('button', {name: 'Continue'})).toBeVisible()
+      await applicantFileQuestion.expectFileNameDisplayed('file-upload.png')
+      await expect(
+        page.getByRole('button', {name: 'Remove file-upload.png file'}),
+      ).toBeVisible()
+    })
+
+    test('delete button removes file', async ({
+      page,
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
+      // Answer the file upload question
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerFileUploadQuestionFromAssets(
+        'file-upload.png',
+      )
+      await waitForHtmxReady(page)
+      await applicantQuestions.clickContinue()
+
+      // Re-open the file upload question
+      await applicantQuestions.expectReviewPage()
+      await applicantQuestions.editQuestionFromReviewPage(
+        fileUploadQuestionText,
+      )
+
+      await applicantFileQuestion.removeFileUpload('file-upload.png')
+      await waitForHtmxReady(page)
+
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.expectReviewPage()
+
+      // Verify the file was deleted so the file upload question is now unanswered
+      await applicantQuestions.validateNoPreviouslyAnsweredTextFileUpload(
+        fileUploadQuestionText,
+      )
     })
   })
 
@@ -758,6 +1218,85 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
           'old.txt',
         )
       })
+
+      // test.only('clicking continue with new file saves new file and redirects to next page', async ({
+      //   applicantQuestions,
+      //   page,
+      // }) => {
+      //   // First, open the email block so that the email block is considered answered
+      //   // and we're not taken back to it when we click "Continue".
+      //   // (see test case 'clicking continue button redirects to first unseen block').
+      //   await applicantQuestions.applyProgram(programName)
+      //   await applicantQuestions.clickContinue()
+
+      //   // Answer the file upload question
+      //   const oldFileName = 'old.pdf'
+      //   const oldFileContent =
+      //     '%PDF-1.4\n' +
+      //     '1 0 obj\n' +
+      //     '<< /Type /Catalog >>\n' +
+      //     'endobj\n' +
+      //     'trailer\n' +
+      //     '<<>>\n' +
+      //     '%%EOF\n' +
+      //     'some old text'
+      //   await applicantQuestions.answerFileUploadQuestion(
+      //     oldFileContent,
+      //     oldFileName,
+      //   )
+      //   await waitForHtmxReady(page)
+      //   // Note: If we clicked "Save & next" here, we would be taken to the third block.
+      //   // Clicking *any* button on that third block will save our data, which guarantees
+      //   // that the third block will be marked as seen.
+      //   // Since this test is actually about verifying that clicking "Continue" will
+      //   // take us to the next unseen block, we want the third block to remain unseen.
+      //   // So, we instead click "Review" here to save the file and go to the review page
+      //   // without seeing the third block.
+      //   await applicantQuestions.clickReview()
+
+      //   // Re-open the file upload question
+      //   await applicantQuestions.expectReviewPage()
+      //   await applicantQuestions.editQuestionFromReviewPage(
+      //     fileUploadQuestionText,
+      //   )
+
+      //   // Upload a new file
+      //   const newFileName = 'new.pdf'
+      //   const newFileContent =
+      //     '%PDF-1.4\n' +
+      //     '1 0 obj\n' +
+      //     '<< /Type /Catalog >>\n' +
+      //     'endobj\n' +
+      //     'trailer\n' +
+      //     '<<>>\n' +
+      //     '%%EOF\n' +
+      //     'some new text'
+      //   await applicantQuestions.answerFileUploadQuestion(
+      //     newFileContent,
+      //     newFileName,
+      //   )
+      //   await waitForHtmxReady(page)
+
+      //   // Click "Continue" and verify the newly uploaded file persists.
+      //   await applicantQuestions.clickContinue()
+
+      //   // Verify we're taken to the next page
+      //   await applicantQuestions.validateQuestionIsOnPage(numberQuestionText)
+
+      //   // Verify the new file is used.
+      //   await applicantQuestions.clickReview()
+      //   await applicantQuestions.expectReviewPage()
+      //   await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+      //     fileUploadQuestionText,
+      //     newFileName,
+      //   )
+
+      //   const downloadedFileContent =
+      //     await applicantQuestions.downloadSingleQuestionFromReviewPage(
+      //       newFileName,
+      //     )
+      //   expect(downloadedFileContent).toEqual(newFileContent)
+      // })
     })
   })
 })

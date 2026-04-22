@@ -6,6 +6,11 @@ import {
   showError,
 } from '@/file_upload_util'
 import {default as uswdsFileInput} from '@uswds/uswds/js/usa-file-input'
+import {
+  HtmxAfterRequestEvent,
+  HtmxBeforeRequestEvent,
+  HtmxConfigRequestEvent,
+} from '@/types/htmx'
 
 const UPLOADED_FILE_ATTR = 'data-uploaded-files'
 const CF_FILE_UPLOADING_CLASS = 'cf-file-uploading'
@@ -140,11 +145,18 @@ const validateFileUploadQuestion = (fileInput: HTMLInputElement): boolean => {
   return isValid
 }
 
-const isFileUploadHtmxEvent = (event: Event) => {
-  const detail = (event as CustomEvent).detail as
-    | {elt?: HTMLElement}
-    | undefined
-  return detail?.elt?.closest(CF_FILE_UPLOAD_QUESTION_SELECTOR) != null
+const isFileUploadHtmxEvent = (
+  event:
+    | HtmxBeforeRequestEvent
+    | HtmxAfterRequestEvent
+    | HtmxConfigRequestEvent,
+) => {
+  const elt = event.detail.elt
+  return (
+    elt instanceof HTMLInputElement &&
+    elt.type === 'file' &&
+    elt.closest(CF_FILE_UPLOAD_QUESTION_SELECTOR) != null
+  )
 }
 
 const toggleDisabledState = () => {

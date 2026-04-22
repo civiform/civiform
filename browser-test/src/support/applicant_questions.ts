@@ -105,10 +105,33 @@ export class ApplicantQuestions {
     await this.page.fill(`input[currency] >> nth=${index}`, currency)
   }
 
-  async answerFileUploadQuestion(text: string, fileName = 'file.txt') {
+  async answerFileUploadQuestionLegacy(text: string, fileName = 'file.txt') {
     await this.page.setInputFiles('input[type=file]', {
       name: fileName,
       mimeType: 'image/png',
+      buffer: Buffer.from(text),
+    })
+  }
+
+  async answerFileUploadQuestion(text: string, fileName = 'file.pdf') {
+    const mimeTypeByExtension: Record<string, string> = {
+      png: 'image/png',
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      gif: 'image/gif',
+      pdf: 'application/pdf',
+      bmp: 'image/bmp',
+      webp: 'image/webp',
+      tiff: 'image/tiff',
+      xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    }
+    const extension = fileName.split('.').pop()?.toLowerCase() ?? ''
+    const mimeType =
+      mimeTypeByExtension[extension] ?? 'application/octet-stream'
+
+    await this.page.setInputFiles('input[type=file]', {
+      name: fileName,
+      mimeType,
       buffer: Buffer.from(text),
     })
   }
@@ -702,7 +725,7 @@ export class ApplicantQuestions {
    * On the upload page, users can download already-uploaded files;
    * this method downloads the one specified by the user returns the file content.
    */
-  async downloadFileFromUploadPage(fileName: string) {
+  async downloadFileFromUploadPageLegacy(fileName: string) {
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
       this.page.getByText(fileName).click(),
@@ -712,6 +735,34 @@ export class ApplicantQuestions {
       throw new Error('download failed')
     }
     return readFileSync(path, 'utf8')
+  }
+
+  async downloadFileFromUploadPage(fileName: string) {
+    const fileLink = this.page.getByRole('link', {name: fileName, exact: true})
+    try {
+      const [downloadEvent] = await Promise.all([
+        this.page.waitForEvent('download', {timeout: 5000}),
+        fileLink.click(),
+      ])
+      const path = await downloadEvent.path()
+      if (path === null) {
+        throw new Error('download failed')
+      }
+      return readFileSync(path, 'utf8')
+    } catch {
+      // Some browsers render file links inline and do not emit a download event.
+      const href = await fileLink.getAttribute('href')
+      if (!href) {
+        throw new Error(`download link for ${fileName} has no href`)
+      }
+      const fileUrl = new URL(href, this.page.url()).toString()
+      const response = await this.page.request.get(fileUrl)
+      if (!response.ok()) {
+        throw new Error(`failed to fetch file content: ${response.status()}`)
+      }
+      const body = await response.body()
+      return body.toString('utf8')
+    }
   }
 
   async downloadFileFromReviewPage(fileName: string) {
