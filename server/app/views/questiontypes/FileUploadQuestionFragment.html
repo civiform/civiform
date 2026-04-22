@@ -31,16 +31,20 @@
     ></p>
   </div>
 
-  <!--/* Display errors */-->
+  <!--/* Server-side validation errors. The id is the OOB swap target for the
+       file-upload-errors fragment in FileUploadOobFragments, returned by
+       FileUploadQuestionPartial after htmx uploads/removes. */-->
   <div
     th:id="'cf-fileupload-validation-errors-' + ${question.getQuestionDefinition().getId()}"
   >
-    <div
+    <th:block
       th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fileUploadQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams}, ${questionId})}"
-    ></div>
+    />
   </div>
 
-  <!--/* Errors always rendered in the DOM and hidden, but shown by file_upload.ts when needed. */-->
+  <!--/* Client-side validation errors. These are always in the DOM but hidden.
+       file_upload.ts removes the hidden attribute to show them before the htmx
+       request fires (e.g. when a required file is missing or the file is too large). */-->
   <div
     hidden
     class="usa-alert usa-alert--error usa-alert--slim"
@@ -66,6 +70,7 @@
     </div>
   </div>
 
+  <!--/* File input. Triggers a htmx POST on change to upload the selected file. */-->
   <input
     th:id="${inputId}"
     class="usa-file-input"
@@ -84,84 +89,24 @@
     hx-swap="none"
   />
 
-  <th:block th:if="${!isPreview}">
-    <div
-      th:replace="~{questiontypes/FileUploadQuestionFragment :: file-key-field(${fileUploadQuestion}, false)}"
-    ></div>
-    <div
-      th:replace="~{questiontypes/FileUploadQuestionFragment :: file-list-display(${fileUploadQuestion}, false)}"
-    ></div>
-  </th:block>
-</div>
-
-<!--/* Fragment for rendering file key fields within hidden inputs */-->
-<div
-  th:fragment="file-key-field(fileUploadQuestion, oob)"
-  th:hx-swap-oob="${oob} ? 'true'"
-  th:id="'cf-fileupload-file-key-inputs-' + ${fileUploadQuestion.getQuestionDefinition().getId()}"
->
-  <th:block th:if="${fileUploadQuestion.getFileKeyListValue().isPresent()}">
-    <input
-      th:each="fileKey, iter : ${fileUploadQuestion.getFileKeyListValue().get()}"
-      th:name="${fileUploadQuestion.getFileKeyListPathForIndex(iter.index)}"
-      th:value="${fileKey}"
-      type="hidden"
-    />
-  </th:block>
-  <th:block
-    th:if="${fileUploadQuestion.getOriginalFileNameListValue().isPresent()}"
-  >
-    <input
-      th:each="name, iter : ${fileUploadQuestion.getOriginalFileNameListValue().get()}"
-      th:name="${fileUploadQuestion.getOriginalFileNameListPathForIndex(iter.index)}"
-      th:value="${name}"
-      type="hidden"
-    />
-  </th:block>
-</div>
-
-<!--/* OOB-capable errors region rendered after an htmx upload. Matches the
-     page-load errors wrapper by id (per question) so htmx swaps it in place. */-->
-<div
-  th:fragment="file-upload-errors(fileUploadQuestion, oob)"
-  th:hx-swap-oob="${oob} ? 'true'"
-  th:id="'cf-fileupload-validation-errors-' + ${fileUploadQuestion.getQuestionDefinition().getId()}"
->
+  <!--/* Hidden by default. file_upload.ts adds the cf-file-uploading class to the
+       parent question div during upload, and CSS makes cf-file-uploading-tag
+       visible when that class is present. */-->
   <div
-    class="cf-question-error-message cf-applicant-question-errors"
-    th:each="error : ${fileUploadQuestion.getValidationErrors().get(fileUploadQuestion.getApplicantQuestion().getContextualizedPath())}"
-    th:text="#{toast.errorMessageOutline(#{${error.key.getKeyName()}(${error.args})})}"
+    class="cf-file-uploading-tag display-none padding-1 bg-warning-lighter text-warning-dark"
+    role="alert"
+    th:text="#{label.uploading}"
   ></div>
-</div>
 
-<ul
-  class="grid"
-  th:aria-label="#{label.uploadedFiles}"
-  th:data-uploaded-files="${fileUploadQuestion.getUploadedFileData()}"
-  th:id="'cf-fileupload-file-list-' + ${fileUploadQuestion.getQuestionDefinition().getId()}"
-  th:fragment="file-list-display(fileUploadQuestion, oob)"
-  th:hx-swap-oob="${oob} ? 'true'"
->
-  <th:block th:if="${fileUploadQuestion.getFileKeyListValue().isPresent()}">
-    <li
-      class="grid-row margin-y-1"
-      th:each="fileKey, iter : ${fileUploadQuestion.getFileKeyListValue().get()}"
-      th:if="${!#strings.isEmpty(fileKey)}"
-      th:with="fileName=${fileUploadQuestion.getFileNameForIndex(iter.index).orElse(fileKey)}"
-    >
-      <span
-        class="overflow-hidden grid-col flex-fill"
-        th:text="${fileName}"
-      ></span>
-      <button
-        class="usa-button usa-button--unstyled"
-        hx-swap="none"
-        th:aria-label="#{link.removeFileSr(${fileName})}"
-        th:hx-post="${hxRemoveFileUrl}"
-        th:hx-vals='|{"fileKey":"${fileKey}","questionId":${fileUploadQuestion.getQuestionDefinition().getId()}}|'
-        th:text="#{link.removeFile}"
-        type="button"
-      ></button>
-    </li>
-  </th:block>
-</ul>
+  <!--/* Render the OOB fragments inline on page load (oob=false). These same
+       fragments are returned with oob=true after htmx uploads/removes to swap
+       updated content into these elements by id. See FileUploadOobFragments.html. */-->
+  <th:block
+    th:if="${!isPreview}"
+    th:replace="~{questiontypes/FileUploadOobFragments :: file-key-field(${fileUploadQuestion}, false)}"
+  />
+  <th:block
+    th:if="${!isPreview}"
+    th:replace="~{questiontypes/FileUploadOobFragments :: file-list-display(${fileUploadQuestion}, false)}"
+  />
+</div>

@@ -1,0 +1,74 @@
+<!--/* Hidden inputs for file keys and original file names. Submitted with the
+     form when the applicant clicks Continue. */-->
+<div
+  th:fragment="file-key-field(fileUploadQuestion, oob)"
+  th:hx-swap-oob="${oob} ? 'true'"
+  th:id="'cf-fileupload-file-key-inputs-' + ${fileUploadQuestion.getQuestionDefinition().getId()}"
+>
+  <th:block th:if="${fileUploadQuestion.getFileKeyListValue().isPresent()}">
+    <input
+      th:each="fileKey, iter : ${fileUploadQuestion.getFileKeyListValue().get()}"
+      th:name="${fileUploadQuestion.getFileKeyListPathForIndex(iter.index)}"
+      th:value="${fileKey}"
+      type="hidden"
+    />
+  </th:block>
+  <th:block
+    th:if="${fileUploadQuestion.getOriginalFileNameListValue().isPresent()}"
+  >
+    <input
+      th:each="name, iter : ${fileUploadQuestion.getOriginalFileNameListValue().get()}"
+      th:name="${fileUploadQuestion.getOriginalFileNameListPathForIndex(iter.index)}"
+      th:value="${name}"
+      type="hidden"
+    />
+  </th:block>
+</div>
+
+<!--/* Server-side validation errors (e.g. "file required"). Swaps into the
+     wrapper div (cf-fileupload-validation-errors-*) rendered in
+     FileUploadQuestionFragment. */-->
+<div
+  th:fragment="file-upload-errors(fileUploadQuestion, oob)"
+  th:hx-swap-oob="${oob} ? 'true'"
+  th:id="'cf-fileupload-validation-errors-' + ${fileUploadQuestion.getQuestionDefinition().getId()}"
+>
+  <div
+    class="cf-question-error-message cf-applicant-question-errors"
+    th:each="error : ${fileUploadQuestion.getValidationErrors().get(fileUploadQuestion.getApplicantQuestion().getContextualizedPath())}"
+    th:text="#{toast.errorMessageOutline(#{${error.key.getKeyName()}(${error.args})})}"
+  ></div>
+</div>
+
+<!--/* Visible list of uploaded files with remove buttons. */-->
+<ul
+  th:fragment="file-list-display(fileUploadQuestion, oob)"
+  th:hx-swap-oob="${oob} ? 'true'"
+  th:id="'cf-fileupload-file-list-' + ${fileUploadQuestion.getQuestionDefinition().getId()}"
+  class="grid"
+  th:aria-label="#{label.uploadedFiles}"
+  th:data-uploaded-files="${fileUploadQuestion.getUploadedFileData()}"
+>
+  <th:block th:if="${fileUploadQuestion.getFileKeyListValue().isPresent()}">
+    <li
+      class="grid-row margin-y-1"
+      th:each="fileKey, iter : ${fileUploadQuestion.getFileKeyListValue().get()}"
+      th:if="${!#strings.isEmpty(fileKey)}"
+      th:with="fileName=${fileUploadQuestion.getFileNameForIndex(iter.index).orElse(fileKey)}"
+    >
+      <span
+        class="overflow-hidden grid-col flex-fill"
+        th:text="${fileName}"
+      ></span>
+      <button
+        class="usa-button usa-button--unstyled"
+        hx-swap="none"
+        th:aria-label="#{link.removeFileSr(${fileName})}"
+        th:hx-post="${hxRemoveFileUrl}"
+        th:hx-vals='|{"fileKey":"${fileKey}","questionId":${fileUploadQuestion.getQuestionDefinition().getId()}}|'
+        th:text="#{link.removeFile}"
+        type="button"
+      ></button>
+    </li>
+  </th:block>
+</ul>

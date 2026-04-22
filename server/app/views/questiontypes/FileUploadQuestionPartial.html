@@ -1,13 +1,13 @@
 <th:block
   th:with="fileUploadQuestion=${model.getFileUploadQuestion()}, hxRemoveFileUrl=${model.getHxRemoveFileUrl()}"
 >
-  <div
-    th:replace="~{questiontypes/FileUploadQuestionFragment :: file-key-field(${fileUploadQuestion}, true)}"
-  ></div>
-  <div
-    th:replace="~{questiontypes/FileUploadQuestionFragment :: file-list-display(${fileUploadQuestion}, true)}"
-  ></div>
-  <div
-    th:replace="~{questiontypes/FileUploadQuestionFragment :: file-upload-errors(${fileUploadQuestion}, true)}"
-  ></div>
+  <th:block
+    th:replace="~{questiontypes/FileUploadOobFragments :: file-key-field(${fileUploadQuestion}, true)}"
+  />
+  <th:block
+    th:replace="~{questiontypes/FileUploadOobFragments :: file-list-display(${fileUploadQuestion}, true)}"
+  />
+  <th:block
+    th:replace="~{questiontypes/FileUploadOobFragments :: file-upload-errors(${fileUploadQuestion}, true)}"
+  />
 </th:block>
