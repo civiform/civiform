@@ -1376,6 +1376,87 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void update_withProgramSlugUrlsEnabled_programIdPassedIn_redirectsToHome() {
+
+    Request request =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
+                    "FirstName",
+                    Path.create("applicant.applicant_name").join(Scalar.LAST_NAME).toString(),
+                    "LastName"))
+            .build();
+
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    program =
+        ProgramBuilder.newActiveProgram("test-program")
+            .withBlock("block 1")
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
+            .withBlock("block 2")
+            .withRequiredQuestion(testQuestionBank().addressApplicantAddress())
+            .build();
+
+    Result result =
+        subject
+            .update(
+                request,
+                String.valueOf(program.id),
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper(NEXT_BLOCK))
+            .toCompletableFuture()
+            .join();
+
+    // Redirects to home since program IDs are not supported when feature is enabled and program
+    // param expects a program slug
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
+  public void updateWithApplicantId_withProgramSlugUrlsEnabled_programIdPassedIn_redirectsToHome() {
+
+    Request request =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
+                    "FirstName",
+                    Path.create("applicant.applicant_name").join(Scalar.LAST_NAME).toString(),
+                    "LastName"))
+            .build();
+
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    program =
+        ProgramBuilder.newActiveProgram("test-program")
+            .withBlock("block 1")
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
+            .withBlock("block 2")
+            .withRequiredQuestion(testQuestionBank().addressApplicantAddress())
+            .build();
+
+    Result result =
+        subject
+            .updateWithApplicantId(
+                request,
+                applicant.id,
+                String.valueOf(program.id),
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper(NEXT_BLOCK))
+            .toCompletableFuture()
+            .join();
+
+    // Redirects to home since program IDs are not supported when feature is enabled and program
+    // param expects a program slug
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
   public void update_withNextBlock_requestedActionNext_redirectsToEditNextBlock() {
     program =
         ProgramBuilder.newActiveProgram()

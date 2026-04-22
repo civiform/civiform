@@ -436,6 +436,25 @@ public final class ApplicantRoutes {
   }
 
   /**
+   * Returns the route corresponding to the applicant add file action.
+   *
+   * @param profile profile corresponding to the logged-in user (applicant or TI).
+   * @param applicantId ID of applicant for whom the action should be performed.
+   * @param programId ID of program
+   * @param blockId ID of the block containing file upload question
+   * @param inReview true if executing the review action (as opposed to edit)
+   * @return route for the applicant update file action
+   */
+  public Call addFile(
+      CiviFormProfile profile, long applicantId, long programId, String blockId, boolean inReview) {
+    if (includeApplicantIdInRoute(profile)) {
+      return routes.ApplicantProgramBlocksController.addFileWithApplicantId(
+          applicantId, programId, blockId, inReview);
+    }
+    return routes.ApplicantProgramBlocksController.addFile(programId, blockId, inReview);
+  }
+
+  /**
    * Returns the route corresponding to the applicant remove file action.
    *
    * @param profile profile corresponding to the logged-in user (applicant or TI).
@@ -458,25 +477,6 @@ public final class ApplicantRoutes {
     }
     return routes.ApplicantProgramBlocksController.removeFile(
         programId, blockId, fileKey, inReview);
-  }
-
-  /**
-   * Returns the route corresponding to the applicant add file action.
-   *
-   * @param profile profile corresponding to the logged-in user (applicant or TI).
-   * @param applicantId ID of applicant for whom the action should be performed.
-   * @param programId ID of program
-   * @param blockId ID of the block containing file upload question
-   * @param inReview true if executing the review action (as opposed to edit)
-   * @return route for the applicant update file action
-   */
-  public Call addFile(
-      CiviFormProfile profile, long applicantId, long programId, String blockId, boolean inReview) {
-    if (includeApplicantIdInRoute(profile)) {
-      return routes.ApplicantProgramBlocksController.addFileWithApplicantId(
-          applicantId, programId, blockId, inReview);
-    }
-    return routes.ApplicantProgramBlocksController.addFile(programId, blockId, inReview);
   }
 
   // TODO:#11090 Remove method when routes are no longer hit

@@ -667,4 +667,27 @@ public class ApplicantRoutesTest extends ResetPostgres {
                 .url())
         .isEqualTo(expectedReviewUrl);
   }
+
+  @Test
+  public void testPreviousOrReviewRoute_withProgramSlug_currentBlockIndexOne_returnsPreviousUrl() {
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.addAttribute(
+        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedPreviousUrl =
+        String.format("/programs/%s/blocks/%d/previous/%s", PROGRAM_SLUG, 0, false);
+
+    assertThat(
+            new ApplicantRoutes()
+                .blockPreviousOrReview(
+                    applicantProfile,
+                    APPLICANT_ID,
+                    PROGRAM_SLUG,
+                    /* currentBlockIndex= */ 1,
+                    /* inReview= */ false)
+                .url())
+        .isEqualTo(expectedPreviousUrl);
+  }
 }

@@ -100,6 +100,7 @@ public final class UpsellController extends CiviFormController {
     boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters.getUrlWithProgramIdCall().labels("/considerSignIn", programParam).inc();
+      return CompletableFuture.completedFuture(redirectToHome());
     }
 
     long programId =
