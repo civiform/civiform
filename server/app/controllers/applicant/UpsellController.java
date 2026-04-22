@@ -95,7 +95,7 @@ public final class UpsellController extends CiviFormController {
       String submitTime) {
     CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
-    // Count when the program param is the program id (numeric) but it should be the program
+    // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
     boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
