@@ -296,7 +296,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
     answer(programDefinition.id());
 
-    var programId = programDefinition.id();
+    var programId = String.valueOf(programDefinition.id());
 
     ApplicantModel tiApplicant = createApplicant();
     createTIWithMockedProfile(tiApplicant);
@@ -345,7 +345,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
     answer(programDefinition.id());
 
-    var programId = programDefinition.id();
+    var programId = String.valueOf(programDefinition.id());
 
     Result result =
         blockController
@@ -506,6 +506,30 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void submit_withProgramSlugUrlsEnabled_returnsRouteUsingSlug() {
+    Request request = fakeRequest();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    ProgramModel activeProgram =
+        ProgramBuilder.newActiveProgram("test-program")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().staticContent())
+            .build();
+    answer(activeProgram.id);
+
+    Result result =
+        subject
+            .submitWithApplicantId(request, applicant.id, activeProgram.id)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(FOUND);
+    assertThat(result.redirectLocation().get()).contains(activeProgram.getSlug());
+  }
+
+  @Test
   public void
       updateApplicationToLatestProgramVersionIfNeeded_withProgramSlugUrlsEnabled_redirectsToReviewWithProgramSlug() {
     Request request = fakeRequest();
@@ -578,7 +602,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
             .updateWithApplicantId(
                 request,
                 applicant.id,
-                programId,
+                String.valueOf(programId),
                 /* blockId= */ "1",
                 /* inReview= */ false,
                 new ApplicantRequestedActionWrapper())

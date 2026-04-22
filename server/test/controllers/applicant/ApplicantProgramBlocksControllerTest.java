@@ -772,7 +772,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .updateWithApplicantId(
                 request,
                 badApplicantId,
-                program.id,
+                String.valueOf(program.id),
                 /* blockId= */ "1",
                 /* inReview= */ false,
                 new ApplicantRequestedActionWrapper())
@@ -796,7 +796,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .updateWithApplicantId(
                 request,
                 applicant.id,
-                draftProgram.id,
+                String.valueOf(draftProgram.id),
                 /* blockId= */ "1",
                 /* inReview= */ false,
                 new ApplicantRequestedActionWrapper())
@@ -822,7 +822,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .updateWithApplicantId(
                 request,
                 applicant.id,
-                draftProgram.id,
+                String.valueOf(draftProgram.id),
                 /* blockId= */ "1",
                 /* inReview= */ false,
                 new ApplicantRequestedActionWrapper())
@@ -846,7 +846,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .updateWithApplicantId(
                 request,
                 applicant.id,
-                obsoleteProgram.id,
+                String.valueOf(obsoleteProgram.id),
                 /* blockId= */ "1",
                 /* inReview= */ false,
                 new ApplicantRequestedActionWrapper())
@@ -866,7 +866,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .updateWithApplicantId(
                 request,
                 applicant.id,
-                badProgramId,
+                String.valueOf(badProgramId),
                 /* blockId= */ "1",
                 /* inReview= */ false,
                 new ApplicantRequestedActionWrapper())
@@ -886,7 +886,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .updateWithApplicantId(
                 request,
                 applicant.id,
-                program.id,
+                String.valueOf(program.id),
                 badBlockId,
                 /* inReview= */ false,
                 new ApplicantRequestedActionWrapper())
@@ -905,7 +905,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .updateWithApplicantId(
                 request,
                 applicant.id,
-                program.id,
+                String.valueOf(program.id),
                 /* blockId= */ "1",
                 /* inReview= */ false,
                 new ApplicantRequestedActionWrapper())
@@ -925,7 +925,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .updateWithApplicantId(
                 request,
                 applicant.id,
-                program.id,
+                String.valueOf(program.id),
                 /* blockId= */ "1",
                 /* inReview= */ false,
                 new ApplicantRequestedActionWrapper())
@@ -952,7 +952,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .updateWithApplicantId(
                 request,
                 applicant.id,
-                program.id,
+                String.valueOf(program.id),
                 /* blockId= */ "1",
                 /* inReview= */ false,
                 new ApplicantRequestedActionWrapper())
@@ -983,7 +983,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .updateWithApplicantId(
                 request,
                 applicant.id,
-                program.id,
+                String.valueOf(program.id),
                 /* blockId= */ "3",
                 /* inReview= */ false,
                 new ApplicantRequestedActionWrapper())
@@ -1010,7 +1010,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .updateWithApplicantId(
                 request,
                 applicant.id,
-                program.id,
+                String.valueOf(program.id),
                 /* blockId= */ "1",
                 /* inReview= */ false,
                 new ApplicantRequestedActionWrapper(ApplicantRequestedAction.REVIEW_PAGE))
@@ -1039,7 +1039,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .updateWithApplicantId(
                 request,
                 applicant.id,
-                program.id,
+                String.valueOf(program.id),
                 /* blockId= */ "1",
                 /* inReview= */ false,
                 new ApplicantRequestedActionWrapper(ApplicantRequestedAction.PREVIOUS_BLOCK))
@@ -1076,7 +1076,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .updateWithApplicantId(
                 request,
                 applicant.id,
-                program.id,
+                String.valueOf(program.id),
                 /* blockId= */ "1",
                 /* inReview= */ false,
                 requestedAction)
@@ -1115,7 +1115,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .updateWithApplicantId(
                 request,
                 applicant.id,
-                program.id,
+                String.valueOf(program.id),
                 /* blockId= */ "2",
                 /* inReview= */ false,
                 requestedAction)
@@ -1156,7 +1156,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .updateWithApplicantId(
                 request,
                 applicant.id,
-                program.id,
+                String.valueOf(program.id),
                 /* blockId= */ "1",
                 /* inReview= */ false,
                 requestedAction)
@@ -1194,7 +1194,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         .updateWithApplicantId(
             request,
             applicant.id,
-            program.id,
+            String.valueOf(program.id),
             /* blockId= */ "1",
             /* inReview= */ false,
             requestedAction)
@@ -1234,7 +1234,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         .updateWithApplicantId(
             requestWithAnswer,
             applicant.id,
-            program.id,
+            String.valueOf(program.id),
             /* blockId= */ "1",
             /* inReview= */ false,
             requestedAction)
@@ -1257,7 +1257,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .updateWithApplicantId(
                 requestWithoutAnswer,
                 applicant.id,
-                program.id,
+                String.valueOf(program.id),
                 /* blockId= */ "1",
                 /* inReview= */ false,
                 requestedAction)
@@ -1294,7 +1294,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         .updateWithApplicantId(
             requestWithAnswer,
             applicant.id,
-            program.id,
+            String.valueOf(program.id),
             /* blockId= */ "1",
             /* inReview= */ false,
             requestedAction)
@@ -1316,7 +1316,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         .updateWithApplicantId(
             requestWithoutAnswer,
             applicant.id,
-            program.id,
+            String.valueOf(program.id),
             /* blockId= */ "1",
             /* inReview= */ false,
             requestedAction)
@@ -1348,7 +1348,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
 
     program =
-        ProgramBuilder.newActiveProgram()
+        ProgramBuilder.newActiveProgram("test-program")
             .withBlock("block 1")
             .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .withBlock("block 2")
@@ -1360,7 +1360,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .updateWithApplicantId(
                 request,
                 applicant.id,
-                program.id,
+                program.getSlug(),
                 /* blockId= */ "1",
                 /* inReview= */ false,
                 new ApplicantRequestedActionWrapper(NEXT_BLOCK))
@@ -1373,6 +1373,87 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 program.getSlug(), /* blockId= */ "2", /* questionName= */ Optional.empty())
             .url();
     assertThat(result.redirectLocation()).hasValue(nextBlockEditRoute);
+  }
+
+  @Test
+  public void update_withProgramSlugUrlsEnabled_programIdPassedIn_redirectsToHome() {
+
+    Request request =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
+                    "FirstName",
+                    Path.create("applicant.applicant_name").join(Scalar.LAST_NAME).toString(),
+                    "LastName"))
+            .build();
+
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    program =
+        ProgramBuilder.newActiveProgram("test-program")
+            .withBlock("block 1")
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
+            .withBlock("block 2")
+            .withRequiredQuestion(testQuestionBank().addressApplicantAddress())
+            .build();
+
+    Result result =
+        subject
+            .update(
+                request,
+                String.valueOf(program.id),
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper(NEXT_BLOCK))
+            .toCompletableFuture()
+            .join();
+
+    // Redirects to home since program IDs are not supported when feature is enabled and program
+    // param expects a program slug
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
+  public void updateWithApplicantId_withProgramSlugUrlsEnabled_programIdPassedIn_redirectsToHome() {
+
+    Request request =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
+                    "FirstName",
+                    Path.create("applicant.applicant_name").join(Scalar.LAST_NAME).toString(),
+                    "LastName"))
+            .build();
+
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    program =
+        ProgramBuilder.newActiveProgram("test-program")
+            .withBlock("block 1")
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
+            .withBlock("block 2")
+            .withRequiredQuestion(testQuestionBank().addressApplicantAddress())
+            .build();
+
+    Result result =
+        subject
+            .updateWithApplicantId(
+                request,
+                applicant.id,
+                String.valueOf(program.id),
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper(NEXT_BLOCK))
+            .toCompletableFuture()
+            .join();
+
+    // Redirects to home since program IDs are not supported when feature is enabled and program
+    // param expects a program slug
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
   }
 
   @Test
@@ -1399,7 +1480,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .updateWithApplicantId(
                 request,
                 applicant.id,
-                program.id,
+                String.valueOf(program.id),
                 /* blockId= */ "1",
                 /* inReview= */ false,
                 new ApplicantRequestedActionWrapper(NEXT_BLOCK))
@@ -1438,7 +1519,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .updateWithApplicantId(
                 request,
                 applicant.id,
-                program.id,
+                String.valueOf(program.id),
                 /* blockId= */ "1",
                 /* inReview= */ false,
                 new ApplicantRequestedActionWrapper(ApplicantRequestedAction.REVIEW_PAGE))
@@ -1472,7 +1553,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         .updateWithApplicantId(
             request,
             applicant.id,
-            program.id,
+            String.valueOf(program.id),
             /* blockId= */ "1",
             /* inReview= */ false,
             new ApplicantRequestedActionWrapper(ApplicantRequestedAction.REVIEW_PAGE))
@@ -1510,7 +1591,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .updateWithApplicantId(
                 request,
                 applicant.id,
-                program.id,
+                String.valueOf(program.id),
                 /* blockId= */ "4",
                 /* inReview= */ false,
                 new ApplicantRequestedActionWrapper(ApplicantRequestedAction.PREVIOUS_BLOCK))
@@ -1550,7 +1631,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .updateWithApplicantId(
                 request,
                 applicant.id,
-                program.id,
+                String.valueOf(program.id),
                 /* blockId= */ "1",
                 /* inReview= */ false,
                 new ApplicantRequestedActionWrapper(ApplicantRequestedAction.PREVIOUS_BLOCK))
@@ -1584,7 +1665,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         .updateWithApplicantId(
             request,
             applicant.id,
-            program.id,
+            String.valueOf(program.id),
             /* blockId= */ "1",
             /* inReview= */ false,
             new ApplicantRequestedActionWrapper(ApplicantRequestedAction.PREVIOUS_BLOCK))
@@ -1619,7 +1700,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         .updateWithApplicantId(
             request,
             applicant.id,
-            program.id,
+            String.valueOf(program.id),
             /* blockId= */ "3",
             /* inReview= */ false,
             new ApplicantRequestedActionWrapper(ApplicantRequestedAction.PREVIOUS_BLOCK))
@@ -1658,7 +1739,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .updateWithApplicantId(
                 request,
                 applicant.id,
-                program.id,
+                String.valueOf(program.id),
                 /* blockId= */ "1",
                 /* inReview= */ false,
                 new ApplicantRequestedActionWrapper())
@@ -1700,7 +1781,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .updateWithApplicantId(
                 request,
                 applicant.id,
-                program.id,
+                String.valueOf(program.id),
                 /* blockId= */ "1",
                 /* inReview= */ false,
                 new ApplicantRequestedActionWrapper())
@@ -1741,7 +1822,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .updateWithApplicantId(
                 request,
                 applicant.id,
-                program.id,
+                program.getSlug(),
                 /* blockId= */ "1",
                 /* inReview= */ false,
                 new ApplicantRequestedActionWrapper())
@@ -1756,142 +1837,15 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void addFile_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
-    Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
-    String programId = Long.toString(program.id);
-
-    Result result =
-        subject
-            .addFile(request, programId, /* blockId= */ "1", /* inReview= */ false)
-            .toCompletableFuture()
-            .join();
-
-    // Redirects to home since program IDs are not supported when feature is enabled and program
-    // param expects a program slug
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation()).hasValue("/");
-  }
-
-  /**
-   * Tests that addFile() throws an error when the program param is a program slug but it should be
-   * the program id since the program slug feature is disabled. addFile() also throws error for
-   * other combinations when the program param is not properly parsed. We don't test all
-   * combinations here because ProgramSlugHandler have a comprehensive test cover for them.
-   */
-  @Test
-  public void addFile_whenProgramSlugUrlsFeatureDisabledAndIsProgramSlugFromUrl_error() {
-    program = ProgramBuilder.newActiveProgram("Program").build();
-    String programSlug = program.getSlug();
-    assertThatThrownBy(
-            () ->
-                subject.addFile(
-                    fakeRequest(), programSlug, /* blockId= */ "1", /* inReview= */ false))
-        .isInstanceOf(RuntimeException.class)
-        .hasMessage("Could not parse value from 'program' to a numeric value");
-  }
-
-  @Test
-  public void addFile_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_works() {
-    ProgramModel activeProgram =
-        ProgramBuilder.newActiveProgram("Program with file upload")
-            .withBlock()
-            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
-            .build();
-    String programSlug = activeProgram.getSlug();
-
-    Request request = fakeRequestWithKeyAndBucket();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
-
-    Result result =
-        subject
-            .addFile(request, programSlug, /* blockId= */ "1", /* inReview= */ false)
-            .toCompletableFuture()
-            .join();
-
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation().get()).contains(programSlug);
-  }
-
-  @Test
-  public void
-      addFileWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
-    Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
-    String programId = Long.toString(program.id);
-
-    Result result =
-        subject
-            .addFileWithApplicantId(
-                request, applicant.id, programId, /* blockId= */ "1", /* inReview= */ false)
-            .toCompletableFuture()
-            .join();
-
-    // Redirects to home since program IDs are not supported when feature is enabled and program
-    // param expects a program slug
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation()).hasValue("/");
-  }
-
-  /**
-   * Tests that addFileWithApplicantId() throws an error when the program param is a program slug
-   * but it should be the program id since the program slug feature is disabled.
-   * addFileWithApplicantId() also throws error for other combinations when the program param is not
-   * properly parsed. We don't test all combinations here because ProgramSlugHandler have a
-   * comprehensive test cover for them.
-   */
-  @Test
-  public void
-      addFileWithApplicantId_whenProgramSlugUrlsFeatureDisabledAndIsProgramSlugFromUrl_error() {
-    program = ProgramBuilder.newActiveProgram("Program").build();
-    String programSlug = program.getSlug();
-    assertThatThrownBy(
-            () ->
-                subject.addFileWithApplicantId(
-                    fakeRequest(),
-                    applicant.id,
-                    programSlug,
-                    /* blockId= */ "1",
-                    /* inReview= */ false))
-        .isInstanceOf(RuntimeException.class)
-        .hasMessage("Could not parse value from 'program' to a numeric value");
-  }
-
-  @Test
-  public void
-      addFileWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_works() {
-    ProgramModel activeProgram =
-        ProgramBuilder.newActiveProgram("Program with file upload")
-            .withBlock()
-            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
-            .build();
-    String programSlug = activeProgram.getSlug();
-
-    Request request = fakeRequestWithKeyAndBucket();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
-
-    Result result =
-        subject
-            .addFileWithApplicantId(
-                request, applicant.id, programSlug, /* blockId= */ "1", /* inReview= */ false)
-            .toCompletableFuture()
-            .join();
-
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation().get()).contains(programSlug);
-  }
-
-  @Test
   public void addFileWithApplicantId_invalidApplicant_returnsUnauthorized() {
     long badApplicantId = applicant.id + 1000;
-    String programId = Long.toString(program.id);
 
     Result result =
         subject
             .addFileWithApplicantId(
                 fakeRequestWithKeyAndBucket(),
                 badApplicantId,
-                programId,
+                program.id,
                 /* blockId= */ "2",
                 /* inReview= */ false)
             .toCompletableFuture()
@@ -1907,14 +1861,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock()
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
-    String draftProgramId = Long.toString(draftProgram.id);
 
     Result result =
         subject
             .addFileWithApplicantId(
                 fakeRequest(),
                 applicant.id,
-                draftProgramId,
+                draftProgram.id,
                 /* blockId= */ "1",
                 /* inReview= */ false)
             .toCompletableFuture()
@@ -1932,14 +1885,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock()
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
-    String draftProgramId = Long.toString(draftProgram.id);
 
     Result result =
         subject
             .addFileWithApplicantId(
                 fakeRequestWithKeyAndBucket(),
                 applicant.id,
-                draftProgramId,
+                draftProgram.id,
                 /* blockId= */ "1",
                 /* inReview= */ false)
             .toCompletableFuture()
@@ -1955,14 +1907,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock()
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
-    String obsoleteProgramId = Long.toString(obsoleteProgram.id);
 
     Result result =
         subject
             .addFileWithApplicantId(
                 fakeRequestWithKeyAndBucket(),
                 applicant.id,
-                obsoleteProgramId,
+                obsoleteProgram.id,
                 /* blockId= */ "1",
                 /* inReview= */ false)
             .toCompletableFuture()
@@ -1973,14 +1924,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void addFileWithApplicantId_invalidProgram_returnsBadRequest() {
-    String badProgramId = Long.toString(program.id + 1000);
 
     Result result =
         subject
             .addFileWithApplicantId(
                 fakeRequestWithKeyAndBucket(),
                 applicant.id,
-                badProgramId,
+                program.id + 1000,
                 /* blockId= */ "2",
                 /* inReview= */ false)
             .toCompletableFuture()
@@ -1992,14 +1942,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   @Test
   public void addFileWithApplicantId_invalidBlock_returnsBadRequest() {
     String badBlockId = "1000";
-    String programId = Long.toString(program.id);
 
     Result result =
         subject
             .addFileWithApplicantId(
                 fakeRequestWithKeyAndBucket(),
                 applicant.id,
-                programId,
+                program.id,
                 badBlockId,
                 /* inReview= */ false)
             .toCompletableFuture()
@@ -2011,14 +1960,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   @Test
   public void addFileWithApplicantId_notFileUploadBlock_returnsBadRequest() {
     String badBlockId = "1";
-    String programId = Long.toString(program.id);
 
     Result result =
         subject
             .addFileWithApplicantId(
                 fakeRequestWithKeyAndBucket(),
                 applicant.id,
-                programId,
+                program.id,
                 badBlockId,
                 /* inReview= */ false)
             .toCompletableFuture()
@@ -2029,12 +1977,11 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void addFileWithApplicantId_missingFileKeyAndBucket_returnsBadRequest() {
-    String programId = Long.toString(program.id);
 
     Result result =
         subject
             .addFileWithApplicantId(
-                fakeRequest(), applicant.id, programId, /* blockId= */ "2", /* inReview= */ false)
+                fakeRequest(), applicant.id, program.id, /* blockId= */ "2", /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -2050,7 +1997,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock("block 2")
             .withRequiredQuestion(testQuestionBank().addressApplicantAddress())
             .build();
-    String programId = Long.toString(program.id);
 
     RequestBuilder request = fakeRequestBuilder();
     addQueryString(
@@ -2061,7 +2007,11 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Result result =
         subject
             .addFileWithApplicantId(
-                request.build(), applicant.id, programId, /* blockId= */ "1", /* inReview= */ false)
+                request.build(),
+                applicant.id,
+                program.id,
+                /* blockId= */ "1",
+                /* inReview= */ false)
             .toCompletableFuture()
             .join();
 
@@ -2099,7 +2049,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock("block 2")
             .withRequiredQuestion(testQuestionBank().addressApplicantAddress())
             .build();
-    String programId = Long.toString(program.id);
 
     // Add the first file
     RequestBuilder firstRequest = fakeRequestBuilder();
@@ -2109,7 +2058,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .addFileWithApplicantId(
                 firstRequest.build(),
                 applicant.id,
-                programId,
+                program.id,
                 /* blockId= */ "1",
                 /* inReview= */ false)
             .toCompletableFuture()
@@ -2125,7 +2074,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .addFileWithApplicantId(
                 secondRequest.build(),
                 applicant.id,
-                programId,
+                program.id,
                 /* blockId= */ "1",
                 /* inReview= */ false)
             .toCompletableFuture()
@@ -2146,7 +2095,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock("block 1")
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
-    String programId = Long.toString(program.id);
 
     RequestBuilder requestOne = fakeRequestBuilder();
     addQueryString(
@@ -2156,7 +2104,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     subject
         .addFileWithApplicantId(
-            requestOne.build(), applicant.id, programId, /* blockId= */ "1", /* inReview= */ false)
+            requestOne.build(), applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)
         .toCompletableFuture()
         .join();
 
@@ -2168,7 +2116,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     subject
         .addFileWithApplicantId(
-            requestTwo.build(), applicant.id, programId, /* blockId= */ "1", /* inReview= */ false)
+            requestTwo.build(), applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false)
         .toCompletableFuture()
         .join();
 
@@ -2177,7 +2125,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     subject
         .removeFile(
             requestThree.build(),
-            programId,
+            program.id,
             /* blockId= */ "1",
             /* fileKeyToRemove= */ "keyTwo",
             /* inReview= */ false)
@@ -2192,7 +2140,11 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     subject
         .addFileWithApplicantId(
-            requestFour.build(), applicant.id, programId, /* blockId= */ "1", /* inReview= */ false)
+            requestFour.build(),
+            applicant.id,
+            program.id,
+            /* blockId= */ "1",
+            /* inReview= */ false)
         .toCompletableFuture()
         .join();
 
@@ -2232,14 +2184,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock("block 1")
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
-    String programId = Long.toString(program.id);
 
     var result =
         subject
             .addFileWithApplicantId(
                 fakeRequestWithKeyAndBucket(),
                 applicant.id,
-                programId,
+                program.id,
                 /* blockId= */ "1",
                 /* inReview= */ false)
             .toCompletableFuture()
@@ -2252,7 +2203,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .addFileWithApplicantId(
                 fakeRequestWithKeyAndBucket(),
                 applicant.id,
-                programId,
+                program.id,
                 /* blockId= */ "1",
                 /* inReview= */ false)
             .toCompletableFuture()
@@ -2276,92 +2227,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void
-      removeFileWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
-    Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
-    String programId = Long.toString(program.id);
-
-    Result result =
-        subject
-            .removeFileWithApplicantId(
-                request,
-                applicant.id,
-                programId,
-                /* blockId= */ "1",
-                /* fileKeyToRemove= */ "fake-key",
-                /* inReview= */ false)
-            .toCompletableFuture()
-            .join();
-
-    // Redirects to home since program IDs are not supported when feature is enabled and program
-    // param expects a program slug
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation()).hasValue("/");
-  }
-
-  /**
-   * Tests that removeFileWithApplicantId() throws an error when the program param is a program slug
-   * but it should be the program id since the program slug feature is disabled.
-   * removeFileWithApplicantId() also throws error for other combinations when the program param is
-   * not properly parsed. We don't test all combinations here because ProgramSlugHandler have a
-   * comprehensive test cover for them.
-   */
-  @Test
-  public void
-      removeFileWithApplicantId_whenProgramSlugUrlsFeatureDisabledAndIsProgramSlugFromUrl_error() {
-    program = ProgramBuilder.newActiveProgram("Program").build();
-    String programSlug = program.getSlug();
-    assertThatThrownBy(
-            () ->
-                subject.removeFileWithApplicantId(
-                    fakeRequest(),
-                    applicant.id,
-                    programSlug,
-                    /* blockId= */ "1",
-                    /* fileKeyToRemove= */ "fake-key",
-                    /* inReview= */ false))
-        .isInstanceOf(RuntimeException.class)
-        .hasMessage("Could not parse value from 'program' to a numeric value");
-  }
-
-  @Test
-  public void
-      removeFileWithApplicantid_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_works() {
-    ProgramModel activeProgram =
-        ProgramBuilder.newActiveProgram("Program with file upload")
-            .withBlock()
-            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
-            .build();
-    String programSlug = activeProgram.getSlug();
-
-    Request request = fakeRequestWithKeyAndBucket();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
-
-    Result result =
-        subject
-            .removeFileWithApplicantId(
-                request,
-                applicant.id,
-                programSlug,
-                /* blockId= */ "1",
-                /* fileKeyToRemove= */ "fake-key",
-                /* inReview= */ false)
-            .toCompletableFuture()
-            .join();
-
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation().get()).contains(programSlug);
-  }
-
-  @Test
   public void removeFileWithApplicantId_invalidApplicant_returnsUnauthorized() {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
-    String programId = Long.toString(program.id);
     long badApplicantId = applicant.id + 1000;
 
     Result result =
@@ -2369,7 +2240,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .removeFileWithApplicantId(
                 fakeRequest(),
                 badApplicantId,
-                programId,
+                program.id,
                 /* blockId= */ "1",
                 /* fileKeyToRemove= */ "fake-key",
                 /* inReview= */ false)
@@ -2386,13 +2257,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock()
             .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .build();
-    String draftProgramId = Long.toString(draftProgram.id);
 
     Result result =
         subject
             .removeFile(
                 fakeRequest(),
-                draftProgramId,
+                draftProgram.id,
                 /* blockId= */ "2",
                 /* fileKeyToRemove= */ "fake-key",
                 /* inReview= */ false)
@@ -2411,14 +2281,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock("block 1")
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
-    String draftProgramId = Long.toString(draftProgram.id);
 
     Result result =
         subject
             .removeFileWithApplicantId(
                 fakeRequest(),
                 applicant.id,
-                draftProgramId,
+                draftProgram.id,
                 /* blockId= */ "1",
                 /* fileKeyToRemove= */ "fake-key",
                 /* inReview= */ false)
@@ -2426,78 +2295,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-  }
-
-  @Test
-  public void removeFile_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
-    Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
-    String programId = Long.toString(program.id);
-
-    Result result =
-        subject
-            .removeFile(
-                request,
-                programId,
-                /* blockId= */ "1",
-                /* fileKeyToRemove= */ "fake-key",
-                /* inReview= */ false)
-            .toCompletableFuture()
-            .join();
-
-    // Redirects to home since program IDs are not supported when feature is enabled and program
-    // param expects a program slug
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation()).hasValue("/");
-  }
-
-  /**
-   * Tests that removeFile() throws an error when the program param is a program slug but it should
-   * be the program id since the program slug feature is disabled. removeFile() also throws error
-   * for other combinations when the program param is not properly parsed. We don't test all
-   * combinations here because ProgramSlugHandler have a comprehensive test cover for them.
-   */
-  @Test
-  public void removeFile_whenProgramSlugUrlsFeatureDisabledAndIsProgramSlugFromUrl_error() {
-    program = ProgramBuilder.newActiveProgram("Program").build();
-    String programSlug = program.getSlug();
-    assertThatThrownBy(
-            () ->
-                subject.removeFile(
-                    fakeRequest(),
-                    programSlug,
-                    /* blockId= */ "1",
-                    /* fileKeyToRemove= */ "fake-key",
-                    /* inReview= */ false))
-        .isInstanceOf(RuntimeException.class)
-        .hasMessage("Could not parse value from 'program' to a numeric value");
-  }
-
-  @Test
-  public void removeFile_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_works() {
-    ProgramModel activeProgram =
-        ProgramBuilder.newActiveProgram("Program with file upload")
-            .withBlock()
-            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
-            .build();
-    String programSlug = activeProgram.getSlug();
-
-    Request request = fakeRequestWithKeyAndBucket();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
-
-    Result result =
-        subject
-            .removeFile(
-                request,
-                programSlug,
-                /* blockId= */ "1",
-                /* fileKeyToRemove= */ "fake-key",
-                /* inReview= */ false)
-            .toCompletableFuture()
-            .join();
-
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation().get()).contains(programSlug);
   }
 
   @Test
@@ -2507,13 +2304,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock("block 1")
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
-    String obsoleteProgramId = Long.toString(obsoleteProgram.id);
 
     Result result =
         subject
             .removeFile(
                 fakeRequest(),
-                obsoleteProgramId,
+                obsoleteProgram.id,
                 /* blockId= */ "1",
                 /* fileKeyToRemove= */ "fake-key",
                 /* inReview= */ false)
@@ -2525,13 +2321,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void removeFile_invalidProgram_returnsBadRequest() {
-    String badProgramId = Long.toString(program.id + 1000);
 
     Result result =
         subject
             .removeFile(
                 fakeRequest(),
-                badProgramId,
+                program.id + 1000,
                 /* blockId= */ "2",
                 /* fileKeyToRemove= */ "fake-key",
                 /* inReview= */ false)
@@ -2548,14 +2343,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock()
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
-    String programId = Long.toString(program.id);
     String badBlockId = "1000";
 
     Result result =
         subject
             .removeFile(
                 fakeRequest(),
-                programId,
+                program.id,
                 badBlockId,
                 /* fileKeyToRemove= */ "fake-key",
                 /* inReview= */ false)
@@ -2572,14 +2366,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock()
             .withRequiredQuestion(testQuestionBank().dateApplicantBirthdate())
             .build();
-    String programId = Long.toString(program.id);
     String dateQuestionBlockId = "1";
 
     Result result =
         subject
             .removeFile(
                 fakeRequest(),
-                programId,
+                program.id,
                 dateQuestionBlockId,
                 /* fileKeyToRemove= */ "fake-key",
                 /* inReview= */ false)
@@ -2596,7 +2389,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock("block 1")
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
-    String programId = Long.toString(program.id);
 
     Request request = fakeRequestBuilder().header(skipUserProfile, "true").build();
 
@@ -2604,7 +2396,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         subject
             .removeFile(
                 request,
-                programId,
+                program.id,
                 /* blockId= */ "1",
                 /* fileKeyToRemove= */ "key-to-remove",
                 /* inReview= */ false)
@@ -2622,7 +2414,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock("block 1")
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
-    String programId = Long.toString(program.id);
 
     QuestionAnswerer.answerFileQuestionWithMultipleUpload(
         applicant.getApplicantData(),
@@ -2639,7 +2430,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         subject
             .removeFile(
                 fakeRequest(),
-                programId,
+                program.id,
                 /* blockId= */ "1",
                 /* fileKeyToRemove= */ "key-to-remove",
                 /* inReview= */ false)
@@ -2661,7 +2452,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock("block 1")
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
-    String programId = Long.toString(program.id);
 
     QuestionAnswerer.answerFileQuestionWithMultipleUpload(
         applicant.getApplicantData(),
@@ -2687,7 +2477,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         subject
             .removeFile(
                 fakeRequest(),
-                programId,
+                program.id,
                 /* blockId= */ "1",
                 /* fileKeyToRemove= */ "key-to-remove",
                 /* inReview= */ false)
@@ -2710,7 +2500,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock("block 1")
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
-    String programId = Long.toString(program.id);
 
     QuestionAnswerer.answerFileQuestionWithMultipleUpload(
         applicant.getApplicantData(),
@@ -2726,7 +2515,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         subject
             .removeFile(
                 fakeRequest(),
-                programId,
+                program.id,
                 /* blockId= */ "1",
                 /* fileKeyToRemove= */ "key-to-remove",
                 /* inReview= */ false)
@@ -2746,7 +2535,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .withBlock("block 1")
             .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
             .build();
-    String programId = Long.toString(program.id);
 
     QuestionAnswerer.answerFileQuestionWithMultipleUpload(
         applicant.getApplicantData(),
@@ -2763,7 +2551,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         subject
             .removeFile(
                 fakeRequest(),
-                programId,
+                program.id,
                 /* blockId= */ "1",
                 /* fileKeyToRemove= */ "does-not-exist",
                 /* inReview= */ false)
@@ -2982,7 +2770,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .updateWithApplicantId(
                 answerAddressQuestionRequest,
                 applicant.id,
-                program.id,
+                String.valueOf(program.id),
                 /* blockId= */ "1",
                 /* inReview= */ false,
                 new ApplicantRequestedActionWrapper())
@@ -3362,7 +3150,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         .updateWithApplicantId(
             answerAddressQuestionRequest,
             applicant.id,
-            program.id,
+            String.valueOf(program.id),
             /* blockId= */ "1",
             /* inReview= */ false,
             new ApplicantRequestedActionWrapper())
