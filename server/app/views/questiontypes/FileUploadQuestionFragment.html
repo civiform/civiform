@@ -77,11 +77,11 @@
     th:data-file-limit-mb="${maxFileSizeMb}"
     th:disabled="${!fileUploadQuestion.canUploadFile()}"
     th:aria-required="${!question.isOptional()}"
-    hx-swap="none"
-    th:hx-encoding="${!isPreview} ? 'multipart/form-data'"
-    th:hx-vals='|{"questionId": ${question.getQuestionDefinition().getId()}}|'
     th:hx-post="${!isPreview} ? ${hxSelectFileForUploadUrl}"
     th:hx-trigger="${!isPreview} ? 'change'"
+    th:hx-encoding="${!isPreview} ? 'multipart/form-data'"
+    th:hx-vals='|{"questionId": ${question.getQuestionDefinition().getId()}}|'
+    hx-swap="none"
   />
 
   <th:block th:if="${!isPreview}">

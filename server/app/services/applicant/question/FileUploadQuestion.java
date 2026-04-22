@@ -76,13 +76,6 @@ public final class FileUploadQuestion extends AbstractQuestion {
     return applicantQuestion.getApplicantData().readString(getFileKeyListPathForIndex(index));
   }
 
-  /** Returns {@code true} if at least one non-empty file key has been uploaded. */
-  public boolean hasUploadedFiles() {
-    return getFileKeyListValue()
-        .map(keys -> keys.stream().anyMatch(k -> k != null && !k.isEmpty()))
-        .orElse(false);
-  }
-
   /**
    * Returns {@code true} if an additional file can be added according to the maximum files set on
    * the current question definition.
@@ -166,8 +159,7 @@ public final class FileUploadQuestion extends AbstractQuestion {
       StoredFileRepository storedFileRepository, String fileKey) {
     return storedFileRepository
         .lookupFile(fileKey)
-        .thenApply(maybeFile -> maybeFile.flatMap(StoredFileModel::getOriginalFileName))
-        .toCompletableFuture();
+        .thenApply(maybeFile -> maybeFile.flatMap(StoredFileModel::getOriginalFileName));
   }
 
   public FileUploadQuestionDefinition getQuestionDefinition() {
