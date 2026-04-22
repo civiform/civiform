@@ -95,13 +95,22 @@ public final class FileUploadQuestion extends AbstractQuestion {
         .toCompletableFuture();
   }
 
-  /** Returns a JsArray containing all uploaded file names. This is used by file_upload.ts */
+  /**
+   * Returns a JSON array of display names for each non-empty file key, in list order. Matches the
+   * file rows rendered in {@code FileUploadQuestionFragment} (empty keys are omitted). Used by
+   * {@code file_upload.ts} for client-side file name de-duplication.
+   */
   public JsArray getUploadedFileData() {
     ImmutableList<String> keys = getFileKeyListValue().orElse(ImmutableList.of());
 
     ImmutableList<JsValue> fileNames =
         IntStream.range(0, keys.size())
-            .mapToObj(i -> new JsString(getFileNameForIndex(i).get()))
+            .filter(
+                i -> {
+                  String key = keys.get(i);
+                  return key != null && !key.isEmpty();
+                })
+            .mapToObj(i -> new JsString(getFileNameForIndex(i).orElse(keys.get(i))))
             .collect(toImmutableList());
 
     return new JsArray(Scala.toSeq(fileNames));

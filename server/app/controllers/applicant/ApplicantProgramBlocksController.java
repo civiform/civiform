@@ -1120,7 +1120,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             roApplicantProgramService ->
                 renderFileUploadPartial(
                     request, programId, blockId, parsedQuestionId, roApplicantProgramService),
-            classLoaderExecutionContext.current());
+            classLoaderExecutionContext.current())
+        .exceptionally(this::handleUpdateExceptions);
   }
 
   /**
@@ -1826,7 +1827,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             roApplicantProgramService ->
                 renderFileUploadPartial(
                     request, programId, blockId, parsedQuestionId, roApplicantProgramService),
-            classLoaderExecutionContext.current());
+            classLoaderExecutionContext.current())
+        .exceptionally(this::handleUpdateExceptions);
   }
 
   /**

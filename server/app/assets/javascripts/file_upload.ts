@@ -6,11 +6,7 @@ import {
   showError,
 } from '@/file_upload_util'
 import {default as uswdsFileInput} from '@uswds/uswds/js/usa-file-input'
-import {
-  HtmxAfterRequestEvent,
-  HtmxBeforeRequestEvent,
-  HtmxConfigRequestEvent,
-} from '@/types/htmx'
+import {HtmxAfterRequestEvent} from '@/types/htmx'
 
 const UPLOADED_FILE_ATTR = 'data-uploaded-files'
 const CF_FILE_UPLOADING_CLASS = 'cf-file-uploading'
@@ -43,8 +39,10 @@ export const init = () => {
   })
 
   document.body.addEventListener('htmx:beforeRequest', (event) => {
-    if (!isFileUploadHtmxEvent(event)) return
-    const fileInput = event.target as HTMLInputElement
+    const fileInput = event.detail.elt
+    if (!isApplicantFileUploadInput(fileInput)) {
+      return
+    }
 
     // We validate both on the beforeRequest and onchange so that we block the request
     // to the server if the client invalidates the upload
@@ -58,7 +56,9 @@ export const init = () => {
   })
 
   document.body.addEventListener('htmx:afterRequest', (event) => {
-    if (!isFileUploadHtmxEvent(event)) return
+    if (!isApplicantFileUploadInput(event.detail.elt)) {
+      return
+    }
     fileUploadsInProgress--
     if (fileUploadsInProgress <= 0) {
       fileUploadsInProgress = 0
@@ -71,8 +71,10 @@ export const init = () => {
   })
 
   document.body.addEventListener('htmx:configRequest', (event) => {
-    if (!isFileUploadHtmxEvent(event)) return
     const triggerElt = event.detail.elt
+    if (!isApplicantFileUploadInput(triggerElt)) {
+      return
+    }
 
     const questionDiv = triggerElt.closest(CF_FILE_UPLOAD_QUESTION_SELECTOR)
     if (!questionDiv) return
@@ -145,19 +147,12 @@ const validateFileUploadQuestion = (fileInput: HTMLInputElement): boolean => {
   return isValid
 }
 
-const isFileUploadHtmxEvent = (
-  event:
-    | HtmxBeforeRequestEvent
-    | HtmxAfterRequestEvent
-    | HtmxConfigRequestEvent,
-) => {
-  const elt = event.detail.elt
-  return (
-    elt instanceof HTMLInputElement &&
-    elt.type === 'file' &&
-    elt.closest(CF_FILE_UPLOAD_QUESTION_SELECTOR) != null
-  )
-}
+const isApplicantFileUploadInput = (
+  elt: EventTarget | null,
+): elt is HTMLInputElement =>
+  elt instanceof HTMLInputElement &&
+  elt.type === 'file' &&
+  elt.closest(CF_FILE_UPLOAD_QUESTION_SELECTOR) != null
 
 const toggleDisabledState = () => {
   const elements = document.querySelectorAll('.cf-disable-when-uploading')
@@ -172,14 +167,11 @@ const toggleDisabledState = () => {
   })
 }
 
-const resetFileInput = (event: Event) => {
-  const detail = (event as CustomEvent).detail as
-    | {elt?: HTMLElement}
-    | undefined
-  const questionDiv = detail?.elt?.closest(
-    CF_FILE_UPLOAD_QUESTION_SELECTOR,
-  ) as HTMLElement
-  if (!questionDiv) return
+const resetFileInput = (event: HtmxAfterRequestEvent) => {
+  const questionDiv = event.detail.elt.closest(CF_FILE_UPLOAD_QUESTION_SELECTOR)
+  if (!questionDiv || !(questionDiv instanceof HTMLElement)) {
+    return
+  }
 
   const fileInput =
     questionDiv.querySelector<HTMLInputElement>('input[type=file]')

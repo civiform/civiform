@@ -331,53 +331,6 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
         ).toBeVisible()
       })
     })
-
-    // TODO(#13150): implement in htmx flow
-    // test('hides upload button at max', async ({
-    //   applicantQuestions,
-    //   applicantFileQuestion,
-    //   page,
-    //   adminQuestions,
-    //   adminPrograms,
-    // }) => {
-    //   await test.step('Add file upload question and publish', async () => {
-    //     await loginAsAdmin(page)
-    //
-    //     await adminQuestions.addFileUploadQuestion({
-    //       questionName: 'file-upload-test-q',
-    //       questionText: fileUploadQuestionText,
-    //       maxFiles: 2,
-    //     })
-    //     await adminPrograms.addAndPublishProgramWithQuestions(
-    //       ['file-upload-test-q'],
-    //       programName,
-    //     )
-    //
-    //     await logout(page)
-    //   })
-    //
-    //   await applicantQuestions.applyProgram(programName)
-    //
-    //   await test.step('Adding maximum files disables file input', async () => {
-    //     await applicantQuestions.answerFileUploadQuestionFromAssets(
-    //       'file-upload.png',
-    //     )
-    //     await applicantQuestions.answerFileUploadQuestionFromAssets(
-    //       'file-upload-second.png',
-    //     )
-    //     await applicantFileQuestion.expectFileNameDisplayed('file-upload.png')
-    //     await applicantFileQuestion.expectFileNameDisplayed(
-    //       'file-upload-second.png',
-    //     )
-    //
-    //     await applicantFileQuestion.expectFileInputDisabled()
-    //   })
-    //
-    //   await test.step('Removing a file shows file input again', async () => {
-    //     await applicantFileQuestion.removeFileUpload('file-upload.png')
-    //     await applicantFileQuestion.expectFileInputEnabled()
-    //   })
-    // })
   })
 
   test.describe('required file upload question with multiple file uploads', () => {
@@ -1218,85 +1171,6 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
           'old.txt',
         )
       })
-
-      // test.only('clicking continue with new file saves new file and redirects to next page', async ({
-      //   applicantQuestions,
-      //   page,
-      // }) => {
-      //   // First, open the email block so that the email block is considered answered
-      //   // and we're not taken back to it when we click "Continue".
-      //   // (see test case 'clicking continue button redirects to first unseen block').
-      //   await applicantQuestions.applyProgram(programName)
-      //   await applicantQuestions.clickContinue()
-
-      //   // Answer the file upload question
-      //   const oldFileName = 'old.pdf'
-      //   const oldFileContent =
-      //     '%PDF-1.4\n' +
-      //     '1 0 obj\n' +
-      //     '<< /Type /Catalog >>\n' +
-      //     'endobj\n' +
-      //     'trailer\n' +
-      //     '<<>>\n' +
-      //     '%%EOF\n' +
-      //     'some old text'
-      //   await applicantQuestions.answerFileUploadQuestion(
-      //     oldFileContent,
-      //     oldFileName,
-      //   )
-      //   await waitForHtmxReady(page)
-      //   // Note: If we clicked "Save & next" here, we would be taken to the third block.
-      //   // Clicking *any* button on that third block will save our data, which guarantees
-      //   // that the third block will be marked as seen.
-      //   // Since this test is actually about verifying that clicking "Continue" will
-      //   // take us to the next unseen block, we want the third block to remain unseen.
-      //   // So, we instead click "Review" here to save the file and go to the review page
-      //   // without seeing the third block.
-      //   await applicantQuestions.clickReview()
-
-      //   // Re-open the file upload question
-      //   await applicantQuestions.expectReviewPage()
-      //   await applicantQuestions.editQuestionFromReviewPage(
-      //     fileUploadQuestionText,
-      //   )
-
-      //   // Upload a new file
-      //   const newFileName = 'new.pdf'
-      //   const newFileContent =
-      //     '%PDF-1.4\n' +
-      //     '1 0 obj\n' +
-      //     '<< /Type /Catalog >>\n' +
-      //     'endobj\n' +
-      //     'trailer\n' +
-      //     '<<>>\n' +
-      //     '%%EOF\n' +
-      //     'some new text'
-      //   await applicantQuestions.answerFileUploadQuestion(
-      //     newFileContent,
-      //     newFileName,
-      //   )
-      //   await waitForHtmxReady(page)
-
-      //   // Click "Continue" and verify the newly uploaded file persists.
-      //   await applicantQuestions.clickContinue()
-
-      //   // Verify we're taken to the next page
-      //   await applicantQuestions.validateQuestionIsOnPage(numberQuestionText)
-
-      //   // Verify the new file is used.
-      //   await applicantQuestions.clickReview()
-      //   await applicantQuestions.expectReviewPage()
-      //   await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-      //     fileUploadQuestionText,
-      //     newFileName,
-      //   )
-
-      //   const downloadedFileContent =
-      //     await applicantQuestions.downloadSingleQuestionFromReviewPage(
-      //       newFileName,
-      //     )
-      //   expect(downloadedFileContent).toEqual(newFileContent)
-      // })
     })
   })
 })
