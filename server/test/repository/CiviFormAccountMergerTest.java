@@ -730,8 +730,8 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
       cfUser.setEmailAddress("cf@example.com");
       cfUser.setPhoneNumber("2535559999");
       // Setting phone number sets the country code, but only US numbers are
-      // accepted in practice. So to test that this is changed we force it to be
-      // different from the expectation.
+      // accepted in practice. So to test country code, we force this value
+      // which should be overwritten to be different from the expectation.
       cfUser.setCountryCode("CA");
       cfUser.setDateOfBirth(LocalDate.of(1985, 6, 20));
       cfUser.save();
