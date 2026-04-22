@@ -32,7 +32,9 @@
   </div>
 
   <!--/* Display errors */-->
-  <div id="cf-fileupload-validation-errors">
+  <div
+    th:id="'cf-fileupload-validation-errors-' + ${question.getQuestionDefinition().getId()}"
+  >
     <div
       th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fileUploadQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams}, ${questionId})}"
     ></div>
@@ -96,7 +98,7 @@
 
   <th:block th:if="${!isPreview}">
     <div
-      th:replace="~{questiontypes/FileUploadQuestionFragment :: file-key-field(${fileUploadQuestion}, false, false)}"
+      th:replace="~{questiontypes/FileUploadQuestionFragment :: file-key-field(${fileUploadQuestion}, false)}"
     ></div>
     <div
       th:replace="~{questiontypes/FileUploadQuestionFragment :: file-list-display(${fileUploadQuestion}, false)}"
@@ -106,20 +108,18 @@
 
 <!--/* Fragment for rendering file key fields within hidden inputs */-->
 <div
-  id="cf-fileupload-file-key-inputs"
-  th:fragment="file-key-field(fileUploadQuestion, clearData, oob)"
-  th:hx-swap-oob="${oob} ? 'outerHTML:#' + ${questionId} + '-cf-fileupload-file-list'"
+  th:fragment="file-key-field(fileUploadQuestion, oob)"
+  th:hx-swap-oob="${oob} ? 'true'"
+  th:id="'cf-fileupload-file-key-inputs-' + ${fileUploadQuestion.getQuestionDefinition().getId()}"
 >
   <!--/* Singular path is preserved for backwards compatibility with the
        non-improvements (cloud direct-upload) flow. */-->
   <input
     th:name="${fileUploadQuestion.getFileKeyPath()}"
-    th:value="${clearData ? '' : fileUploadQuestion.getFileKeyValue().orElse('')}"
+    th:value="${fileUploadQuestion.getFileKeyValue().orElse('')}"
     type="hidden"
   />
-  <th:block
-    th:if="${!clearData and fileUploadQuestion.getFileKeyListValue().isPresent()}"
-  >
+  <th:block th:if="${fileUploadQuestion.getFileKeyListValue().isPresent()}">
     <input
       th:each="fileKey, iter : ${fileUploadQuestion.getFileKeyListValue().get()}"
       th:name="${fileUploadQuestion.getFileKeyListPathForIndex(iter.index)}"
@@ -128,7 +128,7 @@
     />
   </th:block>
   <th:block
-    th:if="${!clearData and fileUploadQuestion.getOriginalFileNameListValue().isPresent()}"
+    th:if="${fileUploadQuestion.getOriginalFileNameListValue().isPresent()}"
   >
     <input
       th:each="name, iter : ${fileUploadQuestion.getOriginalFileNameListValue().get()}"
@@ -139,13 +139,12 @@
   </th:block>
 </div>
 
-<!--/* OOB-capable errors region rendered after an htmx upload. Targets the
-     page-load #cf-fileupload-validation-errors wrapper by selector so the id
-     only lives in one place in the source template. */-->
+<!--/* OOB-capable errors region rendered after an htmx upload. Matches the
+     page-load errors wrapper by id (per question) so htmx swaps it in place. */-->
 <div
   th:fragment="file-upload-errors(fileUploadQuestion, oob)"
-  th:hx-swap-oob="${oob} ? 'outerHTML:#cf-fileupload-validation-errors'"
-  th:id="${oob} ? 'cf-fileupload-validation-errors'"
+  th:hx-swap-oob="${oob} ? 'true'"
+  th:id="'cf-fileupload-validation-errors-' + ${fileUploadQuestion.getQuestionDefinition().getId()}"
 >
   <div
     class="cf-question-error-message cf-applicant-question-errors"
@@ -156,11 +155,11 @@
 
 <ul
   class="grid"
-  data-th-attr="aria-label=#{label.uploadedFiles}"
-  th:data-has-uploaded-files="${fileUploadQuestion.hasUploadedFiles()}"
+  th:aria-label="#{label.uploadedFiles}"
+  th:data-uploaded-files="${fileUploadQuestion.getUploadedFileData()}"
+  th:id="'cf-fileupload-file-list-' + ${fileUploadQuestion.getQuestionDefinition().getId()}"
   th:fragment="file-list-display(fileUploadQuestion, oob)"
   th:hx-swap-oob="${oob} ? 'true'"
-  th:id="${questionId + 'cf-fileupload-file-list'}"
 >
   <th:block th:if="${fileUploadQuestion.getFileKeyListValue().isPresent()}">
     <li
@@ -178,7 +177,7 @@
         hx-swap="none"
         th:aria-label="#{link.removeFileSr(${fileName})}"
         th:hx-post="${hxRemoveFileUrl}"
-        th:hx-vals='|{"fileKey":"${fileKey}"}|'
+        th:hx-vals='|{"fileKey":"${fileKey}","questionId":${fileUploadQuestion.getQuestionDefinition().getId()}}|'
         th:text="#{link.removeFile}"
         type="button"
       ></button>

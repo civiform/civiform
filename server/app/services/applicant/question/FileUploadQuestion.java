@@ -1,11 +1,18 @@
 package services.applicant.question;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.IntStream;
 import models.StoredFileModel;
+import play.api.libs.json.JsArray;
+import play.api.libs.json.JsString;
+import play.api.libs.json.JsValue;
+import play.libs.Scala;
 import repository.StoredFileRepository;
 import services.MessageKey;
 import services.Path;
@@ -62,7 +69,6 @@ public final class FileUploadQuestion extends AbstractQuestion {
   }
 
   public Optional<ImmutableList<String>> getFileKeyListValue() {
-    System.out.println(applicantQuestion.getApplicantData().readStringList(getFileKeyListPath()));
     return applicantQuestion.getApplicantData().readStringList(getFileKeyListPath());
   }
 
@@ -70,10 +76,6 @@ public final class FileUploadQuestion extends AbstractQuestion {
     return applicantQuestion.getApplicantData().readString(getFileKeyListPathForIndex(index));
   }
 
-  /**
-   * Returns {@code true} if an additional file can be added according to the maximum files set on
-   * the current question definition.
-   */
   /** Returns {@code true} if at least one non-empty file key has been uploaded. */
   public boolean hasUploadedFiles() {
     return getFileKeyListValue()
@@ -81,18 +83,28 @@ public final class FileUploadQuestion extends AbstractQuestion {
         .orElse(false);
   }
 
-  public boolean canUploadFile() {
-    // Max can't be zero, so if there are no values, we can always upload a new one.
-    if (!getFileKeyListValue().isPresent()) {
-      return true;
-    }
+  /**
+   * Looks up the original file name for a given file key by querying the database for the
+   * corresponding {@link StoredFileModel}.
+   */
+  public static CompletionStage<Optional<String>> getOriginalFileNameForFileKey(
+      StoredFileRepository storedFileRepository, String fileKey) {
+    return storedFileRepository
+        .lookupFile(fileKey)
+        .thenApply(maybeFile -> maybeFile.flatMap(StoredFileModel::getOriginalFileName))
+        .toCompletableFuture();
+  }
 
-    // No max, so we can always upload.
-    if (!getQuestionDefinition().getMaxFiles().isPresent()) {
-      return true;
-    }
+  /** Returns a JsArray containing all uploaded file names. This is used by file_upload.ts */
+  public JsArray getUploadedFileData() {
+    ImmutableList<String> keys = getFileKeyListValue().orElse(ImmutableList.of());
 
-    return getFileKeyListValue().get().size() < getQuestionDefinition().getMaxFiles().getAsInt();
+    ImmutableList<JsValue> fileNames =
+        IntStream.range(0, keys.size())
+            .mapToObj(i -> new JsString(getFileNameForIndex(i).get()))
+            .collect(toImmutableList());
+
+    return new JsArray(Scala.toSeq(fileNames));
   }
 
   public Optional<String> getOriginalFileName() {
@@ -132,14 +144,21 @@ public final class FileUploadQuestion extends AbstractQuestion {
   }
 
   /**
-   * Looks up the original file name for a given file key by querying the database for the
-   * corresponding {@link StoredFileModel}.
+   * Returns {@code true} if an additional file can be added according to the maximum files set on
+   * the current question definition.
    */
-  public static CompletionStage<Optional<String>> getOriginalFileNameForFileKey(
-      StoredFileRepository storedFileRepository, String fileKey) {
-    return storedFileRepository
-        .lookupFile(fileKey)
-        .thenApply(maybeFile -> maybeFile.flatMap(StoredFileModel::getOriginalFileName));
+  public boolean canUploadFile() {
+    // Max can't be zero, so if there are no values, we can always upload a new one.
+    if (!getFileKeyListValue().isPresent()) {
+      return true;
+    }
+
+    // No max, so we can always upload.
+    if (!getQuestionDefinition().getMaxFiles().isPresent()) {
+      return true;
+    }
+
+    return getFileKeyListValue().get().size() < getQuestionDefinition().getMaxFiles().getAsInt();
   }
 
   /**

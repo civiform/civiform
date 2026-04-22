@@ -22,7 +22,6 @@ import controllers.FlashKey;
 import controllers.geo.AddressSuggestionJsonSerializer;
 import helpers.Pair;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -1083,14 +1082,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               }
 
               FileUploadQuestion fileUploadQuestion =
-                  block.get().getVisibleQuestions().stream()
-                      .filter(
-                          question ->
-                              question.getType() == QuestionType.FILEUPLOAD
-                                  && question.getQuestionDefinition().getId() == parsedQuestionId)
-                      .findFirst()
-                      .orElseThrow()
-                      .createFileUploadQuestion();
+                  findFileUploadQuestion(block.get(), parsedQuestionId);
 
               if (!fileUploadQuestion.canUploadFile()) {
                 return failedFuture(
@@ -1125,8 +1117,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             },
             classLoaderExecutionContext.current())
         .thenComposeAsync(
-            _ ->
-                renderFileUploadPartial(request, applicantId, programId, blockId, parsedQuestionId),
+            roApplicantProgramService ->
+                renderFileUploadPartial(
+                    request, programId, blockId, parsedQuestionId, roApplicantProgramService),
             classLoaderExecutionContext.current());
   }
 
@@ -1796,12 +1789,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       return CompletableFuture.completedFuture(badRequest());
     }
 
-    List<String> fileKeyValues =
-        List.of(formFactory.form().bindFromRequest(request).get("fileKeyValues").split(","));
-    if (fileKeyValues.stream().count() == 0 || fileKeyValues.getFirst().isBlank()) {
+    String fileKey = formFactory.form().bindFromRequest(request).get("fileKey");
+    if (fileKey == null || fileKey.isBlank()) {
       return CompletableFuture.completedFuture(badRequest());
     }
-    String fileKey = fileKeyValues.getFirst();
 
     return checkApplicantAuthorization(request, applicantId)
         .thenComposeAsync(
@@ -1816,11 +1807,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               }
 
               FileUploadQuestion fileUploadQuestion =
-                  block.get().getVisibleQuestions().stream()
-                      .filter(question -> question.getType() == QuestionType.FILEUPLOAD)
-                      .findAny()
-                      .orElseThrow()
-                      .createFileUploadQuestion();
+                  findFileUploadQuestion(block.get(), parsedQuestionId);
 
               ImmutableMap<String, String> formData =
                   fileUploadQuestion.buildFormDataForRemove(fileKey);
@@ -1836,38 +1823,28 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             },
             classLoaderExecutionContext.current())
         .thenComposeAsync(
-            _ ->
-                renderFileUploadPartial(request, applicantId, programId, blockId, parsedQuestionId),
+            roApplicantProgramService ->
+                renderFileUploadPartial(
+                    request, programId, blockId, parsedQuestionId, roApplicantProgramService),
             classLoaderExecutionContext.current());
   }
 
   /**
-   * Re-fetches the applicant's file upload question state and renders the OOB partial. Shared by
-   * {@link #hxSelectFileForUpload} and {@link #hxRemoveFile}.
+   * Renders the OOB partial for the file upload question identified by {@code questionId}, reading
+   * from the supplied (post-stage) {@link ReadOnlyApplicantProgramService}. Shared by {@link
+   * #hxSelectFileForUpload} and {@link #hxRemoveFile}.
    */
   private CompletionStage<Result> renderFileUploadPartial(
-      Request request, long applicantId, long programId, String blockId, long questionId) {
-    System.out.println(request);
-    System.out.println(applicantId);
-    System.out.println(programId);
-    System.out.println(blockId);
-    return applicantService
-        .getReadOnlyApplicantProgramService(applicantId, programId)
-        .thenApplyAsync(
-            roApplicantProgramService -> {
+      Request request,
+      long programId,
+      String blockId,
+      long questionId,
+      ReadOnlyApplicantProgramService roApplicantProgramService) {
+    return CompletableFuture.supplyAsync(
+            () -> {
               FileUploadQuestion stagedQuestion =
-                  roApplicantProgramService
-                      .getActiveBlock(blockId)
-                      .orElseThrow()
-                      .getVisibleQuestions()
-                      .stream()
-                      .filter(
-                          question ->
-                              question.getType() == QuestionType.FILEUPLOAD
-                                  && question.getQuestionDefinition().getId() == questionId)
-                      .findFirst()
-                      .orElseThrow()
-                      .createFileUploadQuestion();
+                  findFileUploadQuestion(
+                      roApplicantProgramService.getActiveBlock(blockId).orElseThrow(), questionId);
 
               return ok(fileUploadQuestionPartialView.render(
                       request,
@@ -1882,6 +1859,17 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             },
             classLoaderExecutionContext.current())
         .exceptionallyAsync(ex -> internalServerError(), classLoaderExecutionContext.current());
+  }
+
+  private static FileUploadQuestion findFileUploadQuestion(Block block, long questionId) {
+    return block.getVisibleQuestions().stream()
+        .filter(
+            question ->
+                question.getType() == QuestionType.FILEUPLOAD
+                    && question.getQuestionDefinition().getId() == questionId)
+        .findFirst()
+        .orElseThrow()
+        .createFileUploadQuestion();
   }
 
   private CompletionStage<StoredFileModel> getOrMakeFileRecord(
