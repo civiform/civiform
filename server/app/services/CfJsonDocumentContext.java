@@ -691,13 +691,12 @@ public class CfJsonDocumentContext {
    *
    * <p>Each direct child of the {@code "applicant"} key is either copied whole or skipped entirely.
    *
-   * <p>Both this document and {@code other} must have exactly one root key, {@code "applicant"},
+   * <p>Both this document and {@code other} must have exactly one root key, {@code applicant},
    * whose value is a map. Each entry in {@code other}'s applicant map is copied if no entry with
    * the same key exists in this document; otherwise it is dropped.
    *
    * @param other the source document to copy question answers from. Not modified.
-   * @return a {@link MergeQaResult} summarizing which paths were merged and which were dropped.
-   * @throws IllegalArgumentException if either document does not have the expected structure.
+   * @return {@link MergeQaResult} summarizing which paths were merged and which were dropped.
    */
   public MergeQaResult mergeQuestionAnswersFrom(CfJsonDocumentContext other) {
     checkLocked();
@@ -729,7 +728,7 @@ public class CfJsonDocumentContext {
       if (hasPath(entryPath)) {
         droppedPaths.add(entryPath.toString());
       } else {
-        this.put(entryPath, entry.getValue());
+        put(entryPath, entry.getValue());
         mergedPaths.add(entryPath.toString());
       }
     }

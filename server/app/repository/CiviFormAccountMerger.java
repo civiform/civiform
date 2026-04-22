@@ -619,8 +619,29 @@ public final class CiviFormAccountMerger {
         .formatted(fileIds);
   }
 
+  /**
+   * Merges the question answers in the two users and stores them on {@code civiformUser}, {@code
+   * guestUser} is not modified.
+   *
+   * <p>The user's question answers in {@code Applicant.object} and the PAI answers are both merged.
+   * For both, the guest's data is preferred, and the civiform user's data is only used if the guest
+   * does not have the data item.
+   *
+   * <p>Merging is done at the question level and not at the level of each individual field present
+   * in a question's answer data. This means for the `object` question answer data, the entire
+   * question answer is used from either user in whole and not its sub data items individually. EG:
+   * if one has a middle name but the other doesn't we will not use just that middle name separate
+   * from the other name parts in that user's data.
+   *
+   * <p>The same policy above also applies to the PAI data stored directly on the applicant.
+   *
+   * @param applyChanges if database changes should be applied. If false the return will log what
+   *     would have occurred.
+   * @return a log message indicating what changes occurred.
+   */
   private static String mergeQuestionAnswers(
       ApplicantModel civiformUser, ApplicantModel guestUser, boolean applyChanges) {
+
     // Merge question answers in the Applicant object data.
     // Use the guest's as the base, and supplement with the CiviForm users
     // for any questions that are missing.
@@ -631,15 +652,16 @@ public final class CiviFormAccountMerger {
       civiformUser.setApplicantData(mergeData);
     }
 
-    // Collect the CiviForm user answers that effectively supplement the
-    // guest's.  Determining this is a little backwards because as a
-    // narrative, we are supplementing the guest's data with the cf users,
+    // Merge question answers in the PAIs.  As above, prefer the guest's answers when present.
+
+    // For logging, collect the CiviForm user answers that effectively
+    // supplement the guest's.  Determining this is a little backwards because as a
+    // narrative we are supplementing the guest's data with the cf users,
     // however programmatically we are copying guest data into the cf user.
-    // So to determine which cf user data is retained we track which of its
+    // So to determine which cf user data is retained/used we track which of its
     // pais exist but weren't overwritten.
     StringJoiner cfPaisNotOverwritten = new StringJoiner(",");
 
-    // Merge question answers in the PAIs.  As above, prefer the guest's answers when present.
     // Name.  First/Last are required in forms, the others are not.
     if (guestUser.getFirstName().isPresent() && guestUser.getLastName().isPresent()) {
       if (applyChanges) {
@@ -663,7 +685,8 @@ public final class CiviFormAccountMerger {
       cfPaisNotOverwritten.add("email");
     }
 
-    // Phone number.
+    // Phone number.   Country code is set as a side effect of setting
+    // the phone number, so we don't manage it separately.
     if (guestUser.getPhoneNumber().isPresent()) {
       if (applyChanges) {
         civiformUser.setPhoneNumber(guestUser.getPhoneNumber().get());
@@ -684,6 +707,7 @@ public final class CiviFormAccountMerger {
     if (applyChanges) {
       civiformUser.save();
     }
+
     return """
     Using guest applicant data and supplementing with CiviForm user data:
     * CiviForm question answers: %d copied %d not copied.
