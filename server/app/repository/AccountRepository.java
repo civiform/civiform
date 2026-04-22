@@ -161,8 +161,7 @@ public final class AccountRepository {
         () -> {
           Optional<ApplicantModel> applicantOpt =
               account.getApplicants().stream()
-                  // DO NOT SUBMIT
-                  .min(Comparator.comparing(ApplicantModel::getWhenCreated));
+                  .max(Comparator.comparing(ApplicantModel::getWhenCreated));
           return applicantOpt.orElseGet(
               () -> new ApplicantModel().setAccount(account).saveAndReturn());
         });
