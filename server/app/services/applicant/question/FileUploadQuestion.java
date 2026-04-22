@@ -84,36 +84,21 @@ public final class FileUploadQuestion extends AbstractQuestion {
   }
 
   /**
-   * Looks up the original file name for a given file key by querying the database for the
-   * corresponding {@link StoredFileModel}.
+   * Returns {@code true} if an additional file can be added according to the maximum files set on
+   * the current question definition.
    */
-  public static CompletionStage<Optional<String>> getOriginalFileNameForFileKey(
-      StoredFileRepository storedFileRepository, String fileKey) {
-    return storedFileRepository
-        .lookupFile(fileKey)
-        .thenApply(maybeFile -> maybeFile.flatMap(StoredFileModel::getOriginalFileName))
-        .toCompletableFuture();
-  }
+  public boolean canUploadFile() {
+    // Max can't be zero, so if there are no values, we can always upload a new one.
+    if (!getFileKeyListValue().isPresent()) {
+      return true;
+    }
 
-  /**
-   * Returns a JSON array of display names for each non-empty file key, in list order. Matches the
-   * file rows rendered in {@code FileUploadQuestionFragment} (empty keys are omitted). Used by
-   * {@code file_upload.ts} for client-side file name de-duplication.
-   */
-  public JsArray getUploadedFileData() {
-    ImmutableList<String> keys = getFileKeyListValue().orElse(ImmutableList.of());
+    // No max, so we can always upload.
+    if (!getQuestionDefinition().getMaxFiles().isPresent()) {
+      return true;
+    }
 
-    ImmutableList<JsValue> fileNames =
-        IntStream.range(0, keys.size())
-            .filter(
-                i -> {
-                  String key = keys.get(i);
-                  return key != null && !key.isEmpty();
-                })
-            .mapToObj(i -> new JsString(getFileNameForIndex(i).orElse(keys.get(i))))
-            .collect(toImmutableList());
-
-    return new JsArray(Scala.toSeq(fileNames));
+    return getFileKeyListValue().get().size() < getQuestionDefinition().getMaxFiles().getAsInt();
   }
 
   public Optional<String> getOriginalFileName() {
@@ -153,21 +138,72 @@ public final class FileUploadQuestion extends AbstractQuestion {
   }
 
   /**
-   * Returns {@code true} if an additional file can be added according to the maximum files set on
-   * the current question definition.
+   * Returns a JSON array of display names for each non-empty file key, in list order. Matches the
+   * file rows rendered in {@code FileUploadQuestionFragment} (empty keys are omitted). Used by
+   * {@code file_upload.ts} for client-side file name de-duplication.
    */
-  public boolean canUploadFile() {
-    // Max can't be zero, so if there are no values, we can always upload a new one.
-    if (!getFileKeyListValue().isPresent()) {
-      return true;
-    }
+  public JsArray getUploadedFileData() {
+    ImmutableList<String> keys = getFileKeyListValue().orElse(ImmutableList.of());
 
-    // No max, so we can always upload.
-    if (!getQuestionDefinition().getMaxFiles().isPresent()) {
-      return true;
-    }
+    ImmutableList<JsValue> fileNames =
+        IntStream.range(0, keys.size())
+            .filter(
+                i -> {
+                  String key = keys.get(i);
+                  return key != null && !key.isEmpty();
+                })
+            .mapToObj(i -> new JsString(getFileNameForIndex(i).orElse(keys.get(i))))
+            .collect(toImmutableList());
 
-    return getFileKeyListValue().get().size() < getQuestionDefinition().getMaxFiles().getAsInt();
+    return new JsArray(Scala.toSeq(fileNames));
+  }
+
+  /**
+   * Looks up the original file name for a given file key by querying the database for the
+   * corresponding {@link StoredFileModel}.
+   */
+  public static CompletionStage<Optional<String>> getOriginalFileNameForFileKey(
+      StoredFileRepository storedFileRepository, String fileKey) {
+    return storedFileRepository
+        .lookupFile(fileKey)
+        .thenApply(maybeFile -> maybeFile.flatMap(StoredFileModel::getOriginalFileName))
+        .toCompletableFuture();
+  }
+
+  public FileUploadQuestionDefinition getQuestionDefinition() {
+    return (FileUploadQuestionDefinition) applicantQuestion.getQuestionDefinition();
+  }
+
+  public Path getFileKeyPath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.FILE_KEY);
+  }
+
+  public Path getFileKeyListPath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.FILE_KEY_LIST);
+  }
+
+  public Path getFileKeyListPathForIndex(int index) {
+    return applicantQuestion
+        .getContextualizedPath()
+        .join(Scalar.FILE_KEY_LIST)
+        .asArrayElement()
+        .atIndex(index);
+  }
+
+  public Path getOriginalFileNamePath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.ORIGINAL_FILE_NAME);
+  }
+
+  public Path getOriginalFileNameListPath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.ORIGINAL_FILE_NAME_LIST);
+  }
+
+  public Path getOriginalFileNameListPathForIndex(int index) {
+    return applicantQuestion
+        .getContextualizedPath()
+        .join(Scalar.ORIGINAL_FILE_NAME_LIST)
+        .asArrayElement()
+        .atIndex(index);
   }
 
   /**
@@ -233,42 +269,6 @@ public final class FileUploadQuestion extends AbstractQuestion {
     }
 
     return formData.build();
-  }
-
-  public FileUploadQuestionDefinition getQuestionDefinition() {
-    return (FileUploadQuestionDefinition) applicantQuestion.getQuestionDefinition();
-  }
-
-  public Path getFileKeyPath() {
-    return applicantQuestion.getContextualizedPath().join(Scalar.FILE_KEY);
-  }
-
-  public Path getFileKeyListPath() {
-    return applicantQuestion.getContextualizedPath().join(Scalar.FILE_KEY_LIST);
-  }
-
-  public Path getFileKeyListPathForIndex(int index) {
-    return applicantQuestion
-        .getContextualizedPath()
-        .join(Scalar.FILE_KEY_LIST)
-        .asArrayElement()
-        .atIndex(index);
-  }
-
-  public Path getOriginalFileNamePath() {
-    return applicantQuestion.getContextualizedPath().join(Scalar.ORIGINAL_FILE_NAME);
-  }
-
-  public Path getOriginalFileNameListPath() {
-    return applicantQuestion.getContextualizedPath().join(Scalar.ORIGINAL_FILE_NAME_LIST);
-  }
-
-  public Path getOriginalFileNameListPathForIndex(int index) {
-    return applicantQuestion
-        .getContextualizedPath()
-        .join(Scalar.ORIGINAL_FILE_NAME_LIST)
-        .asArrayElement()
-        .atIndex(index);
   }
 
   public Optional<String> getFilename() {
