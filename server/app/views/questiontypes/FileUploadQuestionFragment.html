@@ -100,13 +100,6 @@
   th:hx-swap-oob="${oob} ? 'true'"
   th:id="'cf-fileupload-file-key-inputs-' + ${fileUploadQuestion.getQuestionDefinition().getId()}"
 >
-  <!--/* Singular path is preserved for backwards compatibility with the
-       non-improvements (cloud direct-upload) flow. */-->
-  <input
-    th:name="${fileUploadQuestion.getFileKeyPath()}"
-    th:value="${fileUploadQuestion.getFileKeyValue().orElse('')}"
-    type="hidden"
-  />
   <th:block th:if="${fileUploadQuestion.getFileKeyListValue().isPresent()}">
     <input
       th:each="fileKey, iter : ${fileUploadQuestion.getFileKeyListValue().get()}"
