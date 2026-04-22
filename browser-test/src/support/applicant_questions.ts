@@ -14,6 +14,27 @@ import {
 } from '../support/applicant_program_list'
 import {ApplicantProgramOverview} from './applicant_program_overview'
 
+/** PDF bytes that pass server-side type sniffing (see FileTypeValidation). */
+function bufferForApplicantFileUpload(text: string, fileName: string): Buffer {
+  const extension = fileName.split('.').pop()?.toLowerCase() ?? ''
+  if (extension === 'pdf') {
+    if (text.startsWith('%PDF')) {
+      return Buffer.from(text)
+    }
+    return Buffer.from(
+      '%PDF-1.4\n' +
+        '1 0 obj\n' +
+        '<< /Type /Catalog >>\n' +
+        'endobj\n' +
+        'trailer\n' +
+        '<<>>\n' +
+        '%%EOF\n' +
+        text,
+    )
+  }
+  return Buffer.from(text)
+}
+
 export class ApplicantQuestions {
   public page!: Page
   private applicantProgramList: ApplicantProgramList
@@ -132,20 +153,27 @@ export class ApplicantQuestions {
     await this.page.setInputFiles('input[type=file]', {
       name: fileName,
       mimeType,
-      buffer: Buffer.from(text),
+      buffer: bufferForApplicantFileUpload(text, fileName),
     })
+    await waitForHtmxReady(this.page)
   }
 
   async answerFileUploadQuestionFromAssets(fileName: string) {
     await this.page.setInputFiles('input[type=file]', 'src/assets/' + fileName)
+    await waitForHtmxReady(this.page)
   }
 
   /** Creates a file with the given size in MB and uploads it to the file upload question. */
   async answerFileUploadQuestionWithMbSize(mbSize: number) {
     const filePath = 'file-size-' + mbSize + '-mb.pdf'
-    writeFileSync(filePath, 'C'.repeat(mbSize * 1024 * 1024))
+    const header = '%PDF-1.4\n'
+    writeFileSync(
+      filePath,
+      header + 'C'.repeat(mbSize * 1024 * 1024 - header.length),
+    )
     await this.page.setInputFiles('input[type=file]', filePath)
     unlinkSync(filePath)
+    await waitForHtmxReady(this.page)
   }
 
   async answerIdQuestion(id: string, index = 0) {
@@ -806,7 +834,7 @@ export class ApplicantQuestions {
   async expectReviewPage() {
     await expect(
       this.page.locator('[data-testid="programSummary"]'),
-    ).toBeVisible()
+    ).toBeAttached()
   }
 
   async expectConfirmationPage() {

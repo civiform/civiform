@@ -75,9 +75,9 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
     }) => {
       await applicantQuestions.applyProgram(programName)
 
-      await applicantQuestions.answerFileUploadQuestion('some file', 'file.txt')
+      await applicantQuestions.answerFileUploadQuestion('some file', 'file.pdf')
 
-      await applicantFileQuestion.expectFileNameDisplayed('file.txt')
+      await applicantFileQuestion.expectFileNameDisplayed('file.pdf')
       await validateScreenshot(page.locator('main'), 'file-uploaded')
     })
 
@@ -157,7 +157,7 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerFileUploadQuestion(
         'some text',
-        'testFileName.txt',
+        'testFileName.pdf',
       )
       await applicantQuestions.clickContinue()
 
@@ -232,7 +232,7 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerFileUploadQuestion(
         'some text',
-        'testFileName.txt',
+        'testFileName.pdf',
       )
       await applicantQuestions.clickContinue()
 
@@ -240,7 +240,7 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
       await applicantQuestions.expectReviewPage()
       await applicantQuestions.expectQuestionAnsweredOnReviewPage(
         fileUploadQuestionText,
-        'testFileName.txt',
+        'testFileName.pdf',
       )
 
       // Re-open the file upload question
@@ -249,7 +249,7 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
       )
 
       // Verify the previously uploaded file name is shown on the block page
-      await applicantFileQuestion.expectFileNameDisplayed('testFileName.txt')
+      await applicantFileQuestion.expectFileNameDisplayed('testFileName.pdf')
       await validateScreenshot(
         page.locator('main'),
         'file-required-re-answered',
@@ -724,9 +724,9 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
     }) => {
       await applicantQuestions.applyProgram(programName)
 
-      await applicantQuestions.answerFileUploadQuestion('some file', 'file.txt')
+      await applicantQuestions.answerFileUploadQuestion('some file', 'file.pdf')
 
-      await applicantFileQuestion.expectFileNameDisplayed('file.txt')
+      await applicantFileQuestion.expectFileNameDisplayed('file.pdf')
     })
 
     test('can submit application', async ({applicantQuestions}) => {
@@ -995,7 +995,7 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
 
         await applicantQuestions.answerFileUploadQuestion(
           'some sample text',
-          'sample.txt',
+          'sample.pdf',
         )
 
         await applicantQuestions.clickReview()
@@ -1006,7 +1006,7 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
         // Verify the file was saved
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           fileUploadQuestionText,
-          'sample.txt',
+          'sample.pdf',
         )
       })
     })
@@ -1043,7 +1043,7 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
 
         await applicantQuestions.answerFileUploadQuestion(
           'some sample text',
-          'sample.txt',
+          'sample.pdf',
         )
 
         await applicantQuestions.clickBack()
@@ -1057,7 +1057,7 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
 
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           fileUploadQuestionText,
-          'sample.txt',
+          'sample.pdf',
         )
       })
     })
@@ -1110,7 +1110,7 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
 
         await applicantQuestions.answerFileUploadQuestion(
           'some sample text',
-          'sample.txt',
+          'sample.pdf',
         )
         await applicantQuestions.clickContinue()
 
@@ -1122,7 +1122,7 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
         await applicantQuestions.expectReviewPage()
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           fileUploadQuestionText,
-          'sample.txt',
+          'sample.pdf',
         )
       })
     })
@@ -1140,7 +1140,7 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
         // Answer the file upload question
         await applicantQuestions.answerFileUploadQuestion(
           'some old text',
-          'old.txt',
+          'old.pdf',
         )
         // Note: If we clicked "Save & next" here, we would be taken to the third block.
         // Clicking *any* button on that third block will save our data, which guarantees
@@ -1168,7 +1168,7 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
         await applicantQuestions.expectReviewPage()
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           fileUploadQuestionText,
-          'old.txt',
+          'old.pdf',
         )
       })
     })
@@ -1209,7 +1209,7 @@ test.describe('file upload improvements feature flag enabled', () => {
     await test.step('Select a file and wait for htmx response', async () => {
       await applicantQuestions.answerFileUploadQuestion(
         'some file content',
-        'test-file.txt',
+        'test-file.pdf',
       )
       await waitForHtmxReady(page)
     })
@@ -1261,7 +1261,7 @@ test.describe('for login only program, guest cannot see file upload question (fe
         .first()
         .click()
       // Logged in user answers the file upload question
-      await applicantQuestions.answerFileUploadQuestion('test', 'new.txt')
+      await applicantQuestions.answerFileUploadQuestion('test', 'new.pdf')
 
       fileuploadURL = page.url()
       await logout(page)
@@ -1322,7 +1322,13 @@ test.describe('file upload question with file upload improvements feature flag e
       // Set a mock file so validation passes
       const dataTransfer = new DataTransfer()
       dataTransfer.items.add(
-        new File(['test'], 'test.txt', {type: 'text/plain'}),
+        new File(
+          [
+            '%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\ntrailer\n<<>>\n%%EOF\ntest',
+          ],
+          'test.pdf',
+          {type: 'application/pdf'},
+        ),
       )
       fileInput.files = dataTransfer.files
 
