@@ -119,6 +119,9 @@ export class ApplicantFileQuestion {
     await this.page.locator(this.deleteButtonLocator).click()
   }
 
+  /**
+   * @deprecated To be removed when client side file upload end of life
+   */
   async removeFileUploadLegacy(fileName: string) {
     await this.page
       .getByRole('list', {name: 'Uploaded files'})

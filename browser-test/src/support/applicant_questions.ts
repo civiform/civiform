@@ -126,6 +126,9 @@ export class ApplicantQuestions {
     await this.page.fill(`input[currency] >> nth=${index}`, currency)
   }
 
+  /**
+   * @deprecated To be removed when client side file upload end of life
+   */
   async answerFileUploadQuestionLegacy(text: string, fileName = 'file.txt') {
     await this.page.setInputFiles('input[type=file]', {
       name: fileName,
@@ -752,6 +755,7 @@ export class ApplicantQuestions {
   /**
    * On the upload page, users can download already-uploaded files;
    * this method downloads the one specified by the user returns the file content.
+   * @deprecated To be removed when client side file upload end of life
    */
   async downloadFileFromUploadPageLegacy(fileName: string) {
     const [downloadEvent] = await Promise.all([

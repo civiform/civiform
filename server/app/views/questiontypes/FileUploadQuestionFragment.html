@@ -8,6 +8,7 @@
   class="cf-question-fileupload cf-applicant-question-field"
   th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
   data-testid="questionRoot"
+  data-cf-file-upload-container
 >
   <!--/* Title and Help Text */-->
   <div
@@ -76,6 +77,7 @@
     class="usa-file-input"
     type="file"
     name="file"
+    data-cf-file-upload
     th:aria-describedby="${hasErrors} ? ' ' + ${questionId} + '-error' : ''"
     th:aria-invalid="${hasErrors}"
     th:accept="${fileUploadAllowedFileTypeSpecifiers}"
