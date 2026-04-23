@@ -120,7 +120,9 @@ public final class FileUploadQuestion extends AbstractQuestion {
    */
   public Optional<String> getFileNameForIndex(int index) {
     Optional<String> fileNameOptional = getOriginalFileNameValueForIndex(index);
-    return fileNameOptional.isPresent() ? fileNameOptional : getFileKeyValueForIndex(index);
+    return fileNameOptional.isPresent()
+        ? fileNameOptional
+        : getFileKeyValueForIndex(index).map(FileUploadQuestion::getFileName);
   }
 
   /**
