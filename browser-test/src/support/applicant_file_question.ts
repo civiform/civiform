@@ -3,8 +3,8 @@ import {Page} from '@playwright/test'
 
 /** Class for working with the file upload question that applicants see. */
 export class ApplicantFileQuestion {
-  private fileSelectionErrorLocator = '#cf-fileupload-required-error'
-  private fileTooLargeErrorLocator = '#cf-fileupload-too-large-error'
+  private fileSelectionErrorLocator = '[data-fileupload-error="required"]'
+  private fileTooLargeErrorLocator = '[data-fileupload-error="too-large"]'
   private continueButtonLocator = '#fileupload-continue-button'
   private continueFormLocator = '#cf-fileupload-continue-form'
   private skipButtonLocator = '#fileupload-skip-button'
@@ -35,6 +35,18 @@ export class ApplicantFileQuestion {
 
   async expectFileTooLargeErrorHidden() {
     await expect(this.page.locator(this.fileTooLargeErrorLocator)).toBeHidden()
+  }
+
+  async expectLegacyFileTooLargeErrorShown() {
+    await expect(
+      this.page.locator('#cf-fileupload-too-large-error'),
+    ).toBeVisible()
+  }
+
+  async expectLegacyFileTooLargeErrorHidden() {
+    await expect(
+      this.page.locator('#cf-fileupload-too-large-error'),
+    ).toBeHidden()
   }
 
   async expectFileNameDisplayed(fileName: string) {

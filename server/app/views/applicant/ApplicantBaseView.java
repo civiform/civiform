@@ -301,10 +301,10 @@ public abstract class ApplicantBaseView {
             .url();
   }
 
-  // TODO #12929: use program slug review and blockEditOrBlockReview routes
+  // TODO #13157: use program slug review and blockEditOrBlockReview routes
   /**
    * Calculate the redirect location after the language is changed. If the current request is a
-   * POST, the redirect is be mapped to the associated GET uri.
+   * POST, the redirect is mapped to the associated GET uri.
    */
   private String getUpdateLanguageRedirectUri(
       Request request, Optional<CiviFormProfile> profile, Optional<Long> applicantId) {
@@ -314,11 +314,21 @@ public abstract class ApplicantBaseView {
       return request.uri();
     }
     RouteExtractor routeExtractor = new RouteExtractor(request);
-    if (!routeExtractor.containsKey("programId")) {
+
+    // Some POST routes use a numeric programId and some use a string programParam, so we must
+    // account for both
+    boolean routeContainsProgramId = routeExtractor.containsKey("programId");
+    boolean routeContainsProgramParam = routeExtractor.containsKey("programParam");
+    if (!(routeContainsProgramId || routeContainsProgramParam)) {
       return request.uri();
     }
+    final long programId;
+    if (routeContainsProgramId) {
+      programId = routeExtractor.getParamLongValue("programId");
+    } else {
+      programId = Long.parseLong(routeExtractor.getParamStringValue("programParam"));
+    }
 
-    long programId = routeExtractor.getParamLongValue("programId");
     // If the language was changed during /submit, redirect to /review
     if (request.path().contains("submit")) {
       String submitRedirectUri =

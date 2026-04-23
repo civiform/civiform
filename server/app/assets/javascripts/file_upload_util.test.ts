@@ -1,5 +1,5 @@
 import {describe, it, expect} from 'vitest'
-import {getUniqueName} from '@/file_upload'
+import {getUniqueName} from '@/file_upload_util'
 
 describe('getUniqueName', () => {
   it('finds a unique name', () => {

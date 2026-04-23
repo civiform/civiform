@@ -30,7 +30,7 @@ import * as adminQuestionEdit from '@/admin_question_edit'
 import * as adminExportView from '@/admin_export_view'
 import * as adminImportView from '@/admin_import_view'
 import * as trustedIntermediaryController from '@/admin_trusted_intermediary_list'
-import * as fileUpload from '@/file_upload'
+import * as legacyFileUpload from '@/legacy_file_upload'
 import * as azureUpload from '@/azure_upload'
 import htmx from '@/htmx'
 
@@ -80,7 +80,7 @@ function initializeEverything(): void {
   adminExportView.init()
   adminImportView.init()
   trustedIntermediaryController.init()
-  fileUpload.init()
+  legacyFileUpload.init()
   azureUpload.init(AZURE_ADMIN_FILEUPLOAD_FORM_ID)
   SessionTimeoutHandler.init()
 }
