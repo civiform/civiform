@@ -128,6 +128,15 @@ public final class ProgramQuestionBank {
                 "top-0",
                 "transition-transform");
 
+    // When hxTarget is set, use HTMX to swap the target element instead of a full page
+    // navigation. This preserves form state when selecting an initial question.
+    if (params.hxTarget().isPresent()) {
+      questionForm
+          .attr("hx-post", params.questionAction())
+          .attr("hx-target", params.hxTarget().get())
+          .attr("hx-swap", "outerHTML");
+    }
+
     // We set pb-12 (padding bottom 12) to account for the fact that question bank height is screen
     // size while it's effective space is screen-height minus header-height. That pushes question
     // bank
@@ -438,8 +447,12 @@ public final class ProgramQuestionBank {
 
     abstract String questionAction();
 
+    /** When present, the bank form uses HTMX instead of a regular form POST. */
+    abstract Optional<String> hxTarget();
+
     public static Builder builder() {
-      return new AutoValue_ProgramQuestionBank_ProgramQuestionBankParams.Builder();
+      return new AutoValue_ProgramQuestionBank_ProgramQuestionBankParams.Builder()
+          .setHxTarget(Optional.empty());
     }
 
     @AutoValue.Builder
@@ -451,6 +464,8 @@ public final class ProgramQuestionBank {
       public abstract Builder setQuestionCreateRedirectUrl(String v);
 
       public abstract Builder setQuestions(ImmutableList<QuestionDefinition> v);
+
+      public abstract Builder setHxTarget(Optional<String> v);
 
       public abstract Builder setCsrfTag(InputTag v);
 

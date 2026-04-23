@@ -52,6 +52,7 @@ import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.AddressQuestion;
+import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.cloud.ApplicantStorageClient;
 import services.geo.AddressSuggestion;
@@ -1038,6 +1039,72 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             },
             classLoaderExecutionContext.current())
         .exceptionally(this::handleUpdateExceptions);
+  }
+
+  /**
+   * HTMX endpoint that renders a new entity row for an enumerator block with an initial question.
+   * The returned HTML is appended to {@code #enumerator-fields} by HTMX.
+   */
+  @Secure
+  public CompletionStage<Result> hxAddEnumeratorEntity(
+      Request request, long programId, String blockId) {
+    if (!settingsManifest.getEnumeratorImprovementsEnabled(request)) {
+      return CompletableFuture.completedFuture(notFound());
+    }
+
+    Optional<Long> optionalApplicantId = getApplicantId(request);
+    if (optionalApplicantId.isEmpty()) {
+      return CompletableFuture.completedFuture(badRequest());
+    }
+
+    long applicantId = optionalApplicantId.get();
+
+    return checkApplicantAuthorization(request, applicantId)
+        .thenComposeAsync(
+            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+            classLoaderExecutionContext.current())
+        .thenApplyAsync(
+            roApplicantProgramService -> {
+              Optional<Block> maybeBlock = roApplicantProgramService.getActiveBlock(blockId);
+              if (maybeBlock.isEmpty() || !maybeBlock.get().isEnumerator()) {
+                return notFound();
+              }
+
+              Block block = maybeBlock.get();
+              int entityIndex =
+                  block.getEnumeratorQuestion().createEnumeratorQuestion().getEntityNames().size();
+
+              // Allow the client to pass the visible entity count so HTMX-added rows get
+              // contiguous indices even before the form has been submitted.
+              DynamicForm form = formFactory.form().bindFromRequest(request);
+              String entityCountParam = form.get("entityCount");
+              if (entityCountParam != null && !entityCountParam.isBlank()) {
+                try {
+                  int clientEntityCount = Integer.parseInt(entityCountParam);
+                  if (clientEntityCount > entityIndex) {
+                    entityIndex = clientEntityCount;
+                  }
+                } catch (NumberFormatException ignored) {
+                  // Fall back to server-side count.
+                }
+              }
+
+              Optional<ApplicantQuestion> maybeInitialQ =
+                  block.createContextualizedInitialQuestion(entityIndex);
+              if (maybeInitialQ.isEmpty()) {
+                return notFound();
+              }
+
+              String html =
+                  applicantProgramBlockEditView.hxRenderNewEnumeratorEntityRow(
+                      request,
+                      maybeInitialQ.get(),
+                      block.getEnumeratorQuestion(),
+                      entityIndex,
+                      messagesApi.preferred(request));
+              return ok(html).as("text/html");
+            },
+            classLoaderExecutionContext.current());
   }
 
   @Secure

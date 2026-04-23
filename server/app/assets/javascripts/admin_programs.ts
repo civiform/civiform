@@ -1,5 +1,6 @@
 import {ToastController} from '@/toast'
 import {addEventListenerToElements} from '@/util'
+import type {HtmxDetail} from 'htmx'
 
 enum ProgramType {
   DEFAULT = 'CiviForm program',

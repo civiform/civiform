@@ -3,6 +3,7 @@ package views.applicant.blocks;
 import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRequestedAction;
@@ -182,6 +183,50 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
       context.setVariable(
           "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(request));
       context.setVariable("isYesNoQuestionEnabled", settingsManifest.getYesNoQuestionEnabled());
+
+      // Initial question context for enumerator blocks with enumerator improvements enabled.
+      if (settingsManifest.getEnumeratorImprovementsEnabled(request)
+          && applicationParams.block().getInitialQuestion().isPresent()) {
+        ApplicantQuestion initialQuestion =
+            applicationParams.block().getInitialQuestion().get();
+        context.setVariable("initialQuestion", initialQuestion);
+
+        ImmutableList<ApplicantQuestion> contextualizedInitialQuestions =
+            applicationParams.block().getContextualizedInitialQuestions();
+        context.setVariable("contextualizedInitialQuestions", contextualizedInitialQuestions);
+
+        // Build per-entity renderer params so error state and autofocus read from the correct
+        // contextualized paths (e.g., applicant.enumerator[0].question.first_name) rather than
+        // the non-contextualized block-level path.
+        AtomicInteger initialQuestionErrorCount = new AtomicInteger(0);
+        ImmutableList<ApplicantQuestionRendererParams> contextualizedInitialQuestionParams =
+            contextualizedInitialQuestions.stream()
+                .map(
+                    q -> {
+                      if (q.hasErrors()) {
+                        initialQuestionErrorCount.incrementAndGet();
+                      }
+                      return ApplicantQuestionRendererParams.builder()
+                          .setMessages(applicationParams.messages())
+                          .setErrorDisplayMode(applicationParams.errorDisplayMode())
+                          .setAutofocus(
+                              calculateAutoFocusTarget(
+                                  applicationParams.errorDisplayMode(),
+                                  applicationParams.block().hasErrors(),
+                                  initialQuestionErrorCount.get()))
+                          .build();
+                    })
+                .collect(ImmutableList.toImmutableList());
+        context.setVariable(
+            "contextualizedInitialQuestionParams", contextualizedInitialQuestionParams);
+
+        context.setVariable(
+            "hxAddEnumeratorEntityUrl",
+            controllers.applicant.routes.ApplicantProgramBlocksController.hxAddEnumeratorEntity(
+                    applicationParams.programId(), applicationParams.block().getId())
+                .url());
+      }
+
       return templateEngine.process("applicant/blocks/ApplicantProgramBlockEditTemplate", context);
     }
   }
@@ -470,5 +515,36 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
 
     context.setVariable("previousBlockWithoutFile", params.baseUrl() + previousBlockRoute);
     context.setVariable("reviewPageWithoutFile", params.baseUrl() + reviewRoute);
+  }
+
+  /**
+   * Renders a single new entity row for the HTMX add-entity endpoint on an enumerator block. The
+   * returned HTML is appended to {@code #enumerator-fields} by HTMX.
+   */
+  public String hxRenderNewEnumeratorEntityRow(
+      Request request,
+      ApplicantQuestion contextualizedInitialQuestion,
+      ApplicantQuestion enumeratorApplicantQuestion,
+      int entityIndex,
+      play.i18n.Messages messages) {
+    ThymeleafModule.PlayThymeleafContext context = playThymeleafContextFactory.create(request);
+    context.setVariable("contextualizedInitialQuestion", contextualizedInitialQuestion);
+    context.setVariable(
+        "enumeratorQuestion", enumeratorApplicantQuestion.createEnumeratorQuestion());
+    context.setVariable("entityIndex", entityIndex);
+    context.setVariable(
+        "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(request));
+    context.setVariable("nameSuffixOptions", Suffix.values());
+
+    // No errors for a brand new entity row.
+    context.setVariable(
+        "initialQuestionRendererParams",
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
+            .build());
+
+    return templateEngine.process("questiontypes/EnumeratorNewEntityRowTemplate", context);
   }
 }

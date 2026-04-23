@@ -250,8 +250,9 @@ public final class QuestionService {
 
   /**
    * Creates a copy of the given QuestionDefinition for use as an initial question on an enumerator
-   * block. The copy gets a unique admin name, {@code enumeratorId} pointing to the enumerator
-   * question, and {@code isInitialQuestion=true}.
+   * block. The copy gets a unique admin name and {@code enumeratorId} pointing to the enumerator
+   * question. The enumerator's {@code initialQuestionId} should be set to the copy's ID after
+   * creation.
    */
   public ErrorAnd<QuestionDefinition, CiviFormError> createInitialQuestionCopy(
       QuestionDefinition questionDefinition, long enumeratorQuestionId)
@@ -267,7 +268,6 @@ public final class QuestionService {
             .setUniversal(false)
             .setPrimaryApplicantInfoTags(ImmutableSet.of())
             .setEnumeratorId(Optional.of(enumeratorQuestionId))
-            .setIsInitialQuestion(true)
             .build();
 
     return create(copy, /* requireLegacyRepeatedEntitySelector= */ false);

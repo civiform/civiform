@@ -128,11 +128,15 @@ public abstract class BlockDefinition {
 
   @JsonIgnore
   public EnumeratorQuestionDefinition getEnumerationQuestionDefinition() {
-    if (hasEnumeratorQuestion()) {
-      return (EnumeratorQuestionDefinition) getQuestionDefinition(0);
-    }
-    throw new RuntimeException(
-        "Only an enumerator block can have an enumeration question definition.");
+    return programQuestionDefinitions().stream()
+        .map(ProgramQuestionDefinition::getQuestionDefinition)
+        .filter(QuestionDefinition::isEnumerator)
+        .map(EnumeratorQuestionDefinition.class::cast)
+        .findFirst()
+        .orElseThrow(
+            () ->
+                new RuntimeException(
+                    "Only an enumerator block can have an enumeration question definition."));
   }
 
   @JsonIgnore

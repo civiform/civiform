@@ -95,11 +95,6 @@ public class NullQuestionDefinitionConfig extends QuestionDefinitionConfig {
     return Optional.empty();
   }
 
-  @Override
-  boolean isInitialQuestion() {
-    return false;
-  }
-
   /** Used to create a new {@link Builder} based on an existing one. */
   public static class Builder extends QuestionDefinitionConfig.Builder {
 
@@ -185,11 +180,6 @@ public class NullQuestionDefinitionConfig extends QuestionDefinitionConfig {
     @Override
     public QuestionDefinitionConfig.Builder setQuestionSettings(
         ImmutableSet<QuestionSetting> questionSettings) {
-      return this;
-    }
-
-    @Override
-    public QuestionDefinitionConfig.Builder setIsInitialQuestion(boolean isInitialQuestion) {
       return this;
     }
 

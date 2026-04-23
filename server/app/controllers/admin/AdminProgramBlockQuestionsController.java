@@ -179,34 +179,59 @@ public class AdminProgramBlockQuestionsController extends Controller {
       return internalServerError("Problem getting the newly-created question definition.");
     }
 
-    // If an initial question was selected, prepare the copy now (before adding to the block).
+    // If an initial question was selected, prepare it now (before adding to the block).
     // The enumerator question must be added to the block first so that addQuestionsToBlock
     // preserves the block's isEnumerator flag; adding a non-enumerator question first would
     // clear that flag and cause ENUMERATOR_ON_NON_ENUMERATOR_BLOCK when the enumerator is added.
     Optional<QuestionDefinition> createdInitialDefinitionOpt = Optional.empty();
+    boolean isNewlyCreated =
+        "true".equals(requestData.get("isNewlyCreated"));
     if (initialQuestionIdOpt.isPresent()) {
       Optional<QuestionDefinition> maybeOriginal = resolveInitialQuestion(initialQuestionIdOpt);
       if (maybeOriginal.isPresent()) {
         try {
-          ErrorAnd<QuestionDefinition, CiviFormError> initialResult =
-              questionService.createInitialQuestionCopy(
-                  maybeOriginal.get(), createdEnumeratorDefinition.getId());
-          if (!initialResult.isError()) {
-            QuestionDefinition createdInitialDefinition = initialResult.getResult();
-            createdInitialDefinitionOpt = Optional.of(createdInitialDefinition);
-
-            // Update the enumerator question to record its initial question.
-            QuestionDefinition updatedEnumeratorDef =
-                new QuestionDefinitionBuilder(createdEnumeratorDefinition)
-                    .setInitialQuestionId(Optional.of(createdInitialDefinition.getId()))
-                    .unsafeBuild();
+          QuestionDefinition initialDefinition;
+          if (isNewlyCreated) {
+            // The question was just created via "Create new question" — no copy needed.
+            // Just update it with the enumeratorId to make it a repeated question.
+            initialDefinition =
+                new QuestionDefinitionBuilder(maybeOriginal.get())
+                    .setEnumeratorId(Optional.of(createdEnumeratorDefinition.getId()))
+                    .build();
             try {
-              questionService.update(
-                  Optional.of(createdEnumeratorDefinition), updatedEnumeratorDef);
+              ErrorAnd<QuestionDefinition, CiviFormError> updateResult =
+                  questionService.update(Optional.of(maybeOriginal.get()), initialDefinition);
+              if (!updateResult.isError()) {
+                initialDefinition = updateResult.getResult();
+              }
             } catch (InvalidUpdateException e) {
               return internalServerError(
-                  "Could not link initial question to enumerator: " + e.getMessage());
+                  "Could not set enumeratorId on initial question: " + e.getMessage());
             }
+          } else {
+            // Existing question selected from the bank — create a copy.
+            ErrorAnd<QuestionDefinition, CiviFormError> initialResult =
+                questionService.createInitialQuestionCopy(
+                    maybeOriginal.get(), createdEnumeratorDefinition.getId());
+            if (initialResult.isError()) {
+              return badRequest("Could not create initial question copy.");
+            }
+            initialDefinition = initialResult.getResult();
+          }
+
+          createdInitialDefinitionOpt = Optional.of(initialDefinition);
+
+          // Update the enumerator question to record its initial question.
+          QuestionDefinition updatedEnumeratorDef =
+              new QuestionDefinitionBuilder(createdEnumeratorDefinition)
+                  .setInitialQuestionId(Optional.of(initialDefinition.getId()))
+                  .unsafeBuild();
+          try {
+            questionService.update(
+                Optional.of(createdEnumeratorDefinition), updatedEnumeratorDef);
+          } catch (InvalidUpdateException e) {
+            return internalServerError(
+                "Could not link initial question to enumerator: " + e.getMessage());
           }
         } catch (UnsupportedQuestionTypeException e) {
           return badRequest("Unsupported initial question type: " + e.getMessage());
@@ -282,9 +307,13 @@ public class AdminProgramBlockQuestionsController extends Controller {
             .render());
   }
 
-  /** POST endpoint for selecting an initial question for an enumerator block setup. */
+  /**
+   * HTMX POST endpoint for selecting an initial question for an enumerator block setup. Returns the
+   * initial question card HTML that replaces the {@code #initial-question-slot} div, preserving the
+   * rest of the enumerator creation form.
+   */
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
-  public Result selectInitialQuestion(Request request, long programId, long blockId) {
+  public Result hxSelectInitialQuestion(Request request, long programId, long blockId) {
     requestChecker.throwIfProgramNotDraft(programId);
 
     DynamicForm requestData = formFactory.form().bindFromRequest(request);
@@ -299,9 +328,24 @@ public class AdminProgramBlockQuestionsController extends Controller {
       return badRequest("No question selected");
     }
 
-    return redirect(
-        controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId).url()
-            + "?initialQuestionId=" + questionId.get());
+    Optional<QuestionDefinition> maybeQuestion = resolveInitialQuestion(questionId);
+    if (maybeQuestion.isEmpty()) {
+      return notFound(String.format("Question ID %d not found", questionId.get()));
+    }
+
+    try {
+      ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
+      BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockId);
+      return ok(blockEditView
+              .hxRenderInitialQuestionSlot(
+                  maybeQuestion.get(), programDefinition, blockDefinition, request)
+              .render())
+          .withHeader("HX-Trigger", "closeQuestionBank");
+    } catch (ProgramNotFoundException e) {
+      return notFound(String.format("Program ID %d not found.", programId));
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
+    }
   }
 
   /**

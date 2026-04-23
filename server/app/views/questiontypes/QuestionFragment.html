@@ -61,7 +61,7 @@
     </th:block>
     <th:block th:case="'Name'">
       <div
-        th:replace="~{questiontypes/NameQuestionFragment :: name(${question}, ${questionRendererParams})}"
+        th:replace="~{questiontypes/NameQuestionFragment :: name(${question}, ${questionRendererParams}, false)}"
       ></div>
     </th:block>
     <th:block th:case="'Number'">

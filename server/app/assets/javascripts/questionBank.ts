@@ -26,6 +26,7 @@ class QuestionBankController {
       QuestionBankController.filterQuestions()
     }
     QuestionBankController.initToggleQuestionBankButtons()
+    QuestionBankController.initCloseOnHtmxTrigger()
 
     const questionBankSort = document.getElementById(
       QuestionBankController.SORT_SELECT_ID,
@@ -113,6 +114,18 @@ class QuestionBankController {
     const url = new URL(location.href)
     url.searchParams.delete(QuestionBankController.BANK_SHOWN_URL_PARAM)
     window.history.replaceState({}, '', url.toString())
+  }
+
+  /** Closes the question bank when the server sends an HX-Trigger: closeQuestionBank header. */
+  private static initCloseOnHtmxTrigger() {
+    document.addEventListener('closeQuestionBank', () => {
+      const container = document.getElementById(
+        QuestionBankController.QUESTION_BANK_CONTAINER,
+      )
+      if (container) {
+        QuestionBankController.hideQuestionBank(container)
+      }
+    })
   }
 
   static makeBodyNonScrollable() {

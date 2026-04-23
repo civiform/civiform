@@ -3,8 +3,23 @@
 
 import {addEventListenerToElements, assertNotNull} from '@/util'
 
+/** Selector for required inputs within visible entity rows. Used to determine whether the
+ *  "Add" button should be enabled (all required fields must be non-empty). */
+const REQUIRED_ENTITY_INPUTS_SELECTOR =
+  '.cf-question-enumerator .cf-enumerator-field:not(.hidden) input[aria-required="true"]'
+
 export function init() {
   updateListeners()
+
+  // After HTMX swaps in a new entity row, re-attach listeners and refresh the
+  // add button state.
+  document.addEventListener('htmx:afterSettle', (event: Event) => {
+    const target = (event as CustomEvent).detail?.target as HTMLElement | null
+    if (target?.id === 'enumerator-fields') {
+      updateListeners()
+      focusFirstInputInLastEntity()
+    }
+  })
 }
 
 /** Safe to call multiple times */
@@ -12,21 +27,22 @@ export function updateListeners() {
   refreshAddButtonStatus()
 
   addEventListenerToElements(
-    '.cf-question-enumerator input[data-entity-input]',
+    REQUIRED_ENTITY_INPUTS_SELECTOR,
     'input',
     refreshAddButtonStatus,
   )
 
-  addEventListenerToElements(
-    '#enumerator-field-add-button',
-    'click',
-    addNewEnumeratorField,
-  )
+  // Only attach the JS add handler for the legacy (non-HTMX) add button.
+  // HTMX-powered add buttons have an hx-post attribute and are handled by HTMX.
+  const addButton = document.getElementById('enumerator-field-add-button')
+  if (addButton && !addButton.hasAttribute('hx-post')) {
+    addButton.addEventListener('click', addNewEnumeratorField)
+  }
 
   addEventListenerToElements(
     '.cf-enumerator-delete-button',
     'click',
-    removeExistingEnumeratorField,
+    removeEnumeratorField,
   )
 }
 
@@ -36,7 +52,7 @@ export function updateListeners() {
 // page.
 let enumeratorCounter = 0
 
-/** In the enumerator form - add a new input field for a repeated entity. */
+/** In the enumerator form - add a new input field for a repeated entity (legacy text input mode). */
 function addNewEnumeratorField() {
   // Copy the enumerator field template
   const newField = assertNotNull(
@@ -85,7 +101,6 @@ function addNewEnumeratorField() {
       'Expected an input associated with the new enumerator entity',
     )
   }
-  newInput.setAttribute('data-entity-input', '')
   // Set disabled to false so the data is submitted with the form.
   newInput.disabled = false
   newInput.focus()
@@ -95,7 +110,8 @@ function addNewEnumeratorField() {
 }
 
 /**
- * Remove an entity that was added client-side and has not been saved to the server.
+ * Remove an enumerator entity. Handles both saved entities (hide + submit delete marker)
+ * and unsaved entities added via HTMX (remove from DOM).
  * @param {Event} event The event that triggered this action.
  */
 function removeEnumeratorField(event: Event) {
@@ -104,54 +120,30 @@ function removeEnumeratorField(event: Event) {
     return false
   }
 
-  // Get the parent div, which contains the input field and remove button, and remove it.
   const enumeratorFieldDiv = findEnumeratorFieldDiv(removeButton)
-  enumeratorFieldDiv.remove()
+  const isSaved = enumeratorFieldDiv.hasAttribute('data-entity-saved')
 
-  // Need to re-index all enumerator entities when one is removed so labels are consistent
-  repaintAllLabelsAndButtons()
-  refreshAddButtonStatus()
-  setFocusAfterEnumeratorRemoval()
-}
+  if (isSaved) {
+    // Saved entity: hide the field and submit a delete marker so the server
+    // knows to remove it.
+    enumeratorFieldDiv.classList.add('hidden')
 
-/**
- * Remove an entity that has been saved to the server. The server needs to know the entity was
- * deleted, so we can't just delete it from the DOM.
- * @param {Event} event The event that triggered this action.
- */
-function removeExistingEnumeratorField(event: Event) {
-  // Get the button that was clicked
-  const removeButton = event.currentTarget as HTMLElement
+    // The hidden class on the parent .cf-enumerator-field is sufficient to exclude
+    // its inputs from the REQUIRED_ENTITY_INPUTS_SELECTOR (which uses :not(.hidden)).
 
-  if (!confirm(removeButton.dataset.confirmationMessage)) {
-    return false
+    // Create a copy of the hidden deleted entity template. Set the value to this
+    // button's ID, and set disabled to false so the data is submitted with the form.
+    const deletedEntityInput = assertNotNull(
+      document.getElementById('enumerator-delete-template'),
+    ).cloneNode(true) as HTMLInputElement
+    deletedEntityInput.disabled = false
+    deletedEntityInput.setAttribute('value', removeButton.id)
+    deletedEntityInput.removeAttribute('id')
+    enumeratorFieldDiv.appendChild(deletedEntityInput)
+  } else {
+    // Unsaved entity (HTMX-added): simply remove from the DOM.
+    enumeratorFieldDiv.remove()
   }
-
-  // Hide the field that was removed. We cannot remove it completely, as we need to
-  // submit the input to maintain entity ordering.
-  const enumeratorFieldDiv = findEnumeratorFieldDiv(removeButton)
-  enumeratorFieldDiv.classList.add('hidden')
-  // We must hide the child in addition to the parent since we
-  // want to prevent this input from being considered when
-  // toggling whether the "Add" button is enabled (especially if
-  // the applicant were removing a blank input).
-  const enumeratorInput = assertNotNull(
-    enumeratorFieldDiv.querySelector('input'),
-  )
-  enumeratorInput.classList.add('hidden')
-  enumeratorInput.removeAttribute('data-entity-input')
-
-  // Create a copy of the hidden deleted entity template. Set the value to this
-  // button's ID, and set disabled to false so the data is submitted with the form.
-  const deletedEntityInput = assertNotNull(
-    document.getElementById('enumerator-delete-template'),
-  ).cloneNode(true) as HTMLInputElement
-  deletedEntityInput.disabled = false
-  deletedEntityInput.setAttribute('value', removeButton.id)
-  deletedEntityInput.removeAttribute('id')
-
-  // Add the hidden deleted entity input to the page.
-  enumeratorFieldDiv.appendChild(deletedEntityInput)
 
   // Need to re-index all enumerator entities when one is removed so labels are consistent
   repaintAllLabelsAndButtons()
@@ -178,15 +170,29 @@ function setFocusAfterEnumeratorRemoval() {
   }
 }
 
+/** Focus the first input in the last (newly HTMX-added) entity row. */
+function focusFirstInputInLastEntity() {
+  const fields = document.querySelectorAll(
+    '#enumerator-fields .cf-enumerator-field:not(.hidden)',
+  )
+  if (fields.length === 0) return
+
+  const lastField = fields[fields.length - 1]
+  const firstInput = lastField.querySelector(
+    'input:not([type=hidden])',
+  )
+  if (firstInput) {
+    firstInput.focus()
+  }
+}
+
 /**
  * Enable the add button if and only if all inputs are filled (the user doesn't need two blank
  * inputs) and the user has not reached the maximum number of inputs.
  */
 function refreshAddButtonStatus() {
   const enumeratorInputValues = Array.from(
-    document.querySelectorAll(
-      '.cf-question-enumerator input[data-entity-input]',
-    ),
+    document.querySelectorAll(REQUIRED_ENTITY_INPUTS_SELECTOR),
   ).map((item) => (item as HTMLInputElement).value)
 
   // validate that there are no empty inputs.
@@ -197,9 +203,18 @@ function refreshAddButtonStatus() {
   if (addButton) {
     // converts to 0 or NaN if unset
     const maxEntities = Number(addButton.dataset.maxEntities)
+    const entityCount = document.querySelectorAll(
+      '.cf-enumerator-field:not(.hidden)',
+    ).length
     addButton.disabled =
       enumeratorInputValues.includes('') ||
-      (maxEntities > 0 && enumeratorInputValues.length >= maxEntities)
+      (maxEntities > 0 && entityCount >= maxEntities)
+
+    // For HTMX-powered buttons, also update the entityCount param so the
+    // server knows the correct index for the next entity.
+    if (addButton.hasAttribute('hx-post')) {
+      addButton.setAttribute('hx-vals', JSON.stringify({entityCount}))
+    }
   }
 }
 
@@ -227,14 +242,24 @@ function addIndexToLabelAndButton(field: Element, index: number) {
   const labelBaseText = assertNotNull(
     document.querySelector('div[data-label-text]'),
   ).getAttribute('data-label-text')
-  const labelElement = assertNotNull(field.querySelector('label'))
-  labelElement.innerText = labelBaseText ? labelBaseText + indexString : ''
+
+  // Legacy mode: single label per entity row
+  const singleLabel = field.querySelector('.cf-entity-name-input label')
+  if (singleLabel) {
+    ;(singleLabel as HTMLElement).innerText = labelBaseText
+      ? labelBaseText + indexString
+      : ''
+  }
 
   const buttonBaseText = assertNotNull(
     document.querySelector('div[data-button-text]'),
   ).getAttribute('data-button-text')
-  const buttonElement = assertNotNull(field.querySelector('button'))
-  buttonElement.innerText = buttonBaseText ? buttonBaseText + indexString : ''
+  const buttonElement = field.querySelector('.cf-enumerator-delete-button')
+  if (buttonElement) {
+    ;(buttonElement as HTMLElement).innerText = buttonBaseText
+      ? buttonBaseText + indexString
+      : ''
+  }
 }
 
 /**

@@ -1603,7 +1603,7 @@ public final class ApplicantService {
                 update ->
                     update
                         .path()
-                        .withoutArrayReference()
+                        .safeWithoutArrayReference()
                         .equals(Path.empty().join(Scalar.DELETE_ENTITY)))
             .collect(ImmutableSet.toImmutableSet());
 
@@ -1612,7 +1612,7 @@ public final class ApplicantService {
     // legacy entity name text input.
     ImmutableSet<Update> initialQuestionUpdates = ImmutableSet.of();
     if (enumeratorImprovementsEnabled) {
-      Optional<ApplicantQuestion> maybeInitialQuestion = block.getInitialQuestion(true);
+      Optional<ApplicantQuestion> maybeInitialQuestion = block.getInitialQuestion();
       if (maybeInitialQuestion.isPresent()) {
         initialQuestionUpdates =
             updates.stream()
@@ -1641,11 +1641,7 @@ public final class ApplicantService {
     // entity names may not match the intended entities.
     if (!initialQuestionUpdates.isEmpty()) {
       stageInitialQuestionUpdates(
-          applicantData,
-          block,
-          updateMetadata,
-          initialQuestionUpdates,
-          enumeratorPath);
+          applicantData, block, updateMetadata, initialQuestionUpdates, enumeratorPath);
     } else {
       for (Update update : addsAndChanges) {
         applicantData.putString(update.path().join(Scalar.ENTITY_NAME), update.value());
@@ -1689,7 +1685,7 @@ public final class ApplicantService {
       ImmutableSet<Update> initialQuestionUpdates,
       Path enumeratorPath) {
     QuestionDefinition initialQuestionDef =
-        block.getInitialQuestion(true).get().getQuestionDefinition();
+        block.getInitialQuestion().get().getQuestionDefinition();
 
     // Write each field value to its nested path inside the entity slot.
     for (Update update : initialQuestionUpdates) {
@@ -1699,18 +1695,14 @@ public final class ApplicantService {
     // Derive entity_name for each entity index from the just-written values.
     ImmutableSet<Integer> entityIndices =
         initialQuestionUpdates.stream()
-            .map(
-                update ->
-                    getEntityIndexFromPath(update.path(), enumeratorPath.segments().size()))
+            .map(update -> getEntityIndexFromPath(update.path(), enumeratorPath.segments().size()))
             .collect(ImmutableSet.toImmutableSet());
 
     try {
       ImmutableSet<Scalar> scalars = Scalar.getScalars(initialQuestionDef.getQuestionType());
       for (int entityIndex : entityIndices) {
         Path initialQuestionBase =
-            enumeratorPath
-                .atIndex(entityIndex)
-                .join(initialQuestionDef.getQuestionPathSegment());
+            enumeratorPath.atIndex(entityIndex).join(initialQuestionDef.getQuestionPathSegment());
         String entityName =
             scalars.stream()
                 .map(scalar -> applicantData.readString(initialQuestionBase.join(scalar)))
@@ -1720,8 +1712,8 @@ public final class ApplicantService {
                 .collect(Collectors.joining(" "));
         applicantData.putString(
             enumeratorPath.atIndex(entityIndex).join(Scalar.ENTITY_NAME), entityName);
-        writeMetadataForPath(
-            enumeratorPath.atIndex(entityIndex), applicantData, updateMetadata);
+        writeMetadataForPath(enumeratorPath.atIndex(entityIndex), applicantData, updateMetadata);
+        writeMetadataForPath(initialQuestionBase, applicantData, updateMetadata);
       }
     } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
       throw new RuntimeException(
@@ -1754,12 +1746,12 @@ public final class ApplicantService {
                 update ->
                     update
                         .path()
-                        .withoutArrayReference()
+                        .safeWithoutArrayReference()
                         .equals(
                             block
                                 .getEnumeratorQuestion()
                                 .getContextualizedPath()
-                                .withoutArrayReference()))
+                                .safeWithoutArrayReference()))
             .collect(ImmutableSet.toImmutableSet());
 
     // Early return if it is empty.

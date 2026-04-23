@@ -9,11 +9,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import models.ApplicantModel;
 import models.QuestionDisplayMode;
 import services.Path;
-import services.applicant.question.AbstractQuestion;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
 import services.program.BlockDefinition;
@@ -22,6 +22,7 @@ import services.program.predicate.LeafAddressServiceAreaExpressionNode;
 import services.program.predicate.PredicateAddressServiceAreaNodeExtractor;
 import services.program.predicate.PredicateDefinition;
 import services.question.exceptions.QuestionNotFoundException;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
 
@@ -84,6 +85,7 @@ public final class Block {
   }
 
   public String getLocalizedName(Locale preferredLocale) {
+
     String name = blockDefinition.localizedName().getOrDefault(preferredLocale);
     return repeatedEntity
         .map(
@@ -140,28 +142,137 @@ public final class Block {
   /** Get the enumerator {@link ApplicantQuestion} for this enumerator block. */
   public ApplicantQuestion getEnumeratorQuestion() {
     if (isEnumerator()) {
-      return getVisibleQuestions().get(0);
+      // Use getAllQuestions() rather than getVisibleQuestions() to avoid circular dependency:
+      // getVisibleQuestions() calls getEnumeratorInitialQuestionId() which calls this method.
+      return getAllQuestions().stream()
+          .filter(q -> q.getQuestionDefinition().isEnumerator())
+          .findFirst()
+          .orElseThrow(
+              () ->
+                  new RuntimeException(
+                      "Enumerator block does not contain an enumerator question."));
     }
     throw new RuntimeException(
         "Only an enumerator block can have an enumeration question definition.");
   }
 
   /**
-   * Returns the initial {@link ApplicantQuestion} for this enumerator block when enumerator
-   * improvements are enabled, or {@link Optional#empty()} otherwise.
+   * Returns the initial {@link ApplicantQuestion} for this enumerator block, or {@link
+   * Optional#empty()} if the enumerator has no {@code initialQuestionId} set.
    *
-   * <p>The initial question is a real question shown per entity row on the enumerator screen
-   * instead of the legacy free-text entity name input.
+   * <p>The initial question is identified by the {@link
+   * EnumeratorQuestionDefinition#getInitialQuestionId()} on the enumerator question, which provides
+   * a definitive ownership link from the enumerator to its initial question.
    *
-   * @param enumeratorImprovementsEnabled whether the enumerator improvements feature flag is on
+   * <p>This method does not check the feature flag — callers that need to gate on the flag should
+   * check it themselves before calling.
    */
-  public Optional<ApplicantQuestion> getInitialQuestion(boolean enumeratorImprovementsEnabled) {
-    if (!enumeratorImprovementsEnabled) {
+  public Optional<ApplicantQuestion> getInitialQuestion() {
+    if (!isEnumerator()) {
       return Optional.empty();
     }
-    return getVisibleQuestions().stream()
-        .filter(q -> q.getQuestionDefinition().isInitialQuestion())
-        .findFirst();
+    EnumeratorQuestionDefinition enumeratorDef =
+        (EnumeratorQuestionDefinition) getEnumeratorQuestion().getQuestionDefinition();
+    Optional<Long> initialQuestionId = enumeratorDef.getInitialQuestionId();
+    if (initialQuestionId.isEmpty()) {
+      return Optional.empty();
+    }
+    long targetId = initialQuestionId.get();
+    // Search getAllQuestions() rather than getVisibleQuestions() because the initial question
+    // is filtered out of getVisibleQuestions() to prevent block-level checks from reading its
+    // non-contextualized (wrong) paths.
+    Optional<ApplicantQuestion> found =
+        getAllQuestions().stream()
+            .filter(q -> q.getQuestionDefinition().getId() == targetId)
+            .findFirst();
+    if (found.isEmpty()) {
+      throw new IllegalStateException(
+          String.format(
+              "Enumerator question %d has initialQuestionId=%d, but no matching question"
+                  + " was found on the block.",
+              enumeratorDef.getId(), targetId));
+    }
+    return found;
+  }
+
+  /**
+   * Returns a list of {@link ApplicantQuestion}s for the initial question, one per existing entity,
+   * each contextualized to the entity's index. Used for rendering initial question inputs per
+   * entity row on the enumerator screen.
+   *
+   * <p>Returns an empty list when there is no initial question.
+   */
+  public ImmutableList<ApplicantQuestion> getContextualizedInitialQuestions() {
+    if (!isEnumerator()) {
+      return ImmutableList.of();
+    }
+    return getInitialQuestion()
+        .map(
+            initialQ -> {
+              EnumeratorQuestionDefinition enumeratorQDef =
+                  (EnumeratorQuestionDefinition) getEnumeratorQuestion().getQuestionDefinition();
+              ImmutableList<String> entityNames =
+                  getEnumeratorQuestion().createEnumeratorQuestion().getEntityNames();
+              return IntStream.range(0, entityNames.size())
+                  .mapToObj(
+                      i ->
+                          createContextualizedInitialQuestionAtIndex(
+                              initialQ, enumeratorQDef, entityNames.get(i), i))
+                  .collect(toImmutableList());
+            })
+        .orElse(ImmutableList.of());
+  }
+
+  /**
+   * Creates an {@link ApplicantQuestion} for the initial question contextualized to a new entity at
+   * the given index. Used by the HTMX endpoint that adds entity rows.
+   *
+   * <p>Returns empty when there is no initial question.
+   *
+   * @param entityIndex the zero-based index for the new entity
+   */
+  public Optional<ApplicantQuestion> createContextualizedInitialQuestion(int entityIndex) {
+    if (!isEnumerator()) {
+      return Optional.empty();
+    }
+    return getInitialQuestion()
+        .map(
+            initialQ -> {
+              EnumeratorQuestionDefinition enumeratorQDef =
+                  (EnumeratorQuestionDefinition) getEnumeratorQuestion().getQuestionDefinition();
+              return createContextualizedInitialQuestionAtIndex(
+                  initialQ, enumeratorQDef, /* entityName= */ "", entityIndex);
+            });
+  }
+
+  private ApplicantQuestion createContextualizedInitialQuestionAtIndex(
+      ApplicantQuestion initialQ,
+      EnumeratorQuestionDefinition enumeratorQDef,
+      String entityName,
+      int entityIndex) {
+    RepeatedEntity entity =
+        RepeatedEntity.create(
+            enumeratorQDef, Optional.empty(), Optional.empty(), entityName, entityIndex);
+    return new ApplicantQuestion(
+        blockDefinition.programQuestionDefinitions().stream()
+            .filter(pqd -> pqd.id() == initialQ.getQuestionDefinition().getId())
+            .findFirst()
+            .orElseThrow(),
+        applicant,
+        applicantData,
+        Optional.of(entity));
+  }
+
+  /**
+   * Returns the {@link EnumeratorQuestionDefinition#getInitialQuestionId()} if this is an
+   * enumerator block, or empty otherwise.
+   */
+  private Optional<Long> getEnumeratorInitialQuestionId() {
+    if (!isEnumerator()) {
+      return Optional.empty();
+    }
+    return ((EnumeratorQuestionDefinition) getEnumeratorQuestion().getQuestionDefinition())
+        .getInitialQuestionId();
   }
 
   /**
@@ -226,10 +337,20 @@ public final class Block {
     return addressQuestion.needsAddressCorrection();
   }
 
-  /** Returns the list of questions in this block that are VISIBLE to applicants. */
+  /**
+   * Returns the list of questions in this block that are VISIBLE to applicants, excluding the
+   * initial question. The initial question's data lives per-entity under the enumerator path, so
+   * the non-contextualized version on the block reads from the wrong path. It is accessed
+   * separately via {@link #getInitialQuestion} and {@link #getContextualizedInitialQuestions}.
+   */
   public ImmutableList<ApplicantQuestion> getVisibleQuestions() {
+    Optional<Long> initialQuestionId = getEnumeratorInitialQuestionId();
     return getAllQuestions().stream()
         .filter(x -> x.getQuestionDefinition().getDisplayMode() == QuestionDisplayMode.VISIBLE)
+        .filter(
+            q ->
+                initialQuestionId.isEmpty()
+                    || q.getQuestionDefinition().getId() != initialQuestionId.get())
         .collect(toImmutableList());
   }
 
@@ -305,11 +426,15 @@ public final class Block {
   }
 
   /**
-   * A block has errors if any one of its {@link ApplicantQuestion}s has errors or if there were any
-   * failures to update the {@link ApplicantData}.
+   * A block has errors if any one of its {@link ApplicantQuestion}s has errors, if any answered
+   * contextualized initial questions have errors, or if there were any failures to update the
+   * {@link ApplicantData}.
    */
   public boolean hasErrors() {
     return getVisibleQuestions().stream().anyMatch(ApplicantQuestion::hasErrors)
+        || getContextualizedInitialQuestions().stream()
+            .filter(ApplicantQuestion::isAnswered)
+            .anyMatch(ApplicantQuestion::hasErrors)
         || !applicantData.getFailedUpdates().isEmpty();
   }
 
@@ -333,7 +458,10 @@ public final class Block {
   }
 
   public int answeredQuestionsCount() {
-    return (int) getVisibleQuestions().stream().filter(ApplicantQuestion::isAnswered).count();
+    return (int)
+        getVisibleQuestions().stream()
+            .filter(ApplicantQuestion::isAnswered)
+            .count();
   }
 
   /**

@@ -1,0 +1,26 @@
+<!--/* Partial template rendered by the HTMX add-entity endpoint. Returns a single entity row
+     that HTMX appends to #enumerator-fields. */-->
+<div
+  class="cf-enumerator-field maxw-mobile-lg"
+  th:id="${'id-' + #strings.randomAlphanumeric(8)}"
+>
+  <th:block
+    th:if="${contextualizedInitialQuestion.getType().getLabel().equals('Name')}"
+  >
+    <div
+      th:replace="~{questiontypes/NameQuestionFragment :: name(
+        ${contextualizedInitialQuestion},
+        ${initialQuestionRendererParams},
+        true)}"
+    ></div>
+  </th:block>
+  <div class="display-flex flex-justify-end">
+    <button
+      type="button"
+      class="cf-enumerator-delete-button usa-button--unstyled"
+      th:data-confirmation-message="#{dialog.confirmDeleteAllButtonsSave(${enumeratorQuestion.getEntityType()})}"
+      th:id="${entityIndex}"
+      th:text="#{button.removeEntity(${enumeratorQuestion.getEntityType()})} + ' #' + (${entityIndex} + 1)"
+    ></button>
+  </div>
+</div>

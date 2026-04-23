@@ -188,11 +188,6 @@ public final class QuestionDefinitionBuilder {
     return this;
   }
 
-  public QuestionDefinitionBuilder setIsInitialQuestion(boolean isInitialQuestion) {
-    builder.setIsInitialQuestion(isInitialQuestion);
-    return this;
-  }
-
   public QuestionDefinitionBuilder setInitialQuestionId(Optional<Long> initialQuestionId) {
     // Stored on the EnumeratorQuestionDefinition; handled separately from the base config builder.
     this.initialQuestionId = initialQuestionId;

@@ -1,5 +1,5 @@
 <div
-  th:fragment="name(question, questionRendererParams)"
+  th:fragment="name(question, questionRendererParams, isInitialQuestion)"
   th:with="nameQuestion=${question.createNameQuestion()},
              questionId=${'id-' + #strings.randomAlphanumeric(8)},
              maxInputLength=10000,
@@ -11,8 +11,8 @@
   data-testid="questionRoot"
   th:aria-labelledby="|${questionId}-title ${questionId}-description|"
 >
-  <!--/* Title and Help Text */-->
-  <div class="cf-question-header">
+  <!--/* Title and Help Text — hidden when used as initial question inside an enumerator entity row */-->
+  <div class="cf-question-header" th:if="${!isInitialQuestion}">
     <div
       th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
     ></div>

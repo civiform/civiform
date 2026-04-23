@@ -91,9 +91,6 @@ public class QuestionModel extends BaseModel {
 
   private @Constraints.Required QuestionDisplayMode displayMode;
 
-  /** Whether this question is the "initial question" on an enumerator block. */
-  private Boolean isInitialQuestion;
-
   /**
    * For enumerator questions: the ID of their associated initial question, if one has been
    * configured.
@@ -201,8 +198,6 @@ public class QuestionModel extends BaseModel {
       builder.setConcurrencyToken(concurrencyToken);
     }
 
-    builder.setIsInitialQuestion(isInitialQuestion != null && isInitialQuestion);
-
     setEnumeratorEntityType(builder);
     setQuestionOptions(builder);
     setQuestionSettings(builder);
@@ -300,8 +295,6 @@ public class QuestionModel extends BaseModel {
         && QuestionType.supportsQuestionSettings(questionDefinition.getQuestionType())) {
       questionSettings = questionDefinition.getQuestionSettings().get();
     }
-
-    isInitialQuestion = questionDefinition.isInitialQuestion();
 
     if (questionDefinition.getQuestionType().equals(QuestionType.ENUMERATOR)) {
       EnumeratorQuestionDefinition enumerator = (EnumeratorQuestionDefinition) questionDefinition;

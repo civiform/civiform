@@ -219,36 +219,51 @@ public final class AdminProgramBlocksController extends CiviFormController {
     requestChecker.throwIfProgramNotDraft(programId);
 
     try {
-      // Auto-add newly created question to the block if one was just created
-      Optional<String> newQuestionIdParam =
-          request.queryString(views.components.ProgramQuestionBank.NEWLY_CREATED_QUESTION_ID_PARAM);
-      if (newQuestionIdParam.isPresent()) {
-        try {
-          long newQuestionId = Long.parseLong(newQuestionIdParam.get());
-          programService.addQuestionsToBlock(
-              programId,
-              blockId,
-              ImmutableList.of(newQuestionId),
-              settingsManifest.getEnumeratorImprovementsEnabled(request),
-              settingsManifest.getFileUploadQuestionImprovementsEnabled(request));
-          // Redirect without the newQuestionId parameter to reload the page cleanly
-          return redirect(routes.AdminProgramBlocksController.edit(programId, blockId).url())
-              .flashing(request.flash().data());
-        } catch (NumberFormatException e) {
-          // Invalid question ID format, ignore and continue
-        } catch (ProgramNotFoundException
-            | ProgramBlockDefinitionNotFoundException
-            | QuestionNotFoundException
-            | CantAddQuestionToBlockException e) {
-          // If adding fails, show the block without the new question and flash an error toast
-          // message
-          return redirect(routes.AdminProgramBlocksController.edit(programId, blockId).url())
-              .flashing("error", "Question created, but could not be added to the program block");
-        }
-      }
-
       ProgramDefinition program = programService.getFullProgramDefinition(programId);
       BlockDefinition block = program.getBlockDefinition(blockId);
+
+      Optional<String> newQuestionIdParam =
+          request.queryString(views.components.ProgramQuestionBank.NEWLY_CREATED_QUESTION_ID_PARAM);
+
+      // When a new question was just created from the question bank, determine whether it should
+      // be treated as an initial question selection (for enumerator setup) or auto-added to the
+      // block.
+      boolean isEnumeratorSetup =
+          settingsManifest.getEnumeratorImprovementsEnabled(request)
+              && block.getIsEnumerator()
+              && !block.hasEnumeratorQuestion();
+
+      if (newQuestionIdParam.isPresent()) {
+        if (isEnumeratorSetup) {
+          // Redirect with the new question as the initial question selection. The edit page
+          // reads initialQuestionId from the query string to render the initial question card.
+          return redirect(
+              routes.AdminProgramBlocksController.edit(programId, blockId).url()
+                  + "?initialQuestionId="
+                  + newQuestionIdParam.get());
+        } else {
+          // Auto-add newly created question to the block.
+          try {
+            long newQuestionId = Long.parseLong(newQuestionIdParam.get());
+            programService.addQuestionsToBlock(
+                programId,
+                blockId,
+                ImmutableList.of(newQuestionId),
+                settingsManifest.getEnumeratorImprovementsEnabled(request),
+                settingsManifest.getFileUploadQuestionImprovementsEnabled(request));
+            return redirect(routes.AdminProgramBlocksController.edit(programId, blockId).url())
+                .flashing(request.flash().data());
+          } catch (NumberFormatException e) {
+            // Invalid question ID format, ignore and continue
+          } catch (ProgramNotFoundException
+              | ProgramBlockDefinitionNotFoundException
+              | QuestionNotFoundException
+              | CantAddQuestionToBlockException e) {
+            return redirect(routes.AdminProgramBlocksController.edit(programId, blockId).url())
+                .flashing("error", "Question created, but could not be added to the program block");
+          }
+        }
+      }
 
       Optional<ToastMessage> maybeToastMessage =
           request.flash().get(FlashKey.SUCCESS).map(ToastMessage::success);

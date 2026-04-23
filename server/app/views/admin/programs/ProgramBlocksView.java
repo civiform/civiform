@@ -745,9 +745,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                         idStr -> {
                           try {
                             long id = Long.parseLong(idStr);
-                            return allQuestions.stream()
-                                .filter(q -> q.getId() == id)
-                                .findFirst();
+                            return allQuestions.stream().filter(q -> q.getId() == id).findFirst();
                           } catch (NumberFormatException e) {
                             return Optional.empty();
                           }
@@ -998,7 +996,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Optional<DivTag> optionalInitialQuestionCard,
       Optional<QuestionDefinition> optionalInitialQuestion) {
     long initialQuestionId = optionalInitialQuestion.map(QuestionDefinition::getId).orElse(0L);
-    Optional<Long> optionalInitialQuestionId = optionalInitialQuestion.map(QuestionDefinition::getId);
+    Optional<Long> optionalInitialQuestionId =
+        optionalInitialQuestion.map(QuestionDefinition::getId);
     return div(
             renderCreationMethodRadioButtons(messages),
             renderNewEnumeratorQuestionForm(
@@ -1187,31 +1186,38 @@ public final class ProgramBlocksView extends ProgramBaseView {
                         .map(EnumeratorQuestionForm::getMaxEntities)
                         .orElse(OptionalInt.empty()))
                 .getUSWDSNumberTag(),
-            // When no initial question is selected, show the "Add question" button inside the form
-            // as a regular button (not submit) so it opens the question bank without triggering
-            // the hx-post. When a card is present, the hidden id input is included so that
-            // hxCreateEnumerator can create the initial question copy.
-            iff(
-                optionalInitialQuestionCard.isEmpty(),
-                input()
-                    .attr("aria-required", "true")
-                    .withType("button")
-                    .withValue(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName()))
-                    .withClasses(ReferenceClasses.OPEN_QUESTION_BANK_BUTTON)),
-            optionalInitialQuestionCard
-                .map(
-                    card ->
-                        div(
-                            optionalInitialQuestionId
-                                .map(
-                                    id ->
-                                        input()
-                                            .withType("hidden")
-                                            .withName("initialQuestionId")
-                                            .withValue(String.valueOf(id)))
-                                .orElse(input().withType("hidden")),
-                            card))
-                .orElse(div()),
+            // The initial-question-slot is targeted by HTMX when the admin selects an initial
+            // question from the question bank. When no initial question is selected, it shows an
+            // "Add question" button that opens the bank. When selected, it shows the question card
+            // with a hidden input so hxCreateEnumerator knows which initial question to copy.
+            div(
+                    iff(
+                        optionalInitialQuestionCard.isEmpty(),
+                        input()
+                            .isRequired()
+                            .withType("button")
+                            .withValue(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName()))
+                            .withClasses(ReferenceClasses.OPEN_QUESTION_BANK_BUTTON)),
+                    optionalInitialQuestionCard
+                        .map(
+                            card ->
+                                div(
+                                    optionalInitialQuestionId
+                                        .map(
+                                            id ->
+                                                div(
+                                                    input()
+                                                        .withType("hidden")
+                                                        .withName("initialQuestionId")
+                                                        .withValue(String.valueOf(id)),
+                                                    input()
+                                                        .withType("hidden")
+                                                        .withName("isNewlyCreated")
+                                                        .withValue("true")))
+                                        .orElse(div()),
+                                    card))
+                        .orElse(div()))
+                .withId("initial-question-slot"),
             div(
                     AlertComponent.renderSlimInfoAlert(
                         messages.at(MessageKey.ALERT_REPEATED_SET_NEW_QUESTION.getKeyName())),
@@ -1742,6 +1748,36 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   /**
+   * Renders the content for the {@code #initial-question-slot} div, showing the selected initial
+   * question card and its hidden ID input. Returned as an HTMX response by {@link
+   * AdminProgramBlockQuestionsController#hxSelectInitialQuestion}.
+   */
+  public DivTag hxRenderInitialQuestionSlot(
+      QuestionDefinition initialQuestion,
+      ProgramDefinition program,
+      BlockDefinition blockDefinition,
+      Request request) {
+    InputTag csrfTag = makeCsrfTokenInputTag(request);
+    DivTag card =
+        renderQuestion(
+            Optional.of(csrfTag),
+            program,
+            blockDefinition,
+            initialQuestion,
+            ProgramQuestionDefinition.create(initialQuestion, Optional.of(program.id())),
+            /* questionIndex= */ 0,
+            /* questionsCount= */ 1,
+            request);
+    return div(div(
+            input()
+                .withType("hidden")
+                .withName("initialQuestionId")
+                .withValue(String.valueOf(initialQuestion.getId())),
+            card))
+        .withId("initial-question-slot");
+  }
+
+  /**
    * Renders an empty form targeting the delete endpoint for the initial question. The form has no
    * visible contents; it is used by the {@code #block-questions-form} button in the initial
    * question card to remove the initial question selection.
@@ -1836,28 +1872,36 @@ public final class ProgramBlocksView extends ProgramBaseView {
             && !blockDefinition.hasEnumeratorQuestion();
     String addQuestionAction =
         isEnumeratorSetup
-            ? controllers.admin.routes.AdminProgramBlockQuestionsController.selectInitialQuestion(
+            ? controllers.admin.routes.AdminProgramBlockQuestionsController.hxSelectInitialQuestion(
                     program.id(), blockDefinition.id())
                 .url()
             : controllers.admin.routes.AdminProgramBlockQuestionsController.create(
                     program.id(), blockDefinition.id())
                 .url();
 
+    // For the enumerator setup, don't add the "show question bank" param to the redirect URL
+    // so that the page loads cleanly after a new question is created (the new question will be
+    // treated as the initial question selection, not auto-added to the block).
+    String editUrl =
+        controllers.admin.routes.AdminProgramBlocksController.edit(
+                program.id(), blockDefinition.id())
+            .url();
     String redirectUrl =
-        ProgramQuestionBank.addShowQuestionBankParam(
-            controllers.admin.routes.AdminProgramBlocksController.edit(
-                    program.id(), blockDefinition.id())
-                .url());
+        isEnumeratorSetup ? editUrl : ProgramQuestionBank.addShowQuestionBankParam(editUrl);
+    ProgramQuestionBank.ProgramQuestionBankParams.Builder bankParamsBuilder =
+        ProgramQuestionBank.ProgramQuestionBankParams.builder()
+            .setQuestionAction(addQuestionAction)
+            .setCsrfTag(csrfTag)
+            .setQuestions(questionDefinitions)
+            .setProgram(program)
+            .setBlockDefinition(blockDefinition)
+            .setQuestionCreateRedirectUrl(redirectUrl);
+    if (isEnumeratorSetup) {
+      bankParamsBuilder.setHxTarget(Optional.of("#initial-question-slot"));
+    }
     ProgramQuestionBank qb =
         new ProgramQuestionBank(
-            ProgramQuestionBank.ProgramQuestionBankParams.builder()
-                .setQuestionAction(addQuestionAction)
-                .setCsrfTag(csrfTag)
-                .setQuestions(questionDefinitions)
-                .setProgram(program)
-                .setBlockDefinition(blockDefinition)
-                .setQuestionCreateRedirectUrl(redirectUrl)
-                .build(),
+            bankParamsBuilder.build(),
             programBlockValidationFactory,
             settingsManifest,
             messages,

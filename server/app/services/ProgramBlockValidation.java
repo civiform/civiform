@@ -10,7 +10,6 @@ import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
-import services.question.types.QuestionType;
 
 /** Helper class for performing validation related to creating or modifying program blocks. */
 public final class ProgramBlockValidation {
@@ -87,12 +86,10 @@ public final class ProgramBlockValidation {
       return AddQuestionResult.ENUMERATOR_ON_NON_ENUMERATOR_BLOCK;
     }
     if (block.getQuestionCount() > 0
-        && isSingleBlockQuestion(question)) {
+        && isSingleBlockQuestion(question, fileUploadQuestionImprovementsEnabled)) {
       return AddQuestionResult.CANT_ADD_SINGLE_BLOCK_QUESTION_TO_NON_EMPTY_BLOCK;
     }
-    if (!question.getEnumeratorId().equals(getEnumeratorQuestionId(program, block))
-        && !(enumeratorImprovementsEnabled && question.getEnumeratorId().isEmpty())
-        && !(enumeratorImprovementsEnabled && question.isInitialQuestion())) {
+    if (!hasMatchingEnumeratorId(question, program, block, enumeratorImprovementsEnabled)) {
       return AddQuestionResult.ENUMERATOR_MISMATCH;
     }
     if (!activeAndDraftQuestions.getActiveQuestions().contains(question)
@@ -104,15 +101,59 @@ public final class ProgramBlockValidation {
   }
 
   private boolean isSingleBlockQuestion(
-      QuestionDefinition question) {
-    return question.getQuestionType().equals(QuestionType.FILEUPLOAD);
+      QuestionDefinition question, boolean fileUploadQuestionImprovementsEnabled) {
+    return switch (question.getQuestionType()) {
+      case ENUMERATOR -> true;
+      case FILEUPLOAD -> !fileUploadQuestionImprovementsEnabled;
+      default -> false;
+    };
+  }
+
+  /**
+   * Checks whether a question's {@code enumeratorId} is compatible with the given block. A question
+   * is compatible if any of the following is true:
+   *
+   * <ul>
+   *   <li>Its enumeratorId matches the block's parent enumerator (standard repeated question case).
+   *   <li>It has no enumeratorId and enumerator improvements are enabled (top-level question).
+   *   <li>Its enumeratorId matches the enumerator question on this block itself and enumerator
+   *       improvements are enabled (initial question being added to the enumerator's own block).
+   * </ul>
+   */
+  private boolean hasMatchingEnumeratorId(
+      QuestionDefinition question,
+      ProgramDefinition program,
+      BlockDefinition block,
+      boolean enumeratorImprovementsEnabled) {
+    Optional<Long> questionEnumeratorId = question.getEnumeratorId();
+
+    // Standard case: question repeats under the block's parent enumerator.
+    if (questionEnumeratorId.equals(getParentEnumeratorQuestionId(program, block))) {
+      return true;
+    }
+
+    if (enumeratorImprovementsEnabled) {
+      // Top-level question being added to any block.
+      if (questionEnumeratorId.isEmpty()) {
+        return true;
+      }
+      // Initial question: its enumeratorId points to the enumerator on THIS block.
+      if (block.hasEnumeratorQuestion()
+          && questionEnumeratorId.equals(
+              Optional.of(block.getEnumerationQuestionDefinition().getId()))) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   /**
    * Follow the {@link BlockDefinition#enumeratorId()} reference to the enumerator block definition,
    * and return the id of its {@link EnumeratorQuestionDefinition}.
    */
-  private Optional<Long> getEnumeratorQuestionId(ProgramDefinition program, BlockDefinition block) {
+  private Optional<Long> getParentEnumeratorQuestionId(
+      ProgramDefinition program, BlockDefinition block) {
     if (block.enumeratorId().isEmpty()) {
       return Optional.empty();
     }
@@ -120,7 +161,7 @@ public final class ProgramBlockValidation {
       BlockDefinition enumeratorBlockDefinition =
           program.getBlockDefinition(block.enumeratorId().get());
       return enumeratorBlockDefinition.hasEnumeratorQuestion()
-          ? Optional.of(enumeratorBlockDefinition.getQuestionDefinition(0).getId())
+          ? Optional.of(enumeratorBlockDefinition.getEnumerationQuestionDefinition().getId())
           : Optional.empty();
     } catch (ProgramBlockDefinitionNotFoundException e) {
       String errorMessage =

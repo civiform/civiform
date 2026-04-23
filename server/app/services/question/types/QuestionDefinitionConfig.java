@@ -1,6 +1,7 @@
 package services.question.types;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -17,6 +18,8 @@ import services.question.QuestionSetting;
 
 @AutoValue
 @JsonDeserialize(builder = AutoValue_QuestionDefinitionConfig.Builder.class)
+// Tolerate unknown JSON properties (e.g. "isInitialQuestion") from older question definitions.
+@JsonIgnoreProperties(ignoreUnknown = true)
 // The JsonInclude.Include.NON_ABSENT annotation tells Jackson to only include optional fields if
 // they are not Optional.empty. This is required so that Jackson does not deserialize empty
 // enumeratorId fields to the number 0 which our code reads as an actual enumerator id.
@@ -75,13 +78,6 @@ public abstract class QuestionDefinitionConfig {
   abstract Optional<ImmutableSet<QuestionSetting>> questionSettings();
 
   /**
-   * Whether this question is the "initial question" on an enumerator block. Initial questions are
-   * shown per entity row to replace the legacy free-text entity name input.
-   */
-  @JsonProperty("isInitialQuestion")
-  abstract boolean isInitialQuestion();
-
-  /**
    * Used to create a new {@link QuestionDefinitionConfig}. We default some fields here to avoid
    * having to explicitly set default values everywhere that is using a builder and not trying to
    * use these fields.
@@ -90,8 +86,7 @@ public abstract class QuestionDefinitionConfig {
     return new AutoValue_QuestionDefinitionConfig.Builder()
         .setUniversal(false)
         .setDisplayMode(QuestionDisplayMode.VISIBLE)
-        .setPrimaryApplicantInfoTags(ImmutableSet.of())
-        .setIsInitialQuestion(false);
+        .setPrimaryApplicantInfoTags(ImmutableSet.of());
   }
 
   /** Used to create a new {@link QuestionDefinitionConfig.Builder} based on an existing one. */
@@ -158,9 +153,6 @@ public abstract class QuestionDefinitionConfig {
 
     @JsonProperty("questionSettings")
     public abstract Builder setQuestionSettings(ImmutableSet<QuestionSetting> questionSettings);
-
-    @JsonProperty("isInitialQuestion")
-    public abstract Builder setIsInitialQuestion(boolean isInitialQuestion);
 
     public abstract QuestionDefinitionConfig build();
   }

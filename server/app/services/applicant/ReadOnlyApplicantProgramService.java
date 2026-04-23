@@ -490,10 +490,23 @@ public final class ReadOnlyApplicantProgramService {
       ImmutableList<ApplicantQuestion> questions =
           includeHiddenQuestions ? block.getAllQuestions() : block.getVisibleQuestions();
 
+      // If this is an enumerator block, find its initial question ID so we can skip it below.
+      Optional<Long> initialQuestionId = Optional.empty();
+      if (block.isEnumerator()) {
+        initialQuestionId =
+            ((EnumeratorQuestionDefinition) block.getEnumeratorQuestion().getQuestionDefinition())
+                .getInitialQuestionId();
+      }
+
       for (int questionIndex = 0; questionIndex < questions.size(); questionIndex++) {
         ApplicantQuestion applicantQuestion = questions.get(questionIndex);
         // Don't include static content in summary data.
         if (applicantQuestion.getType().equals(QuestionType.STATIC)) {
+          continue;
+        }
+        // Don't include initial questions — their data is shown as the enumerator entity name.
+        if (initialQuestionId.isPresent()
+            && applicantQuestion.getQuestionDefinition().getId() == initialQuestionId.get()) {
           continue;
         }
         boolean isAnswered = applicantQuestion.isAnswered();
