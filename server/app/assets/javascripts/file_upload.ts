@@ -9,14 +9,13 @@ import {HtmxAfterRequestEvent} from '@/types/htmx'
 
 const UPLOADED_FILE_ATTR = 'data-uploaded-files'
 const CF_FILE_UPLOADING_CLASS = 'cf-file-uploading'
-const CF_FILE_UPLOAD_INPUT_ATTR = 'data-cf-file-upload'
 const CF_FILE_UPLOAD_CONTAINER_SELECTOR = '[data-cf-file-upload-container]'
 
 // Track the number of file uploads in progress to prevent navigating away
 let fileUploadsInProgress = 0
 
 export const init = () => {
-  if (!document.querySelector(`[${CF_FILE_UPLOAD_INPUT_ATTR}]`)) {
+  if (!document.querySelector(CF_FILE_UPLOAD_CONTAINER_SELECTOR)) {
     return
   }
 
@@ -146,7 +145,7 @@ const validateFileUploadQuestion = (fileInput: HTMLInputElement): boolean => {
 const isCfFileUploadInput = (
   elt: EventTarget | null,
 ): elt is HTMLInputElement =>
-  elt instanceof HTMLInputElement && elt.hasAttribute(CF_FILE_UPLOAD_INPUT_ATTR)
+  elt instanceof HTMLInputElement && elt.type === 'file'
 
 const toggleDisabledState = () => {
   const elements = document.querySelectorAll('.cf-disable-when-uploading')
