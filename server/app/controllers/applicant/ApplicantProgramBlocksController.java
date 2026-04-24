@@ -765,22 +765,22 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 }
               }
 
-                        // Always force an update so that we save the change even if removing the
-                        // last file from a required question.
-                        return applicantService.stageAndUpdateIfValid(
-                            applicantId,
-                            programId,
-                            blockId,
-                            fileUploadQuestionFormData.build(),
-                            settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
-                            /* forceUpdate= */ true,
-                            settingsManifest.getApiBridgeEnabled(request),
-                            settingsManifest.getEnumeratorImprovementsEnabled(request));
-                      },
-                      classLoaderExecutionContext.current())
-                  .thenComposeAsync(
-                      roApplicantProgramService -> {
-                        Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
+              // Always force an update so that we save the change even if removing the
+              // last file from a required question.
+              return applicantService.stageAndUpdateIfValid(
+                  applicantId,
+                  programId,
+                  blockId,
+                  fileUploadQuestionFormData.build(),
+                  settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
+                  /* forceUpdate= */ true,
+                  settingsManifest.getApiBridgeEnabled(request),
+                  settingsManifest.getEnumeratorImprovementsEnabled(request));
+            },
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            roApplicantProgramService -> {
+              Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
 
               if (block.isEmpty() || !block.get().isFileUpload()) {
                 return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
@@ -981,22 +981,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 }
               }
 
-                        return getOrMakeFileRecord(key.get(), originalFileName, applicantId)
-                            .thenComposeAsync(
-                                _ ->
-                                    applicantService.stageAndUpdateIfValid(
-                                        applicantId,
-                                        programId,
-                                        blockId,
-                                        fileUploadQuestionFormData.build(),
-                                        settingsManifest.getEsriAddressServiceAreaValidationEnabled(
-                                            request),
-                                        false,
-                                        settingsManifest.getApiBridgeEnabled(request),
-                                        settingsManifest.getEnumeratorImprovementsEnabled(
-                                            request)));
-                      },
-                      classLoaderExecutionContext.current())
+              return getOrMakeFileRecord(key.get(), originalFileName, applicantId)
                   .thenComposeAsync(
                       _ ->
                           applicantService.stageAndUpdateIfValid(
@@ -1006,7 +991,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                               fileUploadQuestionFormData.build(),
                               settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
                               false,
-                              settingsManifest.getApiBridgeEnabled(request)));
+                              settingsManifest.getApiBridgeEnabled(request),
+                              settingsManifest.getEnumeratorImprovementsEnabled(request)));
             },
             classLoaderExecutionContext.current())
         .thenComposeAsync(
