@@ -75,7 +75,7 @@ import views.questiontypes.FileUploadQuestionPartialView;
 import views.questiontypes.FileUploadQuestionPartialViewModel;
 import views.trustedintermediary.ApplicationBaseViewParams;
 
-/*
+/**
  * Controller for handling an applicant filling out a single program. CAUTION: you must explicitly
  * check the current profile so that an unauthorized user cannot access another applicant's data!
  */
@@ -314,7 +314,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     return reviewInternal(request, optionalApplicantId.get(), programParam, blockId, questionName);
   }
 
-  /* Handles the applicant's selection from the address correction options. */
+  /** Handles the applicant's selection from the address correction options. */
   @Secure
   public CompletionStage<Result> confirmAddressWithApplicantId(
       Request request,
@@ -343,7 +343,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         applicantRequestedActionWrapper.getAction());
   }
 
-  /* Handles the applicant's selection from the address correction options. */
+  /** Handles the applicant's selection from the address correction options. */
   @Secure
   public CompletionStage<Result> confirmAddress(
       Request request,
@@ -366,7 +366,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         applicantRequestedActionWrapper);
   }
 
-  /* Saves the selected corrected address to the db and redirects the user to the next screen */
+  /** Saves the selected corrected address to the db and redirects the user to the next screen */
   private CompletionStage<Result> confirmAddressWithSuggestions(
       Request request,
       long applicantId,
@@ -1670,7 +1670,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
   }
 
-  /* Returns true if eligibility is gating and the block is ineligible, false otherwise. */
+  /** Returns true if eligibility is gating and the block is ineligible, false otherwise. */
   private boolean shouldRenderIneligibleBlockView(
       ReadOnlyApplicantProgramService roApplicantProgramService,
       ProgramDefinition programDefinition,
