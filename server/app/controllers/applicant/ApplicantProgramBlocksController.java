@@ -1038,7 +1038,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       return CompletableFuture.completedFuture(notFound());
     }
 
+    // Try the session profile first, then fall back to the query parameter (used in admin
+    // preview where the session profile is an admin, not the preview applicant).
     Optional<Long> optionalApplicantId = getApplicantId(request);
+    if (optionalApplicantId.isEmpty()) {
+      optionalApplicantId = request.queryString("applicantId").map(Long::valueOf);
+    }
     if (optionalApplicantId.isEmpty()) {
       return CompletableFuture.completedFuture(badRequest());
     }

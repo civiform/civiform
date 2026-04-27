@@ -224,7 +224,9 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
             "hxAddEnumeratorEntityUrl",
             controllers.applicant.routes.ApplicantProgramBlocksController.hxAddEnumeratorEntity(
                     applicationParams.programId(), applicationParams.block().getId())
-                .url());
+                .url()
+                + "?applicantId="
+                + applicationParams.applicantId());
       }
 
       return templateEngine.process("applicant/blocks/ApplicantProgramBlockEditTemplate", context);
