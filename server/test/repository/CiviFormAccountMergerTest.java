@@ -675,7 +675,9 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
     ApplicantModel guestUser = resourceCreator.insertApplicantWithAccount();
 
     cfUser.getApplicantData().putString(CF_ONLY_PATH, "engineer");
+    cfUser.getApplicantData().putString(SHARED_PATH, "Seattle");
     cfUser.save();
+
     guestUser.getApplicantData().putString(GUEST_ONLY_PATH, "blue");
     guestUser.getApplicantData().putString(SHARED_PATH, "Shelbyville");
     guestUser.save();
@@ -687,7 +689,7 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
     ApplicantModel updatedCfUser = acctRepo.lookupApplicantSync(cfUser.id).orElseThrow();
     assertThat(updatedCfUser.getApplicantData().readString(CF_ONLY_PATH)).hasValue("engineer");
     assertThat(updatedCfUser.getApplicantData().readString(GUEST_ONLY_PATH)).isEmpty();
-    assertThat(updatedCfUser.getApplicantData().readString(SHARED_PATH)).isEmpty();
+    assertThat(updatedCfUser.getApplicantData().readString(SHARED_PATH)).hasValue("Seattle");
   }
 
   @Test
@@ -715,10 +717,13 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
 
   // ── PAI merge tests ───────────────────────────────────────────────────────
   // These test the PAI (Primary Applicant Information) fields: name, email,
-  // phone/country code, and date of birth. Guest values win when present.
+  // phone/country code, and date of birth. Guest values are retained when
+  // present.
 
   @Test
   @Parameters({"true", "false"})
+  // The guests PAIs should be retained regardless of if the CiviForm user
+  // has PAIs.
   public void mergeQuestionAnswers_pais_guestHasAll_guestRetained(boolean cfUserHasPais) {
     ApplicantModel cfUser =
         resourceCreator.insertApplicantWithAccount(Optional.of("cf@example.com"));
@@ -797,7 +802,7 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
     cfUser.setUserName("CfFirst", Optional.empty(), Optional.of("CfLast"), Optional.empty());
     cfUser.save();
 
-    // Guest has first name but no last name — name should NOT be copied.
+    // Guest has first name but no last name — name should not be copied.
     guestUser.setFirstName("GuestFirst");
     guestUser.save();
     cfUser.refresh();
@@ -811,15 +816,28 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
   }
 
   @Test
-  public void mergeQuestionAnswers_pais_bothHavePhone_guestRetained() {
+  // Test a mix of unique and conflicting PAIs, and missing (dob).
+  public void mergeQuestionAnswers_pais_dataFromBoth() {
     ApplicantModel cfUser =
         resourceCreator.insertApplicantWithAccount(Optional.of("cf@example.com"));
     ApplicantModel guestUser = resourceCreator.insertApplicantWithAccount();
+    String cfUniqueEmail = "cf@example.com";
+    String guestUniquePhone = "4035551122";
 
-    cfUser.setPhoneNumber("2535559999");
+    cfUser.setUserName(
+        "Conflict CfFirst",
+        Optional.of("Conflict CfMiddle"),
+        Optional.of("Conflight CfLast"),
+        Optional.of("Conflict Sr."));
+    cfUser.setEmailAddress(cfUniqueEmail);
     cfUser.save();
-    String guestPhoneNum = "2535551122";
-    guestUser.setPhoneNumber(guestPhoneNum);
+
+    guestUser.setUserName(
+        "Conflict GuestFirst",
+        Optional.of("Conflict GuestMiddle"),
+        Optional.of("Conflict GuestLast"),
+        Optional.of("Conflict Jr."));
+    guestUser.setPhoneNumber(guestUniquePhone);
     guestUser.save();
     cfUser.refresh();
     guestUser.refresh();
@@ -827,7 +845,13 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
     merger.mergeApplicants(cfUser, guestUser, NewGuestMergeLaunchStage.ENABLED);
 
     ApplicantModel updated = acctRepo.lookupApplicantSync(cfUser.id).orElseThrow();
-    assertThat(updated.getPhoneNumber()).hasValue(guestPhoneNum);
+    assertThat(updated.getFirstName()).hasValue("Conflict GuestFirst");
+    assertThat(updated.getMiddleName()).hasValue("Conflict GuestMiddle");
+    assertThat(updated.getLastName()).hasValue("Conflict GuestLast");
+    assertThat(updated.getSuffix()).hasValue("Conflict Jr.");
+    assertThat(updated.getEmailAddress()).hasValue(cfUniqueEmail);
+    assertThat(updated.getPhoneNumber()).hasValue(guestUniquePhone);
+    assertThat(updated.getDateOfBirth()).isEmpty();
   }
 
   @Test

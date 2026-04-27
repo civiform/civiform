@@ -704,6 +704,8 @@ public class CfJsonDocumentContext {
     Map<?, ?> otherMap = other.jsonData.read("$", Map.class);
     Map<?, ?> thisMap = this.jsonData.read("$", Map.class);
 
+    // Verify that {@code other} and this object have the required structure
+    // described in the javadoc.
     Preconditions.checkArgument(
         otherMap.size() == 1 && otherMap.containsKey(applicantPath.keyName()),
         "Expected a single 'applicant' root key in input, found %s",
@@ -725,6 +727,7 @@ public class CfJsonDocumentContext {
     ImmutableList.Builder<String> droppedPaths = ImmutableList.builder();
     for (Map.Entry<?, ?> entry : questionAnswers.entrySet()) {
       Path entryPath = applicantPath.join(entry.getKey().toString());
+      // Only add entries/question-answers from {@code other} that are not already present.
       if (hasPath(entryPath)) {
         droppedPaths.add(entryPath.toString());
       } else {

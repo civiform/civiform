@@ -1043,12 +1043,30 @@ public class CfJsonDocumentContextTest {
   /**
    * Parameterized cases for mergeQuestionAnswersFrom behavior.
    *
+   * <p>Each test has five sections, the inputs and the output:
+   *
+   * <ol>
+   *   <li>target: the destination of the merge, whose data is merged into.
+   *   <li>other: the other source of merge data.
+   *   <li>expected: the expected result of the merge.
+   *   <li>mergedPaths: the expected paths copied from {@code other} into {@code target}.
+   *   <li>droppedPaths: the expected paths not copied from {@code other} into {@code target}.
+   * </ol>
+   *
    * <p>Both target and other must have a single root key {@code "applicant"} whose value is a map.
-   * Each child of {@code "applicant"} in other is either:
+   *
+   * <p>Each child json key of {@code applicant} in {@code target} is named either:
+   *
+   * <ul>
+   *   <li>{@code existing_*} — key is unique to target and will not be changed.
+   *   <li>{@code conflict_*} — key already exists in target; will not be replaced.
+   * </ul>
+   *
+   * <p>Each child json key of {@code applicant} in {@code other} is named either:
    *
    * <ul>
    *   <li>{@code copied_*} — key is unique to other; will be copied into the result.
-   *   <li>{@code conflict_*} — key already exists in target; will NOT be copied (no recursion).
+   *   <li>{@code conflict_*} — key already exists in target; will not be copied.
    * </ul>
    *
    * <p>The result's {@code mergedPaths} lists paths that were copied; {@code droppedPaths} lists
@@ -1059,13 +1077,13 @@ public class CfJsonDocumentContextTest {
       // ── Case 1: Key unique to other — copied ────────────────────────────────
       {
         /* target   */ """
-        {"applicant":{"existing_q":{"text":"val"}}}
+        {"applicant":{"existing_q":{"text":"target_val"}}}
         """,
         /* other    */ """
         {"applicant":{"copied_q":{"text":"other_val"}}}
         """,
         /* expected */ """
-        {"applicant":{"existing_q":{"text":"val"},"copied_q":{"text":"other_val"}}}
+        {"applicant":{"existing_q":{"text":"target_val"},"copied_q":{"text":"other_val"}}}
         """,
         /* mergedPaths  */ new String[] {"applicant.copied_q"},
         /* droppedPaths */ new String[] {}
@@ -1108,13 +1126,13 @@ public class CfJsonDocumentContextTest {
       // ── Case 4: Empty other — nothing to merge ─────────────────────────────
       {
         /* target   */ """
-        {"applicant":{"existing_q":{"text":"val"}}}
+        {"applicant":{"existing_q":{"text":"target_val"}}}
         """,
         /* other    */ """
         {"applicant":{}}
         """,
         /* expected */ """
-        {"applicant":{"existing_q":{"text":"val"}}}
+        {"applicant":{"existing_q":{"text":"target_val"}}}
         """,
         /* mergedPaths  */ new String[] {},
         /* droppedPaths */ new String[] {}
@@ -1126,10 +1144,10 @@ public class CfJsonDocumentContextTest {
         {"applicant":{}}
         """,
         /* other    */ """
-        {"applicant":{"copied_q1":{"text":"v1"},"copied_q2":{"text":"v2"}}}
+        {"applicant":{"copied_q1":{"text":"other_val1"},"copied_q2":{"text":"other_val2"}}}
         """,
         /* expected */ """
-        {"applicant":{"copied_q1":{"text":"v1"},"copied_q2":{"text":"v2"}}}
+        {"applicant":{"copied_q1":{"text":"other_val1"},"copied_q2":{"text":"other_val2"}}}
         """,
         /* mergedPaths  */ new String[] {"applicant.copied_q1", "applicant.copied_q2"},
         /* droppedPaths */ new String[] {}
@@ -1138,17 +1156,17 @@ public class CfJsonDocumentContextTest {
       // ── Case 6: Mixed — some copied, some conflicts ─────────────────────────
       {
         /* target   */ """
-        {"applicant":{"conflict_shared":{"text":"retained_val"},"existing_q":{"text":"t"}}}
+        {"applicant":{"conflict_q":{"text":"retained_val"},"existing_q":{"text":"target_val"}}}
         """,
         /* other    */ """
-        {"applicant":{"copied_new":{"text":"new_val"},"conflict_shared":{"text":"dropped_val"}}}
+        {"applicant":{"copied_q":{"text":"copied_val"},"conflict_q":{"text":"dropped_val"}}}
         """,
         /* expected */ """
-        {"applicant":{"conflict_shared":{"text":"retained_val"},"only_target":{"text":"t"},\
-        "copied_new":{"text":"new_val"}}}
+        {"applicant":{"conflict_q":{"text":"retained_val"},"existing_q":{"text":"target_val"},\
+        "copied_q":{"text":"copied_val"}}}
         """,
-        /* mergedPaths  */ new String[] {"applicant.copied_new"},
-        /* droppedPaths */ new String[] {"applicant.conflict_shared"}
+        /* mergedPaths  */ new String[] {"applicant.copied_q"},
+        /* droppedPaths */ new String[] {"applicant.conflict_q"}
       },
     };
   }
