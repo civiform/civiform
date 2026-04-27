@@ -659,7 +659,7 @@ public final class CiviFormAccountMerger {
     // narrative we are supplementing the guest's data with the cf users,
     // however programmatically we are copying guest data into the cf user.
     // So to determine which cf user data is retained/used we track which of its
-    // pais exist but weren't overwritten.
+    // PAIs exist but weren't overwritten.
     StringJoiner cfPaisNotOverwritten = new StringJoiner(",");
 
     // Name.  First/Last are required in forms, the others are not.
