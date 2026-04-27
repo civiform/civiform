@@ -652,14 +652,14 @@ public final class CiviFormAccountMerger {
       civiformUser.setApplicantData(mergeData);
     }
 
-    // Merge question answers in the PAIs.  As above, prefer the guest's answers when present.
+    // Merge the applicant's Primary Applicant Info (PAI).  As above, prefer the guest's answers when present.
 
     // For logging, collect the CiviForm user answers that effectively
     // supplement the guest's.  Determining this is a little backwards because as a
     // narrative we are supplementing the guest's data with the cf users,
     // however programmatically we are copying guest data into the cf user.
     // So to determine which cf user data is retained/used we track which of its
-    // pais exist but weren't overwritten.
+    // PAIs exist but weren't overwritten.
     StringJoiner cfPaisNotOverwritten = new StringJoiner(",");
 
     // Name.  First/Last are required in forms, the others are not.
