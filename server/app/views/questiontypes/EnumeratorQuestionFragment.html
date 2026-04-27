@@ -39,10 +39,10 @@
       >
         <div
           id="enumerator-fields"
-          th:attr="data-existing-count=${#lists.size(contextualizedInitialQuestions)}"
+          th:attr="data-existing-count=${contextualizedInitialQuestions != null ? #lists.size(contextualizedInitialQuestions) : 0}"
         >
           <div
-            th:each="initialQForEntity,iterator: ${contextualizedInitialQuestions}"
+            th:each="initialQForEntity,iterator: ${contextualizedInitialQuestions != null ? contextualizedInitialQuestions : {}}"
           >
             <div
               th:replace="~{this :: enumeratorEntityRow(

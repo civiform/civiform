@@ -2,6 +2,7 @@ package views.admin.questions;
 
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
@@ -88,6 +89,29 @@ public class QuestionPreview extends ApplicantBaseView {
         settingsManifest.getFileUploadAllowedFileTypeSpecifiers().orElse("image/*,.pdf"));
     context.setVariable("isPreview", true);
     context.setVariable("homeUrl", index(params, applicantRoutes));
+
+    // For enumerator questions with an initial question, set the context variable so the
+    // enumerator fragment renders the correct input type instead of the legacy text input.
+    params
+        .initialQuestionDefinition()
+        .ifPresent(
+            initialQuestionDef -> {
+              ProgramQuestionDefinition initialPqd =
+                  ProgramQuestionDefinition.create(
+                      initialQuestionDef, /* programDefinitionId= */ Optional.empty());
+              ApplicantQuestion initialApplicantQuestion =
+                  new ApplicantQuestion(
+                      initialPqd, new ApplicantModel(), new ApplicantData(), Optional.empty());
+              context.setVariable("initialQuestion", initialApplicantQuestion);
+              // Provide a single sample entity row so the preview shows the initial question
+              // inputs without needing the HTMX add-entity endpoint.
+              context.setVariable(
+                  "contextualizedInitialQuestions",
+                  ImmutableList.of(initialApplicantQuestion));
+              context.setVariable(
+                  "contextualizedInitialQuestionParams", ImmutableList.of(rendererParams));
+            });
+
     return templateEngine.process("admin/questions/QuestionPreviewFragment", context);
   }
 
@@ -125,6 +149,8 @@ public class QuestionPreview extends ApplicantBaseView {
 
     abstract Messages messages();
 
+    abstract Optional<QuestionDefinition> initialQuestionDefinition();
+
     @AutoValue.Builder
     public abstract static class Builder {
 
@@ -139,6 +165,9 @@ public class QuestionPreview extends ApplicantBaseView {
       public abstract Builder setType(QuestionType type);
 
       public abstract Builder setMessages(Messages messages);
+
+      public abstract Builder setInitialQuestionDefinition(
+          Optional<QuestionDefinition> initialQuestionDefinition);
 
       public abstract Params build();
     }

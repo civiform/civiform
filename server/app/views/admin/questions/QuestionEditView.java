@@ -27,6 +27,7 @@ import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.FormTag;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalLong;
 import models.QuestionDisplayMode;
 import models.QuestionTag;
 import play.i18n.Lang;
@@ -236,7 +237,8 @@ public final class QuestionEditView extends BaseHtmlView {
         .ifPresent(formContent::with);
 
     return renderWithPreview(
-        request, formContent, questionType, title, Optional.of(unsetUniversalModal));
+        request, formContent, questionType, title, Optional.of(unsetUniversalModal),
+        OptionalLong.of(id));
   }
 
   /** Render a read-only non-submittable question form. */
@@ -260,21 +262,35 @@ public final class QuestionEditView extends BaseHtmlView {
             .with(buildReadOnlyQuestionForm(questionForm, enumeratorOption, request));
 
     return renderWithPreview(
-        request, formContent, questionType, title, /* modal= */ Optional.empty());
+        request, formContent, questionType, title, /* modal= */ Optional.empty(),
+        OptionalLong.of(questionDefinition.getId()));
   }
 
   private Content renderWithPreview(
       Request request, DivTag formContent, QuestionType type, String title, Optional<Modal> modal) {
-    DivTag previewContent;
+    return renderWithPreview(request, formContent, type, title, modal, OptionalLong.empty());
+  }
 
+  private Content renderWithPreview(
+      Request request,
+      DivTag formContent,
+      QuestionType type,
+      String title,
+      Optional<Modal> modal,
+      OptionalLong questionId) {
     // TODO(#7266): If the admin UI uses Thymeleaf, we can directly embed Thymeleaf
     // fragments without using HTMX
-    previewContent =
+    String previewUrl =
+        controllers.admin.routes.QuestionPreviewController.sampleQuestion(type.getLabel()).url();
+    // For enumerator questions, pass the question ID so the preview can look up the
+    // initial question and render the correct input type.
+    if (type == QuestionType.ENUMERATOR && questionId.isPresent()) {
+      previewUrl += "?questionId=" + questionId.getAsLong();
+    }
+    DivTag previewContent =
         div()
             .attr("hx-swap", "outerHTML")
-            .attr(
-                "hx-get",
-                controllers.admin.routes.QuestionPreviewController.sampleQuestion(type.getLabel()))
+            .attr("hx-get", previewUrl)
             .attr("hx-trigger", "load");
 
     HtmlBundle htmlBundle =
