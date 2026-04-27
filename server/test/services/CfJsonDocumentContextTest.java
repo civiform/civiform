@@ -1138,7 +1138,7 @@ public class CfJsonDocumentContextTest {
       // ── Case 6: Mixed — some copied, some conflicts ─────────────────────────
       {
         /* target   */ """
-        {"applicant":{"conflict_shared":{"text":"retained_val"},"only_target":{"text":"t"}}}
+        {"applicant":{"conflict_shared":{"text":"retained_val"},"existing_q":{"text":"t"}}}
         """,
         /* other    */ """
         {"applicant":{"copied_new":{"text":"new_val"},"conflict_shared":{"text":"dropped_val"}}}
