@@ -652,7 +652,7 @@ public final class CiviFormAccountMerger {
       civiformUser.setApplicantData(mergeData);
     }
 
-    // Merge question answers in the PAIs.  As above, prefer the guest's answers when present.
+    // Merge the applicant's Primary Applicant Info (PAI).  As above, prefer the guest's answers when present.
 
     // For logging, collect the CiviForm user answers that effectively
     // supplement the guest's.  Determining this is a little backwards because as a
