@@ -1,5 +1,6 @@
 package parsers;
 
+import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -32,16 +33,18 @@ public abstract class StreamingMultipartBodyParser
   private static final int CHUNK_SIZE = 1024 * 1024; // 1 MiB
   private final MultipartUploadSinks uploadSinks;
   private final FileTypeValidation fileTypeValidation;
+  private AtomicReference<String> detectedMimeTypeRef = new AtomicReference<>(null);
 
   public StreamingMultipartBodyParser(
       Materializer materializer,
       DefaultHttpErrorHandler errorHandler,
       MultipartUploadSinks streamingMultipartUploadSinks,
       FileTypeValidation fileTypeValidation,
-      long maxFileSize) {
+      long maxFileSize, Set<String> ALLOWED_MIME_TYPES) {
     super(materializer, CHUNK_SIZE, maxFileSize, /* allowEmptyFiles= */ false, errorHandler);
     this.uploadSinks = streamingMultipartUploadSinks;
     this.fileTypeValidation = fileTypeValidation;
+    this.detectedMimeTypeRef = ALLOWED_MIME_TYPES;
   }
 
   @Override
@@ -57,6 +60,7 @@ public abstract class StreamingMultipartBodyParser
         throw new FileUploadTypeException("Uploaded file has no filename.");
       }
 
+      if()
       AtomicReference<String> detectedMimeTypeRef = new AtomicReference<>(null);
       Flow<ByteString, ByteString, ?> sniffingFlow =
           fileTypeValidation.sniffingFlow(fileName, detectedMimeTypeRef);
