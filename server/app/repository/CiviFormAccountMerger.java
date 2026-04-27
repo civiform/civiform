@@ -624,8 +624,8 @@ public final class CiviFormAccountMerger {
    * guestUser} is not modified.
    *
    * <p>The user's question answers in {@code Applicant.object} and the PAI answers are both merged.
-   * For both, the guest's data is preferred, and the civiform user's data is only used if the guest
-   * does not have the data item.
+   * For both, the guest's data is preferred because it is more recent, and the civiform user's data
+   * is only used if the guest does not have the data item.
    *
    * <p>Merging is done at the question level and not at the level of each individual field present
    * in a question's answer data. This means for the `object` question answer data, the entire
