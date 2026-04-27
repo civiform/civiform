@@ -18,6 +18,7 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.AccountModel;
 import models.ApplicationModel;
+import org.apache.commons.lang3.StringUtils;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.ClassLoaderExecutionContext;
@@ -31,9 +32,11 @@ import services.applicant.ReadOnlyApplicantProgramService;
 import services.applications.ApplicationService;
 import services.applications.PdfExporterService;
 import services.export.PdfExporter;
+import services.monitoring.MonitoringMetricCounters;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.settings.SettingsManifest;
 import views.applicant.upsell.ApplicantPreScreenerUpsellView;
 import views.applicant.upsell.ApplicantUpsellView;
 import views.applicant.upsell.UpsellParams;
@@ -50,6 +53,8 @@ public final class UpsellController extends CiviFormController {
   private final MessagesApi messagesApi;
   private final PdfExporterService pdfExporterService;
   private final ProgramSlugHandler programSlugHandler;
+  private final SettingsManifest settingsManifest;
+  private final MonitoringMetricCounters metricCounters;
 
   @Inject
   public UpsellController(
@@ -63,7 +68,9 @@ public final class UpsellController extends CiviFormController {
       MessagesApi messagesApi,
       PdfExporterService pdfExporterService,
       VersionRepository versionRepository,
-      ProgramSlugHandler programSlugHandler) {
+      ProgramSlugHandler programSlugHandler,
+      SettingsManifest settingsManifest,
+      MonitoringMetricCounters metricCounters) {
     super(profileUtils, versionRepository);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.applicantService = checkNotNull(applicantService);
@@ -74,17 +81,33 @@ public final class UpsellController extends CiviFormController {
     this.messagesApi = checkNotNull(messagesApi);
     this.pdfExporterService = checkNotNull(pdfExporterService);
     this.programSlugHandler = checkNotNull(programSlugHandler);
+    this.settingsManifest = checkNotNull(settingsManifest);
+    this.metricCounters = checkNotNull(metricCounters);
   }
 
   @Secure
   public CompletionStage<Result> considerRegister(
       Http.Request request,
       long applicantId,
-      long programId,
+      String programParam,
       long applicationId,
       String redirectTo,
       String submitTime) {
     CiviFormProfile profile = profileUtils.currentUserProfile(request);
+
+    // Redirect home when the program param is the program id (numeric) but it should be the program
+    // slug because the program slug URL is enabled
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
+      metricCounters.getUrlWithProgramIdCall().labels("/considerSignIn", programParam).inc();
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
+    long programId =
+        programSlugHandler
+            .resolveProgramParam(programParam, applicantId, programSlugUrlsEnabled)
+            .toCompletableFuture()
+            .join();
 
     CompletableFuture<Boolean> isPreScreener =
         programService
@@ -158,8 +181,7 @@ public final class UpsellController extends CiviFormController {
                       .setMessages(messagesApi.preferred(request))
                       .setBannerMessage(toastMessageValue)
                       .setCompletedProgramId(programId)
-                      .setCompletedProgramSlug(
-                          programSlugHandler.getProgramSlug(String.valueOf(programId)))
+                      .setCompletedProgramSlug(programSlugHandler.getProgramSlug(programParam))
                       .setCustomConfirmationMessage(
                           roApplicantProgramService.join().getCustomConfirmationMessage())
                       .setApplicantId(applicantId)

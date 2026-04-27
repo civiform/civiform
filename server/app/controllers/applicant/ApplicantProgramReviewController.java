@@ -302,6 +302,9 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
   private CompletionStage<Result> submitInternal(
       Request request, long applicantId, long programId) {
+
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+
     CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request);
 
     CompletableFuture<ApplicationModel> submitAppFuture =
@@ -320,10 +323,17 @@ public class ApplicantProgramReviewController extends CiviFormController {
               ApplicationModel application = submitAppFuture.join();
               Long applicationId = application.id;
 
+              final String programParam;
+              if (programSlugUrlsEnabled) {
+                programParam = programSlugHandler.getProgramSlug(String.valueOf(programId));
+              } else {
+                programParam = String.valueOf(programId);
+              }
+
               Call endOfProgramSubmission =
                   routes.UpsellController.considerRegister(
                       applicantId,
-                      programId,
+                      programParam,
                       applicationId,
                       applicantRoutes.index(submittingProfile, applicantId).url(),
                       application.getSubmitTime().toString());
@@ -334,7 +344,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
             ex -> {
               ReadOnlyApplicantProgramService roApplicantProgramService =
                   readOnlyApplicantProgramServiceFuture.join();
-              boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
               if (ex instanceof CompletionException) {
                 Throwable cause = ex.getCause();
                 if (cause instanceof ApplicationSubmissionException) {

@@ -73,7 +73,7 @@
               ></div>
 
               <div
-                th:replace="~{questiontypes/FileUploadQuestionFragment :: file-upload(${question}, ${questionParams})}"
+                th:replace="~{questiontypes/LegacyFileUploadQuestionFragment :: file-upload(${question}, ${questionParams})}"
               ></div>
 
               <div
@@ -121,7 +121,7 @@
               >
                 <input hidden th:value="${csrfToken}" name="csrfToken" />
                 <div
-                  th:replace="~{questiontypes/FileUploadQuestionFragment :: file-key-field(${fileUploadQuestion}, false)}"
+                  th:replace="~{questiontypes/LegacyFileUploadQuestionFragment :: file-key-field(${fileUploadQuestion}, false)}"
                 ></div>
               </form>
             </div>
