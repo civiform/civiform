@@ -153,6 +153,11 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
           controllers.applicant.routes.ApplicantProgramBlocksController.hxSelectFileForUpload(
                   applicationParams.programId(), applicationParams.block().getId())
               .url());
+      context.setVariable(
+          "hxRemoveFileUrl",
+          controllers.applicant.routes.ApplicantProgramBlocksController.hxRemoveFile(
+                  applicationParams.programId(), applicationParams.block().getId())
+              .url());
 
       context.setVariable(
           "previousFormAction",

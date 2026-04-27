@@ -119,12 +119,24 @@ export class ApplicantFileQuestion {
     await this.page.locator(this.deleteButtonLocator).click()
   }
 
-  async removeFileUpload(fileName: string) {
+  /**
+   * @deprecated To be removed when client side file upload end of life
+   */
+  async removeFileUploadLegacy(fileName: string) {
     await this.page
       .getByRole('list', {name: 'Uploaded files'})
       .locator('li')
       .filter({hasText: fileName})
       .getByText('Remove File')
+      .click()
+  }
+
+  async removeFileUpload(fileName: string) {
+    await this.page
+      .getByRole('list', {name: 'Uploaded files'})
+      .locator('li')
+      .filter({hasText: fileName})
+      .getByRole('button', {name: `Remove ${fileName} file`})
       .click()
   }
 }

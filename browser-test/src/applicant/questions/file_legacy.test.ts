@@ -83,7 +83,10 @@ test.describe('file upload applicant flow', () => {
     }) => {
       await applicantQuestions.applyProgram(programName)
 
-      await applicantQuestions.answerFileUploadQuestion('some file', 'file.txt')
+      await applicantQuestions.answerFileUploadQuestionLegacy(
+        'some file',
+        'file.txt',
+      )
 
       await applicantFileQuestion.expectFileNameDisplayed('file.txt')
       await validateScreenshot(page.locator('main'), 'file-uploaded')
@@ -96,13 +99,13 @@ test.describe('file upload applicant flow', () => {
     }) => {
       await applicantQuestions.applyProgram(programName)
 
-      await applicantQuestions.answerFileUploadQuestion(
+      await applicantQuestions.answerFileUploadQuestionLegacy(
         'some file',
         'file1.txt',
       )
       await applicantFileQuestion.expectFileNameDisplayed('file1.txt')
 
-      await applicantQuestions.answerFileUploadQuestion(
+      await applicantQuestions.answerFileUploadQuestionLegacy(
         'some file',
         'file2.txt',
       )
@@ -120,11 +123,11 @@ test.describe('file upload applicant flow', () => {
     test('can download file content', async ({applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       const fileContent = 'some sample text'
-      await applicantQuestions.answerFileUploadQuestion(fileContent)
+      await applicantQuestions.answerFileUploadQuestionLegacy(fileContent)
       await applicantQuestions.clickContinue()
 
       const downloadedFileContent =
-        await applicantQuestions.downloadFileFromUploadPage('file.txt')
+        await applicantQuestions.downloadFileFromUploadPageLegacy('file.txt')
       expect(downloadedFileContent).toEqual(fileContent)
     })
 
@@ -147,7 +150,7 @@ test.describe('file upload applicant flow', () => {
 
       await applicantFileQuestion.expectQuestionErrorShown()
 
-      await applicantQuestions.answerFileUploadQuestion('some text')
+      await applicantQuestions.answerFileUploadQuestionLegacy('some text')
 
       await applicantFileQuestion.expectQuestionErrorHidden()
     })
@@ -201,7 +204,7 @@ test.describe('file upload applicant flow', () => {
     }) => {
       // Answer the file upload question
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerFileUploadQuestion(
+      await applicantQuestions.answerFileUploadQuestionLegacy(
         'some text',
         'testFileName.txt',
       )
@@ -233,7 +236,7 @@ test.describe('file upload applicant flow', () => {
     }) => {
       // Answer the file upload question
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerFileUploadQuestion(
+      await applicantQuestions.answerFileUploadQuestionLegacy(
         'some text',
         'testFileName.txt',
       )
@@ -295,7 +298,7 @@ test.describe('file upload applicant flow', () => {
       })
 
       await test.step('Removing a file shows file input again', async () => {
-        await applicantFileQuestion.removeFileUpload('file-upload.png')
+        await applicantFileQuestion.removeFileUploadLegacy('file-upload.png')
         await applicantFileQuestion.expectFileInputEnabled()
       })
     })
@@ -436,11 +439,13 @@ test.describe('file upload applicant flow', () => {
         'file-upload-second.png',
       )
 
-      await applicantFileQuestion.removeFileUpload('file-upload.png')
+      await applicantFileQuestion.removeFileUploadLegacy('file-upload.png')
 
       await applicantFileQuestion.expectFileNameCount('file-upload.png', 0)
 
-      await applicantFileQuestion.removeFileUpload('file-upload-second.png')
+      await applicantFileQuestion.removeFileUploadLegacy(
+        'file-upload-second.png',
+      )
 
       await applicantFileQuestion.expectFileNameCount(
         'file-upload-second.png',
@@ -529,11 +534,11 @@ test.describe('file upload applicant flow', () => {
 
     test('can download file content', async ({applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerFileUploadQuestion(
+      await applicantQuestions.answerFileUploadQuestionLegacy(
         'file 1 content',
         'file1.txt',
       )
-      await applicantQuestions.answerFileUploadQuestion(
+      await applicantQuestions.answerFileUploadQuestionLegacy(
         'file 2 content',
         'file2.txt',
       )
@@ -541,10 +546,10 @@ test.describe('file upload applicant flow', () => {
       await applicantQuestions.clickContinue()
 
       expect(
-        await applicantQuestions.downloadFileFromUploadPage('file1.txt'),
+        await applicantQuestions.downloadFileFromUploadPageLegacy('file1.txt'),
       ).toEqual('file 1 content')
       expect(
-        await applicantQuestions.downloadFileFromUploadPage('file2.txt'),
+        await applicantQuestions.downloadFileFromUploadPageLegacy('file2.txt'),
       ).toEqual('file 2 content')
     })
 
@@ -606,11 +611,13 @@ test.describe('file upload applicant flow', () => {
         'file-upload-second.png',
       )
 
-      await applicantFileQuestion.removeFileUpload('file-upload.png')
+      await applicantFileQuestion.removeFileUploadLegacy('file-upload.png')
 
       await applicantFileQuestion.expectFileNameCount('file-upload.png', 0)
 
-      await applicantFileQuestion.removeFileUpload('file-upload-second.png')
+      await applicantFileQuestion.removeFileUploadLegacy(
+        'file-upload-second.png',
+      )
 
       await applicantFileQuestion.expectFileNameCount(
         'file-upload-second.png',
@@ -739,7 +746,10 @@ test.describe('file upload applicant flow', () => {
     }) => {
       await applicantQuestions.applyProgram(programName)
 
-      await applicantQuestions.answerFileUploadQuestion('some file', 'file.txt')
+      await applicantQuestions.answerFileUploadQuestionLegacy(
+        'some file',
+        'file.txt',
+      )
 
       await applicantFileQuestion.expectFileNameDisplayed('file.txt')
     })
@@ -751,13 +761,13 @@ test.describe('file upload applicant flow', () => {
     }) => {
       await applicantQuestions.applyProgram(programName)
 
-      await applicantQuestions.answerFileUploadQuestion(
+      await applicantQuestions.answerFileUploadQuestionLegacy(
         'some file',
         'file1.txt',
       )
       await applicantFileQuestion.expectFileNameDisplayed('file1.txt')
 
-      await applicantQuestions.answerFileUploadQuestion(
+      await applicantQuestions.answerFileUploadQuestionLegacy(
         'some file',
         'file2.txt',
       )
@@ -775,17 +785,19 @@ test.describe('file upload applicant flow', () => {
     test('can download file content', async ({applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       const fileContent = 'some sample text'
-      await applicantQuestions.answerFileUploadQuestion(fileContent)
+      await applicantQuestions.answerFileUploadQuestionLegacy(fileContent)
       await applicantQuestions.clickContinue()
 
       const downloadedFileContent =
-        await applicantQuestions.downloadFileFromUploadPage('file.txt')
+        await applicantQuestions.downloadFileFromUploadPageLegacy('file.txt')
       expect(downloadedFileContent).toEqual(fileContent)
     })
 
     test('can submit application', async ({applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerFileUploadQuestion('some sample text')
+      await applicantQuestions.answerFileUploadQuestionLegacy(
+        'some sample text',
+      )
       await applicantQuestions.clickContinue()
 
       // Verify we can submit the application
@@ -809,7 +821,7 @@ test.describe('file upload applicant flow', () => {
     }) => {
       // Answer the file upload question
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerFileUploadQuestion(
+      await applicantQuestions.answerFileUploadQuestionLegacy(
         'some text',
         'testFileName.txt',
       )
@@ -842,7 +854,7 @@ test.describe('file upload applicant flow', () => {
     }) => {
       // Answer the file upload question
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerFileUploadQuestion(
+      await applicantQuestions.answerFileUploadQuestionLegacy(
         'some text',
         'testFileName.txt',
       )
@@ -864,7 +876,7 @@ test.describe('file upload applicant flow', () => {
     }) => {
       // Answer the file upload question
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerFileUploadQuestion(
+      await applicantQuestions.answerFileUploadQuestionLegacy(
         'some text',
         'testFileName.txt',
       )
@@ -876,7 +888,7 @@ test.describe('file upload applicant flow', () => {
         fileUploadQuestionText,
       )
 
-      await applicantFileQuestion.removeFileUpload('testFileName.txt')
+      await applicantFileQuestion.removeFileUploadLegacy('testFileName.txt')
 
       await applicantQuestions.clickContinue()
       await applicantQuestions.expectReviewPage()
@@ -995,7 +1007,7 @@ test.describe('file upload applicant flow', () => {
           fileUploadQuestionText,
         )
 
-        await applicantQuestions.answerFileUploadQuestion(
+        await applicantQuestions.answerFileUploadQuestionLegacy(
           'some sample text',
           'sample.txt',
         )
@@ -1043,7 +1055,7 @@ test.describe('file upload applicant flow', () => {
           fileUploadQuestionText,
         )
 
-        await applicantQuestions.answerFileUploadQuestion(
+        await applicantQuestions.answerFileUploadQuestionLegacy(
           'some sample text',
           'sample.txt',
         )
@@ -1110,7 +1122,7 @@ test.describe('file upload applicant flow', () => {
           fileUploadQuestionText,
         )
 
-        await applicantQuestions.answerFileUploadQuestion(
+        await applicantQuestions.answerFileUploadQuestionLegacy(
           'some sample text',
           'sample.txt',
         )
@@ -1140,7 +1152,7 @@ test.describe('file upload applicant flow', () => {
         await applicantQuestions.clickContinue()
 
         // Answer the file upload question
-        await applicantQuestions.answerFileUploadQuestion(
+        await applicantQuestions.answerFileUploadQuestionLegacy(
           'some old text',
           'old.txt',
         )
@@ -1184,7 +1196,7 @@ test.describe('file upload applicant flow', () => {
         await applicantQuestions.clickContinue()
 
         // Answer the file upload question
-        await applicantQuestions.answerFileUploadQuestion(
+        await applicantQuestions.answerFileUploadQuestionLegacy(
           'some old text',
           'old.txt',
         )
@@ -1204,7 +1216,7 @@ test.describe('file upload applicant flow', () => {
         )
 
         // Upload a new file
-        await applicantQuestions.answerFileUploadQuestion(
+        await applicantQuestions.answerFileUploadQuestionLegacy(
           'some new text',
           'new.txt',
         )
@@ -1273,7 +1285,7 @@ test.describe('for login only program, guest cannot see file upload question', (
         .first()
         .click()
       // Logged in user answers the file upload question
-      await applicantQuestions.answerFileUploadQuestion('test', 'new.txt')
+      await applicantQuestions.answerFileUploadQuestionLegacy('test', 'new.txt')
 
       fileuploadURL = page.url()
       await logout(page)

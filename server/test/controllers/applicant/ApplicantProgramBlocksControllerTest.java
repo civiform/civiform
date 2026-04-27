@@ -65,6 +65,7 @@ import support.ProgramBuilder;
 import views.applicant.addresscorrection.AddressCorrectionBlockView;
 import views.applicant.blocks.ApplicantProgramBlockEditView;
 import views.applicant.ineligible.ApplicantIneligibleView;
+import views.questiontypes.FileUploadQuestionPartialView;
 
 @RunWith(JUnitParamsRunner.class)
 public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
@@ -114,7 +115,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             instanceOf(ProgramSlugHandler.class),
             instanceOf(ApplicantRoutes.class),
             instanceOf(EligibilityAlertSettingsCalculator.class),
-            instanceOf(MonitoringMetricCounters.class));
+            instanceOf(MonitoringMetricCounters.class),
+            instanceOf(FileUploadQuestionPartialView.class));
   }
 
   @Test
