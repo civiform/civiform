@@ -654,16 +654,14 @@ public final class CiviFormAccountMerger {
 
     // Merge the applicant's Primary Applicant Info (PAI).  As above, prefer the guest's answers
     // when present.
-
-    // For logging, collect the CiviForm user answers that effectively
-    // supplement the guest's.  Determining this is a little backwards because as a
-    // narrative we are supplementing the guest's data with the cf users,
-    // however programmatically we are copying guest data into the cf user.
-    // So to determine which cf user data is retained/used we track which of its
-    // PAIs exist but weren't overwritten.
-    StringJoiner cfPaisNotOverwritten = new StringJoiner(",");
+    // Track the status of each PAI for logging.
+    StringJoiner cfPaiOverwritten = new StringJoiner(",");
+    StringJoiner cfPaiSupplemented = new StringJoiner(",");
+    StringJoiner cfPaiMaintained = new StringJoiner(",");
 
     // Name.  First/Last are required in forms, the others are not.
+    boolean cfUserHasName =
+        civiformUser.getFirstName().isPresent() && civiformUser.getLastName().isPresent();
     if (guestUser.getFirstName().isPresent() && guestUser.getLastName().isPresent()) {
       if (applyChanges) {
         civiformUser.setUserName(
@@ -672,37 +670,60 @@ public final class CiviFormAccountMerger {
             /* lastName= */ guestUser.getLastName(),
             /* nameSuffix= */ guestUser.getSuffix());
       }
-
-    } else if (civiformUser.getFirstName().isPresent() && civiformUser.getLastName().isPresent()) {
-      cfPaisNotOverwritten.add("name");
+      if (cfUserHasName) {
+        cfPaiOverwritten.add("name");
+      } else {
+        cfPaiSupplemented.add("name");
+      }
+    } else if (cfUserHasName) {
+      cfPaiMaintained.add("name");
     }
 
     // Email.
+    boolean cfUserHasEmail = civiformUser.getEmailAddress().isPresent();
     if (guestUser.getEmailAddress().isPresent()) {
       if (applyChanges) {
         civiformUser.setEmailAddress(guestUser.getEmailAddress().get());
       }
-    } else if (civiformUser.getEmailAddress().isPresent()) {
-      cfPaisNotOverwritten.add("email");
+      if (cfUserHasEmail) {
+        cfPaiOverwritten.add("email");
+      } else {
+        cfPaiSupplemented.add("email");
+      }
+
+    } else if (cfUserHasEmail) {
+      cfPaiMaintained.add("email");
     }
 
     // Phone number.   Country code is set as a side effect of setting
     // the phone number, so we don't manage it separately.
+    boolean cfUserHasPhone = civiformUser.getPhoneNumber().isPresent();
     if (guestUser.getPhoneNumber().isPresent()) {
       if (applyChanges) {
         civiformUser.setPhoneNumber(guestUser.getPhoneNumber().get());
       }
-    } else if (civiformUser.getPhoneNumber().isPresent()) {
-      cfPaisNotOverwritten.add("phone-number");
+      if (cfUserHasPhone) {
+        cfPaiOverwritten.add("phone-number");
+      } else {
+        cfPaiSupplemented.add("phone-number");
+      }
+    } else if (cfUserHasPhone) {
+      cfPaiMaintained.add("phone-number");
     }
 
     // Date of birth.
+    boolean cfUserHasDob = civiformUser.getDateOfBirth().isPresent();
     if (guestUser.getDateOfBirth().isPresent()) {
       if (applyChanges) {
         civiformUser.setDateOfBirth(guestUser.getDateOfBirth().get());
       }
-    } else if (civiformUser.getDateOfBirth().isPresent()) {
-      cfPaisNotOverwritten.add("dob");
+      if (cfUserHasDob) {
+        cfPaiOverwritten.add("dob");
+      } else {
+        cfPaiSupplemented.add("dob");
+      }
+    } else if (cfUserHasDob) {
+      cfPaiMaintained.add("dob");
     }
 
     if (applyChanges) {
@@ -710,13 +731,18 @@ public final class CiviFormAccountMerger {
     }
 
     return """
-    Using guest applicant data and supplementing with CiviForm user data:
+    Updating CiviForm user data with guest data:
     * CiviForm question answers: %d copied %d not copied.
-    * CiviForm PAIs copied: %s
+    * CiviForm PAIs:
+      * Guest overwrote CiviForm user: %s
+      * Guest supplemented CiviForm user: %s
+      * CiviForm user data maintained: %s
     """
         .formatted(
             qaMergeSummary.mergedPaths().size(),
             qaMergeSummary.droppedPaths().size(),
-            cfPaisNotOverwritten);
+            cfPaiOverwritten,
+            cfPaiSupplemented,
+            cfPaiMaintained);
   }
 }
