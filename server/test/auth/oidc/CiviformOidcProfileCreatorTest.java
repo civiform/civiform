@@ -174,6 +174,35 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
   }
 
   @Test
+  public void getExistingApplicant_multipleApplicants_returnsOldest() {
+    // Setup.
+    // Existing account with multiple Applicants.
+    var oldestApplicant = resourceCreator.insertApplicant();
+    var newestApplicant = resourceCreator.insertApplicant();
+    var account =
+        resourceCreator
+            .insertAccount()
+            .setEmailAddress(EMAIL)
+            .setAuthorityId(AUTHORITY_ID)
+            // Put in the opposite creation-time order to help ensure it's not
+            // just selecting the first.
+            .setApplicants(ImmutableList.of(newestApplicant, oldestApplicant));
+    account.save();
+    oldestApplicant.setAccount(account);
+    newestApplicant.setAccount(account);
+    oldestApplicant.save();
+    newestApplicant.save();
+    CiviformOidcProfileCreator oidcProfileCreator = getOidcProfileCreator();
+
+    // Execute.
+    Optional<ApplicantModel> applicant = oidcProfileCreator.getExistingApplicant(oidcProfile);
+
+    // Verify.
+    assertThat(applicant).isPresent();
+    assertThat(applicant.get().id).isEqualTo(oldestApplicant.id);
+  }
+
+  @Test
   public void mergeCiviFormProfile_succeeds_new_user() {
     CiviformOidcProfileCreator oidcProfileCreator = getOidcProfileCreator();
     // Execute.
