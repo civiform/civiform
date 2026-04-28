@@ -378,6 +378,8 @@ public final class ProgramStatusesView extends BaseHtmlView {
                     .setFieldName(ProgramStatusesForm.STATUS_TEXT_FORM_NAME)
                     .setLabelText("Status name (required)")
                     .setValue(formData.getStatusText())
+                    .setMarkdownSupported(true)
+                    .setMarkdownLinkText("see how it works")
                     .setFieldErrors(
                         messages, form.errors(ProgramStatusesForm.STATUS_TEXT_FORM_NAME))
                     .getInputTag(),
@@ -388,6 +390,8 @@ public final class ProgramStatusesView extends BaseHtmlView {
                             .setFieldName(ProgramStatusesForm.EMAIL_BODY_FORM_NAME)
                             .setLabelText("Email the applicant about the status change")
                             .setRows(OptionalLong.of(5))
+                            .setMarkdownSupported(true)
+                            .setMarkdownLinkText("see how it works")
                             .setValue(formData.getEmailBody())
                             .setFieldErrors(
                                 messages, form.errors(ProgramStatusesForm.EMAIL_BODY_FORM_NAME))
