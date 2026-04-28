@@ -121,11 +121,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
 
     // Setup.
     // Existing account doesn't have an authority.
-    var emailAccount =
-        resourceCreator
-            .insertAccount()
-            .setEmailAddress(EMAIL)
-            .setApplicants(ImmutableList.of(resourceCreator.insertApplicant()));
+    var emailAccount = resourceCreator.insertAccount().setEmailAddress(EMAIL);
     emailAccount.save();
     CiviformOidcProfileCreator oidcProfileCreator = getOidcProfileCreator();
 
@@ -151,11 +147,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     final String otherEmail = "OTHER@EMAIL.com";
     // Existing account has authority but some other email.
     var existingAccount =
-        resourceCreator
-            .insertAccount()
-            .setEmailAddress(otherEmail)
-            .setAuthorityId(AUTHORITY_ID)
-            .setApplicants(ImmutableList.of(resourceCreator.insertApplicant()));
+        resourceCreator.insertAccount().setEmailAddress(otherEmail).setAuthorityId(AUTHORITY_ID);
     existingAccount.save();
     CiviformOidcProfileCreator oidcProfileCreator = getOidcProfileCreator();
 
@@ -450,11 +442,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
   public void innerCreate_existingUser_noGuestProfile_returnsExistingAccount() {
     // Setup: create an existing account with the same authority ID.
     var existingAccount =
-        resourceCreator
-            .insertAccount()
-            .setEmailAddress(EMAIL)
-            .setAuthorityId(AUTHORITY_ID)
-            .setApplicants(ImmutableList.of(resourceCreator.insertApplicant()));
+        resourceCreator.insertAccount().setEmailAddress(EMAIL).setAuthorityId(AUTHORITY_ID);
     existingAccount.save();
 
     CiviformOidcProfileCreator creator = getOidcProfileCreator();
@@ -474,11 +462,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
   public void innerCreate_existingUser_withGuestProfileNoApps_usesExistingAccount() {
     // Setup: existing account in DB.
     var existingAccount =
-        resourceCreator
-            .insertAccount()
-            .setEmailAddress(EMAIL)
-            .setAuthorityId(AUTHORITY_ID)
-            .setApplicants(ImmutableList.of(resourceCreator.insertApplicant()));
+        resourceCreator.insertAccount().setEmailAddress(EMAIL).setAuthorityId(AUTHORITY_ID);
     existingAccount.save();
 
     // Guest profile with no applications - should be discarded in favor of existing account.
