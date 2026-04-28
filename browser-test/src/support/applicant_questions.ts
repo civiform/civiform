@@ -159,11 +159,13 @@ export class ApplicantQuestions {
       buffer: bufferForApplicantFileUpload(text, fileName),
     })
     await waitForHtmxReady(this.page)
+    await this.page.waitForTimeout(1000)
   }
 
   async answerFileUploadQuestionFromAssets(fileName: string) {
     await this.page.setInputFiles('input[type=file]', 'src/assets/' + fileName)
     await waitForHtmxReady(this.page)
+    await this.page.waitForTimeout(1000)
   }
 
   /** Creates a file with the given size in MB and uploads it to the file upload question. */
