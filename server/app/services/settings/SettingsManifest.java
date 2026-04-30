@@ -1089,7 +1089,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("IMMIGRATION_STATUS_INFO_BANNER_ENABLED", request);
   }
 
-  /** (NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration. */
+  /** Enable session timeout based on inactivity and maximum duration. */
   public boolean getSessionTimeoutEnabled(RequestHeader request) {
     return getBool("SESSION_TIMEOUT_ENABLED", request);
   }
@@ -2374,6 +2374,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " applicants.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "SESSION_TIMEOUT_ENABLED",
+                          "Enable session timeout based on inactivity and maximum duration.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Experimental",
@@ -2383,13 +2389,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       + " enable or disable in-development features.",
                   ImmutableList.of(),
                   ImmutableList.of(
-                      SettingDescription.create(
-                          "SESSION_TIMEOUT_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and"
-                              + " maximum duration.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "PROGRAM_SLUG_URLS_ENABLED",
                           "(NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in"
