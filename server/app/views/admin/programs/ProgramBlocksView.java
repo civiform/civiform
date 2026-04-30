@@ -62,6 +62,7 @@ import services.program.ProgramQuestionDefinition;
 import services.program.ProgramType;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateUseCase;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.NullQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.StaticContentQuestionDefinition;
@@ -679,12 +680,27 @@ public final class ProgramBlocksView extends ProgramBaseView {
                             "margin-bottom-1",
                             "maxw-mobile-lg")));
 
+    // Identify the initial question (if any) so we can skip rendering it as a standalone card.
+    // The enumerator's initial question is shown in dedicated UI: the enumerator-setup section in
+    // edit mode, and nowhere in read-only mode.
+    Optional<Long> initialQuestionId =
+        blockQuestions.stream()
+            .map(ProgramQuestionDefinition::getQuestionDefinition)
+            .filter(qd -> qd instanceof EnumeratorQuestionDefinition)
+            .map(qd -> ((EnumeratorQuestionDefinition) qd).getInitialQuestionId())
+            .findFirst()
+            .orElse(Optional.empty());
+
     ImmutableList.Builder<DivTag> questionCardsBuilder = ImmutableList.builder();
 
     IntStream.range(0, blockQuestions.size())
         .forEach(
             index -> {
               ProgramQuestionDefinition question = blockQuestions.get(index);
+              if (initialQuestionId.isPresent()
+                  && question.getQuestionDefinition().getId() == initialQuestionId.get()) {
+                return;
+              }
               QuestionDefinition questionDefinition =
                   findQuestionDefinition(question, allPreviousVersionQuestions);
 
