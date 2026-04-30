@@ -349,6 +349,20 @@ public class AdminProgramBlockQuestionsController extends Controller {
   }
 
   /**
+   * HTMX GET endpoint that returns the empty {@code #initial-question-slot} fragment ("Add
+   * question" button). Used by the Delete button on the initial-question card during the
+   * enumerator-creation flow to reverse the swap performed by {@link #hxSelectInitialQuestion}. The
+   * initial question is not yet attached to the block at this point, so no DB writes occur.
+   */
+  @Secure(authorizers = Labels.CIVIFORM_ADMIN)
+  public Result hxClearInitialQuestionSlot(Request request, long programId, long blockId) {
+    requestChecker.throwIfProgramNotDraft(programId);
+    return ok(blockEditView
+        .renderEmptyInitialQuestionSlot(messagesApi.preferred(request))
+        .render());
+  }
+
+  /**
    * Looks up the {@link QuestionDefinition} for the given initial question ID using the read-only
    * question service. Returns empty if the ID is absent or the question cannot be found.
    */

@@ -27,6 +27,7 @@ class QuestionBankController {
     }
     QuestionBankController.initToggleQuestionBankButtons()
     QuestionBankController.initCloseOnHtmxTrigger()
+    QuestionBankController.initRebindOpenButtonsOnHtmxSwap()
 
     const questionBankSort = document.getElementById(
       QuestionBankController.SORT_SELECT_ID,
@@ -68,6 +69,7 @@ class QuestionBankController {
       ),
     )
     for (const element of openQuestionBankElements) {
+      element.setAttribute('data-open-bank-bound', 'true')
       element.addEventListener('click', () => {
         QuestionBankController.showQuestionBank(questionBankContainer)
       })
@@ -124,6 +126,33 @@ class QuestionBankController {
       )
       if (container) {
         QuestionBankController.hideQuestionBank(container)
+      }
+    })
+  }
+
+  /**
+   * Re-attach click handlers to any open-question-bank buttons that arrive via an HTMX swap
+   * (e.g. the "Add question" button rendered when the initial-question-slot is reset to empty).
+   * Uses a data attribute to avoid binding twice, so existing buttons keep their original
+   * listeners.
+   */
+  private static initRebindOpenButtonsOnHtmxSwap() {
+    document.addEventListener('htmx:afterSettle', () => {
+      const container = document.getElementById(
+        QuestionBankController.QUESTION_BANK_CONTAINER,
+      )
+      if (!container) return
+      const buttons = Array.from(
+        document.getElementsByClassName(
+          QuestionBankController.OPEN_QUESTION_BANK_BUTTON,
+        ),
+      )
+      for (const element of buttons) {
+        if (element.hasAttribute('data-open-bank-bound')) continue
+        element.setAttribute('data-open-bank-bound', 'true')
+        element.addEventListener('click', () => {
+          QuestionBankController.showQuestionBank(container)
+        })
       }
     })
   }

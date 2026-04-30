@@ -762,7 +762,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                         ProgramQuestionDefinition.create(q, Optional.of(program.id())),
                         /* questionIndex= */ 0,
                         /* questionsCount= */ 1,
-                        request));
+                        request,
+                        /* isInitialQuestionSetup= */ true));
         return div.with(
             renderEnumeratorScreenContent(
                 blockHasEnumeratorQuestion,
@@ -995,7 +996,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
       ImmutableSet<CiviFormError> errorMessages,
       Optional<DivTag> optionalInitialQuestionCard,
       Optional<QuestionDefinition> optionalInitialQuestion) {
-    long initialQuestionId = optionalInitialQuestion.map(QuestionDefinition::getId).orElse(0L);
     Optional<Long> optionalInitialQuestionId =
         optionalInitialQuestion.map(QuestionDefinition::getId);
     return div(
@@ -1009,10 +1009,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 errorMessages,
                 optionalInitialQuestionCard,
                 optionalInitialQuestionId),
-            iff(
-                optionalInitialQuestion.isPresent(),
-                renderDeleteQuestionFormWithoutContents(
-                    makeCsrfTokenInputTag(request), programId, blockId, initialQuestionId)),
             renderChooseExistingQuestion(messages))
         .withId("enumerator-setup")
         .withClass("maxw-mobile-lg");
@@ -1190,34 +1186,24 @@ public final class ProgramBlocksView extends ProgramBaseView {
             // question from the question bank. When no initial question is selected, it shows an
             // "Add question" button that opens the bank. When selected, it shows the question card
             // with a hidden input so hxCreateEnumerator knows which initial question to copy.
-            div(
-                    iff(
-                        optionalInitialQuestionCard.isEmpty(),
-                        input()
-                            .isRequired()
-                            .withType("button")
-                            .withValue(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName()))
-                            .withClasses(ReferenceClasses.OPEN_QUESTION_BANK_BUTTON)),
-                    optionalInitialQuestionCard
-                        .map(
-                            card ->
-                                div(
-                                    optionalInitialQuestionId
-                                        .map(
-                                            id ->
-                                                div(
-                                                    input()
-                                                        .withType("hidden")
-                                                        .withName("initialQuestionId")
-                                                        .withValue(String.valueOf(id)),
-                                                    input()
-                                                        .withType("hidden")
-                                                        .withName("isNewlyCreated")
-                                                        .withValue("true")))
-                                        .orElse(div()),
-                                    card))
-                        .orElse(div()))
-                .withId("initial-question-slot"),
+            optionalInitialQuestionCard.isEmpty()
+                ? renderEmptyInitialQuestionSlot(messages)
+                : div(div(
+                        optionalInitialQuestionId
+                            .map(
+                                id ->
+                                    div(
+                                        input()
+                                            .withType("hidden")
+                                            .withName("initialQuestionId")
+                                            .withValue(String.valueOf(id)),
+                                        input()
+                                            .withType("hidden")
+                                            .withName("isNewlyCreated")
+                                            .withValue("true")))
+                            .orElse(div()),
+                        optionalInitialQuestionCard.get()))
+                    .withId("initial-question-slot"),
             div(
                     AlertComponent.renderSlimInfoAlert(
                         messages.at(MessageKey.ALERT_REPEATED_SET_NEW_QUESTION.getKeyName())),
@@ -1387,6 +1373,34 @@ public final class ProgramBlocksView extends ProgramBaseView {
       int questionIndex,
       int questionsCount,
       Request request) {
+    return renderQuestion(
+        optionalCsrfTag,
+        programDefinition,
+        blockDefinition,
+        questionDefinition,
+        programQuestionDefinition,
+        questionIndex,
+        questionsCount,
+        request,
+        /* isInitialQuestionSetup= */ false);
+  }
+
+  /**
+   * Renders an individual question. When {@code isInitialQuestionSetup} is true, the Delete button
+   * fires an HTMX request that swaps {@code #initial-question-slot} back to the empty "Add
+   * question" state instead of POSTing to the destructive delete endpoint — used during the
+   * enumerator-creation flow when the question has not yet been added to the block.
+   */
+  public DivTag renderQuestion(
+      Optional<InputTag> optionalCsrfTag,
+      ProgramDefinition programDefinition,
+      BlockDefinition blockDefinition,
+      QuestionDefinition questionDefinition,
+      ProgramQuestionDefinition programQuestionDefinition,
+      int questionIndex,
+      int questionsCount,
+      Request request,
+      boolean isInitialQuestionSetup) {
     InputTag csrfTag = optionalCsrfTag.orElse(makeCsrfTokenInputTag(request));
     boolean isOptional = programQuestionDefinition.optional();
     boolean addressCorrectionEnabled = programQuestionDefinition.addressCorrectionEnabled();
@@ -1430,12 +1444,15 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   renderEditQuestionLink(
                       questionDefinition.getId(), programDefinition.id(), blockDefinition.id()))
               .with(
-                  renderDeleteQuestionForm(
-                      csrfTag,
-                      programDefinition.id(),
-                      blockDefinition.id(),
-                      questionDefinition,
-                      canDeleteBlock(programDefinition, blockDefinition)))
+                  isInitialQuestionSetup
+                      ? renderInitialQuestionSetupDeleteButton(
+                          programDefinition.id(), blockDefinition.id())
+                      : renderDeleteQuestionForm(
+                          csrfTag,
+                          programDefinition.id(),
+                          blockDefinition.id(),
+                          questionDefinition,
+                          canDeleteBlock(programDefinition, blockDefinition)))
               .withClasses("flex", "flex-column"));
     } else {
       // For each toggle, use a label instead in the read only view
@@ -1748,6 +1765,42 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   /**
+   * Renders the Delete button used on the initial-question card during the enumerator-creation
+   * flow. Clicking it fires an HTMX request that swaps {@code #initial-question-slot} back to the
+   * empty "Add question" state. The question has not yet been added to the block at this point, so
+   * a destructive delete would 404 — this button reverses the view-state swap instead.
+   */
+  private ButtonTag renderInitialQuestionSetupDeleteButton(
+      long programDefinitionId, long blockDefinitionId) {
+    String clearUrl =
+        controllers.admin.routes.AdminProgramBlockQuestionsController.hxClearInitialQuestionSlot(
+                programDefinitionId, blockDefinitionId)
+            .url();
+    return ViewUtils.makeSvgTextButton("Delete", Icons.DELETE)
+        .withType("button")
+        .attr("hx-get", clearUrl)
+        .attr("hx-target", "#initial-question-slot")
+        .attr("hx-swap", "outerHTML")
+        .withClasses(
+            ReferenceClasses.REMOVE_QUESTION_BUTTON, ButtonStyles.OUTLINED_WHITE_WITH_ICON);
+  }
+
+  /**
+   * Renders the empty {@code #initial-question-slot} div containing the "Add question" button. Used
+   * for the initial render when no initial question is selected and as the HTMX response when the
+   * admin clicks Delete on the initial question card to clear the selection.
+   */
+  public DivTag renderEmptyInitialQuestionSlot(Messages messages) {
+    return div(
+            input()
+                .isRequired()
+                .withType("button")
+                .withValue(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName()))
+                .withClasses(ReferenceClasses.OPEN_QUESTION_BANK_BUTTON))
+        .withId("initial-question-slot");
+  }
+
+  /**
    * Renders the content for the {@code #initial-question-slot} div, showing the selected initial
    * question card and its hidden ID input. Returned as an HTMX response by {@link
    * AdminProgramBlockQuestionsController#hxSelectInitialQuestion}.
@@ -1767,7 +1820,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
             ProgramQuestionDefinition.create(initialQuestion, Optional.of(program.id())),
             /* questionIndex= */ 0,
             /* questionsCount= */ 1,
-            request);
+            request,
+            /* isInitialQuestionSetup= */ true);
     return div(div(
             input()
                 .withType("hidden")
@@ -1777,22 +1831,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
         .withId("initial-question-slot");
   }
 
-  /**
-   * Renders an empty form targeting the delete endpoint for the initial question. The form has no
-   * visible contents; it is used by the {@code #block-questions-form} button in the initial
-   * question card to remove the initial question selection.
-   */
-  private FormTag renderDeleteQuestionFormWithoutContents(
-      InputTag csrfTag, long programDefinitionId, long blockDefinitionId, long initialQuestionId) {
-    String deleteQuestionAction =
-        controllers.admin.routes.AdminProgramBlockQuestionsController.delete(
-                programDefinitionId, blockDefinitionId, initialQuestionId)
-            .url();
-    return form(csrfTag)
-        .withId("block-questions-form")
-        .withMethod(HttpVerbs.POST)
-        .withAction(deleteQuestionAction);
-  }
 
   /**
    * Renders accordion that may be shown at the bottom of a question card if this question is used
