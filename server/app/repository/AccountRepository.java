@@ -151,7 +151,7 @@ public final class AccountRepository {
   }
 
   /**
-   * Returns the most recent Applicant identified by Account, creating one if necessary.
+   * Returns the oldest Applicant identified by Account, creating one if necessary.
    *
    * <p>If no applicant exists, this is probably an account waiting for a trusted intermediary, so
    * we create one.
