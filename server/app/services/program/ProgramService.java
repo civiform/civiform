@@ -1546,6 +1546,7 @@ public final class ProgramService {
     BlockDefinition blockDefinition =
         existingBlockDefinition.toBuilder()
             .setName(blockForm.getName())
+            .setNamePrefix(Optional.of(blockForm.getNamePrefix()))
             .setDescription(blockForm.getDescription())
             .setLocalizedName(
                 existingBlockDefinition
