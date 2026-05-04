@@ -1,10 +1,7 @@
 package views.questiontypes;
 
-import javax.annotation.Nullable;
 import lombok.Builder;
-import lombok.Builder.Default;
 import lombok.Getter;
-import services.applicant.ValidationErrorMessage;
 import services.applicant.question.FileUploadQuestion;
 import views.BaseViewModel;
 
@@ -13,9 +10,8 @@ import views.BaseViewModel;
 public class FileUploadQuestionPartialViewModel implements BaseViewModel {
   private final FileUploadQuestion fileUploadQuestion;
 
-  private final long htmxProgramId;
-
-  private final String htmxBlockId;
-
-  @Default @Nullable private final ValidationErrorMessage fileTypeValidationError = null;
+  /**
+   * Reverse-routed POST URL for {@link controllers.applicant.FileUploadController#hxRemoveFile}.
+   */
+  private final String hxRemoveFileUrl;
 }

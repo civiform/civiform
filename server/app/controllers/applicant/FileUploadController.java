@@ -72,7 +72,7 @@ public final class FileUploadController extends CiviFormController {
   @Secure
   @BodyParser.Of(ApplicantStreamingMultipartBodyParser.class)
   public CompletionStage<Result> hxSelectFileForUpload(
-      Request request, long programId, String blockId, long questionId) {
+      Request request, long programId, String blockId) {
     if (!settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
       return CompletableFuture.completedFuture(notFound());
     }
@@ -96,7 +96,16 @@ public final class FileUploadController extends CiviFormController {
       return CompletableFuture.completedFuture(badRequest());
     }
 
-    long parsedQuestionId = questionId;
+    String questionIdRaw = formFactory.form().bindFromRequest(request).get("questionId");
+    if (questionIdRaw == null) {
+      return CompletableFuture.completedFuture(badRequest());
+    }
+    final long questionId;
+    try {
+      questionId = Long.parseLong(questionIdRaw);
+    } catch (NumberFormatException e) {
+      return CompletableFuture.completedFuture(badRequest());
+    }
 
     String originalFileName = filePart.getFilename();
     String fileKey = filePart.getRef();
@@ -115,7 +124,7 @@ public final class FileUploadController extends CiviFormController {
 
               final FileUploadQuestion fileUploadQuestion;
               try {
-                fileUploadQuestion = block.get().findFileUploadQuestion(parsedQuestionId);
+                fileUploadQuestion = block.get().findFileUploadQuestion(questionId);
               } catch (QuestionNotFoundException e) {
                 return failedFuture(e);
               }
@@ -149,13 +158,13 @@ public final class FileUploadController extends CiviFormController {
                               formData,
                               settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
                               /* forceUpdate= */ true,
-                              settingsManifest.getApiBridgeEnabled(request)));
+                              settingsManifest.getApiBridgeEnabled(request)))
+                  .thenComposeAsync(
+                      roAfterUpdate ->
+                          renderFileUploadPartial(
+                              request, programId, blockId, questionId, roAfterUpdate),
+                      classLoaderExecutionContext.current());
             },
-            classLoaderExecutionContext.current())
-        .thenComposeAsync(
-            roApplicantProgramService ->
-                renderFileUploadPartial(
-                    request, programId, blockId, parsedQuestionId, roApplicantProgramService),
             classLoaderExecutionContext.current())
         .exceptionally(this::handleUpdateExceptions);
   }
@@ -166,8 +175,7 @@ public final class FileUploadController extends CiviFormController {
    * list and hidden inputs.
    */
   @Secure
-  public CompletionStage<Result> hxRemoveFile(
-      Request request, long programId, String blockId, long questionId) {
+  public CompletionStage<Result> hxRemoveFile(Request request, long programId, String blockId) {
     if (!settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
       return CompletableFuture.completedFuture(notFound());
     }
@@ -179,7 +187,16 @@ public final class FileUploadController extends CiviFormController {
 
     long applicantId = optionalApplicantId.get();
 
-    long parsedQuestionId = questionId;
+    String questionIdRaw = formFactory.form().bindFromRequest(request).get("questionId");
+    if (questionIdRaw == null) {
+      return CompletableFuture.completedFuture(badRequest());
+    }
+    final long questionId;
+    try {
+      questionId = Long.parseLong(questionIdRaw);
+    } catch (NumberFormatException e) {
+      return CompletableFuture.completedFuture(badRequest());
+    }
 
     String fileKey = formFactory.form().bindFromRequest(request).get("fileKey");
     if (fileKey == null || fileKey.isBlank()) {
@@ -200,7 +217,7 @@ public final class FileUploadController extends CiviFormController {
 
               final FileUploadQuestion fileUploadQuestion;
               try {
-                fileUploadQuestion = block.get().findFileUploadQuestion(parsedQuestionId);
+                fileUploadQuestion = block.get().findFileUploadQuestion(questionId);
               } catch (QuestionNotFoundException e) {
                 return failedFuture(e);
               }
@@ -208,20 +225,21 @@ public final class FileUploadController extends CiviFormController {
               ImmutableMap<String, String> formData =
                   fileUploadQuestion.buildFormDataForRemove(fileKey);
 
-              return applicantService.stageAndUpdateIfValid(
-                  applicantId,
-                  programId,
-                  blockId,
-                  formData,
-                  settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
-                  /* forceUpdate= */ true,
-                  settingsManifest.getApiBridgeEnabled(request));
+              return applicantService
+                  .stageAndUpdateIfValid(
+                      applicantId,
+                      programId,
+                      blockId,
+                      formData,
+                      settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
+                      /* forceUpdate= */ true,
+                      settingsManifest.getApiBridgeEnabled(request))
+                  .thenComposeAsync(
+                      roAfterUpdate ->
+                          renderFileUploadPartial(
+                              request, programId, blockId, questionId, roAfterUpdate),
+                      classLoaderExecutionContext.current());
             },
-            classLoaderExecutionContext.current())
-        .thenComposeAsync(
-            roApplicantProgramService ->
-                renderFileUploadPartial(
-                    request, programId, blockId, parsedQuestionId, roApplicantProgramService),
             classLoaderExecutionContext.current())
         .exceptionally(this::handleUpdateExceptions);
   }

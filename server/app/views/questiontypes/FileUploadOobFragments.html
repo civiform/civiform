@@ -29,7 +29,7 @@
      wrapper div (cf-fileupload-validation-errors-*) rendered in
      FileUploadQuestionFragment. */-->
 <div
-  th:fragment="file-upload-errors(fileUploadQuestion, oob, fileTypeValidationError)"
+  th:fragment="file-upload-errors(fileUploadQuestion, oob)"
   th:hx-swap-oob="${oob} ? 'true'"
   th:id="'cf-fileupload-validation-errors-' + ${fileUploadQuestion.getQuestionDefinition().getId()}"
 >
@@ -38,18 +38,11 @@
     th:each="error : ${fileUploadQuestion.getValidationErrors().get(fileUploadQuestion.getApplicantQuestion().getContextualizedPath())}"
     th:text="#{toast.errorMessageOutline(#{${error.key.getKeyName()}(${error.args})})}"
   ></div>
-  <div
-    th:if="${fileTypeValidationError.isPresent()}"
-    class="cf-question-error-message cf-applicant-question-errors"
-    th:id="'cf-fileupload-file-type-error-' + ${fileUploadQuestion.getQuestionDefinition().getId()}"
-    th:with="error=${fileTypeValidationError.get()}"
-    th:text="#{toast.errorMessageOutline(#{${error.key.getKeyName()}(${error.args})})}"
-  ></div>
 </div>
 
 <!--/* Visible list of uploaded files with remove buttons. */-->
 <ul
-  th:fragment="file-list-display(fileUploadQuestion, oob, htmxProgramId, htmxBlockId)"
+  th:fragment="file-list-display(fileUploadQuestion, oob)"
   th:hx-swap-oob="${oob} ? 'true'"
   th:id="'cf-fileupload-file-list-' + ${fileUploadQuestion.getQuestionDefinition().getId()}"
   class="grid"
@@ -71,8 +64,8 @@
         class="usa-button usa-button--unstyled"
         hx-swap="none"
         th:aria-label="#{link.removeFileSr(${fileName})}"
-        th:hx-post="|/programs/${htmxProgramId}/blocks/${htmxBlockId}/questions/${fileUploadQuestion.getQuestionDefinition().getId()}/hx/removeFile|"
-        th:hx-vals='|{"fileKey":"${fileKey}"}|'
+        th:hx-post="${hxRemoveFileUrl}"
+        th:hx-vals='|{"fileKey":"${fileKey}","questionId":${fileUploadQuestion.getQuestionDefinition().getId()}}|'
         th:text="#{link.removeFile}"
         type="button"
       ></button>

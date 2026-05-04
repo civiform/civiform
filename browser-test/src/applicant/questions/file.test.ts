@@ -137,17 +137,6 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
       })
     })
 
-    test('file type mismatch shows server validation error', async ({
-      applicantQuestions,
-      applicantFileQuestion,
-    }) => {
-      await applicantQuestions.applyProgram(programName)
-
-      await applicantQuestions.answerFileUploadQuestionWithMismatchedPdfContent()
-
-      await applicantFileQuestion.expectFileTypeValidationErrorShown()
-    })
-
     test('has no accessibility violations', async ({
       page,
       applicantQuestions,

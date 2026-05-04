@@ -26,10 +26,6 @@ import services.cloud.BucketType;
  * <p>Subclasses provide the implementation for handling the streaming, e.g. to different cloud
  * storage providers or a local file system. Each {@link FilePart} produced by this parser carries
  * the cloud-storage file key as its ref so the action can read it back.
- *
- * <p>When {@link FileTypeValidation} rejects an upload it throws {@link FileUploadTypeException},
- * which fails the parse; {@link controllers.fileupload.HtmxFileUploadParserErrorHandler} turns that
- * into an HTMX partial response via {@link controllers.ErrorHandler}.
  */
 public abstract class StreamingMultipartBodyParser
     extends BodyParser.DelegatingMultipartFormDataBodyParser<String> {

@@ -36,7 +36,6 @@ public class ApplicantStreamingMultipartBodyParserTest extends ResetPostgres {
   private static final long APPLICANT_ID = 42L;
   private static final long PROGRAM_ID = 7L;
   private static final String BLOCK_ID = "3";
-  private static final long QUESTION_ID = 100L;
   // Valid PDF header bytes (%PDF-1.4 + comment line), at least 16 bytes for FileTypeValidation
   private static final byte[] PDF_HEADER = {
     0x25,
@@ -103,8 +102,7 @@ public class ApplicantStreamingMultipartBodyParserTest extends ResetPostgres {
             .method("POST")
             .uri(
                 String.format(
-                    "/programs/%d/blocks/%s/questions/%d/hx/selectFileForUpload",
-                    PROGRAM_ID, BLOCK_ID, QUESTION_ID))
+                    "/programs/%d/blocks/%s/hx/selectFileForUpload", PROGRAM_ID, BLOCK_ID))
             .header("Content-Type", "multipart/form-data; boundary=" + MULTIPART_BOUNDARY)
             .build();
 
@@ -140,8 +138,7 @@ public class ApplicantStreamingMultipartBodyParserTest extends ResetPostgres {
             .method("POST")
             .uri(
                 String.format(
-                    "/programs/%d/blocks/%s/questions/%d/hx/selectFileForUpload",
-                    PROGRAM_ID, BLOCK_ID, QUESTION_ID))
+                    "/programs/%d/blocks/%s/hx/selectFileForUpload", PROGRAM_ID, BLOCK_ID))
             .header("Content-Type", "multipart/form-data; boundary=" + MULTIPART_BOUNDARY)
             .build();
 

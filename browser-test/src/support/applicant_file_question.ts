@@ -37,14 +37,6 @@ export class ApplicantFileQuestion {
     await expect(this.page.locator(this.fileTooLargeErrorLocator)).toBeHidden()
   }
 
-  async expectFileTypeValidationErrorShown() {
-    await expect(
-      this.page.getByText(
-        'Error: There was an issue with the file you chose. Please choose a different file and try again.',
-      ),
-    ).toBeVisible()
-  }
-
   async expectLegacyFileTooLargeErrorShown() {
     await expect(
       this.page.locator('#cf-fileupload-too-large-error'),

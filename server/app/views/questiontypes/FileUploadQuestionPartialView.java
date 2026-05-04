@@ -1,5 +1,6 @@
 package views.questiontypes;
 
+import controllers.applicant.routes;
 import javax.inject.Inject;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -21,7 +22,7 @@ public class FileUploadQuestionPartialView extends BaseView<FileUploadQuestionPa
     return "questiontypes/FileUploadQuestionPartial";
   }
 
-  /** Renders the file-upload question partial for HTMX (success or global parse-error handling). */
+  /** Renders the file-upload question partial for successful HTMX upload/remove responses. */
   public Result renderHtmxSuccess(
       Http.Request request,
       long programId,
@@ -44,8 +45,8 @@ public class FileUploadQuestionPartialView extends BaseView<FileUploadQuestionPa
                 request,
                 FileUploadQuestionPartialViewModel.builder()
                     .fileUploadQuestion(stagedQuestion)
-                    .htmxProgramId(programId)
-                    .htmxBlockId(blockId)
+                    .hxRemoveFileUrl(
+                        routes.FileUploadController.hxRemoveFile(programId, blockId).url())
                     .build()))
         .as(Http.MimeTypes.HTML);
   }

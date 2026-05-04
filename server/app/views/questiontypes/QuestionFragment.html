@@ -45,7 +45,7 @@
         th:if="${featureFlags.isFileUploadQuestionImprovementsEnabled()}"
       >
         <div
-          th:replace="~{questiontypes/FileUploadQuestionFragment :: file-upload(${question}, ${questionRendererParams}, ${htmxFileUploadProgramId}, ${htmxFileUploadBlockId})}"
+          th:replace="~{questiontypes/FileUploadQuestionFragment :: file-upload(${question}, ${questionRendererParams})}"
         ></div>
       </th:block>
     </th:block>

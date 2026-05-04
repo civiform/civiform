@@ -1,5 +1,5 @@
 <div
-  th:fragment="file-upload(question, questionRendererParams, htmxProgramId, htmxBlockId)"
+  th:fragment="file-upload(question, questionRendererParams)"
   th:with="fileUploadQuestion=${question.createFileUploadQuestion()},
     questionId=${'id-' + #strings.randomAlphanumeric(8)},
     inputId=${'id-' + #strings.randomAlphanumeric(8)},
@@ -95,10 +95,10 @@
     th:data-file-limit-mb="${maxFileSizeMb}"
     th:disabled="${!fileUploadQuestion.canUploadFile()}"
     th:aria-required="${!question.isOptional()}"
-    th:with="hxUploadPostUrl=${!isPreview ? |/programs/${htmxProgramId}/blocks/${htmxBlockId}/questions/${question.getQuestionDefinition().getId()}/hx/selectFileForUpload| : ''}"
-    th:hx-post="${hxUploadPostUrl}"
+    th:hx-post="${isPreview ? '' : hxSelectFileForUploadUrl}"
     th:hx-trigger="${!isPreview} ? 'change'"
     th:hx-encoding="${!isPreview} ? 'multipart/form-data'"
+    th:hx-vals='|{"questionId": ${question.getQuestionDefinition().getId()}}|'
     hx-swap="none"
   />
 
@@ -120,6 +120,6 @@
   />
   <th:block
     th:if="${!isPreview}"
-    th:replace="~{questiontypes/FileUploadOobFragments :: file-list-display(${fileUploadQuestion}, false, ${htmxProgramId}, ${htmxBlockId})}"
+    th:replace="~{questiontypes/FileUploadOobFragments :: file-list-display(${fileUploadQuestion}, false)}"
   />
 </div>
