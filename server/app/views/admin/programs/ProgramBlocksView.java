@@ -984,7 +984,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                             MessageKey.TEXT_REPEATED_SET_ADD_QUESTION_DESCRIPTION.getKeyName()))),
             button("")
                 .withId("Add-question")
-                .withClasses("usa-button", "usa-button--outline")
+                .withClasses("usa-button", "usa-button--outline", "cf-open-question-bank-button")
                 .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
                 .withText(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName())))
         .withId("add-question-section")

@@ -150,28 +150,32 @@ public final class ProgramQuestionBank {
     contentDiv.with(
         QuestionBank.renderFilterAndSort(
             ImmutableList.of(QuestionSortOption.LAST_MODIFIED, QuestionSortOption.ADMIN_NAME)));
-    contentDiv.with(
-        div()
-            .with(
-                div()
-                    .withClasses("flex", "items-center", "justify-end")
-                    .with(
-                        p("Not finding a question you're looking for in this list?")
-                            .withClass("mr-2"),
-                        div()
-                            .withClass("flex")
-                            .with(
-                                div().withClass("flex-grow"),
-                                CreateQuestionButton.renderCreateQuestionButton(
-                                    params.questionCreateRedirectUrl(),
-                                    /* isPrimaryButton= */ false,
-                                    getParentEnumeratorId(),
-                                    params.blockDefinition().isRepeated(),
-                                    settingsManifest,
-                                    request,
-                                    /* isEmptyBlock= */ params.blockDefinition().getQuestionCount()
-                                        == 0,
-                                    /* isQuestionPage= */ false)))));
+    if (!isChoosingExistingEnumeratorQuestion()) {
+      contentDiv.with(
+          div()
+              .with(
+                  div()
+                      .withClasses("flex", "items-center", "justify-end")
+                      .with(
+                          p("Not finding a question you're looking for in this list?")
+                              .withClass("mr-2"),
+                          div()
+                              .withClass("flex")
+                              .with(
+                                  div().withClass("flex-grow"),
+                                  CreateQuestionButton.renderCreateQuestionButton(
+                                      params.questionCreateRedirectUrl(),
+                                      /* isPrimaryButton= */ false,
+                                      getParentEnumeratorId(),
+                                      params.blockDefinition().isRepeated(),
+                                      settingsManifest,
+                                      request,
+                                      /* isEmptyBlock= */ params
+                                              .blockDefinition()
+                                              .getQuestionCount()
+                                          == 0,
+                                      /* isQuestionPage= */ false)))));
+    }
 
     // Sort by last modified, since that's the default of the sort by dropdown
     ImmutableList<QuestionDefinition> allQuestions =
@@ -335,6 +339,23 @@ public final class ProgramQuestionBank {
   }
 
   /**
+   * True when this question bank instance is opened to pick an existing enumerator question for an
+   * empty enumerator block (the "Choose existing" path on the repeated-set creation UI). Future
+   * flows that open the bank against an enumerator block (e.g. picking an initial question) will
+   * use a different action URL, so they evaluate to false here.
+   */
+  private boolean isChoosingExistingEnumeratorQuestion() {
+    return settingsManifest.getEnumeratorImprovementsEnabled(request)
+        && params.blockDefinition().getIsEnumerator()
+        && params
+            .questionAction()
+            .equals(
+                controllers.admin.routes.AdminProgramBlockQuestionsController.create(
+                        params.program().id(), params.blockDefinition().id())
+                    .url());
+  }
+
+  /**
    * If this is a repeated question, return the id of the enumerator question for the parent block.
    */
   private Optional<String> getParentEnumeratorId() {
@@ -365,22 +386,37 @@ public final class ProgramQuestionBank {
    *   <li>If there is at least one question in the current block, all single-block questions are
    *       filtered.
    *   <li>If there is a single block question in the current block, all questions are filtered.
-   *   <li>If this is a repeated block, only the appropriate repeated questions are showed.
+   *   <li>If this is a repeated block, only the appropriate repeated questions are shown.
    *   <li>Questions already in the program are filtered.
    * </ul>
    */
   private Stream<QuestionDefinition> filterQuestions() {
     ProgramBlockValidation programBlockValidation = programBlockValidationFactory.create();
+    boolean enumeratorImprovementsEnabled =
+        settingsManifest.getEnumeratorImprovementsEnabled(request);
+    boolean fileUploadQuestionImprovementsEnabled =
+        settingsManifest.getFileUploadQuestionImprovementsEnabled(request);
+    boolean isChoosingExistingEnumeratorQuestion = isChoosingExistingEnumeratorQuestion();
     return params.questions().stream()
         .filter(
-            q ->
-                programBlockValidation.canAddQuestion(
+            q -> {
+              if (isChoosingExistingEnumeratorQuestion) {
+                return programBlockValidation.canAddQuestionToEnumeratorBlock(
                         params.program(),
                         params.blockDefinition(),
                         q,
-                        settingsManifest.getEnumeratorImprovementsEnabled(request),
-                        settingsManifest.getFileUploadQuestionImprovementsEnabled(request))
-                    == AddQuestionResult.ELIGIBLE);
+                        enumeratorImprovementsEnabled,
+                        fileUploadQuestionImprovementsEnabled)
+                    == AddQuestionResult.ELIGIBLE;
+              }
+              return programBlockValidation.canAddQuestion(
+                      params.program(),
+                      params.blockDefinition(),
+                      q,
+                      enumeratorImprovementsEnabled,
+                      fileUploadQuestionImprovementsEnabled)
+                  == AddQuestionResult.ELIGIBLE;
+            });
   }
 
   /**
