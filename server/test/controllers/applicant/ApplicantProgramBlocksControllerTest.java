@@ -65,7 +65,6 @@ import support.ProgramBuilder;
 import views.applicant.addresscorrection.AddressCorrectionBlockView;
 import views.applicant.blocks.ApplicantProgramBlockEditView;
 import views.applicant.ineligible.ApplicantIneligibleView;
-import views.questiontypes.FileUploadQuestionPartialView;
 
 @RunWith(JUnitParamsRunner.class)
 public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
@@ -115,8 +114,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             instanceOf(ProgramSlugHandler.class),
             instanceOf(ApplicantRoutes.class),
             instanceOf(EligibilityAlertSettingsCalculator.class),
-            instanceOf(MonitoringMetricCounters.class),
-            instanceOf(FileUploadQuestionPartialView.class));
+            instanceOf(MonitoringMetricCounters.class));
   }
 
   @Test
@@ -3200,46 +3198,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     // Check that the address suggestions are cleared from the session
     assertThat(confirmAddressResult.session()).isNull();
-  }
-
-  @Test
-  public void hxSelectFileForUpload_generatesUuidFileKeyAndStoresOriginalName() {
-    var fileUploadQuestion = testQuestionBank().fileUploadApplicantFile();
-    program =
-        ProgramBuilder.newActiveProgram()
-            .withBlock("block 1")
-            .withRequiredQuestion(fileUploadQuestion)
-            .build();
-
-    RequestBuilder requestBuilder = fakeRequestBuilder();
-    Request request =
-        requestBuilder
-            .bodyMultipart(
-                java.util.Map.of(
-                    "questionId",
-                    new String[] {
-                      String.valueOf(fileUploadQuestion.getQuestionDefinition().getId())
-                    }),
-                java.util.List.of(
-                    new play.mvc.Http.MultipartFormData.FilePart<>(
-                        "file", "my-document.pdf", "application/pdf", "applicant-test-file-key")))
-            .build();
-    when(settingsManifest.getFileUploadQuestionImprovementsEnabled(request)).thenReturn(true);
-
-    Result result =
-        subject
-            .hxSelectFileForUpload(request, program.id, /* blockId= */ "1")
-            .toCompletableFuture()
-            .join();
-
-    assertThat(result.status()).isEqualTo(OK);
-
-    applicant.refresh();
-    String applicantData = applicant.getApplicantData().asJsonString();
-    assertThat(applicantData).contains("my-document.pdf");
-    assertThat(applicantData).contains("applicant-");
-    assertThat(applicantData).contains(".pdf");
-    assertThat(applicantData).doesNotContain("my-document.pdf\",\"file_key_list");
   }
 
   private RequestBuilder addQueryString(
