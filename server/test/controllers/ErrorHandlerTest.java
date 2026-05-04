@@ -9,6 +9,7 @@ import static support.FakeRequestBuilder.fakeRequest;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import controllers.admin.NotChangeableException;
+import controllers.fileupload.HtmxFileUploadParserErrorHandler;
 import java.util.concurrent.CompletionException;
 import org.junit.Before;
 import org.junit.Test;
@@ -122,7 +123,8 @@ public class ErrorHandlerTest extends ResetPostgres {
             instanceOf(OptionalSourceMapper.class),
             () -> instanceOf(Router.class),
             () -> instanceOf(NotFound.class),
-            instanceOf(MessagesApi.class));
+            instanceOf(MessagesApi.class),
+            instanceOf(HtmxFileUploadParserErrorHandler.class));
 
     Result result =
         devHandler

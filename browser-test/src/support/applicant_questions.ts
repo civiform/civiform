@@ -181,6 +181,23 @@ export class ApplicantQuestions {
     await waitForHtmxReady(this.page)
   }
 
+  /**
+   * Selects a .pdf file whose bytes are a PNG header so server-side type sniffing fails
+   * (extension vs content mismatch).
+   */
+  async answerFileUploadQuestionWithMismatchedPdfContent() {
+    const pngHeader = Buffer.from([
+      0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0, 0, 0, 0, 0,
+    ])
+    await this.page.setInputFiles('input[type=file]', {
+      name: 'disguise.pdf',
+      mimeType: 'application/pdf',
+      buffer: pngHeader,
+    })
+    await waitForHtmxReady(this.page)
+    await this.page.waitForTimeout(1000)
+  }
+
   async answerIdQuestion(id: string, index = 0) {
     await this.page.fill(`input[type="text"] >> nth=${index}`, id)
   }

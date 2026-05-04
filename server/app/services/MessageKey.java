@@ -147,6 +147,7 @@ public enum MessageKey {
   ERROR_INCOMPLETE_DATE("error.incompleteDate"),
   FILEUPLOAD_VALIDATION_FILE_REQUIRED("validation.fileRequired"),
   FILEUPLOAD_VALIDATION_FILE_TOO_LARGE("validation.fileTooLarge"),
+  FILEUPLOAD_VALIDATION_FILE_TYPE_INVALID("validation.fileUploadInvalidType"),
   FOOTER_SUPPORT_LINK_DESCRIPTION("footer.supportLinkDescription"),
   GUEST("guest"),
   GUEST_INDICATOR("header.guestIndicator"),

@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import controllers.admin.NotChangeableException;
 import controllers.api.BadApiRequestException;
+import controllers.fileupload.HtmxFileUploadParserErrorHandler;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -51,6 +52,7 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
   private final MessagesApi messagesApi;
   private final Environment environment;
   private final scala.Option<String> playEditor;
+  private final HtmxFileUploadParserErrorHandler htmxFileUploadParserErrorHandler;
 
   private static final ImmutableSet<Class<? extends Exception>> BAD_REQUEST_EXCEPTION_TYPES =
       ImmutableSet.of(
@@ -79,11 +81,13 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
       OptionalSourceMapper sourceMapper,
       Provider<Router> routes,
       Provider<NotFound> notFoundPageProvider,
-      MessagesApi messagesApi) {
+      MessagesApi messagesApi,
+      HtmxFileUploadParserErrorHandler htmxFileUploadParserErrorHandler) {
     super(config, environment, sourceMapper, routes);
     this.notFoundPageProvider = checkNotNull(notFoundPageProvider);
     this.messagesApi = checkNotNull(messagesApi);
     this.environment = checkNotNull(environment);
+    this.htmxFileUploadParserErrorHandler = checkNotNull(htmxFileUploadParserErrorHandler);
 
     // Provides extra support to the thymeleaf custom error page if we ever configure it. Standard
     // requirement of the Play error page.
@@ -97,6 +101,12 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
     // original error stack trace.
     if (exception instanceof CompletionException) {
       exception = exception.getCause();
+    }
+
+    Optional<CompletionStage<Result>> htmxFileUploadParserError =
+        htmxFileUploadParserErrorHandler.maybeHandle(request, exception);
+    if (htmxFileUploadParserError.isPresent()) {
+      return htmxFileUploadParserError.get();
     }
 
     // Exceptions that reach here will generate 500s. Here we convert certain ones to different user

@@ -1,5 +1,5 @@
 <div
-  th:fragment="file-upload(question, questionRendererParams)"
+  th:fragment="file-upload(question, questionRendererParams, htmxProgramId, htmxBlockId)"
   th:with="fileUploadQuestion=${question.createFileUploadQuestion()},
     questionId=${'id-' + #strings.randomAlphanumeric(8)},
     inputId=${'id-' + #strings.randomAlphanumeric(8)},
@@ -73,12 +73,12 @@
   <div
     hidden
     class="usa-alert usa-alert--error usa-alert--slim"
-    data-fileupload-error="network"
+    data-fileupload-error="request-failed"
   >
     <div class="usa-alert__body">
       <p
         class="usa-alert__text"
-        th:text="#{toast.errorMessageOutline(#{validation.fileUploadNetworkError})}"
+        th:text="#{toast.errorMessageOutline(#{validation.fileUploadRequestFailed})}"
       ></p>
     </div>
   </div>
@@ -95,10 +95,10 @@
     th:data-file-limit-mb="${maxFileSizeMb}"
     th:disabled="${!fileUploadQuestion.canUploadFile()}"
     th:aria-required="${!question.isOptional()}"
-    th:hx-post="${!isPreview} ? ${hxSelectFileForUploadUrl}"
+    th:with="hxUploadPostUrl=${!isPreview ? |/programs/${htmxProgramId}/blocks/${htmxBlockId}/questions/${question.getQuestionDefinition().getId()}/hx/selectFileForUpload| : ''}"
+    th:hx-post="${hxUploadPostUrl}"
     th:hx-trigger="${!isPreview} ? 'change'"
     th:hx-encoding="${!isPreview} ? 'multipart/form-data'"
-    th:hx-vals='|{"questionId": ${question.getQuestionDefinition().getId()}}|'
     hx-swap="none"
   />
 
@@ -120,6 +120,6 @@
   />
   <th:block
     th:if="${!isPreview}"
-    th:replace="~{questiontypes/FileUploadOobFragments :: file-list-display(${fileUploadQuestion}, false)}"
+    th:replace="~{questiontypes/FileUploadOobFragments :: file-list-display(${fileUploadQuestion}, false, ${htmxProgramId}, ${htmxBlockId})}"
   />
 </div>

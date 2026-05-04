@@ -16,6 +16,7 @@ import services.Path;
 import services.applicant.question.AbstractQuestion;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.FileUploadQuestion;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.predicate.LeafAddressServiceAreaExpressionNode;
@@ -242,6 +243,23 @@ public final class Block {
         .filter(question -> question.getQuestionDefinition().getId() == id)
         .findFirst()
         .orElseThrow(() -> new QuestionNotFoundException(id));
+  }
+
+  /**
+   * Returns the visible file upload question with {@code questionDefinitionId} in this block.
+   *
+   * @throws QuestionNotFoundException if no such file upload question exists in this block
+   */
+  public FileUploadQuestion findFileUploadQuestion(long questionDefinitionId)
+      throws QuestionNotFoundException {
+    return getVisibleQuestions().stream()
+        .filter(
+            question ->
+                question.getType() == QuestionType.FILEUPLOAD
+                    && question.getQuestionDefinition().getId() == questionDefinitionId)
+        .findFirst()
+        .map(ApplicantQuestion::createFileUploadQuestion)
+        .orElseThrow(() -> new QuestionNotFoundException(questionDefinitionId));
   }
 
   /**

@@ -1,6 +1,7 @@
 package parsers.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -21,6 +22,7 @@ import org.apache.pekko.util.ByteString;
 import org.junit.Before;
 import org.junit.Test;
 import parsers.FileTypeValidation;
+import parsers.FileUploadTypeException;
 import parsers.StreamingMultipartUploadResult;
 import parsers.cloud.MultipartUploadSinks;
 import play.http.DefaultHttpErrorHandler;
@@ -34,6 +36,7 @@ public class ApplicantStreamingMultipartBodyParserTest extends ResetPostgres {
   private static final long APPLICANT_ID = 42L;
   private static final long PROGRAM_ID = 7L;
   private static final String BLOCK_ID = "3";
+  private static final long QUESTION_ID = 100L;
   // Valid PDF header bytes (%PDF-1.4 + comment line), at least 16 bytes for FileTypeValidation
   private static final byte[] PDF_HEADER = {
     0x25,
@@ -100,7 +103,8 @@ public class ApplicantStreamingMultipartBodyParserTest extends ResetPostgres {
             .method("POST")
             .uri(
                 String.format(
-                    "/programs/%d/blocks/%s/hx/selectFileForUpload", PROGRAM_ID, BLOCK_ID))
+                    "/programs/%d/blocks/%s/questions/%d/hx/selectFileForUpload",
+                    PROGRAM_ID, BLOCK_ID, QUESTION_ID))
             .header("Content-Type", "multipart/form-data; boundary=" + MULTIPART_BOUNDARY)
             .build();
 
@@ -119,6 +123,34 @@ public class ApplicantStreamingMultipartBodyParserTest extends ResetPostgres {
         .startsWith(
             String.format("applicant-%d/program-%d/block-%s/", APPLICANT_ID, PROGRAM_ID, BLOCK_ID));
     assertThat(fileKey).endsWith(".pdf");
+  }
+
+  @Test
+  public void streamingUpload_mismatchedContentType_throwsFileUploadTypeException() {
+    byte[] pngBytesNamedPdf = new byte[16];
+    System.arraycopy(
+        new byte[] {(byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0, 0, 0, 0, 0, 0, 0, 0},
+        0,
+        pngBytesNamedPdf,
+        0,
+        16);
+
+    Http.RequestHeader request =
+        fakeRequest()
+            .method("POST")
+            .uri(
+                String.format(
+                    "/programs/%d/blocks/%s/questions/%d/hx/selectFileForUpload",
+                    PROGRAM_ID, BLOCK_ID, QUESTION_ID))
+            .header("Content-Type", "multipart/form-data; boundary=" + MULTIPART_BOUNDARY)
+            .build();
+
+    Source<ByteString, ?> source = createMultipartRequestBody("fake.pdf", pngBytesNamedPdf);
+
+    CompletionStage<play.libs.F.Either<play.mvc.Result, Http.MultipartFormData<String>>> stage =
+        parser.apply(request).run(source, materializer);
+    assertThatThrownBy(() -> stage.toCompletableFuture().join())
+        .hasCauseInstanceOf(FileUploadTypeException.class);
   }
 
   private Source<ByteString, ?> createMultipartRequestBody(String filename, byte[] content) {

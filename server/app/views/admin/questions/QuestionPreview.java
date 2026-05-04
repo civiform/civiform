@@ -87,6 +87,8 @@ public class QuestionPreview extends ApplicantBaseView {
         "fileUploadAllowedFileTypeSpecifiers",
         settingsManifest.getFileUploadAllowedFileTypeSpecifiers().orElse("image/*,.pdf"));
     context.setVariable("isPreview", true);
+    context.setVariable("htmxFileUploadProgramId", 0L);
+    context.setVariable("htmxFileUploadBlockId", "0");
     context.setVariable("homeUrl", index(params, applicantRoutes));
     return templateEngine.process("admin/questions/QuestionPreviewFragment", context);
   }
