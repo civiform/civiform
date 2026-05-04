@@ -70,6 +70,18 @@
       ></p>
     </div>
   </div>
+  <div
+    hidden
+    class="usa-alert usa-alert--error usa-alert--slim"
+    data-fileupload-error="network"
+  >
+    <div class="usa-alert__body">
+      <p
+        class="usa-alert__text"
+        th:text="#{toast.errorMessageOutline(#{validation.fileUploadNetworkError})}"
+      ></p>
+    </div>
+  </div>
 
   <!--/* File input. Triggers a htmx POST on change to upload the selected file. */-->
   <input
