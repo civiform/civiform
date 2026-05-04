@@ -29,7 +29,6 @@ import play.libs.typedmap.TypedMap;
 import play.mvc.Http;
 import repository.SettingsGroupRepository;
 import services.ColorUtil;
-import services.program.BlockDefinition;
 import services.program.ProgramService;
 
 /**
@@ -268,15 +267,18 @@ public final class SettingsService {
     return Optional.empty();
   }
 
-  private List<String> getProgamNamesWithFileUploadMixedBlocks() {
+  private List<String> getMixedFileUploadProgramScreenDescriptions() {
     return programServiceProvider
         .get()
         .getActiveAndDraftPrograms()
         .getMostRecentProgramDefinitions()
         .stream()
-        .flatMap(pd -> pd.blockDefinitions().stream())
-        .filter(bd -> bd.isFileUpload() && bd.getQuestionCount() > 1)
-        .map(BlockDefinition::name)
+        .flatMap(
+            pd ->
+                pd.blockDefinitions().stream()
+                    .filter(bd -> bd.isFileUpload() && bd.getQuestionCount() > 1)
+                    .map(
+                        bd -> String.format("%s (%s)", pd.localizedName().getDefault(), bd.name())))
         .collect(Collectors.toList());
   }
 
@@ -337,15 +339,15 @@ public final class SettingsService {
       SettingDescription settingDescription, String newValue) {
     return switch (settingDescription.variableName()) {
       case "FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED" -> {
-        List<String> programNames = getProgamNamesWithFileUploadMixedBlocks();
-        if (newValue.equals("false") && !programNames.isEmpty()) {
+        List<String> programScreenDescriptions = getMixedFileUploadProgramScreenDescriptions();
+        if (newValue.equals("false") && !programScreenDescriptions.isEmpty()) {
           yield Optional.of(
               SettingsGroupUpdateResult.UpdateError.create(
                   newValue,
                   "Cannot disable file upload improvements while programs exist with "
                       + "file upload questions on screens with other questions. "
                       + "Affected programs: "
-                      + String.join(", ", programNames)
+                      + String.join(", ", programScreenDescriptions)
                       + ". "
                       + "Remove file upload questions from mixed screens first."));
         }
