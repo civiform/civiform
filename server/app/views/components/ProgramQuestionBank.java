@@ -112,10 +112,12 @@ public final class ProgramQuestionBank {
   }
 
   private FormTag questionBankPanel() {
+    String headingId = "question-bank-heading";
     FormTag questionForm =
         form()
             .withMethod(HttpVerbs.POST)
             .withAction(params.questionAction())
+            .attr("aria-labelledby", headingId)
             .with(params.csrfTag())
             .withClasses(
                 ReferenceClasses.QUESTION_BANK_PANEL,
@@ -136,7 +138,7 @@ public final class ProgramQuestionBank {
     DivTag contentDiv = div().withClasses("relative", "grid", "gap-6", "px-5", "pt-6", "pb-12");
     questionForm.with(contentDiv);
 
-    H1Tag headerDiv = h1("Add a question").withClasses("mx-2", "text-xl");
+    H1Tag headerDiv = h1("Add a question").withId(headingId).withClasses("mx-2", "text-xl");
     contentDiv.with(
         div()
             .withClasses("flex", "items-center")
