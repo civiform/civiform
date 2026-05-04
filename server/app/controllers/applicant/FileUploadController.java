@@ -30,18 +30,20 @@ import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ProgramBlockNotFoundException;
-import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.program.PathNotInBlockException;
 import services.program.ProgramNotFoundException;
-import services.question.exceptions.QuestionNotFoundException;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import views.questiontypes.FileUploadQuestionPartialView;
 import views.questiontypes.FileUploadQuestionPartialViewModel;
 
-/** Applicant HTMX file upload ({@link #hxSelectFileForUpload}, {@link #hxRemoveFile}). */
+/**
+ * HTMX file upload endpoints for applicant program blocks ({@link #hxSelectFileForUpload}, {@link
+ * #hxRemoveFile}). Legacy direct-to-storage uploads remain on {@link
+ * controllers.applicant.ApplicantProgramBlocksController}.
+ */
 public final class FileUploadController extends CiviFormController {
 
   private final ApplicantService applicantService;
@@ -99,11 +101,16 @@ public final class FileUploadController extends CiviFormController {
       return CompletableFuture.completedFuture(badRequest());
     }
 
-    Optional<Long> questionDefinitionId = questionDefinitionIdFromRequest(request);
-    if (questionDefinitionId.isEmpty()) {
+    String questionId = formFactory.form().bindFromRequest(request).get("questionId");
+    if (questionId == null) {
       return CompletableFuture.completedFuture(badRequest());
     }
-    final long qid = questionDefinitionId.get();
+    long parsedQuestionId;
+    try {
+      parsedQuestionId = Long.parseLong(questionId);
+    } catch (NumberFormatException e) {
+      return CompletableFuture.completedFuture(badRequest());
+    }
 
     String originalFileName = filePart.getFilename();
     String fileKey = filePart.getRef();
@@ -120,12 +127,8 @@ public final class FileUploadController extends CiviFormController {
                 return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
               }
 
-              final FileUploadQuestion fileUploadQuestion;
-              try {
-                fileUploadQuestion = findFileUploadQuestion(block.get(), qid);
-              } catch (QuestionNotFoundException e) {
-                return failedFuture(e);
-              }
+              FileUploadQuestion fileUploadQuestion =
+                  findFileUploadQuestion(block.get(), parsedQuestionId);
 
               if (!fileUploadQuestion.canUploadFile()) {
                 return failedFuture(
@@ -156,16 +159,22 @@ public final class FileUploadController extends CiviFormController {
                               formData,
                               settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
                               /* forceUpdate= */ true,
-                              settingsManifest.getApiBridgeEnabled(request)))
-                  .thenComposeAsync(
-                      roAfterUpdate ->
-                          renderFileUploadPartial(request, programId, blockId, qid, roAfterUpdate),
-                      classLoaderExecutionContext.current());
+                              settingsManifest.getApiBridgeEnabled(request)));
             },
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            roApplicantProgramService ->
+                renderFileUploadPartial(
+                    request, programId, blockId, parsedQuestionId, roApplicantProgramService),
             classLoaderExecutionContext.current())
         .exceptionally(this::handleUpdateExceptions);
   }
 
+  /**
+   * HTMX endpoint that removes a previously-uploaded file from the applicant's answer for the file
+   * upload question in {@code blockId}. Returns an HTML partial with OOB swaps to update the file
+   * list and hidden inputs.
+   */
   @Secure
   public CompletionStage<Result> hxRemoveFile(Request request, long programId, String blockId) {
     if (!settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
@@ -179,11 +188,16 @@ public final class FileUploadController extends CiviFormController {
 
     long applicantId = optionalApplicantId.get();
 
-    Optional<Long> questionDefinitionId = questionDefinitionIdFromRequest(request);
-    if (questionDefinitionId.isEmpty()) {
+    String questionId = formFactory.form().bindFromRequest(request).get("questionId");
+    if (questionId == null) {
       return CompletableFuture.completedFuture(badRequest());
     }
-    final long qid = questionDefinitionId.get();
+    long parsedQuestionId;
+    try {
+      parsedQuestionId = Long.parseLong(questionId);
+    } catch (NumberFormatException e) {
+      return CompletableFuture.completedFuture(badRequest());
+    }
 
     String fileKey = formFactory.form().bindFromRequest(request).get("fileKey");
     if (fileKey == null || fileKey.isBlank()) {
@@ -202,34 +216,35 @@ public final class FileUploadController extends CiviFormController {
                 return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
               }
 
-              final FileUploadQuestion fileUploadQuestion;
-              try {
-                fileUploadQuestion = findFileUploadQuestion(block.get(), qid);
-              } catch (QuestionNotFoundException e) {
-                return failedFuture(e);
-              }
+              FileUploadQuestion fileUploadQuestion =
+                  findFileUploadQuestion(block.get(), parsedQuestionId);
 
               ImmutableMap<String, String> formData =
                   fileUploadQuestion.buildFormDataForRemove(fileKey);
 
-              return applicantService
-                  .stageAndUpdateIfValid(
-                      applicantId,
-                      programId,
-                      blockId,
-                      formData,
-                      settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
-                      /* forceUpdate= */ true,
-                      settingsManifest.getApiBridgeEnabled(request))
-                  .thenComposeAsync(
-                      roAfterUpdate ->
-                          renderFileUploadPartial(request, programId, blockId, qid, roAfterUpdate),
-                      classLoaderExecutionContext.current());
+              return applicantService.stageAndUpdateIfValid(
+                  applicantId,
+                  programId,
+                  blockId,
+                  formData,
+                  settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
+                  /* forceUpdate= */ true,
+                  settingsManifest.getApiBridgeEnabled(request));
             },
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            roApplicantProgramService ->
+                renderFileUploadPartial(
+                    request, programId, blockId, parsedQuestionId, roApplicantProgramService),
             classLoaderExecutionContext.current())
         .exceptionally(this::handleUpdateExceptions);
   }
 
+  /**
+   * Renders the OOB partial for the file upload question identified by {@code questionId}, reading
+   * from the supplied (post-stage) {@link ReadOnlyApplicantProgramService}. Shared by {@link
+   * #hxSelectFileForUpload} and {@link #hxRemoveFile}.
+   */
   private CompletionStage<Result> renderFileUploadPartial(
       Request request,
       long programId,
@@ -238,50 +253,32 @@ public final class FileUploadController extends CiviFormController {
       ReadOnlyApplicantProgramService roApplicantProgramService) {
     return CompletableFuture.supplyAsync(
             () -> {
-              try {
-                FileUploadQuestion stagedQuestion =
-                    findFileUploadQuestion(
-                        roApplicantProgramService.getActiveBlock(blockId).orElseThrow(),
-                        questionId);
+              FileUploadQuestion stagedQuestion =
+                  findFileUploadQuestion(
+                      roApplicantProgramService.getActiveBlock(blockId).orElseThrow(), questionId);
 
-                return ok(fileUploadQuestionPartialView.render(
-                        request,
-                        FileUploadQuestionPartialViewModel.builder()
-                            .fileUploadQuestion(stagedQuestion)
-                            .hxRemoveFileUrl(
-                                routes.FileUploadController.hxRemoveFile(programId, blockId).url())
-                            .build()))
-                    .as(Http.MimeTypes.HTML);
-              } catch (QuestionNotFoundException e) {
-                return badRequest().as(Http.MimeTypes.HTML);
-              }
+              return ok(fileUploadQuestionPartialView.render(
+                      request,
+                      FileUploadQuestionPartialViewModel.builder()
+                          .fileUploadQuestion(stagedQuestion)
+                          .hxRemoveFileUrl(
+                              routes.FileUploadController.hxRemoveFile(programId, blockId).url())
+                          .build()))
+                  .as(Http.MimeTypes.HTML);
             },
             classLoaderExecutionContext.current())
         .exceptionallyAsync(ex -> internalServerError(), classLoaderExecutionContext.current());
   }
 
-  private static FileUploadQuestion findFileUploadQuestion(Block block, long questionDefinitionId)
-      throws QuestionNotFoundException {
+  private static FileUploadQuestion findFileUploadQuestion(Block block, long questionId) {
     return block.getVisibleQuestions().stream()
         .filter(
-            q ->
-                q.getType() == QuestionType.FILEUPLOAD
-                    && q.getQuestionDefinition().getId() == questionDefinitionId)
+            question ->
+                question.getType() == QuestionType.FILEUPLOAD
+                    && question.getQuestionDefinition().getId() == questionId)
         .findFirst()
-        .map(ApplicantQuestion::createFileUploadQuestion)
-        .orElseThrow(() -> new QuestionNotFoundException(questionDefinitionId));
-  }
-
-  private Optional<Long> questionDefinitionIdFromRequest(Request request) {
-    String raw = formFactory.form().bindFromRequest(request).get("questionId");
-    if (raw == null) {
-      return Optional.empty();
-    }
-    try {
-      return Optional.of(Long.parseLong(raw));
-    } catch (NumberFormatException e) {
-      return Optional.empty();
-    }
+        .orElseThrow()
+        .createFileUploadQuestion();
   }
 
   private CompletionStage<StoredFileModel> getOrMakeFileRecord(
@@ -320,7 +317,6 @@ public final class FileUploadController extends CiviFormController {
           || cause instanceof PathNotInBlockException
           || cause instanceof ProgramBlockNotFoundException
           || cause instanceof ProgramNotFoundException
-          || cause instanceof QuestionNotFoundException
           || cause instanceof UnsupportedScalarTypeException) {
         logger.error("Exception while updating applicant data", cause);
         return badRequest("Unable to process this request");
