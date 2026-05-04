@@ -30,15 +30,18 @@ import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ProgramBlockNotFoundException;
+import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.program.PathNotInBlockException;
 import services.program.ProgramNotFoundException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.exceptions.UnsupportedScalarTypeException;
+import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import views.questiontypes.FileUploadQuestionPartialView;
+import views.questiontypes.FileUploadQuestionPartialViewModel;
 
-/** File upload endpoints */
+/** Applicant HTMX file upload ({@link #hxSelectFileForUpload}, {@link #hxRemoveFile}). */
 public final class FileUploadController extends CiviFormController {
 
   private final ApplicantService applicantService;
@@ -96,16 +99,11 @@ public final class FileUploadController extends CiviFormController {
       return CompletableFuture.completedFuture(badRequest());
     }
 
-    String questionIdRaw = formFactory.form().bindFromRequest(request).get("questionId");
-    if (questionIdRaw == null) {
+    Optional<Long> questionDefinitionId = questionDefinitionIdFromRequest(request);
+    if (questionDefinitionId.isEmpty()) {
       return CompletableFuture.completedFuture(badRequest());
     }
-    final long questionId;
-    try {
-      questionId = Long.parseLong(questionIdRaw);
-    } catch (NumberFormatException e) {
-      return CompletableFuture.completedFuture(badRequest());
-    }
+    final long qid = questionDefinitionId.get();
 
     String originalFileName = filePart.getFilename();
     String fileKey = filePart.getRef();
@@ -124,7 +122,7 @@ public final class FileUploadController extends CiviFormController {
 
               final FileUploadQuestion fileUploadQuestion;
               try {
-                fileUploadQuestion = block.get().findFileUploadQuestion(questionId);
+                fileUploadQuestion = findFileUploadQuestion(block.get(), qid);
               } catch (QuestionNotFoundException e) {
                 return failedFuture(e);
               }
@@ -161,19 +159,13 @@ public final class FileUploadController extends CiviFormController {
                               settingsManifest.getApiBridgeEnabled(request)))
                   .thenComposeAsync(
                       roAfterUpdate ->
-                          renderFileUploadPartial(
-                              request, programId, blockId, questionId, roAfterUpdate),
+                          renderFileUploadPartial(request, programId, blockId, qid, roAfterUpdate),
                       classLoaderExecutionContext.current());
             },
             classLoaderExecutionContext.current())
         .exceptionally(this::handleUpdateExceptions);
   }
 
-  /**
-   * HTMX endpoint that removes a previously-uploaded file from the applicant's answer for the file
-   * upload question in {@code blockId}. Returns an HTML partial with OOB swaps to update the file
-   * list and hidden inputs.
-   */
   @Secure
   public CompletionStage<Result> hxRemoveFile(Request request, long programId, String blockId) {
     if (!settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
@@ -187,16 +179,11 @@ public final class FileUploadController extends CiviFormController {
 
     long applicantId = optionalApplicantId.get();
 
-    String questionIdRaw = formFactory.form().bindFromRequest(request).get("questionId");
-    if (questionIdRaw == null) {
+    Optional<Long> questionDefinitionId = questionDefinitionIdFromRequest(request);
+    if (questionDefinitionId.isEmpty()) {
       return CompletableFuture.completedFuture(badRequest());
     }
-    final long questionId;
-    try {
-      questionId = Long.parseLong(questionIdRaw);
-    } catch (NumberFormatException e) {
-      return CompletableFuture.completedFuture(badRequest());
-    }
+    final long qid = questionDefinitionId.get();
 
     String fileKey = formFactory.form().bindFromRequest(request).get("fileKey");
     if (fileKey == null || fileKey.isBlank()) {
@@ -217,7 +204,7 @@ public final class FileUploadController extends CiviFormController {
 
               final FileUploadQuestion fileUploadQuestion;
               try {
-                fileUploadQuestion = block.get().findFileUploadQuestion(questionId);
+                fileUploadQuestion = findFileUploadQuestion(block.get(), qid);
               } catch (QuestionNotFoundException e) {
                 return failedFuture(e);
               }
@@ -236,19 +223,13 @@ public final class FileUploadController extends CiviFormController {
                       settingsManifest.getApiBridgeEnabled(request))
                   .thenComposeAsync(
                       roAfterUpdate ->
-                          renderFileUploadPartial(
-                              request, programId, blockId, questionId, roAfterUpdate),
+                          renderFileUploadPartial(request, programId, blockId, qid, roAfterUpdate),
                       classLoaderExecutionContext.current());
             },
             classLoaderExecutionContext.current())
         .exceptionally(this::handleUpdateExceptions);
   }
 
-  /**
-   * Renders the OOB partial for the file upload question identified by {@code questionId}, reading
-   * from the supplied (post-stage) {@link ReadOnlyApplicantProgramService}. Shared by {@link
-   * #hxSelectFileForUpload} and {@link #hxRemoveFile}.
-   */
   private CompletionStage<Result> renderFileUploadPartial(
       Request request,
       long programId,
@@ -256,11 +237,51 @@ public final class FileUploadController extends CiviFormController {
       long questionId,
       ReadOnlyApplicantProgramService roApplicantProgramService) {
     return CompletableFuture.supplyAsync(
-            () ->
-                fileUploadQuestionPartialView.renderHtmxSuccess(
-                    request, programId, blockId, questionId, roApplicantProgramService),
+            () -> {
+              try {
+                FileUploadQuestion stagedQuestion =
+                    findFileUploadQuestion(
+                        roApplicantProgramService.getActiveBlock(blockId).orElseThrow(),
+                        questionId);
+
+                return ok(fileUploadQuestionPartialView.render(
+                        request,
+                        FileUploadQuestionPartialViewModel.builder()
+                            .fileUploadQuestion(stagedQuestion)
+                            .hxRemoveFileUrl(
+                                routes.FileUploadController.hxRemoveFile(programId, blockId).url())
+                            .build()))
+                    .as(Http.MimeTypes.HTML);
+              } catch (QuestionNotFoundException e) {
+                return badRequest().as(Http.MimeTypes.HTML);
+              }
+            },
             classLoaderExecutionContext.current())
         .exceptionallyAsync(ex -> internalServerError(), classLoaderExecutionContext.current());
+  }
+
+  private static FileUploadQuestion findFileUploadQuestion(Block block, long questionDefinitionId)
+      throws QuestionNotFoundException {
+    return block.getVisibleQuestions().stream()
+        .filter(
+            q ->
+                q.getType() == QuestionType.FILEUPLOAD
+                    && q.getQuestionDefinition().getId() == questionDefinitionId)
+        .findFirst()
+        .map(ApplicantQuestion::createFileUploadQuestion)
+        .orElseThrow(() -> new QuestionNotFoundException(questionDefinitionId));
+  }
+
+  private Optional<Long> questionDefinitionIdFromRequest(Request request) {
+    String raw = formFactory.form().bindFromRequest(request).get("questionId");
+    if (raw == null) {
+      return Optional.empty();
+    }
+    try {
+      return Optional.of(Long.parseLong(raw));
+    } catch (NumberFormatException e) {
+      return Optional.empty();
+    }
   }
 
   private CompletionStage<StoredFileModel> getOrMakeFileRecord(

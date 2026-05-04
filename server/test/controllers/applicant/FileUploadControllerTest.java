@@ -57,12 +57,15 @@ public class FileUploadControllerTest extends WithMockedProfiles {
             .withRequiredQuestion(fileUploadQuestion)
             .build();
 
-    long questionDefinitionId = fileUploadQuestion.getQuestionDefinition().getId();
     RequestBuilder requestBuilder = fakeRequestBuilder();
     Request request =
         requestBuilder
             .bodyMultipart(
-                java.util.Map.of("questionId", new String[] {String.valueOf(questionDefinitionId)}),
+                java.util.Map.of(
+                    "questionId",
+                    new String[] {
+                      String.valueOf(fileUploadQuestion.getQuestionDefinition().getId())
+                    }),
                 java.util.List.of(
                     new play.mvc.Http.MultipartFormData.FilePart<>(
                         "file", "my-document.pdf", "application/pdf", "applicant-test-file-key")))
