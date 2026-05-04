@@ -7,6 +7,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.h2;
 import static j2html.TagCreator.iff;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.join;
@@ -896,7 +897,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     DivTag questionCard = optionalQuestionCard.orElse(div());
     return div()
         .with(
-            p(messages.at(MessageKey.HEADING_REPEATED_SET_QUESTION.getKeyName()))
+            h2(messages.at(MessageKey.HEADING_REPEATED_SET_QUESTION.getKeyName()))
                 .withId("repeated-set-question-section-heading")
                 .withClasses("text-lg", "font-bold", "margin-bottom-05")
                 .withTabindex(-1),
@@ -972,7 +973,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
   private DivTag renderChooseExistingQuestion(Messages messages) {
     return div(
-            p(messages.at(MessageKey.HEADING_REPEATED_SET_QUESTION.getKeyName()))
+            h2(messages.at(MessageKey.HEADING_REPEATED_SET_QUESTION.getKeyName()))
                 .withId("repeated-set-question-section-heading")
                 .withClasses("font-bold", "margin-bottom-05", "text-black-700")
                 .with(ViewUtils.requiredQuestionIndicator()),
@@ -983,7 +984,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                         messages.at(
                             MessageKey.TEXT_REPEATED_SET_ADD_QUESTION_DESCRIPTION.getKeyName()))),
             button("")
-                .withId("Add-question")
+                .withId("add-question")
                 .withClasses("usa-button", "usa-button--outline", "cf-open-question-bank-button")
                 .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
                 .withText(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName())))

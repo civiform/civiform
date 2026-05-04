@@ -130,7 +130,9 @@ public class AdminProgramBlockQuestionsController extends Controller {
     // replaced by the question card, so leaving the bank open would be confusing. In all other
     // cases, keep it open so the admin can add more questions.
     return redirect(
-        addedEnumeratorQuestion ? editUrl : ProgramQuestionBank.addShowQuestionBankParam(editUrl));
+        addedEnumeratorQuestion
+            ? editUrl + "?focusEnumeratorHeading=true"
+            : ProgramQuestionBank.addShowQuestionBankParam(editUrl));
   }
 
   /** HTMX POST endpoint for creating a new enumerator question and adding it to a screen. */
