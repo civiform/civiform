@@ -201,6 +201,28 @@ public class UpsellControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void download_authenticatedApplicant_differentUsersApplication_unauthorized() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+    ApplicantModel otherApplicant = createApplicant();
+    ApplicationModel otherApplication =
+        resourceCreator.insertActiveApplication(otherApplicant, programDefinition.toProgram());
+
+    Result result;
+    try {
+      result =
+          subject
+              .download(fakeRequest(), otherApplication.id, applicant.id)
+              .toCompletableFuture()
+              .join();
+    } catch (ProgramNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
+
+  @Test
   public void download_authenticatedTI() {
     ProfileFactory profileFactory = instanceOf(ProfileFactory.class);
     ProgramDefinition programDefinition =
@@ -222,6 +244,31 @@ public class UpsellControllerTest extends WithMockedProfiles {
       throw new RuntimeException(e);
     }
     assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void download_authenticatedTI_unmanagedUsersApplication_unauthorized() {
+    ProfileFactory profileFactory = instanceOf(ProfileFactory.class);
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
+    ApplicantModel managedApplicant = createApplicant();
+    ApplicantModel unmanagedApplicant = createApplicant();
+    ApplicationModel unmanagedApplication =
+        resourceCreator.insertActiveApplication(unmanagedApplicant, programDefinition.toProgram());
+    createTIWithMockedProfile(managedApplicant);
+    profileFactory.createFakeTrustedIntermediary();
+
+    Result result;
+    try {
+      result =
+          subject
+              .download(fakeRequest(), unmanagedApplication.id, managedApplicant.id)
+              .toCompletableFuture()
+              .join();
+    } catch (ProgramNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
   @Test

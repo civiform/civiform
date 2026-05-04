@@ -229,9 +229,18 @@ public final class UpsellController extends CiviFormController {
     return CompletableFuture.allOf(applicationMaybe, authorization)
         .thenApplyAsync(
             check -> {
+              ApplicationModel application = applicationMaybe.join().get();
+              // Ensure the provided applicant has access to the application.
+              Long appApplicantId = application.getApplicant().id;
+              if (appApplicantId != applicantId) {
+                throw new SecurityException(
+                    String.format(
+                        "Applicant %d is not authorized to access application %d",
+                        applicantId, applicationId));
+              }
+
               PdfExporter.InMemoryPdf pdf =
-                  pdfExporterService.generateApplicationPdf(
-                      applicationMaybe.join().get(), /* isAdmin= */ false);
+                  pdfExporterService.generateApplicationPdf(application, /* isAdmin= */ false);
 
               return ok(pdf.getByteArray())
                   .as("application/pdf")
