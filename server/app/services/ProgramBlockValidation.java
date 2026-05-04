@@ -54,11 +54,7 @@ public final class ProgramBlockValidation {
 
     // Cannot add question to the block because the question is an enumerator type, but the block is
     // not an enumerator block.
-    ENUMERATOR_ON_NON_ENUMERATOR_BLOCK,
-
-    // Cannot add question to the block because the question is not an enumerator type,
-    // and the block is an enumerator block.  Does not apply to initial questions.
-    NON_ENUMERATOR_ON_ENUMERATOR_BLOCK
+    ENUMERATOR_ON_NON_ENUMERATOR_BLOCK
   }
 
   /**
@@ -103,24 +99,6 @@ public final class ProgramBlockValidation {
           .QUESTION_NOT_IN_ACTIVE_OR_DRAFT_STATE;
     }
     return AddQuestionResult.ELIGIBLE;
-  }
-
-  public AddQuestionResult canAddQuestionToEnumeratorBlock(
-      ProgramDefinition program,
-      BlockDefinition block,
-      QuestionDefinition question,
-      boolean enumeratorImprovementsEnabled,
-      boolean fileUploadQuestionImprovementsEnabled) {
-    if (!question.isEnumerator()) {
-      return AddQuestionResult.NON_ENUMERATOR_ON_ENUMERATOR_BLOCK;
-    } else {
-      return canAddQuestion(
-          program,
-          block,
-          question,
-          enumeratorImprovementsEnabled,
-          fileUploadQuestionImprovementsEnabled);
-    }
   }
 
   private boolean isSingleBlockQuestion(

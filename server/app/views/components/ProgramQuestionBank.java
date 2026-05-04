@@ -392,31 +392,17 @@ public final class ProgramQuestionBank {
    */
   private Stream<QuestionDefinition> filterQuestions() {
     ProgramBlockValidation programBlockValidation = programBlockValidationFactory.create();
-    boolean enumeratorImprovementsEnabled =
-        settingsManifest.getEnumeratorImprovementsEnabled(request);
-    boolean fileUploadQuestionImprovementsEnabled =
-        settingsManifest.getFileUploadQuestionImprovementsEnabled(request);
-    boolean isChoosingExistingEnumeratorQuestion = isChoosingExistingEnumeratorQuestion();
     return params.questions().stream()
+        .filter(q -> !isChoosingExistingEnumeratorQuestion() || q.isEnumerator())
         .filter(
-            q -> {
-              if (isChoosingExistingEnumeratorQuestion) {
-                return programBlockValidation.canAddQuestionToEnumeratorBlock(
+            q ->
+                programBlockValidation.canAddQuestion(
                         params.program(),
                         params.blockDefinition(),
                         q,
-                        enumeratorImprovementsEnabled,
-                        fileUploadQuestionImprovementsEnabled)
-                    == AddQuestionResult.ELIGIBLE;
-              }
-              return programBlockValidation.canAddQuestion(
-                      params.program(),
-                      params.blockDefinition(),
-                      q,
-                      enumeratorImprovementsEnabled,
-                      fileUploadQuestionImprovementsEnabled)
-                  == AddQuestionResult.ELIGIBLE;
-            });
+                        settingsManifest.getEnumeratorImprovementsEnabled(request),
+                        settingsManifest.getFileUploadQuestionImprovementsEnabled(request))
+                    == AddQuestionResult.ELIGIBLE);
   }
 
   /**
