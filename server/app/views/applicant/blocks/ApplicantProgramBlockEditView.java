@@ -150,12 +150,12 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
               .orElse(ALLOWED_FILE_TYPE_SPECIFIERS_FALLBACK));
       context.setVariable(
           "hxSelectFileForUploadUrl",
-          controllers.fileupload.routes.FileUploadController.hxSelectFileForUpload(
+          controllers.applicant.routes.FileUploadController.hxSelectFileForUpload(
                   applicationParams.programId(), applicationParams.block().getId())
               .url());
       context.setVariable(
           "hxRemoveFileUrl",
-          controllers.fileupload.routes.FileUploadController.hxRemoveFile(
+          controllers.applicant.routes.FileUploadController.hxRemoveFile(
                   applicationParams.programId(), applicationParams.block().getId())
               .url());
 
