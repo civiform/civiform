@@ -13,7 +13,7 @@
     "@types/node": "24.12.2",
     "@typescript-eslint/eslint-plugin": "8.58.0",
     "@typescript-eslint/parser": "8.58.0",
-    "axe-core": "4.11.2",
+    "axe-core": "4.11.4",
     "eslint": "10.1.0",
     "eslint-config-google": "0.14.0",
     "eslint-config-prettier": "10.1.8",
