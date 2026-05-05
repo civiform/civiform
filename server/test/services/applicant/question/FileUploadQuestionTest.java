@@ -278,4 +278,18 @@ public class FileUploadQuestionTest extends ResetPostgres {
 
     assertThat(result).isEmpty();
   }
+
+  @Test
+  public void getUniqueName_appendsAndIncrementsSuffix() {
+    assertThat(FileUploadQuestion.getUniqueName("file.txt", ImmutableList.of()))
+        .isEqualTo("file.txt");
+    assertThat(FileUploadQuestion.getUniqueName("file.txt", ImmutableList.of("file.txt")))
+        .isEqualTo("file-2.txt");
+    assertThat(
+            FileUploadQuestion.getUniqueName(
+                "file.txt", ImmutableList.of("file.txt", "file-2.txt")))
+        .isEqualTo("file-3.txt");
+    assertThat(FileUploadQuestion.getUniqueName("file", ImmutableList.of("file")))
+        .isEqualTo("file-2");
+  }
 }
