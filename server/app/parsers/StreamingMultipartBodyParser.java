@@ -1,5 +1,6 @@
 package parsers;
 
+import com.google.common.collect.ImmutableList;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -59,7 +60,7 @@ public abstract class StreamingMultipartBodyParser
 
       AtomicReference<String> detectedMimeTypeRef = new AtomicReference<>(null);
       Flow<ByteString, ByteString, ?> sniffingFlow =
-          fileTypeValidation.sniffingFlow(fileName, detectedMimeTypeRef);
+          fileTypeValidation.sniffingFlow(fileName, detectedMimeTypeRef, getAllowedFileTypes());
 
       // Map upload sink to an output value, prepending the sniffing flow
       Sink<ByteString, CompletionStage<FilePart<String>>> mappedSink =
@@ -95,4 +96,12 @@ public abstract class StreamingMultipartBodyParser
 
   /** Returns the bucket type for streaming the file. */
   protected abstract BucketType getBucketType();
+
+  /**
+   * Returns the list of allowed file types for validation. Subclasses may override to restrict
+   * uploads to a specific set of types.
+   */
+  protected ImmutableList<String> getAllowedFileTypes() {
+    return fileTypeValidation.getAllowedFileTypes();
+  }
 }

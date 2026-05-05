@@ -31,6 +31,10 @@ public final class FileTypeValidation {
             settingsManifest.getFileUploadAllowedFileTypeSpecifiers().get());
   }
 
+  public ImmutableList<String> getAllowedFileTypes() {
+    return allowedFileTypes;
+  }
+
   private static final Tika TIKA = new Tika();
 
   private static final int HEADER_SIZE = 16;
@@ -129,7 +133,9 @@ public final class FileTypeValidation {
    * </ul>
    */
   public Flow<ByteString, ByteString, ?> sniffingFlow(
-      String fileName, AtomicReference<String> detectedMimeTypeRef) {
+      String fileName,
+      AtomicReference<String> detectedMimeTypeRef,
+      ImmutableList<String> allowedFileTypes) {
     return Flow.of(ByteString.class)
         .statefulMap(
             ByteString::emptyByteString,
