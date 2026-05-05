@@ -7,6 +7,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import models.StoredFileModel;
 import play.api.libs.json.JsArray;
@@ -275,6 +277,35 @@ public final class FileUploadQuestion extends AbstractQuestion {
   public static String getFileName(String fileKey) {
     String[] parts = fileKey.split("/", 4);
     return parts[parts.length - 1];
+  }
+
+  // Matches a filename that already ends with "-<number>" before an optional extension.
+  private static final Pattern FILE_NAME_DIGIT_SUFFIX_REGEX =
+      Pattern.compile("(.*?)(-\\d+)(\\.[^.]+)?$");
+  // Matches a filename with an extension.
+  private static final Pattern FILE_NAME_REGEX = Pattern.compile("(.*)(\\.[^.]+)$");
+
+  /**
+   * Returns a name derived from {@code name} that does not appear in {@code existingNames},
+   * appending or incrementing a "-N" numeric suffix as needed.
+   */
+  public static String getUniqueName(String name, ImmutableList<String> existingNames) {
+    while (existingNames.contains(name)) {
+      Matcher digitSuffixMatcher = FILE_NAME_DIGIT_SUFFIX_REGEX.matcher(name);
+      if (digitSuffixMatcher.matches()) {
+        int nextNumber = Integer.parseInt(digitSuffixMatcher.group(2).substring(1)) + 1;
+        String ext = digitSuffixMatcher.group(3) != null ? digitSuffixMatcher.group(3) : "";
+        name = digitSuffixMatcher.group(1) + "-" + nextNumber + ext;
+      } else {
+        Matcher extMatcher = FILE_NAME_REGEX.matcher(name);
+        if (extMatcher.matches()) {
+          name = extMatcher.group(1) + "-2" + extMatcher.group(2);
+        } else {
+          name = name + "-2";
+        }
+      }
+    }
+    return name;
   }
 
   @Override
