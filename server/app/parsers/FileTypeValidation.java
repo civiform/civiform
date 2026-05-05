@@ -45,9 +45,6 @@ public final class FileTypeValidation {
           .put(".bmp", "image/bmp")
           .put(".webp", "image/webp")
           .put(".tiff", "image/tiff")
-          // xlsx is a ZIP container, and Tika's byte-prefix detection reports it as
-          // application/zip. Accepted risk: a plain .zip renamed to .xlsx passes as xlsx.
-          .put(".xlsx", "application/zip")
           .build();
 
   /** Parses a comma-separated list of MIME types, wildcards, and extensions. */
