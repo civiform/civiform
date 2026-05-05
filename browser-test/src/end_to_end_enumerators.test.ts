@@ -638,7 +638,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       await loginAsAdmin(page)
       await adminPrograms.addProgram('Enumerator test program')
 
-      await test.step('Add questions to the program block', async () => {
+      await test.step('Create questions', async () => {
         await adminQuestions.addEnumeratorQuestion({
           questionName: 'enumerator-ete-householdmembers',
           description: 'desc',
@@ -805,6 +805,74 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           page.getByRole('heading', {name: 'All questions'}),
         ).toBeVisible()
         await expect(page.getByText('Admin ID: pets enumerator')).toBeVisible()
+      })
+    })
+
+    test('can add an existing enumerator question to an enumerator block', async ({
+      page,
+    }) => {
+      const blockPanel = page.getByTestId('block-panel-edit')
+      const questionBankSidebar = page.getByRole('form', {
+        name: 'Add a question',
+      })
+
+      await test.step('Add a new repeated set', async () => {
+        await page.getByRole('button', {name: 'Add screen'}).first().click()
+        await page.getByRole('button', {name: 'Add repeated set'}).click()
+      })
+
+      await test.step('Select the repeated set block from the block order panel', async () => {
+        await page.getByRole('link', {name: 'Screen 2'}).click()
+      })
+
+      await test.step('Click the "Choose existing" radio button', async () => {
+        // Unfortunately, we have to click the label to select the radio button, because
+        // USWDS places the radio button itself outside the viewport.
+        await blockPanel.getByTestId('choose-existing-radio-label').click()
+      })
+
+      await test.step('Click the "Add question" button', async () => {
+        await blockPanel.getByRole('button', {name: 'Add question'}).click()
+      })
+
+      await test.step('Validate that the question bank sidebar only shows enumerator questions', async () => {
+        await expect(
+          questionBankSidebar.getByText('enumerator-ete-householdmembers'),
+        ).toBeVisible()
+        await expect(
+          questionBankSidebar.getByText('enumerator-ete-repeated-name'),
+        ).toBeHidden()
+      })
+
+      await test.step('Validate that the question bank sidebar does not show the "Create new question" button', async () => {
+        await expect(
+          questionBankSidebar.getByText(
+            "Not finding a question you're looking for in this list?",
+          ),
+        ).toBeHidden()
+        await expect(
+          questionBankSidebar.getByRole('button', {
+            name: 'Create new question',
+          }),
+        ).toBeHidden()
+      })
+
+      await test.step('Add a question to the block and validate question card is visible', async () => {
+        await questionBankSidebar.getByRole('button', {name: 'Add'}).click()
+
+        const enumeratorQuestionCard = blockPanel.getByTestId(
+          'question-admin-name-enumerator-ete-householdmembers',
+        )
+
+        await expect(enumeratorQuestionCard).toBeVisible()
+
+        await expect(questionBankSidebar).toBeHidden()
+      })
+
+      await test.step('Validate that focus is sent to the repeated set question section heading', async () => {
+        await expect(
+          blockPanel.getByText('Repeated set question'),
+        ).toBeFocused()
       })
     })
 

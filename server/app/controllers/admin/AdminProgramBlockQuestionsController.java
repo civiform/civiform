@@ -92,12 +92,16 @@ public class AdminProgramBlockQuestionsController extends Controller {
 
     // The users' browser may be out of date. Find the last revision of each question.
     ImmutableList.Builder<Long> idBuilder = new ImmutableList.Builder<Long>();
+    boolean addedEnumeratorQuestion = false;
     for (Long qId : questionIds) {
       Optional<QuestionModel> latestQuestion = versionRepository.getLatestVersionOfQuestion(qId);
       if (latestQuestion.isEmpty()) {
         return notFound(String.format("Question ID %s not found", qId));
       }
       idBuilder.add(latestQuestion.get().id);
+      if (latestQuestion.get().getQuestionDefinition().isEnumerator()) {
+        addedEnumeratorQuestion = true;
+      }
     }
     ImmutableList<Long> latestQuestionIds = idBuilder.build();
 
@@ -120,9 +124,19 @@ public class AdminProgramBlockQuestionsController extends Controller {
       return notFound(e.externalMessage());
     }
 
+    String editUrl =
+        controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId).url();
+
+    // When the enumerator-improvements flag is on, adding an enumerator question via the
+    // "Choose existing" flow replaces the setup section with the question card, so leaving the
+    // bank open would be confusing. In all other cases, keep it open so the admin can add more
+    // questions.
+    boolean closeBankAndFocusEnumeratorHeading =
+        addedEnumeratorQuestion && settingsManifest.getEnumeratorImprovementsEnabled(request);
     return redirect(
-        ProgramQuestionBank.addShowQuestionBankParam(
-            controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId).url()));
+        closeBankAndFocusEnumeratorHeading
+            ? ProgramQuestionBank.addFocusEnumeratorHeadingParam(editUrl)
+            : ProgramQuestionBank.addShowQuestionBankParam(editUrl));
   }
 
   /** HTMX POST endpoint for creating a new enumerator question and adding it to a screen. */

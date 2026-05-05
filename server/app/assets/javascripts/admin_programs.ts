@@ -404,6 +404,21 @@ class AdminPrograms {
     }
   }
 
+  /**
+   * After redirecting back to the block edit page from adding an existing enumerator question, the
+   * controller appends ?focusEnumeratorHeading=true so we know to move focus to the enumerator
+   * section heading. The param is then stripped so a refresh doesn't keep refocusing.
+   */
+  static focusOnEnumeratorQuestionSectionFromUrlParam() {
+    const url = new URL(window.location.href)
+    if (url.searchParams.get('focusEnumeratorHeading') !== 'true') {
+      return
+    }
+    this.focusOnEnumeratorQuestionSection()
+    url.searchParams.delete('focusEnumeratorHeading')
+    window.history.replaceState({}, '', url.toString())
+  }
+
   static focusOnFirstEnumeratorFormField() {
     const firstInputField = document.getElementById('listed-entity-input')
     if (firstInputField) {
@@ -505,4 +520,5 @@ export function init() {
   AdminPrograms.attachEventListenerToHtmxSwap()
   AdminPrograms.attachEventListenerToEnumeratorCreationMethod()
   AdminPrograms.attachEventListenerToRepeatedSetFieldAutofill()
+  AdminPrograms.focusOnEnumeratorQuestionSectionFromUrlParam()
 }
