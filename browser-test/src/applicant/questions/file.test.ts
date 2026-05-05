@@ -261,6 +261,53 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
     const programName = 'Test program for multiple file upload'
     const fileUploadQuestionText = 'Required file upload question'
 
+    test('hides upload button at max', async ({
+      applicantQuestions,
+      applicantFileQuestion,
+      page,
+      adminQuestions,
+      adminPrograms,
+    }) => {
+      await test.step('Add file upload question and publish', async () => {
+        await loginAsAdmin(page)
+
+        await adminQuestions.addFileUploadQuestion({
+          questionName: 'file-upload-test-q',
+          questionText: fileUploadQuestionText,
+          maxFiles: 2,
+        })
+        await adminPrograms.addAndPublishProgramWithQuestions(
+          ['file-upload-test-q'],
+          programName,
+        )
+
+        await logout(page)
+      })
+
+      await applicantQuestions.applyProgram(programName)
+
+      await test.step('Adding maximum files disables file input', async () => {
+        await applicantQuestions.answerFileUploadQuestionFromAssets(
+          'file-upload.png',
+        )
+        await applicantQuestions.answerFileUploadQuestionFromAssets(
+          'file-upload-second.png',
+        )
+        await applicantFileQuestion.expectFileNameDisplayed('file-upload.png')
+        await applicantFileQuestion.expectFileNameDisplayed(
+          'file-upload-second.png',
+        )
+
+        await applicantFileQuestion.expectFileInputDisabled()
+      })
+
+      await test.step('Removing a file shows file input again', async () => {
+        await applicantFileQuestion.removeFileUpload('file-upload.png')
+        await waitForHtmxReady(page)
+        await applicantFileQuestion.expectFileInputEnabled()
+      })
+    })
+
     test('shows correct hint text based on max files', async ({
       applicantQuestions,
       page,
