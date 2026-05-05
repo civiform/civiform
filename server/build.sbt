@@ -96,9 +96,6 @@ lazy val root = (project in file("."))
       // SAML authentication
       "org.pac4j" % "pac4j-saml" % "6.4.1",
 
-      // Encrypted cookies require encryption.
-      "org.apache.shiro" % "shiro-crypto-cipher" % "1.13.0",
-
       // Autovalue
       "com.google.auto.value" % "auto-value-annotations" % "1.11.1",
 

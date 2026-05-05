@@ -7,15 +7,9 @@ import static support.FakeRequestBuilder.fakeRequestBuilder;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.shiro.crypto.AesCipherService;
 import org.junit.Test;
 import org.pac4j.core.context.session.SessionStore;
-import org.pac4j.core.util.serializer.JavaSerializer;
 import org.pac4j.play.PlayWebContext;
-import org.pac4j.play.store.PlayCookieSessionStore;
 import play.mvc.Http.Request;
 
 public class CiviFormSessionStoreFactoryTest {
@@ -44,22 +38,6 @@ public class CiviFormSessionStoreFactoryTest {
   public void deriveAes128Key_generatesDifferentKeysWithDifferentSecrets() throws Exception {
     byte[] key1 = CiviFormSessionStoreFactory.deriveAes128Key(SECRET1);
     byte[] key2 = CiviFormSessionStoreFactory.deriveAes128Key(SECRET2);
-
-    assertThat(key1).isNotEqualTo(key2);
-  }
-
-  @Test
-  public void deriveLegacyKey_generatesConsistentKeysWithSameSecret() throws Exception {
-    byte[] key1 = CiviFormSessionStoreFactory.deriveLegacyAesKey(SECRET1);
-    byte[] key2 = CiviFormSessionStoreFactory.deriveLegacyAesKey(SECRET1);
-
-    assertThat(key1).isEqualTo(key2);
-  }
-
-  @Test
-  public void deriveLegacyKey_generatesDifferentKeysWithDifferentSecrets() throws Exception {
-    byte[] key1 = CiviFormSessionStoreFactory.deriveLegacyAesKey(SECRET1);
-    byte[] key2 = CiviFormSessionStoreFactory.deriveLegacyAesKey(SECRET2);
 
     assertThat(key1).isNotEqualTo(key2);
   }
@@ -127,32 +105,5 @@ public class CiviFormSessionStoreFactoryTest {
     PlayWebContext context2 = newContextWithSessionFrom(context1);
 
     assertThatThrownBy(() -> store2.get(context2, "test-key")).isInstanceOf(RuntimeException.class);
-  }
-
-  @Test
-  public void sessionStore_cookieRoundTrip_legacyEncrypted_fallsBackToLegacyDecrypter() {
-    CiviFormSessionStoreFactory factory = new CiviFormSessionStoreFactory(createConfig(SECRET1));
-
-    byte[] legacyKey = CiviFormSessionStoreFactory.deriveLegacyAesKey(SECRET1);
-
-    // Mimic what the old Shiro-based session store would have done to create
-    // the cookie value.
-    Map<String, Object> values = new HashMap<>();
-    values.put("test-key", "test-value");
-
-    JavaSerializer serializer = new JavaSerializer();
-    byte[] serialized = serializer.serializeToBytes(values);
-    byte[] compressed = PlayCookieSessionStore.compressBytes(serialized);
-
-    AesCipherService cipherService = new AesCipherService();
-    byte[] legacyEncrypted = cipherService.encrypt(compressed, legacyKey).getBytes();
-    String cookieValue = Base64.getEncoder().encodeToString(legacyEncrypted);
-
-    Request request = fakeRequestBuilder().addSessionValue("pac4j", cookieValue).build();
-    PlayWebContext context = new PlayWebContext(request);
-
-    SessionStore store = factory.newSessionStore();
-
-    assertThat(store.get(context, "test-key").get()).isEqualTo("test-value");
   }
 }

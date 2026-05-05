@@ -5,7 +5,6 @@ import com.typesafe.config.Config;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Random;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import org.pac4j.core.context.FrameworkParameters;
@@ -24,8 +23,6 @@ public class CiviFormSessionStoreFactory implements SessionStoreFactory {
   // a different salt resulting in a different AES key.
   private static final byte[] SALT =
       "civiform:play-cookie-aes-key:v1".getBytes(StandardCharsets.UTF_8);
-  private final byte[] aesKey;
-  private final byte[] legacyAesKey;
   private final DataEncrypter encrypter;
 
   /**
@@ -33,27 +30,20 @@ public class CiviFormSessionStoreFactory implements SessionStoreFactory {
    * store in a way that always results in the same key, so that cookies generated from different
    * CiviForm server instances or different CiviForm versions are decryptable here.
    *
-   * <p>In play-pac4j 13, the encryption library was replaced, so we provide a fallback to a 1:1
-   * copy of the old Shiro implementation so that the upgrade is seamless. In a bit, once everyone
-   * has upgraded and we're reasonably sure most people have had their sessions migrated, we can
-   * remove this fallback and catch the exception that would happen just in case and invalidate the
-   * session.
-   *
    * @param config Configuration object that contains the application secret
    */
   public CiviFormSessionStoreFactory(Config config) {
+    byte[] aesKey;
+
     try {
       String secret = config.getString("play.http.secret.key");
-      this.aesKey = deriveAes128Key(secret);
-      this.legacyAesKey = deriveLegacyAesKey(secret);
+      aesKey = deriveAes128Key(secret);
     } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
       // Should never really be possible given we hard code the algo/key spec
       throw new RuntimeException("Error generating cookie encryption key", e);
     }
 
-    var primary = new JdkAesDataEncrypter(aesKey);
-    var fallback = new ShiroAesDataEncrypter(legacyAesKey);
-    this.encrypter = new FallbackDataEncrypter(primary, fallback);
+    this.encrypter = new JdkAesDataEncrypter(aesKey);
   }
 
   @Override
@@ -119,20 +109,5 @@ public class CiviFormSessionStoreFactory implements SessionStoreFactory {
     } finally {
       spec.clearPassword();
     }
-  }
-
-  /**
-   * This is the old way we were generating the key. This is so that we can migrate sessions to the
-   * new key the first time they load CiviForm on this version.
-   *
-   * @param playSecret The Play application secret string, or other sufficiently random string.
-   * @return A 32-byte AES key
-   */
-  @VisibleForTesting
-  static byte[] deriveLegacyAesKey(String playSecret) {
-    Random r = new Random(playSecret.hashCode());
-    byte[] aesKey = new byte[32];
-    r.nextBytes(aesKey);
-    return aesKey;
   }
 }
