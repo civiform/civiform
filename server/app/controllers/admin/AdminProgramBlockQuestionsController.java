@@ -135,7 +135,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
         addedEnumeratorQuestion && settingsManifest.getEnumeratorImprovementsEnabled(request);
     return redirect(
         closeBankAndFocusEnumeratorHeading
-            ? editUrl + "?focusEnumeratorHeading=true"
+            ? ProgramQuestionBank.addFocusEnumeratorHeadingParam(editUrl)
             : ProgramQuestionBank.addShowQuestionBankParam(editUrl));
   }
 

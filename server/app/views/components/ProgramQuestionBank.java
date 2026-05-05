@@ -49,6 +49,8 @@ public final class ProgramQuestionBank {
   // Url parameter used to force question bank open upon initial rendering
   // of program edit page.
   private static final String SHOW_QUESTION_BANK_PARAM = "sqb";
+  // Url parameter used to send focus to the enumerator question section heading
+  private static final String FOCUS_ENUMERATOR_HEADING_PARAM = "focusEnumeratorHeading";
   // Url parameter used to indicate a newly created question that should be auto-added to the block
   public static final String NEWLY_CREATED_QUESTION_ID_PARAM = "newQuestionId";
   // Data attribute used to store which text is relevant when filtering
@@ -380,22 +382,16 @@ public final class ProgramQuestionBank {
   }
 
   /**
-   * Used to filter questions in the question bank.
-   *
-   * <p>Questions that are filtered out:
-   *
-   * <ul>
-   *   <li>If there is at least one question in the current block, all single-block questions are
-   *       filtered.
-   *   <li>If there is a single block question in the current block, all questions are filtered.
-   *   <li>If this is a repeated block, only the appropriate repeated questions are shown.
-   *   <li>Questions already in the program are filtered.
-   * </ul>
+   * Used to filter questions in the question bank based on whether they are eligible to be added to
+   * the current block.
    */
   private Stream<QuestionDefinition> filterQuestions() {
     ProgramBlockValidation programBlockValidation = programBlockValidationFactory.create();
+    // If the enumerator feature flag is on, this is an enumerator block, and we're adding
+    // an existing question, only show enumerator questions.
+    boolean allowAllQuestions = !isChoosingExistingEnumeratorQuestion();
     return params.questions().stream()
-        .filter(q -> !isChoosingExistingEnumeratorQuestion() || q.isEnumerator())
+        .filter(q -> allowAllQuestions || q.isEnumerator())
         .filter(
             q ->
                 programBlockValidation.canAddQuestion(
@@ -416,6 +412,21 @@ public final class ProgramQuestionBank {
     try {
       return new URIBuilder(url)
           .setParameter(ProgramQuestionBank.SHOW_QUESTION_BANK_PARAM, "true")
+          .build()
+          .toString();
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * When an admin has chosen an existing question as the enumerator question, we want focus to be
+   * sent to the section they were previously on after the page reloads.
+   */
+  public static String addFocusEnumeratorHeadingParam(String url) {
+    try {
+      return new URIBuilder(url)
+          .setParameter(ProgramQuestionBank.FOCUS_ENUMERATOR_HEADING_PARAM, "true")
           .build()
           .toString();
     } catch (URISyntaxException e) {
