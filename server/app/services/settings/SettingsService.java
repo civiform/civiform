@@ -344,12 +344,10 @@ public final class SettingsService {
           yield Optional.of(
               SettingsGroupUpdateResult.UpdateError.create(
                   newValue,
-                  "Cannot disable file upload improvements while programs exist with "
-                      + "file upload questions on screens with other questions. "
-                      + "Affected programs: "
+                  "To turn this off, first remove file upload questions from any"
+                      + " screens that contain other question types. Affected programs: "
                       + String.join(", ", programScreenDescriptions)
-                      + ". "
-                      + "Remove file upload questions from mixed screens first."));
+                      + "."));
         }
         yield Optional.empty();
       }
