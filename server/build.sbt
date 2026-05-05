@@ -59,7 +59,7 @@ lazy val root = (project in file("."))
       "com.microsoft.graph" % "microsoft-graph" % "6.62.0",
 
       // Database and database testing libraries
-      "org.postgresql" % "postgresql" % "42.7.10",
+      "org.postgresql" % "postgresql" % "42.7.11",
       "com.google.cloud.sql" % "postgres-socket-factory" % "1.28.3",
       "com.h2database" % "h2" % "2.4.240" % Test,
 
