@@ -11,6 +11,7 @@ import static play.mvc.Http.Status.FOUND;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
+import static play.mvc.Http.Status.UNAUTHORIZED;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.stubMessagesApi;
 import static support.FakeRequestBuilder.fakeRequest;
@@ -681,6 +682,20 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
         controller.hxFilter(fakeRequest(), ImmutableList.of(), "").toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void hxFilter_differentApplicant_returnsUnauthorizedResult() {
+    Result result =
+        controller
+            .hxFilter(
+                fakeRequest(),
+                ImmutableList.of(),
+                String.valueOf(currentApplicant.id + 1))
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
   @Test
