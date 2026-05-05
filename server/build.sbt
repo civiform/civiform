@@ -88,13 +88,13 @@ lazy val root = (project in file("."))
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "13.0.3-PLAY3.0",
-      "org.pac4j" % "pac4j-core" % "6.4.1",
+      "org.pac4j" % "pac4j-core" % "6.4.3",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "6.4.1",
+      "org.pac4j" % "pac4j-http" % "6.4.3",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "6.4.1",
+      "org.pac4j" % "pac4j-oidc" % "6.4.3",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "6.4.1",
+      "org.pac4j" % "pac4j-saml" % "6.4.3",
 
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.13.0",
