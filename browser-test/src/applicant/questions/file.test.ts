@@ -343,7 +343,6 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
       await adminQuestions.addFileUploadQuestion({
         questionName: 'file-upload-test-q',
         questionText: fileUploadQuestionText,
-        maxFiles: 2,
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['file-upload-test-q'],

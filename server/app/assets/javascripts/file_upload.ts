@@ -10,6 +10,7 @@ import {HtmxAfterRequestEvent} from '@/types/htmx'
 const UPLOADED_FILE_ATTR = 'data-uploaded-files'
 const CF_FILE_UPLOADING_CLASS = 'cf-file-uploading'
 const CF_FILE_UPLOAD_CONTAINER_SELECTOR = '[data-cf-file-upload-container]'
+const FILE_UPLOAD_HTMX_FAILURE = '[data-fileupload-error="request-failed"]'
 
 // Track the number of file uploads in progress to prevent navigating away
 let fileUploadsInProgress = 0
@@ -39,6 +40,19 @@ export const init = () => {
       event.preventDefault()
       return
     }
+
+    const fileUploadContainer = fileInput.closest(
+      CF_FILE_UPLOAD_CONTAINER_SELECTOR,
+    )
+    if (fileUploadContainer) {
+      hideError(
+        fileUploadContainer.querySelector<HTMLElement>(
+          FILE_UPLOAD_HTMX_FAILURE,
+        ),
+        fileInput,
+      )
+    }
+
     fileUploadsInProgress++
     document.body.classList.add(CF_FILE_UPLOADING_CLASS)
     toggleDisabledState()
@@ -48,6 +62,11 @@ export const init = () => {
     if (!isCfFileUploadInput(event.detail.elt)) {
       return
     }
+
+    const fileUploadContainer = event.detail.elt.closest(
+      CF_FILE_UPLOAD_CONTAINER_SELECTOR,
+    )
+
     fileUploadsInProgress--
     if (fileUploadsInProgress <= 0) {
       fileUploadsInProgress = 0
@@ -55,7 +74,22 @@ export const init = () => {
     }
     toggleDisabledState()
     if (event.detail.successful) {
+      if (fileUploadContainer) {
+        hideError(
+          fileUploadContainer.querySelector<HTMLElement>(
+            FILE_UPLOAD_HTMX_FAILURE,
+          ),
+          event.detail.elt,
+        )
+      }
       resetFileInput(event)
+    } else if (fileUploadContainer && !event.detail.successful) {
+      showError(
+        fileUploadContainer.querySelector<HTMLElement>(
+          FILE_UPLOAD_HTMX_FAILURE,
+        ),
+        event.detail.elt,
+      )
     }
   })
 
@@ -137,6 +171,10 @@ const validateFileUploadQuestion = (fileInput: HTMLInputElement): boolean => {
     fileUploadContainer
       .querySelectorAll<HTMLElement>('.cf-question-error-message')
       .forEach((el) => (el.hidden = true))
+    hideError(
+      fileUploadContainer.querySelector<HTMLElement>(FILE_UPLOAD_HTMX_FAILURE),
+      fileInput,
+    )
   }
   // A valid file upload question is one that has an uploaded file that isn't too large.
   return isValid

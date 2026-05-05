@@ -45,7 +45,7 @@
 
   <!--/* Client-side validation errors. These are always in the DOM but hidden.
        file_upload.ts removes the hidden attribute to show them before the htmx
-       request fires (e.g. when a required file is missing or the file is too large). */-->
+       request fires (e.g. when a required file is missing or the file is too large or the request failed). */-->
   <div
     hidden
     class="usa-alert usa-alert--error usa-alert--slim"
@@ -67,6 +67,18 @@
       <p
         class="usa-alert__text"
         th:text="#{toast.errorMessageOutline(#{validation.fileTooLarge(${maxFileSizeMb})})}"
+      ></p>
+    </div>
+  </div>
+  <div
+    hidden
+    class="usa-alert usa-alert--error usa-alert--slim"
+    data-fileupload-error="request-failed"
+  >
+    <div class="usa-alert__body">
+      <p
+        class="usa-alert__text"
+        th:text="#{toast.errorMessageOutline(#{validation.fileUploadRequestFailed})}"
       ></p>
     </div>
   </div>
