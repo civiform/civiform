@@ -126,11 +126,15 @@ public class AdminProgramBlockQuestionsController extends Controller {
 
     String editUrl =
         controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId).url();
-    // After adding an enumerator question via the "Choose existing" flow, the setup section is
-    // replaced by the question card, so leaving the bank open would be confusing. In all other
-    // cases, keep it open so the admin can add more questions.
+
+    // When the enumerator-improvements flag is on, adding an enumerator question via the
+    // "Choose existing" flow replaces the setup section with the question card, so leaving the
+    // bank open would be confusing. In all other cases, keep it open so the admin can add more
+    // questions.
+    boolean closeBankAndFocusEnumeratorHeading =
+        addedEnumeratorQuestion && settingsManifest.getEnumeratorImprovementsEnabled(request);
     return redirect(
-        addedEnumeratorQuestion
+        closeBankAndFocusEnumeratorHeading
             ? editUrl + "?focusEnumeratorHeading=true"
             : ProgramQuestionBank.addShowQuestionBankParam(editUrl));
   }
