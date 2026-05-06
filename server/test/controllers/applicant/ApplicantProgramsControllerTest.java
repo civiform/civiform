@@ -57,7 +57,6 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   private ApplicantModel currentApplicant;
   private ApplicantModel applicantWithoutProfile;
   private ApplicantProgramsController controller;
-  private VersionRepository versionRepository;
   private SettingsManifest settingsManifest;
 
   @Before
@@ -184,7 +183,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
   @Test
   public void test_deduplicate_inProgressProgram() {
-    versionRepository = instanceOf(VersionRepository.class);
+    VersionRepository versionRepository = instanceOf(VersionRepository.class);
     String programName = "In Progress Program";
     ProgramModel program = resourceCreator().insertActiveProgram(programName);
 
@@ -192,7 +191,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     app.save();
 
     resourceCreator().insertDraftProgram(programName);
-    this.versionRepository.publishNewSynchronizedVersion();
+    versionRepository.publishNewSynchronizedVersion();
 
     Result result =
         controller
@@ -677,21 +676,58 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void hxFilter_isOk() {
+  public void hxFilter_noId_isOk() {
     Result result =
-        controller.hxFilter(fakeRequest(), ImmutableList.of(), "").toCompletableFuture().join();
+        controller
+            .hxFilter(fakeRequest(), ImmutableList.of(), /* applicantId= */ "")
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void hxFilter_currentApplicant_isOk() {
+    Result result =
+        controller
+            .hxFilter(fakeRequest(), ImmutableList.of(), String.valueOf(currentApplicant.id))
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void hxFilter_tiWithManagedApplicant_isOk() {
+    ApplicantModel managedApplicant = createApplicant();
+    AccountModel ti = createTIWithMockedProfile(managedApplicant);
+
+    // Since these tests just verify the HTTP result, verify the profile
+    // being used is not accidentally the managedApplicant by requesting both
+    // its data and the TI's own data.
+    Result managedResult =
+        controller
+            .hxFilter(fakeRequest(), ImmutableList.of(), String.valueOf(managedApplicant.id))
+            .toCompletableFuture()
+            .join();
+
+    assertThat(managedResult.status()).isEqualTo(OK);
+
+    Result tiResult =
+        controller
+            .hxFilter(
+                fakeRequest(), ImmutableList.of(), String.valueOf(ti.getApplicants().getFirst().id))
+            .toCompletableFuture()
+            .join();
+
+    assertThat(tiResult.status()).isEqualTo(OK);
   }
 
   @Test
   public void hxFilter_differentApplicant_returnsUnauthorizedResult() {
     Result result =
         controller
-            .hxFilter(
-                fakeRequest(),
-                ImmutableList.of(),
-                String.valueOf(currentApplicant.id + 1))
+            .hxFilter(fakeRequest(), ImmutableList.of(), String.valueOf(currentApplicant.id + 1))
             .toCompletableFuture()
             .join();
 

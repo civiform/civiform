@@ -397,8 +397,7 @@ public final class ApplicantProgramsController extends CiviFormController {
                     .as("text/html"))
         .exceptionally(
             ex -> {
-              if (ex instanceof CompletionException
-                  && ex.getCause() instanceof SecurityException) {
+              if (ex instanceof CompletionException && ex.getCause() instanceof SecurityException) {
                 return Results.unauthorized();
               }
               logger.error(
