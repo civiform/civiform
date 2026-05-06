@@ -398,7 +398,7 @@ public final class ApplicantProgramsController extends CiviFormController {
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException && ex.getCause() instanceof SecurityException) {
-                return Results.unauthorized();
+                return Results.forbidden();
               }
               logger.error(
                   "There was an error in rendering the filtered programs"
