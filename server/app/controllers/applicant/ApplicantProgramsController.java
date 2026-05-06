@@ -374,8 +374,12 @@ public final class ApplicantProgramsController extends CiviFormController {
           applicantService.relevantProgramsWithoutApplicant(request).toCompletableFuture();
     } else {
       programsFuture =
-          applicantService
-              .relevantProgramsForApplicant(maybeApplicantId.get(), requesterProfile, request)
+          checkApplicantAuthorization(request, maybeApplicantId.get())
+              .thenComposeAsync(
+                  _ ->
+                      applicantService.relevantProgramsForApplicant(
+                          maybeApplicantId.get(), requesterProfile, request),
+                  classLoaderExecutionContext.current())
               .toCompletableFuture();
     }
 
@@ -393,6 +397,9 @@ public final class ApplicantProgramsController extends CiviFormController {
                     .as("text/html"))
         .exceptionally(
             ex -> {
+              if (ex instanceof CompletionException && ex.getCause() instanceof SecurityException) {
+                return Results.forbidden();
+              }
               logger.error(
                   "There was an error in rendering the filtered programs"
                       + " partial view with these categories: "
