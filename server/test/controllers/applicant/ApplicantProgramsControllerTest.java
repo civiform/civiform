@@ -676,7 +676,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void hxFilter_noId_isOk() {
+  public void hxFilter_currentApplicant_noId_isOk() {
     Result result =
         controller
             .hxFilter(fakeRequest(), ImmutableList.of(), /* applicantId= */ "")
@@ -687,7 +687,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void hxFilter_currentApplicant_isOk() {
+  public void hxFilter_currentApplicant_specifyId_isOk() {
     Result result =
         controller
             .hxFilter(fakeRequest(), ImmutableList.of(), String.valueOf(currentApplicant.id))
