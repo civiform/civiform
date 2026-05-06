@@ -83,7 +83,7 @@ lazy val root = (project in file("."))
       "org.glassfish.jaxb" % "jaxb-runtime" % "4.0.7",
 
       // Code autogeneration
-      "org.projectlombok" % "lombok" % "1.18.44" % "provided",
+      "org.projectlombok" % "lombok" % "1.18.46" % "provided",
 
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
