@@ -288,8 +288,21 @@ public final class FileUploadQuestion extends AbstractQuestion {
   /**
    * Returns a name derived from {@code name} that does not appear in {@code existingNames},
    * appending or incrementing a "-N" numeric suffix as needed.
+   *
+   * <p>This method runs after the file has already been uploaded to cloud storage under a
+   * UUID-based key. The returned name is for display only and is stored in {@link
+   * services.applicant.ApplicantData} alongside the file key, and is what the applicant sees in the
+   * UI. The file key is the source of truth for retrieval and ACL lookups (via {@link
+   * models.StoredFileModel}).
    */
   public static String getUniqueName(String name, ImmutableList<String> existingNames) {
+    if (name == null || name.isEmpty()) {
+      throw new IllegalArgumentException("name is null or empty");
+    }
+
+    if (existingNames == null || existingNames.isEmpty()) {
+      return name;
+    }
     while (existingNames.contains(name)) {
       Matcher digitSuffixMatcher = FILE_NAME_DIGIT_SUFFIX_REGEX.matcher(name);
       if (digitSuffixMatcher.matches()) {
