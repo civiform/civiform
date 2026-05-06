@@ -2,7 +2,6 @@ import {hideError, isFileTooLarge, showError} from '@/file_upload_util'
 import {default as uswdsFileInput} from '@uswds/uswds/js/usa-file-input'
 import {HtmxAfterRequestEvent} from '@/types/htmx'
 
-const UPLOADED_FILE_ATTR = 'data-uploaded-files'
 const CAN_UPLOAD_FILE_ATTR = 'data-can-upload-file'
 const CF_FILE_UPLOADING_CLASS = 'cf-file-uploading'
 const CF_FILE_UPLOAD_CONTAINER_SELECTOR = '[data-cf-file-upload-container]'
