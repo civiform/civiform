@@ -89,7 +89,7 @@
     class="usa-file-input"
     type="file"
     name="file"
-    th:aria-describedby="${hasErrors} ? ' ' + ${questionId} + '-error' : ''"
+    th:aria-describedby="${hasErrors} ? 'cf-fileupload-validation-errors-' + ${question.getQuestionDefinition().getId()} : ''"
     th:aria-invalid="${hasErrors}"
     th:accept="${fileUploadAllowedFileTypeSpecifiers}"
     th:data-file-limit-mb="${maxFileSizeMb}"

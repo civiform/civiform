@@ -48,6 +48,7 @@
   class="grid"
   th:aria-label="#{label.uploadedFiles}"
   th:data-uploaded-files="${fileUploadQuestion.getUploadedFileData()}"
+  th:data-can-upload-file="${fileUploadQuestion.canUploadFile()}"
 >
   <th:block th:if="${fileUploadQuestion.getFileKeyListValue().isPresent()}">
     <li

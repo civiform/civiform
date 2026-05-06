@@ -8,6 +8,7 @@ import {default as uswdsFileInput} from '@uswds/uswds/js/usa-file-input'
 import {HtmxAfterRequestEvent} from '@/types/htmx'
 
 const UPLOADED_FILE_ATTR = 'data-uploaded-files'
+const CAN_UPLOAD_FILE_ATTR = 'data-can-upload-file'
 const CF_FILE_UPLOADING_CLASS = 'cf-file-uploading'
 const CF_FILE_UPLOAD_CONTAINER_SELECTOR = '[data-cf-file-upload-container]'
 const FILE_UPLOAD_HTMX_FAILURE = '[data-fileupload-error="request-failed"]'
@@ -91,6 +92,10 @@ export const init = () => {
         event.detail.elt,
       )
     }
+  })
+
+  document.body.addEventListener('htmx:afterSwap', () => {
+    syncFileInputDisabledState()
   })
 
   document.body.addEventListener('htmx:configRequest', (event) => {
@@ -210,7 +215,27 @@ const resetFileInput = (event: HtmxAfterRequestEvent) => {
     fileUploadContainer.querySelector<HTMLInputElement>('input[type=file]')
   if (fileInput) {
     fileInput.value = ''
-    uswdsFileInput.off(fileUploadContainer)
-    uswdsFileInput.on(fileUploadContainer)
   }
+  uswdsFileInput.off(fileUploadContainer)
+  uswdsFileInput.on(fileUploadContainer)
+}
+
+const syncFileInputDisabledState = () => {
+  document
+    .querySelectorAll<HTMLElement>(CF_FILE_UPLOAD_CONTAINER_SELECTOR)
+    .forEach((container) => {
+      const fileList = container.querySelector(`[${CAN_UPLOAD_FILE_ATTR}]`)
+      if (!fileList) return
+
+      const fileInput =
+        container.querySelector<HTMLInputElement>('input[type=file]')
+      if (!fileInput) return
+
+      const canUpload = fileList.getAttribute(CAN_UPLOAD_FILE_ATTR) === 'true'
+      if (canUpload) {
+        uswdsFileInput.enable(fileInput)
+      } else {
+        uswdsFileInput.disable(fileInput)
+      }
+    })
 }
