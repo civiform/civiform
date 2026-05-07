@@ -15,6 +15,7 @@ import auth.ProfileFactory;
 import auth.ProfileUtils;
 import controllers.WithMockedProfiles;
 import java.time.Instant;
+import java.util.Optional;
 import models.ApplicantModel;
 import models.ApplicationModel;
 import org.junit.Before;
@@ -79,7 +80,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
         subject
             .considerRegister(
                 request,
-                applicant.id,
+                Optional.of(applicant.id),
                 String.valueOf(programDefinition.id()),
                 application.id,
                 redirectLocation,
@@ -108,7 +109,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
         subject
             .considerRegister(
                 request,
-                applicant.id,
+                Optional.of(applicant.id),
                 String.valueOf(programDefinition.id()),
                 application.id,
                 redirectLocation,
@@ -137,7 +138,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
         subject
             .considerRegister(
                 request,
-                applicant.id,
+                Optional.of(applicant.id),
                 programDefinition.slug(),
                 application.id,
                 redirectLocation,
@@ -167,7 +168,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
         subject
             .considerRegister(
                 request,
-                applicant.id,
+                Optional.of(applicant.id),
                 programDefinition.slug(),
                 application.id,
                 redirectLocation,
@@ -190,13 +191,12 @@ public class UpsellControllerTest extends WithMockedProfiles {
 
     // Pass a bogus applicantId — the controller should ignore it and use the application's
     // applicant instead, so the request still succeeds.
-    long bogusApplicantId = applicant.id + 9999;
     Request request = fakeRequestBuilder().build();
     Result result =
         subject
             .considerRegister(
                 request,
-                bogusApplicantId,
+                Optional.of(applicant.id + 9999),
                 String.valueOf(programDefinition.id()),
                 application.id,
                 "someUrl",
@@ -215,7 +215,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
         subject
             .considerRegister(
                 request,
-                applicant.id,
+                Optional.empty(),
                 "some-program",
                 /* applicationId= */ 0,
                 "someUrl",
