@@ -155,7 +155,7 @@ public final class FileUploadController extends CiviFormController {
               ImmutableMap<String, String> formData =
                   fileUploadQuestion.buildFormDataForAdd(fileKey, deduplicatedFileName);
 
-              return getOrMakeFileRecord(fileKey, Optional.of(originalFileName), applicantId)
+              return getOrMakeFileRecord(fileKey, Optional.of(deduplicatedFileName), applicantId)
                   .thenComposeAsync(
                       storedFile ->
                           applicantService.stageAndUpdateIfValid(

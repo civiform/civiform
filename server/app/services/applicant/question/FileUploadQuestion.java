@@ -279,15 +279,12 @@ public final class FileUploadQuestion extends AbstractQuestion {
     return parts[parts.length - 1];
   }
 
-  // Matches a filename that already ends with "-<number>" before an optional extension.
-  private static final Pattern FILE_NAME_DIGIT_SUFFIX_REGEX =
-      Pattern.compile("(.*?)(-\\d+)(\\.[^.]+)?$");
   // Matches a filename with an extension.
   private static final Pattern FILE_NAME_REGEX = Pattern.compile("(.*)(\\.[^.]+)$");
 
   /**
    * Returns a name derived from {@code name} that does not appear in {@code existingNames},
-   * appending or incrementing a "-N" numeric suffix as needed.
+   * appending a "-N" numeric suffix as needed.
    *
    * <p>This method runs after the file has already been uploaded to cloud storage under a
    * UUID-based key. The returned name is for display only and is stored in {@link
@@ -300,23 +297,23 @@ public final class FileUploadQuestion extends AbstractQuestion {
       throw new IllegalArgumentException("name is null or empty");
     }
 
-    if (existingNames == null || existingNames.isEmpty()) {
+    if (existingNames == null) {
+      throw new IllegalArgumentException("existingNames is null");
+    }
+
+    if (!existingNames.contains(name)) {
       return name;
     }
+
+    Matcher extMatcher = FILE_NAME_REGEX.matcher(name);
+    boolean hasRealExtension = extMatcher.matches() && !extMatcher.group(1).isEmpty();
+    String base = hasRealExtension ? extMatcher.group(1) : name;
+    String ext = hasRealExtension ? extMatcher.group(2) : "";
+
+    long counter = 2;
     while (existingNames.contains(name)) {
-      Matcher digitSuffixMatcher = FILE_NAME_DIGIT_SUFFIX_REGEX.matcher(name);
-      if (digitSuffixMatcher.matches()) {
-        int nextNumber = Integer.parseInt(digitSuffixMatcher.group(2).substring(1)) + 1;
-        String ext = digitSuffixMatcher.group(3) != null ? digitSuffixMatcher.group(3) : "";
-        name = digitSuffixMatcher.group(1) + "-" + nextNumber + ext;
-      } else {
-        Matcher extMatcher = FILE_NAME_REGEX.matcher(name);
-        if (extMatcher.matches()) {
-          name = extMatcher.group(1) + "-2" + extMatcher.group(2);
-        } else {
-          name = name + "-2";
-        }
-      }
+      name = base + "-" + counter + ext;
+      counter++;
     }
     return name;
   }
