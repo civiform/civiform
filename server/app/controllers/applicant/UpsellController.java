@@ -108,16 +108,16 @@ public final class UpsellController extends CiviFormController {
 
     // Derive the applicant ID from the application.
     Optional<ApplicationModel> maybeApplication =
-      applicationService.getApplicationAsync(applicationId).toCompletableFuture().join();
+        applicationService.getApplicationAsync(applicationId).toCompletableFuture().join();
     if (maybeApplication.isEmpty()) {
       return CompletableFuture.completedFuture(notFound());
     }
     long verifiedApplicantId = maybeApplication.get().getApplicant().id;
 
-    if(profileUtils.currentUserProfile(request).isTrustedIntermediary()) {
-      //if(applicantId != verifiedApplicantId) {
+    if (profileUtils.currentUserProfile(request).isTrustedIntermediary()) {
+      // if(applicantId != verifiedApplicantId) {
       //  logger.warn("Request supplied applicantId");
-      //}
+      // }
     }
 
     long programId =
