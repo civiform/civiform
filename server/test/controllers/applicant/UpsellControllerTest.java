@@ -207,6 +207,31 @@ public class UpsellControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void considerRegister_otherUsersApplication_returnsUnauthorized() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
+    createApplicantWithMockedProfile();
+    ApplicantModel otherApplicant = createApplicant();
+    ApplicationModel otherApplication =
+        resourceCreator.insertActiveApplication(otherApplicant, programDefinition.toProgram());
+    otherApplication.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
+
+    Request request = fakeRequestBuilder().build();
+    Result result =
+        subject
+            .considerRegister(
+                request,
+                Optional.of(otherApplicant.id),
+                String.valueOf(programDefinition.id()),
+                otherApplication.id,
+                "someUrl",
+                otherApplication.getSubmitTime().toString())
+            .toCompletableFuture()
+            .join();
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
+
+  @Test
   public void considerRegister_invalidApplicationId_returnsNotFound() {
 
     Request request = fakeRequestBuilder().build();
