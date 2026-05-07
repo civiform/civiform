@@ -91,6 +91,7 @@ public final class UpsellController extends CiviFormController {
   @Secure
   public CompletionStage<Result> considerRegister(
       Http.Request request,
+      Optional<Long> applicantId,
       String programParam,
       long applicationId,
       String redirectTo,
