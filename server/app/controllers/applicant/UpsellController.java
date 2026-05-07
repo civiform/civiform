@@ -20,8 +20,6 @@ import models.AccountModel;
 import models.ApplicationModel;
 import org.apache.commons.lang3.StringUtils;
 import org.pac4j.play.java.Secure;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
@@ -45,8 +43,6 @@ import views.applicant.upsell.UpsellParams;
 
 /** Controller for handling methods for upselling applicants. */
 public final class UpsellController extends CiviFormController {
-  private static final Logger logger = LoggerFactory.getLogger(UpsellController.class);
-
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final ApplicantService applicantService;
   private final ApplicationService applicationService;
@@ -113,12 +109,6 @@ public final class UpsellController extends CiviFormController {
       return CompletableFuture.completedFuture(notFound());
     }
     long verifiedApplicantId = maybeApplication.get().getApplicant().id;
-
-    if (profileUtils.currentUserProfile(request).isTrustedIntermediary()) {
-      // if(applicantId != verifiedApplicantId) {
-      //  logger.warn("Request supplied applicantId");
-      // }
-    }
 
     long programId =
         programSlugHandler
