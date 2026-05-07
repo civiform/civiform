@@ -208,7 +208,6 @@ public class UpsellControllerTest extends WithMockedProfiles {
 
   @Test
   public void considerRegister_invalidApplicationId_returnsNotFound() {
-    ApplicantModel applicant = createApplicantWithMockedProfile();
 
     Request request = fakeRequestBuilder().build();
     Result result =
