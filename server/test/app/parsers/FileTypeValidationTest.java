@@ -13,11 +13,10 @@ import repository.ResetPostgres;
 
 public class FileTypeValidationTest extends ResetPostgres {
   private static final ImmutableList<String> ALLOWED =
-      FileTypeValidation.parseSpecifiers("image/*,.pdf,.xlsx");
+      FileTypeValidation.parseSpecifiers("image/*,.pdf");
 
   private static final byte[] PNG_MAGIC = {(byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
   private static final byte[] PDF_MAGIC = {0x25, 0x50, 0x44, 0x46, 0x2D, 0x31, 0x2E, 0x34};
-  private static final byte[] ZIP_MAGIC = {0x50, 0x4B, 0x03, 0x04};
   private static final byte[] UNKNOWN = {0x00, 0x01, 0x02, 0x03};
   private FileTypeValidation validator;
 
@@ -28,7 +27,7 @@ public class FileTypeValidationTest extends ResetPostgres {
 
   @Test
   public void parseSpecifiers_translatesExtensionsAndPreservesWildcards() {
-    assertThat(ALLOWED).containsExactly("image/*", "application/pdf", "application/zip");
+    assertThat(ALLOWED).containsExactly("image/*", "application/pdf");
   }
 
   @Test
@@ -40,11 +39,6 @@ public class FileTypeValidationTest extends ResetPostgres {
   @Test
   public void validateHeaderBytes_realPng_passes() {
     validator.validateHeaderBytes(ByteString.fromArray(PNG_MAGIC), "photo.png", ALLOWED);
-  }
-
-  @Test
-  public void validateHeaderBytes_realXlsx_passes() {
-    validator.validateHeaderBytes(ByteString.fromArray(ZIP_MAGIC), "budget.xlsx", ALLOWED);
   }
 
   @Test

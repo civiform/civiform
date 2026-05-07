@@ -5,6 +5,7 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.CompletableFuture.failedFuture;
 
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.CiviFormController;
 import java.util.Optional;
@@ -146,10 +147,15 @@ public final class FileUploadController extends CiviFormController {
                             applicantId)));
               }
 
-              ImmutableMap<String, String> formData =
-                  fileUploadQuestion.buildFormDataForAdd(fileKey, originalFileName);
+              ImmutableList<String> existingFileNames =
+                  fileUploadQuestion.getOriginalFileNameListValue().orElse(ImmutableList.of());
+              String deduplicatedFileName =
+                  FileUploadQuestion.getUniqueName(originalFileName, existingFileNames);
 
-              return getOrMakeFileRecord(fileKey, Optional.of(originalFileName), applicantId)
+              ImmutableMap<String, String> formData =
+                  fileUploadQuestion.buildFormDataForAdd(fileKey, deduplicatedFileName);
+
+              return getOrMakeFileRecord(fileKey, Optional.of(deduplicatedFileName), applicantId)
                   .thenComposeAsync(
                       storedFile ->
                           applicantService.stageAndUpdateIfValid(

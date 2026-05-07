@@ -1,13 +1,7 @@
-import {
-  getUniqueName,
-  hideError,
-  isFileTooLarge,
-  showError,
-} from '@/file_upload_util'
+import {hideError, isFileTooLarge, showError} from '@/file_upload_util'
 import {default as uswdsFileInput} from '@uswds/uswds/js/usa-file-input'
 import {HtmxAfterRequestEvent} from '@/types/htmx'
 
-const UPLOADED_FILE_ATTR = 'data-uploaded-files'
 const CAN_UPLOAD_FILE_ATTR = 'data-can-upload-file'
 const CF_FILE_UPLOADING_CLASS = 'cf-file-uploading'
 const CF_FILE_UPLOAD_CONTAINER_SELECTOR = '[data-cf-file-upload-container]'
@@ -96,36 +90,6 @@ export const init = () => {
 
   document.body.addEventListener('htmx:afterSwap', () => {
     syncFileInputDisabledState()
-  })
-
-  document.body.addEventListener('htmx:configRequest', (event) => {
-    const triggerElt = event.detail.elt
-    if (!isCfFileUploadInput(triggerElt)) {
-      return
-    }
-
-    const fileUploadContainer = triggerElt.closest(
-      CF_FILE_UPLOAD_CONTAINER_SELECTOR,
-    )
-    if (!fileUploadContainer) return
-
-    const uploadedFilesAttribute = fileUploadContainer
-      .querySelector(`[${UPLOADED_FILE_ATTR}]`)
-      ?.getAttribute(UPLOADED_FILE_ATTR)
-
-    if (!uploadedFilesAttribute) return
-    const uploadedFilesArray = JSON.parse(uploadedFilesAttribute) as string[]
-
-    const formData = event.detail.formData
-    const file = formData.get('file')
-    if (!(file instanceof File)) return
-
-    const newName = getUniqueName(file.name, uploadedFilesArray)
-
-    if (file.name !== newName) {
-      formData.delete('file')
-      formData.append('file', file, newName)
-    }
   })
 
   document.body.addEventListener('change', (event) => {
