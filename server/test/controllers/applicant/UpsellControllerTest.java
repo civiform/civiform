@@ -180,6 +180,52 @@ public class UpsellControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void considerRegister_ignoresProvidedApplicantId_usesApplicationApplicant() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+    ApplicationModel application =
+        resourceCreator.insertActiveApplication(applicant, programDefinition.toProgram());
+    application.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
+
+    // Pass a bogus applicantId — the controller should ignore it and use the application's
+    // applicant instead, so the request still succeeds.
+    long bogusApplicantId = applicant.id + 9999;
+    Request request = fakeRequestBuilder().build();
+    Result result =
+        subject
+            .considerRegister(
+                request,
+                bogusApplicantId,
+                String.valueOf(programDefinition.id()),
+                application.id,
+                "someUrl",
+                application.getSubmitTime().toString())
+            .toCompletableFuture()
+            .join();
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void considerRegister_invalidApplicationId_returnsNotFound() {
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+
+    Request request = fakeRequestBuilder().build();
+    Result result =
+        subject
+            .considerRegister(
+                request,
+                applicant.id,
+                "some-program",
+                /* applicationId= */ 0,
+                "someUrl",
+                FAKE_SUBMIT_TIME.toString())
+            .toCompletableFuture()
+            .join();
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
   public void download_authenticatedApplicant() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
