@@ -59,14 +59,15 @@ public class FileController extends CiviFormController {
               // uploaded it.
               boolean hasFileNameAcl =
                   ApplicantFileNameFormatter.isApplicantOwnedFileKey(decodedFileKey, applicantId);
+
+              Optional<StoredFileModel> storedFile =
+                  storedFileRepository.lookupFile(decodedFileKey).toCompletableFuture().join();
+
               if (!hasFileNameAcl) {
                 // Check the file ACL which may include other applicants
                 // given access.
                 boolean hasStoredFileAcl =
-                    storedFileRepository
-                        .lookupFile(decodedFileKey)
-                        .toCompletableFuture()
-                        .join()
+                    storedFile
                         .map(StoredFileModel::getAcls)
                         .map(acls -> acls.hasApplicantReadPermission(applicantId))
                         .orElse(false);
@@ -75,7 +76,11 @@ public class FileController extends CiviFormController {
                 }
               }
 
-              return redirect(applicantStorageClient.getPresignedUrlString(decodedFileKey));
+              Optional<String> originalFileName =
+                  storedFile.map(StoredFileModel::getOriginalFileName).orElse(null);
+
+              return redirect(
+                  applicantStorageClient.getPresignedUrlString(decodedFileKey, originalFileName));
             },
             classLoaderExecutionContext.current())
         .exceptionally(

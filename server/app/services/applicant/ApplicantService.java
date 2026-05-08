@@ -213,7 +213,8 @@ public final class ApplicantService {
                   jsonPathPredicateGeneratorFactory,
                   applicant,
                   applicant.getApplicantData(),
-                  programDefinition);
+                  programDefinition,
+                  storedFileRepository);
             },
             classLoaderExecutionContext.current());
   }
@@ -227,7 +228,8 @@ public final class ApplicantService {
               jsonPathPredicateGeneratorFactory,
               application.getApplicant(),
               application.getApplicantData(),
-              programService.getFullProgramDefinition(application.getProgram().id)));
+              programService.getFullProgramDefinition(application.getProgram().id),
+              storedFileRepository));
     } catch (ProgramNotFoundException e) {
       throw new RuntimeException("Cannot find a program that has applications for it.", e);
     }
@@ -240,7 +242,8 @@ public final class ApplicantService {
         jsonPathPredicateGeneratorFactory,
         application.getApplicant(),
         application.getApplicantData(),
-        programDefinition);
+        programDefinition,
+        storedFileRepository);
   }
 
   /** Get a {@link ReadOnlyApplicantProgramService} from applicant data and a program definition. */
@@ -249,7 +252,11 @@ public final class ApplicantService {
     ApplicantModel applicant = new ApplicantModel();
     applicant.setApplicantData(applicantData);
     return new ReadOnlyApplicantProgramService(
-        jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+        jsonPathPredicateGeneratorFactory,
+        applicant,
+        applicantData,
+        programDefinition,
+        storedFileRepository);
   }
 
   /**
@@ -343,7 +350,8 @@ public final class ApplicantService {
                       jsonPathPredicateGeneratorFactory,
                       applicant,
                       applicant.getApplicantData(),
-                      programDefinition);
+                      programDefinition,
+                      storedFileRepository);
               Optional<Block> maybeBlockBeforeUpdate =
                   readOnlyApplicantProgramServiceBeforeUpdate.getActiveBlock(blockId);
               if (maybeBlockBeforeUpdate.isEmpty()) {
@@ -436,7 +444,8 @@ public final class ApplicantService {
             applicant,
             applicant.getApplicantData(),
             programDefinition,
-            failedUpdates);
+            failedUpdates,
+            storedFileRepository);
 
     Optional<Block> blockMaybe =
         roApplicantProgramService.getActiveBlock(blockBeforeUpdate.getId());

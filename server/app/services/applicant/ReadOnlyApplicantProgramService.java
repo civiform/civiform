@@ -9,10 +9,15 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import models.ApplicantModel;
+import models.StoredFileModel;
+import repository.StoredFileRepository;
 import services.LocalizedStrings;
 import services.Path;
 import services.applicant.predicate.JsonPathPredicateGenerator;
@@ -49,18 +54,21 @@ public final class ReadOnlyApplicantProgramService {
   private ImmutableList<Block> allActiveBlockList;
   private ImmutableList<Block> allHiddenBlockList;
   private ImmutableList<Block> currentBlockList;
+  private final StoredFileRepository storedFileRepository;
 
   public ReadOnlyApplicantProgramService(
       JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory,
       ApplicantModel applicant,
       ApplicantData applicantData,
-      ProgramDefinition programDefinition) {
+      ProgramDefinition programDefinition,
+      StoredFileRepository storedFileRepository) {
     this(
         jsonPathPredicateGeneratorFactory,
         applicant,
         applicantData,
         programDefinition,
-        /* failedUpdates= */ ImmutableMap.of());
+        /* failedUpdates= */ ImmutableMap.of(),
+        storedFileRepository);
   }
 
   public ReadOnlyApplicantProgramService(
@@ -68,7 +76,8 @@ public final class ReadOnlyApplicantProgramService {
       ApplicantModel applicant,
       ApplicantData applicantData,
       ProgramDefinition programDefinition,
-      ImmutableMap<Path, String> failedUpdates) {
+      ImmutableMap<Path, String> failedUpdates,
+      StoredFileRepository storedFileRepository) {
     this.jsonPathPredicateGeneratorFactory = checkNotNull(jsonPathPredicateGeneratorFactory);
     this.applicant = checkNotNull(applicant);
     this.applicantData = new ApplicantData(checkNotNull(applicantData).asJsonString());
@@ -76,6 +85,7 @@ public final class ReadOnlyApplicantProgramService {
     this.applicantData.setFailedUpdates(failedUpdates);
     this.applicantData.lock();
     this.programDefinition = checkNotNull(programDefinition);
+    this.storedFileRepository = checkNotNull(storedFileRepository);
   }
 
   /** Returns the applicant model for this application. */
@@ -519,17 +529,27 @@ public final class ReadOnlyApplicantProgramService {
 
           if (fileUploadQuestion.getFileKeyListValue().isPresent()) {
             ImmutableList<String> fileKeys = fileUploadQuestion.getFileKeyListValue().get();
-            Optional<ImmutableList<String>> originalFileNamesOptional =
-                fileUploadQuestion.getOriginalFileNameListValue();
-            ImmutableList<String> storageFileNames;
-            // Only Azure deployments store OriginalFilenames, for all other deployments, the
-            // filename is stored in the
-            // filekey.
-            storageFileNames =
-                originalFileNamesOptional.isPresent() ? originalFileNamesOptional.get() : fileKeys;
+
+            Map<String, StoredFileModel> storedFilesByKey =
+                storedFileRepository.lookupFiles(fileKeys).toCompletableFuture().join().stream()
+                    .collect(Collectors.toMap(StoredFileModel::getName, f -> f));
+
             fileNames =
-                storageFileNames.stream()
-                    .map(FileUploadQuestion::getFileName)
+                IntStream.range(0, fileKeys.size())
+                    .mapToObj(
+                        i -> {
+                          String key = fileKeys.get(i);
+                          StoredFileModel storedFileModel = storedFilesByKey.get(key);
+                          if (storedFileModel != null) {
+                            Optional<String> fromDb = storedFileModel.getOriginalFileName();
+                            if (fromDb.isPresent()) {
+                              return fromDb.get();
+                            }
+                          }
+                          return fileUploadQuestion
+                              .getOriginalFileNameValueForIndex(i)
+                              .orElse(FileUploadQuestion.getFileName(key));
+                        })
                     .collect(toImmutableList());
             encodedFileKeys =
                 fileKeys.stream()

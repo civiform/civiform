@@ -77,8 +77,15 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
 
   @Override
   public String getPresignedUrlString(String fileKey, Optional<String> originalFileName) {
+    GetObjectRequest.Builder getObjectRequestBuilder =
+        GetObjectRequest.builder().key(fileKey).bucket(bucket);
     GetObjectRequest getObjectRequest =
-        GetObjectRequest.builder().key(fileKey).bucket(bucket).build();
+        originalFileName.isPresent()
+            ? getObjectRequestBuilder
+                .responseContentDisposition(
+                    String.format("attachment; filename=\"%s\"", originalFileName.get()))
+                .build()
+            : getObjectRequestBuilder.build();
     GetObjectPresignRequest getObjectPresignRequest =
         GetObjectPresignRequest.builder()
             .signatureDuration(PRESIGNED_URL_DURATION)
