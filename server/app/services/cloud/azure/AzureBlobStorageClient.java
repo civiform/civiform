@@ -79,7 +79,8 @@ class AzureBlobStorageClient extends BaseAzureBlobStorageClient {
             .setProtocol(SasProtocol.HTTPS_ONLY);
 
     if (prefixedOriginalFileName.isPresent()) {
-      signatureValues.setContentDisposition("inline; filename=" + prefixedOriginalFileName.get());
+      signatureValues.setContentDisposition(
+          String.format("inline; filename=\"%s\"", prefixedOriginalFileName.get()));
       signatureValues.setContentType(
           URLConnection.guessContentTypeFromName(prefixedOriginalFileName.get()));
     }

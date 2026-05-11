@@ -31,16 +31,17 @@ public interface ApplicantStorageClient {
 
   /**
    * Returns the string version of a URL that gives users temporary access to file storage. This URL
-   * is used to access and download the users' files from cloud storage. The
-   * prefixedOriginalFileName will either be in the format "dev/${filename}" or
-   * applicant-%d/program-%d/block-%s/${filename}" where "${filename}" is the name of the uploaded
-   * file which is set by a user. For more information on prefixed filenames, see {@link
-   * ApplicantFileNameFormatter}
+   * is used to access and download the users' files from cloud storage.
+   *
+   * <p>If {@code originalFileName} is present, implementations set the {@code Content-Disposition}
+   * response header so clients use that name when opening or saving the object. The value is either
+   * the applicant-facing name from {@link models.StoredFileModel} or a basename derived from {@code
+   * fileKey}. The object to fetch is always identified by {@code fileKey}.
    *
    * @param fileKey The file key to be accessed from cloud storage.
-   * @param prefixedOriginalFileName The file name set by the user (optional).
+   * @param originalFileName Download filename for the client.
    */
-  String getPresignedUrlString(String fileKey, Optional<String> prefixedOriginalFileName);
+  String getPresignedUrlString(String fileKey, Optional<String> originalFileName);
 
   /**
    * Creates and returns a request to upload a file to cloud storage.
