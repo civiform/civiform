@@ -45,9 +45,9 @@
                 ></div>
               </div>
               <div
-                class="margin-left-auto margin-right-2"
-                th:replace="~{applicant/review/SubmitApplicationFragment :: submitButtons(${csrfToken},${submitUrl}, ${continueUrl},${hasCompletedAllBlocks})}"
-              />
+                class="margin-left-auto"
+                th:insert="~{applicant/review/SubmitApplicationFragment :: submitButtons(${csrfToken},${submitUrl}, ${continueUrl},${hasCompletedAllBlocks})}"
+              ></div>
             </div>
 
             <div
@@ -75,6 +75,7 @@
               </li>
             </ol>
             <div
+              class="summary-button-section"
               th:replace="~{applicant/review/SubmitApplicationFragment :: submitButtons(${csrfToken},${submitUrl}, ${continueUrl},${hasCompletedAllBlocks})}"
             />
           </div>
