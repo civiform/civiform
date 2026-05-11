@@ -144,7 +144,7 @@ public final class UpsellController extends CiviFormController {
                       roApplicantProgramService,
                       relevantProgramsFuture)
                   .thenComposeAsync(
-                      __ -> {
+                      _ -> {
                         if (!isPreScreener.join()) {
                           // Only the pre-screener form needs to get the applicant's eligible
                           // programs this way.
