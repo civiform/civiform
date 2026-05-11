@@ -38,14 +38,16 @@
       >
         <div class="grid-row">
           <div class="tablet:grid-col-8">
-            <div class="section-external display-flex flex-align-center">
+            <div
+              class="section-external tablet:display-flex tablet:flex-align-end"
+            >
               <div class="flex-fill">
                 <div
                   th:replace="~{applicant/blocks/ProgressBarFragment :: progressBar(${progressBar})}"
                 ></div>
               </div>
               <div
-                class="margin-left-auto"
+                class="margin-left-auto margin-bottom-3"
                 th:insert="~{applicant/review/SubmitApplicationFragment :: submitButtons(${csrfToken},${submitUrl}, ${continueUrl},${hasCompletedAllBlocks})}"
               ></div>
             </div>
