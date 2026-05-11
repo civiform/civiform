@@ -136,7 +136,7 @@ public class SettingsServiceTest extends ResetPostgres {
                   "test-2",
                   "test_regex_validated_string",
                   "test",
-                  "FILE_UPLOAD_IMPROVEMENTS_ENABLED",
+                  "file_upload_improvements_enabled",
                   "true")));
 
   private CiviFormProfile testProfile;
