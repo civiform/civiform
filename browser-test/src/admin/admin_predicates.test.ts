@@ -264,7 +264,11 @@ test.describe('create and edit predicates', () => {
       'conditional question',
     )
     await expect(
-      page.getByRole('button', {name: 'Submit application'}),
+      page.getByRole('button', {name: 'Submit application'}).first(),
+    ).toBeVisible()
+
+    await expect(
+      page.getByRole('button', {name: 'Submit application'}).nth(1),
     ).toBeVisible()
 
     // Return to the first screen and answer it so that the second screen is shown
@@ -433,7 +437,10 @@ test.describe('create and edit predicates', () => {
 
     // We should be on the review page, and able to submit the application
     await expect(
-      page.getByRole('button', {name: 'Submit application'}),
+      page.getByRole('button', {name: 'Submit application'}).first(),
+    ).toBeVisible()
+    await expect(
+      page.getByRole('button', {name: 'Submit application'}).nth(1),
     ).toBeVisible()
     await applicantQuestions.submitFromReviewPage()
 
