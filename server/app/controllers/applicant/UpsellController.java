@@ -146,6 +146,8 @@ public final class UpsellController extends CiviFormController {
                   .thenComposeAsync(
                       __ -> {
                         if (!isPreScreener.join()) {
+                          // Only the pre-screener form needs to get the applicant's eligible
+                          // programs this way.
                           return CompletableFuture.completedFuture(
                               Optional.<ImmutableList<ApplicantProgramData>>empty());
                         }
@@ -184,23 +186,24 @@ public final class UpsellController extends CiviFormController {
                                 .setApplicantId(appApplicantId)
                                 .setDateSubmitted(formattedDate);
 
+                        final UpsellParams upsellParams;
                         if (isPreScreener.join()) {
-                          return ok(preScreenerUpsellView.render(
-                                  paramsBuilder
-                                      .setEligiblePrograms(
-                                          maybeEligiblePrograms.orElseGet(ImmutableList::of))
-                                      .build()))
-                              .as(Http.MimeTypes.HTML);
+                          upsellParams =
+                              paramsBuilder
+                                  .setEligiblePrograms(
+                                      maybeEligiblePrograms.orElseGet(ImmutableList::of))
+                                  .build();
                         } else {
-                          return ok(upsellView.render(
-                                  paramsBuilder
-                                      .setEligiblePrograms(
-                                          relevantProgramsFuture
-                                              .join()
-                                              .unappliedAndPotentiallyEligible())
-                                      .build()))
-                              .as(Http.MimeTypes.HTML);
+                          upsellParams =
+                              paramsBuilder
+                                  .setEligiblePrograms(
+                                      relevantProgramsFuture
+                                          .join()
+                                          .unappliedAndPotentiallyEligible())
+                                  .build();
                         }
+                        return ok(preScreenerUpsellView.render(upsellParams))
+                            .as(Http.MimeTypes.HTML);
                       },
                       classLoaderExecutionContext.current());
             },
