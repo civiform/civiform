@@ -1,0 +1,21 @@
+<form
+  th:fragment="submitButtons(csrfToken, submitUrl, continueUrl, hasCompletedAllBlocks)"
+  class="cf-debounced-form summary-button-section"
+  th:action="${submitUrl}"
+  method="POST"
+>
+  <input hidden th:value="${csrfToken}" name="csrfToken" />
+  <button
+    th:if="${hasCompletedAllBlocks}"
+    th:text="#{button.submitApplication}"
+    type="submit"
+    class="usa-button margin-right-0"
+  ></button>
+  <a
+    th:unless="${hasCompletedAllBlocks}"
+    th:href="${continueUrl}"
+    th:text="#{button.continue}"
+    id="continue-application-button"
+    class="usa-button margin-right-0"
+  ></a>
+</form>
