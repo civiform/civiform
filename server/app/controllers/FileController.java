@@ -61,14 +61,8 @@ public class FileController extends CiviFormController {
               boolean hasFileNameAcl =
                   ApplicantFileNameFormatter.isApplicantOwnedFileKey(decodedFileKey, applicantId);
 
-              boolean fileUploadImprovementsEnabled =
-                  settingsManifest.getFileUploadQuestionImprovementsEnabled(request);
-
-              Optional<StoredFileModel> storedFile = Optional.empty();
-              if (fileUploadImprovementsEnabled || !hasFileNameAcl) {
-                storedFile =
-                    storedFileRepository.lookupFile(decodedFileKey).toCompletableFuture().join();
-              }
+              Optional<StoredFileModel> storedFile =
+                  storedFileRepository.lookupFile(decodedFileKey).toCompletableFuture().join();
 
               if (!hasFileNameAcl) {
                 // Check the file ACL which may include other applicants
@@ -84,10 +78,9 @@ public class FileController extends CiviFormController {
               }
 
               String downloadUrl =
-                  fileUploadImprovementsEnabled
-                      ? applicantStorageClient.getPresignedUrlString(
-                          decodedFileKey, FileUploadQuestion.getUploadedFileName(storedFile))
-                      : applicantStorageClient.getPresignedUrlString(decodedFileKey);
+                  applicantStorageClient.getPresignedUrlString(
+                      decodedFileKey,
+                      FileUploadQuestion.getUploadedFileName(storedFile, decodedFileKey));
 
               return redirect(downloadUrl);
             },
@@ -154,10 +147,8 @@ public class FileController extends CiviFormController {
     // An admin is eligible if they are a global admin with the program access flag turned on
     // or if they have been explicitly given read permission to the program.
     String downloadUrl =
-        settingsManifest.getFileUploadQuestionImprovementsEnabled(request)
-            ? applicantStorageClient.getPresignedUrlString(
-                decodedFileKey, FileUploadQuestion.getUploadedFileName(maybeFile))
-            : applicantStorageClient.getPresignedUrlString(decodedFileKey);
+        applicantStorageClient.getPresignedUrlString(
+            decodedFileKey, FileUploadQuestion.getUploadedFileName(maybeFile, decodedFileKey));
 
     return ((adminAccount.getGlobalAdmin()
                 && settingsManifest.getAllowCiviformAdminAccessPrograms(request))
