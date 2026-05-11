@@ -19,7 +19,10 @@ import services.cloud.PublicFileNameFormatter;
 import services.cloud.PublicStorageClient;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.settings.SettingsManifest;
 import views.admin.programs.ProgramEditStatus;
+import views.admin.programs.ProgramImagePageView;
+import views.admin.programs.ProgramImagePageViewModel;
 import views.admin.programs.ProgramImageView;
 
 /** Controller for displaying and modifying the image (and alt text) associated with a program. */
@@ -27,6 +30,8 @@ public final class AdminProgramImageController extends CiviFormController {
   private final PublicStorageClient publicStorageClient;
   private final ProgramService programService;
   private final ProgramImageView programImageView;
+  private final ProgramImagePageView programImagePageView;
+  private final SettingsManifest settingsManifest;
   private final RequestChecker requestChecker;
   private final FormFactory formFactory;
 
@@ -35,6 +40,8 @@ public final class AdminProgramImageController extends CiviFormController {
       PublicStorageClient publicStorageClient,
       ProgramService programService,
       ProgramImageView programImageView,
+      ProgramImagePageView programImagePageView,
+      SettingsManifest settingsManifest,
       RequestChecker requestChecker,
       FormFactory formFactory,
       ProfileUtils profileUtils,
@@ -43,6 +50,8 @@ public final class AdminProgramImageController extends CiviFormController {
     this.publicStorageClient = checkNotNull(publicStorageClient);
     this.programService = checkNotNull(programService);
     this.programImageView = checkNotNull(programImageView);
+    this.programImagePageView = checkNotNull(programImagePageView);
+    this.settingsManifest = checkNotNull(settingsManifest);
     this.requestChecker = checkNotNull(requestChecker);
     this.formFactory = checkNotNull(formFactory);
   }
@@ -56,6 +65,10 @@ public final class AdminProgramImageController extends CiviFormController {
   public Result index(Http.Request request, long programId, String editStatus)
       throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
+    if (settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
+      return ok(programImagePageView.render(request, new ProgramImagePageViewModel()))
+          .as(Http.MimeTypes.HTML);
+    }
     return ok(
         programImageView.render(
             request, programService.getFullProgramDefinition(programId), editStatus));

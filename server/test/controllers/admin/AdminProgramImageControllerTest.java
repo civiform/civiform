@@ -27,9 +27,11 @@ import services.TranslationNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import support.cloud.FakePublicStorageClient;
 import views.admin.programs.ProgramEditStatus;
+import views.admin.programs.ProgramImagePageView;
 import views.admin.programs.ProgramImageView;
 
 @RunWith(JUnitParamsRunner.class)
@@ -47,6 +49,8 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
             new FakePublicStorageClient(),
             programService,
             instanceOf(ProgramImageView.class),
+            instanceOf(ProgramImagePageView.class),
+            instanceOf(SettingsManifest.class),
             instanceOf(RequestChecker.class),
             instanceOf(FormFactory.class),
             instanceOf(ProfileUtils.class),
