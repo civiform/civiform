@@ -79,7 +79,7 @@ public final class FileUploadController extends CiviFormController {
   @BodyParser.Of(ApplicantStreamingMultipartBodyParser.class)
   public CompletionStage<Result> hxSelectFileForUpload(
       Request request, long programId, String blockId) {
-    if (!settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
+    if (!settingsManifest.getFileUploadImprovementsEnabled(request)) {
       return CompletableFuture.completedFuture(notFound());
     }
 
@@ -183,7 +183,7 @@ public final class FileUploadController extends CiviFormController {
    */
   @Secure
   public CompletionStage<Result> hxRemoveFile(Request request, long programId, String blockId) {
-    if (!settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
+    if (!settingsManifest.getFileUploadImprovementsEnabled(request)) {
       return CompletableFuture.completedFuture(notFound());
     }
 

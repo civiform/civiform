@@ -135,7 +135,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
 
     // Include file upload specific parameters.
     if (applicationParams.block().isFileUpload()
-        && !settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
+        && !settingsManifest.getFileUploadImprovementsEnabled(request)) {
       this.addFileUploadParameters(request, applicationParams, context);
 
       return templateEngine.process(

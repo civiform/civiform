@@ -399,7 +399,7 @@ public final class ProgramQuestionBank {
                         params.blockDefinition(),
                         q,
                         settingsManifest.getEnumeratorImprovementsEnabled(request),
-                        settingsManifest.getFileUploadQuestionImprovementsEnabled(request))
+                        settingsManifest.getFileUploadImprovementsEnabled(request))
                     == AddQuestionResult.ELIGIBLE);
   }
 

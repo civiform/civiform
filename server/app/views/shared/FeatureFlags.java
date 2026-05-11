@@ -29,7 +29,7 @@ public record FeatureFlags(
         .isAdminUiMigrationScExtendedEnabled(
             settingsManifest.getAdminUiMigrationScExtendedEnabled(request))
         .isFileUploadQuestionImprovementsEnabled(
-            settingsManifest.getFileUploadQuestionImprovementsEnabled(request))
+            settingsManifest.getFileUploadImprovementsEnabled(request))
         .build();
   }
 

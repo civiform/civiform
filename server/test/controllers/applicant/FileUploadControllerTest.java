@@ -70,7 +70,7 @@ public class FileUploadControllerTest extends WithMockedProfiles {
                     new play.mvc.Http.MultipartFormData.FilePart<>(
                         "file", "my-document.pdf", "application/pdf", "applicant-test-file-key")))
             .build();
-    when(settingsManifest.getFileUploadQuestionImprovementsEnabled(request)).thenReturn(true);
+    when(settingsManifest.getFileUploadImprovementsEnabled(request)).thenReturn(true);
 
     Result result =
         subject
