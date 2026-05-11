@@ -106,8 +106,7 @@ public class QuestionPreview extends ApplicantBaseView {
               // Provide a single sample entity row so the preview shows the initial question
               // inputs without needing the HTMX add-entity endpoint.
               context.setVariable(
-                  "contextualizedInitialQuestions",
-                  ImmutableList.of(initialApplicantQuestion));
+                  "contextualizedInitialQuestions", ImmutableList.of(initialApplicantQuestion));
               context.setVariable(
                   "contextualizedInitialQuestionParams", ImmutableList.of(rendererParams));
             });

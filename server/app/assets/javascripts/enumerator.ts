@@ -13,9 +13,9 @@ export function init() {
 
   // After HTMX swaps in a new entity row, re-attach listeners and refresh the
   // add button state.
-  document.addEventListener('htmx:afterSettle', (event: Event) => {
-    const target = (event as CustomEvent).detail?.target as HTMLElement | null
-    if (target?.id === 'enumerator-fields') {
+  document.addEventListener('htmx:afterSettle', (event) => {
+    const target = event.detail.target
+    if (target.id === 'enumerator-fields') {
       updateListeners()
       focusFirstInputInLastEntity()
     }
@@ -178,7 +178,7 @@ function focusFirstInputInLastEntity() {
   if (fields.length === 0) return
 
   const lastField = fields[fields.length - 1]
-  const firstInput = lastField.querySelector(
+  const firstInput = lastField.querySelector<HTMLInputElement>(
     'input:not([type=hidden])',
   )
   if (firstInput) {

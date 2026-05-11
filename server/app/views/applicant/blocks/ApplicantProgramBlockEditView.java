@@ -187,8 +187,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
       // Initial question context for enumerator blocks with enumerator improvements enabled.
       if (settingsManifest.getEnumeratorImprovementsEnabled(request)
           && applicationParams.block().getInitialQuestion().isPresent()) {
-        ApplicantQuestion initialQuestion =
-            applicationParams.block().getInitialQuestion().get();
+        ApplicantQuestion initialQuestion = applicationParams.block().getInitialQuestion().get();
         context.setVariable("initialQuestion", initialQuestion);
 
         ImmutableList<ApplicantQuestion> contextualizedInitialQuestions =
@@ -223,8 +222,8 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
         context.setVariable(
             "hxAddEnumeratorEntityUrl",
             controllers.applicant.routes.ApplicantProgramBlocksController.hxAddEnumeratorEntity(
-                    applicationParams.programId(), applicationParams.block().getId())
-                .url()
+                        applicationParams.programId(), applicationParams.block().getId())
+                    .url()
                 + "?applicantId="
                 + applicationParams.applicantId());
       }

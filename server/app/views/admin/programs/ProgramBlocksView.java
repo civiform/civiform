@@ -683,13 +683,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     // Identify the initial question (if any) so we can skip rendering it as a standalone card.
     // The enumerator's initial question is shown in dedicated UI: the enumerator-setup section in
     // edit mode, and nowhere in read-only mode.
-    Optional<Long> initialQuestionId =
-        blockQuestions.stream()
-            .map(ProgramQuestionDefinition::getQuestionDefinition)
-            .filter(qd -> qd instanceof EnumeratorQuestionDefinition)
-            .map(qd -> ((EnumeratorQuestionDefinition) qd).getInitialQuestionId())
-            .findFirst()
-            .orElse(Optional.empty());
+    Optional<Long> initialQuestionId = enumeratorInitialQuestionId(blockDefinition);
 
     ImmutableList.Builder<DivTag> questionCardsBuilder = ImmutableList.builder();
 
@@ -780,6 +774,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                         /* questionsCount= */ 1,
                         request,
                         /* isInitialQuestionSetup= */ true));
+        boolean showBackfillInitialQuestionButton =
+            blockHasEnumeratorQuestion && initialQuestionId.isEmpty();
         return div.with(
             renderEnumeratorScreenContent(
                 blockHasEnumeratorQuestion,
@@ -789,7 +785,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 blockDefinition,
                 questionCards.isEmpty() ? Optional.empty() : Optional.of(questionCards.get(0)),
                 optionalInitialQuestionCard,
-                optionalInitialQuestion));
+                optionalInitialQuestion,
+                showBackfillInitialQuestionButton));
       }
 
       // For repeated blocks, check if parent enumerator is at first level (not nested)
@@ -898,6 +895,20 @@ public final class ProgramBlocksView extends ProgramBaseView {
     return foundMissingQuestionDefinition.orElse(questionDefinition);
   }
 
+  /**
+   * Returns the {@link EnumeratorQuestionDefinition#getInitialQuestionId()} for the block's
+   * enumerator question, or {@link Optional#empty()} if the block has no enumerator question or no
+   * initial question is linked.
+   */
+  private static Optional<Long> enumeratorInitialQuestionId(BlockDefinition blockDefinition) {
+    return blockDefinition.programQuestionDefinitions().stream()
+        .map(ProgramQuestionDefinition::getQuestionDefinition)
+        .filter(qd -> qd instanceof EnumeratorQuestionDefinition)
+        .map(qd -> ((EnumeratorQuestionDefinition) qd).getInitialQuestionId())
+        .findFirst()
+        .orElse(Optional.empty());
+  }
+
   private DivTag renderEnumeratorScreenContent(
       boolean blockHasEnumeratorQuestion,
       Request request,
@@ -906,7 +917,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       BlockDefinition blockDefinition,
       Optional<DivTag> optionalQuestionCard,
       Optional<DivTag> optionalInitialQuestionCard,
-      Optional<QuestionDefinition> optionalInitialQuestion) {
+      Optional<QuestionDefinition> optionalInitialQuestion,
+      boolean showBackfillInitialQuestionButton) {
     // If it's an empty enumerator block
     if (!blockHasEnumeratorQuestion || optionalQuestionCard.isEmpty()) {
       return renderEnumeratorSetupSection(
@@ -920,7 +932,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
           optionalInitialQuestion);
     } else {
       return renderEnumeratorSectionWithSelectedQuestion(
-          messages, optionalQuestionCard, blockHasEnumeratorQuestion, blockDefinition);
+          messages,
+          optionalQuestionCard,
+          blockHasEnumeratorQuestion,
+          blockDefinition,
+          showBackfillInitialQuestionButton);
     }
   }
 
@@ -929,15 +945,49 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Optional<DivTag> optionalQuestionCard,
       boolean blockHasEnumeratorQuestion,
       BlockDefinition blockDefinition) {
+    return renderEnumeratorSectionWithSelectedQuestion(
+        messages,
+        optionalQuestionCard,
+        blockHasEnumeratorQuestion,
+        blockDefinition,
+        /* showBackfillInitialQuestionButton= */ false);
+  }
+
+  public DivTag renderEnumeratorSectionWithSelectedQuestion(
+      Messages messages,
+      Optional<DivTag> optionalQuestionCard,
+      boolean blockHasEnumeratorQuestion,
+      BlockDefinition blockDefinition,
+      boolean showBackfillInitialQuestionButton) {
     // For enumerators, only show nested button if enumerator is at first level (not nested itself)
     boolean shouldShowNestedButton = blockDefinition.enumeratorId().isEmpty();
     return div(
-        renderEnumeratorQuestionCardSection(messages, optionalQuestionCard),
-        renderAddRepeatedScreenButtons(
-            messages,
-            blockHasEnumeratorQuestion,
-            /* optionalParentEnumeratorBlock= */ Optional.empty(),
-            shouldShowNestedButton));
+            renderEnumeratorQuestionCardSection(messages, optionalQuestionCard),
+            iff(showBackfillInitialQuestionButton, renderBackfillInitialQuestionButton()),
+            renderAddRepeatedScreenButtons(
+                messages,
+                blockHasEnumeratorQuestion,
+                /* optionalParentEnumeratorBlock= */ Optional.empty(),
+                shouldShowNestedButton))
+        .withId("enumerator-block-content");
+  }
+
+  /**
+   * Renders the "Add initial question" button shown below the enumerator question card when the
+   * block has an enumerator question but no initial question is set. Clicking opens the question
+   * bank (via the {@link ReferenceClasses#OPEN_QUESTION_BANK_BUTTON} class) which is configured to
+   * submit selections to {@link AdminProgramBlockQuestionsController#hxBackfillInitialQuestion}
+   * when in the backfill state.
+   */
+  private ButtonTag renderBackfillInitialQuestionButton() {
+    return ViewUtils.makeSvgTextButton("Add initial question", Icons.ADD)
+        .withType("button")
+        .withId("add-initial-question-button")
+        .withClasses(
+            "usa-button",
+            "usa-button--outline",
+            "margin-top-105",
+            ReferenceClasses.OPEN_QUESTION_BANK_BUTTON);
   }
 
   private DivTag renderEnumeratorQuestionCardSection(
@@ -1807,12 +1857,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * admin clicks Delete on the initial question card to clear the selection.
    */
   public DivTag renderEmptyInitialQuestionSlot(Messages messages) {
-    return div(
-            input()
-                .isRequired()
-                .withType("button")
-                .withValue(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName()))
-                .withClasses(ReferenceClasses.OPEN_QUESTION_BANK_BUTTON))
+    return div(input()
+            .isRequired()
+            .withType("button")
+            .withValue(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName()))
+            .withClasses(ReferenceClasses.OPEN_QUESTION_BANK_BUTTON))
         .withId("initial-question-slot");
   }
 
@@ -1846,7 +1895,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
             card))
         .withId("initial-question-slot");
   }
-
 
   /**
    * Renders accordion that may be shown at the bottom of a question card if this question is used
@@ -1924,14 +1972,28 @@ public final class ProgramBlocksView extends ProgramBaseView {
         enumeratorImprovementsEnabled
             && blockDefinition.getIsEnumerator()
             && !blockDefinition.hasEnumeratorQuestion();
-    String addQuestionAction =
-        isEnumeratorSetup
-            ? controllers.admin.routes.AdminProgramBlockQuestionsController.hxSelectInitialQuestion(
-                    program.id(), blockDefinition.id())
-                .url()
-            : controllers.admin.routes.AdminProgramBlockQuestionsController.create(
-                    program.id(), blockDefinition.id())
-                .url();
+    boolean isBackfillingInitialQuestion =
+        enumeratorImprovementsEnabled
+            && blockDefinition.getIsEnumerator()
+            && blockDefinition.hasEnumeratorQuestion()
+            && enumeratorInitialQuestionId(blockDefinition).isEmpty();
+    String addQuestionAction;
+    if (isEnumeratorSetup) {
+      addQuestionAction =
+          controllers.admin.routes.AdminProgramBlockQuestionsController.hxSelectInitialQuestion(
+                  program.id(), blockDefinition.id())
+              .url();
+    } else if (isBackfillingInitialQuestion) {
+      addQuestionAction =
+          controllers.admin.routes.AdminProgramBlockQuestionsController.hxBackfillInitialQuestion(
+                  program.id(), blockDefinition.id())
+              .url();
+    } else {
+      addQuestionAction =
+          controllers.admin.routes.AdminProgramBlockQuestionsController.create(
+                  program.id(), blockDefinition.id())
+              .url();
+    }
 
     // For the enumerator setup, don't add the "show question bank" param to the redirect URL
     // so that the page loads cleanly after a new question is created (the new question will be
@@ -1941,7 +2003,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 program.id(), blockDefinition.id())
             .url();
     String redirectUrl =
-        isEnumeratorSetup ? editUrl : ProgramQuestionBank.addShowQuestionBankParam(editUrl);
+        (isEnumeratorSetup || isBackfillingInitialQuestion)
+            ? editUrl
+            : ProgramQuestionBank.addShowQuestionBankParam(editUrl);
     ProgramQuestionBank.ProgramQuestionBankParams.Builder bankParamsBuilder =
         ProgramQuestionBank.ProgramQuestionBankParams.builder()
             .setQuestionAction(addQuestionAction)
@@ -1952,6 +2016,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .setQuestionCreateRedirectUrl(redirectUrl);
     if (isEnumeratorSetup) {
       bankParamsBuilder.setHxTarget(Optional.of("#initial-question-slot"));
+    } else if (isBackfillingInitialQuestion) {
+      bankParamsBuilder.setHxTarget(Optional.of("#enumerator-block-content"));
     }
     ProgramQuestionBank qb =
         new ProgramQuestionBank(

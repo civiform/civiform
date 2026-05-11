@@ -32,10 +32,13 @@ import services.program.ProgramDefinition;
 import services.program.ProgramDefinition.Direction;
 import services.program.ProgramNeedsABlockException;
 import services.program.ProgramNotFoundException;
+import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.QuestionNotFoundException;
+import services.question.types.EnumeratorQuestionDefinition;
+import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import views.admin.programs.BlockType;
 import views.admin.programs.ProgramBlocksView;
@@ -52,6 +55,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
   private final RequestChecker requestChecker;
   private final MessagesApi messagesApi;
   private final SettingsManifest settingsManifest;
+  private final AdminProgramBlockQuestionsController blockQuestionsController;
 
   @Inject
   public AdminProgramBlocksController(
@@ -63,7 +67,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
       MessagesApi messagesApi,
-      SettingsManifest settingsManifest) {
+      SettingsManifest settingsManifest,
+      AdminProgramBlockQuestionsController blockQuestionsController) {
     super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
@@ -73,6 +78,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
     this.requestChecker = checkNotNull(requestChecker);
     this.messagesApi = checkNotNull(messagesApi);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.blockQuestionsController = checkNotNull(blockQuestionsController);
   }
 
   /**
@@ -226,12 +232,14 @@ public final class AdminProgramBlocksController extends CiviFormController {
           request.queryString(views.components.ProgramQuestionBank.NEWLY_CREATED_QUESTION_ID_PARAM);
 
       // When a new question was just created from the question bank, determine whether it should
-      // be treated as an initial question selection (for enumerator setup) or auto-added to the
-      // block.
+      // be treated as an initial question selection (for enumerator setup), backfilled as the
+      // initial question on an enumerator that lacks one, or auto-added to the block.
       boolean isEnumeratorSetup =
           settingsManifest.getEnumeratorImprovementsEnabled(request)
               && block.getIsEnumerator()
               && !block.hasEnumeratorQuestion();
+      Optional<QuestionDefinition> backfillEnumeratorDef =
+          isBackfillingInitialQuestionState(request, block);
 
       if (newQuestionIdParam.isPresent()) {
         if (isEnumeratorSetup) {
@@ -241,6 +249,20 @@ public final class AdminProgramBlocksController extends CiviFormController {
               routes.AdminProgramBlocksController.edit(programId, blockId).url()
                   + "?initialQuestionId="
                   + newQuestionIdParam.get());
+        } else if (backfillEnumeratorDef.isPresent()) {
+          // Newly-created question lands here in the backfill flow: attach it as the initial
+          // question for the existing enumerator, then redirect to the clean edit URL.
+          try {
+            long newQuestionId = Long.parseLong(newQuestionIdParam.get());
+            blockQuestionsController.backfillInitialQuestionOnBlock(
+                request, programId, blockId, newQuestionId, /* isNewlyCreated= */ true);
+            return redirect(routes.AdminProgramBlocksController.edit(programId, blockId).url())
+                .flashing(request.flash().data());
+          } catch (NumberFormatException e) {
+            // Invalid question ID format, ignore and continue
+          } catch (AdminProgramBlockQuestionsController.InitialQuestionAttachmentException e) {
+            return e.toResult();
+          }
         } else {
           // Auto-add newly created question to the block.
           try {
@@ -414,5 +436,26 @@ public final class AdminProgramBlocksController extends CiviFormController {
     } catch (ProgramBlockDefinitionNotFoundException e) {
       return notFound(e.toString());
     }
+  }
+
+  /**
+   * Returns the block's enumerator question definition if the block is in the "backfilling initial
+   * question" state — feature flag enabled, block has an enumerator question, and the enumerator's
+   * {@code initialQuestionId} is empty. Returns {@link Optional#empty()} otherwise.
+   */
+  private Optional<QuestionDefinition> isBackfillingInitialQuestionState(
+      Request request, BlockDefinition block) {
+    if (!settingsManifest.getEnumeratorImprovementsEnabled(request)
+        || !block.getIsEnumerator()
+        || !block.hasEnumeratorQuestion()) {
+      return Optional.empty();
+    }
+    Optional<QuestionDefinition> enumeratorDef =
+        block.programQuestionDefinitions().stream()
+            .map(ProgramQuestionDefinition::getQuestionDefinition)
+            .filter(qd -> qd instanceof EnumeratorQuestionDefinition)
+            .findFirst();
+    return enumeratorDef.filter(
+        qd -> ((EnumeratorQuestionDefinition) qd).getInitialQuestionId().isEmpty());
   }
 }

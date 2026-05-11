@@ -237,7 +237,11 @@ public final class QuestionEditView extends BaseHtmlView {
         .ifPresent(formContent::with);
 
     return renderWithPreview(
-        request, formContent, questionType, title, Optional.of(unsetUniversalModal),
+        request,
+        formContent,
+        questionType,
+        title,
+        Optional.of(unsetUniversalModal),
         OptionalLong.of(id));
   }
 
@@ -262,7 +266,11 @@ public final class QuestionEditView extends BaseHtmlView {
             .with(buildReadOnlyQuestionForm(questionForm, enumeratorOption, request));
 
     return renderWithPreview(
-        request, formContent, questionType, title, /* modal= */ Optional.empty(),
+        request,
+        formContent,
+        questionType,
+        title,
+        /* modal= */ Optional.empty(),
         OptionalLong.of(questionDefinition.getId()));
   }
 
@@ -288,10 +296,7 @@ public final class QuestionEditView extends BaseHtmlView {
       previewUrl += "?questionId=" + questionId.getAsLong();
     }
     DivTag previewContent =
-        div()
-            .attr("hx-swap", "outerHTML")
-            .attr("hx-get", previewUrl)
-            .attr("hx-trigger", "load");
+        div().attr("hx-swap", "outerHTML").attr("hx-get", previewUrl).attr("hx-trigger", "load");
 
     HtmlBundle htmlBundle =
         layout.getBundle(request).setTitle(title).addMainContent(formContent, previewContent);

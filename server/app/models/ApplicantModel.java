@@ -227,7 +227,7 @@ public class ApplicantModel extends BaseModel {
         nameSuffix = Optional.of(listSplit.get(3));
         break;
       case 1:
-        // fallthrough
+      // fallthrough
       default:
         // Too many names - put them all in first name.
         firstName = displayName;

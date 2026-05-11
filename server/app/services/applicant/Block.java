@@ -458,10 +458,7 @@ public final class Block {
   }
 
   public int answeredQuestionsCount() {
-    return (int)
-        getVisibleQuestions().stream()
-            .filter(ApplicantQuestion::isAnswered)
-            .count();
+    return (int) getVisibleQuestions().stream().filter(ApplicantQuestion::isAnswered).count();
   }
 
   /**

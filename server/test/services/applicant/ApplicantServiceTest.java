@@ -491,7 +491,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                 false,
                 false,
                 /* apiBridgeEnabled= */ false,
-            /* enumeratorImprovementsEnabled= */ false)
+                /* enumeratorImprovementsEnabled= */ false)
             .toCompletableFuture()
             .join();
 
@@ -970,7 +970,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                         false,
                         false,
                         /* apiBridgeEnabled= */ false,
-            /* enumeratorImprovementsEnabled= */ false)
+                        /* enumeratorImprovementsEnabled= */ false)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicantNotFoundException.class)
@@ -995,7 +995,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                         false,
                         false,
                         /* apiBridgeEnabled= */ false,
-            /* enumeratorImprovementsEnabled= */ false)
+                        /* enumeratorImprovementsEnabled= */ false)
                     .toCompletableFuture()
                     .join());
 
@@ -1021,7 +1021,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                         false,
                         false,
                         /* apiBridgeEnabled= */ false,
-            /* enumeratorImprovementsEnabled= */ false)
+                        /* enumeratorImprovementsEnabled= */ false)
                     .toCompletableFuture()
                     .join());
 
@@ -1049,7 +1049,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                         false,
                         false,
                         /* apiBridgeEnabled= */ false,
-            /* enumeratorImprovementsEnabled= */ false)
+                        /* enumeratorImprovementsEnabled= */ false)
                     .toCompletableFuture()
                     .join());
 
@@ -1075,7 +1075,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                         false,
                         false,
                         /* apiBridgeEnabled= */ false,
-            /* enumeratorImprovementsEnabled= */ false)
+                        /* enumeratorImprovementsEnabled= */ false)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(IllegalArgumentException.class)
@@ -1106,7 +1106,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                         false,
                         false,
                         /* apiBridgeEnabled= */ false,
-            /* enumeratorImprovementsEnabled= */ false)
+                        /* enumeratorImprovementsEnabled= */ false)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(IllegalArgumentException.class)
