@@ -12,7 +12,7 @@ import {waitForHtmxReady} from '../../support/wait'
 
 test.describe('file upload applicant flow (feature flag enabled)', () => {
   test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED')
+    await enableFeatureFlag(page, 'FILE_UPLOAD_IMPROVEMENTS_ENABLED')
   })
 
   test.describe('required file upload question', () => {
@@ -1247,7 +1247,7 @@ test.describe('file upload improvements feature flag enabled', () => {
     let urlBeforeUpload: string
 
     await test.step('Enable feature flag and navigate to file upload question', async () => {
-      await enableFeatureFlag(page, 'FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED')
+      await enableFeatureFlag(page, 'FILE_UPLOAD_IMPROVEMENTS_ENABLED')
       await applicantQuestions.applyProgram(programName)
       urlBeforeUpload = page.url()
     })
@@ -1271,7 +1271,7 @@ test.describe('for login only program, guest cannot see file upload question (fe
   const programName = 'loginonly'
 
   test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
-    await enableFeatureFlag(page, 'FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED')
+    await enableFeatureFlag(page, 'FILE_UPLOAD_IMPROVEMENTS_ENABLED')
 
     await test.step('create a new program', async () => {
       await loginAsAdmin(page)
@@ -1337,7 +1337,7 @@ test.describe('file upload question with file upload improvements feature flag e
   const fileUploadImprevementsQuestionName = 'file-upload-improvements-q'
 
   test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-    await enableFeatureFlag(page, 'FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED')
+    await enableFeatureFlag(page, 'FILE_UPLOAD_IMPROVEMENTS_ENABLED')
     await loginAsAdmin(page)
 
     await adminQuestions.addFileUploadQuestion({

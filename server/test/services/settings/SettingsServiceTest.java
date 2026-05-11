@@ -51,7 +51,7 @@ public class SettingsServiceTest extends ResetPostgres {
           "false",
           "TEST_WRITEABLE_LIST_OF_STRINGS_WITH_NO_HOCON_VALUE",
           "CHANGE ME",
-          "FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED",
+          "FILE_UPLOAD_IMPROVEMENTS_ENABLED",
           "true");
   private ProgramService programService;
   private SettingsManifest testManifest =
@@ -121,7 +121,7 @@ public class SettingsServiceTest extends ResetPostgres {
                           SettingType.LIST_OF_STRINGS,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED",
+                          "FILE_UPLOAD_IMPROVEMENTS_ENABLED",
                           "",
                           true,
                           SettingType.BOOLEAN,
@@ -136,7 +136,7 @@ public class SettingsServiceTest extends ResetPostgres {
                   "test-2",
                   "test_regex_validated_string",
                   "test",
-                  "file_upload_question_improvements_enabled",
+                  "FILE_UPLOAD_IMPROVEMENTS_ENABLED",
                   "true")));
 
   private CiviFormProfile testProfile;
@@ -266,7 +266,7 @@ public class SettingsServiceTest extends ResetPostgres {
 
     var result =
         settingsService.updateSettings(
-            ImmutableMap.of("FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED", "false"), testProfile);
+            ImmutableMap.of("FILE_UPLOAD_IMPROVEMENTS_ENABLED", "false"), testProfile);
     String expectedErrorMessage =
         String.join(
             "",
@@ -275,7 +275,7 @@ public class SettingsServiceTest extends ResetPostgres {
 
     assertThat(result.updated()).isFalse();
     assertThat(result.errorMessages()).isPresent();
-    assertThat(result.errorMessages().get().get("FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED"))
+    assertThat(result.errorMessages().get().get("FILE_UPLOAD_IMPROVEMENTS_ENABLED"))
         .isEqualTo(
             SettingsService.SettingsGroupUpdateResult.UpdateError.create(
                 "false", expectedErrorMessage));

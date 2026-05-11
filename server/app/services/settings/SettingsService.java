@@ -338,7 +338,7 @@ public final class SettingsService {
   private Optional<SettingsGroupUpdateResult.UpdateError> validateApplicationState(
       SettingDescription settingDescription, String newValue) {
     return switch (settingDescription.variableName()) {
-      case "FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED" -> {
+      case "FILE_UPLOAD_IMPROVEMENTS_ENABLED" -> {
         List<String> programScreenDescriptions = getMixedFileUploadProgramScreenDescriptions();
         if (newValue.equals("false") && !programScreenDescriptions.isEmpty()) {
           yield Optional.of(

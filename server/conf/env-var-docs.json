@@ -994,7 +994,7 @@
         "type": "bool",
         "required": false
       },
-      "FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED": {
+      "FILE_UPLOAD_IMPROVEMENTS_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Enables improvements which allow for file upload questions on the same page as other question types. Uses a new file upload method that uploads applicant files through CiviForm servers.",
         "type": "bool",
