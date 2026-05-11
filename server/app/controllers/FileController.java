@@ -77,7 +77,7 @@ public class FileController extends CiviFormController {
               }
 
               Optional<String> originalFileName =
-                  storedFile.map(StoredFileModel::getOriginalFileName).orElse(null);
+                  storedFile.flatMap(StoredFileModel::getOriginalFileName);
 
               return redirect(
                   applicantStorageClient.getPresignedUrlString(decodedFileKey, originalFileName));
