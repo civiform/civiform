@@ -9,14 +9,11 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import models.ApplicantModel;
-import models.StoredFileModel;
 import repository.StoredFileRepository;
 import services.LocalizedStrings;
 import services.Path;
@@ -521,30 +518,28 @@ public final class ReadOnlyApplicantProgramService {
 
         if (isAnswered && applicantQuestion.isFileUploadQuestion()) {
           FileUploadQuestion fileUploadQuestion = applicantQuestion.createFileUploadQuestion();
-          originalFileName = fileUploadQuestion.getOriginalFileName();
           encodedFileKey =
               fileUploadQuestion
                   .getFileKeyValue()
                   .map((fileKey) -> URLEncoder.encode(fileKey, StandardCharsets.UTF_8));
 
           if (fileUploadQuestion.getFileKeyListValue().isPresent()) {
+            originalFileName = fileUploadQuestion.getOriginalFileName();
             ImmutableList<String> fileKeys = fileUploadQuestion.getFileKeyListValue().get();
 
-            Map<String, StoredFileModel> storedFilesByKey =
-                storedFileRepository.lookupFiles(fileKeys).toCompletableFuture().join().stream()
-                    .collect(Collectors.toMap(StoredFileModel::getName, f -> f));
+            ImmutableMap<String, Optional<String>> uploadedNamesByKeys =
+                FileUploadQuestion.getOriginalFileNamesForFileKeys(storedFileRepository, fileKeys)
+                    .toCompletableFuture()
+                    .join();
 
             fileNames =
                 IntStream.range(0, fileKeys.size())
                     .mapToObj(
                         i -> {
                           String key = fileKeys.get(i);
-                          StoredFileModel storedFileModel = storedFilesByKey.get(key);
-                          if (storedFileModel != null) {
-                            Optional<String> fromDb = storedFileModel.getOriginalFileName();
-                            if (fromDb.isPresent()) {
-                              return fromDb.get();
-                            }
+                          Optional<String> uploadName = uploadedNamesByKeys.get(key);
+                          if (uploadName != null && uploadName.isPresent()) {
+                            return uploadName.get();
                           }
                           return fileUploadQuestion
                               .getOriginalFileNameValueForIndex(i)
@@ -555,6 +550,17 @@ public final class ReadOnlyApplicantProgramService {
                 fileKeys.stream()
                     .map((fileKey) -> URLEncoder.encode(fileKey, StandardCharsets.UTF_8))
                     .collect(toImmutableList());
+          } else {
+            originalFileName =
+                fileUploadQuestion
+                    .getFileKeyValue()
+                    .flatMap(
+                        key ->
+                            FileUploadQuestion.getOriginalFileNameForFileKey(
+                                    storedFileRepository, key)
+                                .toCompletableFuture()
+                                .join())
+                    .or(fileUploadQuestion::getOriginalFileName);
           }
         }
 

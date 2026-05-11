@@ -1791,6 +1791,39 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void getSummaryDataOnlyActive_singleFile_prefersStoredFileOriginalNameOverApplicantJson() {
+    QuestionDefinition fileUploadQuestionDefinition =
+        testQuestionBank.fileUploadApplicantFile().getQuestionDefinition();
+    programDefinition =
+        ProgramBuilder.newDraftProgram("My Program")
+            .withBlock("Block one")
+            .withRequiredQuestionDefinition(nameQuestion)
+            .withRequiredQuestionDefinition(fileUploadQuestionDefinition)
+            .buildDefinition();
+    Path answerPath =
+        ApplicantData.APPLICANT_PATH.join(fileUploadQuestionDefinition.getQuestionPathSegment());
+    answerNameQuestion(programDefinition.id());
+    QuestionAnswerer.answerFileQuestion(applicantData, answerPath, "single-file-key");
+    applicantData.putString(answerPath.join(Scalar.ORIGINAL_FILE_NAME), "from-json.pdf");
+
+    StoredFileModel storedFile = new StoredFileModel();
+    storedFile.setName("single-file-key");
+    storedFile.setOriginalFileName("from-db.pdf");
+    storedFile.save();
+
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramService(
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            storedFileRepository);
+    ImmutableList<AnswerData> result = subject.getSummaryDataOnlyActive();
+
+    assertThat(result.get(1).originalFileName()).hasValue("from-db.pdf");
+  }
+
+  @Test
   @Parameters({"5, true", "1, false"})
   public void getSummaryDataOnlyActive_isEligible(long answer, boolean expectedResult) {
     // Create a program with an eligibility condition == 5 and answer it with different values.

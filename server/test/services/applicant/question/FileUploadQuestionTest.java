@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -278,6 +279,79 @@ public class FileUploadQuestionTest extends ResetPostgres {
             .join();
 
     assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void getOriginalFileNamesForFileKeys_empty_returnsEmptyMap() {
+    StoredFileRepository storedFileRepository = instanceOf(StoredFileRepository.class);
+
+    ImmutableMap<String, Optional<String>> result =
+        FileUploadQuestion.getOriginalFileNamesForFileKeys(storedFileRepository, ImmutableList.of())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void getOriginalFileNamesForFileKeys_returnsNamesForKeys() {
+    StoredFileRepository storedFileRepository = instanceOf(StoredFileRepository.class);
+
+    StoredFileModel storedFileA = new StoredFileModel();
+    storedFileA.setName("key-a");
+    storedFileA.setOriginalFileName("a.pdf");
+    storedFileRepository.insert(storedFileA).toCompletableFuture().join();
+
+    StoredFileModel storedFileB = new StoredFileModel();
+    storedFileB.setName("key-b");
+    storedFileB.setOriginalFileName("b.pdf");
+    storedFileRepository.insert(storedFileB).toCompletableFuture().join();
+
+    ImmutableMap<String, Optional<String>> result =
+        FileUploadQuestion.getOriginalFileNamesForFileKeys(
+                storedFileRepository, ImmutableList.of("key-a", "key-b"))
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result)
+        .containsEntry("key-a", Optional.of("a.pdf"))
+        .containsEntry("key-b", Optional.of("b.pdf"));
+  }
+
+  @Test
+  public void getOriginalFileNamesForFileKeys_missingRow_omittedFromMap() {
+    StoredFileRepository storedFileRepository = instanceOf(StoredFileRepository.class);
+
+    StoredFileModel storedFile = new StoredFileModel();
+    storedFile.setName("present-key");
+    storedFile.setOriginalFileName("doc.pdf");
+    storedFileRepository.insert(storedFile).toCompletableFuture().join();
+
+    ImmutableMap<String, Optional<String>> result =
+        FileUploadQuestion.getOriginalFileNamesForFileKeys(
+                storedFileRepository, ImmutableList.of("present-key", "missing-key"))
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result).containsOnlyKeys("present-key");
+    assertThat(result.get("present-key")).contains("doc.pdf");
+  }
+
+  @Test
+  public void getOriginalFileNamesForFileKeys_rowWithoutOriginalName_mapsToEmptyOptional() {
+    StoredFileRepository storedFileRepository = instanceOf(StoredFileRepository.class);
+
+    StoredFileModel storedFile = new StoredFileModel();
+    storedFile.setName("no-name-key");
+    storedFileRepository.insert(storedFile).toCompletableFuture().join();
+
+    ImmutableMap<String, Optional<String>> result =
+        FileUploadQuestion.getOriginalFileNamesForFileKeys(
+                storedFileRepository, ImmutableList.of("no-name-key"))
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result).containsEntry("no-name-key", Optional.empty());
   }
 
   @Test

@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -164,6 +165,29 @@ public final class FileUploadQuestion extends AbstractQuestion {
     return storedFileRepository
         .lookupFile(fileKey)
         .thenApply(maybeFile -> maybeFile.flatMap(StoredFileModel::getOriginalFileName));
+  }
+
+  /**
+   * Looks up original file names. Maps entries using {@link StoredFileModel#getName()} as the key,
+   * which is actually that row's uploaded uuid file key. Keys with no matching stored file are
+   * omitted.
+   */
+  public static CompletionStage<ImmutableMap<String, Optional<String>>>
+      getOriginalFileNamesForFileKeys(
+          StoredFileRepository storedFileRepository, ImmutableList<String> fileKeys) {
+    if (fileKeys.isEmpty()) {
+      return CompletableFuture.completedFuture(ImmutableMap.of());
+    }
+    return storedFileRepository
+        .lookupFiles(fileKeys)
+        .thenApply(
+            files ->
+                files.stream()
+                    .collect(
+                        ImmutableMap.toImmutableMap(
+                            StoredFileModel::getName,
+                            StoredFileModel::getOriginalFileName,
+                            (_, second) -> second)));
   }
 
   public FileUploadQuestionDefinition getQuestionDefinition() {

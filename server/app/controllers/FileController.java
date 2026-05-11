@@ -144,10 +144,12 @@ public class FileController extends CiviFormController {
 
     // An admin is eligible if they are a global admin with the program access flag turned on
     // or if they have been explicitly given read permission to the program.
+    Optional<String> originalFileName = maybeFile.flatMap(StoredFileModel::getOriginalFileName);
+
     return ((adminAccount.getGlobalAdmin()
                 && settingsManifest.getAllowCiviformAdminAccessPrograms(request))
             || maybeFile.get().getAcls().hasProgramReadPermission(adminAccount))
-        ? redirect(applicantStorageClient.getPresignedUrlString(decodedFileKey))
+        ? redirect(applicantStorageClient.getPresignedUrlString(decodedFileKey, originalFileName))
         : unauthorized();
   }
 }
