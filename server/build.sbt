@@ -132,10 +132,10 @@ lazy val root = (project in file("."))
 
       // Explicitly include Pekko libraries that otherwise would be
       // incompatible due to version mismatches with the default versions.
-      "org.apache.pekko" %% "pekko-actor-typed" % "1.4.0",
-      "org.apache.pekko" %% "pekko-serialization-jackson" % "1.4.0",
-      "org.apache.pekko" %% "pekko-slf4j" % "1.4.0",
-      "org.apache.pekko" %% "pekko-stream-testkit" % "1.4.0",
+      "org.apache.pekko" %% "pekko-actor-typed" % "1.6.0",
+      "org.apache.pekko" %% "pekko-serialization-jackson" % "1.6.0",
+      "org.apache.pekko" %% "pekko-slf4j" % "1.6.0",
+      "org.apache.pekko" %% "pekko-stream-testkit" % "1.6.0",
 
       // Apache library for byte detection
       "org.apache.tika" % "tika-core" % "3.3.0",
