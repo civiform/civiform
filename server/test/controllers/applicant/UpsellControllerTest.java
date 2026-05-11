@@ -181,6 +181,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  // Test deprecation of Applicant ID
   public void considerRegister_ignoresProvidedApplicantId_usesApplicationApplicant() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
@@ -190,7 +191,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
     application.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
 
     // Pass a bogus applicantId — the controller should ignore it and use the application's
-    // applicant instead, so the request still succeeds.
+    // applicant instead.
     Request request = fakeRequestBuilder().build();
     Result result =
         subject

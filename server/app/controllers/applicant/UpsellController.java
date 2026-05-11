@@ -109,11 +109,11 @@ public final class UpsellController extends CiviFormController {
     if (maybeApplication.isEmpty()) {
       return CompletableFuture.completedFuture(notFound());
     }
-    long verifiedApplicantId = maybeApplication.get().getApplicant().id;
+    long appApplicantId = maybeApplication.get().getApplicant().id;
 
     long programId =
         programSlugHandler
-            .resolveProgramParam(programParam, verifiedApplicantId, programSlugUrlsEnabled)
+            .resolveProgramParam(programParam, appApplicantId, programSlugUrlsEnabled)
             .toCompletableFuture()
             .join();
 
@@ -124,24 +124,24 @@ public final class UpsellController extends CiviFormController {
             .toCompletableFuture();
 
     CompletableFuture<ApplicantPersonalInfo> applicantPersonalInfo =
-        applicantService.getPersonalInfo(verifiedApplicantId).toCompletableFuture();
+        applicantService.getPersonalInfo(appApplicantId).toCompletableFuture();
 
     CompletableFuture<AccountModel> account =
         applicantPersonalInfo
             .thenComposeAsync(
-                v -> checkApplicantAuthorization(request, verifiedApplicantId),
+                v -> checkApplicantAuthorization(request, appApplicantId),
                 classLoaderExecutionContext.current())
             .thenComposeAsync(v -> profile.getAccount(), classLoaderExecutionContext.current())
             .toCompletableFuture();
 
     CompletableFuture<ReadOnlyApplicantProgramService> roApplicantProgramService =
         applicantService
-            .getReadOnlyApplicantProgramService(verifiedApplicantId, programId)
+            .getReadOnlyApplicantProgramService(appApplicantId, programId)
             .toCompletableFuture();
 
     CompletableFuture<ApplicantService.ApplicationPrograms> relevantProgramsFuture =
         applicantService
-            .relevantProgramsForApplicant(verifiedApplicantId, profile, request)
+            .relevantProgramsForApplicant(appApplicantId, profile, request)
             .toCompletableFuture();
 
     return CompletableFuture.allOf(
@@ -156,12 +156,12 @@ public final class UpsellController extends CiviFormController {
               }
 
               return applicantPersonalInfo
-                  .thenComposeAsync(v -> checkApplicantAuthorization(request, verifiedApplicantId))
+                  .thenComposeAsync(v -> checkApplicantAuthorization(request, appApplicantId))
                   .thenComposeAsync(
                       // We are already checking if profile is empty
                       _ ->
                           applicantService.maybeEligibleProgramsForApplicant(
-                              verifiedApplicantId, profile, request),
+                              appApplicantId, profile, request),
                       classLoaderExecutionContext.current())
                   .thenApplyAsync(Optional::of);
             })
@@ -192,7 +192,7 @@ public final class UpsellController extends CiviFormController {
                       .setCompletedProgramSlug(programSlugHandler.getProgramSlug(programParam))
                       .setCustomConfirmationMessage(
                           roApplicantProgramService.join().getCustomConfirmationMessage())
-                      .setApplicantId(verifiedApplicantId)
+                      .setApplicantId(appApplicantId)
                       .setDateSubmitted(formattedDate);
 
               if (isPreScreener.join()) {
