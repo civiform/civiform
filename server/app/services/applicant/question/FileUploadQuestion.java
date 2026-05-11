@@ -279,6 +279,18 @@ public final class FileUploadQuestion extends AbstractQuestion {
     return parts[parts.length - 1];
   }
 
+  /**
+   * Display name for download Content-Disposition: stored original name, else the last segment of
+   * {@code fileKey}.
+   */
+  public static Optional<String> getUploadedFileName(
+      Optional<StoredFileModel> storedFile, String fileKey) {
+    return storedFile
+        .flatMap(StoredFileModel::getOriginalFileName)
+        .filter(s -> !s.isBlank())
+        .or(() -> Optional.of(getFileName(fileKey)));
+  }
+
   // Matches a filename with an extension.
   private static final Pattern FILE_NAME_REGEX = Pattern.compile("(.*)(\\.[^.]+)$");
 

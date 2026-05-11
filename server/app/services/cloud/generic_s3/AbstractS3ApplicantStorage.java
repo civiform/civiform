@@ -11,11 +11,9 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import models.StoredFileModel;
 import org.mockito.Mockito;
 import play.Environment;
 import play.inject.ApplicationLifecycle;
-import services.applicant.question.FileUploadQuestion;
 import services.cloud.ApplicantStorageClient;
 import services.cloud.aws.Credentials;
 import services.cloud.aws.SignedS3UploadRequest;
@@ -59,18 +57,6 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
           client.close();
           return CompletableFuture.completedFuture(null);
         });
-  }
-
-  /**
-   * Display name for download Content-Disposition: stored original name, else the last segment of
-   * {@code fileKey}.
-   */
-  public static Optional<String> getUploadedFileName(
-      Optional<StoredFileModel> storedFile, String fileKey) {
-    return storedFile
-        .flatMap(StoredFileModel::getOriginalFileName)
-        .filter(s -> !s.isBlank())
-        .or(() -> Optional.of(FileUploadQuestion.getFileName(fileKey)));
   }
 
   /** The bucket path defined in the conf file */

@@ -20,9 +20,9 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.StoredFileRepository;
 import repository.VersionRepository;
+import services.applicant.question.FileUploadQuestion;
 import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.ApplicantStorageClient;
-import services.cloud.generic_s3.AbstractS3ApplicantStorage;
 import services.settings.SettingsManifest;
 
 /** Controller for handling methods for admins and applicants accessing uploaded files. */
@@ -87,8 +87,7 @@ public class FileController extends CiviFormController {
                   fileUploadImprovementsEnabled
                       ? applicantStorageClient.getPresignedUrlString(
                           decodedFileKey,
-                          AbstractS3ApplicantStorage.getUploadedFileName(
-                              storedFile, decodedFileKey))
+                          FileUploadQuestion.getUploadedFileName(storedFile, decodedFileKey))
                       : applicantStorageClient.getPresignedUrlString(decodedFileKey);
 
               return redirect(downloadUrl);
@@ -158,8 +157,7 @@ public class FileController extends CiviFormController {
     String downloadUrl =
         settingsManifest.getFileUploadQuestionImprovementsEnabled(request)
             ? applicantStorageClient.getPresignedUrlString(
-                decodedFileKey,
-                AbstractS3ApplicantStorage.getUploadedFileName(maybeFile, decodedFileKey))
+                decodedFileKey, FileUploadQuestion.getUploadedFileName(maybeFile, decodedFileKey))
             : applicantStorageClient.getPresignedUrlString(decodedFileKey);
 
     return ((adminAccount.getGlobalAdmin()
