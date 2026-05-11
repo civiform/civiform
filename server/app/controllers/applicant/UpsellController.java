@@ -186,24 +186,23 @@ public final class UpsellController extends CiviFormController {
                                 .setApplicantId(appApplicantId)
                                 .setDateSubmitted(formattedDate);
 
-                        final UpsellParams upsellParams;
                         if (isPreScreener.join()) {
-                          upsellParams =
-                              paramsBuilder
-                                  .setEligiblePrograms(
-                                      maybeEligiblePrograms.orElseGet(ImmutableList::of))
-                                  .build();
+                          return ok(preScreenerUpsellView.render(
+                                  paramsBuilder
+                                      .setEligiblePrograms(
+                                          maybeEligiblePrograms.orElseGet(ImmutableList::of))
+                                      .build()))
+                              .as(Http.MimeTypes.HTML);
                         } else {
-                          upsellParams =
-                              paramsBuilder
-                                  .setEligiblePrograms(
-                                      relevantProgramsFuture
-                                          .join()
-                                          .unappliedAndPotentiallyEligible())
-                                  .build();
+                          return ok(upsellView.render(
+                                  paramsBuilder
+                                      .setEligiblePrograms(
+                                          relevantProgramsFuture
+                                              .join()
+                                              .unappliedAndPotentiallyEligible())
+                                      .build()))
+                              .as(Http.MimeTypes.HTML);
                         }
-                        return ok(preScreenerUpsellView.render(upsellParams))
-                            .as(Http.MimeTypes.HTML);
                       },
                       classLoaderExecutionContext.current());
             },
