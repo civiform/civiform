@@ -22,6 +22,7 @@ import repository.StoredFileRepository;
 import repository.VersionRepository;
 import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.ApplicantStorageClient;
+import services.cloud.generic_s3.AbstractS3ApplicantStorage;
 import services.settings.SettingsManifest;
 
 /** Controller for handling methods for admins and applicants accessing uploaded files. */
@@ -59,14 +60,21 @@ public class FileController extends CiviFormController {
               // uploaded it.
               boolean hasFileNameAcl =
                   ApplicantFileNameFormatter.isApplicantOwnedFileKey(decodedFileKey, applicantId);
+
+              boolean fileUploadImprovementsEnabled =
+                  settingsManifest.getFileUploadQuestionImprovementsEnabled(request);
+
+              Optional<StoredFileModel> storedFile = Optional.empty();
+              if (fileUploadImprovementsEnabled || !hasFileNameAcl) {
+                storedFile =
+                    storedFileRepository.lookupFile(decodedFileKey).toCompletableFuture().join();
+              }
+
               if (!hasFileNameAcl) {
                 // Check the file ACL which may include other applicants
                 // given access.
                 boolean hasStoredFileAcl =
-                    storedFileRepository
-                        .lookupFile(decodedFileKey)
-                        .toCompletableFuture()
-                        .join()
+                    storedFile
                         .map(StoredFileModel::getAcls)
                         .map(acls -> acls.hasApplicantReadPermission(applicantId))
                         .orElse(false);
@@ -75,7 +83,15 @@ public class FileController extends CiviFormController {
                 }
               }
 
-              return redirect(applicantStorageClient.getPresignedUrlString(decodedFileKey));
+              String downloadUrl =
+                  fileUploadImprovementsEnabled
+                      ? applicantStorageClient.getPresignedUrlString(
+                          decodedFileKey,
+                          AbstractS3ApplicantStorage.getUploadedFileName(
+                              storedFile, decodedFileKey))
+                      : applicantStorageClient.getPresignedUrlString(decodedFileKey);
+
+              return redirect(downloadUrl);
             },
             classLoaderExecutionContext.current())
         .exceptionally(
@@ -139,10 +155,17 @@ public class FileController extends CiviFormController {
 
     // An admin is eligible if they are a global admin with the program access flag turned on
     // or if they have been explicitly given read permission to the program.
+    String downloadUrl =
+        settingsManifest.getFileUploadQuestionImprovementsEnabled(request)
+            ? applicantStorageClient.getPresignedUrlString(
+                decodedFileKey,
+                AbstractS3ApplicantStorage.getUploadedFileName(maybeFile, decodedFileKey))
+            : applicantStorageClient.getPresignedUrlString(decodedFileKey);
+
     return ((adminAccount.getGlobalAdmin()
                 && settingsManifest.getAllowCiviformAdminAccessPrograms(request))
             || maybeFile.get().getAcls().hasProgramReadPermission(adminAccount))
-        ? redirect(applicantStorageClient.getPresignedUrlString(decodedFileKey))
+        ? redirect(downloadUrl)
         : unauthorized();
   }
 }

@@ -11,9 +11,11 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import models.StoredFileModel;
 import org.mockito.Mockito;
 import play.Environment;
 import play.inject.ApplicationLifecycle;
+import services.applicant.question.FileUploadQuestion;
 import services.cloud.ApplicantStorageClient;
 import services.cloud.aws.Credentials;
 import services.cloud.aws.SignedS3UploadRequest;
@@ -59,6 +61,18 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
         });
   }
 
+  /**
+   * Display name for download Content-Disposition: stored original name, else the last segment of
+   * {@code fileKey}.
+   */
+  public static Optional<String> getUploadedFileName(
+      Optional<StoredFileModel> storedFile, String fileKey) {
+    return storedFile
+        .flatMap(StoredFileModel::getOriginalFileName)
+        .filter(s -> !s.isBlank())
+        .or(() -> Optional.of(FileUploadQuestion.getFileName(fileKey)));
+  }
+
   /** The bucket path defined in the conf file */
   protected abstract String getBucketConfigPath();
 
@@ -77,8 +91,15 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
 
   @Override
   public String getPresignedUrlString(String fileKey, Optional<String> originalFileName) {
+    GetObjectRequest.Builder getObjectRequestBuilder =
+        GetObjectRequest.builder().key(fileKey).bucket(bucket);
     GetObjectRequest getObjectRequest =
-        GetObjectRequest.builder().key(fileKey).bucket(bucket).build();
+        originalFileName.isPresent()
+            ? getObjectRequestBuilder
+                .responseContentDisposition(
+                    String.format("inline; filename=\"%s\"", originalFileName.get()))
+                .build()
+            : getObjectRequestBuilder.build();
     GetObjectPresignRequest getObjectPresignRequest =
         GetObjectPresignRequest.builder()
             .signatureDuration(PRESIGNED_URL_DURATION)
