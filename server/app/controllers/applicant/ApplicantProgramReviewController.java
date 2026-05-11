@@ -332,7 +332,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
               Call endOfProgramSubmission =
                   routes.UpsellController.considerRegister(
-                      applicantId,
+                      Optional.of(applicantId),
                       programParam,
                       applicationId,
                       applicantRoutes.index(submittingProfile, applicantId).url(),

@@ -29,7 +29,7 @@ lazy val root = (project in file("."))
       javaJdbc,
       javaWs,
       // Collections
-      "com.google.guava" % "guava" % "33.5.0-jre",
+      "com.google.guava" % "guava" % "33.6.0-jre",
       "com.google.auto" % "auto-common" % "1.2.2",
 
       // JSON libraries
@@ -42,21 +42,21 @@ lazy val root = (project in file("."))
 
       // Templating
       "com.j2html" % "j2html" % "1.6.0",
-      "org.thymeleaf" % "thymeleaf" % "3.1.3.RELEASE",
-      "org.commonmark" % "commonmark" % "0.27.1",
-      "org.commonmark" % "commonmark-ext-autolink" % "0.27.1",
+      "org.thymeleaf" % "thymeleaf" % "3.1.5.RELEASE",
+      "org.commonmark" % "commonmark" % "0.28.0",
+      "org.commonmark" % "commonmark-ext-autolink" % "0.28.0",
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20260313.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.42.36",
-      "software.amazon.awssdk" % "ses" % "2.42.36",
+      "software.amazon.awssdk" % "s3" % "2.44.3",
+      "software.amazon.awssdk" % "ses" % "2.44.3",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
       "com.azure" % "azure-storage-blob" % "12.32.0",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.62.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.63.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.11",
@@ -75,7 +75,7 @@ lazy val root = (project in file("."))
 
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
-      "com.google.guava" % "guava-testlib" % "33.5.0-jre" % Test,
+      "com.google.guava" % "guava-testlib" % "33.6.0-jre" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "jakarta.xml.bind" % "jakarta.xml.bind-api" % "4.0.5",
@@ -109,7 +109,7 @@ lazy val root = (project in file("."))
       ),
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.48.0",
-      "org.checkerframework" % "dataflow-errorprone" % "3.54.0",
+      "org.checkerframework" % "dataflow-errorprone" % "3.55.1",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.14.1",
@@ -118,10 +118,10 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.5",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.27",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.30",
 
       // Slugs for deeplinking.
-      "com.github.slugify" % "slugify" % "3.0.7",
+      "com.github.slugify" % "slugify" % "4.0.0",
 
       // Apache libraries for testing subnets
       "commons-net" % "commons-net" % "3.13.0",
@@ -132,10 +132,10 @@ lazy val root = (project in file("."))
 
       // Explicitly include Pekko libraries that otherwise would be
       // incompatible due to version mismatches with the default versions.
-      "org.apache.pekko" %% "pekko-actor-typed" % "1.4.0",
-      "org.apache.pekko" %% "pekko-serialization-jackson" % "1.4.0",
-      "org.apache.pekko" %% "pekko-slf4j" % "1.4.0",
-      "org.apache.pekko" %% "pekko-stream-testkit" % "1.4.0",
+      "org.apache.pekko" %% "pekko-actor-typed" % "1.6.0",
+      "org.apache.pekko" %% "pekko-serialization-jackson" % "1.6.0",
+      "org.apache.pekko" %% "pekko-slf4j" % "1.6.0",
+      "org.apache.pekko" %% "pekko-stream-testkit" % "1.6.0",
 
       // Apache library for byte detection
       "org.apache.tika" % "tika-core" % "3.3.0",

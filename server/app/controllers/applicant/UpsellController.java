@@ -43,7 +43,6 @@ import views.applicant.upsell.UpsellParams;
 
 /** Controller for handling methods for upselling applicants. */
 public final class UpsellController extends CiviFormController {
-
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final ApplicantService applicantService;
   private final ApplicationService applicationService;
@@ -88,7 +87,8 @@ public final class UpsellController extends CiviFormController {
   @Secure
   public CompletionStage<Result> considerRegister(
       Http.Request request,
-      long applicantId,
+      // TODO(#13249): Remove after the change to Optional is released.
+      Optional<Long> applicantId,
       String programParam,
       long applicationId,
       String redirectTo,
@@ -103,9 +103,17 @@ public final class UpsellController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     }
 
+    // Derive the applicant ID from the application.
+    Optional<ApplicationModel> maybeApplication =
+        applicationService.getApplicationAsync(applicationId).toCompletableFuture().join();
+    if (maybeApplication.isEmpty()) {
+      return CompletableFuture.completedFuture(notFound());
+    }
+    long appApplicantId = maybeApplication.get().getApplicant().id;
+
     long programId =
         programSlugHandler
-            .resolveProgramParam(programParam, applicantId, programSlugUrlsEnabled)
+            .resolveProgramParam(programParam, appApplicantId, programSlugUrlsEnabled)
             .toCompletableFuture()
             .join();
 
@@ -116,24 +124,24 @@ public final class UpsellController extends CiviFormController {
             .toCompletableFuture();
 
     CompletableFuture<ApplicantPersonalInfo> applicantPersonalInfo =
-        applicantService.getPersonalInfo(applicantId).toCompletableFuture();
+        applicantService.getPersonalInfo(appApplicantId).toCompletableFuture();
 
     CompletableFuture<AccountModel> account =
         applicantPersonalInfo
             .thenComposeAsync(
-                v -> checkApplicantAuthorization(request, applicantId),
+                v -> checkApplicantAuthorization(request, appApplicantId),
                 classLoaderExecutionContext.current())
             .thenComposeAsync(v -> profile.getAccount(), classLoaderExecutionContext.current())
             .toCompletableFuture();
 
     CompletableFuture<ReadOnlyApplicantProgramService> roApplicantProgramService =
         applicantService
-            .getReadOnlyApplicantProgramService(applicantId, programId)
+            .getReadOnlyApplicantProgramService(appApplicantId, programId)
             .toCompletableFuture();
 
     CompletableFuture<ApplicantService.ApplicationPrograms> relevantProgramsFuture =
         applicantService
-            .relevantProgramsForApplicant(applicantId, profile, request)
+            .relevantProgramsForApplicant(appApplicantId, profile, request)
             .toCompletableFuture();
 
     return CompletableFuture.allOf(
@@ -148,12 +156,12 @@ public final class UpsellController extends CiviFormController {
               }
 
               return applicantPersonalInfo
-                  .thenComposeAsync(v -> checkApplicantAuthorization(request, applicantId))
+                  .thenComposeAsync(v -> checkApplicantAuthorization(request, appApplicantId))
                   .thenComposeAsync(
                       // We are already checking if profile is empty
                       _ ->
                           applicantService.maybeEligibleProgramsForApplicant(
-                              applicantId, profile, request),
+                              appApplicantId, profile, request),
                       classLoaderExecutionContext.current())
                   .thenApplyAsync(Optional::of);
             })
@@ -184,7 +192,7 @@ public final class UpsellController extends CiviFormController {
                       .setCompletedProgramSlug(programSlugHandler.getProgramSlug(programParam))
                       .setCustomConfirmationMessage(
                           roApplicantProgramService.join().getCustomConfirmationMessage())
-                      .setApplicantId(applicantId)
+                      .setApplicantId(appApplicantId)
                       .setDateSubmitted(formattedDate);
 
               if (isPreScreener.join()) {
