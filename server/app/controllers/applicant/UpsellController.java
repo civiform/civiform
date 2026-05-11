@@ -16,7 +16,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.AccountModel;
 import models.ApplicationModel;
 import org.apache.commons.lang3.StringUtils;
 import org.pac4j.play.java.Secure;
@@ -111,104 +110,99 @@ public final class UpsellController extends CiviFormController {
     }
     long appApplicantId = maybeApplication.get().getApplicant().id;
 
-    long programId =
-        programSlugHandler
-            .resolveProgramParam(programParam, appApplicantId, programSlugUrlsEnabled)
-            .toCompletableFuture()
-            .join();
-
-    CompletableFuture<Boolean> isPreScreener =
-        programService
-            .getFullProgramDefinitionAsync(programId)
-            .thenApplyAsync(ProgramDefinition::isPreScreenerForm)
-            .toCompletableFuture();
-
-    CompletableFuture<ApplicantPersonalInfo> applicantPersonalInfo =
-        applicantService.getPersonalInfo(appApplicantId).toCompletableFuture();
-
-    CompletableFuture<AccountModel> account =
-        applicantPersonalInfo
-            .thenComposeAsync(
-                v -> checkApplicantAuthorization(request, appApplicantId),
-                classLoaderExecutionContext.current())
-            .thenComposeAsync(v -> profile.getAccount(), classLoaderExecutionContext.current())
-            .toCompletableFuture();
-
-    CompletableFuture<ReadOnlyApplicantProgramService> roApplicantProgramService =
-        applicantService
-            .getReadOnlyApplicantProgramService(appApplicantId, programId)
-            .toCompletableFuture();
-
-    CompletableFuture<ApplicantService.ApplicationPrograms> relevantProgramsFuture =
-        applicantService
-            .relevantProgramsForApplicant(appApplicantId, profile, request)
-            .toCompletableFuture();
-
-    return CompletableFuture.allOf(
-            isPreScreener, account, roApplicantProgramService, relevantProgramsFuture)
+    return checkApplicantAuthorization(request, appApplicantId)
         .thenComposeAsync(
             _ -> {
-              if (!isPreScreener.join()) {
-                // Only the pre-screener form needs to get the applicant's eligible
-                // programs this way.
-                Optional<ImmutableList<ApplicantProgramData>> result = Optional.empty();
-                return CompletableFuture.completedFuture(result);
-              }
+              long programId =
+                  programSlugHandler
+                      .resolveProgramParam(programParam, appApplicantId, programSlugUrlsEnabled)
+                      .toCompletableFuture()
+                      .join();
 
-              return applicantPersonalInfo
-                  .thenComposeAsync(v -> checkApplicantAuthorization(request, appApplicantId))
+              CompletableFuture<Boolean> isPreScreener =
+                  programService
+                      .getFullProgramDefinitionAsync(programId)
+                      .thenApplyAsync(ProgramDefinition::isPreScreenerForm)
+                      .toCompletableFuture();
+
+              CompletableFuture<ApplicantPersonalInfo> applicantPersonalInfo =
+                  applicantService.getPersonalInfo(appApplicantId).toCompletableFuture();
+
+              CompletableFuture<ReadOnlyApplicantProgramService> roApplicantProgramService =
+                  applicantService
+                      .getReadOnlyApplicantProgramService(appApplicantId, programId)
+                      .toCompletableFuture();
+
+              CompletableFuture<ApplicantService.ApplicationPrograms> relevantProgramsFuture =
+                  applicantService
+                      .relevantProgramsForApplicant(appApplicantId, profile, request)
+                      .toCompletableFuture();
+
+              return CompletableFuture.allOf(
+                      isPreScreener,
+                      applicantPersonalInfo,
+                      roApplicantProgramService,
+                      relevantProgramsFuture)
                   .thenComposeAsync(
-                      // We are already checking if profile is empty
-                      _ ->
-                          applicantService.maybeEligibleProgramsForApplicant(
-                              appApplicantId, profile, request),
+                      __ -> {
+                        if (!isPreScreener.join()) {
+                          return CompletableFuture.completedFuture(
+                              Optional.<ImmutableList<ApplicantProgramData>>empty());
+                        }
+                        return applicantService
+                            .maybeEligibleProgramsForApplicant(appApplicantId, profile, request)
+                            .thenApplyAsync(Optional::of);
+                      },
                       classLoaderExecutionContext.current())
-                  .thenApplyAsync(Optional::of);
-            })
-        .thenApplyAsync(
-            maybeEligiblePrograms -> {
-              Optional<String> toastMessageValue = request.flash().get(FlashKey.BANNER);
+                  .thenApplyAsync(
+                      maybeEligiblePrograms -> {
+                        ReadOnlyApplicantProgramService roService =
+                            roApplicantProgramService.join();
 
-              Instant instant = Instant.parse(submitTime);
-              Date submitDate = Date.from(instant);
-              DateFormat dateFormat =
-                  DateFormat.getDateInstance(
-                      DateFormat.LONG,
-                      roApplicantProgramService.join().getApplicantData().preferredLocale());
-              String formattedDate = dateFormat.format(submitDate);
+                        Instant instant = Instant.parse(submitTime);
+                        Date submitDate = Date.from(instant);
+                        DateFormat dateFormat =
+                            DateFormat.getDateInstance(
+                                DateFormat.LONG, roService.getApplicantData().preferredLocale());
+                        String formattedDate = dateFormat.format(submitDate);
 
-              UpsellParams.Builder paramsBuilder =
-                  UpsellParams.builder()
-                      .setRequest(request)
-                      .setProgramTitle(roApplicantProgramService.join().getProgramTitle())
-                      .setProgramShortDescription(
-                          roApplicantProgramService.join().getProgramShortDescription())
-                      .setProfile(profile)
-                      .setApplicantPersonalInfo(applicantPersonalInfo.join())
-                      .setApplicationId(applicationId)
-                      .setMessages(messagesApi.preferred(request))
-                      .setBannerMessage(toastMessageValue)
-                      .setCompletedProgramId(programId)
-                      .setCompletedProgramSlug(programSlugHandler.getProgramSlug(programParam))
-                      .setCustomConfirmationMessage(
-                          roApplicantProgramService.join().getCustomConfirmationMessage())
-                      .setApplicantId(appApplicantId)
-                      .setDateSubmitted(formattedDate);
+                        UpsellParams.Builder paramsBuilder =
+                            UpsellParams.builder()
+                                .setRequest(request)
+                                .setProgramTitle(roService.getProgramTitle())
+                                .setProgramShortDescription(roService.getProgramShortDescription())
+                                .setProfile(profile)
+                                .setApplicantPersonalInfo(applicantPersonalInfo.join())
+                                .setApplicationId(applicationId)
+                                .setMessages(messagesApi.preferred(request))
+                                .setBannerMessage(request.flash().get(FlashKey.BANNER))
+                                .setCompletedProgramId(programId)
+                                .setCompletedProgramSlug(
+                                    programSlugHandler.getProgramSlug(programParam))
+                                .setCustomConfirmationMessage(
+                                    roService.getCustomConfirmationMessage())
+                                .setApplicantId(appApplicantId)
+                                .setDateSubmitted(formattedDate);
 
-              if (isPreScreener.join()) {
-                UpsellParams upsellParams =
-                    paramsBuilder
-                        .setEligiblePrograms(maybeEligiblePrograms.orElseGet(ImmutableList::of))
-                        .build();
-                return ok(preScreenerUpsellView.render(upsellParams)).as(Http.MimeTypes.HTML);
-              } else {
-                UpsellParams upsellParams =
-                    paramsBuilder
-                        .setEligiblePrograms(
-                            relevantProgramsFuture.join().unappliedAndPotentiallyEligible())
-                        .build();
-                return ok(upsellView.render(upsellParams)).as(Http.MimeTypes.HTML);
-              }
+                        if (isPreScreener.join()) {
+                          return ok(preScreenerUpsellView.render(
+                                  paramsBuilder
+                                      .setEligiblePrograms(
+                                          maybeEligiblePrograms.orElseGet(ImmutableList::of))
+                                      .build()))
+                              .as(Http.MimeTypes.HTML);
+                        } else {
+                          return ok(upsellView.render(
+                                  paramsBuilder
+                                      .setEligiblePrograms(
+                                          relevantProgramsFuture
+                                              .join()
+                                              .unappliedAndPotentiallyEligible())
+                                      .build()))
+                              .as(Http.MimeTypes.HTML);
+                        }
+                      },
+                      classLoaderExecutionContext.current());
             },
             classLoaderExecutionContext.current())
         .exceptionally(
