@@ -86,8 +86,7 @@ public class FileController extends CiviFormController {
               String downloadUrl =
                   fileUploadImprovementsEnabled
                       ? applicantStorageClient.getPresignedUrlString(
-                          decodedFileKey,
-                          FileUploadQuestion.getUploadedFileName(storedFile, decodedFileKey))
+                          decodedFileKey, FileUploadQuestion.getUploadedFileName(storedFile))
                       : applicantStorageClient.getPresignedUrlString(decodedFileKey);
 
               return redirect(downloadUrl);
@@ -157,7 +156,7 @@ public class FileController extends CiviFormController {
     String downloadUrl =
         settingsManifest.getFileUploadQuestionImprovementsEnabled(request)
             ? applicantStorageClient.getPresignedUrlString(
-                decodedFileKey, FileUploadQuestion.getUploadedFileName(maybeFile, decodedFileKey))
+                decodedFileKey, FileUploadQuestion.getUploadedFileName(maybeFile))
             : applicantStorageClient.getPresignedUrlString(decodedFileKey);
 
     return ((adminAccount.getGlobalAdmin()

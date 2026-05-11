@@ -280,15 +280,16 @@ public final class FileUploadQuestion extends AbstractQuestion {
   }
 
   /**
-   * Display name for download Content-Disposition: stored original name, else the last segment of
-   * {@code fileKey}.
+   * Original file name from {@link StoredFileModel}, if present.
+   *
+   * <p>Returns {@link Optional#empty()} when {@code storedFile} is empty, when the model has no
+   * original file name, or when that value is blank. Pass the result to {@link
+   * services.cloud.ApplicantStorageClient#getPresignedUrlString(String, Optional)}: when empty,
+   * storage clients omit {@code Content-Disposition} and browsers derive a name from the download
+   * URL or object key.
    */
-  public static Optional<String> getUploadedFileName(
-      Optional<StoredFileModel> storedFile, String fileKey) {
-    return storedFile
-        .flatMap(StoredFileModel::getOriginalFileName)
-        .filter(s -> !s.isBlank())
-        .or(() -> Optional.of(getFileName(fileKey)));
+  public static Optional<String> getUploadedFileName(Optional<StoredFileModel> storedFile) {
+    return storedFile.flatMap(StoredFileModel::getOriginalFileName).filter(s -> !s.isBlank());
   }
 
   // Matches a filename with an extension.

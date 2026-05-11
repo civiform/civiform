@@ -34,12 +34,13 @@ public interface ApplicantStorageClient {
    * is used to access and download the users' files from cloud storage.
    *
    * <p>If {@code originalFileName} is present, implementations set the {@code Content-Disposition}
-   * response header so clients use that name when opening or saving the object. The value is either
-   * the applicant-facing name from {@link models.StoredFileModel} or a basename derived from {@code
-   * fileKey}. The object to fetch is always identified by {@code fileKey}.
+   * response header so clients use that name when opening or saving the object (typically from
+   * {@link models.StoredFileModel}). If empty, no filename override is applied and clients use
+   * default naming (for example from the object URL or key). The object to fetch is always
+   * identified by {@code fileKey}.
    *
    * @param fileKey The file key to be accessed from cloud storage.
-   * @param originalFileName Download filename for the client.
+   * @param originalFileName Download filename.
    */
   String getPresignedUrlString(String fileKey, Optional<String> originalFileName);
 
