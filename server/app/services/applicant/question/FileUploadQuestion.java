@@ -279,6 +279,20 @@ public final class FileUploadQuestion extends AbstractQuestion {
     return parts[parts.length - 1];
   }
 
+  /**
+   * Suggested download file name for presigned GETs: non-blank original from {@link
+   * StoredFileModel} when available, otherwise {@link #getFileName(String)}.
+   *
+   * <p>The result is always non-empty so storage clients can set {@code Content-Disposition}.
+   */
+  public static Optional<String> getUploadedFileName(
+      Optional<StoredFileModel> storedFile, String fileKey) {
+    return storedFile
+        .flatMap(StoredFileModel::getOriginalFileName)
+        .filter(s -> !s.isBlank())
+        .or(() -> Optional.of(getFileName(fileKey)));
+  }
+
   // Matches a filename with an extension.
   private static final Pattern FILE_NAME_REGEX = Pattern.compile("(.*)(\\.[^.]+)$");
 

@@ -1,29 +1,12 @@
-<!--/* Hidden inputs for file keys and original file names. Submitted with the
-     form when the applicant clicks Continue. */-->
+<!--/*
+     Anchor for HTMX OOB swaps only. File answers are persisted via HTMX upload/remove
+     and not submitted on Continue (cf-block-form POST).
+     */-->
 <div
   th:fragment="file-key-field(fileUploadQuestion, oob)"
   th:hx-swap-oob="${oob} ? 'true'"
   th:id="'cf-fileupload-file-key-inputs-' + ${fileUploadQuestion.getQuestionDefinition().getId()}"
->
-  <th:block th:if="${fileUploadQuestion.getFileKeyListValue().isPresent()}">
-    <input
-      th:each="fileKey, iter : ${fileUploadQuestion.getFileKeyListValue().get()}"
-      th:name="${fileUploadQuestion.getFileKeyListPathForIndex(iter.index)}"
-      th:value="${fileKey}"
-      type="hidden"
-    />
-  </th:block>
-  <th:block
-    th:if="${fileUploadQuestion.getOriginalFileNameListValue().isPresent()}"
-  >
-    <input
-      th:each="name, iter : ${fileUploadQuestion.getOriginalFileNameListValue().get()}"
-      th:name="${fileUploadQuestion.getOriginalFileNameListPathForIndex(iter.index)}"
-      th:value="${name}"
-      type="hidden"
-    />
-  </th:block>
-</div>
+></div>
 
 <!--/* Server-side validation errors (e.g. "file required"). Swaps into the
      wrapper div (cf-fileupload-validation-errors-*) rendered in

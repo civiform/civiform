@@ -178,8 +178,8 @@ public final class FileUploadController extends CiviFormController {
 
   /**
    * HTMX endpoint that removes a previously-uploaded file from the applicant's answer for the file
-   * upload question in {@code blockId}. Returns an HTML partial with OOB swaps to update the file
-   * list and hidden inputs.
+   * upload question in {@code blockId}. Returns an HTML partial with OOB swaps to refresh the file
+   * list and related UI (validation errors, number of allowed uploads left).
    */
   @Secure
   public CompletionStage<Result> hxRemoveFile(Request request, long programId, String blockId) {
