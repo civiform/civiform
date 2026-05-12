@@ -14,7 +14,6 @@ import org.apache.pekko.japi.Pair;
 import org.apache.pekko.stream.javadsl.Flow;
 import org.apache.pekko.util.ByteString;
 import org.apache.tika.Tika;
-import services.settings.SettingsManifest;
 
 /**
  * Validates uploaded file content by looking up the MIME type for the filename's extension,
@@ -22,34 +21,15 @@ import services.settings.SettingsManifest;
  * bytes actually match that type. Throws {@link FileUploadTypeException} on any mismatch.
  */
 public final class FileTypeValidation {
-  private final ImmutableList<String> allowedFileTypes;
-
-  @Inject
-  public FileTypeValidation(SettingsManifest settingsManifest) {
-    this.allowedFileTypes =
-        FileTypeValidation.parseSpecifiers(
-            settingsManifest.getFileUploadAllowedFileTypeSpecifiers().get());
-  }
-
-  public ImmutableList<String> getAllowedFileTypes() {
-    return allowedFileTypes;
-  }
-
   private static final Tika TIKA = new Tika();
 
   private static final int HEADER_SIZE = 16;
 
   private static final ImmutableMap<String, String> MIME_BY_EXTENSION =
-      ImmutableMap.<String, String>builder()
-          .put(".png", "image/png")
-          .put(".jpg", "image/jpeg")
-          .put(".jpeg", "image/jpeg")
-          .put(".gif", "image/gif")
-          .put(".pdf", "application/pdf")
-          .put(".bmp", "image/bmp")
-          .put(".webp", "image/webp")
-          .put(".tiff", "image/tiff")
-          .build();
+      FileTypeSpecifier.MIME_BY_EXTENSION_MAP;
+
+  @Inject
+  public FileTypeValidation() {}
 
   /** Parses a comma-separated list of MIME types, wildcards, and extensions. */
   @VisibleForTesting
@@ -117,6 +97,8 @@ public final class FileTypeValidation {
    *       a downstream failure or completion in the {@code .map}.
    *   <li>The detected MIME type is written into {@code detectedMimeTypeRef} so the caller can
    *       attach the MIME to the resulting {@code FilePart}.
+   *   <li>{@code allowedFileTypeSpecifiers} is parsed with {@link #parseSpecifiers(String)} before
+   *       validation runs.
    * </ul>
    *
    * <p>Pekko Streams references:
@@ -135,7 +117,8 @@ public final class FileTypeValidation {
   public Flow<ByteString, ByteString, ?> sniffingFlow(
       String fileName,
       AtomicReference<String> detectedMimeTypeRef,
-      ImmutableList<String> allowedFileTypes) {
+      String allowedFileTypeSpecifiers) {
+    ImmutableList<String> allowedFileTypes = parseSpecifiers(allowedFileTypeSpecifiers);
     return Flow.of(ByteString.class)
         .statefulMap(
             ByteString::emptyByteString,
