@@ -192,7 +192,8 @@ public final class ProgramImageView extends BaseHtmlView {
         submitButton("Save image description")
             .withForm(IMAGE_DESCRIPTION_FORM_ID)
             .withClasses(ButtonStyles.SOLID_BLUE, "flex")
-            // admin_program_image.ts will enable the submit button when the description changes.
+            // legacy_admin_program_image.ts will enable the submit button when the description
+            // changes.
             .isDisabled());
     Optional<ButtonTag> manageTranslationsButton =
         createManageTranslationsButton(programDefinition, existingDescription);
@@ -271,7 +272,8 @@ public final class ProgramImageView extends BaseHtmlView {
         submitButton("Save image")
             .withForm(IMAGE_FILE_UPLOAD_FORM_ID)
             .withClasses(ButtonStyles.SOLID_BLUE, "flex")
-            // admin_program_image.ts will enable the submit button when an image has been uploaded.
+            // legacy_admin_program_image.ts will enable the submit button when an image has been
+            // uploaded.
             .isDisabled());
     buttonsDiv.with(deleteButton);
 

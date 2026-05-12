@@ -941,6 +941,12 @@
         "type": "bool",
         "required": false
       },
+      "EXPANDED_FORM_LOGIC_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enables new visibility/eligibility condition editing UI and expanded logic capabilities for admin.",
+        "type": "bool",
+        "required": false
+      },
       "LOGIN_DROPDOWN_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "Enables a dropdown for login that has both applicant and admin login.",
@@ -952,18 +958,18 @@
         "description": "Enable showing an immigration status informational banner to applicants.",
         "type": "bool",
         "required": false
+      },
+      "SESSION_TIMEOUT_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enable session timeout based on inactivity and maximum duration.",
+        "type": "bool",
+        "required": false
       }
     }
   },
   "Experimental": {
     "group_description": "These are __NOT READY FOR PRODUCTION USE__. Use these configuration options to enable or disable in-development features.",
     "members": {
-      "SESSION_TIMEOUT_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration.",
-        "type": "bool",
-        "required": false
-      },
       "PROGRAM_SLUG_URLS_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in URLs.",
@@ -979,12 +985,6 @@
       "API_BRIDGE_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Enables changes to support API Bridge",
-        "type": "bool",
-        "required": false
-      },
-      "EXPANDED_FORM_LOGIC_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enables new visibility/eligibility condition editing UI and expanded logic capabilities for admin.",
         "type": "bool",
         "required": false
       },

@@ -29,37 +29,37 @@ lazy val root = (project in file("."))
       javaJdbc,
       javaWs,
       // Collections
-      "com.google.guava" % "guava" % "33.5.0-jre",
+      "com.google.guava" % "guava" % "33.6.0-jre",
       "com.google.auto" % "auto-common" % "1.2.2",
 
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "3.0.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.21.2",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.21.2",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.21.2",
-      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.21.2",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.21.3",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.21.3",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.21.3",
+      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.21.3",
       "com.google.inject.extensions" % "guice-assistedinject" % "6.0.0",
 
       // Templating
       "com.j2html" % "j2html" % "1.6.0",
-      "org.thymeleaf" % "thymeleaf" % "3.1.3.RELEASE",
-      "org.commonmark" % "commonmark" % "0.27.1",
-      "org.commonmark" % "commonmark-ext-autolink" % "0.27.1",
+      "org.thymeleaf" % "thymeleaf" % "3.1.5.RELEASE",
+      "org.commonmark" % "commonmark" % "0.28.0",
+      "org.commonmark" % "commonmark-ext-autolink" % "0.28.0",
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20260313.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.42.36",
-      "software.amazon.awssdk" % "ses" % "2.42.36",
+      "software.amazon.awssdk" % "s3" % "2.44.3",
+      "software.amazon.awssdk" % "ses" % "2.44.3",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
       "com.azure" % "azure-storage-blob" % "12.32.0",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.62.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.63.0",
 
       // Database and database testing libraries
-      "org.postgresql" % "postgresql" % "42.7.10",
+      "org.postgresql" % "postgresql" % "42.7.11",
       "com.google.cloud.sql" % "postgres-socket-factory" % "1.28.3",
       "com.h2database" % "h2" % "2.4.240" % Test,
 
@@ -75,26 +75,26 @@ lazy val root = (project in file("."))
 
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
-      "com.google.guava" % "guava-testlib" % "33.5.0-jre" % Test,
+      "com.google.guava" % "guava-testlib" % "33.6.0-jre" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "jakarta.xml.bind" % "jakarta.xml.bind-api" % "4.0.5",
       "jakarta.activation" % "jakarta.activation-api" % "2.1.4",
-      "org.glassfish.jaxb" % "jaxb-runtime" % "4.0.7",
+      "org.glassfish.jaxb" % "jaxb-runtime" % "4.0.8",
 
       // Code autogeneration
-      "org.projectlombok" % "lombok" % "1.18.44" % "provided",
+      "org.projectlombok" % "lombok" % "1.18.46" % "provided",
 
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
-      "org.pac4j" %% "play-pac4j" % "13.0.2-PLAY3.0",
-      "org.pac4j" % "pac4j-core" % "6.4.1",
+      "org.pac4j" %% "play-pac4j" % "13.0.3-PLAY3.0",
+      "org.pac4j" % "pac4j-core" % "6.4.3",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "6.4.1",
+      "org.pac4j" % "pac4j-http" % "6.4.3",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "6.4.1",
+      "org.pac4j" % "pac4j-oidc" % "6.4.3",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "6.4.1",
+      "org.pac4j" % "pac4j-saml" % "6.4.3",
 
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.13.0",
@@ -109,7 +109,7 @@ lazy val root = (project in file("."))
       ),
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.48.0",
-      "org.checkerframework" % "dataflow-errorprone" % "3.54.0",
+      "org.checkerframework" % "dataflow-errorprone" % "3.55.1",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.14.1",
@@ -118,10 +118,10 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.5",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.27",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.30",
 
       // Slugs for deeplinking.
-      "com.github.slugify" % "slugify" % "3.0.7",
+      "com.github.slugify" % "slugify" % "4.0.0",
 
       // Apache libraries for testing subnets
       "commons-net" % "commons-net" % "3.13.0",
@@ -132,10 +132,10 @@ lazy val root = (project in file("."))
 
       // Explicitly include Pekko libraries that otherwise would be
       // incompatible due to version mismatches with the default versions.
-      "org.apache.pekko" %% "pekko-actor-typed" % "1.4.0",
-      "org.apache.pekko" %% "pekko-serialization-jackson" % "1.4.0",
-      "org.apache.pekko" %% "pekko-slf4j" % "1.4.0",
-      "org.apache.pekko" %% "pekko-stream-testkit" % "1.4.0",
+      "org.apache.pekko" %% "pekko-actor-typed" % "1.6.0",
+      "org.apache.pekko" %% "pekko-serialization-jackson" % "1.6.0",
+      "org.apache.pekko" %% "pekko-slf4j" % "1.6.0",
+      "org.apache.pekko" %% "pekko-stream-testkit" % "1.6.0",
 
       // Apache library for byte detection
       "org.apache.tika" % "tika-core" % "3.3.0",
@@ -152,11 +152,11 @@ lazy val root = (project in file("."))
         "javax.validation",
         "validation-api"
       ),
-      "io.swagger" % "swagger-parser" % "1.0.75",
+      "io.swagger" % "swagger-parser" % "1.0.76",
 
       // OpenAPI 3.x Dependencies
-      "io.swagger.core.v3" % "swagger-core" % "2.2.45",
-      "io.swagger.parser.v3" % "swagger-parser" % "2.1.39",
+      "io.swagger.core.v3" % "swagger-core" % "2.2.49",
+      "io.swagger.parser.v3" % "swagger-parser" % "2.1.41",
 
       // JSON Schema validation
       "com.networknt" % "json-schema-validator" % "2.0.1",
@@ -337,8 +337,8 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.21.2",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.21.2",
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.21.3",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.21.3",
   "com.fasterxml.jackson.core" % "jackson-annotations" % "2.21"
 )
 
