@@ -4,11 +4,13 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import lombok.Getter;
 
 /**
  * Allowlist tokens for {@link FileTypeValidation}; extension constants also define {@link
  * #MIME_BY_EXTENSION_MAP}.
  */
+@Getter
 public enum FileTypeSpecifier {
   IMAGE_WILDCARD("image/*"),
 
@@ -46,20 +48,16 @@ public enum FileTypeSpecifier {
   private static ImmutableMap<String, String> buildMimeByExtension() {
     ImmutableMap.Builder<String, String> b = ImmutableMap.builder();
     for (FileTypeSpecifier s : values()) {
-      if (s.mimeForExtension != null) {
-        b.put(s.token, s.mimeForExtension);
+      if (s.getMimeForExtension() != null) {
+        b.put(s.getToken(), s.getMimeForExtension());
       }
     }
     return b.build();
   }
 
-  public String token() {
-    return token;
-  }
-
   /** MIME or wildcard string used by {@link FileTypeValidation} allowlist checks. */
   String normalizedAllowEntry() {
-    return mimeForExtension != null ? mimeForExtension : token;
+    return getMimeForExtension() != null ? getMimeForExtension() : getToken();
   }
 
   public static ImmutableList<FileTypeSpecifier> parseCommaSeparated(String specifiers) {
@@ -68,7 +66,7 @@ public enum FileTypeSpecifier {
       String part = raw.toLowerCase(Locale.ROOT);
       FileTypeSpecifier match = null;
       for (FileTypeSpecifier s : values()) {
-        if (s.token.equals(part)) {
+        if (s.getToken().equals(part)) {
           match = s;
           break;
         }
