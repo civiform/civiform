@@ -20,7 +20,6 @@ import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.InputTag;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.data.Form;
@@ -127,10 +126,10 @@ public final class ProgramImageView extends BaseHtmlView {
 
     DivTag cardPreview;
     try {
-      String content = programCardPreviewController.cardPreview(request, programDefinition.id());
+      String content = programCardPreviewController.cardPreview(request, programDefinition);
       cardPreview = div(rawHtml(content));
-    } catch (InterruptedException | ExecutionException e) {
-      logger.error("Error generating card preview: " + e.getLocalizedMessage());
+    } catch (RuntimeException e) {
+      logger.error("Error generating card preview", e);
       cardPreview = div(text("Error generating card preview")).withClass("text-center");
     }
     formsAndCurrentCardContainer.with(cardPreview);

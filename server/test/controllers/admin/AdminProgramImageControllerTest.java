@@ -3,7 +3,13 @@ package controllers.admin;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static play.mvc.Http.Status.NOT_FOUND;
+import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
+import static play.test.Helpers.contentAsString;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 import static support.cloud.FakePublicStorageClient.FAKE_BUCKET_NAME;
@@ -39,22 +45,72 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   private static final String VALID_FILE_KEY = "program-summary-image/program-1/myImage.png";
 
   private ProgramService programService;
+  private SettingsManifest settingsManifest;
   private AdminProgramImageController controller;
 
   @Before
   public void setup() {
     programService = instanceOf(ProgramService.class);
+    settingsManifest = mock(SettingsManifest.class);
+    when(settingsManifest.getFileUploadQuestionImprovementsEnabled(any())).thenReturn(false);
     controller =
         new AdminProgramImageController(
             new FakePublicStorageClient(),
             programService,
             instanceOf(ProgramImageView.class),
             instanceOf(ProgramImagePageView.class),
-            instanceOf(SettingsManifest.class),
+            instanceOf(ProgramCardPreviewController.class),
+            settingsManifest,
             instanceOf(RequestChecker.class),
             instanceOf(FormFactory.class),
             instanceOf(ProfileUtils.class),
             instanceOf(VersionRepository.class));
+  }
+
+  @Test
+  public void index_fileUploadImprovementsEnabled_rendersThymeleafImagePage()
+      throws ProgramNotFoundException {
+    when(settingsManifest.getFileUploadQuestionImprovementsEnabled(any())).thenReturn(true);
+    ProgramModel program = ProgramBuilder.newDraftProgram("image page program").build();
+
+    Result result =
+        controller.index(
+            fakeRequestBuilder().method("GET").build(),
+            program.id,
+            ProgramEditStatus.CREATION.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String body = contentAsString(result);
+    assertThat(body).contains("program-image-input");
+    assertThat(body).contains("program-image-form");
+  }
+
+  @Test
+  public void hxUploadProgramImage_fileUploadImprovementsDisabled_returnsNotFound() {
+    ProgramModel program = ProgramBuilder.newDraftProgram("hx upload").build();
+
+    Result result =
+        controller.hxUploadProgramImage(
+            fakeRequestBuilder().method("POST").build(),
+            program.id,
+            ProgramEditStatus.CREATION.name());
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
+  public void hxUploadProgramImage_fileUploadImprovementsEnabled_returnsOk() {
+    when(settingsManifest.getFileUploadQuestionImprovementsEnabled(any())).thenReturn(true);
+    ProgramModel program = ProgramBuilder.newDraftProgram("hx upload ok").build();
+
+    Result result =
+        controller.hxUploadProgramImage(
+            fakeRequestBuilder().method("POST").build(),
+            program.id,
+            ProgramEditStatus.CREATION.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).isEqualTo("ok");
   }
 
   @Test

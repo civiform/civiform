@@ -21,6 +21,8 @@ import services.applicant.ApplicantService.ApplicantProgramData;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
 import views.admin.programs.ProgramCardPreview;
+import views.admin.programs.ProgramCardPreview.Params;
+import views.applicant.programindex.ProgramCardsSectionParamsFactory.ProgramCardParams;
 
 /** Controller for rendering a program card preview. */
 public final class ProgramCardPreviewController extends CiviFormController {
@@ -42,26 +44,54 @@ public final class ProgramCardPreviewController extends CiviFormController {
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public ProgramCardParams programCardPreviewParams(Http.Request request, long programId)
+      throws InterruptedException, ExecutionException {
+    return programCardPreview.buildCard(buildPreviewParams(request, programId));
+  }
+
+  /**
+   * Same as {@link #programCardPreviewParams(Http.Request, long)} but uses an already-loaded
+   * program definition so callers do not trigger a second program fetch.
+   */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public ProgramCardParams programCardPreviewParams(
+      Http.Request request, ProgramDefinition programDefinition) {
+    return programCardPreview.buildCard(buildPreviewParams(request, programDefinition));
+  }
+
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public String cardPreview(Http.Request request, long programId)
       throws InterruptedException, ExecutionException {
+    return programCardPreview.render(buildPreviewParams(request, programId));
+  }
 
+  /**
+   * Same as {@link #cardPreview(Http.Request, long)} but uses an already-loaded program definition.
+   */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public String cardPreview(Http.Request request, ProgramDefinition programDefinition) {
+    return programCardPreview.render(buildPreviewParams(request, programDefinition));
+  }
+
+  private Params buildPreviewParams(Http.Request request, long programId)
+      throws InterruptedException, ExecutionException {
+    ProgramDefinition programDefinition =
+        programService.getFullProgramDefinitionAsync(programId).toCompletableFuture().get();
+    return buildPreviewParams(request, programDefinition);
+  }
+
+  private Params buildPreviewParams(Http.Request request, ProgramDefinition programDefinition) {
     Representation representation = Representation.builder().build();
     ApplicantPersonalInfo api = ApplicantPersonalInfo.ofGuestUser(representation);
     CiviFormProfile profile = profileUtils.currentUserProfile(request);
-
-    ProgramDefinition programDefinition =
-        programService.getFullProgramDefinitionAsync(programId).toCompletableFuture().get();
     ApplicantProgramData apd = ApplicantProgramData.builder(programDefinition).build();
 
-    ProgramCardPreview.Params params =
-        ProgramCardPreview.Params.builder()
-            .setRequest(request)
-            .setApplicantPersonalInfo(api)
-            .setApplicantProgramData(apd)
-            .setProfile(profile)
-            .setMessages(messages)
-            .build();
-
-    return programCardPreview.render(params);
+    return ProgramCardPreview.Params.builder()
+        .setRequest(request)
+        .setApplicantPersonalInfo(api)
+        .setApplicantProgramData(apd)
+        .setProfile(profile)
+        .setMessages(messages)
+        .build();
   }
 }

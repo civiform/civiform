@@ -556,6 +556,22 @@ button.homePage=Back to homepage
 
 # Title of the admin page where a program''s summary image and alt text are set.
 title.adminProgramImage=Image upload
+# Link text to return to program editing from the program image page.
+link.adminProgramImage.back=Back
+# Hint under the file input about maximum upload size for a program summary image.
+content.adminProgramImage.hintMaxSize=The maximum size for image upload is 1MB.
+# Hint explaining automatic 16x9 cropping and that the preview reflects saved images.
+content.adminProgramImage.hintCrop=The image will be automatically cropped to 16x9. The program card preview on the right will show the cropping once the image is saved.
+# Label for the field where the admin enters alt text for the program summary image.
+label.adminProgramImage.altText=Enter image description (Alt Text)
+# Button to leave the program image step and continue program setup (creation flow).
+button.adminProgramImage.continue=Continue
+# Button to save and return when editing an existing program (non-creation flow).
+button.adminProgramImage.save=Save
+# Message shown when the admin tries to continue without alt text while it is required.
+validation.adminProgramImage.altTextRequired=Enter image description (Alt Text) before continuing.
+# Message when the program card preview cannot be rendered.
+content.adminProgramImage.cardPreviewError=Error generating card preview
 
 #--------------------------------------------------------------------------------------------------------------#
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #

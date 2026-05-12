@@ -6,7 +6,10 @@ import views.admin.AdminLayout;
 import views.admin.TransitionalLayoutBaseView;
 import views.shared.LayoutDeps;
 
-/** Thymeleaf admin page for program image; used when file upload improvements are on. */
+/**
+ * Thymeleaf admin page for program image; used when file upload improvements are on. Client
+ * behavior: {@code server/app/assets/javascripts/admin_program_image.ts}.
+ */
 public final class ProgramImagePageView
     extends TransitionalLayoutBaseView<ProgramImagePageViewModel> {
 

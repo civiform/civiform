@@ -1,14 +1,18 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static views.admin.programs.ProgramEditStatus.CREATION_EDIT;
 
 import auth.Authorizers;
 import auth.ProfileUtils;
 import controllers.CiviFormController;
 import controllers.FlashKey;
 import forms.admin.ProgramImageDescriptionForm;
+import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Http;
@@ -17,6 +21,7 @@ import repository.VersionRepository;
 import services.LocalizedStrings;
 import services.cloud.PublicFileNameFormatter;
 import services.cloud.PublicStorageClient;
+import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
@@ -24,13 +29,17 @@ import views.admin.programs.ProgramEditStatus;
 import views.admin.programs.ProgramImagePageView;
 import views.admin.programs.ProgramImagePageViewModel;
 import views.admin.programs.ProgramImageView;
+import views.applicant.programindex.ProgramCardsSectionParamsFactory.ProgramCardParams;
 
 /** Controller for displaying and modifying the image (and alt text) associated with a program. */
 public final class AdminProgramImageController extends CiviFormController {
+  private static final Logger logger = LoggerFactory.getLogger(AdminProgramImageController.class);
+
   private final PublicStorageClient publicStorageClient;
   private final ProgramService programService;
   private final ProgramImageView programImageView;
   private final ProgramImagePageView programImagePageView;
+  private final ProgramCardPreviewController programCardPreviewController;
   private final SettingsManifest settingsManifest;
   private final RequestChecker requestChecker;
   private final FormFactory formFactory;
@@ -41,6 +50,7 @@ public final class AdminProgramImageController extends CiviFormController {
       ProgramService programService,
       ProgramImageView programImageView,
       ProgramImagePageView programImagePageView,
+      ProgramCardPreviewController programCardPreviewController,
       SettingsManifest settingsManifest,
       RequestChecker requestChecker,
       FormFactory formFactory,
@@ -51,6 +61,7 @@ public final class AdminProgramImageController extends CiviFormController {
     this.programService = checkNotNull(programService);
     this.programImageView = checkNotNull(programImageView);
     this.programImagePageView = checkNotNull(programImagePageView);
+    this.programCardPreviewController = checkNotNull(programCardPreviewController);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.requestChecker = checkNotNull(requestChecker);
     this.formFactory = checkNotNull(formFactory);
@@ -59,19 +70,53 @@ public final class AdminProgramImageController extends CiviFormController {
   /**
    * Shows the main image upload page.
    *
-   * @param editStatus should match a name in the {@link ProgramEditStatus} enum.
+   * @param editStatus should match a name in the {@link views.admin.programs.ProgramEditStatus}
+   *     enum.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Http.Request request, long programId, String editStatus)
       throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
     if (settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
-      return ok(programImagePageView.render(request, new ProgramImagePageViewModel()))
+      ProgramDefinition program = programService.getFullProgramDefinition(programId);
+      Optional<ProgramCardParams> cardPreviewParams = Optional.empty();
+      try {
+        cardPreviewParams =
+            Optional.of(programCardPreviewController.programCardPreviewParams(request, program));
+      } catch (RuntimeException e) {
+        logger.error("Error generating card preview", e);
+      }
+
+      ProgramImagePageViewModel programImagePageViewModel =
+          ProgramImagePageViewModel.builder()
+              .programEditStatus(ProgramEditStatus.getStatusFromString(editStatus))
+              .program(program)
+              .maxFileSizeMb(publicStorageClient.getFileLimitMb())
+              .cardPreviewParams(cardPreviewParams)
+              .build();
+      return ok(programImagePageView.render(request, programImagePageViewModel))
           .as(Http.MimeTypes.HTML);
     }
     return ok(
         programImageView.render(
             request, programService.getFullProgramDefinition(programId), editStatus));
+  }
+
+  /**
+   * HTMX endpoint for uploading a program summary image (stub: multipart accepted; persistence and
+   * streaming parser to be added later).
+   */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result hxUploadProgramImage(Http.Request request, long programId, String editStatus) {
+    if (!settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
+      return notFound();
+    }
+    requestChecker.throwIfProgramNotDraft(programId);
+    var body = request.body().asMultipartFormData();
+    if (body != null) {
+      body.getFile("file");
+    }
+    return ok("ok").as(Http.MimeTypes.TEXT);
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -103,6 +148,17 @@ public final class AdminProgramImageController extends CiviFormController {
     }
 
     final String indexUrl = routes.AdminProgramImageController.index(programId, editStatus).url();
+
+    if (settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
+      String redirectUrl =
+          switch (editStatus) {
+            case "EDIT" -> routes.AdminProgramBlocksController.index(programId).url();
+            case "CREATION", "CREATION_EDIT" ->
+                routes.AdminProgramController.edit(programId, CREATION_EDIT.name()).url();
+            default -> indexUrl;
+          };
+      return redirect(redirectUrl).flashing(toastType, toastMessage);
+    }
     return redirect(indexUrl).flashing(toastType, toastMessage);
   }
 

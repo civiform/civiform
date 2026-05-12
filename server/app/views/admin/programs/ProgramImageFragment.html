@@ -1,5 +1,133 @@
 <!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
 <!--/*@thymesVar id="model" type="views.admin.programs.ProgramImagePageViewModel"*/-->
 <th:block th:fragment="content">
-  <div class="padding-x-4 padding-y-3"></div>
+  <div class="margin-top-4">
+    <a
+      class="display-flex flex-align-center font-sans-md text-no-underline margin-bottom-4"
+      th:href="${model.backUrl}"
+      ><cf:icon type="icon-navigate_before" />
+      <span th:text="#{link.adminProgramImage.back}" />
+    </a>
+
+    <h1 th:text="#{title.adminProgramImage}" />
+
+    <div
+      class="usa-error-message margin-bottom-2"
+      th:if="${model.cardPreviewFailed}"
+      th:text="#{content.adminProgramImage.cardPreviewError}"
+    />
+
+    <div class="grid-row grid-gap-lg">
+      <div class="grid-col-12 tablet:grid-col-6">
+        <div class="usa-form-group">
+          <div id="program-image-file-input-hint">
+            <div
+              class="usa-hint"
+              th:text="#{content.adminProgramImage.hintMaxSize}"
+            />
+            <div
+              class="usa-hint"
+              th:text="#{content.adminProgramImage.hintCrop}"
+            />
+          </div>
+          <input
+            accept="image/png,image/jpeg"
+            aria-describedby="program-image-file-input-hint"
+            class="usa-file-input"
+            hx-encoding="multipart/form-data"
+            hx-swap="none"
+            hx-trigger="change"
+            id="program-image-input"
+            name="file"
+            th:data-file-limit-mb="${model.maxFileSizeMb}"
+            th:hx-post="${model.hxUploadProgramImageUrl()}"
+            type="file"
+          />
+          <!--/*
+            Hidden by default. admin_program_image.ts toggles via showError/hideError (same pattern
+            as data-fileupload-error="too-large" in FileUploadQuestionFragment.html).
+          */-->
+          <div
+            hidden
+            class="usa-alert usa-alert--error usa-alert--slim margin-top-105"
+            data-fileupload-error="too-large"
+            id="cf-fileupload-too-large-error"
+          >
+            <div class="usa-alert__body">
+              <p
+                class="usa-alert__text"
+                th:text="#{toast.errorMessageOutline(#{validation.fileTooLarge(${model.maxFileSizeMb})})}"
+              ></p>
+            </div>
+          </div>
+          <!--/*
+            Hidden by default. admin_program_image.ts adds cf-file-uploading to document.body
+            during upload; northstar CSS shows .cf-file-uploading-tag when that class is present.
+          */-->
+          <div
+            class="cf-file-uploading-tag display-none padding-1 bg-warning-lighter text-warning-dark"
+            role="alert"
+            th:text="#{label.uploading}"
+          />
+
+          <form
+            class="margin-top-4"
+            id="program-image-form"
+            method="post"
+            novalidate
+            th:action="${model.submitNavigationUrl}"
+          >
+            <input
+              hidden
+              name="csrfToken"
+              th:value="${templateGlobals.csrfToken()}"
+            />
+            <cf:input
+              id="alt-text"
+              name="summaryImageDescription"
+              th:disabled="${!model.hasSummaryImage}"
+              th:label="#{label.adminProgramImage.altText}"
+              th:required="${model.hasSummaryImage}"
+              th:value="${model.summaryImageDescriptionDefault}"
+            />
+            <!--/*
+              Hidden by default. admin_program_image.ts toggles via showError/hideError (same idea
+              as data-fileupload-error="required" in FileUploadQuestionFragment.html).
+            */-->
+            <div
+              hidden
+              class="usa-alert usa-alert--error usa-alert--slim margin-top-105"
+              data-fileupload-error="required"
+              id="cf-program-image-alt-required-error"
+            >
+              <div class="usa-alert__body">
+                <p
+                  class="usa-alert__text"
+                  th:text="#{toast.errorMessageOutline(#{validation.adminProgramImage.altTextRequired})}"
+                ></p>
+              </div>
+            </div>
+
+            <th:block
+              th:with="submitLabelKey=${model.submitButtonMessageKey()}"
+            >
+              <cf:button
+                id="program-image-submit-button"
+                th:text="#{__${submitLabelKey}__}"
+                type="submit"
+              />
+            </th:block>
+          </form>
+        </div>
+      </div>
+
+      <div class="grid-col-12 tablet:grid-col-6">
+        <th:block th:if="${model.showCardPreview()}">
+          <div
+            th:replace="~{admin/programs/ProgramCardPreviewFragment :: cardPreview(${model.cardPreviewParams.get()})}"
+          ></div>
+        </th:block>
+      </div>
+    </div>
+  </div>
 </th:block>
