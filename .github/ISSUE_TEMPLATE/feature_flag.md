@@ -21,7 +21,8 @@ Follow detailed instructions in [Feature Flags wiki page](https://github.com/civ
 - [ ] Create feature flag
 - [ ] Implement code guarded with flag, including unit and browser tests that manipulate the state of the flag as needed
 - [ ] Enable flag [in dev](https://github.com/civiform/civiform/blob/main/server/conf/application.dev.conf)
-- [ ] Enable flag [in staging](https://github.com/civiform/civiform-staging-deploy/blob/main/aws_staging_civiform_config.sh)
+- [ ] Enable flag in [staging](https://github.com/civiform/civiform-staging-deploy/blob/main/aws_staging_civiform_config.sh), [QA](https://github.com/civiform/civiform-staging-deploy/blob/main/qa_civiform_config.sh), [eng](https://github.com/civiform/civiform-staging-deploy/blob/main/civiform_eng_civiform_config.sh), and [demo](https://github.com/civiform/civiform-staging-deploy/blob/main/civiform_demo_civiform_config.sh).
 - [ ] Coordinate with @shreyachatterjee00 to announce the feature to governments
+- [ ] Move the flag out of the "Experimental" section and into the "Feature Flags" section and remove the "(NOT FOR PRODUCTION USE)" warning from the description.
 - [ ] Deprecate flag (default to true unless overridden in config)
 - [ ] Remove flag completely
