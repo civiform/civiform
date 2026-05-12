@@ -33,12 +33,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.pac4j.play.java.Secure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import parsers.applicant.ApplicantStreamingMultipartBodyParser;
 import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.ClassLoaderExecutionContext;
-import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
@@ -78,8 +76,8 @@ import views.trustedintermediary.ApplicationBaseViewParams;
  * check the current profile so that an unauthorized user cannot access another applicant's data!
  */
 public final class ApplicantProgramBlocksController extends CiviFormController {
-  // "file" is stripped because file uploads are handled separately by
-  // hxSelectFileForUpload, not by the form submission.
+  // "file" is stripped because file uploads are handled separately
+  // not by the form submission.
   private static final ImmutableSet<String> STRIPPED_FORM_FIELDS =
       ImmutableSet.of("csrfToken", "file");
 
@@ -1023,139 +1021,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .exceptionally(this::handleUpdateExceptions);
   }
 
-  @Secure
-  @BodyParser.Of(ApplicantStreamingMultipartBodyParser.class)
-  public CompletionStage<Result> hxSelectFileForUpload(
-      Request request, long programId, String blockId) {
-    if (!settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
-      return CompletableFuture.completedFuture(notFound());
-    }
-
-    Optional<Long> optionalApplicantId = getApplicantId(request);
-    if (optionalApplicantId.isEmpty()) {
-      return CompletableFuture.completedFuture(badRequest());
-    }
-
-    long applicantId = optionalApplicantId.get();
-
-    // The body has already been streamed to cloud storage by
-    // ApplicantStreamingMultipartBodyParser. Each FilePart's ref carries the generated fileKey.
-    Http.MultipartFormData<String> body = request.body().asMultipartFormData();
-    if (body == null) {
-      return CompletableFuture.completedFuture(badRequest());
-    }
-
-    Http.MultipartFormData.FilePart<String> filePart = body.getFile("file");
-    if (filePart == null) {
-      return CompletableFuture.completedFuture(badRequest());
-    }
-
-    String questionId = formFactory.form().bindFromRequest(request).get("questionId");
-    if (questionId == null) {
-      return CompletableFuture.completedFuture(badRequest());
-    }
-    long parsedQuestionId;
-    try {
-      parsedQuestionId = Long.parseLong(questionId);
-    } catch (NumberFormatException e) {
-      return CompletableFuture.completedFuture(badRequest());
-    }
-
-    String originalFileName = filePart.getFilename();
-    String fileKey = filePart.getRef();
-
-    return checkApplicantAuthorization(request, applicantId)
-        .thenComposeAsync(
-            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
-            classLoaderExecutionContext.current())
-        .thenComposeAsync(
-            roApplicantProgramService -> {
-              Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
-
-              if (block.isEmpty() || !block.get().isFileUpload()) {
-                return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
-              }
-
-              FileUploadQuestion fileUploadQuestion =
-                  block.get().getVisibleQuestions().stream()
-                      .filter(
-                          question ->
-                              question.getType() == QuestionType.FILEUPLOAD
-                                  && question.getQuestionDefinition().getId() == parsedQuestionId)
-                      .findFirst()
-                      .orElseThrow()
-                      .createFileUploadQuestion();
-
-              if (!fileUploadQuestion.canUploadFile()) {
-                return failedFuture(
-                    new IllegalArgumentException(
-                        String.format(
-                            "Cannot upload additional files for question"
-                                + " %s, in program %s, block %s, for"
-                                + " applicant %s.",
-                            fileUploadQuestion
-                                .getApplicantQuestion()
-                                .getQuestionDefinition()
-                                .getId(),
-                            programId,
-                            blockId,
-                            applicantId)));
-              }
-
-              ImmutableMap.Builder<String, String> fileUploadQuestionFormData =
-                  new ImmutableMap.Builder<>();
-              Optional<ImmutableList<String>> keysOptional =
-                  fileUploadQuestion.getFileKeyListValue();
-              Optional<ImmutableList<String>> originalFileNamesOptional =
-                  fileUploadQuestion.getOriginalFileNameListValue();
-              int newIndex = keysOptional.map(ImmutableList::size).orElse(0);
-
-              // Preserve existing file keys.
-              if (keysOptional.isPresent()) {
-                for (int i = 0; i < keysOptional.get().size(); i++) {
-                  fileUploadQuestionFormData.put(
-                      fileUploadQuestion.getFileKeyListPathForIndex(i).toString(),
-                      keysOptional.get().get(i));
-                }
-              }
-
-              // Preserve existing original file names.
-              if (originalFileNamesOptional.isPresent()) {
-                for (int i = 0; i < originalFileNamesOptional.get().size(); i++) {
-                  fileUploadQuestionFormData.put(
-                      fileUploadQuestion.getOriginalFileNameListPathForIndex(i).toString(),
-                      originalFileNamesOptional.get().get(i));
-                }
-              }
-
-              // Append new file key and original file name.
-              fileUploadQuestionFormData.put(
-                  fileUploadQuestion.getFileKeyListPathForIndex(newIndex).toString(), fileKey);
-              fileUploadQuestionFormData.put(
-                  fileUploadQuestion.getOriginalFileNameListPathForIndex(newIndex).toString(),
-                  originalFileName);
-
-              return getOrMakeFileRecord(fileKey, Optional.of(originalFileName), applicantId)
-                  .thenComposeAsync(
-                      storedFile ->
-                          applicantService.stageAndUpdateIfValid(
-                              applicantId,
-                              programId,
-                              blockId,
-                              fileUploadQuestionFormData.build(),
-                              settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
-                              false,
-                              settingsManifest.getApiBridgeEnabled(request)));
-            },
-            classLoaderExecutionContext.current())
-        .thenApplyAsync(
-            // TODO(#12974): Return a successful file upload partial
-            roApplicantProgramService -> ok(""),
-            classLoaderExecutionContext.current())
-        // TODO(#12974): Return a file upload partial with an error message
-        .exceptionallyAsync(ex -> internalServerError(), classLoaderExecutionContext.current());
-  }
-
   /**
    * Accepts, validates and saves submission of applicant data for {@code blockId}.
    *
@@ -1330,7 +1195,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .exceptionally(this::handleUpdateExceptions);
   }
 
-  /**
+  /*
    * Returns true if applicants can immediately navigate away from a block because they haven't even
    * started answering it. Returns false if applicants have started answering the block or answered
    * the block in the past.
@@ -1793,7 +1658,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .build();
   }
 
-  /** Gets StoredFileModel for {@code key}, creating one if it is not present. */
   private CompletionStage<StoredFileModel> getOrMakeFileRecord(
       String key, Optional<String> originalFileName, long applicantId) {
     return storedFileRepository

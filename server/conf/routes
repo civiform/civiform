@@ -207,7 +207,8 @@ POST    /programs/:programId/blocks/:blockId/confirmAddress/:inReview/:applicant
 GET     /programs/:programParam/blocks/:previousBlockIndex/previous/:inReview                                                     controllers.applicant.ApplicantProgramBlocksController.previous(request: Request, programParam: String, previousBlockIndex: Int, inReview: Boolean)
 GET     /programs/:programId/blocks/:blockId/addFile/:inReview                                                                 controllers.applicant.ApplicantProgramBlocksController.addFile(request: Request, programId: Long, blockId: String, inReview: Boolean)
 GET     /programs/:programId/blocks/:blockId/removeFile/:fileKey/:inReview                                                     controllers.applicant.ApplicantProgramBlocksController.removeFile(request: Request, programId: Long, blockId: String, fileKey: String, inReview: Boolean)
-POST    /programs/:programId/blocks/:blockId/hx/selectFileForUpload                                                               controllers.applicant.ApplicantProgramBlocksController.hxSelectFileForUpload(request: Request, programId: Long, blockId: String)
+POST    /programs/:programId/blocks/:blockId/hx/selectFileForUpload                                                               controllers.applicant.FileUploadController.hxSelectFileForUpload(request: Request, programId: Long, blockId: String)
+POST    /programs/:programId/blocks/:blockId/hx/removeFile                                                                        controllers.applicant.FileUploadController.hxRemoveFile(request: Request, programId: Long, blockId: String)
 POST    /programs/:programParam/blocks/:blockId/:inReview/:applicantRequestedActionWrapper                                           controllers.applicant.ApplicantProgramBlocksController.update(request: Request, programParam: String, blockId: String, inReview: Boolean, applicantRequestedActionWrapper: controllers.applicant.ApplicantRequestedActionWrapper)
 
 # Routes for handling GeoJSON
@@ -255,7 +256,7 @@ GET     /programAdmin                                       controllers.admin.Pr
 
 # Upsell methods
 GET     /download                                           controllers.applicant.UpsellController.download(request: Request, applicationId: Long, applicantId: Long)
-GET     /considerSignIn                                     controllers.applicant.UpsellController.considerRegister(request: Request, applicantId: Long, programParam: String, applicationId: Long, redirectTo: String, submitTime: String)
+GET     /considerSignIn                                     controllers.applicant.UpsellController.considerRegister(request: Request, applicantId: java.util.Optional[java.lang.Long], programParam: String, applicationId: Long, redirectTo: String, submitTime: String)
 
 # Authentication callback from local auth - nonfederated.  Requires CSRF token.
 # Provides client name as url parameter.

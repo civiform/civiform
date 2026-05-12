@@ -10,6 +10,7 @@ import auth.NewGuestMergeLaunchStage;
 import com.google.common.collect.ImmutableMap;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +23,8 @@ import models.StoredFileModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import services.Path;
+import services.applicant.ApplicantData;
 import services.cloud.ApplicantFileNameFormatter;
 import services.settings.SettingsManifest;
 
@@ -579,5 +582,301 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
         .stream()
         .map(f -> f.id)
         .toList();
+  }
+
+  // Paths used in mergeQuestionAnswers tests. Using the applicant namespace
+  // with distinct question-like sub-paths.
+  private static final Path GUEST_ONLY_PATH =
+      ApplicantData.APPLICANT_PATH.join("favorite_color").join("text");
+  private static final Path CF_ONLY_PATH =
+      ApplicantData.APPLICANT_PATH.join("occupation").join("text");
+  private static final Path SHARED_PATH = ApplicantData.APPLICANT_PATH.join("city").join("text");
+
+  @Test
+  public void mergeQuestionAnswers_guestOnlyPath_copiedToCfUser() {
+    ApplicantModel cfUser =
+        resourceCreator.insertApplicantWithAccount(Optional.of("cf@example.com"));
+    ApplicantModel guestUser = resourceCreator.insertApplicantWithAccount();
+
+    String guestColor = "blue";
+    guestUser.getApplicantData().putString(GUEST_ONLY_PATH, guestColor);
+    guestUser.save();
+    cfUser.refresh();
+    guestUser.refresh();
+
+    merger.mergeApplicants(cfUser, guestUser, NewGuestMergeLaunchStage.ENABLED);
+
+    ApplicantModel updatedCfUser = acctRepo.lookupApplicantSync(cfUser.id).orElseThrow();
+    assertThat(updatedCfUser.getApplicantData().readString(GUEST_ONLY_PATH)).hasValue(guestColor);
+  }
+
+  @Test
+  public void mergeQuestionAnswers_cfOnlyPath_retainedOnCfUser() {
+    ApplicantModel cfUser =
+        resourceCreator.insertApplicantWithAccount(Optional.of("cf@example.com"));
+    ApplicantModel guestUser = resourceCreator.insertApplicantWithAccount();
+
+    String cfJob = "engineer";
+    cfUser.getApplicantData().putString(CF_ONLY_PATH, cfJob);
+    cfUser.save();
+    cfUser.refresh();
+    guestUser.refresh();
+
+    merger.mergeApplicants(cfUser, guestUser, NewGuestMergeLaunchStage.ENABLED);
+
+    ApplicantModel updatedCfUser = acctRepo.lookupApplicantSync(cfUser.id).orElseThrow();
+    assertThat(updatedCfUser.getApplicantData().readString(CF_ONLY_PATH)).hasValue(cfJob);
+  }
+
+  @Test
+  public void mergeQuestionAnswers_sharedPath_differentValues_guestValueRetained() {
+    ApplicantModel cfUser =
+        resourceCreator.insertApplicantWithAccount(Optional.of("cf@example.com"));
+    ApplicantModel guestUser = resourceCreator.insertApplicantWithAccount();
+
+    cfUser.getApplicantData().putString(SHARED_PATH, "Springfield");
+    cfUser.save();
+    String retainedCity = "Shelbyville";
+    guestUser.getApplicantData().putString(SHARED_PATH, retainedCity);
+    guestUser.save();
+    cfUser.refresh();
+    guestUser.refresh();
+
+    merger.mergeApplicants(cfUser, guestUser, NewGuestMergeLaunchStage.ENABLED);
+
+    ApplicantModel updatedCfUser = acctRepo.lookupApplicantSync(cfUser.id).orElseThrow();
+    assertThat(updatedCfUser.getApplicantData().readString(SHARED_PATH)).hasValue(retainedCity);
+  }
+
+  @Test
+  public void mergeQuestionAnswers_sharedPath_sameValue_valuePreserved() {
+    ApplicantModel cfUser =
+        resourceCreator.insertApplicantWithAccount(Optional.of("cf@example.com"));
+    ApplicantModel guestUser = resourceCreator.insertApplicantWithAccount();
+
+    String retainedCity = "Springfield";
+    cfUser.getApplicantData().putString(SHARED_PATH, retainedCity);
+    cfUser.save();
+    guestUser.getApplicantData().putString(SHARED_PATH, retainedCity);
+    guestUser.save();
+    cfUser.refresh();
+    guestUser.refresh();
+
+    merger.mergeApplicants(cfUser, guestUser, NewGuestMergeLaunchStage.ENABLED);
+
+    ApplicantModel updatedCfUser = acctRepo.lookupApplicantSync(cfUser.id).orElseThrow();
+    assertThat(updatedCfUser.getApplicantData().readString(SHARED_PATH)).hasValue(retainedCity);
+  }
+
+  @Test
+  public void mergeQuestionAnswers_dryRun_cfUserDataUnchanged() {
+    ApplicantModel cfUser =
+        resourceCreator.insertApplicantWithAccount(Optional.of("cf@example.com"));
+    ApplicantModel guestUser = resourceCreator.insertApplicantWithAccount();
+
+    cfUser.getApplicantData().putString(CF_ONLY_PATH, "engineer");
+    cfUser.getApplicantData().putString(SHARED_PATH, "Seattle");
+    cfUser.save();
+
+    guestUser.getApplicantData().putString(GUEST_ONLY_PATH, "blue");
+    guestUser.getApplicantData().putString(SHARED_PATH, "Shelbyville");
+    guestUser.save();
+    cfUser.refresh();
+    guestUser.refresh();
+
+    merger.mergeApplicants(cfUser, guestUser, NewGuestMergeLaunchStage.DRY_RUN);
+
+    ApplicantModel updatedCfUser = acctRepo.lookupApplicantSync(cfUser.id).orElseThrow();
+    assertThat(updatedCfUser.getApplicantData().readString(CF_ONLY_PATH)).hasValue("engineer");
+    assertThat(updatedCfUser.getApplicantData().readString(GUEST_ONLY_PATH)).isEmpty();
+    assertThat(updatedCfUser.getApplicantData().readString(SHARED_PATH)).hasValue("Seattle");
+  }
+
+  @Test
+  public void mergeQuestionAnswers_guestDataUnchanged() {
+    ApplicantModel cfUser =
+        resourceCreator.insertApplicantWithAccount(Optional.of("cf@example.com"));
+    ApplicantModel guestUser = resourceCreator.insertApplicantWithAccount();
+
+    guestUser.getApplicantData().putString(GUEST_ONLY_PATH, "blue");
+    guestUser.getApplicantData().putString(SHARED_PATH, "Shelbyville");
+    guestUser.save();
+    cfUser.getApplicantData().putString(CF_ONLY_PATH, "engineer");
+    cfUser.getApplicantData().putString(SHARED_PATH, "Springfield");
+    cfUser.save();
+    cfUser.refresh();
+    guestUser.refresh();
+
+    merger.mergeApplicants(cfUser, guestUser, NewGuestMergeLaunchStage.ENABLED);
+
+    ApplicantModel updatedGuest = acctRepo.lookupApplicantSync(guestUser.id).orElseThrow();
+    assertThat(updatedGuest.getApplicantData().readString(GUEST_ONLY_PATH)).hasValue("blue");
+    assertThat(updatedGuest.getApplicantData().readString(SHARED_PATH)).hasValue("Shelbyville");
+    assertThat(updatedGuest.getApplicantData().readString(CF_ONLY_PATH)).isEmpty();
+  }
+
+  // ── PAI merge tests ───────────────────────────────────────────────────────
+  // These test the PAI (Primary Applicant Information) fields: name, email,
+  // phone/country code, and date of birth. Guest values are retained when
+  // present.
+
+  @Test
+  @Parameters({"true", "false"})
+  // The guests PAIs should be retained regardless of if the CiviForm user
+  // has PAIs.
+  public void mergeQuestionAnswers_pais_guestHasAll_guestRetained(boolean cfUserHasPais) {
+    ApplicantModel cfUser =
+        resourceCreator.insertApplicantWithAccount(Optional.of("cf@example.com"));
+    ApplicantModel guestUser = resourceCreator.insertApplicantWithAccount();
+
+    if (cfUserHasPais) {
+      cfUser.setUserName(
+          "CfFirst", Optional.of("CfMiddle"), Optional.of("CfLast"), Optional.of("Sr."));
+      cfUser.setEmailAddress("cf@example.com");
+      cfUser.setPhoneNumber("2535559999");
+      // Setting phone number sets the country code, but only US numbers are
+      // accepted in practice. So to test country code, we force this value
+      // which should be overwritten to be different from the expectation.
+      cfUser.setCountryCode("CA");
+      cfUser.setDateOfBirth(LocalDate.of(1985, 6, 20));
+      cfUser.save();
+    }
+
+    guestUser.setUserName(
+        "GuestFirst", Optional.of("GuestMiddle"), Optional.of("GuestLast"), Optional.of("Jr."));
+    guestUser.setEmailAddress("guest@example.com");
+    guestUser.setPhoneNumber("4035551122");
+    guestUser.setDateOfBirth(LocalDate.of(1990, 1, 15));
+    guestUser.save();
+    cfUser.refresh();
+    guestUser.refresh();
+
+    merger.mergeApplicants(cfUser, guestUser, NewGuestMergeLaunchStage.ENABLED);
+
+    ApplicantModel updated = acctRepo.lookupApplicantSync(cfUser.id).orElseThrow();
+    assertThat(updated.getFirstName()).hasValue("GuestFirst");
+    assertThat(updated.getMiddleName()).hasValue("GuestMiddle");
+    assertThat(updated.getLastName()).hasValue("GuestLast");
+    assertThat(updated.getSuffix()).hasValue("Jr.");
+    assertThat(updated.getEmailAddress()).hasValue("guest@example.com");
+    assertThat(updated.getPhoneNumber()).hasValue("4035551122");
+    assertThat(updated.getCountryCode()).hasValue("US");
+    assertThat(updated.getDateOfBirth()).hasValue(LocalDate.of(1990, 1, 15));
+  }
+
+  @Test
+  public void mergeQuestionAnswers_pais_guestEmpty_cfUserRetained() {
+    ApplicantModel cfUser =
+        resourceCreator.insertApplicantWithAccount(Optional.of("cf@example.com"));
+    ApplicantModel guestUser = resourceCreator.insertApplicantWithAccount();
+
+    cfUser.setUserName(
+        "CfFirst", Optional.of("CfMiddle"), Optional.of("CfLast"), Optional.of("Sr."));
+    cfUser.setEmailAddress("cf@example.com");
+    cfUser.setPhoneNumber("2535559999");
+    cfUser.setCountryCode("US");
+    cfUser.setDateOfBirth(LocalDate.of(1985, 6, 20));
+    cfUser.save();
+    cfUser.refresh();
+    guestUser.refresh();
+
+    merger.mergeApplicants(cfUser, guestUser, NewGuestMergeLaunchStage.ENABLED);
+
+    ApplicantModel refreshedCfUser = acctRepo.lookupApplicantSync(cfUser.id).orElseThrow();
+    assertThat(refreshedCfUser.getFirstName()).hasValue("CfFirst");
+    assertThat(refreshedCfUser.getMiddleName()).hasValue("CfMiddle");
+    assertThat(refreshedCfUser.getLastName()).hasValue("CfLast");
+    assertThat(refreshedCfUser.getSuffix()).hasValue("Sr.");
+    assertThat(refreshedCfUser.getEmailAddress()).hasValue("cf@example.com");
+    assertThat(refreshedCfUser.getPhoneNumber()).hasValue("2535559999");
+    assertThat(refreshedCfUser.getCountryCode()).hasValue("US");
+    assertThat(refreshedCfUser.getDateOfBirth()).hasValue(LocalDate.of(1985, 6, 20));
+  }
+
+  @Test
+  public void mergeQuestionAnswers_pais_nameRequiresBothFirstAndLast() {
+    ApplicantModel cfUser =
+        resourceCreator.insertApplicantWithAccount(Optional.of("cf@example.com"));
+    ApplicantModel guestUser = resourceCreator.insertApplicantWithAccount();
+
+    cfUser.setUserName("CfFirst", Optional.empty(), Optional.of("CfLast"), Optional.empty());
+    cfUser.save();
+
+    // Guest has first name but no last name — name should not be copied.
+    guestUser.setFirstName("GuestFirst");
+    guestUser.save();
+    cfUser.refresh();
+    guestUser.refresh();
+
+    merger.mergeApplicants(cfUser, guestUser, NewGuestMergeLaunchStage.ENABLED);
+
+    ApplicantModel updated = acctRepo.lookupApplicantSync(cfUser.id).orElseThrow();
+    assertThat(updated.getFirstName()).hasValue("CfFirst");
+    assertThat(updated.getLastName()).hasValue("CfLast");
+  }
+
+  @Test
+  // Test a mix of unique and conflicting PAIs, and missing (dob).
+  public void mergeQuestionAnswers_pais_dataFromBoth() {
+    ApplicantModel cfUser =
+        resourceCreator.insertApplicantWithAccount(Optional.of("cf@example.com"));
+    ApplicantModel guestUser = resourceCreator.insertApplicantWithAccount();
+    String cfUniqueEmail = "cf@example.com";
+    String guestUniquePhone = "4035551122";
+
+    cfUser.setUserName(
+        "Conflict CfFirst",
+        Optional.of("Conflict CfMiddle"),
+        Optional.of("Conflight CfLast"),
+        Optional.of("Conflict Sr."));
+    cfUser.setEmailAddress(cfUniqueEmail);
+    cfUser.save();
+
+    guestUser.setUserName(
+        "Conflict GuestFirst",
+        Optional.of("Conflict GuestMiddle"),
+        Optional.of("Conflict GuestLast"),
+        Optional.of("Conflict Jr."));
+    guestUser.setPhoneNumber(guestUniquePhone);
+    guestUser.save();
+    cfUser.refresh();
+    guestUser.refresh();
+
+    merger.mergeApplicants(cfUser, guestUser, NewGuestMergeLaunchStage.ENABLED);
+
+    ApplicantModel updated = acctRepo.lookupApplicantSync(cfUser.id).orElseThrow();
+    assertThat(updated.getFirstName()).hasValue("Conflict GuestFirst");
+    assertThat(updated.getMiddleName()).hasValue("Conflict GuestMiddle");
+    assertThat(updated.getLastName()).hasValue("Conflict GuestLast");
+    assertThat(updated.getSuffix()).hasValue("Conflict Jr.");
+    assertThat(updated.getEmailAddress()).hasValue(cfUniqueEmail);
+    assertThat(updated.getPhoneNumber()).hasValue(guestUniquePhone);
+    assertThat(updated.getDateOfBirth()).isEmpty();
+  }
+
+  @Test
+  public void mergeQuestionAnswers_pais_dryRun_noChanges() {
+    ApplicantModel cfUser =
+        resourceCreator.insertApplicantWithAccount(Optional.of("cf@example.com"));
+    ApplicantModel guestUser = resourceCreator.insertApplicantWithAccount();
+
+    guestUser.setUserName(
+        "GuestFirst", Optional.of("GuestMiddle"), Optional.of("GuestLast"), Optional.of("Jr."));
+    guestUser.setEmailAddress("guest@example.com");
+    guestUser.setPhoneNumber("2535551122");
+    guestUser.setCountryCode("US");
+    guestUser.setDateOfBirth(LocalDate.of(1990, 1, 15));
+    guestUser.save();
+    cfUser.refresh();
+    guestUser.refresh();
+
+    merger.mergeApplicants(cfUser, guestUser, NewGuestMergeLaunchStage.DRY_RUN);
+
+    ApplicantModel updated = acctRepo.lookupApplicantSync(cfUser.id).orElseThrow();
+    assertThat(updated.getFirstName()).isEmpty();
+    assertThat(updated.getLastName()).isEmpty();
+    assertThat(updated.getEmailAddress()).isEmpty();
+    assertThat(updated.getPhoneNumber()).isEmpty();
+    assertThat(updated.getDateOfBirth()).isEmpty();
   }
 }

@@ -1079,6 +1079,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("EXTERNAL_PROGRAM_CARDS_ENABLED");
   }
 
+  /**
+   * Enables new visibility/eligibility condition editing UI and expanded logic capabilities for
+   * admin.
+   */
+  public boolean getExpandedFormLogicEnabled(RequestHeader request) {
+    return getBool("EXPANDED_FORM_LOGIC_ENABLED", request);
+  }
+
   /** Enables a dropdown for login that has both applicant and admin login. */
   public boolean getLoginDropdownEnabled(RequestHeader request) {
     return getBool("LOGIN_DROPDOWN_ENABLED", request);
@@ -1089,7 +1097,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("IMMIGRATION_STATUS_INFO_BANNER_ENABLED", request);
   }
 
-  /** (NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration. */
+  /** Enable session timeout based on inactivity and maximum duration. */
   public boolean getSessionTimeoutEnabled(RequestHeader request) {
     return getBool("SESSION_TIMEOUT_ENABLED", request);
   }
@@ -1107,14 +1115,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** (NOT FOR PRODUCTION USE) Enables changes to support API Bridge */
   public boolean getApiBridgeEnabled(RequestHeader request) {
     return getBool("API_BRIDGE_ENABLED", request);
-  }
-
-  /**
-   * (NOT FOR PRODUCTION USE) Enables new visibility/eligibility condition editing UI and expanded
-   * logic capabilities for admin.
-   */
-  public boolean getExpandedFormLogicEnabled(RequestHeader request) {
-    return getBool("EXPANDED_FORM_LOGIC_ENABLED", request);
   }
 
   /**
@@ -2363,6 +2363,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
+                          "EXPANDED_FORM_LOGIC_ENABLED",
+                          "Enables new visibility/eligibility condition editing UI and expanded"
+                              + " logic capabilities for admin.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
                           "LOGIN_DROPDOWN_ENABLED",
                           "Enables a dropdown for login that has both applicant and admin login.",
                           /* isRequired= */ false,
@@ -2374,6 +2381,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " applicants.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "SESSION_TIMEOUT_ENABLED",
+                          "Enable session timeout based on inactivity and maximum duration.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Experimental",
@@ -2383,13 +2396,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       + " enable or disable in-development features.",
                   ImmutableList.of(),
                   ImmutableList.of(
-                      SettingDescription.create(
-                          "SESSION_TIMEOUT_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and"
-                              + " maximum duration.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "PROGRAM_SLUG_URLS_ENABLED",
                           "(NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in"
@@ -2407,13 +2413,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingDescription.create(
                           "API_BRIDGE_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables changes to support API Bridge",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "EXPANDED_FORM_LOGIC_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enables new visibility/eligibility condition"
-                              + " editing UI and expanded logic capabilities for admin.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),

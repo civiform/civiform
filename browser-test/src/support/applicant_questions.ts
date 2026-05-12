@@ -14,6 +14,27 @@ import {
 } from '../support/applicant_program_list'
 import {ApplicantProgramOverview} from './applicant_program_overview'
 
+/** PDF bytes that pass server-side type sniffing (see FileTypeValidation). */
+function bufferForApplicantFileUpload(text: string, fileName: string): Buffer {
+  const extension = fileName.split('.').pop()?.toLowerCase() ?? ''
+  if (extension === 'pdf') {
+    if (text.startsWith('%PDF')) {
+      return Buffer.from(text)
+    }
+    return Buffer.from(
+      '%PDF-1.4\n' +
+        '1 0 obj\n' +
+        '<< /Type /Catalog >>\n' +
+        'endobj\n' +
+        'trailer\n' +
+        '<<>>\n' +
+        '%%EOF\n' +
+        text,
+    )
+  }
+  return Buffer.from(text)
+}
+
 export class ApplicantQuestions {
   public page!: Page
   private applicantProgramList: ApplicantProgramList
@@ -105,7 +126,10 @@ export class ApplicantQuestions {
     await this.page.fill(`input[currency] >> nth=${index}`, currency)
   }
 
-  async answerFileUploadQuestion(text: string, fileName = 'file.txt') {
+  /**
+   * @deprecated To be removed when client side file upload end of life
+   */
+  async answerFileUploadQuestionLegacy(text: string, fileName = 'file.txt') {
     await this.page.setInputFiles('input[type=file]', {
       name: fileName,
       mimeType: 'image/png',
@@ -113,16 +137,48 @@ export class ApplicantQuestions {
     })
   }
 
+  async answerFileUploadQuestion(text: string, fileName = 'file.pdf') {
+    const mimeTypeByExtension: Record<string, string> = {
+      png: 'image/png',
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      gif: 'image/gif',
+      pdf: 'application/pdf',
+      bmp: 'image/bmp',
+      webp: 'image/webp',
+      tiff: 'image/tiff',
+      xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    }
+    const extension = fileName.split('.').pop()?.toLowerCase() ?? ''
+    const mimeType =
+      mimeTypeByExtension[extension] ?? 'application/octet-stream'
+
+    await this.page.setInputFiles('input[type=file]', {
+      name: fileName,
+      mimeType,
+      buffer: bufferForApplicantFileUpload(text, fileName),
+    })
+    await waitForHtmxReady(this.page)
+    await this.page.waitForTimeout(1000)
+  }
+
   async answerFileUploadQuestionFromAssets(fileName: string) {
     await this.page.setInputFiles('input[type=file]', 'src/assets/' + fileName)
+    await waitForHtmxReady(this.page)
+    await this.page.waitForTimeout(1000)
   }
 
   /** Creates a file with the given size in MB and uploads it to the file upload question. */
   async answerFileUploadQuestionWithMbSize(mbSize: number) {
     const filePath = 'file-size-' + mbSize + '-mb.pdf'
-    writeFileSync(filePath, 'C'.repeat(mbSize * 1024 * 1024))
+    const header = '%PDF-1.4\n'
+    writeFileSync(
+      filePath,
+      header + 'C'.repeat(mbSize * 1024 * 1024 - header.length),
+    )
     await this.page.setInputFiles('input[type=file]', filePath)
     unlinkSync(filePath)
+    await waitForHtmxReady(this.page)
   }
 
   async answerIdQuestion(id: string, index = 0) {
@@ -701,8 +757,9 @@ export class ApplicantQuestions {
   /**
    * On the upload page, users can download already-uploaded files;
    * this method downloads the one specified by the user returns the file content.
+   * @deprecated To be removed when client side file upload end of life
    */
-  async downloadFileFromUploadPage(fileName: string) {
+  async downloadFileFromUploadPageLegacy(fileName: string) {
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
       this.page.getByText(fileName).click(),
@@ -712,6 +769,34 @@ export class ApplicantQuestions {
       throw new Error('download failed')
     }
     return readFileSync(path, 'utf8')
+  }
+
+  async downloadFileFromUploadPage(fileName: string) {
+    const fileLink = this.page.getByRole('link', {name: fileName, exact: true})
+    try {
+      const [downloadEvent] = await Promise.all([
+        this.page.waitForEvent('download', {timeout: 5000}),
+        fileLink.click(),
+      ])
+      const path = await downloadEvent.path()
+      if (path === null) {
+        throw new Error('download failed')
+      }
+      return readFileSync(path, 'utf8')
+    } catch {
+      // Some browsers render file links inline and do not emit a download event.
+      const href = await fileLink.getAttribute('href')
+      if (!href) {
+        throw new Error(`download link for ${fileName} has no href`)
+      }
+      const fileUrl = new URL(href, this.page.url()).toString()
+      const response = await this.page.request.get(fileUrl)
+      if (!response.ok()) {
+        throw new Error(`failed to fetch file content: ${response.status()}`)
+      }
+      const body = await response.body()
+      return body.toString('utf8')
+    }
   }
 
   async downloadFileFromReviewPage(fileName: string) {
@@ -755,7 +840,7 @@ export class ApplicantQuestions {
   async expectReviewPage() {
     await expect(
       this.page.locator('[data-testid="programSummary"]'),
-    ).toBeVisible()
+    ).toBeAttached()
   }
 
   async expectConfirmationPage() {

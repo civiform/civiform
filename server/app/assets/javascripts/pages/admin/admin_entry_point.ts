@@ -11,7 +11,8 @@ import * as adminApiKeys from '@/admin_api_keys'
 import * as adminApplicationView from '@/admin_application_view'
 import * as legacyAdminPredicates from '@/admin_predicate_configuration'
 import * as adminPredicateEdit from '@/admin_predicate_edit'
-import * as adminProgramImage from '@/admin_program_image'
+import * as adminProgramImage from '@/legacy_admin_program_image'
+import * as legacyAdminProgramImage from '@/legacy_admin_program_image'
 import * as adminPrograms from '@/admin_programs'
 import * as adminProgramStatusesView from '@/admin_program_statuses_view'
 import * as adminSettingsView from '@/admin_settings_view'
@@ -35,6 +36,7 @@ import * as azureUpload from '@/azure_upload'
 import htmx from '@/htmx'
 
 import {AdminProgramApiBridge} from '@/admin_program_api_bridge'
+import {featureFlags} from '@/global/shared/feature_flags'
 
 // Ensure the object path exists
 window.app = window.app || {}
@@ -63,7 +65,11 @@ function initializeEverything(): void {
   adminApplicationView.init()
   legacyAdminPredicates.init()
   adminPredicateEdit.init()
-  adminProgramImage.init()
+  if (featureFlags().isFileUploadQuestionImprovementsEnabled) {
+    adminProgramImage.init()
+  } else {
+    legacyAdminProgramImage.init()
+  }
   adminPrograms.init()
   adminProgramStatusesView.init()
   adminSettingsView.init()

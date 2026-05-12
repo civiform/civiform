@@ -1,11 +1,20 @@
 package services.applicant.question;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 import models.StoredFileModel;
+import play.api.libs.json.JsArray;
+import play.api.libs.json.JsString;
+import play.api.libs.json.JsValue;
+import play.libs.Scala;
 import repository.StoredFileRepository;
 import services.MessageKey;
 import services.Path;
@@ -126,6 +135,27 @@ public final class FileUploadQuestion extends AbstractQuestion {
   }
 
   /**
+   * Returns a JSON array of display names for each non-empty file key, in list order. Matches the
+   * file rows rendered in {@code FileUploadQuestionFragment} (empty keys are omitted). Used by
+   * {@code file_upload.ts} for client-side file name de-duplication.
+   */
+  public JsArray getUploadedFileData() {
+    ImmutableList<String> keys = getFileKeyListValue().orElse(ImmutableList.of());
+
+    ImmutableList<JsValue> fileNames =
+        IntStream.range(0, keys.size())
+            .filter(
+                i -> {
+                  String key = keys.get(i);
+                  return key != null && !key.isEmpty();
+                })
+            .mapToObj(i -> new JsString(getFileNameForIndex(i).orElse(keys.get(i))))
+            .collect(toImmutableList());
+
+    return new JsArray(Scala.toSeq(fileNames));
+  }
+
+  /**
    * Looks up the original file name for a given file key by querying the database for the
    * corresponding {@link StoredFileModel}.
    */
@@ -172,6 +202,71 @@ public final class FileUploadQuestion extends AbstractQuestion {
         .atIndex(index);
   }
 
+  /**
+   * Builds form data that preserves all existing file keys and original file names, then appends a
+   * new entry at the end.
+   */
+  public ImmutableMap<String, String> buildFormDataForAdd(String newFileKey, String newFileName) {
+    ImmutableMap.Builder<String, String> formData = new ImmutableMap.Builder<>();
+    Optional<ImmutableList<String>> keysOptional = getFileKeyListValue();
+    Optional<ImmutableList<String>> originalFileNamesOptional = getOriginalFileNameListValue();
+    int newIndex = keysOptional.map(ImmutableList::size).orElse(0);
+
+    // Preserve existing file keys.
+    if (keysOptional.isPresent()) {
+      for (int i = 0; i < keysOptional.get().size(); i++) {
+        formData.put(getFileKeyListPathForIndex(i).toString(), keysOptional.get().get(i));
+      }
+    }
+
+    // Preserve existing original file names.
+    if (originalFileNamesOptional.isPresent()) {
+      for (int i = 0; i < originalFileNamesOptional.get().size(); i++) {
+        formData.put(
+            getOriginalFileNameListPathForIndex(i).toString(),
+            originalFileNamesOptional.get().get(i));
+      }
+    }
+
+    // Append new file key and original file name.
+    formData.put(getFileKeyListPathForIndex(newIndex).toString(), newFileKey);
+    formData.put(getOriginalFileNameListPathForIndex(newIndex).toString(), newFileName);
+
+    return formData.build();
+  }
+
+  /**
+   * Builds form data that preserves all existing file keys and original file names, but blanks out
+   * the entry matching {@code fileKeyToRemove}.
+   */
+  public ImmutableMap<String, String> buildFormDataForRemove(String fileKeyToRemove) {
+    ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
+    Optional<ImmutableList<String>> keys = getFileKeyListValue();
+    Optional<ImmutableList<String>> names = getOriginalFileNameListValue();
+    int removedIndex = -1;
+
+    if (keys.isPresent()) {
+      for (int i = 0; i < keys.get().size(); i++) {
+        String keyValue = keys.get().get(i);
+        boolean remove = keyValue.equals(fileKeyToRemove);
+        if (remove) {
+          removedIndex = i;
+        }
+        formData.put(getFileKeyListPathForIndex(i).toString(), remove ? "" : keyValue);
+      }
+    }
+
+    if (names.isPresent() && removedIndex >= 0) {
+      for (int i = 0; i < names.get().size(); i++) {
+        formData.put(
+            getOriginalFileNameListPathForIndex(i).toString(),
+            i == removedIndex ? "" : names.get().get(i));
+      }
+    }
+
+    return formData.build();
+  }
+
   public Optional<String> getFilename() {
     if (!isAnswered() || getFileKeyValue().isEmpty()) {
       return Optional.empty();
@@ -182,6 +277,59 @@ public final class FileUploadQuestion extends AbstractQuestion {
   public static String getFileName(String fileKey) {
     String[] parts = fileKey.split("/", 4);
     return parts[parts.length - 1];
+  }
+
+  /**
+   * Suggested download file name for presigned GETs: non-blank original from {@link
+   * StoredFileModel} when available, otherwise {@link #getFileName(String)}.
+   *
+   * <p>The result is always non-empty so storage clients can set {@code Content-Disposition}.
+   */
+  public static Optional<String> getUploadedFileName(
+      Optional<StoredFileModel> storedFile, String fileKey) {
+    return storedFile
+        .flatMap(StoredFileModel::getOriginalFileName)
+        .filter(s -> !s.isBlank())
+        .or(() -> Optional.of(getFileName(fileKey)));
+  }
+
+  // Matches a filename with an extension.
+  private static final Pattern FILE_NAME_REGEX = Pattern.compile("(.*)(\\.[^.]+)$");
+
+  /**
+   * Returns a name derived from {@code name} that does not appear in {@code existingNames},
+   * appending a "-N" numeric suffix as needed.
+   *
+   * <p>This method runs after the file has already been uploaded to cloud storage under a
+   * UUID-based key. The returned name is for display only and is stored in {@link
+   * services.applicant.ApplicantData} alongside the file key, and is what the applicant sees in the
+   * UI. The file key is the source of truth for retrieval and ACL lookups (via {@link
+   * models.StoredFileModel}).
+   */
+  public static String getUniqueName(String name, ImmutableList<String> existingNames) {
+    if (name == null || name.isEmpty()) {
+      throw new IllegalArgumentException("name is null or empty");
+    }
+
+    if (existingNames == null) {
+      throw new IllegalArgumentException("existingNames is null");
+    }
+
+    if (!existingNames.contains(name)) {
+      return name;
+    }
+
+    Matcher extMatcher = FILE_NAME_REGEX.matcher(name);
+    boolean hasRealExtension = extMatcher.matches() && !extMatcher.group(1).isEmpty();
+    String base = hasRealExtension ? extMatcher.group(1) : name;
+    String ext = hasRealExtension ? extMatcher.group(2) : "";
+
+    long counter = 2;
+    while (existingNames.contains(name)) {
+      name = base + "-" + counter + ext;
+      counter++;
+    }
+    return name;
   }
 
   @Override

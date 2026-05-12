@@ -70,6 +70,8 @@ public class ApplicantModel extends BaseModel {
   }
 
   private static final long serialVersionUID = 1L;
+  // This is not automatically persisted because it is a complex type EBean
+  // doesn't know how to handle.
   private ApplicantData applicantData;
 
   @WhenCreated private Instant whenCreated;
@@ -227,7 +229,7 @@ public class ApplicantModel extends BaseModel {
         nameSuffix = Optional.of(listSplit.get(3));
         break;
       case 1:
-        // fallthrough
+      // fallthrough
       default:
         // Too many names - put them all in first name.
         firstName = displayName;

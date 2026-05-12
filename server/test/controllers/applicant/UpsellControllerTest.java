@@ -15,6 +15,7 @@ import auth.ProfileFactory;
 import auth.ProfileUtils;
 import controllers.WithMockedProfiles;
 import java.time.Instant;
+import java.util.Optional;
 import models.ApplicantModel;
 import models.ApplicationModel;
 import org.junit.Before;
@@ -79,7 +80,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
         subject
             .considerRegister(
                 request,
-                applicant.id,
+                Optional.of(applicant.id),
                 String.valueOf(programDefinition.id()),
                 application.id,
                 redirectLocation,
@@ -108,7 +109,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
         subject
             .considerRegister(
                 request,
-                applicant.id,
+                Optional.of(applicant.id),
                 String.valueOf(programDefinition.id()),
                 application.id,
                 redirectLocation,
@@ -137,7 +138,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
         subject
             .considerRegister(
                 request,
-                applicant.id,
+                Optional.of(applicant.id),
                 programDefinition.slug(),
                 application.id,
                 redirectLocation,
@@ -167,7 +168,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
         subject
             .considerRegister(
                 request,
-                applicant.id,
+                Optional.of(applicant.id),
                 programDefinition.slug(),
                 application.id,
                 redirectLocation,
@@ -177,6 +178,76 @@ public class UpsellControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Application confirmation");
     assertThat(contentAsString(result)).contains("Create an account");
+  }
+
+  @Test
+  // Test deprecation of Applicant ID
+  public void considerRegister_ignoresProvidedApplicantId_usesApplicationApplicant() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+    ApplicationModel application =
+        resourceCreator.insertActiveApplication(applicant, programDefinition.toProgram());
+    application.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
+
+    // Pass a bogus applicantId — the controller should ignore it and use the application's
+    // applicant instead.
+    Request request = fakeRequestBuilder().build();
+    Result result =
+        subject
+            .considerRegister(
+                request,
+                Optional.of(applicant.id + 9999),
+                String.valueOf(programDefinition.id()),
+                application.id,
+                "someUrl",
+                application.getSubmitTime().toString())
+            .toCompletableFuture()
+            .join();
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void considerRegister_otherUsersApplication_returnsUnauthorized() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
+    createApplicantWithMockedProfile();
+    ApplicantModel otherApplicant = createApplicant();
+    ApplicationModel otherApplication =
+        resourceCreator.insertActiveApplication(otherApplicant, programDefinition.toProgram());
+    otherApplication.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
+
+    Request request = fakeRequestBuilder().build();
+    Result result =
+        subject
+            .considerRegister(
+                request,
+                Optional.of(otherApplicant.id),
+                String.valueOf(programDefinition.id()),
+                otherApplication.id,
+                "someUrl",
+                otherApplication.getSubmitTime().toString())
+            .toCompletableFuture()
+            .join();
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
+
+  @Test
+  public void considerRegister_invalidApplicationId_returnsNotFound() {
+
+    Request request = fakeRequestBuilder().build();
+    Result result =
+        subject
+            .considerRegister(
+                request,
+                Optional.empty(),
+                "some-program",
+                /* applicationId= */ 0,
+                "someUrl",
+                FAKE_SUBMIT_TIME.toString())
+            .toCompletableFuture()
+            .join();
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 
   @Test
@@ -201,6 +272,28 @@ public class UpsellControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void download_authenticatedApplicant_differentUsersApplication_unauthorized() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+    ApplicantModel otherApplicant = createApplicant();
+    ApplicationModel otherApplication =
+        resourceCreator.insertActiveApplication(otherApplicant, programDefinition.toProgram());
+
+    Result result;
+    try {
+      result =
+          subject
+              .download(fakeRequest(), otherApplication.id, applicant.id)
+              .toCompletableFuture()
+              .join();
+    } catch (ProgramNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
+
+  @Test
   public void download_authenticatedTI() {
     ProfileFactory profileFactory = instanceOf(ProfileFactory.class);
     ProgramDefinition programDefinition =
@@ -222,6 +315,31 @@ public class UpsellControllerTest extends WithMockedProfiles {
       throw new RuntimeException(e);
     }
     assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void download_authenticatedTI_unmanagedUsersApplication_unauthorized() {
+    ProfileFactory profileFactory = instanceOf(ProfileFactory.class);
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
+    ApplicantModel managedApplicant = createApplicant();
+    ApplicantModel unmanagedApplicant = createApplicant();
+    ApplicationModel unmanagedApplication =
+        resourceCreator.insertActiveApplication(unmanagedApplicant, programDefinition.toProgram());
+    createTIWithMockedProfile(managedApplicant);
+    profileFactory.createFakeTrustedIntermediary();
+
+    Result result;
+    try {
+      result =
+          subject
+              .download(fakeRequest(), unmanagedApplication.id, managedApplicant.id)
+              .toCompletableFuture()
+              .join();
+    } catch (ProgramNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
   @Test

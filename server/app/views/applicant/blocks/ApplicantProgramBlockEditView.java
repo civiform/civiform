@@ -99,8 +99,6 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
     context.setVariable("programOverviewUrl", programOverview(applicationParams));
     context.setVariable("goBackToAdminUrl", getGoBackToAdminUrl(applicationParams));
     context.setVariable("loginOnly", applicationParams.loginOnly());
-    context.setVariable(
-        "loginLink", controllers.routes.LoginController.applicantLogin(Optional.empty()).url());
     boolean isTi = applicationParams.profile().isTrustedIntermediary();
     boolean isGuest = applicationParams.applicantPersonalInfo().getType() == GUEST && !isTi;
     context.setVariable("isGuest", isGuest);
@@ -152,7 +150,12 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
               .orElse(ALLOWED_FILE_TYPE_SPECIFIERS_FALLBACK));
       context.setVariable(
           "hxSelectFileForUploadUrl",
-          controllers.applicant.routes.ApplicantProgramBlocksController.hxSelectFileForUpload(
+          controllers.applicant.routes.FileUploadController.hxSelectFileForUpload(
+                  applicationParams.programId(), applicationParams.block().getId())
+              .url());
+      context.setVariable(
+          "hxRemoveFileUrl",
+          controllers.applicant.routes.FileUploadController.hxRemoveFile(
                   applicationParams.programId(), applicationParams.block().getId())
               .url());
 
