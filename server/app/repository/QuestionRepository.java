@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import services.Path;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
@@ -146,6 +147,34 @@ public final class QuestionRepository {
       if (definition.isEnumerator()) {
         transaction.setNestedUseSavepoint();
         updateAllRepeatedQuestions(newDraftQuestion.id, definition.getId());
+      }
+
+      // If this question is referenced as an initial question by its associated enumerator,
+      // rewrite that initialQuestionId to point at the new draft's ID so the enumerator doesn't
+      // hold a stale reference. Scoped to repeated questions whose enumerator references this
+      // exact question as its initial — that's the only case where this cascade is relevant.
+      if (definition.isRepeated() && definition.getEnumeratorId().isPresent()) {
+        long associatedEnumeratorId = definition.getEnumeratorId().get();
+        VersionRepository versionRepository = versionRepositoryProvider.get();
+        Optional<EnumeratorQuestionDefinition> associatedEnumerator =
+            Stream.concat(
+                    versionRepository
+                        .getQuestionsForVersion(versionRepository.getDraftVersion())
+                        .stream(),
+                    versionRepository
+                        .getQuestionsForVersion(versionRepository.getActiveVersion())
+                        .stream())
+                .map(QuestionModel::getQuestionDefinition)
+                .filter(qd -> qd.getId() == associatedEnumeratorId)
+                .filter(qd -> qd instanceof EnumeratorQuestionDefinition)
+                .map(qd -> (EnumeratorQuestionDefinition) qd)
+                .filter(eqd -> eqd.getInitialQuestionId().equals(Optional.of(definition.getId())))
+                .findFirst();
+        if (associatedEnumerator.isPresent()) {
+          transaction.setNestedUseSavepoint();
+          createOrUpdateDraft(
+              updateInitialQuestionId(associatedEnumerator.get(), newDraftQuestion.id));
+        }
       }
 
       // Update programs that reference the previous question. A bit round about but this will
@@ -280,6 +309,21 @@ public final class QuestionRepository {
           .build();
     } catch (UnsupportedQuestionTypeException e) {
       // All question definitions are looked up and should be valid.
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * Returns a copy of the given enumerator's {@link QuestionDefinition} with {@code
+   * initialQuestionId} updated to {@code newInitialQuestionId}.
+   */
+  public QuestionDefinition updateInitialQuestionId(
+      EnumeratorQuestionDefinition enumeratorDef, long newInitialQuestionId) {
+    try {
+      return new QuestionDefinitionBuilder(enumeratorDef)
+          .setInitialQuestionId(Optional.of(newInitialQuestionId))
+          .build();
+    } catch (UnsupportedQuestionTypeException e) {
       throw new RuntimeException(e);
     }
   }
