@@ -97,8 +97,8 @@ public final class FileTypeValidation {
    *       a downstream failure or completion in the {@code .map}.
    *   <li>The detected MIME type is written into {@code detectedMimeTypeRef} so the caller can
    *       attach the MIME to the resulting {@code FilePart}.
-   *   <li>{@code allowedFileTypeSpecifiers} is parsed with {@link #parseSpecifiers(String)} before
-   *       validation runs.
+   *   <li>{@code allowedFileTypeSpecifiers} is converted to normalized MIME / wildcard entries
+   *       before validation runs.
    * </ul>
    *
    * <p>Pekko Streams references:
@@ -117,8 +117,14 @@ public final class FileTypeValidation {
   public Flow<ByteString, ByteString, ?> sniffingFlow(
       String fileName,
       AtomicReference<String> detectedMimeTypeRef,
-      String allowedFileTypeSpecifiers) {
-    ImmutableList<String> allowedFileTypes = parseSpecifiers(allowedFileTypeSpecifiers);
+      ImmutableList<FileTypeSpecifier> allowedFileTypeSpecifiers) {
+    if (allowedFileTypeSpecifiers.isEmpty()) {
+      throw new IllegalArgumentException("At least one FileTypeSpecifier is required");
+    }
+    ImmutableList<String> allowedFileTypes =
+        allowedFileTypeSpecifiers.stream()
+            .map(FileTypeSpecifier::normalizedAllowEntry)
+            .collect(ImmutableList.toImmutableList());
     return Flow.of(ByteString.class)
         .statefulMap(
             ByteString::emptyByteString,

@@ -57,6 +57,11 @@ public enum FileTypeSpecifier {
     return token;
   }
 
+  /** MIME or wildcard string used by {@link FileTypeValidation} allowlist checks. */
+  String normalizedAllowEntry() {
+    return mimeForExtension != null ? mimeForExtension : token;
+  }
+
   public static ImmutableList<FileTypeSpecifier> parseCommaSeparated(String specifiers) {
     ImmutableList.Builder<FileTypeSpecifier> out = ImmutableList.builder();
     for (String raw : Splitter.on(',').trimResults().omitEmptyStrings().split(specifiers)) {

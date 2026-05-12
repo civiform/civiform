@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.apache.pekko.stream.Materializer;
 import org.apache.pekko.stream.javadsl.Flow;
 import org.apache.pekko.stream.javadsl.Keep;
@@ -64,10 +63,9 @@ public abstract class StreamingMultipartBodyParser
       if (allowed.isEmpty()) {
         throw new IllegalArgumentException("At least one FileTypeSpecifier is required");
       }
-      String specifierString =
-          allowed.stream().map(FileTypeSpecifier::token).collect(Collectors.joining(","));
+
       Flow<ByteString, ByteString, ?> sniffingFlow =
-          fileTypeValidation.sniffingFlow(fileName, detectedMimeTypeRef, specifierString);
+          fileTypeValidation.sniffingFlow(fileName, detectedMimeTypeRef, allowed);
 
       // Map upload sink to an output value, prepending the sniffing flow
       Sink<ByteString, CompletionStage<FilePart<String>>> mappedSink =
@@ -105,9 +103,9 @@ public abstract class StreamingMultipartBodyParser
   protected abstract BucketType getBucketType();
 
   /**
-   * Allowed upload types. Serialized to the same comma-separated format as {@code
-   * file_upload_allowed_file_type_specifiers} for {@link FileTypeValidation}. The parser subclass
-   * that handles the upload defines what it accepts.
+   * Allowed upload types for {@link FileTypeValidation#sniffingFlow}. The parser subclass defines
+   * what it accepts (same tokens as {@code file_upload_allowed_file_type_specifiers} when parsed
+   * with {@link FileTypeSpecifier#parseCommaSeparated}).
    */
   protected abstract ImmutableList<FileTypeSpecifier> getAllowedFileTypeSpecifiers();
 }
