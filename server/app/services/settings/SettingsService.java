@@ -183,8 +183,8 @@ public final class SettingsService {
                   }
                 }
 
-                  // LIST_OF_STRINGS included here for completeness since errorprone will produce a
-                  // warning if a case statement isn't exhaustive.
+                // LIST_OF_STRINGS included here for completeness since errorprone will produce a
+                // warning if a case statement isn't exhaustive.
                 case LIST_OF_STRINGS -> {}
                 case STRING -> {
                   Optional<SettingsGroupUpdateResult.UpdateError> error =

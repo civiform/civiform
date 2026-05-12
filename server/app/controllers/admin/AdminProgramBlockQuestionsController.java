@@ -37,11 +37,13 @@ import services.program.ProgramQuestionDefinitionInvalidException;
 import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.program.ProgramService;
 import services.question.QuestionService;
+import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.EnumeratorQuestionDefinition;
+import services.question.types.NullQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
@@ -159,6 +161,19 @@ public class AdminProgramBlockQuestionsController extends Controller {
             .map(Long::valueOf);
     boolean isNewlyCreated = "true".equals(requestData.get("isNewlyCreated"));
 
+    // Resolve the initial question (if any) BEFORE creating the enumerator. If it has been
+    // tombstoned or otherwise can't be resolved, abort here — we don't want to leave an orphan
+    // enumerator question in the draft when the admin's intent can't be fulfilled.
+    Optional<QuestionDefinition> resolvedInitialOriginalOpt = Optional.empty();
+    if (initialQuestionIdOpt.isPresent()) {
+      try {
+        resolvedInitialOriginalOpt =
+            Optional.of(resolveInitialQuestionOrFail(initialQuestionIdOpt.get()));
+      } catch (InitialQuestionAttachmentException e) {
+        return e.toResult();
+      }
+    }
+
     // Not wrapped in an outer Transaction: CiviForm's question/program services use supplyAsync
     // for DB lookups (e.g. QuestionRepository.lookupQuestion), and Ebean transactions are
     // thread-local — async lookups don't see pending writes from a wrapping transaction. Each
@@ -195,12 +210,12 @@ public class AdminProgramBlockQuestionsController extends Controller {
     // draft when the cache is loaded, otherwise the second add fails validation with
     // QUESTION_NOT_IN_ACTIVE_OR_DRAFT_STATE.
     Optional<QuestionDefinition> createdInitialDefinitionOpt = Optional.empty();
-    if (initialQuestionIdOpt.isPresent()) {
+    if (resolvedInitialOriginalOpt.isPresent()) {
       try {
         createdInitialDefinitionOpt =
             Optional.of(
                 prepareInitialQuestion(
-                    createdEnumeratorDefinition, initialQuestionIdOpt.get(), isNewlyCreated));
+                    createdEnumeratorDefinition, resolvedInitialOriginalOpt.get(), isNewlyCreated));
       } catch (InitialQuestionAttachmentException e) {
         return e.toResult();
       }
@@ -305,17 +320,25 @@ public class AdminProgramBlockQuestionsController extends Controller {
       return badRequest("No question selected");
     }
 
-    Optional<QuestionDefinition> maybeQuestion = resolveInitialQuestion(questionId);
-    if (maybeQuestion.isEmpty()) {
-      return notFound(String.format("Question ID %d not found", questionId.get()));
+    InitialQuestionResolution resolution = resolveInitialQuestion(questionId.get());
+    QuestionDefinition selected;
+    switch (resolution) {
+      case InitialQuestionResolution.Found f -> selected = f.question();
+      case InitialQuestionResolution.Superseded s -> selected = s.latest();
+      case InitialQuestionResolution.Tombstoned t -> {
+        return badRequest(
+            "The selected question has been deleted. Please reload the question bank.");
+      }
+      case InitialQuestionResolution.NotFound nf -> {
+        return notFound(String.format("Question ID %d not found", nf.id()));
+      }
     }
 
     try {
       ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
       BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockId);
       return ok(blockEditView
-              .hxRenderInitialQuestionSlot(
-                  maybeQuestion.get(), programDefinition, blockDefinition, request)
+              .hxRenderInitialQuestionSlot(selected, programDefinition, blockDefinition, request)
               .render())
           .withHeader("HX-Trigger", "closeQuestionBank");
     } catch (ProgramNotFoundException e) {
@@ -440,8 +463,9 @@ public class AdminProgramBlockQuestionsController extends Controller {
           notFound(String.format("Block ID %d not found for Program %d", blockId, programId)));
     }
 
+    QuestionDefinition originalDefinition = resolveInitialQuestionOrFail(selectedQuestionId);
     QuestionDefinition initialDefinition =
-        prepareInitialQuestion(enumeratorDef, selectedQuestionId, isNewlyCreated);
+        prepareInitialQuestion(enumeratorDef, originalDefinition, isNewlyCreated);
 
     // Add the initial question to the block. The enumerator is already on the block, so this is
     // the first addQuestionsToBlock call in this request — the version-questions cache load
@@ -471,43 +495,62 @@ public class AdminProgramBlockQuestionsController extends Controller {
   }
 
   /**
-   * Resolves the selected question and prepares it as an initial question for the given enumerator:
-   * copies it (or updates it, if the question was just created), then links it on the enumerator
-   * via {@code initialQuestionId}. Returns the prepared initial question.
+   * Resolves the selected question against the current draft + active versions and returns it.
+   * Throws {@link InitialQuestionAttachmentException} if the question has been tombstoned or cannot
+   * be found. Use this before doing any other writes (e.g. creating the enumerator) so a stale
+   * selection can't leave orphan state behind.
+   */
+  private QuestionDefinition resolveInitialQuestionOrFail(long selectedQuestionId) {
+    InitialQuestionResolution resolution = resolveInitialQuestion(selectedQuestionId);
+    return switch (resolution) {
+      case InitialQuestionResolution.Found f -> f.question();
+      case InitialQuestionResolution.Superseded s -> s.latest();
+      case InitialQuestionResolution.Tombstoned t ->
+          throw new InitialQuestionAttachmentException(
+              badRequest(
+                  "The selected initial question has been deleted. Please reload the page and"
+                      + " choose a different question."));
+      case InitialQuestionResolution.NotFound nf ->
+          throw new InitialQuestionAttachmentException(
+              notFound(String.format("Question ID %d not found", nf.id())));
+    };
+  }
+
+  /**
+   * Prepares the resolved initial question for use on the enumerator: copies it (or updates it with
+   * the enumeratorId, when the question was just created), then links it on the enumerator via
+   * {@code initialQuestionId}. Returns the prepared initial question.
    *
    * <p>This step is intentionally <em>narrow</em>: it does not add either question to a block, and
    * it does not propagate. Callers must perform those steps in a specific order — both questions
    * must exist in the draft before the first {@code addQuestionsToBlock} call, because Ebean caches
    * the version's question relationship list on first access for the rest of the request.
    *
+   * @param originalDefinition the already-resolved question to use as the initial question. Should
+   *     come from {@link #resolveInitialQuestionOrFail} so consistency has been checked.
    * @param isNewlyCreated true when the question was just created via the bank's "Create new
    *     question" path (in which case no copy is made — the question is updated to be a repeated
    *     question by setting its enumeratorId).
    */
   private QuestionDefinition prepareInitialQuestion(
-      QuestionDefinition enumeratorDef, long selectedQuestionId, boolean isNewlyCreated) {
-    Optional<QuestionDefinition> maybeOriginal =
-        resolveInitialQuestion(Optional.of(selectedQuestionId));
-    if (maybeOriginal.isEmpty()) {
-      throw new InitialQuestionAttachmentException(
-          notFound(String.format("Question ID %d not found", selectedQuestionId)));
-    }
-
+      QuestionDefinition enumeratorDef,
+      QuestionDefinition originalDefinition,
+      boolean isNewlyCreated) {
     QuestionDefinition initialDefinition;
     try {
       if (isNewlyCreated) {
         initialDefinition =
-            new QuestionDefinitionBuilder(maybeOriginal.get())
+            new QuestionDefinitionBuilder(originalDefinition)
                 .setEnumeratorId(Optional.of(enumeratorDef.getId()))
                 .build();
         ErrorAnd<QuestionDefinition, CiviFormError> updateResult =
-            questionService.update(Optional.of(maybeOriginal.get()), initialDefinition);
+            questionService.update(Optional.of(originalDefinition), initialDefinition);
         if (!updateResult.isError()) {
           initialDefinition = updateResult.getResult();
         }
       } else {
         ErrorAnd<QuestionDefinition, CiviFormError> copyResult =
-            questionService.createInitialQuestionCopy(maybeOriginal.get(), enumeratorDef.getId());
+            questionService.createInitialQuestionCopy(originalDefinition, enumeratorDef.getId());
         if (copyResult.isError()) {
           throw new InitialQuestionAttachmentException(
               badRequest("Could not create initial question copy."));
@@ -615,23 +658,66 @@ public class AdminProgramBlockQuestionsController extends Controller {
   }
 
   /**
-   * Looks up the {@link QuestionDefinition} for the given initial question ID using the read-only
-   * question service. Returns empty if the ID is absent or the question cannot be found.
+   * Outcome of resolving an initial-question ID submitted from a (possibly stale) admin page. The
+   * page may have been rendered before another admin saved a new draft of the same question, or
+   * before the question was tombstoned for deletion. Callers switch on the result to choose how to
+   * react.
    */
-  private Optional<QuestionDefinition> resolveInitialQuestion(Optional<Long> initialQuestionIdOpt) {
-    if (initialQuestionIdOpt.isEmpty()) {
-      return Optional.empty();
-    }
+  private sealed interface InitialQuestionResolution
+      permits InitialQuestionResolution.Found,
+          InitialQuestionResolution.Superseded,
+          InitialQuestionResolution.Tombstoned,
+          InitialQuestionResolution.NotFound {
+
+    /** The submitted ID matches an up-to-date question; use it directly. */
+    record Found(QuestionDefinition question) implements InitialQuestionResolution {}
+
+    /**
+     * The submitted ID points at a question that has been superseded by a newer draft with the same
+     * name. {@code latest} is the canonical current version.
+     */
+    record Superseded(QuestionDefinition stale, QuestionDefinition latest)
+        implements InitialQuestionResolution {}
+
+    /** The submitted ID points at a question whose name is tombstoned in the current draft. */
+    record Tombstoned(QuestionDefinition stale) implements InitialQuestionResolution {}
+
+    /** No question exists for the submitted ID. */
+    record NotFound(long id) implements InitialQuestionResolution {}
+  }
+
+  /**
+   * Resolves an initial-question ID against the current draft + active versions. See {@link
+   * InitialQuestionResolution} for the possible outcomes.
+   */
+  private InitialQuestionResolution resolveInitialQuestion(long id) {
+    ReadOnlyQuestionService roqs =
+        questionService.getReadOnlyQuestionService().toCompletableFuture().join();
+
+    QuestionDefinition snapshot;
     try {
-      return Optional.of(
-          questionService
-              .getReadOnlyQuestionService()
-              .toCompletableFuture()
-              .join()
-              .getQuestionDefinition(initialQuestionIdOpt.get()));
+      snapshot = roqs.getQuestionDefinition(id);
     } catch (QuestionNotFoundException e) {
-      return Optional.empty();
+      return new InitialQuestionResolution.NotFound(id);
     }
+    if (snapshot instanceof NullQuestionDefinition) {
+      return new InitialQuestionResolution.NotFound(id);
+    }
+
+    ImmutableList<QuestionDefinition> upToDate = roqs.getUpToDateQuestions();
+
+    Optional<QuestionDefinition> byId = upToDate.stream().filter(q -> q.getId() == id).findFirst();
+    if (byId.isPresent()) {
+      return new InitialQuestionResolution.Found(byId.get());
+    }
+
+    Optional<QuestionDefinition> byName =
+        upToDate.stream().filter(q -> q.getName().equals(snapshot.getName())).findFirst();
+    if (byName.isPresent()) {
+      return new InitialQuestionResolution.Superseded(snapshot, byName.get());
+    }
+
+    return new InitialQuestionResolution.Tombstoned(snapshot);
   }
 
   /** POST endpoint for removing a question from a screen. */
