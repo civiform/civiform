@@ -255,7 +255,11 @@ public final class AdminProgramBlocksController extends CiviFormController {
           try {
             long newQuestionId = Long.parseLong(newQuestionIdParam.get());
             blockQuestionsController.backfillInitialQuestionOnBlock(
-                request, programId, blockId, newQuestionId, /* isNewlyCreated= */ true);
+                request,
+                programId,
+                blockId,
+                newQuestionId,
+                /* initialQuestionWasNewlyCreated= */ true);
             return redirect(routes.AdminProgramBlocksController.edit(programId, blockId).url())
                 .flashing(request.flash().data());
           } catch (NumberFormatException e) {

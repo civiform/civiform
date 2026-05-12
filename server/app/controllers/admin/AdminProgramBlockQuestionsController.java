@@ -159,7 +159,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
         Optional.ofNullable(requestData.get("initialQuestionId"))
             .filter(s -> !s.isBlank())
             .map(Long::valueOf);
-    boolean isNewlyCreated = "true".equals(requestData.get("isNewlyCreated"));
+    boolean initialQuestionWasNewlyCreated = "true".equals(requestData.get("initialQuestionWasNewlyCreated"));
 
     // Resolve the initial question (if any) BEFORE creating the enumerator. If it has been
     // tombstoned or otherwise can't be resolved, abort here — we don't want to leave an orphan
@@ -215,7 +215,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
         createdInitialDefinitionOpt =
             Optional.of(
                 prepareInitialQuestion(
-                    createdEnumeratorDefinition, resolvedInitialOriginalOpt.get(), isNewlyCreated));
+                    createdEnumeratorDefinition, resolvedInitialOriginalOpt.get(), initialQuestionWasNewlyCreated));
       } catch (InitialQuestionAttachmentException e) {
         return e.toResult();
       }
@@ -388,7 +388,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
 
     try {
       backfillInitialQuestionOnBlock(
-          request, programId, blockId, selectedQuestionId.get(), /* isNewlyCreated= */ false);
+          request, programId, blockId, selectedQuestionId.get(), /* initialQuestionWasNewlyCreated= */ false);
     } catch (InitialQuestionAttachmentException e) {
       return e.toResult();
     }
@@ -442,7 +442,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
       long programId,
       long blockId,
       long selectedQuestionId,
-      boolean isNewlyCreated) {
+      boolean initialQuestionWasNewlyCreated) {
     ProgramDefinition programDefinition;
     BlockDefinition blockDefinition;
     QuestionDefinition enumeratorDef;
@@ -465,7 +465,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
 
     QuestionDefinition originalDefinition = resolveInitialQuestionOrFail(selectedQuestionId);
     QuestionDefinition initialDefinition =
-        prepareInitialQuestion(enumeratorDef, originalDefinition, isNewlyCreated);
+        prepareInitialQuestion(enumeratorDef, originalDefinition, initialQuestionWasNewlyCreated);
 
     // Add the initial question to the block. The enumerator is already on the block, so this is
     // the first addQuestionsToBlock call in this request — the version-questions cache load
@@ -528,17 +528,17 @@ public class AdminProgramBlockQuestionsController extends Controller {
    *
    * @param originalDefinition the already-resolved question to use as the initial question. Should
    *     come from {@link #resolveInitialQuestionOrFail} so consistency has been checked.
-   * @param isNewlyCreated true when the question was just created via the bank's "Create new
+   * @param initialQuestionWasNewlyCreated true when the question was just created via the bank's "Create new
    *     question" path (in which case no copy is made — the question is updated to be a repeated
    *     question by setting its enumeratorId).
    */
   private QuestionDefinition prepareInitialQuestion(
       QuestionDefinition enumeratorDef,
       QuestionDefinition originalDefinition,
-      boolean isNewlyCreated) {
+      boolean initialQuestionWasNewlyCreated) {
     QuestionDefinition initialDefinition;
     try {
-      if (isNewlyCreated) {
+      if (initialQuestionWasNewlyCreated) {
         initialDefinition =
             new QuestionDefinitionBuilder(originalDefinition)
                 .setEnumeratorId(Optional.of(enumeratorDef.getId()))

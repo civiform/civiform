@@ -1265,7 +1265,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                                             .withValue(String.valueOf(id)),
                                         input()
                                             .withType("hidden")
-                                            .withName("isNewlyCreated")
+                                            .withName("initialQuestionWasNewlyCreated")
                                             .withValue("true")))
                             .orElse(div()),
                         optionalInitialQuestionCard.get()))
