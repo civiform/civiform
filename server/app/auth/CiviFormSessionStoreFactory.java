@@ -62,6 +62,7 @@ public class CiviFormSessionStoreFactory implements SessionStoreFactory {
     return newSessionStore();
   }
 
+  @SuppressWarnings("deprecation") // JavaSerializer is deprecated in pac4j v6.5.0
   public SessionStore newSessionStore() {
     var jsonSerializerPrimary = new org.pac4j.core.util.serializer.JsonSerializer();
     // Play's request threads can have a context classloader that doesn't include the
