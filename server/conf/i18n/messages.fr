@@ -551,6 +551,13 @@ content.disabledProgramInfo=Malheureusement, le programme auquel vous tentez d''
 button.homePage=Retour à la page d''accueil
 
 #--------------------------------------------------------------------------------------------------------------#
+# ADMIN PROGRAM IMAGE - admin-facing text for uploading a program summary card image                             #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Title of the admin page where a program''s summary image and alt text are set.
+title.adminProgramImage=Image upload
+
+#--------------------------------------------------------------------------------------------------------------#
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
 #--------------------------------------------------------------------------------------------------------------#
 
@@ -670,6 +677,7 @@ validation.noPoBox=Veuillez saisir une adresse valide. Les boîtes postales ne s
 title.confirmAddress=Confirmez votre adresse
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
 content.confirmAddressLine1=Adresse introuvable.
+content.confirmAddressLine1.v2=Address confirmation needed.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=Veuillez vérifier que votre adresse est exacte, ou sélectionnez une option dans la liste.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
@@ -780,6 +788,8 @@ placeholder.entityName={0} (nom)
 validation.fileRequired=Veuillez sélectionner un fichier.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Le fichier est trop volumineux. Veuillez en choisir un de moins de {0} Mo.
+# Shown when an HTMX file upload request fails (any non-success response).
+validation.fileUploadRequestFailed=We couldn't upload your file. Please try again.
 # Text shown on a tag while a file is uploading.
 label.uploading=Importation
 # Label applied to a list of uploaded files
@@ -1147,7 +1157,7 @@ session.extended.success=Session prolongée
 # Error message shown when there was a problem extending the user's session
 session.extended.error=Échec de la prolongation de la session
 # Message shown to guest users warning that their session is about to expire due to session length
-session.length.warning.message.guest=Votre session est sur le point d''expirer. Veuillez enregistrer votre travail, puis vous connecter ou créer un compte pour continuer.
+session.length.warning.message.guest=Votre session est sur le point d’expirer. Veuillez enregistrer votre travail, puis vous connecter ou créer un compte pour continuer.
 # Message shown to logged-in users warning that their session is about to expire due to session length
 session.length.warning.message.loggedIn=Votre session est sur le point d'expirer. Veuillez enregistrer votre travail et vous reconnecter pour continuer. Vous ne perdrez pas la progression de votre demande.
 
@@ -1180,9 +1190,9 @@ input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
 input.repeatedSet.maxEntities=
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
-alert.repeatedSet.addQuestionDisabled=Une question d''ensemble répété doit d''abord être ajoutée avant de pouvoir ajouter des questions répétées. Veuillez accéder à l''écran parent pour ajouter une question d''ensemble répété.
+alert.repeatedSet.addQuestionDisabled=Une question d’ensemble répété doit d’abord être ajoutée avant de pouvoir ajouter des questions répétées. Veuillez accéder à l’écran parent pour ajouter une question d’ensemble répété.
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
-alert.repeatedSet.newQuestion=La création d''un ensemble répété ajoutera une nouvelle question à la banque de questions.
+alert.repeatedSet.newQuestion=La création d’un ensemble répété ajoutera une nouvelle question à la banque de questions.
 # Alert shown in the question bank section listing repeated questions that are already associated with this repeated set
 alert.repeatedSet.previouslyUsed=Questions that are associated with a different repeated set are not available to be added.
 # Submission button for creating a new repeated set
@@ -1204,7 +1214,7 @@ text.repeatedSet.screenNameDescription=
 #An additional description explaining what the add question button does
 text.repeatedSet.addQuestionDescription=
 # Information shown to admins when they are adding a question to a repeated screen.
-text.repeatedQuestions.description=Ajoutez les questions que vous souhaitez poser pour chaque objet ou chaque personne mentionnée par le demandeur. Si une question que vous ajoutez n''est pas déjà associée à l''ensemble répété, elle sera dupliquée dans la banque de questions pour cet ensemble répété.
+text.repeatedQuestions.description=Ajoutez les questions que vous souhaitez poser pour chaque objet ou chaque personne mentionnée par le demandeur. Si une question que vous ajoutez n’est pas déjà associée à l’ensemble répété, elle sera dupliquée dans la banque de questions pour cet ensemble répété.
 # Heading above the repeated set question in the program block editor
 heading.repeatedSet.question=
 # Heading shown above repeated questions in the question bank that are already associated with this repeated set
