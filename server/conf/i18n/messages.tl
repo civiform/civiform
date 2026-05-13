@@ -551,6 +551,13 @@ content.disabledProgramInfo=Pasensya na, na-disable ang program na sinusubukan m
 button.homePage=Bumalik sa homepage
 
 #--------------------------------------------------------------------------------------------------------------#
+# ADMIN PROGRAM IMAGE - admin-facing text for uploading a program summary card image                             #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Title of the admin page where a program''s summary image and alt text are set.
+title.adminProgramImage=Image upload
+
+#--------------------------------------------------------------------------------------------------------------#
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
 #--------------------------------------------------------------------------------------------------------------#
 
@@ -670,6 +677,7 @@ validation.noPoBox=Maaari lamang na ilagay ang wasto na adres. Kami ay hindi nat
 title.confirmAddress=Kumpirmahin ang iyong address
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
 content.confirmAddressLine1=Hindi namin nahanap ang iyong address.
+content.confirmAddressLine1.v2=Address confirmation needed.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=Pakitingnan kung tama ang spelling ng address mo o pumili ng opsyon sa listahang ibinigay.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
@@ -780,6 +788,8 @@ placeholder.entityName={0} Palayaw
 validation.fileRequired=Maaari lamang ay pumili ng file.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Masyadong malaki ang iyong file. Pumili ng file na wala pang {0} MB.
+# Shown when an HTMX file upload request fails (any non-success response).
+validation.fileUploadRequestFailed=We couldn't upload your file. Please try again.
 # Text shown on a tag while a file is uploading.
 label.uploading=Ina-upload
 # Label applied to a list of uploaded files
