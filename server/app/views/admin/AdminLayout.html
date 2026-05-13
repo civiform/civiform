@@ -73,9 +73,13 @@
       ></th:block>
 
       <!--/* Main */-->
-      <div class="grid-container bg-white" data-testid="page-content">
+      <div
+        class="grid-container bg-white"
+        data-testid="page-content"
+        th:classappend="${featureFlags.isAdminUiMigrationScExtendedEnabled()} ? '' : 'padding-top-4'"
+      >
         <!--/* Heading */-->
-        <section aria-labelledby="sitePageHeading">
+        <section class="spacing-4" aria-labelledby="sitePageHeading">
           <h1
             id="sitePageHeading"
             th:text="${templateGlobals.pageHeading()}"

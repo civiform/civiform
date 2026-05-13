@@ -1,0 +1,102 @@
+@use 'uswds-core' as *;
+
+// Vertical spacing system aligning with the Admin Components Figma spacing table. Put the
+// class on a parent element. The owl selector (`> * + *`) will apply direct children only.
+
+// Reset margin top/bottom on elements inside a spacing container so the
+// owl selector (`> * + *`) below is the sole source of vertical rhythm.
+:is(
+    .spacing-0,
+    .spacing-05,
+    .spacing-1,
+    .spacing-105,
+    .spacing-2,
+    .spacing-3,
+    .spacing-4,
+    .spacing-8
+  )
+  > * {
+  @include u-margin-top(0);
+  @include u-margin-bottom(0);
+}
+
+// Semantic token: text-tiny
+// Space between text elements 0-1 sizes different
+.spacing-0 > * + * {
+  @include u-margin-top(0);
+}
+
+// Semantic token: text-small
+// Space between text elements 2-3 sizes different
+.spacing-05 > * + * {
+  @include u-margin-top('05');
+}
+
+// Semantic token: text-medium
+// Space between text elements 4+ sizes different
+.spacing-1 > * + * {
+  @include u-margin-top(1);
+}
+
+// Semantic token: content
+// Spacing between different content elements (e.g. a section title and address, a text description and an action button)
+.spacing-105 > * + * {
+  @include u-margin-top('105');
+}
+
+// Semantic token: container
+// Spacing within a container element (i.e. Alert, Card, etc.)
+.spacing-2 > * + * {
+  @include u-margin-top(2);
+}
+
+// Semantic token: section
+// Spacing between subsections within a larger section (e.g. form sections)
+.spacing-3 > * + * {
+  @include u-margin-top(3);
+}
+
+// Semantic token: section-large
+// Space between page sections
+.spacing-4 > * + * {
+  @include u-margin-top(4);
+}
+
+// Semantic token: page-large
+// Page-level spacing, larger variant
+.spacing-8 > * + * {
+  @include u-margin-top(8);
+}
+
+// Overrides. Apply on a direct child to override the margin-top it from the parent `.spacing-*` class.
+.spacing-override-0 {
+  @include u-margin-top(0);
+}
+
+.spacing-override-05 {
+  @include u-margin-top('05');
+}
+
+.spacing-override-1 {
+  @include u-margin-top(1);
+}
+
+.spacing-override-105 {
+  @include u-margin-top('105');
+}
+
+.spacing-override-2 {
+  @include u-margin-top(2);
+}
+
+.spacing-override-3 {
+  @include u-margin-top(3);
+}
+
+.spacing-override-4 {
+  @include u-margin-top(4);
+}
+
+.spacing-override-8 {
+  @include u-margin-top(8);
+}
