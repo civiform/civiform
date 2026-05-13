@@ -551,6 +551,13 @@ content.disabledProgramInfo=申し訳ございませんが、アクセスしよ�
 button.homePage=ホームページに戻る
 
 #--------------------------------------------------------------------------------------------------------------#
+# ADMIN PROGRAM IMAGE - admin-facing text for uploading a program summary card image                             #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Title of the admin page where a program''s summary image and alt text are set.
+title.adminProgramImage=Image upload
+
+#--------------------------------------------------------------------------------------------------------------#
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
 #--------------------------------------------------------------------------------------------------------------#
 
@@ -670,6 +677,7 @@ validation.noPoBox=住所を正しく入力してください。私書箱は指�
 title.confirmAddress=住所の確認
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
 content.confirmAddressLine1=住所が確認できません。
+content.confirmAddressLine1.v2=Address confirmation needed.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=住所をもう一度ご確認いただくか、表示されるリストの選択肢から選択してください。
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
@@ -780,6 +788,8 @@ placeholder.entityName={0} の名前
 validation.fileRequired=ファイルを選択してください。
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=ファイルが大きすぎます。{0} MB 未満のファイルを選択してください。
+# Shown when an HTMX file upload request fails (any non-success response).
+validation.fileUploadRequestFailed=We couldn't upload your file. Please try again.
 # Text shown on a tag while a file is uploading.
 label.uploading=アップロード中
 # Label applied to a list of uploaded files
