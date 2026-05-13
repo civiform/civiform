@@ -551,6 +551,13 @@ content.disabledProgramInfo=عذرًا، لقد تمّ إيقاف البرنام
 button.homePage=الرجوع إلى الصفحة الرئيسية
 
 #--------------------------------------------------------------------------------------------------------------#
+# ADMIN PROGRAM IMAGE - admin-facing text for uploading a program summary card image                             #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Title of the admin page where a program''s summary image and alt text are set.
+title.adminProgramImage=Image upload
+
+#--------------------------------------------------------------------------------------------------------------#
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
 #--------------------------------------------------------------------------------------------------------------#
 
@@ -670,6 +677,7 @@ validation.noPoBox=يُرجى إدخال عنوان صالح. لا نقبل با
 title.confirmAddress=تأكيد عنوانك
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
 content.confirmAddressLine1=لم نتمكن من العثور على عنوانك.
+content.confirmAddressLine1.v2=Address confirmation needed.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=يُرجى التحقق من عدم وجود أخطاء إملائية في عنوانك أو تحديد خيار من القائمة المُدرجة.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
@@ -780,6 +788,8 @@ placeholder.entityName=‏{0} اسم
 validation.fileRequired=يُرجى اختيار ملف.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=الملف كبير جدًا. يُرجى اختيار ملف لا يتجاوز حجمه {0} ميغابايت.
+# Shown when an HTMX file upload request fails (any non-success response).
+validation.fileUploadRequestFailed=We couldn't upload your file. Please try again.
 # Text shown on a tag while a file is uploading.
 label.uploading=جارٍ التحميل
 # Label applied to a list of uploaded files
