@@ -551,6 +551,13 @@ content.disabledProgramInfo=Lo sentimos, el programa al que quieres acceder se i
 button.homePage=Volver a la página principal
 
 #--------------------------------------------------------------------------------------------------------------#
+# ADMIN PROGRAM IMAGE - admin-facing text for uploading a program summary card image                             #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Title of the admin page where a program''s summary image and alt text are set.
+title.adminProgramImage=Image upload
+
+#--------------------------------------------------------------------------------------------------------------#
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
 #--------------------------------------------------------------------------------------------------------------#
 
@@ -670,6 +677,7 @@ validation.noPoBox=Ingresa una dirección válida. No aceptamos apartados postal
 title.confirmAddress=Confirma tu dirección
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
 content.confirmAddressLine1=No pudimos encontrar tu dirección.
+content.confirmAddressLine1.v2=Address confirmation needed.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=Revisa si la dirección tiene errores de ortografía o elige una opción de la lista que se ofrece.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
@@ -780,6 +788,8 @@ placeholder.entityName=Nombre de {0}
 validation.fileRequired=Elige un archivo.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Tu archivo es demasiado grande. Elige un archivo de un tamaño menor a {0} MB.
+# Shown when an HTMX file upload request fails (any non-success response).
+validation.fileUploadRequestFailed=We couldn't upload your file. Please try again.
 # Text shown on a tag while a file is uploading.
 label.uploading=Subiendo archivo
 # Label applied to a list of uploaded files
