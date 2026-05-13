@@ -149,6 +149,10 @@ public final class SettingsService {
 
     Stream<Pair<SettingDescription, String>> newEntries =
         different.entriesOnlyOnLeft().entrySet().stream()
+            .filter(
+                entry ->
+                    settingDescriptions.stream()
+                        .anyMatch(sd -> sd.variableName().equals(entry.getKey())))
             .map(
                 entry ->
                     Pair.of(
@@ -157,6 +161,10 @@ public final class SettingsService {
 
     Stream<Pair<SettingDescription, String>> changedEntries =
         different.entriesDiffering().entrySet().stream()
+            .filter(
+                entry ->
+                    settingDescriptions.stream()
+                        .anyMatch(sd -> sd.variableName().equals(entry.getKey())))
             .map(
                 entry ->
                     Pair.of(
