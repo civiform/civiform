@@ -136,6 +136,7 @@ public class CiviFormSessionStoreFactoryTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation") // JavaSerializer is deprecated in pac4j v6.5.0
   public void newSessionStore_readsLegacyJavaSerializedCookieFromPreviousDeploy() throws Exception {
     CiviFormSessionStoreFactory factory = new CiviFormSessionStoreFactory(createConfig(SECRET1));
 
@@ -239,6 +240,7 @@ public class CiviFormSessionStoreFactoryTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation") // JavaSerializer is deprecated in pac4j v6.5.0
   public void sessionStore_cookieRoundTrip_legacyEncrypted_fallsBackToLegacyDecrypter() {
     CiviFormSessionStoreFactory factory = new CiviFormSessionStoreFactory(createConfig(SECRET1));
 
