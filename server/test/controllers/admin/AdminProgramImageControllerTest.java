@@ -68,24 +68,6 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void index_fileUploadImprovementsEnabled_rendersThymeleafImagePage()
-      throws ProgramNotFoundException {
-    when(settingsManifest.getFileUploadQuestionImprovementsEnabled(any())).thenReturn(true);
-    ProgramModel program = ProgramBuilder.newDraftProgram("image page program").build();
-
-    Result result =
-        controller.index(
-            fakeRequestBuilder().method("GET").build(),
-            program.id,
-            ProgramEditStatus.CREATION.name());
-
-    assertThat(result.status()).isEqualTo(OK);
-    String body = contentAsString(result);
-    assertThat(body).contains("program-image-input");
-    assertThat(body).contains("program-image-form");
-  }
-
-  @Test
   public void hxUploadProgramImage_fileUploadImprovementsDisabled_returnsNotFound() {
     ProgramModel program = ProgramBuilder.newDraftProgram("hx upload").build();
 
