@@ -56,33 +56,35 @@ public enum FileTypeSpecifier {
    * and {@link #JPEG}).
    */
   public static ImmutableList<FileTypeSpecifier> parseCommaSeparated(String specifiers) {
-    ImmutableList.Builder<FileTypeSpecifier> out = ImmutableList.builder();
-    for (String raw : Splitter.on(',').trimResults().omitEmptyStrings().split(specifiers)) {
-      String part = raw.toLowerCase(Locale.ROOT);
+    ImmutableList.Builder<FileTypeSpecifier> builder = ImmutableList.builder();
+    for (String allowlistPart :
+        Splitter.on(',').trimResults().omitEmptyStrings().split(specifiers)) {
+      String normalizedAllowlistPart = allowlistPart.toLowerCase(Locale.ROOT);
       FileTypeSpecifier extensionMatch = null;
       for (FileTypeSpecifier specifier : values()) {
-        if (specifier.getExtension().equals(part)) {
+        if (specifier.getExtension().equals(normalizedAllowlistPart)) {
           extensionMatch = specifier;
           break;
         }
       }
       if (extensionMatch != null) {
-        out.add(extensionMatch);
+        builder.add(extensionMatch);
         continue;
       }
       ImmutableList.Builder<FileTypeSpecifier> mimeMatches = ImmutableList.builder();
       for (FileTypeSpecifier specifier : values()) {
-        if (specifier.getMimeType().equals(part)) {
+        if (specifier.getMimeType().equals(normalizedAllowlistPart)) {
           mimeMatches.add(specifier);
         }
       }
       ImmutableList<FileTypeSpecifier> mimeList = mimeMatches.build();
       if (mimeList.isEmpty()) {
-        throw new IllegalArgumentException("Unknown file type specifier extension: " + raw);
+        throw new IllegalArgumentException(
+            "Unknown file type specifier extension: " + allowlistPart);
       }
-      out.addAll(mimeList);
+      builder.addAll(mimeList);
     }
-    return out.build();
+    return builder.build();
   }
 
   /** MIME or wildcard string used by {@link FileTypeValidation} allowlist checks. */
