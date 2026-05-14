@@ -28,6 +28,7 @@ import play.mvc.Http;
 import repository.ResetPostgres;
 import services.cloud.BucketType;
 import services.cloud.StorageServiceName;
+import services.settings.SettingsManifest;
 
 public class ApplicantStreamingMultipartBodyParserTest extends ResetPostgres {
   private static final String MULTIPART_BOUNDARY = "boundary";
@@ -90,7 +91,12 @@ public class ApplicantStreamingMultipartBodyParserTest extends ResetPostgres {
 
     parser =
         new ApplicantStreamingMultipartBodyParser(
-            materializer, errorHandler, sinks, instanceOf(FileTypeValidation.class), profileUtils);
+            materializer,
+            errorHandler,
+            sinks,
+            instanceOf(FileTypeValidation.class),
+            instanceOf(SettingsManifest.class),
+            profileUtils);
   }
 
   @Test

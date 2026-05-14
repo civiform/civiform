@@ -4,12 +4,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.ProfileFactory;
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.inject.Inject;
 import org.apache.pekko.stream.Materializer;
 import org.apache.pekko.util.ByteString;
+import parsers.FileTypeSpecifier;
 import parsers.FileTypeValidation;
 import parsers.StreamingMultipartBodyParser;
 import parsers.cloud.MultipartUploadSinks;
@@ -21,6 +23,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.BucketType;
+import services.settings.SettingsManifest;
 
 /**
  * Applicant file upload implementation of the streaming multipart parser.
@@ -37,6 +40,7 @@ public final class ApplicantStreamingMultipartBodyParser extends StreamingMultip
       Pattern.compile("/programs/(\\d+)/blocks/([^/]+)(/|$)");
 
   private final ProfileUtils profileUtils;
+  private final SettingsManifest settingsManifest;
 
   private long applicantId;
   private long programId;
@@ -48,6 +52,7 @@ public final class ApplicantStreamingMultipartBodyParser extends StreamingMultip
       DefaultHttpErrorHandler errorHandler,
       MultipartUploadSinks streamingMultipartUploadSinks,
       FileTypeValidation fileTypeValidation,
+      SettingsManifest settingsManifest,
       ProfileUtils profileUtils) {
     super(
         materializer,
@@ -56,6 +61,7 @@ public final class ApplicantStreamingMultipartBodyParser extends StreamingMultip
         fileTypeValidation,
         MAX_FILE_SIZE);
     this.profileUtils = checkNotNull(profileUtils);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   @Override
@@ -90,5 +96,11 @@ public final class ApplicantStreamingMultipartBodyParser extends StreamingMultip
   protected String getFileKey(Multipart.FileInfo fileInfo) {
     return ApplicantFileNameFormatter.formatFileUploadQuestionFilenameWithUuid(
         applicantId, programId, blockId, fileInfo.fileName());
+  }
+
+  @Override
+  protected ImmutableList<FileTypeSpecifier> getAllowedFileTypeSpecifiers() {
+    return FileTypeSpecifier.parseCommaSeparated(
+        settingsManifest.getFileUploadAllowedFileTypeSpecifiers().get());
   }
 }
