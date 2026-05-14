@@ -1,10 +1,11 @@
 package parsers;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
-import java.util.Objects;
 import lombok.Getter;
 
 /**
@@ -30,23 +31,23 @@ public enum FileTypeSpecifier {
   private final String mimeType;
 
   FileTypeSpecifier(String extension, String mimeType) {
-    String t = Objects.requireNonNull(extension, "extension");
-    String m = Objects.requireNonNull(mimeType, "mimeType");
-    if (t.isEmpty() || m.isEmpty()) {
+    String extensionValue = checkNotNull(extension, "extension");
+    String mimeTypeValue = checkNotNull(mimeType, "mimeType");
+    if (extensionValue.isEmpty() || mimeTypeValue.isEmpty()) {
       throw new IllegalArgumentException("extension and mimeType must be non-empty");
     }
-    this.extension = t;
-    this.mimeType = m;
+    this.extension = extensionValue;
+    this.mimeType = mimeTypeValue;
   }
 
   private static ImmutableMap<String, String> buildMimeByExtension() {
-    ImmutableMap.Builder<String, String> b = ImmutableMap.builder();
-    for (FileTypeSpecifier s : values()) {
-      if (s.getExtension().startsWith(".")) {
-        b.put(s.getExtension(), s.getMimeType());
+    ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+    for (FileTypeSpecifier specifier : values()) {
+      if (specifier.getExtension().startsWith(".")) {
+        builder.put(specifier.getExtension(), specifier.getMimeType());
       }
     }
-    return b.build();
+    return builder.build();
   }
 
   /**
@@ -59,9 +60,9 @@ public enum FileTypeSpecifier {
     for (String raw : Splitter.on(',').trimResults().omitEmptyStrings().split(specifiers)) {
       String part = raw.toLowerCase(Locale.ROOT);
       FileTypeSpecifier extensionMatch = null;
-      for (FileTypeSpecifier s : values()) {
-        if (s.getExtension().equals(part)) {
-          extensionMatch = s;
+      for (FileTypeSpecifier specifier : values()) {
+        if (specifier.getExtension().equals(part)) {
+          extensionMatch = specifier;
           break;
         }
       }
@@ -70,9 +71,9 @@ public enum FileTypeSpecifier {
         continue;
       }
       ImmutableList.Builder<FileTypeSpecifier> mimeMatches = ImmutableList.builder();
-      for (FileTypeSpecifier s : values()) {
-        if (s.getMimeType().equals(part)) {
-          mimeMatches.add(s);
+      for (FileTypeSpecifier specifier : values()) {
+        if (specifier.getMimeType().equals(part)) {
+          mimeMatches.add(specifier);
         }
       }
       ImmutableList<FileTypeSpecifier> mimeList = mimeMatches.build();
