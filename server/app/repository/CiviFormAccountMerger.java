@@ -401,7 +401,11 @@ public final class CiviFormAccountMerger {
 
       if (guestUserApps.draft().isPresent()) {
         var guestDraft = guestUserApps.draft().get();
-        logMessage.append("  * Deleting Guest Draft application id %d".formatted(guestDraft.id));
+        logMessage.append(
+            """
+              * Deleting Guest Draft application id %d
+            """
+                .formatted(guestDraft.id));
         if (applyChanges) {
           // Guest's Active is obsoleted so delete its draft since there is
           // not direct association anymore.
@@ -646,7 +650,7 @@ public final class CiviFormAccountMerger {
     // Use the guest's as the base, and supplement with the CiviForm users
     // for any questions that are missing.
     ApplicantData mergeData = new ApplicantData(guestUser.getApplicantData().asJsonString());
-    MergeQaResult qaMergeSummary =
+    MergeQaResult cfIntoGuestMergeSummary =
         mergeData.mergeQuestionAnswersFrom(civiformUser.getApplicantData());
     if (applyChanges) {
       civiformUser.setApplicantData(mergeData);
@@ -732,15 +736,32 @@ public final class CiviFormAccountMerger {
 
     return """
     Updating CiviForm user data with guest data:
-    * CiviForm question answers: %d copied %d not copied.
+    * CiviForm question answers:
+      * Guest overwrote CiviForm user: %s
+      * Guest supplemented CiviForm user: %s
+      * CiviForm user data maintained: %s
+
     * CiviForm PAIs:
       * Guest overwrote CiviForm user: %s
       * Guest supplemented CiviForm user: %s
       * CiviForm user data maintained: %s
     """
         .formatted(
-            qaMergeSummary.mergedPaths().size(),
-            qaMergeSummary.droppedPaths().size(),
+            // This data is from the perspective of the cf user merged into the
+            // guest. The narrative logged is from the perspective of the CF
+            // data, so the 'logic' here needs to be inverted a tad.
+            // Dropping a CF path means the they both had it but the guest data
+            // was used.
+            cfIntoGuestMergeSummary.droppedPaths().size(),
+            // The paths in guest that the cf user didn't intersect with, so
+            // they effectively supplement the cf user.
+            cfIntoGuestMergeSummary.originUniquePaths().size(),
+            // Merging a cf path means the guest didn't have it and we in
+            // effect "kept" it. These are in effect unique to the cf user.
+            cfIntoGuestMergeSummary.mergedPaths().size(),
+
+            // These are from the perspective of the guest merged into the cf
+            // user, which is the alignment of the narrative.
             cfPaiOverwritten,
             cfPaiSupplemented,
             cfPaiMaintained);
