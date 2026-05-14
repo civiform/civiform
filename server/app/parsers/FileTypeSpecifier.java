@@ -4,15 +4,16 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Objects;
 import lombok.Getter;
 
 /**
- * Allowlist tokens for {@link FileTypeValidation}; extension constants also define {@link
- * #MIME_BY_EXTENSION_MAP}.
+ * Allowlist extensions for {@link FileTypeValidation}. Each constant defines a supported extension
+ * or a wildcard such as {@code image/*}) and the MIME type or wildcard used when checking uploads.
  */
 @Getter
 public enum FileTypeSpecifier {
-  IMAGE_WILDCARD("image/*"),
+  IMAGE_WILDCARD("image/*", "image/*"),
 
   PNG(".png", "image/png"),
   JPG(".jpg", "image/jpeg"),
@@ -21,61 +22,70 @@ public enum FileTypeSpecifier {
   PDF(".pdf", "application/pdf"),
   BMP(".bmp", "image/bmp"),
   WEBP(".webp", "image/webp"),
-  TIFF(".tiff", "image/tiff"),
-
-  APPLICATION_PDF("application/pdf"),
-  IMAGE_PNG("image/png"),
-  IMAGE_JPEG("image/jpeg"),
-  IMAGE_GIF("image/gif"),
-  IMAGE_BMP("image/bmp"),
-  IMAGE_WEBP("image/webp"),
-  IMAGE_TIFF("image/tiff");
+  TIFF(".tiff", "image/tiff");
 
   static final ImmutableMap<String, String> MIME_BY_EXTENSION_MAP = buildMimeByExtension();
 
-  private final String token;
-  private final String mimeForExtension;
+  private final String extension;
+  private final String mimeType;
 
-  FileTypeSpecifier(String token) {
-    this(token, null);
-  }
-
-  FileTypeSpecifier(String token, String mimeForExtension) {
-    this.token = token;
-    this.mimeForExtension = mimeForExtension;
+  FileTypeSpecifier(String extension, String mimeType) {
+    String t = Objects.requireNonNull(extension, "extension");
+    String m = Objects.requireNonNull(mimeType, "mimeType");
+    if (t.isEmpty() || m.isEmpty()) {
+      throw new IllegalArgumentException("extension and mimeType must be non-empty");
+    }
+    this.extension = t;
+    this.mimeType = m;
   }
 
   private static ImmutableMap<String, String> buildMimeByExtension() {
     ImmutableMap.Builder<String, String> b = ImmutableMap.builder();
     for (FileTypeSpecifier s : values()) {
-      if (s.getMimeForExtension() != null) {
-        b.put(s.getToken(), s.getMimeForExtension());
+      if (s.getExtension().startsWith(".")) {
+        b.put(s.getExtension(), s.getMimeType());
       }
     }
     return b.build();
   }
 
-  /** MIME or wildcard string used by {@link FileTypeValidation} allowlist checks. */
-  String normalizedAllowEntry() {
-    return getMimeForExtension() != null ? getMimeForExtension() : getToken();
-  }
-
+  /**
+   * Parses a comma-separated allowlist. Extension and wildcard tokens match one constant; a MIME
+   * token matches every constant with that MIME (e.g. {@code image/jpeg} yields both {@link #JPG}
+   * and {@link #JPEG}).
+   */
   public static ImmutableList<FileTypeSpecifier> parseCommaSeparated(String specifiers) {
     ImmutableList.Builder<FileTypeSpecifier> out = ImmutableList.builder();
     for (String raw : Splitter.on(',').trimResults().omitEmptyStrings().split(specifiers)) {
       String part = raw.toLowerCase(Locale.ROOT);
-      FileTypeSpecifier match = null;
+      FileTypeSpecifier extensionMatch = null;
       for (FileTypeSpecifier s : values()) {
-        if (s.getToken().equals(part)) {
-          match = s;
+        if (s.getExtension().equals(part)) {
+          extensionMatch = s;
           break;
         }
       }
-      if (match == null) {
-        throw new IllegalArgumentException("Unknown file type specifier token: " + raw);
+      if (extensionMatch != null) {
+        out.add(extensionMatch);
+        continue;
       }
-      out.add(match);
+      ImmutableList.Builder<FileTypeSpecifier> mimeMatches = ImmutableList.builder();
+      for (FileTypeSpecifier s : values()) {
+        if (s.getMimeType().equals(part)) {
+          mimeMatches.add(s);
+        }
+      }
+      ImmutableList<FileTypeSpecifier> mimeList = mimeMatches.build();
+      if (mimeList.isEmpty()) {
+        throw new IllegalArgumentException("Unknown file type specifier extension: " + raw);
+      }
+      out.addAll(mimeList);
     }
     return out.build();
+  }
+
+  /** MIME or wildcard string used by {@link FileTypeValidation} allowlist checks. */
+  String normalizedAllowEntry() {
+    return getMimeType();
   }
 }
