@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import services.applicant.Currency;
 import services.applicant.JsonPathProvider;
@@ -675,16 +677,18 @@ public class CfJsonDocumentContext {
   }
 
   /**
-   * Result of {@link #mergeQuestionAnswersFrom}, reporting which question-answer paths were copied
-   * and which were skipped.
+   * Result of {@link #mergeQuestionAnswersFrom}, reporting the result of the merge.
    *
+   * @param originUniquePaths paths from this not present in {@code other}.
    * @param mergedPaths paths from {@code other} that were copied into this document because they
    *     did not already exist.
    * @param droppedPaths paths from {@code other} that were skipped because this document already
    *     contained a value at that path.
    */
   public record MergeQaResult(
-      ImmutableList<String> mergedPaths, ImmutableList<String> droppedPaths) {}
+      ImmutableList<String> originUniquePaths,
+      ImmutableList<String> mergedPaths,
+      ImmutableList<String> droppedPaths) {}
 
   /**
    * Copies top-level question-answer entries from {@code other} into this document.
@@ -704,7 +708,7 @@ public class CfJsonDocumentContext {
     Map<?, ?> otherMap = other.jsonData.read("$", Map.class);
     Map<?, ?> thisMap = this.jsonData.read("$", Map.class);
 
-    // Verify that {@code other} and this object have the required structure
+    // Verify that other and this object have the required structure
     // described in the javadoc.
     Preconditions.checkArgument(
         otherMap.size() == 1 && otherMap.containsKey(applicantPath.keyName()),
@@ -721,21 +725,27 @@ public class CfJsonDocumentContext {
         thisMap.get(applicantPath.keyName()) instanceof Map,
         "Target 'applicant' value must be a map");
 
-    Map<?, ?> questionAnswers = (Map<?, ?>) otherMap.get("applicant");
+    Map<?, ?> thisQuestionAnswers = (Map<?, ?>) thisMap.get("applicant");
+    Set<String> thisUniquePaths =
+        thisQuestionAnswers.keySet().stream().map(Object::toString).collect(Collectors.toSet());
+    Map<?, ?> otherQuestionAnswers = (Map<?, ?>) otherMap.get("applicant");
 
-    ImmutableList.Builder<String> mergedPaths = ImmutableList.builder();
-    ImmutableList.Builder<String> droppedPaths = ImmutableList.builder();
-    for (Map.Entry<?, ?> entry : questionAnswers.entrySet()) {
+    ImmutableList.Builder<String> otherMergedPaths = ImmutableList.builder();
+    ImmutableList.Builder<String> otherDroppedPaths = ImmutableList.builder();
+    for (Map.Entry<?, ?> entry : otherQuestionAnswers.entrySet()) {
       Path entryPath = applicantPath.join(entry.getKey().toString());
-      // Only add entries/question-answers from {@code other} that are not already present.
+      // Only add entries/question-answers from other that are not already present.
       if (hasPath(entryPath)) {
-        droppedPaths.add(entryPath.toString());
+        String path = entryPath.toString();
+        otherDroppedPaths.add(path);
+        thisUniquePaths.remove(path);
       } else {
         put(entryPath, entry.getValue());
-        mergedPaths.add(entryPath.toString());
+        otherMergedPaths.add(entryPath.toString());
       }
     }
-    return new MergeQaResult(mergedPaths.build(), droppedPaths.build());
+    return new MergeQaResult(
+        ImmutableList.copyOf(thisUniquePaths), otherMergedPaths.build(), otherDroppedPaths.build());
   }
 
   protected void checkLocked() {
