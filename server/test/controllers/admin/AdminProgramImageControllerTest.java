@@ -3,14 +3,17 @@ package controllers.admin;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.SEE_OTHER;
+import static play.test.Helpers.stubMessagesApi;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 import static support.cloud.FakePublicStorageClient.FAKE_BUCKET_NAME;
 
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -21,6 +24,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import play.data.FormFactory;
+import play.i18n.Lang;
+import play.i18n.Messages;
+import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.ResetPostgres;
@@ -44,10 +50,13 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
 
   private ProgramService programService;
   private AdminProgramImageController controller;
+  private Messages messages;
 
   @Before
   public void setup() {
     programService = instanceOf(ProgramService.class);
+    MessagesApi messagesApi = stubMessagesApi();
+    messages = messagesApi.preferred(ImmutableSet.of(Lang.defaultLang()));
     controller =
         new AdminProgramImageController(
             new FakePublicStorageClient(),
@@ -58,6 +67,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
             instanceOf(SettingsManifest.class),
             instanceOf(RequestChecker.class),
             instanceOf(FormFactory.class),
+            messagesApi,
             instanceOf(ProfileUtils.class),
             instanceOf(VersionRepository.class));
   }
@@ -105,13 +115,52 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
-        .hasValue(routes.AdminProgramBlocksController.index(program.id).url());
+        .hasValue(
+            routes.AdminProgramImageController.index(program.id, ProgramEditStatus.CREATION.name())
+                .url());
 
     ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
     assertThat(updatedProgram.summaryImageFileKey()).contains(fileKey);
     assertThat(updatedProgram.localizedSummaryImageDescription())
         .map(LocalizedStrings::getDefault)
         .contains("Alt text description");
+  }
+
+  @Test
+  public void uploadProgramImage_withFileAndDescription_toastsSuccess()
+      throws ProgramNotFoundException {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+    String fileKey = "program-summary-image/program-" + program.id + "/myImage.png";
+
+    Result result =
+        controller.uploadProgramImage(
+            createUploadRequest(fileKey, "Alt text description"),
+            program.id,
+            ProgramEditStatus.CREATION.name());
+
+    assertThat(result.flash().data()).containsOnlyKeys("success");
+    assertThat(result.flash().data().get("success"))
+        .isEqualTo(
+            messages.at("toast.adminProgramImage.imageAndDescriptionSaved", "Alt text description"));
+  }
+
+  @Test
+  public void uploadProgramImage_blankDescriptionWithFile_doesNotSaveImage_redirectsWithError()
+      throws ProgramNotFoundException {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+    String fileKey = "program-summary-image/program-" + program.id + "/myImage.png";
+
+    Result result =
+        controller.uploadProgramImage(
+            createUploadRequest(fileKey, ""),
+            program.id,
+            ProgramEditStatus.CREATION.name());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.flash().data().get("error"))
+        .isEqualTo(messages.at("validation.adminProgramImage.altTextRequired"));
+    assertThat(programService.getFullProgramDefinition(program.id).summaryImageFileKey())
+        .isEmpty();
   }
 
   @Test
@@ -127,7 +176,9 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
-        .hasValue(routes.AdminProgramBlocksController.index(program.id).url());
+        .hasValue(
+            routes.AdminProgramImageController.index(program.id, ProgramEditStatus.EDIT.name())
+                .url());
 
     ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
     assertThat(updatedProgram.summaryImageFileKey()).isEmpty();
@@ -168,7 +219,201 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
         .hasValue(
             routes.AdminProgramImageController.index(program.id, ProgramEditStatus.EDIT.name())
                 .url());
-    assertThat(result.flash().data().get("error")).contains("Description can't be removed");
+    assertThat(result.flash().data().get("error"))
+        .isEqualTo(messages.at("toast.adminProgramImage.descriptionNotRemovable"));
+  }
+
+  @Test
+  public void uploadProgramImage_missingProgram_returnsNotFound() {
+    Result result =
+        controller.uploadProgramImage(
+            createUploadRequest(/* fileKey= */ null, "fake description"),
+            /* programId= */ Long.MAX_VALUE,
+            ProgramEditStatus.CREATION.name());
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
+  public void uploadProgramImage_nullBody_returnsBadRequest() {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+
+    Result result =
+        controller.uploadProgramImage(
+            fakeRequestBuilder()
+                .addCiviFormSetting("FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED", "true")
+                .method("POST")
+                .build(),
+            program.id,
+            ProgramEditStatus.CREATION.name());
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  @Test
+  public void uploadProgramImage_editsExistingDescription()
+      throws ProgramNotFoundException, TranslationNotFoundException {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("test name")
+            .setLocalizedSummaryImageDescription(
+                LocalizedStrings.of(Locale.US, "first description"))
+            .build();
+
+    Result result =
+        controller.uploadProgramImage(
+            createUploadRequest(/* fileKey= */ null, "second description"),
+            program.id,
+            ProgramEditStatus.CREATION.name());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
+    assertThat(updatedProgram.localizedSummaryImageDescription().isPresent()).isTrue();
+    assertThat(updatedProgram.localizedSummaryImageDescription().get().get(Locale.US))
+        .isEqualTo("second description");
+  }
+
+  @Test
+  public void uploadProgramImage_editExisting_preservesNonDefaultLocaleTranslations()
+      throws ProgramNotFoundException, TranslationNotFoundException {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("test name")
+            .setLocalizedSummaryImageDescription(
+                LocalizedStrings.of(
+                    Locale.US,
+                    "US description",
+                    Locale.FRENCH,
+                    "French description",
+                    Locale.ITALIAN,
+                    "Italian description"))
+            .build();
+
+    Result result =
+        controller.uploadProgramImage(
+            createUploadRequest(/* fileKey= */ null, "new US description"),
+            program.id,
+            ProgramEditStatus.CREATION.name());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
+    assertThat(updatedProgram.localizedSummaryImageDescription().isPresent()).isTrue();
+    assertThat(updatedProgram.localizedSummaryImageDescription().get().get(Locale.US))
+        .isEqualTo("new US description");
+    assertThat(updatedProgram.localizedSummaryImageDescription().get().get(Locale.FRENCH))
+        .isEqualTo("French description");
+    assertThat(updatedProgram.localizedSummaryImageDescription().get().get(Locale.ITALIAN))
+        .isEqualTo("Italian description");
+  }
+
+  @Test
+  public void uploadProgramImage_empty_noImageFile_removesDescription()
+      throws ProgramNotFoundException {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("test name")
+            .setLocalizedSummaryImageDescription(
+                LocalizedStrings.of(Locale.US, "original description"))
+            .build();
+
+    Result result =
+        controller.uploadProgramImage(
+            createUploadRequest(/* fileKey= */ null, ""),
+            program.id,
+            ProgramEditStatus.CREATION.name());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
+    assertThat(updatedProgram.localizedSummaryImageDescription().isEmpty()).isTrue();
+  }
+
+  @Test
+  public void uploadProgramImage_blank_hasImageFile_descriptionNotRemoved()
+      throws ProgramNotFoundException {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("test name")
+            .setLocalizedSummaryImageDescription(
+                LocalizedStrings.of(Locale.US, "original description"))
+            .build();
+    setValidFileKeyOnProgram(program);
+
+    Result result =
+        controller.uploadProgramImage(
+            createUploadRequest(/* fileKey= */ null, "    "),
+            program.id,
+            ProgramEditStatus.CREATION.name());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.AdminProgramImageController.index(program.id, ProgramEditStatus.CREATION.name())
+                .url());
+    ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
+    assertThat(updatedProgram.localizedSummaryImageDescription().isPresent()).isTrue();
+    assertThat(updatedProgram.localizedSummaryImageDescription().get().getDefault())
+        .isEqualTo("original description");
+  }
+
+  @Test
+  public void uploadProgramImage_blank_noImageFile_removesDescription()
+      throws ProgramNotFoundException {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("test name")
+            .setLocalizedSummaryImageDescription(
+                LocalizedStrings.of(Locale.US, "original description"))
+            .build();
+
+    Result result =
+        controller.uploadProgramImage(
+            createUploadRequest(/* fileKey= */ null, "    "),
+            program.id,
+            ProgramEditStatus.CREATION.name());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
+    assertThat(updatedProgram.localizedSummaryImageDescription().isEmpty()).isTrue();
+  }
+
+  @Test
+  public void uploadProgramImage_empty_removesNonDefaultLocaleTranslations()
+      throws ProgramNotFoundException {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("test name")
+            .setLocalizedSummaryImageDescription(
+                LocalizedStrings.of(
+                    Locale.US,
+                    "US description",
+                    Locale.FRENCH,
+                    "French description",
+                    Locale.ITALIAN,
+                    "Italian description"))
+            .build();
+
+    Result result =
+        controller.uploadProgramImage(
+            createUploadRequest(/* fileKey= */ null, ""),
+            program.id,
+            ProgramEditStatus.CREATION.name());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
+    assertThat(updatedProgram.localizedSummaryImageDescription().isEmpty()).isTrue();
+  }
+
+  @Test
+  public void uploadProgramImage_setsNewKey_keyUpdated() throws ProgramNotFoundException {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+    String oldFileKey = "program-summary-image/program-" + program.id + "/oldImage.png";
+    String newFileKey = "program-summary-image/program-" + program.id + "/newImage.png";
+
+    controller.uploadProgramImage(
+        createUploadRequest(oldFileKey, "Alt text"), program.id, ProgramEditStatus.CREATION.name());
+
+    ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
+    assertThat(updatedProgram.summaryImageFileKey()).contains(oldFileKey);
+
+    controller.uploadProgramImage(
+        createUploadRequest(newFileKey, "Alt text"), program.id, ProgramEditStatus.CREATION.name());
+
+    updatedProgram = programService.getFullProgramDefinition(program.id);
+    assertThat(updatedProgram.summaryImageFileKey()).contains(newFileKey);
   }
 
   @Test
@@ -485,7 +730,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
 
     assertThat(result.flash().data()).containsOnlyKeys("error");
     assertThat(result.flash().data().get("error"))
-        .contains("Description can't be removed because an image is present");
+        .isEqualTo(messages.at("toast.adminProgramImage.descriptionNotRemovable"));
   }
 
   @Test
@@ -635,7 +880,8 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     Result result = setValidFileKeyOnProgram(program);
 
     assertThat(result.flash().data()).containsOnlyKeys("success");
-    assertThat(result.flash().data().get("success")).contains("Image set");
+    assertThat(result.flash().data().get("success"))
+        .isEqualTo(messages.at("toast.adminProgramImage.imageSet"));
   }
 
   @Test
@@ -761,7 +1007,8 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
         controller.deleteFileKey(fakeRequest(), program.id, ProgramEditStatus.CREATION.name());
 
     assertThat(result.flash().data()).containsOnlyKeys("success");
-    assertThat(result.flash().data().get("success")).contains("Image removed");
+    assertThat(result.flash().data().get("success"))
+        .isEqualTo(messages.at("toast.adminProgramImage.imageRemoved"));
   }
 
   @Test

@@ -84,8 +84,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
    * shown.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result index(Request request, long programId) {
-    return index(request, programId, /* readOnly= */ false);
+  public Result index(long programId) {
+    return index(programId, /* readOnly= */ false);
   }
 
   /**
@@ -95,8 +95,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
    * (blocks) if applicable through links on the page.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result readOnlyIndex(Request request, long programId) {
-    return index(request, programId, /* readOnly= */ true);
+  public Result readOnlyIndex(long programId) {
+    return index(programId, /* readOnly= */ true);
   }
 
   /**
@@ -106,7 +106,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
    * <p>By default, the last program screen (block) is shown. Admins can navigate to other screens
    * (blocks) if applicable through links on the page.
    */
-  private Result index(Request request, long programId, boolean readOnly) {
+  private Result index(long programId, boolean readOnly) {
     try {
       ProgramDefinition program = programService.getFullProgramDefinition(programId);
       long blockId = program.getLastBlockDefinition().id();
@@ -116,7 +116,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
               ? routes.AdminProgramBlocksController.show(programId, blockId).url()
               : routes.AdminProgramBlocksController.edit(programId, blockId).url();
 
-      return redirect(redirectUrl).flashing(request.flash().data());
+      return redirect(redirectUrl);
     } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
       return notFound(e.toString());
     }

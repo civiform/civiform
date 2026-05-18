@@ -452,6 +452,13 @@ fieldset .usa-error-message {
   font-size: initial;
 }
 
+// USWDS sets display:block on .usa-error-message, which overrides the HTML
+// [hidden] attribute. cf:input keeps validation text in a hidden span until
+// client validation runs.
+.usa-error-message[hidden] {
+  display: none !important;
+}
+
 // Add asterisk for required fields
 .usa-label:has(~ input.usa-input[required]:enabled)::after,
 .usa-label:has(~ textarea.usa-textarea[required]:enabled)::after,

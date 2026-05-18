@@ -39,6 +39,26 @@ test.describe('Admin can manage program image', () => {
         )
       })
 
+      await test.step('Verify preview with image', async () => {
+        await adminProgramImage.setImageFileAndSubmit(
+          'src/assets/program-summary-image-wide.png',
+          'Alt text',
+        )
+        await adminProgramImage.expectProgramImagePage()
+
+        await adminProgramImage.expectImagePreview()
+        await adminProgramImage.expectProgramPreviewCard(
+          programName,
+          programDescription,
+          shortDescription,
+        )
+
+        await validateScreenshot(
+          page.getByRole('main'),
+          'program-image-preview',
+        )
+      })
+
       await test.step('Verify preview with category tags', async () => {
         const programNameWithTags = 'Test program with tags'
         await seeding.seedProgramsAndCategories()
@@ -102,6 +122,23 @@ test.describe('Admin can manage program image', () => {
 
       await adminPrograms.expectProgramEditPage(programName)
     })
+
+    test('back button preserves location after interaction', async ({
+      adminPrograms,
+      adminProgramImage,
+    }) => {
+      await adminProgramImage.expectProgramImagePage()
+
+      await adminProgramImage.setImageDescriptionAndSubmit('description')
+      await adminProgramImage.setImageFileAndSubmit(
+        'src/assets/program-summary-image-wide.png',
+        'description',
+      )
+
+      await adminProgramImage.clickBackButton()
+
+      await adminPrograms.expectProgramEditPage(programName)
+    })
   })
 
   test.describe('continue button', () => {
@@ -117,19 +154,162 @@ test.describe('Admin can manage program image', () => {
       await adminProgramImage.expectProgramImagePage()
 
       await adminProgramImage.expectHasContinueButton()
-
-      await adminProgramImage.expectContinueButtonText('Continue')
     })
 
-    test('save button shows if from program creation page', async ({
+    test('continue button redirects to program blocks page', async ({
       adminPrograms,
       adminProgramImage,
     }) => {
-      await adminPrograms.gotoEditDraftProgramPage(programName)
+      await adminProgramImage.expectProgramImagePage()
+      await adminProgramImage.expectHasContinueButton()
+
+      await adminProgramImage.clickContinueButton()
+
+      await adminPrograms.expectProgramBlockEditPage(programName)
+    })
+
+    test('continue button hides if from edit program image page', async ({
+      adminPrograms,
+      adminProgramImage,
+    }) => {
       await adminPrograms.goToProgramImagePage(programName)
 
-      await adminProgramImage.expectHasContinueButton()
-      await adminProgramImage.expectContinueButtonText('Save')
+      await adminProgramImage.expectOnProgramImagePageWithEditStatus('EDIT')
+      await adminProgramImage.expectNoContinueButton()
+      await adminProgramImage.expectHasSaveButton()
+    })
+  })
+
+  test.describe('description', () => {
+    const programName = 'Test program'
+
+    test.beforeEach(async ({adminPrograms}) => {
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.goToProgramImagePage(programName)
+    })
+
+    test('sets new description', async ({adminProgramImage}) => {
+      await adminProgramImage.setImageDescription('Fake image description')
+
+      await adminProgramImage.submitImageDescription()
+      await adminProgramImage.expectProgramImagePage()
+      await adminProgramImage.expectDescriptionIs('Fake image description')
+    })
+
+    test('updates existing description', async ({adminProgramImage}) => {
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'Fake image description',
+      )
+      await adminProgramImage.expectProgramImagePage()
+      await adminProgramImage.expectDescriptionIs('Fake image description')
+
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'New image description',
+      )
+      await adminProgramImage.expectProgramImagePage()
+      await adminProgramImage.expectDescriptionIs('New image description')
+    })
+
+    test('removes description with empty', async ({adminProgramImage}) => {
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'Fake image description',
+      )
+      await adminProgramImage.expectProgramImagePage()
+      await adminProgramImage.expectDescriptionIs('Fake image description')
+
+      await adminProgramImage.setImageDescriptionAndSubmit('')
+      await adminProgramImage.expectProgramImagePage()
+      await adminProgramImage.expectDescriptionIs('')
+    })
+
+    test('removes description with blank', async ({adminProgramImage}) => {
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'Fake image description',
+      )
+      await adminProgramImage.expectProgramImagePage()
+      await adminProgramImage.expectDescriptionIs('Fake image description')
+
+      // WHEN a blank description is entered
+      await adminProgramImage.setImageDescriptionAndSubmit('   ')
+      await adminProgramImage.expectProgramImagePage()
+
+      // We internally set it to completely empty
+      await adminProgramImage.expectDescriptionIs('')
+    })
+
+    test('shows client error when clearing description to empty with saved image', async ({
+      adminProgramImage,
+    }) => {
+      await adminProgramImage.setImageFileAndSubmit(
+        'src/assets/program-summary-image-wide.png',
+        'Original description',
+      )
+
+      await adminProgramImage.setImageDescriptionAndSubmit('')
+
+      await adminProgramImage.expectProgramImagePage()
+      await adminProgramImage.expectAltTextRequiredClientErrorVisible()
+      await adminProgramImage.expectDescriptionIs('')
+    })
+
+    test('shows client error when clearing description to blank with saved image', async ({
+      adminProgramImage,
+    }) => {
+      await adminProgramImage.setImageFileAndSubmit(
+        'src/assets/program-summary-image-wide.png',
+        'Original description',
+      )
+
+      await adminProgramImage.setImageDescriptionAndSubmit('      ')
+
+      await adminProgramImage.expectProgramImagePage()
+      await adminProgramImage.expectAltTextRequiredClientErrorVisible()
+      await adminProgramImage.expectDescriptionIs('      ')
+    })
+
+    test('disables save button after save', async ({adminProgramImage}) => {
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'Fake image description',
+      )
+
+      await adminProgramImage.expectDisabledProgramImageFormSubmit()
+    })
+
+    test('disables save button when no text change', async ({
+      adminProgramImage,
+    }) => {
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'Fake image description',
+      )
+
+      await adminProgramImage.setImageDescription('Fake image description')
+      await adminProgramImage.expectDisabledProgramImageFormSubmit()
+
+      await adminProgramImage.setImageDescription('Something different')
+      await adminProgramImage.setImageDescription('Fake image description')
+      await adminProgramImage.expectDisabledProgramImageFormSubmit()
+    })
+
+    test('enables save button when description changes', async ({
+      adminProgramImage,
+    }) => {
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'Fake image description',
+      )
+
+      await adminProgramImage.setImageDescription('Something different')
+      await adminProgramImage.expectEnabledProgramImageFormSubmit()
+    })
+
+    test('enables save button when description cleared', async ({
+      adminProgramImage,
+    }) => {
+      await adminProgramImage.setImageDescriptionAndSubmit(
+        'Fake image description',
+      )
+
+      await adminProgramImage.setImageDescription('')
+      await adminProgramImage.expectEnabledProgramImageFormSubmit()
     })
   })
 
@@ -145,7 +325,7 @@ test.describe('Admin can manage program image', () => {
       adminProgramImage,
     }) => {
       await adminProgramImage.setImageFileFromAssets(
-        'program-summary-image-wide.png',
+        'src/assets/program-summary-image-wide.png',
       )
 
       await adminProgramImage.submitProgramImageForm()
@@ -158,11 +338,11 @@ test.describe('Admin can manage program image', () => {
       adminProgramImage,
     }) => {
       await adminProgramImage.setImageFileFromAssets(
-        'program-summary-image-wide.png',
+        'src/assets/program-summary-image-wide.png',
       )
       await adminProgramImage.setImageDescription('Original description')
 
-      await adminProgramImage.setProgramImageDescriptionAndSubmit('')
+      await adminProgramImage.setImageDescriptionAndSubmit('')
 
       await adminProgramImage.expectProgramImagePage()
       await adminProgramImage.expectAltTextRequiredClientErrorVisible()
@@ -172,11 +352,11 @@ test.describe('Admin can manage program image', () => {
       adminProgramImage,
     }) => {
       await adminProgramImage.setImageFileFromAssets(
-        'program-summary-image-wide.png',
+        'src/assets/program-summary-image-wide.png',
       )
       await adminProgramImage.setImageDescription('Original description')
 
-      await adminProgramImage.setProgramImageDescriptionAndSubmit('   ')
+      await adminProgramImage.setImageDescriptionAndSubmit('   ')
 
       await adminProgramImage.expectProgramImagePage()
       await adminProgramImage.expectAltTextRequiredClientErrorVisible()
@@ -187,7 +367,7 @@ test.describe('Admin can manage program image', () => {
     }) => {
       await adminProgramImage.setImageDescription('Alt text')
       await adminProgramImage.setImageFileFromAssets(
-        'program-summary-image-too-large.png',
+        'src/assets/program-summary-image-too-large.png',
       )
 
       await adminProgramImage.expectTooLargeErrorShown()
@@ -206,28 +386,17 @@ test.describe('Admin can manage program image', () => {
       await adminPrograms.goToProgramImagePage(programName)
     })
 
-    test('shows uploaded image before submitting', async ({
-      page,
+    test('stays on program image page after submit', async ({
       adminProgramImage,
     }) => {
       await adminProgramImage.setImageDescription('Alt text')
       await adminProgramImage.setImageFileFromAssets(
-        'program-summary-image-wide.png',
+        'src/assets/program-summary-image-wide.png',
       )
+      await adminProgramImage.submitProgramImageForm()
 
-      await validateScreenshot(page, 'program-image-with-image-before-save')
-    })
-
-    test('redirects to block edit page on submit', async ({
-      adminPrograms,
-      adminProgramImage,
-    }) => {
-      await adminProgramImage.setImageFileAndSave(
-        'program-summary-image-wide.png',
-        'Alt text',
-      )
-
-      await adminPrograms.expectProgramBlockEditPage(programName)
+      await adminProgramImage.expectProgramImagePage()
+      await adminProgramImage.expectImagePreview()
     })
   })
 })

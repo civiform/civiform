@@ -50,10 +50,13 @@ public final class ProgramImagePageViewModel implements BaseViewModel {
         .url();
   }
 
-  public String submitButtonMessageKey() {
+  public boolean showContinueButton() {
     return programEditStatus == ProgramEditStatus.CREATION
-        ? "button.adminProgramImage.continue"
-        : "button.adminProgramImage.save";
+        || programEditStatus == ProgramEditStatus.CREATION_EDIT;
+  }
+
+  public String getContinueNavigationUrl() {
+    return routes.AdminProgramBlocksController.index(program.id()).url();
   }
 
   public boolean showCardPreview() {

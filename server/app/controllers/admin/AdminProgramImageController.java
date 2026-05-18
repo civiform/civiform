@@ -12,8 +12,12 @@ import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import parsers.admin.ProgramImageStreamingMultipartBodyParser;
 import play.data.Form;
 import play.data.FormFactory;
+import play.i18n.Messages;
+import play.i18n.MessagesApi;
+import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.VersionRepository;
@@ -42,6 +46,7 @@ public final class AdminProgramImageController extends CiviFormController {
   private final SettingsManifest settingsManifest;
   private final RequestChecker requestChecker;
   private final FormFactory formFactory;
+  private final MessagesApi messagesApi;
 
   @Inject
   public AdminProgramImageController(
@@ -53,6 +58,7 @@ public final class AdminProgramImageController extends CiviFormController {
       SettingsManifest settingsManifest,
       RequestChecker requestChecker,
       FormFactory formFactory,
+      MessagesApi messagesApi,
       ProfileUtils profileUtils,
       VersionRepository versionRepository) {
     super(profileUtils, versionRepository);
@@ -64,6 +70,7 @@ public final class AdminProgramImageController extends CiviFormController {
     this.settingsManifest = checkNotNull(settingsManifest);
     this.requestChecker = checkNotNull(requestChecker);
     this.formFactory = checkNotNull(formFactory);
+    this.messagesApi = checkNotNull(messagesApi);
   }
 
   /**
@@ -100,14 +107,9 @@ public final class AdminProgramImageController extends CiviFormController {
             request, programService.getFullProgramDefinition(programId), editStatus));
   }
 
-  /**
-   * Uploads a program summary image and saves its alt text.
-   *
-   * <p>TODO: Wire {@code ProgramImageStreamingMultipartBodyParser} via {@code @BodyParser.Of} once
-   * the parser PR lands. Until then, each {@code FilePart}'s ref must carry the cloud-storage file
-   * key produced by that parser.
-   */
+  /** Uploads a program summary image and saves its alt text. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  @BodyParser.Of(ProgramImageStreamingMultipartBodyParser.class)
   public Result uploadProgramImage(Http.Request request, long programId, String editStatus) {
     requestChecker.throwIfProgramNotDraft(programId);
     if (!settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
@@ -124,7 +126,19 @@ public final class AdminProgramImageController extends CiviFormController {
     String newDescription =
         descriptionValues != null && descriptionValues.length > 0 ? descriptionValues[0] : "";
 
+    final String indexUrl = routes.AdminProgramImageController.index(programId, editStatus).url();
+    Messages messages = messagesApi.preferred(request);
+
+    // Play's default multipart parser stores a TemporaryFile in FilePart#getRef(). Our
+    // ProgramImageStreamingMultipartBodyParser streams the upload to cloud storage and stores the
+    // generated file key in ref instead, which is why this is FilePart<String>.
     Http.MultipartFormData.FilePart<String> filePart = body.getFile("file");
+    if (filePart != null && newDescription.isBlank()) {
+      return redirect(indexUrl)
+          .flashing(
+              FlashKey.ERROR, messages.at("validation.adminProgramImage.altTextRequired"));
+    }
+
     if (filePart != null) {
       String fileKey = filePart.getRef();
       if (!PublicFileNameFormatter.isFileKeyForPublicProgramImage(fileKey)) {
@@ -144,11 +158,16 @@ public final class AdminProgramImageController extends CiviFormController {
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
     } catch (ImageDescriptionNotRemovableException e) {
-      final String indexUrl = routes.AdminProgramImageController.index(programId, editStatus).url();
-      return redirect(indexUrl).flashing("error", e.getMessage());
+      return redirect(indexUrl)
+          .flashing(
+              FlashKey.ERROR, messages.at("toast.adminProgramImage.descriptionNotRemovable"));
     }
 
-    return redirect(routes.AdminProgramBlocksController.index(programId).url());
+    String successMessage =
+        filePart != null
+            ? messages.at("toast.adminProgramImage.imageAndDescriptionSaved", newDescription)
+            : messages.at("toast.adminProgramImage.descriptionSet", newDescription);
+    return redirect(indexUrl).flashing(FlashKey.SUCCESS, successMessage);
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -161,25 +180,27 @@ public final class AdminProgramImageController extends CiviFormController {
                 request, ProgramImageDescriptionForm.FIELD_NAMES.toArray(new String[0]));
     String newDescription = form.get().getSummaryImageDescription();
 
+    final String indexUrl = routes.AdminProgramImageController.index(programId, editStatus).url();
+    Messages messages = messagesApi.preferred(request);
+
     String toastType;
     String toastMessage;
     try {
       programService.setSummaryImageDescription(
           programId, LocalizedStrings.DEFAULT_LOCALE, newDescription);
-      toastType = "success";
+      toastType = FlashKey.SUCCESS;
       if (newDescription.isBlank()) {
-        toastMessage = "Image description removed";
+        toastMessage = messages.at("toast.adminProgramImage.descriptionRemoved");
       } else {
-        toastMessage = "Image description set to " + newDescription;
+        toastMessage = messages.at("toast.adminProgramImage.descriptionSet", newDescription);
       }
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
     } catch (ImageDescriptionNotRemovableException e) {
-      toastType = "error";
-      toastMessage = e.getMessage();
+      toastType = FlashKey.ERROR;
+      toastMessage = messages.at("toast.adminProgramImage.descriptionNotRemovable");
     }
 
-    final String indexUrl = routes.AdminProgramImageController.index(programId, editStatus).url();
     return redirect(indexUrl).flashing(toastType, toastMessage);
   }
 
@@ -215,7 +236,10 @@ public final class AdminProgramImageController extends CiviFormController {
 
     programService.setSummaryImageFileKey(programId, key);
     final String indexUrl = routes.AdminProgramImageController.index(programId, editStatus).url();
-    return redirect(indexUrl).flashing(FlashKey.SUCCESS, "Image set");
+    return redirect(indexUrl)
+        .flashing(
+            FlashKey.SUCCESS,
+            messagesApi.preferred(request).at("toast.adminProgramImage.imageSet"));
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -224,6 +248,9 @@ public final class AdminProgramImageController extends CiviFormController {
     requestChecker.throwIfProgramNotDraft(programId);
     programService.deleteSummaryImageFileKey(programId);
     final String indexUrl = routes.AdminProgramImageController.index(programId, editStatus).url();
-    return redirect(indexUrl).flashing(FlashKey.SUCCESS, "Image removed");
+    return redirect(indexUrl)
+        .flashing(
+            FlashKey.SUCCESS,
+            messagesApi.preferred(request).at("toast.adminProgramImage.imageRemoved"));
   }
 }

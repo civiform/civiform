@@ -2,6 +2,11 @@
 <!--/*@thymesVar id="model" type="views.admin.programs.ProgramImagePageViewModel"*/-->
 <th:block th:fragment="content">
   <div class="grid-container margin-top-4">
+    <div
+      th:replace="~{components/ToastFragment :: success(${flashSuccess})}"
+    ></div>
+    <div th:replace="~{components/ToastFragment :: error(${flashError})}"></div>
+
     <a
       class="display-flex flex-align-center font-sans-md text-no-underline margin-bottom-4"
       th:href="${model.backUrl}"
@@ -50,6 +55,7 @@
             id="program-image-input"
             name="file"
             th:data-file-limit-mb="${model.maxFileSizeMb}"
+            th:data-has-existing-image="${model.hasSummaryImage()}"
             type="file"
           />
           <!--/*
@@ -69,36 +75,35 @@
             </div>
           </div>
           <div class="margin-top-4">
+            <!--/*
+              Client-side validation: admin_program_image.ts toggles the validation
+              span between the label and input via showError/hideError.
+            */-->
             <cf:input
               id="summaryImageDescription"
+              is-valid="true"
               name="summaryImageDescription"
               th:label="#{label.adminProgramImage.altText}"
+              th:validation-message="#{validation.adminProgramImage.altTextRequired}"
               th:value="${model.summaryImageDescriptionDefault}"
             />
           </div>
-          <!--/*
-            Hidden error message div. admin_program_image.ts toggles via showError/hideError
-          */-->
-          <div
-            class="usa-alert usa-alert--error usa-alert--slim margin-top-105"
-            data-fileupload-error="required"
-            hidden
-            id="cf-program-image-alt-required-error"
-          >
-            <div class="usa-alert__body">
-              <p
-                class="usa-alert__text"
-                th:text="#{toast.errorMessageOutline(#{validation.adminProgramImage.altTextRequired})}"
-              ></p>
-            </div>
-          </div>
 
-          <div class="margin-top-4">
+          <div class="margin-top-4 display-flex grid-gap-2">
             <cf:button
-              id="continue-button"
-              th:text="#{__${model.submitButtonMessageKey()}__}"
+              disabled="true"
+              id="save-button"
+              th:text="#{button.adminProgramImage.save}"
               type="submit"
             />
+            <th:block th:if="${model.showContinueButton()}">
+              <cf:button
+                id="continue-button"
+                th:data-redirect-to="${model.continueNavigationUrl}"
+                th:text="#{button.adminProgramImage.continue}"
+                type="button"
+              />
+            </th:block>
           </div>
         </form>
       </div>

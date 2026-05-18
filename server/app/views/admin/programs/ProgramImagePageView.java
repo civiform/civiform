@@ -1,7 +1,10 @@
 package views.admin.programs;
 
 import com.google.inject.Inject;
+import controllers.FlashKey;
+import modules.ThymeleafModule;
 import play.i18n.Messages;
+import play.mvc.Http;
 import views.admin.AdminLayout;
 import views.admin.TransitionalLayoutBaseView;
 import views.shared.LayoutDeps;
@@ -21,6 +24,14 @@ public final class ProgramImagePageView
   @Override
   protected AdminLayout.NavPage activeNavigationPage() {
     return AdminLayout.NavPage.PROGRAMS;
+  }
+
+  @Override
+  protected void customizeContext(
+      Http.Request request, ThymeleafModule.PlayThymeleafContext context) {
+    super.customizeContext(request, context);
+    context.setVariable("flashSuccess", request.flash().get(FlashKey.SUCCESS));
+    context.setVariable("flashError", request.flash().get(FlashKey.ERROR));
   }
 
   @Override
