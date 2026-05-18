@@ -101,8 +101,11 @@ public final class AdminProgramImageController extends CiviFormController {
   }
 
   /**
-   * Uploads a program summary image and saves its alt text. Used by the Thymeleaf program image
-   * page when file upload improvements are enabled.
+   * Uploads a program summary image and saves its alt text.
+   *
+   * <p>TODO: Wire {@code ProgramImageStreamingMultipartBodyParser} via {@code @BodyParser.Of} once
+   * the parser PR lands. Until then, each {@code FilePart}'s ref must carry the cloud-storage file
+   * key produced by that parser.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result uploadProgramImage(Http.Request request, long programId, String editStatus) {
@@ -110,7 +113,41 @@ public final class AdminProgramImageController extends CiviFormController {
     if (!settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
       return notFound();
     }
-    // TODO: persist uploaded image and description.
+
+    Http.MultipartFormData<String> body = request.body().asMultipartFormData();
+    if (body == null) {
+      return badRequest();
+    }
+
+    String[] descriptionValues =
+        body.asFormUrlEncoded().get(ProgramImageDescriptionForm.SUMMARY_IMAGE_DESCRIPTION);
+    String newDescription =
+        descriptionValues != null && descriptionValues.length > 0 ? descriptionValues[0] : "";
+
+    Http.MultipartFormData.FilePart<String> filePart = body.getFile("file");
+    if (filePart != null) {
+      String fileKey = filePart.getRef();
+      if (!PublicFileNameFormatter.isFileKeyForPublicProgramImage(fileKey)) {
+        throw new IllegalArgumentException(
+            "Key incorrectly formatted for public program image file");
+      }
+      try {
+        programService.setSummaryImageFileKey(programId, fileKey);
+      } catch (ProgramNotFoundException e) {
+        return notFound(e.toString());
+      }
+    }
+
+    try {
+      programService.setSummaryImageDescription(
+          programId, LocalizedStrings.DEFAULT_LOCALE, newDescription);
+    } catch (ProgramNotFoundException e) {
+      return notFound(e.toString());
+    } catch (ImageDescriptionNotRemovableException e) {
+      final String indexUrl = routes.AdminProgramImageController.index(programId, editStatus).url();
+      return redirect(indexUrl).flashing("error", e.getMessage());
+    }
+
     return redirect(routes.AdminProgramBlocksController.index(programId).url());
   }
 
