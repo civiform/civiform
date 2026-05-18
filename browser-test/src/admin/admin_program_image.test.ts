@@ -324,7 +324,7 @@ test.describe('Admin can manage program image', () => {
     test('shows alt text required when submitting with file and no description', async ({
       adminProgramImage,
     }) => {
-      await adminProgramImage.setImageFileFromAssets(
+      await adminProgramImage.setImageFile(
         'src/assets/program-summary-image-wide.png',
       )
 
@@ -337,7 +337,7 @@ test.describe('Admin can manage program image', () => {
     test('shows alt text required when clearing description to empty', async ({
       adminProgramImage,
     }) => {
-      await adminProgramImage.setImageFileFromAssets(
+      await adminProgramImage.setImageFile(
         'src/assets/program-summary-image-wide.png',
       )
       await adminProgramImage.setImageDescription('Original description')
@@ -351,7 +351,7 @@ test.describe('Admin can manage program image', () => {
     test('shows alt text required when clearing description to blank', async ({
       adminProgramImage,
     }) => {
-      await adminProgramImage.setImageFileFromAssets(
+      await adminProgramImage.setImageFile(
         'src/assets/program-summary-image-wide.png',
       )
       await adminProgramImage.setImageDescription('Original description')
@@ -366,7 +366,7 @@ test.describe('Admin can manage program image', () => {
       adminProgramImage,
     }) => {
       await adminProgramImage.setImageDescription('Alt text')
-      await adminProgramImage.setImageFileFromAssets(
+      await adminProgramImage.setImageFile(
         'src/assets/program-summary-image-too-large.png',
       )
 
@@ -390,7 +390,7 @@ test.describe('Admin can manage program image', () => {
       adminProgramImage,
     }) => {
       await adminProgramImage.setImageDescription('Alt text')
-      await adminProgramImage.setImageFileFromAssets(
+      await adminProgramImage.setImageFile(
         'src/assets/program-summary-image-wide.png',
       )
       await adminProgramImage.submitProgramImageForm()

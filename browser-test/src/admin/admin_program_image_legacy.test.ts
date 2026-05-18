@@ -351,7 +351,7 @@ test.describe('Admin can manage program image', () => {
 
       // On page reload the submit button should be disabled because no changes
       // have been made to the description since submission.
-      await adminProgramImage.legacyExpectDisabledImageDescriptionSubmit()
+      await adminProgramImage.expectDisabledImageDescriptionSubmit()
     })
 
     test('disables submit button when no text change', async ({
@@ -363,13 +363,13 @@ test.describe('Admin can manage program image', () => {
 
       // Set an identical description and verify submit is still disabled.
       await adminProgramImage.setImageDescription('Fake image description')
-      await adminProgramImage.legacyExpectDisabledImageDescriptionSubmit()
+      await adminProgramImage.expectDisabledImageDescriptionSubmit()
 
       // Set a new description then go back to the original description
       // and verify submit is still disabled.
       await adminProgramImage.setImageDescription('Something different')
       await adminProgramImage.setImageDescription('Fake image description')
-      await adminProgramImage.legacyExpectDisabledImageDescriptionSubmit()
+      await adminProgramImage.expectDisabledImageDescriptionSubmit()
     })
 
     test('enables submit button when change', async ({adminProgramImage}) => {

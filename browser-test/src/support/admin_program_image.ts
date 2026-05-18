@@ -83,26 +83,14 @@ export class AdminProgramImage {
 
   async setImageFileAndSubmit(imagePath: string, description = 'desc') {
     await this.setImageDescription(description)
-    await this.setImageFileFromAssets(imagePath)
+    await this.setImageFile(imagePath)
     await this.submitProgramImageForm()
     await waitForPageJsLoad(this.page)
   }
 
   /** Selects a file without saving. */
-  async setImageFileFromAssets(imagePath: string) {
-    await this.page.setInputFiles(this.imageUploadLocator, imagePath)
-  }
-
   async setImageFile(imagePath: string) {
-    const currentDescription = await this.page
-      .locator(this.imageDescriptionLocator)
-      .inputValue()
-    if (currentDescription == '') {
-      await this.setImageDescriptionAndSubmit('desc')
-      await dismissToast(this.page)
-    }
-
-    await this.setImageFileFromAssets(imagePath)
+    await this.page.setInputFiles(this.imageUploadLocator, imagePath)
   }
 
   /** @deprecated Use {@link submitImageDescription} for the improved program image form. */
@@ -178,26 +166,18 @@ export class AdminProgramImage {
     await expect(descriptionElement).toHaveValue(description)
   }
 
-  /** @deprecated Use {@link expectDisabledImageDescriptionSubmit} for the improved program image form. */
-  async legacyExpectDisabledImageDescriptionSubmit() {
+  /** @deprecated Use {@link expectDisabledProgramImageFormSubmit} for the improved program image form. */
+  async expectDisabledImageDescriptionSubmit() {
     await expect(
       this.page.locator(this.imageDescriptionSubmitButtonLocator),
     ).toBeDisabled()
   }
 
-  /** @deprecated Use {@link expectEnabledImageDescriptionSubmit} for the improved program image form. */
+  /** @deprecated Use {@link expectEnabledProgramImageFormSubmit} for the improved program image form. */
   async legacyExpectEnabledImageDescriptionSubmit() {
     await expect(
       this.page.locator(this.imageDescriptionSubmitButtonLocator),
     ).toBeEnabled()
-  }
-
-  async expectDisabledImageDescriptionSubmit() {
-    await this.expectDisabledProgramImageFormSubmit()
-  }
-
-  async expectEnabledImageDescriptionSubmit() {
-    await this.expectEnabledProgramImageFormSubmit()
   }
 
   async expectDisabledProgramImageFormSubmit() {
@@ -212,32 +192,8 @@ export class AdminProgramImage {
     ).toBeEnabled()
   }
 
-  async expectDisabledImageFileUploadSubmit() {
-    await expect(
-      this.page.locator(this.imageUploadSubmitButtonLocator),
-    ).toBeDisabled()
-  }
-
-  async expectEnabledImageFileUploadSubmit() {
-    await expect(
-      this.page.locator(this.imageUploadSubmitButtonLocator),
-    ).toBeEnabled()
-  }
-
-  async expectDisabledImageFileUpload() {
-    await expect(this.page.locator(this.imageUploadLocator)).toBeDisabled()
-  }
-
-  async expectEnabledImageFileUpload() {
-    await expect(this.page.locator(this.imageUploadLocator)).toBeEnabled()
-  }
-
   async expectTooLargeErrorShown() {
     await expect(this.page.locator(this.tooLargeErrorLocator)).toBeVisible()
-  }
-
-  async expectTooLargeErrorHidden() {
-    await expect(this.page.locator(this.tooLargeErrorLocator)).toBeHidden()
   }
 
   async expectAltTextRequiredClientErrorVisible() {
@@ -292,10 +248,6 @@ export class AdminProgramImage {
       await expect(this.page.getByText(programDescription)).toBeVisible()
     }
     await expect(this.page.getByText('View and apply')).toBeVisible()
-  }
-
-  programImageSavedToastMessage(description: string): string {
-    return `Image is saved with the description: ${description}`
   }
 
   descriptionUpdatedToastMessage(description: string): string {
