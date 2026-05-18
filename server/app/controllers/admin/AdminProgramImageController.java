@@ -69,8 +69,7 @@ public final class AdminProgramImageController extends CiviFormController {
   /**
    * Shows the main image upload page.
    *
-   * @param editStatus should match a name in the {@link views.admin.programs.ProgramEditStatus}
-   *     enum.
+   * @param editStatus should match a name in the {@link ProgramEditStatus} enum.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Http.Request request, long programId, String editStatus)

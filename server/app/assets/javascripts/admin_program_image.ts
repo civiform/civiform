@@ -33,7 +33,10 @@ export const init = () => {
   })
 
   form.addEventListener('submit', (event) => {
-    if (!validateFormSubmit(altInput, fileInput)) {
+    if (
+      (fileInput.value !== '' && !validateFileInput(fileInput)) ||
+      !validateAltTextField(altInput)
+    ) {
       event.preventDefault()
     }
   })
@@ -45,17 +48,14 @@ const syncAltTextRequiredState = (
   altInput: HTMLInputElement,
   fileInput: HTMLInputElement,
 ) => {
-  const isRequired = fileInput.value !== ''
-  altInput.required = isRequired
-  if (isRequired) {
+  if (fileInput.value !== '') {
+    altInput.required = true
     altInput.setAttribute('aria-required', 'true')
   } else {
+    altInput.required = false
     altInput.removeAttribute('aria-required')
   }
 }
-
-const isAltTextValid = (altInput: HTMLInputElement): boolean =>
-  !altInput.required || altInput.value.trim() !== ''
 
 /**
  * Validates the program image file input: toggles the too-large alert and, when valid, clears
@@ -91,19 +91,9 @@ const validateFileInput = (fileInput: HTMLInputElement): boolean => {
   return isValid
 }
 
-const validateFormSubmit = (
-  altInput: HTMLInputElement,
-  fileInput: HTMLInputElement,
-): boolean => {
-  if (fileInput.value !== '' && !validateFileInput(fileInput)) {
-    return false
-  }
-  return validateAltTextField(altInput)
-}
-
 const validateAltTextField = (altInput: HTMLInputElement): boolean => {
   const errorDiv = document.getElementById(ALT_REQUIRED_ERROR_ID)
-  const valid = isAltTextValid(altInput)
+  const valid = !altInput.required || altInput.value.trim() !== ''
   if (valid) {
     hideError(errorDiv, altInput)
   } else {
