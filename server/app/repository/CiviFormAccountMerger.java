@@ -750,15 +750,15 @@ public final class CiviFormAccountMerger {
             // This data is from the perspective of the cf user merged into the
             // guest. The narrative logged is from the perspective of the CF
             // data, so the 'logic' here needs to be inverted a tad.
-            // Dropping a CF path means the they both had it but the guest data
+            // Dropping a CF path means they both had it but the guest data
             // was used.
-            cfIntoGuestMergeSummary.droppedPaths(),
+            cfIntoGuestMergeSummary.droppedPaths().stream().sorted(),
             // The paths in guest that the cf user didn't intersect with, so
             // they effectively supplement the cf user.
-            cfIntoGuestMergeSummary.originUniquePaths(),
+            cfIntoGuestMergeSummary.originUniquePaths().stream().sorted(),
             // Merging a cf path means the guest didn't have it and we in
             // effect "kept" it. These are in effect unique to the cf user.
-            cfIntoGuestMergeSummary.mergedPaths(),
+            cfIntoGuestMergeSummary.mergedPaths().stream().sorted(),
 
             // These are from the perspective of the guest merged into the cf
             // user, which is the alignment of the narrative.
