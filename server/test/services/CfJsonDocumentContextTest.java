@@ -1043,14 +1043,15 @@ public class CfJsonDocumentContextTest {
   /**
    * Parameterized cases for mergeQuestionAnswersFrom behavior.
    *
-   * <p>Each test has five sections, the inputs and the output:
+   * <p>Each test has six sections, the inputs and the output:
    *
    * <ol>
    *   <li>target: the destination of the merge, whose data is merged into.
    *   <li>other: the other source of merge data.
    *   <li>expected: the expected result of the merge.
-   *   <li>mergedPaths: the expected paths copied from {@code other} into {@code target}.
-   *   <li>droppedPaths: the expected paths not copied from {@code other} into {@code target}.
+   *   <li>originUniquePaths: full paths in target that have no corresponding key in other.
+   *   <li>mergedPaths: paths copied from {@code other} into {@code target}.
+   *   <li>droppedPaths: paths not copied from {@code other} into {@code target}.
    * </ol>
    *
    * <p>Both target and other must have a single root key {@code "applicant"} whose value is a map.
@@ -1069,8 +1070,9 @@ public class CfJsonDocumentContextTest {
    *   <li>{@code conflict_*} — key already exists in target; will not be copied.
    * </ul>
    *
-   * <p>The result's {@code mergedPaths} lists paths that were copied; {@code droppedPaths} lists
-   * paths that were skipped because they already existed in target.
+   * <p>The result's {@code originUniquePaths} lists full paths in target that have no corresponding
+   * key in other. {@code mergedPaths} lists paths that were copied; {@code droppedPaths} lists
+   * paths that were skipped because they already existed in target;
    */
   private Object[][] mergeQuestionAnswersFromCases() {
     return new Object[][] {
@@ -1085,7 +1087,8 @@ public class CfJsonDocumentContextTest {
         /* expected */ """
         {"applicant":{"existing_q":{"text":"target_val"},"copied_q":{"text":"other_val"}}}
         """,
-        /* mergedPaths  */ new String[] {"applicant.copied_q"},
+        /* originUniquePaths */ new String[] {"existing_q"},
+        /* mergedPaths  */ new String[] {"copied_q"},
         /* droppedPaths */ new String[] {}
       },
 
@@ -1102,8 +1105,9 @@ public class CfJsonDocumentContextTest {
         /* expected */ """
         {"applicant":{"conflict_q":{"text":"retained_val"}}}
         """,
+        /* originUniquePaths */ new String[] {},
         /* mergedPaths  */ new String[] {},
-        /* droppedPaths */ new String[] {"applicant.conflict_q"}
+        /* droppedPaths */ new String[] {"conflict_q"}
       },
 
       // ── Case 3: Key exists in both with same value — still a conflict ────────
@@ -1119,8 +1123,9 @@ public class CfJsonDocumentContextTest {
         /* expected */ """
         {"applicant":{"conflict_q":{"text":"same_val"}}}
         """,
+        /* originUniquePaths */ new String[] {},
         /* mergedPaths  */ new String[] {},
-        /* droppedPaths */ new String[] {"applicant.conflict_q"}
+        /* droppedPaths */ new String[] {"conflict_q"}
       },
 
       // ── Case 4: Empty other — nothing to merge ─────────────────────────────
@@ -1134,6 +1139,7 @@ public class CfJsonDocumentContextTest {
         /* expected */ """
         {"applicant":{"existing_q":{"text":"target_val"}}}
         """,
+        /* originUniquePaths */ new String[] {"existing_q"},
         /* mergedPaths  */ new String[] {},
         /* droppedPaths */ new String[] {}
       },
@@ -1149,7 +1155,8 @@ public class CfJsonDocumentContextTest {
         /* expected */ """
         {"applicant":{"copied_q1":{"text":"other_val1"},"copied_q2":{"text":"other_val2"}}}
         """,
-        /* mergedPaths  */ new String[] {"applicant.copied_q1", "applicant.copied_q2"},
+        /* originUniquePaths */ new String[] {},
+        /* mergedPaths  */ new String[] {"copied_q1", "copied_q2"},
         /* droppedPaths */ new String[] {}
       },
 
@@ -1165,8 +1172,9 @@ public class CfJsonDocumentContextTest {
         {"applicant":{"conflict_q":{"text":"retained_val"},"existing_q":{"text":"target_val"},\
         "copied_q":{"text":"copied_val"}}}
         """,
-        /* mergedPaths  */ new String[] {"applicant.copied_q"},
-        /* droppedPaths */ new String[] {"applicant.conflict_q"}
+        /* originUniquePaths */ new String[] {"existing_q"},
+        /* mergedPaths  */ new String[] {"copied_q"},
+        /* droppedPaths */ new String[] {"conflict_q"}
       },
     };
   }
@@ -1177,6 +1185,7 @@ public class CfJsonDocumentContextTest {
       String targetJson,
       String otherJson,
       String expectedJson,
+      String[] expectedOriginUniquePaths,
       String[] expectedMergedPaths,
       String[] expectedDroppedPaths) {
     CfJsonDocumentContext target = new CfJsonDocumentContext(targetJson.strip());
@@ -1191,7 +1200,8 @@ public class CfJsonDocumentContextTest {
         new CfJsonDocumentContext(expectedJson.strip()).getDocumentContext().read("$", Map.class);
     assertThat(actual).isEqualTo(expected);
 
-    // Verify merged and dropped paths.
+    // Verify origin-unique, merged, and dropped paths.
+    assertThat(result.originUniquePaths()).containsExactlyInAnyOrder(expectedOriginUniquePaths);
     assertThat(result.mergedPaths()).containsExactlyInAnyOrder(expectedMergedPaths);
     assertThat(result.droppedPaths()).containsExactlyInAnyOrder(expectedDroppedPaths);
 

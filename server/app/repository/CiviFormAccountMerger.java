@@ -659,9 +659,9 @@ public final class CiviFormAccountMerger {
     // Merge the applicant's Primary Applicant Info (PAI).  As above, prefer the guest's answers
     // when present.
     // Track the status of each PAI for logging.
-    StringJoiner cfPaiOverwritten = new StringJoiner(",");
-    StringJoiner cfPaiSupplemented = new StringJoiner(",");
-    StringJoiner cfPaiMaintained = new StringJoiner(",");
+    StringJoiner cfPaiOverwritten = new StringJoiner(", ");
+    StringJoiner cfPaiSupplemented = new StringJoiner(", ");
+    StringJoiner cfPaiMaintained = new StringJoiner(", ");
 
     // Name.  First/Last are required in forms, the others are not.
     boolean cfUserHasName =
@@ -752,13 +752,13 @@ public final class CiviFormAccountMerger {
             // data, so the 'logic' here needs to be inverted a tad.
             // Dropping a CF path means the they both had it but the guest data
             // was used.
-            cfIntoGuestMergeSummary.droppedPaths().size(),
+            cfIntoGuestMergeSummary.droppedPaths(),
             // The paths in guest that the cf user didn't intersect with, so
             // they effectively supplement the cf user.
-            cfIntoGuestMergeSummary.originUniquePaths().size(),
+            cfIntoGuestMergeSummary.originUniquePaths(),
             // Merging a cf path means the guest didn't have it and we in
             // effect "kept" it. These are in effect unique to the cf user.
-            cfIntoGuestMergeSummary.mergedPaths().size(),
+            cfIntoGuestMergeSummary.mergedPaths(),
 
             // These are from the perspective of the guest merged into the cf
             // user, which is the alignment of the narrative.

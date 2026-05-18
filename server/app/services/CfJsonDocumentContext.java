@@ -733,15 +733,15 @@ public class CfJsonDocumentContext {
     ImmutableList.Builder<String> otherMergedPaths = ImmutableList.builder();
     ImmutableList.Builder<String> otherDroppedPaths = ImmutableList.builder();
     for (Map.Entry<?, ?> entry : otherQuestionAnswers.entrySet()) {
-      Path entryPath = applicantPath.join(entry.getKey().toString());
+      String questionName = entry.getKey().toString();
+      Path questionPath = applicantPath.join(questionName);
       // Only add entries/question-answers from other that are not already present.
-      if (hasPath(entryPath)) {
-        String path = entryPath.toString();
-        otherDroppedPaths.add(path);
-        thisUniquePaths.remove(path);
+      if (hasPath(questionPath)) {
+        otherDroppedPaths.add(questionName);
+        thisUniquePaths.remove(questionName);
       } else {
-        put(entryPath, entry.getValue());
-        otherMergedPaths.add(entryPath.toString());
+        put(questionPath, entry.getValue());
+        otherMergedPaths.add(questionName);
       }
     }
     return new MergeQaResult(
