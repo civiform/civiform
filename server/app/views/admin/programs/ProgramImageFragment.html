@@ -19,7 +19,20 @@
 
     <div class="grid-row grid-gap-lg">
       <div class="grid-col-12 tablet:grid-col-6">
-        <div class="usa-form-group">
+        <form
+          class="usa-form-group"
+          enctype="multipart/form-data"
+          id="program-image-form"
+          method="post"
+          novalidate
+          th:action="${model.submitNavigationUrl}"
+        >
+          <input
+            hidden
+            name="csrfToken"
+            th:value="${templateGlobals.csrfToken()}"
+          />
+
           <div id="program-image-file-input-hint">
             <div
               class="usa-hint"
@@ -34,18 +47,13 @@
             accept="image/png,image/jpeg"
             aria-describedby="program-image-file-input-hint"
             class="usa-file-input"
-            hx-encoding="multipart/form-data"
-            hx-swap="none"
-            hx-trigger="change"
             id="program-image-input"
             name="file"
             th:data-file-limit-mb="${model.maxFileSizeMb}"
-            th:hx-post="${model.hxUploadProgramImageUrl()}"
             type="file"
           />
           <!--/*
-            Hidden by default. admin_program_image.ts toggles via showError/hideError (same pattern
-            as data-fileupload-error="too-large" in FileUploadQuestionFragment.html).
+            Hidden error message div. admin_program_image.ts toggles via showError/hideError.
           */-->
           <div
             hidden
@@ -60,60 +68,39 @@
               ></p>
             </div>
           </div>
-          <!--/*
-            Hidden by default. admin_program_image.ts adds cf-file-uploading to document.body
-            during upload; northstar CSS shows .cf-file-uploading-tag when that class is present.
-          */-->
-          <div
-            class="cf-file-uploading-tag display-none padding-1 bg-warning-lighter text-warning-dark"
-            role="alert"
-            th:text="#{label.uploading}"
-          />
-
-          <form
-            class="margin-top-4"
-            id="image-description-form"
-            method="post"
-            novalidate
-            th:action="${model.submitNavigationUrl}"
-          >
-            <input
-              hidden
-              name="csrfToken"
-              th:value="${templateGlobals.csrfToken()}"
-            />
+          <div class="margin-top-4">
             <cf:input
               id="summaryImageDescription"
               name="summaryImageDescription"
-              th:disabled="${!model.hasSummaryImage}"
               th:label="#{label.adminProgramImage.altText}"
-              th:required="${model.hasSummaryImage}"
               th:value="${model.summaryImageDescriptionDefault}"
             />
-            <!--/*
-              Hidden error message div. admin_program_image.ts toggles via showError/hideError
-            */-->
-            <div
-              hidden
-              class="usa-alert usa-alert--error usa-alert--slim margin-top-105"
-              data-fileupload-error="required"
-              id="cf-program-image-alt-required-error"
-            >
-              <div class="usa-alert__body">
-                <p
-                  class="usa-alert__text"
-                  th:text="#{toast.errorMessageOutline(#{validation.adminProgramImage.altTextRequired})}"
-                ></p>
-              </div>
+          </div>
+          <!--/*
+            Hidden error message div. admin_program_image.ts toggles via showError/hideError
+          */-->
+          <div
+            class="usa-alert usa-alert--error usa-alert--slim margin-top-105"
+            data-fileupload-error="required"
+            hidden
+            id="cf-program-image-alt-required-error"
+          >
+            <div class="usa-alert__body">
+              <p
+                class="usa-alert__text"
+                th:text="#{toast.errorMessageOutline(#{validation.adminProgramImage.altTextRequired})}"
+              ></p>
             </div>
+          </div>
 
+          <div class="margin-top-4">
             <cf:button
               id="continue-button"
               th:text="#{__${model.submitButtonMessageKey()}__}"
               type="submit"
             />
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
 
       <div class="grid-col-12 tablet:grid-col-6">

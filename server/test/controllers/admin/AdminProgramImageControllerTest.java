@@ -7,9 +7,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.NOT_FOUND;
-import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
-import static play.test.Helpers.contentAsString;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 import static support.cloud.FakePublicStorageClient.FAKE_BUCKET_NAME;
@@ -24,7 +22,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import play.data.FormFactory;
-import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.ResetPostgres;
@@ -64,17 +61,16 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
             settingsManifest,
             instanceOf(RequestChecker.class),
             instanceOf(FormFactory.class),
-            instanceOf(MessagesApi.class),
             instanceOf(ProfileUtils.class),
             instanceOf(VersionRepository.class));
   }
 
   @Test
-  public void hxUploadProgramImage_fileUploadImprovementsDisabled_returnsNotFound() {
-    ProgramModel program = ProgramBuilder.newDraftProgram("hx upload").build();
+  public void uploadProgramImage_featureFlagDisabled_returnsNotFound() {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
 
     Result result =
-        controller.hxUploadProgramImage(
+        controller.uploadProgramImage(
             fakeRequestBuilder().method("POST").build(),
             program.id,
             ProgramEditStatus.CREATION.name());
@@ -83,18 +79,19 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void hxUploadProgramImage_fileUploadImprovementsEnabled_returnsOk() {
+  public void uploadProgramImage_redirectsToBlockEditPage() {
     when(settingsManifest.getFileUploadQuestionImprovementsEnabled(any())).thenReturn(true);
-    ProgramModel program = ProgramBuilder.newDraftProgram("hx upload ok").build();
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
 
     Result result =
-        controller.hxUploadProgramImage(
+        controller.uploadProgramImage(
             fakeRequestBuilder().method("POST").build(),
             program.id,
             ProgramEditStatus.CREATION.name());
 
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).isEqualTo("ok");
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(routes.AdminProgramBlocksController.index(program.id).url());
   }
 
   @Test
@@ -368,24 +365,6 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
 
     assertThat(result.flash().data()).containsOnlyKeys("success");
     assertThat(result.flash().data().get("success")).contains("set to fake description");
-  }
-
-  @Test
-  public void updateDescription_nonEmpty_fileUploadImprovementsEnabled_toastsSuccess() {
-    when(settingsManifest.getFileUploadQuestionImprovementsEnabled(any())).thenReturn(true);
-    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
-    Http.Request request =
-        fakeRequestBuilder()
-            .method("POST")
-            .bodyForm(ImmutableMap.of("summaryImageDescription", "fake description"))
-            .build();
-
-    Result result =
-        controller.updateDescription(request, program.id, ProgramEditStatus.CREATION.name());
-
-    assertThat(result.flash().data()).containsOnlyKeys("success");
-    assertThat(result.flash().data().get("success"))
-        .isEqualTo("Image is saved with the description: fake description");
   }
 
   @Test

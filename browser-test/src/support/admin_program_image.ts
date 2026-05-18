@@ -1,6 +1,6 @@
 import {expect} from '../support/civiform_fixtures'
 import {Page} from '@playwright/test'
-import {waitForPageJsLoad, waitForHtmxReady} from './wait'
+import {waitForPageJsLoad} from './wait'
 import {dismissToast} from '.'
 
 export class AdminProgramImage {
@@ -55,6 +55,15 @@ export class AdminProgramImage {
     await waitForPageJsLoad(this.page)
   }
 
+  async setImageFileAndSave(fileName: string, description: string) {
+    await this.setImageDescription(description)
+    await this.page.setInputFiles(
+      this.imageUploadLocator,
+      'src/assets/' + fileName,
+    )
+    await this.submitImageDescription()
+  }
+
   /**
    * @deprecated
    */
@@ -77,10 +86,12 @@ export class AdminProgramImage {
     await this.legacySubmitImageDescription()
   }
 
+  /** Selects a file without saving (Save image stays disabled until alt text is set). */
   async setImageFileFromAssets(fileName: string) {
-    await this.page.setInputFiles('input[type=file]', 'src/assets/' + fileName)
-    await waitForHtmxReady(this.page)
-    await this.page.waitForTimeout(1000)
+    await this.page.setInputFiles(
+      this.imageUploadLocator,
+      'src/assets/' + fileName,
+    )
   }
 
   /**

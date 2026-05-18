@@ -568,8 +568,8 @@ label.adminProgramImage.altText=Enter image description (Alt Text)
 button.adminProgramImage.continue=Continue
 # Button to save and return when editing an existing program (non-creation flow).
 button.adminProgramImage.save=Save
-# Message shown when the admin tries to continue without alt text while it is required.
-validation.adminProgramImage.altTextRequired=Enter image description (Alt Text) before continuing.
+# Message shown when alt text is required but missing.
+validation.adminProgramImage.altTextRequired=Enter image description (Alt Text).
 # Message when the program card preview cannot be rendered.
 content.adminProgramImage.cardPreviewError=Error generating card preview
 # Toast after saving alt text (file upload improvements flow); a space and the user description are appended in code.

@@ -45,13 +45,7 @@ public final class ProgramImagePageViewModel implements BaseViewModel {
   }
 
   public String getSubmitNavigationUrl() {
-    return routes.AdminProgramImageController.updateDescription(
-            program.id(), programEditStatus.name())
-        .url();
-  }
-
-  public String hxUploadProgramImageUrl() {
-    return routes.AdminProgramImageController.hxUploadProgramImage(
+    return routes.AdminProgramImageController.uploadProgramImage(
             program.id(), programEditStatus.name())
         .url();
   }
