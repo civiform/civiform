@@ -393,32 +393,6 @@ test.describe('Admin can manage program image', () => {
       await adminPrograms.goToProgramImagePage(programName)
       await adminProgramImage.expectDescriptionIs('')
     })
-
-    test('disables submit button when no text change and enables when text is changed', async ({
-      page,
-      adminProgramImage,
-      adminPrograms,
-    }) => {
-      await adminProgramImage.setImageFileFromAssets(
-        'program-summary-image-wide.png',
-      )
-      await adminProgramImage.setImageDescriptionAndSubmit(
-        'Fake image description',
-      )
-      await adminPrograms.expectProgramBlockEditPage(programName)
-      await dismissToast(page)
-
-      await adminPrograms.goToProgramImagePage(programName)
-
-      await adminProgramImage.setImageFileFromAssets(
-        'program-summary-image-wide.png',
-      )
-      await adminProgramImage.setImageDescription('Fake image description')
-      await adminProgramImage.expectDisabledImageDescriptionSubmit()
-
-      await adminProgramImage.setImageDescription('Something different')
-      await adminProgramImage.expectEnabledImageDescriptionSubmit()
-    })
   })
 
   test.describe('image file upload', () => {

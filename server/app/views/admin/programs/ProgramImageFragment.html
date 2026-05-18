@@ -91,8 +91,7 @@
               th:value="${model.summaryImageDescriptionDefault}"
             />
             <!--/*
-              Hidden by default. admin_program_image.ts toggles via showError/hideError (same idea
-              as data-fileupload-error="required" in FileUploadQuestionFragment.html).
+              Hidden error message div. admin_program_image.ts toggles via showError/hideError
             */-->
             <div
               hidden
@@ -108,15 +107,11 @@
               </div>
             </div>
 
-            <th:block
-              th:with="submitLabelKey=${model.submitButtonMessageKey()}"
-            >
-              <cf:button
-                id="continue-button"
-                th:text="#{__${submitLabelKey}__}"
-                type="submit"
-              />
-            </th:block>
+            <cf:button
+              id="continue-button"
+              th:text="#{__${model.submitButtonMessageKey()}__}"
+              type="submit"
+            />
           </form>
         </div>
       </div>

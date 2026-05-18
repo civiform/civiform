@@ -45,7 +45,7 @@ test.describe('Admin can manage program image', () => {
       })
 
       await test.step('Verify preview with image', async () => {
-        await adminProgramImage.legacySetImageFileAndSubmit(
+        await adminProgramImage.setImageFileAndSubmit(
           'src/assets/program-summary-image-wide.png',
         )
         await adminProgramImage.expectProgramImagePage()
@@ -148,7 +148,7 @@ test.describe('Admin can manage program image', () => {
       // This test verifies that the redirect URL for the back button is preserved
       // even after those submission and page reloads.
       await adminProgramImage.legacySetImageDescriptionAndSubmit('description')
-      await adminProgramImage.legacySetImageFileAndSubmit(
+      await adminProgramImage.setImageFileAndSubmit(
         'src/assets/program-summary-image-wide.png',
       )
 
@@ -290,7 +290,7 @@ test.describe('Admin can manage program image', () => {
       await adminProgramImage.legacySetImageDescriptionAndSubmit(
         'Original description',
       )
-      await adminProgramImage.legacySetImageFileAndSubmit(
+      await adminProgramImage.setImageFileAndSubmit(
         'src/assets/program-summary-image-wide.png',
       )
 
@@ -310,7 +310,7 @@ test.describe('Admin can manage program image', () => {
       await adminProgramImage.legacySetImageDescriptionAndSubmit(
         'Original description',
       )
-      await adminProgramImage.legacySetImageFileAndSubmit(
+      await adminProgramImage.setImageFileAndSubmit(
         'src/assets/program-summary-image-wide.png',
       )
 
@@ -330,7 +330,7 @@ test.describe('Admin can manage program image', () => {
       await adminProgramImage.legacySetImageDescriptionAndSubmit(
         'Original description',
       )
-      await adminProgramImage.legacySetImageFileAndSubmit(
+      await adminProgramImage.setImageFileAndSubmit(
         'src/assets/program-summary-image-wide.png',
       )
 
@@ -442,7 +442,7 @@ test.describe('Admin can manage program image', () => {
       page,
       adminProgramImage,
     }) => {
-      await adminProgramImage.legacySetImageFile(
+      await adminProgramImage.setImageFile(
         'src/assets/program-summary-image-wide.png',
       )
 
@@ -450,7 +450,7 @@ test.describe('Admin can manage program image', () => {
     })
 
     test('deletes existing image', async ({page, adminProgramImage}) => {
-      await adminProgramImage.legacySetImageFileAndSubmit(
+      await adminProgramImage.setImageFileAndSubmit(
         'src/assets/program-summary-image-wide.png',
       )
       await dismissToast(page)

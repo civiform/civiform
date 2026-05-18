@@ -473,7 +473,7 @@ test.describe('Program list page.', () => {
     const programName = 'Images Flag On Program'
     await adminPrograms.addProgram(programName)
     await adminPrograms.goToProgramImagePage(programName)
-    await adminProgramImage.legacySetImageFileAndSubmit(
+    await adminProgramImage.setImageFileAndSubmit(
       'src/assets/program-summary-image-wide.png',
     )
     await adminPrograms.publishAllDrafts()
@@ -498,7 +498,7 @@ test.describe('Program list page.', () => {
     // Set a new image on the new draft program
     await adminPrograms.createNewVersion(programName)
     await adminPrograms.goToProgramImagePage(programName)
-    await adminProgramImage.legacySetImageFileAndSubmit(
+    await adminProgramImage.setImageFileAndSubmit(
       'src/assets/program-summary-image-tall.png',
     )
     await adminPrograms.gotoAdminProgramsPage()
@@ -522,7 +522,7 @@ test.describe('Program list page.', () => {
       const programName = 'Different Images Program'
       await adminPrograms.addProgram(programName)
       await adminPrograms.goToProgramImagePage(programName)
-      await adminProgramImage.legacySetImageFileAndSubmit(
+      await adminProgramImage.setImageFileAndSubmit(
         'src/assets/program-summary-image-wide.png',
       )
       await adminPrograms.publishAllDrafts()
@@ -530,7 +530,7 @@ test.describe('Program list page.', () => {
       // Set a new image on the new draft program
       await adminPrograms.createNewVersion(programName)
       await adminPrograms.goToProgramImagePage(programName)
-      await adminProgramImage.legacySetImageFileAndSubmit(
+      await adminProgramImage.setImageFileAndSubmit(
         'src/assets/program-summary-image-tall.png',
       )
       await adminPrograms.gotoAdminProgramsPage()
@@ -553,7 +553,7 @@ test.describe('Program list page.', () => {
     const programName = 'Same Image Program'
     await adminPrograms.addProgram(programName)
     await adminPrograms.goToProgramImagePage(programName)
-    await adminProgramImage.legacySetImageFileAndSubmit(
+    await adminProgramImage.setImageFileAndSubmit(
       'src/assets/program-summary-image-wide.png',
     )
     await adminPrograms.publishAllDrafts()

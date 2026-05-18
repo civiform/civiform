@@ -145,9 +145,11 @@ const enableAltTextField = (alt: HTMLInputElement) => {
   alt.removeAttribute('aria-disabled')
 }
 
+const isAltTextValid = (altInput: HTMLInputElement): boolean =>
+  !altInput.required || altInput.value.trim() !== ''
+
 /**
- * Updates continue/save: disabled during upload; when alt is enabled, disabled if alt text
- * matches its default (initial) value.
+ * Updates continue/save button. The button is disabled during upload or when enabled alt text is invalid.
  */
 const syncContinueButtonState = () => {
   const submit = document.getElementById(SUBMIT_BUTTON_ID)
@@ -156,36 +158,25 @@ const syncContinueButtonState = () => {
     return
   }
 
-  if (programImageUploadsInProgress > 0) {
+  if (
+    programImageUploadsInProgress > 0 ||
+    (altInput instanceof HTMLInputElement && !isAltTextValid(altInput))
+  ) {
     submit.disabled = true
     submit.setAttribute('aria-disabled', 'true')
-    return
-  }
-
-  if (!(altInput instanceof HTMLInputElement) || altInput.disabled) {
-    submit.disabled = false
-    submit.removeAttribute('aria-disabled')
-    return
-  }
-
-  if (altInput.value !== altInput.defaultValue) {
-    submit.disabled = false
-    submit.removeAttribute('aria-disabled')
   } else {
-    submit.disabled = true
-    submit.setAttribute('aria-disabled', 'true')
+    submit.disabled = false
+    submit.removeAttribute('aria-disabled')
   }
 }
 
 const validateAltTextField = (altInput: HTMLInputElement): boolean => {
   const errorDiv = document.getElementById(ALT_REQUIRED_ERROR_ID)
-  let valid: boolean
-  if (!altInput.required || altInput.value.trim() !== '') {
+  const valid = isAltTextValid(altInput)
+  if (valid) {
     hideError(errorDiv, altInput)
-    valid = true
   } else {
     showError(errorDiv, altInput)
-    valid = false
   }
   syncContinueButtonState()
   return valid
