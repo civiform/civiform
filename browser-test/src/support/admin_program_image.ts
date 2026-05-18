@@ -10,9 +10,9 @@ export class AdminProgramImage {
   private imageDescriptionLocator = 'input[name="summaryImageDescription"]'
   private imageUploadSubmitButtonLocator =
     'button[form=image-file-upload-form][type="submit"]'
-  private legacyImageDescriptionSubmitButtonLocator =
+  private imageDescriptionSubmitButtonLocator =
     'button[form=image-description-form][type="submit"]'
-  private imageDescriptionSubmitButtonLocator = '#continue-button'
+  private programImageFormSubmitButtonLocator = '#continue-button'
   private translationsButtonLocator = 'button:has-text("Manage translations")'
   private continueButtonLocator = '#continue-button'
   // This should be kept in sync with views/fileupload/FileUploadViewStrategy#createFileTooLargeError.
@@ -30,6 +30,11 @@ export class AdminProgramImage {
 
   async clickContinueButton() {
     await this.page.click(this.continueButtonLocator)
+  }
+
+  async submitProgramImageForm() {
+    await this.page.click(this.programImageFormSubmitButtonLocator)
+    await waitForPageJsLoad(this.page)
   }
 
   async expectHasContinueButton() {
@@ -55,38 +60,26 @@ export class AdminProgramImage {
     await waitForPageJsLoad(this.page)
   }
 
+  async setImageDescriptionAndSubmit(description: string) {
+    await this.setImageDescription(description)
+    await this.submitImageDescription()
+  }
+
+  async setProgramImageDescriptionAndSubmit(description: string) {
+    await this.setImageDescription(description)
+    await this.submitProgramImageForm()
+  }
+
   async setImageFileAndSave(fileName: string, description: string) {
     await this.setImageDescription(description)
     await this.page.setInputFiles(
       this.imageUploadLocator,
       'src/assets/' + fileName,
     )
-    await this.submitImageDescription()
+    await this.submitProgramImageForm()
   }
 
-  /**
-   * @deprecated
-   */
-  async legacySubmitImageDescription() {
-    await this.page.click(this.legacyImageDescriptionSubmitButtonLocator)
-    await waitForPageJsLoad(this.page)
-  }
-
-  async setImageDescriptionAndSubmit(description: string) {
-    await this.setImageDescription(description)
-    await this.submitImageDescription()
-  }
-
-  /**
-   * @deprecated
-   * @param description
-   */
-  async legacySetImageDescriptionAndSubmit(description: string) {
-    await this.setImageDescription(description)
-    await this.legacySubmitImageDescription()
-  }
-
-  /** Selects a file without saving (Save image stays disabled until alt text is set). */
+  /** Selects a file without saving. */
   async setImageFileFromAssets(fileName: string) {
     await this.page.setInputFiles(
       this.imageUploadLocator,
@@ -108,7 +101,7 @@ export class AdminProgramImage {
       .inputValue()
     if (currentDescription == '') {
       // A description has to be set before an image can be uploaded
-      await this.legacySetImageDescriptionAndSubmit('desc')
+      await this.setImageDescriptionAndSubmit('desc')
       await dismissToast(this.page)
     }
 
@@ -161,31 +154,13 @@ export class AdminProgramImage {
 
   async expectDisabledImageDescriptionSubmit() {
     await expect(
-      this.page.locator(this.imageDescriptionSubmitButtonLocator),
+      this.page.locator(this.programImageFormSubmitButtonLocator),
     ).toBeDisabled()
   }
 
   async expectEnabledImageDescriptionSubmit() {
     await expect(
-      this.page.locator(this.imageDescriptionSubmitButtonLocator),
-    ).toBeEnabled()
-  }
-
-  /**
-   * @deprecated
-   */
-  async legacyExpectDisabledImageDescriptionSubmit() {
-    await expect(
-      this.page.locator(this.legacyImageDescriptionSubmitButtonLocator),
-    ).toBeDisabled()
-  }
-
-  /**
-   * @deprecated
-   */
-  async legacyExpectEnabledImageDescriptionSubmit() {
-    await expect(
-      this.page.locator(this.legacyImageDescriptionSubmitButtonLocator),
+      this.page.locator(this.programImageFormSubmitButtonLocator),
     ).toBeEnabled()
   }
 
@@ -268,15 +243,11 @@ export class AdminProgramImage {
     await expect(this.page.getByText('View and apply')).toBeVisible()
   }
 
-  descriptionUpdatedToastMessage(description: string): string {
+  programImageSavedToastMessage(description: string): string {
     return `Image is saved with the description: ${description}`
   }
 
-  /**
-   * @deprecated
-   * @param description
-   */
-  legacyDescriptionUpdatedToastMessage(description: string): string {
+  descriptionUpdatedToastMessage(description: string): string {
     return `Image description set to ${description}`
   }
 

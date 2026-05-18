@@ -572,8 +572,6 @@ button.adminProgramImage.save=Save
 validation.adminProgramImage.altTextRequired=Enter image description (Alt Text).
 # Message when the program card preview cannot be rendered.
 content.adminProgramImage.cardPreviewError=Error generating card preview
-# Toast after saving alt text (file upload improvements flow); a space and the user description are appended in code.
-toast.adminProgramImage.imageSavedWithDescription=Image is saved with the description:
 
 #--------------------------------------------------------------------------------------------------------------#
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #

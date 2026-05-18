@@ -289,7 +289,7 @@ test.describe('Admin can manage program translations', () => {
     const programName = 'Program with summary image description'
     await adminPrograms.addProgram(programName)
     await adminPrograms.goToProgramImagePage(programName)
-    await adminProgramImage.legacySetImageDescriptionAndSubmit(
+    await adminProgramImage.setImageDescriptionAndSubmit(
       'Fake image description',
     )
 
@@ -334,7 +334,7 @@ test.describe('Admin can manage program translations', () => {
     const programName = 'Program with summary image description'
     await adminPrograms.addProgram(programName)
     await adminPrograms.goToProgramImagePage(programName)
-    await adminProgramImage.legacySetImageDescriptionAndSubmit(
+    await adminProgramImage.setImageDescriptionAndSubmit(
       'Fake image description',
     )
 
@@ -353,7 +353,7 @@ test.describe('Admin can manage program translations', () => {
 
     // Update the original description
     await adminPrograms.goToProgramImagePage(programName)
-    await adminProgramImage.legacySetImageDescriptionAndSubmit(
+    await adminProgramImage.setImageDescriptionAndSubmit(
       'New image description',
     )
 
@@ -376,7 +376,7 @@ test.describe('Admin can manage program translations', () => {
     const programName = 'Program with summary image description'
     await adminPrograms.addProgram(programName)
     await adminPrograms.goToProgramImagePage(programName)
-    await adminProgramImage.legacySetImageDescriptionAndSubmit(
+    await adminProgramImage.setImageDescriptionAndSubmit(
       'Fake image description',
     )
 
@@ -395,7 +395,7 @@ test.describe('Admin can manage program translations', () => {
 
     // Remove the original description
     await adminPrograms.goToProgramImagePage(programName)
-    await adminProgramImage.legacySetImageDescriptionAndSubmit('')
+    await adminProgramImage.setImageDescriptionAndSubmit('')
 
     // Verify there's no longer an option to translate the description.
     // (The image description translation field will only appear in the UI if

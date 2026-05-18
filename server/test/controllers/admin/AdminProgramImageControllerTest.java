@@ -3,9 +3,6 @@ package controllers.admin;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static support.FakeRequestBuilder.fakeRequest;
@@ -43,14 +40,11 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   private static final String VALID_FILE_KEY = "program-summary-image/program-1/myImage.png";
 
   private ProgramService programService;
-  private SettingsManifest settingsManifest;
   private AdminProgramImageController controller;
 
   @Before
   public void setup() {
     programService = instanceOf(ProgramService.class);
-    settingsManifest = mock(SettingsManifest.class);
-    when(settingsManifest.getFileUploadQuestionImprovementsEnabled(any())).thenReturn(false);
     controller =
         new AdminProgramImageController(
             new FakePublicStorageClient(),
@@ -58,7 +52,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
             instanceOf(ProgramImageView.class),
             instanceOf(ProgramImagePageView.class),
             instanceOf(ProgramCardPreviewController.class),
-            settingsManifest,
+            instanceOf(SettingsManifest.class),
             instanceOf(RequestChecker.class),
             instanceOf(FormFactory.class),
             instanceOf(ProfileUtils.class),
@@ -76,22 +70,6 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
             ProgramEditStatus.CREATION.name());
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
-  }
-
-  @Test
-  public void uploadProgramImage_redirectsToBlockEditPage() {
-    when(settingsManifest.getFileUploadQuestionImprovementsEnabled(any())).thenReturn(true);
-    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
-
-    Result result =
-        controller.uploadProgramImage(
-            fakeRequestBuilder().method("POST").build(),
-            program.id,
-            ProgramEditStatus.CREATION.name());
-
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation())
-        .hasValue(routes.AdminProgramBlocksController.index(program.id).url());
   }
 
   @Test

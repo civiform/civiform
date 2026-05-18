@@ -44,16 +44,6 @@ public final class ProgramCardPreviewController extends CiviFormController {
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public ProgramCardParams programCardPreviewParams(Http.Request request, long programId)
-      throws InterruptedException, ExecutionException {
-    return programCardPreview.buildCard(buildPreviewParams(request, programId));
-  }
-
-  /**
-   * Same as {@link #programCardPreviewParams(Http.Request, long)} but uses an already-loaded
-   * program definition so callers do not trigger a second program fetch.
-   */
-  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public ProgramCardParams programCardPreviewParams(
       Http.Request request, ProgramDefinition programDefinition) {
     return programCardPreview.buildCard(buildPreviewParams(request, programDefinition));
@@ -63,14 +53,6 @@ public final class ProgramCardPreviewController extends CiviFormController {
   public String cardPreview(Http.Request request, long programId)
       throws InterruptedException, ExecutionException {
     return programCardPreview.render(buildPreviewParams(request, programId));
-  }
-
-  /**
-   * Same as {@link #cardPreview(Http.Request, long)} but uses an already-loaded program definition.
-   */
-  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public String cardPreview(Http.Request request, ProgramDefinition programDefinition) {
-    return programCardPreview.render(buildPreviewParams(request, programDefinition));
   }
 
   private Params buildPreviewParams(Http.Request request, long programId)
