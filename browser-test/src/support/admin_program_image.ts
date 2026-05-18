@@ -152,13 +152,25 @@ export class AdminProgramImage {
     await expect(descriptionElement).toHaveValue(description)
   }
 
-  async expectDisabledImageDescriptionSubmit() {
+  async legacyExpectDisabledImageDescriptionSubmit() {
+    await expect(
+      this.page.locator(this.imageDescriptionSubmitButtonLocator),
+    ).toBeDisabled()
+  }
+
+  async legacyExpectEnabledImageDescriptionSubmit() {
+    await expect(
+      this.page.locator(this.imageDescriptionSubmitButtonLocator),
+    ).toBeEnabled()
+  }
+
+  async expectDisabledProgramImageFormSubmit() {
     await expect(
       this.page.locator(this.programImageFormSubmitButtonLocator),
     ).toBeDisabled()
   }
 
-  async expectEnabledImageDescriptionSubmit() {
+  async expectEnabledProgramImageFormSubmit() {
     await expect(
       this.page.locator(this.programImageFormSubmitButtonLocator),
     ).toBeEnabled()

@@ -351,7 +351,7 @@ test.describe('Admin can manage program image', () => {
 
       // On page reload the submit button should be disabled because no changes
       // have been made to the description since submission.
-      await adminProgramImage.expectDisabledImageDescriptionSubmit()
+      await adminProgramImage.legacyExpectDisabledImageDescriptionSubmit()
     })
 
     test('disables submit button when no text change', async ({
@@ -363,13 +363,13 @@ test.describe('Admin can manage program image', () => {
 
       // Set an identical description and verify submit is still disabled.
       await adminProgramImage.setImageDescription('Fake image description')
-      await adminProgramImage.expectDisabledImageDescriptionSubmit()
+      await adminProgramImage.legacyExpectDisabledImageDescriptionSubmit()
 
       // Set a new description then go back to the original description
       // and verify submit is still disabled.
       await adminProgramImage.setImageDescription('Something different')
       await adminProgramImage.setImageDescription('Fake image description')
-      await adminProgramImage.expectDisabledImageDescriptionSubmit()
+      await adminProgramImage.legacyExpectDisabledImageDescriptionSubmit()
     })
 
     test('enables submit button when change', async ({adminProgramImage}) => {
@@ -379,7 +379,7 @@ test.describe('Admin can manage program image', () => {
 
       await adminProgramImage.setImageDescription('Something different')
 
-      await adminProgramImage.expectEnabledImageDescriptionSubmit()
+      await adminProgramImage.legacyExpectEnabledImageDescriptionSubmit()
     })
 
     test('enables submit button when text removed', async ({
@@ -393,7 +393,7 @@ test.describe('Admin can manage program image', () => {
       // updates the description to be empty.
       await adminProgramImage.setImageDescription('')
 
-      await adminProgramImage.expectEnabledImageDescriptionSubmit()
+      await adminProgramImage.legacyExpectEnabledImageDescriptionSubmit()
     })
 
     test('disables translation button when no description', async ({
