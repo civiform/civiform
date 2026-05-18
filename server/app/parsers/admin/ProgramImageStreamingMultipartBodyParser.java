@@ -27,7 +27,7 @@ import services.cloud.PublicFileNameFormatter;
  */
 public final class ProgramImageStreamingMultipartBodyParser extends StreamingMultipartBodyParser {
 
-  public static final long MAX_FILE_SIZE = 100L * 1024L * 1024L; // 100MB
+  public static final long MAX_FILE_SIZE = 1L * 1024L * 1024L; // 1MB
 
   // Matches /admin/programs/{programId}/image/upload/{editStatus} in the request path.
   private static final Pattern PROGRAM_IMAGE_UPLOAD_PATH_PATTERN =
@@ -68,7 +68,7 @@ public final class ProgramImageStreamingMultipartBodyParser extends StreamingMul
 
   @Override
   protected String getFileKey(Multipart.FileInfo fileInfo) {
-    return PublicFileNameFormatter.formatPublicProgramImageFileKey(programId);
+    return PublicFileNameFormatter.formatPublicProgramImageFileKey(programId, fileInfo.fileName());
   }
 
   @Override
