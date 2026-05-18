@@ -3,9 +3,11 @@
 <th:block th:fragment="content">
   <div class="grid-container margin-top-4">
     <div
-      th:replace="~{components/ToastFragment :: success(${flashSuccess})}"
+      th:replace="~{components/ToastFragment :: success(${model.flashSuccess})}"
     ></div>
-    <div th:replace="~{components/ToastFragment :: error(${flashError})}"></div>
+    <div
+      th:replace="~{components/ToastFragment :: error(${model.flashError})}"
+    ></div>
 
     <a
       class="display-flex flex-align-center font-sans-md text-no-underline margin-bottom-4"

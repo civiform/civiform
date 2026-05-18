@@ -98,6 +98,8 @@ public final class AdminProgramImageController extends CiviFormController {
               .program(program)
               .maxFileSizeMb(publicStorageClient.getFileLimitMb())
               .cardPreviewParams(cardPreviewParams)
+              .flashSuccess(request.flash().get(FlashKey.SUCCESS))
+              .flashError(request.flash().get(FlashKey.ERROR))
               .build();
       return ok(programImagePageView.render(request, programImagePageViewModel))
           .as(Http.MimeTypes.HTML);
@@ -135,8 +137,7 @@ public final class AdminProgramImageController extends CiviFormController {
     Http.MultipartFormData.FilePart<String> filePart = body.getFile("file");
     if (filePart != null && newDescription.isBlank()) {
       return redirect(indexUrl)
-          .flashing(
-              FlashKey.ERROR, messages.at("validation.adminProgramImage.altTextRequired"));
+          .flashing(FlashKey.ERROR, messages.at("validation.adminProgramImage.altTextRequired"));
     }
 
     if (filePart != null) {
@@ -159,8 +160,7 @@ public final class AdminProgramImageController extends CiviFormController {
       return notFound(e.toString());
     } catch (ImageDescriptionNotRemovableException e) {
       return redirect(indexUrl)
-          .flashing(
-              FlashKey.ERROR, messages.at("toast.adminProgramImage.descriptionNotRemovable"));
+          .flashing(FlashKey.ERROR, messages.at("toast.adminProgramImage.descriptionNotRemovable"));
     }
 
     String successMessage =
@@ -170,6 +170,11 @@ public final class AdminProgramImageController extends CiviFormController {
     return redirect(indexUrl).flashing(FlashKey.SUCCESS, successMessage);
   }
 
+  /**
+   * @deprecated Used by the legacy program image view. Use {@link #uploadProgramImage} for the
+   *     Thymeleaf program image page.
+   */
+  @Deprecated
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result updateDescription(Http.Request request, long programId, String editStatus) {
     requestChecker.throwIfProgramNotDraft(programId);
@@ -180,27 +185,25 @@ public final class AdminProgramImageController extends CiviFormController {
                 request, ProgramImageDescriptionForm.FIELD_NAMES.toArray(new String[0]));
     String newDescription = form.get().getSummaryImageDescription();
 
-    final String indexUrl = routes.AdminProgramImageController.index(programId, editStatus).url();
-    Messages messages = messagesApi.preferred(request);
-
     String toastType;
     String toastMessage;
     try {
       programService.setSummaryImageDescription(
           programId, LocalizedStrings.DEFAULT_LOCALE, newDescription);
-      toastType = FlashKey.SUCCESS;
+      toastType = "success";
       if (newDescription.isBlank()) {
-        toastMessage = messages.at("toast.adminProgramImage.descriptionRemoved");
+        toastMessage = "Image description removed";
       } else {
-        toastMessage = messages.at("toast.adminProgramImage.descriptionSet", newDescription);
+        toastMessage = "Image description set to " + newDescription;
       }
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
     } catch (ImageDescriptionNotRemovableException e) {
-      toastType = FlashKey.ERROR;
-      toastMessage = messages.at("toast.adminProgramImage.descriptionNotRemovable");
+      toastType = "error";
+      toastMessage = e.getMessage();
     }
 
+    final String indexUrl = routes.AdminProgramImageController.index(programId, editStatus).url();
     return redirect(indexUrl).flashing(toastType, toastMessage);
   }
 
@@ -236,10 +239,7 @@ public final class AdminProgramImageController extends CiviFormController {
 
     programService.setSummaryImageFileKey(programId, key);
     final String indexUrl = routes.AdminProgramImageController.index(programId, editStatus).url();
-    return redirect(indexUrl)
-        .flashing(
-            FlashKey.SUCCESS,
-            messagesApi.preferred(request).at("toast.adminProgramImage.imageSet"));
+    return redirect(indexUrl).flashing(FlashKey.SUCCESS, "Image set");
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -248,9 +248,6 @@ public final class AdminProgramImageController extends CiviFormController {
     requestChecker.throwIfProgramNotDraft(programId);
     programService.deleteSummaryImageFileKey(programId);
     final String indexUrl = routes.AdminProgramImageController.index(programId, editStatus).url();
-    return redirect(indexUrl)
-        .flashing(
-            FlashKey.SUCCESS,
-            messagesApi.preferred(request).at("toast.adminProgramImage.imageRemoved"));
+    return redirect(indexUrl).flashing(FlashKey.SUCCESS, "Image removed");
   }
 }

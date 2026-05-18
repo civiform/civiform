@@ -27,6 +27,12 @@ public final class ProgramImagePageViewModel implements BaseViewModel {
    */
   private final Optional<ProgramCardParams> cardPreviewParams;
 
+  /** Flash message after redirect, if present. */
+  private final Optional<String> flashSuccess;
+
+  /** Flash error after redirect, if present. */
+  private final Optional<String> flashError;
+
   /**
    * True when preview params are absent after the controller attempted to load them. Today the
    * controller only leaves this empty after an exception, not on a successful empty response.

@@ -127,7 +127,6 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
                     .withClasses("mx-4", "my-12", "flex", "flex-col"));
     toastMessage.ifPresent(htmlBundle::addToastMessages);
     modal.ifPresent(htmlBundle::addModals);
-    addSuccessAndErrorToasts(htmlBundle, request.flash());
     return layout.renderCentered(htmlBundle);
   }
 

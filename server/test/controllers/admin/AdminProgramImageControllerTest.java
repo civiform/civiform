@@ -45,6 +45,7 @@ import views.admin.programs.ProgramImagePageView;
 import views.admin.programs.ProgramImageView;
 
 @RunWith(JUnitParamsRunner.class)
+@SuppressWarnings("deprecation") // Uses legacy AdminProgramImageController.updateDescription.
 public class AdminProgramImageControllerTest extends ResetPostgres {
   private static final String VALID_FILE_KEY = "program-summary-image/program-1/myImage.png";
 
@@ -141,7 +142,8 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     assertThat(result.flash().data()).containsOnlyKeys("success");
     assertThat(result.flash().data().get("success"))
         .isEqualTo(
-            messages.at("toast.adminProgramImage.imageAndDescriptionSaved", "Alt text description"));
+            messages.at(
+                "toast.adminProgramImage.imageAndDescriptionSaved", "Alt text description"));
   }
 
   @Test
@@ -152,15 +154,12 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
 
     Result result =
         controller.uploadProgramImage(
-            createUploadRequest(fileKey, ""),
-            program.id,
-            ProgramEditStatus.CREATION.name());
+            createUploadRequest(fileKey, ""), program.id, ProgramEditStatus.CREATION.name());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.flash().data().get("error"))
         .isEqualTo(messages.at("validation.adminProgramImage.altTextRequired"));
-    assertThat(programService.getFullProgramDefinition(program.id).summaryImageFileKey())
-        .isEmpty();
+    assertThat(programService.getFullProgramDefinition(program.id).summaryImageFileKey()).isEmpty();
   }
 
   @Test
@@ -730,7 +729,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
 
     assertThat(result.flash().data()).containsOnlyKeys("error");
     assertThat(result.flash().data().get("error"))
-        .isEqualTo(messages.at("toast.adminProgramImage.descriptionNotRemovable"));
+        .contains("Description can't be removed because an image is present");
   }
 
   @Test
@@ -880,8 +879,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     Result result = setValidFileKeyOnProgram(program);
 
     assertThat(result.flash().data()).containsOnlyKeys("success");
-    assertThat(result.flash().data().get("success"))
-        .isEqualTo(messages.at("toast.adminProgramImage.imageSet"));
+    assertThat(result.flash().data().get("success")).isEqualTo("Image set");
   }
 
   @Test
@@ -1007,8 +1005,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
         controller.deleteFileKey(fakeRequest(), program.id, ProgramEditStatus.CREATION.name());
 
     assertThat(result.flash().data()).containsOnlyKeys("success");
-    assertThat(result.flash().data().get("success"))
-        .isEqualTo(messages.at("toast.adminProgramImage.imageRemoved"));
+    assertThat(result.flash().data().get("success")).isEqualTo("Image removed");
   }
 
   @Test

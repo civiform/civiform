@@ -891,16 +891,6 @@ export class AdminPrograms {
   }
 
   /**
-   * Opens the program image page from the block edit header. Caller must already be on the
-   * program block edit page.
-   */
-  async goToProgramImagePageFromBlockEdit() {
-    await this.page.click('#header_edit_program_image_button')
-    await waitForPageJsLoad(this.page)
-    await this.expectProgramImagePage()
-  }
-
-  /**
    * Opens the manage program page by clicking on a program's card extra action.
    * Admin must be a CiviForm admin, otherwise the extra action won't be visible
    *

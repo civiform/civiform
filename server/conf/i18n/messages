@@ -572,14 +572,8 @@ button.adminProgramImage.save=Save
 validation.adminProgramImage.altTextRequired=Image description is required when a program image is uploaded.
 # Toast after saving a program image and alt text together.
 toast.adminProgramImage.imageAndDescriptionSaved=Image is saved with the description: {0}
-# Toast after uploading or replacing the program image without changing alt text on the legacy endpoint.
-toast.adminProgramImage.imageSet=Image set
-# Toast after clearing alt text when no image is on the program.
-toast.adminProgramImage.descriptionRemoved=Image description removed
 # Toast after saving alt text without uploading a new file.
 toast.adminProgramImage.descriptionSet=Image description set to {0}
-# Toast after deleting the program image.
-toast.adminProgramImage.imageRemoved=Image removed
 # Error when alt text cannot be cleared while an image remains.
 toast.adminProgramImage.descriptionNotRemovable=Description can't be removed because an image is present. Delete the image before deleting the description.
 # Message when the program card preview cannot be rendered.

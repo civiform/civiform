@@ -50,6 +50,8 @@ export const init = () => {
 
   syncAltTextRequiredState(altInput, fileInput)
   syncSaveButtonState(altInput, fileInput, saveButton)
+  validateFileInput(fileInput)
+  validateAltTextField(altInput)
 }
 
 const syncAltTextRequiredState = (
@@ -106,7 +108,7 @@ const validateFileInput = (fileInput: HTMLInputElement): boolean => {
     container
       .querySelectorAll<HTMLElement>('.cf-question-error-message')
       .forEach((el) => {
-        el.hidden = true
+        el.style.display = 'none'
       })
   }
   return isValid
