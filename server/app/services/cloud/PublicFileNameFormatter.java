@@ -40,12 +40,13 @@ public final class PublicFileNameFormatter {
     return String.format("%s%d/%s", PROGRAM_IMAGE_FILE_KEY_PREFIX, programId, sanitizedFileName);
   }
 
-  /** Strips path components from an uploaded program image filename. */
+  /** Strips path components and disallowed characters from an uploaded program image filename. */
   public static String sanitizeProgramImageFileName(String originalFileName) {
     if (originalFileName == null || originalFileName.isBlank()) {
       throw new IllegalArgumentException("'originalFileName' must not be null or blank.");
     }
-    String sanitizedFileName = FilenameUtils.getName(originalFileName);
+    String sanitizedFileName =
+        FilenameUtils.getName(originalFileName).replaceAll("[^a-zA-Z0-9.-]", "");
     if (sanitizedFileName.isBlank()) {
       throw new IllegalArgumentException("'originalFileName' must contain a non-empty basename.");
     }

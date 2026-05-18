@@ -26,6 +26,12 @@ public class PublicFileNameFormatterTest {
   }
 
   @Test
+  public void sanitizeProgramImageFileName_stripsNonAlphanumericCharacters() {
+    assertThat(PublicFileNameFormatter.sanitizeProgramImageFileName("my image (1).png"))
+        .isEqualTo("myimage1.png");
+  }
+
+  @Test
   public void isFileKeyForPublicProgramImage_keyFromFormatMethod_isTrue() {
     String filename = PublicFileNameFormatter.formatPublicProgramImageFileKey(156);
 
