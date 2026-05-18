@@ -48,8 +48,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20260313.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.44.3",
-      "software.amazon.awssdk" % "ses" % "2.44.3",
+      "software.amazon.awssdk" % "s3" % "2.44.4",
+      "software.amazon.awssdk" % "ses" % "2.44.4",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
@@ -88,13 +88,13 @@ lazy val root = (project in file("."))
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "13.0.3-PLAY3.0",
-      "org.pac4j" % "pac4j-core" % "6.4.3",
+      "org.pac4j" % "pac4j-core" % "6.5.1",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "6.4.3",
+      "org.pac4j" % "pac4j-http" % "6.5.1",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "6.4.3",
+      "org.pac4j" % "pac4j-oidc" % "6.5.1",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "6.4.3",
+      "org.pac4j" % "pac4j-saml" % "6.5.1",
 
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.13.0",

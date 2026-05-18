@@ -96,7 +96,11 @@ public class FileTypeValidationTest extends ResetPostgres {
     assertThatThrownBy(
             () ->
                 Source.single(tinyBytes)
-                    .via(validator.sniffingFlow("photo.png", detectedRef))
+                    .via(
+                        validator.sniffingFlow(
+                            "photo.png",
+                            detectedRef,
+                            FileTypeSpecifier.parseCommaSeparated("image/*,.pdf")))
                     .runWith(org.apache.pekko.stream.javadsl.Sink.ignore(), mat)
                     .toCompletableFuture()
                     .join())

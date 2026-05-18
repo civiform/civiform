@@ -147,7 +147,6 @@ export class ApplicantQuestions {
       bmp: 'image/bmp',
       webp: 'image/webp',
       tiff: 'image/tiff',
-      xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     }
     const extension = fileName.split('.').pop()?.toLowerCase() ?? ''
     const mimeType =

@@ -1,5 +1,6 @@
 package parsers;
 
+import com.google.common.collect.ImmutableList;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.apache.pekko.stream.Materializer;
@@ -10,11 +11,13 @@ import play.core.parsers.Multipart;
 import play.http.DefaultHttpErrorHandler;
 import services.cloud.BucketType;
 import services.cloud.StorageServiceName;
+import services.settings.SettingsManifest;
 
 // A no-op implementation of the StreamingMultipartBodyParser for testing purposes
 // Prints the content of the input byte string, with a summary at the end of the total size.
 public final class TestStreamingMultipartBodyParser extends StreamingMultipartBodyParser {
   private final parsers.StreamingOutputBuffer outputBuffer;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public TestStreamingMultipartBodyParser(
@@ -22,11 +25,13 @@ public final class TestStreamingMultipartBodyParser extends StreamingMultipartBo
       DefaultHttpErrorHandler errorHandler,
       MultipartUploadSinks streamingMultipartUploadSinks,
       FileTypeValidation fileTypeValidation,
+      SettingsManifest settingsManifest,
       parsers.StreamingOutputBuffer outputBuffer) {
     long maxFileSize = 1024 * 1024 * 100L; // 100MB
     super(
         materializer, errorHandler, streamingMultipartUploadSinks, fileTypeValidation, maxFileSize);
     this.outputBuffer = outputBuffer;
+    this.settingsManifest = settingsManifest;
   }
 
   // "Uploads" the file by consuming the byte string and printing its content, then returns a
@@ -68,5 +73,11 @@ public final class TestStreamingMultipartBodyParser extends StreamingMultipartBo
   @Override
   protected String getFileKey(Multipart.FileInfo fileInfo) {
     return "";
+  }
+
+  @Override
+  protected ImmutableList<FileTypeSpecifier> getAllowedFileTypeSpecifiers() {
+    return FileTypeSpecifier.parseCommaSeparated(
+        settingsManifest.getFileUploadAllowedFileTypeSpecifiers().get());
   }
 }

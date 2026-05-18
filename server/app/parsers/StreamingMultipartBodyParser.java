@@ -1,6 +1,6 @@
 package parsers;
 
-import java.util.Set;
+import com.google.common.collect.ImmutableList;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -33,18 +33,16 @@ public abstract class StreamingMultipartBodyParser
   private static final int CHUNK_SIZE = 1024 * 1024; // 1 MiB
   private final MultipartUploadSinks uploadSinks;
   private final FileTypeValidation fileTypeValidation;
-  private AtomicReference<String> detectedMimeTypeRef = new AtomicReference<>(null);
 
   public StreamingMultipartBodyParser(
       Materializer materializer,
       DefaultHttpErrorHandler errorHandler,
       MultipartUploadSinks streamingMultipartUploadSinks,
       FileTypeValidation fileTypeValidation,
-      long maxFileSize, Set<String> ALLOWED_MIME_TYPES) {
+      long maxFileSize) {
     super(materializer, CHUNK_SIZE, maxFileSize, /* allowEmptyFiles= */ false, errorHandler);
     this.uploadSinks = streamingMultipartUploadSinks;
     this.fileTypeValidation = fileTypeValidation;
-    this.detectedMimeTypeRef = ALLOWED_MIME_TYPES;
   }
 
   @Override
@@ -60,10 +58,14 @@ public abstract class StreamingMultipartBodyParser
         throw new FileUploadTypeException("Uploaded file has no filename.");
       }
 
-      if()
       AtomicReference<String> detectedMimeTypeRef = new AtomicReference<>(null);
+      ImmutableList<FileTypeSpecifier> allowed = getAllowedFileTypeSpecifiers();
+      if (allowed.isEmpty()) {
+        throw new IllegalArgumentException("At least one FileTypeSpecifier is required");
+      }
+
       Flow<ByteString, ByteString, ?> sniffingFlow =
-          fileTypeValidation.sniffingFlow(fileName, detectedMimeTypeRef);
+          fileTypeValidation.sniffingFlow(fileName, detectedMimeTypeRef, allowed);
 
       // Map upload sink to an output value, prepending the sniffing flow
       Sink<ByteString, CompletionStage<FilePart<String>>> mappedSink =
@@ -99,4 +101,11 @@ public abstract class StreamingMultipartBodyParser
 
   /** Returns the bucket type for streaming the file. */
   protected abstract BucketType getBucketType();
+
+  /**
+   * Allowed upload types for {@link FileTypeValidation#sniffingFlow}. The parser subclass defines
+   * what it accepts (same tokens as {@code file_upload_allowed_file_type_specifiers} when parsed
+   * with {@link FileTypeSpecifier#parseCommaSeparated}).
+   */
+  protected abstract ImmutableList<FileTypeSpecifier> getAllowedFileTypeSpecifiers();
 }
