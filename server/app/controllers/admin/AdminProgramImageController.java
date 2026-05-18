@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.data.Form;
 import play.data.FormFactory;
+import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.VersionRepository;
@@ -43,6 +44,7 @@ public final class AdminProgramImageController extends CiviFormController {
   private final SettingsManifest settingsManifest;
   private final RequestChecker requestChecker;
   private final FormFactory formFactory;
+  private final MessagesApi messagesApi;
 
   @Inject
   public AdminProgramImageController(
@@ -54,6 +56,7 @@ public final class AdminProgramImageController extends CiviFormController {
       SettingsManifest settingsManifest,
       RequestChecker requestChecker,
       FormFactory formFactory,
+      MessagesApi messagesApi,
       ProfileUtils profileUtils,
       VersionRepository versionRepository) {
     super(profileUtils, versionRepository);
@@ -65,6 +68,7 @@ public final class AdminProgramImageController extends CiviFormController {
     this.settingsManifest = checkNotNull(settingsManifest);
     this.requestChecker = checkNotNull(requestChecker);
     this.formFactory = checkNotNull(formFactory);
+    this.messagesApi = checkNotNull(messagesApi);
   }
 
   /**
@@ -135,7 +139,16 @@ public final class AdminProgramImageController extends CiviFormController {
       programService.setSummaryImageDescription(
           programId, LocalizedStrings.DEFAULT_LOCALE, newDescription);
       toastType = "success";
-      if (newDescription.isBlank()) {
+      if (settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
+        if (newDescription.isBlank()) {
+          toastMessage = "Image description removed";
+        } else {
+          toastMessage =
+              messagesApi.preferred(request).at("toast.adminProgramImage.imageSavedWithDescription")
+                  + " "
+                  + newDescription;
+        }
+      } else if (newDescription.isBlank()) {
         toastMessage = "Image description removed";
       } else {
         toastMessage = "Image description set to " + newDescription;

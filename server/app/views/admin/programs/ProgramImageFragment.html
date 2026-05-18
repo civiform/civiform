@@ -1,7 +1,7 @@
 <!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
 <!--/*@thymesVar id="model" type="views.admin.programs.ProgramImagePageViewModel"*/-->
 <th:block th:fragment="content">
-  <div class="margin-top-4">
+  <div class="grid-container margin-top-4">
     <a
       class="display-flex flex-align-center font-sans-md text-no-underline margin-bottom-4"
       th:href="${model.backUrl}"
@@ -72,7 +72,7 @@
 
           <form
             class="margin-top-4"
-            id="program-image-form"
+            id="image-description-form"
             method="post"
             novalidate
             th:action="${model.submitNavigationUrl}"
@@ -83,7 +83,7 @@
               th:value="${templateGlobals.csrfToken()}"
             />
             <cf:input
-              id="alt-text"
+              id="summaryImageDescription"
               name="summaryImageDescription"
               th:disabled="${!model.hasSummaryImage}"
               th:label="#{label.adminProgramImage.altText}"
@@ -112,7 +112,7 @@
               th:with="submitLabelKey=${model.submitButtonMessageKey()}"
             >
               <cf:button
-                id="program-image-submit-button"
+                id="continue-button"
                 th:text="#{__${submitLabelKey}__}"
                 type="submit"
               />

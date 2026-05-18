@@ -1,36 +1,106 @@
-import type {HtmxAfterRequestEvent, HtmxBeforeRequestEvent} from '@/types/htmx'
 import {hideError, isFileTooLarge, showError} from '@/file_upload_util'
 
 // Keep in sync with server/app/views/admin/programs/ProgramImageFragment.html
 const PROGRAM_IMAGE_FILE_UPLOAD_ID = 'program-image-input'
-const ALT_TEXT_INPUT_ID = 'alt-text'
-const SUBMIT_BUTTON_ID = 'program-image-submit-button'
-const PROGRAM_IMAGE_FORM_ID = 'program-image-form'
+const ALT_TEXT_INPUT_ID = 'summaryImageDescription'
+const SUBMIT_BUTTON_ID = 'continue-button'
+const PROGRAM_IMAGE_FORM_ID = 'image-description-form'
 const ALT_REQUIRED_ERROR_ID = 'cf-program-image-alt-required-error'
 const CF_FILE_UPLOADING_CLASS = 'cf-file-uploading'
 
+// Track the number of program image uploads in progress to prevent navigating away
 let programImageUploadsInProgress = 0
 
-function isProgramImageFileInput(
-  elt: EventTarget | null,
-): elt is HTMLInputElement {
-  return (
-    elt instanceof HTMLInputElement &&
-    elt.type === 'file' &&
-    elt.id === PROGRAM_IMAGE_FILE_UPLOAD_ID
-  )
+export const init = () => {
+  if (!document.getElementById(PROGRAM_IMAGE_FILE_UPLOAD_ID)) {
+    return
+  }
+
+  window.addEventListener('beforeunload', (e: BeforeUnloadEvent) => {
+    if (programImageUploadsInProgress > 0) {
+      e.preventDefault()
+      // Deprecated in favor of preventDefault() but included for legacy browser support
+      e.returnValue = true
+    }
+  })
+
+  document.body.addEventListener('change', (event) => {
+    if (!isProgramImageFileInput(event.target)) {
+      return
+    }
+    const fileInput = event.target
+    if (validateFileInput(fileInput)) {
+      const alt = document.getElementById(
+        ALT_TEXT_INPUT_ID,
+      ) as HTMLInputElement | null
+      if (alt) {
+        enableAltTextField(alt)
+      }
+      syncContinueButtonState()
+    }
+  })
+
+  const form = document.getElementById(PROGRAM_IMAGE_FORM_ID)
+  const altInput = document.getElementById(ALT_TEXT_INPUT_ID)
+  if (form instanceof HTMLFormElement && altInput instanceof HTMLInputElement) {
+    altInput.addEventListener('input', () => {
+      validateAltTextField(altInput)
+    })
+    form.addEventListener('submit', (event) => {
+      if (!validateAltTextField(altInput)) {
+        event.preventDefault()
+      }
+    })
+  }
+
+  syncContinueButtonState()
+
+  document.body.addEventListener('htmx:beforeRequest', (event) => {
+    if (!isProgramImageFileInput(event.detail.elt)) {
+      return
+    }
+    if (!validateFileInput(event.detail.elt)) {
+      event.preventDefault()
+      return
+    }
+    programImageUploadsInProgress++
+    document.body.classList.add(CF_FILE_UPLOADING_CLASS)
+    syncContinueButtonState()
+  })
+
+  document.body.addEventListener('htmx:afterRequest', (event) => {
+    if (!isProgramImageFileInput(event.detail.elt)) {
+      return
+    }
+
+    programImageUploadsInProgress--
+    if (programImageUploadsInProgress <= 0) {
+      programImageUploadsInProgress = 0
+      document.body.classList.remove(CF_FILE_UPLOADING_CLASS)
+    }
+
+    const fileInput = event.detail.elt
+    if (event.detail.successful) {
+      validateFileInput(fileInput)
+      const alt = document.getElementById(
+        ALT_TEXT_INPUT_ID,
+      ) as HTMLInputElement | null
+      if (alt) {
+        enableAltTextField(alt)
+      }
+    }
+
+    syncContinueButtonState()
+  })
 }
 
 /**
  * Validates the program image file input: toggles the too-large alert and, when valid, clears
- * related error UI. Modeled on {@code validateFileUploadQuestion} in {@code file_upload.ts}.
+ * related error UI.
  *
  * @returns true when a file is selected and its size is within the configured limit.
  */
-function validateFileInput(fileInput: HTMLInputElement): boolean {
-  if (!fileInput || fileInput.type !== 'file') {
-    return false
-  }
+const validateFileInput = (fileInput: HTMLInputElement): boolean => {
   const container = fileInput.closest<HTMLElement>('.usa-form-group')
   if (!container) {
     return false
@@ -60,121 +130,63 @@ function validateFileInput(fileInput: HTMLInputElement): boolean {
   return isValid
 }
 
-/**
- * Validates alt text: toggles the required-style alert. Listeners only call this and handle
- * {@code preventDefault} on submit when it returns false.
- */
-function validateAltText(altInput: HTMLInputElement): boolean {
-  const errorDiv = document.getElementById(ALT_REQUIRED_ERROR_ID)
-  if (!altInput.required) {
-    hideError(errorDiv, altInput)
-    return true
-  }
-  if (altInput.value.trim() === '') {
-    showError(errorDiv, altInput)
-    return false
-  }
-  hideError(errorDiv, altInput)
-  return true
+const isProgramImageFileInput = (
+  elt: EventTarget | null,
+): elt is HTMLInputElement =>
+  elt instanceof HTMLInputElement &&
+  elt.type === 'file' &&
+  elt.id === PROGRAM_IMAGE_FILE_UPLOAD_ID
+
+const enableAltTextField = (alt: HTMLInputElement) => {
+  alt.required = true
+  alt.setAttribute('aria-required', 'true')
+  alt.disabled = false
+  alt.removeAttribute('disabled')
+  alt.removeAttribute('aria-disabled')
 }
 
-function toggleDisabledState(): void {
+/**
+ * Updates continue/save: disabled during upload; when alt is enabled, disabled if alt text
+ * matches its default (initial) value.
+ */
+const syncContinueButtonState = () => {
   const submit = document.getElementById(SUBMIT_BUTTON_ID)
-  if (programImageUploadsInProgress > 0) {
-    if (submit instanceof HTMLButtonElement) {
-      submit.disabled = true
-      submit.setAttribute('aria-disabled', 'true')
-    }
-  } else {
-    if (submit instanceof HTMLButtonElement) {
-      submit.disabled = false
-      submit.removeAttribute('aria-disabled')
-    }
-  }
-}
-
-/**
- * Disable submit while an HTMX file upload is in flight.
- * After a successful upload, mark alt text required.
- */
-export function init(): void {
-  if (!document.getElementById(PROGRAM_IMAGE_FILE_UPLOAD_ID)) {
+  const altInput = document.getElementById(ALT_TEXT_INPUT_ID)
+  if (!(submit instanceof HTMLButtonElement)) {
     return
   }
 
-  window.addEventListener('beforeunload', (e: BeforeUnloadEvent) => {
-    if (programImageUploadsInProgress > 0) {
-      e.preventDefault()
-      // Deprecated in favor of preventDefault() but included for legacy browser support
-      e.returnValue = true
-    }
-  })
-
-  document.body.addEventListener('change', (event: Event) => {
-    if (!isProgramImageFileInput(event.target)) {
-      return
-    }
-    validateFileInput(event.target)
-  })
-
-  const form = document.getElementById(PROGRAM_IMAGE_FORM_ID)
-  const altInput = document.getElementById(ALT_TEXT_INPUT_ID)
-  if (form instanceof HTMLFormElement && altInput instanceof HTMLInputElement) {
-    altInput.addEventListener('input', () => {
-      validateAltText(altInput)
-    })
-    form.addEventListener('submit', (event: Event) => {
-      if (!validateAltText(altInput)) {
-        event.preventDefault()
-      }
-    })
+  if (programImageUploadsInProgress > 0) {
+    submit.disabled = true
+    submit.setAttribute('aria-disabled', 'true')
+    return
   }
 
-  document.body.addEventListener('htmx:beforeRequest', (event: Event) => {
-    const e = event as HtmxBeforeRequestEvent
-    if (!isProgramImageFileInput(e.detail.elt)) {
-      return
-    }
-    if (!validateFileInput(e.detail.elt)) {
-      e.preventDefault()
-      return
-    }
-    programImageUploadsInProgress++
-    document.body.classList.add(CF_FILE_UPLOADING_CLASS)
-    toggleDisabledState()
-  })
+  if (!(altInput instanceof HTMLInputElement) || altInput.disabled) {
+    submit.disabled = false
+    submit.removeAttribute('aria-disabled')
+    return
+  }
 
-  document.body.addEventListener('htmx:afterRequest', (event: Event) => {
-    const e = event as HtmxAfterRequestEvent
-    if (!isProgramImageFileInput(e.detail.elt)) {
-      return
-    }
+  if (altInput.value !== altInput.defaultValue) {
+    submit.disabled = false
+    submit.removeAttribute('aria-disabled')
+  } else {
+    submit.disabled = true
+    submit.setAttribute('aria-disabled', 'true')
+  }
+}
 
-    programImageUploadsInProgress--
-    if (programImageUploadsInProgress <= 0) {
-      programImageUploadsInProgress = 0
-      document.body.classList.remove(CF_FILE_UPLOADING_CLASS)
-    }
-    toggleDisabledState()
-
-    const fileInput = e.detail.elt
-    if (e.detail.successful) {
-      validateFileInput(fileInput)
-    }
-
-    if (!e.detail.successful) {
-      return
-    }
-    const alt = document.getElementById(
-      ALT_TEXT_INPUT_ID,
-    ) as HTMLInputElement | null
-    if (!alt) {
-      return
-    }
-    alt.required = true
-    alt.setAttribute('aria-required', 'true')
-    alt.disabled = false
-    alt.removeAttribute('disabled')
-    alt.removeAttribute('aria-disabled')
-  })
+const validateAltTextField = (altInput: HTMLInputElement): boolean => {
+  const errorDiv = document.getElementById(ALT_REQUIRED_ERROR_ID)
+  let valid: boolean
+  if (!altInput.required || altInput.value.trim() !== '') {
+    hideError(errorDiv, altInput)
+    valid = true
+  } else {
+    showError(errorDiv, altInput)
+    valid = false
+  }
+  syncContinueButtonState()
+  return valid
 }

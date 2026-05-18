@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import play.data.FormFactory;
+import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.ResetPostgres;
@@ -63,6 +64,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
             settingsManifest,
             instanceOf(RequestChecker.class),
             instanceOf(FormFactory.class),
+            instanceOf(MessagesApi.class),
             instanceOf(ProfileUtils.class),
             instanceOf(VersionRepository.class));
   }
@@ -366,6 +368,24 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
 
     assertThat(result.flash().data()).containsOnlyKeys("success");
     assertThat(result.flash().data().get("success")).contains("set to fake description");
+  }
+
+  @Test
+  public void updateDescription_nonEmpty_fileUploadImprovementsEnabled_toastsSuccess() {
+    when(settingsManifest.getFileUploadQuestionImprovementsEnabled(any())).thenReturn(true);
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+    Http.Request request =
+        fakeRequestBuilder()
+            .method("POST")
+            .bodyForm(ImmutableMap.of("summaryImageDescription", "fake description"))
+            .build();
+
+    Result result =
+        controller.updateDescription(request, program.id, ProgramEditStatus.CREATION.name());
+
+    assertThat(result.flash().data()).containsOnlyKeys("success");
+    assertThat(result.flash().data().get("success"))
+        .isEqualTo("Image is saved with the description: fake description");
   }
 
   @Test

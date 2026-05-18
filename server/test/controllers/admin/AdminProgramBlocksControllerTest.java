@@ -39,7 +39,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
   @Test
   public void index_withInvalidProgram_notFound() {
-    Result result = controller.index(/* programId= */ 1L);
+    Result result = controller.index(fakeRequest(), /* programId= */ 1L);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
@@ -48,7 +48,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   public void index_withProgram_redirectsToEdit() {
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
 
-    Result result = controller.index(program.id);
+    Result result = controller.index(fakeRequest(), program.id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
@@ -61,7 +61,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   public void readOnlyIndex_readOnly_redirectsToShow() {
     ProgramModel program = ProgramBuilder.newActiveProgram().build();
 
-    Result result = controller.readOnlyIndex(program.id);
+    Result result = controller.readOnlyIndex(fakeRequest(), program.id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())

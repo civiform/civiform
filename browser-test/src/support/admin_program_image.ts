@@ -1,16 +1,18 @@
 import {expect} from '../support/civiform_fixtures'
 import {Page} from '@playwright/test'
-import {waitForPageJsLoad} from './wait'
+import {waitForPageJsLoad, waitForHtmxReady} from './wait'
 import {dismissToast} from '.'
 
 export class AdminProgramImage {
-  // These values should be kept in sync with views/admin/programs/ProgramImageView.java.
+  // These values should be kept in sync with views/admin/programs/ProgramImageView
+  // and views/admin/programs/ProgramImageFragment.html
   private imageUploadLocator = 'input[type=file]'
   private imageDescriptionLocator = 'input[name="summaryImageDescription"]'
   private imageUploadSubmitButtonLocator =
     'button[form=image-file-upload-form][type="submit"]'
-  private imageDescriptionSubmitButtonLocator =
+  private legacyImageDescriptionSubmitButtonLocator =
     'button[form=image-description-form][type="submit"]'
+  private imageDescriptionSubmitButtonLocator = '#continue-button'
   private translationsButtonLocator = 'button:has-text("Manage translations")'
   private continueButtonLocator = '#continue-button'
   // This should be kept in sync with views/fileupload/FileUploadViewStrategy#createFileTooLargeError.
@@ -34,6 +36,12 @@ export class AdminProgramImage {
     await expect(this.page.locator(this.continueButtonLocator)).toHaveCount(1)
   }
 
+  async expectContinueButtonText(expectedText: string) {
+    await expect(this.page.locator(this.continueButtonLocator)).toHaveText(
+      expectedText,
+    )
+  }
+
   async expectNoContinueButton() {
     await expect(this.page.locator(this.continueButtonLocator)).toHaveCount(0)
   }
@@ -47,12 +55,36 @@ export class AdminProgramImage {
     await waitForPageJsLoad(this.page)
   }
 
+  /**
+   * @deprecated
+   */
+  async legacySubmitImageDescription() {
+    await this.page.click(this.legacyImageDescriptionSubmitButtonLocator)
+    await waitForPageJsLoad(this.page)
+  }
+
   async setImageDescriptionAndSubmit(description: string) {
     await this.setImageDescription(description)
     await this.submitImageDescription()
   }
 
-  /*
+  /**
+   * @deprecated
+   * @param description
+   */
+  async legacySetImageDescriptionAndSubmit(description: string) {
+    await this.setImageDescription(description)
+    await this.legacySubmitImageDescription()
+  }
+
+  async setImageFileFromAssets(fileName: string) {
+    await this.page.setInputFiles('input[type=file]', 'src/assets/' + fileName)
+    await waitForHtmxReady(this.page)
+    await this.page.waitForTimeout(1000)
+  }
+
+  /**
+   * @deprecated
    * Sets the given image file on the file <input> element.
    *
    * @param {string} imageFileName specifies a path to the image file.
@@ -65,7 +97,7 @@ export class AdminProgramImage {
       .inputValue()
     if (currentDescription == '') {
       // A description has to be set before an image can be uploaded
-      await this.setImageDescriptionAndSubmit('desc')
+      await this.legacySetImageDescriptionAndSubmit('desc')
       await dismissToast(this.page)
     }
 
@@ -78,6 +110,10 @@ export class AdminProgramImage {
     }
   }
 
+  /**
+   * @deprecated
+   * @param imageFileName
+   */
   async setImageFileAndSubmit(imageFileName: string) {
     await this.setImageFile(imageFileName)
     await this.page.click(this.imageUploadSubmitButtonLocator)
@@ -124,6 +160,24 @@ export class AdminProgramImage {
     ).toBeEnabled()
   }
 
+  /**
+   * @deprecated
+   */
+  async legacyExpectDisabledImageDescriptionSubmit() {
+    await expect(
+      this.page.locator(this.legacyImageDescriptionSubmitButtonLocator),
+    ).toBeDisabled()
+  }
+
+  /**
+   * @deprecated
+   */
+  async legacyExpectEnabledImageDescriptionSubmit() {
+    await expect(
+      this.page.locator(this.legacyImageDescriptionSubmitButtonLocator),
+    ).toBeEnabled()
+  }
+
   async expectDisabledImageFileUploadSubmit() {
     await expect(
       this.page.locator(this.imageUploadSubmitButtonLocator),
@@ -150,6 +204,12 @@ export class AdminProgramImage {
 
   async expectTooLargeErrorHidden() {
     await expect(this.page.locator(this.tooLargeErrorLocator)).toBeHidden()
+  }
+
+  async expectAltTextRequiredClientErrorVisible() {
+    await expect(
+      this.page.locator('#cf-program-image-alt-required-error'),
+    ).toBeVisible()
   }
 
   /** Expects that the program card preview does not contain an image. */
@@ -197,7 +257,15 @@ export class AdminProgramImage {
     await expect(this.page.getByText('View and apply')).toBeVisible()
   }
 
-  descriptionUpdatedToastMessage(description: string) {
+  descriptionUpdatedToastMessage(description: string): string {
+    return `Image is saved with the description: ${description}`
+  }
+
+  /**
+   * @deprecated
+   * @param description
+   */
+  legacyDescriptionUpdatedToastMessage(description: string): string {
     return `Image description set to ${description}`
   }
 
