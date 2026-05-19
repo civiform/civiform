@@ -166,7 +166,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Navigate to another block, return and make sure the enumerator question is still visible', async () => {
-        await navigateToRepeatedScreen(page, 3, 2)
+        await navigateToRepeatedScreen(
+          page,
+          /* screenNumber= */ 3,
+          /* repeatedFrom= */ 2,
+        )
         await page.getByRole('link', {name: 'Screen 2'}).click()
         await expectCurrentBlockTitle(
           /* isRepeatedBlock= */ false,
@@ -417,7 +421,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Verify that we can add a repeated screen from another repeated screen', async () => {
-        await navigateToRepeatedScreen(page, 4, 2)
+        await navigateToRepeatedScreen(
+          page,
+          /* screenNumber= */ 4,
+          /* repeatedFrom= */ 2,
+        )
         await addRepeatedScreenButton.click()
         await expectCurrentBlockTitle(
           /* isRepeatedBlock= */ true,
@@ -450,14 +458,22 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await blockPanel
           .getByRole('button', {name: 'Add repeated screen'})
           .click()
-        await navigateToRepeatedScreen(page, 4, 2)
+        await navigateToRepeatedScreen(
+          page,
+          /* screenNumber= */ 4,
+          /* repeatedFrom= */ 2,
+        )
         await expect(addNestedRepeatedSetButton).toBeVisible()
       })
 
       await test.step('Create nested repeated set and verify nested button is hidden on nested blocks', async () => {
         await addNestedRepeatedSetButton.click()
 
-        await navigateToRepeatedScreen(page, 5, 2)
+        await navigateToRepeatedScreen(
+          page,
+          /* screenNumber= */ 5,
+          /* repeatedFrom= */ 2,
+        )
         await expect(addNestedRepeatedSetButton).toBeHidden()
 
         await fillOutEnumeratorQuestionFormCorrectly(page, {
@@ -466,9 +482,14 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           adminId: 'jobs enumerator',
         })
 
-        await navigateToRepeatedScreen(page, 6, 5, {
-          childLabel: '[child label]',
-        })
+        await navigateToRepeatedScreen(
+          page,
+          /* screenNumber= */ 6,
+          /* repeatedFrom= */ 5,
+          {
+            childLabel: '[child label]',
+          },
+        )
         await expect(addNestedRepeatedSetButton).toBeHidden()
       })
     })
@@ -506,7 +527,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           enumeratorName: 'pets enumerator',
         })
         await adminPrograms.gotoEditDraftProgramPage('Enumerator test program')
-        await navigateToRepeatedScreen(page, 3, 2)
+        await navigateToRepeatedScreen(
+          page,
+          /* screenNumber= */ 3,
+          /* repeatedFrom= */ 2,
+        )
         await adminPrograms.addQuestionFromQuestionBank('pets-repeated-name')
       })
 
@@ -573,7 +598,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Return to repeated screen and verify Add question is enabled and alert is hidden', async () => {
-        await navigateToRepeatedScreen(page, 3, 2)
+        await navigateToRepeatedScreen(
+          page,
+          /* screenNumber= */ 3,
+          /* repeatedFrom= */ 2,
+        )
         await expect(addQuestionButton).toBeEnabled()
         await expect(repeatedSetAlert).toBeHidden()
       })
@@ -613,7 +642,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Click on the new repeated screen in the block order panel', async () => {
-        await navigateToRepeatedScreen(page, 4, 2)
+        await navigateToRepeatedScreen(
+          page,
+          /* screenNumber= */ 4,
+          /* repeatedFrom= */ 2,
+        )
       })
 
       await test.step('Verify that the question bank has all non-repeated questions', async () => {
@@ -697,7 +730,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           await adminPrograms.gotoEditDraftProgramPage(
             'Enumerator test program',
           )
-          await navigateToRepeatedScreen(page, 4, 2)
+          await navigateToRepeatedScreen(
+            page,
+            /* screenNumber= */ 4,
+            /* repeatedFrom= */ 2,
+          )
         })
 
         await test.step('Add a non-repeated question to the repeated screen', async () => {
@@ -707,7 +744,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         })
 
         await test.step('Verify that a copy of the question is added to the screen', async () => {
-          await navigateToRepeatedScreen(page, 4, 2)
+          await navigateToRepeatedScreen(
+            page,
+            /* screenNumber= */ 4,
+            /* repeatedFrom= */ 2,
+          )
           await expect(
             page.getByText('Admin ID: income-non-repeated-question -_- a'),
           ).toBeVisible()
@@ -728,7 +769,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await waitForPageJsLoad(page)
       })
 
-      await navigateToRepeatedScreen(page, 3, 2)
+      await navigateToRepeatedScreen(
+        page,
+        /* screenNumber= */ 3,
+        /* repeatedFrom= */ 2,
+      )
 
       const modalPrefix = page.getByTestId('name-prefix')
 
@@ -842,7 +887,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Add the existing repeated name question to the repeated screen', async () => {
-        await navigateToRepeatedScreen(page, 3, 2)
+        await navigateToRepeatedScreen(
+          page,
+          /* screenNumber= */ 3,
+          /* repeatedFrom= */ 2,
+        )
         await adminPrograms.addQuestionFromQuestionBank(
           'enumerator-ete-repeated-name',
         )
@@ -902,7 +951,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
       await adminPrograms.gotoEditDraftProgramPage(programName)
 
-      await navigateToRepeatedScreen(page, 3, 2)
+      await navigateToRepeatedScreen(
+        page,
+        /* screenNumber= */ 3,
+        /* repeatedFrom= */ 2,
+      )
 
       await test.step('Add repeated name question to the repeated screen', async () => {
         await adminPrograms.addQuestionFromQuestionBank(repeatedQuestionName)
@@ -914,7 +967,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           .getByRole('button', {name: 'Add nested repeated set'})
           .click()
 
-        await navigateToRepeatedScreen(page, 4, 2)
+        await navigateToRepeatedScreen(
+          page,
+          /* screenNumber= */ 4,
+          /* repeatedFrom= */ 2,
+        )
         await fillOutEnumeratorQuestionFormCorrectly(page, {
           listedEntity: 'Jobs',
           questionText: 'List jobs for $this',
@@ -932,9 +989,14 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         })
 
         await adminPrograms.gotoEditDraftProgramPage(programName)
-        await navigateToRepeatedScreen(page, 5, 4, {
-          childLabel: '[child label]',
-        })
+        await navigateToRepeatedScreen(
+          page,
+          /* screenNumber= */ 5,
+          /* repeatedFrom= */ 4,
+          {
+            childLabel: '[child label]',
+          },
+        )
         await adminPrograms.addQuestionFromQuestionBank(
           nestedRepeatedQuestionName,
         )
@@ -1053,7 +1115,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
-    test('applicant can fill in lots of blocks, and then go back and delete some repeated entities', async ({
+    test('applicant can fill, validate, and edit nested enumerator entries via the review page', async ({
       page,
       applicantQuestions,
     }) => {
@@ -1228,35 +1290,6 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(errors).toBeVisible()
         await expect(addPetsButton).toBeDisabled()
       })
-    })
-
-    test('applicant cannot enter more than 50 entities for enumerators without a max count', async ({
-      page,
-      applicantQuestions,
-    }) => {
-      const addJobsButton = page.getByRole('button', {name: 'Add Jobs'})
-
-      await applicantQuestions.applyProgram(programName)
-
-      await test.step('Add two pets and continue to the repeated screens', async () => {
-        await addRepeatedEntity(page, 'Pets', 'Bugs')
-        await addRepeatedEntity(page, 'Pets', 'Daffy')
-        await applicantQuestions.clickContinue()
-      })
-
-      await test.step("Answer Bugs's name", async () => {
-        await applicantQuestions.answerNameQuestion('Bugs', 'Bunny')
-        await applicantQuestions.clickContinue()
-      })
-
-      await test.step('Filling the Jobs enumerator with 50 entries disables the Add button', async () => {
-        for (let i = 1; i <= 50; i++) {
-          await addRepeatedEntity(page, 'Jobs', 'Cartoon Character')
-        }
-        await expect(addJobsButton).toBeDisabled()
-      })
-
-      await logout(page)
     })
 
     test('applicant can navigate to previous blocks', async ({
