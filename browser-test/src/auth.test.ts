@@ -154,8 +154,7 @@ test.describe('Applicant auth', () => {
     })
   })
 
-  // Auth login, then guest, then auth login.
-  test('Auth login, then Guest login, then auth login does not show submitted applications', async ({
+  test('Auth login, then Guest login, then auth login shows all applications', async ({
     page,
     adminPrograms,
     applicantProgramList,
