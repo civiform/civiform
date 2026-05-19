@@ -20,7 +20,7 @@
 
     <div
       class="usa-error-message margin-bottom-2"
-      th:if="${model.cardPreviewFailed}"
+      th:unless="${model.showCardPreview()}"
       th:text="#{content.adminProgramImage.cardPreviewError}"
     />
 
@@ -113,7 +113,7 @@
       <div class="grid-col-12 tablet:grid-col-6">
         <th:block th:if="${model.showCardPreview()}">
           <div
-            th:replace="~{admin/programs/ProgramCardPreviewFragment :: cardPreview(${model.cardPreviewParams.get()})}"
+            th:replace="~{admin/programs/ProgramCardPreviewFragment :: cardPreview(${model.programCardParams.get()})}"
           ></div>
         </th:block>
       </div>

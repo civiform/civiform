@@ -40,6 +40,7 @@ import services.settings.SettingsManifest;
 import support.FakeRequestBuilder;
 import support.ProgramBuilder;
 import support.cloud.FakePublicStorageClient;
+import views.admin.programs.ProgramCardPreview;
 import views.admin.programs.ProgramEditStatus;
 import views.admin.programs.ProgramImagePageView;
 import views.admin.programs.ProgramImageView;
@@ -64,7 +65,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
             programService,
             instanceOf(ProgramImageView.class),
             instanceOf(ProgramImagePageView.class),
-            instanceOf(ProgramCardPreviewController.class),
+            instanceOf(ProgramCardPreview.class),
             instanceOf(SettingsManifest.class),
             instanceOf(RequestChecker.class),
             instanceOf(FormFactory.class),

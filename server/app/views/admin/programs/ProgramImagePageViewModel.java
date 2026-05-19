@@ -21,25 +21,16 @@ public final class ProgramImagePageViewModel implements BaseViewModel {
   private final int maxFileSizeMb;
 
   /**
-   * Card preview params when {@link controllers.admin.ProgramCardPreviewController} succeeds. Empty
-   * means preview could not be built (see controller); this page treats empty as a failed load for
-   * the error banner.
+   * Card preview params when {@link ProgramCardPreview} succeeds. Empty means preview could not be
+   * built (see controller); this page treats empty as a failed load for the error banner.
    */
-  private final Optional<ProgramCardParams> cardPreviewParams;
+  private final Optional<ProgramCardParams> programCardParams;
 
   /** Flash message after redirect, if present. */
   private final Optional<String> flashSuccess;
 
   /** Flash error after redirect, if present. */
   private final Optional<String> flashError;
-
-  /**
-   * True when preview params are absent after the controller attempted to load them. Today the
-   * controller only leaves this empty after an exception, not on a successful empty response.
-   */
-  public boolean isCardPreviewFailed() {
-    return cardPreviewParams.isEmpty();
-  }
 
   public String getBackUrl() {
     long id = program.id();
@@ -66,7 +57,7 @@ public final class ProgramImagePageViewModel implements BaseViewModel {
   }
 
   public boolean showCardPreview() {
-    return cardPreviewParams.isPresent();
+    return programCardParams.isPresent();
   }
 
   public boolean hasSummaryImage() {

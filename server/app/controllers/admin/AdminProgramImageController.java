@@ -3,11 +3,14 @@ package controllers.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
+import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import controllers.FlashKey;
 import forms.admin.ProgramImageDescriptionForm;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import org.slf4j.Logger;
@@ -15,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import parsers.admin.ProgramImageStreamingMultipartBodyParser;
 import play.data.Form;
 import play.data.FormFactory;
+import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.BodyParser;
@@ -22,12 +26,15 @@ import play.mvc.Http;
 import play.mvc.Result;
 import repository.VersionRepository;
 import services.LocalizedStrings;
+import services.applicant.ApplicantPersonalInfo;
+import services.applicant.ApplicantService;
 import services.cloud.PublicFileNameFormatter;
 import services.cloud.PublicStorageClient;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
+import views.admin.programs.ProgramCardPreview;
 import views.admin.programs.ProgramEditStatus;
 import views.admin.programs.ProgramImagePageView;
 import views.admin.programs.ProgramImagePageViewModel;
@@ -42,11 +49,11 @@ public final class AdminProgramImageController extends CiviFormController {
   private final ProgramService programService;
   private final ProgramImageView programImageView;
   private final ProgramImagePageView programImagePageView;
-  private final ProgramCardPreviewController programCardPreviewController;
+  private final ProgramCardPreview programCardPreview;
   private final SettingsManifest settingsManifest;
   private final RequestChecker requestChecker;
   private final FormFactory formFactory;
-  private final MessagesApi messagesApi;
+  private final Messages messages;
 
   @Inject
   public AdminProgramImageController(
@@ -54,7 +61,7 @@ public final class AdminProgramImageController extends CiviFormController {
       ProgramService programService,
       ProgramImageView programImageView,
       ProgramImagePageView programImagePageView,
-      ProgramCardPreviewController programCardPreviewController,
+      ProgramCardPreview programCardPreview,
       SettingsManifest settingsManifest,
       RequestChecker requestChecker,
       FormFactory formFactory,
@@ -66,11 +73,11 @@ public final class AdminProgramImageController extends CiviFormController {
     this.programService = checkNotNull(programService);
     this.programImageView = checkNotNull(programImageView);
     this.programImagePageView = checkNotNull(programImagePageView);
-    this.programCardPreviewController = checkNotNull(programCardPreviewController);
+    this.programCardPreview = checkNotNull(programCardPreview);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.requestChecker = checkNotNull(requestChecker);
     this.formFactory = checkNotNull(formFactory);
-    this.messagesApi = checkNotNull(messagesApi);
+    this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
   }
 
   /**
@@ -84,11 +91,29 @@ public final class AdminProgramImageController extends CiviFormController {
     requestChecker.throwIfProgramNotDraft(programId);
     if (settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
       ProgramDefinition program = programService.getFullProgramDefinition(programId);
-      Optional<ProgramCardParams> cardPreviewParams = Optional.empty();
+      Optional<ProgramCardParams> programCardParams = Optional.empty();
       try {
-        cardPreviewParams =
-            Optional.of(programCardPreviewController.programCardPreviewParams(request, program));
-      } catch (RuntimeException e) {
+        ApplicantPersonalInfo.Representation representation =
+            ApplicantPersonalInfo.Representation.builder().build();
+        ApplicantPersonalInfo api = ApplicantPersonalInfo.ofGuestUser(representation);
+        CiviFormProfile profile = profileUtils.currentUserProfile(request);
+
+        ProgramDefinition programDefinition =
+            programService.getFullProgramDefinitionAsync(programId).toCompletableFuture().get();
+        ApplicantService.ApplicantProgramData apd =
+            ApplicantService.ApplicantProgramData.builder(programDefinition).build();
+
+        ProgramCardPreview.Params programCardPreviewParams =
+            ProgramCardPreview.Params.builder()
+                .setRequest(request)
+                .setApplicantPersonalInfo(api)
+                .setApplicantProgramData(apd)
+                .setProfile(profile)
+                .setMessages(messages)
+                .build();
+
+        programCardParams = Optional.of(programCardPreview.buildCard(programCardPreviewParams));
+      } catch (RuntimeException | ExecutionException | InterruptedException e) {
         logger.error("Error generating card preview", e);
       }
 
@@ -97,7 +122,7 @@ public final class AdminProgramImageController extends CiviFormController {
               .programEditStatus(ProgramEditStatus.getStatusFromString(editStatus))
               .program(program)
               .maxFileSizeMb(publicStorageClient.getFileLimitMb())
-              .cardPreviewParams(cardPreviewParams)
+              .programCardParams(programCardParams)
               .flashSuccess(request.flash().get(FlashKey.SUCCESS))
               .flashError(request.flash().get(FlashKey.ERROR))
               .build();
@@ -129,7 +154,6 @@ public final class AdminProgramImageController extends CiviFormController {
         descriptionValues != null && descriptionValues.length > 0 ? descriptionValues[0] : "";
 
     final String indexUrl = routes.AdminProgramImageController.index(programId, editStatus).url();
-    Messages messages = messagesApi.preferred(request);
 
     // Play's default multipart parser stores a TemporaryFile in FilePart#getRef(). Our
     // ProgramImageStreamingMultipartBodyParser streams the upload to cloud storage and stores the
