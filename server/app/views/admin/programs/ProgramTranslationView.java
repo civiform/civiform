@@ -28,6 +28,7 @@ import services.program.ProgramDefinition;
 import services.program.ProgramType;
 import services.statuses.StatusDefinitions;
 import views.HtmlBundle;
+import views.ViewUtils;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
@@ -413,6 +414,7 @@ public final class ProgramTranslationView extends TranslationFormView {
     return div()
         .with(
             label("Screen name")
+                .with(ViewUtils.requiredQuestionIndicator())
                 .attr("for", inputId)
                 .withClasses("text-gray-600", "text-base", "px-1", "py-2", "block"),
             flexRow);
