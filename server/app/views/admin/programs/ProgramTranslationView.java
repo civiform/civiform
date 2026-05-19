@@ -388,12 +388,21 @@ public final class ProgramTranslationView extends TranslationFormView {
   private DomContent renderScreenNameField(
       BlockDefinition block, LocalizationUpdate.ScreenUpdate screenUpdateData) {
     String fieldName = ProgramTranslationForm.localizedScreenName(block.id());
+    Optional<String> prefix = block.namePrefix().filter(p -> !p.isEmpty());
+    if (prefix.isEmpty()) {
+      return FieldWithLabel.input()
+          .setFieldName(fieldName)
+          .setLabelText("Screen name")
+          .setScreenReaderText("Screen name")
+          .setValue(screenUpdateData.localizedName())
+          .setRequired(true)
+          .getInputTag();
+    }
     String inputId = "screen-name-input-" + block.id();
-    DivTag flexRow = div().withClasses("flex");
-    block
-        .namePrefix()
-        .filter(p -> !p.isEmpty())
-        .ifPresent(p -> flexRow.with(div(p).withClasses("text-black", "text-lg", "py-2")));
+    DivTag flexRow =
+        div()
+            .withClasses("flex")
+            .with(div(prefix.get()).withClasses("text-black", "text-lg", "py-2"));
     flexRow.with(
         input()
             .withName(fieldName)
@@ -416,7 +425,7 @@ public final class ProgramTranslationView extends TranslationFormView {
             label("Screen name")
                 .with(ViewUtils.requiredQuestionIndicator())
                 .attr("for", inputId)
-                .withClasses("text-gray-600", "text-base", "px-1", "py-2", "block"),
+                .withClasses("text-gray-600", "text-base", "px-1", "pt-2", "block"),
             flexRow);
   }
 }
