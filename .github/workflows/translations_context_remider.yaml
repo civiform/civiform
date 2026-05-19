@@ -25,7 +25,6 @@ jobs:
           script: |
             // GitHub username -> Slack user ID mapping
             const slackUserMap = {
-              'tallulahkay': 'U08ELT9CAB0',
               'melanie-exygy': 'U057V0H2K0W',
             };
 
