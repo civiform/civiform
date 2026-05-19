@@ -1,7 +1,8 @@
 @use 'uswds-core' as *;
 
 // Vertical spacing system aligning with the Admin Components Figma spacing table. Put the
-// class on a parent element. The owl selector (`> * + *`) will apply direct children only.
+// class on a parent element. The owl selector (> * + *) will apply margin-top to each direct
+// sibling after the first direct child. Nested descendants aren't affected.
 
 // Reset margin top/bottom on elements inside a spacing container so the
 // owl selector (`> * + *`) below is the sole source of vertical rhythm.
