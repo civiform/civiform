@@ -1889,7 +1889,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
                                       .withName("name")
                                       .withValue(blockDefinition.name())
                                       .withId("block-name-input")
-                                      .attr("data-testid", "block-name-input")
                                       .withClasses(
                                           "flex-auto",
                                           "px-3",
@@ -1918,7 +1917,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   .withClasses("mx-4"),
               submitButton("Save")
                   .withId("update-block-button")
-                  .attr("data-testid", "save-button")
                   .withClasses(
                       "mx-4", "my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50"))
                   .isDisabled());

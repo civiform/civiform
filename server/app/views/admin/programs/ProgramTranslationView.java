@@ -1,7 +1,9 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.div;
 import static j2html.TagCreator.input;
+import static j2html.TagCreator.label;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.span;
 
@@ -10,6 +12,7 @@ import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
 import forms.translation.ProgramTranslationForm;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import java.util.Locale;
 import java.util.Optional;
@@ -25,6 +28,7 @@ import services.program.ProgramDefinition;
 import services.program.ProgramType;
 import services.statuses.StatusDefinitions;
 import views.HtmlBundle;
+import views.ViewUtils;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
@@ -334,28 +338,20 @@ public final class ProgramTranslationView extends TranslationFormView {
               .filter(blockDefinition -> blockDefinition.id() == screenUpdateData.blockIdToUpdate())
               .findFirst()
               .get();
-      ImmutableList.Builder<DomContent> fieldsBuilder =
-          ImmutableList.<DomContent>builder()
-              .add(
-                  fieldWithDefaultLocaleTextHint(
-                      FieldWithLabel.input()
-                          .setFieldName(ProgramTranslationForm.localizedScreenName(block.id()))
-                          .setLabelText("Screen name")
-                          .setScreenReaderText("Screen name")
-                          .setValue(screenUpdateData.localizedName())
-                          .setRequired(true)
-                          .getInputTag(),
-                      block.localizedName()))
-              .add(
-                  fieldWithDefaultLocaleTextHint(
-                      FieldWithLabel.input()
-                          .setFieldName(
-                              ProgramTranslationForm.localizedScreenDescription(block.id()))
-                          .setLabelText("Screen description")
-                          .setScreenReaderText("Screen description")
-                          .setValue(screenUpdateData.localizedDescription())
-                          .getInputTag(),
-                      block.localizedDescription()));
+      ImmutableList.Builder<DomContent> fieldsBuilder = ImmutableList.<DomContent>builder();
+      fieldsBuilder
+          .add(
+              fieldWithDefaultLocaleTextHint(
+                  renderScreenNameField(block, screenUpdateData), block.localizedName()))
+          .add(
+              fieldWithDefaultLocaleTextHint(
+                  FieldWithLabel.input()
+                      .setFieldName(ProgramTranslationForm.localizedScreenDescription(block.id()))
+                      .setLabelText("Screen description")
+                      .setScreenReaderText("Screen description")
+                      .setValue(screenUpdateData.localizedDescription())
+                      .getInputTag(),
+                  block.localizedDescription()));
       if (block.localizedEligibilityMessage().isPresent()) {
         fieldsBuilder.add(
             fieldWithDefaultLocaleTextHint(
@@ -382,5 +378,55 @@ public final class ProgramTranslationView extends TranslationFormView {
                           .asAnchorText()),
               fieldsBuilder.build()));
     }
+  }
+
+  /**
+   * Renders the screen-name input. When the block has a name prefix (repeated blocks), the prefix
+   * is shown read-only side-by-side with the input, mirroring the screen-name edit modal on the
+   * program block edit page.
+   */
+  private DomContent renderScreenNameField(
+      BlockDefinition block, LocalizationUpdate.ScreenUpdate screenUpdateData) {
+    String fieldName = ProgramTranslationForm.localizedScreenName(block.id());
+    Optional<String> prefix = block.namePrefix().filter(p -> !p.isEmpty());
+    if (prefix.isEmpty()) {
+      return FieldWithLabel.input()
+          .setFieldName(fieldName)
+          .setLabelText("Screen name")
+          .setScreenReaderText("Screen name")
+          .setValue(screenUpdateData.localizedName())
+          .setRequired(true)
+          .getInputTag();
+    }
+    String inputId = "screen-name-input-" + block.id();
+    DivTag flexRow =
+        div()
+            .withClasses("flex")
+            .with(div(prefix.get()).withClasses("text-black", "text-lg", "py-2"));
+    flexRow.with(
+        input()
+            .withName(fieldName)
+            .withValue(screenUpdateData.localizedName())
+            .withId(inputId)
+            .isRequired()
+            .withMaxlength(String.valueOf(FieldWithLabel.MAX_INPUT_TEXT_LENGTH_DEFAULT))
+            .withClasses(
+                "flex-auto",
+                "px-3",
+                "text-lg",
+                "py-2",
+                "outline-none",
+                "ml-1",
+                "border",
+                "border-gray-500",
+                "rounded-lg",
+                "focus:border-civiform-blue"));
+    return div()
+        .with(
+            label("Screen name")
+                .with(ViewUtils.requiredQuestionIndicator())
+                .attr("for", inputId)
+                .withClasses("text-gray-600", "text-base", "px-1", "pt-2", "block"),
+            flexRow);
   }
 }
