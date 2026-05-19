@@ -409,6 +409,7 @@ public final class ProgramTranslationView extends TranslationFormView {
             .withValue(screenUpdateData.localizedName())
             .withId(inputId)
             .isRequired()
+            .withMaxlength(String.valueOf(FieldWithLabel.MAX_INPUT_TEXT_LENGTH_DEFAULT))
             .withClasses(
                 "flex-auto",
                 "px-3",
