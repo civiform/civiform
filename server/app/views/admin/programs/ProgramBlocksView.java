@@ -714,7 +714,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
               blockHasEnumeratorQuestion,
               blockDescriptionModalButton,
               blockDeleteModalButton,
-              canDeleteBlock(program, blockDefinition),
+              canDeleteBlock(program, blockDefinition, request),
               enumeratorImprovementsEnabled);
       ButtonTag addQuestion =
           showRepeatedQuestionsSectionStyling
@@ -808,11 +808,18 @@ public final class ProgramBlocksView extends ProgramBaseView {
     }
   }
 
-  boolean canDeleteBlock(ProgramDefinition program, BlockDefinition blockDefinition) {
-    // A block can only be deleted when it has no repeated blocks. Same is true for
-    // removing the enumerator question from the block.
+  boolean canDeleteBlock(
+      ProgramDefinition program, BlockDefinition blockDefinition, Request request) {
+    boolean enumeratorImprovementsEnabled =
+        settingsManifest.getEnumeratorImprovementsEnabled(request);
+
+    // An enumerator block (or its enumerator question) can be removed only when
+    // it has no repeated child blocks. With enumeratorImprovementsEnabled, empty
+    // repeated children (no questions) don't block the delete.
     return !blockDefinition.hasEnumeratorQuestion()
-        || hasNoRepeatedBlocks(program, blockDefinition.id());
+        || (enumeratorImprovementsEnabled
+            ? hasNoRepeatedBlocksWithQuestions(program, blockDefinition.id())
+            : hasNoRepeatedBlocks(program, blockDefinition.id()));
   }
 
   private ImmutableSetMultimap<Long, Long> constructQuestionIdToVisibilityBlockIdMap(
@@ -1353,7 +1360,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                       programDefinition.id(),
                       blockDefinition.id(),
                       questionDefinition,
-                      canDeleteBlock(programDefinition, blockDefinition)))
+                      canDeleteBlock(programDefinition, blockDefinition, request)))
               .withClasses("flex", "flex-column"));
     } else {
       // For each toggle, use a label instead in the read only view
@@ -1964,6 +1971,12 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
   private boolean hasNoRepeatedBlocks(ProgramDefinition programDefinition, long blockId) {
     return programDefinition.getBlockDefinitionsForEnumerator(blockId).isEmpty();
+  }
+
+  private boolean hasNoRepeatedBlocksWithQuestions(
+      ProgramDefinition programDefinition, long blockId) {
+    return programDefinition.getBlockDefinitionsForEnumerator(blockId).stream()
+        .allMatch(blockDef -> blockDef.getQuestionCount() == 0);
   }
 
   /** Returns if this view is editable or not. A view is editable only if it represents a draft. */
