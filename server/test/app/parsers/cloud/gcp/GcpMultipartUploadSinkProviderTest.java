@@ -42,8 +42,14 @@ public class GcpMultipartUploadSinkProviderTest {
     Config config =
         ConfigFactory.parseMap(
             ImmutableMap.of(
-                "gcp.s3.bucket", "test-bucket",
-                "gcp.s3.public_bucket", "test-public-bucket"));
+                "gcp.s3.bucket",
+                "test-bucket",
+                "gcp.s3.public_bucket",
+                "test-public-bucket",
+                "gcp.s3.filelimitmb",
+                50,
+                "gcp.s3.public_file_limit_mb",
+                2));
     uploadSinkProvider = spy(new GcpMultipartUploadSinkProvider(config));
     StorageObject mockResult = mock(StorageObject.class);
     fakeGcpSink = Sink.fold(mockResult, (acc, next) -> acc);
@@ -66,6 +72,14 @@ public class GcpMultipartUploadSinkProviderTest {
     assertThat(result.getStatus()).isEqualTo(StreamingMultipartUploadResult.Status.SUCCESS);
     assertThat(result.getStorageServiceName()).isEqualTo(StorageServiceName.GCP_S3);
     assertThat(result.getStoredFilePath().get()).isEqualTo(FILE_KEY);
+  }
+
+  @Test
+  public void getMaxUploadSizeBytes_returnsLimitFromConfigByBucketType() {
+    assertThat(uploadSinkProvider.getMaxUploadSizeBytes(BucketType.PRIVATE_BUCKET))
+        .isEqualTo(50L * 1024L * 1024L);
+    assertThat(uploadSinkProvider.getMaxUploadSizeBytes(BucketType.PUBLIC_BUCKET))
+        .isEqualTo(2L * 1024L * 1024L);
   }
 
   @Test

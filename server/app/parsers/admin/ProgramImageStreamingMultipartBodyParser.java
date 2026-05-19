@@ -27,7 +27,7 @@ import services.cloud.PublicFileNameFormatter;
  */
 public final class ProgramImageStreamingMultipartBodyParser extends StreamingMultipartBodyParser {
 
-  public static final long MAX_FILE_SIZE = 1L * 1024L * 1024L; // 1MB
+  private static final BucketType BUCKET_TYPE = BucketType.PUBLIC_BUCKET;
 
   // Matches /admin/programs/{programId}/image/upload/{editStatus} in the request path.
   private static final Pattern PROGRAM_IMAGE_UPLOAD_PATH_PATTERN =
@@ -46,7 +46,7 @@ public final class ProgramImageStreamingMultipartBodyParser extends StreamingMul
         errorHandler,
         streamingMultipartUploadSinks,
         fileTypeValidation,
-        MAX_FILE_SIZE);
+        streamingMultipartUploadSinks.getMaxUploadSizeBytes(BUCKET_TYPE));
   }
 
   @Override
@@ -63,7 +63,7 @@ public final class ProgramImageStreamingMultipartBodyParser extends StreamingMul
 
   @Override
   protected BucketType getBucketType() {
-    return BucketType.PUBLIC_BUCKET;
+    return BUCKET_TYPE;
   }
 
   @Override

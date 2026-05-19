@@ -27,8 +27,12 @@ public final class MultipartUploadSinks {
         switch (storageServiceName) {
           case S3, AWS_S3 -> new AwsS3MultipartUploadSinkProvider(config);
           case GCP_S3 -> new GcpMultipartUploadSinkProvider(config);
-          default -> new NoOpMultipartUploadSinkProvider(storageServiceName);
+          default -> new NoOpMultipartUploadSinkProvider(storageServiceName, config);
         };
+  }
+
+  public long getMaxUploadSizeBytes(BucketType bucketType) {
+    return uploadSinkProvider.getMaxUploadSizeBytes(bucketType);
   }
 
   // Method to allow for implementations for multiple storage providers

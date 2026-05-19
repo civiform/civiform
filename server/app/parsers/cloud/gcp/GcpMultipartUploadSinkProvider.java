@@ -15,11 +15,9 @@ import services.cloud.StorageServiceName;
 
 public class GcpMultipartUploadSinkProvider
     extends GenericMultipartUploadSinkProvider<StorageObject> {
-  private final Config config;
 
   public GcpMultipartUploadSinkProvider(Config config) {
-    super(StorageServiceName.GCP_S3);
-    this.config = config;
+    super(StorageServiceName.GCP_S3, config);
   }
 
   // Get the base sink for GCP resumable upload, which will be composed with additional stages

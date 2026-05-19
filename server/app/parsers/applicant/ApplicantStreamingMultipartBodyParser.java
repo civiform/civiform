@@ -33,7 +33,7 @@ import services.settings.SettingsManifest;
  */
 public final class ApplicantStreamingMultipartBodyParser extends StreamingMultipartBodyParser {
 
-  public static final long MAX_FILE_SIZE = 100L * 1024L * 1024L; // 100MB
+  private static final BucketType BUCKET_TYPE = BucketType.PRIVATE_BUCKET;
 
   // Matches /programs/{programId}/blocks/{blockId}/* in the request path.
   private static final Pattern PROGRAM_BLOCK_PATH_PATTERN =
@@ -59,7 +59,7 @@ public final class ApplicantStreamingMultipartBodyParser extends StreamingMultip
         errorHandler,
         streamingMultipartUploadSinks,
         fileTypeValidation,
-        MAX_FILE_SIZE);
+        streamingMultipartUploadSinks.getMaxUploadSizeBytes(BUCKET_TYPE));
     this.profileUtils = checkNotNull(profileUtils);
     this.settingsManifest = checkNotNull(settingsManifest);
   }
@@ -89,7 +89,7 @@ public final class ApplicantStreamingMultipartBodyParser extends StreamingMultip
 
   @Override
   protected BucketType getBucketType() {
-    return BucketType.PRIVATE_BUCKET;
+    return BUCKET_TYPE;
   }
 
   @Override

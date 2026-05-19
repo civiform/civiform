@@ -61,6 +61,7 @@ public class ProgramImageStreamingMultipartBodyParserTest extends ResetPostgres 
     DefaultHttpErrorHandler errorHandler = instanceOf(DefaultHttpErrorHandler.class);
 
     sinks = mock(MultipartUploadSinks.class);
+    when(sinks.getMaxUploadSizeBytes(BucketType.PUBLIC_BUCKET)).thenReturn(1L * 1024L * 1024L);
     when(sinks.getSinkForCloudProvider(any(BucketType.class), anyString(), anyInt()))
         .thenAnswer(
             invocation ->
@@ -80,9 +81,8 @@ public class ProgramImageStreamingMultipartBodyParserTest extends ResetPostgres 
   }
 
   @Test
-  public void maxFileSize_isOneMegabyte() {
-    assertThat(ProgramImageStreamingMultipartBodyParser.MAX_FILE_SIZE)
-        .isEqualTo(1L * 1024L * 1024L);
+  public void maxFileSize_resolvesFromPublicBucketConfig() {
+    verify(sinks).getMaxUploadSizeBytes(BucketType.PUBLIC_BUCKET);
   }
 
   @Test

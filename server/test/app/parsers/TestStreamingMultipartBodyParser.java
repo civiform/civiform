@@ -27,9 +27,12 @@ public final class TestStreamingMultipartBodyParser extends StreamingMultipartBo
       FileTypeValidation fileTypeValidation,
       SettingsManifest settingsManifest,
       parsers.StreamingOutputBuffer outputBuffer) {
-    long maxFileSize = 1024 * 1024 * 100L; // 100MB
     super(
-        materializer, errorHandler, streamingMultipartUploadSinks, fileTypeValidation, maxFileSize);
+        materializer,
+        errorHandler,
+        streamingMultipartUploadSinks,
+        fileTypeValidation,
+        streamingMultipartUploadSinks.getMaxUploadSizeBytes(BucketType.PRIVATE_BUCKET));
     this.outputBuffer = outputBuffer;
     this.settingsManifest = settingsManifest;
   }

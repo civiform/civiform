@@ -42,8 +42,14 @@ public class AwsS3MultipartUploadSinkProviderTest {
     Config config =
         ConfigFactory.parseMap(
             ImmutableMap.of(
-                "aws.s3.bucket", "test-bucket",
-                "aws.s3.public_bucket", "test-public-bucket"));
+                "aws.s3.bucket",
+                "test-bucket",
+                "aws.s3.public_bucket",
+                "test-public-bucket",
+                "aws.s3.filelimitmb",
+                100,
+                "aws.s3.public_file_limit_mb",
+                1));
     uploadSinkProvider = spy(new AwsS3MultipartUploadSinkProvider(config));
     MultipartUploadResult mockResult = mock(MultipartUploadResult.class);
     fakeAwsSink = Sink.fold(mockResult, (acc, next) -> acc);
@@ -66,6 +72,14 @@ public class AwsS3MultipartUploadSinkProviderTest {
     assertThat(result.getStatus()).isEqualTo(StreamingMultipartUploadResult.Status.SUCCESS);
     assertThat(result.getStorageServiceName()).isEqualTo(StorageServiceName.AWS_S3);
     assertThat(result.getStoredFilePath().get()).isEqualTo(FILE_KEY);
+  }
+
+  @Test
+  public void getMaxUploadSizeBytes_returnsLimitFromConfigByBucketType() {
+    assertThat(uploadSinkProvider.getMaxUploadSizeBytes(BucketType.PRIVATE_BUCKET))
+        .isEqualTo(100L * 1024L * 1024L);
+    assertThat(uploadSinkProvider.getMaxUploadSizeBytes(BucketType.PUBLIC_BUCKET))
+        .isEqualTo(1L * 1024L * 1024L);
   }
 
   @Test

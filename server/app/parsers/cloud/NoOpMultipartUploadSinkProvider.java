@@ -1,5 +1,6 @@
 package parsers.cloud;
 
+import com.typesafe.config.Config;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import org.apache.pekko.stream.javadsl.Sink;
@@ -11,8 +12,8 @@ import services.cloud.StorageServiceName;
 public final class NoOpMultipartUploadSinkProvider
     extends GenericMultipartUploadSinkProvider<Void> {
 
-  public NoOpMultipartUploadSinkProvider(StorageServiceName storageServiceName) {
-    super(storageServiceName);
+  public NoOpMultipartUploadSinkProvider(StorageServiceName storageServiceName, Config config) {
+    super(storageServiceName, config);
   }
 
   @Override
