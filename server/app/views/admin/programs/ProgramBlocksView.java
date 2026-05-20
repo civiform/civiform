@@ -698,7 +698,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                       question,
                       index,
                       blockQuestions.size(),
-                      request));
+                      request,
+                      messages));
             });
 
     ImmutableList<DivTag> questionCards = questionCardsBuilder.build();
@@ -714,8 +715,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
               blockHasEnumeratorQuestion,
               blockDescriptionModalButton,
               blockDeleteModalButton,
-              canDeleteBlock(program, blockDefinition),
-              enumeratorImprovementsEnabled);
+              canDeleteBlock(program, blockDefinition, request),
+              enumeratorImprovementsEnabled,
+              messages);
       ButtonTag addQuestion =
           showRepeatedQuestionsSectionStyling
               ? button("")
@@ -808,11 +810,18 @@ public final class ProgramBlocksView extends ProgramBaseView {
     }
   }
 
-  boolean canDeleteBlock(ProgramDefinition program, BlockDefinition blockDefinition) {
-    // A block can only be deleted when it has no repeated blocks. Same is true for
-    // removing the enumerator question from the block.
+  boolean canDeleteBlock(
+      ProgramDefinition program, BlockDefinition blockDefinition, Request request) {
+    boolean enumeratorImprovementsEnabled =
+        settingsManifest.getEnumeratorImprovementsEnabled(request);
+
+    // An enumerator block (or its enumerator question) can be removed only when
+    // it has no repeated child blocks. With enumeratorImprovementsEnabled, empty
+    // repeated children (no questions) don't block the delete.
     return !blockDefinition.hasEnumeratorQuestion()
-        || hasNoRepeatedBlocks(program, blockDefinition.id());
+        || (enumeratorImprovementsEnabled
+            ? hasNoRepeatedBlocksWithQuestions(program, blockDefinition.id())
+            : hasNoRepeatedBlocks(program, blockDefinition.id()));
   }
 
   private ImmutableSetMultimap<Long, Long> constructQuestionIdToVisibilityBlockIdMap(
@@ -1153,7 +1162,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       ButtonTag blockDescriptionModalButton,
       ButtonTag blockDeleteModalButton,
       Boolean canDelete,
-      boolean enumeratorImprovementsEnabled) {
+      boolean enumeratorImprovementsEnabled,
+      Messages messages) {
 
     // Add buttons to change the block.
     DivTag buttons = div().withClasses("flex", "flex-row", "gap-4");
@@ -1174,10 +1184,16 @@ public final class ProgramBlocksView extends ProgramBaseView {
     // Only add the delete button if there is more than one screen in the program
     if (program.blockDefinitions().size() > 1) {
       buttons.with(div().withClass("flex-grow"));
-      blockDeleteModalButton
-          .withCondDisabled(!canDelete)
-          .withCondTitle(
-              !canDelete, "A screen can only be deleted when it has no repeated screens.");
+      if (!canDelete) {
+        blockDeleteModalButton
+            .isDisabled()
+            .withCondTitle(
+                enumeratorImprovementsEnabled,
+                messages.at(MessageKey.TOOLTIP_DELETE_SCREEN_DISABLED.getKeyName()))
+            .withCondTitle(
+                !enumeratorImprovementsEnabled,
+                "A screen can only be deleted when it has no repeated screens.");
+      }
       buttons.with(blockDeleteModalButton);
     }
     return buttons;
@@ -1304,7 +1320,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       ProgramQuestionDefinition programQuestionDefinition,
       int questionIndex,
       int questionsCount,
-      Request request) {
+      Request request,
+      Messages messages) {
     InputTag csrfTag = optionalCsrfTag.orElse(makeCsrfTokenInputTag(request));
     boolean isOptional = programQuestionDefinition.optional();
     boolean addressCorrectionEnabled = programQuestionDefinition.addressCorrectionEnabled();
@@ -1347,13 +1364,20 @@ public final class ProgramBlocksView extends ProgramBaseView {
               .with(
                   renderEditQuestionLink(
                       questionDefinition.getId(), programDefinition.id(), blockDefinition.id()))
+              .condWith(
+                  !canDeleteBlock(programDefinition, blockDefinition, request),
+                  p(messages.at(
+                          MessageKey.TOOLTIP_REMOVE_ENUMERATOR_QUESTION_DISABLED.getKeyName()))
+                      .withClasses("sr-only"))
               .with(
                   renderDeleteQuestionForm(
                       csrfTag,
                       programDefinition.id(),
                       blockDefinition.id(),
                       questionDefinition,
-                      canDeleteBlock(programDefinition, blockDefinition)))
+                      canDeleteBlock(programDefinition, blockDefinition, request),
+                      settingsManifest.getEnumeratorImprovementsEnabled(request),
+                      messages))
               .withClasses("flex", "flex-column"));
     } else {
       // For each toggle, use a label instead in the read only view
@@ -1638,22 +1662,30 @@ public final class ProgramBlocksView extends ProgramBaseView {
       long programDefinitionId,
       long blockDefinitionId,
       QuestionDefinition questionDefinition,
-      boolean canRemove) {
-    ButtonTag removeButton =
+      boolean canDelete,
+      boolean enumeratorImprovementsEnabled,
+      Messages messages) {
+    ButtonTag deleteButton =
         ViewUtils.makeSvgTextButton("Delete", Icons.DELETE)
             .withType("submit")
             .withId("block-question-" + questionDefinition.getId())
             .withName("questionDefinitionId")
             .withValue(String.valueOf(questionDefinition.getId()))
-            .withCondDisabled(!canRemove)
-            .withCondTitle(
-                !canRemove,
-                "An enumerator question can only be removed from the screen when the screen has no"
-                    + " repeated screens.")
             .withClasses(
                 ReferenceClasses.REMOVE_QUESTION_BUTTON,
                 ButtonStyles.OUTLINED_WHITE_WITH_ICON,
-                canRemove ? "" : "opacity-50");
+                canDelete ? "" : "opacity-50");
+    if (!canDelete) {
+      deleteButton
+          .isDisabled()
+          .withCondTitle(
+              enumeratorImprovementsEnabled,
+              messages.at(MessageKey.TOOLTIP_REMOVE_ENUMERATOR_QUESTION_DISABLED.getKeyName()))
+          .withCondTitle(
+              !enumeratorImprovementsEnabled,
+              "An enumerator question can only be removed from the screen when the screen has no"
+                  + " repeated screens.");
+    }
     String deleteQuestionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.delete(
                 programDefinitionId, blockDefinitionId, questionDefinition.getId())
@@ -1662,7 +1694,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
         .withId("block-questions-form")
         .withMethod(HttpVerbs.POST)
         .withAction(deleteQuestionAction)
-        .with(removeButton);
+        .with(deleteButton);
   }
 
   /**
@@ -1962,6 +1994,12 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
   private boolean hasNoRepeatedBlocks(ProgramDefinition programDefinition, long blockId) {
     return programDefinition.getBlockDefinitionsForEnumerator(blockId).isEmpty();
+  }
+
+  private boolean hasNoRepeatedBlocksWithQuestions(
+      ProgramDefinition programDefinition, long blockId) {
+    return programDefinition.getBlockDefinitionsForEnumerator(blockId).stream()
+        .allMatch(blockDef -> blockDef.getQuestionCount() == 0);
   }
 
   /** Returns if this view is editable or not. A view is editable only if it represents a draft. */
