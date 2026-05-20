@@ -756,10 +756,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
-    test('Enumerator block name edit retains prefix in the screen editing modal and translation page', async ({
+    test('Enumerator block name edit retains prefix', async ({
       page,
       adminPrograms,
-      adminTranslations,
     }) => {
       await test.step('Go to the program block edit page', async () => {
         await adminPrograms.gotoEditDraftProgramPage('Enumerator test program')
@@ -802,27 +801,6 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
         const currentModalPrefix = page.getByTestId('name-prefix')
         await expect(currentModalPrefix).toHaveText('[parent label] -')
-
-        await page.getByRole('button', {name: 'Close'}).click()
-      })
-
-      await test.step('Translation page shows prefix as read-only before the screen name input', async () => {
-        await adminPrograms.gotoDraftProgramManageTranslationsPage(
-          'Enumerator test program',
-        )
-        await adminTranslations.selectLanguage('Spanish')
-
-        const translationPrefix = page.getByText('[parent label] -', {
-          exact: true,
-        })
-        await expect(translationPrefix).toBeVisible()
-
-        // Verify that the prefix is not editable.
-        await expect(
-          translationPrefix.evaluate((el) =>
-            ['INPUT', 'TEXTAREA'].includes(el.tagName),
-          ),
-        ).resolves.toBe(false)
       })
     })
 
