@@ -262,6 +262,8 @@ public enum MessageKey {
   TITLE_TI_DASHBOARD("title.tiDashboard"),
   TOAST_APPLICATION_OUT_OF_DATE("toast.applicationOutOfDate"),
   TOAST_ERROR_MSG_OUTLINE("toast.errorMessageOutline"),
+  TOOLTIP_DELETE_SCREEN_DISABLED("tooltip.deleteScreenDisabled"),
+  TOOLTIP_REMOVE_ENUMERATOR_QUESTION_DISABLED("tooltip.removeEnumeratorQuestionDisabled"),
   USER_NAME("header.userName"),
   VALIDATION_REQUIRED("validation.isRequired"),
   YEAR_LABEL("label.year"),

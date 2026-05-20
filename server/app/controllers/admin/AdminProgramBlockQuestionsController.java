@@ -232,7 +232,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
                         programQuestionDefinition,
                         /* questionIndex= */ 0, // Enumerator blocks have only one question
                         blockDefinition.getQuestionCount(),
-                        request)),
+                        request,
+                        messagesApi.preferred(request))),
                 /* blockHasEnumeratorQuestion= */ true,
                 blockDefinition)
             .render());
