@@ -179,6 +179,8 @@ public final class ProgramImageView extends BaseHtmlView {
         .withClasses(ButtonStyles.SOLID_BLUE, "mt-20");
   }
 
+  @SuppressWarnings(
+      "deprecation") // Legacy route for {@link AdminProgramImageController#updateDescription}.
   private DivTag createImageDescriptionForm(
       Http.Request request, ProgramDefinition programDefinition, String editStatus) {
     String existingDescription = getExistingDescription(programDefinition);

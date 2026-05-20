@@ -884,7 +884,7 @@ test.describe('applicant program index page with images', () => {
     await loginAsAdmin(page)
     await adminPrograms.addProgram(programName)
     await adminPrograms.goToProgramImagePage(programName)
-    await adminProgramImage.setImageFileAndSubmit(
+    await adminProgramImage.legacySetImageFileAndSubmit(
       'src/assets/program-summary-image-wide.png',
     )
     await adminPrograms.publishAllDrafts()
@@ -913,7 +913,7 @@ test.describe('applicant program index page with images', () => {
     await loginAsAdmin(page)
     await adminPrograms.addProgram(programName)
     await adminPrograms.goToProgramImagePage(programName)
-    await adminProgramImage.setImageFileAndSubmit(
+    await adminProgramImage.legacySetImageFileAndSubmit(
       'src/assets/program-summary-image-tall.png',
     )
     await adminPrograms.publishAllDrafts()
@@ -934,7 +934,7 @@ test.describe('applicant program index page with images', () => {
 
     await adminPrograms.addProgram(programName)
     await adminPrograms.goToProgramImagePage(programName)
-    await adminProgramImage.setImageFileAndSubmit(
+    await adminProgramImage.legacySetImageFileAndSubmit(
       'src/assets/program-summary-image-wide.png',
     )
 
@@ -1002,7 +1002,7 @@ test.describe('applicant program index page with images', () => {
       })
 
       await adminPrograms.goToProgramImagePage(programNameInProgressImage)
-      await adminProgramImage.setImageFileAndSubmit(
+      await adminProgramImage.legacySetImageFileAndSubmit(
         'src/assets/program-summary-image-wide.png',
       )
       await adminPrograms.publishAllDrafts()
@@ -1026,7 +1026,7 @@ test.describe('applicant program index page with images', () => {
       await adminPrograms.goToProgramImagePage(
         programNameSubmittedWithImageAndStatus,
       )
-      await adminProgramImage.setImageFileAndSubmit(
+      await adminProgramImage.legacySetImageFileAndSubmit(
         'src/assets/program-summary-image-wide.png',
       )
       await adminPrograms.gotoDraftProgramManageStatusesPage(
@@ -1090,7 +1090,7 @@ test.describe('applicant program index page with images', () => {
 
       await adminPrograms.addProgram(programNameSubmittedImage)
       await adminPrograms.goToProgramImagePage(programNameSubmittedImage)
-      await adminProgramImage.setImageFileAndSubmit(
+      await adminProgramImage.legacySetImageFileAndSubmit(
         'src/assets/program-summary-image-wide.png',
       )
       await adminPrograms.publishAllDrafts()
@@ -1111,7 +1111,7 @@ test.describe('applicant program index page with images', () => {
       const programNameNotStartedImage = 'Not Started Program [Image]'
       await adminPrograms.addProgram(programNameNotStartedImage)
       await adminPrograms.goToProgramImagePage(programNameNotStartedImage)
-      await adminProgramImage.setImageFileAndSubmit(
+      await adminProgramImage.legacySetImageFileAndSubmit(
         'src/assets/program-summary-image-wide.png',
       )
       await adminPrograms.publishAllDrafts()

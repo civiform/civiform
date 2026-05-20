@@ -3,14 +3,20 @@ package controllers.admin;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static play.mvc.Http.Status.BAD_REQUEST;
+import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.SEE_OTHER;
+import static play.test.Helpers.stubMessagesApi;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 import static support.cloud.FakePublicStorageClient.FAKE_BUCKET_NAME;
 
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 import junitparams.JUnitParamsRunner;
 import models.ProgramModel;
@@ -18,6 +24,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import play.data.FormFactory;
+import play.i18n.Lang;
+import play.i18n.Messages;
+import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.ResetPostgres;
@@ -28,33 +37,146 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
+import support.FakeRequestBuilder;
 import support.ProgramBuilder;
 import support.cloud.FakePublicStorageClient;
+import views.admin.programs.ProgramCardPreview;
 import views.admin.programs.ProgramEditStatus;
 import views.admin.programs.ProgramImagePageView;
 import views.admin.programs.ProgramImageView;
 
 @RunWith(JUnitParamsRunner.class)
+@SuppressWarnings("deprecation") // Uses legacy AdminProgramImageController.updateDescription.
 public class AdminProgramImageControllerTest extends ResetPostgres {
   private static final String VALID_FILE_KEY = "program-summary-image/program-1/myImage.png";
 
   private ProgramService programService;
   private AdminProgramImageController controller;
+  private Messages messages;
 
   @Before
   public void setup() {
     programService = instanceOf(ProgramService.class);
+    MessagesApi messagesApi = stubMessagesApi();
+    messages = messagesApi.preferred(ImmutableSet.of(Lang.defaultLang()));
     controller =
         new AdminProgramImageController(
             new FakePublicStorageClient(),
             programService,
             instanceOf(ProgramImageView.class),
             instanceOf(ProgramImagePageView.class),
+            instanceOf(ProgramCardPreview.class),
             instanceOf(SettingsManifest.class),
             instanceOf(RequestChecker.class),
             instanceOf(FormFactory.class),
+            messagesApi,
             instanceOf(ProfileUtils.class),
             instanceOf(VersionRepository.class));
+  }
+
+  @Test
+  public void uploadProgramImage_featureFlagDisabled_returnsNotFound() {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+
+    Result result =
+        controller.uploadProgramImage(
+            fakeRequestBuilder().method("POST").build(),
+            program.id,
+            ProgramEditStatus.CREATION.name());
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
+  public void uploadProgramImage_withFileAndDescription_setsKeyAndRedirects()
+      throws ProgramNotFoundException {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+    String fileKey = "program-summary-image/program-" + program.id + "/myImage.png";
+
+    Result result =
+        controller.uploadProgramImage(
+            createUploadRequest(fileKey, "Alt text description"),
+            program.id,
+            ProgramEditStatus.CREATION.name());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.AdminProgramImageController.index(program.id, ProgramEditStatus.CREATION.name())
+                .url());
+
+    ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
+    assertThat(updatedProgram.summaryImageFileKey()).contains(fileKey);
+    assertThat(updatedProgram.localizedSummaryImageDescription())
+        .map(LocalizedStrings::getDefault)
+        .contains("Alt text description");
+  }
+
+  @Test
+  public void uploadProgramImage_blankDescriptionWithFile_doesNotSaveImage_redirectsWithError()
+      throws ProgramNotFoundException {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+    String fileKey = "program-summary-image/program-" + program.id + "/myImage.png";
+
+    Result result =
+        controller.uploadProgramImage(
+            createUploadRequest(fileKey, ""), program.id, ProgramEditStatus.CREATION.name());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.flash().data().get("error"))
+        .isEqualTo(messages.at("validation.adminProgramImage.altTextRequired"));
+    assertThat(programService.getFullProgramDefinition(program.id).summaryImageFileKey()).isEmpty();
+  }
+
+  @Test
+  public void uploadProgramImage_descriptionOnly_updatesDescription()
+      throws ProgramNotFoundException {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+
+    Result result =
+        controller.uploadProgramImage(
+            createUploadRequest(/* fileKey= */ null, "Description only"),
+            program.id,
+            ProgramEditStatus.EDIT.name());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.AdminProgramImageController.index(program.id, ProgramEditStatus.EDIT.name())
+                .url());
+
+    ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
+    assertThat(updatedProgram.summaryImageFileKey()).isEmpty();
+    assertThat(updatedProgram.localizedSummaryImageDescription())
+        .map(LocalizedStrings::getDefault)
+        .contains("Description only");
+  }
+
+  @Test
+  public void uploadProgramImage_missingProgram_throws() {
+    assertThatThrownBy(
+            () ->
+                controller.uploadProgramImage(
+                    createUploadRequest(/* fileKey= */ null, "fake description"),
+                    /* programId= */ Long.MAX_VALUE,
+                    ProgramEditStatus.CREATION.name()))
+        .isInstanceOf(NotChangeableException.class);
+  }
+
+  @Test
+  public void uploadProgramImage_nullBody_returnsBadRequest() {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+
+    Result result =
+        controller.uploadProgramImage(
+            fakeRequestBuilder()
+                .addCiviFormSetting("FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED", "true")
+                .method("POST")
+                .build(),
+            program.id,
+            ProgramEditStatus.CREATION.name());
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
 
   @Test
@@ -688,5 +810,24 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     assertThat(programWithKey.summaryImageFileKey()).isNotEmpty();
     assertThat(programWithKey.summaryImageFileKey().get()).isEqualTo(VALID_FILE_KEY);
     return result;
+  }
+
+  private Http.Request createUploadRequest(String fileKey, String description) {
+    FakeRequestBuilder requestBuilder =
+        fakeRequestBuilder()
+            .addCiviFormSetting("FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED", "true");
+    if (fileKey == null) {
+      return requestBuilder
+          .method("POST")
+          .bodyMultipart(Map.of("summaryImageDescription", new String[] {description}), List.of())
+          .build();
+    }
+    return requestBuilder
+        .method("POST")
+        .bodyMultipart(
+            Map.of("summaryImageDescription", new String[] {description}),
+            List.of(
+                new Http.MultipartFormData.FilePart<>("file", "myImage.png", "image/png", fileKey)))
+        .build();
   }
 }
