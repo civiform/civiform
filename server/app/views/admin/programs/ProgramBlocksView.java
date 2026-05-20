@@ -1189,7 +1189,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .isDisabled()
             .withCondTitle(
                 enumeratorImprovementsEnabled,
-                MessageKey.TOOLTIP_DELETE_SCREEN_DISABLED.getKeyName())
+                messages.at(MessageKey.TOOLTIP_DELETE_SCREEN_DISABLED.getKeyName()))
             .withCondTitle(
                 !enumeratorImprovementsEnabled,
                 "A screen can only be deleted when it has no repeated screens.");
@@ -1680,7 +1680,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
           .isDisabled()
           .withCondTitle(
               enumeratorImprovementsEnabled,
-              MessageKey.TOOLTIP_REMOVE_ENUMERATOR_QUESTION_DISABLED.getKeyName())
+              messages.at(MessageKey.TOOLTIP_REMOVE_ENUMERATOR_QUESTION_DISABLED.getKeyName()))
           .withCondTitle(
               !enumeratorImprovementsEnabled,
               "An enumerator question can only be removed from the screen when the screen has no"
