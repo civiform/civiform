@@ -101,7 +101,7 @@ public class FieldWithLabel {
   private final ImmutableMap.Builder<String, Optional<String>> attributesMapBuilder =
       ImmutableMap.builder();
 
-  public static final int MAX_INPUT_TEXT_LENGTH_DEFAULT = 10000;
+  private static final int MAX_INPUT_TEXT_LENGTH_DEFAULT = 10000;
 
   private static final class FieldErrorsInfo {
     String fieldErrorsId;
