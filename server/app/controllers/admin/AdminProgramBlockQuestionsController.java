@@ -16,6 +16,7 @@ import models.QuestionModel;
 import org.pac4j.play.java.Secure;
 import play.data.DynamicForm;
 import play.data.FormFactory;
+import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
@@ -142,6 +143,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
   /** HTMX POST endpoint for creating a new enumerator question and adding it to a screen. */
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
   public Result hxCreateEnumerator(Request request, long programId, long blockId) {
+    Messages messages = messagesApi.preferred(request);
     requestChecker.throwIfProgramNotDraft(programId);
 
     // Create the new enumerator question in the same way as in AdminQuestionController#create.
@@ -168,7 +170,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
           blockEditView
               .renderEnumeratorSetupSection(
                   request,
-                  messagesApi.preferred(request),
+                  messages,
                   programId,
                   blockId,
                   Optional.of(questionForm),
@@ -222,7 +224,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
     return ok(
         blockEditView
             .renderEnumeratorSectionWithSelectedQuestion(
-                messagesApi.preferred(request),
+                messages,
                 /* optionalQuestionCard= */ Optional.of(
                     blockEditView.renderQuestion(
                         /* optionalCsrfTag= */ Optional.empty(),
@@ -233,7 +235,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
                         /* questionIndex= */ 0, // Enumerator blocks have only one question
                         blockDefinition.getQuestionCount(),
                         request,
-                        messagesApi.preferred(request))),
+                        messages)),
                 /* blockHasEnumeratorQuestion= */ true,
                 blockDefinition)
             .render());

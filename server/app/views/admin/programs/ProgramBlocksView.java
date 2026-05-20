@@ -1184,14 +1184,16 @@ public final class ProgramBlocksView extends ProgramBaseView {
     // Only add the delete button if there is more than one screen in the program
     if (program.blockDefinitions().size() > 1) {
       buttons.with(div().withClass("flex-grow"));
-      blockDeleteModalButton
-          .withCondDisabled(!canDelete)
-          .withCondTitle(
-              !enumeratorImprovementsEnabled && !canDelete,
-              "A screen can only be deleted when it has no repeated screens.")
-          .withCondTitle(
-              enumeratorImprovementsEnabled && !canDelete,
-              messages.at(MessageKey.TOOLTIP_DELETE_SCREEN_DISABLED.getKeyName()));
+      if (!canDelete) {
+        blockDeleteModalButton
+            .isDisabled()
+            .withCondTitle(
+                enumeratorImprovementsEnabled,
+                MessageKey.TOOLTIP_DELETE_SCREEN_DISABLED.getKeyName())
+            .withCondTitle(
+                !enumeratorImprovementsEnabled,
+                "A screen can only be deleted when it has no repeated screens.");
+      }
       buttons.with(blockDeleteModalButton);
     }
     return buttons;
@@ -1660,27 +1662,30 @@ public final class ProgramBlocksView extends ProgramBaseView {
       long programDefinitionId,
       long blockDefinitionId,
       QuestionDefinition questionDefinition,
-      boolean canRemove,
+      boolean canDelete,
       boolean enumeratorImprovementsEnabled,
       Messages messages) {
-    ButtonTag removeButton =
+    ButtonTag deleteButton =
         ViewUtils.makeSvgTextButton("Delete", Icons.DELETE)
             .withType("submit")
             .withId("block-question-" + questionDefinition.getId())
             .withName("questionDefinitionId")
             .withValue(String.valueOf(questionDefinition.getId()))
-            .withCondDisabled(!canRemove)
-            .withCondTitle(
-                !enumeratorImprovementsEnabled && !canRemove,
-                "An enumerator question can only be removed from the screen when the screen has no"
-                    + " repeated screens.")
-            .withCondTitle(
-                enumeratorImprovementsEnabled && !canRemove,
-                messages.at(MessageKey.TOOLTIP_REMOVE_ENUMERATOR_QUESTION_DISABLED.getKeyName()))
             .withClasses(
                 ReferenceClasses.REMOVE_QUESTION_BUTTON,
                 ButtonStyles.OUTLINED_WHITE_WITH_ICON,
-                canRemove ? "" : "opacity-50");
+                canDelete ? "" : "opacity-50");
+    if (!canDelete) {
+      deleteButton
+          .isDisabled()
+          .withCondTitle(
+              enumeratorImprovementsEnabled,
+              MessageKey.TOOLTIP_REMOVE_ENUMERATOR_QUESTION_DISABLED.getKeyName())
+          .withCondTitle(
+              !enumeratorImprovementsEnabled,
+              "An enumerator question can only be removed from the screen when the screen has no"
+                  + " repeated screens.");
+    }
     String deleteQuestionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.delete(
                 programDefinitionId, blockDefinitionId, questionDefinition.getId())
@@ -1689,7 +1694,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
         .withId("block-questions-form")
         .withMethod(HttpVerbs.POST)
         .withAction(deleteQuestionAction)
-        .with(removeButton);
+        .with(deleteButton);
   }
 
   /**
