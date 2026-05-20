@@ -1261,7 +1261,10 @@ button.addRepeatedScreen=
 button.addNestedRepeatedSet=ネストされた繰り返しセットを追加
 # A button for admins to add a pre-existing enumerator question to a program
 button.addQuestion=
-
+# A tooltip shown to admins when the delete screen button is disabled
+tooltip.deleteScreenDisabled=This screen cannot be deleted because there are repeated screens attached to it.
+# A tooltip shown to admins when the delete question button is disabled for a repeated set question
+tooltip.removeEnumeratorQuestionDisabled=This question cannot be removed because there are follow-up questions attached to it.
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #
