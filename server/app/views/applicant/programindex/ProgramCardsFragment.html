@@ -60,7 +60,6 @@
   th:fragment="card (card, sectionType)"
   th:with="showImage=(${sectionType != 'MY_APPLICATIONS' and card.imageSourceUrl().isPresent() and not #strings.isEmpty(card.imageSourceUrl().get())})"
   class="usa-card cf-application-card"
-  th:classappend="${showImage} ? usa-card--header-first : '' "
 >
   <div class="usa-card__container">
     <div
