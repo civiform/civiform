@@ -7,6 +7,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Allowlist extensions for {@link FileTypeValidation}. Each constant defines a supported extension
@@ -24,6 +26,8 @@ public enum FileTypeSpecifier {
   BMP(".bmp", "image/bmp"),
   WEBP(".webp", "image/webp"),
   TIFF(".tiff", "image/tiff");
+
+  private static final Logger logger = LoggerFactory.getLogger(FileTypeSpecifier.class);
 
   static final ImmutableMap<String, String> MIME_BY_EXTENSION_MAP = buildMimeByExtension();
 
@@ -79,8 +83,8 @@ public enum FileTypeSpecifier {
       }
       ImmutableList<FileTypeSpecifier> mimeList = mimeMatches.build();
       if (mimeList.isEmpty()) {
-        throw new IllegalArgumentException(
-            "Unknown file type specifier extension: " + allowlistPart);
+        logger.error("Unknown file type specifier: {}", allowlistPart);
+        continue;
       }
       builder.addAll(mimeList);
     }
