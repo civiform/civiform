@@ -1541,35 +1541,68 @@ public final class ProgramService {
       long programId, long blockDefinitionId, BlockForm blockForm)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
-    BlockDefinition existingBlockDefinition =
-        programDefinition.getBlockDefinition(blockDefinitionId);
-    BlockDefinition blockDefinition =
-        existingBlockDefinition.toBuilder()
-            .setName(blockForm.getName())
-            .setNamePrefix(Optional.of(blockForm.getNamePrefix()))
-            .setDescription(blockForm.getDescription())
-            .setLocalizedName(
-                existingBlockDefinition
-                    .localizedName()
-                    .updateDefaultTranslation(blockForm.getName()))
+    BlockDefinition existingBlock = programDefinition.getBlockDefinition(blockDefinitionId);
+    String name = blockForm.getName();
+    String description = blockForm.getDescription();
+
+    // An empty name prefix on the form means "no change", use existing
+    Optional<String> namePrefix =
+        Strings.isNullOrEmpty(blockForm.getNamePrefix())
+            ? existingBlock.namePrefix()
+            : Optional.of(blockForm.getNamePrefix());
+    BlockDefinition updatedBlock =
+        existingBlock.toBuilder()
+            .setName(name)
+            .setDescription(description)
+            .setNamePrefix(namePrefix)
+            .setLocalizedName(existingBlock.localizedName().updateDefaultTranslation(name))
             .setLocalizedDescription(
-                existingBlockDefinition
-                    .localizedDescription()
-                    .updateDefaultTranslation(blockForm.getDescription()))
+                existingBlock.localizedDescription().updateDefaultTranslation(description))
             .build();
-    ImmutableSet<CiviFormError> errors = validateBlockDefinition(blockDefinition);
+    ImmutableSet<CiviFormError> errors = validateBlockDefinition(updatedBlock);
     if (!errors.isEmpty()) {
       return ErrorAnd.errorAnd(errors, programDefinition);
     }
 
     try {
       return ErrorAnd.of(
-          updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition));
+          updateProgramDefinitionWithBlockDefinition(programDefinition, updatedBlock));
     } catch (IllegalPredicateOrderingException e) {
       // Updating a block's metadata should never invalidate a predicate.
       throw new RuntimeException(
           "Unexpected error: updating this block invalidated a block condition");
     }
+  }
+
+  /**
+   * Backfills {@code namePrefix} on repeated blocks that don't have one set. Used to migrate
+   * existing programs when the enumerator improvements feature is first enabled. No-op if every
+   * repeated block already has a prefix.
+   *
+   * @param programId the ID of the program to backfill
+   * @return the updated {@link ProgramDefinition}
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   */
+  public ProgramDefinition backfillRepeatedBlockNamePrefixes(long programId)
+      throws ProgramNotFoundException {
+    ProgramDefinition program = getFullProgramDefinition(programId);
+    List<BlockDefinition> blocksWithoutPrefix =
+        program.blockDefinitions().stream()
+            .filter(BlockDefinition::isRepeated)
+            .filter(b -> b.namePrefix().isEmpty())
+            .toList();
+    if (blocksWithoutPrefix.isEmpty()) {
+      return program;
+    }
+    for (BlockDefinition b : blocksWithoutPrefix) {
+      try {
+        updateBlock(
+            programId, b.id(), new BlockForm(b.name(), b.description(), "[parent label] - ", true));
+      } catch (ProgramBlockDefinitionNotFoundException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    return getFullProgramDefinition(programId);
   }
 
   /**

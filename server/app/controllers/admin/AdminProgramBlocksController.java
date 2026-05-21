@@ -10,8 +10,6 @@ import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import controllers.FlashKey;
 import forms.BlockForm;
-
-import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
@@ -224,22 +222,6 @@ public final class AdminProgramBlocksController extends CiviFormController {
       // Auto-add newly created question to the block if one was just created
       Optional<String> newQuestionIdParam =
           request.queryString(views.components.ProgramQuestionBank.NEWLY_CREATED_QUESTION_ID_PARAM);
-      if (settingsManifest.getEnumeratorImprovementsEnabled(request)) {
-        List<BlockDefinition> blocksWithoutPrefix =
-          program.blockDefinitions().stream()
-            .filter(BlockDefinition::isRepeated)
-            .filter(b -> b.namePrefix().isEmpty()).toList();
-        blocksWithoutPrefix.forEach(b -> {
-          try {
-            programService.updateBlock(programId, b.id(), new BlockForm(b.name(), b.description(), "[parent label] - ", true ));
-          } catch (ProgramNotFoundException e) {
-            throw new RuntimeException(e);
-          } catch (ProgramBlockDefinitionNotFoundException e) {
-            throw new RuntimeException(e);
-          }
-        });
-      }
-
       if (newQuestionIdParam.isPresent()) {
         try {
           long newQuestionId = Long.parseLong(newQuestionIdParam.get());

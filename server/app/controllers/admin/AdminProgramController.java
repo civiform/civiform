@@ -245,6 +245,9 @@ public final class AdminProgramController extends CiviFormController {
         // Make a new draft from the provided id.
         idToEdit = programService.newDraftOf(programId).id();
       }
+      if (settingsManifest.getEnumeratorImprovementsEnabled(request)) {
+        programService.backfillRepeatedBlockNamePrefixes(idToEdit);
+      }
       return redirect(controllers.admin.routes.AdminProgramBlocksController.index(idToEdit).url());
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
