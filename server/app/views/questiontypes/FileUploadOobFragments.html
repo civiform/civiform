@@ -15,6 +15,9 @@
   th:fragment="file-upload-errors(fileUploadQuestion, oob)"
   th:hx-swap-oob="${oob} ? 'true'"
   th:id="'cf-fileupload-validation-errors-' + ${fileUploadQuestion.getQuestionDefinition().getId()}"
+  aria-live="assertive"
+  aria-atomic="true"
+  aria-relevant="additions text"
 >
   <div
     class="cf-question-error-message cf-applicant-question-errors"

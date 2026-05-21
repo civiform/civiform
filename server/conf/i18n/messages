@@ -103,6 +103,14 @@ input.singleFileUploadHint=Select a file
 # Hint placed above file input for questions which accept multiple, but not unlimited, files. {0} contains a number,
 # 2 or greater, representing the maximum number of files.
 input.multipleFileUploadHint=Select one or more files (maximum of {0})
+# Screen reader announcement when a file upload question has reached its maximum.
+input.maxFilesReachedSr=You've uploaded the maximum number of files allowed.
+# Screen reader status for the file input when no files are uploaded yet.
+input.fileUploadSelectionStatusNone=No files uploaded. Please select a file to upload.
+# Screen reader status for the file input when one file is already uploaded.
+input.fileUploadSelectionStatusSingular=1 file uploaded. Please select a file to upload more.
+# Screen reader status for the file input when multiple files are already uploaded. {0} is the count.
+input.fileUploadSelectionStatusPlural={0} files uploaded. Please select a file to upload more.
 # Hint placed above file inputs which accept any number of files.
 input.unlimitedFileUploadHint=Select one or more files
 # The button text for saving the current applicant-entered data and continuing to the next screen in the form.

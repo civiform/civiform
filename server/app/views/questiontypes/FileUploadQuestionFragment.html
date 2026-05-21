@@ -3,7 +3,8 @@
   th:with="fileUploadQuestion=${question.createFileUploadQuestion()},
     questionId=${'id-' + #strings.randomAlphanumeric(8)},
     inputId=${'id-' + #strings.randomAlphanumeric(8)},
-    hasErrors=${questionRendererParams.shouldShowErrors() && !fileUploadQuestion.getValidationErrors().isEmpty()}"
+    hasErrors=${questionRendererParams.shouldShowErrors() && !fileUploadQuestion.getValidationErrors().isEmpty()},
+    maxFiles=${question.getQuestionDefinition().getMaxFiles()}"
   th:id="${questionId}"
   class="cf-question-fileupload cf-applicant-question-field"
   th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
@@ -14,10 +15,7 @@
   <div
     th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextSingleInput(${question}, ${questionId}, ${inputId})}"
   ></div>
-  <div
-    class="usa-hint"
-    th:with="maxFiles=${question.getQuestionDefinition().getMaxFiles()}"
-  >
+  <div class="usa-hint">
     <p
       th:if="${maxFiles.isPresent() and maxFiles.getAsInt() == 1}"
       th:text="#{input.singleFileUploadHint}"
@@ -37,6 +35,9 @@
        FileUploadQuestionPartial after htmx uploads/removes. */-->
   <div
     th:id="'cf-fileupload-validation-errors-' + ${question.getQuestionDefinition().getId()}"
+    aria-atomic="true"
+    aria-live="assertive"
+    aria-relevant="additions text"
   >
     <th:block
       th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fileUploadQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams}, ${questionId})}"
@@ -83,13 +84,25 @@
     </div>
   </div>
 
+  <!--/* Upload status for screen readers (text updated by file_upload.ts). */-->
+  <div
+    th:if="${!isPreview}"
+    class="usa-sr-only"
+    data-fileupload-selection-status
+    th:id="${questionId} + '-file-selection-status'"
+    th:data-message-none="#{input.fileUploadSelectionStatusNone}"
+    th:data-message-singular="#{input.fileUploadSelectionStatusSingular}"
+    th:data-message-plural="#{input.fileUploadSelectionStatusPlural}"
+  ></div>
+
   <!--/* File input. Triggers a htmx POST on change to upload the selected file. */-->
   <input
     th:id="${inputId}"
     class="usa-file-input"
     type="file"
     name="file"
-    th:aria-describedby="${hasErrors} ? 'cf-fileupload-validation-errors-' + ${question.getQuestionDefinition().getId()} : ''"
+    th:aria-describedby="${isPreview} ? ${questionId} + '-description' : |${questionId}-file-selection-status cf-fileupload-file-list-${question.getQuestionDefinition().getId()} ${questionId}-description cf-fileupload-validation-errors-${question.getQuestionDefinition().getId()}|"
+    th:aria-labelledby="${questionId} + '-title'"
     th:aria-invalid="${hasErrors}"
     th:accept="${fileUploadAllowedFileTypeSpecifiers}"
     th:data-file-limit-mb="${maxFileSizeMb}"
@@ -122,4 +135,33 @@
     th:if="${!isPreview}"
     th:replace="~{questiontypes/FileUploadOobFragments :: file-list-display(${fileUploadQuestion}, false)}"
   />
+
+  <!--/* Live regions for upload, validation, and max-files announcements. */-->
+  <div
+    th:if="${!isPreview}"
+    class="usa-sr-only"
+    aria-live="assertive"
+    aria-atomic="true"
+    data-fileupload-uploading-status
+    data-testid="fileupload-uploading-status"
+    th:data-message="#{label.uploading}"
+  ></div>
+  <div
+    class="usa-sr-only"
+    aria-live="assertive"
+    aria-atomic="true"
+    data-fileupload-validation-status
+    data-testid="fileupload-validation-status"
+    th:id="'cf-fileupload-validation-status-' + ${question.getQuestionDefinition().getId()}"
+  ></div>
+  <div
+    th:if="${maxFiles.isPresent()}"
+    class="usa-sr-only"
+    aria-live="assertive"
+    aria-atomic="true"
+    data-fileupload-max-files-status
+    data-testid="fileupload-max-files-status"
+    th:data-message="#{input.maxFilesReachedSr}"
+    th:id="'cf-fileupload-max-files-status-' + ${question.getQuestionDefinition().getId()}"
+  ></div>
 </div>

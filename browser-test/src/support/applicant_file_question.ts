@@ -82,6 +82,21 @@ export class ApplicantFileQuestion {
     ).toBeDisabled()
   }
 
+  async expectFileInputShowsValidationError() {
+    const container = this.page.locator('[data-cf-file-upload-container]')
+    const fileInput = container.locator('input[type=file]')
+    const validationErrors = container.locator(
+      '[id^="cf-fileupload-validation-errors-"]',
+    )
+    const validationErrorsId = await validationErrors.getAttribute('id')
+    await expect(fileInput).toHaveAttribute('aria-invalid', 'true')
+    await expect(fileInput).toHaveAttribute(
+      'aria-describedby',
+      new RegExp(validationErrorsId ?? ''),
+    )
+    await expect(container).toHaveClass(/cf-question-field-with-error/)
+  }
+
   async clickSkip() {
     await this.page.locator(this.skipButtonLocator).click()
   }

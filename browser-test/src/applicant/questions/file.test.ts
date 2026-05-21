@@ -81,6 +81,23 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
       await validateScreenshot(page.locator('main'), 'file-uploaded')
     })
 
+    test('shows validation error for screen readers when last file removed', async ({
+      page,
+      applicantQuestions,
+      applicantFileQuestion,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+
+      await applicantQuestions.answerFileUploadQuestionFromAssets(
+        'file-upload.png',
+      )
+      await applicantFileQuestion.removeFileUpload('file-upload.png')
+      await waitForHtmxReady(page)
+
+      await applicantFileQuestion.expectQuestionErrorShown()
+      await applicantFileQuestion.expectFileInputShowsValidationError()
+    })
+
     test('back button', async ({applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
 
