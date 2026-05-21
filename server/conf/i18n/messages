@@ -568,7 +568,7 @@ label.adminProgramImage.altText=Enter image description (Alt Text)
 button.adminProgramImage.continue=Continue
 # Button to save and return when editing an existing program (non-creation flow).
 button.adminProgramImage.save=Save
-
+# Button to delete an uploaded program image
 button.adminProgramImage.delete=Delete image
 # Message shown when alt text is required but missing.
 validation.adminProgramImage.altTextRequired=Image description is required when a program image is uploaded.
@@ -578,7 +578,7 @@ toast.adminProgramImage.imageAndDescriptionSaved=Image is saved with the descrip
 toast.adminProgramImage.descriptionSet=Image description set to {0}
 # Error when alt text cannot be cleared while an image remains.
 toast.adminProgramImage.descriptionNotRemovable=Description can't be removed because an image is present. Delete the image before deleting the description.
-
+# Toast after deleting a program image
 toast.adminProgramImage.imageRemoved=Image removed
 # Message when the program card preview cannot be rendered.
 content.adminProgramImage.cardPreviewError=Error generating card preview

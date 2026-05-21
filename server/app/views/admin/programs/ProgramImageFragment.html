@@ -90,40 +90,41 @@
               th:value="${model.summaryImageDescriptionDefault}"
             />
           </div>
+        </form>
 
-          <div class="margin-top-4 display-flex grid-gap-2 flex-wrap">
-            <cf:button
-              disabled="true"
-              id="save-button"
-              th:text="#{button.adminProgramImage.save}"
-              type="submit"
+        <div class="margin-top-4 display-flex grid-gap-2 flex-wrap">
+          <button
+            class="usa-button"
+            disabled
+            form="program-image-form"
+            id="save-button"
+            th:text="#{button.adminProgramImage.save}"
+            type="submit"
+          ></button>
+          <form
+            method="post"
+            th:action="${model.deleteNavigationUrl}"
+            th:if="${model.hasSummaryImage()}"
+          >
+            <input
+              hidden
+              name="csrfToken"
+              th:value="${templateGlobals.csrfToken()}"
             />
-            <th:block th:if="${model.showContinueButton()}">
-              <cf:button
-                id="continue-button"
-                th:data-redirect-to="${model.continueNavigationUrl}"
-                th:text="#{button.adminProgramImage.continue}"
-                type="button"
-              />
-            </th:block>
-          </div>
-        </form>
-        <form
-          class="margin-top-2"
-          method="post"
-          th:action="${model.deleteNavigationUrl}"
-          th:if="${model.hasSummaryImage()}"
-        >
-          <input
-            hidden
-            name="csrfToken"
-            th:value="${templateGlobals.csrfToken()}"
-          />
-          <cf:button class="usa-button--outline" type="submit">
-            <cf:icon type="icon-delete" />
-            <span th:text="#{button.adminProgramImage.delete}" />
-          </cf:button>
-        </form>
+            <cf:button type="submit" variant="outline">
+              <cf:icon type="icon-delete" />
+              <span th:text="#{button.adminProgramImage.delete}" />
+            </cf:button>
+          </form>
+          <th:block th:if="${model.showContinueButton()}">
+            <cf:button
+              id="continue-button"
+              th:data-redirect-to="${model.continueNavigationUrl}"
+              th:text="#{button.adminProgramImage.continue}"
+              type="button"
+            />
+          </th:block>
+        </div>
       </div>
 
       <div class="grid-col-12 tablet:grid-col-6">
