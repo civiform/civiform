@@ -1264,7 +1264,7 @@ button.addQuestion=
 # A tooltip shown to admins when the delete screen button is disabled
 tooltip.deleteScreenDisabled=
 # A tooltip shown to admins when the delete question button is disabled for a repeated set question
-tooltip.removeEnumeratorQuestionDisabled=This question cannot be removed because there are follow-up questions attached to it.
+tooltip.removeEnumeratorQuestionDisabled=
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #
