@@ -110,6 +110,7 @@ POST    /admin/questions/:questionName/translations/:locale                    c
 # Routes for a CiviForm admin to manage program image
 GET     /admin/programs/:programId/image/:editStatus                           controllers.admin.AdminProgramImageController.index(request: Request, programId: Long, editStatus: String)
 POST    /admin/programs/:programId/image/upload/:editStatus                    controllers.admin.AdminProgramImageController.uploadProgramImage(request: Request, programId: Long, editStatus: String)
+POST    /admin/programs/:programId/image/delete/:editStatus                    controllers.admin.AdminProgramImageController.deleteProgramImage(request: Request, programId: Long, editStatus: String)
 POST    /admin/programs/:programId/image/description/:editStatus               controllers.admin.AdminProgramImageController.updateDescription(request: Request, programId: Long, editStatus: String)
 GET     /admin/programs/:programId/image/file/:editStatus                      controllers.admin.AdminProgramImageController.updateFileKey(request: Request, programId: Long, editStatus: String)
 POST    /admin/programs/:programId/image/file/delete/:editStatus               controllers.admin.AdminProgramImageController.deleteFileKey(request: Request, programId: Long, editStatus: String)

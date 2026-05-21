@@ -4167,10 +4167,28 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
     ProgramDefinition setResult = ps.setSummaryImageFileKey(program.id(), "fileKey1.png");
     assertThat(setResult.summaryImageFileKey()).isPresent();
+    ps.setSummaryImageDescription(program.id(), Locale.US, "Alt text");
 
     ProgramDefinition deleteResult = ps.deleteSummaryImageFileKey(program.id());
 
     assertThat(deleteResult.summaryImageFileKey()).isEmpty();
+    assertThat(deleteResult.localizedSummaryImageDescription()).isPresent();
+    assertThat(deleteResult.localizedSummaryImageDescription().get().get(Locale.US))
+        .isEqualTo("Alt text");
+  }
+
+  @Test
+  public void deleteSummaryImageFileKey_andClearDescription_clearsFileKeyAndDescription()
+      throws ProgramNotFoundException {
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
+    ps.setSummaryImageFileKey(program.id(), "fileKey1.png");
+    ps.setSummaryImageDescription(program.id(), Locale.US, "Alt text");
+
+    ps.deleteSummaryImageFileKey(program.id());
+    ProgramDefinition deleteResult = ps.setSummaryImageDescription(program.id(), Locale.US, "");
+
+    assertThat(deleteResult.summaryImageFileKey()).isEmpty();
+    assertThat(deleteResult.localizedSummaryImageDescription()).isEmpty();
   }
 
   @Test

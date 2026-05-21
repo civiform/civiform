@@ -91,7 +91,7 @@
             />
           </div>
 
-          <div class="margin-top-4 display-flex grid-gap-2">
+          <div class="margin-top-4 display-flex grid-gap-2 flex-wrap">
             <cf:button
               disabled="true"
               id="save-button"
@@ -107,6 +107,22 @@
               />
             </th:block>
           </div>
+        </form>
+        <form
+          class="margin-top-2"
+          method="post"
+          th:action="${model.deleteNavigationUrl}"
+          th:if="${model.hasSummaryImage()}"
+        >
+          <input
+            hidden
+            name="csrfToken"
+            th:value="${templateGlobals.csrfToken()}"
+          />
+          <cf:button class="usa-button--outline" type="submit">
+            <cf:icon type="icon-delete" />
+            <span th:text="#{button.adminProgramImage.delete}" />
+          </cf:button>
         </form>
       </div>
 
