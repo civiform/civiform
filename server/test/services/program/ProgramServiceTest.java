@@ -4163,7 +4163,8 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void deleteSummaryImageFileKey_hadFileKey_keyRemoved() throws ProgramNotFoundException {
+  public void deleteSummaryImageFileKey_hadFileKey_keyRemoved()
+      throws ProgramNotFoundException, TranslationNotFoundException {
     ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
     ProgramDefinition setResult = ps.setSummaryImageFileKey(program.id(), "fileKey1.png");
     assertThat(setResult.summaryImageFileKey()).isPresent();

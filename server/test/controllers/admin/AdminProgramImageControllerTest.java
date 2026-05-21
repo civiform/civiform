@@ -718,7 +718,8 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void deleteProgramImage_featureFlagDisabled_returnsNotFound() {
+  public void deleteProgramImage_featureFlagDisabled_returnsNotFound()
+      throws ProgramNotFoundException {
     ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
 
     Result result =
