@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.CompletableFuture.failedFuture;
 
+import auth.Authorizers;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -88,7 +89,22 @@ public final class FileUploadController extends CiviFormController {
       return CompletableFuture.completedFuture(badRequest());
     }
 
-    long applicantId = optionalApplicantId.get();
+    return hxSelectFileForUploadInternal(request, optionalApplicantId.get(), programId, blockId);
+  }
+
+  @Secure(authorizers = Authorizers.Labels.TI_OR_CIVIFORM_ADMIN)
+  @BodyParser.Of(ApplicantStreamingMultipartBodyParser.class)
+  public CompletionStage<Result> hxSelectFileForUploadWithApplicantId(
+      Request request, long applicantId, long programId, String blockId) {
+    if (!settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
+      return CompletableFuture.completedFuture(notFound());
+    }
+
+    return hxSelectFileForUploadInternal(request, applicantId, programId, blockId);
+  }
+
+  private CompletionStage<Result> hxSelectFileForUploadInternal(
+      Request request, long applicantId, long programId, String blockId) {
 
     // The body has already been streamed to cloud storage by
     // ApplicantStreamingMultipartBodyParser. Each FilePart's ref carries the generated fileKey.
@@ -171,7 +187,12 @@ public final class FileUploadController extends CiviFormController {
         .thenComposeAsync(
             roApplicantProgramService ->
                 renderFileUploadPartial(
-                    request, programId, blockId, parsedQuestionId, roApplicantProgramService),
+                    request,
+                    applicantId,
+                    programId,
+                    blockId,
+                    parsedQuestionId,
+                    roApplicantProgramService),
             classLoaderExecutionContext.current())
         .exceptionally(this::handleUpdateExceptions);
   }
@@ -192,7 +213,21 @@ public final class FileUploadController extends CiviFormController {
       return CompletableFuture.completedFuture(badRequest());
     }
 
-    long applicantId = optionalApplicantId.get();
+    return hxRemoveFileInternal(request, optionalApplicantId.get(), programId, blockId);
+  }
+
+  @Secure(authorizers = Authorizers.Labels.TI_OR_CIVIFORM_ADMIN)
+  public CompletionStage<Result> hxRemoveFileWithApplicantId(
+      Request request, long applicantId, long programId, String blockId) {
+    if (!settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
+      return CompletableFuture.completedFuture(notFound());
+    }
+
+    return hxRemoveFileInternal(request, applicantId, programId, blockId);
+  }
+
+  private CompletionStage<Result> hxRemoveFileInternal(
+      Request request, long applicantId, long programId, String blockId) {
 
     String questionId = formFactory.form().bindFromRequest(request).get("questionId");
     if (questionId == null) {
@@ -241,7 +276,12 @@ public final class FileUploadController extends CiviFormController {
         .thenComposeAsync(
             roApplicantProgramService ->
                 renderFileUploadPartial(
-                    request, programId, blockId, parsedQuestionId, roApplicantProgramService),
+                    request,
+                    applicantId,
+                    programId,
+                    blockId,
+                    parsedQuestionId,
+                    roApplicantProgramService),
             classLoaderExecutionContext.current())
         .exceptionally(this::handleUpdateExceptions);
   }
@@ -253,6 +293,7 @@ public final class FileUploadController extends CiviFormController {
    */
   private CompletionStage<Result> renderFileUploadPartial(
       Request request,
+      long applicantId,
       long programId,
       String blockId,
       long questionId,
@@ -263,12 +304,17 @@ public final class FileUploadController extends CiviFormController {
                   findFileUploadQuestion(
                       roApplicantProgramService.getActiveBlock(blockId).orElseThrow(), questionId);
 
+              String hxRemoveFileUrl =
+                  new ApplicantRoutes()
+                      .hxRemoveFile(
+                          profileUtils.currentUserProfile(request), applicantId, programId, blockId)
+                      .url();
+
               return ok(fileUploadQuestionPartialView.render(
                       request,
                       FileUploadQuestionPartialViewModel.builder()
                           .fileUploadQuestion(stagedQuestion)
-                          .hxRemoveFileUrl(
-                              routes.FileUploadController.hxRemoveFile(programId, blockId).url())
+                          .hxRemoveFileUrl(hxRemoveFileUrl)
                           .build()))
                   .as(Http.MimeTypes.HTML);
             },
