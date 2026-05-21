@@ -35,8 +35,8 @@ public class ProgramBlockValidationTest extends ResetPostgres {
     String tombstonedQuestionOneName = "tombstoneOne";
     questionForTombstone = resourceCreator.insertQuestion(tombstonedQuestionOneName);
     version.addQuestion(questionForTombstone);
-    versionRepository.addTombstoneForQuestionInVersion(questionForTombstone, version);
     version.save();
+    versionRepository.addTombstoneForQuestionInVersion(questionForTombstone, version);
     questionForEligible = resourceCreator.insertQuestion("eligible question");
     version.addQuestion(questionForEligible);
     householdMemberQuestion = resourceCreator.insertEnum("householdMemberQuestion");

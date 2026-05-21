@@ -268,7 +268,7 @@ public final class VersionRepository {
           active.save();
           draft.refresh();
           active.refresh();
-          validateProgramQuestionState();
+          validateProgramQuestionState(draft.getQuestions(), draft.getPrograms());
           transaction.commit();
           yield Optional.empty();
         }
@@ -395,9 +395,11 @@ public final class VersionRepository {
       existingDraft.save();
       active.save();
       newDraft.save();
+      existingDraft.refresh();
       active.refresh();
       newDraft.refresh();
-      validateProgramQuestionState();
+      validateProgramQuestionState(
+          existingDraft.getQuestions(), existingDraft.getPrograms());
       transaction.commit();
     } catch (NonUniqueResultException | SerializableConflictException | RollbackException e) {
       transaction.rollback(e);
@@ -879,57 +881,51 @@ public final class VersionRepository {
   /**
    * Validate all programs have associated questions.
    *
+   * @param activeQuestions the questions in the newly-active version
+   * @param activePrograms the programs in the newly-active version
    * @throws IllegalStateException if there are any issues.
    */
-  private void validateProgramQuestionState() {
-    // TODO(#10557): This would be a good place to require the caller to
-    //  manage the transaction as they likely updated the Database before
-    //  calling this and the reads here should be in a transaction with them.
-    //  Short of that manage a transaction here.
-    transactionManager.execute(
-        () -> {
-          VersionModel activeVersion = getActiveVersion();
-          ImmutableList<QuestionDefinition> newActiveQuestions =
-              getQuestionsForVersion(activeVersion).stream()
-                  .map(questionRepository::getQuestionDefinition)
-                  .collect(ImmutableList.toImmutableList());
-          // Check there aren't any duplicate questions in the new active version
-          validateNoDuplicateQuestions(newActiveQuestions);
-          ImmutableSet<Long> missingQuestionIds =
-              getProgramsForVersion(activeVersion).stream()
-                  .map(
-                      program ->
-                          programRepository
-                              .getShallowProgramDefinition(program)
-                              .getQuestionIdsInProgram())
-                  .flatMap(Collection::stream)
-                  .filter(
-                      questionId ->
-                          !newActiveQuestions.stream()
-                              .map(QuestionDefinition::getId)
-                              .collect(ImmutableSet.toImmutableSet())
-                              .contains(questionId))
-                  .collect(ImmutableSet.toImmutableSet());
-          if (missingQuestionIds.isEmpty()) {
-            return;
-          }
-          ImmutableSet<Long> programIdsMissingQuestions =
-              getProgramsForVersion(activeVersion).stream()
-                  .filter(
-                      program ->
-                          programRepository
-                              .getShallowProgramDefinition(program)
-                              .getQuestionIdsInProgram()
-                              .stream()
-                              .anyMatch(missingQuestionIds::contains))
-                  .map(program -> program.id)
-                  .collect(ImmutableSet.toImmutableSet());
-          throw new IllegalStateException(
-              String.format(
-                  "Illegal state encountered when attempting to publish a new version. Question IDs"
-                      + " %s found in program definitions %s not found in new active version.",
-                  missingQuestionIds, programIdsMissingQuestions));
-        });
+  private void validateProgramQuestionState(
+      ImmutableList<QuestionModel> activeQuestions,
+      ImmutableList<ProgramModel> activePrograms) {
+    ImmutableList<QuestionDefinition> newActiveQuestionDefs =
+        activeQuestions.stream()
+            .map(questionRepository::getQuestionDefinition)
+            .collect(ImmutableList.toImmutableList());
+    validateNoDuplicateQuestions(newActiveQuestionDefs);
+    ImmutableSet<Long> activeQuestionIds =
+        newActiveQuestionDefs.stream()
+            .map(QuestionDefinition::getId)
+            .collect(ImmutableSet.toImmutableSet());
+    ImmutableSet<Long> missingQuestionIds =
+        activePrograms.stream()
+            .map(
+                program ->
+                    programRepository
+                        .getShallowProgramDefinition(program)
+                        .getQuestionIdsInProgram())
+            .flatMap(Collection::stream)
+            .filter(questionId -> !activeQuestionIds.contains(questionId))
+            .collect(ImmutableSet.toImmutableSet());
+    if (missingQuestionIds.isEmpty()) {
+      return;
+    }
+    ImmutableSet<Long> programIdsMissingQuestions =
+        activePrograms.stream()
+            .filter(
+                program ->
+                    programRepository
+                        .getShallowProgramDefinition(program)
+                        .getQuestionIdsInProgram()
+                        .stream()
+                        .anyMatch(missingQuestionIds::contains))
+            .map(program -> program.id)
+            .collect(ImmutableSet.toImmutableSet());
+    throw new IllegalStateException(
+        String.format(
+            "Illegal state encountered when attempting to publish a new version. Question IDs"
+                + " %s found in program definitions %s not found in new active version.",
+            missingQuestionIds, programIdsMissingQuestions));
   }
 
   /** Validate there are no duplicate question names. */
