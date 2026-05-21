@@ -1,100 +1,129 @@
-import {assertNotNull} from '@/util'
-import {isFileTooLarge} from '@/file_upload_util'
+import {hideError, isFileTooLarge, showError} from '@/file_upload_util'
 
-/** Scripts for controlling the admin program image upload page. */
-class AdminProgramImage {
-  // These values should be kept in sync with views/admin/programs/ProgramImageView.java.
-  private static IMAGE_DESCRIPTION_FORM_ID = 'image-description-form'
-  private static IMAGE_FILE_UPLOAD_FORM_ID = 'image-file-upload-form'
-  // This should be kept in sync with views/fileupload/FileUploadViewStrategy#createFileTooLargeError.
-  private static FILE_TOO_LARGE_ID = 'cf-fileupload-too-large-error'
+// Keep in sync with server/app/views/admin/programs/ProgramImageFragment.html
+const PROGRAM_IMAGE_FILE_UPLOAD_ID = 'program-image-input'
+const ALT_TEXT_INPUT_ID = 'summaryImageDescription'
+const PROGRAM_IMAGE_FORM_ID = 'program-image-form'
+// Keep in sync with cf:input error span id for name="summaryImageDescription".
+const ALT_REQUIRED_ERROR_ID = 'error-message-summaryImageDescription'
+const SAVE_BUTTON_ID = 'save-button'
 
-  static attachEventListenersToDescriptionForm() {
-    const descriptionForm = document.getElementById(
-      AdminProgramImage.IMAGE_DESCRIPTION_FORM_ID,
-    )
-    if (descriptionForm) {
-      descriptionForm.addEventListener(
-        'input',
-        AdminProgramImage.changeSubmitDescriptionState,
-      )
-    }
+export const init = () => {
+  if (!document.getElementById(PROGRAM_IMAGE_FILE_UPLOAD_ID)) {
+    return
   }
 
-  static changeSubmitDescriptionState() {
-    const descriptionForm = assertNotNull(
-      document.getElementById(AdminProgramImage.IMAGE_DESCRIPTION_FORM_ID),
-    )
-    const descriptionInput = assertNotNull(
-      descriptionForm.querySelector<HTMLInputElement>(
-        'input[name="summaryImageDescription"]',
-      ),
-    )
-    const submitButton = assertNotNull(
-      document.querySelector(
-        'button[form=' +
-          AdminProgramImage.IMAGE_DESCRIPTION_FORM_ID +
-          '][type="submit"]',
-      ),
-    )
+  const form = document.getElementById(PROGRAM_IMAGE_FORM_ID)
+  const altInput = document.getElementById(ALT_TEXT_INPUT_ID)
+  const fileInput = document.getElementById(PROGRAM_IMAGE_FILE_UPLOAD_ID)
+  const saveButton = document.getElementById(SAVE_BUTTON_ID)
 
-    if (descriptionInput.value !== descriptionInput.defaultValue) {
-      submitButton.removeAttribute('disabled')
-    } else {
-      submitButton.setAttribute('disabled', '')
-    }
+  if (
+    !(form instanceof HTMLFormElement) ||
+    !(altInput instanceof HTMLInputElement) ||
+    !(fileInput instanceof HTMLInputElement) ||
+    !(saveButton instanceof HTMLButtonElement)
+  ) {
+    return
   }
 
-  static attachEventListenersToImageForm() {
-    const imageForm = document.getElementById(
-      AdminProgramImage.IMAGE_FILE_UPLOAD_FORM_ID,
-    )
-    if (imageForm) {
-      imageForm.addEventListener('input', AdminProgramImage.onImageFileChanged)
-    }
-  }
+  altInput.addEventListener('input', () => {
+    validateAltTextField(altInput)
+    syncAltTextRequiredState(altInput, fileInput)
+    syncSaveButtonState(altInput, fileInput, saveButton)
+  })
 
-  static onImageFileChanged() {
-    const imageForm = assertNotNull(
-      document.getElementById(AdminProgramImage.IMAGE_FILE_UPLOAD_FORM_ID),
-    )
-    const imageInput = assertNotNull(
-      imageForm.querySelector<HTMLInputElement>('input[type=file]'),
-    )
-    const submitButton = assertNotNull(
-      document.querySelector(
-        'button[form=' +
-          AdminProgramImage.IMAGE_FILE_UPLOAD_FORM_ID +
-          '][type="submit"]',
-      ),
-    )
-    const fileTooLargeError = assertNotNull(
-      document.getElementById(
-        AdminProgramImage.FILE_TOO_LARGE_ID,
-      ) as HTMLElement,
-    )
+  fileInput.addEventListener('change', () => {
+    validateFileInput(fileInput)
+    syncAltTextRequiredState(altInput, fileInput)
+    syncSaveButtonState(altInput, fileInput, saveButton)
+  })
 
-    if (imageInput.value == '') {
-      // Prevent submission and hide the too-large error if no file is uploaded
-      submitButton.setAttribute('disabled', '')
-      fileTooLargeError.hidden = true
-      return
+  form.addEventListener('submit', (event) => {
+    if (
+      (fileInput.value !== '' && !validateFileInput(fileInput)) ||
+      !validateAltTextField(altInput)
+    ) {
+      event.preventDefault()
     }
+  })
 
-    const fileTooLarge = isFileTooLarge(imageInput)
-    if (fileTooLarge) {
-      // Prevent submission and show the too-large error if the file was too large
-      submitButton.setAttribute('disabled', '')
-      fileTooLargeError.hidden = false
-    } else {
-      // Allow submission and hide the too-large error if the file is small enough
-      submitButton.removeAttribute('disabled')
-      fileTooLargeError.hidden = true
-    }
+  syncAltTextRequiredState(altInput, fileInput)
+  syncSaveButtonState(altInput, fileInput, saveButton)
+  validateFileInput(fileInput)
+  validateAltTextField(altInput)
+}
+
+const syncAltTextRequiredState = (
+  altInput: HTMLInputElement,
+  fileInput: HTMLInputElement,
+) => {
+  if (
+    fileInput.value !== '' ||
+    fileInput.getAttribute('data-has-existing-image') === 'true'
+  ) {
+    altInput.required = true
+    altInput.setAttribute('aria-required', 'true')
+  } else {
+    altInput.required = false
+    altInput.removeAttribute('aria-required')
   }
 }
 
-export function init() {
-  AdminProgramImage.attachEventListenersToDescriptionForm()
-  AdminProgramImage.attachEventListenersToImageForm()
+const syncSaveButtonState = (
+  altInput: HTMLInputElement,
+  fileInput: HTMLInputElement,
+  saveButton: HTMLButtonElement,
+) => {
+  const descriptionChanged = altInput.value !== altInput.defaultValue
+  const hasValidNewFile = fileInput.value !== '' && !isFileTooLarge(fileInput)
+  saveButton.disabled = !(descriptionChanged || hasValidNewFile)
+}
+
+/**
+ * Validates the program image file input: toggles the too-large alert and, when valid, clears
+ * related error UI.
+ *
+ * @returns true when a file is selected and its size is within the configured limit.
+ */
+const validateFileInput = (fileInput: HTMLInputElement): boolean => {
+  const container = fileInput.closest<HTMLElement>('.usa-form-group')
+  if (!container) {
+    return false
+  }
+
+  const fileTooLargeErrorDiv = container.querySelector<HTMLElement>(
+    '[data-fileupload-error="too-large"]',
+  )
+
+  const isFileTooLargeResult = isFileTooLarge(fileInput)
+  if (isFileTooLargeResult) {
+    showError(fileTooLargeErrorDiv, fileInput)
+  } else {
+    hideError(fileTooLargeErrorDiv, fileInput)
+  }
+
+  const isValid = fileInput.value !== '' && !isFileTooLargeResult
+  if (isValid) {
+    container
+      .querySelectorAll<HTMLElement>('.cf-question-error-message')
+      .forEach((el) => {
+        el.style.display = 'none'
+      })
+  }
+  return isValid
+}
+
+const validateAltTextField = (altInput: HTMLInputElement): boolean => {
+  const errorDiv = document.getElementById(ALT_REQUIRED_ERROR_ID)
+  const formGroup = altInput.closest('.usa-form-group')
+  const valid = !altInput.required || altInput.value.trim() !== ''
+  if (valid) {
+    hideError(errorDiv, altInput)
+    formGroup?.classList.remove('usa-form-group--error')
+  } else {
+    showError(errorDiv, altInput)
+    formGroup?.classList.add('usa-form-group--error')
+  }
+  return valid
 }

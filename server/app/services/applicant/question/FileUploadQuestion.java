@@ -7,6 +7,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import models.StoredFileModel;
 import play.api.libs.json.JsArray;
@@ -275,6 +277,59 @@ public final class FileUploadQuestion extends AbstractQuestion {
   public static String getFileName(String fileKey) {
     String[] parts = fileKey.split("/", 4);
     return parts[parts.length - 1];
+  }
+
+  /**
+   * Suggested download file name for presigned GETs: non-blank original from {@link
+   * StoredFileModel} when available, otherwise {@link #getFileName(String)}.
+   *
+   * <p>The result is always non-empty so storage clients can set {@code Content-Disposition}.
+   */
+  public static Optional<String> getUploadedFileName(
+      Optional<StoredFileModel> storedFile, String fileKey) {
+    return storedFile
+        .flatMap(StoredFileModel::getOriginalFileName)
+        .filter(s -> !s.isBlank())
+        .or(() -> Optional.of(getFileName(fileKey)));
+  }
+
+  // Matches a filename with an extension.
+  private static final Pattern FILE_NAME_REGEX = Pattern.compile("(.*)(\\.[^.]+)$");
+
+  /**
+   * Returns a name derived from {@code name} that does not appear in {@code existingNames},
+   * appending a "-N" numeric suffix as needed.
+   *
+   * <p>This method runs after the file has already been uploaded to cloud storage under a
+   * UUID-based key. The returned name is for display only and is stored in {@link
+   * services.applicant.ApplicantData} alongside the file key, and is what the applicant sees in the
+   * UI. The file key is the source of truth for retrieval and ACL lookups (via {@link
+   * models.StoredFileModel}).
+   */
+  public static String getUniqueName(String name, ImmutableList<String> existingNames) {
+    if (name == null || name.isEmpty()) {
+      throw new IllegalArgumentException("name is null or empty");
+    }
+
+    if (existingNames == null) {
+      throw new IllegalArgumentException("existingNames is null");
+    }
+
+    if (!existingNames.contains(name)) {
+      return name;
+    }
+
+    Matcher extMatcher = FILE_NAME_REGEX.matcher(name);
+    boolean hasRealExtension = extMatcher.matches() && !extMatcher.group(1).isEmpty();
+    String base = hasRealExtension ? extMatcher.group(1) : name;
+    String ext = hasRealExtension ? extMatcher.group(2) : "";
+
+    long counter = 2;
+    while (existingNames.contains(name)) {
+      name = base + "-" + counter + ext;
+      counter++;
+    }
+    return name;
   }
 
   @Override

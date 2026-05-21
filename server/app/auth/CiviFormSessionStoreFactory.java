@@ -1,5 +1,6 @@
 package auth;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 import com.typesafe.config.Config;
 import java.nio.charset.StandardCharsets;
@@ -61,22 +62,24 @@ public class CiviFormSessionStoreFactory implements SessionStoreFactory {
     return newSessionStore();
   }
 
+  @SuppressWarnings("deprecation") // JavaSerializer is deprecated in pac4j v6.5.0
   public SessionStore newSessionStore() {
-    // This is a weird one.  :)  The cookie session store refuses to serialize any
-    // classes it doesn't explicitly trust.  A bug in pac4j interacts badly with
-    // sbt's autoreload, so we have a little workaround here.  configure() gets called on every
-    // startup,
-    // but the JAVA_SERIALIZER object is only initialized on initial startup.
-    // So, on a second startup, we'll add the CiviFormProfileData a second time.  The
-    // trusted classes set should dedupe CiviFormProfileData against the old CiviFormProfileData,
-    // but it's technically a different class with the same name at that point,
-    // which triggers the bug.  So, we just clear the classes, which will be empty
-    // on first startup and will contain the profile on subsequent startups,
-    // so that it's always safe to add the profile.
-    // We will need to do this for every class we want to store in the cookie.
-    var serializer = new org.pac4j.core.util.serializer.JavaSerializer();
-    serializer.clearTrustedClasses();
-    serializer.addTrustedClass(CiviFormProfileData.class);
+    var jsonSerializerPrimary = new org.pac4j.core.util.serializer.JsonSerializer();
+    // Play's request threads can have a context classloader that doesn't include the
+    // application classes, so Jackson's DefaultTyping fails to resolve type ids like
+    // "auth.CiviFormProfileData" with "no such class found". Bind the TypeFactory to the
+    // classloader that actually loaded our app classes.
+    ObjectMapper jsonMapper = jsonSerializerPrimary.getObjectMapper();
+    jsonMapper.setTypeFactory(
+        jsonMapper.getTypeFactory().withClassLoader(CiviFormProfileData.class.getClassLoader()));
+
+    // Remove after a few releases so we can move forward on updating the pac4j dependency
+    // and remove the deprecated JavaSerializer
+    var javaSerializerFallback = new org.pac4j.core.util.serializer.JavaSerializer();
+    javaSerializerFallback.clearTrustedClasses();
+    javaSerializerFallback.addTrustedClass(CiviFormProfileData.class);
+
+    var serializer = new FallbackSerializer(jsonSerializerPrimary, javaSerializerFallback);
 
     var sessionStore = new PlayCookieSessionStore(encrypter);
     sessionStore.setSerializer(serializer);

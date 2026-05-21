@@ -1,0 +1,122 @@
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.programs.ProgramImagePageViewModel"*/-->
+<th:block th:fragment="content">
+  <div class="grid-container margin-top-4">
+    <div
+      th:replace="~{components/ToastFragment :: success(${model.flashSuccess})}"
+    ></div>
+    <div
+      th:replace="~{components/ToastFragment :: error(${model.flashError})}"
+    ></div>
+
+    <a
+      class="display-flex flex-align-center font-sans-md text-no-underline margin-bottom-4"
+      th:href="${model.backUrl}"
+      ><cf:icon type="icon-navigate_before" />
+      <span th:text="#{link.adminProgramImage.back}" />
+    </a>
+
+    <h1 th:text="#{title.adminProgramImage}" />
+
+    <div
+      class="usa-error-message margin-bottom-2"
+      th:unless="${model.showCardPreview()}"
+      th:text="#{content.adminProgramImage.cardPreviewError}"
+    />
+
+    <div class="grid-row grid-gap-lg">
+      <div class="grid-col-12 tablet:grid-col-6">
+        <form
+          class="usa-form-group"
+          enctype="multipart/form-data"
+          id="program-image-form"
+          method="post"
+          novalidate
+          th:action="${model.submitNavigationUrl}"
+        >
+          <input
+            hidden
+            name="csrfToken"
+            th:value="${templateGlobals.csrfToken()}"
+          />
+
+          <div id="program-image-file-input-hint">
+            <div
+              class="usa-hint"
+              th:text="#{content.adminProgramImage.hintMaxSize}"
+            />
+            <div
+              class="usa-hint"
+              th:text="#{content.adminProgramImage.hintCrop}"
+            />
+          </div>
+          <input
+            accept="image/png,image/jpeg"
+            aria-describedby="program-image-file-input-hint"
+            class="usa-file-input"
+            id="program-image-input"
+            name="file"
+            th:data-file-limit-mb="${model.maxFileSizeMb}"
+            th:data-has-existing-image="${model.hasSummaryImage()}"
+            type="file"
+          />
+          <!--/*
+            Hidden error message div. admin_program_image.ts toggles via showError/hideError.
+          */-->
+          <div
+            hidden
+            class="usa-alert usa-alert--error usa-alert--slim margin-top-105"
+            data-fileupload-error="too-large"
+            id="cf-fileupload-too-large-error"
+          >
+            <div class="usa-alert__body">
+              <p
+                class="usa-alert__text"
+                th:text="#{toast.errorMessageOutline(#{validation.fileTooLarge(${model.maxFileSizeMb})})}"
+              ></p>
+            </div>
+          </div>
+          <div class="margin-top-4">
+            <!--/*
+              Client-side validation: admin_program_image.ts toggles the validation
+              span between the label and input via showError/hideError.
+            */-->
+            <cf:input
+              id="summaryImageDescription"
+              is-valid="true"
+              name="summaryImageDescription"
+              th:label="#{label.adminProgramImage.altText}"
+              th:validation-message="#{validation.adminProgramImage.altTextRequired}"
+              th:value="${model.summaryImageDescriptionDefault}"
+            />
+          </div>
+
+          <div class="margin-top-4 display-flex grid-gap-2">
+            <cf:button
+              disabled="true"
+              id="save-button"
+              th:text="#{button.adminProgramImage.save}"
+              type="submit"
+            />
+            <th:block th:if="${model.showContinueButton()}">
+              <cf:button
+                id="continue-button"
+                th:data-redirect-to="${model.continueNavigationUrl}"
+                th:text="#{button.adminProgramImage.continue}"
+                type="button"
+              />
+            </th:block>
+          </div>
+        </form>
+      </div>
+
+      <div class="grid-col-12 tablet:grid-col-6">
+        <th:block th:if="${model.showCardPreview()}">
+          <div
+            th:replace="~{admin/programs/ProgramCardPreviewFragment :: cardPreview(${model.programCardParams.get()})}"
+          ></div>
+        </th:block>
+      </div>
+    </div>
+  </div>
+</th:block>

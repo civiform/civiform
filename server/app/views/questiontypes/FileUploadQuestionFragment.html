@@ -45,7 +45,7 @@
 
   <!--/* Client-side validation errors. These are always in the DOM but hidden.
        file_upload.ts removes the hidden attribute to show them before the htmx
-       request fires (e.g. when a required file is missing or the file is too large). */-->
+       request fires (e.g. when a required file is missing or the file is too large or the request failed). */-->
   <div
     hidden
     class="usa-alert usa-alert--error usa-alert--slim"
@@ -70,6 +70,18 @@
       ></p>
     </div>
   </div>
+  <div
+    hidden
+    class="usa-alert usa-alert--error usa-alert--slim"
+    data-fileupload-error="request-failed"
+  >
+    <div class="usa-alert__body">
+      <p
+        class="usa-alert__text"
+        th:text="#{toast.errorMessageOutline(#{validation.fileUploadRequestFailed})}"
+      ></p>
+    </div>
+  </div>
 
   <!--/* File input. Triggers a htmx POST on change to upload the selected file. */-->
   <input
@@ -77,7 +89,7 @@
     class="usa-file-input"
     type="file"
     name="file"
-    th:aria-describedby="${hasErrors} ? ' ' + ${questionId} + '-error' : ''"
+    th:aria-describedby="${hasErrors} ? 'cf-fileupload-validation-errors-' + ${question.getQuestionDefinition().getId()} : ''"
     th:aria-invalid="${hasErrors}"
     th:accept="${fileUploadAllowedFileTypeSpecifiers}"
     th:data-file-limit-mb="${maxFileSizeMb}"

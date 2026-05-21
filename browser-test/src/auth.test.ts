@@ -154,31 +154,32 @@ test.describe('Applicant auth', () => {
     })
   })
 
-  // It is a bug (#11389) that auth login, then guest, then auth login does not
-  // make the application available on the auth user.
-  // This is the same test as above but the auth user logs in first.
-  test('Auth login, then Guest login, then auth login does not show submitted applications', async ({
+  test('Auth login, then Guest login, then auth login shows all applications', async ({
     page,
     adminPrograms,
     applicantProgramList,
     applicantQuestions,
   }) => {
-    const programName = 'Test program'
+    const programName1 = 'Test program 1'
+    const programName2 = 'Test program 2'
 
     await test.step('Add program', async () => {
       await loginAsAdmin(page)
-      await adminPrograms.addProgram(programName)
+      await adminPrograms.addProgram(programName1)
+      await adminPrograms.addProgram(programName2)
       await adminPrograms.publishAllDrafts()
       await logout(page)
     })
 
     await test.step('Add user to the database', async () => {
       await loginAsTestUser(page)
+      await applicantQuestions.applyProgram(programName1)
+      await applicantQuestions.submitFromReviewPage()
       await logout(page)
     })
 
     await test.step('Apply to program as Guest', async () => {
-      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.applyProgram(programName2)
       await applicantQuestions.submitFromReviewPage()
     })
 
@@ -192,20 +193,32 @@ test.describe('Applicant auth', () => {
       )
     })
 
-    await test.step('Verify the user does not see a submitted application', async () => {
+    await test.step('Verify the user sees both submitted applications', async () => {
       await page.goto('/programs/')
-      const applicationCardLocator = page.getByRole('heading', {
-        name: programName,
+      const application1CardLocator = page.getByRole('heading', {
+        name: programName1,
       })
-      await expect(applicationCardLocator).toBeAttached()
+      await expect(application1CardLocator).toBeAttached()
 
-      // Check submitted time does not exist.
+      const application2CardLocator = page.getByRole('heading', {
+        name: programName2,
+      })
+      await expect(application2CardLocator).toBeAttached()
+
+      // Check submitted time exists.
       await expect(
         applicantProgramList.getSubmittedTagLocator(
           CardSectionName.MyApplications,
-          programName,
+          programName1,
         ),
-      ).not.toBeAttached()
+      ).toContainText(/\d?\d\/\d?\d\/\d\d/)
+
+      await expect(
+        applicantProgramList.getSubmittedTagLocator(
+          CardSectionName.MyApplications,
+          programName2,
+        ),
+      ).toContainText(/\d?\d\/\d?\d\/\d\d/)
     })
   })
 })

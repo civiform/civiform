@@ -102,7 +102,8 @@ export const showError = (
     return
   }
 
-  errorDiv.hidden = false
+  errorDiv.removeAttribute('hidden')
+  errorDiv.style.display = 'block'
   fileInput.setAttribute('aria-invalid', 'true')
 
   const errorId = errorDiv.getAttribute('id')
@@ -125,7 +126,7 @@ export const hideError = (
     return
   }
 
-  errorDiv.hidden = true
+  errorDiv.style.display = 'none'
   fileInput.removeAttribute('aria-invalid')
 
   const errorId = errorDiv.getAttribute('id')
