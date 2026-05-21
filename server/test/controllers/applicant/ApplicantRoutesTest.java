@@ -690,4 +690,39 @@ public class ApplicantRoutesTest extends ResetPostgres {
                 .url())
         .isEqualTo(expectedPreviousUrl);
   }
+
+  @Test
+  public void testHxSelectFileForUploadRoute_forApplicantWithIdInProfile() {
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.addAttribute(
+        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedUrl =
+        String.format("/programs/%d/blocks/%s/hx/selectFileForUpload", PROGRAM_ID, BLOCK_ID);
+    assertThat(
+            new ApplicantRoutes()
+                .hxSelectFileForUpload(applicantProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID)
+                .url())
+        .isEqualTo(expectedUrl);
+  }
+
+  @Test
+  @Parameters({"TI", "CIVIFORM"})
+  public void testHxSelectFileForUploadRoute_forAdminTypes(ADMIN_TYPE adminType) {
+    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
+    profileData.addRole(getRoleForAdmin(adminType));
+    CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedUrl =
+        String.format(
+            "/applicants/%d/programs/%d/blocks/%s/hx/selectFileForUpload",
+            APPLICANT_ID, PROGRAM_ID, BLOCK_ID);
+    assertThat(
+            new ApplicantRoutes()
+                .hxSelectFileForUpload(adminProfile, APPLICANT_ID, PROGRAM_ID, BLOCK_ID)
+                .url())
+        .isEqualTo(expectedUrl);
+  }
 }

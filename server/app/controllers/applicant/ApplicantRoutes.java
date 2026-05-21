@@ -479,6 +479,42 @@ public final class ApplicantRoutes {
         programId, blockId, fileKey, inReview);
   }
 
+  /**
+   * Returns the route for the HTMX file upload action.
+   *
+   * @param profile profile corresponding to the logged-in user (applicant or TI).
+   * @param applicantId ID of applicant for whom the action should be performed.
+   * @param programId ID of program
+   * @param blockId ID of the block containing file upload question
+   * @return route for the HTMX file upload action
+   */
+  public Call hxSelectFileForUpload(
+      CiviFormProfile profile, long applicantId, long programId, String blockId) {
+    if (includeApplicantIdInRoute(profile)) {
+      return routes.FileUploadController.hxSelectFileForUploadWithApplicantId(
+          applicantId, programId, blockId);
+    }
+    return routes.FileUploadController.hxSelectFileForUpload(programId, blockId);
+  }
+
+  /**
+   * Returns the route for the HTMX file remove action.
+   *
+   * @param profile profile corresponding to the logged-in user (applicant or TI).
+   * @param applicantId ID of applicant for whom the action should be performed.
+   * @param programId ID of program
+   * @param blockId ID of the block containing file upload question
+   * @return route for the HTMX file remove action
+   */
+  public Call hxRemoveFile(
+      CiviFormProfile profile, long applicantId, long programId, String blockId) {
+    if (includeApplicantIdInRoute(profile)) {
+      return routes.FileUploadController.hxRemoveFileWithApplicantId(
+          applicantId, programId, blockId);
+    }
+    return routes.FileUploadController.hxRemoveFile(programId, blockId);
+  }
+
   // TODO:#11090 Remove method when routes are no longer hit
   /**
    * Returns the route corresponding to the applicant update block action.
