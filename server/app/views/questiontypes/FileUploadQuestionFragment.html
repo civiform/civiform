@@ -3,7 +3,8 @@
   th:with="fileUploadQuestion=${question.createFileUploadQuestion()},
     questionId=${'id-' + #strings.randomAlphanumeric(8)},
     inputId=${'id-' + #strings.randomAlphanumeric(8)},
-    hasErrors=${questionRendererParams.shouldShowErrors() && !fileUploadQuestion.getValidationErrors().isEmpty()}"
+    hasErrors=${questionRendererParams.shouldShowErrors() && !fileUploadQuestion.getValidationErrors().isEmpty()},
+    maxFiles=${question.getQuestionDefinition().getMaxFiles()}"
   th:id="${questionId}"
   class="cf-question-fileupload cf-applicant-question-field"
   th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
@@ -14,10 +15,7 @@
   <div
     th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextSingleInput(${question}, ${questionId}, ${inputId})}"
   ></div>
-  <div
-    class="usa-hint"
-    th:with="maxFiles=${question.getQuestionDefinition().getMaxFiles()}"
-  >
+  <div class="usa-hint">
     <p
       th:if="${maxFiles.isPresent() and maxFiles.getAsInt() == 1}"
       th:text="#{input.singleFileUploadHint}"
@@ -122,4 +120,17 @@
     th:if="${!isPreview}"
     th:replace="~{questiontypes/FileUploadOobFragments :: file-list-display(${fileUploadQuestion}, false)}"
   />
+
+  <!--/* Screen reader announcement when the maximum number of files is reached. */-->
+  <div
+    th:if="${maxFiles.isPresent()}"
+    aria-live="assertive"
+    aria-atomic="true"
+    aria-relevant="additions text"
+    class="usa-sr-only"
+    data-fileupload-max-files-status
+    th:id="'cf-fileupload-max-files-status-' + ${question.getQuestionDefinition().getId()}"
+    th:data-message="#{input.maxFilesReachedSr}"
+    data-testid="fileupload-max-files-status"
+  ></div>
 </div>

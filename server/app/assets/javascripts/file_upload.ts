@@ -5,10 +5,13 @@ import {HtmxAfterRequestEvent} from '@/types/htmx'
 const CAN_UPLOAD_FILE_ATTR = 'data-can-upload-file'
 const CF_FILE_UPLOADING_CLASS = 'cf-file-uploading'
 const CF_FILE_UPLOAD_CONTAINER_SELECTOR = '[data-cf-file-upload-container]'
+const FILE_UPLOAD_MAX_FILES_STATUS_SELECTOR =
+  '[data-fileupload-max-files-status]'
 const FILE_UPLOAD_HTMX_FAILURE = '[data-fileupload-error="request-failed"]'
 
 // Track the number of file uploads in progress to prevent navigating away
 let fileUploadsInProgress = 0
+let maxFilesAnnounceOffset = 0
 
 export const init = () => {
   if (!document.querySelector(CF_FILE_UPLOAD_CONTAINER_SELECTOR)) {
@@ -200,6 +203,26 @@ const syncFileInputDisabledState = () => {
         uswdsFileInput.enable(fileInput)
       } else {
         uswdsFileInput.disable(fileInput)
+      }
+
+      // Announce to screen readers if they've reached max files
+      const maxFilesStatus = container.querySelector<HTMLElement>(
+        FILE_UPLOAD_MAX_FILES_STATUS_SELECTOR,
+      )
+      const message = maxFilesStatus?.dataset.message
+      const atMaxFiles = fileList.getAttribute(CAN_UPLOAD_FILE_ATTR) === 'false'
+
+      if (atMaxFiles && maxFilesStatus && message) {
+        // The content needs to be different or screen readers will not re-announce it.
+        let localizedString = message
+        if (maxFilesAnnounceOffset % 2 === 0) {
+          localizedString += '.'
+        }
+        maxFilesStatus.textContent = localizedString
+        maxFilesAnnounceOffset++
+        setTimeout(() => {
+          maxFilesStatus.textContent = ''
+        }, 1000)
       }
     })
 }
