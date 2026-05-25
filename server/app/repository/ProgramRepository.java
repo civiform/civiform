@@ -80,10 +80,11 @@ public final class ProgramRepository {
   }
 
   public CompletionStage<Optional<ProgramModel>> lookupProgram(long id) {
-    // Only use cache when enabled and no draft version exists. When a draft exists, programs
-    // that weren't edited still get associated with the new draft version, so cached data would
-    // be stale since it would be missing the draft version association. The draft check queries
-    // the DB, ensuring correctness across multiple server instances.
+    // Only use cache when enabled and no draft version exists. During publish, active programs
+    // are carried forward and associated with the new active version, changing their version
+    // associations. A draft's existence signals that a publish may be imminent, so we bypass the
+    // cache to avoid serving stale version associations. The draft check queries the DB, ensuring
+    // correctness across multiple server instances.
     //
     // The cache key includes the active version ID so that after a publish, which changes the
     // active version, we look up a different cache key and get fresh data instead of stale
