@@ -9,7 +9,6 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
-import controllers.FlashKey;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -92,7 +91,6 @@ public final class ApplicantProgramsController extends CiviFormController {
       List<String> categories /* The selected program categories */) {
     CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request);
 
-    Optional<String> bannerMessage = request.flash().get(FlashKey.BANNER);
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         applicantService.getPersonalInfo(applicantId);
 
@@ -112,7 +110,6 @@ public final class ApplicantProgramsController extends CiviFormController {
                           Optional.of(applicantId),
                           applicantStage.toCompletableFuture().join(),
                           applicationPrograms,
-                          bannerMessage,
                           Optional.of(requesterProfile)))
                       .as(Http.MimeTypes.HTML);
               // If the user has been to the index page, any existing redirects should be
@@ -151,7 +148,6 @@ public final class ApplicantProgramsController extends CiviFormController {
                     Optional.empty(),
                     ApplicantPersonalInfo.ofGuestUser(),
                     programsFuture.join(),
-                    request.flash().get(FlashKey.BANNER),
                     Optional.empty()))
                 .as(Http.MimeTypes.HTML));
   }

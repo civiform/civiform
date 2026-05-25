@@ -59,7 +59,6 @@ public class ProgramIndexView extends ApplicantBaseView {
       Optional<Long> applicantId,
       ApplicantPersonalInfo personalInfo,
       ApplicantService.ApplicationPrograms applicationPrograms,
-      Optional<String> bannerMessage,
       Optional<CiviFormProfile> profile) {
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(request, applicantId, profile, personalInfo, messages);
@@ -161,9 +160,6 @@ public class ProgramIndexView extends ApplicantBaseView {
     context.setVariable("hasProfile", profile.isPresent());
     context.setVariable("categoryOptions", relevantCategories);
     context.setVariable("applicantId", applicantId);
-
-    // Toasts
-    context.setVariable("bannerMessage", bannerMessage);
 
     return templateEngine.process("applicant/programindex/ProgramIndexTemplate", context);
   }
