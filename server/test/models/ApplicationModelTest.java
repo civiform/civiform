@@ -171,7 +171,7 @@ public class ApplicationModelTest extends ResetPostgres {
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     Instant activitytimeBeforeUpdate = applicant.getAccount().getLastActivityTime();
     // Wait for the next tick to ensure the new application has a newer timestamp
-    while (!Instant.now().isAfter(activitytimeBeforeUpdate)) { }
+    while (!Instant.now().isAfter(activitytimeBeforeUpdate)) {}
     ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
     application.refresh();
 
