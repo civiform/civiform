@@ -107,7 +107,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     ProgramModel two = resourceCreator.insertActiveProgram("two");
 
     // Cache key includes active version ID to avoid stale entries after publish
-    String cacheKey = two.id + ":" + versionRepo.getActiveVersion().id;
+    String cacheKey = ProgramRepository.programCacheKey(two.id, versionRepo.getActiveVersion().id);
     assertThat(programCache.get(cacheKey)).isEmpty();
 
     Optional<ProgramModel> found = repo.lookupProgram(two.id).toCompletableFuture().join();
@@ -386,7 +386,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
     ImmutableList<VersionModel> versions = repo.getVersionsForProgram(program.id);
 
     // Cache key includes active version ID to avoid stale entries after publish
-    String cacheKey = program.id + ":" + versionRepo.getActiveVersion().id;
+    String cacheKey =
+        ProgramRepository.programCacheKey(program.id, versionRepo.getActiveVersion().id);
     assertThat(versionsByProgramCache.get(cacheKey).get()).isEqualTo(versions);
   }
 
@@ -1242,7 +1243,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     program.refresh();
 
     VersionModel activeVersion = versionRepo.getActiveVersion();
-    String cacheKey = program.id + ":" + activeVersion.id;
+    String cacheKey = ProgramRepository.programCacheKey(program.id, activeVersion.id);
 
     // First call: cache miss, should fetch from DB and cache
     assertThat(versionsByProgramCache.get(cacheKey).isPresent()).isFalse();
@@ -1265,7 +1266,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     program.refresh();
 
     VersionModel activeVersion = versionRepo.getActiveVersion();
-    String cacheKey = program.id + ":" + activeVersion.id;
+    String cacheKey = ProgramRepository.programCacheKey(program.id, activeVersion.id);
 
     // Create a draft (by editing a different program)
     resourceCreator.insertDraftProgram("another-program");
@@ -1286,7 +1287,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     program.refresh();
 
     VersionModel firstActiveVersion = versionRepo.getActiveVersion();
-    String firstCacheKey = program.id + ":" + firstActiveVersion.id;
+    String firstCacheKey = ProgramRepository.programCacheKey(program.id, firstActiveVersion.id);
 
     // Cache the versions
     ImmutableList<VersionModel> firstResult = repo.getVersionsForProgram(program.id);
@@ -1298,7 +1299,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     versionRepo.publishNewSynchronizedVersion();
 
     VersionModel secondActiveVersion = versionRepo.getActiveVersion();
-    String secondCacheKey = program.id + ":" + secondActiveVersion.id;
+    String secondCacheKey = ProgramRepository.programCacheKey(program.id, secondActiveVersion.id);
 
     // The active version changed, so the old cache key won't match
     assertThat(firstCacheKey).isNotEqualTo(secondCacheKey);
@@ -1323,7 +1324,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
     program.refresh();
 
     // Cache key includes active version ID to avoid stale entries after publish
-    String programKey = program.id + ":" + versionRepo.getActiveVersion().id;
+    String programKey =
+        ProgramRepository.programCacheKey(program.id, versionRepo.getActiveVersion().id);
 
     // First call: cache miss, should fetch from DB and cache
     assertThat(programCache.get(programKey).isPresent()).isFalse();
@@ -1349,7 +1351,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
     program.refresh();
 
     // Cache key includes active version ID to avoid stale entries after publish
-    String programKey = program.id + ":" + versionRepo.getActiveVersion().id;
+    String programKey =
+        ProgramRepository.programCacheKey(program.id, versionRepo.getActiveVersion().id);
 
     // First call with no draft - should cache
     Optional<ProgramModel> firstResult =
@@ -1381,7 +1384,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     program.refresh();
 
     VersionModel firstActiveVersion = versionRepo.getActiveVersion();
-    String firstCacheKey = program.id + ":" + firstActiveVersion.id;
+    String firstCacheKey = ProgramRepository.programCacheKey(program.id, firstActiveVersion.id);
 
     // Cache the program under the first key
     Optional<ProgramModel> firstResult =
@@ -1394,7 +1397,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     versionRepo.publishNewSynchronizedVersion();
 
     VersionModel secondActiveVersion = versionRepo.getActiveVersion();
-    String secondCacheKey = program.id + ":" + secondActiveVersion.id;
+    String secondCacheKey = ProgramRepository.programCacheKey(program.id, secondActiveVersion.id);
 
     // Keys should differ because the active version ID changed
     assertThat(firstCacheKey).isNotEqualTo(secondCacheKey);

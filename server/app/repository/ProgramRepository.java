@@ -122,7 +122,8 @@ public final class ProgramRepository {
         .findOneOrEmpty();
   }
 
-  private static String programCacheKey(long programId, long activeVersionId) {
+  @VisibleForTesting
+  static String programCacheKey(long programId, long activeVersionId) {
     return programId + ":" + activeVersionId;
   }
 
