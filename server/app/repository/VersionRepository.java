@@ -280,7 +280,8 @@ public final class VersionRepository {
 
           try {
             // Skip cache reads and writes during dry run to prevent transient data
-            // (which will be rolled back) from polluting the cache.
+            // (which will be rolled back) from polluting the cache. This use of
+            // ThreadLocal state is atypical and should not be replicated elsewhere.
             skipCache.set(true);
             var dryRunNewActive = buildDryRunPublishedVersion(draft);
             transaction.rollback();
