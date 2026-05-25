@@ -262,7 +262,7 @@ public final class VersionRepository {
       return switch (publishMode) {
         case PUBLISH_CHANGES -> {
           Preconditions.checkState(
-              !draftPrograms.isEmpty() || !draftQuestions.isEmpty(),
+              !draft.getPrograms().isEmpty() || !draft.getQuestions().isEmpty(),
               "Must have at least 1 program or question in the draft version.");
           draft.save();
           active.save();

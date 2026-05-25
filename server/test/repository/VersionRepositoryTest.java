@@ -1647,4 +1647,22 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(result.get("draft-ref-question").iterator().next().adminName())
         .isEqualTo("draft-ref-program");
   }
+
+  @Test
+  public void publish_withAllDraftItemsTombstoned_throwsIllegalStateException() throws Exception {
+    QuestionModel question = resourceCreator.insertQuestion("tombstoned-question");
+    question.addVersion(versionRepository.getDraftVersionOrCreate()).save();
+
+    ProgramBuilder.newDraftProgram("tombstoned-program").withBlock("Screen 1").build();
+
+    VersionModel draft = versionRepository.getDraftVersionOrCreate();
+    versionRepository.addTombstoneForQuestionInVersion(question, draft);
+    draft.addTombstoneForProgramForTest(
+        versionRepository.getProgramByNameForVersion("tombstoned-program", draft).get());
+    draft.save();
+
+    assertThatThrownBy(() -> versionRepository.publishNewSynchronizedVersion())
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessageContaining("Must have at least 1 program or question in the draft version");
+  }
 }
