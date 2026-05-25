@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.ExpressionList;
+import io.ebean.PersistenceContextScope;
 import io.ebean.PagedList;
 import io.ebean.Query;
 import io.ebean.SqlRow;
@@ -169,6 +170,7 @@ public final class ProgramRepository {
     ProgramModel freshProgram =
         database
             .find(ProgramModel.class)
+            .setPersistenceContextScope(PersistenceContextScope.QUERY)
             .setId(programId)
             .setLabel("ProgramModel.findByIdForVersions")
             .setProfileLocation(
