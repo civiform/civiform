@@ -146,8 +146,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
                         }
 
                         Optional<String> flashBannerMessage = request.flash().get(FlashKey.BANNER);
-                        Optional<String> flashSuccessBannerMessage =
-                            request.flash().get(FlashKey.SUCCESS_BANNER);
                         Messages messages = messagesApi.preferred(request);
 
                         AlertSettings eligibilityAlertSettings = AlertSettings.empty();
@@ -184,7 +182,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
                                 .setTotalBlockCount(totalBlockCount)
                                 .setMessages(messages)
                                 .setAlertBannerMessage(flashBannerMessage)
-                                .setSuccessBannerMessage(flashSuccessBannerMessage)
                                 .setEligibilityAlertSettings(eligibilityAlertSettings)
                                 .setSummaryData(summaryData)
                                 .setProgramType(roApplicantProgramService.getProgramType())

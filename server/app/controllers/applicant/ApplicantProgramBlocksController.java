@@ -67,7 +67,6 @@ import services.settings.SettingsManifest;
 import views.applicant.addresscorrection.AddressCorrectionBlockView;
 import views.applicant.blocks.ApplicantProgramBlockEditView;
 import views.applicant.ineligible.ApplicantIneligibleView;
-import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.trustedintermediary.ApplicationBaseViewParams;
 
@@ -585,10 +584,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId);
 
-    Optional<String> successBannerMessage = request.flash().get(FlashKey.SUCCESS_BANNER);
-    Optional<ToastMessage> flashSuccessBanner =
-        successBannerMessage.map(m -> ToastMessage.success(m));
-
     return applicantStage
         .thenComposeAsync(
             v -> checkApplicantAuthorization(request, applicantId),
@@ -630,8 +625,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                             questionName,
                             applicantRoutes,
                             profile)
-                        .setBannerToastMessage(flashSuccessBanner)
-                        .setBannerMessage(successBannerMessage)
                         .build();
                 return ok(applicantProgramBlockEditView.render(request, applicationParams))
                     .as(Http.MimeTypes.HTML);
