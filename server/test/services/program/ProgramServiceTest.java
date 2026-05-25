@@ -4275,7 +4275,7 @@ public class ProgramServiceTest extends ResetPostgres {
             .findFirst()
             .orElseThrow();
     ImmutableList<Long> versionIds =
-        programRepository.getVersionsForProgram(programModel).stream()
+        programRepository.getVersionsForProgram(programModel.id).stream()
             .map(v -> v.id)
             .collect(ImmutableList.toImmutableList());
     assertThat(versionIds).contains(v1Id, v2Id);

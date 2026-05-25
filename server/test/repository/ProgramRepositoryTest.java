@@ -373,7 +373,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
   public void getVersionsForProgram() {
     ProgramModel program = resourceCreator.insertActiveProgram("old name");
 
-    ImmutableList<VersionModel> versions = repo.getVersionsForProgram(program);
+    ImmutableList<VersionModel> versions = repo.getVersionsForProgram(program.id);
 
     assertThat(versions).hasSize(1);
   }
@@ -383,7 +383,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     Mockito.when(mockSettingsManifest.getProgramCacheEnabled()).thenReturn(true);
     ProgramModel program = resourceCreator.insertActiveProgram("old name");
 
-    ImmutableList<VersionModel> versions = repo.getVersionsForProgram(program);
+    ImmutableList<VersionModel> versions = repo.getVersionsForProgram(program.id);
 
     // Cache key includes active version ID to avoid stale entries after publish
     String cacheKey = program.id + ":" + versionRepo.getActiveVersion().id;
@@ -1246,12 +1246,12 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
     // First call: cache miss, should fetch from DB and cache
     assertThat(versionsByProgramCache.get(cacheKey).isPresent()).isFalse();
-    ImmutableList<VersionModel> firstResult = repo.getVersionsForProgram(program);
+    ImmutableList<VersionModel> firstResult = repo.getVersionsForProgram(program.id);
     assertThat(firstResult).hasSize(1);
     assertThat(versionsByProgramCache.get(cacheKey).isPresent()).isTrue();
 
     // Second call: should return the same cached list instance (cache hit)
-    ImmutableList<VersionModel> secondResult = repo.getVersionsForProgram(program);
+    ImmutableList<VersionModel> secondResult = repo.getVersionsForProgram(program.id);
     assertThat(secondResult).isSameAs(firstResult);
   }
 
@@ -1271,7 +1271,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     resourceCreator.insertDraftProgram("another-program");
 
     // Call should bypass cache because draft exists
-    ImmutableList<VersionModel> result = repo.getVersionsForProgram(program);
+    ImmutableList<VersionModel> result = repo.getVersionsForProgram(program.id);
     assertThat(result).hasSize(1);
     assertThat(versionsByProgramCache.get(cacheKey).isPresent()).isFalse();
   }
@@ -1289,7 +1289,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     String firstCacheKey = program.id + ":" + firstActiveVersion.id;
 
     // Cache the versions
-    ImmutableList<VersionModel> firstResult = repo.getVersionsForProgram(program);
+    ImmutableList<VersionModel> firstResult = repo.getVersionsForProgram(program.id);
     assertThat(firstResult).hasSize(1);
     assertThat(versionsByProgramCache.get(firstCacheKey).isPresent()).isTrue();
 
@@ -1308,7 +1308,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
     // Call should fetch fresh data and cache under new key
     program.refresh();
-    ImmutableList<VersionModel> secondResult = repo.getVersionsForProgram(program);
+    ImmutableList<VersionModel> secondResult = repo.getVersionsForProgram(program.id);
     assertThat(secondResult).hasSize(2);
     assertThat(versionsByProgramCache.get(secondCacheKey).isPresent()).isTrue();
   }

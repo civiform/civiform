@@ -338,7 +338,7 @@ public final class ProgramService {
   private CompletionStage<ProgramDefinition> syncProgramAssociations(ProgramModel program) {
     VersionModel activeVersion = versionRepository.getActiveVersion();
     VersionModel maxVersionForProgram =
-        programRepository.getVersionsForProgram(program).stream()
+        programRepository.getVersionsForProgram(program.id).stream()
             .max(Comparator.comparingLong(p -> p.id))
             .orElseThrow();
     // If the max version is greater than the active version, it is a draft
@@ -1976,7 +1976,7 @@ public final class ProgramService {
         // Get the most recent non-draft version for this program. For applicant-facing code,
         // we want to sync against the active (or obsolete) version, not a draft.
         VersionModel v =
-            programRepository.getVersionsForProgram(p).stream()
+            programRepository.getVersionsForProgram(p.id).stream()
                 .filter(ver -> ver.id <= activeVersionId)
                 .max(Comparator.comparingLong(ver -> ver.id))
                 .orElseThrow(

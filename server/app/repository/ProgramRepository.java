@@ -141,21 +141,21 @@ public final class ProgramRepository {
    * Returns the versions for a program.
    *
    * <p>If the cache is enabled, returns cached data or populates the cache on miss using a fresh DB
-   * fetch by ID (not the passed-in model's BeanCollection, which may be stale).
+   * fetch by program ID.
    *
    * <p>Only caches when no draft exists, since draft creation changes version associations. The
    * cache key includes the active version ID to naturally invalidate stale entries after publish.
    */
-  public ImmutableList<VersionModel> getVersionsForProgram(ProgramModel program) {
+  public ImmutableList<VersionModel> getVersionsForProgram(long programId) {
     if (settingsManifest.getProgramCacheEnabled()) {
       Optional<Long> activeVersionId = versionRepository.get().getActiveVersionIdIfNoDraft();
       if (activeVersionId.isPresent()) {
-        String cacheKey = programCacheKey(program.id, activeVersionId.get());
+        String cacheKey = programCacheKey(programId, activeVersionId.get());
         return versionsByProgramCache.getOrElseUpdate(
-            cacheKey, () -> getVersionsForProgramWithoutCache(program.id));
+            cacheKey, () -> getVersionsForProgramWithoutCache(programId));
       }
     }
-    return getVersionsForProgramWithoutCache(program.id);
+    return getVersionsForProgramWithoutCache(programId);
   }
 
   /**
