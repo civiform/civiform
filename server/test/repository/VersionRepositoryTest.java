@@ -1601,12 +1601,10 @@ public class VersionRepositoryTest extends ResetPostgres {
     ImmutableMap<String, ImmutableSet<PublishProgramPreview>> preview =
         versionRepository.previewPublishNewSynchronizedVersion();
     assertThat(preview).containsKey("active-question");
-    assertThat(
-            preview.get("active-question").stream().map(PublishProgramPreview::adminName))
+    assertThat(preview.get("active-question").stream().map(PublishProgramPreview::adminName))
         .containsExactly("active-only-program");
     assertThat(preview).containsKey("draft-question");
-    assertThat(
-            preview.get("draft-question").stream().map(PublishProgramPreview::adminName))
+    assertThat(preview.get("draft-question").stream().map(PublishProgramPreview::adminName))
         .containsExactly("draft-program");
   }
 

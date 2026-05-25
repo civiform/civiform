@@ -399,8 +399,7 @@ public final class VersionRepository {
       existingDraft.refresh();
       active.refresh();
       newDraft.refresh();
-      validateProgramQuestionState(
-          existingDraft.getQuestions(), existingDraft.getPrograms());
+      validateProgramQuestionState(existingDraft.getQuestions(), existingDraft.getPrograms());
       transaction.commit();
     } catch (NonUniqueResultException | SerializableConflictException | RollbackException e) {
       transaction.rollback(e);
@@ -887,8 +886,7 @@ public final class VersionRepository {
    * @throws IllegalStateException if there are any issues.
    */
   private void validateProgramQuestionState(
-      ImmutableList<QuestionModel> activeQuestions,
-      ImmutableList<ProgramModel> activePrograms) {
+      ImmutableList<QuestionModel> activeQuestions, ImmutableList<ProgramModel> activePrograms) {
     ImmutableList<QuestionDefinition> newActiveQuestionDefs =
         activeQuestions.stream()
             .map(questionRepository::getQuestionDefinition)
