@@ -87,8 +87,8 @@ public final class ProgramRepository {
     // correctness across multiple server instances.
     //
     // The cache key includes the active version ID so that after a publish, which changes the
-    // active version, we look up a different cache key and get fresh data instead of stale
-    // entries cached under the old version's key.
+    // active version ID, we look up a different cache key and get fresh data instead of stale
+    // entries cached under the old active version ID's key.
     if (settingsManifest.getProgramCacheEnabled()) {
       Optional<Long> activeVersionId = versionRepository.get().getActiveVersionIdIfNoDraft();
       if (activeVersionId.isPresent()) {
