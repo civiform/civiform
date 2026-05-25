@@ -92,7 +92,7 @@ public final class ProgramRepository {
     if (settingsManifest.getProgramCacheEnabled()) {
       Optional<Long> activeVersionId = versionRepository.get().getActiveVersionIdIfNoDraft();
       if (activeVersionId.isPresent()) {
-        String cacheKey = id + ":" + activeVersionId.get();
+        String cacheKey = programCacheKey(id, activeVersionId.get());
         return supplyAsync(
             () -> programCache.getOrElseUpdate(cacheKey, () -> lookupProgramSync(id)),
             dbExecutionContext);
@@ -121,6 +121,10 @@ public final class ProgramRepository {
         .findOneOrEmpty();
   }
 
+  private static String programCacheKey(long programId, long activeVersionId) {
+    return programId + ":" + activeVersionId;
+  }
+
   public ProgramModel insertProgramSync(ProgramModel program) {
     program.id = null;
     database.insert(program);
@@ -146,8 +150,7 @@ public final class ProgramRepository {
     if (settingsManifest.getProgramCacheEnabled()) {
       Optional<Long> activeVersionId = versionRepository.get().getActiveVersionIdIfNoDraft();
       if (activeVersionId.isPresent()) {
-        // Include active version ID in key to avoid stale entries after publish
-        String cacheKey = program.id + ":" + activeVersionId.get();
+        String cacheKey = programCacheKey(program.id, activeVersionId.get());
         return versionsByProgramCache.getOrElseUpdate(
             cacheKey, () -> getVersionsForProgramWithoutCache(program.id));
       }
