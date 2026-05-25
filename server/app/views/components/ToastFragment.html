@@ -68,8 +68,6 @@
 
 <!--/* Render the toasts used in the Program Index page */-->
 <div th:fragment="programIndexToasts">
-  <!--/* Alert toast */-->
-  <div th:replace="~{this :: alert(${bannerMessage})}"></div>
   <!--/* Session ended toast */-->
   <div
     th:replace="~{this :: toast(${'id-' + #strings.randomAlphanumeric(8)}, #{toast.sessionEnded}, true, false, 5000, 'session_just_ended', 'success')}"
@@ -79,7 +77,5 @@
 
 <!--/* Render the toasts used in the Upsell page */-->
 <div th:fragment="upsellToasts">
-  <!--/* Alert toast */-->
-  <div th:replace="~{this :: alert(${bannerMessage})}"></div>
   <div th:replace="~{this :: devOrStagingToast(${isDevOrStaging})}"></div>
 </div>

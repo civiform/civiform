@@ -95,8 +95,6 @@ public class ApplicantPreScreenerUpsellView extends ApplicantBaseView {
               .collect(ImmutableList.toImmutableList());
 
       context.setVariable("eligiblePrograms", displayPrograms);
-
-      context.setVariable("bannerMessage", params.bannerMessage());
     }
     return templateEngine.process("applicant/upsell/ApplicantPreScreenerUpsellTemplate", context);
   }
