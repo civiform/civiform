@@ -3,7 +3,7 @@ import os
 import unittest
 
 from env_var_docs.parser import Mode, Variable
-from env_var_docs.settings_manifest import ParsedGroup, render_sections
+from env_var_docs.settings_manifest import GetterMethodSpec, ParsedGroup, enum_imports, render_sections
 
 
 class TestGenerateSettingsManifest(unittest.TestCase):
@@ -30,6 +30,7 @@ class TestGenerateSettingsManifest(unittest.TestCase):
                                     values=None,
                                     regex=None,
                                     regex_tests=None,
+                                    enum_class=None,
                                     mode=Mode.HIDDEN,
                                 )
                         },
@@ -50,6 +51,7 @@ class TestGenerateSettingsManifest(unittest.TestCase):
                         values=None,
                         regex=None,
                         regex_tests=None,
+                        enum_class=None,
                         mode=Mode.ADMIN_READABLE,
                     ),
                 "ENUM_VARIABLE":
@@ -60,6 +62,7 @@ class TestGenerateSettingsManifest(unittest.TestCase):
                         values=["one", "two"],
                         regex=None,
                         regex_tests=None,
+                        enum_class=None,
                         mode=Mode.ADMIN_READABLE,
                     ),
                 "REGEX_VARIABLE":
@@ -70,6 +73,7 @@ class TestGenerateSettingsManifest(unittest.TestCase):
                         values=None,
                         regex="^regex$",
                         regex_tests=None,
+                        enum_class=None,
                         mode=Mode.ADMIN_READABLE,
                     ),
             },
@@ -87,3 +91,67 @@ ImmutableList.of(SettingDescription.create("STRING_VARIABLE", "Fake string varia
 SettingDescription.create("ENUM_VARIABLE", "Fake string variable for testing", /* isRequired= */ true, SettingType.ENUM, SettingMode.ADMIN_READABLE, ImmutableList.of("one", "two")), \
 SettingDescription.create("REGEX_VARIABLE", "Fake string variable for testing", /* isRequired= */ false, SettingType.STRING, SettingMode.ADMIN_READABLE, Pattern.compile("^regex$"))))).build()""",
         )
+
+
+class TestGetterMethodSpec(unittest.TestCase):
+
+    def test_string_getter(self):
+        var = Variable(
+            description="A string var",
+            type="string",
+            required=False,
+            values=None,
+            regex=None,
+            regex_tests=None,
+            enum_class=None,
+            mode=Mode.HIDDEN,
+        )
+        spec = GetterMethodSpec("MY_STRING_VAR", var)
+        self.assertEqual(spec.internal_getter(), "getString")
+        self.assertEqual(spec.return_type(), "Optional<String>")
+        self.assertEqual(spec.enum_class_arg(), "")
+
+    def test_enum_getter(self):
+        var = Variable(
+            description="An enum var",
+            type="string",
+            required=False,
+            values=["A", "B"],
+            regex=None,
+            regex_tests=None,
+            enum_class="some.EnumType",
+            mode=Mode.HIDDEN,
+        )
+        spec = GetterMethodSpec("MY_ENUM_VAR", var)
+        self.assertEqual(spec.internal_getter(), "getEnum")
+        self.assertEqual(spec.return_type(), "Optional<EnumType>")
+        self.assertEqual(spec.enum_class_arg(), ", EnumType.class")
+
+    def test_enum_imports(self):
+        var_with_enum = Variable(
+            description="An enum var",
+            type="string",
+            required=False,
+            values=["A", "B"],
+            regex=None,
+            regex_tests=None,
+            enum_class="auth.ClientIpType",
+            mode=Mode.HIDDEN,
+        )
+        var_without_enum = Variable(
+            description="A string var",
+            type="string",
+            required=False,
+            values=None,
+            regex=None,
+            regex_tests=None,
+            enum_class=None,
+            mode=Mode.HIDDEN,
+        )
+        specs = [
+            GetterMethodSpec("VAR_A", var_with_enum),
+            GetterMethodSpec("VAR_B", var_without_enum),
+            GetterMethodSpec("VAR_C", var_with_enum),
+        ]
+        result = enum_imports(specs)
+        self.assertEqual(result, ["auth.ClientIpType"])
