@@ -3,6 +3,8 @@ package services.cloud;
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import org.apache.commons.io.FilenameUtils;
 
@@ -69,5 +71,21 @@ public final class ApplicantFileNameFormatter {
     }
 
     return fileKey.startsWith(String.format("applicant-%d/", applicantId));
+  }
+
+  /**
+   * Builds a {@code Content-Disposition} value for presigned GETs so cloud storage can return the
+   * applicant's original file name without exceeding ISO-8859-1 header limits.
+   *
+   * <p>Uses {@code filename*=UTF-8''...} (RFC 5987) so the full UTF-8 name is preserved (e.g. macOS
+   * screenshot names with narrow no-break spaces).
+   */
+  public static String buildResponseContentDisposition(String displayFileName) {
+    if (displayFileName.isBlank()) {
+      throw new IllegalArgumentException("'displayFileName' must not be blank.");
+    }
+    String filename =
+        URLEncoder.encode(displayFileName, StandardCharsets.UTF_8).replace("+", "%20");
+    return String.format("inline; filename*=UTF-8''%s", filename);
   }
 }

@@ -14,6 +14,7 @@ import java.util.concurrent.CompletableFuture;
 import org.mockito.Mockito;
 import play.Environment;
 import play.inject.ApplicationLifecycle;
+import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.ApplicantStorageClient;
 import services.cloud.aws.Credentials;
 import services.cloud.aws.SignedS3UploadRequest;
@@ -83,7 +84,8 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
         originalFileName.isPresent()
             ? getObjectRequestBuilder
                 .responseContentDisposition(
-                    String.format("inline; filename=\"%s\"", originalFileName.get()))
+                    ApplicantFileNameFormatter.buildResponseContentDisposition(
+                        originalFileName.get()))
                 .build()
             : getObjectRequestBuilder.build();
     GetObjectPresignRequest getObjectPresignRequest =
