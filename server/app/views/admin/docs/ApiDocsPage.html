@@ -1,0 +1,230 @@
+<!--/*@thymesVar id="templateGlobals" type="views.admin.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.docs.ApiDocsPageViewModel"*/-->
+<th:block
+  th:fragment="content"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <div class="spacing-4">
+    <!--/* Tabs */-->
+    <nav
+      th:aria-label="#{adminApiDocs.tabs.ariaLabel}"
+      class="cf-navigation-tabs"
+    >
+      <a
+        th:href="${model.apiDocsTabUrl}"
+        aria-current="page"
+        th:text="#{adminApiDocs.tabs.docs}"
+      ></a>
+      <span class="cf-navigation-tabs__separator" aria-hidden="true"> / </span>
+      <a
+        class="usa-link"
+        th:href="${model.schemaTabUrl}"
+        th:text="#{adminApiDocs.tabs.schema}"
+      ></a>
+    </nav>
+
+    <p>
+      <span th:text="#{adminApiDocs.intro.beforeLink}"></span>
+      <a
+        class="usa-link"
+        target="_blank"
+        href="https://docs.civiform.us/it-manual/api"
+        th:text="#{adminApiDocs.intro.linkText}"
+      ></a
+      ><span th:text="#{adminApiDocs.intro.afterLink}"></span>
+    </p>
+
+    <!--/* How does this work accordion */-->
+    <div class="usa-accordion">
+      <h2 class="usa-accordion__heading">
+        <button
+          type="button"
+          class="usa-accordion__button"
+          aria-expanded="false"
+          aria-controls="notes-content"
+          th:text="#{adminApiDocs.accordion.heading}"
+        ></button>
+      </h2>
+      <div id="notes-content" class="usa-accordion__content" hidden>
+        <p th:text="#{adminApiDocs.accordion.paragraph1}"></p>
+        <p>
+          <span
+            th:text="#{adminApiDocs.accordion.paragraph2.beforeLink}"
+          ></span>
+          <a
+            class="usa-link"
+            target="_blank"
+            th:href="${model.apiDocsLink}"
+            th:text="${model.apiDocsLink}"
+          ></a
+          ><span
+            th:text="#{adminApiDocs.accordion.paragraph2.afterLink}"
+          ></span>
+        </p>
+      </div>
+    </div>
+
+    <!--/* Program and version selectors */-->
+    <div class="display-flex flex-align-end flex-wrap flex-gap">
+      <form
+        id="selectionForm"
+        th:action="${model.formActionUrl}"
+        method="GET"
+        class="display-flex flex-align-end flex-wrap flex-gap"
+      >
+        <cf:select
+          id="programSlug"
+          name="programSlug"
+          th:label="#{adminApiDocs.selectProgram}"
+        >
+          <option
+            th:each="opt : ${model.programSlugs}"
+            th:value="${opt.slug}"
+            th:text="${opt.slug}"
+            th:selected="${opt.selected}"
+          ></option>
+        </cf:select>
+        <cf:select
+          id="stage"
+          name="stage"
+          th:label="#{adminApiDocs.selectVersion}"
+        >
+          <option
+            value="active"
+            th:selected="${model.activeVersion}"
+            th:text="#{adminApiDocs.version.active}"
+          ></option>
+          <option
+            value="draft"
+            th:selected="${!model.activeVersion}"
+            th:text="#{adminApiDocs.version.draft}"
+          ></option>
+        </cf:select>
+      </form>
+    </div>
+
+    <!--/* Program content */-->
+    <th:block th:unless="${model.programFound}">
+      <div class="text-bold" th:text="#{adminApiDocs.notFound}"></div>
+    </th:block>
+
+    <th:block th:if="${model.programFound}">
+      <div class="grid-row grid-gap">
+        <!--/* Left: Questions */-->
+        <div class="desktop:grid-col-6">
+          <div class="spacing-2">
+            <h2
+              class="font-heading-lg text-bold"
+              th:text="#{adminApiDocs.questions}"
+            ></h2>
+            <ul class="usa-card-group spacing-2">
+              <li
+                class="usa-card tablet:grid-col-12"
+                th:each="question : ${model.questions}"
+              >
+                <div class="usa-card__container">
+                  <div class="usa-card__body spacing-2">
+                    <h3
+                      class="font-heading-lg text-bold"
+                      th:text="${question.name}"
+                    ></h3>
+
+                    <dl class="spacing-2">
+                      <div>
+                        <dt
+                          class="text-bold"
+                          th:text="#{adminApiDocs.adminName}"
+                        ></dt>
+                        <dd class="margin-left-0">
+                          <pre
+                            class="api-docs-tag"
+                          ><code th:text="${question.questionNameKey}"></code></pre>
+                        </dd>
+                      </div>
+                      <div>
+                        <dt
+                          class="text-bold"
+                          th:text="#{adminApiDocs.type}"
+                        ></dt>
+                        <dd class="margin-left-0">
+                          <pre
+                            class="api-docs-tag"
+                          ><code th:text="${question.type}"></code></pre>
+                        </dd>
+                      </div>
+                      <div>
+                        <dt
+                          class="text-bold"
+                          th:text="#{adminApiDocs.text}"
+                        ></dt>
+                        <dd
+                          class="margin-left-0"
+                          th:text="${question.questionText}"
+                        ></dd>
+                      </div>
+
+                      <th:block th:if="${question.multiOption}">
+                        <div>
+                          <dt
+                            class="text-bold"
+                            th:text="#{adminApiDocs.options}"
+                          ></dt>
+                          <dd class="margin-left-0">
+                            <dl class="spacing-2">
+                              <div>
+                                <dt
+                                  th:text="#{adminApiDocs.currentOptions}"
+                                ></dt>
+                                <dd class="margin-left-0">
+                                  <th:block
+                                    th:each="opt, iterStat : ${question.currentOptions}"
+                                  >
+                                    <pre
+                                      class="api-docs-tag"
+                                    ><code th:text="${opt}"></code></pre>
+                                    <span th:if="${!iterStat.last}">, </span>
+                                  </th:block>
+                                </dd>
+                              </div>
+                              <div>
+                                <dt th:text="#{adminApiDocs.allOptions}"></dt>
+                                <dd class="margin-left-0">
+                                  <th:block
+                                    th:each="opt, iterStat : ${question.allHistoricOptions}"
+                                  >
+                                    <pre
+                                      class="api-docs-tag"
+                                    ><code th:text="${opt}"></code></pre>
+                                    <span th:if="${!iterStat.last}">, </span>
+                                  </th:block>
+                                </dd>
+                              </div>
+                            </dl>
+                          </dd>
+                        </div>
+                      </th:block>
+                    </dl>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!--/* Right: JSON preview */-->
+        <div class="desktop:grid-col-6">
+          <div class="spacing-2">
+            <h2
+              class="font-heading-lg text-bold"
+              th:text="#{adminApiDocs.responsePreview}"
+            ></h2>
+            <pre
+              class="bg-base-lightest padding-2 radius-md overflow-auto"
+            ><code data-testid="jsonPreview" th:text="${model.jsonPreview}"></code></pre>
+          </div>
+        </div>
+      </div>
+    </th:block>
+  </div>
+</th:block>

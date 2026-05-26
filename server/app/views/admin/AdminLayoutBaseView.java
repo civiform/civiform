@@ -24,7 +24,7 @@ import views.shared.ScriptElementSettings;
  * @param <TModel> A class or record that implements {@link BaseViewModel}
  */
 public abstract class AdminLayoutBaseView<TModel extends BaseViewModel> extends BaseView<TModel> {
-  private final BundledAssetsFinder bundledAssetsFinder;
+  protected final BundledAssetsFinder bundledAssetsFinder;
   protected final ProfileUtils profileUtils;
 
   public AdminLayoutBaseView(LayoutDeps layoutDeps) {

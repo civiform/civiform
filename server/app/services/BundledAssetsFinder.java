@@ -7,6 +7,7 @@ import controllers.AssetsFinder;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import play.Environment;
 
 /**
@@ -91,6 +92,20 @@ public final class BundledAssetsFinder {
     return useDevServer
         ? bundlerPath("app/assets/javascripts/pages/admin/admin_entry_point.ts")
         : bundlerPath("dist/admin.bundle.js");
+  }
+
+  /**
+   * Get URL for a page-specific JavaScript bundle.
+   *
+   * @param pagePath path relative to {@code app/assets/javascripts/pages/}, without the {@code .ts}
+   *     extension. For example {@code "admin/api_docs_schema_page"}.
+   */
+  public String getPageBundle(String pagePath) {
+    if (useDevServer) {
+      return bundlerPath("app/assets/javascripts/pages/" + pagePath + ".ts");
+    }
+    String bundleKey = StringUtils.substringAfterLast(pagePath, '/');
+    return bundlerPath("dist/" + bundleKey + ".bundle.js");
   }
 
   public String getApplicantJsBundle() {

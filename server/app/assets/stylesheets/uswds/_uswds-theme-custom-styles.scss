@@ -271,6 +271,22 @@ button.usa-button.usa-button--unstyled.htmx-request {
   @include u-maxw('full');
 }
 
+// At widescreen (≥1400px) the admin content column (maxw 1200px)
+// sits inside a gray page chrome per the Figma desktop-lg/widescreen
+// spec (node 3522:2651). Below widescreen the body stays white so
+// the column reads edge-to-edge.
+body {
+  @include at-media('desktop-lg') {
+    @include u-bg('gray-3');
+  }
+}
+
+.cf-admin-page-wrapper {
+  @include at-media('desktop-lg') {
+    @include u-shadow(1);
+  }
+}
+
 @media (screen and min-width: 1500px) {
   .admin-widescreen-main {
     @include u-margin-x(8);
@@ -494,6 +510,43 @@ Example with two column checkbox list
         grid-template-columns: repeat(#{$cols}, 1fr);
       }
     }
+  }
+}
+
+pre.api-docs-tag:has(code) {
+  @include u-bg('base-lightest');
+  display: inline;
+}
+
+// Inline page-section nav used to switch between sibling views
+// (e.g. API Docs / Schema Viewer). Styled to read as an h2, with
+// the current view marked via aria-current="page".
+.cf-navigation-tabs {
+  @include u-font('heading', 'xl');
+  @include u-text('bold');
+  @include u-margin-bottom(4);
+
+  // Drop the default underline on inactive links; keep USWDS primary /
+  // primary-dark / primary-darker for default / hover / active states.
+  // Only override :visited, since browsers restrict what :visited can
+  // change and we don't want the visited-link color here.
+  a {
+    text-decoration: none;
+  }
+
+  a[aria-current='page'] {
+    @include u-text('ink');
+    @include u-border-bottom('05', 'primary');
+    @include u-padding-bottom('05');
+    display: inline-block;
+
+    &:visited {
+      @include u-text('ink');
+    }
+  }
+
+  .cf-navigation-tabs__separator {
+    @include u-text('base-dark');
   }
 }
 

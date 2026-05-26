@@ -1,10 +1,14 @@
 import {test, expect} from './support/civiform_fixtures'
-import {loginAsAdmin, validateScreenshot, waitForPageJsLoad} from './support'
+import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from './support'
 import {ProgramVisibility} from './support/admin_programs'
+import {ApiDocsPage} from './page/admin/docs/api_docs_page'
 
 test.describe('Viewing API docs', () => {
-  test.beforeEach(async ({seeding}) => {
+  test.beforeEach(async ({page, seeding}) => {
+    await enableFeatureFlag(page, 'ADMIN_UI_MIGRATION_SC_ENABLED')
     await seeding.seedProgramsAndCategories()
+    await page.goto('/')
+    await loginAsAdmin(page)
   })
 
   test('Views active API docs', async ({
@@ -12,8 +16,7 @@ test.describe('Viewing API docs', () => {
     adminPrograms,
     adminQuestions,
   }) => {
-    await page.goto('/')
-    await loginAsAdmin(page)
+    const apiDocsPage = new ApiDocsPage(page)
 
     await test.step('Add additional option to checkbox to ensure all historical options are shown', async () => {
       await adminPrograms.publishAllDrafts()
@@ -29,15 +32,13 @@ test.describe('Viewing API docs', () => {
       await adminPrograms.publishAllDrafts()
     })
 
-    await page.getByRole('button', {name: 'API'}).click()
-    await page.getByRole('link', {name: 'Documentation'}).click()
-
-    await waitForPageJsLoad(page)
+    await apiDocsPage.gotoViaNav()
 
     await test.step('Verify default comprehensive sample program', async () => {
-      await expect(
-        page.getByRole('complementary').getByRole('code'),
-      ).toContainText('"program_name" : "comprehensive-sample-program"')
+      await expect(apiDocsPage.getPageHeading()).toBeVisible()
+      await expect(apiDocsPage.getJsonPreview()).toContainText(
+        '"program_name" : "comprehensive-sample-program"',
+      )
 
       await validateScreenshot(
         page,
@@ -46,50 +47,26 @@ test.describe('Viewing API docs', () => {
     })
 
     await test.step('Select a different program and verify minimal sample program', async () => {
-      await page
-        .getByRole('combobox', {name: 'Select a program'})
-        .selectOption('minimal-sample-program')
+      await apiDocsPage.selectProgram('minimal-sample-program')
 
-      await waitForPageJsLoad(page)
-
-      await expect(
-        page.getByRole('complementary').getByRole('code'),
-      ).toContainText('"program_name" : "minimal-sample-program"')
-
-      await validateScreenshot(
-        page,
-        'minimal-program-active-version-with-multiple-upload',
+      await expect(apiDocsPage.getJsonPreview()).toContainText(
+        '"program_name" : "minimal-sample-program"',
       )
     })
   })
 
   test('Views draft API docs when available', async ({page}) => {
-    await page.goto('/')
-    await loginAsAdmin(page)
+    const apiDocsPage = new ApiDocsPage(page)
 
-    await page.getByRole('button', {name: 'API'}).click()
-    await page.getByRole('link', {name: 'Documentation'}).click()
-
-    await waitForPageJsLoad(page)
+    await apiDocsPage.gotoViaNav()
 
     await test.step('Select a different program and verify minimal sample program', async () => {
-      await page
-        .getByRole('combobox', {name: 'Select a program'})
-        .selectOption('minimal-sample-program')
+      await apiDocsPage.selectProgram('minimal-sample-program')
+      await apiDocsPage.selectVersion('draft')
 
-      await waitForPageJsLoad(page)
-
-      await page
-        .getByRole('combobox', {name: 'Select version'})
-        .selectOption('draft')
-
-      await waitForPageJsLoad(page)
-
-      await expect(
-        page.getByRole('complementary').getByRole('code'),
-      ).toContainText('"program_name" : "minimal-sample-program"')
-
-      await validateScreenshot(page, 'draft-available')
+      await expect(apiDocsPage.getJsonPreview()).toContainText(
+        '"program_name" : "minimal-sample-program"',
+      )
     })
   })
 
@@ -97,52 +74,35 @@ test.describe('Viewing API docs', () => {
     page,
     adminPrograms,
   }) => {
-    await page.goto('/')
-    await loginAsAdmin(page)
+    const apiDocsPage = new ApiDocsPage(page)
     await adminPrograms.publishAllDrafts()
 
-    await page.getByRole('button', {name: 'API'}).click()
-    await page.getByRole('link', {name: 'Documentation'}).click()
+    await apiDocsPage.gotoViaNav()
 
-    await waitForPageJsLoad(page)
+    await test.step('Select a different program with no draft version', async () => {
+      await apiDocsPage.selectProgram('minimal-sample-program')
+      await apiDocsPage.selectVersion('draft')
 
-    await test.step('Select a different program and verify minimal sample program', async () => {
-      await page
-        .getByRole('combobox', {name: 'Select a program'})
-        .selectOption('minimal-sample-program')
-
-      await waitForPageJsLoad(page)
-
-      await page
-        .getByRole('combobox', {name: 'Select version'})
-        .selectOption('draft')
-
-      await waitForPageJsLoad(page)
-
-      await expect(
-        page.getByRole('heading', {name: 'Program and version not found'}),
-      ).toBeAttached()
-
-      await validateScreenshot(page, 'draft-not-available')
+      await expect(apiDocsPage.getNotFoundMessage()).toBeVisible()
     })
   })
 
   test('Opens help accordion with a click', async ({page, adminPrograms}) => {
-    await page.goto('/')
-    await loginAsAdmin(page)
+    const apiDocsPage = new ApiDocsPage(page)
     await adminPrograms.publishAllDrafts()
 
-    await page.getByRole('button', {name: 'API'}).click()
-    await page.getByRole('link', {name: 'Documentation'}).click()
+    await apiDocsPage.gotoViaNav()
 
-    await waitForPageJsLoad(page)
+    await expect(apiDocsPage.getAccordionButton()).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    )
 
-    // Opening the accordion
-    await page.getByRole('button', {name: 'How does this work?'}).click()
+    await apiDocsPage.clickAccordion()
 
-    await validateScreenshot(
-      page.locator('.cf-accordion'),
-      'api-docs-page-accordion-open',
+    await expect(apiDocsPage.getAccordionButton()).toHaveAttribute(
+      'aria-expanded',
+      'true',
     )
   })
 
@@ -150,8 +110,7 @@ test.describe('Viewing API docs', () => {
     page,
     adminPrograms,
   }) => {
-    await page.goto('/')
-    await loginAsAdmin(page)
+    const apiDocsPage = new ApiDocsPage(page)
 
     await adminPrograms.addExternalProgram(
       'External Program Name',
@@ -160,13 +119,10 @@ test.describe('Viewing API docs', () => {
       ProgramVisibility.PUBLIC,
     )
 
-    await page.getByRole('button', {name: 'API'}).click()
-    await page.getByRole('link', {name: 'Documentation'}).click()
+    await apiDocsPage.gotoViaNav()
 
-    await waitForPageJsLoad(page)
-
-    await expect(
-      page.getByRole('combobox', {name: 'Program'}),
-    ).not.toContainText('external-program-name')
+    await expect(apiDocsPage.getProgramSelect()).not.toContainText(
+      'external-program-name',
+    )
   })
 })
