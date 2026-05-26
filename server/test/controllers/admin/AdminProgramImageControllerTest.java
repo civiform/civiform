@@ -718,6 +718,99 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void deleteProgramImage_featureFlagDisabled_returnsNotFound()
+      throws ProgramNotFoundException {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+
+    Result result =
+        controller.deleteProgramImage(
+            fakeRequestBuilder().method("POST").build(),
+            program.id,
+            ProgramEditStatus.CREATION.name());
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
+  public void deleteProgramImage_programNotDraft_throws() {
+    ProgramModel program = ProgramBuilder.newActiveProgram().build();
+
+    assertThatExceptionOfType(NotChangeableException.class)
+        .isThrownBy(
+            () ->
+                controller.deleteProgramImage(
+                    createDeleteRequest(), program.id, ProgramEditStatus.CREATION.name()));
+  }
+
+  @Test
+  public void deleteProgramImage_missingProgram_throws() {
+    assertThatExceptionOfType(NotChangeableException.class)
+        .isThrownBy(
+            () ->
+                controller.deleteProgramImage(
+                    createDeleteRequest(),
+                    /* programId= */ Long.MAX_VALUE,
+                    ProgramEditStatus.CREATION.name()));
+  }
+
+  @Test
+  public void deleteProgramImage_noFileKeyPresent_stillNoKey() throws ProgramNotFoundException {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+
+    controller.deleteProgramImage(
+        createDeleteRequest(), program.id, ProgramEditStatus.CREATION.name());
+
+    ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
+    assertThat(updatedProgram.summaryImageFileKey()).isEmpty();
+    assertThat(updatedProgram.localizedSummaryImageDescription()).isEmpty();
+  }
+
+  @Test
+  public void deleteProgramImage_hadFileKeyAndDescription_cleared()
+      throws ProgramNotFoundException {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+    setValidFileKeyOnProgram(program);
+    programService.setSummaryImageDescription(
+        program.id, LocalizedStrings.DEFAULT_LOCALE, "Alt text");
+
+    controller.deleteProgramImage(
+        createDeleteRequest(), program.id, ProgramEditStatus.CREATION.name());
+
+    ProgramDefinition updatedProgram = programService.getFullProgramDefinition(program.id);
+    assertThat(updatedProgram.summaryImageFileKey()).isEmpty();
+    assertThat(updatedProgram.localizedSummaryImageDescription()).isEmpty();
+  }
+
+  @Test
+  public void deleteProgramImage_toastsSuccess() throws ProgramNotFoundException {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+    setValidFileKeyOnProgram(program);
+
+    Result result =
+        controller.deleteProgramImage(
+            createDeleteRequest(), program.id, ProgramEditStatus.CREATION.name());
+
+    assertThat(result.flash().data()).containsOnlyKeys("success");
+    assertThat(result.flash().data().get("success"))
+        .isEqualTo(messages.at("toast.adminProgramImage.imageRemoved"));
+  }
+
+  @Test
+  public void deleteProgramImage_redirectIncludesSameEditStatus() throws ProgramNotFoundException {
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
+
+    Result result =
+        controller.deleteProgramImage(
+            createDeleteRequest(), program.id, ProgramEditStatus.CREATION.name());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.AdminProgramImageController.index(program.id, ProgramEditStatus.CREATION.name())
+                .url());
+  }
+
+  @Test
   public void deleteFileKey_programNotDraft_throws() {
     ProgramModel program = ProgramBuilder.newActiveProgram().build();
 
@@ -810,6 +903,13 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
     assertThat(programWithKey.summaryImageFileKey()).isNotEmpty();
     assertThat(programWithKey.summaryImageFileKey().get()).isEqualTo(VALID_FILE_KEY);
     return result;
+  }
+
+  private Http.Request createDeleteRequest() {
+    return fakeRequestBuilder()
+        .addCiviFormSetting("FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED", "true")
+        .method("POST")
+        .build();
   }
 
   private Http.Request createUploadRequest(String fileKey, String description) {

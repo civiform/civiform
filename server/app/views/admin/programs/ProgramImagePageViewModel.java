@@ -47,6 +47,12 @@ public final class ProgramImagePageViewModel implements BaseViewModel {
         .url();
   }
 
+  public String getDeleteNavigationUrl() {
+    return routes.AdminProgramImageController.deleteProgramImage(
+            program.id(), programEditStatus.name())
+        .url();
+  }
+
   public boolean showContinueButton() {
     return programEditStatus == ProgramEditStatus.CREATION
         || programEditStatus == ProgramEditStatus.CREATION_EDIT;

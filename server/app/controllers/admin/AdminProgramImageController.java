@@ -194,6 +194,21 @@ public final class AdminProgramImageController extends CiviFormController {
     return redirect(indexUrl).flashing(FlashKey.SUCCESS, successMessage);
   }
 
+  /** Removes the program summary image and its alt text. */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result deleteProgramImage(Http.Request request, long programId, String editStatus)
+      throws ProgramNotFoundException {
+    requestChecker.throwIfProgramNotDraft(programId);
+    if (!settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
+      return notFound();
+    }
+    programService.deleteSummaryImageFileKey(programId);
+    programService.setSummaryImageDescription(programId, LocalizedStrings.DEFAULT_LOCALE, "");
+    final String indexUrl = routes.AdminProgramImageController.index(programId, editStatus).url();
+    return redirect(indexUrl)
+        .flashing(FlashKey.SUCCESS, messages.at("toast.adminProgramImage.imageRemoved"));
+  }
+
   /**
    * @deprecated Used by the legacy program image view. Use {@link #uploadProgramImage} for the
    *     Thymeleaf program image page.
@@ -231,6 +246,11 @@ public final class AdminProgramImageController extends CiviFormController {
     return redirect(indexUrl).flashing(toastType, toastMessage);
   }
 
+  /**
+   * @deprecated Used by the legacy program image view. Use {@link #uploadProgramImage} for the
+   *     Thymeleaf program image page.
+   */
+  @Deprecated
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result updateFileKey(Http.Request request, long programId, String editStatus)
       throws ProgramNotFoundException {

@@ -1,5 +1,11 @@
 import {test, expect} from '../support/civiform_fixtures'
-import {loginAsAdmin, validateScreenshot, enableFeatureFlag} from '../support'
+import {
+  dismissToast,
+  enableFeatureFlag,
+  loginAsAdmin,
+  validateScreenshot,
+  validateToastMessage,
+} from '../support'
 import {Eligibility} from '../support/admin_programs'
 
 test.describe('Admin can manage program image', () => {
@@ -397,6 +403,28 @@ test.describe('Admin can manage program image', () => {
 
       await adminProgramImage.expectProgramImagePage()
       await adminProgramImage.expectImagePreview()
+    })
+
+    test('deletes existing image and alt text', async ({
+      page,
+      adminProgramImage,
+    }) => {
+      await adminProgramImage.setImageFileAndSubmit(
+        'src/assets/program-summary-image-wide.png',
+        'Alt text',
+      )
+      await dismissToast(page)
+      await adminProgramImage.expectImagePreview()
+
+      await adminProgramImage.clickDeleteImageButton()
+
+      await adminProgramImage.expectProgramImagePage()
+      await validateToastMessage(
+        page,
+        adminProgramImage.imageRemovedToastMessage(),
+      )
+      await adminProgramImage.expectNoImagePreview()
+      await adminProgramImage.expectDescriptionIs('')
     })
   })
 })
