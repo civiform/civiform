@@ -19,6 +19,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.Collections;
 import java.util.Optional;
+import services.cloud.ApplicantFileNameFormatter;
 
 /**
  * Class to use for Azure blob storage in a dev environment.
@@ -83,7 +84,8 @@ class DevAzureBlobStorageClient extends BaseAzureBlobStorageClient {
 
     if (prefixedOriginalFileName.isPresent()) {
       signatureValues.setContentDisposition(
-          String.format("inline; filename=\"%s\"", prefixedOriginalFileName.get()));
+          ApplicantFileNameFormatter.buildResponseContentDisposition(
+              prefixedOriginalFileName.get()));
       signatureValues.setContentType(
           URLConnection.guessContentTypeFromName(prefixedOriginalFileName.get()));
     }
