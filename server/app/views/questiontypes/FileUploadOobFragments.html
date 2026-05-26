@@ -45,7 +45,7 @@
         th:text="${fileName}"
       ></span>
       <button
-        class="usa-button usa-button--unstyled"
+        class="usa-button usa-button--unstyled cf-disable-when-uploading"
         hx-swap="none"
         th:aria-label="#{link.removeFileSr(${fileName})}"
         th:hx-post="${hxRemoveFileUrl}"
