@@ -12,6 +12,7 @@ import static support.FakeRequestBuilder.fakeRequestBuilder;
 import com.google.common.collect.ImmutableMap;
 import controllers.WithMockedProfiles;
 import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
 import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
@@ -71,13 +72,10 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
             .header("Accept-Language", "es-US")
             .build();
 
-    assertThrows(
-        RuntimeException.class,
-        () ->
-            controller
-                .setLangFromBrowser(request, currentApplicant.id)
-                .toCompletableFuture()
-                .join());
+    CompletableFuture<Result> setLanguageFuture =
+        controller.setLangFromBrowser(request, currentApplicant.id).toCompletableFuture();
+
+    assertThrows(RuntimeException.class, () -> setLanguageFuture.join());
   }
 
   @Test
@@ -117,13 +115,10 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
             .bodyForm(ImmutableMap.of("locale", "es-US", "redirectLink", "https://google.com"))
             .build();
 
-    assertThrows(
-        RuntimeException.class,
-        () ->
-            controller
-                .setLangFromSwitcher(request, currentApplicant.id)
-                .toCompletableFuture()
-                .join());
+    CompletableFuture<Result> setLanguageFuture =
+        controller.setLangFromSwitcher(request, currentApplicant.id).toCompletableFuture();
+
+    assertThrows(RuntimeException.class, () -> setLanguageFuture.join());
   }
 
   @Test
@@ -149,9 +144,10 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
             .bodyForm(ImmutableMap.of("locale", "es-US", "redirectLink", "https://google.com"))
             .build();
 
-    assertThrows(
-        RuntimeException.class,
-        () -> controller.setLangFromSwitcherWithoutApplicant(request).toCompletableFuture().join());
+    CompletableFuture<Result> setLanguageFuture =
+        controller.setLangFromSwitcherWithoutApplicant(request).toCompletableFuture();
+
+    assertThrows(RuntimeException.class, () -> setLanguageFuture.join());
   }
 
   @Test
