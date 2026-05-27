@@ -115,10 +115,8 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
             .bodyForm(ImmutableMap.of("locale", "es-US", "redirectLink", "https://google.com"))
             .build();
 
-    CompletableFuture<Result> setLanguageFuture =
-        controller.setLangFromSwitcher(request, currentApplicant.id).toCompletableFuture();
-
-    assertThrows(RuntimeException.class, () -> setLanguageFuture.join());
+    assertThrows(
+        RuntimeException.class, () -> controller.setLangFromSwitcher(request, currentApplicant.id));
   }
 
   @Test
@@ -144,10 +142,8 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
             .bodyForm(ImmutableMap.of("locale", "es-US", "redirectLink", "https://google.com"))
             .build();
 
-    CompletableFuture<Result> setLanguageFuture =
-        controller.setLangFromSwitcherWithoutApplicant(request).toCompletableFuture();
-
-    assertThrows(RuntimeException.class, () -> setLanguageFuture.join());
+    assertThrows(
+        RuntimeException.class, () -> controller.setLangFromSwitcherWithoutApplicant(request));
   }
 
   @Test
