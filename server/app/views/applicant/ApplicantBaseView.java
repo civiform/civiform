@@ -329,6 +329,30 @@ public abstract class ApplicantBaseView {
       programId = Long.parseLong(routeExtractor.getParamStringValue("programParam"));
     }
 
+    // IF THE FLAG IS ON, WE WANT TO REDIRECT TO THE ASSOCIATED GET ROUTE
+    // USING THE PROGRAM SLUG
+    // WE WILL EITHER HAVE THE PROGRAM SLUG FROM THE REQUEST
+    // OR WE WILL NEED TO GET IT FROM THE PROGRAM ID (RIGHT?)
+    // SUBMIT STILL USES PROGRAM ID, SO WE'LL NEED TO GET THE SLUG FROM THAT
+    // UPDATE USES PROGRAM PARAM NOW, SO THE SLUG WILL BE PASSED IN... 
+    
+    // I THINK THE MAIN ISSUE IS THAT WE'RE IN A VIEW, SO WE DON'T WANT TO HAVE TO DO ANY DATA FETCHING
+    // WE'LL WANT TO FIGURE OUT THE CUTEST WAY TO MAKE SURE WE ALREADY HAVE ACCESS TO THE PROGRAM SLUG
+
+    // OPTIONS:
+    // 1. pass in optional program info -- we have to update all the places `createThymeleafContext` is called... which is a lot
+    // 2. refactor all routes to use program param and pass in program slug when the flag is on -- like it for consistency in routing, don't like it because
+    // add extra unnecessary work -- let's see how much extra work this would actually be
+    // 3. split out the logic for selecting the route by view -- this might be the best way actually. ugh but then i have to make sure it's in all the views harumph
+    //    but then each view can handle it's specific route without needing all the if/else...
+    // 4. do a database lookup here which seems against the rules
+    // 5. what if we build the url ahead of time and pass it in? ohhh and if we don't have one we can use the default.
+    // this only matters for post routes...
+    // but i think the issue is that you can do multiple things on a page, so we can't know what the route should be... 
+    // i'm back to thinking we just have to do it through the routing unfortunately
+
+    // how could they ever change the language during a post??
+
     // If the language was changed during /submit, redirect to /review
     if (request.path().contains("submit")) {
       String submitRedirectUri =
