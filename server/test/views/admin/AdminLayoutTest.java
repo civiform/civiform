@@ -107,9 +107,8 @@ public class AdminLayoutTest extends ResetPostgres {
   }
 
   @Test
-  public void render_includesSessionTimeoutModals_whenEnabled() {
+  public void render_includesSessionTimeoutModals() {
     Http.Request request = fakeRequestBuilder().build();
-    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(true);
 
     HtmlBundle bundle = new HtmlBundle(request);
     bundle
@@ -120,23 +119,5 @@ public class AdminLayoutTest extends ResetPostgres {
     String html = content.body();
     SessionTimeoutModalsTest.assertSessionTimeoutModalStructure(
         html, BaseHtmlView.getCsrfToken(request));
-  }
-
-  @Test
-  public void render_doesNotIncludeSessionTimeoutModals_whenDisabled() {
-    Http.Request request = fakeRequestBuilder().build();
-    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(false);
-
-    HtmlBundle bundle = new HtmlBundle(request);
-    bundle
-        .setJsBundle(JsBundle.APPLICANT)
-        .setBundledAssetsFinder(instanceOf(BundledAssetsFinder.class));
-
-    Content content = adminLayout.render(bundle);
-    String html = content.body();
-
-    assertThat(html).doesNotContain("session-timeout-container");
-    assertThat(html).doesNotContain("session-inactivity-warning-modal");
-    assertThat(html).doesNotContain("session-length-warning-modal");
   }
 }

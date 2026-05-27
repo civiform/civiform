@@ -185,8 +185,7 @@ public class BaseHtmlLayout {
   }
 
   protected void addSessionTimeoutModals(HtmlBundle bundle, Messages messages) {
-    if (settingsManifest.getSessionTimeoutEnabled()
-        && bundle.getRequest() instanceof Http.Request) {
+    if (bundle.getRequest() instanceof Http.Request) {
       // Add the session timeout modals to the bundle
       Http.Request request = (Http.Request) bundle.getRequest();
       String csrfToken = getCsrfToken(request);

@@ -24,7 +24,6 @@ import play.mvc.Result;
 import play.mvc.Results;
 import repository.DatabaseExecutionContext;
 import services.session.SessionTimeoutService;
-import services.settings.SettingsManifest;
 
 /**
  * A filter to validate user accounts and manage session timeouts.
@@ -39,7 +38,6 @@ public class CiviFormSessionFilter extends EssentialFilter {
   private final ProfileUtils profileUtils;
   private final Materializer materializer;
   private final Clock clock;
-  private final Provider<SettingsManifest> settingsManifest;
   private final Provider<SessionTimeoutService> sessionTimeoutService;
   private final Provider<DatabaseExecutionContext> databaseExecutionContext;
 
@@ -48,13 +46,11 @@ public class CiviFormSessionFilter extends EssentialFilter {
       ProfileUtils profileUtils,
       Materializer materializer,
       Clock clock,
-      Provider<SettingsManifest> settingsManifest,
       Provider<SessionTimeoutService> sessionTimeoutService,
       Provider<DatabaseExecutionContext> databaseExecutionContext) {
     this.profileUtils = checkNotNull(profileUtils);
     this.materializer = checkNotNull(materializer);
     this.clock = checkNotNull(clock);
-    this.settingsManifest = checkNotNull(settingsManifest);
     this.sessionTimeoutService = checkNotNull(sessionTimeoutService);
     this.databaseExecutionContext = checkNotNull(databaseExecutionContext);
   }
@@ -120,8 +116,7 @@ public class CiviFormSessionFilter extends EssentialFilter {
                         }
 
                         // Validate session length
-                        if (settingsManifest.get().getSessionTimeoutEnabled()
-                            && optionalSession.isPresent()) {
+                        if (optionalSession.isPresent()) {
                           long sessionStartTimeInMillis =
                               optionalSession.get().getCreationTime().toEpochMilli();
 

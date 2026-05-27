@@ -176,11 +176,7 @@ public abstract class ApplicantBaseView {
     context.setVariable("isDevOrStaging", isDevOrStaging);
 
     maybeSetUpNotProductionBanner(context, request, messages);
-    boolean sessionTimeoutEnabled = settingsManifest.getSessionTimeoutEnabled();
-    context.setVariable("sessionTimeoutEnabled", sessionTimeoutEnabled);
-    if (sessionTimeoutEnabled) {
-      context.setVariable("extendSessionUrl", routes.SessionController.extendSession().url());
-    }
+    context.setVariable("extendSessionUrl", routes.SessionController.extendSession().url());
 
     int sessionDurationMinutes = settingsManifest.getMaximumSessionDurationMinutes().get();
     String sessionExpirationBanner =

@@ -958,12 +958,6 @@
         "description": "Enable showing an immigration status informational banner to applicants.",
         "type": "bool",
         "required": false
-      },
-      "SESSION_TIMEOUT_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "Enable session timeout based on inactivity and maximum duration.",
-        "type": "bool",
-        "required": false
       }
     }
   },

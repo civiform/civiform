@@ -62,9 +62,8 @@ public class ApplicantLayoutTest extends ResetPostgres {
   }
 
   @Test
-  public void render_includesSessionTimeoutModals_whenEnabledAndProfilePresent() {
+  public void render_includesSessionTimeoutModals_whenProfilePresent() {
     Http.Request request = fakeRequestBuilder().build();
-    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(true);
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(profile));
 
     HtmlBundle bundle = new HtmlBundle(request);
@@ -80,27 +79,8 @@ public class ApplicantLayoutTest extends ResetPostgres {
   }
 
   @Test
-  public void render_doesNotIncludeSessionTimeoutModals_whenDisabled() {
-    Http.Request request = fakeRequestBuilder().build();
-    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(false);
-    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(profile));
-
-    HtmlBundle bundle = new HtmlBundle(request);
-    bundle
-        .setJsBundle(JsBundle.APPLICANT)
-        .setBundledAssetsFinder(instanceOf(BundledAssetsFinder.class));
-    Content content = applicantLayout.render(bundle);
-    String html = content.body();
-
-    assertThat(html).doesNotContain("session-timeout-container");
-    assertThat(html).doesNotContain("session-inactivity-warning-modal");
-    assertThat(html).doesNotContain("session-length-warning-modal");
-  }
-
-  @Test
   public void render_doesNotIncludeSessionTimeoutModals_whenNoProfile() {
     Http.Request request = fakeRequestBuilder().build();
-    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(true);
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.empty());
 
     HtmlBundle bundle = new HtmlBundle(request);
