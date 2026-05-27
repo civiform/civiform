@@ -1348,14 +1348,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     try {
       ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
       if (shouldRenderIneligibleBlockView(roApplicantProgramService, programDefinition, blockId)) {
-        return renderIneligiblePage(
-            request,
-            submittingProfile,
-            applicantId,
-            personalInfo,
-            roApplicantProgramService,
-            programDefinition,
-            blockId);
+        return supplyAsync(() -> redirect(applicantRoutes.showIneligible(submittingProfile, applicantId, programId, blockId)));
       }
     } catch (ProgramNotFoundException e) {
       return supplyAsync(() -> notFound(e.toString()));
@@ -1373,37 +1366,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         roApplicantProgramService,
         flashingMap,
         settingsManifest.getProgramSlugUrlsEnabled(request));
-  }
-
-  private CompletionStage<Result> renderIneligiblePage(
-      Request request,
-      CiviFormProfile profile,
-      long applicantId,
-      ApplicantPersonalInfo personalInfo,
-      ReadOnlyApplicantProgramService roApplicantProgramService,
-      ProgramDefinition programDefinition,
-      String blockId) {
-    Optional<BlockDefinition> blockDefinition;
-    try {
-      blockDefinition = Optional.of(programDefinition.getBlockDefinition(blockId));
-    } catch (ProgramBlockDefinitionNotFoundException e) {
-      throw new RuntimeException(e);
-    }
-    return supplyAsync(
-        () -> {
-          ApplicantIneligibleView.Params params =
-              ApplicantIneligibleView.Params.builder()
-                  .setRequest(request)
-                  .setApplicantId(applicantId)
-                  .setProfile(profile)
-                  .setApplicantPersonalInfo(personalInfo)
-                  .setProgramDefinition(programDefinition)
-                  .setBlockDefinition(blockDefinition)
-                  .setRoApplicantProgramService(roApplicantProgramService)
-                  .setMessages(messagesApi.preferred(request))
-                  .build();
-          return ok(applicantIneligibleView.render(params)).as(Http.MimeTypes.HTML);
-        });
   }
 
   /** Returns the correct page based on the given {@code applicantRequestedAction}. */

@@ -585,4 +585,18 @@ public final class ApplicantRoutes {
           new ApplicantRequestedActionWrapper(applicantRequestedAction));
     }
   }
+
+  
+  public Call showIneligible(CiviFormProfile profile,
+    long applicantId,
+    long programId, String blockId) {
+  if (includeApplicantIdInRoute(profile)) {
+    return routes.ApplicantProgramIneligibleController.ineligibleWithApplicantId(
+        applicantId,
+        programId, blockId);
+  } else {
+    return routes.ApplicantProgramIneligibleController.ineligible(
+        programId, blockId);
+  }
+}
 }

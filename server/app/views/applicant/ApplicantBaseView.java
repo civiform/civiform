@@ -345,6 +345,7 @@ public abstract class ApplicantBaseView {
     // add extra unnecessary work -- let's see how much extra work this would actually be
     // 3. split out the logic for selecting the route by view -- this might be the best way actually. ugh but then i have to make sure it's in all the views harumph
     //    but then each view can handle it's specific route without needing all the if/else...
+    //    would also still need the program slug passed in, but i could handle that separately
     // 4. do a database lookup here which seems against the rules
     // 5. what if we build the url ahead of time and pass it in? ohhh and if we don't have one we can use the default.
     // this only matters for post routes...
@@ -352,6 +353,8 @@ public abstract class ApplicantBaseView {
     // i'm back to thinking we just have to do it through the routing unfortunately
 
     // how could they ever change the language during a post??
+
+    // what if we just disallow changing the language when you're submitting or updating...
 
     // If the language was changed during /submit, redirect to /review
     if (request.path().contains("submit")) {
