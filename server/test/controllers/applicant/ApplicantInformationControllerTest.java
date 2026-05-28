@@ -12,6 +12,7 @@ import static support.FakeRequestBuilder.fakeRequestBuilder;
 import com.google.common.collect.ImmutableMap;
 import controllers.WithMockedProfiles;
 import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
 import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
@@ -71,13 +72,10 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
             .header("Accept-Language", "es-US")
             .build();
 
-    assertThrows(
-        RuntimeException.class,
-        () ->
-            controller
-                .setLangFromBrowser(request, currentApplicant.id)
-                .toCompletableFuture()
-                .join());
+    CompletableFuture<Result> setLanguageFuture =
+        controller.setLangFromBrowser(request, currentApplicant.id).toCompletableFuture();
+
+    assertThrows(RuntimeException.class, () -> setLanguageFuture.join());
   }
 
   @Test
@@ -118,12 +116,7 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
             .build();
 
     assertThrows(
-        RuntimeException.class,
-        () ->
-            controller
-                .setLangFromSwitcher(request, currentApplicant.id)
-                .toCompletableFuture()
-                .join());
+        RuntimeException.class, () -> controller.setLangFromSwitcher(request, currentApplicant.id));
   }
 
   @Test
@@ -150,8 +143,7 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
             .build();
 
     assertThrows(
-        RuntimeException.class,
-        () -> controller.setLangFromSwitcherWithoutApplicant(request).toCompletableFuture().join());
+        RuntimeException.class, () -> controller.setLangFromSwitcherWithoutApplicant(request));
   }
 
   @Test

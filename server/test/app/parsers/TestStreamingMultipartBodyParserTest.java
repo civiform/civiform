@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 import static play.test.Helpers.fakeRequest;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import org.apache.pekko.stream.Materializer;
 import org.apache.pekko.stream.javadsl.Source;
@@ -73,8 +74,10 @@ public class TestStreamingMultipartBodyParserTest extends ResetPostgres {
     Source<ByteString, ?> source =
         createMultipartRequestBodyWithBytes(PNG_HEADER, "test.png", "image/png");
 
-    RuntimeException e =
-        assertThrows(RuntimeException.class, () -> parse(source).toCompletableFuture().join());
+    CompletableFuture<MultipartFormData<String>> parsedSourceFuture =
+        parse(source).toCompletableFuture();
+
+    RuntimeException e = assertThrows(RuntimeException.class, () -> parsedSourceFuture.join());
 
     assertThat(e).hasMessageContaining("Parser failed");
   }
@@ -184,8 +187,10 @@ public class TestStreamingMultipartBodyParserTest extends ResetPostgres {
     Source<ByteString, ?> source =
         createMultipartRequestBodyWithBytes(pngHeader, "fake.pdf", "application/pdf");
 
-    RuntimeException e =
-        assertThrows(RuntimeException.class, () -> parse(source).toCompletableFuture().join());
+    CompletableFuture<MultipartFormData<String>> parsedSourceFuture =
+        parse(source).toCompletableFuture();
+
+    RuntimeException e = assertThrows(RuntimeException.class, () -> parsedSourceFuture.join());
 
     assertThat(e).hasMessageContaining("do not match extension");
   }
@@ -201,8 +206,10 @@ public class TestStreamingMultipartBodyParserTest extends ResetPostgres {
         createMultipartRequestBodyWithBytes(
             unknownHeader, "malware.exe", "application/x-executable");
 
-    RuntimeException e =
-        assertThrows(RuntimeException.class, () -> parse(source).toCompletableFuture().join());
+    CompletableFuture<MultipartFormData<String>> parsedSourceFuture =
+        parse(source).toCompletableFuture();
+
+    RuntimeException e = assertThrows(RuntimeException.class, () -> parsedSourceFuture.join());
 
     assertThat(e).hasMessageContaining("not a supported upload type");
   }
