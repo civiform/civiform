@@ -49,6 +49,34 @@
       th:id="${script.id()}"
       th:crossorigin="${#strings.equals(script.type(), 'text/javascript') ? 'anonymous' : null}"
     ></script>
+
+    <!--/* We are avoiding using .usa-prose class because it produces unexpected results. This makes it obvious if it is used. */-->
+    <style
+      th:if="${templateGlobals.isDev()}"
+      th:nonce="${templateGlobals.cspNonce()}"
+    >
+      .usa-prose {
+        overflow: hidden !important;
+        height: auto !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        position: relative !important;
+        font-size: 0 !important;
+        color: transparent !important;
+      }
+
+      .usa-prose::before {
+        content: 'remove .usa-prose' !important;
+        display: block !important;
+        color: #ffffff !important;
+        font-family: monospace !important;
+        font-size: clamp(18px, 4vw, 48px) !important;
+        text-align: center !important;
+        padding: 32px 0 !important;
+        background: #ff69cb !important;
+        white-space: nowrap !important;
+      }
+    </style>
   </head>
 
   <!--/* Body sets HTMX header so the CSRF token is always there */-->
@@ -63,7 +91,7 @@
     ></th:block>
 
     <div
-      class="bg-white maxw-full margin-x-auto desktop-lg:maxw-desktop-lg"
+      class="cf-admin-page-wrapper spacing-0 bg-white maxw-full margin-x-auto desktop-lg:maxw-desktop-lg"
       th:classappend="${featureFlags.isAdminUiMigrationScExtendedEnabled()} ? '' : 'padding-top-8 padding-bottom-4'"
     >
       <!--/* Header navigation */-->
@@ -72,16 +100,15 @@
         th:insert="~{admin/shared/AdminCommonHeader}"
       ></th:block>
 
-      <!--/* Main */-->
-      <div
-        class="grid-container bg-white"
-        data-testid="page-content"
-        th:classappend="${featureFlags.isAdminUiMigrationScExtendedEnabled()} ? '' : 'padding-top-4'"
+      <!--/* Heading */-->
+      <section
+        aria-labelledby="sitePageHeading"
+        class="padding-bottom-4 padding-top-6 border-bottom border-base-lighter bg-white"
       >
-        <!--/* Heading */-->
-        <section class="spacing-4" aria-labelledby="sitePageHeading">
+        <div class="grid-container">
           <h1
             id="sitePageHeading"
+            class="font-heading-2xl text-bold"
             th:text="${templateGlobals.pageHeading()}"
           ></h1>
           <p
@@ -90,11 +117,22 @@
           ></p>
           <div>
             <th:block
-              th:insert="~{${layoutParams.pageTemplate()} :: callToAction} ?: ~{}"
-            ></th:block>
+              th:with="cta=~{${layoutParams.pageTemplate()} :: callToAction}"
+            >
+              <div th:if="${cta != null}" class="margin-top-2">
+                <th:block th:replace="${cta}"></th:block>
+              </div>
+            </th:block>
           </div>
-        </section>
+        </div>
+      </section>
 
+      <!--/* Main */-->
+      <div
+        class="grid-container bg-white"
+        data-testid="page-content"
+        th:classappend="${featureFlags.isAdminUiMigrationScExtendedEnabled()} ? '' : 'padding-top-4'"
+      >
         <!--/* Content */-->
         <div
           class="grid-row"
