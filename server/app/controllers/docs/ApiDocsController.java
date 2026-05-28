@@ -28,9 +28,6 @@ public final class ApiDocsController {
   private final ApiDocsPageView apiDocsPageView;
   private final ApiDocsService apiDocsService;
 
-  private final String programNotFoundMsg =
-      "No programs found. Please create and publish a program before accessing API docs.";
-
   @Inject
   public ApiDocsController(
       ApiDocsView docsView,
@@ -52,7 +49,7 @@ public final class ApiDocsController {
         apiDocsService.getAllNonExternalProgramSlugs().stream().findFirst();
     return firstProgramSlug
         .map(slug -> redirect(routes.ApiDocsController.activeDocsForSlug(slug)))
-        .orElse(notFound(programNotFoundMsg));
+        .orElse(notFound());
   }
 
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
@@ -97,20 +94,20 @@ public final class ApiDocsController {
             request, selectedProgramSlug, programDefinition, allNonExternalProgramSlugs));
   }
 
-  /** Redirect to the swagger ui to view the select swagger/openapi */
+  /** Redirect to the api docs view for the slug/stage combo */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result getApiDocsRedirect(
       Http.Request request, Optional<String> programSlug, Optional<String> stage) {
 
     String programSlugN = programSlug.orElse("");
     if (!apiDocsService.getAllNonExternalProgramSlugs().contains(programSlugN)) {
-      return notFound(programNotFoundMsg);
+      return notFound();
     }
 
     return switch (stage.orElse("")) {
       case "draft" -> redirect(routes.ApiDocsController.draftDocsForSlug(programSlugN));
       case "active" -> redirect(routes.ApiDocsController.activeDocsForSlug(programSlugN));
-      default -> notFound(programNotFoundMsg);
+      default -> notFound();
     };
   }
 }

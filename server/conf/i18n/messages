@@ -1360,7 +1360,7 @@ adminApiDocs.version.active=Active
 adminApiDocs.version.draft=Draft
 
 # Message shown when the requested program + version combination does not exist.
-adminApiDocs.notFound=Program and version not found
+adminApiDocs.notFound=No programs found. Please create and publish a program before accessing API docs.
 # Heading for the list of questions on the selected program.
 adminApiDocs.questions=Questions
 # Label for a question's admin name
