@@ -1,6 +1,7 @@
 package controllers.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import actions.ProgramDisabledAction;
 import auth.Authorizers;
@@ -31,12 +32,8 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import views.applicant.ineligible.ApplicantIneligibleView;
-import static java.util.concurrent.CompletableFuture.supplyAsync;
 
-
-/**
- * Controller for 
- */
+/** Controller for */
 @With(ProgramDisabledAction.class)
 public class ApplicantProgramIneligibleController extends CiviFormController {
 
@@ -69,21 +66,19 @@ public class ApplicantProgramIneligibleController extends CiviFormController {
     this.metricCounters = checkNotNull(metricCounters);
   }
 
-  /**
-   * Renders the application ineligible page for applicants.
-   */
+  /** Renders the application ineligible page for applicants. */
   @Secure(authorizers = Authorizers.Labels.APPLICANT)
-  public CompletionStage<Result> ineligible(Request request, Long programId, String blockId) {
+  public CompletionStage<Result> ineligible(Request request, String programParam, String blockId) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
-    // boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    // if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
-    //   metricCounters
-    //       .getUrlWithProgramIdCall()
-    //       .labels("/programs/:programParam/blocks/:blockId/ineligible", programParam)
-    //       .inc();
-    //   return CompletableFuture.completedFuture(redirectToHome());
-    // }
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
+      metricCounters
+          .getUrlWithProgramIdCall()
+          .labels("/programs/:programParam/blocks/:blockId/ineligible", programParam)
+          .inc();
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
 
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
@@ -92,67 +87,75 @@ public class ApplicantProgramIneligibleController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     }
 
-    return ineligibleInternal(request, applicantId.get(), String.valueOf(programId), blockId);
+    return ineligibleInternal(request, applicantId.get(), programParam, blockId);
   }
 
   /**
-   * Renders the application ineligible page for TIs applying on behalf of clients and CiviForm admins
-   * previewing programs.
+   * Renders the application ineligible page for TIs applying on behalf of clients and CiviForm
+   * admins previewing programs.
    */
   @Secure(authorizers = Authorizers.Labels.TI_OR_CIVIFORM_ADMIN)
   public CompletionStage<Result> ineligibleWithApplicantId(
-      Request request, long applicantId, Long programId, String blockId) {
+      Request request, long applicantId, String programParam, String blockId) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
-    // boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    // if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
-    //   metricCounters
-    //       .getUrlWithProgramIdCall()
-    //       .labels("/applicants/:applicantId/programs/:programParam/blocks/:blockId/ineligible", programParam)
-    //       .inc();
-    //   return CompletableFuture.completedFuture(redirectToHome());
-    // }
-    return ineligibleInternal(request, applicantId, String.valueOf(programId), blockId);
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
+      metricCounters
+          .getUrlWithProgramIdCall()
+          .labels(
+              "/applicants/:applicantId/programs/:programParam/blocks/:blockId/ineligible",
+              programParam)
+          .inc();
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+    return ineligibleInternal(request, applicantId, programParam, blockId);
   }
 
   private CompletionStage<Result> ineligibleInternal(
       Request request, long applicantId, String programParam, String blockId) {
     boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     CiviFormProfile profile = profileUtils.currentUserProfile(request);
-    ApplicantPersonalInfo personalInfo = applicantService.getPersonalInfo(applicantId).toCompletableFuture().join();
+    ApplicantPersonalInfo personalInfo =
+        applicantService.getPersonalInfo(applicantId).toCompletableFuture().join();
 
     return programSlugHandler
         .resolveProgramParam(programParam, applicantId, programSlugUrlsEnabled)
         .thenCompose(
             programId -> {
               return supplyAsync(
-                () -> {
-                  ReadOnlyApplicantProgramService roApplicantProgramService = applicantService.getReadOnlyApplicantProgramService(applicantId, programId).toCompletableFuture().join();
-                  ProgramDefinition programDefinition;
-                  try {
-                    programDefinition = programService.getFullProgramDefinition(programId);
-                  } catch (ProgramNotFoundException e) {
-                    throw new RuntimeException(e);
-                  }
-                  Optional<BlockDefinition> blockDefinition;
-                  try {
-                    blockDefinition = Optional.of(programDefinition.getBlockDefinition(blockId));
-                  } catch (ProgramBlockDefinitionNotFoundException e) {
-                    throw new RuntimeException(e);
-                  }
-                  ApplicantIneligibleView.Params params =
-                      ApplicantIneligibleView.Params.builder()
-                          .setRequest(request)
-                          .setApplicantId(applicantId)
-                          .setProfile(profile)
-                          .setApplicantPersonalInfo(personalInfo)
-                          .setProgramDefinition(programDefinition)
-                          .setBlockDefinition(blockDefinition)
-                          .setRoApplicantProgramService(roApplicantProgramService)
-                          .setMessages(messagesApi.preferred(request))
-                          .build();
-                  return ok(applicantIneligibleView.render(params)).as(Http.MimeTypes.HTML);
-                })
+                      () -> {
+                        ReadOnlyApplicantProgramService roApplicantProgramService =
+                            applicantService
+                                .getReadOnlyApplicantProgramService(applicantId, programId)
+                                .toCompletableFuture()
+                                .join();
+                        ProgramDefinition programDefinition;
+                        try {
+                          programDefinition = programService.getFullProgramDefinition(programId);
+                        } catch (ProgramNotFoundException e) {
+                          throw new RuntimeException(e);
+                        }
+                        Optional<BlockDefinition> blockDefinition;
+                        try {
+                          blockDefinition =
+                              Optional.of(programDefinition.getBlockDefinition(blockId));
+                        } catch (ProgramBlockDefinitionNotFoundException e) {
+                          throw new RuntimeException(e);
+                        }
+                        ApplicantIneligibleView.Params params =
+                            ApplicantIneligibleView.Params.builder()
+                                .setRequest(request)
+                                .setApplicantId(applicantId)
+                                .setProfile(profile)
+                                .setApplicantPersonalInfo(personalInfo)
+                                .setProgramDefinition(programDefinition)
+                                .setBlockDefinition(blockDefinition)
+                                .setRoApplicantProgramService(roApplicantProgramService)
+                                .setMessages(messagesApi.preferred(request))
+                                .build();
+                        return ok(applicantIneligibleView.render(params)).as(Http.MimeTypes.HTML);
+                      })
                   .exceptionally(
                       ex -> {
                         if (ex instanceof CompletionException) {
@@ -169,5 +172,4 @@ public class ApplicantProgramIneligibleController extends CiviFormController {
                       });
             });
   }
-
 }

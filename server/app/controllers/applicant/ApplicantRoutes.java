@@ -586,17 +586,24 @@ public final class ApplicantRoutes {
     }
   }
 
-  
-  public Call showIneligible(CiviFormProfile profile,
-    long applicantId,
-    long programId, String blockId) {
-  if (includeApplicantIdInRoute(profile)) {
-    return routes.ApplicantProgramIneligibleController.ineligibleWithApplicantId(
-        applicantId,
-        programId, blockId);
-  } else {
-    return routes.ApplicantProgramIneligibleController.ineligible(
-        programId, blockId);
+  public Call showIneligible(
+      CiviFormProfile profile, long applicantId, long programId, String blockId) {
+    if (includeApplicantIdInRoute(profile)) {
+      return routes.ApplicantProgramIneligibleController.ineligibleWithApplicantId(
+          applicantId, String.valueOf(programId), blockId);
+    } else {
+      return routes.ApplicantProgramIneligibleController.ineligible(
+          String.valueOf(programId), blockId);
+    }
   }
-}
+
+  public Call showIneligible(
+      CiviFormProfile profile, long applicantId, String programSlug, String blockId) {
+    if (includeApplicantIdInRoute(profile)) {
+      return routes.ApplicantProgramIneligibleController.ineligibleWithApplicantId(
+          applicantId, programSlug, blockId);
+    } else {
+      return routes.ApplicantProgramIneligibleController.ineligible(programSlug, blockId);
+    }
+  }
 }

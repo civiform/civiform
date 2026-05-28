@@ -55,9 +55,7 @@ import services.cloud.ApplicantStorageClient;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
 import services.monitoring.MonitoringMetricCounters;
-import services.program.BlockDefinition;
 import services.program.PathNotInBlockException;
-import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -66,7 +64,6 @@ import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import views.applicant.addresscorrection.AddressCorrectionBlockView;
 import views.applicant.blocks.ApplicantProgramBlockEditView;
-import views.applicant.ineligible.ApplicantIneligibleView;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.trustedintermediary.ApplicationBaseViewParams;
 
@@ -89,7 +86,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final StoredFileRepository storedFileRepository;
   private final SettingsManifest settingsManifest;
   private final String baseUrl;
-  private final ApplicantIneligibleView applicantIneligibleView;
   private final AddressCorrectionBlockView addressCorrectionBlockView;
   private final AddressSuggestionJsonSerializer addressSuggestionJsonSerializer;
   private final ProgramService programService;
@@ -112,7 +108,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ProfileUtils profileUtils,
       Config configuration,
       SettingsManifest settingsManifest,
-      ApplicantIneligibleView applicantIneligibleView,
       AddressCorrectionBlockView addressCorrectionBlockView,
       AddressSuggestionJsonSerializer addressSuggestionJsonSerializer,
       ProgramService programService,
@@ -130,7 +125,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.storedFileRepository = checkNotNull(storedFileRepository);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.applicantIneligibleView = checkNotNull(applicantIneligibleView);
     this.addressSuggestionJsonSerializer = checkNotNull(addressSuggestionJsonSerializer);
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.eligibilityAlertSettingsCalculator = checkNotNull(eligibilityAlertSettingsCalculator);
@@ -1348,7 +1342,21 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     try {
       ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
       if (shouldRenderIneligibleBlockView(roApplicantProgramService, programDefinition, blockId)) {
-        return supplyAsync(() -> redirect(applicantRoutes.showIneligible(submittingProfile, applicantId, programId, blockId)));
+        if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+          return supplyAsync(
+              () ->
+                  redirect(
+                      applicantRoutes.showIneligible(
+                          submittingProfile,
+                          applicantId,
+                          programSlugHandler.getProgramSlug(String.valueOf(programId)),
+                          blockId)));
+        }
+        return supplyAsync(
+            () ->
+                redirect(
+                    applicantRoutes.showIneligible(
+                        submittingProfile, applicantId, programId, blockId)));
       }
     } catch (ProgramNotFoundException e) {
       return supplyAsync(() -> notFound(e.toString()));
