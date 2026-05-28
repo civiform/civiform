@@ -1463,7 +1463,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       ImmutableList<Long> presentSubconditionIds =
           getSortedMatchesFromKeys(subconditionIdPattern, formData);
 
-      /// Keep going until we run out of user-entered subconditions.
+      // Keep going until we run out of user-entered subconditions.
       for (long subconditionId : presentSubconditionIds) {
         String subconditionFieldPrefix =
             String.format("condition-%d-subcondition-%d", conditionId, subconditionId);

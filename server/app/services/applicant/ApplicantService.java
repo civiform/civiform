@@ -1165,7 +1165,7 @@ public final class ApplicantService {
    *     criteria.
    *     <p>Does not include the Pre-Screener Form.
    *     <p>"Appropriate programs" those returned by {@link #relevantProgramsForApplicant(long,
-   *     auth.CiviFormProfile)}.
+   *     CiviFormProfile, Request)}.
    */
   public CompletionStage<ImmutableList<ApplicantProgramData>> maybeEligibleProgramsForApplicant(
       long applicantId, CiviFormProfile requesterProfile, Request request) {
@@ -2040,7 +2040,7 @@ public final class ApplicantService {
 
   /**
    * Checks the block for any {@link PhoneQuestion}. If any are found grab the phone number from the
-   * formData and call the {@link PhoneValidationUtils#validatePhoneNumberWithCountryCode} to
+   * formData and call the {@link PhoneValidationUtils#validatePhoneNumber(Optional, Optional)} to
    * calculate the country code.
    */
   public CompletionStage<ImmutableMap<String, String>> setPhoneCountryCode(

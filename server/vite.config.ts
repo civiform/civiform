@@ -2,6 +2,27 @@ import {defineConfig} from 'vite'
 import {configDefaults} from 'vitest/config'
 import {viteStaticCopy} from 'vite-plugin-static-copy'
 import {resolve} from 'node:path'
+import {readdirSync} from 'node:fs'
+
+// Auto-discover page-level entrypoints matching *_page.ts under pages/.
+// The filename (without .ts extension) becomes the Vite entry key and output bundle name.
+const pagesDir = 'app/assets/javascripts/pages'
+const pageEntries: Record<string, string> = {}
+
+for (const entry of readdirSync(pagesDir, {recursive: true})) {
+  const filePath = String(entry)
+  if (!filePath.endsWith('_page.ts')) continue
+
+  const key = filePath.split('/').pop()!.replace(/\.ts$/, '')
+  if (key in pageEntries) {
+    throw new Error(
+      `Duplicate page entrypoint key "${key}": ` +
+        `"${pageEntries[key]}" and "${pagesDir}/${filePath}" resolve to the same bundle name. ` +
+        `Rename one of the files to avoid a collision.`,
+    )
+  }
+  pageEntries[key] = `${pagesDir}/${filePath}`
+}
 
 // Asset paths to reference in the below config
 const assetPaths = {
@@ -95,6 +116,13 @@ export default defineConfig({
         northstar_css: resolve(__dirname, assetPaths.northstar_css),
         maplibregl: resolve(__dirname, assetPaths.maplibregl_css),
         tailwind: resolve(__dirname, assetPaths.tailwind),
+        // Load page specific files
+        ...Object.fromEntries(
+          Object.entries(pageEntries).map(([key, path]) => [
+            key,
+            resolve(__dirname, path),
+          ]),
+        ),
       },
       onwarn(warning, warn) {
         // Suppress eval warnings from htmx
