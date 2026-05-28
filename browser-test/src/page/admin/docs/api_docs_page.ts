@@ -66,6 +66,6 @@ export class ApiDocsPage extends BaseAdminPage {
   }
 
   getNotFoundMessage(): Locator {
-    return this.page.getByText('Program and version not found')
+    return this.page.getByText('No programs found.')
   }
 }

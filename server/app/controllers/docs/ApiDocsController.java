@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import mapping.admin.docs.ApiDocsPageMapper;
 import models.LifecycleStage;
 import org.pac4j.play.java.Secure;
+import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.mvc.Result;
 import services.docs.ApiDocsService;
@@ -27,17 +28,20 @@ public final class ApiDocsController {
   private final SettingsManifest settingsManifest;
   private final ApiDocsPageView apiDocsPageView;
   private final ApiDocsService apiDocsService;
+  private final MessagesApi messagesApi;
 
   @Inject
   public ApiDocsController(
       ApiDocsView docsView,
       SettingsManifest settingsManifest,
       ApiDocsPageView apiDocsPageView,
-      ApiDocsService apiDocsService) {
+      ApiDocsService apiDocsService,
+      MessagesApi messagesApi) {
     this.docsView = docsView;
     this.settingsManifest = settingsManifest;
     this.apiDocsPageView = apiDocsPageView;
     this.apiDocsService = apiDocsService;
+    this.messagesApi = messagesApi;
   }
 
   /**
@@ -49,7 +53,7 @@ public final class ApiDocsController {
         apiDocsService.getAllNonExternalProgramSlugs().stream().findFirst();
     return firstProgramSlug
         .map(slug -> redirect(routes.ApiDocsController.activeDocsForSlug(slug)))
-        .orElse(notFound());
+        .orElse(notFound(messagesApi.preferred(request).at("adminApiDocs.notFound")));
   }
 
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
@@ -99,15 +103,17 @@ public final class ApiDocsController {
   public Result getApiDocsRedirect(
       Http.Request request, Optional<String> programSlug, Optional<String> stage) {
 
+    String programNotFoundMsg = messagesApi.preferred(request).at("adminApiDocs.notFound");
+
     String programSlugN = programSlug.orElse("");
     if (!apiDocsService.getAllNonExternalProgramSlugs().contains(programSlugN)) {
-      return notFound();
+      return notFound(programNotFoundMsg);
     }
 
     return switch (stage.orElse("")) {
       case "draft" -> redirect(routes.ApiDocsController.draftDocsForSlug(programSlugN));
       case "active" -> redirect(routes.ApiDocsController.activeDocsForSlug(programSlugN));
-      default -> notFound();
+      default -> notFound(programNotFoundMsg);
     };
   }
 }
