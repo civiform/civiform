@@ -115,8 +115,10 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
             .bodyForm(ImmutableMap.of("locale", "es-US", "redirectLink", "https://google.com"))
             .build();
 
+    Long applicantId = currentApplicant.id;
+
     assertThrows(
-        RuntimeException.class, () -> controller.setLangFromSwitcher(request, currentApplicant.id));
+        RuntimeException.class, () -> controller.setLangFromSwitcher(request, applicantId));
   }
 
   @Test
