@@ -1321,6 +1321,64 @@ reportingProgram.timeToCompleteP99=完成時間（第 99 頁）
 reportingProgram.downloadCsv=下載 CSV
 
 #------------------------------------------------------------------------------#
+#  ADMIN API DOCS                                                              #
+#------------------------------------------------------------------------------#
+
+# Admin API Docs page title
+adminApiDocs.pageTitle=API documentation
+
+# Aria label for the nav that switches between API docs sub-pages.
+adminApiDocs.tabs.ariaLabel=API documentation sections
+# Tab label for the main API docs page.
+adminApiDocs.tabs.docs=Docs
+# Tab label for the schema viewer page.
+adminApiDocs.tabs.schema=Schema viewer
+
+# Intro paragraph as text before the external-docs link.
+adminApiDocs.intro.beforeLink=This page includes program-specific API Documentation for Active and Draft programs. Detailed documentation about authentication, pagination, and every field's possible values is located at
+# Visible text of the external-docs link in the intro paragraph.
+adminApiDocs.intro.linkText=docs.civiform.us/it-manual/api
+# Intro paragraph as text after the external-docs link.
+adminApiDocs.intro.afterLink=.
+
+# Heading on the collapsible "How does this work?" accordion.
+adminApiDocs.accordion.heading=How does this work?
+# First paragraph inside the accordion.
+adminApiDocs.accordion.paragraph1=The API response preview is a sample of what the API response might look like for a given program. All data is fake. Single-select and multi-select questions have sample answers that are selected from the available responses.
+# Second paragraph inside the accordion as text before the shareable link.
+adminApiDocs.accordion.paragraph2.beforeLink=You may share this link,
+# Second paragraph inside the accordion as text after the shareable link.
+adminApiDocs.accordion.paragraph2.afterLink=, with anyone who needs to see API docs. It is accessible without logging in, so they do not need to be a CiviForm Admin or Program Admin to view this page.
+
+# Label for the program selector.
+adminApiDocs.selectProgram=Select a program:
+# Label for the program-version selector.
+adminApiDocs.selectVersion=Select version:
+# Option label for the active version of a program.
+adminApiDocs.version.active=Active
+# Option label for the draft version of a program.
+adminApiDocs.version.draft=Draft
+
+# Message shown when the requested program + version combination does not exist.
+adminApiDocs.notFound=No programs found. Please create and publish a program before accessing API docs.
+# Heading for the list of questions on the selected program.
+adminApiDocs.questions=Questions
+# Label for a question's admin name
+adminApiDocs.adminName=Admin Name
+# Label for a question's type (text, number, etc.).
+adminApiDocs.type=Type
+# Label for a question's display text.
+adminApiDocs.text=Text
+# Label for a multi-option question's answer options.
+adminApiDocs.options=Options
+# Label preceding the list of a question's currently-available options.
+adminApiDocs.currentOptions=Current options:
+# Label preceding the list of every option the question has ever had.
+adminApiDocs.allOptions=All possible options:
+# Heading above the JSON preview of the API response.
+adminApiDocs.responsePreview=API response preview
+
+#------------------------------------------------------------------------------#
 #  DEV TOOLS - text for the developer tools page                               #
 #------------------------------------------------------------------------------#
 # The text on the button to go to the home page from the dev tools page.
