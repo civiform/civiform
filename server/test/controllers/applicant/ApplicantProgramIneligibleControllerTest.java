@@ -124,9 +124,10 @@ public class ApplicantProgramIneligibleControllerTest extends WithMockedProfiles
 
   @Test
   public void ineligible_noApplicantIdFound_redirectsToHome() {
+    Request request = fakeRequestBuilder().header(skipUserProfile, "true").build();
     Result result =
         subject
-            .ineligible(fakeRequest(), String.valueOf(program.id), /* blockId= */ Optional.of("1"))
+            .ineligible(request, String.valueOf(program.id), /* blockId= */ Optional.of("1"))
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(SEE_OTHER);
