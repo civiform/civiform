@@ -7,7 +7,9 @@ import actions.ProgramDisabledAction;
 import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import auth.controllers.MissingOptionalException;
 import controllers.CiviFormController;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -115,9 +117,6 @@ public class ApplicantProgramIneligibleController extends CiviFormController {
   private CompletionStage<Result> ineligibleInternal(
       Request request, long applicantId, String programParam, String blockId) {
     boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    CiviFormProfile profile = profileUtils.currentUserProfile(request);
-    ApplicantPersonalInfo personalInfo =
-        applicantService.getPersonalInfo(applicantId).toCompletableFuture().join();
 
     return programSlugHandler
         .resolveProgramParam(programParam, applicantId, programSlugUrlsEnabled)
@@ -130,18 +129,23 @@ public class ApplicantProgramIneligibleController extends CiviFormController {
                                 .getReadOnlyApplicantProgramService(applicantId, programId)
                                 .toCompletableFuture()
                                 .join();
+                        CiviFormProfile profile = profileUtils.currentUserProfile(request);
+                        ApplicantPersonalInfo personalInfo =
+                            applicantService
+                                .getPersonalInfo(applicantId)
+                                .toCompletableFuture()
+                                .join();
+
                         ProgramDefinition programDefinition;
-                        try {
-                          programDefinition = programService.getFullProgramDefinition(programId);
-                        } catch (ProgramNotFoundException e) {
-                          throw new RuntimeException(e);
-                        }
                         Optional<BlockDefinition> blockDefinition;
                         try {
+                          programDefinition = programService.getFullProgramDefinition(programId);
                           blockDefinition =
                               Optional.of(programDefinition.getBlockDefinition(blockId));
-                        } catch (ProgramBlockDefinitionNotFoundException e) {
-                          throw new RuntimeException(e);
+                        } catch (ProgramNotFoundException
+                            | ProgramBlockDefinitionNotFoundException
+                            | NoSuchElementException e) {
+                          return notFound(e.toString());
                         }
                         ApplicantIneligibleView.Params params =
                             ApplicantIneligibleView.Params.builder()
@@ -158,17 +162,14 @@ public class ApplicantProgramIneligibleController extends CiviFormController {
                       })
                   .exceptionally(
                       ex -> {
-                        if (ex instanceof CompletionException) {
-                          Throwable cause = ex.getCause();
-                          if (cause instanceof SecurityException) {
-                            return redirectToHome();
-                          }
-                          if (cause instanceof ProgramNotFoundException) {
-                            return notFound(cause.toString());
-                          }
-                          throw new RuntimeException(cause);
+                        Throwable cause = (ex instanceof CompletionException) ? ex.getCause() : ex;
+                        if (cause instanceof ProgramNotFoundException) {
+                          return notFound(cause.toString());
                         }
-                        throw new RuntimeException(ex);
+                        if (cause instanceof MissingOptionalException) {
+                          return unauthorized();
+                        }
+                        throw new RuntimeException(cause);
                       });
             });
   }
