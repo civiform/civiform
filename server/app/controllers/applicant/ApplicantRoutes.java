@@ -587,7 +587,7 @@ public final class ApplicantRoutes {
   }
 
   public Call showIneligible(
-      CiviFormProfile profile, long applicantId, long programId, String blockId) {
+      CiviFormProfile profile, long applicantId, long programId, Optional<String> blockId) {
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramIneligibleController.ineligibleWithApplicantId(
           applicantId, String.valueOf(programId), blockId);
@@ -598,7 +598,7 @@ public final class ApplicantRoutes {
   }
 
   public Call showIneligible(
-      CiviFormProfile profile, long applicantId, String programSlug, String blockId) {
+      CiviFormProfile profile, long applicantId, String programSlug, Optional<String> blockId) {
     if (includeApplicantIdInRoute(profile)) {
       return routes.ApplicantProgramIneligibleController.ineligibleWithApplicantId(
           applicantId, programSlug, blockId);

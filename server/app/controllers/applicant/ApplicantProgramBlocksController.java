@@ -1350,13 +1350,13 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           submittingProfile,
                           applicantId,
                           programSlugHandler.getProgramSlug(String.valueOf(programId)),
-                          blockId)));
+                          Optional.of(blockId))));
         }
         return supplyAsync(
             () ->
                 redirect(
                     applicantRoutes.showIneligible(
-                        submittingProfile, applicantId, programId, blockId)));
+                        submittingProfile, applicantId, programId, Optional.of(blockId))));
       }
     } catch (ProgramNotFoundException e) {
       return supplyAsync(() -> notFound(e.toString()));

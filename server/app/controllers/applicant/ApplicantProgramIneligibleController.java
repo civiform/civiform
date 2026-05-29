@@ -70,7 +70,8 @@ public class ApplicantProgramIneligibleController extends CiviFormController {
 
   /** Renders the application ineligible page for applicants. */
   @Secure(authorizers = Authorizers.Labels.APPLICANT)
-  public CompletionStage<Result> ineligible(Request request, String programParam, String blockId) {
+  public CompletionStage<Result> ineligible(
+      Request request, String programParam, Optional<String> blockId) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
     boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
@@ -98,7 +99,7 @@ public class ApplicantProgramIneligibleController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.TI_OR_CIVIFORM_ADMIN)
   public CompletionStage<Result> ineligibleWithApplicantId(
-      Request request, long applicantId, String programParam, String blockId) {
+      Request request, long applicantId, String programParam, Optional<String> blockId) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
     boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
@@ -115,7 +116,7 @@ public class ApplicantProgramIneligibleController extends CiviFormController {
   }
 
   private CompletionStage<Result> ineligibleInternal(
-      Request request, long applicantId, String programParam, String blockId) {
+      Request request, long applicantId, String programParam, Optional<String> blockId) {
     boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
 
     return programSlugHandler
@@ -137,11 +138,13 @@ public class ApplicantProgramIneligibleController extends CiviFormController {
                                 .join();
 
                         ProgramDefinition programDefinition;
-                        Optional<BlockDefinition> blockDefinition;
+                        Optional<BlockDefinition> blockDefinition = Optional.empty();
                         try {
                           programDefinition = programService.getFullProgramDefinition(programId);
-                          blockDefinition =
-                              Optional.of(programDefinition.getBlockDefinition(blockId));
+                          if (blockId.isPresent()) {
+                            blockDefinition =
+                                Optional.of(programDefinition.getBlockDefinition(blockId.get()));
+                          }
                         } catch (ProgramNotFoundException
                             | ProgramBlockDefinitionNotFoundException
                             | NoSuchElementException e) {

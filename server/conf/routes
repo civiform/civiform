@@ -212,7 +212,7 @@ GET     /programs/:programId/blocks/:blockId/removeFile/:fileKey/:inReview      
 POST    /programs/:programId/blocks/:blockId/hx/selectFileForUpload                                                               controllers.applicant.FileUploadController.hxSelectFileForUpload(request: Request, programId: Long, blockId: String)
 POST    /programs/:programId/blocks/:blockId/hx/removeFile                                                                        controllers.applicant.FileUploadController.hxRemoveFile(request: Request, programId: Long, blockId: String)
 POST    /programs/:programParam/blocks/:blockId/:inReview/:applicantRequestedActionWrapper                                        controllers.applicant.ApplicantProgramBlocksController.update(request: Request, programParam: String, blockId: String, inReview: Boolean, applicantRequestedActionWrapper: controllers.applicant.ApplicantRequestedActionWrapper)
-GET     /programs/:programParam/blocks/:blockId/ineligible                                                                        controllers.applicant.ApplicantProgramIneligibleController.ineligible(request: Request, programParam: String, blockId: String)
+GET     /programs/:programParam/ineligible                                                                                        controllers.applicant.ApplicantProgramIneligibleController.ineligible(request: Request, programParam: String, blockId: java.util.Optional[String])
 
 # Routes for handling GeoJSON
 POST    /geoJson/hx/getData                          controllers.geojson.GeoJsonApiController.hxGetData(request: Request)
@@ -240,7 +240,7 @@ GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/removeFile/
 POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/hx/selectFileForUpload                                       controllers.applicant.FileUploadController.hxSelectFileForUploadWithApplicantId(request: Request, applicantId: Long, programId: Long, blockId: String)
 POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/hx/removeFile                                                controllers.applicant.FileUploadController.hxRemoveFileWithApplicantId(request: Request, applicantId: Long, programId: Long, blockId: String)
 POST    /applicants/:applicantId/programs/:programParam/blocks/:blockId/:inReview/:applicantRequestedActionWrapper                controllers.applicant.ApplicantProgramBlocksController.updateWithApplicantId(request: Request, applicantId: Long, programParam: String, blockId: String, inReview: Boolean, applicantRequestedActionWrapper: controllers.applicant.ApplicantRequestedActionWrapper)
-GET     /applicants/:applicantId/programs/:programParam/blocks/:blockId/ineligible                                                controllers.applicant.ApplicantProgramIneligibleController.ineligibleWithApplicantId(request: Request, applicantId: Long, programParam: String, blockId: String)
+GET     /applicants/:applicantId/programs/:programParam/ineligible                                                                controllers.applicant.ApplicantProgramIneligibleController.ineligibleWithApplicantId(request: Request, applicantId: Long, programParam: String, blockId: java.util.Optional[String])
 
 # API
 GET     /api/v1/checkAuth                                   controllers.api.CiviFormApiController.checkAuth()
