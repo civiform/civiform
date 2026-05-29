@@ -79,12 +79,6 @@ public class ApplicantProgramIneligibleControllerTest extends WithMockedProfiles
     assertThat(result.redirectLocation()).hasValue("/");
   }
 
-  /**
-   * Tests that ineligible() throws an error when the program param is a program slug but it should
-   * be the program id since the program slug feature is disabled. ineligible() also throws error
-   * for other combinations when the program param is not properly parsed. We don't test all
-   * combinations here because ProgramSlugHandler has comprehensive tests coverage for them.
-   */
   @Test
   public void ineligible_whenProgramSlugUrlsFeatureDisabledAndIsProgramSlugFromUrl_error() {
     String programSlug = program.getSlug();
@@ -94,10 +88,6 @@ public class ApplicantProgramIneligibleControllerTest extends WithMockedProfiles
         .hasMessage("Could not parse value from '' to a numeric value");
   }
 
-  /**
-   * Tests that ineligible() returns OK when the feature is enabled and is from url call with a
-   * program slug.
-   */
   @Test
   public void ineligible_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_isOk() {
     String programSlug = program.getSlug();
@@ -124,13 +114,9 @@ public class ApplicantProgramIneligibleControllerTest extends WithMockedProfiles
 
   @Test
   public void ineligible_withBlockId_isOk() {
-    String programSlug = program.getSlug();
-    Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
-
     Result result =
         subject
-            .ineligible(request, programSlug, /* blockId= */ Optional.of("1"))
+            .ineligible(fakeRequest(), String.valueOf(program.id), /* blockId= */ Optional.of("1"))
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(OK);
@@ -138,13 +124,9 @@ public class ApplicantProgramIneligibleControllerTest extends WithMockedProfiles
 
   @Test
   public void ineligible_noApplicantIdFound_redirectsToHome() {
-    String programSlug = program.getSlug();
-    Request request = fakeRequestBuilder().header(skipUserProfile, "true").build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
-
     Result result =
         subject
-            .ineligible(request, programSlug, /* blockId= */ Optional.of("1"))
+            .ineligible(fakeRequest(), String.valueOf(program.id), /* blockId= */ Optional.of("1"))
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -171,10 +153,6 @@ public class ApplicantProgramIneligibleControllerTest extends WithMockedProfiles
     assertThat(result.redirectLocation()).hasValue("/");
   }
 
-  /**
-   * Tests that ineligibleWithApplicantId() throws an error when the program param is a program slug
-   * but it should be the program id since the program slug feature is disabled.
-   */
   @Test
   public void
       ineligibleWithApplicantId_whenProgramSlugUrlsFeatureDisabledAndIsProgramSlugFromUrl_error() {
@@ -187,10 +165,6 @@ public class ApplicantProgramIneligibleControllerTest extends WithMockedProfiles
         .hasMessage("Could not parse value from '' to a numeric value");
   }
 
-  /**
-   * Tests that ineligibleWithApplicantId() returns OK when the feature is enabled and is from url
-   * call with a program slug.
-   */
   @Test
   public void
       ineligibleWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_isOk() {
