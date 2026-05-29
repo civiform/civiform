@@ -1379,6 +1379,25 @@ adminApiDocs.allOptions=All possible options:
 adminApiDocs.responsePreview=API response preview
 
 #------------------------------------------------------------------------------#
+#  ADMIN SCHEMA VIEWER                                                         #
+#------------------------------------------------------------------------------#
+
+# Admin API Docs page title
+adminSchemaViewer.pageTitle=API schema viewer
+# First intro paragraph on the OpenAPI schema viewer page.
+adminSchemaViewer.intro1=This page shows a visualization of the OpenAPI Schema. Both version 2 (formerly Swagger 2) and version 3 are available.
+# Second intro paragraph on the OpenAPI schema viewer page.
+adminSchemaViewer.intro2=We recommend only using version 3 unless there is a specific need for the older format.
+# Label for the program selector on the schema viewer page.
+adminSchemaViewer.selectProgram=Program:
+# Label for the program-status selector on the schema viewer page.
+adminSchemaViewer.selectStatus=Status:
+# Label for the OpenAPI version selector on the schema viewer page.
+adminSchemaViewer.selectVersion=OpenApi Version:
+# Error generating OpenAPI YAML
+adminSchemaViewer.yamlError=Unable to generate OpenApi version '{0}' for program '{1}' at stage '{2}'.
+
+#------------------------------------------------------------------------------#
 #  DEV TOOLS - text for the developer tools page                               #
 #------------------------------------------------------------------------------#
 # The text on the button to go to the home page from the dev tools page.
