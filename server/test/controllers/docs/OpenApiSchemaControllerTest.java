@@ -20,7 +20,7 @@ import support.ProgramBuilder;
 
 public class OpenApiSchemaControllerTest extends ResetPostgres {
 
-  private static final String SCHEMA_UI_NO_PROGRAM_FOUND_ERROR = "Please add a program";
+  private static final String SCHEMA_UI_NO_PROGRAM_FOUND_ERROR = "No programs found.";
 
   @Before
   public void setUp() {
