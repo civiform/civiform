@@ -625,4 +625,44 @@ public final class ApplicantRoutes {
       return routes.ApplicantProgramIneligibleController.ineligible(programSlug, blockId);
     }
   }
+
+    // TODO:#11090 Remove method when routes are no longer hit
+  /**
+   * Returns the route corresponding to the applicant ineligible page.
+   *
+   * @param profile profile corresponding to the logged-in user (applicant or TI).
+   * @param applicantId ID of the ineligible applicant
+   * @param programId id of program the applicant is ineligible for
+   * @param blockId ID of the block containing the ineligible question
+   * @return route for the applicant ineligible page
+   */
+  public Call showAddressCorrection(
+    CiviFormProfile profile, long applicantId, long programId, Optional<String> blockId) {
+  if (includeApplicantIdInRoute(profile)) {
+    return routes.ApplicantAddressCorrectionController.addressCorrectionWithApplicantId(
+        applicantId, String.valueOf(programId), blockId);
+  } else {
+    return routes.ApplicantAddressCorrectionController.addressCorrection(
+        String.valueOf(programId), blockId);
+  }
+}
+
+/**
+ * Returns the route corresponding to the applicant ineligible page.
+ *
+ * @param profile profile corresponding to the logged-in user (applicant or TI).
+ * @param applicantId ID of the ineligible applicant
+ * @param programSlug slug of program the applicant is ineligible for
+ * @param blockId ID of the block containing the ineligible question
+ * @return route for the applicant ineligible page
+ */
+public Call showAddressCorrection(
+    CiviFormProfile profile, long applicantId, String programSlug, Optional<String> blockId) {
+  if (includeApplicantIdInRoute(profile)) {
+    return routes.ApplicantAddressCorrectionController.addressCorrectionWithApplicantId(
+        applicantId, programSlug, blockId);
+  } else {
+    return routes.ApplicantAddressCorrectionController.addressCorrection(programSlug, blockId);
+  }
+}
 }

@@ -1498,6 +1498,20 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
           suggestions,
           applicantRequestedAction);
     } else {
+
+      if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+        return redirect(
+                    applicantRoutes.showIneligible(
+                        submittingProfile,
+                        applicantId,
+                        programSlugHandler.getProgramSlug(String.valueOf(programId)),
+                        Optional.of(blockId))));
+      }
+      return supplyAsync(
+          () ->
+              redirect(
+                  applicantRoutes.showIneligible(
+                      submittingProfile, applicantId, programId, Optional.of(blockId))));
       String json = addressSuggestionJsonSerializer.serialize(suggestions);
 
       Boolean isEligibilityEnabledOnThisBlock =
