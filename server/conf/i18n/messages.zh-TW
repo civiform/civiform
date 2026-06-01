@@ -559,9 +559,9 @@ title.adminProgramImage=上傳圖檔
 # Link text to return to program editing from the program image page.
 link.adminProgramImage.back=返回
 # Hint under the file input about maximum upload size for a program summary image.
-content.adminProgramImage.hintMaxSize=The maximum size for image upload is 1MB.
+content.adminProgramImage.hintMaxSize=上傳圖檔大小不得超過 1MB。
 # Hint explaining automatic 16x9 cropping and that the preview reflects saved images.
-content.adminProgramImage.hintCrop=The image will be automatically cropped to 16x9. The program card preview on the right shows the saved image.
+content.adminProgramImage.hintCrop=圖檔會自動裁切為 16x9 大小。您可以在右方的預覽計畫卡片檢視儲存的圖檔。
 # Label for the field where the admin enters alt text for the program summary image.
 label.adminProgramImage.altText=輸入圖檔描述（替代文字）
 # Button to leave the program image step and continue program setup (creation flow).
@@ -571,15 +571,15 @@ button.adminProgramImage.save=儲存
 # Button to delete an uploaded program image
 button.adminProgramImage.delete=刪除圖檔
 # Message shown when alt text is required but missing.
-validation.adminProgramImage.altTextRequired=Image description is required when a program image is uploaded.
+validation.adminProgramImage.altTextRequired=上傳計畫圖檔時必須輸入圖檔描述。
 # Toast after saving a program image and alt text together.
-toast.adminProgramImage.imageAndDescriptionSaved=Image is saved with the description: {0}
+toast.adminProgramImage.imageAndDescriptionSaved=圖檔描述已儲存：{0}
 # Toast after saving alt text without uploading a new file.
 toast.adminProgramImage.descriptionSet=圖檔描述設為 {0}
 # Error when alt text cannot be cleared while an image remains.
 toast.adminProgramImage.descriptionNotRemovable=無法在圖檔仍存在時移除其圖檔描述。請先刪除圖檔，再刪除圖檔描述。
 # Toast after deleting a program image
-toast.adminProgramImage.imageRemoved=Image removed
+toast.adminProgramImage.imageRemoved=已刪除圖檔
 # Message when the program card preview cannot be rendered.
 content.adminProgramImage.cardPreviewError=生成卡片預覽時發生錯誤
 
@@ -703,7 +703,7 @@ validation.noPoBox=請輸入有效地址，切勿提供郵政信箱。
 title.confirmAddress=確認地址
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
 content.confirmAddressLine1=找不到您輸入的地址。
-content.confirmAddressLine1.v2=Address confirmation needed.
+content.confirmAddressLine1.v2=需要確認地址是否正確。
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=請檢查地址的拼字是否正確無誤，或是從我們提供的清單中選擇其他地址。
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
@@ -815,7 +815,7 @@ validation.fileRequired=請選取檔案。
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=檔案過大，請選擇小於 {0} MB 的檔案。
 # Shown when an HTMX file upload request fails (any non-success response).
-validation.fileUploadRequestFailed=We couldn't upload your file. Please try again.
+validation.fileUploadRequestFailed=我們無法上傳您的檔案。請重新嘗試。
 # Text shown on a tag while a file is uploading.
 label.uploading=上傳中
 # Label applied to a list of uploaded files
@@ -1330,49 +1330,49 @@ adminApiDocs.pageTitle=應用程式介面說明書
 # Aria label for the nav that switches between API docs sub-pages.
 adminApiDocs.tabs.ariaLabel=應用程式介面說明書段落
 # Tab label for the main API docs page.
-adminApiDocs.tabs.docs=Docs
+adminApiDocs.tabs.docs=文件
 # Tab label for the schema viewer page.
-adminApiDocs.tabs.schema=Schema viewer
+adminApiDocs.tabs.schema=圖表檢視器
 
 # Intro paragraph as text before the external-docs link.
-adminApiDocs.intro.beforeLink=This page includes program-specific API Documentation for Active and Draft programs. Detailed documentation about authentication, pagination, and every field's possible values is located at
+adminApiDocs.intro.beforeLink=此頁面包含專供活躍的或尚為草稿之計畫使用的應用程式介面說明書。關於認證、頁碼標註及各欄位可能數值的詳細說明書，可於以下場所找到
 # Visible text of the external-docs link in the intro paragraph.
 adminApiDocs.intro.linkText=docs.civiform.us/it-manual/api
 # Intro paragraph as text after the external-docs link.
-adminApiDocs.intro.afterLink=.
+adminApiDocs.intro.afterLink=。
 
 # Heading on the collapsible "How does this work?" accordion.
-adminApiDocs.accordion.heading=How does this work?
+adminApiDocs.accordion.heading=這是如何運作的？
 # First paragraph inside the accordion.
-adminApiDocs.accordion.paragraph1=The API response preview is a sample of what the API response might look like for a given program. All data is fake. Single-select and multi-select questions have sample answers that are selected from the available responses.
+adminApiDocs.accordion.paragraph1=預覽應用程式介面回應可以讓您知道，一個計畫的應用程式介面回應看起來會是什麼樣子。其中所使用的資料都是虛構的。單選和多選題都會有由可用回應中選出的樣本答案。
 # Second paragraph inside the accordion as text before the shareable link.
-adminApiDocs.accordion.paragraph2.beforeLink=You may share this link,
+adminApiDocs.accordion.paragraph2.beforeLink=您可以分享此連結，
 # Second paragraph inside the accordion as text after the shareable link.
 adminApiDocs.accordion.paragraph2.afterLink=給任何需要檢視應用程式介面說明書的人。存取這些檔案無須登入，因此即便他們不是 CiviForm 管理員或計畫管理員，仍然能檢視此頁面。
 
 # Label for the program selector.
 adminApiDocs.selectProgram=選擇一個計畫：
 # Label for the program-version selector.
-adminApiDocs.selectVersion=Select version:
+adminApiDocs.selectVersion=選擇版本：
 # Option label for the active version of a program.
-adminApiDocs.version.active=Active
+adminApiDocs.version.active=活躍的
 # Option label for the draft version of a program.
 adminApiDocs.version.draft=草稿
 
 # Message shown when the requested program + version combination does not exist.
 adminApiDocs.notFound=找不到任何計畫。請先新增並發布一個計畫，再嘗試存取應用程式介面說明書。
 # Heading for the list of questions on the selected program.
-adminApiDocs.questions=Questions
+adminApiDocs.questions=問題
 # Label for a question's admin name
 adminApiDocs.adminName=管理員名稱
 # Label for a question's type (text, number, etc.).
 adminApiDocs.type=類別
 # Label for a question's display text.
-adminApiDocs.text=Text
+adminApiDocs.text=文字
 # Label for a multi-option question's answer options.
-adminApiDocs.options=Options
+adminApiDocs.options=選項
 # Label preceding the list of a question's currently-available options.
-adminApiDocs.currentOptions=Current options:
+adminApiDocs.currentOptions=目前選項：
 # Label preceding the list of every option the question has ever had.
 adminApiDocs.allOptions=所有可能選項：
 # Heading above the JSON preview of the API response.
@@ -1387,7 +1387,7 @@ adminSchemaViewer.pageTitle=應用程式介面圖表檢視器
 # First intro paragraph on the OpenAPI schema viewer page.
 adminSchemaViewer.intro1=此頁面顯示了視覺化的 OpenAPI 圖表。2 版（先前的 Swagger 2）和 3 版皆可使用。
 # Second intro paragraph on the OpenAPI schema viewer page.
-adminSchemaViewer.intro2=We recommend only using version 3 unless there is a specific need for the older format.
+adminSchemaViewer.intro2=除非您有使用較舊格式的特殊需求，我們建議您單獨使用 3 版。
 # Label for the program selector on the schema viewer page.
 adminSchemaViewer.selectProgram=計畫：
 # Label for the program-status selector on the schema viewer page.
@@ -1395,7 +1395,7 @@ adminSchemaViewer.selectStatus=狀態：
 # Label for the OpenAPI version selector on the schema viewer page.
 adminSchemaViewer.selectVersion=OpenApi 版本：
 # Error generating OpenAPI YAML
-adminSchemaViewer.yamlError=Unable to generate OpenApi version '{0}' for program '{1}' at stage '{2}'.
+adminSchemaViewer.yamlError=無法生成於階段 '{2}' 的 OpenApi 版本 '{0}' 供計畫 '{1}' 使用。
 
 #------------------------------------------------------------------------------#
 #  DEV TOOLS - text for the developer tools page                               #
