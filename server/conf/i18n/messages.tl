@@ -559,19 +559,19 @@ title.adminProgramImage=Pag-upload ng larawan
 # Link text to return to program editing from the program image page.
 link.adminProgramImage.back=Bumalik
 # Hint under the file input about maximum upload size for a program summary image.
-content.adminProgramImage.hintMaxSize=The maximum size for image upload is 1MB.
+content.adminProgramImage.hintMaxSize=Ang pinakamalaking laki para sa pag-upload ng larawan ay 1MB.
 # Hint explaining automatic 16x9 cropping and that the preview reflects saved images.
 content.adminProgramImage.hintCrop=Ang larawan ay awtomatikong iko-crop sa 16x9. Ipinapakita ng preview ng card ng programa sa kanan ang naka-save na larawan.
 # Label for the field where the admin enters alt text for the program summary image.
-label.adminProgramImage.altText=Enter image description (Alt Text)
+label.adminProgramImage.altText=Ilagay ang paglalarawan ng larawan (Alt Text)
 # Button to leave the program image step and continue program setup (creation flow).
 button.adminProgramImage.continue=Magpatuloy
 # Button to save and return when editing an existing program (non-creation flow).
 button.adminProgramImage.save=I-save
 # Button to delete an uploaded program image
-button.adminProgramImage.delete=Delete image
+button.adminProgramImage.delete=Tanggalin ang larawan
 # Message shown when alt text is required but missing.
-validation.adminProgramImage.altTextRequired=Image description is required when a program image is uploaded.
+validation.adminProgramImage.altTextRequired=Ang paglalarawan ng larawan ay kinakailangan kapag nag-upload ng isang larawan ng programa.
 # Toast after saving a program image and alt text together.
 toast.adminProgramImage.imageAndDescriptionSaved=Nai-save ang larawan gamit ang paglalarawan na: {0}
 # Toast after saving alt text without uploading a new file.
@@ -581,7 +581,7 @@ toast.adminProgramImage.descriptionNotRemovable=Ang paglalarawan ay hindi maaari
 # Toast after deleting a program image
 toast.adminProgramImage.imageRemoved=Inalis ang larawan
 # Message when the program card preview cannot be rendered.
-content.adminProgramImage.cardPreviewError=Error generating card preview
+content.adminProgramImage.cardPreviewError=Error sa pagbuo ng preview ng card
 
 #--------------------------------------------------------------------------------------------------------------#
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
@@ -703,7 +703,7 @@ validation.noPoBox=Maaari lamang na ilagay ang wasto na adres. Kami ay hindi nat
 title.confirmAddress=Kumpirmahin ang iyong address
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
 content.confirmAddressLine1=Hindi namin nahanap ang iyong address.
-content.confirmAddressLine1.v2=Address confirmation needed.
+content.confirmAddressLine1.v2=Kailangan ang kompirmasyon ng address.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=Pakitingnan kung tama ang spelling ng address mo o pumili ng opsyon sa listahang ibinigay.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
@@ -815,7 +815,7 @@ validation.fileRequired=Maaari lamang ay pumili ng file.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Masyadong malaki ang iyong file. Pumili ng file na wala pang {0} MB.
 # Shown when an HTMX file upload request fails (any non-success response).
-validation.fileUploadRequestFailed=We couldn't upload your file. Please try again.
+validation.fileUploadRequestFailed=Hindi namin mai-upload ang iyong file. Mangyaring subukang muli.
 # Text shown on a tag while a file is uploading.
 label.uploading=Ina-upload
 # Label applied to a list of uploaded files
@@ -1325,14 +1325,14 @@ reportingProgram.downloadCsv=I-download ang CSV
 #------------------------------------------------------------------------------#
 
 # Admin API Docs page title
-adminApiDocs.pageTitle=API documentation
+adminApiDocs.pageTitle=Dokumentasyon ng API
 
 # Aria label for the nav that switches between API docs sub-pages.
 adminApiDocs.tabs.ariaLabel=Mga seksyon ng dokumentasyon ng API
 # Tab label for the main API docs page.
 adminApiDocs.tabs.docs=Mga dokumento
 # Tab label for the schema viewer page.
-adminApiDocs.tabs.schema=Schema viewer
+adminApiDocs.tabs.schema=Tagatingin ng schema
 
 # Intro paragraph as text before the external-docs link.
 adminApiDocs.intro.beforeLink=This page includes program-specific API Documentation for Active and Draft programs. Detailed documentation about authentication, pagination, and every field's possible values is located at
@@ -1360,17 +1360,17 @@ adminApiDocs.version.active=Active
 adminApiDocs.version.draft=Draft
 
 # Message shown when the requested program + version combination does not exist.
-adminApiDocs.notFound=No programs found. Please create and publish a program before accessing API docs.
+adminApiDocs.notFound=Walang nakitang mga programa. Mangyaring gumawa at mag-publish ng programa bago mag-access ng mga dokumento ng API.
 # Heading for the list of questions on the selected program.
 adminApiDocs.questions=Mga Tanong
 # Label for a question's admin name
 adminApiDocs.adminName=Pangalan ng Admin
 # Label for a question's type (text, number, etc.).
-adminApiDocs.type=Type
+adminApiDocs.type=Uri
 # Label for a question's display text.
 adminApiDocs.text=Teksto
 # Label for a multi-option question's answer options.
-adminApiDocs.options=Options
+adminApiDocs.options=Mga Opsyon
 # Label preceding the list of a question's currently-available options.
 adminApiDocs.currentOptions=Current options:
 # Label preceding the list of every option the question has ever had.
@@ -1393,7 +1393,7 @@ adminSchemaViewer.selectProgram=Programa:
 # Label for the program-status selector on the schema viewer page.
 adminSchemaViewer.selectStatus=Katayuan:
 # Label for the OpenAPI version selector on the schema viewer page.
-adminSchemaViewer.selectVersion=OpenApi Version:
+adminSchemaViewer.selectVersion=Bersyon ng OpenAPI:
 # Error generating OpenAPI YAML
 adminSchemaViewer.yamlError=Hindi mabuo ang bersyon ng OpenAPI na '{0}' para sa programang '{1}' sa yugtong '{2}'.
 
