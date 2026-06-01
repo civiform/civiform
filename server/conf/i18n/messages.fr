@@ -555,33 +555,33 @@ button.homePage=Retour à la page d''accueil
 #--------------------------------------------------------------------------------------------------------------#
 
 # Title of the admin page where a program''s summary image and alt text are set.
-title.adminProgramImage=Image upload
+title.adminProgramImage=Importation d'image\n
 # Link text to return to program editing from the program image page.
-link.adminProgramImage.back=Back
+link.adminProgramImage.back=Retour
 # Hint under the file input about maximum upload size for a program summary image.
-content.adminProgramImage.hintMaxSize=The maximum size for image upload is 1MB.
+content.adminProgramImage.hintMaxSize=La taille maximale d'importation d'une image est de 1 Mo.
 # Hint explaining automatic 16x9 cropping and that the preview reflects saved images.
-content.adminProgramImage.hintCrop=The image will be automatically cropped to 16x9. The program card preview on the right shows the saved image.
+content.adminProgramImage.hintCrop=L'image sera automatiquement recadrée au format 16:9. L'aperçu de la fiche de programme à droite affiche l'image enregistrée.
 # Label for the field where the admin enters alt text for the program summary image.
-label.adminProgramImage.altText=Enter image description (Alt Text)
+label.adminProgramImage.altText=Saisissez une description de l'image (Texte alternatif)
 # Button to leave the program image step and continue program setup (creation flow).
-button.adminProgramImage.continue=Continue
+button.adminProgramImage.continue=Continuer
 # Button to save and return when editing an existing program (non-creation flow).
-button.adminProgramImage.save=Save
+button.adminProgramImage.save=Enregistrer
 # Button to delete an uploaded program image
-button.adminProgramImage.delete=Delete image
+button.adminProgramImage.delete=Supprimer l'image
 # Message shown when alt text is required but missing.
-validation.adminProgramImage.altTextRequired=Image description is required when a program image is uploaded.
+validation.adminProgramImage.altTextRequired=Une description de l'image est requise lors de l'importation d'une image de programme.
 # Toast after saving a program image and alt text together.
-toast.adminProgramImage.imageAndDescriptionSaved=Image is saved with the description: {0}
+toast.adminProgramImage.imageAndDescriptionSaved=Image enregistrée avec la description : {0}
 # Toast after saving alt text without uploading a new file.
-toast.adminProgramImage.descriptionSet=Image description set to {0}
+toast.adminProgramImage.descriptionSet=Description de l'image : {0}
 # Error when alt text cannot be cleared while an image remains.
-toast.adminProgramImage.descriptionNotRemovable=Description can't be removed because an image is present. Delete the image before deleting the description.
+toast.adminProgramImage.descriptionNotRemovable=La description ne peut pas être supprimée en raison de la présence d'une image. Supprimez l'image avant de supprimer la description.
 # Toast after deleting a program image
-toast.adminProgramImage.imageRemoved=Image removed
+toast.adminProgramImage.imageRemoved=Image supprimée
 # Message when the program card preview cannot be rendered.
-content.adminProgramImage.cardPreviewError=Error generating card preview
+content.adminProgramImage.cardPreviewError=Erreur lors de la génération de l'aperçu de la fiche
 
 #--------------------------------------------------------------------------------------------------------------#
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
@@ -703,7 +703,7 @@ validation.noPoBox=Veuillez saisir une adresse valide. Les boîtes postales ne s
 title.confirmAddress=Confirmez votre adresse
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
 content.confirmAddressLine1=Adresse introuvable.
-content.confirmAddressLine1.v2=Address confirmation needed.
+content.confirmAddressLine1.v2=Confirmation d'adresse requise.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=Veuillez vérifier que votre adresse est exacte, ou sélectionnez une option dans la liste.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
@@ -815,7 +815,7 @@ validation.fileRequired=Veuillez sélectionner un fichier.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Le fichier est trop volumineux. Veuillez en choisir un de moins de {0} Mo.
 # Shown when an HTMX file upload request fails (any non-success response).
-validation.fileUploadRequestFailed=We couldn't upload your file. Please try again.
+validation.fileUploadRequestFailed=Impossible d'importer votre fichier. Veuillez réessayer.
 # Text shown on a tag while a file is uploading.
 label.uploading=Importation
 # Label applied to a list of uploaded files
@@ -1325,77 +1325,77 @@ reportingProgram.downloadCsv=Télécharger le CSV
 #------------------------------------------------------------------------------#
 
 # Admin API Docs page title
-adminApiDocs.pageTitle=API documentation
+adminApiDocs.pageTitle=Documentation API
 
 # Aria label for the nav that switches between API docs sub-pages.
-adminApiDocs.tabs.ariaLabel=API documentation sections
+adminApiDocs.tabs.ariaLabel=Sections de la documentation API
 # Tab label for the main API docs page.
 adminApiDocs.tabs.docs=Docs
 # Tab label for the schema viewer page.
-adminApiDocs.tabs.schema=Schema viewer
+adminApiDocs.tabs.schema=Visionneuse de schéma
 
 # Intro paragraph as text before the external-docs link.
-adminApiDocs.intro.beforeLink=This page includes program-specific API Documentation for Active and Draft programs. Detailed documentation about authentication, pagination, and every field's possible values is located at
+adminApiDocs.intro.beforeLink=Cette page contient la documentation API spécifique aux programmes actifs et brouillons. Une documentation détaillée sur l'authentification, la pagination et les valeurs possibles de chaque champ est disponible à l'adresse :
 # Visible text of the external-docs link in the intro paragraph.
 adminApiDocs.intro.linkText=docs.civiform.us/it-manual/api
 # Intro paragraph as text after the external-docs link.
 adminApiDocs.intro.afterLink=.
 
 # Heading on the collapsible "How does this work?" accordion.
-adminApiDocs.accordion.heading=How does this work?
+adminApiDocs.accordion.heading=Comment ça marche ?
 # First paragraph inside the accordion.
-adminApiDocs.accordion.paragraph1=The API response preview is a sample of what the API response might look like for a given program. All data is fake. Single-select and multi-select questions have sample answers that are selected from the available responses.
+adminApiDocs.accordion.paragraph1=L’aperçu de la réponse de l’API est un exemple de ce à quoi pourrait ressembler la réponse de l’API pour un programme donné. Toutes les données sont fictives. Les questions à choix unique et à choix multiple proposent des exemples de réponses sélectionnées parmi les réponses disponibles.
 # Second paragraph inside the accordion as text before the shareable link.
-adminApiDocs.accordion.paragraph2.beforeLink=You may share this link,
+adminApiDocs.accordion.paragraph2.beforeLink=Vous pouvez partager ce lien,
 # Second paragraph inside the accordion as text after the shareable link.
-adminApiDocs.accordion.paragraph2.afterLink=, with anyone who needs to see API docs. It is accessible without logging in, so they do not need to be a CiviForm Admin or Program Admin to view this page.
+adminApiDocs.accordion.paragraph2.afterLink=, avec toute personne ayant besoin de consulter la documentation de l’API. Il est accessible sans connexion ; il n’est donc pas nécessaire d’être administrateur CiviForm ou administrateur de programme pour consulter cette page.
 
 # Label for the program selector.
-adminApiDocs.selectProgram=Select a program:
+adminApiDocs.selectProgram=Sélectionnez un programme :
 # Label for the program-version selector.
-adminApiDocs.selectVersion=Select version:
+adminApiDocs.selectVersion=Sélectionnez une version :
 # Option label for the active version of a program.
-adminApiDocs.version.active=Active
+adminApiDocs.version.active=Actif
 # Option label for the draft version of a program.
-adminApiDocs.version.draft=Draft
+adminApiDocs.version.draft=Brouillon
 
 # Message shown when the requested program + version combination does not exist.
-adminApiDocs.notFound=No programs found. Please create and publish a program before accessing API docs.
+adminApiDocs.notFound=Aucun programme trouvé. Veuillez créer et publier un programme avant d’accéder à la documentation de l’API.
 # Heading for the list of questions on the selected program.
 adminApiDocs.questions=Questions
 # Label for a question's admin name
-adminApiDocs.adminName=Admin Name
+adminApiDocs.adminName=Nom de l’admin
 # Label for a question's type (text, number, etc.).
 adminApiDocs.type=Type
 # Label for a question's display text.
-adminApiDocs.text=Text
+adminApiDocs.text=Texte
 # Label for a multi-option question's answer options.
 adminApiDocs.options=Options
 # Label preceding the list of a question's currently-available options.
-adminApiDocs.currentOptions=Current options:
+adminApiDocs.currentOptions=Options actuelles :
 # Label preceding the list of every option the question has ever had.
-adminApiDocs.allOptions=All possible options:
+adminApiDocs.allOptions=Toutes les options possibles :
 # Heading above the JSON preview of the API response.
-adminApiDocs.responsePreview=API response preview
+adminApiDocs.responsePreview=Aperçu de la réponse de l’API
 
 #------------------------------------------------------------------------------#
 #  ADMIN SCHEMA VIEWER                                                         #
 #------------------------------------------------------------------------------#
 
 # Admin API Docs page title
-adminSchemaViewer.pageTitle=API schema viewer
+adminSchemaViewer.pageTitle=Visionneuse de schéma de l’API
 # First intro paragraph on the OpenAPI schema viewer page.
-adminSchemaViewer.intro1=This page shows a visualization of the OpenAPI Schema. Both version 2 (formerly Swagger 2) and version 3 are available.
+adminSchemaViewer.intro1=Cette page présente une visualisation du schéma OpenAPI. Les versions 2 (anciennement Swagger 2) et 3 sont disponibles.
 # Second intro paragraph on the OpenAPI schema viewer page.
-adminSchemaViewer.intro2=We recommend only using version 3 unless there is a specific need for the older format.
+adminSchemaViewer.intro2=Nous recommandons d'utiliser uniquement la version 3, sauf besoin spécifique du format antérieur.
 # Label for the program selector on the schema viewer page.
-adminSchemaViewer.selectProgram=Program:
+adminSchemaViewer.selectProgram=Programme :
 # Label for the program-status selector on the schema viewer page.
-adminSchemaViewer.selectStatus=Status:
+adminSchemaViewer.selectStatus=Statut :
 # Label for the OpenAPI version selector on the schema viewer page.
-adminSchemaViewer.selectVersion=OpenApi Version:
+adminSchemaViewer.selectVersion=Version OpenAP :
 # Error generating OpenAPI YAML
-adminSchemaViewer.yamlError=Unable to generate OpenApi version '{0}' for program '{1}' at stage '{2}'.
+adminSchemaViewer.yamlError=Impossible de générer la version OpenAPI « {0} » pour le programme « {1} » à l'étape « {2} ».
 
 #------------------------------------------------------------------------------#
 #  DEV TOOLS - text for the developer tools page                               #
