@@ -904,6 +904,21 @@ export class ApplicantQuestions {
     await expect(this.page.getByText('Edit my responses')).toBeVisible()
   }
 
+  async expectTranslatedIneligiblePage() {
+    await expect(this.page).toHaveTitle('Pas éligible au programme')
+
+    await expect(
+      this.page
+        .getByText("Vous n'êtes peut-être pas éligible à ce programme")
+        .and(this.page.getByRole('heading')),
+    ).toBeVisible()
+
+    await expect(
+      this.page.getByText("S'inscrire à un autre programme"),
+    ).toBeVisible()
+    await expect(this.page.getByText('Modifier mes réponses')).toBeVisible()
+  }
+
   async clickGoBackAndEditOnIneligiblePage() {
     await this.page
       .getByRole('button', {

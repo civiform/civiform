@@ -301,7 +301,7 @@ public abstract class ApplicantBaseView {
             .url();
   }
 
-  // TODO #13157: use program slug review and blockEditOrBlockReview routes
+  // TODO #13157: remove call to blockEditOrBlockReview
   /**
    * Calculate the redirect location after the language is changed. If the current request is a
    * POST, the redirect is mapped to the associated GET uri.
@@ -329,14 +329,6 @@ public abstract class ApplicantBaseView {
       programId = Long.parseLong(routeExtractor.getParamStringValue("programParam"));
     }
 
-    // If the language was changed during /submit, redirect to /review
-    if (request.path().contains("submit")) {
-      String submitRedirectUri =
-          applicantId.isPresent() && profile.isPresent()
-              ? applicantRoutes.review(profile.get(), applicantId.get(), programId).url()
-              : applicantRoutes.review(programId).url();
-      return submitRedirectUri;
-    }
     // If the language was changed during a block update, redirect to /block/edit or /block/review
     if (routeExtractor.containsKey("blockId") && profile.isPresent() && applicantId.isPresent()) {
       boolean inReview =

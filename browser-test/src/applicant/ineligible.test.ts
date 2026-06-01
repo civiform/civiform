@@ -244,7 +244,7 @@ test.describe('Ineligible Page Tests', () => {
     await validateAccessibility(page)
   })
 
-  test('Changing language on ineligible page after block edit redirects to block edit', async ({
+  test('Changing language on ineligible page after block edit rerenders translated ineligible page', async ({
     page,
     applicantQuestions,
   }) => {
@@ -265,12 +265,13 @@ test.describe('Ineligible Page Tests', () => {
       await selectApplicantLanguage(page, 'fr')
     })
 
-    await test.step('Expect first block edit', async () => {
-      await applicantQuestions.validateQuestionIsOnPage(questionText)
+    await test.step('Expect ineligible page', async () => {
+      await applicantQuestions.expectTranslatedIneligiblePage()
+      await expect(page.getByText(questionText)).toBeVisible()
     })
   })
 
-  test('Changing language on ineligible page after block review redirects to block review', async ({
+  test('Changing language on ineligible page after block review rerenders translated ineligible page', async ({
     page,
     applicantQuestions,
   }) => {
@@ -303,12 +304,13 @@ test.describe('Ineligible Page Tests', () => {
       await selectApplicantLanguage(page, 'fr')
     })
 
-    await test.step('Expect block review page', async () => {
-      await applicantQuestions.validateQuestionIsOnPage(questionText)
+    await test.step('Expect ineligible page again', async () => {
+      await applicantQuestions.expectTranslatedIneligiblePage()
+      await expect(page.getByText(questionText)).toBeVisible()
     })
   })
 
-  test('Changing language on ineligible page after application submit redirects to review', async ({
+  test('Changing language on ineligible page after application submit rerenders translated ineligible page', async ({
     page,
     applicantQuestions,
   }) => {
@@ -339,8 +341,9 @@ test.describe('Ineligible Page Tests', () => {
       await selectApplicantLanguage(page, 'fr')
     })
 
-    await test.step('Expect review page', async () => {
-      await applicantQuestions.expectReviewPage()
+    await test.step('Expect ineligible page again', async () => {
+      await applicantQuestions.expectTranslatedIneligiblePage()
+      await expect(page.getByText(questionText)).toBeVisible()
     })
   })
 })
