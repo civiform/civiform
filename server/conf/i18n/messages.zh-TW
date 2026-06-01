@@ -555,33 +555,33 @@ button.homePage=返回首頁
 #--------------------------------------------------------------------------------------------------------------#
 
 # Title of the admin page where a program''s summary image and alt text are set.
-title.adminProgramImage=Image upload
+title.adminProgramImage=上傳圖檔
 # Link text to return to program editing from the program image page.
-link.adminProgramImage.back=Back
+link.adminProgramImage.back=返回
 # Hint under the file input about maximum upload size for a program summary image.
 content.adminProgramImage.hintMaxSize=The maximum size for image upload is 1MB.
 # Hint explaining automatic 16x9 cropping and that the preview reflects saved images.
 content.adminProgramImage.hintCrop=The image will be automatically cropped to 16x9. The program card preview on the right shows the saved image.
 # Label for the field where the admin enters alt text for the program summary image.
-label.adminProgramImage.altText=Enter image description (Alt Text)
+label.adminProgramImage.altText=輸入圖檔描述（替代文字）
 # Button to leave the program image step and continue program setup (creation flow).
-button.adminProgramImage.continue=Continue
+button.adminProgramImage.continue=繼續
 # Button to save and return when editing an existing program (non-creation flow).
-button.adminProgramImage.save=Save
+button.adminProgramImage.save=儲存
 # Button to delete an uploaded program image
-button.adminProgramImage.delete=Delete image
+button.adminProgramImage.delete=刪除圖檔
 # Message shown when alt text is required but missing.
 validation.adminProgramImage.altTextRequired=Image description is required when a program image is uploaded.
 # Toast after saving a program image and alt text together.
 toast.adminProgramImage.imageAndDescriptionSaved=Image is saved with the description: {0}
 # Toast after saving alt text without uploading a new file.
-toast.adminProgramImage.descriptionSet=Image description set to {0}
+toast.adminProgramImage.descriptionSet=圖檔描述設為 {0}
 # Error when alt text cannot be cleared while an image remains.
-toast.adminProgramImage.descriptionNotRemovable=Description can't be removed because an image is present. Delete the image before deleting the description.
+toast.adminProgramImage.descriptionNotRemovable=無法在圖檔仍存在時移除其圖檔描述。請先刪除圖檔，再刪除圖檔描述。
 # Toast after deleting a program image
 toast.adminProgramImage.imageRemoved=Image removed
 # Message when the program card preview cannot be rendered.
-content.adminProgramImage.cardPreviewError=Error generating card preview
+content.adminProgramImage.cardPreviewError=生成卡片預覽時發生錯誤
 
 #--------------------------------------------------------------------------------------------------------------#
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
@@ -1325,10 +1325,10 @@ reportingProgram.downloadCsv=下載 CSV
 #------------------------------------------------------------------------------#
 
 # Admin API Docs page title
-adminApiDocs.pageTitle=API documentation
+adminApiDocs.pageTitle=應用程式介面說明書
 
 # Aria label for the nav that switches between API docs sub-pages.
-adminApiDocs.tabs.ariaLabel=API documentation sections
+adminApiDocs.tabs.ariaLabel=應用程式介面說明書段落
 # Tab label for the main API docs page.
 adminApiDocs.tabs.docs=Docs
 # Tab label for the schema viewer page.
@@ -1348,25 +1348,25 @@ adminApiDocs.accordion.paragraph1=The API response preview is a sample of what t
 # Second paragraph inside the accordion as text before the shareable link.
 adminApiDocs.accordion.paragraph2.beforeLink=You may share this link,
 # Second paragraph inside the accordion as text after the shareable link.
-adminApiDocs.accordion.paragraph2.afterLink=, with anyone who needs to see API docs. It is accessible without logging in, so they do not need to be a CiviForm Admin or Program Admin to view this page.
+adminApiDocs.accordion.paragraph2.afterLink=給任何需要檢視應用程式介面說明書的人。存取這些檔案無須登入，因此即便他們不是 CiviForm 管理員或計畫管理員，仍然能檢視此頁面。
 
 # Label for the program selector.
-adminApiDocs.selectProgram=Select a program:
+adminApiDocs.selectProgram=選擇一個計畫：
 # Label for the program-version selector.
 adminApiDocs.selectVersion=Select version:
 # Option label for the active version of a program.
 adminApiDocs.version.active=Active
 # Option label for the draft version of a program.
-adminApiDocs.version.draft=Draft
+adminApiDocs.version.draft=草稿
 
 # Message shown when the requested program + version combination does not exist.
-adminApiDocs.notFound=No programs found. Please create and publish a program before accessing API docs.
+adminApiDocs.notFound=找不到任何計畫。請先新增並發布一個計畫，再嘗試存取應用程式介面說明書。
 # Heading for the list of questions on the selected program.
 adminApiDocs.questions=Questions
 # Label for a question's admin name
-adminApiDocs.adminName=Admin Name
+adminApiDocs.adminName=管理員名稱
 # Label for a question's type (text, number, etc.).
-adminApiDocs.type=Type
+adminApiDocs.type=類別
 # Label for a question's display text.
 adminApiDocs.text=Text
 # Label for a multi-option question's answer options.
@@ -1374,26 +1374,26 @@ adminApiDocs.options=Options
 # Label preceding the list of a question's currently-available options.
 adminApiDocs.currentOptions=Current options:
 # Label preceding the list of every option the question has ever had.
-adminApiDocs.allOptions=All possible options:
+adminApiDocs.allOptions=所有可能選項：
 # Heading above the JSON preview of the API response.
-adminApiDocs.responsePreview=API response preview
+adminApiDocs.responsePreview=預覽應用程式介面回應
 
 #------------------------------------------------------------------------------#
 #  ADMIN SCHEMA VIEWER                                                         #
 #------------------------------------------------------------------------------#
 
 # Admin API Docs page title
-adminSchemaViewer.pageTitle=API schema viewer
+adminSchemaViewer.pageTitle=應用程式介面圖表檢視器
 # First intro paragraph on the OpenAPI schema viewer page.
-adminSchemaViewer.intro1=This page shows a visualization of the OpenAPI Schema. Both version 2 (formerly Swagger 2) and version 3 are available.
+adminSchemaViewer.intro1=此頁面顯示了視覺化的 OpenAPI 圖表。2 版（先前的 Swagger 2）和 3 版皆可使用。
 # Second intro paragraph on the OpenAPI schema viewer page.
 adminSchemaViewer.intro2=We recommend only using version 3 unless there is a specific need for the older format.
 # Label for the program selector on the schema viewer page.
-adminSchemaViewer.selectProgram=Program:
+adminSchemaViewer.selectProgram=計畫：
 # Label for the program-status selector on the schema viewer page.
-adminSchemaViewer.selectStatus=Status:
+adminSchemaViewer.selectStatus=狀態：
 # Label for the OpenAPI version selector on the schema viewer page.
-adminSchemaViewer.selectVersion=OpenApi Version:
+adminSchemaViewer.selectVersion=OpenApi 版本：
 # Error generating OpenAPI YAML
 adminSchemaViewer.yamlError=Unable to generate OpenApi version '{0}' for program '{1}' at stage '{2}'.
 
