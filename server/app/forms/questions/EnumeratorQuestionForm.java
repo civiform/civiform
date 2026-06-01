@@ -1,4 +1,4 @@
-package forms;
+package forms.questions;
 
 import java.util.OptionalInt;
 import services.LocalizedStrings;

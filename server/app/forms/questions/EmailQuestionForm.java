@@ -1,4 +1,4 @@
-package forms;
+package forms.questions;
 
 import services.question.types.EmailQuestionDefinition;
 import services.question.types.QuestionType;

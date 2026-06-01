@@ -1,4 +1,4 @@
-package forms;
+package forms.questions;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;

@@ -3,6 +3,7 @@ package forms;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
+import forms.questions.RadioButtonQuestionForm;
 import java.util.Locale;
 import java.util.UUID;
 import org.junit.Test;

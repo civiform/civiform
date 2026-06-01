@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableSet;
+import forms.questions.QuestionForm;
 import java.util.UUID;
 import models.QuestionDisplayMode;
 import org.junit.Test;

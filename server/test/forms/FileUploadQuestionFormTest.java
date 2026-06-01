@@ -3,6 +3,7 @@ package forms;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 
+import forms.questions.FileUploadQuestionForm;
 import java.util.Locale;
 import java.util.OptionalInt;
 import java.util.UUID;

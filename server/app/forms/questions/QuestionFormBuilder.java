@@ -1,4 +1,4 @@
-package forms;
+package forms.questions;
 
 import play.data.FormFactory;
 import play.mvc.Http.Request;

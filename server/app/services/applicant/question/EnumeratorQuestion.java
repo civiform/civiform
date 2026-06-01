@@ -4,7 +4,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import forms.EnumeratorQuestionForm;
+import forms.questions.EnumeratorQuestionForm;
 import java.util.OptionalInt;
 import services.MessageKey;
 import services.Path;

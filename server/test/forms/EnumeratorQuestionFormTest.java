@@ -2,6 +2,7 @@ package forms;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import forms.questions.EnumeratorQuestionForm;
 import java.util.Locale;
 import java.util.OptionalInt;
 import java.util.UUID;

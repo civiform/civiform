@@ -1,4 +1,4 @@
-package forms;
+package forms.questions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

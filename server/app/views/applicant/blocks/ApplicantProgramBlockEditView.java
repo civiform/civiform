@@ -7,7 +7,7 @@ import com.google.inject.Inject;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
-import forms.EnumeratorQuestionForm;
+import forms.questions.EnumeratorQuestionForm;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

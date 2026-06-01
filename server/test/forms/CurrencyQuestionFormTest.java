@@ -2,6 +2,7 @@ package forms;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import forms.questions.CurrencyQuestionForm;
 import java.util.Locale;
 import java.util.UUID;
 import org.junit.Test;

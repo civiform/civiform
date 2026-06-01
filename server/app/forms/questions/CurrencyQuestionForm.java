@@ -1,4 +1,4 @@
-package forms;
+package forms.questions;
 
 import services.question.types.CurrencyQuestionDefinition;
 import services.question.types.QuestionType;

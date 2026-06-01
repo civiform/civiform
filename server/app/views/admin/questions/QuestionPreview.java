@@ -5,7 +5,7 @@ import com.google.auto.value.AutoValue;
 import com.google.inject.Inject;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
-import forms.EnumeratorQuestionForm;
+import forms.questions.EnumeratorQuestionForm;
 import java.util.Optional;
 import models.ApplicantModel;
 import modules.ThymeleafModule;

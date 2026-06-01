@@ -1,22 +1,22 @@
-package forms;
+package forms.questions;
 
 import java.util.OptionalInt;
+import services.question.types.IdQuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
-import services.question.types.TextQuestionDefinition;
 
-/** Form for updating a text question. */
-public class TextQuestionForm extends QuestionForm {
+/** Form for updating an id question. */
+public class IdQuestionForm extends QuestionForm {
   private OptionalInt minLength;
   private OptionalInt maxLength;
 
-  public TextQuestionForm() {
+  public IdQuestionForm() {
     super();
     this.minLength = OptionalInt.empty();
     this.maxLength = OptionalInt.empty();
   }
 
-  public TextQuestionForm(TextQuestionDefinition qd) {
+  public IdQuestionForm(IdQuestionDefinition qd) {
     super(qd);
     this.minLength = qd.getMinLength();
     this.maxLength = qd.getMaxLength();
@@ -24,7 +24,7 @@ public class TextQuestionForm extends QuestionForm {
 
   @Override
   public QuestionType getQuestionType() {
-    return QuestionType.TEXT;
+    return QuestionType.ID;
   }
 
   public OptionalInt getMinLength() {
@@ -63,12 +63,12 @@ public class TextQuestionForm extends QuestionForm {
 
   @Override
   public QuestionDefinitionBuilder getBuilder() {
-    TextQuestionDefinition.TextValidationPredicates.Builder textValidationPredicatesBuilder =
-        TextQuestionDefinition.TextValidationPredicates.builder();
+    IdQuestionDefinition.IdValidationPredicates.Builder idValidationPredicatesBuilder =
+        IdQuestionDefinition.IdValidationPredicates.builder();
 
-    textValidationPredicatesBuilder.setMinLength(getMinLength());
-    textValidationPredicatesBuilder.setMaxLength(getMaxLength());
+    idValidationPredicatesBuilder.setMinLength(getMinLength());
+    idValidationPredicatesBuilder.setMaxLength(getMaxLength());
 
-    return super.getBuilder().setValidationPredicates(textValidationPredicatesBuilder.build());
+    return super.getBuilder().setValidationPredicates(idValidationPredicatesBuilder.build());
   }
 }
