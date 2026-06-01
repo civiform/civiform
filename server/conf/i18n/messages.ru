@@ -555,33 +555,33 @@ button.homePage=Вернуться на главную страницу
 #--------------------------------------------------------------------------------------------------------------#
 
 # Title of the admin page where a program''s summary image and alt text are set.
-title.adminProgramImage=Image upload
+title.adminProgramImage=Изображение загружено
 # Link text to return to program editing from the program image page.
-link.adminProgramImage.back=Back
+link.adminProgramImage.back=Назад
 # Hint under the file input about maximum upload size for a program summary image.
-content.adminProgramImage.hintMaxSize=The maximum size for image upload is 1MB.
+content.adminProgramImage.hintMaxSize=Макс. размер загружаемого изображения составляет 1 МБ.
 # Hint explaining automatic 16x9 cropping and that the preview reflects saved images.
-content.adminProgramImage.hintCrop=The image will be automatically cropped to 16x9. The program card preview on the right shows the saved image.
+content.adminProgramImage.hintCrop=Изображение будет автоматически кадрировано до формата 16х9. Сохраненное изображение отображается справа в окне предпросмотра карточки программы.
 # Label for the field where the admin enters alt text for the program summary image.
-label.adminProgramImage.altText=Enter image description (Alt Text)
+label.adminProgramImage.altText=Введите описание изображения (Alt-текст)
 # Button to leave the program image step and continue program setup (creation flow).
-button.adminProgramImage.continue=Continue
+button.adminProgramImage.continue=Продолжить
 # Button to save and return when editing an existing program (non-creation flow).
-button.adminProgramImage.save=Save
+button.adminProgramImage.save=Сохранить
 # Button to delete an uploaded program image
-button.adminProgramImage.delete=Delete image
+button.adminProgramImage.delete=Удалить изображение
 # Message shown when alt text is required but missing.
-validation.adminProgramImage.altTextRequired=Image description is required when a program image is uploaded.
+validation.adminProgramImage.altTextRequired=При загрузке изображения программы нужно задать описание.
 # Toast after saving a program image and alt text together.
-toast.adminProgramImage.imageAndDescriptionSaved=Image is saved with the description: {0}
+toast.adminProgramImage.imageAndDescriptionSaved=Изображение сохранено со следующим описанием: {0}
 # Toast after saving alt text without uploading a new file.
-toast.adminProgramImage.descriptionSet=Image description set to {0}
+toast.adminProgramImage.descriptionSet=Значение описания изображения: {0}
 # Error when alt text cannot be cleared while an image remains.
-toast.adminProgramImage.descriptionNotRemovable=Description can't be removed because an image is present. Delete the image before deleting the description.
+toast.adminProgramImage.descriptionNotRemovable=Описание не может быть удалено, поскольку имеется связанное изображение. Сначала удалите изображение.
 # Toast after deleting a program image
-toast.adminProgramImage.imageRemoved=Image removed
+toast.adminProgramImage.imageRemoved=Изображение удалено
 # Message when the program card preview cannot be rendered.
-content.adminProgramImage.cardPreviewError=Error generating card preview
+content.adminProgramImage.cardPreviewError=Ошибка создания предпросмотра карточки
 
 #--------------------------------------------------------------------------------------------------------------#
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
@@ -703,7 +703,7 @@ validation.noPoBox=Введите действительный адрес. Не 
 title.confirmAddress=Подтвердите свой адрес
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
 content.confirmAddressLine1=Нам не удалось найти указанный адрес.
-content.confirmAddressLine1.v2=Address confirmation needed.
+content.confirmAddressLine1.v2=Требуется подтверждение адреса.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=Проверьте его на наличие ошибок или выберите вариант из списка предложенных.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
@@ -815,7 +815,7 @@ validation.fileRequired=Выберите файл.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Слишком большой файл. Загрузите файл размером меньше {0} МБ.
 # Shown when an HTMX file upload request fails (any non-success response).
-validation.fileUploadRequestFailed=We couldn't upload your file. Please try again.
+validation.fileUploadRequestFailed=Мы не смогли загрузить ваш файл. Попробуйте еще раз.
 # Text shown on a tag while a file is uploading.
 label.uploading=Загрузка
 # Label applied to a list of uploaded files
@@ -1325,77 +1325,77 @@ reportingProgram.downloadCsv=Скачать CSV
 #------------------------------------------------------------------------------#
 
 # Admin API Docs page title
-adminApiDocs.pageTitle=API documentation
+adminApiDocs.pageTitle=Документация по API
 
 # Aria label for the nav that switches between API docs sub-pages.
-adminApiDocs.tabs.ariaLabel=API documentation sections
+adminApiDocs.tabs.ariaLabel=Разделы документации по API
 # Tab label for the main API docs page.
-adminApiDocs.tabs.docs=Docs
+adminApiDocs.tabs.docs=Документация
 # Tab label for the schema viewer page.
-adminApiDocs.tabs.schema=Schema viewer
+adminApiDocs.tabs.schema=Просмотр схем
 
 # Intro paragraph as text before the external-docs link.
-adminApiDocs.intro.beforeLink=This page includes program-specific API Documentation for Active and Draft programs. Detailed documentation about authentication, pagination, and every field's possible values is located at
+adminApiDocs.intro.beforeLink=На этой странице представлена документация по API для активных и черновых программ. Подробные сведения по аутентификации, разбивке на страницы и возможным значениям всех полей находятся по адресу
 # Visible text of the external-docs link in the intro paragraph.
 adminApiDocs.intro.linkText=docs.civiform.us/it-manual/api
 # Intro paragraph as text after the external-docs link.
 adminApiDocs.intro.afterLink=.
 
 # Heading on the collapsible "How does this work?" accordion.
-adminApiDocs.accordion.heading=How does this work?
+adminApiDocs.accordion.heading=Как это работает?
 # First paragraph inside the accordion.
-adminApiDocs.accordion.paragraph1=The API response preview is a sample of what the API response might look like for a given program. All data is fake. Single-select and multi-select questions have sample answers that are selected from the available responses.
+adminApiDocs.accordion.paragraph1=Предпросмотр ответа API — это лишь пример того, как он может выглядеть в контексте данной программы. Вся приведенная информация является вымышленной. В образцах вопросов с выбором одного или нескольких ответов используются предлагаемые варианты.
 # Second paragraph inside the accordion as text before the shareable link.
-adminApiDocs.accordion.paragraph2.beforeLink=You may share this link,
+adminApiDocs.accordion.paragraph2.beforeLink=Вы можете поделиться ссылкой
 # Second paragraph inside the accordion as text after the shareable link.
-adminApiDocs.accordion.paragraph2.afterLink=, with anyone who needs to see API docs. It is accessible without logging in, so they do not need to be a CiviForm Admin or Program Admin to view this page.
+adminApiDocs.accordion.paragraph2.afterLink=со всеми, кому нужен доступ к документации по API. Она доступна без входа в систему и не требует наличия прав администратора CiviForm или программы.
 
 # Label for the program selector.
-adminApiDocs.selectProgram=Select a program:
+adminApiDocs.selectProgram=Выберите программу:
 # Label for the program-version selector.
-adminApiDocs.selectVersion=Select version:
+adminApiDocs.selectVersion=Выберите версию:
 # Option label for the active version of a program.
-adminApiDocs.version.active=Active
+adminApiDocs.version.active=Активная
 # Option label for the draft version of a program.
-adminApiDocs.version.draft=Draft
+adminApiDocs.version.draft=Черновая
 
 # Message shown when the requested program + version combination does not exist.
-adminApiDocs.notFound=No programs found. Please create and publish a program before accessing API docs.
+adminApiDocs.notFound=Программы не найдены. Для получения документации по API нужно сначала создать и опубликовать хотя бы одну.
 # Heading for the list of questions on the selected program.
-adminApiDocs.questions=Questions
+adminApiDocs.questions=Вопросы
 # Label for a question's admin name
-adminApiDocs.adminName=Admin Name
+adminApiDocs.adminName=Имя администратора
 # Label for a question's type (text, number, etc.).
-adminApiDocs.type=Type
+adminApiDocs.type=Тип
 # Label for a question's display text.
-adminApiDocs.text=Text
+adminApiDocs.text=Текст
 # Label for a multi-option question's answer options.
-adminApiDocs.options=Options
+adminApiDocs.options=Опции
 # Label preceding the list of a question's currently-available options.
-adminApiDocs.currentOptions=Current options:
+adminApiDocs.currentOptions=Текущие опции:
 # Label preceding the list of every option the question has ever had.
-adminApiDocs.allOptions=All possible options:
+adminApiDocs.allOptions=Все возможные опции:
 # Heading above the JSON preview of the API response.
-adminApiDocs.responsePreview=API response preview
+adminApiDocs.responsePreview=Предпросмотр ответа API
 
 #------------------------------------------------------------------------------#
 #  ADMIN SCHEMA VIEWER                                                         #
 #------------------------------------------------------------------------------#
 
 # Admin API Docs page title
-adminSchemaViewer.pageTitle=API schema viewer
+adminSchemaViewer.pageTitle=Просмотр схемы API
 # First intro paragraph on the OpenAPI schema viewer page.
-adminSchemaViewer.intro1=This page shows a visualization of the OpenAPI Schema. Both version 2 (formerly Swagger 2) and version 3 are available.
+adminSchemaViewer.intro1=На этой странице представлена визуализация схемы OpenAPI. Доступны как версия 2 (ранее Swagger 2), так и версия 3.
 # Second intro paragraph on the OpenAPI schema viewer page.
-adminSchemaViewer.intro2=We recommend only using version 3 unless there is a specific need for the older format.
+adminSchemaViewer.intro2=Мы рекомендуем использовать версию 3, за исключением ситуаций, когда старый формат действительно необходим.
 # Label for the program selector on the schema viewer page.
-adminSchemaViewer.selectProgram=Program:
+adminSchemaViewer.selectProgram=Программа:
 # Label for the program-status selector on the schema viewer page.
-adminSchemaViewer.selectStatus=Status:
+adminSchemaViewer.selectStatus=Статус:
 # Label for the OpenAPI version selector on the schema viewer page.
-adminSchemaViewer.selectVersion=OpenApi Version:
+adminSchemaViewer.selectVersion=Версия OpenApi:
 # Error generating OpenAPI YAML
-adminSchemaViewer.yamlError=Unable to generate OpenApi version '{0}' for program '{1}' at stage '{2}'.
+adminSchemaViewer.yamlError=Не удалось сгенерировать документацию OpenAPI версии '{0}' для программы '{1}' на этапе '{2}'.
 
 #------------------------------------------------------------------------------#
 #  DEV TOOLS - text for the developer tools page                               #
