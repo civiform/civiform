@@ -555,9 +555,9 @@ button.homePage=Quay lại trang chủ
 #--------------------------------------------------------------------------------------------------------------#
 
 # Title of the admin page where a program''s summary image and alt text are set.
-title.adminProgramImage=Image upload
+title.adminProgramImage=Tải ảnh lên
 # Link text to return to program editing from the program image page.
-link.adminProgramImage.back=Back
+link.adminProgramImage.back=Quay lại
 # Hint under the file input about maximum upload size for a program summary image.
 content.adminProgramImage.hintMaxSize=The maximum size for image upload is 1MB.
 # Hint explaining automatic 16x9 cropping and that the preview reflects saved images.
@@ -703,7 +703,7 @@ validation.noPoBox=Vui lòng nhập một địa chỉ hợp lệ. Chúng tôi k
 title.confirmAddress=Xác nhận địa chỉ của bạn
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
 content.confirmAddressLine1=Chúng tôi không thể tìm thấy địa chỉ của bạn.
-content.confirmAddressLine1.v2=Address confirmation needed.
+content.confirmAddressLine1.v2=Cần xác nhận địa chỉ.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=Vui lòng kiểm tra xem địa chỉ bạn nhập có lỗi chính tả không hoặc chọn một địa chỉ từ danh sách được cung cấp.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
@@ -815,7 +815,7 @@ validation.fileRequired=Vui lòng chọn một tệp.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Tệp của bạn quá lớn. Vui lòng chọn tệp có kích thước dưới {0} MB.
 # Shown when an HTMX file upload request fails (any non-success response).
-validation.fileUploadRequestFailed=We couldn't upload your file. Please try again.
+validation.fileUploadRequestFailed=Chúng tôi không thể tải lên tập tin của bạn. Vui lòng thử lại.
 # Text shown on a tag while a file is uploading.
 label.uploading=Đang tải lên
 # Label applied to a list of uploaded files
