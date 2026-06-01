@@ -563,23 +563,23 @@ content.adminProgramImage.hintMaxSize=The maximum size for image upload is 1MB.
 # Hint explaining automatic 16x9 cropping and that the preview reflects saved images.
 content.adminProgramImage.hintCrop=سيتم اقتصاص الصورة تلقائيًا إلى 16×9. تعرض معاينة بطاقة البرنامج على اليمين الصورة المحفوظة.
 # Label for the field where the admin enters alt text for the program summary image.
-label.adminProgramImage.altText=Enter image description (Alt Text)
+label.adminProgramImage.altText=أدخل وصف الصورة (نص بديل) 
 # Button to leave the program image step and continue program setup (creation flow).
 button.adminProgramImage.continue=متابعة
 # Button to save and return when editing an existing program (non-creation flow).
 button.adminProgramImage.save=Save
 # Button to delete an uploaded program image
-button.adminProgramImage.delete=Delete image
+button.adminProgramImage.delete=حذف الصورة 
 # Message shown when alt text is required but missing.
 validation.adminProgramImage.altTextRequired=وصف الصورة مطلوب عند رفع صورة برنامج.
 # Toast after saving a program image and alt text together.
 toast.adminProgramImage.imageAndDescriptionSaved=Image is saved with the description: {0}
 # Toast after saving alt text without uploading a new file.
-toast.adminProgramImage.descriptionSet=Image description set to {0}
+toast.adminProgramImage.descriptionSet=تم تعيين وصف الصورة إلى {0}
 # Error when alt text cannot be cleared while an image remains.
-toast.adminProgramImage.descriptionNotRemovable=Description can't be removed because an image is present. Delete the image before deleting the description.
+toast.adminProgramImage.descriptionNotRemovable=لا يمكن حذف الوصف لوجود صورة. احذف الصورة قبل حذف الوصف.
 # Toast after deleting a program image
-toast.adminProgramImage.imageRemoved=Image removed
+toast.adminProgramImage.imageRemoved=تمت إزالة الصورة 
 # Message when the program card preview cannot be rendered.
 content.adminProgramImage.cardPreviewError=Error generating card preview
 
@@ -1330,37 +1330,37 @@ adminApiDocs.pageTitle=وثائق واجهة برمجة التطبيقات (API)
 # Aria label for the nav that switches between API docs sub-pages.
 adminApiDocs.tabs.ariaLabel=API documentation sections
 # Tab label for the main API docs page.
-adminApiDocs.tabs.docs=Docs
+adminApiDocs.tabs.docs=الوثائق 
 # Tab label for the schema viewer page.
-adminApiDocs.tabs.schema=Schema viewer
+adminApiDocs.tabs.schema=عارض المخطط
 
 # Intro paragraph as text before the external-docs link.
 adminApiDocs.intro.beforeLink=This page includes program-specific API Documentation for Active and Draft programs. Detailed documentation about authentication, pagination, and every field's possible values is located at
 # Visible text of the external-docs link in the intro paragraph.
-adminApiDocs.intro.linkText=docs.civiform.us/it-manual/api
+adminApiDocs.intro.linkText=docs.civiform.us/it-manual/api 
 # Intro paragraph as text after the external-docs link.
-adminApiDocs.intro.afterLink=.
+adminApiDocs.intro.afterLink=. 
 
 # Heading on the collapsible "How does this work?" accordion.
-adminApiDocs.accordion.heading=How does this work?
+adminApiDocs.accordion.heading=كيف يعمل هذا؟ 
 # First paragraph inside the accordion.
 adminApiDocs.accordion.paragraph1=The API response preview is a sample of what the API response might look like for a given program. All data is fake. Single-select and multi-select questions have sample answers that are selected from the available responses.
 # Second paragraph inside the accordion as text before the shareable link.
-adminApiDocs.accordion.paragraph2.beforeLink=You may share this link,
+adminApiDocs.accordion.paragraph2.beforeLink=يمكنك مشاركة هذا الرابط،
 # Second paragraph inside the accordion as text after the shareable link.
 adminApiDocs.accordion.paragraph2.afterLink=, with anyone who needs to see API docs. It is accessible without logging in, so they do not need to be a CiviForm Admin or Program Admin to view this page.
 
 # Label for the program selector.
-adminApiDocs.selectProgram=Select a program:
+adminApiDocs.selectProgram=حدد برنامجًا: 
 # Label for the program-version selector.
 adminApiDocs.selectVersion=Select version:
 # Option label for the active version of a program.
 adminApiDocs.version.active=Active
 # Option label for the draft version of a program.
-adminApiDocs.version.draft=Draft
+adminApiDocs.version.draft=مسودة 
 
 # Message shown when the requested program + version combination does not exist.
-adminApiDocs.notFound=No programs found. Please create and publish a program before accessing API docs.
+adminApiDocs.notFound=لم نعثر على برامج. يُرجى إنشاء برنامج ونشره قبل الوصول إلى وثائق واجهة برمجة التطبيقات.
 # Heading for the list of questions on the selected program.
 adminApiDocs.questions=Questions
 # Label for a question's admin name
@@ -1368,22 +1368,22 @@ adminApiDocs.adminName=Admin Name
 # Label for a question's type (text, number, etc.).
 adminApiDocs.type=Type
 # Label for a question's display text.
-adminApiDocs.text=Text
+adminApiDocs.text=نص 
 # Label for a multi-option question's answer options.
 adminApiDocs.options=Options
 # Label preceding the list of a question's currently-available options.
-adminApiDocs.currentOptions=Current options:
+adminApiDocs.currentOptions=الخيارات الحالية: 
 # Label preceding the list of every option the question has ever had.
-adminApiDocs.allOptions=All possible options:
+adminApiDocs.allOptions=جميع الخيارات المتاحة:
 # Heading above the JSON preview of the API response.
-adminApiDocs.responsePreview=API response preview
+adminApiDocs.responsePreview=معاينة استجابة واجهة برمجة التطبيقات
 
 #------------------------------------------------------------------------------#
 #  ADMIN SCHEMA VIEWER                                                         #
 #------------------------------------------------------------------------------#
 
 # Admin API Docs page title
-adminSchemaViewer.pageTitle=API schema viewer
+adminSchemaViewer.pageTitle=عارض مخطط واجهة برمجة التطبيقات
 # First intro paragraph on the OpenAPI schema viewer page.
 adminSchemaViewer.intro1=This page shows a visualization of the OpenAPI Schema. Both version 2 (formerly Swagger 2) and version 3 are available.
 # Second intro paragraph on the OpenAPI schema viewer page.
@@ -1391,9 +1391,9 @@ adminSchemaViewer.intro2=We recommend only using version 3 unless there is a spe
 # Label for the program selector on the schema viewer page.
 adminSchemaViewer.selectProgram=Program:
 # Label for the program-status selector on the schema viewer page.
-adminSchemaViewer.selectStatus=Status:
+adminSchemaViewer.selectStatus=الحالة: 
 # Label for the OpenAPI version selector on the schema viewer page.
-adminSchemaViewer.selectVersion=OpenApi Version:
+adminSchemaViewer.selectVersion=إصدار OpenAPI: 
 # Error generating OpenAPI YAML
 adminSchemaViewer.yamlError=Unable to generate OpenApi version '{0}' for program '{1}' at stage '{2}'.
 
