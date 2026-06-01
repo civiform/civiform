@@ -194,7 +194,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                             return redirectToHome();
                           }
                           if (cause instanceof ProgramNotFoundException) {
-                            return notFound(cause.toString());
+                            return notFound();
                           }
                           throw new RuntimeException(cause);
                         }
@@ -420,7 +420,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 try {
                   programSlug = programService.getSlug(programId);
                 } catch (ProgramNotFoundException e) {
-                  return notFound(e.toString());
+                  return notFound();
                 }
                 reviewPage = applicantRoutes.review(profile, applicantId, programSlug).url();
               } else {

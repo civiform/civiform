@@ -148,7 +148,7 @@ public class ApplicantProgramIneligibleController extends CiviFormController {
                         } catch (ProgramNotFoundException
                             | ProgramBlockDefinitionNotFoundException
                             | NoSuchElementException e) {
-                          return notFound(e.toString());
+                          return notFound();
                         }
                         ApplicantIneligibleView.Params params =
                             ApplicantIneligibleView.Params.builder()
@@ -167,7 +167,7 @@ public class ApplicantProgramIneligibleController extends CiviFormController {
                       ex -> {
                         Throwable cause = (ex instanceof CompletionException) ? ex.getCause() : ex;
                         if (cause instanceof ProgramNotFoundException) {
-                          return notFound(cause.toString());
+                          return notFound();
                         }
                         if (cause instanceof MissingOptionalException) {
                           return unauthorized();

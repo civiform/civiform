@@ -518,7 +518,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                             return unauthorized();
                           }
                           if (cause instanceof ProgramNotFoundException) {
-                            return notFound(cause.toString());
+                            return notFound();
                           }
                           throw new RuntimeException(cause);
                         }
@@ -635,7 +635,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   return unauthorized();
                 }
                 if (cause instanceof ProgramNotFoundException) {
-                  return notFound(cause.toString());
+                  return notFound();
                 }
                 throw new RuntimeException(cause);
               }
@@ -1359,7 +1359,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         submittingProfile, applicantId, programId, Optional.of(blockId))));
       }
     } catch (ProgramNotFoundException e) {
-      return supplyAsync(() -> notFound(e.toString()));
+      return supplyAsync(() -> notFound());
     }
 
     Map<String, String> flashingMap = new HashMap<>();

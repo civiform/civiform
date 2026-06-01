@@ -896,14 +896,12 @@ export class ApplicantQuestions {
 
     await expect(
       this.page
-        .locator(`:text('You may not be eligible for this program')`)
+        .getByText('You may not be eligible for this program')
         .and(this.page.getByRole('heading')),
     ).toBeVisible()
 
-    await expect(
-      this.page.locator(`:text('Apply to another program')`),
-    ).toBeVisible()
-    await expect(this.page.locator(`:text('Edit my responses')`)).toBeVisible()
+    await expect(this.page.getByText('Apply to another program')).toBeVisible()
+    await expect(this.page.getByText('Edit my responses')).toBeVisible()
   }
 
   async expectTranslatedIneligiblePage() {
@@ -911,16 +909,14 @@ export class ApplicantQuestions {
 
     await expect(
       this.page
-        .locator(`:text("Vous n'êtes peut-être pas éligible à ce programme")`)
+        .getByText("Vous n'êtes peut-être pas éligible à ce programme")
         .and(this.page.getByRole('heading')),
     ).toBeVisible()
 
     await expect(
-      this.page.locator(`:text("S'inscrire à un autre programme")`),
+      this.page.getByText("S'inscrire à un autre programme"),
     ).toBeVisible()
-    await expect(
-      this.page.locator(`:text('Modifier mes réponses')`),
-    ).toBeVisible()
+    await expect(this.page.getByText('Modifier mes réponses')).toBeVisible()
   }
 
   async clickGoBackAndEditOnIneligiblePage() {
