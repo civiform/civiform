@@ -1,8 +1,7 @@
-package forms;
+package forms.questions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import forms.questions.TextQuestionForm;
 import java.util.Locale;
 import java.util.UUID;
 import org.junit.Test;

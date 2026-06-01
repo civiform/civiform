@@ -1,9 +1,8 @@
-package forms;
+package forms.questions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import forms.questions.CheckboxQuestionForm;
 import java.util.Locale;
 import java.util.UUID;
 import org.junit.Test;

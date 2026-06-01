@@ -1,36 +1,39 @@
-package forms;
+package forms.questions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import forms.questions.PhoneQuestionForm;
 import java.util.Locale;
 import java.util.UUID;
 import org.junit.Test;
 import services.LocalizedStrings;
-import services.question.types.PhoneQuestionDefinition;
+import services.question.types.AddressQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionDefinitionConfig;
 
-public class PhoneQuestionFormTest {
+public class AddressQuestionFormTest {
+
   @Test
   public void getBuilder_returnsCompleteBuilder() throws Exception {
     UUID initialToken = UUID.randomUUID();
-    PhoneQuestionForm form = new PhoneQuestionForm();
+    AddressQuestionForm form = new AddressQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
-    form.setQuestionText("What is your phone number?");
+    form.setQuestionText("What is the question text?");
     form.setQuestionHelpText("");
     form.setConcurrencyToken(initialToken);
+    form.setDisallowPoBox(true);
     QuestionDefinitionBuilder builder = form.getBuilder();
 
-    PhoneQuestionDefinition expected =
-        new PhoneQuestionDefinition(
+    AddressQuestionDefinition expected =
+        new AddressQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("name")
                 .setDescription("description")
-                .setQuestionText(LocalizedStrings.of(Locale.US, "What is your phone number?"))
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    AddressQuestionDefinition.AddressValidationPredicates.create(true))
                 .setConcurrencyToken(initialToken)
                 .build());
 
@@ -41,17 +44,17 @@ public class PhoneQuestionFormTest {
 
   @Test
   public void getBuilder_withQdConstructor_returnsCompleteBuilder() throws Exception {
-    PhoneQuestionDefinition originalQd =
-        new PhoneQuestionDefinition(
+    AddressQuestionDefinition originalQd =
+        new AddressQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("name")
                 .setDescription("description")
-                .setQuestionText(LocalizedStrings.of(Locale.US, "What is your Phone Number?"))
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setConcurrencyToken(UUID.randomUUID())
                 .build());
 
-    PhoneQuestionForm form = new PhoneQuestionForm(originalQd);
+    AddressQuestionForm form = new AddressQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder();
 
     QuestionDefinition actual = builder.build();

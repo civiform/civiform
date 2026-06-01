@@ -1,9 +1,8 @@
-package forms;
+package forms.questions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import forms.questions.DropdownQuestionForm;
 import java.util.Locale;
 import java.util.UUID;
 import org.junit.Test;
@@ -15,12 +14,12 @@ import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestion
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionDefinitionConfig;
 
-public class DropdownQuestionFormTest {
+public class RadioButtonQuestionFormTest {
 
   @Test
   public void getBuilder_returnsCompleteBuilder() throws UnsupportedQuestionTypeException {
     UUID initialToken = UUID.randomUUID();
-    DropdownQuestionForm form = new DropdownQuestionForm();
+    RadioButtonQuestionForm form = new RadioButtonQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
     form.setQuestionText("What is the question text?");
@@ -48,7 +47,7 @@ public class DropdownQuestionFormTest {
             QuestionOption.create(3L, "rabbit admin", LocalizedStrings.of(Locale.US, "rabbit")));
     MultiOptionQuestionDefinition expected =
         new MultiOptionQuestionDefinition(
-            config, questionOptions, MultiOptionQuestionType.DROPDOWN);
+            config, questionOptions, MultiOptionQuestionType.RADIO_BUTTON);
 
     assertThat(builder.build()).isEqualTo(expected);
   }
@@ -63,6 +62,7 @@ public class DropdownQuestionFormTest {
             .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
             .setConcurrencyToken(UUID.randomUUID())
             .build();
+
     ImmutableList<QuestionOption> questionOptions =
         ImmutableList.of(
             QuestionOption.create(1L, "hello admin", LocalizedStrings.of(Locale.US, "hello")),
@@ -70,9 +70,9 @@ public class DropdownQuestionFormTest {
 
     MultiOptionQuestionDefinition originalQd =
         new MultiOptionQuestionDefinition(
-            config, questionOptions, MultiOptionQuestionType.DROPDOWN);
+            config, questionOptions, MultiOptionQuestionType.RADIO_BUTTON);
 
-    DropdownQuestionForm form = new DropdownQuestionForm(originalQd);
+    RadioButtonQuestionForm form = new RadioButtonQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder();
 
     assertThat(builder.build()).isEqualTo(originalQd);
