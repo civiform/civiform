@@ -555,23 +555,23 @@ button.homePage=الرجوع إلى الصفحة الرئيسية
 #--------------------------------------------------------------------------------------------------------------#
 
 # Title of the admin page where a program''s summary image and alt text are set.
-title.adminProgramImage=Image upload
+title.adminProgramImage=رفع صورة
 # Link text to return to program editing from the program image page.
-link.adminProgramImage.back=Back
+link.adminProgramImage.back=رجوع 
 # Hint under the file input about maximum upload size for a program summary image.
 content.adminProgramImage.hintMaxSize=The maximum size for image upload is 1MB.
 # Hint explaining automatic 16x9 cropping and that the preview reflects saved images.
-content.adminProgramImage.hintCrop=The image will be automatically cropped to 16x9. The program card preview on the right shows the saved image.
+content.adminProgramImage.hintCrop=سيتم اقتصاص الصورة تلقائيًا إلى 16×9. تعرض معاينة بطاقة البرنامج على اليمين الصورة المحفوظة.
 # Label for the field where the admin enters alt text for the program summary image.
 label.adminProgramImage.altText=Enter image description (Alt Text)
 # Button to leave the program image step and continue program setup (creation flow).
-button.adminProgramImage.continue=Continue
+button.adminProgramImage.continue=متابعة
 # Button to save and return when editing an existing program (non-creation flow).
 button.adminProgramImage.save=Save
 # Button to delete an uploaded program image
 button.adminProgramImage.delete=Delete image
 # Message shown when alt text is required but missing.
-validation.adminProgramImage.altTextRequired=Image description is required when a program image is uploaded.
+validation.adminProgramImage.altTextRequired=وصف الصورة مطلوب عند رفع صورة برنامج.
 # Toast after saving a program image and alt text together.
 toast.adminProgramImage.imageAndDescriptionSaved=Image is saved with the description: {0}
 # Toast after saving alt text without uploading a new file.
@@ -703,7 +703,7 @@ validation.noPoBox=يُرجى إدخال عنوان صالح. لا نقبل با
 title.confirmAddress=تأكيد عنوانك
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
 content.confirmAddressLine1=لم نتمكن من العثور على عنوانك.
-content.confirmAddressLine1.v2=Address confirmation needed.
+content.confirmAddressLine1.v2=مطلوب تأكيد العنوان. 
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=يُرجى التحقق من عدم وجود أخطاء إملائية في عنوانك أو تحديد خيار من القائمة المُدرجة.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
@@ -815,7 +815,7 @@ validation.fileRequired=يُرجى اختيار ملف.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=الملف كبير جدًا. يُرجى اختيار ملف لا يتجاوز حجمه {0} ميغابايت.
 # Shown when an HTMX file upload request fails (any non-success response).
-validation.fileUploadRequestFailed=We couldn't upload your file. Please try again.
+validation.fileUploadRequestFailed=تعذّر رفع ملفك. يُرجى المحاولة مرة أخرى. 
 # Text shown on a tag while a file is uploading.
 label.uploading=جارٍ التحميل
 # Label applied to a list of uploaded files
@@ -1325,7 +1325,7 @@ reportingProgram.downloadCsv=تنزيل ملف CSV
 #------------------------------------------------------------------------------#
 
 # Admin API Docs page title
-adminApiDocs.pageTitle=API documentation
+adminApiDocs.pageTitle=وثائق واجهة برمجة التطبيقات (API)
 
 # Aria label for the nav that switches between API docs sub-pages.
 adminApiDocs.tabs.ariaLabel=API documentation sections
