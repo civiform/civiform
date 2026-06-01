@@ -555,7 +555,7 @@ button.homePage=ホームページに戻る
 #--------------------------------------------------------------------------------------------------------------#
 
 # Title of the admin page where a program''s summary image and alt text are set.
-title.adminProgramImage=Image upload
+title.adminProgramImage=画像アップロード
 # Link text to return to program editing from the program image page.
 link.adminProgramImage.back=Back
 # Hint under the file input about maximum upload size for a program summary image.
