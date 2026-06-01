@@ -557,7 +557,7 @@ button.homePage=ホームページに戻る
 # Title of the admin page where a program''s summary image and alt text are set.
 title.adminProgramImage=画像アップロード
 # Link text to return to program editing from the program image page.
-link.adminProgramImage.back=Back
+link.adminProgramImage.back=戻る
 # Hint under the file input about maximum upload size for a program summary image.
 content.adminProgramImage.hintMaxSize=The maximum size for image upload is 1MB.
 # Hint explaining automatic 16x9 cropping and that the preview reflects saved images.
@@ -571,13 +571,13 @@ button.adminProgramImage.save=Save
 # Button to delete an uploaded program image
 button.adminProgramImage.delete=Delete image
 # Message shown when alt text is required but missing.
-validation.adminProgramImage.altTextRequired=Image description is required when a program image is uploaded.
+validation.adminProgramImage.altTextRequired=画像説明はプログラム画像のアップロード時に必要です。
 # Toast after saving a program image and alt text together.
-toast.adminProgramImage.imageAndDescriptionSaved=Image is saved with the description: {0}
+toast.adminProgramImage.imageAndDescriptionSaved=画像を説明と一緒に保存しました：{0}
 # Toast after saving alt text without uploading a new file.
 toast.adminProgramImage.descriptionSet=Image description set to {0}
 # Error when alt text cannot be cleared while an image remains.
-toast.adminProgramImage.descriptionNotRemovable=Description can't be removed because an image is present. Delete the image before deleting the description.
+toast.adminProgramImage.descriptionNotRemovable=画像が含まれているため説明を削除できません。説明の前に画像を削除してください。
 # Toast after deleting a program image
 toast.adminProgramImage.imageRemoved=Image removed
 # Message when the program card preview cannot be rendered.
@@ -1328,14 +1328,14 @@ reportingProgram.downloadCsv=CSV をダウンロード
 adminApiDocs.pageTitle=API documentation
 
 # Aria label for the nav that switches between API docs sub-pages.
-adminApiDocs.tabs.ariaLabel=API documentation sections
+adminApiDocs.tabs.ariaLabel=APIドキュメントのセクション
 # Tab label for the main API docs page.
 adminApiDocs.tabs.docs=Docs
 # Tab label for the schema viewer page.
-adminApiDocs.tabs.schema=Schema viewer
+adminApiDocs.tabs.schema=スキーマビューア
 
 # Intro paragraph as text before the external-docs link.
-adminApiDocs.intro.beforeLink=This page includes program-specific API Documentation for Active and Draft programs. Detailed documentation about authentication, pagination, and every field's possible values is located at
+adminApiDocs.intro.beforeLink=このページには、現行およびドラフト段階のプログラム向けにプログラム固有のAPIドキュメントが掲載されています。認証、ページネーション、各フィールドの有効な値に関する詳しいドキュメントは次に保管されています：
 # Visible text of the external-docs link in the intro paragraph.
 adminApiDocs.intro.linkText=docs.civiform.us/it-manual/api
 # Intro paragraph as text after the external-docs link.
@@ -1357,24 +1357,24 @@ adminApiDocs.selectVersion=Select version:
 # Option label for the active version of a program.
 adminApiDocs.version.active=Active
 # Option label for the draft version of a program.
-adminApiDocs.version.draft=Draft
+adminApiDocs.version.draft=ドラフト
 
 # Message shown when the requested program + version combination does not exist.
-adminApiDocs.notFound=No programs found. Please create and publish a program before accessing API docs.
+adminApiDocs.notFound=プログラムは見つかりませんでした。APIドキュメントへのアクセス前に、プログラムを作成して公開してください。
 # Heading for the list of questions on the selected program.
-adminApiDocs.questions=Questions
+adminApiDocs.questions=質問
 # Label for a question's admin name
 adminApiDocs.adminName=Admin Name
 # Label for a question's type (text, number, etc.).
-adminApiDocs.type=Type
+adminApiDocs.type=入力
 # Label for a question's display text.
-adminApiDocs.text=Text
+adminApiDocs.text=テキスト
 # Label for a multi-option question's answer options.
 adminApiDocs.options=Options
 # Label preceding the list of a question's currently-available options.
-adminApiDocs.currentOptions=Current options:
+adminApiDocs.currentOptions=現在のオプション：
 # Label preceding the list of every option the question has ever had.
-adminApiDocs.allOptions=All possible options:
+adminApiDocs.allOptions=利用可能なすべてのオプション：
 # Heading above the JSON preview of the API response.
 adminApiDocs.responsePreview=API response preview
 
@@ -1389,7 +1389,7 @@ adminSchemaViewer.intro1=This page shows a visualization of the OpenAPI Schema. 
 # Second intro paragraph on the OpenAPI schema viewer page.
 adminSchemaViewer.intro2=We recommend only using version 3 unless there is a specific need for the older format.
 # Label for the program selector on the schema viewer page.
-adminSchemaViewer.selectProgram=Program:
+adminSchemaViewer.selectProgram=プログラム：
 # Label for the program-status selector on the schema viewer page.
 adminSchemaViewer.selectStatus=Status:
 # Label for the OpenAPI version selector on the schema viewer page.
