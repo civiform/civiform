@@ -567,7 +567,7 @@ label.adminProgramImage.altText=Enter image description (Alt Text)
 # Button to leave the program image step and continue program setup (creation flow).
 button.adminProgramImage.continue=Magpatuloy
 # Button to save and return when editing an existing program (non-creation flow).
-button.adminProgramImage.save=Save
+button.adminProgramImage.save=I-save
 # Button to delete an uploaded program image
 button.adminProgramImage.delete=Delete image
 # Message shown when alt text is required but missing.
@@ -1339,21 +1339,21 @@ adminApiDocs.intro.beforeLink=This page includes program-specific API Documentat
 # Visible text of the external-docs link in the intro paragraph.
 adminApiDocs.intro.linkText=docs.civiform.us/it-manual/api
 # Intro paragraph as text after the external-docs link.
-adminApiDocs.intro.afterLink=.
+adminApiDocs.intro.afterLink=.\n
 
 # Heading on the collapsible "How does this work?" accordion.
-adminApiDocs.accordion.heading=How does this work?
+adminApiDocs.accordion.heading=Paano ito gumagana?
 # First paragraph inside the accordion.
 adminApiDocs.accordion.paragraph1=The API response preview is a sample of what the API response might look like for a given program. All data is fake. Single-select and multi-select questions have sample answers that are selected from the available responses.
 # Second paragraph inside the accordion as text before the shareable link.
-adminApiDocs.accordion.paragraph2.beforeLink=You may share this link,
+adminApiDocs.accordion.paragraph2.beforeLink=Maaari mong i-share ang link na ito,
 # Second paragraph inside the accordion as text after the shareable link.
 adminApiDocs.accordion.paragraph2.afterLink=, with anyone who needs to see API docs. It is accessible without logging in, so they do not need to be a CiviForm Admin or Program Admin to view this page.
 
 # Label for the program selector.
 adminApiDocs.selectProgram=Select a program:
 # Label for the program-version selector.
-adminApiDocs.selectVersion=Select version:
+adminApiDocs.selectVersion=Pumili ng bersyon:
 # Option label for the active version of a program.
 adminApiDocs.version.active=Active
 # Option label for the draft version of a program.
@@ -1362,40 +1362,40 @@ adminApiDocs.version.draft=Draft
 # Message shown when the requested program + version combination does not exist.
 adminApiDocs.notFound=No programs found. Please create and publish a program before accessing API docs.
 # Heading for the list of questions on the selected program.
-adminApiDocs.questions=Questions
+adminApiDocs.questions=Mga Tanong
 # Label for a question's admin name
-adminApiDocs.adminName=Admin Name
+adminApiDocs.adminName=Pangalan ng Admin
 # Label for a question's type (text, number, etc.).
 adminApiDocs.type=Type
 # Label for a question's display text.
-adminApiDocs.text=Text
+adminApiDocs.text=Teksto
 # Label for a multi-option question's answer options.
 adminApiDocs.options=Options
 # Label preceding the list of a question's currently-available options.
 adminApiDocs.currentOptions=Current options:
 # Label preceding the list of every option the question has ever had.
-adminApiDocs.allOptions=All possible options:
+adminApiDocs.allOptions=Lahat ng posibleng opsyon:
 # Heading above the JSON preview of the API response.
-adminApiDocs.responsePreview=API response preview
+adminApiDocs.responsePreview=Preview ng tugon ng API
 
 #------------------------------------------------------------------------------#
 #  ADMIN SCHEMA VIEWER                                                         #
 #------------------------------------------------------------------------------#
 
 # Admin API Docs page title
-adminSchemaViewer.pageTitle=API schema viewer
+adminSchemaViewer.pageTitle=Tagatingin ng schema ng API
 # First intro paragraph on the OpenAPI schema viewer page.
-adminSchemaViewer.intro1=This page shows a visualization of the OpenAPI Schema. Both version 2 (formerly Swagger 2) and version 3 are available.
+adminSchemaViewer.intro1=Ang pahinang ito ay nagpapakita ng biswalisasyon ng OpenAPI Schema. Parehong magagamit ang bersyon 2 (dating Swagger 2) at bersyon 3.
 # Second intro paragraph on the OpenAPI schema viewer page.
-adminSchemaViewer.intro2=We recommend only using version 3 unless there is a specific need for the older format.
+adminSchemaViewer.intro2=Inirerekomenda namin ang paggamit lang ng bersyon 3 maliban kung may partikular na pangangailangan para sa mas lumang format.
 # Label for the program selector on the schema viewer page.
-adminSchemaViewer.selectProgram=Program:
+adminSchemaViewer.selectProgram=Programa:
 # Label for the program-status selector on the schema viewer page.
-adminSchemaViewer.selectStatus=Status:
+adminSchemaViewer.selectStatus=Katayuan:
 # Label for the OpenAPI version selector on the schema viewer page.
 adminSchemaViewer.selectVersion=OpenApi Version:
 # Error generating OpenAPI YAML
-adminSchemaViewer.yamlError=Unable to generate OpenApi version '{0}' for program '{1}' at stage '{2}'.
+adminSchemaViewer.yamlError=Hindi mabuo ang bersyon ng OpenAPI na '{0}' para sa programang '{1}' sa yugtong '{2}'.
 
 #------------------------------------------------------------------------------#
 #  DEV TOOLS - text for the developer tools page                               #
