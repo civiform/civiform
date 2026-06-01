@@ -1335,7 +1335,7 @@ adminApiDocs.tabs.docs=Mga dokumento
 adminApiDocs.tabs.schema=Tagatingin ng schema
 
 # Intro paragraph as text before the external-docs link.
-adminApiDocs.intro.beforeLink=This page includes program-specific API Documentation for Active and Draft programs. Detailed documentation about authentication, pagination, and every field's possible values is located at
+adminApiDocs.intro.beforeLink=Kasama sa pahinang ito ang partikular sa programa na Dokumentasyon ng API para sa mga Aktibo at Draft na programa. Ang detalyadong dokumentasyon tungkol sa pagpapatunay, pahinasyon, at mga posibleng value ng bawat field ay nasa
 # Visible text of the external-docs link in the intro paragraph.
 adminApiDocs.intro.linkText=docs.civiform.us/it-manual/api
 # Intro paragraph as text after the external-docs link.
@@ -1344,18 +1344,18 @@ adminApiDocs.intro.afterLink=.\n
 # Heading on the collapsible "How does this work?" accordion.
 adminApiDocs.accordion.heading=Paano ito gumagana?
 # First paragraph inside the accordion.
-adminApiDocs.accordion.paragraph1=The API response preview is a sample of what the API response might look like for a given program. All data is fake. Single-select and multi-select questions have sample answers that are selected from the available responses.
+adminApiDocs.accordion.paragraph1=Ang preview ng sagot ng API ay halimbawa ng kung ano ang maaaring hitsura ng sagot ng API para sa isang partikular na programa. Ang lahat ng datos ay peke. Ang mga tanong na iisa-ang-pipiliing-sagot at maraming-pipiliing-sagot ay may mga halimbawang sagot na pinili mula sa mga magagamit na sagot.
 # Second paragraph inside the accordion as text before the shareable link.
 adminApiDocs.accordion.paragraph2.beforeLink=Maaari mong i-share ang link na ito,
 # Second paragraph inside the accordion as text after the shareable link.
-adminApiDocs.accordion.paragraph2.afterLink=, with anyone who needs to see API docs. It is accessible without logging in, so they do not need to be a CiviForm Admin or Program Admin to view this page.
+adminApiDocs.accordion.paragraph2.afterLink=, sa sinumang kailangang makakita ng mga dokumento ng API. Maaaring i-access ito nang hindi nagla-log in, kaya hindi nila kailangang maging CiviForm Admin o Program Admin upang makita ang pahinang ito.
 
 # Label for the program selector.
-adminApiDocs.selectProgram=Select a program:
+adminApiDocs.selectProgram=Pumili ng programa:
 # Label for the program-version selector.
 adminApiDocs.selectVersion=Pumili ng bersyon:
 # Option label for the active version of a program.
-adminApiDocs.version.active=Active
+adminApiDocs.version.active=Aktibo
 # Option label for the draft version of a program.
 adminApiDocs.version.draft=Draft
 
@@ -1372,7 +1372,7 @@ adminApiDocs.text=Teksto
 # Label for a multi-option question's answer options.
 adminApiDocs.options=Mga Opsyon
 # Label preceding the list of a question's currently-available options.
-adminApiDocs.currentOptions=Current options:
+adminApiDocs.currentOptions=Mga kasalukuyang opsyon:
 # Label preceding the list of every option the question has ever had.
 adminApiDocs.allOptions=Lahat ng posibleng opsyon:
 # Heading above the JSON preview of the API response.
