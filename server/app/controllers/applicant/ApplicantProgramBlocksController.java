@@ -86,7 +86,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final StoredFileRepository storedFileRepository;
   private final SettingsManifest settingsManifest;
   private final String baseUrl;
-  private final AddressCorrectionBlockView addressCorrectionBlockView;
   private final AddressSuggestionJsonSerializer addressSuggestionJsonSerializer;
   private final ProgramService programService;
   private final ProgramSlugHandler programSlugHandler;
@@ -108,7 +107,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ProfileUtils profileUtils,
       Config configuration,
       SettingsManifest settingsManifest,
-      AddressCorrectionBlockView addressCorrectionBlockView,
       AddressSuggestionJsonSerializer addressSuggestionJsonSerializer,
       ProgramService programService,
       VersionRepository versionRepository,
@@ -129,7 +127,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.eligibilityAlertSettingsCalculator = checkNotNull(eligibilityAlertSettingsCalculator);
     this.applicantProgramBlockEditView = checkNotNull(applicantProgramBlockEditView);
-    this.addressCorrectionBlockView = checkNotNull(addressCorrectionBlockView);
     this.programService = checkNotNull(programService);
     this.programSlugHandler = checkNotNull(programSlugHandler);
     this.metricCounters = checkNotNull(metricCounters);
@@ -1332,9 +1329,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         programId,
                         blockId,
                         inReview,
-                        roApplicantProgramService,
-                        thisBlockUpdated,
-                        personalInfo,
                         applicantRequestedAction));
       }
     }
@@ -1476,9 +1470,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long programId,
       String blockId,
       boolean inReview,
-      ReadOnlyApplicantProgramService roApplicantProgramService,
-      Block thisBlockUpdated,
-      ApplicantPersonalInfo personalInfo,
       ApplicantRequestedAction applicantRequestedAction) {
     ImmutableList<AddressSuggestion> suggestions = addressSuggestionGroup.getAddressSuggestions();
 
@@ -1498,49 +1489,23 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
           suggestions,
           applicantRequestedAction);
     } else {
-
-      if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
-        return redirect(
-                    applicantRoutes.showIneligible(
-                        submittingProfile,
-                        applicantId,
-                        programSlugHandler.getProgramSlug(String.valueOf(programId)),
-                        Optional.of(blockId))));
-      }
-      return supplyAsync(
-          () ->
-              redirect(
-                  applicantRoutes.showIneligible(
-                      submittingProfile, applicantId, programId, Optional.of(blockId))));
-      String json = addressSuggestionJsonSerializer.serialize(suggestions);
-
-      Boolean isEligibilityEnabledOnThisBlock =
-          thisBlockUpdated.getLeafAddressNodeServiceAreaIds().isPresent();
-
       CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
-      ApplicationBaseViewParams applicationParams =
-          buildApplicationBaseViewParams(
-              request,
-              applicantId,
-              programId,
-              blockId,
-              inReview,
-              roApplicantProgramService,
-              thisBlockUpdated,
-              personalInfo,
-              ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS,
-              applicantRoutes,
-              profile);
+      if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+        return CompletableFuture.completedFuture(
+            redirect(
+                applicantRoutes.showAddressCorrection(
+                    profile,
+                    applicantId,
+                    programSlugHandler.getProgramSlug(String.valueOf(programId)),
+                    blockId,
+                    inReview,
+                    applicantRequestedAction)));
+      }
       return CompletableFuture.completedFuture(
-          ok(addressCorrectionBlockView.render(
-                  request,
-                  applicationParams,
-                  addressSuggestionGroup,
-                  applicantRequestedAction,
-                  isEligibilityEnabledOnThisBlock,
-                  json))
-              .as(Http.MimeTypes.HTML));
+          redirect(
+              applicantRoutes.showAddressCorrection(
+                  profile, applicantId, programId, blockId, inReview, applicantRequestedAction)));
     }
   }
 

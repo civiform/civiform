@@ -105,7 +105,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             instanceOf(ProfileUtils.class),
             instanceOf(Config.class),
             settingsManifest,
-            instanceOf(AddressCorrectionBlockView.class),
             addressSuggestionJsonSerializer,
             instanceOf(ProgramService.class),
             instanceOf(VersionRepository.class),

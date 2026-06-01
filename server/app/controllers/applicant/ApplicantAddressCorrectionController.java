@@ -8,8 +8,9 @@ import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import auth.controllers.MissingOptionalException;
+import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
-import java.util.NoSuchElementException;
+import controllers.geo.AddressSuggestionJsonSerializer;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -25,15 +26,14 @@ import play.mvc.With;
 import repository.VersionRepository;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
+import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.geo.AddressSuggestion;
+import services.geo.AddressSuggestionGroup;
 import services.monitoring.MonitoringMetricCounters;
-import services.program.BlockDefinition;
-import services.program.ProgramBlockDefinitionNotFoundException;
-import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
-import services.program.ProgramService;
 import services.settings.SettingsManifest;
-import views.applicant.ineligible.ApplicantIneligibleView;
+import views.applicant.addresscorrection.AddressCorrectionBlockView;
 
 /** Controller for */
 @With(ProgramDisabledAction.class)
@@ -41,44 +41,48 @@ public class ApplicantAddressCorrectionController extends CiviFormController {
 
   private final ApplicantService applicantService;
   private final MessagesApi messagesApi;
-  private final ApplicantIneligibleView applicantIneligibleView;
+  private final AddressCorrectionBlockView addressCorrectionBlockView;
   private final SettingsManifest settingsManifest;
-  private final ProgramService programService;
   private final ProgramSlugHandler programSlugHandler;
+  private final AddressSuggestionJsonSerializer addressSuggestionJsonSerializer;
   private final MonitoringMetricCounters metricCounters;
 
   @Inject
   public ApplicantAddressCorrectionController(
       ApplicantService applicantService,
       MessagesApi messagesApi,
-      ApplicantIneligibleView applicantIneligibleView,
+      AddressCorrectionBlockView addressCorrectionBlockView,
       ProfileUtils profileUtils,
       SettingsManifest settingsManifest,
-      ProgramService programService,
       VersionRepository versionRepository,
       ProgramSlugHandler programSlugHandler,
+      AddressSuggestionJsonSerializer addressSuggestionJsonSerializer,
       MonitoringMetricCounters metricCounters) {
     super(profileUtils, versionRepository);
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
-    this.applicantIneligibleView = checkNotNull(applicantIneligibleView);
+    this.addressCorrectionBlockView = checkNotNull(addressCorrectionBlockView);
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.programService = checkNotNull(programService);
     this.programSlugHandler = checkNotNull(programSlugHandler);
+    this.addressSuggestionJsonSerializer = checkNotNull(addressSuggestionJsonSerializer);
     this.metricCounters = checkNotNull(metricCounters);
   }
 
-  /** Renders the application ineligible page for applicants. */
+  /** Renders the application address correction page for applicants. */
   @Secure(authorizers = Authorizers.Labels.APPLICANT)
-  public CompletionStage<Result> ineligible(
-      Request request, String programParam, Optional<String> blockId) {
+  public CompletionStage<Result> addressCorrection(
+      Request request,
+      String programParam,
+      String blockId,
+      boolean inReview,
+      ApplicantRequestedActionWrapper applicantRequestedActionWrapper) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
     boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
-          .labels("/programs/:programParam/blocks/:blockId/ineligible", programParam)
+          .labels("/programs/:programParam/blocks/:blockId/addressCorrection", programParam)
           .inc();
       return CompletableFuture.completedFuture(redirectToHome());
     }
@@ -90,7 +94,13 @@ public class ApplicantAddressCorrectionController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     }
 
-    return ineligibleInternal(request, applicantId.get(), programParam, blockId);
+    return addressCorrectionInternal(
+        request,
+        applicantId.get(),
+        programParam,
+        blockId,
+        inReview,
+        applicantRequestedActionWrapper);
   }
 
   /**
@@ -98,8 +108,13 @@ public class ApplicantAddressCorrectionController extends CiviFormController {
    * admins previewing programs.
    */
   @Secure(authorizers = Authorizers.Labels.TI_OR_CIVIFORM_ADMIN)
-  public CompletionStage<Result> ineligibleWithApplicantId(
-      Request request, long applicantId, String programParam, Optional<String> blockId) {
+  public CompletionStage<Result> addressCorrectionWithApplicantId(
+      Request request,
+      long applicantId,
+      String programParam,
+      String blockId,
+      boolean inReview,
+      ApplicantRequestedActionWrapper applicantRequestedActionWrapper) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
     boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
@@ -107,16 +122,23 @@ public class ApplicantAddressCorrectionController extends CiviFormController {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels(
-              "/applicants/:applicantId/programs/:programParam/blocks/:blockId/ineligible",
+              "/applicants/:applicantId/programs/:programParam/blocks/:blockId/addressCorrection",
               programParam)
           .inc();
       return CompletableFuture.completedFuture(redirectToHome());
     }
-    return ineligibleInternal(request, applicantId, programParam, blockId);
+    return addressCorrectionInternal(
+        request, applicantId, programParam, blockId, inReview, applicantRequestedActionWrapper);
   }
 
-  private CompletionStage<Result> ineligibleInternal(
-      Request request, long applicantId, String programParam, Optional<String> blockId) {
+  private CompletionStage<Result> addressCorrectionInternal(
+      Request request,
+      long applicantId,
+      String programParam,
+      String blockId,
+      boolean inReview,
+      ApplicantRequestedActionWrapper applicantRequestedActionWrapper) {
+
     boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
 
     return programSlugHandler
@@ -130,38 +152,53 @@ public class ApplicantAddressCorrectionController extends CiviFormController {
                                 .getReadOnlyApplicantProgramService(applicantId, programId)
                                 .toCompletableFuture()
                                 .join();
-                        CiviFormProfile profile = profileUtils.currentUserProfile(request);
+                        Block thisBlockUpdated =
+                            roApplicantProgramService.getActiveBlock(blockId).get();
+
+                        boolean isEligibilityEnabledOnThisBlock =
+                            thisBlockUpdated.getLeafAddressNodeServiceAreaIds().isPresent();
                         ApplicantPersonalInfo personalInfo =
                             applicantService
                                 .getPersonalInfo(applicantId)
                                 .toCompletableFuture()
                                 .join();
 
-                        ProgramDefinition programDefinition;
-                        Optional<BlockDefinition> blockDefinition = Optional.empty();
-                        try {
-                          programDefinition = programService.getFullProgramDefinition(programId);
-                          if (blockId.isPresent()) {
-                            blockDefinition =
-                                Optional.of(programDefinition.getBlockDefinition(blockId.get()));
-                          }
-                        } catch (ProgramNotFoundException
-                            | ProgramBlockDefinitionNotFoundException
-                            | NoSuchElementException e) {
-                          return notFound();
-                        }
-                        ApplicantIneligibleView.Params params =
-                            ApplicantIneligibleView.Params.builder()
+                        AddressSuggestionGroup addressSuggestionGroup =
+                            applicantService
+                                .getAddressSuggestionGroup(thisBlockUpdated)
+                                .toCompletableFuture()
+                                .join();
+                        ImmutableList<AddressSuggestion> suggestions =
+                            addressSuggestionGroup.getAddressSuggestions();
+                        String addressSuggestionJson =
+                            addressSuggestionJsonSerializer.serialize(suggestions);
+                        CiviFormProfile profile = profileUtils.currentUserProfile(request);
+
+                        AddressCorrectionBlockView.Params params =
+                            AddressCorrectionBlockView.Params.builder()
                                 .setRequest(request)
-                                .setApplicantId(applicantId)
                                 .setProfile(profile)
+                                .setApplicantId(applicantId)
                                 .setApplicantPersonalInfo(personalInfo)
-                                .setProgramDefinition(programDefinition)
-                                .setBlockDefinition(blockDefinition)
-                                .setRoApplicantProgramService(roApplicantProgramService)
                                 .setMessages(messagesApi.preferred(request))
+                                .setProgramId(programId)
+                                .setProgramSlug(programSlugHandler.getProgramSlug(programParam))
+                                .setProgramTitle(roApplicantProgramService.getProgramTitle())
+                                .setProgramShortDescription(
+                                    roApplicantProgramService.getProgramShortDescription())
+                                .setBlockId(blockId)
+                                .setBlockIndex(roApplicantProgramService.getBlockIndex(blockId))
+                                .setBlockList(roApplicantProgramService.getAllActiveBlocks())
+                                .setInReview(inReview)
                                 .build();
-                        return ok(applicantIneligibleView.render(params)).as(Http.MimeTypes.HTML);
+                        return ok(addressCorrectionBlockView.render(
+                                request,
+                                params,
+                                addressSuggestionGroup,
+                                applicantRequestedActionWrapper.getAction(),
+                                isEligibilityEnabledOnThisBlock,
+                                addressSuggestionJson))
+                            .as(Http.MimeTypes.HTML);
                       })
                   .exceptionally(
                       ex -> {
