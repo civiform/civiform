@@ -555,33 +555,33 @@ button.homePage=홈페이지로 돌아가기
 #--------------------------------------------------------------------------------------------------------------#
 
 # Title of the admin page where a program''s summary image and alt text are set.
-title.adminProgramImage=Image upload
+title.adminProgramImage=이미지 업로드
 # Link text to return to program editing from the program image page.
-link.adminProgramImage.back=Back
+link.adminProgramImage.back=뒤로 가기
 # Hint under the file input about maximum upload size for a program summary image.
-content.adminProgramImage.hintMaxSize=The maximum size for image upload is 1MB.
+content.adminProgramImage.hintMaxSize=업로드 가능한 이미지의 최대 크기는 1MB입니다.
 # Hint explaining automatic 16x9 cropping and that the preview reflects saved images.
-content.adminProgramImage.hintCrop=The image will be automatically cropped to 16x9. The program card preview on the right shows the saved image.
+content.adminProgramImage.hintCrop=이미지가 16:9 비율에 맞춰 자동으로 잘립니다. 오른쪽의 프로그램 카드 미리보기에는 저장된 이미지가 표시됩니다.
 # Label for the field where the admin enters alt text for the program summary image.
-label.adminProgramImage.altText=Enter image description (Alt Text)
+label.adminProgramImage.altText=이미지 설명(대체 텍스트) 입력
 # Button to leave the program image step and continue program setup (creation flow).
-button.adminProgramImage.continue=Continue
+button.adminProgramImage.continue=계속
 # Button to save and return when editing an existing program (non-creation flow).
-button.adminProgramImage.save=Save
+button.adminProgramImage.save=저장
 # Button to delete an uploaded program image
-button.adminProgramImage.delete=Delete image
+button.adminProgramImage.delete=이미지 삭제
 # Message shown when alt text is required but missing.
-validation.adminProgramImage.altTextRequired=Image description is required when a program image is uploaded.
+validation.adminProgramImage.altTextRequired=프로그램 이미지를 업로드할 때는 이미지 설명이 필요합니다.
 # Toast after saving a program image and alt text together.
-toast.adminProgramImage.imageAndDescriptionSaved=Image is saved with the description: {0}
+toast.adminProgramImage.imageAndDescriptionSaved=이미지가 다음 설명과 함께 저장됨: {0}
 # Toast after saving alt text without uploading a new file.
-toast.adminProgramImage.descriptionSet=Image description set to {0}
+toast.adminProgramImage.descriptionSet=이미지 설명이 다음으로 설정됨: {0}
 # Error when alt text cannot be cleared while an image remains.
-toast.adminProgramImage.descriptionNotRemovable=Description can't be removed because an image is present. Delete the image before deleting the description.
+toast.adminProgramImage.descriptionNotRemovable=이미지가 존재하여 설명을 제거할 수 없습니다. 설명을 삭제하기 전에 이미지를 삭제해 주세요.
 # Toast after deleting a program image
-toast.adminProgramImage.imageRemoved=Image removed
+toast.adminProgramImage.imageRemoved=이미지 제거됨
 # Message when the program card preview cannot be rendered.
-content.adminProgramImage.cardPreviewError=Error generating card preview
+content.adminProgramImage.cardPreviewError=카드 미리보기 생성 오류
 
 #--------------------------------------------------------------------------------------------------------------#
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
@@ -703,7 +703,7 @@ validation.noPoBox=유효한 주소를 입력하세요. 사서함은 주소 정�
 title.confirmAddress=주소 확인
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
 content.confirmAddressLine1=주소를 찾을 수 없습니다.
-content.confirmAddressLine1.v2=Address confirmation needed.
+content.confirmAddressLine1.v2=주소 확인이 필요합니다.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=주소의 철자를 확인하거나 제공된 목록에서 주소를 선택하세요.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
@@ -815,7 +815,7 @@ validation.fileRequired=파일을 선택하세요.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=파일이 너무 큽니다. {0}MB 미만인 파일을 선택하세요.
 # Shown when an HTMX file upload request fails (any non-success response).
-validation.fileUploadRequestFailed=We couldn't upload your file. Please try again.
+validation.fileUploadRequestFailed=파일을 업로드할 수 없습니다. 다시 시도해 주세요.
 # Text shown on a tag while a file is uploading.
 label.uploading=업로드 중
 # Label applied to a list of uploaded files
@@ -1325,30 +1325,30 @@ reportingProgram.downloadCsv=CSV 다운로드
 #------------------------------------------------------------------------------#
 
 # Admin API Docs page title
-adminApiDocs.pageTitle=API documentation
+adminApiDocs.pageTitle=API 문서
 
 # Aria label for the nav that switches between API docs sub-pages.
-adminApiDocs.tabs.ariaLabel=API documentation sections
+adminApiDocs.tabs.ariaLabel=API 문서 섹션
 # Tab label for the main API docs page.
-adminApiDocs.tabs.docs=Docs
+adminApiDocs.tabs.docs=문서
 # Tab label for the schema viewer page.
-adminApiDocs.tabs.schema=Schema viewer
+adminApiDocs.tabs.schema=스키마 뷰어
 
 # Intro paragraph as text before the external-docs link.
-adminApiDocs.intro.beforeLink=This page includes program-specific API Documentation for Active and Draft programs. Detailed documentation about authentication, pagination, and every field's possible values is located at
+adminApiDocs.intro.beforeLink=이 페이지에는 활성화된 프로그램 및 초안 프로그램에 대한 프로그램별 API 문서가 포함되어 있습니다. 인증, 페이지네이션, 각 필드의 허용값에 대한 자세한 문서는
 # Visible text of the external-docs link in the intro paragraph.
 adminApiDocs.intro.linkText=docs.civiform.us/it-manual/api
 # Intro paragraph as text after the external-docs link.
-adminApiDocs.intro.afterLink=.
+adminApiDocs.intro.afterLink=에서 확인할 수 있습니다.
 
 # Heading on the collapsible "How does this work?" accordion.
-adminApiDocs.accordion.heading=How does this work?
+adminApiDocs.accordion.heading=어떤 방식인가요?
 # First paragraph inside the accordion.
-adminApiDocs.accordion.paragraph1=The API response preview is a sample of what the API response might look like for a given program. All data is fake. Single-select and multi-select questions have sample answers that are selected from the available responses.
+adminApiDocs.accordion.paragraph1=API 응답 미리보기는 특정 프로그램에 대해 API 응답이 어떻게 표시되는지 보여주는 예시입니다. 모든 데이터는 가상의 데이터입니다. 단일 선택 및 다중 선택 질문의 샘플 답변은 이용 가능한 응답 중에서 선택됩니다.
 # Second paragraph inside the accordion as text before the shareable link.
-adminApiDocs.accordion.paragraph2.beforeLink=You may share this link,
+adminApiDocs.accordion.paragraph2.beforeLink=API 문서를 확인해야 하는 사용자에게
 # Second paragraph inside the accordion as text after the shareable link.
-adminApiDocs.accordion.paragraph2.afterLink=, with anyone who needs to see API docs. It is accessible without logging in, so they do not need to be a CiviForm Admin or Program Admin to view this page.
+adminApiDocs.accordion.paragraph2.afterLink=링크를 공유할 수 있습니다. 로그인하지 않아도 접근할 수 있으므로 이 페이지를 보는 데 CiviForm 관리자 또는 프로그램 관리자 권한이 필요하지 않습니다.
 
 # Label for the program selector.
 adminApiDocs.selectProgram=Select a program:
@@ -1362,21 +1362,21 @@ adminApiDocs.version.draft=Draft
 # Message shown when the requested program + version combination does not exist.
 adminApiDocs.notFound=No programs found. Please create and publish a program before accessing API docs.
 # Heading for the list of questions on the selected program.
-adminApiDocs.questions=Questions
+adminApiDocs.questions=질문
 # Label for a question's admin name
 adminApiDocs.adminName=Admin Name
 # Label for a question's type (text, number, etc.).
-adminApiDocs.type=Type
+adminApiDocs.type=유형
 # Label for a question's display text.
-adminApiDocs.text=Text
+adminApiDocs.text=텍스트
 # Label for a multi-option question's answer options.
-adminApiDocs.options=Options
+adminApiDocs.options=옵션
 # Label preceding the list of a question's currently-available options.
-adminApiDocs.currentOptions=Current options:
+adminApiDocs.currentOptions=현재 옵션:
 # Label preceding the list of every option the question has ever had.
-adminApiDocs.allOptions=All possible options:
+adminApiDocs.allOptions=가능한 모든 옵션:
 # Heading above the JSON preview of the API response.
-adminApiDocs.responsePreview=API response preview
+adminApiDocs.responsePreview=API 응답 미리보기
 
 #------------------------------------------------------------------------------#
 #  ADMIN SCHEMA VIEWER                                                         #
@@ -1389,13 +1389,13 @@ adminSchemaViewer.intro1=This page shows a visualization of the OpenAPI Schema. 
 # Second intro paragraph on the OpenAPI schema viewer page.
 adminSchemaViewer.intro2=We recommend only using version 3 unless there is a specific need for the older format.
 # Label for the program selector on the schema viewer page.
-adminSchemaViewer.selectProgram=Program:
+adminSchemaViewer.selectProgram=프로그램:
 # Label for the program-status selector on the schema viewer page.
-adminSchemaViewer.selectStatus=Status:
+adminSchemaViewer.selectStatus=상태:
 # Label for the OpenAPI version selector on the schema viewer page.
-adminSchemaViewer.selectVersion=OpenApi Version:
+adminSchemaViewer.selectVersion=OpenAPI 버전:
 # Error generating OpenAPI YAML
-adminSchemaViewer.yamlError=Unable to generate OpenApi version '{0}' for program '{1}' at stage '{2}'.
+adminSchemaViewer.yamlError='{2}' 단계에서 '{1}' 프로그램에 대한 OpenAPI 버전 '{0}'을(를) 생성할 수 없습니다.
 
 #------------------------------------------------------------------------------#
 #  DEV TOOLS - text for the developer tools page                               #
