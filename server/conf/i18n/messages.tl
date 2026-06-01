@@ -555,17 +555,17 @@ button.homePage=Bumalik sa homepage
 #--------------------------------------------------------------------------------------------------------------#
 
 # Title of the admin page where a program''s summary image and alt text are set.
-title.adminProgramImage=Image upload
+title.adminProgramImage=Pag-upload ng larawan
 # Link text to return to program editing from the program image page.
-link.adminProgramImage.back=Back
+link.adminProgramImage.back=Bumalik
 # Hint under the file input about maximum upload size for a program summary image.
 content.adminProgramImage.hintMaxSize=The maximum size for image upload is 1MB.
 # Hint explaining automatic 16x9 cropping and that the preview reflects saved images.
-content.adminProgramImage.hintCrop=The image will be automatically cropped to 16x9. The program card preview on the right shows the saved image.
+content.adminProgramImage.hintCrop=Ang larawan ay awtomatikong iko-crop sa 16x9. Ipinapakita ng preview ng card ng programa sa kanan ang naka-save na larawan.
 # Label for the field where the admin enters alt text for the program summary image.
 label.adminProgramImage.altText=Enter image description (Alt Text)
 # Button to leave the program image step and continue program setup (creation flow).
-button.adminProgramImage.continue=Continue
+button.adminProgramImage.continue=Magpatuloy
 # Button to save and return when editing an existing program (non-creation flow).
 button.adminProgramImage.save=Save
 # Button to delete an uploaded program image
@@ -573,13 +573,13 @@ button.adminProgramImage.delete=Delete image
 # Message shown when alt text is required but missing.
 validation.adminProgramImage.altTextRequired=Image description is required when a program image is uploaded.
 # Toast after saving a program image and alt text together.
-toast.adminProgramImage.imageAndDescriptionSaved=Image is saved with the description: {0}
+toast.adminProgramImage.imageAndDescriptionSaved=Nai-save ang larawan gamit ang paglalarawan na: {0}
 # Toast after saving alt text without uploading a new file.
-toast.adminProgramImage.descriptionSet=Image description set to {0}
+toast.adminProgramImage.descriptionSet=Nai-set ang paglalarawan ng larawan sa {0}
 # Error when alt text cannot be cleared while an image remains.
-toast.adminProgramImage.descriptionNotRemovable=Description can't be removed because an image is present. Delete the image before deleting the description.
+toast.adminProgramImage.descriptionNotRemovable=Ang paglalarawan ay hindi maaaring alisin dahil may larawan. Tanggalin ang larawan bago tanggalin ang paglalarawan.
 # Toast after deleting a program image
-toast.adminProgramImage.imageRemoved=Image removed
+toast.adminProgramImage.imageRemoved=Inalis ang larawan
 # Message when the program card preview cannot be rendered.
 content.adminProgramImage.cardPreviewError=Error generating card preview
 
@@ -1328,9 +1328,9 @@ reportingProgram.downloadCsv=I-download ang CSV
 adminApiDocs.pageTitle=API documentation
 
 # Aria label for the nav that switches between API docs sub-pages.
-adminApiDocs.tabs.ariaLabel=API documentation sections
+adminApiDocs.tabs.ariaLabel=Mga seksyon ng dokumentasyon ng API
 # Tab label for the main API docs page.
-adminApiDocs.tabs.docs=Docs
+adminApiDocs.tabs.docs=Mga dokumento
 # Tab label for the schema viewer page.
 adminApiDocs.tabs.schema=Schema viewer
 
