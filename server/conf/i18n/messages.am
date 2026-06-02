@@ -1185,7 +1185,7 @@ session.extended.error=ክፍለ-ጊዜን ማራዘም አልተሳካም
 # Message shown to guest users warning that their session is about to expire due to session length
 session.length.warning.message.guest=የእርስዎ ክፍለ ጊዜ ሊያበቃ ነው። እባክዎ ሥራዎን ያስቀምጡ እና ይግቡ ወይም ለመቀጠል መለያ ይፍጠሩ።
 # Message shown to logged-in users warning that their session is about to expire due to session length
-session.length.warning.message.loggedIn=Your session is about to expire. Please save your work and log back in to continue. You will not lose your progress in the application.
+session.length.warning.message.loggedIn=ክፍለ ጊዜዎ ሊያበቃ ነው። እባክዎ ሥራዎን ያስቀምጡ እና ለመቀጠል እንደገና ይግቡ። በመተግበሪያው ውስጥ ያለዎትን ሂደት አያጡም።
 
 #------------------------------------------------------------------------------#
 #  ADMIN PROGRAM BLOCK EDIT                                                    #
