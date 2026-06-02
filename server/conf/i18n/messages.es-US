@@ -559,7 +559,7 @@ title.adminProgramImage=Image upload
 # Link text to return to program editing from the program image page.
 link.adminProgramImage.back=Volver
 # Hint under the file input about maximum upload size for a program summary image.
-content.adminProgramImage.hintMaxSize=The maximum size for image upload is 1MB.
+content.adminProgramImage.hintMaxSize=La imagen por cargar debe tener un tamaño máximo de 1 MB.
 # Hint explaining automatic 16x9 cropping and that the preview reflects saved images.
 content.adminProgramImage.hintCrop=La imagen se recortará automáticamente a una dimensión de 16x9. La imagen guardada se mostrará en la vista previa de la tarjeta del programa.
 # Label for the field where the admin enters alt text for the program summary image.
