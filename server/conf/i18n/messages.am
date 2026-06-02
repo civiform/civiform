@@ -571,7 +571,7 @@ button.adminProgramImage.save=አስቀምጥ
 # Button to delete an uploaded program image
 button.adminProgramImage.delete=ምስልን ሰርዝ
 # Message shown when alt text is required but missing.
-validation.adminProgramImage.altTextRequired=Image description is required when a program image is uploaded.
+validation.adminProgramImage.altTextRequired=የፕሮግራም ምስል ሲሰቀል የምስል መግለጫ ያስፈልጋል።
 # Toast after saving a program image and alt text together.
 toast.adminProgramImage.imageAndDescriptionSaved=Image is saved with the description: {0}
 # Toast after saving alt text without uploading a new file.
