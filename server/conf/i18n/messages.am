@@ -565,9 +565,9 @@ content.adminProgramImage.hintCrop=ምስሉ በራስ-ሰር ወደ 16x9 ይከ
 # Label for the field where the admin enters alt text for the program summary image.
 label.adminProgramImage.altText=የምስል መግለጫ ያስገቡ (Alt Text)
 # Button to leave the program image step and continue program setup (creation flow).
-button.adminProgramImage.continue=Continue
+button.adminProgramImage.continue=ቀጥል
 # Button to save and return when editing an existing program (non-creation flow).
-button.adminProgramImage.save=Save
+button.adminProgramImage.save=አስቀምጥ
 # Button to delete an uploaded program image
 button.adminProgramImage.delete=Delete image
 # Message shown when alt text is required but missing.
