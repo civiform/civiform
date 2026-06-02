@@ -628,13 +628,16 @@ public final class ApplicantRoutes {
 
   // TODO:#11090 Remove method when routes are no longer hit
   /**
-   * Returns the route corresponding to the applicant ineligible page.
+   * Returns the route corresponding to the applicant address correction page.
    *
    * @param profile profile corresponding to the logged-in user (applicant or TI).
-   * @param applicantId ID of the ineligible applicant
-   * @param programId id of program the applicant is ineligible for
-   * @param blockId ID of the block containing the ineligible question
-   * @return route for the applicant ineligible page
+   * @param applicantId ID of the applicant
+   * @param programId ID of program
+   * @param blockId ID of the block containing the address question
+   * @param inReview true if executing the review action (as opposed to edit)
+   * @param applicantRequestedAction the page the applicant would like to see after the updates are
+   *     made
+   * @return route for the applicant address correction page
    */
   public Call showAddressCorrection(
       CiviFormProfile profile,
@@ -660,13 +663,16 @@ public final class ApplicantRoutes {
   }
 
   /**
-   * Returns the route corresponding to the applicant ineligible page.
+   * Returns the route corresponding to the applicant address correction page.
    *
    * @param profile profile corresponding to the logged-in user (applicant or TI).
-   * @param applicantId ID of the ineligible applicant
-   * @param programSlug slug of program the applicant is ineligible for
-   * @param blockId ID of the block containing the ineligible question
-   * @return route for the applicant ineligible page
+   * @param applicantId ID of the applicant
+   * @param programSlug slug of program
+   * @param blockId ID of the block containing the address question
+   * @param inReview true if executing the review action (as opposed to edit)
+   * @param applicantRequestedAction the page the applicant would like to see after the updates are
+   *     made
+   * @return route for the applicant address correction page
    */
   public Call showAddressCorrection(
       CiviFormProfile profile,

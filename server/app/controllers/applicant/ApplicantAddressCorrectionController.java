@@ -11,6 +11,7 @@ import auth.controllers.MissingOptionalException;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import controllers.geo.AddressSuggestionJsonSerializer;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -35,7 +36,10 @@ import services.program.ProgramNotFoundException;
 import services.settings.SettingsManifest;
 import views.applicant.addresscorrection.AddressCorrectionBlockView;
 
-/** Controller for */
+/**
+ * Controller for the address correction screen shown to applicants when they answer an address
+ * question for which address correction is enabled
+ */
 @With(ProgramDisabledAction.class)
 public class ApplicantAddressCorrectionController extends CiviFormController {
 
@@ -104,8 +108,8 @@ public class ApplicantAddressCorrectionController extends CiviFormController {
   }
 
   /**
-   * Renders the application ineligible page for TIs applying on behalf of clients and CiviForm
-   * admins previewing programs.
+   * Renders the application address correction page for TIs applying on behalf of clients and
+   * CiviForm admins previewing programs.
    */
   @Secure(authorizers = Authorizers.Labels.TI_OR_CIVIFORM_ADMIN)
   public CompletionStage<Result> addressCorrectionWithApplicantId(
@@ -153,7 +157,11 @@ public class ApplicantAddressCorrectionController extends CiviFormController {
                                 .toCompletableFuture()
                                 .join();
                         Block thisBlockUpdated =
-                            roApplicantProgramService.getActiveBlock(blockId).get();
+                            roApplicantProgramService
+                                .getActiveBlock(blockId)
+                                .orElseThrow(
+                                    () ->
+                                        new NoSuchElementException("Block not found: " + blockId));
 
                         boolean isEligibilityEnabledOnThisBlock =
                             thisBlockUpdated.getLeafAddressNodeServiceAreaIds().isPresent();
@@ -203,7 +211,8 @@ public class ApplicantAddressCorrectionController extends CiviFormController {
                   .exceptionally(
                       ex -> {
                         Throwable cause = (ex instanceof CompletionException) ? ex.getCause() : ex;
-                        if (cause instanceof ProgramNotFoundException) {
+                        if (cause instanceof ProgramNotFoundException
+                            || cause instanceof NoSuchElementException) {
                           return notFound();
                         }
                         if (cause instanceof MissingOptionalException) {
