@@ -563,7 +563,7 @@ content.adminProgramImage.hintMaxSize=La imagen por cargar debe tener un tamaño
 # Hint explaining automatic 16x9 cropping and that the preview reflects saved images.
 content.adminProgramImage.hintCrop=La imagen se recortará automáticamente a una dimensión de 16x9. La imagen guardada se mostrará en la vista previa de la tarjeta del programa.
 # Label for the field where the admin enters alt text for the program summary image.
-label.adminProgramImage.altText=Enter image description (Alt Text)
+label.adminProgramImage.altText=Introduzca la descripción de la imagen (texto alternativo)
 # Button to leave the program image step and continue program setup (creation flow).
 button.adminProgramImage.continue=Continue
 # Button to save and return when editing an existing program (non-creation flow).
