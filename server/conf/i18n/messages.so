@@ -557,9 +557,9 @@ button.homePage=Ku noqo bogga hore
 # Title of the admin page where a program''s summary image and alt text are set.
 title.adminProgramImage=Gelinta sawirka
 # Link text to return to program editing from the program image page.
-link.adminProgramImage.back=Back
+link.adminProgramImage.back=Ka laabo
 # Hint under the file input about maximum upload size for a program summary image.
-content.adminProgramImage.hintMaxSize=The maximum size for image upload is 1MB.
+content.adminProgramImage.hintMaxSize=Cabirka ugu yar ee gelinta sawirka waa 1MB.
 # Hint explaining automatic 16x9 cropping and that the preview reflects saved images.
 content.adminProgramImage.hintCrop=The image will be automatically cropped to 16x9. The program card preview on the right shows the saved image.
 # Label for the field where the admin enters alt text for the program summary image.
