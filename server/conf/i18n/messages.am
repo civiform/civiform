@@ -1391,9 +1391,9 @@ adminSchemaViewer.intro2=ለድሮው ቅርጸት የተለየ ፍላጎት ከ
 # Label for the program selector on the schema viewer page.
 adminSchemaViewer.selectProgram=ፕሮግራም፦
 # Label for the program-status selector on the schema viewer page.
-adminSchemaViewer.selectStatus=Status:
+adminSchemaViewer.selectStatus=ሁነታ፦
 # Label for the OpenAPI version selector on the schema viewer page.
-adminSchemaViewer.selectVersion=OpenApi Version:
+adminSchemaViewer.selectVersion=የOpenApi ሥሪት፦
 # Error generating OpenAPI YAML
 adminSchemaViewer.yamlError=Unable to generate OpenApi version '{0}' for program '{1}' at stage '{2}'.
 
