@@ -3,7 +3,10 @@ import {default as uswdsFileInput} from '@uswds/uswds/js/usa-file-input'
 import {HtmxAfterRequestEvent} from '@/types/htmx'
 
 const CAN_UPLOAD_FILE_ATTR = 'data-can-upload-file'
+// Shows the question's "Uploading…" badge on the question container during upload
 const CF_FILE_UPLOADING_CLASS = 'cf-file-uploading'
+// Disables nav and all .cf-disable-when-uploading elements
+const CF_FILE_UPLOAD_IN_PROGRESS_CLASS = 'cf-file-upload-in-progress'
 const CF_FILE_UPLOAD_CONTAINER_SELECTOR = '[data-cf-file-upload-container]'
 const FILE_UPLOAD_HTMX_FAILURE = '[data-fileupload-error="request-failed"]'
 
@@ -46,10 +49,11 @@ export const init = () => {
         ),
         fileInput,
       )
+      fileUploadContainer.classList.add(CF_FILE_UPLOADING_CLASS)
     }
 
     fileUploadsInProgress++
-    document.body.classList.add(CF_FILE_UPLOADING_CLASS)
+    document.body.classList.add(CF_FILE_UPLOAD_IN_PROGRESS_CLASS)
     toggleDisabledState()
   })
 
@@ -65,7 +69,10 @@ export const init = () => {
     fileUploadsInProgress--
     if (fileUploadsInProgress <= 0) {
       fileUploadsInProgress = 0
-      document.body.classList.remove(CF_FILE_UPLOADING_CLASS)
+      document.body.classList.remove(CF_FILE_UPLOAD_IN_PROGRESS_CLASS)
+    }
+    if (fileUploadContainer) {
+      fileUploadContainer.classList.remove(CF_FILE_UPLOADING_CLASS)
     }
     toggleDisabledState()
     if (event.detail.successful) {
@@ -90,6 +97,7 @@ export const init = () => {
 
   document.body.addEventListener('htmx:afterSwap', () => {
     syncFileInputDisabledState()
+    toggleDisabledState()
   })
 
   document.body.addEventListener('change', (event) => {

@@ -278,8 +278,8 @@ public abstract class QuestionDefinition {
    *
    * <p>If a question definition does not have an enumeratorId, it is not repeated.
    *
-   * @return the {@link QuestionDefinition#id} for this question definition's enumerator, if it
-   *     exists.
+   * @return the {@link QuestionDefinition#getId()}} for this question definition's enumerator, if
+   *     it exists.
    */
   @JsonIgnore
   public final Optional<Long> getEnumeratorId() {

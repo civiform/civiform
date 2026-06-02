@@ -64,7 +64,6 @@ import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.applicant.addresscorrection.AddressCorrectionBlockView;
 import views.applicant.blocks.ApplicantProgramBlockEditView;
-import views.applicant.ineligible.ApplicantIneligibleView;
 
 @RunWith(JUnitParamsRunner.class)
 public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
@@ -106,7 +105,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             instanceOf(ProfileUtils.class),
             instanceOf(Config.class),
             settingsManifest,
-            instanceOf(ApplicantIneligibleView.class),
             instanceOf(AddressCorrectionBlockView.class),
             addressSuggestionJsonSerializer,
             instanceOf(ProgramService.class),

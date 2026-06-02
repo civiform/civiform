@@ -81,8 +81,6 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
 
     // Toasts
     context.setVariable("alertBannerMessage", params.alertBannerMessage());
-    context.setVariable("successBannerMessage", params.successBannerMessage());
-    context.setVariable("notEligibleBannerMessage", params.notEligibleBannerMessage());
     context.setVariable("errorBannerMessage", request.flash().get(FlashKey.ERROR));
 
     // Modals
@@ -233,10 +231,6 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
 
     abstract Optional<String> alertBannerMessage();
 
-    abstract Optional<String> successBannerMessage();
-
-    abstract Optional<String> notEligibleBannerMessage();
-
     abstract AlertSettings eligibilityAlertSettings();
 
     abstract ImmutableList<AnswerData> summaryData();
@@ -271,11 +265,6 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
       public abstract Builder setMessages(Messages messages);
 
       public abstract Builder setAlertBannerMessage(Optional<String> alertBannerMessage);
-
-      public abstract Builder setSuccessBannerMessage(Optional<String> successBannerMessage);
-
-      public abstract Builder setNotEligibleBannerMessage(
-          Optional<String> notEligibleBannerMessage);
 
       public abstract Builder setEligibilityAlertSettings(AlertSettings eligibilityAlertSettings);
 

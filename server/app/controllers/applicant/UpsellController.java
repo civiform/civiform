@@ -6,7 +6,6 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
-import controllers.FlashKey;
 import java.text.DateFormat;
 import java.time.Instant;
 import java.util.Date;
@@ -177,7 +176,6 @@ public final class UpsellController extends CiviFormController {
                                 .setApplicantPersonalInfo(applicantPersonalInfo.join())
                                 .setApplicationId(applicationId)
                                 .setMessages(messagesApi.preferred(request))
-                                .setBannerMessage(request.flash().get(FlashKey.BANNER))
                                 .setCompletedProgramId(programId)
                                 .setCompletedProgramSlug(
                                     programSlugHandler.getProgramSlug(programParam))
@@ -215,7 +213,7 @@ public final class UpsellController extends CiviFormController {
                   return unauthorized();
                 }
                 if (cause instanceof ProgramNotFoundException) {
-                  return notFound(cause.toString());
+                  return notFound();
                 }
               }
               throw new RuntimeException(ex);
@@ -260,10 +258,10 @@ public final class UpsellController extends CiviFormController {
                   return unauthorized(cause.toString());
                 }
                 if (cause instanceof ProgramNotFoundException) {
-                  return notFound(cause.toString());
+                  return notFound();
                 }
                 if (cause instanceof NoSuchElementException) {
-                  return notFound(cause.toString());
+                  return notFound();
                 }
               }
               throw new RuntimeException(ex);

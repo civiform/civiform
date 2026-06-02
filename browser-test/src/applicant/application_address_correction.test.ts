@@ -130,7 +130,7 @@ test.describe('address correction single-block, single-address program', () => {
           'CA',
           '92373',
         )
-        await page.getByText('متابعة').click()
+        await page.getByRole('button', {name: 'متابعة'}).click()
       })
 
       await test.step('Validate address correction page rendered right to left', async () => {

@@ -120,7 +120,7 @@ public class CiviFormSessionFilter extends EssentialFilter {
                         }
 
                         // Validate session length
-                        if (settingsManifest.get().getSessionTimeoutEnabled(request)
+                        if (settingsManifest.get().getSessionTimeoutEnabled()
                             && optionalSession.isPresent()) {
                           long sessionStartTimeInMillis =
                               optionalSession.get().getCreationTime().toEpochMilli();

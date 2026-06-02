@@ -1,0 +1,97 @@
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.docs.SchemaPageViewModel"*/-->
+<th:block
+  th:fragment="content"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <div class="spacing-4">
+    <!--/* Tabs */-->
+    <nav
+      th:aria-label="#{adminApiDocs.tabs.ariaLabel}"
+      class="cf-navigation-tabs"
+    >
+      <a
+        class="usa-link"
+        th:href="${model.apiDocsTabUrl}"
+        th:text="#{adminApiDocs.tabs.docs}"
+      ></a>
+      <span class="cf-navigation-tabs__separator" aria-hidden="true"> / </span>
+      <a
+        th:href="${model.schemaTabUrl}"
+        aria-current="page"
+        th:text="#{adminApiDocs.tabs.schema}"
+      ></a>
+    </nav>
+
+    <p th:text="#{adminSchemaViewer.intro1}"></p>
+    <p th:text="#{adminSchemaViewer.intro2}"></p>
+
+    <!--/* Form with selects */-->
+    <form
+      id="selectionForm"
+      th:action="${model.formActionUrl}"
+      method="GET"
+      class="display-flex flex-align-end flex-wrap flex-gap"
+    >
+      <cf:select
+        id="programSlug"
+        name="programSlug"
+        th:label="#{adminSchemaViewer.selectProgram}"
+      >
+        <option
+          th:each="opt : ${model.programSlugs}"
+          th:value="${opt.slug}"
+          th:text="${opt.slug}"
+          th:selected="${opt.selected}"
+        ></option>
+      </cf:select>
+
+      <cf:select
+        id="stage"
+        name="stage"
+        th:label="#{adminSchemaViewer.selectStatus}"
+      >
+        <option
+          th:each="opt : ${model.stageOptions}"
+          th:value="${opt.value}"
+          th:text="${opt.label}"
+          th:selected="${opt.selected}"
+        ></option>
+      </cf:select>
+
+      <cf:select
+        id="openApiVersion"
+        name="openApiVersion"
+        th:label="#{adminSchemaViewer.selectVersion}"
+      >
+        <option
+          th:each="opt : ${model.openApiVersionOptions}"
+          th:value="${opt.value}"
+          th:text="${opt.label}"
+          th:selected="${opt.selected}"
+        ></option>
+      </cf:select>
+    </form>
+
+    <input type="hidden" id="api-url" th:value="${model.apiUrl}" />
+
+    <!--/* Inlining this css because it is only used to modify the swagger-ui and is never useful elsewhere */-->
+    <style th:attr="nonce=${templateGlobals.cspNonce()}">
+      .swagger-ui {
+        > .topbar,
+        .scheme-container {
+          display: none;
+        }
+        .wrapper {
+          padding: 0;
+        }
+        .info {
+          margin: 0 0 1rem 0;
+        }
+      }
+    </style>
+
+    <div id="swagger-ui"></div>
+  </div>
+</th:block>

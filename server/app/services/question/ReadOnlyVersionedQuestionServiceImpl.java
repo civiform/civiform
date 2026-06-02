@@ -15,7 +15,8 @@ import services.question.types.QuestionDefinition;
  * Implementation class for {@link ReadOnlyQuestionService} interface. It contains all questions
  * that are in the specified version.
  *
- * <p>See {@link QuestionService#getReadOnlyVersionedQuestionService(VersionModel)}.
+ * <p>See {@link QuestionService#getReadOnlyVersionedQuestionService(VersionModel,
+ * VersionRepository)}.
  */
 public final class ReadOnlyVersionedQuestionServiceImpl implements ReadOnlyQuestionService {
 

@@ -798,15 +798,16 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
 
   @Test
   public void validateEnumeratorAndRepeatedQuestions_reuseRepeatedWithDuplicateEnumerator_throws() {
+    ImmutableList<QuestionDefinition> questions = ImmutableList.of(ENUMERATOR, REPEATED);
+    ImmutableList<String> overwrittenQuestions = ImmutableList.of();
+    ImmutableList<String> duplicatedQuestions = ImmutableList.of(ENUMERATOR.getName());
+    ImmutableList<String> reusedQuestions = ImmutableList.of(REPEATED.getName());
     Exception e =
         assertThrows(
             RuntimeException.class,
             () ->
                 service.validateEnumeratorAndRepeatedQuestions(
-                    ImmutableList.of(ENUMERATOR, REPEATED),
-                    /* overwrittenQuestions= */ ImmutableList.of(),
-                    /* duplicatedQuestions= */ ImmutableList.of(ENUMERATOR.getName()),
-                    /* reusedQuestions= */ ImmutableList.of(REPEATED.getName())));
+                    questions, overwrittenQuestions, duplicatedQuestions, reusedQuestions));
     assertThat(e)
         .hasMessageContaining(
             String.format(

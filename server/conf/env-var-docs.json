@@ -960,7 +960,7 @@
         "required": false
       },
       "SESSION_TIMEOUT_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
+        "mode": "ADMIN_READABLE",
         "description": "Enable session timeout based on inactivity and maximum duration.",
         "type": "bool",
         "required": false

@@ -28,8 +28,6 @@ public abstract class UpsellParams {
 
   abstract ApplicantPersonalInfo applicantPersonalInfo();
 
-  abstract Optional<String> bannerMessage();
-
   // Use programTitle or eligiblePrograms, but not both
   abstract Optional<String> programTitle();
 
@@ -62,8 +60,6 @@ public abstract class UpsellParams {
     public abstract Builder setApplicationId(long applicationId);
 
     public abstract Builder setApplicantPersonalInfo(ApplicantPersonalInfo applicantPersonalInfo);
-
-    public abstract Builder setBannerMessage(Optional<String> bannerMessage);
 
     public abstract Builder setProgramTitle(String programTitle);
 

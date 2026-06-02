@@ -118,7 +118,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
 
       return redirect(redirectUrl);
     } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
-      return notFound(e.toString());
+      return notFound();
     }
   }
 
@@ -203,7 +203,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
       }
       return redirect(routes.AdminProgramBlocksController.edit(programId, addedBlockId).url());
     } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
-      return notFound(e.toString());
+      return notFound();
     } catch (ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(
           "Something happened to the enumerator block while creating a repeated block", e);
@@ -254,7 +254,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
           request.flash().get(FlashKey.SUCCESS).map(ToastMessage::success);
       return renderEditViewWithMessage(request, program, block, maybeToastMessage);
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
-      return notFound(e.toString());
+      return notFound();
     }
   }
 
@@ -271,7 +271,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
       BlockDefinition block = program.getBlockDefinition(blockId);
       return renderReadOnlyViewWithMessage(request, program, block);
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
-      return notFound(e.toString());
+      return notFound();
     }
   }
 
@@ -292,7 +292,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
             request, result.getResult(), blockId, blockForm, Optional.of(message));
       }
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
-      return notFound(e.toString());
+      return notFound();
     }
 
     return redirect(routes.AdminProgramBlocksController.edit(programId, blockId));
@@ -311,7 +311,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
       return redirect(routes.AdminProgramBlocksController.edit(programId, blockId))
           .flashing(FlashKey.ERROR, e.getLocalizedMessage());
     } catch (ProgramNotFoundException e) {
-      return notFound(e.toString());
+      return notFound();
     }
     return redirect(routes.AdminProgramBlocksController.edit(programId, blockId));
   }
@@ -329,7 +329,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
     } catch (ProgramNotFoundException
         | ProgramNeedsABlockException
         | ProgramBlockDefinitionNotFoundException e) {
-      return notFound(e.toString());
+      return notFound();
     }
     return redirect(routes.AdminProgramBlocksController.index(programId));
   }
@@ -397,7 +397,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
               ImmutableList.of(),
               messagesApi.preferred(request)));
     } catch (ProgramBlockDefinitionNotFoundException e) {
-      return notFound(e.toString());
+      return notFound();
     }
   }
 }

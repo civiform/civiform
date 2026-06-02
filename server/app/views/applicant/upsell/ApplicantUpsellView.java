@@ -60,7 +60,6 @@ public class ApplicantUpsellView extends ApplicantBaseView {
     context.setVariable("programTitle", params.programTitle().orElse(""));
     context.setVariable("programShortDescription", params.programShortDescription().orElse(""));
     context.setVariable("applicationId", params.applicationId());
-    context.setVariable("bannerMessage", params.bannerMessage());
 
     String alertTitle =
         params

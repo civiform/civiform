@@ -7,12 +7,12 @@ import static play.test.Helpers.stubMessagesApi;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import forms.CheckboxQuestionForm;
-import forms.DateQuestionForm;
-import forms.MapQuestionForm;
-import forms.QuestionForm;
-import forms.QuestionFormBuilder;
-import forms.YesNoQuestionForm;
+import forms.questions.CheckboxQuestionForm;
+import forms.questions.DateQuestionForm;
+import forms.questions.MapQuestionForm;
+import forms.questions.QuestionForm;
+import forms.questions.QuestionFormBuilder;
+import forms.questions.YesNoQuestionForm;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import java.util.OptionalInt;

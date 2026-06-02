@@ -92,12 +92,12 @@
                   <button
                     type="submit"
                     th:formaction="${previousFormAction}"
-                    class="usa-button usa-button--outline margin-bottom-1 zero-top-margin"
+                    class="usa-button usa-button--outline margin-bottom-1 zero-top-margin cf-disable-when-uploading"
                     th:text="#{button.back}"
                   ></button>
                   <button
                     type="submit"
-                    class="usa-button margin-bottom-1 zero-top-margin"
+                    class="usa-button margin-bottom-1 zero-top-margin cf-disable-when-uploading"
                     th:text="#{button.continue}"
                   ></button>
                 </div>
@@ -105,7 +105,7 @@
                   type="submit"
                   th:formaction="${reviewFormAction}"
                   id="review-application-button"
-                  class="usa-button usa-button--unstyled margin-bottom-4"
+                  class="usa-button usa-button--unstyled margin-bottom-4 cf-disable-when-uploading"
                   th:text="#{button.reviewAndExit}"
                 ></button>
               </div>

@@ -6,98 +6,50 @@
 
 // Reset margin top/bottom on elements inside a spacing container so the
 // owl selector (`> * + *`) below is the sole source of vertical rhythm.
-:is(
-    .spacing-0,
-    .spacing-05,
-    .spacing-1,
-    .spacing-105,
-    .spacing-2,
-    .spacing-3,
-    .spacing-4,
-    .spacing-8
-  )
-  > * {
+
+$spacing-scopes: '.spacing-0, .spacing-05, .spacing-1, .spacing-105, .spacing-2, .spacing-3, .spacing-4, .spacing-8';
+$reset-targets: 'h1, h2, h3, h4, h5, h6, .usa-form-group, .usa-card';
+
+// Reset margin-top on spacing-* direct children to enforce a good starting point for
+// when the spacing-* is applied.
+:is(#{$spacing-scopes}) > * {
   @include u-margin-top(0);
+}
+
+// Reset margin-top on the items in the reset-targets list. It resets all children, but
+// uses css :where which has a lower specificity so it is overrideable by our spacing-*
+// and spacing-override-* classes below.
+:is(#{$spacing-scopes}) :where(#{$reset-targets}) {
+  @include u-margin-top(0);
+}
+
+// Reset margin-bottom on the items in the reset-targets list. It resets all children, but
+// uses css :is which has a specificity of the most specific selector so it will always
+// make sure we get the expected 0 margin.
+:is(#{$spacing-scopes}) :is(#{$reset-targets}) {
   @include u-margin-bottom(0);
 }
 
-// Semantic token: text-tiny
-// Space between text elements 0-1 sizes different
-.spacing-0 > * + * {
-  @include u-margin-top(0);
-}
+/*
+Generate the spacing-* and spacing-override-* classes
 
-// Semantic token: text-small
-// Space between text elements 2-3 sizes different
-.spacing-05 > * + * {
-  @include u-margin-top('05');
-}
+Example of what is generated:
 
-// Semantic token: text-medium
-// Space between text elements 4+ sizes different
-.spacing-1 > * + * {
-  @include u-margin-top(1);
-}
+    .spacing-0 > * + * {
+      @include u-margin-top(0);
+    }
 
-// Semantic token: content
-// Spacing between different content elements (e.g. a section title and address, a text description and an action button)
-.spacing-105 > * + * {
-  @include u-margin-top('105');
-}
+    .spacing-override-0 {
+      @include u-margin-top(0);
+    }
 
-// Semantic token: container
-// Spacing within a container element (i.e. Alert, Card, etc.)
-.spacing-2 > * + * {
-  @include u-margin-top(2);
-}
+*/
+@each $key in (0, '05', 1, '105', 2, 3, 4, 8) {
+  .spacing-#{$key} > * + * {
+    @include u-margin-top($key);
+  }
 
-// Semantic token: section
-// Spacing between subsections within a larger section (e.g. form sections)
-.spacing-3 > * + * {
-  @include u-margin-top(3);
-}
-
-// Semantic token: section-large
-// Space between page sections
-.spacing-4 > * + * {
-  @include u-margin-top(4);
-}
-
-// Semantic token: page-large
-// Page-level spacing, larger variant
-.spacing-8 > * + * {
-  @include u-margin-top(8);
-}
-
-// Overrides. Apply on a direct child to override the margin-top it from the parent `.spacing-*` class.
-.spacing-override-0 {
-  @include u-margin-top(0);
-}
-
-.spacing-override-05 {
-  @include u-margin-top('05');
-}
-
-.spacing-override-1 {
-  @include u-margin-top(1);
-}
-
-.spacing-override-105 {
-  @include u-margin-top('105');
-}
-
-.spacing-override-2 {
-  @include u-margin-top(2);
-}
-
-.spacing-override-3 {
-  @include u-margin-top(3);
-}
-
-.spacing-override-4 {
-  @include u-margin-top(4);
-}
-
-.spacing-override-8 {
-  @include u-margin-top(8);
+  .spacing-override-#{$key} {
+    @include u-margin-top($key);
+  }
 }

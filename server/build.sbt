@@ -56,7 +56,7 @@ lazy val root = (project in file("."))
       "com.azure" % "azure-storage-blob" % "12.32.0",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.63.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.65.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.11",
@@ -111,7 +111,7 @@ lazy val root = (project in file("."))
         "auto-value-shaded"
       ),
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.48.0",
+      "com.google.errorprone" % "error_prone_core" % "2.49.0",
       "org.checkerframework" % "dataflow-errorprone" % "4.1.0",
 
       // Apache libraries for export
@@ -121,7 +121,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.5",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.30",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.31",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "4.0.0",
@@ -158,7 +158,7 @@ lazy val root = (project in file("."))
       "io.swagger" % "swagger-parser" % "1.0.76",
 
       // OpenAPI 3.x Dependencies
-      "io.swagger.core.v3" % "swagger-core" % "2.2.49",
+      "io.swagger.core.v3" % "swagger-core" % "2.2.50",
       "io.swagger.parser.v3" % "swagger-parser" % "2.1.41",
 
       // JSON Schema validation

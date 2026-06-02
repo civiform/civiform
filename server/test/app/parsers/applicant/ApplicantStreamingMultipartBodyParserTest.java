@@ -100,6 +100,35 @@ public class ApplicantStreamingMultipartBodyParserTest extends ResetPostgres {
   }
 
   @Test
+  public void streamingUpload_withApplicantIdInPath_producesFileKeyWithUuidAndApplicantPrefix()
+      throws Exception {
+    Http.RequestHeader request =
+        fakeRequest()
+            .method("POST")
+            .uri(
+                String.format(
+                    "/applicants/%d/programs/%d/blocks/%s/hx/selectFileForUpload",
+                    APPLICANT_ID, PROGRAM_ID, BLOCK_ID))
+            .header("Content-Type", "multipart/form-data; boundary=" + MULTIPART_BOUNDARY)
+            .build();
+
+    when(profileUtils.optionalCurrentUserProfile(any(Http.RequestHeader.class)))
+        .thenReturn(Optional.empty());
+
+    Source<ByteString, ?> source = createMultipartRequestBody("hello.pdf", PDF_HEADER);
+
+    CompletionStage<play.libs.F.Either<play.mvc.Result, Http.MultipartFormData<String>>> stage =
+        parser.apply(request).run(source, materializer);
+    Http.MultipartFormData<String> body = stage.toCompletableFuture().join().right.get();
+
+    Http.MultipartFormData.FilePart<String> filePart = body.getFile("file");
+    assertThat(filePart).isNotNull();
+    assertThat(filePart.getRef())
+        .startsWith(
+            String.format("applicant-%d/program-%d/block-%s/", APPLICANT_ID, PROGRAM_ID, BLOCK_ID));
+  }
+
+  @Test
   public void streamingUpload_producesFileKeyWithUuidAndApplicantPrefix() throws Exception {
     Http.RequestHeader request =
         fakeRequest()
