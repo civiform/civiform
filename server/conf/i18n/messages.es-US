@@ -1393,7 +1393,7 @@ adminSchemaViewer.selectProgram=Programa:
 # Label for the program-status selector on the schema viewer page.
 adminSchemaViewer.selectStatus=Estado:
 # Label for the OpenAPI version selector on the schema viewer page.
-adminSchemaViewer.selectVersion=OpenApi Version:
+adminSchemaViewer.selectVersion=Versión de OpenApi:
 # Error generating OpenAPI YAML
 adminSchemaViewer.yamlError=Unable to generate OpenApi version '{0}' for program '{1}' at stage '{2}'.
 
