@@ -1385,7 +1385,7 @@ adminApiDocs.responsePreview=Bandhiga jawaabta API
 # Admin API Docs page title
 adminSchemaViewer.pageTitle=API schema viewer
 # First intro paragraph on the OpenAPI schema viewer page.
-adminSchemaViewer.intro1=This page shows a visualization of the OpenAPI Schema. Both version 2 (formerly Swagger 2) and version 3 are available.
+adminSchemaViewer.intro1=Boggaan wuxuu muujinayaa muuqaalka Qaabka OpenAPI. Labadaba nooca 2 (horaan u ahaa Swagger 2) iyo nooca 3 ayaa la helayaa.
 # Second intro paragraph on the OpenAPI schema viewer page.
 adminSchemaViewer.intro2=Waxaan ku talineynaa keliya isticmaalka nooca 3 illaamaa ay ka jiraan baahi gaar ah oo nooca hore.
 # Label for the program selector on the schema viewer page.
