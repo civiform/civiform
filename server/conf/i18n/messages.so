@@ -1389,7 +1389,7 @@ adminSchemaViewer.intro1=This page shows a visualization of the OpenAPI Schema. 
 # Second intro paragraph on the OpenAPI schema viewer page.
 adminSchemaViewer.intro2=We recommend only using version 3 unless there is a specific need for the older format.
 # Label for the program selector on the schema viewer page.
-adminSchemaViewer.selectProgram=Program:
+adminSchemaViewer.selectProgram=Barnaamijka:
 # Label for the program-status selector on the schema viewer page.
 adminSchemaViewer.selectStatus=Xaalada:
 # Label for the OpenAPI version selector on the schema viewer page.
