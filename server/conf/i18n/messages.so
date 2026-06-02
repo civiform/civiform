@@ -577,7 +577,7 @@ toast.adminProgramImage.imageAndDescriptionSaved=Sawirka waxaa lala keydiyay qee
 # Toast after saving alt text without uploading a new file.
 toast.adminProgramImage.descriptionSet=Qeexida sawirka waxaa lagu dejiyay {0}
 # Error when alt text cannot be cleared while an image remains.
-toast.adminProgramImage.descriptionNotRemovable=Description can't be removed because an image is present. Delete the image before deleting the description.
+toast.adminProgramImage.descriptionNotRemovable=Qeexida lagama saari karo sababtoo ah sawir ayaa xaadir ah. Tir sawirka ka hor intaadan tirin qeexida.
 # Toast after deleting a program image
 toast.adminProgramImage.imageRemoved=Image removed
 # Message when the program card preview cannot be rendered.
