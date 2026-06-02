@@ -563,7 +563,7 @@ content.adminProgramImage.hintMaxSize=Cabirka ugu yar ee gelinta sawirka waa 1MB
 # Hint explaining automatic 16x9 cropping and that the preview reflects saved images.
 content.adminProgramImage.hintCrop=Sawirka si toos ah ayaa loogu jarayaa 16x9. Fiirinta kaarka barnaamijka ee dhinaca midig wuxuu muujinayaa sawirka la keydiyay.
 # Label for the field where the admin enters alt text for the program summary image.
-label.adminProgramImage.altText=Enter image description (Alt Text)
+label.adminProgramImage.altText=Geli qeexida sawirka (Alt Text)
 # Button to leave the program image step and continue program setup (creation flow).
 button.adminProgramImage.continue=Continue
 # Button to save and return when editing an existing program (non-creation flow).
