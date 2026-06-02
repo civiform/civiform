@@ -1364,7 +1364,7 @@ adminApiDocs.notFound=No se encontró ningún programa. Crea un programa y publ�
 # Heading for the list of questions on the selected program.
 adminApiDocs.questions=Preguntas
 # Label for a question's admin name
-adminApiDocs.adminName=Admin Name
+adminApiDocs.adminName=Nombre del administrador
 # Label for a question's type (text, number, etc.).
 adminApiDocs.type=Type
 # Label for a question's display text.
