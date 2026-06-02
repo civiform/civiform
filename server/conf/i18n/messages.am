@@ -581,7 +581,7 @@ toast.adminProgramImage.descriptionNotRemovable=መግለጫው ምስል ስላ
 # Toast after deleting a program image
 toast.adminProgramImage.imageRemoved=ምስል ተወግዷል
 # Message when the program card preview cannot be rendered.
-content.adminProgramImage.cardPreviewError=Error generating card preview
+content.adminProgramImage.cardPreviewError=የካርድ ቅድመ ዕይታን በማመንጨት ላይ ስህተት ተከስቷል
 
 #--------------------------------------------------------------------------------------------------------------#
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
