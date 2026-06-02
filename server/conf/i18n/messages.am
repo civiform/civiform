@@ -1325,7 +1325,7 @@ reportingProgram.downloadCsv=CSV አውርድ
 #------------------------------------------------------------------------------#
 
 # Admin API Docs page title
-adminApiDocs.pageTitle=API documentation
+adminApiDocs.pageTitle=የAPI ሰነድ
 
 # Aria label for the nav that switches between API docs sub-pages.
 adminApiDocs.tabs.ariaLabel=API documentation sections
