@@ -815,7 +815,7 @@ validation.fileRequired=እባክዎ ፋይል ይምረጡ።
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=ፋይልዎ በጣም ትልቅ ነው። እባክዎ ከ{0} ሜባ በታች የሆነ ፋይል ይምረጡ።
 # Shown when an HTMX file upload request fails (any non-success response).
-validation.fileUploadRequestFailed=We couldn't upload your file. Please try again.
+validation.fileUploadRequestFailed=የእርስዎ ፋይል ሊሰቀል አልቻለም። እባክዎ እንደገና ይሞክሩ።
 # Text shown on a tag while a file is uploading.
 label.uploading=በመስቀል ላይ
 # Label applied to a list of uploaded files
