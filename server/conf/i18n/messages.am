@@ -1100,7 +1100,7 @@ banner.minute=1 ደቂቃ
 # Header for data security banner alert
 label.immigrationStatusInfoBanner.heading=ስደተኞች እና ተጠጊዎች እዚህ መምጣት ይችላሉ
 # Aria-label for data security banner alert
-label.immigrationStatusInfoBanner.label=Immigration status informational alert
+label.immigrationStatusInfoBanner.label=የኢሚግሬሽን ሁኔታ መረጃ ማንቂያ
 # Text in the data security banner explaining how user data is protected when no learn more link is configured
 banner.immigrationStatusInfoBanner.body=We will not ask about your citizenship or immigration status.
 # Text in the data security banner explaining how user data is protected - the placeholder says 'here' and is a link to more information
