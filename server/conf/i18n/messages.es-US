@@ -1325,7 +1325,7 @@ reportingProgram.downloadCsv=Descargar CSV
 #------------------------------------------------------------------------------#
 
 # Admin API Docs page title
-adminApiDocs.pageTitle=API documentation
+adminApiDocs.pageTitle=Documentación de API
 
 # Aria label for the nav that switches between API docs sub-pages.
 adminApiDocs.tabs.ariaLabel=API documentation sections
