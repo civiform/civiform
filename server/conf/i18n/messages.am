@@ -569,7 +569,7 @@ button.adminProgramImage.continue=ቀጥል
 # Button to save and return when editing an existing program (non-creation flow).
 button.adminProgramImage.save=አስቀምጥ
 # Button to delete an uploaded program image
-button.adminProgramImage.delete=Delete image
+button.adminProgramImage.delete=ምስልን ሰርዝ
 # Message shown when alt text is required but missing.
 validation.adminProgramImage.altTextRequired=Image description is required when a program image is uploaded.
 # Toast after saving a program image and alt text together.
