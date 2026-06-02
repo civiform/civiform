@@ -1346,9 +1346,9 @@ adminApiDocs.accordion.heading=ይህ እንዴት ነው የሚሆነው?
 # First paragraph inside the accordion.
 adminApiDocs.accordion.paragraph1=የAPI ምላሽ ቅድመ ዕይታ ለአንድ የተወሰነ ፕሮግራም የAPI ምላሹ ምን ሊመስል እንደሚችል የሚያሳይ ናሙና ነው። ሁሉም ውሂቦች የውሸት ናቸው። ነጠላ-ምርጫ እና ባለብዙ-ምርጫ ጥያቄዎች ከሚገኙት መልሶች የተመረጡ የናሙና መልሶች አሏቸው።
 # Second paragraph inside the accordion as text before the shareable link.
-adminApiDocs.accordion.paragraph2.beforeLink=You may share this link,
+adminApiDocs.accordion.paragraph2.beforeLink=ይህንን አገናኝ፣ 
 # Second paragraph inside the accordion as text after the shareable link.
-adminApiDocs.accordion.paragraph2.afterLink=, with anyone who needs to see API docs. It is accessible without logging in, so they do not need to be a CiviForm Admin or Program Admin to view this page.
+adminApiDocs.accordion.paragraph2.afterLink=የAPI ሰነዶችን ማየት ለሚፈልግ ለማንኛውም ሰው ማጋራት ይችላሉ። በመለያ ሳይገቡ ተደራሽ ነው፣ ስለዚህ ይህንን ገጽ ለማየት የCiviForm አስተዳዳሪ ወይም የፕሮግራም አስተዳዳሪ መሆን አያስፈልግዎትም።
 
 # Label for the program selector.
 adminApiDocs.selectProgram=Select a program:
