@@ -1332,7 +1332,7 @@ adminApiDocs.tabs.ariaLabel=Qeybaha dokumentiga API
 # Tab label for the main API docs page.
 adminApiDocs.tabs.docs=Dokumentiyada
 # Tab label for the schema viewer page.
-adminApiDocs.tabs.schema=Schema viewer
+adminApiDocs.tabs.schema=Bandhigaha aaladaha qorshaha
 
 # Intro paragraph as text before the external-docs link.
 adminApiDocs.intro.beforeLink=This page includes program-specific API Documentation for Active and Draft programs. Detailed documentation about authentication, pagination, and every field's possible values is located at
