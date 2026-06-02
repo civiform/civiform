@@ -569,7 +569,7 @@ button.adminProgramImage.continue=Sii wad
 # Button to save and return when editing an existing program (non-creation flow).
 button.adminProgramImage.save=Keydi
 # Button to delete an uploaded program image
-button.adminProgramImage.delete=Tir sawirka
+button.adminProgramImage.delete=Tirtir sawirka
 # Message shown when alt text is required but missing.
 validation.adminProgramImage.altTextRequired=Qeexida sawirka waa loo baahan yahay markii sawirka barnaamijka la geliyo.
 # Toast after saving a program image and alt text together.
