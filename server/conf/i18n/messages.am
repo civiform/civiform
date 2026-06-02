@@ -250,7 +250,7 @@ button.viewAndAddClients=ደንበኛዎችን ይመልከቱ እና ያክሉ
 # Part of the confirmation banner which appears after a new client has been added to a community-based organization.
 content.clientCreated=አዲሱ ደንበኛዎ {0} ወደ ደንበኛዎ ዝርዝር ውስጥ ተጨምሯል። አሁን ለዚህ ደንበኛ ማመልከቻዎችን ማስገባት መጀመር ይችላሉ።
 # The tooltip of the email input field.
-content.emailTooltip=ደንበኛዎችዎ ስለማመልከቻቸው የሁኔታ ዝማኔዎችን በራስ-ሰር እንዲቀበሉ የኢሜይል አድራሻ ያክሉላቸው። ያለኢሜይል እርስዎ ወይም ማህበረሰብ-ተኮር ድርጅትዎ ለደንበኛዎ ስለዝማኔዎች የማሳወቅ ኃላፊነት ይኖርብዎታል።
+content.emailTooltip=ደንበኛዎችዎ ስለማመልከቻቸው የሁነታ ዝማኔዎችን በራስ-ሰር እንዲቀበሉ የኢሜይል አድራሻ ያክሉላቸው። ያለኢሜይል እርስዎ ወይም ማህበረሰብ-ተኮር ድርጅትዎ ለደንበኛዎ ስለዝማኔዎች የማሳወቅ ኃላፊነት ይኖርብዎታል።
 # For each client on the client list, shows the number of applications that have been submitted for them.
 content.numberOfAppSubmitted={0} ማመልከቻዎች ገብተዋል
 # Shows that a single application has been submitted on behalf of the client.
