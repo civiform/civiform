@@ -1335,7 +1335,7 @@ adminApiDocs.tabs.docs=Dokumentiyada
 adminApiDocs.tabs.schema=Bandhigaha aaladaha qorshaha
 
 # Intro paragraph as text before the external-docs link.
-adminApiDocs.intro.beforeLink=This page includes program-specific API Documentation for Active and Draft programs. Detailed documentation about authentication, pagination, and every field's possible values is located at
+adminApiDocs.intro.beforeLink=Boggaan waxaa ka mid ah Dokumentiga API ee barnaamijka gaar u ah ee loogu tallogalay barnaamijyada Firfircoon iyo Qabyo qoraalka. Dokumentiga sharaxan ee ku saabsan xaqiijinta, kala qeybinta, iyo qiyamyada suurtogalka ah ee goob walba waxay ku taalaa
 # Visible text of the external-docs link in the intro paragraph.
 adminApiDocs.intro.linkText=docs.civiform.us/it-manual/api
 # Intro paragraph as text after the external-docs link.
