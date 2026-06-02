@@ -573,7 +573,7 @@ button.adminProgramImage.delete=Tir sawirka
 # Message shown when alt text is required but missing.
 validation.adminProgramImage.altTextRequired=Qeexida sawirka waa loo baahan yahay markii sawirka barnaamijka la geliyo.
 # Toast after saving a program image and alt text together.
-toast.adminProgramImage.imageAndDescriptionSaved=Image is saved with the description: {0}
+toast.adminProgramImage.imageAndDescriptionSaved=Sawirka waxaa lala keydiyay qeexida: {0}
 # Toast after saving alt text without uploading a new file.
 toast.adminProgramImage.descriptionSet=Image description set to {0}
 # Error when alt text cannot be cleared while an image remains.
