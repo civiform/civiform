@@ -1376,7 +1376,7 @@ adminApiDocs.currentOptions=Opciones actuales:
 # Label preceding the list of every option the question has ever had.
 adminApiDocs.allOptions=Todas las opciones posibles:
 # Heading above the JSON preview of the API response.
-adminApiDocs.responsePreview=API response preview
+adminApiDocs.responsePreview=Vista previa de respuesta de API
 
 #------------------------------------------------------------------------------#
 #  ADMIN SCHEMA VIEWER                                                         #
