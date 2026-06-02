@@ -1391,7 +1391,7 @@ adminSchemaViewer.intro2=We recommend only using version 3 unless there is a spe
 # Label for the program selector on the schema viewer page.
 adminSchemaViewer.selectProgram=Program:
 # Label for the program-status selector on the schema viewer page.
-adminSchemaViewer.selectStatus=Status:
+adminSchemaViewer.selectStatus=Xaalada:
 # Label for the OpenAPI version selector on the schema viewer page.
 adminSchemaViewer.selectVersion=Nooca OpenApi:
 # Error generating OpenAPI YAML
