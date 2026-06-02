@@ -1337,7 +1337,7 @@ adminApiDocs.tabs.schema=Schema viewer
 # Intro paragraph as text before the external-docs link.
 adminApiDocs.intro.beforeLink=ይህ ገጽ ለንቁ እና ለረቂቅ ፕሮግራሞች ፕሮግራም-ተኮር የAPI ሰነዶችን ይዟል።  ስለ ማረጋገጫ፣ ገጽ አወጣጥ እና የእያንዳንዱ መስክ ሊሆኑ የሚችሉ እሴቶች ዝርዝር ሰነዶች በ
 # Visible text of the external-docs link in the intro paragraph.
-adminApiDocs.intro.linkText=docs.civiform.us/it-manual/api
+adminApiDocs.intro.linkText=docs.civiform.us/it-manual/api ላይ ይገኛሉ።
 # Intro paragraph as text after the external-docs link.
 adminApiDocs.intro.afterLink=.
 
