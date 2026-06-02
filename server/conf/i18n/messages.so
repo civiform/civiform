@@ -1357,7 +1357,7 @@ adminApiDocs.selectVersion=Dooro nooca:
 # Option label for the active version of a program.
 adminApiDocs.version.active=Firfircoon
 # Option label for the draft version of a program.
-adminApiDocs.version.draft=Draft
+adminApiDocs.version.draft=Qabyo qoraal
 
 # Message shown when the requested program + version combination does not exist.
 adminApiDocs.notFound=No programs found. Please create and publish a program before accessing API docs.
