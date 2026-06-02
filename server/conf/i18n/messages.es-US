@@ -1346,7 +1346,7 @@ adminApiDocs.accordion.heading=¿Cómo funciona esto?
 # First paragraph inside the accordion.
 adminApiDocs.accordion.paragraph1=La vista previa de la respuesta de la API es un ejemplo de cómo podría ser dicha respuesta para un programa determinado. Todos los datos son ficticios. Las preguntas de selección única y múltiple tienen respuestas de ejemplo seleccionadas entre las opciones disponibles.
 # Second paragraph inside the accordion as text before the shareable link.
-adminApiDocs.accordion.paragraph2.beforeLink=You may share this link,
+adminApiDocs.accordion.paragraph2.beforeLink=Puedes compartir este enlace,
 # Second paragraph inside the accordion as text after the shareable link.
 adminApiDocs.accordion.paragraph2.afterLink=, with anyone who needs to see API docs. It is accessible without logging in, so they do not need to be a CiviForm Admin or Program Admin to view this page.
 
