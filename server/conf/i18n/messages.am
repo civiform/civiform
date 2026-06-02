@@ -573,7 +573,7 @@ button.adminProgramImage.delete=ምስልን ሰርዝ
 # Message shown when alt text is required but missing.
 validation.adminProgramImage.altTextRequired=የፕሮግራም ምስል ሲሰቀል የምስል መግለጫ ያስፈልጋል።
 # Toast after saving a program image and alt text together.
-toast.adminProgramImage.imageAndDescriptionSaved=Image is saved with the description: {0}
+toast.adminProgramImage.imageAndDescriptionSaved=ምስል ከሚከተለው መግለጫ ጋር ተቀምጧል፦ {0}
 # Toast after saving alt text without uploading a new file.
 toast.adminProgramImage.descriptionSet=Image description set to {0}
 # Error when alt text cannot be cleared while an image remains.
