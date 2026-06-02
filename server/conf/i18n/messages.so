@@ -579,7 +579,7 @@ toast.adminProgramImage.descriptionSet=Qeexida sawirka waxaa lagu dejiyay {0}
 # Error when alt text cannot be cleared while an image remains.
 toast.adminProgramImage.descriptionNotRemovable=Qeexida lagama saari karo sababtoo ah sawir ayaa xaadir ah. Tir sawirka ka hor intaadan tirin qeexida.
 # Toast after deleting a program image
-toast.adminProgramImage.imageRemoved=Image removed
+toast.adminProgramImage.imageRemoved=Sawirka waa laga saaray
 # Message when the program card preview cannot be rendered.
 content.adminProgramImage.cardPreviewError=Error generating card preview
 
