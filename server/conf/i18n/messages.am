@@ -474,7 +474,7 @@ title.signInModal=በመለያ ይግቡ
 content.signInModal=መለያ ሲፈጥሩ የማመልከቻውን ሁኔታ መፈተሽ፣ በእሱ ላይ ለውጦችን ማድረግ እና ለሌሎች ፕሮግራሞች በፍጥነት ማመልከት ይችላሉ።
 
 # A message to show on the login prompt modal that encourages users to log in before applying to a program from the programs index page.
-content.initialLoginModalPrompt=ከመቀጠልዎ በፊት ወደ {0} መለያዎ ይግቡ ወይም መለያ ይፍጠሩ። ተመሳሳዩን መረጃ እንደገና ሳያስገቡ ለብዙ ፕሮግራሞች ማመልከት ይችላሉ። እንዲሁም ማመልከቻዎችን ማርትዕ እና የማመልከቻ ሁኔታዎችዎን መፈተሽ ይችላሉ።
+content.initialLoginModalPrompt=ከመቀጠልዎ በፊት ወደ {0} መለያዎ ይግቡ ወይም መለያ ይፍጠሩ። ተመሳሳዩን መረጃ እንደገና ሳያስገቡ ለብዙ ፕሮግራሞች ማመልከት ይችላሉ። እንዲሁም ማመልከቻዎችን ማርትዕ እና የማመልከቻ ሁነታዎችዎን መፈተሽ ይችላሉ።
 # A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=ያለ መለያ ቀጥል
 title.preScreenerConfirmation=እርስዎ ብቁ ሊሆኑ የሚችሉባቸው ፕሮግራሞች
@@ -519,7 +519,7 @@ alert.createAccountForLoginOnly=ማመልከቻዎ ዘንድ በኋላ ለመድ
 # Informational "alert" title to encourage the user to create an account
 alert.createAccount=ማመልከቻዎን በኋላ ላይ ለመድረስ መለያ ይፍጠሩ
 # Description text in an alert that explains how creating an account can help the user
-alert.createAccountDescription=መረጃዎን በመለያ ውስጥ በሚያስቀምጡበት ጊዜ የማመልከቻዎን ሁኔታ ማረጋገጥ እና በፍጥነት ወደ ሌሎች ፕሮግራሞች ማመልከት ይችላሉ።
+alert.createAccountDescription=መረጃዎን በመለያ ውስጥ በሚያስቀምጡበት ጊዜ የማመልከቻዎን ሁነታ ማረጋገጥ እና በፍጥነት ወደ ሌሎች ፕሮግራሞች ማመልከት ይችላሉ።
 # Informational alert to let the user know there are no additonal programs for them to start an application for at this time.
 alert.noProgramsAvailable=እርስዎ አሁን ላይ ለሚገኙ ሁሉም ፕሮግራሞች ማመልከቻ ጀምረዋል ወይም አስገብተዋል።
 # Hyperlink to log in to an existing account
@@ -1051,7 +1051,7 @@ email.applicationUpdateSubject=በእርስዎ ማምልከቻ {0} ላይ ዝማ
 # Subject of the email sent to a TI when they change the status of an application
 email.tiApplicationUpdateSubject=አመልካች {1}ን በመወከል ለፕሮግራም {0} በማመልከቻ ላይ ዝማኔ
 # Body of the email sent to a TI when they change the status of an application
-email.tiApplicationUpdateBody=በፕሮግራም {1} ላይ ለአመልካች {0} ሁኔታው ወደ {2} ተለውጧል።
+email.tiApplicationUpdateBody=በፕሮግራም {1} ላይ ለአመልካች {0} ሁነታው ወደ {2} ተለውጧል።
 
 #------------------------------------------------------------------------------#
 # GOVERNMENT BANNER - text explaining that CF is an official government site #
