@@ -573,7 +573,7 @@ button.adminProgramImage.delete=Eliminar imagen
 # Message shown when alt text is required but missing.
 validation.adminProgramImage.altTextRequired=Se requiere una descripción de la imagen al cargar la imagen de un programa.
 # Toast after saving a program image and alt text together.
-toast.adminProgramImage.imageAndDescriptionSaved=Image is saved with the description: {0}
+toast.adminProgramImage.imageAndDescriptionSaved=La imagen se guardó con la descripción: {0}
 # Toast after saving alt text without uploading a new file.
 toast.adminProgramImage.descriptionSet=Image description set to {0}
 # Error when alt text cannot be cleared while an image remains.
