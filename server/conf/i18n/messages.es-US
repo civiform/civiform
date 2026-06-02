@@ -569,7 +569,7 @@ button.adminProgramImage.continue=Continuar
 # Button to save and return when editing an existing program (non-creation flow).
 button.adminProgramImage.save=Guardar
 # Button to delete an uploaded program image
-button.adminProgramImage.delete=Delete image
+button.adminProgramImage.delete=Eliminar imagen
 # Message shown when alt text is required but missing.
 validation.adminProgramImage.altTextRequired=Image description is required when a program image is uploaded.
 # Toast after saving a program image and alt text together.
