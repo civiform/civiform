@@ -1348,7 +1348,7 @@ adminApiDocs.accordion.paragraph1=Hordhaca jawaabta API waa tusaale ka mid ah si
 # Second paragraph inside the accordion as text before the shareable link.
 adminApiDocs.accordion.paragraph2.beforeLink=Waxaad wadaagi kartaa linkigaan,
 # Second paragraph inside the accordion as text after the shareable link.
-adminApiDocs.accordion.paragraph2.afterLink=, iyo qof walba oo u baahan inuu arko dokumentiyada API. Waxaa la heli karaa iyadoon la geli, marka uma baahno inuu ahaado Maamulaha CiviForm ama Maamulaha Barnaamijka si aad u fiirisid boggaan.
+adminApiDocs.accordion.paragraph2.afterLink=, iyo qof walba oo u baahan inuu arko dokumentiyada API. Waxaa la heli karaa iyadoon la geli, marka uma baahno inaad ahaato Maamulaha CiviForm ama Maamulaha Barnaamijka si aad u fiirisid boggaan.
 
 # Label for the program selector.
 adminApiDocs.selectProgram=Dooro barnaamij:
