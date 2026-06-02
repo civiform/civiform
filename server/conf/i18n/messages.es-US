@@ -577,7 +577,7 @@ toast.adminProgramImage.imageAndDescriptionSaved=La imagen se guardó con la des
 # Toast after saving alt text without uploading a new file.
 toast.adminProgramImage.descriptionSet=La descripción de la imagen se estableció como {0}
 # Error when alt text cannot be cleared while an image remains.
-toast.adminProgramImage.descriptionNotRemovable=Description can't be removed because an image is present. Delete the image before deleting the description.
+toast.adminProgramImage.descriptionNotRemovable=No se puede eliminar la descripción porque contiene una imagen. Elimine la imagen antes de eliminar la descripción.
 # Toast after deleting a program image
 toast.adminProgramImage.imageRemoved=Image removed
 # Message when the program card preview cannot be rendered.
