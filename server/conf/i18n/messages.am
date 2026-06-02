@@ -1395,7 +1395,7 @@ adminSchemaViewer.selectStatus=ሁነታ፦
 # Label for the OpenAPI version selector on the schema viewer page.
 adminSchemaViewer.selectVersion=የOpenApi ሥሪት፦
 # Error generating OpenAPI YAML
-adminSchemaViewer.yamlError=Unable to generate OpenApi version '{0}' for program '{1}' at stage '{2}'.
+adminSchemaViewer.yamlError=በ'{2}' ደረጃ ላይ ለ'{1}' ፕሮግራም የOpenApi ሥሪት '{0}'ን ማመንጨት አልተቻለም።
 
 #------------------------------------------------------------------------------#
 #  DEV TOOLS - text for the developer tools page                               #
