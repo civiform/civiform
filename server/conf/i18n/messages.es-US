@@ -581,7 +581,7 @@ toast.adminProgramImage.descriptionNotRemovable=No se puede eliminar la descripc
 # Toast after deleting a program image
 toast.adminProgramImage.imageRemoved=Imagen eliminada
 # Message when the program card preview cannot be rendered.
-content.adminProgramImage.cardPreviewError=Error generating card preview
+content.adminProgramImage.cardPreviewError=Error al generar la vista previa de la tarjeta
 
 #--------------------------------------------------------------------------------------------------------------#
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
