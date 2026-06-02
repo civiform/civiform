@@ -575,7 +575,7 @@ validation.adminProgramImage.altTextRequired=የፕሮግራም ምስል ሲሰ
 # Toast after saving a program image and alt text together.
 toast.adminProgramImage.imageAndDescriptionSaved=ምስል ከሚከተለው መግለጫ ጋር ተቀምጧል፦ {0}
 # Toast after saving alt text without uploading a new file.
-toast.adminProgramImage.descriptionSet=Image description set to {0}
+toast.adminProgramImage.descriptionSet=የምስል መግለጫ ወደ {0} ተቀናብሯል
 # Error when alt text cannot be cleared while an image remains.
 toast.adminProgramImage.descriptionNotRemovable=Description can't be removed because an image is present. Delete the image before deleting the description.
 # Toast after deleting a program image
