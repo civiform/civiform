@@ -1362,7 +1362,7 @@ adminApiDocs.version.draft=Qabyo qoraal
 # Message shown when the requested program + version combination does not exist.
 adminApiDocs.notFound=Ma jiraan barnaamijyo la helay. Fadlan samee oo daabac barnaamij ka hor intaan la gelin dokumentiyada API.
 # Heading for the list of questions on the selected program.
-adminApiDocs.questions=Questions
+adminApiDocs.questions=Su'aalaha
 # Label for a question's admin name
 adminApiDocs.adminName=Admin Name
 # Label for a question's type (text, number, etc.).
