@@ -1348,7 +1348,7 @@ adminApiDocs.accordion.paragraph1=La vista previa de la respuesta de la API es u
 # Second paragraph inside the accordion as text before the shareable link.
 adminApiDocs.accordion.paragraph2.beforeLink=Puedes compartir este enlace,
 # Second paragraph inside the accordion as text after the shareable link.
-adminApiDocs.accordion.paragraph2.afterLink=, with anyone who needs to see API docs. It is accessible without logging in, so they do not need to be a CiviForm Admin or Program Admin to view this page.
+adminApiDocs.accordion.paragraph2.afterLink=, con cualquier persona que necesite ver la documentación de API. Es posible acceder sin iniciar sesión, por lo que no es necesario ser un administrador de CiviForm o del programa para ver esta página.
 
 # Label for the program selector.
 adminApiDocs.selectProgram=Select a program:
