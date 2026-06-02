@@ -1355,7 +1355,7 @@ adminApiDocs.selectProgram=Selecciona un programa:
 # Label for the program-version selector.
 adminApiDocs.selectVersion=Selecciona la versión:
 # Option label for the active version of a program.
-adminApiDocs.version.active=Active
+adminApiDocs.version.active=Activo
 # Option label for the draft version of a program.
 adminApiDocs.version.draft=Draft
 
