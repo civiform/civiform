@@ -1353,7 +1353,7 @@ adminApiDocs.accordion.paragraph2.afterLink=የAPI ሰነዶችን ማየት ለ
 # Label for the program selector.
 adminApiDocs.selectProgram=ፕሮግራም ይምረጡ፦
 # Label for the program-version selector.
-adminApiDocs.selectVersion=Select version:
+adminApiDocs.selectVersion=ሥሪት ይምረጡ፦
 # Option label for the active version of a program.
 adminApiDocs.version.active=Active
 # Option label for the draft version of a program.
