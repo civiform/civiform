@@ -1351,9 +1351,9 @@ adminApiDocs.accordion.paragraph2.beforeLink=Puedes compartir este enlace,
 adminApiDocs.accordion.paragraph2.afterLink=, con cualquier persona que necesite ver la documentación de API. Es posible acceder sin iniciar sesión, por lo que no es necesario ser un administrador de CiviForm o del programa para ver esta página.
 
 # Label for the program selector.
-adminApiDocs.selectProgram=Select a program:
+adminApiDocs.selectProgram=Seleccione un programa:
 # Label for the program-version selector.
-adminApiDocs.selectVersion=Select version:
+adminApiDocs.selectVersion=Seleccione la vesión:
 # Option label for the active version of a program.
 adminApiDocs.version.active=Active
 # Option label for the draft version of a program.
