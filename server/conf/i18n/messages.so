@@ -1351,7 +1351,7 @@ adminApiDocs.accordion.paragraph2.beforeLink=Waxaad wadaagi kartaa linkigaan,
 adminApiDocs.accordion.paragraph2.afterLink=, iyo qof walba oo u baahan inuu arko dokumentiyada API. Waxaa la heli karaa iyadoon la geli, marka uma baahno inuu ahaado Maamulaha CiviForm ama Maamulaha Barnaamijka si aad u fiirisid boggaan.
 
 # Label for the program selector.
-adminApiDocs.selectProgram=Select a program:
+adminApiDocs.selectProgram=Dooro barnaamij:
 # Label for the program-version selector.
 adminApiDocs.selectVersion=Select version:
 # Option label for the active version of a program.
