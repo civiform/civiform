@@ -1370,7 +1370,7 @@ adminApiDocs.type=Nooca
 # Label for a question's display text.
 adminApiDocs.text=Qoraalka
 # Label for a multi-option question's answer options.
-adminApiDocs.options=Options
+adminApiDocs.options=Iqtiyaarada
 # Label preceding the list of a question's currently-available options.
 adminApiDocs.currentOptions=Current options:
 # Label preceding the list of every option the question has ever had.
