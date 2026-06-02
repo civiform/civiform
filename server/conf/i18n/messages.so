@@ -1346,7 +1346,7 @@ adminApiDocs.accordion.heading=Sidee ayay tan u shaqeysaa?
 # First paragraph inside the accordion.
 adminApiDocs.accordion.paragraph1=Hordhaca jawaabta API waa tusaale ka mid ah sida jawaabta API ugu ekaan karto barnaamij la bixiyay. Dhammaan xogta waa been abuur. Su'aalaha halka-doorasho iyo kuwa doorashada badan waxay leeyihiin jawaabo tusaale ah oo laga soo xulay jawaabaha la heli karo.
 # Second paragraph inside the accordion as text before the shareable link.
-adminApiDocs.accordion.paragraph2.beforeLink=You may share this link,
+adminApiDocs.accordion.paragraph2.beforeLink=Waxaad wadaagi kartaa linkigaan,
 # Second paragraph inside the accordion as text after the shareable link.
 adminApiDocs.accordion.paragraph2.afterLink=, with anyone who needs to see API docs. It is accessible without logging in, so they do not need to be a CiviForm Admin or Program Admin to view this page.
 
