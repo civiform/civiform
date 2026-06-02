@@ -1169,7 +1169,7 @@ session.inactivity.warning.title=የክፍለ-ጊዜ እንቅስቃሴ-አል�
 session.warning.title=ክፍለ ጊዜው በቅርቡ ያበቃል
 # Text on a button on a session ending soon modal that gives users the options to save and log in
 session.login.button.loggedIn=ግባ
-session.login.button.guest=Log in or create an account
+session.login.button.guest=ይግቡ ወይም መለያ ይፍጠሩ
 # Message shown in a modal asking the user if they want to extend their session due to inactivity
 session.inactivity.warning.message=በእንቅስቃሴ-አልባነት ምክንያት ክፍለ-ጊዜዎ በቅርቡ ጊዜው ያልፍበታል። ክፍለ-ጊዜዎን ማራዘም ይፈልጋሉ?
 # Title of a modal dialog displayed when a user's session is about to expire due to session length limit
