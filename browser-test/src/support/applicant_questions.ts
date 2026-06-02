@@ -974,12 +974,21 @@ export class ApplicantQuestions {
       this.page.getByRole('heading', {name: 'Confirm your address'}),
     ).toBeVisible()
 
-    //    expect(await this.page.innerText('h2')).toContain('Confirm your address')
     // Note: If there's only one suggestion, the heading will be "Suggested address"
     // not "Suggested addresses". But, our browser setup always returns multiple
     // suggestions so we can safely assert the heading is always "Suggested addresses".
     await expect(
       this.page.getByRole('heading', {name: 'Suggested addresses'}),
+    ).toBeVisible({visible: hasAddressSuggestions})
+  }
+
+  async expectTranslatedVerifyAddressPage(hasAddressSuggestions: boolean) {
+    await expect(
+      this.page.getByRole('heading', {name: 'Confirmez votre adresse'}),
+    ).toBeVisible()
+
+    await expect(
+      this.page.getByRole('heading', {name: 'Adresses suggérées'}),
     ).toBeVisible({visible: hasAddressSuggestions})
   }
 
