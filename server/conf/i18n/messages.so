@@ -1328,7 +1328,7 @@ reportingProgram.downloadCsv=Soo deji CSV
 adminApiDocs.pageTitle=Dokumentiga API
 
 # Aria label for the nav that switches between API docs sub-pages.
-adminApiDocs.tabs.ariaLabel=API documentation sections
+adminApiDocs.tabs.ariaLabel=Qeybaha dokumentiga API
 # Tab label for the main API docs page.
 adminApiDocs.tabs.docs=Docs
 # Tab label for the schema viewer page.
