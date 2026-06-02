@@ -1355,9 +1355,9 @@ adminApiDocs.selectProgram=ፕሮግራም ይምረጡ፦
 # Label for the program-version selector.
 adminApiDocs.selectVersion=ሥሪት ይምረጡ፦
 # Option label for the active version of a program.
-adminApiDocs.version.active=Active
+adminApiDocs.version.active=ንቁ
 # Option label for the draft version of a program.
-adminApiDocs.version.draft=Draft
+adminApiDocs.version.draft=ረቂቅ
 
 # Message shown when the requested program + version combination does not exist.
 adminApiDocs.notFound=No programs found. Please create and publish a program before accessing API docs.
