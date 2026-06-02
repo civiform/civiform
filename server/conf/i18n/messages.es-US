@@ -1385,7 +1385,7 @@ adminApiDocs.responsePreview=Vista previa de respuesta de API
 # Admin API Docs page title
 adminSchemaViewer.pageTitle=Visor de esquema de API
 # First intro paragraph on the OpenAPI schema viewer page.
-adminSchemaViewer.intro1=This page shows a visualization of the OpenAPI Schema. Both version 2 (formerly Swagger 2) and version 3 are available.
+adminSchemaViewer.intro1=Esta página muestra una visualización del esquema OpenAPI. Tanto la versión 2 (anteriormente Swagger 2) como la versión 3 están disponibles.
 # Second intro paragraph on the OpenAPI schema viewer page.
 adminSchemaViewer.intro2=We recommend only using version 3 unless there is a specific need for the older format.
 # Label for the program selector on the schema viewer page.
