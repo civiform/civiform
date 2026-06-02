@@ -1376,7 +1376,7 @@ adminApiDocs.currentOptions=አሁኑ ያሉ አማራጮች፦
 # Label preceding the list of every option the question has ever had.
 adminApiDocs.allOptions=ሁሉም ሊሆኑ የሚችሉ አማራጮች፦
 # Heading above the JSON preview of the API response.
-adminApiDocs.responsePreview=API response preview
+adminApiDocs.responsePreview=የAPI ምላሽ ቅድመ ዕይታ
 
 #------------------------------------------------------------------------------#
 #  ADMIN SCHEMA VIEWER                                                         #
