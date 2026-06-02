@@ -1376,7 +1376,7 @@ adminApiDocs.currentOptions=Iqtiyaarada hadda:
 # Label preceding the list of every option the question has ever had.
 adminApiDocs.allOptions=Dhammaan iqtiyaarada suurtogalka ah:
 # Heading above the JSON preview of the API response.
-adminApiDocs.responsePreview=API response preview
+adminApiDocs.responsePreview=Bandhiga jawaabta API
 
 #------------------------------------------------------------------------------#
 #  ADMIN SCHEMA VIEWER                                                         #
