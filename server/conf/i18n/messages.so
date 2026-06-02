@@ -1342,7 +1342,7 @@ adminApiDocs.intro.linkText=docs.civiform.us/it-manual/api
 adminApiDocs.intro.afterLink=.
 
 # Heading on the collapsible "How does this work?" accordion.
-adminApiDocs.accordion.heading=How does this work?
+adminApiDocs.accordion.heading=Sidee ayay tan u shaqeysaa?
 # First paragraph inside the accordion.
 adminApiDocs.accordion.paragraph1=The API response preview is a sample of what the API response might look like for a given program. All data is fake. Single-select and multi-select questions have sample answers that are selected from the available responses.
 # Second paragraph inside the accordion as text before the shareable link.
