@@ -1351,7 +1351,7 @@ adminApiDocs.accordion.paragraph2.beforeLink=ይህንን አገናኝ፣
 adminApiDocs.accordion.paragraph2.afterLink=የAPI ሰነዶችን ማየት ለሚፈልግ ለማንኛውም ሰው ማጋራት ይችላሉ። በመለያ ሳይገቡ ተደራሽ ነው፣ ስለዚህ ይህንን ገጽ ለማየት የCiviForm አስተዳዳሪ ወይም የፕሮግራም አስተዳዳሪ መሆን አያስፈልግዎትም።
 
 # Label for the program selector.
-adminApiDocs.selectProgram=Select a program:
+adminApiDocs.selectProgram=ፕሮግራም ይምረጡ፦
 # Label for the program-version selector.
 adminApiDocs.selectVersion=Select version:
 # Option label for the active version of a program.
