@@ -1385,7 +1385,7 @@ adminApiDocs.responsePreview=የAPI ምላሽ ቅድመ ዕይታ
 # Admin API Docs page title
 adminSchemaViewer.pageTitle=API schema viewer
 # First intro paragraph on the OpenAPI schema viewer page.
-adminSchemaViewer.intro1=This page shows a visualization of the OpenAPI Schema. Both version 2 (formerly Swagger 2) and version 3 are available.
+adminSchemaViewer.intro1=ይህ ገጽ የOpenAPI Schema ምስላዊ ዕይታን ያሳያል። ሁለቱም ሥሪት 2 (ቀደም ሲል Swagger 2 የሚባለው) እና ሥሪት 3 ይገኛሉ።
 # Second intro paragraph on the OpenAPI schema viewer page.
 adminSchemaViewer.intro2=We recommend only using version 3 unless there is a specific need for the older format.
 # Label for the program selector on the schema viewer page.
