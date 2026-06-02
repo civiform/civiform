@@ -1,7 +1,7 @@
 package views.admin.questions;
 
 import controllers.admin.routes;
-import forms.MapQuestionForm;
+import forms.questions.MapQuestionForm;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
