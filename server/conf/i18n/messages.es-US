@@ -1328,7 +1328,7 @@ reportingProgram.downloadCsv=Descargar CSV
 adminApiDocs.pageTitle=Documentación de API
 
 # Aria label for the nav that switches between API docs sub-pages.
-adminApiDocs.tabs.ariaLabel=API documentation sections
+adminApiDocs.tabs.ariaLabel=Secciones de documentación de API
 # Tab label for the main API docs page.
 adminApiDocs.tabs.docs=Docs
 # Tab label for the schema viewer page.
