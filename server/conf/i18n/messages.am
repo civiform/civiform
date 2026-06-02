@@ -264,7 +264,7 @@ header.clientList=የደንበኛ ዝርዝር
 header.search=ፍለጋ
 
 # A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last submitted application on MM-DD-YYYY".
-label.acctStatus=የመለያ ሁኔታ
+label.acctStatus=የመለያ ሁነታ
 # Label above the phone number for each client on the client list.
 label.contactInfo=የእውቂያ መረጃ
 # The label above the input field for the day of the client birth date. i.e. 12 for November 12
@@ -471,7 +471,7 @@ title.createAnAccount=መለያ ይፍጠሩ ወይም ይግቡ
 # The title of a pop-up informing an applicant to sign in before continuing with the application
 title.signInModal=በመለያ ይግቡ
 # The text of a pop-up informing an applicant to sign in so they can access the application later before continuing with the application
-content.signInModal=መለያ ሲፈጥሩ የማመልከቻውን ሁኔታ መፈተሽ፣ በእሱ ላይ ለውጦችን ማድረግ እና ለሌሎች ፕሮግራሞች በፍጥነት ማመልከት ይችላሉ።
+content.signInModal=መለያ ሲፈጥሩ የማመልከቻውን ሁነታ መፈተሽ፣ በእሱ ላይ ለውጦችን ማድረግ እና ለሌሎች ፕሮግራሞች በፍጥነት ማመልከት ይችላሉ።
 
 # A message to show on the login prompt modal that encourages users to log in before applying to a program from the programs index page.
 content.initialLoginModalPrompt=ከመቀጠልዎ በፊት ወደ {0} መለያዎ ይግቡ ወይም መለያ ይፍጠሩ። ተመሳሳዩን መረጃ እንደገና ሳያስገቡ ለብዙ ፕሮግራሞች ማመልከት ይችላሉ። እንዲሁም ማመልከቻዎችን ማርትዕ እና የማመልከቻ ሁነታዎችዎን መፈተሽ ይችላሉ።
