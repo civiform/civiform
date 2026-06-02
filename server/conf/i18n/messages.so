@@ -1383,7 +1383,7 @@ adminApiDocs.responsePreview=Bandhiga jawaabta API
 #------------------------------------------------------------------------------#
 
 # Admin API Docs page title
-adminSchemaViewer.pageTitle=API schema viewer
+adminSchemaViewer.pageTitle=Bandhigaha qaabka API
 # First intro paragraph on the OpenAPI schema viewer page.
 adminSchemaViewer.intro1=Boggaan wuxuu muujinayaa muuqaalka Qaabka OpenAPI. Labadaba nooca 2 (horaan u ahaa Swagger 2) iyo nooca 3 ayaa la helayaa.
 # Second intro paragraph on the OpenAPI schema viewer page.
