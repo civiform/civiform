@@ -1366,9 +1366,9 @@ adminApiDocs.questions=Preguntas
 # Label for a question's admin name
 adminApiDocs.adminName=Nombre del administrador
 # Label for a question's type (text, number, etc.).
-adminApiDocs.type=Type
+adminApiDocs.type=Tipo
 # Label for a question's display text.
-adminApiDocs.text=Text
+adminApiDocs.text=Texto
 # Label for a multi-option question's answer options.
 adminApiDocs.options=Options
 # Label preceding the list of a question's currently-available options.
