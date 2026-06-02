@@ -1395,7 +1395,7 @@ adminSchemaViewer.selectStatus=Xaalada:
 # Label for the OpenAPI version selector on the schema viewer page.
 adminSchemaViewer.selectVersion=Nooca OpenApi:
 # Error generating OpenAPI YAML
-adminSchemaViewer.yamlError=Unable to generate OpenApi version '{0}' for program '{1}' at stage '{2}'.
+adminSchemaViewer.yamlError=Aan soo saari karin nuqulka OpenApi '{0}' ee barnaamijka '{1}' wakhtigan '{2}'.
 
 #------------------------------------------------------------------------------#
 #  DEV TOOLS - text for the developer tools page                               #
