@@ -565,9 +565,9 @@ content.adminProgramImage.hintCrop=La imagen se recortará automáticamente a un
 # Label for the field where the admin enters alt text for the program summary image.
 label.adminProgramImage.altText=Introduzca la descripción de la imagen (texto alternativo)
 # Button to leave the program image step and continue program setup (creation flow).
-button.adminProgramImage.continue=Continue
+button.adminProgramImage.continue=Continuar
 # Button to save and return when editing an existing program (non-creation flow).
-button.adminProgramImage.save=Save
+button.adminProgramImage.save=Guardar
 # Button to delete an uploaded program image
 button.adminProgramImage.delete=Delete image
 # Message shown when alt text is required but missing.
