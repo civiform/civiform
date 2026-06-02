@@ -1355,7 +1355,7 @@ adminApiDocs.selectProgram=Dooro barnaamij:
 # Label for the program-version selector.
 adminApiDocs.selectVersion=Dooro nooca:
 # Option label for the active version of a program.
-adminApiDocs.version.active=Active
+adminApiDocs.version.active=Firfircoon
 # Option label for the draft version of a program.
 adminApiDocs.version.draft=Draft
 
