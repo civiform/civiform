@@ -1387,7 +1387,7 @@ adminSchemaViewer.pageTitle=API schema viewer
 # First intro paragraph on the OpenAPI schema viewer page.
 adminSchemaViewer.intro1=ይህ ገጽ የOpenAPI Schema ምስላዊ ዕይታን ያሳያል። ሁለቱም ሥሪት 2 (ቀደም ሲል Swagger 2 የሚባለው) እና ሥሪት 3 ይገኛሉ።
 # Second intro paragraph on the OpenAPI schema viewer page.
-adminSchemaViewer.intro2=We recommend only using version 3 unless there is a specific need for the older format.
+adminSchemaViewer.intro2=ለድሮው ቅርጸት የተለየ ፍላጎት ከሌለ በስተቀር ሥሪት 3ን ብቻ እንዲጠቀሙ እንመክራለን።
 # Label for the program selector on the schema viewer page.
 adminSchemaViewer.selectProgram=Program:
 # Label for the program-status selector on the schema viewer page.
