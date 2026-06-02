@@ -1344,7 +1344,7 @@ adminApiDocs.intro.afterLink=.
 # Heading on the collapsible "How does this work?" accordion.
 adminApiDocs.accordion.heading=¿Cómo funciona esto?
 # First paragraph inside the accordion.
-adminApiDocs.accordion.paragraph1=The API response preview is a sample of what the API response might look like for a given program. All data is fake. Single-select and multi-select questions have sample answers that are selected from the available responses.
+adminApiDocs.accordion.paragraph1=La vista previa de la respuesta de la API es un ejemplo de cómo podría ser dicha respuesta para un programa determinado. Todos los datos son ficticios. Las preguntas de selección única y múltiple tienen respuestas de ejemplo seleccionadas entre las opciones disponibles.
 # Second paragraph inside the accordion as text before the shareable link.
 adminApiDocs.accordion.paragraph2.beforeLink=You may share this link,
 # Second paragraph inside the accordion as text after the shareable link.
