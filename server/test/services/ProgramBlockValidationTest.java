@@ -25,6 +25,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
   private VersionModel version;
   private QuestionModel householdMemberQuestion;
   private QuestionModel nestedHouseholdMemberWageQuestion;
+  private QuestionModel repeatedHouseholdMemberNameQuestion;
 
   @Before
   public void setProgramBlockValidation()
@@ -45,6 +46,10 @@ public class ProgramBlockValidationTest extends ResetPostgres {
             "householdMemberWageQuestion", householdMemberQuestion);
     version.addQuestion(householdMemberQuestion);
     version.addQuestion(nestedHouseholdMemberWageQuestion);
+    repeatedHouseholdMemberNameQuestion =
+        resourceCreator.insertRepeatedTextQuestion(
+            "householdMemberName", householdMemberQuestion);
+    version.addQuestion(repeatedHouseholdMemberNameQuestion);
     version.save();
     ProgramBlockValidationFactory programBlockValidationFactory =
         new ProgramBlockValidationFactory(versionRepository, questionService);
@@ -238,5 +243,70 @@ public class ProgramBlockValidationTest extends ResetPostgres {
                 /* enumeratorImprovementsEnabled= */ false,
                 /* fileUploadQuestionImprovementsEnabled= */ false))
         .isEqualTo(AddQuestionResult.ELIGIBLE);
+  }
+
+  @Test
+  public void canAddQuestion_canAddRepeatedQuestionToEnumeratorBlock_IfEnumeratorIdMatches()
+      throws Exception {
+    ProgramDefinition program =
+        ProgramBuilder.newDraftProgram("program1")
+            .withBlock()
+            // Add an enumerator question
+            .withRequiredQuestionDefinition(householdMemberQuestion.getQuestionDefinition())
+            .buildDefinition();
+    assertThat(
+            programBlockValidation.canAddQuestion(
+                program,
+                program.getLastBlockDefinition(),
+                repeatedHouseholdMemberNameQuestion.getQuestionDefinition(),
+                /* enumeratorImprovementsEnabled= */ true,
+                /* fileUploadQuestionImprovementsEnabled= */ false))
+        .isEqualTo(AddQuestionResult.ELIGIBLE);
+  }
+
+  @Test
+  public void
+      canAddQuestion_canAddNonRepeatedQuestionToRepeatedBlock_whenEnumeratorImprovementsEnabled()
+          throws Exception {
+    ProgramDefinition program =
+        ProgramBuilder.newDraftProgram("program1")
+            .withBlock()
+            .withRequiredQuestionDefinition(householdMemberQuestion.getQuestionDefinition())
+            .withRepeatedBlock()
+            .buildDefinition();
+    assertThat(
+            programBlockValidation.canAddQuestion(
+                program,
+                program.getLastBlockDefinition(),
+                questionForEligible.getQuestionDefinition(),
+                /* enumeratorImprovementsEnabled= */ true,
+                /* fileUploadQuestionImprovementsEnabled= */ false))
+        .isEqualTo(AddQuestionResult.ELIGIBLE);
+  }
+
+  @Test
+  public void
+      canAddQuestion_cantAddRepeatedQuestionToWrongEnumeratorBlock_whenEnumeratorImprovementsEnabled()
+          throws Exception {
+    QuestionModel otherEnumerator = resourceCreator.insertEnum("otherEnumerator");
+    QuestionModel otherRepeatedQuestion =
+        resourceCreator.insertRepeatedTextQuestion("otherRepeated", otherEnumerator);
+    version.addQuestion(otherEnumerator);
+    version.addQuestion(otherRepeatedQuestion);
+    version.save();
+
+    ProgramDefinition program =
+        ProgramBuilder.newDraftProgram("program1")
+            .withBlock()
+            .withRequiredQuestionDefinition(householdMemberQuestion.getQuestionDefinition())
+            .buildDefinition();
+    assertThat(
+            programBlockValidation.canAddQuestion(
+                program,
+                program.getLastBlockDefinition(),
+                otherRepeatedQuestion.getQuestionDefinition(),
+                /* enumeratorImprovementsEnabled= */ true,
+                /* fileUploadQuestionImprovementsEnabled= */ false))
+        .isEqualTo(AddQuestionResult.ENUMERATOR_MISMATCH);
   }
 }
