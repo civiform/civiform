@@ -114,21 +114,21 @@ public final class ProgramBlockValidation {
    * and return the id of its {@link EnumeratorQuestionDefinition}.
    */
   private Optional<Long> getParentEnumeratorQuestionId(
-    ProgramDefinition program, BlockDefinition block) {
+      ProgramDefinition program, BlockDefinition block) {
     if (block.enumeratorId().isEmpty()) {
       return Optional.empty();
     }
     try {
       BlockDefinition enumeratorBlockDefinition =
-        program.getBlockDefinition(block.enumeratorId().get());
+          program.getBlockDefinition(block.enumeratorId().get());
       return enumeratorBlockDefinition.hasEnumeratorQuestion()
-        ? Optional.of(enumeratorBlockDefinition.getEnumeratorQuestionDefinition().getId())
-        : Optional.empty();
+          ? Optional.of(enumeratorBlockDefinition.getEnumeratorQuestionDefinition().getId())
+          : Optional.empty();
     } catch (ProgramBlockDefinitionNotFoundException e) {
       String errorMessage =
-        String.format(
-          "BlockDefinition %d has a broken enumerator block reference to id %d",
-          block.id(), block.enumeratorId().get());
+          String.format(
+              "BlockDefinition %d has a broken enumerator block reference to id %d",
+              block.id(), block.enumeratorId().get());
       throw new RuntimeException(errorMessage, e);
     }
   }
@@ -138,11 +138,13 @@ public final class ProgramBlockValidation {
    * is compatible if any of the following is true:
    *
    * <ul>
-   *   <li>Its enumeratorId matches the block's parent enumerator (standard repeated question case
-   *   or non-repeating question case).
-   *   <li>It is a non-repeating question being considered for a repeated block.
-   *   <li>Its enumeratorId matches the enumerator question on this block itself and enumerator
-   *       improvements are enabled (initial question being added to the enumerator's own block).
+   *   <li>Its enumeratorId equals the block's parent enumerator id — i.e. both are empty (top-level
+   *       question on a top-level block) or both point to the same enumerator (repeated question on
+   *       its matching repeated block).
+   *   <li>It is a non-repeated question being added to a repeated block, and enumerator
+   *       improvements are enabled.
+   *   <li>Its enumeratorId points to the enumerator question on this block itself, and enumerator
+   *       improvements are enabled (initial question case).
    * </ul>
    */
   private boolean hasMatchingEnumeratorId(

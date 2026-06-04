@@ -47,8 +47,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
     version.addQuestion(householdMemberQuestion);
     version.addQuestion(nestedHouseholdMemberWageQuestion);
     repeatedHouseholdMemberNameQuestion =
-        resourceCreator.insertRepeatedTextQuestion(
-            "householdMemberName", householdMemberQuestion);
+        resourceCreator.insertRepeatedTextQuestion("householdMemberName", householdMemberQuestion);
     version.addQuestion(repeatedHouseholdMemberNameQuestion);
     version.save();
     ProgramBlockValidationFactory programBlockValidationFactory =
@@ -251,7 +250,6 @@ public class ProgramBlockValidationTest extends ResetPostgres {
     ProgramDefinition program =
         ProgramBuilder.newDraftProgram("program1")
             .withBlock()
-            // Add an enumerator question
             .withRequiredQuestionDefinition(householdMemberQuestion.getQuestionDefinition())
             .buildDefinition();
     assertThat(
