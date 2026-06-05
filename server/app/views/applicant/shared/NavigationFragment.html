@@ -83,30 +83,24 @@
         </div>
       </nav>
     </div>
-    <th:block th:if="${sessionTimeoutEnabled}">
-      <th:div
-        th:replace="~{applicant/shared/ModalFragment :: sessionInactivityTimeoutModal}"
-      ></th:div>
-    </th:block>
-    <th:block th:if="${sessionTimeoutEnabled}">
-      <th:div
-        th:replace="~{applicant/shared/ModalFragment :: sessionLengthTimeoutModal}"
-      ></th:div>
-    </th:block>
-    <th:block th:if="${sessionTimeoutEnabled}">
-      <div id="session-timeout-messages" hidden>
-        <span
-          id="session-extended-success-text"
-          role="alert"
-          th:text="#{session.extended.success}"
-        ></span>
-        <span
-          id="session-extended-error-text"
-          role="alert"
-          th:text="#{session.extended.error}"
-        ></span>
-      </div>
-    </th:block>
+    <th:div
+      th:replace="~{applicant/shared/ModalFragment :: sessionInactivityTimeoutModal}"
+    ></th:div>
+    <th:div
+      th:replace="~{applicant/shared/ModalFragment :: sessionLengthTimeoutModal}"
+    ></th:div>
+    <div id="session-timeout-messages" hidden>
+      <span
+        id="session-extended-success-text"
+        role="alert"
+        th:text="#{session.extended.success}"
+      ></span>
+      <span
+        id="session-extended-error-text"
+        role="alert"
+        th:text="#{session.extended.error}"
+      ></span>
+    </div>
   </header>
   <div th:replace="~{this :: guestSessionAlert}"></div>
   <div th:replace="~{this :: tiAlert}"></div>

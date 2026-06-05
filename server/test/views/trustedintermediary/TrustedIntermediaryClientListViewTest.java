@@ -77,7 +77,7 @@ public class TrustedIntermediaryClientListViewTest extends WithMockedProfiles {
             instanceOf(DeploymentType.class),
             instanceOf(BundledAssetsFinder.class),
             instanceOf(PageNotProductionBanner.class),
-            mock(MessagesApi.class),
+            instanceOf(MessagesApi.class),
             instanceOf(ApplicantRoutes.class));
 
     view =
