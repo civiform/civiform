@@ -559,7 +559,7 @@ title.adminProgramImage=Importation d''image
 # Link text to return to program editing from the program image page.
 link.adminProgramImage.back=Retour
 # Hint under the file input about maximum upload size for a program summary image.
-content.adminProgramImage.hintMaxSize=La taille maximale d'importation d'une image est de 1 Mo.
+content.adminProgramImage.hintMaxSize=La taille maximale d''importation d'une image est de 1 Mo.
 # Hint explaining automatic 16x9 cropping and that the preview reflects saved images.
 content.adminProgramImage.hintCrop=L'image sera automatiquement recadrée au format 16:9. L'aperçu de la fiche de programme à droite affiche l'image enregistrée.
 # Label for the field where the admin enters alt text for the program summary image.
