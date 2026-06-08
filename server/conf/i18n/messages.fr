@@ -1335,7 +1335,7 @@ adminApiDocs.tabs.docs=Docs
 adminApiDocs.tabs.schema=Visionneuse de schéma
 
 # Intro paragraph as text before the external-docs link.
-adminApiDocs.intro.beforeLink=Cette page contient la documentation API spécifique aux programmes actifs et brouillons. Une documentation détaillée sur l'authentification, la pagination et les valeurs possibles de chaque champ est disponible à l'adresse :
+adminApiDocs.intro.beforeLink=Cette page contient la documentation API spécifique aux programmes actifs et brouillons. Une documentation détaillée sur l''authentification, la pagination et les valeurs possibles de chaque champ est disponible à l''adresse :
 # Visible text of the external-docs link in the intro paragraph.
 adminApiDocs.intro.linkText=docs.civiform.us/it-manual/api
 # Intro paragraph as text after the external-docs link.
