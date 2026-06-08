@@ -1240,7 +1240,7 @@ text.repeatedSet.screenNameDescription=
 #An additional description explaining what the add question button does
 text.repeatedSet.addQuestionDescription=
 # Information shown to admins when they are adding a question to a repeated screen.
-text.repeatedQuestions.description=Ajoutez les questions que vous souhaitez poser pour chaque objet ou chaque personne mentionnée par le demandeur. Si une question que vous ajoutez n’est pas déjà associée à l’ensemble répété, elle sera dupliquée dans la banque de questions pour cet ensemble répété.
+text.repeatedQuestions.description=Ajoutez les questions que vous souhaitez poser pour chaque objet ou chaque personne mentionnée par le demandeur. Si une question que vous ajoutez n''est pas déjà associée à l''ensemble répété, elle sera dupliquée dans la banque de questions pour cet ensemble répété.
 # Heading above the repeated set question in the program block editor
 heading.repeatedSet.question=
 # Heading shown above repeated questions in the question bank that are already associated with this repeated set
