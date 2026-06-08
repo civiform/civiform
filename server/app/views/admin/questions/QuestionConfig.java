@@ -462,7 +462,7 @@ public final class QuestionConfig {
     }
 
     content
-        .with(optionsBuilder.build())
+        .with(div().withId("multi-option-container").with(optionsBuilder.build()))
         .with(
             ViewUtils.makeSvgTextButton("Add answer option", Icons.PLUS)
                 .withType("button")
