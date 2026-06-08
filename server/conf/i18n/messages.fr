@@ -563,7 +563,7 @@ content.adminProgramImage.hintMaxSize=La taille maximale d'importation d'une ima
 # Hint explaining automatic 16x9 cropping and that the preview reflects saved images.
 content.adminProgramImage.hintCrop=L'image sera automatiquement recadrée au format 16:9. L'aperçu de la fiche de programme à droite affiche l'image enregistrée.
 # Label for the field where the admin enters alt text for the program summary image.
-label.adminProgramImage.altText=Saisissez une description de l'image (Texte alternatif)
+label.adminProgramImage.altText=Saisissez une description de l''image (Texte alternatif)
 # Button to leave the program image step and continue program setup (creation flow).
 button.adminProgramImage.continue=Continuer
 # Button to save and return when editing an existing program (non-creation flow).
