@@ -1387,7 +1387,7 @@ adminSchemaViewer.pageTitle=Visionneuse de schéma de l''API
 # First intro paragraph on the OpenAPI schema viewer page.
 adminSchemaViewer.intro1=Cette page présente une visualisation du schéma OpenAPI. Les versions 2 (anciennement Swagger 2) et 3 sont disponibles.
 # Second intro paragraph on the OpenAPI schema viewer page.
-adminSchemaViewer.intro2=Nous recommandons d'utiliser uniquement la version 3, sauf besoin spécifique du format antérieur.
+adminSchemaViewer.intro2=Nous recommandons d''utiliser uniquement la version 3, sauf besoin spécifique du format antérieur.
 # Label for the program selector on the schema viewer page.
 adminSchemaViewer.selectProgram=Programme :
 # Label for the program-status selector on the schema viewer page.
