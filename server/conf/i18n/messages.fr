@@ -581,7 +581,7 @@ toast.adminProgramImage.descriptionNotRemovable=La description ne peut pas être
 # Toast after deleting a program image
 toast.adminProgramImage.imageRemoved=Image supprimée
 # Message when the program card preview cannot be rendered.
-content.adminProgramImage.cardPreviewError=Erreur lors de la génération de l'aperçu de la fiche
+content.adminProgramImage.cardPreviewError=Erreur lors de la génération de l''aperçu de la fiche
 
 #--------------------------------------------------------------------------------------------------------------#
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
@@ -703,7 +703,7 @@ validation.noPoBox=Veuillez saisir une adresse valide. Les boîtes postales ne s
 title.confirmAddress=Confirmez votre adresse
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
 content.confirmAddressLine1=Adresse introuvable.
-content.confirmAddressLine1.v2=Confirmation d'adresse requise.
+content.confirmAddressLine1.v2=Confirmation d''adresse requise.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=Veuillez vérifier que votre adresse est exacte, ou sélectionnez une option dans la liste.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
