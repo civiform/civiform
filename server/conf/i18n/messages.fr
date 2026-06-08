@@ -571,7 +571,7 @@ button.adminProgramImage.save=Enregistrer
 # Button to delete an uploaded program image
 button.adminProgramImage.delete=Supprimer l''image
 # Message shown when alt text is required but missing.
-validation.adminProgramImage.altTextRequired=Une description de l''image est requise lors de l'importation d'une image de programme.
+validation.adminProgramImage.altTextRequired=Une description de l''image est requise lors de l''importation d''une image de programme.
 # Toast after saving a program image and alt text together.
 toast.adminProgramImage.imageAndDescriptionSaved=Image enregistrée avec la description : {0}
 # Toast after saving alt text without uploading a new file.
