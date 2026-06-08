@@ -1183,7 +1183,7 @@ session.extended.success=Session prolongée
 # Error message shown when there was a problem extending the user's session
 session.extended.error=Échec de la prolongation de la session
 # Message shown to guest users warning that their session is about to expire due to session length
-session.length.warning.message.guest=Votre session est sur le point d’expirer. Veuillez enregistrer votre travail, puis vous connecter ou créer un compte pour continuer.
+session.length.warning.message.guest=Votre session est sur le point d''expirer. Veuillez enregistrer votre travail, puis vous connecter ou créer un compte pour continuer.
 # Message shown to logged-in users warning that their session is about to expire due to session length
 session.length.warning.message.loggedIn=Votre session est sur le point d'expirer. Veuillez enregistrer votre travail et vous reconnecter pour continuer. Vous ne perdrez pas la progression de votre demande.
 
