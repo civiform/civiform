@@ -1360,7 +1360,7 @@ adminApiDocs.version.active=Actif
 adminApiDocs.version.draft=Brouillon
 
 # Message shown when the requested program + version combination does not exist.
-adminApiDocs.notFound=Aucun programme trouvé. Veuillez créer et publier un programme avant d’accéder à la documentation de l’API.
+adminApiDocs.notFound=Aucun programme trouvé. Veuillez créer et publier un programme avant d''accéder à la documentation de l''API.
 # Heading for the list of questions on the selected program.
 adminApiDocs.questions=Questions
 # Label for a question's admin name
