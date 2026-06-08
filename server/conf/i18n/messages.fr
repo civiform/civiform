@@ -1376,14 +1376,14 @@ adminApiDocs.currentOptions=Options actuelles :
 # Label preceding the list of every option the question has ever had.
 adminApiDocs.allOptions=Toutes les options possibles :
 # Heading above the JSON preview of the API response.
-adminApiDocs.responsePreview=Aperçu de la réponse de l’API
+adminApiDocs.responsePreview=Aperçu de la réponse de l''API
 
 #------------------------------------------------------------------------------#
 #  ADMIN SCHEMA VIEWER                                                         #
 #------------------------------------------------------------------------------#
 
 # Admin API Docs page title
-adminSchemaViewer.pageTitle=Visionneuse de schéma de l’API
+adminSchemaViewer.pageTitle=Visionneuse de schéma de l''API
 # First intro paragraph on the OpenAPI schema viewer page.
 adminSchemaViewer.intro1=Cette page présente une visualisation du schéma OpenAPI. Les versions 2 (anciennement Swagger 2) et 3 sont disponibles.
 # Second intro paragraph on the OpenAPI schema viewer page.
