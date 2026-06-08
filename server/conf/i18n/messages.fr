@@ -1348,7 +1348,7 @@ adminApiDocs.accordion.paragraph1=L''aperçu de la réponse de l''API est un exe
 # Second paragraph inside the accordion as text before the shareable link.
 adminApiDocs.accordion.paragraph2.beforeLink=Vous pouvez partager ce lien,
 # Second paragraph inside the accordion as text after the shareable link.
-adminApiDocs.accordion.paragraph2.afterLink=, avec toute personne ayant besoin de consulter la documentation de l’API. Il est accessible sans connexion ; il n’est donc pas nécessaire d’être administrateur CiviForm ou administrateur de programme pour consulter cette page.
+adminApiDocs.accordion.paragraph2.afterLink=, avec toute personne ayant besoin de consulter la documentation de l''API. Il est accessible sans connexion ; il n''est donc pas nécessaire d''être administrateur CiviForm ou administrateur de programme pour consulter cette page.
 
 # Label for the program selector.
 adminApiDocs.selectProgram=Sélectionnez un programme :
