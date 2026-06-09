@@ -12,19 +12,21 @@ import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.strong;
+import static j2html.TagCreator.template;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.geojson.routes;
-import forms.MapQuestionForm;
-import forms.QuestionForm;
-import forms.QuestionFormBuilder;
+import forms.questions.MapQuestionForm;
+import forms.questions.QuestionForm;
+import forms.questions.QuestionFormBuilder;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.TemplateTag;
 import java.util.Locale;
 import java.util.Optional;
 import models.QuestionDisplayMode;
@@ -320,17 +322,17 @@ public final class QuestionEditView extends BaseHtmlView {
         .with(multiOptionQuestionField());
   }
 
-  // A hidden template for multi-option questions.
-  private DivTag multiOptionQuestionField() {
-    return div()
+  // A <template> holding the markup for a new multi-option answer. The id lives
+  // on the <template> so the JS can clone its content (see MultiOptionQuestion);
+  // the cloned row is shown when appended, so it is not hidden here.
+  private TemplateTag multiOptionQuestionField() {
+    return template()
+        .withId("multi-option-question-answer-template")
         .with(
             QuestionConfig.multiOptionQuestionFieldTemplate(messages)
-                .withId("multi-option-question-answer-template")
-                // Add "hidden" to other classes, so that the template is not shown
                 .withClasses(
                     ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
                     ReferenceClasses.MULTI_OPTION_QUESTION_OPTION_EDITABLE,
-                    "hidden",
                     "grid",
                     "grid-cols-8",
                     "grid-rows-4",

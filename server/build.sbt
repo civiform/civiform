@@ -48,8 +48,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20260313.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.44.4",
-      "software.amazon.awssdk" % "ses" % "2.44.4",
+      "software.amazon.awssdk" % "s3" % "2.45.1",
+      "software.amazon.awssdk" % "ses" % "2.45.1",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
@@ -88,13 +88,13 @@ lazy val root = (project in file("."))
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "13.0.3-PLAY3.0",
-      "org.pac4j" % "pac4j-core" % "6.5.1",
+      "org.pac4j" % "pac4j-core" % "6.5.3",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "6.5.1",
+      "org.pac4j" % "pac4j-http" % "6.5.3",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "6.5.1",
+      "org.pac4j" % "pac4j-oidc" % "6.5.3",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "6.5.1",
+      "org.pac4j" % "pac4j-saml" % "6.5.3",
 
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.13.0",
@@ -118,7 +118,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.5",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.30",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.31",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "4.0.0",
@@ -138,7 +138,7 @@ lazy val root = (project in file("."))
       "org.apache.pekko" %% "pekko-stream-testkit" % "1.6.0",
 
       // Apache library for byte detection
-      "org.apache.tika" % "tika-core" % "3.3.0",
+      "org.apache.tika" % "tika-core" % "3.3.1",
 
       // Url detector for program descriptions.
       "com.linkedin.urls" % "url-detector" % "0.1.17",
@@ -155,8 +155,8 @@ lazy val root = (project in file("."))
       "io.swagger" % "swagger-parser" % "1.0.76",
 
       // OpenAPI 3.x Dependencies
-      "io.swagger.core.v3" % "swagger-core" % "2.2.49",
-      "io.swagger.parser.v3" % "swagger-parser" % "2.1.41",
+      "io.swagger.core.v3" % "swagger-core" % "2.2.50",
+      "io.swagger.parser.v3" % "swagger-parser" % "2.1.43",
 
       // JSON Schema validation
       "com.networknt" % "json-schema-validator" % "2.0.1",

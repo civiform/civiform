@@ -14,7 +14,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import controllers.FlashKey;
-import forms.DropdownQuestionForm;
+import forms.questions.DropdownQuestionForm;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;

@@ -87,6 +87,7 @@ export default [
             "playwright/expect-expect": "off",
             "playwright/no-conditional-expect": "off",
             "playwright/no-conditional-in-test": "off",
+            "playwright/prefer-locator": "off",
             // We shouldn't go crazy with nesting test.step, but it's a hard no
             // on enforcing it. There are times when it makes complex tests more
             // easier to read.
