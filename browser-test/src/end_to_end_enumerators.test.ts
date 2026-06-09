@@ -811,7 +811,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Check that Create New is preselected and create new partial view is visible', async () => {
-        const createNewButton = page.getByLabel('Create new')
+        const createNewButton = page.getByRole('radio', {
+          name: 'Create new',
+        })
 
         const newEnumeratorQuestionForm = page.getByRole('form', {
           name: 'Create new repeated set',
