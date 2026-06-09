@@ -284,8 +284,8 @@ public class BlockDefinitionTest {
   public void getEnumeratorQuestionDefinition_findsEnumeratorWhenNotAtIndexZero() {
     QuestionDefinition otherQuestion =
         testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition();
-    QuestionDefinition enumeratorQuestion =
-        testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition();
+    QuestionDefinition enumeratorQuestionId =
+        testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition().getId();
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
             .setId(123L)
@@ -302,7 +302,7 @@ public class BlockDefinitionTest {
             .build();
 
     assertThat(blockDefinition.getEnumeratorQuestionDefinition().getId())
-        .isEqualTo(enumeratorQuestion.getId());
+        .isEqualTo(enumeratorQuestionId);
   }
 
   @Test
@@ -316,16 +316,17 @@ public class BlockDefinitionTest {
 
   @Test
   public void getQuestionDefinitions_returnsAllQuestionsInOrder() {
-    QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
-    QuestionDefinition addressQuestion =
-        testQuestionBank.addressApplicantAddress().getQuestionDefinition();
-    QuestionDefinition colorQuestion =
-        testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition();
+    QuestionDefinition nameQuestionId =
+        testQuestionBank.nameApplicantName().getQuestionDefinition().getId();
+    QuestionDefinition addressQuestionId =
+        testQuestionBank.addressApplicantAddress().getQuestionDefinition().getId();
+    QuestionDefinition colorQuestionId =
+        testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition().getId();
     BlockDefinition blockDefinition = makeBlockDefinitionWithQuestions();
 
     assertThat(blockDefinition.getQuestionDefinitions())
         .extracting(QuestionDefinition::getId)
-        .containsExactly(nameQuestion.getId(), addressQuestion.getId(), colorQuestion.getId());
+        .containsExactly(nameQuestionId, addressQuestionId, colorQuestionId);
   }
 
   @Test

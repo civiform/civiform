@@ -56,7 +56,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
   }
 
   @Test
-  public void canAddQuestions_cantAddArchivedQuestion() throws Exception {
+  public void canAddQuestions_cannotAddArchivedQuestion() throws Exception {
     ProgramDefinition program =
         ProgramBuilder.newDraftProgram("program1")
             .withBlock()
@@ -73,7 +73,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
   }
 
   @Test
-  public void canAddQuestions_cantAddQuestionNotInActiveDraftState() throws Exception {
+  public void canAddQuestions_cannotAddQuestionNotInActiveDraftState() throws Exception {
     QuestionDefinition householdMemberQuestion =
         testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition();
     QuestionDefinition householdMemberNameQuestion =
@@ -150,7 +150,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
   }
 
   @Test
-  public void canAddQuestion_cantAddSingleQuestionBlock() throws Exception {
+  public void canAddQuestion_cannotAddSingleQuestionBlock() throws Exception {
     QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
     QuestionDefinition fileQuestion =
         testQuestionBank.fileUploadApplicantFile().getQuestionDefinition();
@@ -170,7 +170,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
   }
 
   @Test
-  public void canAddQuestion_cantAddRepeatedQuestionWhenNoEnumeratorQuestionInProgram()
+  public void canAddQuestion_cannotAddRepeatedQuestionWhenNoEnumeratorQuestionInProgram()
       throws Exception {
     QuestionDefinition repeatedQuestion =
         testQuestionBank.nameRepeatedApplicantHouseholdMemberName().getQuestionDefinition();
@@ -188,7 +188,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
 
   @Test
   public void
-      canAddQuestion_cantAddEnumeratorQuestionToNonEnumeratorBlock_whenEnumeratorImprovementsEnabled()
+      canAddQuestion_cannotAddEnumeratorQuestionToNonEnumeratorBlock_whenEnumeratorImprovementsEnabled()
           throws Exception {
     QuestionDefinition question =
         QuestionDefinition.questionDefinitionSample(QuestionType.ENUMERATOR);
@@ -205,7 +205,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
   }
 
   @Test
-  public void canAddQuestion_cantAddRepeatedQuestionThatIsNotAssociatedWithEnumeratorQuestion()
+  public void canAddQuestion_cannotAddRepeatedQuestionThatIsNotAssociatedWithEnumeratorQuestion()
       throws Exception {
     QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
     QuestionDefinition enumeratorQuestion =
@@ -284,7 +284,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
 
   @Test
   public void
-      canAddQuestion_cantAddRepeatedQuestionToWrongEnumeratorBlock_whenEnumeratorImprovementsEnabled()
+      canAddQuestion_cannotAddRepeatedQuestionToWrongEnumeratorBlock_whenEnumeratorImprovementsEnabled()
           throws Exception {
     QuestionModel otherEnumerator = resourceCreator.insertEnum("otherEnumerator");
     QuestionModel otherRepeatedQuestion =

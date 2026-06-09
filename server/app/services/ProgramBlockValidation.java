@@ -160,6 +160,8 @@ public final class ProgramBlockValidation {
       return true;
     }
 
+    // At this point both items can't be empty, indicating at least one is associated with an
+    // enumerator
     if (enumeratorImprovementsEnabled) {
       // Non-repeating question being considered for a repeated block, shown as an option
       // in the question bank sidebar before the question is copied
