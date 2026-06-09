@@ -103,7 +103,7 @@ test.describe('address correction single-block, single-address program', () => {
 
       await test.step('Selecting from the language dropdown re-renders the translated address correction page', async () => {
         await selectApplicantLanguage(page, 'fr')
-        await applicantQuestions.expectTranslatedVerifyAddressPage(true)
+        await applicantQuestions.expectFrenchVerifyAddressPage(true)
         await selectApplicantLanguage(page, 'en-US')
       })
 

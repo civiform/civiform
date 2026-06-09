@@ -96,7 +96,7 @@ public class ApplicantAddressCorrectionControllerTest extends WithMockedProfiles
   }
 
   @Test
-  public void addressCorrection_whenFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
+  public void addressCorrection_whenProgramSlugUrlsEnabledAndIsProgramIdFromUrl_redirectsToHome() {
     Request request = fakeRequestBuilder().build();
     when(settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
 

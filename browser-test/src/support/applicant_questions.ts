@@ -904,7 +904,7 @@ export class ApplicantQuestions {
     await expect(this.page.getByText('Edit my responses')).toBeVisible()
   }
 
-  async expectTranslatedIneligiblePage() {
+  async expectFrenchIneligiblePage() {
     await expect(this.page).toHaveTitle('Pas éligible au programme')
 
     await expect(
@@ -982,7 +982,7 @@ export class ApplicantQuestions {
     ).toBeVisible({visible: hasAddressSuggestions})
   }
 
-  async expectTranslatedVerifyAddressPage(hasAddressSuggestions: boolean) {
+  async expectFrenchVerifyAddressPage(hasAddressSuggestions: boolean) {
     await expect(
       this.page.getByRole('heading', {name: 'Confirmez votre adresse'}),
     ).toBeVisible()
