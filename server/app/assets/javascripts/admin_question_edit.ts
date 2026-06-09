@@ -43,7 +43,9 @@ class AdminQuestionEdit {
     const universalInput = document.getElementById(
       'universal-toggle-input',
     ) as HTMLInputElement
-    addEventListenerToElements('#universal-toggle', 'click', () => {
+    // The new toggle is a native checkbox, so `change` fires after `checked` has
+    // already flipped to its new state.
+    addEventListenerToElements('#universal-toggle-input', 'change', () => {
       primaryApplicantInfoSubsections.forEach((subsection) => {
         const notUniversalAlert = subsection.querySelector(
           '.cf-pai-not-universal-alert',
@@ -53,23 +55,18 @@ class AdminQuestionEdit {
           '.cf-pai-tag-set-not-universal-alert',
         )
         const togglediv = assertNotNull(
-          subsection.querySelector('.cf-toggle-div'),
-        ) as HTMLDivElement
-        const togglebutton = assertNotNull(
-          togglediv.querySelector('.cf-toggle-button'),
-        ) as HTMLButtonElement
+          subsection.querySelector('.cf-toggle-new'),
+        )
         const input = assertNotNull(
-          togglediv.querySelector('.cf-toggle-hidden-input'),
-        ) as HTMLInputElement
+          togglediv.querySelector<HTMLInputElement>('.cf-toggle-new__input'),
+        )
         if (notUniversalAlert !== null) {
           // Tag is not already set on another question, so we are
           // showing/hiding the toggle and alert.
 
           // Unset the PAI toggle when we unset universal.
-          // Because the universal input doesn't change until after the click event,
-          // we're checking for true here.
-          if (input.value === 'true' && universalInput.value === 'true') {
-            togglebutton.click()
+          if (input.checked && !universalInput.checked) {
+            input.checked = false
           }
           togglediv.toggleAttribute('hidden')
           notUniversalAlert.toggleAttribute('hidden')
@@ -95,7 +92,7 @@ class AdminQuestionEdit {
     )
 
     // Get the toggle value on page load so we can compare it to the toggle value on click
-    const initialToggleValue = toggleElement.value
+    const initiallyChecked = toggleElement.checked
 
     // Remove the default event listener on the modal since we want to show it conditionally
     ModalController.abortController.abort()
@@ -103,8 +100,7 @@ class AdminQuestionEdit {
     // Add a new click handler that checks if the toggle went from "on" to "off"
     modalTriggerButton.addEventListener('click', () => {
       // Get the toggle value when the user clicks to update the question
-      const currentToggleValue = toggleElement.value
-      if (initialToggleValue === 'true' && currentToggleValue === 'false') {
+      if (initiallyChecked && !toggleElement.checked) {
         // If they are unsetting the universal question attribute, show a modal to confirm
         ModalController.showModal(modalContainer, modal)
       } else {

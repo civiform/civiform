@@ -6,7 +6,6 @@ import '@/components/shared/modal'
 import * as main from '@/main'
 import * as radio from '@/radio'
 import * as toast from '@/toast'
-import * as toggle from '@/toggle'
 import * as adminApiKeys from '@/admin_api_keys'
 import * as adminApplicationView from '@/admin_application_view'
 import * as legacyAdminPredicates from '@/admin_predicate_configuration'
@@ -60,7 +59,6 @@ function initializeEverything(): void {
   main.init()
   radio.init()
   toast.init()
-  toggle.init()
   adminApiKeys.init()
   adminApplicationView.init()
   legacyAdminPredicates.init()

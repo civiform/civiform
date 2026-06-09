@@ -21,13 +21,13 @@ import static j2html.TagCreator.ul;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import controllers.AssetsFinder;
-import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.ImgTag;
+import j2html.tags.specialized.LabelTag;
 import j2html.tags.specialized.PTag;
 import j2html.tags.specialized.SpanTag;
 import java.time.Instant;
@@ -216,19 +216,18 @@ public final class ViewUtils {
   }
 
   /**
-   * Creates a toggle button whose state is toggled via app/assets/javascripts/toggle.ts. Behaves
-   * much like a checkbox, and contains a hidden input field to record the state of the toggle, but
-   * is a button, which is better for accessibility.
+   * Creates a toggle. This is the j2html counterpart of the {@code shared/ToggleFragment.html}
+   * Thymeleaf fragment, emitting the same CSS-only {@code .cf-toggle-new} markup so the two render
+   * identically. It is a real {@code <input type="checkbox" role="switch">} paired with a hidden
+   * companion field, so no JavaScript is needed to drive its on/off styling.
    *
-   * @param fieldName The name of the hidden input field, for binding to the form this button is a
-   *     part of.
+   * @param fieldName The name of the checkbox and its hidden companion field, for binding to the
+   *     form this toggle is a part of.
    * @param enabled When true, the toggle renders initially as on.
-   * @param idPrefix Optional text to use to set IDs for each component. These will be <id>-toggle
-   *     for the top level button element, <id>-toggle-input for the hidden input field,
-   *     <id>-toggle-background for the background of the toggle, and <id>-toggle-nub for the nub
-   *     inside the toggle.
+   * @param idPrefix Optional text to use to set IDs. These will be <id>-toggle for the label and
+   *     <id>-toggle-input for the checkbox.
    * @param text Optional text label to include with the toggle.
-   * @return ButtonTag containing the toggle.
+   * @return DivTag containing the toggle.
    */
   public static DivTag makeToggleButton(
       String fieldName,
@@ -236,63 +235,32 @@ public final class ViewUtils {
       boolean hidden,
       Optional<String> idPrefix,
       Optional<String> text) {
-    String buttonId = idPrefix.map((v) -> v + "-toggle").orElse("");
-    String inputId = idPrefix.map((v) -> v + "-toggle-input").orElse("");
-    String backgroundId = idPrefix.map((v) -> v + "-toggle-background").orElse("");
-    String nubId = idPrefix.map((v) -> v + "-toggle-nub").orElse("");
-
     boolean idPresent = idPrefix.isPresent();
-    ButtonTag button =
-        TagCreator.button()
-            .withCondId(idPresent, buttonId)
-            .withClasses(
-                "cf-toggle-button",
-                "flex",
-                "px-0",
-                "gap-2",
-                "items-center",
-                "text-left",
-                "text-black",
-                "font-normal",
-                "bg-transparent",
-                "rounded-full",
-                StyleUtils.hover("bg-transparent"),
-                StyleUtils.focus("rounded"))
-            .withType("button")
+    String labelId = idPrefix.map((v) -> v + "-toggle").orElse("");
+    String inputId = idPrefix.map((v) -> v + "-toggle-input").orElse("");
+
+    LabelTag toggleLabel =
+        label()
+            .withClass("cf-toggle-new__label")
+            .withCondId(idPresent, labelId)
             .with(
                 input()
-                    .isHidden()
-                    .withCondId(idPresent, inputId)
+                    .withType("checkbox")
+                    .attr("role", "switch")
+                    .withClass("cf-toggle-new__input")
                     .withName(fieldName)
-                    .withClass("cf-toggle-hidden-input")
-                    .withValue(Boolean.valueOf(enabled).toString()))
-            .with(
-                div()
-                    .withClasses("relative")
-                    .with(
-                        div()
-                            .withClasses(
-                                enabled ? "bg-blue-600" : "bg-gray-600",
-                                "w-14",
-                                "h-8",
-                                "rounded-full",
-                                "toggle",
-                                "cf-toggle-background"))
-                    .withCondId(idPresent, backgroundId)
-                    .with(
-                        div()
-                            .withClasses(
-                                "absolute",
-                                "bg-white",
-                                enabled ? "right-1" : "left-1",
-                                "top-1",
-                                "w-6",
-                                "h-6",
-                                "rounded-full",
-                                "cf-toggle-nub")
-                            .withCondId(idPresent, nubId)));
-    text.ifPresent(button::withText);
-    return div().withClass("cf-toggle-div").withCondHidden(hidden).with(button);
+                    .withValue("true")
+                    .withCondChecked(enabled)
+                    .withCondId(idPresent, inputId),
+                // The hidden companion field MUST come after the checkbox. When the box is
+                // unchecked it does not POST, so only `false` is submitted from this field. When it
+                // is checked both `true` and `false` POST, and Play's form binding takes the first
+                // value. See shared/ToggleFragment.html.
+                input().withType("hidden").withName(fieldName).withValue("false"),
+                span().withClass("cf-toggle-new__track").attr("aria-hidden", "true"));
+    text.ifPresent((t) -> toggleLabel.with(span(t)));
+
+    return div().withClass("cf-toggle-new").withCondHidden(hidden).with(toggleLabel);
   }
 
   /**
