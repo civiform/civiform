@@ -1,0 +1,83 @@
+/*
+This contains customizations for the ".cf-toggle-new"
+*/
+
+@use 'uswds-core' as *;
+
+// Intentionally the Tailwind blue-600 / gray-600 values used by the legacy
+// toggle so both render identically during the migration. Centralized here so
+// the on-state color isn't duplicated between the track and the focus ring.
+$toggle-color-on: #2563eb; // blue-600, on
+$toggle-color-off: #4b5563; // gray-600, off
+$toggle-color-nub: #fff;
+$toggle-color-outline: #2491ff;
+
+// toggle new
+.cf-toggle-new {
+  &__input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+
+  &__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+
+    &:has(.cf-toggle-new__input:focus) {
+      outline: 0.25rem solid $toggle-color-outline;
+      outline-offset: 0.25rem;
+      border-radius: 4px;
+    }
+
+    &:has(.cf-toggle-new__input:checked) {
+      .cf-toggle-new__track {
+        background: $toggle-color-on;
+
+        &::after {
+          transform: translateX(1.5rem);
+        }
+      }
+    }
+
+    &:has(.cf-toggle-new__input:disabled) {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  }
+
+  &__track {
+    // the pill
+    position: relative;
+    flex: none;
+    width: 3.5rem; // w-14
+    height: 2rem; // h-8
+    border-radius: 9999px;
+    background: $toggle-color-off;
+    transition: background-color 0.15s ease;
+
+    &::after {
+      // the nub
+      content: '';
+      position: absolute;
+      top: 0.25rem;
+      left: 0.25rem;
+      width: 1.5rem; // w-6
+      height: 1.5rem; // h-6
+      border-radius: 9999px;
+      background: $toggle-color-nub;
+      transition: transform 0.15s ease;
+    }
+  }
+
+  // Disable sliding animation
+  @media (prefers-reduced-motion: reduce) {
+    &__track,
+    &__track::after {
+      transition: none;
+    }
+  }
+}
