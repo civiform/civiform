@@ -266,7 +266,7 @@ test.describe('Ineligible Page Tests', () => {
     })
 
     await test.step('Expect ineligible page', async () => {
-      await applicantQuestions.expectTranslatedIneligiblePage()
+      await applicantQuestions.expectFrenchIneligiblePage()
       await expect(page.getByText(questionText)).toBeVisible()
     })
   })
@@ -305,7 +305,7 @@ test.describe('Ineligible Page Tests', () => {
     })
 
     await test.step('Expect ineligible page again', async () => {
-      await applicantQuestions.expectTranslatedIneligiblePage()
+      await applicantQuestions.expectFrenchIneligiblePage()
       await expect(page.getByText(questionText)).toBeVisible()
     })
   })
@@ -342,7 +342,7 @@ test.describe('Ineligible Page Tests', () => {
     })
 
     await test.step('Expect ineligible page again', async () => {
-      await applicantQuestions.expectTranslatedIneligiblePage()
+      await applicantQuestions.expectFrenchIneligiblePage()
       await expect(page.getByText(questionText)).toBeVisible()
     })
   })

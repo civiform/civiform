@@ -105,7 +105,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             instanceOf(ProfileUtils.class),
             instanceOf(Config.class),
             settingsManifest,
-            instanceOf(AddressCorrectionBlockView.class),
             addressSuggestionJsonSerializer,
             instanceOf(ProgramService.class),
             instanceOf(VersionRepository.class),
@@ -2775,7 +2774,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .toCompletableFuture()
             .join();
     // Check that we're taken to the address correction screen with some suggestions
-    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
     // Then, send a confirmAddress request but don't fill in SELECTED_ADDRESS_NAME in the form body
     Request request =
         fakeRequestBuilder()
