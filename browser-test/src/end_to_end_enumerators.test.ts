@@ -127,12 +127,6 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(blockPanel.locator('#questions-section')).toBeHidden()
       })
 
-      await test.step('Validate that "Add question" button is not visible', async () => {
-        await expect(
-          blockPanel.getByRole('button', {name: 'Add question'}),
-        ).toBeHidden()
-      })
-
       await test.step('Take a screenshot of the block panel', async () => {
         await validateScreenshot(blockPanel, 'enumerator-block-panel', {
           fullPage: false,
@@ -819,11 +813,19 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       await test.step('Check that Create New is preselected and create new partial view is visible', async () => {
         const createNewButton = page.getByLabel('Create new')
 
+        const newEnumeratorQuestionForm = page.getByRole('form', {
+          name: 'Create new repeated set',
+        })
         const newEnumeratorQuestionFormButton = page.getByRole('button', {
           name: 'Create repeated set',
         })
         await expect(createNewButton).toBeChecked()
         await expect(newEnumeratorQuestionFormButton).toBeVisible()
+        await expect(
+          newEnumeratorQuestionForm.getByRole('button', {
+            name: 'Add question',
+          }),
+        ).toBeVisible()
       })
 
       await test.step('swap to choose existing and check existing partial view is visible', async () => {

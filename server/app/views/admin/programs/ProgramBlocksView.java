@@ -1064,6 +1064,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     return form(csrfTag)
         .withClasses("usa-summary-box", "bg-white", "border-gray-300")
         .withId("new-enumerator-question-form")
+        .attr("aria-labelledby", "new-enumerator-question-form-label")
         .attr(
             "hx-post",
             routes.AdminProgramBlockQuestionsController.hxCreateEnumerator(programId, blockId)
@@ -1072,8 +1073,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
         .attr("hx-swap", "outerHTML show:top")
         .with(
             label(messages.at(MessageKey.LABEL_NEW_REPEATED_SET_FORM.getKeyName()))
-                .withClasses("base-darkest", "text-lg")
-                .withFor("new-enumerator-question-form"),
+                .withId("new-enumerator-question-form-label")
+                .withClasses("base-darkest", "text-lg"),
             AlertComponent.renderFullAlert(
                     AlertType.ERROR,
                     /* text= */ "Error: "
@@ -1091,6 +1092,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .setValue(
                     optionalQuestionForm.map(EnumeratorQuestionForm::getEntityType).orElse(""))
                 .setDescription(messages.at(MessageKey.DESCRIPTION_LISTED_ENTITY.getKeyName()))
+                .setAriaDescribedByIds(ImmutableList.of("listed-entity-input-description"))
                 .setRequired(true)
                 .getUSWDSInputTag(),
             FieldWithLabel.input()
@@ -1100,6 +1102,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .setValue(optionalQuestionForm.map(QuestionForm::getQuestionName).orElse(""))
                 .setDescription(
                     messages.at(MessageKey.DESCRIPTION_REPEATED_SET_ADMIN_ID.getKeyName()))
+                .setAriaDescribedByIds(ImmutableList.of("enumerator-admin-id-input-description"))
                 .setRequired(true)
                 .setAttribute(
                     "data-admin-id-autofill-template",
@@ -1113,6 +1116,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .setValue(optionalQuestionForm.map(QuestionForm::getQuestionText).orElse(""))
                 .setDescription(
                     messages.at(MessageKey.DESCRIPTION_REPEATED_SET_QUESTION_TEXT.getKeyName()))
+                .setAriaDescribedByIds(ImmutableList.of("question-text-input-description"))
                 .setRequired(true)
                 .setAttribute(
                     "data-question-text-autofill-template",
@@ -1127,6 +1131,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .setValue(optionalQuestionForm.map(QuestionForm::getQuestionHelpText).orElse(""))
                 .setDescription(
                     messages.at(MessageKey.DESCRIPTION_REPEATED_SET_HINT_TEXT.getKeyName()))
+                .setAriaDescribedByIds(ImmutableList.of("hint-text-input-description"))
                 .getUSWDSTextareaTag(),
             FieldWithLabel.number()
                 .setId("min-entity-count-input")
@@ -1146,6 +1151,30 @@ public final class ProgramBlocksView extends ProgramBaseView {
                         .map(EnumeratorQuestionForm::getMaxEntities)
                         .orElse(OptionalInt.empty()))
                 .getUSWDSNumberTag(),
+            div(
+                    div(span(messages.at(
+                                MessageKey.LABEL_REPEATED_SET_INITIAL_QUESTION.getKeyName()))
+                            .with(ViewUtils.requiredQuestionIndicator()))
+                        .withId("initial-question-label")
+                        .withClasses("usa-label"),
+                    p(messages.at(
+                            MessageKey.DESCRIPTION_REPEATED_SET_INITIAL_QUESTION.getKeyName()))
+                        .withId("initial-question-description")
+                        .withClasses("font-ui-sm", "text-base"),
+                    button("")
+                        .withId("add-initial-question-button")
+                        .withClasses(
+                            "usa-button",
+                            "usa-button--outline",
+                            ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
+                            "margin-top-05")
+                        .attr(
+                            "aria-describedby",
+                            "initial-question-label initial-question-description")
+                        .attr("required")
+                        .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
+                        .withText(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName())))
+                .withId("initial-question-slot"),
             div(
                     AlertComponent.renderSlimInfoAlert(
                         messages.at(MessageKey.ALERT_REPEATED_SET_NEW_QUESTION.getKeyName())),
