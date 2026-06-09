@@ -284,8 +284,8 @@ public class BlockDefinitionTest {
   public void getEnumeratorQuestionDefinition_findsEnumeratorWhenNotAtIndexZero() {
     QuestionDefinition otherQuestion =
         testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition();
-    QuestionDefinition enumeratorQuestionId =
-        testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition().getId();
+    QuestionDefinition enumeratorQuestion =
+        testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition();
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
             .setId(123L)
@@ -302,7 +302,7 @@ public class BlockDefinitionTest {
             .build();
 
     assertThat(blockDefinition.getEnumeratorQuestionDefinition().getId())
-        .isEqualTo(enumeratorQuestionId);
+        .isEqualTo(enumeratorQuestion.getId());
   }
 
   @Test
@@ -316,11 +316,10 @@ public class BlockDefinitionTest {
 
   @Test
   public void getQuestionDefinitions_returnsAllQuestionsInOrder() {
-    QuestionDefinition nameQuestionId =
-        testQuestionBank.nameApplicantName().getQuestionDefinition().getId();
-    QuestionDefinition addressQuestionId =
+    long nameQuestionId = testQuestionBank.nameApplicantName().getQuestionDefinition().getId();
+    long addressQuestionId =
         testQuestionBank.addressApplicantAddress().getQuestionDefinition().getId();
-    QuestionDefinition colorQuestionId =
+    long colorQuestionId =
         testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition().getId();
     BlockDefinition blockDefinition = makeBlockDefinitionWithQuestions();
 
