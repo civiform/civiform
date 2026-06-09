@@ -36,7 +36,7 @@ import services.settings.SettingsManifest;
 import views.applicant.ineligible.ApplicantIneligibleView;
 
 /**
- * Controller for the inelliglbe screen shown to applicants when they are not eligible for a program
+ * Controller for the ineligible screen shown to applicants when they are not eligible for a program
  */
 @With(ProgramDisabledAction.class)
 public class ApplicantProgramIneligibleController extends CiviFormController {
