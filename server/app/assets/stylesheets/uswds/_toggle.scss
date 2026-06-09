@@ -1,5 +1,5 @@
 /*
-This contains customizations for the ".cf-toggle-new"
+This contains customizations for the ".cf-toggle"
 */
 
 @use 'uswds-core' as *;
@@ -13,7 +13,7 @@ $toggle-color-nub: #fff;
 $toggle-color-outline: #2491ff;
 
 // toggle new
-.cf-toggle-new {
+.cf-toggle {
   &__input {
     position: absolute;
     width: 1px;
@@ -27,14 +27,14 @@ $toggle-color-outline: #2491ff;
     gap: 0.5rem;
     cursor: pointer;
 
-    &:has(.cf-toggle-new__input:focus) {
+    &:has(.cf-toggle__input:focus) {
       outline: 0.25rem solid $toggle-color-outline;
       outline-offset: 0.25rem;
       border-radius: 4px;
     }
 
-    &:has(.cf-toggle-new__input:checked) {
-      .cf-toggle-new__track {
+    &:has(.cf-toggle__input:checked) {
+      .cf-toggle__track {
         background: $toggle-color-on;
 
         &::after {
@@ -43,7 +43,7 @@ $toggle-color-outline: #2491ff;
       }
     }
 
-    &:has(.cf-toggle-new__input:disabled) {
+    &:has(.cf-toggle__input:disabled) {
       cursor: not-allowed;
       opacity: 0.5;
     }

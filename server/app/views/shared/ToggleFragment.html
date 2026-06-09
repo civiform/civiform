@@ -11,12 +11,12 @@
            disabled=${disabled == null ? false : disabled},
            hidden=${hidden == null ? false : hidden}"
 >
-  <div class="cf-toggle-new" th:hidden="${hidden}">
-    <label class="cf-toggle-new__label">
+  <div class="cf-toggle" th:hidden="${hidden}">
+    <label class="cf-toggle__label">
       <input
         type="checkbox"
         role="switch"
-        class="cf-toggle-new__input"
+        class="cf-toggle__input"
         th:name="${name}"
         value="true"
         th:checked="${checked}"
@@ -38,7 +38,7 @@
         If hidden is added before the checkbox it will always end up false.
       */-->
       <input type="hidden" th:name="${name}" value="false" />
-      <span class="cf-toggle-new__track" aria-hidden="true"></span>
+      <span class="cf-toggle__track" aria-hidden="true"></span>
       <span th:text="${label}"></span>
     </label>
   </div>

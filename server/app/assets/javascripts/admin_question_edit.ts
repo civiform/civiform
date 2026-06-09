@@ -54,11 +54,9 @@ class AdminQuestionEdit {
         const tagSetNotUniversalAlert = subsection.querySelector(
           '.cf-pai-tag-set-not-universal-alert',
         )
-        const togglediv = assertNotNull(
-          subsection.querySelector('.cf-toggle-new'),
-        )
+        const togglediv = assertNotNull(subsection.querySelector('.cf-toggle'))
         const input = assertNotNull(
-          togglediv.querySelector<HTMLInputElement>('.cf-toggle-new__input'),
+          togglediv.querySelector<HTMLInputElement>('.cf-toggle__input'),
         )
         if (notUniversalAlert !== null) {
           // Tag is not already set on another question, so we are

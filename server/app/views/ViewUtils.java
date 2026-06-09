@@ -217,7 +217,7 @@ public final class ViewUtils {
 
   /**
    * Creates a toggle. This is the j2html counterpart of the {@code shared/ToggleFragment.html}
-   * Thymeleaf fragment, emitting the same CSS-only {@code .cf-toggle-new} markup so the two render
+   * Thymeleaf fragment, emitting the same CSS-only {@code .cf-toggle} markup so the two render
    * identically. It is a real {@code <input type="checkbox" role="switch">} paired with a hidden
    * companion field, so no JavaScript is needed to drive its on/off styling.
    *
@@ -241,13 +241,13 @@ public final class ViewUtils {
 
     LabelTag toggleLabel =
         label()
-            .withClass("cf-toggle-new__label")
+            .withClass("cf-toggle__label")
             .withCondId(idPresent, labelId)
             .with(
                 input()
                     .withType("checkbox")
                     .attr("role", "switch")
-                    .withClass("cf-toggle-new__input")
+                    .withClass("cf-toggle__input")
                     .withName(fieldName)
                     .withValue("true")
                     .withCondChecked(enabled)
@@ -257,10 +257,10 @@ public final class ViewUtils {
                 // is checked both `true` and `false` POST, and Play's form binding takes the first
                 // value. See shared/ToggleFragment.html.
                 input().withType("hidden").withName(fieldName).withValue("false"),
-                span().withClass("cf-toggle-new__track").attr("aria-hidden", "true"));
+                span().withClass("cf-toggle__track").attr("aria-hidden", "true"));
     text.ifPresent((t) -> toggleLabel.with(span(t)));
 
-    return div().withClass("cf-toggle-new").withCondHidden(hidden).with(toggleLabel);
+    return div().withClasses("cf-toggle", "mt-2").withCondHidden(hidden).with(toggleLabel);
   }
 
   /**
