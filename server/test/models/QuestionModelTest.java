@@ -321,6 +321,7 @@ public class QuestionModelTest extends ResetPostgres {
             .setName("")
             .setDescription("")
             .setEnumeratorId(Optional.of(123L))
+            .setEnumeratorInitialQuestionId(789L)
             .setQuestionText(LocalizedStrings.of())
             .setQuestionHelpText(LocalizedStrings.empty())
             .setEntityType(entityType)
@@ -329,7 +330,8 @@ public class QuestionModelTest extends ResetPostgres {
 
     question.save();
 
-    QuestionModel found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
+    QuestionModel found =
+        repo.lookupQuestion(question.id).toCompletableFuture().join().orElseThrow();
 
     assertThat(found.getQuestionDefinition().getQuestionType()).isEqualTo(QuestionType.ENUMERATOR);
     EnumeratorQuestionDefinition enumerator =

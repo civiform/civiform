@@ -1,8 +1,10 @@
 package services.question.types;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -29,11 +31,28 @@ public class EnumeratorQuestionDefinition extends QuestionDefinition {
   @JsonProperty("entityType")
   private final LocalizedStrings entityType;
 
+  @JsonInclude(Include.NON_EMPTY)
+  @JsonProperty("enumeratorInitialQuestionId")
+  private final Optional<Long> enumeratorInitialQuestionId;
+
   public EnumeratorQuestionDefinition(
       @JsonProperty("config") QuestionDefinitionConfig config,
       @JsonProperty("entityType") LocalizedStrings entityType) {
+    this(config, entityType, /* initialQuestionId= */ Optional.empty());
+  }
+
+  public EnumeratorQuestionDefinition(
+      @JsonProperty("config") QuestionDefinitionConfig config,
+      @JsonProperty("entityType") LocalizedStrings entityType,
+      @JsonProperty("enumeratorInitialQuestionId") Optional<Long> initialQuestionId) {
     super(config);
     this.entityType = checkNotNull(entityType);
+    this.enumeratorInitialQuestionId = initialQuestionId;
+  }
+
+  @JsonIgnore
+  public Optional<Long> getEnumeratorInitialQuestionId() {
+    return enumeratorInitialQuestionId;
   }
 
   @Override
