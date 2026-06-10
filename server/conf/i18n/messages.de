@@ -1215,6 +1215,10 @@ input.repeatedSet.hintText=
 input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
 input.repeatedSet.maxEntities=
+# Label for the field on the new repeated set form where an admin will select the question that the user will complete first in the enumerator flow
+label.repeatedSet.initialQuestion=Initial question
+# Description explaining what the initial question is and what the "Add question" button does
+description.repeatedSet.initialQuestion=Add the question that the applicant will use to list out an entity. The response provided by the applicant will serve as the label for that entity. The added question will be duplicated for this repeated set in the question bank. Note that the question and hint text for this question will not display to the applicant.
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
 alert.repeatedSet.addQuestionDisabled=A repeated set question must first be added before repeated questions can be. Please navigate to the parent screen to add a repeated set question.
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
