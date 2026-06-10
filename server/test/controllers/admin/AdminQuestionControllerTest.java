@@ -456,6 +456,26 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void newOne_mapQuestion_rendersMapSettingsConfig() {
+    Request request = fakeRequestBuilder().addCSRFToken().build();
+    Result result =
+        controller.newOne(
+            request,
+            "map",
+            "/some/redirect/url",
+            /* enumeratorQuestionOptional= */ Optional.empty(),
+            /* isRepeatingBlockOptional= */ Optional.empty());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = contentAsString(result);
+    // The MAP config is rendered via the shared MapQuestionSettingsPartial (the same markup the
+    // GeoJSON hx endpoint swaps into #geoJsonOutput), not the old placeholder.
+    assertThat(content).doesNotContain("MAPS NOT IMPLEMENTED");
+    assertThat(content).contains("id=\"geoJsonOutput\"");
+    assertThat(content).contains("name=\"maxLocationSelections\"");
+  }
+
+  @Test
   public void update_redirectsOnSuccessAndUpdatesQuestion() {
     // We can only update draft questions, so save this in the DRAFT version.
     QuestionModel originalNameQuestion =

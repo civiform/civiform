@@ -1,0 +1,24 @@
+<!--/*@thymesVar id="questionForm" type="forms.questions.TextQuestionForm"*/-->
+<!--/* Type-specific question config for TEXT questions. */-->
+<th:block
+  th:fragment="build(questionForm)"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <cf:input
+    id="text-min-length"
+    name="minLength"
+    label="Minimum length"
+    type="number"
+    min="0"
+    th:value="${questionForm.getMinLength().isPresent() ? questionForm.getMinLength().getAsInt() : ''}"
+  />
+  <cf:input
+    id="text-max-length"
+    name="maxLength"
+    label="Maximum length"
+    type="number"
+    min="1"
+    th:value="${questionForm.getMaxLength().isPresent() ? questionForm.getMaxLength().getAsInt() : ''}"
+  />
+</th:block>

@@ -1,0 +1,154 @@
+<!--/* Type-specific question config for YES_NO questions.
+
+       The option set is fixed (the four canonical YesNoQuestionOption values),
+       so the options are embedded directly here rather than passed in from the
+       model. "yes"/"no" are required: always checked and disabled. "not sure"/
+       "maybe" are optional; whether they're displayed to applicants is the only
+       per-question state, passed in as the two booleans below. Option ids match
+       YesNoQuestionOption (yes=1, no=0, not-sure=2, maybe=3).
+
+       This intentionally hand-writes the raw HTML (rather than using cf:checkbox)
+       so the markup is byte-for-byte the same as the legacy j2html output in
+       QuestionConfig.yesNoOptionQuestionField / addDefaultYesNoQuestionFields. */-->
+<th:block
+  th:fragment="build(notSureDisplayed, maybeDisplayed)"
+  xmlns:th="http://www.thymeleaf.org"
+>
+  <div>
+    <label
+      data-testId="yes-no-options-label"
+      class="text-sm font-medium text-gray-700"
+      >Select answer options<span class="usa-hint--required" aria-hidden="true"
+        >&nbsp;*</span
+      ></label
+    >
+  </div>
+
+  <!--/* YES (required: always checked + disabled, value carried by extra hidden input) */-->
+  <div
+    class="cf-multi-option-question-option grid items-center justify-items-center"
+  >
+    <input name="optionIds[]" value="1" class="display-none" />
+    <input name="optionAdminNames[]" value="yes" class="display-none" />
+    <input name="options[]" value="Yes" class="display-none" />
+    <div
+      class="usa-checkbox flex-align-center border-width-1px border-base radius-md grid-row items-center padding-1 margin-1"
+    >
+      <input
+        id="yes"
+        type="checkbox"
+        name="displayedOptionIds[]"
+        value="1"
+        class="usa-checkbox__input"
+        checked="checked"
+        disabled="disabled"
+      />
+      <label
+        for="yes"
+        aria-label="Admin ID: yes. Option text: Yes."
+        class="usa-checkbox__label margin-top-0 flex flex-align-center"
+      >
+        <div class="flex-column">
+          <div><strong>Admin ID: </strong>yes</div>
+          <div><strong>Option text: </strong>Yes</div>
+        </div>
+      </label>
+    </div>
+    <input type="hidden" name="displayedOptionIds[]" value="1" />
+  </div>
+
+  <!--/* NO (required: always checked + disabled, value carried by extra hidden input) */-->
+  <div
+    class="cf-multi-option-question-option grid items-center justify-items-center"
+  >
+    <input name="optionIds[]" value="0" class="display-none" />
+    <input name="optionAdminNames[]" value="no" class="display-none" />
+    <input name="options[]" value="No" class="display-none" />
+    <div
+      class="usa-checkbox flex-align-center border-width-1px border-base radius-md grid-row items-center padding-1 margin-1"
+    >
+      <input
+        id="no"
+        type="checkbox"
+        name="displayedOptionIds[]"
+        value="0"
+        class="usa-checkbox__input"
+        checked="checked"
+        disabled="disabled"
+      />
+      <label
+        for="no"
+        aria-label="Admin ID: no. Option text: No."
+        class="usa-checkbox__label margin-top-0 flex flex-align-center"
+      >
+        <div class="flex-column">
+          <div><strong>Admin ID: </strong>no</div>
+          <div><strong>Option text: </strong>No</div>
+        </div>
+      </label>
+    </div>
+    <input type="hidden" name="displayedOptionIds[]" value="0" />
+  </div>
+
+  <!--/* NOT SURE (optional: checked reflects this question's displayed state) */-->
+  <div
+    class="cf-multi-option-question-option grid items-center justify-items-center"
+  >
+    <input name="optionIds[]" value="2" class="display-none" />
+    <input name="optionAdminNames[]" value="not-sure" class="display-none" />
+    <input name="options[]" value="Not sure" class="display-none" />
+    <div
+      class="usa-checkbox flex-align-center border-width-1px border-base radius-md grid-row items-center padding-1 margin-1"
+    >
+      <input
+        id="not-sure"
+        type="checkbox"
+        name="displayedOptionIds[]"
+        value="2"
+        class="usa-checkbox__input"
+        th:checked="${notSureDisplayed}"
+      />
+      <label
+        for="not-sure"
+        aria-label="Admin ID: not-sure. Option text: Not sure."
+        class="usa-checkbox__label margin-top-0 flex flex-align-center"
+      >
+        <div class="flex-column">
+          <div><strong>Admin ID: </strong>not-sure</div>
+          <div><strong>Option text: </strong>Not sure</div>
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <!--/* MAYBE (optional: checked reflects this question's displayed state) */-->
+  <div
+    class="cf-multi-option-question-option grid items-center justify-items-center"
+  >
+    <input name="optionIds[]" value="3" class="display-none" />
+    <input name="optionAdminNames[]" value="maybe" class="display-none" />
+    <input name="options[]" value="Maybe" class="display-none" />
+    <div
+      class="usa-checkbox flex-align-center border-width-1px border-base radius-md grid-row items-center padding-1 margin-1"
+    >
+      <input
+        id="maybe"
+        type="checkbox"
+        name="displayedOptionIds[]"
+        value="3"
+        class="usa-checkbox__input"
+        th:checked="${maybeDisplayed}"
+      />
+      <label
+        for="maybe"
+        aria-label="Admin ID: maybe. Option text: Maybe."
+        class="usa-checkbox__label margin-top-0 flex flex-align-center"
+      >
+        <div class="flex-column">
+          <div><strong>Admin ID: </strong>maybe</div>
+          <div><strong>Option text: </strong>Maybe</div>
+        </div>
+      </label>
+    </div>
+  </div>
+</th:block>

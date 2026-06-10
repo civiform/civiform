@@ -1,0 +1,31 @@
+<!--/*@thymesVar id="questionForm" type="forms.questions.EnumeratorQuestionForm"*/-->
+<!--/* Type-specific question config for ENUMERATOR questions. */-->
+<th:block
+  th:fragment="build(questionForm)"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <cf:input
+    id="enumerator-question-entity-type-input"
+    name="entityType"
+    label="Repeated entity type (What are we enumerating?)"
+    required="true"
+    th:value="${questionForm.getEntityType()}"
+  />
+  <cf:input
+    id="enumerator-min-entities"
+    name="minEntities"
+    label="Minimum entity count"
+    type="number"
+    min="0"
+    th:value="${questionForm.getMinEntities().isPresent() ? questionForm.getMinEntities().getAsInt() : ''}"
+  />
+  <cf:input
+    id="enumerator-max-entities"
+    name="maxEntities"
+    label="Maximum entity count"
+    type="number"
+    min="1"
+    th:value="${questionForm.getMaxEntities().isPresent() ? questionForm.getMaxEntities().getAsInt() : ''}"
+  />
+</th:block>

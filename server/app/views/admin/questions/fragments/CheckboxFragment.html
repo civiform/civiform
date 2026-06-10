@@ -1,0 +1,180 @@
+<!--/*@thymesVar id="questionForm" type="forms.questions.MultiOptionQuestionForm"*/-->
+<!--/* Type-specific question config for CHECKBOX questions (multi-option + select validation). */-->
+<th:block
+  th:fragment="build(questionForm)"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <!--/* Existing options */-->
+  <div>
+    <div id="multi-option-container" class="spacing-4">
+      <div
+        th:each="optionText, optStat : ${questionForm.getOptions()}"
+        class="cf-multi-option-question-option cf-multi-option-question-option-editable"
+      >
+        <div class="display-flex flex-gap">
+          <div class="flex-fill spacing-2">
+            <div class="cf-multi-option-admin-input">
+              <cf:input
+                name="optionAdminNames[]"
+                label="Admin ID"
+                type="text"
+                th:id="|optionAdminName-${optStat.index}|"
+                th:value="${questionForm.getOptionAdminNames().get(optStat.index)}"
+                required="true"
+              />
+            </div>
+
+            <div class="cf-multi-option-input">
+              <cf:input
+                name="options[]"
+                label="Option Text"
+                type="text"
+                th:id="|optionText-${optStat.index}|"
+                th:value="${optionText}"
+                required="true"
+              />
+            </div>
+
+            <div>
+              Some markdown is supported,
+              <a
+                href="https://docs.civiform.us/user-manual/civiform-admin-guide/using-markdown"
+                target="_blank"
+                rel="noopener noreferrer"
+                >see how it works</a
+              >
+            </div>
+          </div>
+          <div
+            class="display-flex flex-justify-center flex-column flex-align-center flex-gap"
+          >
+            <button
+              type="button"
+              aria-label="move up"
+              class="multi-option-question-field-move-up-button"
+            >
+              &#x2191;
+            </button>
+            <button
+              type="button"
+              aria-label="move down"
+              class="multi-option-question-field-move-down-button"
+            >
+              &#x2193;
+            </button>
+            <button
+              type="button"
+              aria-label="delete"
+              class="multi-option-question-field-remove-button"
+            >
+              &#x2717;
+            </button>
+          </div>
+        </div>
+
+        <input
+          type="hidden"
+          name="optionIds[]"
+          th:value="${questionForm.getOptionIds().get(optStat.index)}"
+        />
+      </div>
+    </div>
+
+    <!--/* Add option button */-->
+    <cf:button id="add-new-option" text="Add answer option" />
+
+    <!--/* Hidden next available ID */-->
+    <input
+      type="hidden"
+      name="nextAvailableId"
+      th:value="${questionForm.getNextAvailableId().isPresent() ? questionForm.getNextAvailableId().getAsLong() : ''}"
+    />
+
+    <template id="multi-option-question-answer-template">
+      <div
+        class="cf-multi-option-question-option cf-multi-option-question-option-editable"
+      >
+        <div class="display-flex flex-gap">
+          <div class="flex-fill spacing-2">
+            <div class="cf-multi-option-admin-input">
+              <cf:input
+                name="newOptionAdminNames[]"
+                label="Admin ID"
+                type="text"
+                id="new-option-admin-name"
+                value=""
+                required="true"
+              />
+            </div>
+
+            <div class="cf-multi-option-input">
+              <cf:input
+                name="newOptions[]"
+                label="Option Text"
+                type="text"
+                id="new-option-text"
+                value=""
+                required="true"
+              />
+            </div>
+
+            <div>
+              Some markdown is supported,
+              <a
+                href="https://docs.civiform.us/user-manual/civiform-admin-guide/using-markdown"
+                target="_blank"
+                rel="noopener noreferrer"
+                >see how it works</a
+              >
+            </div>
+          </div>
+
+          <div
+            class="display-flex flex-justify-center flex-column flex-align-center flex-gap"
+          >
+            <button
+              type="button"
+              aria-label="move up"
+              class="multi-option-question-field-move-up-button"
+            >
+              &#x2191;
+            </button>
+            <button
+              type="button"
+              aria-label="move down"
+              class="multi-option-question-field-move-down-button"
+            >
+              &#x2193;
+            </button>
+            <button
+              type="button"
+              aria-label="delete"
+              class="multi-option-question-field-remove-button"
+            >
+              &#x2717;
+            </button>
+          </div>
+        </div>
+      </div>
+    </template>
+  </div>
+
+  <!--/* Multi-select validation: min/max number of choices */-->
+  <cf:input
+    id="checkbox-min-choices"
+    name="minChoicesRequired"
+    label="Minimum number of choices required"
+    type="number"
+    min="0"
+    th:value="${questionForm.getMinChoicesRequired().isPresent() ? questionForm.getMinChoicesRequired().getAsInt() : ''}"
+  />
+  <cf:input
+    id="checkbox-max-choices"
+    name="maxChoicesAllowed"
+    label="Maximum number of choices allowed"
+    type="number"
+    min="1"
+    th:value="${questionForm.getMaxChoicesAllowed().isPresent() ? questionForm.getMaxChoicesAllowed().getAsLong() : ''}"
+  />
+</th:block>

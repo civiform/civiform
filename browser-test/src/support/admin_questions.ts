@@ -240,9 +240,8 @@ export class AdminQuestions {
       throw new Error('A non-empty export option must be provided')
     }
 
-    await this.page
-      .getByRole('radio', {name: exportOption, exact: true})
-      .check()
+    // await this.page.getByRole('radio', {name: exportOption, exact: true}).check()
+    await this.page.getByText(exportOption, {exact: true}).click()
   }
 
   async selectDisplayMode(displayMode: QuestionDisplayMode | null) {
