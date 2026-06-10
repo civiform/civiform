@@ -46,7 +46,6 @@ public final class QuestionDefinitionBuilder {
   private String validationPredicatesString = "";
   private QuestionType questionType;
   private LocalizedStrings entityType;
-  private Optional<Long> enumeratorInitialQuestionId = Optional.empty();
 
   public QuestionDefinitionBuilder() {
     // Cast the builder in order to avoid the "required" methods such as
@@ -70,7 +69,6 @@ public final class QuestionDefinitionBuilder {
       EnumeratorQuestionDefinition enumeratorQuestionDefinition =
           (EnumeratorQuestionDefinition) definition;
       entityType = enumeratorQuestionDefinition.getEntityType();
-      enumeratorInitialQuestionId = enumeratorQuestionDefinition.getEnumeratorInitialQuestionId();
     }
 
     if (definition.getQuestionType().isMultiOptionType()) {
@@ -101,6 +99,12 @@ public final class QuestionDefinitionBuilder {
 
   public QuestionDefinitionBuilder setEnumeratorId(Optional<Long> enumeratorId) {
     builder.setEnumeratorId(enumeratorId);
+    return this;
+  }
+
+  public QuestionDefinitionBuilder setEnumeratorInitialQuestionId(
+      Optional<Long> enumeratorInitialQuestionId) {
+    builder.setEnumeratorInitialQuestionId(enumeratorInitialQuestionId);
     return this;
   }
 
@@ -185,18 +189,6 @@ public final class QuestionDefinitionBuilder {
   public QuestionDefinitionBuilder setPrimaryApplicantInfoTags(
       ImmutableSet<PrimaryApplicantInfoTag> primaryApplicantInfoTags) {
     builder.setPrimaryApplicantInfoTags(primaryApplicantInfoTags);
-    return this;
-  }
-
-  public QuestionDefinitionBuilder setEnumeratorInitialQuestionId(
-      Long enumeratorInitialQuestionId) {
-    return setEnumeratorInitialQuestionId(Optional.of(enumeratorInitialQuestionId));
-  }
-
-  public QuestionDefinitionBuilder setEnumeratorInitialQuestionId(
-      Optional<Long> enumeratorInitialQuestionId) {
-    // Stored on the EnumeratorQuestionDefinition; handled separately from the base config builder.
-    this.enumeratorInitialQuestionId = enumeratorInitialQuestionId;
     return this;
   }
 
@@ -297,7 +289,8 @@ public final class QuestionDefinitionBuilder {
               EnumeratorValidationPredicates.parse(validationPredicatesString));
         }
         yield new EnumeratorQuestionDefinition(
-            builder.build(), entityType, enumeratorInitialQuestionId);
+            // need initial question id
+            builder.build(), entityType);
       }
       case STATIC -> {
         yield new StaticContentQuestionDefinition(builder.build());

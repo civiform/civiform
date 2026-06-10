@@ -188,6 +188,7 @@ public class QuestionModel extends BaseModel {
             .setId(id)
             .setName(name)
             .setEnumeratorId(Optional.ofNullable(enumeratorId))
+            .setEnumeratorInitialQuestionId(Optional.ofNullable(enumeratorInitialQuestionId))
             .setDescription(description)
             .setQuestionType(QuestionType.valueOf(questionType))
             .setQuestionText(questionText)
@@ -303,7 +304,6 @@ public class QuestionModel extends BaseModel {
     if (questionDefinition.getQuestionType().equals(QuestionType.ENUMERATOR)) {
       EnumeratorQuestionDefinition enumerator = (EnumeratorQuestionDefinition) questionDefinition;
       enumeratorEntityType = enumerator.getEntityType();
-      enumeratorInitialQuestionId = enumerator.getEnumeratorInitialQuestionId().orElse(null);
     }
 
     // We must ensure we always initTags here. Otherwise, if we aren't

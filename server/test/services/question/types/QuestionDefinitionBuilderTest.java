@@ -68,12 +68,14 @@ public class QuestionDefinitionBuilderTest {
     builder
         .setQuestionType(QuestionType.ENUMERATOR)
         .setEnumeratorId(Optional.of(123L))
+        .setEnumeratorInitialQuestionId(Optional.of(789L))
         .setEntityType(LocalizedStrings.empty());
 
     EnumeratorQuestionDefinition enumerator = (EnumeratorQuestionDefinition) builder.build();
     assertThat(enumerator.getEntityType().isEmpty()).isFalse();
     assertThat(enumerator.getEntityType().getDefault())
         .isEqualTo(EnumeratorQuestionDefinition.DEFAULT_ENTITY_TYPE);
+    assertThat(enumerator.getInitialQuestionId()).hasValue(789L);
   }
 
   @Test
