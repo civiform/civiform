@@ -2363,7 +2363,7 @@ public final class ProgramService {
           Optional.of(
               programDefinition
                   .getBlockDefinition(blockDefinition.enumeratorId().get())
-                  .getEnumerationQuestionDefinition()
+                  .getEnumeratorQuestionDefinition()
                   .getId());
       // Create the copy question, handle potential errors below
       ErrorAnd<QuestionDefinition, CiviFormError> maybeCopy =

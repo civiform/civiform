@@ -375,7 +375,7 @@ public final class ProgramQuestionBank {
         return Optional.empty();
       }
       return Optional.of(
-          Long.toString(parentEnumeratorBlock.getEnumerationQuestionDefinition().getId()));
+          Long.toString(parentEnumeratorBlock.getEnumeratorQuestionDefinition().getId()));
     } catch (ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(e);
     }
