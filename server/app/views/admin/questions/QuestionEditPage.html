@@ -1,0 +1,407 @@
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.questions.QuestionEditPageViewModel"*/-->
+<th:block
+  th:fragment="content"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <style th:nonce="${templateGlobals.cspNonce()}">
+    svg {
+      display: none;
+    }
+  </style>
+
+  <!--/* Error message */-->
+  <cf:alert th:if="${model.errorMessage.isPresent()}" type="error" slim="true">
+    <text th:text="${model.errorMessage.get()}">placeholder</text>
+  </cf:alert>
+
+  <!--/* Left column: form */-->
+  <div id="question-form" hx-ext="response-targets">
+    <form
+      data-form-type="dynamic"
+      class="usa-form usa-form--large spacing-2"
+      id="full-edit-form"
+      method="POST"
+      th:action="${model.formActionUrl}"
+    >
+      <p>Fields marked with a <span>*</span> are required.</p>
+
+      <h2 th:text="#{questionnew.section.visibletoapplicants}"></h2>
+
+      <!--/* Repeated question information (hidden by default, shown by JS when enumerator selected) */-->
+      <div id="repeated-question-information" class="display-none">
+        <cf:alert type="info" slim="true">
+          <content>
+            <p class="usa-alert__text">
+              By selecting an enumerator, you are creating a repeated question -
+              a question that is asked for each repeated entity enumerated by
+              the applicant.
+            </p>
+            <p class="usa-alert__text">
+              Please reference the applicant-defined repeated entity name to
+              give the applicant context on which repeated entity they are
+              answering the question for by using <em>"$this"</em> in the
+              <strong>question's text</strong> and optionally the
+              <strong>help text.</strong>
+            </p>
+            <p class="usa-alert__text">
+              To reference the repeated entities containing this one, use
+              <em>"$this.parent"</em>, <em>"$this.parent.parent"</em>, etc.
+            </p>
+          </content>
+        </cf:alert>
+      </div>
+
+      <cf:textarea
+        id="question-text-textarea"
+        name="questionText"
+        th:label="#{questionnew.label.questiontext}"
+        th:value="${model.questionText}"
+        required="true"
+      />
+
+      <th:block th:if="${model.showHelpText}">
+        <cf:textarea
+          id="question-help-text-textarea"
+          name="questionHelpText"
+          th:label="#{questionnew.label.helptext}"
+          th:value="${model.questionHelpText}"
+        />
+      </th:block>
+
+      <!--/* Section: Visible to administrators only */-->
+      <h2 th:text="#{questionnew.section.visibletoadmins}"></h2>
+
+      <!--/* Admin name: read-only in edit mode */-->
+      <div>
+        <p th:text="#{questionedit.label.adminidentifier}"></p>
+        <p id="question-name-input" th:text="${model.questionName}"></p>
+        <input
+          type="hidden"
+          name="questionName"
+          th:value="${model.questionName}"
+        />
+      </div>
+
+      <cf:textarea
+        id="question-description-textarea"
+        name="questionDescription"
+        th:label="#{questionnew.label.description}"
+        th:value="${model.questionDescription}"
+      />
+
+      <!--/* Enumerator: read-only in edit mode */-->
+      <cf:select
+        id="question-enumerator-select"
+        name="enumeratorId-display"
+        th:label="#{questionnew.label.enumerator}"
+        disabled="true"
+        required="true"
+      >
+        <option
+          th:text="${model.enumeratorDisplayName}"
+          selected="selected"
+        ></option>
+      </cf:select>
+      <input
+        type="hidden"
+        name="enumeratorId"
+        th:value="${model.enumeratorIdValue}"
+      />
+
+      <!--/* MAP question: GeoJSON Endpoint */-->
+      <th:block th:if="${model.mapQuestion}">
+        <cf:input
+          id="geoJsonURL"
+          name="geoJsonEndpoint"
+          th:label="#{questionnew.label.geojsonurl}"
+          th:help-text="#{questionnew.helptext.geojsonurl}"
+          th:value="${model.geoJsonEndpoint}"
+          required="true"
+          readonly="true"
+        />
+      </th:block>
+
+      <!--/* Section: Question settings */-->
+      <th:block th:if="${model.hasQuestionSettings}">
+        <h2 th:text="#{questionnew.section.settings}"></h2>
+
+        <div
+          id="question-settings"
+          data-testid="question-settings"
+          class="bg-base-lighter padding-2"
+        >
+          <!--/* Renders the type-specific config fragment for the current questionForm.
+               The th:replace is nested INSIDE the th:case on purpose: fragment
+               inclusion (order 1) runs before conditional evaluation (order 3), so a
+               th:case + th:replace on the SAME element would replace every case
+               regardless of the match. Nesting makes the case prune first. */-->
+          <th:block th:switch="${model.questionTypeName}">
+            <th:block th:case="'ADDRESS'">
+              <th:block
+                th:replace="~{admin/questions/fragments/AddressFragment :: build(${model.questionForm})}"
+              ></th:block>
+            </th:block>
+            <th:block th:case="'CHECKBOX'">
+              <th:block
+                th:replace="~{admin/questions/fragments/CheckboxFragment :: build(${model.questionForm})}"
+              ></th:block>
+            </th:block>
+            <th:block th:case="'DATE'">
+              <th:block
+                th:replace="~{admin/questions/fragments/DateFragment :: build(${model.questionForm})}"
+              ></th:block>
+            </th:block>
+            <th:block th:case="'DROPDOWN'">
+              <th:block
+                th:replace="~{admin/questions/fragments/RadioButtonFragment :: build(${model.questionForm})}"
+              ></th:block>
+            </th:block>
+            <th:block th:case="'ENUMERATOR'">
+              <th:block
+                th:replace="~{admin/questions/fragments/EnumeratorFragment :: build(${model.questionForm})}"
+              ></th:block>
+            </th:block>
+            <th:block th:case="'FILEUPLOAD'">
+              <th:block
+                th:replace="~{admin/questions/fragments/FileUploadFragment :: build(${model.questionForm})}"
+              ></th:block>
+            </th:block>
+            <th:block th:case="'ID'">
+              <th:block
+                th:replace="~{admin/questions/fragments/IdFragment :: build(${model.questionForm})}"
+              ></th:block>
+            </th:block>
+            <th:block th:case="'MAP'">
+              <th:block
+                th:replace="~{admin/questions/fragments/MapFragment :: build(${model.mapSettings})}"
+              ></th:block>
+            </th:block>
+            <th:block th:case="'NUMBER'">
+              <th:block
+                th:replace="~{admin/questions/fragments/NumberFragment :: build(${model.questionForm})}"
+              ></th:block>
+            </th:block>
+            <th:block th:case="'PHONE'">
+              <th:block
+                th:replace="~{admin/questions/fragments/PhoneFragment :: build(${model.questionForm})}"
+              ></th:block>
+            </th:block>
+            <th:block th:case="'RADIO_BUTTON'">
+              <th:block
+                th:replace="~{admin/questions/fragments/RadioButtonFragment :: build(${model.questionForm})}"
+              ></th:block>
+            </th:block>
+            <th:block th:case="'TEXT'">
+              <th:block
+                th:replace="~{admin/questions/fragments/TextFragment :: build(${model.questionForm})}"
+              ></th:block>
+            </th:block>
+            <th:block th:case="'YES_NO'">
+              <th:block
+                th:replace="~{admin/questions/fragments/YesNoFragment :: build(${model.yesNoNotSureDisplayed}, ${model.yesNoMaybeDisplayed})}"
+              ></th:block>
+            </th:block>
+          </th:block>
+        </div>
+
+        <!--/* Universal question toggle */-->
+        <p>Universal question</p>
+
+        <p>
+          Universal questions will be recommended as a standardized type of
+          question to be added to all programs.
+        </p>
+
+        <th:block
+          th:replace="~{shared/ToggleFragment :: toggle('isUniversal', 'universal', 'Set as a universal question', ${model.currentlyUniversal}, false, false)}"
+        />
+
+        <!--/* Primary applicant info */-->
+        <th:block th:if="${model.showPrimaryApplicantInfo}">
+          <div id="primary-applicant-info">
+            <div
+              th:each="tag : ${model.paiTags}"
+              class="cf-primary-applicant-info-subsection"
+            >
+              <p th:text="${tag.description}"></p>
+
+              <th:block
+                th:replace="~{shared/ToggleFragment :: toggle(${tag.fieldName}, ${tag.fieldName}, ${tag.displayName}, ${tag.isEnabled()}, false, false)}"
+              />
+
+              <!--/* Alert: not universal (shown when different question does NOT have tag) */-->
+              <th:block th:if="${!tag.differentQuestionHasTag}">
+                <div
+                  class="cf-pai-not-universal-alert"
+                  th:classappend="${tag.universal} ? 'display-none'"
+                >
+                  <cf:alert type="info" slim="true">
+                    <text>
+                      You cannot make this question a Primary applicant
+                      information question because the question is not a
+                      Universal question.
+                    </text>
+                  </cf:alert>
+                </div>
+              </th:block>
+
+              <!--/* Alert: already set on another question (shown when universal) */-->
+              <th:block th:if="${tag.differentQuestionHasTag}">
+                <div
+                  class="cf-pai-tag-set-alert"
+                  th:classappend="${!tag.universal} ? 'display-none'"
+                >
+                  <cf:alert type="info" slim="true">
+                    <text
+                      th:text="${'You cannot make this question a Primary applicant information question because the question named \'' + tag.otherQuestionName + '\' is already set as a Primary applicant information question.'}"
+                    ></text>
+                  </cf:alert>
+                </div>
+              </th:block>
+
+              <!--/* Alert: not universal AND already set (shown when not universal) */-->
+              <th:block th:if="${tag.differentQuestionHasTag}">
+                <div
+                  class="cf-pai-tag-set-not-universal-alert"
+                  th:classappend="${tag.universal} ? 'display-none'"
+                >
+                  <cf:alert type="info" slim="true">
+                    <text
+                      th:text="${'You cannot make this question a Primary applicant information question because the question is not a Universal question and because the question named \'' + tag.otherQuestionName + '\' is already set as a Primary applicant information question.'}"
+                    ></text>
+                  </cf:alert>
+                </div>
+              </th:block>
+            </div>
+          </div>
+        </th:block>
+
+        <!--/* Demographic data privacy */-->
+        <th:block th:if="${model.showDemographicFields}">
+          <cf:radio
+            id="question-export-state"
+            name="questionExportState"
+            label="Demographic data privacy settings"
+            required="true"
+            help-text="The setting below only controls what is exported in the demographic export. Answers are always exported via the API."
+          >
+            <item
+              id="export-non-demographic"
+              value="NON_DEMOGRAPHIC"
+              label="Don't include in demographic export"
+              th:selected="${model.questionExportState == 'NON_DEMOGRAPHIC'}"
+            ></item>
+            <item
+              id="export-demographic"
+              value="DEMOGRAPHIC"
+              label="Include in demographic export"
+              th:selected="${model.questionExportState == 'DEMOGRAPHIC'}"
+            ></item>
+            <item
+              id="export-demographic-pii"
+              value="DEMOGRAPHIC_PII"
+              label="Obfuscate and include in demographic export"
+              th:selected="${model.questionExportState == 'DEMOGRAPHIC_PII'}"
+            ></item>
+          </cf:radio>
+          <p>
+            Learn more about each of the demographic data export settings in the
+            <a
+              href="https://docs.civiform.us/user-manual/civiform-admin-guide/manage-questions#question-export-settings"
+              target="_blank"
+              rel="noopener noreferrer"
+              >documentation</a
+            >.
+          </p>
+        </th:block>
+
+        <!--/* Display mode */-->
+        <th:block th:if="${model.showDisplayModeFields}">
+          <cf:radio
+            id="display-mode"
+            name="displayMode"
+            label="Display Mode"
+            required="true"
+            help-text="This controls whether or not the question is visible to Applicants."
+          >
+            <item
+              id="display-visible"
+              value="VISIBLE"
+              label="Visible - Shown to Applicants"
+              th:selected="${model.displayMode == 'VISIBLE'}"
+            ></item>
+            <item
+              id="display-hidden"
+              value="HIDDEN"
+              label="Hidden - Not shown to Applicants"
+              th:selected="${model.displayMode == 'HIDDEN'}"
+            ></item>
+          </cf:radio>
+        </th:block>
+      </th:block>
+
+      <div>
+        <cf:button
+          id="updateButton"
+          type="submit"
+          th:text="#{questionedit.button.update}"
+        />
+      </div>
+
+      <input
+        type="hidden"
+        name="questionType"
+        th:value="${model.questionTypeName}"
+      />
+      <input type="hidden" name="redirectUrl" th:value="${model.redirectUrl}" />
+      <input
+        type="hidden"
+        name="concurrencyToken"
+        th:value="${model.concurrencyToken}"
+      />
+      <input
+        type="hidden"
+        name="csrfToken"
+        th:value="${templateGlobals.csrfToken}"
+      />
+    </form>
+  </div>
+
+  <wc-modal
+    hidden
+    id="confirm-unset-universal-modal-container"
+    modal-id="confirm-unset-universal-modal"
+    th:heading-text="#{questionedit.modal.unsetuniversalheading}"
+  >
+    <div slot="description">
+      <div>
+        <p
+          th:text="#{questionedit.modal.unsetuniversaldesc.prefix} + ' ' + ${model.questionTypeLabel} + ' ' + #{questionedit.modal.unsetuniversaldesc.suffix}"
+        ></p>
+      </div>
+    </div>
+    <div slot="buttons">
+      <cf:button
+        type="submit"
+        form="full-edit-form"
+        data-action="ok"
+        th:text="#{questionedit.button.removefromuni}"
+      />
+      <cf:button
+        data-action="cancel"
+        variant="outline"
+        th:text="#{admin.common.button.cancel}"
+      />
+    </div>
+  </wc-modal>
+</th:block>
+
+<th:block th:fragment="sidebar">
+  <div
+    hx-swap="outerHTML"
+    th:hx-get="${model.previewUrl}"
+    hx-trigger="load"
+  ></div>
+</th:block>

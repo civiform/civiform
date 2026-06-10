@@ -1,0 +1,16 @@
+<!--/*@thymesVar id="mapSettings" type="views.admin.questions.MapQuestionSettingsPartialViewModel"*/-->
+<!--/* Type-specific question config for MAP questions. Reuses the shared
+       MapQuestionSettingsPartial template (the same markup the GeoJSON hx endpoint
+       swaps into #geoJsonOutput) by rebinding `model` to the map settings view model,
+       so this page and the dynamic refresh stay in sync. */-->
+<th:block
+  th:fragment="build(mapSettings)"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <th:block th:with="model=${mapSettings}">
+    <th:block
+      th:replace="~{admin/questions/MapQuestionSettingsPartial}"
+    ></th:block>
+  </th:block>
+</th:block>

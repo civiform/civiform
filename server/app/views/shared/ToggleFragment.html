@@ -9,10 +9,12 @@
   th:assert="${!#strings.isEmpty(name)}, ${!#strings.isEmpty(id)}, ${!#strings.isEmpty(label)}"
   th:with="checked=${checked == null ? false : checked},
            disabled=${disabled == null ? false : disabled},
-           hidden=${hidden == null ? false : hidden}"
+           hidden=${hidden == null ? false : hidden},
+           labelId=${id + '-toggle'},
+           inputId=${id + '-toggle-input'}"
 >
   <div class="cf-toggle" th:hidden="${hidden}">
-    <label class="cf-toggle__label">
+    <label class="cf-toggle__label" th:id="${labelId}">
       <input
         type="checkbox"
         role="switch"
@@ -21,7 +23,7 @@
         value="true"
         th:checked="${checked}"
         th:disabled="${disabled}"
-        th:id="${id}"
+        th:id="${inputId}"
       />
       <!--/*
         It is very important that this is added after the checkbox. This

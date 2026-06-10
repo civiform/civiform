@@ -1,0 +1,12 @@
+<!--/*@thymesVar id="questionForm" type="forms.questions.QuestionForm"*/-->
+<!--/* Type-specific question config for PHONE questions. */-->
+<th:block
+  th:fragment="build(questionForm)"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <p>
+    This supports only US and CA phone numbers. If you need other international
+    numbers, please use a Text question.
+  </p>
+</th:block>

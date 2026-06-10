@@ -1,0 +1,24 @@
+<!--/*@thymesVar id="questionForm" type="forms.questions.NumberQuestionForm"*/-->
+<!--/* Type-specific question config for NUMBER questions. */-->
+<th:block
+  th:fragment="build(questionForm)"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <cf:input
+    id="number-min"
+    name="min"
+    label="Minimum value"
+    type="number"
+    min="0"
+    th:value="${questionForm.getMin().isPresent() ? questionForm.getMin().getAsLong() : ''}"
+  />
+  <cf:input
+    id="number-max"
+    name="max"
+    label="Maximum value"
+    type="number"
+    min="0"
+    th:value="${questionForm.getMax().isPresent() ? questionForm.getMax().getAsLong() : ''}"
+  />
+</th:block>
