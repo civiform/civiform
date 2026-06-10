@@ -551,6 +551,39 @@ content.disabledProgramInfo=We''re sorry, the program you are trying to access h
 button.homePage=Zurück zur Startseite
 
 #--------------------------------------------------------------------------------------------------------------#
+# ADMIN PROGRAM IMAGE - admin-facing text for uploading a program summary card image                             #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Title of the admin page where a program''s summary image and alt text are set.
+title.adminProgramImage=Image upload
+# Link text to return to program editing from the program image page.
+link.adminProgramImage.back=Back
+# Hint under the file input about maximum upload size for a program summary image.
+content.adminProgramImage.hintMaxSize=The maximum size for image upload is 1MB.
+# Hint explaining automatic 16x9 cropping and that the preview reflects saved images.
+content.adminProgramImage.hintCrop=The image will be automatically cropped to 16x9. The program card preview on the right shows the saved image.
+# Label for the field where the admin enters alt text for the program summary image.
+label.adminProgramImage.altText=Enter image description (Alt Text)
+# Button to leave the program image step and continue program setup (creation flow).
+button.adminProgramImage.continue=Continue
+# Button to save and return when editing an existing program (non-creation flow).
+button.adminProgramImage.save=Save
+# Button to delete an uploaded program image
+button.adminProgramImage.delete=Delete image
+# Message shown when alt text is required but missing.
+validation.adminProgramImage.altTextRequired=Image description is required when a program image is uploaded.
+# Toast after saving a program image and alt text together.
+toast.adminProgramImage.imageAndDescriptionSaved=Image is saved with the description: {0}
+# Toast after saving alt text without uploading a new file.
+toast.adminProgramImage.descriptionSet=Image description set to {0}
+# Error when alt text cannot be cleared while an image remains.
+toast.adminProgramImage.descriptionNotRemovable=Description can't be removed because an image is present. Delete the image before deleting the description.
+# Toast after deleting a program image
+toast.adminProgramImage.imageRemoved=Image removed
+# Message when the program card preview cannot be rendered.
+content.adminProgramImage.cardPreviewError=Error generating card preview
+
+#--------------------------------------------------------------------------------------------------------------#
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
 #--------------------------------------------------------------------------------------------------------------#
 
@@ -670,6 +703,7 @@ validation.noPoBox=Please enter a valid address. We do not accept PO Boxes.
 title.confirmAddress=Confirm your address
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
 content.confirmAddressLine1=We were not able to find your address.
+content.confirmAddressLine1.v2=Address confirmation needed.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=Please check your address for spelling or choose an option from the list provided.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
@@ -780,6 +814,8 @@ placeholder.entityName={0} name
 validation.fileRequired=Please select a file.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Your file is too large. Please choose a file less than {0} MB.
+# Shown when an HTMX file upload request fails (any non-success response).
+validation.fileUploadRequestFailed=We couldn't upload your file. Please try again.
 # Text shown on a tag while a file is uploading.
 label.uploading=Uploading
 # Label applied to a list of uploaded files
@@ -1170,21 +1206,25 @@ input.repeatedSet.adminId=
 # A text input field asking admins for the text that will prompt applicants to list out the entity
 input.repeatedSet.questionText=
 # Autofill suggestion template shown in the admin ID field when applicant selects a listed entity. {0} is the listed entity name.
-input.repeatedSet.adminIdAutofillSuggestion={0} repeated set
+input.repeatedSet.adminIdAutofillSuggestion=
 # Autofill suggestion template shown in the question text field when applicant selects a listed entity. {0} is the listed entity name.
-input.repeatedSet.questionTextAutofillSuggestion=Please add each {0}.
+input.repeatedSet.questionTextAutofillSuggestion=
 # A text input field for admins to add a hint that will help applicants decide what entities to list out
 input.repeatedSet.hintText=
 # A form field where admins set the minimum number of entities that applicants must list
 input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
 input.repeatedSet.maxEntities=
+# Label for the field on the new repeated set form where an admin will select the question that the user will complete first in the enumerator flow
+label.repeatedSet.initialQuestion=
+# Description explaining what the initial question is and what the "Add question" button does
+description.repeatedSet.initialQuestion=
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
-alert.repeatedSet.addQuestionDisabled=
+alert.repeatedSet.addQuestionDisabled=A repeated set question must first be added before repeated questions can be. Please navigate to the parent screen to add a repeated set question.
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
 alert.repeatedSet.newQuestion=Creating a repeated set will add a new question to the question bank.
 # Alert shown in the question bank section listing repeated questions that are already associated with this repeated set
-alert.repeatedSet.previouslyUsed=Questions that are associated with a different repeated set are not available to be added.
+alert.repeatedSet.previouslyUsed=
 # Submission button for creating a new repeated set
 button.repeatedSet.submitNew=
 # Button for admins to add a new repeated set
@@ -1204,11 +1244,11 @@ text.repeatedSet.screenNameDescription=
 #An additional description explaining what the add question button does
 text.repeatedSet.addQuestionDescription=
 # Information shown to admins when they are adding a question to a repeated screen.
-text.repeatedQuestions.description=
+text.repeatedQuestions.description=Add the questions you would like to be asked about each object or individual listed by the applicant. If a question you add is not already associated with the repeated set, the question will be duplicated for this repeated set in the question bank.
 # Heading above the repeated set question in the program block editor
 heading.repeatedSet.question=
 # Heading shown above repeated questions in the question bank that are already associated with this repeated set
-heading.repeatedSet.previouslyUsed=Previously used for this repeated set
+heading.repeatedSet.previouslyUsed=
 # Heading above the questions section on repeated screens in the admin program screen editor.
 heading.repeatedQuestions=
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
@@ -1229,7 +1269,10 @@ button.addRepeatedScreen=
 button.addNestedRepeatedSet=
 # A button for admins to add a pre-existing enumerator question to a program
 button.addQuestion=
-
+# A tooltip shown to admins when the delete screen button is disabled
+tooltip.deleteScreenDisabled=
+# A tooltip shown to admins when the delete question button is disabled for a repeated set question
+tooltip.removeEnumeratorQuestionDisabled=
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #
@@ -1280,6 +1323,83 @@ reportingProgram.timeToCompleteP75=Time to complete (p75)
 reportingProgram.timeToCompleteP99=Time to complete (p99)
 # Text on button to download CSV file
 reportingProgram.downloadCsv=Download CSV
+
+#------------------------------------------------------------------------------#
+#  ADMIN API DOCS                                                              #
+#------------------------------------------------------------------------------#
+
+# Admin API Docs page title
+adminApiDocs.pageTitle=API documentation
+
+# Aria label for the nav that switches between API docs sub-pages.
+adminApiDocs.tabs.ariaLabel=API documentation sections
+# Tab label for the main API docs page.
+adminApiDocs.tabs.docs=Docs
+# Tab label for the schema viewer page.
+adminApiDocs.tabs.schema=Schema viewer
+
+# Intro paragraph as text before the external-docs link.
+adminApiDocs.intro.beforeLink=This page includes program-specific API Documentation for Active and Draft programs. Detailed documentation about authentication, pagination, and every field's possible values is located at
+# Visible text of the external-docs link in the intro paragraph.
+adminApiDocs.intro.linkText=docs.civiform.us/it-manual/api
+# Intro paragraph as text after the external-docs link.
+adminApiDocs.intro.afterLink=.
+
+# Heading on the collapsible "How does this work?" accordion.
+adminApiDocs.accordion.heading=How does this work?
+# First paragraph inside the accordion.
+adminApiDocs.accordion.paragraph1=The API response preview is a sample of what the API response might look like for a given program. All data is fake. Single-select and multi-select questions have sample answers that are selected from the available responses.
+# Second paragraph inside the accordion as text before the shareable link.
+adminApiDocs.accordion.paragraph2.beforeLink=You may share this link,
+# Second paragraph inside the accordion as text after the shareable link.
+adminApiDocs.accordion.paragraph2.afterLink=, with anyone who needs to see API docs. It is accessible without logging in, so they do not need to be a CiviForm Admin or Program Admin to view this page.
+
+# Label for the program selector.
+adminApiDocs.selectProgram=Select a program:
+# Label for the program-version selector.
+adminApiDocs.selectVersion=Select version:
+# Option label for the active version of a program.
+adminApiDocs.version.active=Active
+# Option label for the draft version of a program.
+adminApiDocs.version.draft=Draft
+
+# Message shown when the requested program + version combination does not exist.
+adminApiDocs.notFound=No programs found. Please create and publish a program before accessing API docs.
+# Heading for the list of questions on the selected program.
+adminApiDocs.questions=Questions
+# Label for a question's admin name
+adminApiDocs.adminName=Admin Name
+# Label for a question's type (text, number, etc.).
+adminApiDocs.type=Type
+# Label for a question's display text.
+adminApiDocs.text=Text
+# Label for a multi-option question's answer options.
+adminApiDocs.options=Options
+# Label preceding the list of a question's currently-available options.
+adminApiDocs.currentOptions=Current options:
+# Label preceding the list of every option the question has ever had.
+adminApiDocs.allOptions=All possible options:
+# Heading above the JSON preview of the API response.
+adminApiDocs.responsePreview=API response preview
+
+#------------------------------------------------------------------------------#
+#  ADMIN SCHEMA VIEWER                                                         #
+#------------------------------------------------------------------------------#
+
+# Admin API Docs page title
+adminSchemaViewer.pageTitle=API schema viewer
+# First intro paragraph on the OpenAPI schema viewer page.
+adminSchemaViewer.intro1=This page shows a visualization of the OpenAPI Schema. Both version 2 (formerly Swagger 2) and version 3 are available.
+# Second intro paragraph on the OpenAPI schema viewer page.
+adminSchemaViewer.intro2=We recommend only using version 3 unless there is a specific need for the older format.
+# Label for the program selector on the schema viewer page.
+adminSchemaViewer.selectProgram=Program:
+# Label for the program-status selector on the schema viewer page.
+adminSchemaViewer.selectStatus=Status:
+# Label for the OpenAPI version selector on the schema viewer page.
+adminSchemaViewer.selectVersion=OpenApi Version:
+# Error generating OpenAPI YAML
+adminSchemaViewer.yamlError=Unable to generate OpenApi version '{0}' for program '{1}' at stage '{2}'.
 
 #------------------------------------------------------------------------------#
 #  DEV TOOLS - text for the developer tools page                               #
