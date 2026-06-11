@@ -1529,7 +1529,7 @@ export class AdminQuestions {
   }
 
   async getUniversalToggleValue(): Promise<string> {
-    return this.page.inputValue('#universal-toggle-input')
+    return (await this.page.isChecked('#universal-toggle-input')).toString()
   }
 
   async clickPrimaryApplicantInfoToggle(field: PrimaryApplicantInfoField) {
@@ -1537,7 +1537,7 @@ export class AdminQuestions {
   }
 
   async getPrimaryApplicantInfoToggleValue(fieldName: string) {
-    return this.page.inputValue(`#${fieldName}-toggle-input`)
+    return (await this.page.isChecked(`#${fieldName}-toggle-input`)).toString()
   }
 
   async expectPrimaryApplicantInfoAlert(

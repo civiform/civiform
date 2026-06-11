@@ -1,6 +1,7 @@
 package services.program;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.Optional;
 import org.junit.Test;
@@ -277,6 +278,68 @@ public class BlockDefinitionTest {
             .build();
 
     assertThat(blockDefinition.hasNullQuestion()).isFalse();
+  }
+
+  @Test
+  public void getEnumeratorQuestionDefinition_findsEnumeratorWhenNotAtIndexZero() {
+    QuestionDefinition otherQuestion =
+        testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition();
+    QuestionDefinition enumeratorQuestion =
+        testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition();
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(123L)
+            .setName("Block Name")
+            .setDescription("Block Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Block Name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Block Description"))
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    otherQuestion, /* programDefinitionId= */ Optional.empty()))
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    enumeratorQuestion, /* programDefinitionId= */ Optional.empty()))
+            .build();
+
+    assertThat(blockDefinition.getEnumeratorQuestionDefinition().getId())
+        .isEqualTo(enumeratorQuestion.getId());
+  }
+
+  @Test
+  public void getEnumeratorQuestionDefinition_throwsWhenBlockHasNoEnumerator() {
+    BlockDefinition blockDefinition = makeBlockDefinitionWithQuestions();
+
+    assertThatThrownBy(blockDefinition::getEnumeratorQuestionDefinition)
+        .isInstanceOf(RuntimeException.class)
+        .hasMessageContaining("Only an enumerator block");
+  }
+
+  @Test
+  public void getQuestionDefinitions_returnsAllQuestionsInOrder() {
+    long nameQuestionId = testQuestionBank.nameApplicantName().getQuestionDefinition().getId();
+    long addressQuestionId =
+        testQuestionBank.addressApplicantAddress().getQuestionDefinition().getId();
+    long colorQuestionId =
+        testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition().getId();
+    BlockDefinition blockDefinition = makeBlockDefinitionWithQuestions();
+
+    assertThat(blockDefinition.getQuestionDefinitions())
+        .extracting(QuestionDefinition::getId)
+        .containsExactly(nameQuestionId, addressQuestionId, colorQuestionId);
+  }
+
+  @Test
+  public void getQuestionDefinitions_isEmptyWhenBlockHasNoQuestions() {
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(123L)
+            .setName("Block Name")
+            .setDescription("Block Description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Block Name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Block Description"))
+            .build();
+
+    assertThat(blockDefinition.getQuestionDefinitions()).isEmpty();
   }
 
   @Test

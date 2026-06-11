@@ -675,6 +675,7 @@ public class FieldWithLabel {
         .condWith(
             description.isPresent(),
             TagCreator.p()
+                .withId(this.id + "-description")
                 .withClasses("font-ui-sm", "text-base")
                 .with(span(description.orElse(""))))
         .with(div(fieldTag, buildFieldErrorsTag(fieldErrorsId)).withClasses("flex", "flex-col"))

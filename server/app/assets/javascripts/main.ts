@@ -9,6 +9,7 @@
  */
 
 import {addEventListenerToElements, assertNotNull} from '@/util'
+import {MultiOptionQuestion} from '@/multi_option_question'
 
 function attachDropdown(elementId: string) {
   const dropdownId = elementId + '-dropdown'
@@ -84,126 +85,6 @@ function changeUpdateBlockButtonState() {
 }
 
 /**
- * Copy the specified hidden template and append it to the end of the parent divContainerId,
- * above the add button (addButtonId).
- * @param {string} inputTemplateId The ID of the input template to clone.
- * @param {string} addButtonId The ID of "add" button to add imput before.
- * @param {string} divContainerId The ID of the divContainer to add imput before.
-
- */
-function addNewInput(
-  inputTemplateId: string,
-  addButtonId: string,
-  divContainerId: string,
-) {
-  // Copy the answer template and remove ID and hidden properties.
-  const newField = document
-    .getElementById(inputTemplateId)!
-    .cloneNode(true) as HTMLElement
-  newField.classList.remove('hidden')
-  newField.removeAttribute('id')
-
-  // Register the click event handler for the buttons.
-  const deleteButton = newField.querySelector(
-    '.multi-option-question-field-remove-button',
-  )
-  if (deleteButton != null) {
-    deleteButton.addEventListener('click', removeInput)
-  }
-  const upButton = newField.querySelector(
-    '.multi-option-question-field-move-up-button',
-  )
-  if (upButton != null) {
-    upButton.addEventListener('click', moveMultiOptionQuestionUp)
-  }
-  const downButton = newField.querySelector(
-    '.multi-option-question-field-move-down-button',
-  )
-  if (downButton != null) {
-    downButton.addEventListener('click', moveMultiOptionQuestionDown)
-  }
-
-  // Find the add option button and insert the new option input field before it.
-  const button = document.getElementById(addButtonId)
-  document.getElementById(divContainerId)!.insertBefore(newField, button)
-}
-
-/**
- * Removes an input field and its associated elements, like the remove button. All
- * elements must be contained in a parent div.
- * @param {Event} event The event that triggered this action.
- */
-function removeInput(event: Event) {
-  // Get the parent div, which contains the input field and remove button, and remove it.
-  const clickedOption = assertNotNull(
-    (event.currentTarget as Element).parentNode,
-  ) as HTMLElement
-  clickedOption.remove()
-}
-
-/**
- * Swaps an input field and its associated elements with the one above it, if possible. All
- * elements must be contained in a parent div.
- * @param {Event} event The event that triggered this action.
- */
-function moveMultiOptionQuestionUp(event: Event) {
-  event.preventDefault()
-  const clickedOption = assertNotNull(
-    (event.currentTarget as Element).parentNode,
-  ) as HTMLElement
-
-  const parentContainer = clickedOption.parentElement
-  if (parentContainer == null) {
-    return
-  }
-
-  const options = Array.from(
-    document.querySelectorAll(
-      'div.cf-multi-option-question-option-editable:not(.hidden)',
-    ),
-  )
-  const clickedIndex = options.indexOf(clickedOption)
-
-  // If the clicked element is not the first element in the parent container,
-  // then move it up one index.
-  if (clickedIndex > 0) {
-    const previousElement = options[clickedIndex - 1]
-    parentContainer.insertBefore(clickedOption, previousElement)
-  }
-}
-
-/**
- * Swaps an input field and its associated elements with the one below it, if possible. All
- * elements must be contained in a parent div.
- * @param {Event} event The event that triggered this action.
- */
-function moveMultiOptionQuestionDown(event: Event) {
-  event.preventDefault()
-  const clickedOption = assertNotNull(
-    (event.currentTarget as Element).parentNode,
-  ) as HTMLElement
-
-  const parentContainer = clickedOption.parentElement
-  if (parentContainer == null) {
-    return
-  }
-
-  const options = Array.from(
-    document.querySelectorAll(
-      'div.cf-multi-option-question-option-editable:not(.hidden)',
-    ),
-  )
-  const clickedIndex = options.indexOf(clickedOption)
-
-  // If the clicked element is not the last element in the parent container,
-  // then move it down one index.
-  if (clickedIndex < options.length - 1) {
-    const nextElement = options[clickedIndex + 1]
-    parentContainer.insertBefore(nextElement, clickedOption)
-  }
-}
-
-/**
  * Remove line-clamp from div on click.
  *
  * NOTE: This is in no way discoverable, but it's just a temporary fix until we have a program
@@ -237,18 +118,6 @@ function attachFormDebouncers() {
         submitEl.setAttribute('disabled', '')
       })
     },
-  )
-}
-
-/**
- * Click handler for the admin question add new option button for
- * multi-option questions (checkboxes, radios, selects)
- */
-function addNewOptionHandler() {
-  addNewInput(
-    'multi-option-question-answer-template',
-    'add-new-option',
-    'question-settings',
   )
 }
 
@@ -318,12 +187,12 @@ export function init() {
     blockEditForm.addEventListener('input', changeUpdateBlockButtonState)
   }
 
-  // Configure the button on the admin question form to add more answer options
-  const questionOptionButton = document.getElementById('add-new-option')
-  if (questionOptionButton) {
-    questionOptionButton.removeEventListener('click', addNewOptionHandler)
-    questionOptionButton.addEventListener('click', addNewOptionHandler)
-  }
+  // Wire add/remove/reorder for multi-option question answers on the admin
+  // question form. The question editor is still the j2html page even when the
+  // SC migration flag is on, and no other bundle wires these handlers, so this
+  // must run unconditionally. init() is idempotent (options are tracked in a
+  // WeakSet), so there is no double-binding risk.
+  new MultiOptionQuestion().init()
 
   // Note that this formatting logic mimics QuestionDefinition.getQuestionNameKey()
   const formatQuestionName = (unformatted: string) => {
@@ -368,25 +237,6 @@ export function init() {
 
   addEventListener('resize', handleMediaQueryChange)
   handleMediaQueryChange()
-
-  // Bind click handler for remove options in multi-option edit view
-  addEventListenerToElements(
-    '.multi-option-question-field-remove-button',
-    'click',
-    removeInput,
-  )
-
-  // Bind click handler for re-arranging options in multi-option edit view
-  addEventListenerToElements(
-    '.multi-option-question-field-move-up-button',
-    'click',
-    moveMultiOptionQuestionUp,
-  )
-  addEventListenerToElements(
-    '.multi-option-question-field-move-down-button',
-    'click',
-    moveMultiOptionQuestionDown,
-  )
 
   /* Bind click handler to submit category filter form when any category is clicked
     and set the URL fragment to the most recently clicked category */

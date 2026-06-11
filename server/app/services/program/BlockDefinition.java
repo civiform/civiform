@@ -127,12 +127,17 @@ public abstract class BlockDefinition {
   }
 
   @JsonIgnore
-  public EnumeratorQuestionDefinition getEnumerationQuestionDefinition() {
+  public EnumeratorQuestionDefinition getEnumeratorQuestionDefinition() {
     if (hasEnumeratorQuestion()) {
-      return (EnumeratorQuestionDefinition) getQuestionDefinition(0);
+      return (EnumeratorQuestionDefinition)
+          getQuestionDefinitions().stream()
+              .filter(QuestionDefinition::isEnumerator)
+              .findFirst()
+              .orElseThrow();
     }
+
     throw new RuntimeException(
-        "Only an enumerator block can have an enumeration question definition.");
+        "Only an enumerator block can have an enumerator question definition.");
   }
 
   @JsonIgnore
@@ -244,6 +249,13 @@ public abstract class BlockDefinition {
   @JsonIgnore
   public QuestionDefinition getQuestionDefinition(int questionIndex) {
     return programQuestionDefinitions().get(questionIndex).getQuestionDefinition();
+  }
+
+  @JsonIgnore
+  public ImmutableList<QuestionDefinition> getQuestionDefinitions() {
+    return programQuestionDefinitions().stream()
+        .map(ProgramQuestionDefinition::getQuestionDefinition)
+        .collect(ImmutableList.toImmutableList());
   }
 
   @JsonIgnore

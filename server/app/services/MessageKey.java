@@ -121,6 +121,7 @@ public enum MessageKey {
   DESCRIPTION_REPEATED_SET_ADMIN_ID("description.repeatedSet.adminId"),
   DESCRIPTION_LISTED_ENTITY("description.repeatedSet.listedEntity"),
   DESCRIPTION_REPEATED_SET_HINT_TEXT("description.repeatedSet.hintText"),
+  DESCRIPTION_REPEATED_SET_INITIAL_QUESTION("description.repeatedSet.initialQuestion"),
   DESCRIPTION_REPEATED_SET_QUESTION_TEXT("description.repeatedSet.questionText"),
   DESCRIPTION_REPEATED_SET_CREATE_NEW_QUESTION("description.repeatedSet.createNewQuestion"),
   DESCRIPTION_REPEATED_SET_CHOOSE_EXISTING_QUESTION(
@@ -174,6 +175,7 @@ public enum MessageKey {
       "input.repeatedSet.questionTextAutofillSuggestion"),
   INVALID_INPUT("validation.invalidInput"),
   LABEL_NEW_REPEATED_SET_FORM("label.repeatedSet.newSetForm"),
+  LABEL_REPEATED_SET_INITIAL_QUESTION("label.repeatedSet.initialQuestion"),
   LANGUAGE_LABEL_SR("label.languageSr"),
   LINK_ADMIN_LOGIN("link.adminLogin"),
   LINK_EDIT("link.edit"),
