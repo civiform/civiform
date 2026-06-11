@@ -6,6 +6,7 @@
   <head
     th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
   ></head>
+
   <body th:hx-headers='|{"CSRF-TOKEN":"${csrfToken}"}|'>
     <div th:replace="~{applicant/ApplicantBaseFragment :: skipNav}"></div>
     <div
@@ -37,9 +38,17 @@
       >
         <div class="grid-row">
           <div class="tablet:grid-col-8">
-            <div class="section-external">
+            <div
+              class="section-external tablet:display-flex tablet:flex-align-end"
+            >
+              <div class="flex-fill">
+                <div
+                  th:replace="~{applicant/blocks/ProgressBarFragment :: progressBar(${progressBar})}"
+                ></div>
+              </div>
               <div
-                th:replace="~{applicant/blocks/ProgressBarFragment :: progressBar(${progressBar})}"
+                class="margin-left-auto margin-bottom-3"
+                th:insert="~{applicant/review/SubmitApplicationFragment :: submitButtons(${csrfToken},${submitUrl}, ${continueUrl},${hasCompletedAllBlocks})}"
               ></div>
             </div>
 
@@ -70,27 +79,10 @@
                 ></div>
               </li>
             </ol>
-
-            <form
-              class="cf-debounced-form summary-button-section"
-              th:action="${submitUrl}"
-              method="POST"
-            >
-              <input hidden th:value="${csrfToken}" name="csrfToken" />
-              <button
-                th:if="${hasCompletedAllBlocks}"
-                th:text="#{button.submitApplication}"
-                type="submit"
-                class="usa-button"
-              ></button>
-              <a
-                th:unless="${hasCompletedAllBlocks}"
-                th:href="${continueUrl}"
-                th:text="#{button.continue}"
-                id="continue-application-button"
-                class="usa-button"
-              ></a>
-            </form>
+            <div
+              class="summary-button-section"
+              th:replace="~{applicant/review/SubmitApplicationFragment :: submitButtons(${csrfToken},${submitUrl}, ${continueUrl},${hasCompletedAllBlocks})}"
+            />
           </div>
         </div>
       </div>
@@ -103,13 +95,15 @@
       <div id="show-duplicate-submission-modal"></div>
       <th:block
         th:replace="~{applicant/shared/ModalFragment:: preventDuplicateSubmission(${programTitle}, ${exitHref})}"
-      ></th:block>
+      >
+      </th:block>
     </div>
     <footer
       th:replace="~{applicant/shared/NavigationFragment :: pageFooter}"
     ></footer>
     <th:block
       th:replace="~{components/GoogleTagManagerFragment :: tagManager(${optionalMeasurementId}, ${cspNonce})}"
-    ></th:block>
+    >
+    </th:block>
   </body>
 </html>
