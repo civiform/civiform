@@ -340,7 +340,7 @@ public class QuestionModelTest extends ResetPostgres {
 
     assertThat(enumerator.getQuestionType()).isEqualTo(QuestionType.ENUMERATOR);
     assertThat(enumerator.getEntityType()).isEqualTo(entityType);
-    assertThat(enumerator.getEnumeratorId()).isEqualTo(enumeratorId);
+    assertThat(enumerator.getEnumeratorId()).hasValue(enumeratorId);
     assertThat(enumerator.getEnumeratorInitialQuestionId()).isEqualTo(enumeratorInitialQuestionId);
   }
 
