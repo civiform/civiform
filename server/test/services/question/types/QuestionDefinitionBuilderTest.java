@@ -65,17 +65,20 @@ public class QuestionDefinitionBuilderTest {
 
   @Test
   public void builder_emptyEntityType_usesDefaultEntityType() throws Exception {
+    Long enumeratorId = 123L;
+    Long enumeratorInitialQuestionId = 789L;
     builder
         .setQuestionType(QuestionType.ENUMERATOR)
-        .setEnumeratorId(Optional.of(123L))
-        .setEnumeratorInitialQuestionId(Optional.of(789L))
+        .setEnumeratorId(Optional.of(enumeratorId))
+        .setEnumeratorInitialQuestionId(Optional.of(enumeratorInitialQuestionId))
         .setEntityType(LocalizedStrings.empty());
 
     EnumeratorQuestionDefinition enumerator = (EnumeratorQuestionDefinition) builder.build();
     assertThat(enumerator.getEntityType().isEmpty()).isFalse();
     assertThat(enumerator.getEntityType().getDefault())
         .isEqualTo(EnumeratorQuestionDefinition.DEFAULT_ENTITY_TYPE);
-    assertThat(enumerator.getInitialQuestionId()).hasValue(789L);
+    assertThat(enumerator.getEnumeratorId()).hasValue(enumeratorId);
+    assertThat(enumerator.getEnumeratorInitialQuestionId()).hasValue(enumeratorInitialQuestionId);
   }
 
   @Test

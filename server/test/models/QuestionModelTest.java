@@ -315,13 +315,15 @@ public class QuestionModelTest extends ResetPostgres {
       throws UnsupportedQuestionTypeException {
     LocalizedStrings entityType = LocalizedStrings.of(Locale.US, "entity");
 
+    Long enumeratorId = 123L;
+    Long enumeratorInitialQuestionId = 789L;
     QuestionDefinition definition =
         new QuestionDefinitionBuilder()
             .setQuestionType(QuestionType.ENUMERATOR)
             .setName("")
             .setDescription("")
-            .setEnumeratorId(Optional.of(123L))
-            .setEnumeratorInitialQuestionId(Optional.of(789L))
+            .setEnumeratorId(Optional.of(enumeratorId))
+            .setEnumeratorInitialQuestionId(Optional.of(enumeratorInitialQuestionId))
             .setQuestionText(LocalizedStrings.of())
             .setQuestionHelpText(LocalizedStrings.empty())
             .setEntityType(entityType)
@@ -338,6 +340,8 @@ public class QuestionModelTest extends ResetPostgres {
 
     assertThat(enumerator.getQuestionType()).isEqualTo(QuestionType.ENUMERATOR);
     assertThat(enumerator.getEntityType()).isEqualTo(entityType);
+    assertThat(enumerator.getEnumeratorId()).isEqualTo(enumeratorId);
+    assertThat(enumerator.getEnumeratorInitialQuestionId()).isEqualTo(enumeratorInitialQuestionId);
   }
 
   @Test

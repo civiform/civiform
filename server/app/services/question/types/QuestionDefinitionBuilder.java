@@ -288,9 +288,7 @@ public final class QuestionDefinitionBuilder {
           builder.setValidationPredicates(
               EnumeratorValidationPredicates.parse(validationPredicatesString));
         }
-        yield new EnumeratorQuestionDefinition(
-            // need initial question id
-            builder.build(), entityType);
+        yield new EnumeratorQuestionDefinition(builder.build(), entityType);
       }
       case STATIC -> {
         yield new StaticContentQuestionDefinition(builder.build());

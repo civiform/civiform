@@ -540,14 +540,16 @@ public final class ProgramMigrationService {
                   // Enumerator questions have an enumeratorInitialQuestionId
                   // that need remapping.
                   if (question instanceof EnumeratorQuestionDefinition enumeratorQuestion
-                      && enumeratorQuestion.getInitialQuestionId().isPresent()) {
-                    Long oldInitialQuestionId = enumeratorQuestion.getInitialQuestionId().get();
+                      && enumeratorQuestion.getEnumeratorInitialQuestionId().isPresent()) {
+                    Long oldInitialQuestionId =
+                        enumeratorQuestion.getEnumeratorInitialQuestionId().get();
                     String initialQuestionAdminName =
                         questionsOnJsonById.get(oldInitialQuestionId).getName();
                     Long newInitialQuestionId =
                         allQuestionsByName.get(initialQuestionAdminName).getId();
                     question =
-                        questionRepository.updateInitialQuestionId(question, newInitialQuestionId);
+                        questionRepository.updateEnumeratorInitialQuestionId(
+                            question, newInitialQuestionId);
                     question =
                         questionRepository.createOrUpdateDraft(question).getQuestionDefinition();
                   }

@@ -314,11 +314,11 @@ public class AdminImportControllerTest extends ResetPostgres {
 
     assertThat(enumeratorQuestionDefinition.getId())
         .isEqualTo(nestedEnumeratorQuestionDefinition.getEnumeratorId().get());
-    assertThat(enumeratorQuestionDefinition.getInitialQuestionId())
+    assertThat(enumeratorQuestionDefinition.getEnumeratorInitialQuestionId())
         .hasValue(nestedEnumeratorQuestionDefinition.getId());
     assertThat(nestedEnumeratorQuestionDefinition.getId())
         .isEqualTo(childQuestionDefinition.getEnumeratorId().get());
-    assertThat(nestedEnumeratorQuestionDefinition.getInitialQuestionId())
+    assertThat(nestedEnumeratorQuestionDefinition.getEnumeratorInitialQuestionId())
         .hasValue(childQuestionDefinition.getId());
   }
 

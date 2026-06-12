@@ -284,7 +284,7 @@ public final class QuestionRepository {
     }
   }
 
-  public QuestionDefinition updateInitialQuestionId(
+  public QuestionDefinition updateEnumeratorInitialQuestionId(
       QuestionDefinition questionDefinition, Long newInitialQuestionId) {
     try {
       return new QuestionDefinitionBuilder(questionDefinition)

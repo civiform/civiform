@@ -694,19 +694,20 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
         .containsKeys(repeatedQuestionName, QUESTION_2_NAME, QUESTION_3_NAME, QUESTION_4_NAME);
     EnumeratorQuestionDefinition gotRepeatedQuestion =
         (EnumeratorQuestionDefinition) result.get(repeatedQuestionName);
-    assertThat(gotRepeatedQuestion).isNotNull();
     QuestionDefinition gotChildQuestion1 = result.get(QUESTION_2_NAME);
-    assertThat(gotChildQuestion1).isNotNull();
     QuestionDefinition gotChildQuestion2 = result.get(QUESTION_3_NAME);
-    assertThat(gotChildQuestion2).isNotNull();
     QuestionDefinition gotChildQuestion3 = result.get(QUESTION_4_NAME);
+    assertThat(gotRepeatedQuestion).isNotNull();
+    assertThat(gotChildQuestion1).isNotNull();
+    assertThat(gotChildQuestion2).isNotNull();
     assertThat(gotChildQuestion3).isNotNull();
 
     assertThat(gotRepeatedQuestion.getName()).isEqualTo(repeatedQuestion.getName());
     assertThat(gotChildQuestion1.getName()).isEqualTo(childQuestion1.getName());
     assertThat(gotChildQuestion2.getName()).isEqualTo(childQuestion2.getName());
     assertThat(gotRepeatedQuestion.getEnumeratorId()).isEmpty();
-    assertThat(gotRepeatedQuestion.getInitialQuestionId()).hasValue(gotChildQuestion1.getId());
+    assertThat(gotRepeatedQuestion.getEnumeratorInitialQuestionId())
+        .hasValue(gotChildQuestion1.getId());
     assertThat(gotChildQuestion1.getEnumeratorId()).hasValue(gotRepeatedQuestion.getId());
     assertThat(gotChildQuestion2.getEnumeratorId()).hasValue(gotRepeatedQuestion.getId());
     assertThat(gotChildQuestion3.getEnumeratorId())

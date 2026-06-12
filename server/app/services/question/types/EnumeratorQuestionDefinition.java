@@ -74,7 +74,7 @@ public class EnumeratorQuestionDefinition extends QuestionDefinition {
   }
 
   @JsonIgnore
-  public Optional<Long> getInitialQuestionId() {
+  public Optional<Long> getEnumeratorInitialQuestionId() {
     return getConfig().enumeratorInitialQuestionId();
   }
 

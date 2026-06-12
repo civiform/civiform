@@ -989,7 +989,8 @@ public class TestQuestionBank {
    * @param adminName the admin name of the question
    * @param id the ID to assign to the question
    * @param type the question type
-   * @param enumeratorId optional enumerator ID for repeated questions
+   * @param enumeratorId enumerator ID for repeated questions
+   * @param enumeratorInitialQuestionId ID for an enumerators initial question
    * @return a QuestionDefinition (not persisted)
    */
   public static QuestionDefinition createFullQuestionDefinition(
