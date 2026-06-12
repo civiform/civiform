@@ -284,6 +284,17 @@ public final class QuestionRepository {
     }
   }
 
+  public QuestionDefinition updateInitialQuestionId(
+      QuestionDefinition questionDefinition, Long newInitialQuestionId) {
+    try {
+      return new QuestionDefinitionBuilder(questionDefinition)
+          .setEnumeratorInitialQuestionId(Optional.of(newInitialQuestionId))
+          .build();
+    } catch (UnsupportedQuestionTypeException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   /**
    * Maybe find a {@link QuestionModel} that conflicts with {@link QuestionDefinition}.
    *

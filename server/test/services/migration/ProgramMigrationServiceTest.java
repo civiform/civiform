@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import static support.TestQuestionBank.createDropdownQuestionDefinition;
 import static support.TestQuestionBank.createQuestionDefinition;
 import static support.TestQuestionBank.createQuestionDefinitionWithEnumId;
+import static support.TestQuestionBank.createQuestionDefinitionWithEnumInitialId;
 import static support.TestQuestionBank.createYesNoQuestionDefinition;
 
 import auth.ProgramAcls;
@@ -45,6 +46,7 @@ import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramType;
 import services.question.QuestionService;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
@@ -649,22 +651,25 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
       updateEnumeratorIdsAndSaveQuestions_withEnumeratorIds_updatesProgramQuestionsBeforeSaving()
           throws Exception {
     // Create child questions with enumerator IDs
+    String repeatedQuestionName = "enumerator";
+    Long childQuestionId = 2L;
     QuestionDefinition repeatedQuestion =
-        createQuestionDefinition(QUESTION_1_NAME, 1L, QuestionType.TEXT);
+        createQuestionDefinitionWithEnumInitialId(
+            repeatedQuestionName, 1L, QuestionType.ENUMERATOR, childQuestionId);
     QuestionDefinition childQuestion1 =
         createQuestionDefinitionWithEnumId(
-            QUESTION_2_NAME, 2L, QuestionType.TEXT, QUESTION_1.getId());
+            QUESTION_2_NAME, childQuestionId, QuestionType.TEXT, repeatedQuestion.getId());
     QuestionDefinition childQuestion2 =
         createQuestionDefinitionWithEnumId(
-            QUESTION_3_NAME, 3L, QuestionType.TEXT, QUESTION_1.getId());
+            QUESTION_3_NAME, 3L, QuestionType.TEXT, repeatedQuestion.getId());
     QuestionDefinition childQuestion3 =
         createQuestionDefinitionWithEnumId(
-            QUESTION_4_NAME, 4L, QuestionType.TEXT, QUESTION_1.getId());
+            QUESTION_4_NAME, 4L, QuestionType.TEXT, repeatedQuestion.getId());
     QuestionModel childQuestion3model = new QuestionModel(childQuestion3);
     childQuestion3model.addVersion(versionRepository.getActiveVersion()).save();
 
     ImmutableList<QuestionDefinition> questionsToWrite =
-        ImmutableList.of(QUESTION_1, childQuestion1, childQuestion2);
+        ImmutableList.of(repeatedQuestion, childQuestion1, childQuestion2);
 
     // Execute in a transaction so bulkCreateQuestions doesn't throw
     ImmutableMap<String, QuestionDefinition> result =
@@ -673,29 +678,45 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
               return service.updateEnumeratorIdsAndSaveQuestions(
                   questionsToWrite,
                   /* questionsToReuseFromBank= */ ImmutableList.of(childQuestion3),
-                  ImmutableMap.of(
-                      1L, QUESTION_1, 2L, childQuestion1, 3L, childQuestion2, 4L, childQuestion3));
+                  /* questionsOnJsonById= */ ImmutableMap.of(
+                      repeatedQuestion.getId(),
+                      repeatedQuestion,
+                      childQuestion1.getId(),
+                      childQuestion1,
+                      childQuestion2.getId(),
+                      childQuestion2,
+                      childQuestion3.getId(),
+                      childQuestion3));
             });
 
     assertThat(result).hasSize(4);
     assertThat(result)
-        .containsKeys(QUESTION_1_NAME, QUESTION_2_NAME, QUESTION_3_NAME, QUESTION_4_NAME);
-    assertThat(result.get(QUESTION_1_NAME).getName()).isEqualTo(QUESTION_1.getName());
-    assertThat(result.get(QUESTION_2_NAME).getName()).isEqualTo(childQuestion1.getName());
-    assertThat(result.get(QUESTION_3_NAME).getName()).isEqualTo(childQuestion2.getName());
-    assertThat(result.get(QUESTION_1_NAME).getEnumeratorId()).isEmpty();
-    assertThat(result.get(QUESTION_2_NAME).getEnumeratorId())
-        .hasValue(result.get(QUESTION_1_NAME).getId());
-    assertThat(result.get(QUESTION_3_NAME).getEnumeratorId())
-        .hasValue(result.get(QUESTION_1_NAME).getId());
-    assertThat(result.get(QUESTION_4_NAME).getEnumeratorId())
+        .containsKeys(repeatedQuestionName, QUESTION_2_NAME, QUESTION_3_NAME, QUESTION_4_NAME);
+    EnumeratorQuestionDefinition gotRepeatedQuestion =
+        (EnumeratorQuestionDefinition) result.get(repeatedQuestionName);
+    assertThat(gotRepeatedQuestion).isNotNull();
+    QuestionDefinition gotChildQuestion1 = result.get(QUESTION_2_NAME);
+    assertThat(gotChildQuestion1).isNotNull();
+    QuestionDefinition gotChildQuestion2 = result.get(QUESTION_3_NAME);
+    assertThat(gotChildQuestion2).isNotNull();
+    QuestionDefinition gotChildQuestion3 = result.get(QUESTION_4_NAME);
+    assertThat(gotChildQuestion3).isNotNull();
+
+    assertThat(gotRepeatedQuestion.getName()).isEqualTo(repeatedQuestion.getName());
+    assertThat(gotChildQuestion1.getName()).isEqualTo(childQuestion1.getName());
+    assertThat(gotChildQuestion2.getName()).isEqualTo(childQuestion2.getName());
+    assertThat(gotRepeatedQuestion.getEnumeratorId()).isEmpty();
+    assertThat(gotRepeatedQuestion.getInitialQuestionId()).hasValue(gotChildQuestion1.getId());
+    assertThat(gotChildQuestion1.getEnumeratorId()).hasValue(gotRepeatedQuestion.getId());
+    assertThat(gotChildQuestion2.getEnumeratorId()).hasValue(gotRepeatedQuestion.getId());
+    assertThat(gotChildQuestion3.getEnumeratorId())
         .hasValueSatisfying(
             id -> {
               // Since we are reusing the child question, the enumerator ID should not be the newly
               // saved parent question's ID.
               // Note: this is disallowed further upstream, in the
               // validateEnumeratorAndRepeatedQuestions method
-              assertThat(id).isNotEqualTo(result.get(QUESTION_1_NAME).getId());
+              assertThat(id).isNotEqualTo(gotRepeatedQuestion.getId());
             });
   }
 

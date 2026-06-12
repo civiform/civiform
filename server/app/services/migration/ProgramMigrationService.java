@@ -43,6 +43,7 @@ import services.program.ProgramType;
 import services.question.ActiveAndDraftQuestions;
 import services.question.QuestionService;
 import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.statuses.StatusDefinitions;
@@ -532,6 +533,21 @@ public final class ProgramMigrationService {
                     // Update the child question with the correct id and save the question
                     question =
                         questionRepository.updateEnumeratorId(question, newlySavedParentQuestionId);
+                    question =
+                        questionRepository.createOrUpdateDraft(question).getQuestionDefinition();
+                  }
+
+                  // Enumerator questions have an enumeratorInitialQuestionId
+                  // that need remapping.
+                  if (question instanceof EnumeratorQuestionDefinition enumeratorQuestion
+                      && enumeratorQuestion.getInitialQuestionId().isPresent()) {
+                    Long oldInitialQuestionId = enumeratorQuestion.getInitialQuestionId().get();
+                    String initialQuestionAdminName =
+                        questionsOnJsonById.get(oldInitialQuestionId).getName();
+                    Long newInitialQuestionId =
+                        allQuestionsByName.get(initialQuestionAdminName).getId();
+                    question =
+                        questionRepository.updateInitialQuestionId(question, newInitialQuestionId);
                     question =
                         questionRepository.createOrUpdateDraft(question).getQuestionDefinition();
                   }

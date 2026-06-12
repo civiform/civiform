@@ -976,6 +976,12 @@ public class TestQuestionBank {
         adminName, id, type, Optional.of(enumeratorId), Optional.empty());
   }
 
+  public static QuestionDefinition createQuestionDefinitionWithEnumInitialId(
+      String adminName, Long id, QuestionType type, Long enumeratorInitialQuestionId) {
+    return createFullQuestionDefinition(
+        adminName, id, type, Optional.empty(), Optional.of(enumeratorInitialQuestionId));
+  }
+
   /**
    * Creates a question definition only (not saved) with specified parameters. This is useful for
    * tests that need QuestionDefinition objects with specific IDs.
