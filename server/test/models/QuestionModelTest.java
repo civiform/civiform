@@ -315,12 +315,15 @@ public class QuestionModelTest extends ResetPostgres {
       throws UnsupportedQuestionTypeException {
     LocalizedStrings entityType = LocalizedStrings.of(Locale.US, "entity");
 
+    Long enumeratorId = 123L;
+    Long enumeratorInitialQuestionId = 789L;
     QuestionDefinition definition =
         new QuestionDefinitionBuilder()
             .setQuestionType(QuestionType.ENUMERATOR)
             .setName("")
             .setDescription("")
-            .setEnumeratorId(Optional.of(123L))
+            .setEnumeratorId(Optional.of(enumeratorId))
+            .setEnumeratorInitialQuestionId(Optional.of(enumeratorInitialQuestionId))
             .setQuestionText(LocalizedStrings.of())
             .setQuestionHelpText(LocalizedStrings.empty())
             .setEntityType(entityType)
@@ -329,13 +332,16 @@ public class QuestionModelTest extends ResetPostgres {
 
     question.save();
 
-    QuestionModel found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
+    QuestionModel found =
+        repo.lookupQuestion(question.id).toCompletableFuture().join().orElseThrow();
 
-    assertThat(found.getQuestionDefinition().getQuestionType()).isEqualTo(QuestionType.ENUMERATOR);
     EnumeratorQuestionDefinition enumerator =
         (EnumeratorQuestionDefinition) found.getQuestionDefinition();
 
+    assertThat(enumerator.getQuestionType()).isEqualTo(QuestionType.ENUMERATOR);
     assertThat(enumerator.getEntityType()).isEqualTo(entityType);
+    assertThat(enumerator.getEnumeratorId()).hasValue(enumeratorId);
+    assertThat(enumerator.getEnumeratorInitialQuestionId()).hasValue(enumeratorInitialQuestionId);
   }
 
   @Test
