@@ -108,6 +108,7 @@ final class QuestionValidationUtils {
       ProgramDefinition program,
       ImmutableList<QuestionDefinition> questions,
       ImmutableList<String> existingAdminNames) {
+    // TODO(#13445): Support enumeratorInitialQuestionId for the new flow.
     ImmutableMap<QuestionDefinition, Optional<QuestionDefinition>> repeatedQsToEnumerators =
         questions.stream()
             .filter(q -> q.getEnumeratorId().isPresent())
