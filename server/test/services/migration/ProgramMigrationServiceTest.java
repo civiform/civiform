@@ -651,25 +651,36 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
       updateEnumeratorIdsAndSaveQuestions_withEnumeratorIds_updatesProgramQuestionsBeforeSaving()
           throws Exception {
     // Create child questions with enumerator IDs
-    String repeatedQuestionName = "enumerator";
-    Long childQuestionId = 2L;
-    QuestionDefinition repeatedQuestion =
+    String enumeratorQuestionName = "enumerator";
+    // We can't control the DBs IDs so just try to start with something huge.
+    Long hugeIdStartingPoint = 1000000000L;
+    Long childQuestionId = hugeIdStartingPoint + 2L;
+    QuestionDefinition enumeratorQuestion =
         createQuestionDefinitionWithEnumInitialId(
-            repeatedQuestionName, 1L, QuestionType.ENUMERATOR, childQuestionId);
+            enumeratorQuestionName,
+            hugeIdStartingPoint + 1L,
+            QuestionType.ENUMERATOR,
+            childQuestionId);
     QuestionDefinition childQuestion1 =
         createQuestionDefinitionWithEnumId(
-            QUESTION_2_NAME, childQuestionId, QuestionType.TEXT, repeatedQuestion.getId());
+            QUESTION_2_NAME, childQuestionId, QuestionType.TEXT, enumeratorQuestion.getId());
     QuestionDefinition childQuestion2 =
         createQuestionDefinitionWithEnumId(
-            QUESTION_3_NAME, 3L, QuestionType.TEXT, repeatedQuestion.getId());
+            QUESTION_3_NAME,
+            hugeIdStartingPoint + 3L,
+            QuestionType.TEXT,
+            enumeratorQuestion.getId());
     QuestionDefinition childQuestion3 =
         createQuestionDefinitionWithEnumId(
-            QUESTION_4_NAME, 4L, QuestionType.TEXT, repeatedQuestion.getId());
+            QUESTION_4_NAME,
+            hugeIdStartingPoint + 4L,
+            QuestionType.TEXT,
+            enumeratorQuestion.getId());
     QuestionModel childQuestion3model = new QuestionModel(childQuestion3);
     childQuestion3model.addVersion(versionRepository.getActiveVersion()).save();
 
     ImmutableList<QuestionDefinition> questionsToWrite =
-        ImmutableList.of(repeatedQuestion, childQuestion1, childQuestion2);
+        ImmutableList.of(enumeratorQuestion, childQuestion1, childQuestion2);
 
     // Execute in a transaction so bulkCreateQuestions doesn't throw
     ImmutableMap<String, QuestionDefinition> result =
@@ -679,8 +690,8 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
                   questionsToWrite,
                   /* questionsToReuseFromBank= */ ImmutableList.of(childQuestion3),
                   /* questionsOnJsonById= */ ImmutableMap.of(
-                      repeatedQuestion.getId(),
-                      repeatedQuestion,
+                      enumeratorQuestion.getId(),
+                      enumeratorQuestion,
                       childQuestion1.getId(),
                       childQuestion1,
                       childQuestion2.getId(),
@@ -691,25 +702,31 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
 
     assertThat(result).hasSize(4);
     assertThat(result)
-        .containsKeys(repeatedQuestionName, QUESTION_2_NAME, QUESTION_3_NAME, QUESTION_4_NAME);
-    EnumeratorQuestionDefinition gotRepeatedQuestion =
-        (EnumeratorQuestionDefinition) result.get(repeatedQuestionName);
+        .containsKeys(enumeratorQuestionName, QUESTION_2_NAME, QUESTION_3_NAME, QUESTION_4_NAME);
+    EnumeratorQuestionDefinition gotEnumeratorQuestion =
+        (EnumeratorQuestionDefinition) result.get(enumeratorQuestionName);
     QuestionDefinition gotChildQuestion1 = result.get(QUESTION_2_NAME);
     QuestionDefinition gotChildQuestion2 = result.get(QUESTION_3_NAME);
     QuestionDefinition gotChildQuestion3 = result.get(QUESTION_4_NAME);
-    assertThat(gotRepeatedQuestion).isNotNull();
+    assertThat(gotEnumeratorQuestion).isNotNull();
     assertThat(gotChildQuestion1).isNotNull();
     assertThat(gotChildQuestion2).isNotNull();
     assertThat(gotChildQuestion3).isNotNull();
+    // Verify the IDs were updated.
+    assertThat(gotEnumeratorQuestion.getId()).isNotEqualTo(enumeratorQuestion.getId());
+    assertThat(gotChildQuestion1.getId()).isNotEqualTo(childQuestion1.getId());
+    assertThat(gotChildQuestion2.getId()).isNotEqualTo(childQuestion2.getId());
+    // Question 3 should be the same ID as it was reused.
+    assertThat(gotChildQuestion3.getId()).isEqualTo(childQuestion3.getId());
 
-    assertThat(gotRepeatedQuestion.getName()).isEqualTo(repeatedQuestion.getName());
+    assertThat(gotEnumeratorQuestion.getName()).isEqualTo(enumeratorQuestion.getName());
     assertThat(gotChildQuestion1.getName()).isEqualTo(childQuestion1.getName());
     assertThat(gotChildQuestion2.getName()).isEqualTo(childQuestion2.getName());
-    assertThat(gotRepeatedQuestion.getEnumeratorId()).isEmpty();
-    assertThat(gotRepeatedQuestion.getEnumeratorInitialQuestionId())
+    assertThat(gotEnumeratorQuestion.getEnumeratorId()).isEmpty();
+    assertThat(gotEnumeratorQuestion.getEnumeratorInitialQuestionId())
         .hasValue(gotChildQuestion1.getId());
-    assertThat(gotChildQuestion1.getEnumeratorId()).hasValue(gotRepeatedQuestion.getId());
-    assertThat(gotChildQuestion2.getEnumeratorId()).hasValue(gotRepeatedQuestion.getId());
+    assertThat(gotChildQuestion1.getEnumeratorId()).hasValue(gotEnumeratorQuestion.getId());
+    assertThat(gotChildQuestion2.getEnumeratorId()).hasValue(gotEnumeratorQuestion.getId());
     assertThat(gotChildQuestion3.getEnumeratorId())
         .hasValueSatisfying(
             id -> {
@@ -717,7 +734,7 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
               // saved parent question's ID.
               // Note: this is disallowed further upstream, in the
               // validateEnumeratorAndRepeatedQuestions method
-              assertThat(id).isNotEqualTo(gotRepeatedQuestion.getId());
+              assertThat(id).isNotEqualTo(gotEnumeratorQuestion.getId());
             });
   }
 

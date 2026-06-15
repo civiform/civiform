@@ -286,14 +286,13 @@ public class AdminImportControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(OK);
 
-    EnumeratorQuestionDefinition enumeratorQuestionDefinition =
-        (EnumeratorQuestionDefinition)
-            database
-                .find(QuestionModel.class)
-                .where()
-                .eq("name", "Sample Enumerator Question")
-                .findOne()
-                .getQuestionDefinition();
+    QuestionDefinition enumeratorQuestionDefinition =
+        database
+            .find(QuestionModel.class)
+            .where()
+            .eq("name", "Sample Enumerator Question")
+            .findOne()
+            .getQuestionDefinition();
 
     EnumeratorQuestionDefinition nestedEnumeratorQuestionDefinition =
         (EnumeratorQuestionDefinition)
@@ -314,8 +313,6 @@ public class AdminImportControllerTest extends ResetPostgres {
 
     assertThat(enumeratorQuestionDefinition.getId())
         .isEqualTo(nestedEnumeratorQuestionDefinition.getEnumeratorId().get());
-    assertThat(enumeratorQuestionDefinition.getEnumeratorInitialQuestionId())
-        .hasValue(nestedEnumeratorQuestionDefinition.getId());
     assertThat(nestedEnumeratorQuestionDefinition.getId())
         .isEqualTo(childQuestionDefinition.getEnumeratorId().get());
     assertThat(nestedEnumeratorQuestionDefinition.getEnumeratorInitialQuestionId())
@@ -1023,7 +1020,6 @@ public class AdminImportControllerTest extends ResetPostgres {
                   "maxEntities" : null
                 },
                 "id" : 10,
-                "enumeratorInitialQuestionId": 94,
                 "universal" : false,
                 "displayMode" : "VISIBLE",
                 "primaryApplicantInfoTags" : [ ]
