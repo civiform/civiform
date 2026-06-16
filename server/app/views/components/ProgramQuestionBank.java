@@ -80,7 +80,7 @@ public final class ProgramQuestionBank {
    */
   public enum Mode {
     /** Standard "Add question" flow — native POST to {@code create}, all eligible questions. */
-    DEFAULT,
+    ANY_ELIGIBLE,
     /** "Choose existing" flow on an empty enumerator block — enumerator-only, no create button. */
     EXISTING_ENUMERATOR_ONLY,
     /** Initial-question selection — HTMX POST that swaps the chosen question into the form. */
@@ -377,7 +377,7 @@ public final class ProgramQuestionBank {
                       .url())
               .attr("hx-target", "#add-initial-question-button")
               .attr("hx-swap", "outerHTML");
-      case DEFAULT, EXISTING_ENUMERATOR_ONLY ->
+      case ANY_ELIGIBLE, EXISTING_ENUMERATOR_ONLY ->
           questionForm
               .withMethod(HttpVerbs.POST)
               .withAction(

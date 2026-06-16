@@ -140,9 +140,10 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).contains("<span>" + nameQuestion.getName() + "</span>");
     assertThat(contentAsString(result))
         .contains(
-            "<input type=\"hidden\" name=\"initialQuestionId\" value=\""
-                + nameQuestion.getId()
-                + "\">");
+            """
+            <input type="hidden" name="initialQuestionId" value="%s">\
+            """
+                .formatted(nameQuestion.getId()));
     assertThat(result.header("HX-Trigger")).hasValue("closeQuestionBank");
   }
 
