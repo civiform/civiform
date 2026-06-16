@@ -250,7 +250,7 @@ button.viewAndAddClients=ደንበኛዎችን ይመልከቱ እና ያክሉ
 # Part of the confirmation banner which appears after a new client has been added to a community-based organization.
 content.clientCreated=አዲሱ ደንበኛዎ {0} ወደ ደንበኛዎ ዝርዝር ውስጥ ተጨምሯል። አሁን ለዚህ ደንበኛ ማመልከቻዎችን ማስገባት መጀመር ይችላሉ።
 # The tooltip of the email input field.
-content.emailTooltip=ደንበኛዎችዎ ስለማመልከቻቸው የሁኔታ ዝማኔዎችን በራስ-ሰር እንዲቀበሉ የኢሜይል አድራሻ ያክሉላቸው። ያለኢሜይል እርስዎ ወይም ማህበረሰብ-ተኮር ድርጅትዎ ለደንበኛዎ ስለዝማኔዎች የማሳወቅ ኃላፊነት ይኖርብዎታል።
+content.emailTooltip=ደንበኛዎችዎ ስለማመልከቻቸው የሁነታ ዝማኔዎችን በራስ-ሰር እንዲቀበሉ የኢሜይል አድራሻ ያክሉላቸው። ያለኢሜይል እርስዎ ወይም ማህበረሰብ-ተኮር ድርጅትዎ ለደንበኛዎ ስለዝማኔዎች የማሳወቅ ኃላፊነት ይኖርብዎታል።
 # For each client on the client list, shows the number of applications that have been submitted for them.
 content.numberOfAppSubmitted={0} ማመልከቻዎች ገብተዋል
 # Shows that a single application has been submitted on behalf of the client.
@@ -264,7 +264,7 @@ header.clientList=የደንበኛ ዝርዝር
 header.search=ፍለጋ
 
 # A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last submitted application on MM-DD-YYYY".
-label.acctStatus=የመለያ ሁኔታ
+label.acctStatus=የመለያ ሁነታ
 # Label above the phone number for each client on the client list.
 label.contactInfo=የእውቂያ መረጃ
 # The label above the input field for the day of the client birth date. i.e. 12 for November 12
@@ -471,10 +471,10 @@ title.createAnAccount=መለያ ይፍጠሩ ወይም ይግቡ
 # The title of a pop-up informing an applicant to sign in before continuing with the application
 title.signInModal=በመለያ ይግቡ
 # The text of a pop-up informing an applicant to sign in so they can access the application later before continuing with the application
-content.signInModal=መለያ ሲፈጥሩ የማመልከቻውን ሁኔታ መፈተሽ፣ በእሱ ላይ ለውጦችን ማድረግ እና ለሌሎች ፕሮግራሞች በፍጥነት ማመልከት ይችላሉ።
+content.signInModal=መለያ ሲፈጥሩ የማመልከቻውን ሁነታ መፈተሽ፣ በእሱ ላይ ለውጦችን ማድረግ እና ለሌሎች ፕሮግራሞች በፍጥነት ማመልከት ይችላሉ።
 
 # A message to show on the login prompt modal that encourages users to log in before applying to a program from the programs index page.
-content.initialLoginModalPrompt=ከመቀጠልዎ በፊት ወደ {0} መለያዎ ይግቡ ወይም መለያ ይፍጠሩ። ተመሳሳዩን መረጃ እንደገና ሳያስገቡ ለብዙ ፕሮግራሞች ማመልከት ይችላሉ። እንዲሁም ማመልከቻዎችን ማርትዕ እና የማመልከቻ ሁኔታዎችዎን መፈተሽ ይችላሉ።
+content.initialLoginModalPrompt=ከመቀጠልዎ በፊት ወደ {0} መለያዎ ይግቡ ወይም መለያ ይፍጠሩ። ተመሳሳዩን መረጃ እንደገና ሳያስገቡ ለብዙ ፕሮግራሞች ማመልከት ይችላሉ። እንዲሁም ማመልከቻዎችን ማርትዕ እና የማመልከቻ ሁነታዎችዎን መፈተሽ ይችላሉ።
 # A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=ያለ መለያ ቀጥል
 title.preScreenerConfirmation=እርስዎ ብቁ ሊሆኑ የሚችሉባቸው ፕሮግራሞች
@@ -519,7 +519,7 @@ alert.createAccountForLoginOnly=ማመልከቻዎ ዘንድ በኋላ ለመድ
 # Informational "alert" title to encourage the user to create an account
 alert.createAccount=ማመልከቻዎን በኋላ ላይ ለመድረስ መለያ ይፍጠሩ
 # Description text in an alert that explains how creating an account can help the user
-alert.createAccountDescription=መረጃዎን በመለያ ውስጥ በሚያስቀምጡበት ጊዜ የማመልከቻዎን ሁኔታ ማረጋገጥ እና በፍጥነት ወደ ሌሎች ፕሮግራሞች ማመልከት ይችላሉ።
+alert.createAccountDescription=መረጃዎን በመለያ ውስጥ በሚያስቀምጡበት ጊዜ የማመልከቻዎን ሁነታ ማረጋገጥ እና በፍጥነት ወደ ሌሎች ፕሮግራሞች ማመልከት ይችላሉ።
 # Informational alert to let the user know there are no additonal programs for them to start an application for at this time.
 alert.noProgramsAvailable=እርስዎ አሁን ላይ ለሚገኙ ሁሉም ፕሮግራሞች ማመልከቻ ጀምረዋል ወይም አስገብተዋል።
 # Hyperlink to log in to an existing account
@@ -549,6 +549,39 @@ title.programNotAvailable=ይህ ፕሮግራም ከእንግዲህ አይገኝ
 content.disabledProgramInfo=እናዝናለን፣ ለመድረስ እየሞከሩት ያለው ፕሮግራም ተሰናክሏል። ተጨማሪ ፕሮግራሞችን ለማግኘት፣ እባክዎ ወደ መነሻ ገጽ ይመለሱ።
 # Button text on a button that takes the user back to the home page.
 button.homePage=ወደ መነሻ ገጽ ተመለስ
+
+#--------------------------------------------------------------------------------------------------------------#
+# ADMIN PROGRAM IMAGE - admin-facing text for uploading a program summary card image                             #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Title of the admin page where a program''s summary image and alt text are set.
+title.adminProgramImage=ምስል ይስቀሉ
+# Link text to return to program editing from the program image page.
+link.adminProgramImage.back=ተመለስ
+# Hint under the file input about maximum upload size for a program summary image.
+content.adminProgramImage.hintMaxSize=ለሚሰቀለው ምስል ከፍተኛው መጠን 1 ሜባ ነው።
+# Hint explaining automatic 16x9 cropping and that the preview reflects saved images.
+content.adminProgramImage.hintCrop=ምስሉ በራስ-ሰር ወደ 16x9 ይከረከማል። የፕሮግራሙ ካርድ ቅድመ ዕይታ በቀኝ በኩል የተቀመጠውን ምስል ያሳያል።
+# Label for the field where the admin enters alt text for the program summary image.
+label.adminProgramImage.altText=የምስል መግለጫ ያስገቡ (Alt Text)
+# Button to leave the program image step and continue program setup (creation flow).
+button.adminProgramImage.continue=ቀጥል
+# Button to save and return when editing an existing program (non-creation flow).
+button.adminProgramImage.save=አስቀምጥ
+# Button to delete an uploaded program image
+button.adminProgramImage.delete=ምስልን ሰርዝ
+# Message shown when alt text is required but missing.
+validation.adminProgramImage.altTextRequired=የፕሮግራም ምስል ሲሰቀል የምስል መግለጫ ያስፈልጋል።
+# Toast after saving a program image and alt text together.
+toast.adminProgramImage.imageAndDescriptionSaved=ምስል ከሚከተለው መግለጫ ጋር ተቀምጧል፦ {0}
+# Toast after saving alt text without uploading a new file.
+toast.adminProgramImage.descriptionSet=የምስል መግለጫ ወደ {0} ተቀናብሯል
+# Error when alt text cannot be cleared while an image remains.
+toast.adminProgramImage.descriptionNotRemovable=መግለጫው ምስል ስላለ ሊወገድ አይችልም። መግለጫውን ከመሰረዝዎ በፊት ምስሉን ይሰርዙ።
+# Toast after deleting a program image
+toast.adminProgramImage.imageRemoved=ምስል ተወግዷል
+# Message when the program card preview cannot be rendered.
+content.adminProgramImage.cardPreviewError=የካርድ ቅድመ ዕይታን በማመንጨት ላይ ስህተት ተከስቷል
 
 #--------------------------------------------------------------------------------------------------------------#
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
@@ -670,6 +703,7 @@ validation.noPoBox=እባክዎ ትክክለኛ አድራሻ ያስገቡ። የ
 title.confirmAddress=የእርስዎን አድራሻ ያረጋግጡ
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
 content.confirmAddressLine1=አድራሻዎን ማግኘት አልቻልንም።
+content.confirmAddressLine1.v2=የአድራሻ ማረጋገጫ ያስፈልጋል።
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=እባክዎ የአድራሻዎን ፊደል አጻጻፍ ያረጋግጡ ወይም ከተሰጠው ዝርዝር ውስጥ አንድ አማራጭ ይምረጡ።
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
@@ -780,6 +814,8 @@ placeholder.entityName={0} ስም
 validation.fileRequired=እባክዎ ፋይል ይምረጡ።
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=ፋይልዎ በጣም ትልቅ ነው። እባክዎ ከ{0} ሜባ በታች የሆነ ፋይል ይምረጡ።
+# Shown when an HTMX file upload request fails (any non-success response).
+validation.fileUploadRequestFailed=የእርስዎ ፋይል ሊሰቀል አልቻለም። እባክዎ እንደገና ይሞክሩ።
 # Text shown on a tag while a file is uploading.
 label.uploading=በመስቀል ላይ
 # Label applied to a list of uploaded files
@@ -1015,7 +1051,7 @@ email.applicationUpdateSubject=በእርስዎ ማምልከቻ {0} ላይ ዝማ
 # Subject of the email sent to a TI when they change the status of an application
 email.tiApplicationUpdateSubject=አመልካች {1}ን በመወከል ለፕሮግራም {0} በማመልከቻ ላይ ዝማኔ
 # Body of the email sent to a TI when they change the status of an application
-email.tiApplicationUpdateBody=በፕሮግራም {1} ላይ ለአመልካች {0} ሁኔታው ወደ {2} ተለውጧል።
+email.tiApplicationUpdateBody=በፕሮግራም {1} ላይ ለአመልካች {0} ሁነታው ወደ {2} ተለውጧል።
 
 #------------------------------------------------------------------------------#
 # GOVERNMENT BANNER - text explaining that CF is an official government site #
@@ -1062,15 +1098,15 @@ banner.minute=1 ደቂቃ
 #------------------------------------------------------------------------------#
 
 # Header for data security banner alert
-label.immigrationStatusInfoBanner.heading=Immigrants and refugees are welcome here
+label.immigrationStatusInfoBanner.heading=ስደተኞች እና ተጠጊዎች እዚህ መምጣት ይችላሉ
 # Aria-label for data security banner alert
-label.immigrationStatusInfoBanner.label=Immigration status informational alert
+label.immigrationStatusInfoBanner.label=የኢሚግሬሽን ሁነታ መረጃ ማንቂያ
 # Text in the data security banner explaining how user data is protected when no learn more link is configured
-banner.immigrationStatusInfoBanner.body=We will not ask about your citizenship or immigration status.
+banner.immigrationStatusInfoBanner.body=ስለ ዜግነትዎ ወይም ስለ ኢሚግሬሽን ሁነታዎ አንጠይቅዎትም።
 # Text in the data security banner explaining how user data is protected - the placeholder says 'here' and is a link to more information
-banner.immigrationStatusInfoBanner.bodyWithLink=We will not ask about your citizenship or immigration status. You can learn more {0}.
+banner.immigrationStatusInfoBanner.bodyWithLink=ስለ ዜግነትዎ ወይም የኢሚግሬሽን ሁነታዎ አንጠይቅዎትም። {0} ላይ ተጨማሪ ማወቅ ይችላሉ።
 # Link for more info about the data security banner
-banner.immigrationStatusInfoBanner.linkText=here
+banner.immigrationStatusInfoBanner.linkText=እዚህ
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
@@ -1130,10 +1166,10 @@ ariaLabel.categories=ምድቦች
 # Title of the warning modal that appears when the user has been inactive for a while
 session.inactivity.warning.title=የክፍለ-ጊዜ እንቅስቃሴ-አልባነት ማስጠንቀቂያ
 # Title of the session timeout warning modals
-session.warning.title=Session ending soon
+session.warning.title=ክፍለ ጊዜው በቅርቡ ያበቃል
 # Text on a button on a session ending soon modal that gives users the options to save and log in
-session.login.button.loggedIn=Log in
-session.login.button.guest=Log in or create an account
+session.login.button.loggedIn=ይግቡ
+session.login.button.guest=ይግቡ ወይም መለያ ይፍጠሩ
 # Message shown in a modal asking the user if they want to extend their session due to inactivity
 session.inactivity.warning.message=በእንቅስቃሴ-አልባነት ምክንያት ክፍለ-ጊዜዎ በቅርቡ ጊዜው ያልፍበታል። ክፍለ-ጊዜዎን ማራዘም ይፈልጋሉ?
 # Title of a modal dialog displayed when a user's session is about to expire due to session length limit
@@ -1147,9 +1183,9 @@ session.extended.success=ክፍለ-ጊዜ በተሳካ ሁኔታ ተራዝሟል
 # Error message shown when there was a problem extending the user's session
 session.extended.error=ክፍለ-ጊዜን ማራዘም አልተሳካም
 # Message shown to guest users warning that their session is about to expire due to session length
-session.length.warning.message.guest=Your session is about to expire. Please save your work and log in or create an account to continue.
+session.length.warning.message.guest=የእርስዎ ክፍለ ጊዜ ሊያበቃ ነው። እባክዎ ሥራዎን ያስቀምጡ እና ይግቡ ወይም ለመቀጠል መለያ ይፍጠሩ።
 # Message shown to logged-in users warning that their session is about to expire due to session length
-session.length.warning.message.loggedIn=Your session is about to expire. Please save your work and log back in to continue. You will not lose your progress in the application.
+session.length.warning.message.loggedIn=ክፍለ ጊዜዎ ሊያበቃ ነው። እባክዎ ሥራዎን ያስቀምጡ እና ለመቀጠል እንደገና ይግቡ። በመተግበሪያው ውስጥ ያለዎትን ሂደት አያጡም።
 
 #------------------------------------------------------------------------------#
 #  ADMIN PROGRAM BLOCK EDIT                                                    #
@@ -1170,21 +1206,25 @@ input.repeatedSet.adminId=
 # A text input field asking admins for the text that will prompt applicants to list out the entity
 input.repeatedSet.questionText=
 # Autofill suggestion template shown in the admin ID field when applicant selects a listed entity. {0} is the listed entity name.
-input.repeatedSet.adminIdAutofillSuggestion={0} repeated set
+input.repeatedSet.adminIdAutofillSuggestion=
 # Autofill suggestion template shown in the question text field when applicant selects a listed entity. {0} is the listed entity name.
-input.repeatedSet.questionTextAutofillSuggestion=Please add each {0}.
+input.repeatedSet.questionTextAutofillSuggestion=
 # A text input field for admins to add a hint that will help applicants decide what entities to list out
 input.repeatedSet.hintText=
 # A form field where admins set the minimum number of entities that applicants must list
 input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
 input.repeatedSet.maxEntities=
+# Label for the field on the new repeated set form where an admin will select the question that the user will complete first in the enumerator flow
+label.repeatedSet.initialQuestion=
+# Description explaining what the initial question is and what the "Add question" button does
+description.repeatedSet.initialQuestion=
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
 alert.repeatedSet.addQuestionDisabled=
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
 alert.repeatedSet.newQuestion=Creating a repeated set will add a new question to the question bank.
 # Alert shown in the question bank section listing repeated questions that are already associated with this repeated set
-alert.repeatedSet.previouslyUsed=Questions that are associated with a different repeated set are not available to be added.
+alert.repeatedSet.previouslyUsed=
 # Submission button for creating a new repeated set
 button.repeatedSet.submitNew=
 # Button for admins to add a new repeated set
@@ -1208,7 +1248,7 @@ text.repeatedQuestions.description=
 # Heading above the repeated set question in the program block editor
 heading.repeatedSet.question=
 # Heading shown above repeated questions in the question bank that are already associated with this repeated set
-heading.repeatedSet.previouslyUsed=Previously used for this repeated set
+heading.repeatedSet.previouslyUsed=
 # Heading above the questions section on repeated screens in the admin program screen editor.
 heading.repeatedQuestions=
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
@@ -1229,7 +1269,10 @@ button.addRepeatedScreen=
 button.addNestedRepeatedSet=
 # A button for admins to add a pre-existing enumerator question to a program
 button.addQuestion=
-
+# A tooltip shown to admins when the delete screen button is disabled
+tooltip.deleteScreenDisabled=
+# A tooltip shown to admins when the delete question button is disabled for a repeated set question
+tooltip.removeEnumeratorQuestionDisabled=
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #
@@ -1280,6 +1323,83 @@ reportingProgram.timeToCompleteP75=የማጠናቀቂያ ጊዜ (ገጽ75)
 reportingProgram.timeToCompleteP99=የማጠአቀቂያ ጊዜ(ገጽ99)
 # Text on button to download CSV file
 reportingProgram.downloadCsv=CSV አውርድ
+
+#------------------------------------------------------------------------------#
+#  ADMIN API DOCS                                                              #
+#------------------------------------------------------------------------------#
+
+# Admin API Docs page title
+adminApiDocs.pageTitle=የAPI ሰነድ
+
+# Aria label for the nav that switches between API docs sub-pages.
+adminApiDocs.tabs.ariaLabel=የAPI ሰነድ ክፍሎች
+# Tab label for the main API docs page.
+adminApiDocs.tabs.docs=ሰነዶች
+# Tab label for the schema viewer page.
+adminApiDocs.tabs.schema=Schema viewer
+
+# Intro paragraph as text before the external-docs link.
+adminApiDocs.intro.beforeLink=ይህ ገጽ ለንቁ እና ለረቂቅ ፕሮግራሞች ፕሮግራም-ተኮር የAPI ሰነዶችን ይዟል።  ስለ ማረጋገጫ፣ ገጽ አወጣጥ እና የእያንዳንዱ መስክ ሊሆኑ የሚችሉ እሴቶች ዝርዝር ሰነዶች በ
+# Visible text of the external-docs link in the intro paragraph.
+adminApiDocs.intro.linkText=docs.civiform.us/it-manual/api ላይ ይገኛሉ
+# Intro paragraph as text after the external-docs link.
+adminApiDocs.intro.afterLink=።
+
+# Heading on the collapsible "How does this work?" accordion.
+adminApiDocs.accordion.heading=ይህ እንዴት ነው የሚሆነው?
+# First paragraph inside the accordion.
+adminApiDocs.accordion.paragraph1=የAPI ምላሽ ቅድመ ዕይታ ለአንድ የተወሰነ ፕሮግራም የAPI ምላሹ ምን ሊመስል እንደሚችል የሚያሳይ ናሙና ነው። ሁሉም ውሂቦች የውሸት ናቸው። ነጠላ-ምርጫ እና ባለብዙ-ምርጫ ጥያቄዎች ከሚገኙት መልሶች የተመረጡ የናሙና መልሶች አሏቸው።
+# Second paragraph inside the accordion as text before the shareable link.
+adminApiDocs.accordion.paragraph2.beforeLink=ይህንን አገናኝ፣ 
+# Second paragraph inside the accordion as text after the shareable link.
+adminApiDocs.accordion.paragraph2.afterLink=የAPI ሰነዶችን ማየት ለሚፈልግ ለማንኛውም ሰው ማጋራት ይችላሉ። በመለያ ሳይገቡ ተደራሽ ነው፣ ስለዚህ ይህንን ገጽ ለማየት የCiviForm አስተዳዳሪ ወይም የፕሮግራም አስተዳዳሪ መሆን አያስፈልግዎትም።
+
+# Label for the program selector.
+adminApiDocs.selectProgram=ፕሮግራም ይምረጡ፦
+# Label for the program-version selector.
+adminApiDocs.selectVersion=ሥሪት ይምረጡ፦
+# Option label for the active version of a program.
+adminApiDocs.version.active=ንቁ
+# Option label for the draft version of a program.
+adminApiDocs.version.draft=ረቂቅ
+
+# Message shown when the requested program + version combination does not exist.
+adminApiDocs.notFound=ምንም ፕሮግራሞች አልተገኙም። የAPI ሰነዶችን ከመድረስዎ በፊት እባክዎ ፕሮግራም ይፍጠሩ እና ያትሙ።
+# Heading for the list of questions on the selected program.
+adminApiDocs.questions=ጥያቄዎች
+# Label for a question's admin name
+adminApiDocs.adminName=የአስተዳዳሪ ስም
+# Label for a question's type (text, number, etc.).
+adminApiDocs.type=ዓይነት
+# Label for a question's display text.
+adminApiDocs.text=ጽሑፍ
+# Label for a multi-option question's answer options.
+adminApiDocs.options=አማራጭች
+# Label preceding the list of a question's currently-available options.
+adminApiDocs.currentOptions=አሁኑ ያሉ አማራጮች፦
+# Label preceding the list of every option the question has ever had.
+adminApiDocs.allOptions=ሁሉም ሊሆኑ የሚችሉ አማራጮች፦
+# Heading above the JSON preview of the API response.
+adminApiDocs.responsePreview=የAPI ምላሽ ቅድመ ዕይታ
+
+#------------------------------------------------------------------------------#
+#  ADMIN SCHEMA VIEWER                                                         #
+#------------------------------------------------------------------------------#
+
+# Admin API Docs page title
+adminSchemaViewer.pageTitle=API schema viewer
+# First intro paragraph on the OpenAPI schema viewer page.
+adminSchemaViewer.intro1=ይህ ገጽ የOpenAPI Schema ምስላዊ ዕይታን ያሳያል። ሁለቱም ሥሪት 2 (ቀደም ሲል Swagger 2 የሚባለው) እና ሥሪት 3 ይገኛሉ።
+# Second intro paragraph on the OpenAPI schema viewer page.
+adminSchemaViewer.intro2=ለድሮው ቅርጸት የተለየ ፍላጎት ከሌለ በስተቀር ሥሪት 3ን ብቻ እንዲጠቀሙ እንመክራለን።
+# Label for the program selector on the schema viewer page.
+adminSchemaViewer.selectProgram=ፕሮግራም፦
+# Label for the program-status selector on the schema viewer page.
+adminSchemaViewer.selectStatus=ሁነታ፦
+# Label for the OpenAPI version selector on the schema viewer page.
+adminSchemaViewer.selectVersion=የOpenApi ሥሪት፦
+# Error generating OpenAPI YAML
+adminSchemaViewer.yamlError=በ'{2}' ደረጃ ላይ ለ'{1}' ፕሮግራም የOpenApi ሥሪት '{0}'ን ማመንጨት አልተቻለም።
 
 #------------------------------------------------------------------------------#
 #  DEV TOOLS - text for the developer tools page                               #
