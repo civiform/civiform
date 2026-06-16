@@ -975,12 +975,27 @@ public final class ProgramBlocksView extends ProgramBaseView {
             renderCreationMethodRadioButtons(messages),
             renderNewEnumeratorQuestionForm(
                 request, messages, programId, blockId, optionalQuestionForm, errorMessages),
-            renderChooseExistingQuestion(messages))
+            renderChooseExistingQuestion(messages, programId, blockId))
         .withId("enumerator-setup")
         .withClass("maxw-mobile-lg");
   }
 
-  private DivTag renderChooseExistingQuestion(Messages messages) {
+  /**
+   * Renders the selected initial question for HTMX swap into the
+   * {@code #add-initial-question-button} slot. Shows the admin name and carries a hidden
+   * {@code initialQuestionId} input that the enumerator-creation form will submit. The question
+   * is not yet attached to the block.
+   */
+  public DomContent renderSelectedInitialQuestion(QuestionDefinition selectedQuestion) {
+    return join(
+        span(selectedQuestion.getName()),
+        input()
+            .withType("hidden")
+            .withName("initialQuestionId")
+            .withValue(String.valueOf(selectedQuestion.getId())));
+  }
+
+  private DivTag renderChooseExistingQuestion(Messages messages, Long programId, Long blockId) {
     return div(
             h2(messages.at(MessageKey.HEADING_REPEATED_SET_QUESTION.getKeyName()))
                 .withId("repeated-set-question-section-heading")
@@ -994,7 +1009,17 @@ public final class ProgramBlocksView extends ProgramBaseView {
                             MessageKey.TEXT_REPEATED_SET_ADD_QUESTION_DESCRIPTION.getKeyName()))),
             button("")
                 .withId("add-question")
-                .withClasses("usa-button", "usa-button--outline", "cf-open-question-bank-button")
+                .withClasses("usa-button", "usa-button--outline")
+                .attr(
+                    "hx-get",
+                    controllers.admin.routes.AdminProgramBlocksController
+                        .hxQuestionBankPartial(
+                            programId,
+                            blockId,
+                            ProgramQuestionBank.Mode.EXISTING_ENUMERATOR_ONLY.name())
+                        .url())
+                .attr("hx-target", "#" + ProgramQuestionBank.PANEL_FORM_ID)
+                .attr("hx-swap", "outerHTML")
                 .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
                 .withText(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName())))
         .withId("add-question-section")
@@ -1163,15 +1188,21 @@ public final class ProgramBlocksView extends ProgramBaseView {
                         .withClasses("font-ui-sm", "text-base"),
                     button("")
                         .withId("add-initial-question-button")
-                        .withClasses(
-                            "usa-button",
-                            "usa-button--outline",
-                            ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
-                            "margin-top-05")
+                        .withClasses("usa-button", "usa-button--outline", "margin-top-05")
                         .attr(
                             "aria-describedby",
                             "initial-question-label initial-question-description")
                         .attr("required")
+                        .attr(
+                            "hx-get",
+                            controllers.admin.routes.AdminProgramBlocksController
+                                .hxQuestionBankPartial(
+                                    programId,
+                                    blockId,
+                                    ProgramQuestionBank.Mode.INITIAL_QUESTION.name())
+                                .url())
+                        .attr("hx-target", "#" + ProgramQuestionBank.PANEL_FORM_ID)
+                        .attr("hx-swap", "outerHTML")
                         .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
                         .withText(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName())))
                 .withId("initial-question-slot"),
@@ -1796,31 +1827,63 @@ public final class ProgramBlocksView extends ProgramBaseView {
       ProgramQuestionBank.Visibility questionBankVisibility,
       Messages messages,
       Request request) {
-    String addQuestionAction =
-        controllers.admin.routes.AdminProgramBlockQuestionsController.create(
-                program.id(), blockDefinition.id())
-            .url();
+    // Page-load default. Special-mode buttons (initial-question, choose-existing) re-fetch the
+    // panel via HTMX on click and the server picks the mode from a query param, so this baseline
+    // is only what the user sees for ?sqb=true (auto-add).
+    return buildQuestionBank(
+            questionDefinitions,
+            program,
+            blockDefinition,
+            csrfTag,
+            ProgramQuestionBank.Mode.DEFAULT,
+            messages,
+            request)
+        .getContainer(questionBankVisibility);
+  }
 
+  /**
+   * Renders just the bank's form element for HTMX-driven mode changes. The new form (with
+   * mode-specific attrs) replaces {@code #question-bank-panel-form} via {@code outerHTML}.
+   */
+  public FormTag renderQuestionBankPanelForm(
+      ImmutableList<QuestionDefinition> questionDefinitions,
+      ProgramDefinition program,
+      BlockDefinition blockDefinition,
+      ProgramQuestionBank.Mode mode,
+      Messages messages,
+      Request request) {
+    InputTag csrfTag = makeCsrfTokenInputTag(request);
+    return buildQuestionBank(
+            questionDefinitions, program, blockDefinition, csrfTag, mode, messages, request)
+        .questionBankPanel();
+  }
+
+  private ProgramQuestionBank buildQuestionBank(
+      ImmutableList<QuestionDefinition> questionDefinitions,
+      ProgramDefinition program,
+      BlockDefinition blockDefinition,
+      InputTag csrfTag,
+      ProgramQuestionBank.Mode mode,
+      Messages messages,
+      Request request) {
     String redirectUrl =
         ProgramQuestionBank.addShowQuestionBankParam(
             controllers.admin.routes.AdminProgramBlocksController.edit(
                     program.id(), blockDefinition.id())
                 .url());
-    ProgramQuestionBank qb =
-        new ProgramQuestionBank(
-            ProgramQuestionBank.ProgramQuestionBankParams.builder()
-                .setQuestionAction(addQuestionAction)
-                .setCsrfTag(csrfTag)
-                .setQuestions(questionDefinitions)
-                .setProgram(program)
-                .setBlockDefinition(blockDefinition)
-                .setQuestionCreateRedirectUrl(redirectUrl)
-                .build(),
-            programBlockValidationFactory,
-            settingsManifest,
-            messages,
-            request);
-    return qb.getContainer(questionBankVisibility);
+    return new ProgramQuestionBank(
+        ProgramQuestionBank.ProgramQuestionBankParams.builder()
+            .setMode(mode)
+            .setCsrfTag(csrfTag)
+            .setQuestions(questionDefinitions)
+            .setProgram(program)
+            .setBlockDefinition(blockDefinition)
+            .setQuestionCreateRedirectUrl(redirectUrl)
+            .build(),
+        programBlockValidationFactory,
+        settingsManifest,
+        messages,
+        request);
   }
 
   /** Creates a modal, which allows the admin to confirm that they want to delete a block. */

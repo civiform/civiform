@@ -241,6 +241,40 @@ public class AdminProgramBlockQuestionsController extends Controller {
             .render());
   }
 
+  /**
+   * HTMX POST endpoint for picking an initial question while setting up an enumerator block.
+   * Returns the fragment that replaces the {@code #add-initial-question-button} and triggers the
+   * {@code closeQuestionBank} event on the client so the bank closes. The question is not yet
+   * attached to the block.
+   */
+  @Secure(authorizers = Labels.CIVIFORM_ADMIN)
+  public Result hxSelectInitialQuestion(Request request, long programId, long blockId) {
+    requestChecker.throwIfProgramNotDraft(programId);
+
+    DynamicForm requestData = formFactory.form().bindFromRequest(request);
+    Optional<Long> questionId =
+        requestData.rawData().entrySet().stream()
+            .filter(formField -> formField.getKey().startsWith("question-"))
+            .map(Entry::getValue)
+            .map(Long::valueOf)
+            .findFirst();
+
+    if (questionId.isEmpty()) {
+      return badRequest("No question selected");
+    }
+
+    QuestionDefinition selected;
+    try {
+      selected =
+          questionService.getReadOnlyQuestionServiceSync().getQuestionDefinition(questionId.get());
+    } catch (QuestionNotFoundException e) {
+      return notFound(String.format("Question ID %d not found", questionId.get()));
+    }
+
+    return ok(blockEditView.renderSelectedInitialQuestion(selected).render())
+        .withHeader("HX-Trigger", "closeQuestionBank");
+  }
+
   /** POST endpoint for removing a question from a screen. */
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
   public Result delete(

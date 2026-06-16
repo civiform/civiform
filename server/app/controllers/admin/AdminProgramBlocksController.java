@@ -39,6 +39,7 @@ import services.question.exceptions.QuestionNotFoundException;
 import services.settings.SettingsManifest;
 import views.admin.programs.BlockType;
 import views.admin.programs.ProgramBlocksView;
+import views.components.ProgramQuestionBank;
 import views.components.ToastMessage;
 
 /** Controller for admins editing screens (blocks) of a program. */
@@ -255,6 +256,45 @@ public final class AdminProgramBlocksController extends CiviFormController {
       return renderEditViewWithMessage(request, program, block, maybeToastMessage);
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
       return notFound();
+    }
+  }
+
+  /**
+   * HTMX GET endpoint that returns the question bank's form element for a given {@link
+   * ProgramQuestionBank.Mode}. Used by open-bank buttons that need a different mode than the
+   * page-load default (the initial-question button and the choose-existing button on enumerator
+   * setup). The response replaces {@code #question-bank-panel-form} via {@code outerHTML} and
+   * triggers {@code openQuestionBank} on the client so the bank slides in.
+   */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result hxQuestionBankPartial(
+      Request request, long programId, long blockId, String mode) {
+    requestChecker.throwIfProgramNotDraft(programId);
+
+    ProgramQuestionBank.Mode bankMode;
+    try {
+      bankMode = ProgramQuestionBank.Mode.valueOf(mode);
+    } catch (IllegalArgumentException e) {
+      return badRequest(String.format("Unknown question bank mode: %s", mode));
+    }
+
+    try {
+      ProgramDefinition program = programService.getFullProgramDefinition(programId);
+      BlockDefinition block = program.getBlockDefinition(blockId);
+      return ok(editView
+              .renderQuestionBankPanelForm(
+                  questionService.getReadOnlyQuestionServiceSync().getUpToDateQuestions(),
+                  program,
+                  block,
+                  bankMode,
+                  messagesApi.preferred(request),
+                  request)
+              .render())
+          .withHeader("HX-Trigger", "openQuestionBank");
+    } catch (ProgramNotFoundException e) {
+      return notFound(String.format("Program ID %d not found.", programId));
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
     }
   }
 

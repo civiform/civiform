@@ -143,7 +143,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await addRepeatedSetBlock(page, {selectParent: true})
       })
 
-      await fillOutEnumeratorQuestionFormCorrectly(page)
+      await fillAndSubmitEnumeratorQuestionForm(page)
 
       const enumeratorQuestionCard = blockPanel
         .getByTestId('question-div')
@@ -246,6 +246,49 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
+    test('can select an existing question as the initial question on a new enumerator', async ({
+      page,
+    }) => {
+      const blockPanel = page.getByTestId('block-panel-edit')
+      const questionBankSidebar = page.getByRole('form', {
+        name: 'Add a question',
+      })
+      const initialQuestionSlot = blockPanel.locator('#initial-question-slot')
+
+      await test.step('Add a new repeated set and select the parent block', async () => {
+        await addRepeatedSetBlock(page, {selectParent: true})
+      })
+
+      await fillEnumeratorQuestionForm(page)
+
+      await test.step('Open the question bank by clicking the initial-question "Add question" button', async () => {
+        await initialQuestionSlot
+          .getByRole('button', {name: 'Add question'})
+          .click()
+        await expect(questionBankSidebar).toBeVisible()
+      })
+
+      await test.step('Validate the bank shows non-enumerator questions and the "Create new question" button', async () => {
+        await expect(
+          questionBankSidebar.getByText('income-non-repeated-question'),
+        ).toBeVisible()
+        await expect(
+          questionBankSidebar.getByRole('button', {
+            name: 'Create new question',
+          }),
+        ).toBeVisible()
+      })
+
+      await pickQuestionFromBank(page, 'income-non-repeated-question')
+
+      await test.step('Validate the bank closes and the slot shows the selected question', async () => {
+        await expect(questionBankSidebar).toBeHidden()
+        await expect(
+          initialQuestionSlot.getByText('income-non-repeated-question'),
+        ).toBeVisible()
+      })
+    })
+
     test('auto-fills and preserves editable repeated set suggestions', async ({
       page,
     }) => {
@@ -339,7 +382,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(errorAlert).toBeVisible()
       })
 
-      await fillOutEnumeratorQuestionFormCorrectly(page)
+      await fillAndSubmitEnumeratorQuestionForm(page)
 
       await test.step('Validate that the new question card is now visible on the enumerator block', async () => {
         const enumeratorQuestionCard = blockPanel
@@ -357,7 +400,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Submit the new enumerator question form with a duplicate admin ID', async () => {
-        await fillOutEnumeratorQuestionFormCorrectly(page, {
+        await fillAndSubmitEnumeratorQuestionForm(page, {
           adminId: 'pets enumerator',
         })
       })
@@ -404,7 +447,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(addRepeatedScreenButton).toBeHidden()
       })
 
-      await fillOutEnumeratorQuestionFormCorrectly(page)
+      await fillAndSubmitEnumeratorQuestionForm(page)
 
       await test.step('Verify that the "Add repeated screen" button is now present and click the button', async () => {
         await addRepeatedScreenButton.click()
@@ -444,7 +487,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Save parent enumerator question and verify nested button appears on parent enumerator', async () => {
-        await fillOutEnumeratorQuestionFormCorrectly(page)
+        await fillAndSubmitEnumeratorQuestionForm(page)
         await expect(addNestedRepeatedSetButton).toBeVisible()
       })
 
@@ -470,7 +513,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         )
         await expect(addNestedRepeatedSetButton).toBeHidden()
 
-        await fillOutEnumeratorQuestionFormCorrectly(page, {
+        await fillAndSubmitEnumeratorQuestionForm(page, {
           listedEntity: 'Jobs',
           questionText: 'List jobs for $this',
           adminId: 'jobs enumerator',
@@ -506,7 +549,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
       await test.step('Add a new repeated set and save the enumerator question on the parent block', async () => {
         await addRepeatedSetBlock(page, {selectParent: true})
-        await fillOutEnumeratorQuestionFormCorrectly(page)
+        await fillAndSubmitEnumeratorQuestionForm(page)
       })
 
       await test.step('Before the repeated screen has a question: delete-screen and remove-question are enabled', async () => {
@@ -588,7 +631,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
       await test.step('Save an enumerator question on the parent repeated set screen', async () => {
         await page.getByRole('link', {name: 'Screen 2'}).click()
-        await fillOutEnumeratorQuestionFormCorrectly(page)
+        await fillAndSubmitEnumeratorQuestionForm(page)
       })
 
       await test.step('Return to repeated screen and verify Add question is enabled and alert is hidden', async () => {
@@ -616,7 +659,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await addRepeatedSetBlock(page, {selectParent: true})
       })
 
-      await fillOutEnumeratorQuestionFormCorrectly(page)
+      await fillAndSubmitEnumeratorQuestionForm(page)
 
       await test.step('Add a repeated question associated with this enumerator', async () => {
         await adminQuestions.addTextQuestion({
@@ -943,7 +986,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await addRepeatedSetBlock(page, {selectParent: true})
       })
 
-      await fillOutEnumeratorQuestionFormCorrectly(page, {maxEntities: 4})
+      await fillAndSubmitEnumeratorQuestionForm(page, {maxEntities: 4})
 
       await adminQuestions.addNameQuestion({
         questionName: repeatedQuestionName,
@@ -976,7 +1019,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           /* screenNumber= */ 4,
           /* repeatedFrom= */ 2,
         )
-        await fillOutEnumeratorQuestionFormCorrectly(page, {
+        await fillAndSubmitEnumeratorQuestionForm(page, {
           listedEntity: 'Jobs',
           questionText: 'List jobs for $this',
           adminId: 'jobs enumerator',
@@ -1392,7 +1435,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
     }
   }
 
-  async function fillOutEnumeratorQuestionFormCorrectly(
+  async function fillEnumeratorQuestionForm(
     page: Page,
     options?: {
       listedEntity?: string
@@ -1411,7 +1454,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       maxEntities,
     } = options ?? {}
 
-    await test.step('Fill out the new enumerator question form and submit it', async () => {
+    await test.step('Fill out the new enumerator question form', async () => {
       const listedEntityInput = blockPanel.getByRole('textbox', {
         name: 'Listed entity',
       })
@@ -1437,9 +1480,53 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           .getByRole('spinbutton', {name: 'Maximum entity count'})
           .fill(String(maxEntities))
       }
+    })
+  }
 
+  async function submitEnumeratorQuestionForm(page: Page) {
+    const blockPanel = page.getByTestId('block-panel-edit')
+    await test.step('Submit the new enumerator question form', async () => {
       await blockPanel
         .getByRole('button', {name: 'Create repeated set'})
+        .click()
+      await waitForHtmxReady(page)
+    })
+  }
+
+  /**
+   * Fills out the new enumerator question form and submits it. Thin wrapper around
+   * {@link fillEnumeratorQuestionForm} + {@link submitEnumeratorQuestionForm}; tests that need to
+   * do something between filling and submitting (e.g. selecting an initial question) should call
+   * the two halves directly instead.
+   */
+  async function fillAndSubmitEnumeratorQuestionForm(
+    page: Page,
+    options?: {
+      listedEntity?: string
+      questionText?: string
+      adminId?: string
+      hintText?: string
+      maxEntities?: number
+    },
+  ) {
+    await fillEnumeratorQuestionForm(page, options)
+    await submitEnumeratorQuestionForm(page)
+  }
+
+  /**
+   * Clicks "Add" next to the question row in the open question bank whose admin id matches
+   * {@code adminId}, then waits for HTMX to settle. Assumes the bank is already open. Used both
+   * for picking an enumerator question (Choose-existing flow) and for picking an initial question.
+   */
+  async function pickQuestionFromBank(page: Page, adminId: string) {
+    const questionBankSidebar = page.getByRole('form', {
+      name: 'Add a question',
+    })
+    await test.step(`Click "Add" next to "${adminId}" in the question bank`, async () => {
+      await questionBankSidebar
+        .locator('.cf-question-bank-element')
+        .filter({hasText: adminId})
+        .getByRole('button', {name: 'Add'})
         .click()
       await waitForHtmxReady(page)
     })

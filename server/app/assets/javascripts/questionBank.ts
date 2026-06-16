@@ -15,28 +15,46 @@ class QuestionBankController {
   static readonly SORT_SELECT_ID = 'question-bank-sort'
 
   constructor() {
-    const questionBankFilter = document.getElementById(
+    QuestionBankController.attachFilterAndSortListeners()
+    QuestionBankController.initToggleQuestionBankButtons()
+    QuestionBankController.initOpenOnHtmxTrigger()
+    QuestionBankController.initCloseOnHtmxTrigger()
+
+    // Apply a filter value the browser may have restored at page load (e.g. Firefox refresh after
+    // the user typed in the filter input). Guarded so we don't loop through the questions when
+    // there's nothing to filter against.
+    const filterInput = document.getElementById(
       QuestionBankController.FILTER_ID,
-    )
-    if (questionBankFilter) {
-      questionBankFilter.addEventListener(
-        'input',
-        QuestionBankController.filterQuestions,
-      )
+    ) as HTMLInputElement | null
+    if (filterInput && filterInput.value.length > 0) {
       QuestionBankController.filterQuestions()
     }
-    QuestionBankController.initToggleQuestionBankButtons()
+  }
 
-    const questionBankSort = document.getElementById(
-      QuestionBankController.SORT_SELECT_ID,
-    ) as HTMLSelectElement
-
-    if (questionBankSort) {
-      questionBankSort.addEventListener(
-        'change',
-        QuestionBankController.sortQuestions,
-      )
-    }
+  /**
+   * Attach the filter input and sort selector listeners to {@code document}, so they fire on any
+   * matching {@code input}/{@code change} event regardless of which element bubbled it up. The
+   * bank's form is replaced (outerHTML swap) every time a special-mode open-bank button fires;
+   * listeners on the form's children would die with each swap, but document-level listeners
+   * survive.
+   */
+  private static attachFilterAndSortListeners() {
+    document.addEventListener('input', (event) => {
+      if (
+        (event.target as HTMLElement | null)?.id ===
+        QuestionBankController.FILTER_ID
+      ) {
+        QuestionBankController.filterQuestions()
+      }
+    })
+    document.addEventListener('change', (event) => {
+      if (
+        (event.target as HTMLElement | null)?.id ===
+        QuestionBankController.SORT_SELECT_ID
+      ) {
+        QuestionBankController.sortQuestions()
+      }
+    })
   }
 
   private static initToggleQuestionBankButtons() {
@@ -113,6 +131,34 @@ class QuestionBankController {
     const url = new URL(location.href)
     url.searchParams.delete(QuestionBankController.BANK_SHOWN_URL_PARAM)
     window.history.replaceState({}, '', url.toString())
+  }
+
+  /**
+   * Opens the question bank when the server sends an {@code HX-Trigger: openQuestionBank} header.
+   * The special-mode open-bank buttons (initial-question, choose-existing) rely on this so the
+   * bank slides in only after the HTMX swap completes and the panel is in the requested mode.
+   */
+  private static initOpenOnHtmxTrigger() {
+    document.addEventListener('openQuestionBank', () => {
+      const container = document.getElementById(
+        QuestionBankController.QUESTION_BANK_CONTAINER,
+      )
+      if (container) {
+        QuestionBankController.showQuestionBank(container)
+      }
+    })
+  }
+
+  /** Closes the question bank when the server sends an HX-Trigger: closeQuestionBank header. */
+  private static initCloseOnHtmxTrigger() {
+    document.addEventListener('closeQuestionBank', () => {
+      const container = document.getElementById(
+        QuestionBankController.QUESTION_BANK_CONTAINER,
+      )
+      if (container) {
+        QuestionBankController.hideQuestionBank(container)
+      }
+    })
   }
 
   static makeBodyNonScrollable() {
