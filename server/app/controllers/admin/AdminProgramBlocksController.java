@@ -267,8 +267,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
    * triggers {@code openQuestionBank} on the client so the bank slides in.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result hxQuestionBankPartial(
-      Request request, long programId, long blockId, String mode) {
+  public Result hxQuestionBankPartial(Request request, long programId, long blockId, String mode) {
     requestChecker.throwIfProgramNotDraft(programId);
 
     ProgramQuestionBank.Mode bankMode;

@@ -1485,6 +1485,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
   async function submitEnumeratorQuestionForm(page: Page) {
     const blockPanel = page.getByTestId('block-panel-edit')
+
     await test.step('Submit the new enumerator question form', async () => {
       await blockPanel
         .getByRole('button', {name: 'Create repeated set'})
@@ -1522,6 +1523,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
     const questionBankSidebar = page.getByRole('form', {
       name: 'Add a question',
     })
+
     await test.step(`Click "Add" next to "${adminId}" in the question bank`, async () => {
       await questionBankSidebar
         .locator('.cf-question-bank-element')

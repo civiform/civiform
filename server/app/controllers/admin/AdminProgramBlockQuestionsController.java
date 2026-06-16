@@ -40,6 +40,7 @@ import services.question.QuestionService;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.NullQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
@@ -268,6 +269,11 @@ public class AdminProgramBlockQuestionsController extends Controller {
       selected =
           questionService.getReadOnlyQuestionServiceSync().getQuestionDefinition(questionId.get());
     } catch (QuestionNotFoundException e) {
+      return notFound(String.format("Question ID %d not found", questionId.get()));
+    }
+    // ReadOnlyCurrentQuestionServiceImpl logs and returns a NullQuestionDefinition for unknown
+    // ids rather than throwing — catch that here so the caller gets a proper 404.
+    if (selected instanceof NullQuestionDefinition) {
       return notFound(String.format("Question ID %d not found", questionId.get()));
     }
 

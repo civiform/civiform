@@ -981,10 +981,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   /**
-   * Renders the selected initial question for HTMX swap into the
-   * {@code #add-initial-question-button} slot. Shows the admin name and carries a hidden
-   * {@code initialQuestionId} input that the enumerator-creation form will submit. The question
-   * is not yet attached to the block.
+   * Renders the selected initial question for HTMX swap into the {@code
+   * #add-initial-question-button} slot. Shows the admin name and carries a hidden {@code
+   * initialQuestionId} input that the enumerator-creation form will submit. The question is not yet
+   * attached to the block.
    */
   public DomContent renderSelectedInitialQuestion(QuestionDefinition selectedQuestion) {
     return join(
@@ -1012,8 +1012,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .withClasses("usa-button", "usa-button--outline")
                 .attr(
                     "hx-get",
-                    controllers.admin.routes.AdminProgramBlocksController
-                        .hxQuestionBankPartial(
+                    controllers.admin.routes.AdminProgramBlocksController.hxQuestionBankPartial(
                             programId,
                             blockId,
                             ProgramQuestionBank.Mode.EXISTING_ENUMERATOR_ONLY.name())

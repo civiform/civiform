@@ -360,9 +360,9 @@ public final class ProgramQuestionBank {
   }
 
   /**
-   * Configures the form's submission attributes for the current {@link Mode}. INITIAL_QUESTION
-   * mode uses HTMX to swap the selection into the enumerator-creation form without leaving the
-   * page; all other modes use a native POST to the {@code create} endpoint.
+   * Configures the form's submission attributes for the current {@link Mode}. INITIAL_QUESTION mode
+   * uses HTMX to swap the selection into the enumerator-creation form without leaving the page; all
+   * other modes use a native POST to the {@code create} endpoint.
    */
   private void applyModeAttrs(FormTag questionForm) {
     long programId = params.program().id();
