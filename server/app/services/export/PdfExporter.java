@@ -1,6 +1,7 @@
 package services.export;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.apache.commons.lang3.math.NumberUtils.isNumber;
 
 import annotations.BindingAnnotations.Now;
 import com.google.common.collect.ImmutableList;
@@ -18,6 +19,7 @@ import com.itextpdf.text.ListItem;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.LineSeparator;
+import com.itextpdf.text.pdf.parser.Line;
 import com.typesafe.config.Config;
 import controllers.admin.PredicateUtils;
 import controllers.admin.ReadablePredicate;
@@ -160,6 +162,15 @@ public final class PdfExporter {
       writer = PdfWriter.getInstance(document, byteArrayOutputStream);
       document.open();
 
+      // 1. Initialize a Template placeholder for the sum at the top of the document
+      com.itextpdf.text.pdf.PdfContentByte cb = writer.getDirectContent();
+      // Width matching standard printable area (e.g., 500) and height (30)
+      com.itextpdf.text.pdf.PdfTemplate sumTemplate = cb.createTemplate(500, 30);
+
+      // 2. Reserve space for the template at the top of the document layout
+      com.itextpdf.text.Image templateImage = com.itextpdf.text.Image.getInstance(sumTemplate);
+      document.add(templateImage);
+
       Paragraph applicant =
           new Paragraph(
               applicantNameWithApplicationId, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16));
@@ -179,8 +190,15 @@ public final class PdfExporter {
               "Submit Time: " + submitTime, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
       document.add(submitTimeInformation);
       document.add(Chunk.NEWLINE);
+      int sum=0;
       boolean isEligibilityEnabledInProgram = programDefinition.hasEligibilityEnabled();
       for (AnswerData answerData : answersOnlyActive) {
+        if(answerData.questionDefinition().getQuestionType()==QuestionType.RADIO_BUTTON){
+          Optional<String> optionAdminId= answerData.applicantQuestion().createSingleSelectQuestion().getSelectedOptionAdminName();
+          if(optionAdminId.isPresent() && isNumber(optionAdminId.get())){
+            sum=sum+getNumber(optionAdminId.get());
+          }
+        }
         Paragraph question =
             new Paragraph(
                 answerData.questionDefinition().getName(),
@@ -225,6 +243,13 @@ public final class PdfExporter {
                 .toLocalDate();
         Paragraph time =
             new Paragraph("Answered on : " + date, FontFactory.getFont(FontFactory.HELVETICA, 10));
+        if(answerData.questionDefinition().getQuestionType()==QuestionType.RADIO_BUTTON){
+          Optional<String> optionAdminId= answerData.applicantQuestion().createSingleSelectQuestion().getSelectedOptionAdminName();
+          if(optionAdminId.isPresent() && isNumber(optionAdminId.get())){
+            time.add(Chunk.NEWLINE);
+            time.add("Score : " + getNumber(optionAdminId.get()));
+          }
+        }
         time.setAlignment(Paragraph.ALIGN_RIGHT);
         Paragraph eligibility = new Paragraph();
         if (isAdmin && isEligibilityEnabledInProgram) {
@@ -278,12 +303,43 @@ public final class PdfExporter {
           document.add(answer);
         }
       }
-    } finally {
+      com.itextpdf.text.pdf.ColumnText ct = new com.itextpdf.text.pdf.ColumnText(sumTemplate);
+      ct.setSimpleColumn(new com.itextpdf.text.Rectangle(0, 0, 500, 30));
+      Paragraph totalSumParagraph = new Paragraph("Total Calculated Score: " + sum, H2_FONT);
+      totalSumParagraph.setAlignment(Paragraph.ALIGN_RIGHT);
+      ct.addElement(totalSumParagraph);
+      ct.go();
+    }
+
+
+    finally {
       document.close();
       writer.close();
       byteArrayOutputStream.close();
     }
     return byteArrayOutputStream.toByteArray();
+  }
+
+  public Integer getNumber(String text) {
+    if (text == null) {
+      return null;
+    }
+    try {
+      return Integer.parseInt(text);
+    } catch (NumberFormatException e) {
+      return null;
+    }
+  }
+  public boolean isNumber(String text) {
+    if (text == null) {
+      return false;
+    }
+    try {
+       Integer.parseInt(text);
+       return true;
+    } catch (NumberFormatException e) {
+      return false;
+    }
   }
 
   /**
