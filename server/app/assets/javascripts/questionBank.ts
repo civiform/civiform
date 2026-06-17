@@ -32,11 +32,10 @@ class QuestionBankController {
   }
 
   /**
-   * Attach the filter input and sort selector listeners to {@code document}, so they fire on any
-   * matching {@code input}/{@code change} event regardless of which element bubbled it up. The
-   * bank's form is replaced (outerHTML swap) every time a special-mode open-bank button fires;
-   * listeners on the form's children would die with each swap, but document-level listeners
-   * survive.
+   * Attach the filter input and sort selector listeners to document, so they fire on any
+   * matching input/change event regardless of which element bubbled it up. The
+   * bank's form is replaced (outerHTML swap) every time a special-mode open-bank button fires,
+   * so we need document-level listeners if we want the listeners to survive swapping.
    */
   private static attachFilterAndSortListeners() {
     document.addEventListener('input', (event) => {
@@ -134,9 +133,10 @@ class QuestionBankController {
   }
 
   /**
-   * Opens the question bank when the server sends an {@code HX-Trigger: openQuestionBank} header.
-   * The special-mode open-bank buttons (initial-question, choose-existing) rely on this so the
-   * bank slides in only after the HTMX swap completes and the panel is in the requested mode.
+   * Opens the question bank when the server sends an `HX-Trigger-After-Swap: openQuestionBank`
+   * header. The special-mode open-bank buttons (initial-question, choose-existing) rely on this
+   * so the bank slides in only after the HTMX swap has completed, ensuring the panel is in the
+   * requested mode before the user sees it.
    */
   private static initOpenOnHtmxTrigger() {
     document.addEventListener('openQuestionBank', () => {
@@ -149,7 +149,7 @@ class QuestionBankController {
     })
   }
 
-  /** Closes the question bank when the server sends an HX-Trigger: closeQuestionBank header. */
+  /** Closes the question bank when the server sends an `HX-Trigger-After-Swap: closeQuestionBank` header. */
   private static initCloseOnHtmxTrigger() {
     document.addEventListener('closeQuestionBank', () => {
       const container = document.getElementById(

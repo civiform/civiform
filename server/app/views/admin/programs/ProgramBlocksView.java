@@ -1835,7 +1835,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             program,
             blockDefinition,
             csrfTag,
-            ProgramQuestionBank.Mode.DEFAULT,
+            ProgramQuestionBank.Mode.ANY_ELIGIBLE,
             messages,
             request)
         .getContainer(questionBankVisibility);

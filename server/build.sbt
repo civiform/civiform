@@ -60,7 +60,7 @@ lazy val root = (project in file("."))
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.11",
-      "com.google.cloud.sql" % "postgres-socket-factory" % "1.28.3",
+      "com.google.cloud.sql" % "postgres-socket-factory" % "1.28.4",
       "com.h2database" % "h2" % "2.4.240" % Test,
 
       // Metrics collection and export for Prometheus
@@ -80,7 +80,7 @@ lazy val root = (project in file("."))
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "jakarta.xml.bind" % "jakarta.xml.bind-api" % "4.0.5",
       "jakarta.activation" % "jakarta.activation-api" % "2.1.4",
-      "org.glassfish.jaxb" % "jaxb-runtime" % "4.0.8",
+      "org.glassfish.jaxb" % "jaxb-runtime" % "4.0.9",
 
       // Code autogeneration
       "org.projectlombok" % "lombok" % "1.18.46" % "provided",
@@ -145,7 +145,7 @@ lazy val root = (project in file("."))
 
       // Override default Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.5.32",
+      "ch.qos.logback" % "logback-classic" % "1.5.34",
 
       // Swagger 2.0 Dependencies
       "io.swagger" % "swagger-core" % "1.6.16" exclude (

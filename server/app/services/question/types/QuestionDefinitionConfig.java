@@ -56,6 +56,9 @@ public abstract class QuestionDefinitionConfig {
   @JsonProperty("enumeratorId")
   abstract Optional<Long> enumeratorId();
 
+  @JsonProperty("enumeratorInitialQuestionId")
+  abstract Optional<Long> enumeratorInitialQuestionId();
+
   @JsonIgnore
   abstract Optional<Instant> lastModifiedTime();
 
@@ -120,6 +123,13 @@ public abstract class QuestionDefinitionConfig {
 
     @JsonProperty("enumeratorId")
     public abstract Builder setEnumeratorId(Optional<Long> enumeratorId);
+
+    @JsonProperty("enumeratorInitialQuestionId")
+    public abstract Builder setEnumeratorInitialQuestionId(long enumeratorInitialQuestionId);
+
+    @JsonProperty("enumeratorInitialQuestionId")
+    public abstract Builder setEnumeratorInitialQuestionId(
+        Optional<Long> enumeratorInitialQuestionId);
 
     public abstract Builder setLastModifiedTime(Instant lastModifiedTime);
 

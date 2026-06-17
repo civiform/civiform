@@ -602,21 +602,28 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void hxQuestionBankPartial_withDefaultMode_returnsPanelForm() {
+  public void hxQuestionBankPartial_withAnyEligibleMode_returnsPanelForm() {
     ProgramModel program = ProgramBuilder.newDraftProgram().withBlock().build();
 
     Result result =
         controller.hxQuestionBankPartial(
-            fakeRequest(), program.id, /* blockId= */ 1L, ProgramQuestionBank.Mode.DEFAULT.name());
+            fakeRequest(),
+            program.id,
+            /* blockId= */ 1L,
+            ProgramQuestionBank.Mode.ANY_ELIGIBLE.name());
 
     assertThat(result.status()).isEqualTo(OK);
     String content = contentAsString(result);
     assertThat(content).contains("id=\"question-bank-panel-form\"");
     assertThat(content)
-        .contains("action=\"/admin/programs/" + program.id + "/blocks/1/questions\"");
+        .contains(
+            """
+            action="/admin/programs/%s/blocks/1/questions\"\
+            """
+                .formatted(program.id));
     assertThat(content).doesNotContain("hx-post");
     assertThat(content).contains("Create new question");
-    assertThat(result.header("HX-Trigger")).hasValue("openQuestionBank");
+    assertThat(result.header("HX-Trigger-After-Swap")).hasValue("openQuestionBank");
   }
 
   @Test
@@ -635,12 +642,20 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
     assertThat(content).contains("id=\"question-bank-panel-form\"");
     assertThat(content)
         .contains(
-            "hx-post=\"/admin/programs/" + program.id + "/blocks/1/hx/selectInitialQuestion\"");
+            """
+            hx-post="/admin/programs/%s/blocks/1/hx/selectInitialQuestion\"\
+            """
+                .formatted(program.id));
     assertThat(content).contains("hx-target=\"#add-initial-question-button\"");
     assertThat(content).contains("hx-swap=\"outerHTML\"");
     assertThat(content).contains("Create new question");
     // INITIAL_QUESTION mode is HTMX-only: no native fallback method/action on the form.
-    assertThat(content).doesNotContain("action=\"/admin/programs/" + program.id + "/blocks/1");
+    assertThat(content)
+        .doesNotContain(
+            """
+            action="/admin/programs/%s/blocks/1\
+            """
+                .formatted(program.id));
   }
 
   @Test
@@ -683,7 +698,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
                     fakeRequest(),
                     programId,
                     /* blockId= */ 1L,
-                    ProgramQuestionBank.Mode.DEFAULT.name()))
+                    ProgramQuestionBank.Mode.ANY_ELIGIBLE.name()))
         .isInstanceOf(NotChangeableException.class);
   }
 }

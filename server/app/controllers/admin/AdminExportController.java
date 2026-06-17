@@ -19,7 +19,6 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.QuestionService;
-import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
 import views.admin.migration.AdminExportView;
 import views.admin.migration.AdminProgramExportForm;
@@ -70,15 +69,10 @@ public class AdminExportController extends CiviFormController {
     ImmutableList<QuestionDefinition> questionsUsedByProgram =
         program.getQuestionIdsInProgram().stream()
             .map(
-                questionId -> {
-                  try {
-                    return questionService
+                questionId ->
+                    questionService
                         .getReadOnlyQuestionServiceSync()
-                        .getQuestionDefinition(questionId);
-                  } catch (QuestionNotFoundException e) {
-                    throw new RuntimeException(e);
-                  }
-                })
+                        .getQuestionDefinition(questionId))
             .collect(ImmutableList.toImmutableList());
 
     ErrorAnd<String, String> serializeResult =

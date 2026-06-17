@@ -120,8 +120,6 @@ public class AdminProgramBlockQuestionsController extends Controller {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
       return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
-    } catch (QuestionNotFoundException e) {
-      return notFound(String.format("Question IDs %s not found", latestQuestionIds));
     } catch (CantAddQuestionToBlockException e) {
       return notFound(e.externalMessage());
     }
@@ -214,8 +212,6 @@ public class AdminProgramBlockQuestionsController extends Controller {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
       return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
-    } catch (QuestionNotFoundException e) {
-      return notFound(String.format("Question IDs %s not found", latestQuestionIds));
     } catch (CantAddQuestionToBlockException e) {
       return notFound(e.externalMessage());
     } catch (ProgramQuestionDefinitionNotFoundException e) {
@@ -243,10 +239,11 @@ public class AdminProgramBlockQuestionsController extends Controller {
   }
 
   /**
-   * HTMX POST endpoint for picking an initial question while setting up an enumerator block.
+   * HTMX POST endpoint for when an initial question is picked while setting up an enumerator block.
    * Returns the fragment that replaces the {@code #add-initial-question-button} and triggers the
    * {@code closeQuestionBank} event on the client so the bank closes. The question is not yet
-   * attached to the block.
+   * attached to the block. Rather, the initial question id becomes the value of a hidden form field
+   * that will be submitted when the user clicks "Create repeated set".
    */
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
   public Result hxSelectInitialQuestion(Request request, long programId, long blockId) {
@@ -264,13 +261,9 @@ public class AdminProgramBlockQuestionsController extends Controller {
       return badRequest("No question selected");
     }
 
-    QuestionDefinition selected;
-    try {
-      selected =
-          questionService.getReadOnlyQuestionServiceSync().getQuestionDefinition(questionId.get());
-    } catch (QuestionNotFoundException e) {
-      return notFound(String.format("Question ID %d not found", questionId.get()));
-    }
+    QuestionDefinition selected =
+        questionService.getReadOnlyQuestionServiceSync().getQuestionDefinition(questionId.get());
+
     // ReadOnlyCurrentQuestionServiceImpl logs and returns a NullQuestionDefinition for unknown
     // ids rather than throwing — catch that here so the caller gets a proper 404.
     if (selected instanceof NullQuestionDefinition) {
@@ -278,7 +271,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
     }
 
     return ok(blockEditView.renderSelectedInitialQuestion(selected).render())
-        .withHeader("HX-Trigger", "closeQuestionBank");
+        .withHeader("HX-Trigger-After-Swap", "closeQuestionBank");
   }
 
   /** POST endpoint for removing a question from a screen. */
