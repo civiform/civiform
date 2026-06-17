@@ -156,12 +156,7 @@ public final class AdminQuestionController extends CiviFormController {
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService -> {
-              QuestionDefinition questionDefinition;
-              try {
-                questionDefinition = readOnlyService.getQuestionDefinition(id);
-              } catch (QuestionNotFoundException e) {
-                return badRequest(e.toString());
-              }
+              QuestionDefinition questionDefinition = readOnlyService.getQuestionDefinition(id);
 
               Optional<QuestionDefinition> maybeEnumerationQuestion =
                   maybeGetEnumerationQuestion(readOnlyService, questionDefinition);
@@ -309,12 +304,7 @@ public final class AdminQuestionController extends CiviFormController {
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService -> {
-              QuestionDefinition questionDefinition;
-              try {
-                questionDefinition = readOnlyService.getQuestionDefinition(id);
-              } catch (QuestionNotFoundException e) {
-                return badRequest(e.toString());
-              }
+              QuestionDefinition questionDefinition = readOnlyService.getQuestionDefinition(id);
 
               // Handle case someone tries to edit a live question that already has a draft version.
               // In this case we should redirect to the draft version.
@@ -374,12 +364,7 @@ public final class AdminQuestionController extends CiviFormController {
     ReadOnlyQuestionService roService =
         service.getReadOnlyQuestionService().toCompletableFuture().join();
 
-    Optional<QuestionDefinition> maybeExisting;
-    try {
-      maybeExisting = Optional.of(roService.getQuestionDefinition(id));
-    } catch (QuestionNotFoundException e) {
-      maybeExisting = Optional.empty();
-    }
+    Optional<QuestionDefinition> maybeExisting = Optional.of(roService.getQuestionDefinition(id));
 
     QuestionDefinition questionDefinition;
     try {
@@ -673,14 +658,7 @@ public final class AdminQuestionController extends CiviFormController {
     return questionDefinition
         .getEnumeratorId()
         .flatMap(
-            enumeratorId -> {
-              try {
-                return Optional.of(readOnlyQuestionService.getQuestionDefinition(enumeratorId));
-              } catch (QuestionNotFoundException e) {
-                throw new RuntimeException(
-                    "This repeated question's enumerator id reference does not refer to a real"
-                        + " question!");
-              }
-            });
+            enumeratorId ->
+                Optional.of(readOnlyQuestionService.getQuestionDefinition(enumeratorId)));
   }
 }

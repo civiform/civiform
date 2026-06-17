@@ -43,7 +43,6 @@ import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateGenerator;
 import services.program.predicate.PredicateUseCase;
 import services.program.predicate.PredicateValue;
-import services.question.QuestionService;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.admin.programs.ProgramPredicateConfigureView;
@@ -86,7 +85,6 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
         new AdminProgramBlockPredicatesController(
             instanceOf(PredicateGenerator.class),
             instanceOf(ProgramService.class),
-            instanceOf(QuestionService.class),
             instanceOf(ProgramPredicatesEditView.class),
             instanceOf(ProgramPredicateConfigureView.class),
             instanceOf(EditPredicatePageView.class),

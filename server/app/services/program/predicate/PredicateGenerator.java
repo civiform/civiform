@@ -23,8 +23,6 @@ import services.applicant.question.Scalar;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramQuestionDefinitionNotFoundException;
-import services.question.ReadOnlyQuestionService;
-import services.question.exceptions.QuestionNotFoundException;
 import services.settings.SettingsManifest;
 
 /** Creates {@link PredicateDefinition}s from form inputs. */
@@ -74,17 +72,11 @@ public final class PredicateGenerator {
    *
    * @param programDefinition the program this predicate is being generated for.
    * @param predicateForm contains key-value pairs specifying the predicate.
-   * @param roQuestionService a {@link ReadOnlyQuestionService} for validating that questions
-   *     referenced in the form are active or draft.
-   * @throws QuestionNotFoundException if the form references a question ID that is not in the
-   *     {@link ReadOnlyQuestionService}.
    * @throws BadRequestException if the form is invalid.
    */
   public PredicateDefinition legacyGeneratePredicateDefinition(
-      ProgramDefinition programDefinition,
-      DynamicForm predicateForm,
-      ReadOnlyQuestionService roQuestionService)
-      throws QuestionNotFoundException, ProgramQuestionDefinitionNotFoundException {
+      ProgramDefinition programDefinition, DynamicForm predicateForm)
+      throws ProgramQuestionDefinitionNotFoundException {
     final PredicateAction predicateAction;
 
     try {
@@ -96,7 +88,7 @@ public final class PredicateGenerator {
     }
 
     Multimap<Integer, LeafExpressionNode> leafNodes =
-        legacyGetLeafNodes(programDefinition, predicateForm, roQuestionService);
+        legacyGetLeafNodes(programDefinition, predicateForm);
 
     return switch (detectFormat(leafNodes)) {
       case MULTIPLE_CONDITIONS ->
@@ -134,14 +126,10 @@ public final class PredicateGenerator {
    *
    * @throws ProgramQuestionDefinitionNotFoundException if a parsed questionId is not in the {@link
    *     ProgramDefinition}
-   * @throws QuestionNotFoundException if a parsed questionId is not in the current active or draft
-   *     version.
    */
   private static Multimap<Integer, LeafExpressionNode> legacyGetLeafNodes(
-      ProgramDefinition programDefinition,
-      DynamicForm predicateForm,
-      ReadOnlyQuestionService roQuestionService)
-      throws QuestionNotFoundException, ProgramQuestionDefinitionNotFoundException {
+      ProgramDefinition programDefinition, DynamicForm predicateForm)
+      throws ProgramQuestionDefinitionNotFoundException {
     Multimap<Integer, LeafExpressionNode> leafNodes = LinkedHashMultimap.create();
     HashSet<String> consumedKeys = new HashSet<>();
 
@@ -159,8 +147,7 @@ public final class PredicateGenerator {
       final int groupId = Integer.parseInt(matcher.group(1));
       final long questionId = Long.parseLong(matcher.group(2));
 
-      // Validate the questionId - these throw exceptions
-      roQuestionService.getQuestionDefinition(questionId);
+      // Validate the questionId - throws an exception
       programDefinition.getProgramQuestionDefinition(questionId);
 
       final Scalar scalar =
@@ -270,19 +257,14 @@ public final class PredicateGenerator {
    *
    * @param programDefinition the program this predicate is being generated for.
    * @param predicateForm contains key-value pairs specifying the predicate.
-   * @param roQuestionService a {@link ReadOnlyQuestionService} for validating that questions
-   *     referenced in the form are active or draft.
-   * @throws QuestionNotFoundException if the form references a question ID that is not in the
-   *     {@link ReadOnlyQuestionService}.
    * @throws BadRequestException if the form is invalid.
    */
   public PredicateDefinition generatePredicateDefinition(
       ProgramDefinition programDefinition,
       DynamicForm predicateForm,
-      ReadOnlyQuestionService roQuestionService,
       SettingsManifest settingsManifest,
       Request request)
-      throws QuestionNotFoundException, ProgramQuestionDefinitionNotFoundException {
+      throws ProgramQuestionDefinitionNotFoundException {
     if (!settingsManifest.getExpandedFormLogicEnabled(request)) {
       throw new BadRequestException("Expanded form logic is not enabled for this request.");
     }
@@ -297,7 +279,7 @@ public final class PredicateGenerator {
     }
 
     Map<Integer, Map<Integer, PredicateExpressionNode>> leafNodes =
-        getLeafNodes(programDefinition, predicateForm, roQuestionService);
+        getLeafNodes(programDefinition, predicateForm);
 
     // Single leaf node predicate
     if (leafNodes.size() == 1 && leafNodes.values().iterator().next().size() == 1) {
@@ -337,14 +319,10 @@ public final class PredicateGenerator {
    *
    * @throws ProgramQuestionDefinitionNotFoundException if a parsed questionId is not in the {@link
    *     ProgramDefinition}
-   * @throws QuestionNotFoundException if a parsed questionId is not in the current active or draft
-   *     version.
    */
   private static Map<Integer, Map<Integer, PredicateExpressionNode>> getLeafNodes(
-      ProgramDefinition programDefinition,
-      DynamicForm predicateForm,
-      ReadOnlyQuestionService roQuestionService)
-      throws QuestionNotFoundException, ProgramQuestionDefinitionNotFoundException {
+      ProgramDefinition programDefinition, DynamicForm predicateForm)
+      throws ProgramQuestionDefinitionNotFoundException {
     Map<Integer, Map<Integer, PredicateExpressionNode>> leafNodes = new HashMap<>();
     HashSet<String> processedFormKeys = new HashSet<>();
 
@@ -366,8 +344,7 @@ public final class PredicateGenerator {
       int subconditionId = Integer.parseInt(matcher.group(2));
       long questionId = getQuestionId(predicateForm, conditionId, subconditionId);
 
-      // Validate the questionId - these throw exceptions
-      roQuestionService.getQuestionDefinition(questionId);
+      // Validate the questionId - throws an exception
       ProgramQuestionDefinition questionDefinition =
           programDefinition.getProgramQuestionDefinition(questionId);
 
