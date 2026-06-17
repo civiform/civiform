@@ -40,6 +40,7 @@ import services.question.QuestionService;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.NullQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
@@ -235,6 +236,42 @@ public class AdminProgramBlockQuestionsController extends Controller {
                 /* blockHasEnumeratorQuestion= */ true,
                 blockDefinition)
             .render());
+  }
+
+  /**
+   * HTMX POST endpoint for when an initial question is picked while setting up an enumerator block.
+   * Returns the fragment that replaces the {@code #add-initial-question-button} and triggers the
+   * {@code closeQuestionBank} event on the client so the bank closes. The question is not yet
+   * attached to the block. Rather, the initial question id becomes the value of a hidden form field
+   * that will be submitted when the user clicks "Create repeated set".
+   */
+  @Secure(authorizers = Labels.CIVIFORM_ADMIN)
+  public Result hxSelectInitialQuestion(Request request, long programId, long blockId) {
+    requestChecker.throwIfProgramNotDraft(programId);
+
+    DynamicForm requestData = formFactory.form().bindFromRequest(request);
+    Optional<Long> questionId =
+        requestData.rawData().entrySet().stream()
+            .filter(formField -> formField.getKey().startsWith("question-"))
+            .map(Entry::getValue)
+            .map(Long::valueOf)
+            .findFirst();
+
+    if (questionId.isEmpty()) {
+      return badRequest("No question selected");
+    }
+
+    QuestionDefinition selected =
+        questionService.getReadOnlyQuestionServiceSync().getQuestionDefinition(questionId.get());
+
+    // ReadOnlyCurrentQuestionServiceImpl logs and returns a NullQuestionDefinition for unknown
+    // ids rather than throwing — catch that here so the caller gets a proper 404.
+    if (selected instanceof NullQuestionDefinition) {
+      return notFound(String.format("Question ID %d not found", questionId.get()));
+    }
+
+    return ok(blockEditView.renderSelectedInitialQuestion(selected).render())
+        .withHeader("HX-Trigger-After-Swap", "closeQuestionBank");
   }
 
   /** POST endpoint for removing a question from a screen. */
