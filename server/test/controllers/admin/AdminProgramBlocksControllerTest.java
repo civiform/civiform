@@ -623,7 +623,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
                 .formatted(program.id));
     assertThat(content).doesNotContain("hx-post");
     assertThat(content).contains("Create new question");
-    assertThat(result.header("HX-Trigger")).hasValue("openQuestionBank");
+    assertThat(result.header("HX-Trigger-After-Swap")).hasValue("openQuestionBank");
   }
 
   @Test

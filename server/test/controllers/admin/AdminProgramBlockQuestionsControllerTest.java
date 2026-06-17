@@ -144,7 +144,7 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
             <input type="hidden" name="initialQuestionId" value="%s">\
             """
                 .formatted(nameQuestion.getId()));
-    assertThat(result.header("HX-Trigger")).hasValue("closeQuestionBank");
+    assertThat(result.header("HX-Trigger-After-Swap")).hasValue("closeQuestionBank");
   }
 
   @Test
