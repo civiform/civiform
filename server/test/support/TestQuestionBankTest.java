@@ -3,7 +3,6 @@ package support;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import java.util.Optional;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.QuestionModel;
@@ -54,8 +53,7 @@ public class TestQuestionBankTest {
   @Test
   public void createQuestionDefinition_createsQuestionWithSpecificId() {
     QuestionDefinition question =
-        TestQuestionBank.createQuestionDefinition(
-            "test-question", 123L, QuestionType.TEXT, Optional.empty());
+        TestQuestionBank.createQuestionDefinition("test-question", 123L, QuestionType.TEXT);
 
     assertThat(question.getId()).isEqualTo(123L);
     assertThat(question.getName()).isEqualTo("test-question");
@@ -66,8 +64,8 @@ public class TestQuestionBankTest {
   @Test
   public void createQuestionDefinition_withEnumeratorId_setsEnumeratorId() {
     QuestionDefinition question =
-        TestQuestionBank.createQuestionDefinition(
-            "repeated-question", 456L, QuestionType.TEXT, Optional.of(789L));
+        TestQuestionBank.createQuestionDefinitionWithEnumId(
+            "repeated-question", 456L, QuestionType.TEXT, 789L);
 
     assertThat(question.getId()).isEqualTo(456L);
     assertThat(question.getName()).isEqualTo("repeated-question");

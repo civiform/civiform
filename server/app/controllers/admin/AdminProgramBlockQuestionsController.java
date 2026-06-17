@@ -120,8 +120,6 @@ public class AdminProgramBlockQuestionsController extends Controller {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
       return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
-    } catch (QuestionNotFoundException e) {
-      return notFound(String.format("Question IDs %s not found", latestQuestionIds));
     } catch (CantAddQuestionToBlockException e) {
       return notFound(e.externalMessage());
     }
@@ -214,8 +212,6 @@ public class AdminProgramBlockQuestionsController extends Controller {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
       return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
-    } catch (QuestionNotFoundException e) {
-      return notFound(String.format("Question IDs %s not found", latestQuestionIds));
     } catch (CantAddQuestionToBlockException e) {
       return notFound(e.externalMessage());
     } catch (ProgramQuestionDefinitionNotFoundException e) {

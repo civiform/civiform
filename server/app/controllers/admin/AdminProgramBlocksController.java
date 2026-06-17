@@ -35,7 +35,6 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
-import services.question.exceptions.QuestionNotFoundException;
 import services.settings.SettingsManifest;
 import views.admin.programs.BlockType;
 import views.admin.programs.ProgramBlocksView;
@@ -239,7 +238,6 @@ public final class AdminProgramBlocksController extends CiviFormController {
           // Invalid question ID format, ignore and continue
         } catch (ProgramNotFoundException
             | ProgramBlockDefinitionNotFoundException
-            | QuestionNotFoundException
             | CantAddQuestionToBlockException e) {
           // If adding fails, show the block without the new question and flash an error toast
           // message
