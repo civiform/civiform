@@ -261,13 +261,9 @@ public class AdminProgramBlockQuestionsController extends Controller {
       return badRequest("No question selected");
     }
 
-    QuestionDefinition selected;
-    try {
-      selected =
-          questionService.getReadOnlyQuestionServiceSync().getQuestionDefinition(questionId.get());
-    } catch (QuestionNotFoundException e) {
-      return notFound(String.format("Question ID %d not found", questionId.get()));
-    }
+    QuestionDefinition selected =
+        questionService.getReadOnlyQuestionServiceSync().getQuestionDefinition(questionId.get());
+
     // ReadOnlyCurrentQuestionServiceImpl logs and returns a NullQuestionDefinition for unknown
     // ids rather than throwing — catch that here so the caller gets a proper 404.
     if (selected instanceof NullQuestionDefinition) {
