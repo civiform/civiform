@@ -363,6 +363,8 @@ class AdminPrograms {
         } else {
           this.focusOnEnumeratorQuestionSection()
         }
+      } else if (targetElement.id === 'add-initial-question-button') {
+        this.focusOnInitialQuestionHeading()
       }
     })
   }
@@ -401,6 +403,15 @@ class AdminPrograms {
     )
     if (enumeratorSectionHeading) {
       enumeratorSectionHeading.focus()
+    }
+  }
+
+  static focusOnInitialQuestionHeading() {
+    const initialQuestionHeading = document.getElementById(
+      'initial-question-label',
+    )
+    if (initialQuestionHeading) {
+      initialQuestionHeading.focus()
     }
   }
 

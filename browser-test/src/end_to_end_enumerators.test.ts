@@ -281,10 +281,23 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
       await pickQuestionFromBank(page, 'income-non-repeated-question')
 
-      await test.step('Validate the bank closes and the slot shows the selected question', async () => {
+      await test.step('Validate the bank closes and the slot shows the card with the selected question', async () => {
         await expect(questionBankSidebar).toBeHidden()
+
+        const initialQuestionCard = initialQuestionSlot.getByTestId(
+          'question-admin-name-income-non-repeated-question',
+        )
+
+        await expect(initialQuestionCard).toBeVisible()
         await expect(
-          initialQuestionSlot.getByText('income-non-repeated-question'),
+          initialQuestionCard
+            .getByTestId('question-div')
+            .getByText('Your monthly income'),
+        ).toBeVisible()
+        await expect(
+          initialQuestionCard.getByText(
+            'Admin ID: income-non-repeated-question',
+          ),
         ).toBeVisible()
       })
     })

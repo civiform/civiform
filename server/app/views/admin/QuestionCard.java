@@ -15,6 +15,7 @@ import j2html.tags.specialized.UlTag;
 import java.util.Optional;
 import services.question.QuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.NullQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import views.ViewUtils;
 import views.components.Icons;
@@ -45,7 +46,9 @@ public final class QuestionCard {
         /* editButtonsForProgramPage= */ ImmutableList.of(),
         Optional.of(badgeForImport),
         maybeDuplicateHandlingForImport,
-        /* visibilityConditionEditLinks= */ Optional.empty());
+        /* visibilityConditionEditLinks= */ Optional.empty(),
+        /* includeHelpText= */ true,
+        /* includeUniversalBadge= */ true);
   }
 
   /**
@@ -71,7 +74,27 @@ public final class QuestionCard {
         editButtonsForProgramPage,
         /* maybeBadgeForImport= */ Optional.empty(),
         /* maybeDuplicateHandlingForImport= */ Optional.empty(),
-        visibilityConditionEditLinks);
+        visibilityConditionEditLinks,
+        /* includeHelpText= */ true,
+        /* includeUniversalBadge= */ true);
+  }
+
+  /**
+   * Renders a stripped-down card for use as the chosen initial question on the enumerator-creation
+   * form. Hides the help text, optional toggle, move arrows, address-correction toggle, edit link,
+   * delete form, and visibility accordion — none of those apply while the initial question has not
+   * yet been attached to the block.
+   */
+  public static DivTag renderForInitialQuestion(QuestionDefinition selectedQuestion) {
+    return render(
+        selectedQuestion,
+        /* malformedQuestionDefinition= */ selectedQuestion instanceof NullQuestionDefinition,
+        /* editButtonsForProgramPage= */ ImmutableList.of(),
+        /* maybeBadgeForImport= */ Optional.empty(),
+        /* maybeDuplicateHandlingForImport= */ Optional.empty(),
+        /* visibilityConditionEditLinks= */ Optional.empty(),
+        /* includeHelpText= */ false,
+        /* includeUniversalBadge= */ false);
   }
 
   /**
@@ -84,10 +107,12 @@ public final class QuestionCard {
       ImmutableList<DomContent> editButtonsForProgramPage,
       Optional<DivTag> maybeBadgeForImport,
       Optional<FieldsetTag> maybeDuplicateHandlingForImport,
-      Optional<DivTag> visibilityConditionEditLinks) {
-    boolean showOneOrMoreBadges =
-        (!malformedQuestionDefinition && questionDefinition.isUniversal())
-            || maybeBadgeForImport.isPresent();
+      Optional<DivTag> visibilityConditionEditLinks,
+      boolean includeHelpText,
+      boolean includeUniversalBadge) {
+    boolean showUniversalBadge =
+        includeUniversalBadge && !malformedQuestionDefinition && questionDefinition.isUniversal();
+    boolean showOneOrMoreBadges = showUniversalBadge || maybeBadgeForImport.isPresent();
     DivTag cardDiv =
         div()
             .withData("testid", "question-admin-name-" + questionDefinition.getName())
@@ -104,7 +129,7 @@ public final class QuestionCard {
                 div()
                     .withClasses("flex", "mx-4", "mt-4", "mb-2")
                     .condWith(
-                        !malformedQuestionDefinition && questionDefinition.isUniversal(),
+                        showUniversalBadge,
                         ViewUtils.makeUniversalBadge(questionDefinition, "mr-2"))
                     // Default to null, since condWith doesn't short-circuit
                     .condWith(maybeBadgeForImport.isPresent(), maybeBadgeForImport.orElse(null)));
@@ -132,9 +157,11 @@ public final class QuestionCard {
                         TextFormatter.formatTextForAdmins(
                             questionDefinition.getQuestionText().getDefault()))
                     .withData("testid", "question-div"),
-                div()
-                    .with(TextFormatter.formatTextForAdmins(questionHelpText))
-                    .withClasses("mt-1", "text-sm"),
+                iff(
+                    includeHelpText,
+                    div()
+                        .with(TextFormatter.formatTextForAdmins(questionHelpText))
+                        .withClasses("mt-1", "text-sm")),
                 p(String.format("Admin ID: %s", questionDefinition.getName()))
                     .withClasses("mt-1", "text-sm"),
 
