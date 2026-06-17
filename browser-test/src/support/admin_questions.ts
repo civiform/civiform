@@ -145,8 +145,10 @@ export class AdminQuestions {
 
   async expectAdminQuestionsPageWithSuccessToast(successText: string) {
     await expect(
-      this.page.locator('#toast-container .bg-cf-toast-success'),
-    ).toContainText(successText)
+      this.page
+        .locator('#toast-container .bg-cf-toast-success')
+        .getByText(successText),
+    ).toBeVisible()
     await this.expectAdminQuestionsPage()
   }
 
