@@ -44,16 +44,17 @@ public final class PdfExporterService {
    *
    * <p>Used for admins to see their current program setup.
    */
-  public PdfExporter.InMemoryPdf generateProgramPreviewPdf(
-      ProgramDefinition programDefinition,
-      ImmutableList<QuestionDefinition> allQuestions,
-      boolean expandedFormLogicEnabled) {
-    PdfExporter.InMemoryPdf pdf;
+  public ImmutableList<PdfExporter.InMemoryPdf> generateProgramPreviewPdf(
+    ProgramDefinition programDefinition,
+    ImmutableList<QuestionDefinition> allQuestions,
+    boolean expandedFormLogicEnabled) {
+
+    ImmutableList<PdfExporter.InMemoryPdf> pdfs;
     try {
-      pdf = pdfExporter.exportProgram(programDefinition, allQuestions, expandedFormLogicEnabled);
+      pdfs = pdfExporter.exportProgram(programDefinition, allQuestions, expandedFormLogicEnabled);
     } catch (DocumentException | IOException | TranslationNotFoundException e) {
       throw new RuntimeException(e);
     }
-    return pdf;
+    return pdfs;
   }
 }
