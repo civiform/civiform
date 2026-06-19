@@ -144,10 +144,11 @@ export class AdminQuestions {
   }
 
   async expectAdminQuestionsPageWithSuccessToast(successText: string) {
-    const toastContainer = await this.page.innerHTML('#toast-container')
-
-    expect(toastContainer).toContain('bg-cf-toast-success')
-    expect(toastContainer).toContain(successText)
+    await expect(
+      this.page
+        .locator('#toast-container .bg-cf-toast-success')
+        .getByText(successText),
+    ).toBeVisible()
     await this.expectAdminQuestionsPage()
   }
 
