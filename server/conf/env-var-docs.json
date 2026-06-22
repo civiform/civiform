@@ -913,7 +913,7 @@
         "type": "bool"
       },
       "CUSTOM_THEME_COLORS_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
+        "mode": "ADMIN_READABLE",
         "description": "Enable using custom theme colors in the applicant UI.",
         "type": "bool",
         "required": false

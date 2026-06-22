@@ -1055,8 +1055,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** Enable using custom theme colors in the applicant UI. */
-  public boolean getCustomThemeColorsEnabled(RequestHeader request) {
-    return getBool("CUSTOM_THEME_COLORS_ENABLED", request);
+  public boolean getCustomThemeColorsEnabled() {
+    return getBool("CUSTOM_THEME_COLORS_ENABLED");
   }
 
   /** Enables suffix dropdown field in name question. */
@@ -2337,7 +2337,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "Enable using custom theme colors in the applicant UI.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
+                          SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "NAME_SUFFIX_DROPDOWN_ENABLED",
                           "Enables suffix dropdown field in name question.",
