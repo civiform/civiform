@@ -551,6 +551,39 @@ content.disabledProgramInfo=Waanu ka xunahay, barnaamijka aad isku dayeyso inaad
 button.homePage=Ku noqo bogga hore
 
 #--------------------------------------------------------------------------------------------------------------#
+# ADMIN PROGRAM IMAGE - admin-facing text for uploading a program summary card image                             #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Title of the admin page where a program''s summary image and alt text are set.
+title.adminProgramImage=Gelinta sawirka
+# Link text to return to program editing from the program image page.
+link.adminProgramImage.back=Ka laabo
+# Hint under the file input about maximum upload size for a program summary image.
+content.adminProgramImage.hintMaxSize=Cabirka ugu yar ee gelinta sawirka waa 1MB.
+# Hint explaining automatic 16x9 cropping and that the preview reflects saved images.
+content.adminProgramImage.hintCrop=Sawirka si toos ah ayaa loogu jarayaa 16x9. Fiirinta kaarka barnaamijka ee dhinaca midig wuxuu muujinayaa sawirka la keydiyay.
+# Label for the field where the admin enters alt text for the program summary image.
+label.adminProgramImage.altText=Geli qeexida sawirka (Alt Text)
+# Button to leave the program image step and continue program setup (creation flow).
+button.adminProgramImage.continue=Sii wad
+# Button to save and return when editing an existing program (non-creation flow).
+button.adminProgramImage.save=Keydi
+# Button to delete an uploaded program image
+button.adminProgramImage.delete=Tirtir sawirka
+# Message shown when alt text is required but missing.
+validation.adminProgramImage.altTextRequired=Qeexida sawirka waa loo baahan yahay markii sawirka barnaamijka la geliyo.
+# Toast after saving a program image and alt text together.
+toast.adminProgramImage.imageAndDescriptionSaved=Sawirka waxaa lala keydiyay qeexida: {0}
+# Toast after saving alt text without uploading a new file.
+toast.adminProgramImage.descriptionSet=Qeexida sawirka waxaa lagu dejiyay {0}
+# Error when alt text cannot be cleared while an image remains.
+toast.adminProgramImage.descriptionNotRemovable=Qeexida lagama saari karo sababtoo ah sawir ayaa jira. Tirtir sawirka ka hor intaadan tirin qeexida.
+# Toast after deleting a program image
+toast.adminProgramImage.imageRemoved=Sawirka waa laga saaray
+# Message when the program card preview cannot be rendered.
+content.adminProgramImage.cardPreviewError=Waa qalad soo saarida fiirinta kaarka
+
+#--------------------------------------------------------------------------------------------------------------#
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
 #--------------------------------------------------------------------------------------------------------------#
 
@@ -670,6 +703,7 @@ validation.noPoBox=Fadlan gali ciwaan saxda ah.Ma aqbalno sanduuqyada boostada (
 title.confirmAddress=Hubi ciwaankaada
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
 content.confirmAddressLine1=Nooma suurta galin inaan helno ciwaankaaga.
+content.confirmAddressLine1.v2=Xaqiijinta ciwaanka waa loo baahan yahay.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=Fadlan ka sax ciwaankaaga higaada ama ka dooro liiska la bixiyay.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
@@ -780,6 +814,8 @@ placeholder.entityName=Naanaysta {0}
 validation.fileRequired=Fadlan dooro fayl.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Faylkaagu aad buu u weyn yahay. Fadlan dooro fayl ka yar {0} MB.
+# Shown when an HTMX file upload request fails (any non-success response).
+validation.fileUploadRequestFailed=Waan gelin waynay feelkaaga. Fadlan isku day markale.
 # Text shown on a tag while a file is uploading.
 label.uploading=Gelinaya
 # Label applied to a list of uploaded files
@@ -1170,21 +1206,25 @@ input.repeatedSet.adminId=
 # A text input field asking admins for the text that will prompt applicants to list out the entity
 input.repeatedSet.questionText=
 # Autofill suggestion template shown in the admin ID field when applicant selects a listed entity. {0} is the listed entity name.
-input.repeatedSet.adminIdAutofillSuggestion={0} repeated set
+input.repeatedSet.adminIdAutofillSuggestion=
 # Autofill suggestion template shown in the question text field when applicant selects a listed entity. {0} is the listed entity name.
-input.repeatedSet.questionTextAutofillSuggestion=Please add each {0}.
+input.repeatedSet.questionTextAutofillSuggestion=
 # A text input field for admins to add a hint that will help applicants decide what entities to list out
 input.repeatedSet.hintText=
 # A form field where admins set the minimum number of entities that applicants must list
 input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
 input.repeatedSet.maxEntities=
+# Label for the field on the new repeated set form where an admin will select the question that the user will complete first in the enumerator flow
+label.repeatedSet.initialQuestion=
+# Description explaining what the initial question is and what the "Add question" button does
+description.repeatedSet.initialQuestion=
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
 alert.repeatedSet.addQuestionDisabled=
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
 alert.repeatedSet.newQuestion=Samaynta qaybta lagu soo celiyay waxay ku dari doontaa su'aal cusub kaydka su'aasha.
 # Alert shown in the question bank section listing repeated questions that are already associated with this repeated set
-alert.repeatedSet.previouslyUsed=Questions that are associated with a different repeated set are not available to be added.
+alert.repeatedSet.previouslyUsed=
 # Submission button for creating a new repeated set
 button.repeatedSet.submitNew=
 # Button for admins to add a new repeated set
@@ -1208,7 +1248,7 @@ text.repeatedQuestions.description=
 # Heading above the repeated set question in the program block editor
 heading.repeatedSet.question=
 # Heading shown above repeated questions in the question bank that are already associated with this repeated set
-heading.repeatedSet.previouslyUsed=Previously used for this repeated set
+heading.repeatedSet.previouslyUsed=
 # Heading above the questions section on repeated screens in the admin program screen editor.
 heading.repeatedQuestions=
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
@@ -1229,7 +1269,10 @@ button.addRepeatedScreen=
 button.addNestedRepeatedSet=
 # A button for admins to add a pre-existing enumerator question to a program
 button.addQuestion=
-
+# A tooltip shown to admins when the delete screen button is disabled
+tooltip.deleteScreenDisabled=
+# A tooltip shown to admins when the delete question button is disabled for a repeated set question
+tooltip.removeEnumeratorQuestionDisabled=
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #
@@ -1280,6 +1323,83 @@ reportingProgram.timeToCompleteP75=Waqtiga la dhameystiraayo (p75)
 reportingProgram.timeToCompleteP99=Waqtiga la dhameystiraayo (p99)
 # Text on button to download CSV file
 reportingProgram.downloadCsv=Soo deji CSV
+
+#------------------------------------------------------------------------------#
+#  ADMIN API DOCS                                                              #
+#------------------------------------------------------------------------------#
+
+# Admin API Docs page title
+adminApiDocs.pageTitle=Dokumentiga API
+
+# Aria label for the nav that switches between API docs sub-pages.
+adminApiDocs.tabs.ariaLabel=Qeybaha dokumentiga API
+# Tab label for the main API docs page.
+adminApiDocs.tabs.docs=Dokumentiyada
+# Tab label for the schema viewer page.
+adminApiDocs.tabs.schema=Bandhigaha aaladaha qorshaha
+
+# Intro paragraph as text before the external-docs link.
+adminApiDocs.intro.beforeLink=Boggaan waxaa ka mid ah Dokumentiga API ee barnaamijka gaar u ah ee loogu tallogalay barnaamijyada Firfircoon iyo Qabyo qoraalka. Dokumentiga sharaxan ee ku saabsan xaqiijinta, kala qeybinta, iyo qiyamyada suurtogalka ah ee goob walba waxay ku taalaa
+# Visible text of the external-docs link in the intro paragraph.
+adminApiDocs.intro.linkText=docs.civiform.us/it-manual/api
+# Intro paragraph as text after the external-docs link.
+adminApiDocs.intro.afterLink=.
+
+# Heading on the collapsible "How does this work?" accordion.
+adminApiDocs.accordion.heading=Sidee ayay tan u shaqeysaa?
+# First paragraph inside the accordion.
+adminApiDocs.accordion.paragraph1=Hordhaca jawaabta API waa tusaale ka mid ah sida jawaabta API ugu ekaan karto barnaamij la bixiyay. Dhammaan xogta waa been abuur. Su'aalaha halka-doorasho iyo kuwa doorashada badan waxay leeyihiin jawaabo tusaale ah oo laga soo xulay jawaabaha la heli karo.
+# Second paragraph inside the accordion as text before the shareable link.
+adminApiDocs.accordion.paragraph2.beforeLink=Waxaad wadaagi kartaa linkigaan,
+# Second paragraph inside the accordion as text after the shareable link.
+adminApiDocs.accordion.paragraph2.afterLink=, iyo qof walba oo u baahan inuu arko dokumentiyada API. Waxaa la heli karaa iyadoon la geli, marka uma baahno inuu ahaato Maamulaha CiviForm ama Maamulaha Barnaamijka si uu u fiirisiyo boggaan.
+
+# Label for the program selector.
+adminApiDocs.selectProgram=Dooro barnaamij:
+# Label for the program-version selector.
+adminApiDocs.selectVersion=Dooro nooca:
+# Option label for the active version of a program.
+adminApiDocs.version.active=Firfircoon
+# Option label for the draft version of a program.
+adminApiDocs.version.draft=Qabyo qoraal
+
+# Message shown when the requested program + version combination does not exist.
+adminApiDocs.notFound=Ma jiraan barnaamijyo la helay. Fadlan samee oo daabac barnaamij ka hor intaan la gelin dokumentiyada API.
+# Heading for the list of questions on the selected program.
+adminApiDocs.questions=Su'aalaha
+# Label for a question's admin name
+adminApiDocs.adminName=Magaca Maamulaha
+# Label for a question's type (text, number, etc.).
+adminApiDocs.type=Nooca
+# Label for a question's display text.
+adminApiDocs.text=Qoraalka
+# Label for a multi-option question's answer options.
+adminApiDocs.options=Iqtiyaarada
+# Label preceding the list of a question's currently-available options.
+adminApiDocs.currentOptions=Iqtiyaarada hadda:
+# Label preceding the list of every option the question has ever had.
+adminApiDocs.allOptions=Dhammaan iqtiyaarada suurtogalka ah:
+# Heading above the JSON preview of the API response.
+adminApiDocs.responsePreview=Bandhiga jawaabta API
+
+#------------------------------------------------------------------------------#
+#  ADMIN SCHEMA VIEWER                                                         #
+#------------------------------------------------------------------------------#
+
+# Admin API Docs page title
+adminSchemaViewer.pageTitle=Bandhigaha qaabka API
+# First intro paragraph on the OpenAPI schema viewer page.
+adminSchemaViewer.intro1=Boggaan wuxuu muujinayaa muuqaalka Qaabka OpenAPI. Labadaba nooca 2 (horaan u ahaa Swagger 2) iyo nooca 3 ayaa la helayaa.
+# Second intro paragraph on the OpenAPI schema viewer page.
+adminSchemaViewer.intro2=Waxaan ku talineynaa keliya isticmaalka nooca 3 illaamaa ay ka jiraan baahi gaar ah oo nooca hore.
+# Label for the program selector on the schema viewer page.
+adminSchemaViewer.selectProgram=Barnaamijka:
+# Label for the program-status selector on the schema viewer page.
+adminSchemaViewer.selectStatus=Xaalada:
+# Label for the OpenAPI version selector on the schema viewer page.
+adminSchemaViewer.selectVersion=Nooca OpenApi:
+# Error generating OpenAPI YAML
+adminSchemaViewer.yamlError=Aan soo saari karin nuqulka OpenApi '{0}' ee barnaamijka '{1}' wakhtigan '{2}'.
 
 #------------------------------------------------------------------------------#
 #  DEV TOOLS - text for the developer tools page                               #

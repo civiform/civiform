@@ -73,6 +73,23 @@ public final class ProgramQuestionBank {
     HIDDEN
   }
 
+  /**
+   * The role the bank is playing for this render. The mode drives the form's submit endpoint
+   * (regular {@code create} vs HTMX {@code hxSelectInitialQuestion}), whether non-enumerator
+   * questions are filtered out, and whether the "Create new question" button is shown.
+   */
+  public enum Mode {
+    /** Standard "Add question" flow — native POST to {@code create}, all eligible questions. */
+    ANY_ELIGIBLE,
+    /** "Choose existing" flow on an empty enumerator block — enumerator-only, no create button. */
+    EXISTING_ENUMERATOR_ONLY,
+    /** Initial-question selection — HTMX POST that swaps the chosen question into the form. */
+    INITIAL_QUESTION
+  }
+
+  /** HTML id assigned to the bank's form element, used as the HTMX swap target for mode changes. */
+  public static final String PANEL_FORM_ID = "question-bank-panel-form";
+
   public ProgramQuestionBank(
       ProgramQuestionBankParams params,
       ProgramBlockValidationFactory programBlockValidationFactory,
@@ -113,12 +130,11 @@ public final class ProgramQuestionBank {
         .with(questionBankPanel());
   }
 
-  private FormTag questionBankPanel() {
+  public FormTag questionBankPanel() {
     String headingId = "question-bank-heading";
     FormTag questionForm =
         form()
-            .withMethod(HttpVerbs.POST)
-            .withAction(params.questionAction())
+            .withId(PANEL_FORM_ID)
             .attr("aria-labelledby", headingId)
             .with(params.csrfTag())
             .withClasses(
@@ -131,6 +147,7 @@ public final class ProgramQuestionBank {
                 "right-0",
                 "top-0",
                 "transition-transform");
+    applyModeAttrs(questionForm);
 
     // We set pb-12 (padding bottom 12) to account for the fact that question bank height is screen
     // size while it's effective space is screen-height minus header-height. That pushes question
@@ -154,7 +171,7 @@ public final class ProgramQuestionBank {
     contentDiv.with(
         QuestionBank.renderFilterAndSort(
             ImmutableList.of(QuestionSortOption.LAST_MODIFIED, QuestionSortOption.ADMIN_NAME)));
-    if (!isChoosingExistingEnumeratorQuestion()) {
+    if (params.mode() != Mode.EXISTING_ENUMERATOR_ONLY) {
       contentDiv.with(
           div()
               .with(
@@ -343,20 +360,31 @@ public final class ProgramQuestionBank {
   }
 
   /**
-   * True when this question bank instance is opened to pick an existing enumerator question for an
-   * empty enumerator block (the "Choose existing" path on the repeated-set creation UI). Future
-   * flows that open the bank against an enumerator block (e.g. picking an initial question) will
-   * use a different action URL, so they evaluate to false here.
+   * Configures the form's submission attributes for the current {@link Mode}. INITIAL_QUESTION mode
+   * uses HTMX to swap the selection into the enumerator-creation form without leaving the page; all
+   * other modes use a native POST to the {@code create} endpoint.
    */
-  private boolean isChoosingExistingEnumeratorQuestion() {
-    return settingsManifest.getEnumeratorImprovementsEnabled(request)
-        && params.blockDefinition().getIsEnumerator()
-        && params
-            .questionAction()
-            .equals(
-                controllers.admin.routes.AdminProgramBlockQuestionsController.create(
-                        params.program().id(), params.blockDefinition().id())
-                    .url());
+  private void applyModeAttrs(FormTag questionForm) {
+    long programId = params.program().id();
+    long blockId = params.blockDefinition().id();
+    switch (params.mode()) {
+      case INITIAL_QUESTION ->
+          questionForm
+              .attr(
+                  "hx-post",
+                  controllers.admin.routes.AdminProgramBlockQuestionsController
+                      .hxSelectInitialQuestion(programId, blockId)
+                      .url())
+              .attr("hx-target", "#add-initial-question-button")
+              .attr("hx-swap", "outerHTML");
+      case ANY_ELIGIBLE, EXISTING_ENUMERATOR_ONLY ->
+          questionForm
+              .withMethod(HttpVerbs.POST)
+              .withAction(
+                  controllers.admin.routes.AdminProgramBlockQuestionsController.create(
+                          programId, blockId)
+                      .url());
+    }
   }
 
   /**
@@ -375,7 +403,7 @@ public final class ProgramQuestionBank {
         return Optional.empty();
       }
       return Optional.of(
-          Long.toString(parentEnumeratorBlock.getEnumerationQuestionDefinition().getId()));
+          Long.toString(parentEnumeratorBlock.getEnumeratorQuestionDefinition().getId()));
     } catch (ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(e);
     }
@@ -387,9 +415,9 @@ public final class ProgramQuestionBank {
    */
   private Stream<QuestionDefinition> filterQuestions() {
     ProgramBlockValidation programBlockValidation = programBlockValidationFactory.create();
-    // If the enumerator feature flag is on, this is an enumerator block, and we're adding
-    // an existing question, only show enumerator questions.
-    boolean allowAllQuestions = !isChoosingExistingEnumeratorQuestion();
+    // EXISTING_ENUMERATOR_ONLY mode (the "Choose existing" flow on an empty enumerator block)
+    // restricts the bank to enumerator-type questions; all other modes show everything eligible.
+    boolean allowAllQuestions = params.mode() != Mode.EXISTING_ENUMERATOR_ONLY;
     return params.questions().stream()
         .filter(q -> allowAllQuestions || q.isEnumerator())
         .filter(
@@ -471,7 +499,8 @@ public final class ProgramQuestionBank {
 
     abstract InputTag csrfTag();
 
-    abstract String questionAction();
+    /** Drives the bank's submission target, filter, and CreateQuestionButton visibility. */
+    abstract Mode mode();
 
     public static Builder builder() {
       return new AutoValue_ProgramQuestionBank_ProgramQuestionBankParams.Builder();
@@ -489,7 +518,7 @@ public final class ProgramQuestionBank {
 
       public abstract Builder setCsrfTag(InputTag v);
 
-      public abstract Builder setQuestionAction(String v);
+      public abstract Builder setMode(Mode v);
 
       public abstract ProgramQuestionBankParams build();
     }

@@ -2,6 +2,7 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
@@ -25,6 +26,7 @@ import services.question.QuestionService;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import support.ProgramBuilder;
+import views.components.ProgramQuestionBank;
 
 public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
@@ -597,5 +599,106 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
     Result result = controller.delete(program.id, /* blockId= */ 1L);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
+  public void hxQuestionBankPartial_withAnyEligibleMode_returnsPanelForm() {
+    ProgramModel program = ProgramBuilder.newDraftProgram().withBlock().build();
+
+    Result result =
+        controller.hxQuestionBankPartial(
+            fakeRequest(),
+            program.id,
+            /* blockId= */ 1L,
+            ProgramQuestionBank.Mode.ANY_ELIGIBLE.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = contentAsString(result);
+    assertThat(content).contains("id=\"question-bank-panel-form\"");
+    assertThat(content)
+        .contains(
+            """
+            action="/admin/programs/%s/blocks/1/questions\"\
+            """
+                .formatted(program.id));
+    assertThat(content).doesNotContain("hx-post");
+    assertThat(content).contains("Create new question");
+    assertThat(result.header("HX-Trigger-After-Swap")).hasValue("openQuestionBank");
+  }
+
+  @Test
+  public void hxQuestionBankPartial_withInitialQuestionMode_returnsHtmxFormAndCreateButton() {
+    ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
+
+    Result result =
+        controller.hxQuestionBankPartial(
+            fakeRequest(),
+            program.id,
+            /* blockId= */ 1L,
+            ProgramQuestionBank.Mode.INITIAL_QUESTION.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = contentAsString(result);
+    assertThat(content).contains("id=\"question-bank-panel-form\"");
+    assertThat(content)
+        .contains(
+            """
+            hx-post="/admin/programs/%s/blocks/1/hx/selectInitialQuestion\"\
+            """
+                .formatted(program.id));
+    assertThat(content).contains("hx-target=\"#add-initial-question-button\"");
+    assertThat(content).contains("hx-swap=\"outerHTML\"");
+    assertThat(content).contains("Create new question");
+    // INITIAL_QUESTION mode is HTMX-only: no native fallback method/action on the form.
+    assertThat(content)
+        .doesNotContain(
+            """
+            action="/admin/programs/%s/blocks/1\
+            """
+                .formatted(program.id));
+  }
+
+  @Test
+  public void hxQuestionBankPartial_withExistingEnumeratorOnlyMode_filtersToEnumeratorsOnly() {
+    QuestionDefinition enumeratorQuestion =
+        testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition();
+    QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
+    ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
+
+    Result result =
+        controller.hxQuestionBankPartial(
+            fakeRequest(),
+            program.id,
+            /* blockId= */ 1L,
+            ProgramQuestionBank.Mode.EXISTING_ENUMERATOR_ONLY.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = contentAsString(result);
+    assertThat(content).contains(enumeratorQuestion.getName());
+    assertThat(content).doesNotContain(nameQuestion.getName());
+    assertThat(content).doesNotContain("Create new question");
+  }
+
+  @Test
+  public void hxQuestionBankPartial_withUnknownMode_returnsBadRequest() {
+    ProgramModel program = ProgramBuilder.newDraftProgram().withBlock().build();
+
+    Result result =
+        controller.hxQuestionBankPartial(fakeRequest(), program.id, /* blockId= */ 1L, "GARBAGE");
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  @Test
+  public void hxQuestionBankPartial_withActiveProgram_throws() {
+    Long programId = resourceCreator.insertActiveProgram("active program").id;
+    assertThatThrownBy(
+            () ->
+                controller.hxQuestionBankPartial(
+                    fakeRequest(),
+                    programId,
+                    /* blockId= */ 1L,
+                    ProgramQuestionBank.Mode.ANY_ELIGIBLE.name()))
+        .isInstanceOf(NotChangeableException.class);
   }
 }

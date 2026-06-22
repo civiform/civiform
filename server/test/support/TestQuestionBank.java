@@ -965,6 +965,23 @@ public class TestQuestionBank {
     YES_NO
   }
 
+  public static QuestionDefinition createQuestionDefinition(
+      String adminName, Long id, QuestionType type) {
+    return createFullQuestionDefinition(adminName, id, type, Optional.empty(), Optional.empty());
+  }
+
+  public static QuestionDefinition createQuestionDefinitionWithEnumId(
+      String adminName, Long id, QuestionType type, Long enumeratorId) {
+    return createFullQuestionDefinition(
+        adminName, id, type, Optional.of(enumeratorId), Optional.empty());
+  }
+
+  public static QuestionDefinition createQuestionDefinitionWithEnumInitialId(
+      String adminName, Long id, QuestionType type, Long enumeratorInitialQuestionId) {
+    return createFullQuestionDefinition(
+        adminName, id, type, Optional.empty(), Optional.of(enumeratorInitialQuestionId));
+  }
+
   /**
    * Creates a question definition only (not saved) with specified parameters. This is useful for
    * tests that need QuestionDefinition objects with specific IDs.
@@ -972,11 +989,16 @@ public class TestQuestionBank {
    * @param adminName the admin name of the question
    * @param id the ID to assign to the question
    * @param type the question type
-   * @param enumeratorId optional enumerator ID for repeated questions
+   * @param enumeratorId enumerator ID for repeated questions
+   * @param enumeratorInitialQuestionId ID for an enumerators initial question
    * @return a QuestionDefinition (not persisted)
    */
-  public static QuestionDefinition createQuestionDefinition(
-      String adminName, Long id, QuestionType type, Optional<Long> enumeratorId) {
+  public static QuestionDefinition createFullQuestionDefinition(
+      String adminName,
+      Long id,
+      QuestionType type,
+      Optional<Long> enumeratorId,
+      Optional<Long> enumeratorInitialQuestionId) {
     try {
       return new QuestionDefinitionBuilder()
           .setName(adminName)
@@ -985,6 +1007,7 @@ public class TestQuestionBank {
           .setQuestionText(LocalizedStrings.withDefaultValue(adminName))
           .setDescription(adminName)
           .setEnumeratorId(enumeratorId)
+          .setEnumeratorInitialQuestionId(enumeratorInitialQuestionId)
           .build();
     } catch (UnsupportedQuestionTypeException e) {
       throw new RuntimeException(e);

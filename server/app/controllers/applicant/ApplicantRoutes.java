@@ -625,4 +625,75 @@ public final class ApplicantRoutes {
       return routes.ApplicantProgramIneligibleController.ineligible(programSlug, blockId);
     }
   }
+
+  // TODO:#11090 Remove method when routes are no longer hit
+  /**
+   * Returns the route corresponding to the applicant address correction page.
+   *
+   * @param profile profile corresponding to the logged-in user (applicant or TI).
+   * @param applicantId ID of the applicant
+   * @param programId ID of program
+   * @param blockId ID of the block containing the address question
+   * @param inReview true if executing the review action (as opposed to edit)
+   * @param applicantRequestedAction the page the applicant would like to see after the updates are
+   *     made
+   * @return route for the applicant address correction page
+   */
+  public Call showAddressCorrection(
+      CiviFormProfile profile,
+      long applicantId,
+      long programId,
+      String blockId,
+      boolean inReview,
+      ApplicantRequestedAction applicantRequestedAction) {
+    if (includeApplicantIdInRoute(profile)) {
+      return routes.ApplicantAddressCorrectionController.addressCorrectionWithApplicantId(
+          applicantId,
+          String.valueOf(programId),
+          blockId,
+          inReview,
+          new ApplicantRequestedActionWrapper(applicantRequestedAction));
+    } else {
+      return routes.ApplicantAddressCorrectionController.addressCorrection(
+          String.valueOf(programId),
+          blockId,
+          inReview,
+          new ApplicantRequestedActionWrapper(applicantRequestedAction));
+    }
+  }
+
+  /**
+   * Returns the route corresponding to the applicant address correction page.
+   *
+   * @param profile profile corresponding to the logged-in user (applicant or TI).
+   * @param applicantId ID of the applicant
+   * @param programSlug slug of program
+   * @param blockId ID of the block containing the address question
+   * @param inReview true if executing the review action (as opposed to edit)
+   * @param applicantRequestedAction the page the applicant would like to see after the updates are
+   *     made
+   * @return route for the applicant address correction page
+   */
+  public Call showAddressCorrection(
+      CiviFormProfile profile,
+      long applicantId,
+      String programSlug,
+      String blockId,
+      boolean inReview,
+      ApplicantRequestedAction applicantRequestedAction) {
+    if (includeApplicantIdInRoute(profile)) {
+      return routes.ApplicantAddressCorrectionController.addressCorrectionWithApplicantId(
+          applicantId,
+          programSlug,
+          blockId,
+          inReview,
+          new ApplicantRequestedActionWrapper(applicantRequestedAction));
+    } else {
+      return routes.ApplicantAddressCorrectionController.addressCorrection(
+          programSlug,
+          blockId,
+          inReview,
+          new ApplicantRequestedActionWrapper(applicantRequestedAction));
+    }
+  }
 }

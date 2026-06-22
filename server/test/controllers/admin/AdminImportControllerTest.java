@@ -27,6 +27,7 @@ import services.migration.ProgramMigrationService;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
@@ -293,13 +294,14 @@ public class AdminImportControllerTest extends ResetPostgres {
             .findOne()
             .getQuestionDefinition();
 
-    QuestionDefinition nestedEnumeratorQuestionDefinition =
-        database
-            .find(QuestionModel.class)
-            .where()
-            .eq("name", "cats")
-            .findOne()
-            .getQuestionDefinition();
+    EnumeratorQuestionDefinition nestedEnumeratorQuestionDefinition =
+        (EnumeratorQuestionDefinition)
+            database
+                .find(QuestionModel.class)
+                .where()
+                .eq("name", "cats")
+                .findOne()
+                .getQuestionDefinition();
 
     QuestionDefinition childQuestionDefinition =
         database
@@ -313,6 +315,8 @@ public class AdminImportControllerTest extends ResetPostgres {
         .isEqualTo(nestedEnumeratorQuestionDefinition.getEnumeratorId().get());
     assertThat(nestedEnumeratorQuestionDefinition.getId())
         .isEqualTo(childQuestionDefinition.getEnumeratorId().get());
+    assertThat(nestedEnumeratorQuestionDefinition.getEnumeratorInitialQuestionId())
+        .hasValue(childQuestionDefinition.getId());
   }
 
   @Test
@@ -1048,6 +1052,7 @@ public class AdminImportControllerTest extends ResetPostgres {
                 },
                 "id" : 94,
                 "enumeratorId" : 10,
+                "enumeratorInitialQuestionId": 95,
                 "universal" : false,
                 "displayMode" : "VISIBLE",
                 "primaryApplicantInfoTags" : [ ]

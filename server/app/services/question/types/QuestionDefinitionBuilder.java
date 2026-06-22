@@ -102,6 +102,12 @@ public final class QuestionDefinitionBuilder {
     return this;
   }
 
+  public QuestionDefinitionBuilder setEnumeratorInitialQuestionId(
+      Optional<Long> enumeratorInitialQuestionId) {
+    builder.setEnumeratorInitialQuestionId(enumeratorInitialQuestionId);
+    return this;
+  }
+
   public QuestionDefinitionBuilder setEntityType(LocalizedStrings entityType) {
     this.entityType = entityType;
     return this;

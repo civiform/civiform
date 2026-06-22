@@ -144,10 +144,11 @@ export class AdminQuestions {
   }
 
   async expectAdminQuestionsPageWithSuccessToast(successText: string) {
-    const toastContainer = await this.page.innerHTML('#toast-container')
-
-    expect(toastContainer).toContain('bg-cf-toast-success')
-    expect(toastContainer).toContain(successText)
+    await expect(
+      this.page
+        .locator('#toast-container .bg-cf-toast-success')
+        .getByText(successText),
+    ).toBeVisible()
     await this.expectAdminQuestionsPage()
   }
 
@@ -1529,7 +1530,7 @@ export class AdminQuestions {
   }
 
   async getUniversalToggleValue(): Promise<string> {
-    return this.page.inputValue('#universal-toggle-input')
+    return (await this.page.isChecked('#universal-toggle-input')).toString()
   }
 
   async clickPrimaryApplicantInfoToggle(field: PrimaryApplicantInfoField) {
@@ -1537,7 +1538,7 @@ export class AdminQuestions {
   }
 
   async getPrimaryApplicantInfoToggleValue(fieldName: string) {
-    return this.page.inputValue(`#${fieldName}-toggle-input`)
+    return (await this.page.isChecked(`#${fieldName}-toggle-input`)).toString()
   }
 
   async expectPrimaryApplicantInfoAlert(
