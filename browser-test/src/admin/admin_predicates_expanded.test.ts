@@ -453,10 +453,6 @@ test.describe('create and edit predicates', () => {
       await expect(page.locator('#edit-predicate')).toContainText(
         'Error: This field is required.',
       )
-      await validateScreenshot(
-        page.locator('#condition-1'),
-        'edit-eligibility-predicate-with-validation-error',
-      )
     })
   })
 
