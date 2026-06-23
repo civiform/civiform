@@ -919,7 +919,7 @@
         "required": false
       },
       "NAME_SUFFIX_DROPDOWN_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
+        "mode": "ADMIN_READABLE",
         "description": "Enables suffix dropdown field in name question.",
         "type": "bool"
       },

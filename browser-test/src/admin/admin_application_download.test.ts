@@ -269,7 +269,6 @@ test.describe('csv json pdf download test- two applications', () => {
     adminPrograms,
     applicantQuestions,
   }) => {
-    await enableFeatureFlag(page, 'name_suffix_dropdown_enabled')
     test.slow()
 
     const noApplyFilters = false

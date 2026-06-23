@@ -1060,8 +1060,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** Enables suffix dropdown field in name question. */
-  public boolean getNameSuffixDropdownEnabled(RequestHeader request) {
-    return getBool("NAME_SUFFIX_DROPDOWN_ENABLED", request);
+  public boolean getNameSuffixDropdownEnabled() {
+    return getBool("NAME_SUFFIX_DROPDOWN_ENABLED");
   }
 
   /** Remove the CSV/JSON/PDF download capability for Program Admins. */
@@ -2343,7 +2343,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "Enables suffix dropdown field in name question.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
+                          SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED",
                           "Remove the CSV/JSON/PDF download capability for Program Admins.",

@@ -457,7 +457,6 @@ test.describe('create and edit predicates', () => {
     adminPredicates,
   }) => {
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'name_suffix_dropdown_enabled')
 
     const programName =
       'Test name question as a eligibility condition excluding suffix'

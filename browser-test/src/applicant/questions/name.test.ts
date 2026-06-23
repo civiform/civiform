@@ -3,7 +3,6 @@ import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminQuestions,
   AdminPrograms,
-  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -260,7 +259,6 @@ test.describe('name applicant flow', () => {
           adminQuestions,
           adminPrograms,
         )
-        await enableFeatureFlag(page, 'name_suffix_dropdown_enabled')
       })
 
       test('name questions with suffix field being available to use', async ({
