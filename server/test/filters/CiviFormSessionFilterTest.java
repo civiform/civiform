@@ -5,7 +5,6 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
@@ -34,7 +33,6 @@ import play.mvc.Result;
 import play.test.WithApplication;
 import repository.DatabaseExecutionContext;
 import services.session.SessionTimeoutService;
-import services.settings.SettingsManifest;
 
 public class CiviFormSessionFilterTest extends WithApplication {
   private static final String TIMEOUT_COOKIE_NAME = "session_timeout_data";
@@ -42,7 +40,6 @@ public class CiviFormSessionFilterTest extends WithApplication {
   private static final String SESSION_ID = "test-session-id";
 
   private ProfileUtils profileUtils;
-  private SettingsManifest settingsManifest;
   private SessionTimeoutService sessionTimeoutService;
   private CiviFormSessionFilter filter;
   private CiviFormProfile mockProfile;
@@ -61,7 +58,6 @@ public class CiviFormSessionFilterTest extends WithApplication {
   @Before
   public void setUp() {
     profileUtils = mock(ProfileUtils.class);
-    settingsManifest = mock(SettingsManifest.class);
     sessionTimeoutService = mock(SessionTimeoutService.class);
     clock = mock(Clock.class);
 
@@ -70,7 +66,6 @@ public class CiviFormSessionFilterTest extends WithApplication {
             profileUtils,
             mat,
             clock,
-            () -> settingsManifest,
             () -> sessionTimeoutService,
             () -> instanceOf(DatabaseExecutionContext.class));
 
@@ -121,22 +116,9 @@ public class CiviFormSessionFilterTest extends WithApplication {
   }
 
   @Test
-  public void testValidProfile_sessionTimeoutDisabled_noUpdatesLastActivityTime() throws Exception {
-    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
-    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
-    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(false);
-
-    Result result = executeFilter(request);
-
-    assertThat(result.status()).isEqualTo(200);
-    verify(mockProfileData, never()).updateLastSessionActivityTime(clock);
-  }
-
-  @Test
   public void testInvalidSession_redirectsToLogout() throws Exception {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
-    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(false);
 
     // Session ID not found in active sessions
     when(mockAccount.getActiveSession(anyString())).thenReturn(Optional.empty());
@@ -164,41 +146,9 @@ public class CiviFormSessionFilterTest extends WithApplication {
   }
 
   @Test
-  public void testTimeoutDisabled_clearsCookie() throws Exception {
-    RequestHeader request =
-        fakeRequestBuilder()
-            .method("GET")
-            .uri("/programs/1")
-            .cookie(Http.Cookie.builder(TIMEOUT_COOKIE_NAME, "somevalue").withPath("/").build())
-            .build();
-    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
-    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(false);
-
-    Result result = executeFilter(request);
-
-    assertThat(result.status()).isEqualTo(200);
-    Optional<Http.Cookie> cookie = result.cookies().get(TIMEOUT_COOKIE_NAME);
-    assertThat(cookie).isPresent();
-    assertThat(cookie.get().maxAge().longValue()).isEqualTo(Duration.ZERO.toSeconds());
-  }
-
-  @Test
-  public void testTimeoutDisabled_noCookie_passesThrough() throws Exception {
+  public void testValidSession_setsCookieAndUpdatesActivity() throws Exception {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
-    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(false);
-
-    Result result = executeFilter(request);
-
-    assertThat(result.status()).isEqualTo(200);
-    assertThat(result.cookies().get(TIMEOUT_COOKIE_NAME)).isEmpty();
-  }
-
-  @Test
-  public void testTimeoutEnabled_validSession_setsCookieAndUpdatesActivity() throws Exception {
-    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
-    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
-    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(true);
     when(sessionTimeoutService.isSessionTimedOut(eq(mockProfile), anyLong())).thenReturn(false);
 
     Result result = executeFilter(request);
@@ -228,7 +178,6 @@ public class CiviFormSessionFilterTest extends WithApplication {
   public void testNoSessionStartTime_redirectsToLogout() throws Exception {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
-    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(true);
     when(mockAccount.getActiveSession(SESSION_ID)).thenReturn(Optional.empty());
 
     Result result = executeFilter(request);
@@ -241,7 +190,6 @@ public class CiviFormSessionFilterTest extends WithApplication {
   public void testSessionTimedOut_redirectsToLogout() throws Exception {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
-    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(true);
     when(sessionTimeoutService.isSessionTimedOut(eq(mockProfile), anyLong())).thenReturn(true);
 
     Result result = executeFilter(request);

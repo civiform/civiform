@@ -17,19 +17,16 @@ import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Result;
-import services.settings.SettingsManifest;
 
 public class SessionControllerTest {
   private SessionController controller;
   private ProfileUtils profileUtils;
   private CiviFormProfileData mockProfileData;
-  private SettingsManifest mockSettingsManifest;
   private Clock clock;
 
   @Before
   public void setUp() {
     profileUtils = mock(ProfileUtils.class);
-    mockSettingsManifest = mock(SettingsManifest.class);
     clock = mock(Clock.class);
     CiviFormProfile mockProfile = mock(CiviFormProfile.class);
     mockProfileData = mock(CiviFormProfileData.class);
@@ -37,13 +34,12 @@ public class SessionControllerTest {
     when(mockProfile.getProfileData()).thenReturn(mockProfileData);
     when(profileUtils.optionalCurrentUserProfile(any(Http.Request.class)))
         .thenReturn(Optional.of(mockProfile));
-    controller = new SessionController(profileUtils, mockSettingsManifest, clock);
+    controller = new SessionController(profileUtils, clock);
   }
 
   @Test
   public void extendSession_withValidRequest_updatesLastActivityTime() {
     Http.Request request = fakeRequestBuilder().build();
-    when(mockSettingsManifest.getSessionTimeoutEnabled()).thenReturn(true);
 
     Result result = controller.extendSession(request);
 
@@ -52,21 +48,8 @@ public class SessionControllerTest {
   }
 
   @Test
-  public void extendSession_whenTimeoutDisabled_returnsBadRequest() {
-    Http.Request request = fakeRequestBuilder().build();
-    when(mockSettingsManifest.getSessionTimeoutEnabled()).thenReturn(false);
-
-    Result result = controller.extendSession(request);
-
-    assertThat(result.status()).isEqualTo(Http.Status.BAD_REQUEST);
-    verify(mockProfileData, never()).updateLastSessionActivityTime(any());
-  }
-
-  @Test
   public void extendSession_withNoProfile_returnsUnauthorized() {
     Http.Request request = fakeRequestBuilder().build();
-
-    when(mockSettingsManifest.getSessionTimeoutEnabled()).thenReturn(true);
 
     when(profileUtils.optionalCurrentUserProfile(any(Http.Request.class)))
         .thenReturn(Optional.empty());

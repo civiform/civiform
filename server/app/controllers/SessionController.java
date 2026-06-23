@@ -6,19 +6,15 @@ import javax.inject.Inject;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import services.settings.SettingsManifest;
 
 /** Controller for managing user's session. */
 public class SessionController extends Controller {
   private final ProfileUtils profileUtils;
-  private final SettingsManifest settingsManifest;
   private final Clock clock;
 
   @Inject
-  public SessionController(
-      ProfileUtils profileUtils, SettingsManifest settingsManifest, Clock clock) {
+  public SessionController(ProfileUtils profileUtils, Clock clock) {
     this.profileUtils = profileUtils;
-    this.settingsManifest = settingsManifest;
     this.clock = clock;
   }
 
@@ -32,10 +28,6 @@ public class SessionController extends Controller {
    *     timeouts are disabled
    */
   public Result extendSession(Http.Request request) {
-    if (!settingsManifest.getSessionTimeoutEnabled()) {
-      return badRequest();
-    }
-
     return profileUtils
         .optionalCurrentUserProfile(request)
         .map(
