@@ -206,10 +206,11 @@ final class QuestionValidationUtils {
       if (!question.isEnumerator()) {
         errors.add(
             CiviFormError.of(
-                String.format(
-                    "Question '%s' has an enumeratorInitialQuestionId but is not an enumerator"
-                        + " question.",
-                    question.getName())));
+                """
+                Question '%s' has an enumeratorInitialQuestionId but is not an enumerator \
+                question.\
+                """
+                    .formatted(question.getName())));
         continue;
       }
       // The initial question is not present.
@@ -218,10 +219,11 @@ final class QuestionValidationUtils {
       if (maybeInitialQuestion.isEmpty()) {
         errors.add(
             CiviFormError.of(
-                String.format(
-                    "Enumerator question '%s' references an enumeratorInitialQuestionId %d that is"
-                        + " not in the import.",
-                    question.getName(), initialQuestionId)));
+                """
+                Enumerator question '%s' references an enumeratorInitialQuestionId %d that is \
+                not in the import.\
+                """
+                    .formatted(question.getName(), initialQuestionId)));
         continue;
       }
 
@@ -230,10 +232,11 @@ final class QuestionValidationUtils {
       if (initialQuestion.isEnumerator()) {
         errors.add(
             CiviFormError.of(
-                String.format(
-                    "Enumerator question '%s' references question '%s' as its initial question,"
-                        + " but that question is itself an enumerator.",
-                    question.getName(), initialQuestion.getName())));
+                """
+                Enumerator question '%s' references question '%s' as its initial question, \
+                but that question is itself an enumerator.\
+                """
+                    .formatted(question.getName(), initialQuestion.getName())));
         continue;
       }
       // The initial question must also reference the enumerator.
@@ -241,11 +244,11 @@ final class QuestionValidationUtils {
       if (initialQuestion.getEnumeratorId().filter(newEnumQuestionId::equals).isEmpty()) {
         errors.add(
             CiviFormError.of(
-                String.format(
-                    "Enumerator question '%s' references question '%s' as its initial question,"
-                        + " but that question does not reference it back as its "
-                        + "enumeratorId.",
-                    question.getName(), initialQuestion.getName())));
+                """
+                Enumerator question '%s' references question '%s' as its initial question, \
+                but that question does not reference it back as its enumeratorId.\
+                """
+                    .formatted(question.getName(), initialQuestion.getName())));
       }
 
       // The enumerator and initial question must both be in the question
@@ -255,14 +258,15 @@ final class QuestionValidationUtils {
       if (enumInQB != initialQInQB) {
         errors.add(
             CiviFormError.of(
-                String.format(
-                    "Enumerator question '%s' (%s) and its initial question "
-                        + "'%s' (%s) are in "
-                        + "different data sources and must be in the same.",
-                    question.getName(),
-                    enumInQB ? "question bank" : "import",
-                    initialQuestion.getName(),
-                    initialQInQB ? "question bank" : "import")));
+                """
+                Enumerator question '%s' (%s) and its initial question '%s' (%s) are in \
+                different data sources and must be in the same.\
+                """
+                    .formatted(
+                        question.getName(),
+                        enumInQB ? "question bank" : "import",
+                        initialQuestion.getName(),
+                        initialQInQB ? "question bank" : "import")));
       }
     }
     return errors.build();

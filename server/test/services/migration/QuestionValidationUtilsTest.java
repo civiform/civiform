@@ -442,8 +442,10 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
     assertThat(errors).hasSize(1);
     assertThat(errors.iterator().next().message())
         .isEqualTo(
-            "Question 'wrong-type' has an enumeratorInitialQuestionId but is not an enumerator"
-                + " question.");
+            """
+            Question 'wrong-type' has an enumeratorInitialQuestionId but is not an enumerator \
+            question.\
+            """);
   }
 
   @Test
@@ -459,8 +461,10 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
     assertThat(errors).hasSize(1);
     assertThat(errors.iterator().next().message())
         .isEqualTo(
-            "Enumerator question 'household' references an enumeratorInitialQuestionId 99 that is"
-                + " not in the import.");
+            """
+            Enumerator question 'household' references an enumeratorInitialQuestionId 99 that is \
+            not in the import.\
+            """);
   }
 
   @Test
@@ -478,8 +482,10 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
     assertThat(errors).hasSize(1);
     assertThat(errors.iterator().next().message())
         .isEqualTo(
-            "Enumerator question 'household' references question 'vehicles' as its initial"
-                + " question, but that question is itself an enumerator.");
+            """
+            Enumerator question 'household' references question 'vehicles' as its initial \
+            question, but that question is itself an enumerator.\
+            """);
   }
 
   @Test
@@ -495,8 +501,10 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
     assertThat(errors).hasSize(1);
     assertThat(errors.iterator().next().message())
         .isEqualTo(
-            "Enumerator question 'household' references question 'household' as its initial"
-                + " question, but that question is itself an enumerator.");
+            """
+            Enumerator question 'household' references question 'household' as its initial \
+            question, but that question is itself an enumerator.\
+            """);
   }
 
   @Test
@@ -514,8 +522,10 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
     assertThat(errors).hasSize(1);
     assertThat(errors.iterator().next().message())
         .isEqualTo(
-            "Enumerator question 'household' references question 'orphan-name' as its initial"
-                + " question, but that question does not reference it back as its enumeratorId.");
+            """
+            Enumerator question 'household' references question 'orphan-name' as its initial \
+            question, but that question does not reference it back as its enumeratorId.\
+            """);
   }
 
   @Test
@@ -535,9 +545,10 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
     assertThat(errors).hasSize(1);
     assertThat(errors.iterator().next().message())
         .isEqualTo(
-            "Enumerator question 'household' references question 'wrong-parent-name' as its"
-                + " initial question, but that question does not reference it back as its"
-                + " enumeratorId.");
+            """
+            Enumerator question 'household' references question 'wrong-parent-name' as its \
+            initial question, but that question does not reference it back as its enumeratorId.\
+            """);
   }
 
   @Test
@@ -556,8 +567,10 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
     assertThat(errors).hasSize(1);
     assertThat(errors.iterator().next().message())
         .isEqualTo(
-            "Enumerator question 'household' (question bank) and its initial question 'member-name'"
-                + " (import) are in different data sources and must be in the same.");
+            """
+            Enumerator question 'household' (question bank) and its initial question \
+            'member-name' (import) are in different data sources and must be in the same.\
+            """);
   }
 
   @Test
@@ -577,8 +590,10 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
     assertThat(errors).hasSize(1);
     assertThat(errors.iterator().next().message())
         .isEqualTo(
-            "Enumerator question 'household' (import) and its initial question 'member-name'"
-                + " (question bank) are in different data sources and must be in the same.");
+            """
+            Enumerator question 'household' (import) and its initial question 'member-name' \
+            (question bank) are in different data sources and must be in the same.\
+            """);
   }
 
   @Test
