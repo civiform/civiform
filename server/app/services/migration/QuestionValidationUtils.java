@@ -126,6 +126,7 @@ final class QuestionValidationUtils {
                             .findFirst()));
     ImmutableSet.Builder<CiviFormError> errors = ImmutableSet.builder();
     ImmutableSet.Builder<String> repeatedQsMissingEnumeratorsBuilder = ImmutableSet.builder();
+
     // Check that all repeated questions have an enumerator set.
     repeatedQsMissingEnumeratorsBuilder.addAll(
         repeatedQsToEnumerators.entrySet().stream()
@@ -148,6 +149,7 @@ final class QuestionValidationUtils {
                   + " and/or question definitions: "
                   + String.join(", ", repeatedQsMissingEnumerators)));
     }
+
     // Check that repeated questions only exist in the question bank if their enumerator
     // does too.
     ImmutableList<QuestionDefinition> repeatedQsAlreadyExistWithoutExistingEnumerators =
@@ -184,7 +186,7 @@ final class QuestionValidationUtils {
    *   <li>1. The question identified by {@code enumeratorInitialQuestionId} has an {@code
    *       enumeratorId} set to the enumerator's ID.
    *   <li>2. The enumerator and initial question must both be only present newly in the import or
-   *       pre-existing in the question bank, they can't be mixed between the two. as it would
+   *       pre-existing in the question bank, they can't be mixed between the two as it would
    *       change the semantics of which ever is in the question bank and that may break existing
    *       uses.
    * </ul>
@@ -194,8 +196,10 @@ final class QuestionValidationUtils {
     ImmutableMap<Long, QuestionDefinition> questionsById =
         questions.stream().collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, q -> q));
     ImmutableSet.Builder<CiviFormError> errors = ImmutableSet.builder();
+
     for (QuestionDefinition question : questions) {
       Optional<Long> maybeInitialQuestionId = question.getEnumeratorInitialQuestionId();
+
       // Find new-flow enums by the presence of an initial question.
       if (maybeInitialQuestionId.isEmpty()) {
         continue;
@@ -213,7 +217,8 @@ final class QuestionValidationUtils {
                     .formatted(question.getName())));
         continue;
       }
-      // The initial question is not present.
+
+      // The initial question must be present.
       Optional<QuestionDefinition> maybeInitialQuestion =
           Optional.ofNullable(questionsById.get(initialQuestionId));
       if (maybeInitialQuestion.isEmpty()) {
@@ -239,7 +244,8 @@ final class QuestionValidationUtils {
                     .formatted(question.getName(), initialQuestion.getName())));
         continue;
       }
-      // The initial question must also reference the enumerator.
+
+      // The initial question must reference the enumerator.
       Long newEnumQuestionId = question.getId();
       if (initialQuestion.getEnumeratorId().filter(newEnumQuestionId::equals).isEmpty()) {
         errors.add(
@@ -252,7 +258,7 @@ final class QuestionValidationUtils {
       }
 
       // The enumerator and initial question must both be in the question
-      // bank or both in the import
+      // bank or both in the import.
       boolean enumInQB = existingAdminNames.contains(question.getName());
       boolean initialQInQB = existingAdminNames.contains(initialQuestion.getName());
       if (enumInQB != initialQInQB) {
