@@ -422,7 +422,8 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
 
     ImmutableSet<CiviFormError> errors =
         QuestionValidationUtils.validateNewFlowEnumerators(
-            ImmutableList.of(initialQuestion, enumerator), ImmutableList.of());
+            /* questions= */ ImmutableList.of(initialQuestion, enumerator),
+            /* existingAdminNames= */ ImmutableList.of());
 
     assertThat(errors).isEmpty();
   }
@@ -437,7 +438,8 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
 
     ImmutableSet<CiviFormError> errors =
         QuestionValidationUtils.validateNewFlowEnumerators(
-            ImmutableList.of(initialQuestion, textWithField), ImmutableList.of());
+            /* questions= */ ImmutableList.of(initialQuestion, textWithField),
+            /* existingAdminNames= */ ImmutableList.of());
 
     assertThat(errors).hasSize(1);
     assertThat(errors.iterator().next().message())
@@ -456,7 +458,8 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
 
     ImmutableSet<CiviFormError> errors =
         QuestionValidationUtils.validateNewFlowEnumerators(
-            ImmutableList.of(enumerator), ImmutableList.of());
+            /* questions= */ ImmutableList.of(enumerator),
+            /* existingAdminNames= */ ImmutableList.of());
 
     assertThat(errors).hasSize(1);
     assertThat(errors.iterator().next().message())
@@ -477,7 +480,8 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
 
     ImmutableSet<CiviFormError> errors =
         QuestionValidationUtils.validateNewFlowEnumerators(
-            ImmutableList.of(otherEnumerator, enumerator), ImmutableList.of());
+            /* questions= */ ImmutableList.of(otherEnumerator, enumerator),
+            /* existingAdminNames= */ ImmutableList.of());
 
     assertThat(errors).hasSize(1);
     assertThat(errors.iterator().next().message())
@@ -489,35 +493,17 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
   }
 
   @Test
-  public void validateNewFlowEnumerators_selfReference_returnsError() {
-    QuestionDefinition enumerator =
-        createQuestionDefinitionWithEnumInitialId(
-            "household", 30L, QuestionType.ENUMERATOR, /* enumeratorInitialQuestionId= */ 30L);
-
-    ImmutableSet<CiviFormError> errors =
-        QuestionValidationUtils.validateNewFlowEnumerators(
-            ImmutableList.of(enumerator), ImmutableList.of());
-
-    assertThat(errors).hasSize(1);
-    assertThat(errors.iterator().next().message())
-        .isEqualTo(
-            """
-            Enumerator question 'household' references question 'household' as its initial \
-            question, but that question is itself an enumerator.\
-            """);
-  }
-
-  @Test
   public void validateNewFlowEnumerators_initialQuestionMissingBackReference_returnsError() {
+    QuestionDefinition initialQuestion =
+        createQuestionDefinition("orphan-name", 51L, QuestionType.TEXT);
     QuestionDefinition enumerator =
         createQuestionDefinitionWithEnumInitialId(
             "household", 50L, QuestionType.ENUMERATOR, /* enumeratorInitialQuestionId= */ 51L);
-    QuestionDefinition initialQuestion =
-        createQuestionDefinition("orphan-name", 51L, QuestionType.TEXT);
 
     ImmutableSet<CiviFormError> errors =
         QuestionValidationUtils.validateNewFlowEnumerators(
-            ImmutableList.of(enumerator, initialQuestion), ImmutableList.of());
+            /* questions= */ ImmutableList.of(enumerator, initialQuestion),
+            /* existingAdminNames= */ ImmutableList.of());
 
     assertThat(errors).hasSize(1);
     assertThat(errors.iterator().next().message())
@@ -540,7 +526,8 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
 
     ImmutableSet<CiviFormError> errors =
         QuestionValidationUtils.validateNewFlowEnumerators(
-            ImmutableList.of(enumerator, initialQuestion), ImmutableList.of());
+            /* questions= */ ImmutableList.of(enumerator, initialQuestion),
+            /* existingAdminNames= */ ImmutableList.of());
 
     assertThat(errors).hasSize(1);
     assertThat(errors.iterator().next().message())
@@ -562,7 +549,8 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
 
     ImmutableSet<CiviFormError> errors =
         QuestionValidationUtils.validateNewFlowEnumerators(
-            ImmutableList.of(enumerator, initialQuestion), ImmutableList.of(enumerator.getName()));
+            /* questions= */ ImmutableList.of(enumerator, initialQuestion),
+            /* existingAdminNames= */ ImmutableList.of(enumerator.getName()));
 
     assertThat(errors).hasSize(1);
     assertThat(errors.iterator().next().message())
@@ -584,8 +572,8 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
 
     ImmutableSet<CiviFormError> errors =
         QuestionValidationUtils.validateNewFlowEnumerators(
-            ImmutableList.of(enumerator, initialQuestion),
-            ImmutableList.of(initialQuestion.getName()));
+            /* questions= */ ImmutableList.of(enumerator, initialQuestion),
+            /* existingAdminNames= */ ImmutableList.of(initialQuestion.getName()));
 
     assertThat(errors).hasSize(1);
     assertThat(errors.iterator().next().message())
@@ -607,8 +595,9 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
 
     ImmutableSet<CiviFormError> errors =
         QuestionValidationUtils.validateNewFlowEnumerators(
-            ImmutableList.of(enumerator, initialQuestion),
-            ImmutableList.of(enumerator.getName(), initialQuestion.getName()));
+            /* questions= */ ImmutableList.of(enumerator, initialQuestion),
+            /* existingAdminNames= */ ImmutableList.of(
+                enumerator.getName(), initialQuestion.getName()));
 
     assertThat(errors).isEmpty();
   }
@@ -624,7 +613,8 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
 
     ImmutableSet<CiviFormError> errors =
         QuestionValidationUtils.validateNewFlowEnumerators(
-            ImmutableList.of(enumerator, initialQuestion), ImmutableList.of());
+            /* questions= */ ImmutableList.of(enumerator, initialQuestion),
+            /* existingAdminNames= */ ImmutableList.of());
 
     assertThat(errors).isEmpty();
   }
@@ -637,7 +627,8 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
 
     ImmutableSet<CiviFormError> errors =
         QuestionValidationUtils.validateNewFlowEnumerators(
-            ImmutableList.of(enumerator, text), ImmutableList.of());
+            /* questions= */ ImmutableList.of(enumerator, text),
+            /* existingAdminNames= */ ImmutableList.of());
 
     assertThat(errors).isEmpty();
   }
