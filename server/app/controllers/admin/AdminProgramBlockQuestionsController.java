@@ -174,7 +174,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
                   blockId,
                   Optional.of(questionForm),
                   result.getErrors(),
-                  /* optionalInitialQuestion= */ Optional.empty())
+                  /* optionalNewInitialQuestion= */ Optional.empty())
               .render());
     }
 
