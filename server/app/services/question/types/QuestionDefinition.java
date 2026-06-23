@@ -287,6 +287,15 @@ public abstract class QuestionDefinition {
   }
 
   /**
+   * The id of the non-enumerator question whose answer should be used to pre-populate the first
+   * entity name for an enumerator question. Only present on enumerator questions via the new-flow.
+   */
+  @JsonIgnore
+  public final Optional<Long> getEnumeratorInitialQuestionId() {
+    return config.enumeratorInitialQuestionId();
+  }
+
+  /**
    * Get a human-readable description for the data this question collects.
    *
    * <p>NOTE: This field will not be localized as it is for admin use only.

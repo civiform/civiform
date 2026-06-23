@@ -175,6 +175,7 @@ public final class ProgramMigrationService {
         .addAll(
             QuestionValidationUtils.validateRepeatedQuestions(
                 program, questions, existingAdminNames))
+        .addAll(QuestionValidationUtils.validateNewFlowEnumerators(questions, existingAdminNames))
         .build();
   }
 

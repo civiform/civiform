@@ -3,6 +3,8 @@ package services.migration;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -103,12 +105,15 @@ final class QuestionValidationUtils {
   /**
    * Ensures that repeated questions (1) each have an associated enumerator, and (2) only exists in
    * the question bank if the associated enumerator also already exists in the question bank.
+   *
+   * <p>Note: This in effect only validates old-flow enums for backwards compatibility, however
+   * these checks are also necessary and complementary for the new-flow, such as ensuring the
+   * enumerator is in the program.
    */
   static ImmutableSet<CiviFormError> validateRepeatedQuestions(
       ProgramDefinition program,
       ImmutableList<QuestionDefinition> questions,
       ImmutableList<String> existingAdminNames) {
-    // TODO(#13445): Support enumeratorInitialQuestionId for the new flow.
     ImmutableMap<QuestionDefinition, Optional<QuestionDefinition>> repeatedQsToEnumerators =
         questions.stream()
             .filter(q -> q.getEnumeratorId().isPresent())
@@ -121,15 +126,18 @@ final class QuestionValidationUtils {
                             .findFirst()));
     ImmutableSet.Builder<CiviFormError> errors = ImmutableSet.builder();
     ImmutableSet.Builder<String> repeatedQsMissingEnumeratorsBuilder = ImmutableSet.builder();
-    // First we check that all repeated questions have an enumerator
+    // Check that all repeated questions have an enumerator set.
     repeatedQsMissingEnumeratorsBuilder.addAll(
-        repeatedQsToEnumerators.keySet().stream()
-            .filter(q -> !repeatedQsToEnumerators.get(q).isPresent())
+        repeatedQsToEnumerators.entrySet().stream()
+            .filter(e -> e.getValue().isEmpty())
+            .map(Map.Entry::getKey)
             .map(QuestionDefinition::getName)
             .collect(ImmutableSet.toImmutableSet()));
+    // Check that the enumerator IDs are present in the program.
+    HashSet<Long> programQuestionIds = new HashSet<>(program.getQuestionIdsInProgram());
     repeatedQsMissingEnumeratorsBuilder.addAll(
         repeatedQsToEnumerators.keySet().stream()
-            .filter(q -> !program.getQuestionIdsInProgram().contains(q.getEnumeratorId().get()))
+            .filter(q -> !programQuestionIds.contains(q.getEnumeratorId().get()))
             .map(QuestionDefinition::getName)
             .collect(ImmutableSet.toImmutableSet()));
     ImmutableSet<String> repeatedQsMissingEnumerators = repeatedQsMissingEnumeratorsBuilder.build();
@@ -138,10 +146,10 @@ final class QuestionValidationUtils {
           CiviFormError.of(
               "Some repeated questions reference enumerators that could not be found in the program"
                   + " and/or question definitions: "
-                  + repeatedQsMissingEnumerators.stream().collect(Collectors.joining(", "))));
+                  + String.join(", ", repeatedQsMissingEnumerators)));
     }
-    // Then we check that repeated questions only exist in the question bank if their enumerator
-    // does too
+    // Check that repeated questions only exist in the question bank if their enumerator
+    // does too.
     ImmutableList<QuestionDefinition> repeatedQsAlreadyExistWithoutExistingEnumerators =
         repeatedQsToEnumerators.keySet().stream()
             .filter(
@@ -161,6 +169,102 @@ final class QuestionValidationUtils {
                       .collect(Collectors.joining(", "))));
     }
 
+    return errors.build();
+  }
+
+  /**
+   * Validates that new-flow enumerators (circa Q3 2026) are correctly configured.
+   *
+   * <p>New-flow enumerators are identified by enumerators with {@code enumeratorInitialQuestionId}
+   * set.
+   *
+   * <p>Validation:
+   *
+   * <ul>
+   *   <li>1. The question identified by {@code enumeratorInitialQuestionId} has an {@code
+   *       enumeratorId} set to the enumerator's ID.
+   *   <li>2. The enumerator and initial question must both be only present newly in the import or
+   *       pre-existing in the question bank, they can't be mixed between the two. as it would
+   *       change the semantics of which ever is in the question bank and that may break existing
+   *       uses.
+   * </ul>
+   */
+  static ImmutableSet<CiviFormError> validateNewFlowEnumerators(
+      ImmutableList<QuestionDefinition> questions, ImmutableList<String> existingAdminNames) {
+    ImmutableMap<Long, QuestionDefinition> questionsById =
+        questions.stream().collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, q -> q));
+    ImmutableSet.Builder<CiviFormError> errors = ImmutableSet.builder();
+    for (QuestionDefinition question : questions) {
+      Optional<Long> maybeInitialQuestionId = question.getEnumeratorInitialQuestionId();
+      // Find new-flow enums by the presence of an initial question.
+      if (maybeInitialQuestionId.isEmpty()) {
+        continue;
+      }
+
+      // Only enumerators can have an initial question.
+      Long initialQuestionId = maybeInitialQuestionId.get();
+      if (!question.isEnumerator()) {
+        errors.add(
+            CiviFormError.of(
+                String.format(
+                    "Question '%s' has an enumeratorInitialQuestionId but is not an enumerator"
+                        + " question.",
+                    question.getName())));
+        continue;
+      }
+      // The initial question is not present.
+      Optional<QuestionDefinition> maybeInitialQuestion =
+          Optional.ofNullable(questionsById.get(initialQuestionId));
+      if (maybeInitialQuestion.isEmpty()) {
+        errors.add(
+            CiviFormError.of(
+                String.format(
+                    "Enumerator question '%s' references an enumeratorInitialQuestionId %d that is"
+                        + " not in the import.",
+                    question.getName(), initialQuestionId)));
+        continue;
+      }
+
+      // The initial question can not be an enumerator.
+      QuestionDefinition initialQuestion = maybeInitialQuestion.get();
+      if (initialQuestion.isEnumerator()) {
+        errors.add(
+            CiviFormError.of(
+                String.format(
+                    "Enumerator question '%s' references question '%s' as its initial question,"
+                        + " but that question is itself an enumerator.",
+                    question.getName(), initialQuestion.getName())));
+        continue;
+      }
+      // The initial question must also reference the enumerator.
+      Long newEnumQuestionId = question.getId();
+      if (initialQuestion.getEnumeratorId().filter(newEnumQuestionId::equals).isEmpty()) {
+        errors.add(
+            CiviFormError.of(
+                String.format(
+                    "Enumerator question '%s' references question '%s' as its initial question,"
+                        + " but that question does not reference it back as its "
+                        + "enumeratorId.",
+                    question.getName(), initialQuestion.getName())));
+      }
+
+      // The enumerator and initial question must both be in the question
+      // bank or both in the import
+      boolean enumInQB = existingAdminNames.contains(question.getName());
+      boolean initialQInQB = existingAdminNames.contains(initialQuestion.getName());
+      if (enumInQB != initialQInQB) {
+        errors.add(
+            CiviFormError.of(
+                String.format(
+                    "Enumerator question '%s' (%s) and its initial question "
+                        + "'%s' (%s) are in "
+                        + "different data sources and must be in the same.",
+                    question.getName(),
+                    enumInQB ? "question bank" : "import",
+                    initialQuestion.getName(),
+                    initialQInQB ? "question bank" : "import")));
+      }
+    }
     return errors.build();
   }
 }
