@@ -332,10 +332,9 @@ public final class PdfExporter {
     // with a colon
     for (var preferredLocale : languageUtils.getApplicantEnabledLanguages()) {
 
-      String filename = String.format("%s-%s-%s.pdf",
+      String filename = String.format("%s-%s.pdf",
           programDefinition.adminName(),
-          preferredLocale.toLocale(),
-          timeCreated);
+          preferredLocale.language());
 
       byte[] bytes = buildProgramPdf(
           programDefinition,
