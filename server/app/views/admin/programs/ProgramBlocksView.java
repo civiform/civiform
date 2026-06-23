@@ -112,6 +112,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
   public static final String ENUMERATOR_ID_FORM_FIELD = "enumeratorId";
   public static final String BLOCK_TYPE_FORM_FIELD = "blockType";
   public static final String MOVE_QUESTION_POSITION_FIELD = "position";
+  public static final String INITIAL_QUESTION_ID_PARAM = "initialQuestionId";
   private static final String CREATE_BLOCK_FORM_ID = "block-create-form";
   private static final String CREATE_REPEATED_BLOCK_FORM_ID = "repeated-block-create-form";
   private static final String CREATE_ENUMERATOR_BLOCK_FORM_ID = "enumerator-block-create-form";
@@ -740,6 +741,23 @@ public final class ProgramBlocksView extends ProgramBaseView {
       maybeEligibilityPredicateDisplay.ifPresent(div::with);
 
       if (isEnumeratorBlock) {
+        // When returning to this page after creating a new initial question during
+        // enumerator setup, the controller redirects with ?initialQuestionId=<id>
+        // so the view can render the new question as the initial question selection.
+        Optional<QuestionDefinition> optionalInitialQuestion =
+            !blockHasEnumeratorQuestion
+                ? request
+                    .queryString(INITIAL_QUESTION_ID_PARAM)
+                    .flatMap(
+                        idStr -> {
+                          try {
+                            long id = Long.parseLong(idStr);
+                            return allQuestions.stream().filter(q -> q.getId() == id).findFirst();
+                          } catch (NumberFormatException e) {
+                            return Optional.empty();
+                          }
+                        })
+                : Optional.empty();
         return div.with(
             renderEnumeratorScreenContent(
                 blockHasEnumeratorQuestion,
@@ -747,7 +765,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 messages,
                 program.id(),
                 blockDefinition,
-                questionCards.isEmpty() ? Optional.empty() : Optional.of(questionCards.get(0))));
+                questionCards.isEmpty() ? Optional.empty() : Optional.of(questionCards.get(0)),
+                optionalInitialQuestion));
       }
 
       // For repeated blocks, check if parent enumerator is at first level (not nested)
@@ -869,31 +888,33 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Messages messages,
       Long programId,
       BlockDefinition blockDefinition,
-      Optional<DivTag> optionalQuestionCard) {
+      Optional<DivTag> optionalEnumeratorQuestionCard,
+      Optional<QuestionDefinition> optionalInitialQuestion) {
     // If it's an empty enumerator block
-    if (!blockHasEnumeratorQuestion || optionalQuestionCard.isEmpty()) {
+    if (!blockHasEnumeratorQuestion || optionalEnumeratorQuestionCard.isEmpty()) {
       return renderEnumeratorSetupSection(
           request,
           messages,
           programId,
           blockDefinition.id(),
           /* optionalQuestionForm= */ Optional.empty(),
-          /* errorMessages= */ ImmutableSet.of());
+          /* errorMessages= */ ImmutableSet.of(),
+          optionalInitialQuestion);
     } else {
       return renderEnumeratorSectionWithSelectedQuestion(
-          messages, optionalQuestionCard, blockHasEnumeratorQuestion, blockDefinition);
+          messages, optionalEnumeratorQuestionCard, blockHasEnumeratorQuestion, blockDefinition);
     }
   }
 
   public DivTag renderEnumeratorSectionWithSelectedQuestion(
       Messages messages,
-      Optional<DivTag> optionalQuestionCard,
+      Optional<DivTag> optionalEnumeratorQuestionCard,
       boolean blockHasEnumeratorQuestion,
       BlockDefinition blockDefinition) {
     // For enumerators, only show nested button if enumerator is at first level (not nested itself)
     boolean shouldShowNestedButton = blockDefinition.enumeratorId().isEmpty();
     return div(
-        renderEnumeratorQuestionCardSection(messages, optionalQuestionCard),
+        renderEnumeratorQuestionCardSection(messages, optionalEnumeratorQuestionCard),
         renderAddRepeatedScreenButtons(
             messages,
             blockHasEnumeratorQuestion,
@@ -902,8 +923,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   private DivTag renderEnumeratorQuestionCardSection(
-      Messages messages, Optional<DivTag> optionalQuestionCard) {
-    DivTag questionCard = optionalQuestionCard.orElse(div());
+      Messages messages, Optional<DivTag> optionalEnumeratorQuestionCard) {
+    DivTag enumeratorQuestionCard = optionalEnumeratorQuestionCard.orElse(div());
     return div()
         .with(
             h2(messages.at(MessageKey.HEADING_REPEATED_SET_QUESTION.getKeyName()))
@@ -912,7 +933,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .withTabindex(-1),
             p(messages.at(MessageKey.TEXT_REPEATED_SET_QUESTION_DESCRIPTION.getKeyName()))
                 .withClasses("text-gray-cool-50", "font-ui-sm"),
-            questionCard);
+            enumeratorQuestionCard);
   }
 
   private DivTag renderAddRepeatedScreenButtons(
@@ -970,11 +991,18 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Long programId,
       Long blockId,
       Optional<EnumeratorQuestionForm> optionalQuestionForm,
-      ImmutableSet<CiviFormError> errorMessages) {
+      ImmutableSet<CiviFormError> errorMessages,
+      Optional<QuestionDefinition> optionalInitialQuestion) {
     return div(
             renderCreationMethodRadioButtons(messages),
             renderNewEnumeratorQuestionForm(
-                request, messages, programId, blockId, optionalQuestionForm, errorMessages),
+                request,
+                messages,
+                programId,
+                blockId,
+                optionalQuestionForm,
+                errorMessages,
+                optionalInitialQuestion),
             renderChooseExistingQuestion(messages, programId, blockId))
         .withId("enumerator-setup")
         .withClass("maxw-mobile-lg");
@@ -1083,7 +1111,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Long programId,
       Long blockId,
       Optional<EnumeratorQuestionForm> optionalQuestionForm,
-      ImmutableSet<CiviFormError> errorMessages) {
+      ImmutableSet<CiviFormError> errorMessages,
+      Optional<QuestionDefinition> optionalInitialQuestion) {
     InputTag csrfTag = makeCsrfTokenInputTag(request);
     return form(csrfTag)
         .withClasses("usa-summary-box", "bg-white", "border-gray-300")
@@ -1186,25 +1215,36 @@ public final class ProgramBlocksView extends ProgramBaseView {
                             MessageKey.DESCRIPTION_REPEATED_SET_INITIAL_QUESTION.getKeyName()))
                         .withId("initial-question-description")
                         .withClasses("font-ui-sm", "text-base"),
-                    button("")
-                        .withId("add-initial-question-button")
-                        .withClasses("usa-button", "usa-button--outline", "margin-top-05")
-                        .attr(
-                            "aria-describedby",
-                            "initial-question-label initial-question-description")
-                        .attr("required")
-                        .attr(
-                            "hx-get",
-                            controllers.admin.routes.AdminProgramBlocksController
-                                .hxQuestionBankPartial(
-                                    programId,
-                                    blockId,
-                                    ProgramQuestionBank.Mode.INITIAL_QUESTION.name())
-                                .url())
-                        .attr("hx-target", "#" + ProgramQuestionBank.PANEL_FORM_ID)
-                        .attr("hx-swap", "outerHTML")
-                        .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
-                        .withText(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName())))
+                    optionalInitialQuestion.isPresent()
+                        ? div(
+                            QuestionCard.renderForInitialQuestion(optionalInitialQuestion.get()),
+                            input()
+                                .withType("hidden")
+                                .withName(INITIAL_QUESTION_ID_PARAM)
+                                .withValue(String.valueOf(optionalInitialQuestion.get().getId())),
+                            input()
+                                .withType("hidden")
+                                .withName("initialQuestionWasNewlyCreated")
+                                .withValue("true"))
+                        : button("")
+                            .withId("add-initial-question-button")
+                            .withClasses("usa-button", "usa-button--outline", "margin-top-05")
+                            .attr(
+                                "aria-describedby",
+                                "initial-question-label initial-question-description")
+                            .attr("required")
+                            .attr(
+                                "hx-get",
+                                controllers.admin.routes.AdminProgramBlocksController
+                                    .hxQuestionBankPartial(
+                                        programId,
+                                        blockId,
+                                        ProgramQuestionBank.Mode.INITIAL_QUESTION.name())
+                                    .url())
+                            .attr("hx-target", "#" + ProgramQuestionBank.PANEL_FORM_ID)
+                            .attr("hx-swap", "outerHTML")
+                            .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
+                            .withText(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName())))
                 .withId("initial-question-slot"),
             div(
                     AlertComponent.renderSlimInfoAlert(

@@ -259,8 +259,6 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await addRepeatedSetBlock(page, {selectParent: true})
       })
 
-      await fillEnumeratorQuestionForm(page)
-
       await test.step('Open the question bank by clicking the initial-question "Add question" button', async () => {
         await initialQuestionSlot
           .getByRole('button', {name: 'Add question'})
@@ -298,6 +296,72 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           initialQuestionCard.getByText(
             'Admin ID: income-non-repeated-question',
           ),
+        ).toBeVisible()
+      })
+    })
+
+    test('can create a new question to use as the initial question on a new enumerator', async ({
+      page,
+      adminQuestions,
+    }) => {
+      const blockPanel = page.getByTestId('block-panel-edit')
+      const questionBankSidebar = page.getByRole('form', {
+        name: 'Add a question',
+      })
+      const initialQuestionSlot = blockPanel.locator('#initial-question-slot')
+      const newQuestionAdminId = 'household-member-name'
+      const newQuestionText = 'What is the household member name?'
+
+      await test.step('Add a new repeated set and select the parent block', async () => {
+        await addRepeatedSetBlock(page, {selectParent: true})
+      })
+
+      await test.step('Open the question bank by clicking the initial-question "Add question" button', async () => {
+        await initialQuestionSlot
+          .getByRole('button', {name: 'Add question'})
+          .click()
+        await expect(questionBankSidebar).toBeVisible()
+      })
+
+      await test.step('Click "Create new question" and pick the Name question type', async () => {
+        await questionBankSidebar
+          .getByRole('button', {name: 'Create new question'})
+          .click()
+        await page.getByRole('link', {name: 'Name', exact: true}).click()
+      })
+
+      await test.step('Verify the "Question enumerator" dropdown is read only', async () => {
+        await expect(page.getByLabel('Question enumerator')).toHaveAttribute(
+          'readonly',
+          'readonly',
+        )
+      })
+
+      await test.step('Fill out the new question form and submit it', async () => {
+        await adminQuestions.fillInQuestionBasics({
+          questionName: newQuestionAdminId,
+          description: 'description',
+          questionText: newQuestionText,
+          helpText: '',
+        })
+        await adminQuestions.clickSubmitButtonAndNavigate('Create')
+      })
+
+      await test.step('Validate the bank is closed and the slot shows the card with the new question', async () => {
+        await expect(questionBankSidebar).toBeHidden()
+
+        const initialQuestionCard = initialQuestionSlot.getByTestId(
+          `question-admin-name-${newQuestionAdminId}`,
+        )
+
+        await expect(initialQuestionCard).toBeVisible()
+        await expect(
+          initialQuestionCard
+            .getByTestId('question-div')
+            .getByText(newQuestionText),
+        ).toBeVisible()
+        await expect(
+          initialQuestionCard.getByText(`Admin ID: ${newQuestionAdminId}`),
         ).toBeVisible()
       })
     })

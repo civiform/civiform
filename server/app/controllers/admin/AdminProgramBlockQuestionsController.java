@@ -173,7 +173,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
                   programId,
                   blockId,
                   Optional.of(questionForm),
-                  result.getErrors())
+                  result.getErrors(),
+                  /* optionalInitialQuestion= */ Optional.empty())
               .render());
     }
 
@@ -222,7 +223,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
         blockEditView
             .renderEnumeratorSectionWithSelectedQuestion(
                 messages,
-                /* optionalQuestionCard= */ Optional.of(
+                /* optionalEnumeratorQuestionCard= */ Optional.of(
                     blockEditView.renderQuestion(
                         /* optionalCsrfTag= */ Optional.empty(),
                         programDefinition,
