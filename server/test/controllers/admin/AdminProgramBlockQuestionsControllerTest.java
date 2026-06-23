@@ -137,7 +137,9 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
     Result result = controller.hxSelectInitialQuestion(request, program.id, 1);
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("<span>" + nameQuestion.getName() + "</span>");
+    // The initial question card
+    assertThat(contentAsString(result))
+        .contains("<div data-testid=\"question-admin-name-" + nameQuestion.getName());
     assertThat(contentAsString(result))
         .contains(
             """

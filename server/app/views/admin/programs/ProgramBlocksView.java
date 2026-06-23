@@ -982,13 +982,13 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
   /**
    * Renders the selected initial question for HTMX swap into the {@code
-   * #add-initial-question-button} slot. Shows the admin name and carries a hidden {@code
-   * initialQuestionId} input that the enumerator-creation form will submit. The question is not yet
-   * attached to the block.
+   * #add-initial-question-button} slot. Shows a stripped-down question card and carries a hidden
+   * {@code initialQuestionId} input that the enumerator-creation form will submit. The question is
+   * not yet attached to the block.
    */
   public DomContent renderSelectedInitialQuestion(QuestionDefinition selectedQuestion) {
-    return join(
-        span(selectedQuestion.getName()),
+    return div(
+        QuestionCard.renderForInitialQuestion(selectedQuestion),
         input()
             .withType("hidden")
             .withName("initialQuestionId")
@@ -1180,7 +1180,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                                 MessageKey.LABEL_REPEATED_SET_INITIAL_QUESTION.getKeyName()))
                             .with(ViewUtils.requiredQuestionIndicator()))
                         .withId("initial-question-label")
-                        .withClasses("usa-label"),
+                        .withClasses("usa-label")
+                        .withTabindex(-1),
                     p(messages.at(
                             MessageKey.DESCRIPTION_REPEATED_SET_INITIAL_QUESTION.getKeyName()))
                         .withId("initial-question-description")
