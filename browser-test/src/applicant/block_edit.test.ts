@@ -1,6 +1,5 @@
 import {test} from '../support/civiform_fixtures'
 import {
-  enableFeatureFlag,
   loginAsAdmin,
   logout,
   selectApplicantLanguage,
@@ -91,7 +90,6 @@ test.describe('Applicant block edit', () => {
     applicantQuestions,
     applicantProgramOverview,
   }) => {
-    await enableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
     await loginAsAdmin(page)
     await adminSettings.gotoAdminSettings()
 

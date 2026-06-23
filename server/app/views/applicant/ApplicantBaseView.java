@@ -135,7 +135,7 @@ public abstract class ApplicantBaseView {
     // Set branding theme colors.
     context.setVariable("themeColorPrimary", THEME_PRIMARY_HEX);
     context.setVariable("themeColorPrimaryDark", THEME_PRIMARY_DARKER_HEX);
-    if (settingsManifest.getCustomThemeColorsEnabled(request)) {
+    if (settingsManifest.getCustomThemeColorsEnabled()) {
       settingsManifest
           .getThemeColorPrimary(request)
           .filter(setting -> !setting.isEmpty())

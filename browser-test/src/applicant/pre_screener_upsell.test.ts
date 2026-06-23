@@ -1,7 +1,6 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
   ClientInformation,
-  enableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
   logout,
@@ -236,7 +235,6 @@ test.describe('Pre-Screener Upsell Tests', () => {
     adminSettings,
     applicantQuestions,
   }) => {
-    await enableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
     await adminSettings.gotoAdminSettings()
 
     await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '#6d4bfa')

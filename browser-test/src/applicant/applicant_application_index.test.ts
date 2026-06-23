@@ -2,7 +2,6 @@ import {test, expect} from '../support/civiform_fixtures'
 import {
   ApplicantQuestions,
   AdminPrograms,
-  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
@@ -794,7 +793,6 @@ test.describe('applicant program index page', () => {
     page,
     adminSettings,
   }) => {
-    await enableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
     await loginAsAdmin(page)
     await adminSettings.gotoAdminSettings()
 
@@ -811,7 +809,6 @@ test.describe('applicant program index page', () => {
     page,
     adminSettings,
   }) => {
-    await enableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
     await loginAsAdmin(page)
     await adminSettings.gotoAdminSettings()
 
@@ -827,7 +824,6 @@ test.describe('applicant program index page', () => {
     page,
     adminSettings,
   }) => {
-    await enableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
     await loginAsAdmin(page)
     await adminSettings.gotoAdminSettings()
 
@@ -837,23 +833,6 @@ test.describe('applicant program index page', () => {
     await logout(page)
 
     await validateScreenshot(page, 'program-index-page-theme-primary-dark-only')
-  })
-
-  test('does not apply color theming on home page when disabled', async ({
-    page,
-    adminSettings,
-  }) => {
-    await disableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
-    await loginAsAdmin(page)
-    await adminSettings.gotoAdminSettings()
-
-    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '#6d4bfa')
-    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY_DARK', '#a72f10')
-
-    await adminSettings.saveChanges()
-    await logout(page)
-
-    await validateScreenshot(page, 'program-index-page-initial-load')
   })
 
   test('shows immigration status info banner on home page when enabled', async ({
