@@ -744,7 +744,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
         // When returning to this page after creating a new initial question during
         // enumerator setup, the controller redirects with ?initialQuestionId=<id>
         // so the view can render the new question as the initial question selection.
-        Optional<QuestionDefinition> optionalInitialQuestion =
+        Optional<QuestionDefinition> optionalNewInitialQuestion =
             !blockHasEnumeratorQuestion
                 ? request
                     .queryString(INITIAL_QUESTION_ID_PARAM)
@@ -766,7 +766,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 program.id(),
                 blockDefinition,
                 questionCards.isEmpty() ? Optional.empty() : Optional.of(questionCards.get(0)),
-                optionalInitialQuestion));
+                optionalNewInitialQuestion));
       }
 
       // For repeated blocks, check if parent enumerator is at first level (not nested)
@@ -889,7 +889,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Long programId,
       BlockDefinition blockDefinition,
       Optional<DivTag> optionalEnumeratorQuestionCard,
-      Optional<QuestionDefinition> optionalInitialQuestion) {
+      Optional<QuestionDefinition> optionalNewInitialQuestion) {
     // If it's an empty enumerator block
     if (!blockHasEnumeratorQuestion || optionalEnumeratorQuestionCard.isEmpty()) {
       return renderEnumeratorSetupSection(
@@ -899,7 +899,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
           blockDefinition.id(),
           /* optionalQuestionForm= */ Optional.empty(),
           /* errorMessages= */ ImmutableSet.of(),
-          optionalInitialQuestion);
+          optionalNewInitialQuestion);
     } else {
       return renderEnumeratorSectionWithSelectedQuestion(
           messages, optionalEnumeratorQuestionCard, blockHasEnumeratorQuestion, blockDefinition);
@@ -992,7 +992,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Long blockId,
       Optional<EnumeratorQuestionForm> optionalQuestionForm,
       ImmutableSet<CiviFormError> errorMessages,
-      Optional<QuestionDefinition> optionalInitialQuestion) {
+      Optional<QuestionDefinition> optionalNewInitialQuestion) {
     return div(
             renderCreationMethodRadioButtons(messages),
             renderNewEnumeratorQuestionForm(
@@ -1002,7 +1002,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 blockId,
                 optionalQuestionForm,
                 errorMessages,
-                optionalInitialQuestion),
+                optionalNewInitialQuestion),
             renderChooseExistingQuestion(messages, programId, blockId))
         .withId("enumerator-setup")
         .withClass("maxw-mobile-lg");
@@ -1112,7 +1112,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Long blockId,
       Optional<EnumeratorQuestionForm> optionalQuestionForm,
       ImmutableSet<CiviFormError> errorMessages,
-      Optional<QuestionDefinition> optionalInitialQuestion) {
+      Optional<QuestionDefinition> optionalNewInitialQuestion) {
     InputTag csrfTag = makeCsrfTokenInputTag(request);
     return form(csrfTag)
         .withClasses("usa-summary-box", "bg-white", "border-gray-300")
@@ -1215,13 +1215,14 @@ public final class ProgramBlocksView extends ProgramBaseView {
                             MessageKey.DESCRIPTION_REPEATED_SET_INITIAL_QUESTION.getKeyName()))
                         .withId("initial-question-description")
                         .withClasses("font-ui-sm", "text-base"),
-                    optionalInitialQuestion.isPresent()
+                    optionalNewInitialQuestion.isPresent()
                         ? div(
-                            QuestionCard.renderForInitialQuestion(optionalInitialQuestion.get()),
+                            QuestionCard.renderForInitialQuestion(optionalNewInitialQuestion.get()),
                             input()
                                 .withType("hidden")
                                 .withName(INITIAL_QUESTION_ID_PARAM)
-                                .withValue(String.valueOf(optionalInitialQuestion.get().getId())),
+                                .withValue(
+                                    String.valueOf(optionalNewInitialQuestion.get().getId())),
                             input()
                                 .withType("hidden")
                                 .withName("initialQuestionWasNewlyCreated")

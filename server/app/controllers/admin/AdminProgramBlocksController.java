@@ -219,18 +219,20 @@ public final class AdminProgramBlocksController extends CiviFormController {
     requestChecker.throwIfProgramNotDraft(programId);
 
     try {
-      // When a new question was just created from the question bank, determine whether it should
-      // be treated as an initial question selection (for enumerator setup) or auto-added to the
-      // block.
       Optional<String> newQuestionIdParam =
           request.queryString(views.components.ProgramQuestionBank.NEWLY_CREATED_QUESTION_ID_PARAM);
       if (newQuestionIdParam.isPresent()) {
-        ProgramDefinition programForSetupCheck = programService.getFullProgramDefinition(programId);
-        BlockDefinition blockForSetupCheck = programForSetupCheck.getBlockDefinition(blockId);
+        // When a new question was just created from the question bank, determine whether it should
+        // be treated as an initial question selection (for enumerator setup) or auto-added to the
+        // block.
+        ProgramDefinition programForEnumeratorCheck =
+            programService.getFullProgramDefinition(programId);
+        BlockDefinition blockForEnumeratorCheck =
+            programForEnumeratorCheck.getBlockDefinition(blockId);
         boolean isEnumeratorSetup =
             settingsManifest.getEnumeratorImprovementsEnabled(request)
-                && blockForSetupCheck.getIsEnumerator()
-                && !blockForSetupCheck.hasEnumeratorQuestion();
+                && blockForEnumeratorCheck.getIsEnumerator()
+                && !blockForEnumeratorCheck.hasEnumeratorQuestion();
         if (isEnumeratorSetup) {
           // Redirect with the new question as the initial question selection. The edit page
           // reads initialQuestionId from the query string to render the initial question card.
