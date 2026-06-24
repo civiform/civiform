@@ -287,6 +287,19 @@ public abstract class QuestionDefinition {
   }
 
   /**
+   * The id of the non-enumerator question that will be shown repeatedly on the enumerator screen as
+   * a way to get the list of repeated entities. Only present on enumerator questions via the
+   * new-flow.
+   *
+   * <p>For example, the enumerator question "List your household members", may have an initial
+   * question asking for the name of each household member.
+   */
+  @JsonIgnore
+  public final Optional<Long> getEnumeratorInitialQuestionId() {
+    return config.enumeratorInitialQuestionId();
+  }
+
+  /**
    * Get a human-readable description for the data this question collects.
    *
    * <p>NOTE: This field will not be localized as it is for admin use only.
