@@ -1,4 +1,5 @@
 /** The question bank controller is responsible for manipulating the question bank. */
+import {attachDropdown} from '@/main'
 import {assertNotNull} from '@/util'
 import {sortElementsByDataAttributes} from '@/sort_selector'
 
@@ -13,12 +14,15 @@ class QuestionBankController {
   static readonly RELEVANT_FILTER_TEXT_DATA_ATTR = 'data-relevantfiltertext'
 
   static readonly SORT_SELECT_ID = 'question-bank-sort'
+  static readonly QUESTION_BANK_FORM_ID = 'question-bank-panel-form'
+  static readonly CREATE_QUESTION_BUTTON_ID = 'create-question-button'
 
   constructor() {
     QuestionBankController.attachFilterAndSortListeners()
     QuestionBankController.initToggleQuestionBankButtons()
     QuestionBankController.initOpenOnHtmxTrigger()
     QuestionBankController.initCloseOnHtmxTrigger()
+    QuestionBankController.rebindCreateQuestionDropdownOnHtmxSwap()
 
     // Apply a filter value the browser may have restored at page load (e.g. Firefox refresh after
     // the user typed in the filter input). Guarded so we don't loop through the questions when
@@ -157,6 +161,20 @@ class QuestionBankController {
       )
       if (container) {
         QuestionBankController.hideQuestionBank(container)
+      }
+    })
+  }
+
+  /**
+   * Re-binds the "Create new question" dropdown trigger after an HTMX swap of the question bank form.
+   * The swap of the form replaces the button with a fresh one that has no click handler.
+   * `attachDropdown` from main.ts runs once at page load against the original button;
+   * here we re-run it against the post-swap button.
+   */
+  private static rebindCreateQuestionDropdownOnHtmxSwap() {
+    document.body.addEventListener('htmx:afterSwap', (e) => {
+      if (e.detail.target.id === QuestionBankController.QUESTION_BANK_FORM_ID) {
+        attachDropdown(QuestionBankController.CREATE_QUESTION_BUTTON_ID)
       }
     })
   }
