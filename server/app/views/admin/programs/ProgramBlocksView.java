@@ -754,6 +754,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
                             long id = Long.parseLong(idStr);
                             return allQuestions.stream().filter(q -> q.getId() == id).findFirst();
                           } catch (NumberFormatException e) {
+                            logger.error(
+                                String.format(
+                                    "Could not parse the initial question id %s as a long.", idStr),
+                                e);
                             return Optional.empty();
                           }
                         })
