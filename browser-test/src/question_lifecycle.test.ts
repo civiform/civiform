@@ -135,29 +135,27 @@ test.describe('normal question lifecycle', () => {
       /* clickSubmit= */ false,
     )
 
-    const downButtons = await page
-      .locator(
-        '.cf-multi-option-question-option-editable:not(.hidden) > .multi-option-question-field-move-down-button',
-      )
-      .all()
-    const upButtons = await page
-      .locator(
-        '.cf-multi-option-question-option-editable:not(.hidden) > .multi-option-question-field-move-up-button',
-      )
-      .all()
-    expect(upButtons).toHaveLength(4)
-    expect(downButtons).toHaveLength(4)
+    const downButtons = page.locator(
+      '.cf-multi-option-question-option-editable:not(.hidden) > .multi-option-question-field-move-down-button',
+    )
 
-    await downButtons[3].click() // Should do nothing
+    const upButtons = page.locator(
+      '.cf-multi-option-question-option-editable:not(.hidden) > .multi-option-question-field-move-up-button',
+    )
+
+    await expect(upButtons).toHaveCount(4)
+    await expect(downButtons).toHaveCount(4)
+
+    await downButtons.nth(3).click() // Should do nothing
     await waitForPageJsLoad(page)
-    await upButtons[0].click() // Should do nothing
+    await upButtons.nth(0).click() // Should do nothing
     await waitForPageJsLoad(page)
 
-    await downButtons[0].click() // becomes 2, 1, 3, 4
+    await downButtons.nth(0).click() // becomes 2, 1, 3, 4
     await waitForPageJsLoad(page)
-    await downButtons[1].click() // becomes 2, 3, 1, 4
+    await downButtons.nth(1).click() // becomes 2, 3, 1, 4
     await waitForPageJsLoad(page)
-    await upButtons[1].click() // becomes 3, 2, 1, 4
+    await upButtons.nth(1).click() // becomes 3, 2, 1, 4
     await waitForPageJsLoad(page)
 
     await page.click('#add-new-option')
@@ -165,13 +163,12 @@ test.describe('normal question lifecycle', () => {
       adminName: 'option5_admin',
       text: 'option5',
     })
-    const newUpButtons = await page
-      .locator(
-        '.cf-multi-option-question-option-editable:not(.hidden) > .multi-option-question-field-move-up-button',
-      )
-      .all()
-    expect(newUpButtons).toHaveLength(5)
-    await newUpButtons[4].click() // becomes 3, 2, 1, 5, 4
+    const newUpButtons = page.locator(
+      '.cf-multi-option-question-option-editable:not(.hidden) > .multi-option-question-field-move-up-button',
+    )
+
+    await expect(newUpButtons).toHaveCount(5)
+    await newUpButtons.nth(4).click() // becomes 3, 2, 1, 5, 4
 
     await validateScreenshot(page, 'question-with-rearranged-options')
 
@@ -591,14 +588,12 @@ test.describe('normal question lifecycle', () => {
       })
     })
 
-    await test.step('edit text question and confirm correct enumerator option is selected and readonly', async () => {
+    await test.step('edit text question and confirm correct enumerator option is selected and disabled', async () => {
       await adminQuestions.gotoQuestionEditPage(textQuestion)
       await expect(page.getByLabel('Question enumerator')).toContainText(
         enumeratorOne,
       )
-      await expect(page.getByLabel('Question enumerator')).toHaveAttribute(
-        'readonly',
-      )
+      await expect(page.getByLabel('Question enumerator')).toBeDisabled()
     })
   })
 })
