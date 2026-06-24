@@ -387,7 +387,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
     assertThat(contentAsString(result)).contains("/some/redirect/url");
     assertThat(contentAsString(result))
-        .contains("id=\"question-enumerator-select\" name=\"enumeratorId\" readonly=\"readonly\"");
+        .contains("id=\"question-enumerator-select\" name=\"enumeratorId\" disabled");
   }
 
   @Test
@@ -452,7 +452,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("New text question");
     assertThat(contentAsString(result))
-        .contains("id=\"question-enumerator-select\" name=\"enumeratorId\" readonly=\"readonly\"");
+        .contains("id=\"question-enumerator-select\" name=\"enumeratorId\" disabled");
   }
 
   @Test
