@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import controllers.applicant.ProgramSlugHandler;
 import java.util.concurrent.CompletionStage;
@@ -60,24 +61,46 @@ public final class AdminProgramPreviewController extends CiviFormController {
    * questions in each block.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public CompletionStage<Result> pdfPreview(Request request, long programId)
-      throws ProgramNotFoundException {
+  public CompletionStage<Result> pdfPreview(Request request, long programId) throws ProgramNotFoundException {
     ProgramDefinition program = programService.getFullProgramDefinition(programId);
+
     return questionService
-        .getReadOnlyQuestionService()
-        .thenApplyAsync(
-            roQuestionService -> {
-              PdfExporter.InMemoryPdf pdf =
-                  pdfExporterService.generateProgramPreviewPdf(
-                      program,
-                      roQuestionService.getAllQuestions(),
-                      settingsManifest.getExpandedFormLogicEnabled(request));
-              return ok(pdf.getByteArray())
-                  .as("application/pdf")
-                  .withHeader(
-                      "Content-Disposition",
-                      String.format("attachment; filename=\"%s\"", pdf.getFileName()));
-            });
+      .getReadOnlyQuestionService()
+      .thenApplyAsync(roQuestionService -> {
+        // 1. Get the list of all localized PDFs
+        ImmutableList<PdfExporter.InMemoryPdf> pdfs = pdfExporterService.generateProgramPreviewPdf(
+          program,
+          roQuestionService.getAllQuestions(),
+          settingsManifest.getExpandedFormLogicEnabled(request)
+        );
+
+        // 2. Safeguard against an empty list
+        if (pdfs.isEmpty()) {
+          return badRequest("No PDF preview available for this program.");
+        }
+
+        try {
+          java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+          java.util.zip.ZipOutputStream zos = new java.util.zip.ZipOutputStream(baos);
+
+          for (PdfExporter.InMemoryPdf pdf : pdfs) {
+            java.util.zip.ZipEntry entry = new java.util.zip.ZipEntry(pdf.getFileName());
+            zos.putNextEntry(entry);
+            zos.write(pdf.getByteArray());
+            zos.closeEntry();
+          }
+          zos.close();
+
+          return ok(baos.toByteArray())
+            .as("application/zip")
+            .withHeader(
+              "Content-Disposition",
+              String.format("attachment; filename=\"%s-preview.zip\"", program.adminName())
+            );
+        } catch (java.io.IOException e) {
+          return internalServerError("Failed to create zip file.");
+        }
+      });
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
