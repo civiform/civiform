@@ -78,7 +78,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
       // localize the options later.
       if (qd.getSupportedLocales().contains(LocalizedStrings.DEFAULT_LOCALE)) {
         qd.getOptionsForLocale(LocalizedStrings.DEFAULT_LOCALE).stream()
-            .sorted(Comparator.comparing(LocalizedQuestionOption::order))
+            .sorted(Comparator.comparingLong(LocalizedQuestionOption::order))
             .forEachOrdered(
                 option -> {
                   options.add(option.optionText());
