@@ -26,6 +26,7 @@ import services.question.QuestionService;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import support.ProgramBuilder;
+import views.admin.programs.ProgramBlocksView;
 import views.components.ProgramQuestionBank;
 
 public class AdminProgramBlocksControllerTest extends ResetPostgres {
@@ -453,7 +454,8 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void edit_withNewlyCreatedQuestionId_autoAddsQuestionAndRedirects() {
+  public void
+      edit_withNewlyCreatedQuestionId_whenNotEnumeratorSetup_autoAddsQuestionAndRedirects() {
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
     QuestionModel question = testQuestionBank.nameApplicantName();
     question.save();
@@ -493,7 +495,8 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void edit_withNewlyCreatedQuestionId_whenQuestionDoesNotExist_redirectsWithErrorFlash() {
+  public void
+      edit_withNewlyCreatedQuestionId_whenNotEnumeratorSetupAndQuestionDoesNotExist_redirectsWithErrorFlash() {
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
     long nonexistentQuestionId = 999999L;
 
@@ -522,6 +525,112 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
     assertThat(
             program.getProgramDefinition().blockDefinitions().get(0).programQuestionDefinitions())
         .isEmpty();
+  }
+
+  @Test
+  public void
+      edit_withNewlyCreatedQuestionId_whenEnumeratorSetup_redirectsWithInitialQuestionIdAndDoesNotAddToBlock() {
+    ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
+    QuestionModel question = testQuestionBank.nameApplicantName();
+    question.save();
+
+    Request request =
+        fakeRequestBuilder()
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
+            .uri(
+                routes.AdminProgramBlocksController.edit(program.id, /* blockDefinitionId= */ 1L)
+                        .url()
+                    + "?"
+                    + views.components.ProgramQuestionBank.NEWLY_CREATED_QUESTION_ID_PARAM
+                    + "="
+                    + question.id)
+            .build();
+
+    Result result = controller.edit(request, program.id, /* blockId= */ 1L);
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.AdminProgramBlocksController.edit(program.id, /* blockDefinitionId= */ 1L).url()
+                + "?"
+                + ProgramBlocksView.INITIAL_QUESTION_ID_PARAM
+                + "="
+                + question.id);
+
+    program.refresh();
+    assertThat(
+            program.getProgramDefinition().blockDefinitions().get(0).programQuestionDefinitions())
+        .isEmpty();
+  }
+
+  @Test
+  public void edit_withNewlyCreatedQuestionId_whenEmptyEnumeratorBlockAndFlagOff_autoAddsToBlock() {
+    ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
+    QuestionModel question = testQuestionBank.nameApplicantName();
+    question.save();
+
+    Request request =
+        fakeRequestBuilder()
+            .uri(
+                routes.AdminProgramBlocksController.edit(program.id, /* blockDefinitionId= */ 1L)
+                        .url()
+                    + "?"
+                    + views.components.ProgramQuestionBank.NEWLY_CREATED_QUESTION_ID_PARAM
+                    + "="
+                    + question.id)
+            .build();
+
+    Result result = controller.edit(request, program.id, /* blockId= */ 1L);
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.AdminProgramBlocksController.edit(program.id, /* blockDefinitionId= */ 1L)
+                .url());
+
+    program.refresh();
+    assertThat(
+            program.getProgramDefinition().blockDefinitions().get(0).programQuestionDefinitions())
+        .hasSize(1);
+    assertThat(
+            program
+                .getProgramDefinition()
+                .blockDefinitions()
+                .get(0)
+                .programQuestionDefinitions()
+                .get(0)
+                .id())
+        .isEqualTo(question.id);
+  }
+
+  @Test
+  public void
+      edit_withInitialQuestionIdQueryParam_whenEnumeratorSetup_rendersInitialQuestionCard() {
+    ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
+    QuestionDefinition question = testQuestionBank.nameApplicantName().getQuestionDefinition();
+
+    Request request =
+        fakeRequestBuilder()
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
+            .uri(
+                routes.AdminProgramBlocksController.edit(program.id, /* blockDefinitionId= */ 1L)
+                        .url()
+                    + "?"
+                    + ProgramBlocksView.INITIAL_QUESTION_ID_PARAM
+                    + "="
+                    + question.getId())
+            .build();
+
+    Result result = controller.edit(request, program.id, /* blockId= */ 1L);
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = contentAsString(result);
+    assertThat(content).contains("data-testid=\"question-admin-name-" + question.getName() + "\"");
+    assertThat(content)
+        .contains(
+            """
+            <input type="hidden" name="initialQuestionWasNewlyCreated" value="true">\
+            """);
   }
 
   @Test

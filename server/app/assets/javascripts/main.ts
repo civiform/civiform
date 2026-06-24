@@ -11,7 +11,7 @@
 import {addEventListenerToElements, assertNotNull} from '@/util'
 import {MultiOptionQuestion} from '@/multi_option_question'
 
-function attachDropdown(elementId: string) {
+export function attachDropdown(elementId: string) {
   const dropdownId = elementId + '-dropdown'
   const element = document.getElementById(elementId)
   const dropdown = document.getElementById(dropdownId)
