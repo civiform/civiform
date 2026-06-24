@@ -55,5 +55,9 @@
     "last 2 versions",
     "IE 11",
     "not dead"
-  ]
+  ],
+  "allowScripts": {
+    "@parcel/watcher": false,
+    "@scarf/scarf": false
+  }
 }
