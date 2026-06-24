@@ -105,10 +105,6 @@ final class QuestionValidationUtils {
   /**
    * Ensures that repeated questions (1) each have an associated enumerator, and (2) only exists in
    * the question bank if the associated enumerator also already exists in the question bank.
-   *
-   * <p>Note: This in effect only validates old-flow enums for backwards compatibility, however
-   * these checks are also necessary and complementary for the new-flow, such as ensuring the
-   * enumerator is in the program.
    */
   static ImmutableSet<CiviFormError> validateRepeatedQuestions(
       ProgramDefinition program,
@@ -183,9 +179,11 @@ final class QuestionValidationUtils {
    * <p>Validation:
    *
    * <ul>
-   *   <li>1. The question identified by {@code enumeratorInitialQuestionId} has an {@code
+   *   <li>1. Only enumerators can have an initial question.
+   *   <li>2. Only the initial question must be in the import and not an enumerator.
+   *   <li>3. The question identified by {@code enumeratorInitialQuestionId} has an {@code
    *       enumeratorId} set to the enumerator's ID.
-   *   <li>2. The enumerator and initial question must both be only present newly in the import or
+   *   <li>4. The enumerator and initial question must both be only present newly in the import or
    *       pre-existing in the question bank, they can't be mixed between the two as it would change
    *       the semantics of which ever is in the question bank and that may break existing uses.
    * </ul>

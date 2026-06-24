@@ -287,8 +287,12 @@ public abstract class QuestionDefinition {
   }
 
   /**
-   * The id of the non-enumerator question whose answer should be used to pre-populate the first
-   * entity name for an enumerator question. Only present on enumerator questions via the new-flow.
+   * The id of the non-enumerator question that will be shown repeatedly on the enumerator screen as
+   * a way to get the list of repeated entities. Only present on enumerator questions via the
+   * new-flow.
+   *
+   * <p>For example, the enumerator question "List your household members", may have an initial
+   * question asking for the name of each household member.
    */
   @JsonIgnore
   public final Optional<Long> getEnumeratorInitialQuestionId() {
