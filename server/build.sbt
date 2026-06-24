@@ -34,10 +34,10 @@ lazy val root = (project in file("."))
 
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "3.0.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.21.3",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.21.3",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.21.3",
-      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.21.3",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.22.0",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.22.0",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.22.0",
+      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.22.0",
       "com.google.inject.extensions" % "guice-assistedinject" % "6.0.0",
 
       // Templating
@@ -337,9 +337,9 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.21.3",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.21.3",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.21"
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.22.0",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.22.0",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.22"
 )
 
 // Play run hooks only run when the app starts with sbt run (dev/test). They
