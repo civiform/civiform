@@ -330,11 +330,8 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await page.getByRole('link', {name: 'Name', exact: true}).click()
       })
 
-      await test.step('Verify the "Question enumerator" dropdown is read only', async () => {
-        await expect(page.getByLabel('Question enumerator')).toHaveAttribute(
-          'readonly',
-          'readonly',
-        )
+      await test.step('Verify the "Question enumerator" dropdown is disabled', async () => {
+        await expect(page.getByLabel('Question enumerator')).toBeDisabled()
       })
 
       await test.step('Fill out the new question form and submit it', async () => {
@@ -830,10 +827,8 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           await page.getByRole('link', {name: 'Text', exact: true}).click()
         })
 
-        await expect(page.getByLabel('Question enumerator')).toHaveAttribute(
-          'readonly',
-          'readonly',
-        )
+        await expect(page.getByLabel('Question enumerator')).toBeDisabled()
+
         await expect(
           page.getByLabel('Question enumerator').locator('option[selected]'),
         ).toHaveText('pets enumerator')
@@ -985,11 +980,8 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await page.getByRole('link', {name: 'Text', exact: true}).click()
       })
 
-      await test.step('Verify that the "Question enumerator" dropdown is read only', async () => {
-        await expect(page.getByLabel('Question enumerator')).toHaveAttribute(
-          'readonly',
-          'readonly',
-        )
+      await test.step('Verify that the "Question enumerator" dropdown is disabled', async () => {
+        await expect(page.getByLabel('Question enumerator')).toBeDisabled()
       })
     })
 
