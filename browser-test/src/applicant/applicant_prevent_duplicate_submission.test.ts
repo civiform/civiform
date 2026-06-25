@@ -63,7 +63,7 @@ test.describe('Prevent Duplicate Submission', () => {
       ).toBeVisible()
 
       await validateScreenshot(
-        page.getByRole('dialog'),
+        page.locator('#duplicate-submission-modal .usa-modal__content'),
         'prevent-duplicate-submission',
       )
       await validateAccessibility(page)
