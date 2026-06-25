@@ -241,10 +241,10 @@ public class AdminProgramBlockQuestionsController extends Controller {
 
   /**
    * HTMX POST endpoint for when an initial question is picked while setting up an enumerator block.
-   * Returns the fragment that replaces the {@code #add-initial-question-button} and triggers the
-   * {@code closeQuestionBank} event on the client so the bank closes. The question is not yet
-   * attached to the block. Rather, the initial question id becomes the value of a hidden form field
-   * that will be submitted when the user clicks "Create repeated set".
+   * Returns the fragment that replaces the {@code #initial-question-slot} and triggers the {@code
+   * closeQuestionBank} event on the client so the bank closes. The question is not yet attached to
+   * the block. Rather, the initial question id becomes the value of a hidden form field that will
+   * be submitted when the user clicks "Create repeated set".
    */
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
   public Result hxSelectInitialQuestion(Request request, long programId, long blockId) {
@@ -271,8 +271,29 @@ public class AdminProgramBlockQuestionsController extends Controller {
       return notFound(String.format("Question ID %d not found", questionId.get()));
     }
 
-    return ok(blockEditView.renderSelectedInitialQuestion(selected).render())
+    return ok(blockEditView
+            .renderSelectedInitialQuestion(
+                messagesApi.preferred(request),
+                selected,
+                programId,
+                blockId,
+                /* initialQuestionWasNewlyCreated= */ false)
+            .render())
         .withHeader("HX-Trigger-After-Swap", "closeQuestionBank");
+  }
+
+  /**
+   * HTMX GET endpoint that returns the empty {@code #initial-question-slot} fragment. Used by the
+   * Delete button on the initial-question card to swap the slot back to its empty "Add question"
+   * state. The question has not yet been attached to the block, so no DB writes occur.
+   */
+  @Secure(authorizers = Labels.CIVIFORM_ADMIN)
+  public Result hxClearInitialQuestionSlot(Request request, long programId, long blockId) {
+    requestChecker.throwIfProgramNotDraft(programId);
+    return ok(
+        blockEditView
+            .renderEmptyInitialQuestionSlot(messagesApi.preferred(request), programId, blockId)
+            .render());
   }
 
   /** POST endpoint for removing a question from a screen. */

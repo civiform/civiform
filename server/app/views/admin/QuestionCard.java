@@ -9,6 +9,7 @@ import static j2html.TagCreator.ul;
 
 import com.google.common.collect.ImmutableList;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.UlTag;
@@ -82,14 +83,20 @@ public final class QuestionCard {
   /**
    * Renders a stripped-down card for use as the chosen initial question on the enumerator-creation
    * form. Hides the help text, optional toggle, move arrows, address-correction toggle, edit link,
-   * delete form, and visibility accordion — none of those apply while the initial question has not
-   * yet been attached to the block.
+   * and visibility accordion — none of those apply while the initial question has not yet been
+   * attached to the block.
+   *
+   * @param deleteButton optional HTMX-driven Delete button to swap the slot back to its empty
+   *     state.
    */
-  public static DivTag renderForInitialQuestion(QuestionDefinition selectedQuestion) {
+  public static DivTag renderForInitialQuestion(
+      QuestionDefinition selectedQuestion, Optional<ButtonTag> deleteButton) {
     return render(
         selectedQuestion,
         /* malformedQuestionDefinition= */ selectedQuestion instanceof NullQuestionDefinition,
-        /* editButtonsForProgramPage= */ ImmutableList.of(),
+        /* editButtonsForProgramPage= */ deleteButton
+            .map(b -> ImmutableList.<DomContent>of(b))
+            .orElse(ImmutableList.of()),
         /* maybeBadgeForImport= */ Optional.empty(),
         /* maybeDuplicateHandlingForImport= */ Optional.empty(),
         /* visibilityConditionEditLinks= */ Optional.empty(),
