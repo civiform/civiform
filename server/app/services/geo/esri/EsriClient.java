@@ -167,7 +167,7 @@ public abstract class EsriClient {
                 String errmsg =
                     String.format("Could not parse JSON response for address: [%s]", address);
                 logger.error(errmsg, e);
-                ESRI_LOOKUP_COUNT.labels("No suggestions").inc();
+                ESRI_LOOKUP_COUNT.labels("Parse failure").inc();
                 return AddressSuggestionGroup.empty(address);
               }
             });
