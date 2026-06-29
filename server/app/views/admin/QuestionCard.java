@@ -94,9 +94,8 @@ public final class QuestionCard {
     return render(
         selectedQuestion,
         /* malformedQuestionDefinition= */ selectedQuestion instanceof NullQuestionDefinition,
-        /* editButtonsForProgramPage= */ deleteButton
-            .map(b -> ImmutableList.<DomContent>of(b))
-            .orElse(ImmutableList.of()),
+        /* editButtonsForProgramPage= */ deleteButton.stream()
+            .collect(ImmutableList.toImmutableList()),
         /* maybeBadgeForImport= */ Optional.empty(),
         /* maybeDuplicateHandlingForImport= */ Optional.empty(),
         /* visibilityConditionEditLinks= */ Optional.empty(),
