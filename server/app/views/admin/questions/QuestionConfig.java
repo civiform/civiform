@@ -658,7 +658,7 @@ public final class QuestionConfig {
         FieldWithLabel.number()
             .setFieldName("minChoicesRequired")
             .setLabelText("Minimum number of choices required")
-            .setMin(OptionalLong.of(0L))
+            .setMin(OptionalLong.of(1L))
             .setValue(multiOptionForm.getMinChoicesRequired())
             .getNumberTag(),
         FieldWithLabel.number()
