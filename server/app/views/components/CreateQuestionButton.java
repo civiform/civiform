@@ -16,37 +16,54 @@ import services.settings.SettingsManifest;
 import views.style.StyleUtils;
 
 /**
- * Contains a helper method to render the create question button with it's corresponding dropdown.
+ * Contains helper methods to render the create question button with it's corresponding dropdown.
  */
 public final class CreateQuestionButton {
 
   /**
-   * Renders the "Create new question" button with a dropdown for each question type.
-   *
-   * <p>Set isEmptyBlock to true when the current block has no questions. Set isQuestionPage to true
-   * when rendering on the standalone questions list page.
+   * Renders the "Create new question" button with a question type dropdown, customized for the
+   * standalone admin questions list page.
    */
-  public static DivTag renderCreateQuestionButton(
-      String questionCreateRedirectUrl,
-      boolean isPrimaryButton,
-      Optional<String> enumeratorQuestion,
-      SettingsManifest settingsManifest,
-      Http.Request request,
-      boolean isEmptyBlock,
-      boolean isQuestionPage) {
+  public static DivTag renderCreateQuestionButtonForQuestionListPage(
+      SettingsManifest settingsManifest, Http.Request request) {
     return renderCreateQuestionButton(
-        questionCreateRedirectUrl,
-        isPrimaryButton,
-        enumeratorQuestion,
+        controllers.admin.routes.AdminQuestionController.index(Optional.empty()).url(),
+        /* isPrimaryButton= */ true,
+        /* enumeratorQuestion= */ Optional.empty(),
         /* isRepeatingBlock= */ true,
         settingsManifest,
         request,
-        isEmptyBlock,
-        isQuestionPage);
+        /* isEmptyBlock= */ true,
+        /* isQuestionPage= */ true);
   }
 
-  /** Renders the "Create new question" button with a dropdown for each question type. */
-  public static DivTag renderCreateQuestionButton(
+  /**
+   * Renders the "Create new question" button with a question type dropdown, customized for the
+   * program block edit page's question bank sidebar.
+   */
+  public static DivTag renderCreateQuestionButtonForProgramQuestionBank(
+      String questionCreateRedirectUrl,
+      Optional<String> enumeratorQuestion,
+      boolean isRepeatingBlock,
+      SettingsManifest settingsManifest,
+      Http.Request request,
+      boolean isEmptyBlock) {
+    return renderCreateQuestionButton(
+        questionCreateRedirectUrl,
+        /* isPrimaryButton= */ false,
+        enumeratorQuestion,
+        isRepeatingBlock,
+        settingsManifest,
+        request,
+        isEmptyBlock,
+        /* isQuestionPage= */ false);
+  }
+
+  /**
+   * Renders the "Create new question" button with a question type dropdown. Called by two public
+   * entry points; this is the shared implementation.
+   */
+  private static DivTag renderCreateQuestionButton(
       String questionCreateRedirectUrl,
       boolean isPrimaryButton,
       Optional<String> enumeratorQuestion,

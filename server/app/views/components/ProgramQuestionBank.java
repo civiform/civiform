@@ -184,18 +184,17 @@ public final class ProgramQuestionBank {
                               .withClass("flex")
                               .with(
                                   div().withClass("flex-grow"),
-                                  CreateQuestionButton.renderCreateQuestionButton(
-                                      params.questionCreateRedirectUrl(),
-                                      /* isPrimaryButton= */ false,
-                                      getParentEnumeratorId(),
-                                      params.blockDefinition().isRepeated(),
-                                      settingsManifest,
-                                      request,
-                                      /* isEmptyBlock= */ params
-                                              .blockDefinition()
-                                              .getQuestionCount()
-                                          == 0,
-                                      /* isQuestionPage= */ false)))));
+                                  CreateQuestionButton
+                                      .renderCreateQuestionButtonForProgramQuestionBank(
+                                          params.questionCreateRedirectUrl(),
+                                          getParentEnumeratorId(),
+                                          params.blockDefinition().isRepeated(),
+                                          settingsManifest,
+                                          request,
+                                          /* isEmptyBlock= */ params
+                                                  .blockDefinition()
+                                                  .getQuestionCount()
+                                              == 0)))));
     }
 
     // Sort by last modified, since that's the default of the sort by dropdown
