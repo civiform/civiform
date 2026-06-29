@@ -375,7 +375,7 @@ public final class ProgramQuestionBank {
                   controllers.admin.routes.AdminProgramBlockQuestionsController
                       .hxSelectInitialQuestion(programId, blockId)
                       .url())
-              .attr("hx-target", "#add-initial-question-button")
+              .attr("hx-target", "#initial-question-slot")
               .attr("hx-swap", "outerHTML");
       case ANY_ELIGIBLE, EXISTING_ENUMERATOR_ONLY ->
           questionForm

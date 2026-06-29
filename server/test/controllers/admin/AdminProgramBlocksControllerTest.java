@@ -755,7 +755,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
             hx-post="/admin/programs/%s/blocks/1/hx/selectInitialQuestion\"\
             """
                 .formatted(program.id));
-    assertThat(content).contains("hx-target=\"#add-initial-question-button\"");
+    assertThat(content).contains("hx-target=\"#initial-question-slot\"");
     assertThat(content).contains("hx-swap=\"outerHTML\"");
     assertThat(content).contains("Create new question");
     // INITIAL_QUESTION mode is HTMX-only: no native fallback method/action on the form.

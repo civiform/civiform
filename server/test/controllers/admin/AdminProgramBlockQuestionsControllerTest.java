@@ -202,6 +202,26 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void hxClearInitialQuestionSlot_returnsEmptySlot() {
+    ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
+
+    Result result = controller.hxClearInitialQuestionSlot(fakeRequest(), program.id, 1);
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = contentAsString(result);
+    assertThat(content).contains("id=\"initial-question-slot\"");
+    assertThat(content).contains("Add question");
+  }
+
+  @Test
+  public void hxClearInitialQuestionSlot_withActiveProgram_throws() {
+    Long programId = resourceCreator.insertActiveProgram("active program").id;
+    assertThatThrownBy(
+            () -> controller.hxClearInitialQuestionSlot(fakeRequest(), programId, /* blockId= */ 1))
+        .isInstanceOf(NotChangeableException.class);
+  }
+
+  @Test
   public void create_withActiveProgram_throws() {
     Long programId = resourceCreator.insertActiveProgram("active program").id;
     assertThatThrownBy(() -> controller.create(fakeRequest(), programId, /* blockId= */ 1))
