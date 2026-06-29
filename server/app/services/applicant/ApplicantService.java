@@ -1434,7 +1434,7 @@ public final class ApplicantService {
   private ImmutableList<ApplicantProgramData> sortByProgramId(
       ImmutableList<ApplicantProgramData> programs) {
     return programs.stream()
-        .sorted(Comparator.comparing(p -> p.program().id()))
+        .sorted(Comparator.comparingLong(p -> p.program().id()))
         .collect(ImmutableList.toImmutableList());
   }
 
