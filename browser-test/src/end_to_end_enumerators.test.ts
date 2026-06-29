@@ -301,6 +301,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         })
 
         await removeInitialQuestion(page, 'income-non-repeated-question')
+        await expectAddQuestionButton(page, 'income-non-repeated-question')
       })
 
       test('can create a new question to use as the initial question on a new enumerator and then remove it', async ({
@@ -369,6 +370,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         })
 
         await removeInitialQuestion(page, newQuestionAdminId)
+        await expectAddQuestionButton(page, 'income-non-repeated-question')
       })
     })
 
@@ -1618,8 +1620,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
   }
 
   /**
-   * Clicks the Delete button on the initial question card for `questionAdminId`, then verifies
-   * the slot reverts to the empty "Add question" state.
+   * Clicks the Delete button on the initial question card for `questionAdminId`.
    */
   async function removeInitialQuestion(page: Page, questionAdminId: string) {
     const initialQuestionSlot = page
@@ -1634,8 +1635,17 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         .click()
       await waitForHtmxReady(page)
     })
+  }
 
-    await test.step('Validate the slot reverts to the empty "Add question" state', async () => {
+  /**
+   * Verifies that the initial question slot reverts to the empty "Add question" state.
+   */
+  async function expectAddQuestionButton(page: Page, questionAdminId: string) {
+    const initialQuestionSlot = page
+      .getByTestId('block-panel-edit')
+      .locator('#initial-question-slot')
+
+    await test.step('Validate the initial question slot reverts to the empty "Add question" state', async () => {
       await expect(
         initialQuestionSlot.getByTestId(
           `question-admin-name-${questionAdminId}`,
