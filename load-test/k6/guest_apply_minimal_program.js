@@ -6,20 +6,37 @@ export const options = {
   scenarios: {
     default: {
       executor: "shared-iterations",
-      options: {
-	    browser: { type: "chromium" } },
-	    // Simultaneous users
-	    vus: 1,
-	    // Total runs across all users.
-	    iterations: 10,
-	    // max duration of the test, defaults to 10m
-	    maxDuration: "30m"
+      options: { browser: { type: "chromium" } },
+      // Simultaneous users
+      vus: 1,
+      // Total runs across all users
+      iterations: 10,
+      // max duration of the test, defaults to 10m
+      maxDuration: "30m",
     },
   },
+
+  // Timing alert criteria
+  // https://grafana.com/docs/k6/latest/using-k6/thresholds/
+  thresholds: {
+    // Edit actions should complete within 60ms on mean average and 100ms 95% of the time.
+    "browser_http_req_duration{name:block_edit}": ['avg < 60', 'p(95) < 100'],
+    "browser_http_req_duration{name:program_submit}": ['avg < 65', 'p(95) < 90']
+  }
 };
 
 export default async function () {
   const page = await browser.newPage();
+
+  // Connect urls with metric tags to use in the thresholds.
+  page.on("metric", (metric) => {
+    metric.tag({
+      name: "block_edit", matches: [{ url: /\/programs\/\d+\/blocks\/\d+\/edit$/ }],
+    });
+    metric.tag({
+      name: "program_submit", matches: [{ url: /\/programs\/\d+\/submit$/ }],
+    });
+  });
 
   try {
     await page.goto("http://civiform:9000/programs");
