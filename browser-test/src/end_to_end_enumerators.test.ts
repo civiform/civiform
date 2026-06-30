@@ -249,12 +249,27 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
     test.describe('Initial question', () => {
       test('can select an existing question as the initial question on a new enumerator and then remove it', async ({
         page,
+        adminPrograms,
+        adminQuestions,
       }) => {
         const blockPanel = page.getByTestId('block-panel-edit')
         const questionBankSidebar = page.getByRole('form', {
           name: 'Add a question',
         })
         const initialQuestionSlot = blockPanel.locator('#initial-question-slot')
+
+        await test.step('Seed a checkbox question to verify it is filtered out of the bank', async () => {
+          await adminQuestions.addCheckboxQuestion({
+            questionName: 'checkbox-invalid-question',
+            options: [
+              {adminName: 'op1_admin', text: 'op1'},
+              {adminName: 'op2_admin', text: 'op2'},
+            ],
+          })
+          await adminPrograms.gotoEditDraftProgramPage(
+            'Enumerator test program',
+          )
+        })
 
         await test.step('Add a new repeated set and select the parent block', async () => {
           await addRepeatedSetBlock(page, {selectParent: true})
@@ -267,15 +282,16 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           await expect(questionBankSidebar).toBeVisible()
         })
 
-        await test.step('Validate the bank shows non-enumerator questions and the "Create new question" button', async () => {
+        await test.step('Validate the bank shows valid types and hides invalid ones', async () => {
           await expect(
             questionBankSidebar.getByText('income-non-repeated-question'),
           ).toBeVisible()
           await expect(
-            questionBankSidebar.getByRole('button', {
-              name: 'Create new question',
-            }),
-          ).toBeVisible()
+            questionBankSidebar.getByText('enumerator-ete-householdmembers'),
+          ).toBeHidden()
+          await expect(
+            questionBankSidebar.getByText('checkbox-invalid-question'),
+          ).toBeHidden()
         })
 
         await pickQuestionFromBank(page, 'income-non-repeated-question')
@@ -371,6 +387,70 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
         await removeInitialQuestion(page, newQuestionAdminId)
         await expectAddQuestionButton(page, 'income-non-repeated-question')
+      })
+
+      test('shows only valid question types in the "Create new question" dropdown for an initial question', async ({
+        page,
+      }) => {
+        const blockPanel = page.getByTestId('block-panel-edit')
+        const questionBankSidebar = page.getByRole('form', {
+          name: 'Add a question',
+        })
+        const initialQuestionSlot = blockPanel.locator('#initial-question-slot')
+
+        await test.step('Add a new repeated set', async () => {
+          await addRepeatedSetBlock(page, {selectParent: true})
+        })
+
+        await test.step('Open the question bank', async () => {
+          await initialQuestionSlot
+            .getByRole('button', {name: 'Add question'})
+            .click()
+        })
+
+        await test.step('Open the "Create new question" dropdown', async () => {
+          await questionBankSidebar
+            .getByRole('button', {name: 'Create new question'})
+            .click()
+        })
+
+        const dropdownLocator = page.getByTestId(
+          'create-question-button-dropdown',
+        )
+
+        await test.step('Validate only valid types appear', async () => {
+          const validInitialQuestionTypes = [
+            'Address',
+            'Currency',
+            'Date',
+            'Dropdown',
+            'Email',
+            'ID',
+            'Name',
+            'Number',
+            'Phone Number',
+            'Radio Button',
+            'Text',
+          ]
+          for (const questionType of validInitialQuestionTypes) {
+            await expect(
+              dropdownLocator.getByText(questionType, {exact: true}),
+            ).toBeVisible()
+          }
+
+          const invalidInitialQuestionTypes = [
+            'Checkbox',
+            'Enumerator',
+            'File Upload',
+            'Static Text',
+            'Yes/No',
+          ]
+          for (const questionType of invalidInitialQuestionTypes) {
+            await expect(
+              dropdownLocator.getByText(questionType, {exact: true}),
+            ).not.toBeAttached()
+          }
+        })
       })
     })
 

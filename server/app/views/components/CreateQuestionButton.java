@@ -11,6 +11,7 @@ import j2html.tags.specialized.DivTag;
 import java.util.Locale;
 import java.util.Optional;
 import play.mvc.Http;
+import services.ProgramBlockValidation;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import views.style.StyleUtils;
@@ -34,7 +35,8 @@ public final class CreateQuestionButton {
         settingsManifest,
         request,
         /* isEmptyBlock= */ true,
-        /* isQuestionPage= */ true);
+        /* isQuestionPage= */ true,
+        /* isInitialQuestion= */ false);
   }
 
   /**
@@ -47,7 +49,8 @@ public final class CreateQuestionButton {
       boolean isRepeatingBlock,
       SettingsManifest settingsManifest,
       Http.Request request,
-      boolean isEmptyBlock) {
+      boolean isEmptyBlock,
+      boolean isInitialQuestion) {
     return renderCreateQuestionButton(
         questionCreateRedirectUrl,
         /* isPrimaryButton= */ false,
@@ -56,7 +59,8 @@ public final class CreateQuestionButton {
         settingsManifest,
         request,
         isEmptyBlock,
-        /* isQuestionPage= */ false);
+        /* isQuestionPage= */ false,
+        isInitialQuestion);
   }
 
   /**
@@ -71,7 +75,8 @@ public final class CreateQuestionButton {
       SettingsManifest settingsManifest,
       Http.Request request,
       boolean isEmptyBlock,
-      boolean isQuestionPage) {
+      boolean isQuestionPage,
+      boolean isInitialQuestion) {
     String parentId = "create-question-button";
     String dropdownId = parentId + "-dropdown";
     ButtonTag createNewQuestionButton =
@@ -93,7 +98,7 @@ public final class CreateQuestionButton {
                 "absolute",
                 "ml-3",
                 "mt-1",
-                // Small padding at the abottom for visual spacing
+                // Small padding at the bottom for visual spacing
                 "pb-3",
                 "hidden");
 
@@ -109,6 +114,10 @@ public final class CreateQuestionButton {
       if (type == QuestionType.ENUMERATOR
           && !isQuestionPage
           && (settingsManifest.getEnumeratorImprovementsEnabled(request) || !isEmptyBlock)) {
+        continue;
+      }
+      if (isInitialQuestion
+          && !ProgramBlockValidation.VALID_INITIAL_QUESTION_TYPES.contains(type)) {
         continue;
       }
 

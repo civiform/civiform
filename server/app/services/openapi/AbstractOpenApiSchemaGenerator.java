@@ -127,8 +127,8 @@ public abstract class AbstractOpenApiSchemaGenerator {
   /** Rules to determine if need to remap scalar to another scalar */
   protected static Scalar remapScalar(Scalar scalar) {
     return switch (scalar) {
-        // Special handling of service area as a string until we migrate the API to returning a
-        // complex array
+      // Special handling of service area as a string until we migrate the API to returning a
+      // complex array
       case SERVICE_AREAS -> Scalar.SERVICE_AREA;
       default -> scalar;
     };

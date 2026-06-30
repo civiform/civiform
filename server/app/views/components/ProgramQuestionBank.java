@@ -194,7 +194,9 @@ public final class ProgramQuestionBank {
                                           /* isEmptyBlock= */ params
                                                   .blockDefinition()
                                                   .getQuestionCount()
-                                              == 0)))));
+                                              == 0,
+                                          /* isInitialQuestion= */ params.mode()
+                                              == Mode.INITIAL_QUESTION)))));
     }
 
     // Sort by last modified, since that's the default of the sort by dropdown
@@ -426,7 +428,8 @@ public final class ProgramQuestionBank {
                         params.blockDefinition(),
                         q,
                         settingsManifest.getEnumeratorImprovementsEnabled(request),
-                        settingsManifest.getFileUploadQuestionImprovementsEnabled(request))
+                        settingsManifest.getFileUploadQuestionImprovementsEnabled(request),
+                        /* isInitialQuestionSelection= */ params.mode() == Mode.INITIAL_QUESTION)
                     == AddQuestionResult.ELIGIBLE);
   }
 
