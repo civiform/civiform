@@ -64,8 +64,8 @@ public final class CreateQuestionButton {
   }
 
   /**
-   * Renders the "Create new question" button with a question type dropdown. Called by two public
-   * entry points; this is the shared implementation.
+   * Renders the "Create new question" button with a question type dropdown. This method should be
+   * the only way the button is rendered to keep all uses consistent.
    */
   private static DivTag renderCreateQuestionButton(
       String questionCreateRedirectUrl,
