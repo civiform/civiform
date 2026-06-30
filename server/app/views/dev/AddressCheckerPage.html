@@ -173,9 +173,9 @@
           <cf:input
             class="usa-input"
             id="wellKnownId"
-            label="Well Known ID"
+            label="WellKnownId"
             name="wellKnownId"
-            type="number"
+            type="text"
             required
           />
           <div class="usa-form-group">
@@ -191,9 +191,6 @@
               class="usa-select"
               required
             >
-              <option value="" disabled selected>
-                Select a validation option
-              </option>
               <th:block
                 th:each="entry : ${model.serviceAreaValidationConfigMap.entrySet()}"
               >

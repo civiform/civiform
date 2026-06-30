@@ -42,7 +42,13 @@ class AdminValidationController {
     fieldErrorName: string,
     isValid: boolean,
   ) {
-    const errorDiv = element.parentElement!.querySelector(fieldErrorName)
+    // Search from the enclosing option row: the error element is a sibling of
+    // the input on the legacy page but lives one level up on the Thymeleaf
+    // page, where cf:input wraps the input in its own form-group div.
+    const optionRow = element.closest('.cf-multi-option-question-option')
+    const errorDiv = (optionRow ?? element.parentElement!).querySelector(
+      fieldErrorName,
+    )
     if (errorDiv) {
       errorDiv.classList.toggle('hidden', isValid)
     }

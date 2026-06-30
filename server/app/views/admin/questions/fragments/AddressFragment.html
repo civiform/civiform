@@ -1,0 +1,21 @@
+<!--/*@thymesVar id="questionForm" type="forms.questions.AddressQuestionForm"*/-->
+<!--/* Type-specific question config for ADDRESS questions. */-->
+<th:block
+  th:fragment="build(questionForm)"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <cf:checkbox
+    id="disallow-po-box"
+    name="disallowPoBox"
+    label="Address settings"
+    tiled="false"
+  >
+    <item
+      id="disallow-po-box-toggle"
+      value="true"
+      label="Disallow post office boxes"
+      th:selected="${questionForm.getDisallowPoBox()}"
+    ></item>
+  </cf:checkbox>
+</th:block>

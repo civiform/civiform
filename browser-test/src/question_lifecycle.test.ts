@@ -135,29 +135,25 @@ test.describe('normal question lifecycle', () => {
       /* clickSubmit= */ false,
     )
 
-    const downButtons = await page
-      .locator(
-        '.cf-multi-option-question-option-editable:not(.hidden) > .multi-option-question-field-move-down-button',
-      )
-      .all()
-    const upButtons = await page
-      .locator(
-        '.cf-multi-option-question-option-editable:not(.hidden) > .multi-option-question-field-move-up-button',
-      )
-      .all()
-    expect(upButtons).toHaveLength(4)
-    expect(downButtons).toHaveLength(4)
+    const downButtons = page.locator(
+      '.cf-multi-option-question-option-editable:not(.hidden) .multi-option-question-field-move-down-button',
+    )
+    const upButtons = page.locator(
+      '.cf-multi-option-question-option-editable:not(.hidden) .multi-option-question-field-move-up-button',
+    )
+    await expect(upButtons).toHaveCount(4)
+    await expect(downButtons).toHaveCount(4)
 
-    await downButtons[3].click() // Should do nothing
+    await downButtons.nth(3).click() // Should do nothing
     await waitForPageJsLoad(page)
-    await upButtons[0].click() // Should do nothing
+    await upButtons.nth(0).click() // Should do nothing
     await waitForPageJsLoad(page)
 
-    await downButtons[0].click() // becomes 2, 1, 3, 4
+    await downButtons.nth(0).click() // becomes 2, 1, 3, 4
     await waitForPageJsLoad(page)
-    await downButtons[1].click() // becomes 2, 3, 1, 4
+    await downButtons.nth(1).click() // becomes 2, 3, 1, 4
     await waitForPageJsLoad(page)
-    await upButtons[1].click() // becomes 3, 2, 1, 4
+    await upButtons.nth(1).click() // becomes 3, 2, 1, 4
     await waitForPageJsLoad(page)
 
     await page.click('#add-new-option')
@@ -165,13 +161,11 @@ test.describe('normal question lifecycle', () => {
       adminName: 'option5_admin',
       text: 'option5',
     })
-    const newUpButtons = await page
-      .locator(
-        '.cf-multi-option-question-option-editable:not(.hidden) > .multi-option-question-field-move-up-button',
-      )
-      .all()
-    expect(newUpButtons).toHaveLength(5)
-    await newUpButtons[4].click() // becomes 3, 2, 1, 5, 4
+    const newUpButtons = page.locator(
+      '.cf-multi-option-question-option-editable:not(.hidden) .multi-option-question-field-move-up-button',
+    )
+    await expect(newUpButtons).toHaveCount(5)
+    await newUpButtons.nth(4).click() // becomes 3, 2, 1, 5, 4
 
     await validateScreenshot(page, 'question-with-rearranged-options')
 
@@ -433,9 +427,7 @@ test.describe('normal question lifecycle', () => {
     await waitForPageJsLoad(adminQuestions.page)
 
     await expect(
-      page.locator(
-        adminQuestions.selectorForExportOption(AdminQuestions.NO_EXPORT_OPTION),
-      ),
+      adminQuestions.exportOptionRadio(AdminQuestions.NO_EXPORT_OPTION),
     ).toBeChecked()
 
     const questionName = 'textQuestionWithObfuscatedExport'
@@ -447,11 +439,7 @@ test.describe('normal question lifecycle', () => {
     // Confirm that the previously selected export option was propagated.
     await adminQuestions.gotoQuestionEditPage(questionName)
     await expect(
-      page.locator(
-        adminQuestions.selectorForExportOption(
-          AdminQuestions.EXPORT_OBFUSCATED_OPTION,
-        ),
-      ),
+      adminQuestions.exportOptionRadio(AdminQuestions.EXPORT_OBFUSCATED_OPTION),
     ).toBeChecked()
 
     // Edit the result and confirm that the new value is propagated.
@@ -596,9 +584,9 @@ test.describe('normal question lifecycle', () => {
       await expect(page.getByLabel('Question enumerator')).toContainText(
         enumeratorOne,
       )
-      await expect(page.getByLabel('Question enumerator')).toHaveAttribute(
-        'readonly',
-      )
+      // The Thymeleaf page disables the select (the value posts via a hidden
+      // enumeratorId input); "readonly" is not a valid attribute for <select>.
+      await expect(page.getByLabel('Question enumerator')).toBeDisabled()
     })
   })
 })

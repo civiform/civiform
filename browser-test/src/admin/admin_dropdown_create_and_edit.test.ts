@@ -47,19 +47,18 @@ test.describe('create dropdown question with options', () => {
       text: 'strawberry',
     })
 
-    // Assert there are three options present
-    let questionSettingsDiv = await page.innerHTML('#question-settings')
+    // Assert there are three options present. Use a locator (not innerHTML +
+    // regex): locators don't descend into inert <template> content, so the row
+    // template's inputs are excluded, and toHaveCount auto-waits.
     // 2 inputs each for 3 options (option, optionAdminName) + hidden nextAvailableId
-    expect(questionSettingsDiv.match(/<input/g)).toHaveLength(7)
+    await expect(page.locator('#question-settings input')).toHaveCount(7)
 
-    // Remove first option - use :visible to not select the hidden template
-    // await page.click('button:has-text("Delete"):visible')
+    // Remove first option
     await adminQuestions.deleteMultiOptionAnswer(0)
 
     // Assert there are only two options now
-    questionSettingsDiv = await page.innerHTML('#question-settings')
     // 2 inputs each for 2 options (option, optionAdminName) + hidden nextAvailableId
-    expect(questionSettingsDiv.match(/<input/g)).toHaveLength(5)
+    await expect(page.locator('#question-settings input')).toHaveCount(5)
     // First option should now be vanilla
     await adminQuestions.expectNewMultiOptionAnswer(0, {
       adminName: 'vanilla_admin',
@@ -80,9 +79,8 @@ test.describe('create dropdown question with options', () => {
 
     // Edit the question
     await adminQuestions.gotoQuestionEditPage(questionName)
-    questionSettingsDiv = await page.innerHTML('#question-settings')
     // 3 inputs each for 2 options (option, optionAdminName, and optionId) + hidden nextAvailableId
-    expect(questionSettingsDiv.match(/<input/g)).toHaveLength(7)
+    await expect(page.locator('#question-settings input')).toHaveCount(7)
     // Check that admin names were set correctly
     await adminQuestions.expectExistingMultiOptionAnswer(0, {
       adminName: 'vanilla_admin',

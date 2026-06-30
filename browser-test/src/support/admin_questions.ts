@@ -139,8 +139,12 @@ export class AdminQuestions {
     await expect(this.page.locator('h1')).toHaveText('All questions')
   }
 
-  selectorForExportOption(exportOption: string) {
-    return `label:has-text("${exportOption}") input`
+  exportOptionRadio(exportOption: string) {
+    // Role-based so it works on both the legacy j2html page (input nested in
+    // the label) and the Thymeleaf USWDS page (input is a sibling of the
+    // label). Exact match: "Include in demographic export" is a substring of
+    // the obfuscated option's label.
+    return this.page.getByRole('radio', {name: exportOption, exact: true})
   }
 
   async expectAdminQuestionsPageWithSuccessToast(successText: string) {
@@ -164,8 +168,12 @@ export class AdminQuestions {
     options: QuestionOption[],
     blankIndices: number[],
   ) {
+    // The error element differs between pages: the legacy j2html page renders
+    // a dedicated div.cf-multi-option-input-error, while on the Thymeleaf page
+    // FormValidation reports into the cf:input's own .usa-error-message span.
+    // Both live inside the .cf-multi-option-input wrapper.
     const errors = this.page.locator(
-      '#question-settings .cf-multi-option-input-error',
+      '#question-settings .cf-multi-option-input :is(.cf-multi-option-input-error, .usa-error-message)',
     )
     // Checks that the error is not hidden when its corresponding option is blank.
     // The order of the options array corresponds to the order of the errors array.
@@ -182,8 +190,10 @@ export class AdminQuestions {
     options: QuestionOption[],
     invalidIndices: number[],
   ) {
+    // See expectMultiOptionBlankOptionError for why this matches either the
+    // legacy error div or the Thymeleaf cf:input error span.
     const errors = this.page.locator(
-      '#question-settings .cf-multi-option-admin-input-error',
+      '#question-settings .cf-multi-option-admin-input :is(.cf-multi-option-admin-input-error, .usa-error-message)',
     )
     // Checks that the error is not hidden when its corresponding option adminName is invalid.
     // The order of the options array corresponds to the order of the errors array.
@@ -241,9 +251,7 @@ export class AdminQuestions {
       throw new Error('A non-empty export option must be provided')
     }
 
-    await this.page
-      .getByRole('radio', {name: exportOption, exact: true})
-      .check()
+    await this.page.getByText(exportOption, {exact: true}).click()
   }
 
   async selectDisplayMode(displayMode: QuestionDisplayMode | null) {
@@ -251,7 +259,14 @@ export class AdminQuestions {
       throw new Error('A non-empty displayMode option must be provided')
     }
 
-    await this.page.getByRole('radio', {name: displayMode}).check()
+    // The display mode radios render as USWDS "tile" radios, where the actual
+    // <input> is visually hidden off-screen and the visible control is the
+    // <label>. Clicking the input via .check() fails because it can't be
+    // scrolled into the viewport, so click the associated label instead.
+    const inputId = await this.page
+      .getByRole('radio', {name: displayMode})
+      .getAttribute('id')
+    await this.page.locator(`label[for="${inputId}"]`).click()
   }
 
   async updateQuestionText(updateText: string) {
@@ -1107,6 +1122,12 @@ export class AdminQuestions {
       AdminQuestions.multiOptionAdminInputSelector(index),
       option.adminName,
     )
+    // Blur now so validation renders any error message before the caller's
+    // next click. Blurring during that click would reflow the page between
+    // mousedown and mouseup, moving the target out from under the click.
+    await this.page
+      .locator(AdminQuestions.multiOptionAdminInputSelector(index))
+      .blur()
   }
 
   async expectNewMultiOptionAnswer(index: number, option: QuestionOption) {
@@ -1125,6 +1146,7 @@ export class AdminQuestions {
     await expect(
       this.page.locator(AdminQuestions.multiOptionInputSelector(index)),
     ).toHaveValue(option.text)
+
     await expect(
       this.page.locator(AdminQuestions.multiOptionAdminInputSelector(index)),
     ).toHaveValue(option.adminName)

@@ -1,0 +1,16 @@
+<!--/*@thymesVar id="questionForm" type="forms.questions.FileUploadQuestionForm"*/-->
+<!--/* Type-specific question config for FILEUPLOAD questions. */-->
+<th:block
+  th:fragment="build(questionForm)"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
+  <cf:input
+    id="file-max-files"
+    name="maxFiles"
+    label="Maximum number of file uploads"
+    type="number"
+    min="1"
+    th:value="${questionForm.getMaxFiles().isPresent() ? questionForm.getMaxFiles().getAsInt() : ''}"
+  />
+</th:block>

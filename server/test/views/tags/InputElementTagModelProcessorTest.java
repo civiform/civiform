@@ -60,7 +60,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             th:name="${model.name()}"
             th:label="${model.label()}" />
         """,
-        """
+"""
 <div class="usa-form-group">
   <label class="usa-label" for="firstName">First Name</label>
   <span id="error-message-firstName" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -76,7 +76,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             name="firstName"
             label="First Name" />
         """,
-        """
+"""
 <div class="usa-form-group">
   <label class="usa-label" for="firstName">First Name</label>
   <span id="error-message-firstName" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -102,7 +102,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             th:label="${model.label()}"
             th:disabled="${model.disabled()}" />
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="firstName">First Name</label>
 <span id="error-message-firstName" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -119,7 +119,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             label="First Name"
             disabled="true" />
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="firstName">First Name</label>
 <span id="error-message-firstName" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -145,7 +145,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             th:label="${model.label()}"
             th:readonly="${model.readonly()}" />
         """,
-        """
+"""
 <div class="usa-form-group">
   <label class="usa-label" for="firstName">First Name</label>
   <span id="error-message-firstName" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -162,7 +162,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             label="First Name"
             readonly="true" />
         """,
-        """
+"""
 <div class="usa-form-group">
   <label class="usa-label" for="firstName">First Name</label>
   <span id="error-message-firstName" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -188,7 +188,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             th:label="${model.label()}"
             th:value="${model.value()}" />
         """,
-        """
+"""
 <div class="usa-form-group">
   <label class="usa-label" for="email">Email Address</label>
   <span id="error-message-email" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -205,7 +205,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             label="Email Address"
             value="test@example.com" />
         """,
-        """
+"""
 <div class="usa-form-group">
   <label class="usa-label" for="email">Email Address</label>
   <span id="error-message-email" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -231,7 +231,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             th:label="${model.label()}"
             th:placeholder="${model.placeholder()}" />
         """,
-        """
+"""
 <div class="usa-form-group">
   <label class="usa-label" for="phone">Phone Number</label>
   <span id="error-message-phone" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -248,7 +248,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             label="Phone Number"
             placeholder="(555) 555-5555" />
         """,
-        """
+"""
 <div class="usa-form-group">
   <label class="usa-label" for="phone">Phone Number</label>
   <span id="error-message-phone" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -274,7 +274,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             th:label="${model.label()}"
             th:help-text="${model.helpText()}" />
         """,
-        """
+"""
 <div class="usa-form-group">
   <label class="usa-label" for="username">Username</label>
   <div id="help-text-username" class="usa-hint">Choose a unique username</div>
@@ -292,7 +292,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             label="Username"
             help-text="Choose a unique username" />
         """,
-        """
+"""
 <div class="usa-form-group">
   <label class="usa-label" for="username">Username</label>
   <div id="help-text-username" class="usa-hint">Choose a unique username</div>
@@ -321,7 +321,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             th:is-valid="${model.isValid()}"
             th:validation-message="${model.validationMessage()}" />
         """,
-        """
+"""
 <div class="usa-form-group usa-form-group--error">
   <label class="usa-label" for="email">Email Address</label>
   <span id="error-message-email" class="usa-error-message" role="alert">Please enter a valid email address</span>
@@ -339,7 +339,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             is-valid="false"
             validation-message="Please enter a valid email address" />
         """,
-        """
+"""
 <div class="usa-form-group usa-form-group--error">
   <label class="usa-label" for="email">Email Address</label>
   <span id="error-message-email" class="usa-error-message" role="alert">Please enter a valid email address</span>
@@ -360,7 +360,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             th:label="${model.label()}"
             th:required="${model.required()}" />
         """,
-        """
+"""
 <div class="usa-form-group">
   <label class="usa-label" for="password">Password</label>
   <span id="error-message-password" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -377,7 +377,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             label="Password"
             required="true" />
         """,
-        """
+"""
 <div class="usa-form-group">
   <label class="usa-label" for="password">Password</label>
   <span id="error-message-password" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -403,7 +403,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             th:label="${model.label()}"
             th:type="${model.type()}" />
         """,
-        """
+"""
 <div class="usa-form-group">
   <label class="usa-label" for="birthdate">Date of Birth</label>
   <span id="error-message-birthdate" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -421,7 +421,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             th:label="${model.label()}"
             th:type="${model.type()}" />
         """,
-        """
+"""
 <div class="usa-form-group">
   <label class="usa-label" for="email">Email</label>
   <span id="error-message-email" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -446,7 +446,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             th:type="${model.type()}"
             th:required="${model.required()}" />
         """,
-        """
+"""
 <div class="usa-form-group">
   <label class="usa-label" for="password">Password</label>
   <span id="error-message-password" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -471,7 +471,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             th:type="${model.type()}"
             th:value="${model.value()}" />
         """,
-        """
+"""
 <div class="usa-form-group">
   <label class="usa-label" for="quantity">Quantity</label>
   <span id="error-message-quantity" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -496,7 +496,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             th:type="${model.type()}"
             th:placeholder="${model.placeholder()}" />
         """,
-        """
+"""
 <div class="usa-form-group">
   <label class="usa-label" for="phone">Phone</label>
   <span id="error-message-phone" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -521,7 +521,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             th:type="${model.type()}"
             th:placeholder="${model.placeholder()}" />
         """,
-        """
+"""
 <div class="usa-form-group">
   <label class="usa-label" for="website">Website</label>
   <span id="error-message-website" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -539,7 +539,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
         <cf:input th:id="${model.id()}" th:name="${model.name()}"
                   th:label="${model.label()}" th:size="${model.size()}" />
         """,
-        """
+"""
 <div class="usa-form-group">
   <label class="usa-label" for="tiny">Tiny</label>
   <span id="error-message-tiny" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -557,7 +557,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             th:label="${model.label()}"
             th:size="${model.size()}" />
         """,
-        """
+"""
 <div class="usa-form-group">
   <label class="usa-label" for="zipcode">ZIP Code</label>
   <span id="error-message-zipcode" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -575,7 +575,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             th:label="${model.label()}"
             th:size="${model.size()}" />
         """,
-        """
+"""
 <div class="usa-form-group">
   <label class="usa-label" for="city">City</label>
   <span id="error-message-city" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -617,7 +617,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             th:maxlength="${model.maxLength()}"
             th:pattern="${model.pattern()}"/>
         """,
-        """
+"""
 <div class="usa-form-group">
   <label class="usa-label" for="fullName">Full Name</label>
   <div id="help-text-fullName" class="usa-hint">First and last name</div>
@@ -643,7 +643,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             maxlength="100"
             pattern="[A-Z]"/>
         """,
-        """
+"""
 <div class="usa-form-group">
   <label class="usa-label" for="fullName">Full Name</label>
   <div id="help-text-fullName" class="usa-hint">First and last name</div>
@@ -673,7 +673,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             th:is-valid="${model.isValid()}"
             th:validation-message="${model.validationMessage()}" />
         """,
-        """
+"""
 <div class="usa-form-group usa-form-group--error">
   <label class="usa-label" for="age">Age</label>
   <div id="help-text-age" class="usa-hint">Must be 18 or older</div>
@@ -696,7 +696,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             data-testid="tracking-input"
             data-analytics="track-me" />
         """,
-        """
+"""
 <div class="usa-form-group">
   <label class="usa-label" for="tracking">Tracking ID</label>
   <span id="error-message-tracking" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -715,7 +715,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             th:data-testid="${model.id()}"
             th:data-analytics="${model.name()}" />
         """,
-        """
+"""
 <div class="usa-form-group">
   <label class="usa-label" for="tracking">Tracking ID</label>
   <span id="error-message-tracking" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -736,7 +736,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             th:label="${model.label()}"
             aria-label="Search the site" />
         """,
-        """
+"""
 <div class="usa-form-group">
   <label class="usa-label" for="search">Search</label>
   <span id="error-message-search" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -754,11 +754,52 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             th:label="${model.label()}"
             th:aria-label="${model.label()}" />
         """,
-        """
+"""
 <div class="usa-form-group">
   <label class="usa-label" for="search">Search</label>
   <span id="error-message-search" class="usa-error-message" role="alert" hidden="hidden"></span>
   <input type="text" class="usa-input" id="search" name="search" aria-label="Search"/>
+</div>
+""");
+  }
+
+  @Test
+  public void input_with_hx_attributes_plain_and_thymeleaf() {
+    // Plain hx attributes (e.g. the GeoJSON endpoint field on the map question form)
+    assertHtml(
+        Model.builder().id("geoJsonURL").name("geoJsonEndpoint").label("GeoJSON").build(),
+        """
+        <cf:input
+            th:id="${model.id()}"
+            th:name="${model.name()}"
+            th:label="${model.label()}"
+            hx-post="/admin/geoJson/hx/getData"
+            hx-target="#geoJsonOutput"
+            hx-trigger="input changed delay:300ms" />
+        """,
+"""
+<div class="usa-form-group">
+  <label class="usa-label" for="geoJsonURL">GeoJSON</label>
+  <span id="error-message-geoJsonEndpoint" class="usa-error-message" role="alert" hidden="hidden"></span>
+  <input type="text" class="usa-input" id="geoJsonURL" name="geoJsonEndpoint" hx-post="/admin/geoJson/hx/getData" hx-target="#geoJsonOutput" hx-trigger="input changed delay:300ms"/>
+</div>
+""");
+
+    // Thymeleaf hx attributes
+    assertHtml(
+        Model.builder().id("geoJsonURL").name("geoJsonEndpoint").label("GeoJSON").build(),
+        """
+        <cf:input
+            th:id="${model.id()}"
+            th:name="${model.name()}"
+            th:label="${model.label()}"
+            th:hx-post="${'/admin/geoJson/hx/getData'}" />
+        """,
+"""
+<div class="usa-form-group">
+  <label class="usa-label" for="geoJsonURL">GeoJSON</label>
+  <span id="error-message-geoJsonEndpoint" class="usa-error-message" role="alert" hidden="hidden"></span>
+  <input type="text" class="usa-input" id="geoJsonURL" name="geoJsonEndpoint" hx-post="/admin/geoJson/hx/getData"/>
 </div>
 """);
   }
@@ -779,7 +820,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             th:label="${model.label()}"
             th:is-valid="${model.isValid()}" />
         """,
-        """
+"""
 <div class="usa-form-group">
   <label class="usa-label" for="complex">Email</label>
   <span id="error-message-user-profile-email" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -798,7 +839,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             name="mixedInput"
             label="Mixed Input" />
         """,
-        """
+"""
 <div class="usa-form-group">
   <label class="usa-label" for="mixed">Mixed Input</label>
   <span id="error-message-mixedInput" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -819,7 +860,7 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
             th:validation-class="${model.getClassName()}"
             validation-field="name"/>
         """,
-        """
+"""
 <div class="usa-form-group">
   <label class="usa-label" for="firstName">First Name</label>
   <span id="error-message-firstName" class="usa-error-message" role="alert" hidden="hidden"></span>

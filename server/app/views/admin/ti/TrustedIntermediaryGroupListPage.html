@@ -41,12 +41,7 @@
     name="sortForm"
   >
     <label for="cf-ti-list">Sort by:</label>
-    <select
-      id="cf-ti-list"
-      name="sort"
-      class="usa-select"
-      onchange="this.form.submit()"
-    >
+    <select id="cf-ti-list" name="sort" class="usa-select">
       <option value="" disabled hidden>-- Select sort --</option>
       <th:block th:each="opt : ${model.sortOptions}">
         <th:block th:each="optionValue : ${opt.selectOptions}">
@@ -71,12 +66,12 @@
       </tr>
     </thead>
     <tbody>
-      <tr th:each="group : ${model.tiGroups}">
-        <td>
+      <tr th:each="group : ${model.tiGroups}" class="cf-ti-row">
+        <td data-testid="ti-info">
           <div th:text="${group.name}"></div>
           <div th:text="${group.description}"></div>
         </td>
-        <td>
+        <td data-testid="ti-member">
           <div>
             Members:
             <span th:text="${#lists.size(group.trustedIntermediaries)}"></span>
@@ -89,7 +84,7 @@
           <form
             th:action="${model.editGroupUrls[group.id]}"
             method="get"
-            style="display: inline"
+            class="display-inline"
           >
             <cf:button type="submit" class="usa-button">
               Edit members
@@ -98,7 +93,7 @@
           <form
             th:action="${model.deleteGroupUrls[group.id]}"
             method="post"
-            style="display: inline"
+            class="display-inline"
           >
             <input
               type="hidden"
@@ -111,4 +106,18 @@
       </tr>
     </tbody>
   </table>
+</th:block>
+
+<th:block th:fragment="scripts">
+  <!--/*
+    Auto-submit the sort form when the selection changes. This replaces an
+    inline onchange handler, which the CSP (script-src-attr) blocks.
+  */-->
+  <script th:nonce="${templateGlobals.cspNonce()}">
+    document
+      .getElementById('cf-ti-list')
+      ?.addEventListener('change', (event) => {
+        event.target.form.submit()
+      })
+  </script>
 </th:block>

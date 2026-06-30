@@ -232,11 +232,12 @@ public abstract class AbstractElementModelProcessor
     return null;
   }
 
-  /** Filter full attribute map for data-* and aria-* attributes */
+  /** Filter full attribute map for data-*, aria-*, and hx-* attributes */
   protected static Map<String, String> getDataAndAriaAttributes(Map<String, String> attributeMap) {
     var ignoredAttributes = Set.of("aria-describedby", "aria-invalid");
     var allowedAttributePrefixes =
-        ImmutableList.of("data-", "th:data-", "aria-", "th:aria-", "form", "th:form");
+        ImmutableList.of(
+            "data-", "th:data-", "aria-", "th:aria-", "form", "th:form", "hx-", "th:hx-");
 
     Map<String, String> attrs = new LinkedHashMap<>();
 

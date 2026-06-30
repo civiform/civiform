@@ -113,10 +113,12 @@ test.describe('Trusted intermediaries', () => {
     await test.step('publish programs with categories', async () => {
       await adminPrograms.publishAllDrafts()
     })
+
     await test.step('Navigate to homepage', async () => {
       await logout(page)
       await loginAsTrustedIntermediary(page)
     })
+
     await test.step('Create a new client', async () => {
       await waitForPageJsLoad(page)
       const client: ClientInformation = {
@@ -130,6 +132,7 @@ test.describe('Trusted intermediaries', () => {
       await tiDashboard.expectDashboardContainClient(client)
       await tiDashboard.clickOnViewApplications()
     })
+
     await test.step('Apply to a program and verify that applied program is under my applicatins section of view application page', async () => {
       await applicantQuestions.applyProgram(primaryProgramName)
       await applicantQuestions.answerTextQuestion('first answer')
@@ -192,6 +195,7 @@ test.describe('Trusted intermediaries', () => {
         /* filtersOn= */ false,
       )
     })
+
     await test.step('Select a filter, click the filter submit button and verify the Recommended and Other programs sections with finished application', async () => {
       await applicantQuestions.filterProgramsAndExpectInCorrectSections(
         {
@@ -208,6 +212,7 @@ test.describe('Trusted intermediaries', () => {
       )
     })
   })
+
   test('expect Client Date Of Birth to be Updated', async ({
     page,
     tiDashboard,
@@ -242,6 +247,7 @@ test.describe('Trusted intermediaries', () => {
     await waitForPageJsLoad(page)
     await tiDashboard.expectDashboardContainClient(updatedClient)
   })
+
   test('expect client info to be updated with empty emails', async ({
     page,
     tiDashboard,
@@ -854,6 +860,7 @@ test.describe('Trusted intermediaries', () => {
     adminTiGroups,
   }) => {
     await loginAsAdmin(page)
+
     await test.step('set up group aaa with 3 memebers', async () => {
       await adminTiGroups.gotoAdminTIPage()
       await adminTiGroups.fillInGroupBasics('aaa', 'aaa')
@@ -877,32 +884,39 @@ test.describe('Trusted intermediaries', () => {
 
     await adminTiGroups.gotoAdminTIPage()
     await page.locator('#cf-ti-list').selectOption('tiname-asc')
-    const tiNamesAsc = await page.getByTestId('ti-info').allInnerTexts()
-    console.log(page.getByTestId('ti-info'))
-    expect(tiNamesAsc).toEqual(['aaa\naaa', 'bbb\nbbb', 'ccc\nccc'])
+    await expect(page.getByTestId('ti-info')).toHaveText(
+      ['aaa\naaa', 'bbb\nbbb', 'ccc\nccc'],
+      {useInnerText: true},
+    )
     await validateScreenshot(page, 'ti-list-sort-dropdown-tiname-asc')
 
     await page.locator('#cf-ti-list').selectOption('tiname-desc')
-    const tiNamesDesc = await page.getByTestId('ti-info').allInnerTexts()
-    expect(tiNamesDesc).toEqual(['ccc\nccc', 'bbb\nbbb', 'aaa\naaa'])
+    await expect(page.getByTestId('ti-info')).toHaveText(
+      ['ccc\nccc', 'bbb\nbbb', 'aaa\naaa'],
+      {useInnerText: true},
+    )
     await validateScreenshot(page, 'ti-list-sort-dropdown-tiname-desc')
 
     await page.locator('#cf-ti-list').selectOption('nummember-desc')
-    const tiMemberDesc = await page.getByTestId('ti-member').allInnerTexts()
-    expect(tiMemberDesc).toEqual([
-      'Members: 3\nClients: 0',
-      'Members: 1\nClients: 0',
-      'Members: 0\nClients: 0',
-    ])
+    await expect(page.getByTestId('ti-member')).toHaveText(
+      [
+        'Members: 3\nClients: 0',
+        'Members: 1\nClients: 0',
+        'Members: 0\nClients: 0',
+      ],
+      {useInnerText: true},
+    )
     await validateScreenshot(page, 'ti-list-sort-dropdown-nummember-desc')
 
     await page.locator('#cf-ti-list').selectOption('nummember-asc')
-    const tiMemberAsc = await page.getByTestId('ti-member').allInnerTexts()
-    expect(tiMemberAsc).toEqual([
-      'Members: 0\nClients: 0',
-      'Members: 1\nClients: 0',
-      'Members: 3\nClients: 0',
-    ])
+    await expect(page.getByTestId('ti-member')).toHaveText(
+      [
+        'Members: 0\nClients: 0',
+        'Members: 1\nClients: 0',
+        'Members: 3\nClients: 0',
+      ],
+      {useInnerText: true},
+    )
     await validateScreenshot(page, 'ti-list-sort-dropdown-nummember-asc')
   })
 
@@ -1408,6 +1422,7 @@ test.describe('Trusted intermediaries', () => {
         dobDate: '2001-01-01',
         notes: 'Notes',
       }
+
       await test.step('verify the client info is shown in the TI Dashboard', async () => {
         await tiDashboard.gotoTIDashboardPage(page, true)
         await waitForPageJsLoad(page)

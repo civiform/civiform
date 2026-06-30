@@ -17,7 +17,7 @@ export class AdminTIGroups {
 
   async expectAdminTIPage() {
     await expect(this.page.locator('h1')).toHaveText(
-      'Create new trusted intermediary',
+      'Manage Trusted Intermediaries',
     )
   }
 

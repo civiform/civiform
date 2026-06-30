@@ -1799,7 +1799,10 @@ export class AdminPrograms {
     await noteContentArea.fill(noteContent)
 
     const saveButton = (await editModal.$('text=Save'))!
-    await saveButton.click()
+    // Saving submits the form and redirects; wait for the resulting page
+    // load rather than polling the current page's load state, which can
+    // resolve before the navigation starts.
+    await Promise.all([this.page.waitForEvent('load'), saveButton.click()])
     await waitForPageJsLoad(this.page)
   }
 

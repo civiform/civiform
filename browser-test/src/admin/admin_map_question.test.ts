@@ -17,6 +17,16 @@ test.describe('Create and edit map question', () => {
       })
 
       await test.step('Verify form validation and HTMX behavior', async () => {
+        // Client-side validation on the Thymeleaf question form cancels
+        // in-form HTMX requests while any required field is empty, so fill
+        // in the required fields before entering the endpoint URL.
+        await adminQuestions.fillInQuestionBasics({
+          questionName: 'map-question-form',
+          description: 'test map question',
+          questionText: 'test map question',
+          helpText: 'map question',
+        })
+
         const geoJsonInput = page.getByLabel('GeoJSON endpoint')
         await expect(geoJsonInput).toHaveAttribute('aria-required', 'true')
 
@@ -24,7 +34,6 @@ test.describe('Create and edit map question', () => {
           '**/admin/geoJson/hx/getData',
         )
         await geoJsonInput.fill('http://mock-web-services:8000/geojson/data')
-        await geoJsonInput.dispatchEvent('change')
         await htmxResponsePromise
       })
 
@@ -167,12 +176,11 @@ test.describe('Create and edit map question', () => {
       await test.step('Verify validation prevents submission with empty settings', async () => {
         await adminQuestions.clickSubmitButtonAndNavigate('Create')
 
-        await expect(page.getByText('Create')).toBeVisible()
-        await expect(page.getByLabel('GeoJSON endpoint')).toBeVisible()
-
-        const toastContainer = await page.innerHTML('#toast-container')
-        expect(toastContainer).toContain('bg-cf-toast-error')
-        expect(toastContainer).toContain('cannot be empty')
+        await expect(page.getByRole('button', {name: 'Create'})).toBeVisible()
+        await expect(page.getByLabel('GeoJSON Endpoint URL')).toBeVisible()
+        await expect(
+          page.getByRole('alert').filter({hasText: 'This field is required'}),
+        ).toBeVisible()
       })
     })
 

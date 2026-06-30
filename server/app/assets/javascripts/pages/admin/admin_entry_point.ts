@@ -36,6 +36,7 @@ import htmx from '@/htmx'
 
 import {AdminProgramApiBridge} from '@/admin_program_api_bridge'
 import {featureFlags} from '@/global/shared/feature_flags'
+import {FormValidation} from '@/global/shared/form_validation'
 
 // Ensure the object path exists
 window.app = window.app || {}
@@ -71,7 +72,14 @@ function initializeEverything(): void {
   adminPrograms.init()
   adminProgramStatusesView.init()
   adminSettingsView.init()
-  adminValidation.init()
+  if (featureFlags().isAdminUiMigrationScEnabled) {
+    // Thymeleaf pages opt in via data-form-type and use the Constraint
+    // Validation API driven FormValidation.
+    FormValidation.init()
+  } else {
+    // Legacy j2html question edit page.
+    adminValidation.init()
+  }
   apiDocs.init()
   devIcons.init()
   modal.init()

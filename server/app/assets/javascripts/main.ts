@@ -188,10 +188,10 @@ export function init() {
   }
 
   // Wire add/remove/reorder for multi-option question answers on the admin
-  // question form. The question editor is still the j2html page even when the
-  // SC migration flag is on, and no other bundle wires these handlers, so this
-  // must run unconditionally. init() is idempotent (options are tracked in a
-  // WeakSet), so there is no double-binding risk.
+  // question form. This covers the legacy j2html pages; on the Thymeleaf
+  // question pages the page bundle (pages/admin/question_edit_page) inits
+  // first and this call is a no-op. init() is idempotent (guarded by a
+  // dataset flag on the container), so there is no double-binding risk.
   new MultiOptionQuestion().init()
 
   // Note that this formatting logic mimics QuestionDefinition.getQuestionNameKey()

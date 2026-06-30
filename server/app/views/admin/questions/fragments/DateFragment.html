@@ -1,0 +1,290 @@
+<!--/*@thymesVar id="questionForm" type="forms.questions.DateQuestionForm"*/-->
+<!--/* Type-specific question config for DATE questions. */-->
+<th:block
+  th:fragment="build(questionForm)"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+  th:with="minDateType=${questionForm.getMinDateType().isPresent() ? questionForm.getMinDateType().get().toString() : 'ANY'},
+           maxDateType=${questionForm.getMaxDateType().isPresent() ? questionForm.getMaxDateType().get().toString() : 'ANY'}"
+>
+  <fieldset>
+    <legend>Validation parameters</legend>
+    <p>Set the parameters for allowable values for this date question below.</p>
+
+    <!--/* Start date */-->
+    <cf:select
+      id="min-date-type"
+      name="minDateType"
+      label="Start date"
+      required="true"
+    >
+      <option value="ANY" th:selected="${minDateType == 'ANY'}">
+        Any past date
+      </option>
+      <option
+        value="APPLICATION_DATE"
+        th:selected="${minDateType == 'APPLICATION_DATE'}"
+      >
+        Current date of application
+      </option>
+      <option value="CUSTOM" th:selected="${minDateType == 'CUSTOM'}">
+        Custom date
+      </option>
+    </cf:select>
+
+    <fieldset
+      id="min-custom-date-fieldset"
+      th:hidden="${minDateType != 'CUSTOM'}"
+      th:disabled="${minDateType != 'CUSTOM'}"
+    >
+      <legend>Start custom date</legend>
+      <div>
+        <div>
+          <cf:select
+            id="min-custom-date-month"
+            name="minCustomMonth"
+            label="Month"
+            th:value="${questionForm.getMinCustomMonth().orElse('')}"
+            required="true"
+          >
+            <option value="">- Select -</option>
+            <option
+              value="1"
+              th:selected="${#strings.equals(questionForm.getMinCustomMonth().orElse(''), '1')}"
+            >
+              1 - January
+            </option>
+            <option
+              value="2"
+              th:selected="${#strings.equals(questionForm.getMinCustomMonth().orElse(''), '2')}"
+            >
+              2 - February
+            </option>
+            <option
+              value="3"
+              th:selected="${#strings.equals(questionForm.getMinCustomMonth().orElse(''), '3')}"
+            >
+              3 - March
+            </option>
+            <option
+              value="4"
+              th:selected="${#strings.equals(questionForm.getMinCustomMonth().orElse(''), '4')}"
+            >
+              4 - April
+            </option>
+            <option
+              value="5"
+              th:selected="${#strings.equals(questionForm.getMinCustomMonth().orElse(''), '5')}"
+            >
+              5 - May
+            </option>
+            <option
+              value="6"
+              th:selected="${#strings.equals(questionForm.getMinCustomMonth().orElse(''), '6')}"
+            >
+              6 - June
+            </option>
+            <option
+              value="7"
+              th:selected="${#strings.equals(questionForm.getMinCustomMonth().orElse(''), '7')}"
+            >
+              7 - July
+            </option>
+            <option
+              value="8"
+              th:selected="${#strings.equals(questionForm.getMinCustomMonth().orElse(''), '8')}"
+            >
+              8 - August
+            </option>
+            <option
+              value="9"
+              th:selected="${#strings.equals(questionForm.getMinCustomMonth().orElse(''), '9')}"
+            >
+              9 - September
+            </option>
+            <option
+              value="10"
+              th:selected="${#strings.equals(questionForm.getMinCustomMonth().orElse(''), '10')}"
+            >
+              10 - October
+            </option>
+            <option
+              value="11"
+              th:selected="${#strings.equals(questionForm.getMinCustomMonth().orElse(''), '11')}"
+            >
+              11 - November
+            </option>
+            <option
+              value="12"
+              th:selected="${#strings.equals(questionForm.getMinCustomMonth().orElse(''), '12')}"
+            >
+              12 - December
+            </option>
+          </cf:select>
+        </div>
+        <div>
+          <cf:input
+            label="Day"
+            id="min-custom-date-day"
+            name="minCustomDay"
+            type="number"
+            min="1"
+            max="31"
+            th:value="${questionForm.getMinCustomDay().orElse('')}"
+            required="true"
+          />
+        </div>
+        <div>
+          <cf:input
+            label="Year"
+            id="min-custom-date-year"
+            name="minCustomYear"
+            type="number"
+            min="1900"
+            max="2100"
+            th:value="${questionForm.getMinCustomYear().orElse('')}"
+            required="true"
+          />
+        </div>
+      </div>
+    </fieldset>
+
+    <!--/* End date */-->
+    <cf:select
+      id="max-date-type"
+      name="maxDateType"
+      label="End date"
+      required="true"
+    >
+      <option value="ANY" th:selected="${maxDateType == 'ANY'}">
+        Any future date
+      </option>
+      <option
+        value="APPLICATION_DATE"
+        th:selected="${maxDateType == 'APPLICATION_DATE'}"
+      >
+        Current date of application
+      </option>
+      <option value="CUSTOM" th:selected="${maxDateType == 'CUSTOM'}">
+        Custom date
+      </option>
+    </cf:select>
+
+    <fieldset
+      id="max-custom-date-fieldset"
+      th:hidden="${maxDateType != 'CUSTOM'}"
+      th:disabled="${maxDateType != 'CUSTOM'}"
+    >
+      <legend>End custom date</legend>
+      <div>
+        <div>
+          <cf:select
+            id="max-custom-date-month"
+            name="maxCustomMonth"
+            label="Month"
+            th:value="${questionForm.getMaxCustomMonth().orElse('')}"
+            required="true"
+          >
+            <option value="">- Select -</option>
+            <option
+              value="1"
+              th:selected="${#strings.equals(questionForm.getMaxCustomMonth().orElse(''), '1')}"
+            >
+              1 - January
+            </option>
+            <option
+              value="2"
+              th:selected="${#strings.equals(questionForm.getMaxCustomMonth().orElse(''), '2')}"
+            >
+              2 - February
+            </option>
+            <option
+              value="3"
+              th:selected="${#strings.equals(questionForm.getMaxCustomMonth().orElse(''), '3')}"
+            >
+              3 - March
+            </option>
+            <option
+              value="4"
+              th:selected="${#strings.equals(questionForm.getMaxCustomMonth().orElse(''), '4')}"
+            >
+              4 - April
+            </option>
+            <option
+              value="5"
+              th:selected="${#strings.equals(questionForm.getMaxCustomMonth().orElse(''), '5')}"
+            >
+              5 - May
+            </option>
+            <option
+              value="6"
+              th:selected="${#strings.equals(questionForm.getMaxCustomMonth().orElse(''), '6')}"
+            >
+              6 - June
+            </option>
+            <option
+              value="7"
+              th:selected="${#strings.equals(questionForm.getMaxCustomMonth().orElse(''), '7')}"
+            >
+              7 - July
+            </option>
+            <option
+              value="8"
+              th:selected="${#strings.equals(questionForm.getMaxCustomMonth().orElse(''), '8')}"
+            >
+              8 - August
+            </option>
+            <option
+              value="9"
+              th:selected="${#strings.equals(questionForm.getMaxCustomMonth().orElse(''), '9')}"
+            >
+              9 - September
+            </option>
+            <option
+              value="10"
+              th:selected="${#strings.equals(questionForm.getMaxCustomMonth().orElse(''), '10')}"
+            >
+              10 - October
+            </option>
+            <option
+              value="11"
+              th:selected="${#strings.equals(questionForm.getMaxCustomMonth().orElse(''), '11')}"
+            >
+              11 - November
+            </option>
+            <option
+              value="12"
+              th:selected="${#strings.equals(questionForm.getMaxCustomMonth().orElse(''), '12')}"
+            >
+              12 - December
+            </option>
+          </cf:select>
+        </div>
+        <div>
+          <cf:input
+            label="Day"
+            id="max-custom-date-day"
+            name="maxCustomDay"
+            type="number"
+            min="1"
+            max="31"
+            th:value="${questionForm.getMaxCustomDay().orElse('')}"
+            required="true"
+          />
+        </div>
+        <div>
+          <cf:input
+            label="Year"
+            id="max-custom-date-year"
+            name="maxCustomYear"
+            type="number"
+            min="1900"
+            max="2100"
+            th:value="${questionForm.getMaxCustomYear().orElse('')}"
+            required="true"
+          />
+        </div>
+      </div>
+    </fieldset>
+  </fieldset>
+</th:block>

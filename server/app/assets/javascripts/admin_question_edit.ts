@@ -114,8 +114,8 @@ class AdminQuestionEdit {
   addDateValidationHandlers() {
     // Add min date handler if date validation settings are present
     const minDateTypeDropdown = document.getElementById('min-date-type')
-    const minCustomDatePicker = document.getElementById(
-      'min-custom-date-fieldset',
+    const minCustomDatePicker = document.querySelector<HTMLFieldSetElement>(
+      '#min-custom-date-fieldset',
     )
     if (minDateTypeDropdown !== null && minCustomDatePicker !== null) {
       this.addDateTypeDropdownHandler(
@@ -126,8 +126,8 @@ class AdminQuestionEdit {
     }
     // Add max date handler if date validation settings are present
     const maxDateTypeDropdown = document.getElementById('max-date-type')
-    const maxCustomDatePicker = document.getElementById(
-      'max-custom-date-fieldset',
+    const maxCustomDatePicker = document.querySelector<HTMLFieldSetElement>(
+      '#max-custom-date-fieldset',
     )
     if (maxDateTypeDropdown !== null && maxCustomDatePicker !== null) {
       this.addDateTypeDropdownHandler(
@@ -143,7 +143,7 @@ class AdminQuestionEdit {
    */
   addDateTypeDropdownHandler(
     dateTypeDropdown: HTMLElement,
-    datePicker: HTMLElement,
+    datePicker: HTMLFieldSetElement,
     idPrefix: string,
   ) {
     dateTypeDropdown.addEventListener('change', (event: Event) => {
@@ -152,16 +152,22 @@ class AdminQuestionEdit {
       // Show date picker iff type is custom
       datePicker.toggleAttribute('hidden', dateTypeValue !== 'CUSTOM')
 
+      // Also toggle disabled: the Thymeleaf page marks the custom date inputs
+      // required, and a hidden-but-enabled required input would block native
+      // form validation. Disabled fields are skipped by validation and are not
+      // submitted (the values are cleared below anyway).
+      datePicker.disabled = dateTypeValue !== 'CUSTOM'
+
       // Clear date picker values if type is not custom
       if (dateTypeValue !== 'CUSTOM') {
-        ;(
-          document.getElementById(idPrefix + '-day') as HTMLInputElement
+        assertNotNull(
+          document.querySelector<HTMLInputElement>('#' + idPrefix + '-day'),
         ).value = ''
-        ;(
-          document.getElementById(idPrefix + '-month') as HTMLInputElement
+        assertNotNull(
+          document.querySelector<HTMLInputElement>('#' + idPrefix + '-month'),
         ).value = ''
-        ;(
-          document.getElementById(idPrefix + '-year') as HTMLInputElement
+        assertNotNull(
+          document.querySelector<HTMLInputElement>('#' + idPrefix + '-year'),
         ).value = ''
       }
     })
@@ -188,7 +194,7 @@ class AdminQuestionEdit {
 
   addMapTagButtonHandlers() {
     addEventListenerToElements('#add-map-tag-button', 'click', (event) => {
-      const target = event.target as HTMLButtonElement
+      const target = event.currentTarget as HTMLButtonElement
       target.classList.add('hidden')
       const tagContainer = document.querySelector(
         '.map-tag-setting-container',
@@ -200,10 +206,17 @@ class AdminQuestionEdit {
       deleteButton.classList.remove('hidden')
     })
 
-    addEventListenerToElements('#delete-map-tag-button', 'click', () => {
-      const tagContainer = document.querySelector(
+    addEventListenerToElements('#delete-map-tag-button', 'click', (event) => {
+      // Scope to the container of the button that was actually clicked, rather
+      // than a document-wide querySelector. The map settings fragment is
+      // re-rendered by htmx swaps, so a global lookup can resolve to a stale or
+      // wrong container and leave this button's container visible.
+      const tagContainer = (event.currentTarget as HTMLElement).closest(
         '.map-tag-setting-container',
-      ) as HTMLDivElement
+      )
+      if (tagContainer === null) {
+        return
+      }
       const displayNameInput = tagContainer.querySelector(
         '.cf-tag-display-name-input',
       ) as HTMLInputElement

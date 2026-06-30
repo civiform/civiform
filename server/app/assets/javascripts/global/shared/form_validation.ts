@@ -1,4 +1,5 @@
 import {assertNotNull} from '@/util'
+import {HtmxConfirmEvent} from '@/types/htmx'
 
 type FormControl = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
 
@@ -44,7 +45,18 @@ export class FormValidation {
       .forEach((el) => this.configureControl(el))
 
     // Validate all controls on submit
-    form.addEventListener('submit', this.onSubmit)
+    form.addEventListener('submit', (ev: SubmitEvent) => {
+      if (!this.validateForm(form)) {
+        ev.preventDefault()
+      }
+    })
+
+    // Validate all controls on submit
+    form.addEventListener('htmx:confirm', (ev: HtmxConfirmEvent) => {
+      if (!this.validateForm(form)) {
+        ev.preventDefault()
+      }
+    })
 
     // Set up MutationObserver for dynamic forms
     if (form.dataset.formType === FormType.DYNAMIC) {
@@ -74,10 +86,9 @@ export class FormValidation {
   }
 
   /**
-   * Validate the form on submit, if invalid focuses on the first invalid control
+   * Validate the entire form
    */
-  private onSubmit = (ev: SubmitEvent) => {
-    const form = ev.target as HTMLFormElement
+  private validateForm(form: HTMLFormElement): boolean {
     let isValid = true
 
     form
@@ -91,12 +102,13 @@ export class FormValidation {
       })
 
     if (!isValid) {
-      ev.preventDefault()
       form
         .querySelector('.usa-form-group--error')
         ?.querySelector<FormControl>('input,textarea,select')
         ?.focus()
     }
+
+    return isValid
   }
 
   /**
@@ -154,7 +166,16 @@ export class FormValidation {
       return true
     }
 
-    const formGroup = assertNotNull(formControl.closest('.usa-form-group'))
+    // Bail before asserting the form group: a validatable control that
+    // isn't wrapped in the expected USWDS structure has nowhere to render
+    // an error. Throwing here would abort the submit listener's loop and
+    // let the form submit without validating the remaining controls, so we
+    // treat unwrapped controls as valid instead (mirrors validateFieldset).
+    const formGroup = formControl.closest('.usa-form-group')
+    if (formGroup === null) {
+      return true
+    }
+
     const errorElement = assertNotNull(
       formGroup.querySelector<HTMLSpanElement>('.usa-error-message'),
     )
@@ -191,14 +212,18 @@ export class FormValidation {
     const inputs = fieldset.querySelectorAll<HTMLInputElement>(
       'input[type="checkbox"], input[type="radio"]',
     )
-    const formGroup = assertNotNull(fieldset.closest('.usa-form-group'))
 
+    // Skip before asserting the form group: non-required checkable groups
+    // (e.g. the ToggleFragment switch) are a bare fieldset with no
+    // .usa-form-group or .usa-error-message. Throwing here would abort the
+    // submit listener and let the form submit without validation.
     const hasRequired = Array.from(inputs).some((input) => input.required)
 
     if (!hasRequired) {
       return true
     }
 
+    const formGroup = assertNotNull(fieldset.closest('.usa-form-group'))
     const errorElement = assertNotNull(
       formGroup.querySelector<HTMLSpanElement>('.usa-error-message'),
     )
@@ -292,5 +317,9 @@ export class FormValidation {
 
     // Final fallback to browser default text
     return field.validationMessage
+  }
+
+  static init() {
+    new FormValidation().init()
   }
 }

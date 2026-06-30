@@ -141,7 +141,7 @@ export class Modal extends HTMLElement {
         <div class="usa-modal__content">
           <div class="usa-modal__main">
             <h1 class="usa-modal__heading" id="${this._modalId}-modal-heading">${headingText}</h1>
-            <div class="usa-prose">
+            <div>
               <p id="${this._modalId}-modal-description">${descriptionContent}</p>
             </div>
             ${buttonFooter}
