@@ -85,9 +85,6 @@ public final class CreateQuestionButton {
       if (type == QuestionType.NULL_QUESTION) {
         continue;
       }
-      if (type == QuestionType.YES_NO && !settingsManifest.getYesNoQuestionEnabled()) {
-        continue;
-      }
       // Only filter Enumerator on program block pages, not on the standalone questions list page
       if (type == QuestionType.ENUMERATOR
           && !isQuestionPage

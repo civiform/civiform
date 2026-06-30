@@ -929,12 +929,6 @@
         "type": "bool",
         "required": false
       },
-      "YES_NO_QUESTION_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "Enables being able to add a new yes/no question.",
-        "type": "bool",
-        "required": false
-      },
       "EXTERNAL_PROGRAM_CARDS_ENABLED": {
         "mode": "ADMIN_READABLE",
         "description": "Enable showing external program cards.",
