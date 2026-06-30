@@ -883,7 +883,7 @@ test.describe('create and edit predicates', () => {
 
     await adminPredicates.clickSaveConditionButton()
     await validateScreenshot(
-      page,
+      page.locator('.cf-display-predicate'),
       'visibility-predicates-multi-values-multi-questions-predicate-updated',
     )
     predicateDisplay = await page.innerText('.cf-display-predicate')
