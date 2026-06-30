@@ -160,7 +160,7 @@ public abstract class AbstractOpenApiSchemaGenerator {
             .map(BlockDefinition::programQuestionDefinitions)
             .flatMap(ImmutableList::stream)
             .map(ProgramQuestionDefinition::getQuestionDefinition)
-            .sorted(Comparator.comparing(QuestionDefinition::getId))
+            .sorted(Comparator.comparingLong(QuestionDefinition::getId))
             .collect(ImmutableList.toImmutableList());
 
     QuestionDefinitionNode rootNode = QuestionDefinitionNode.createRootNode();
