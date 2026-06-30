@@ -52,8 +52,8 @@ lazy val root = (project in file("."))
       "software.amazon.awssdk" % "ses" % "2.46.17",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.18.1",
-      "com.azure" % "azure-storage-blob" % "12.32.0",
+      "com.azure" % "azure-identity" % "1.18.4",
+      "com.azure" % "azure-storage-blob" % "12.35.0",
 
       // Graph API
       "com.microsoft.graph" % "microsoft-graph" % "6.65.0",
