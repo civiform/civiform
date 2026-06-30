@@ -56,9 +56,20 @@ export interface HtmxAfterSwapDetail extends HtmxRequestEventDetail {
   }
 }
 
+// https://htmx.org/events/#htmx:confirm
+export interface HtmxConfirmDetail extends HtmxEventDetail {
+  target: HTMLElement
+  path: string
+  verb: string
+  triggeringEvent: Event
+  question: string | null
+  issueRequest: (skipConfirmation?: boolean) => Promise<void>
+}
+
 export type HtmxEvent<T> = CustomEvent<T>
 
 export type HtmxConfigRequestEvent = HtmxEvent<HtmxConfigRequestDetail>
+export type HtmxConfirmEvent = HtmxEvent<HtmxConfirmDetail>
 export type HtmxBeforeRequestEvent = HtmxEvent<HtmxBeforeRequestDetail>
 export type HtmxAfterRequestEvent = HtmxEvent<HtmxAfterRequestDetail>
 export type HtmxAfterSwapEvent = HtmxEvent<HtmxAfterSwapDetail>
@@ -68,6 +79,7 @@ export type HtmxResponseErrorEvent = HtmxEvent<HtmxResponseErrorDetail>
 declare global {
   interface GlobalEventHandlersEventMap {
     'htmx:configRequest': HtmxConfigRequestEvent
+    'htmx:confirm': HtmxConfirmEvent
     'htmx:beforeRequest': HtmxBeforeRequestEvent
     'htmx:afterRequest': HtmxAfterRequestEvent
     'htmx:afterSwap': HtmxAfterSwapEvent
