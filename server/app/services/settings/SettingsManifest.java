@@ -894,6 +894,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
+   * How long in milliseconds a database connection can be borrowed from the pool before a warning
+   * log is generated indicating a potential connection leak. Minimum value is 2000.
+   */
+  public Optional<Integer> getLeakDetectionThreshold() {
+    return getInt("LEAK_DETECTION_THRESHOLD");
+  }
+
+  /**
    * A cryptographic [secret salt](https://en.wikipedia.org/wiki/Salt_(cryptography)) used for
    * salting API keys before storing their hash values in the database. This value should be kept
    * strictly secret. If one suspects the secret has been leaked or otherwise comprised it should be
@@ -2126,6 +2134,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " scripts are added to the CiviForm pages.",
                           /* isRequired= */ false,
                           SettingType.STRING,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "LEAK_DETECTION_THRESHOLD",
+                          "How long in milliseconds a database connection can be borrowed from the"
+                              + " pool before a warning log is generated indicating a potential"
+                              + " connection leak. Minimum value is 2000.",
+                          /* isRequired= */ false,
+                          SettingType.INT,
                           SettingMode.ADMIN_READABLE))))
           .put(
               "Data Export API",
