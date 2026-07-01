@@ -43,6 +43,11 @@ public abstract class EsriClient {
           .help("Execution time of ESRI lookup")
           .register();
 
+  @VisibleForTesting static final String LOOKUP_LABEL_NO_SUGGESTIONS = "No suggestions";
+  @VisibleForTesting static final String LOOKUP_LABEL_PARTIAL_ADDRESS = "Partially formed address";
+  @VisibleForTesting static final String LOOKUP_LABEL_FULL_ADDRESS = "Full address";
+  @VisibleForTesting static final String LOOKUP_LABEL_PARSE_FAILURE = "Parse failure";
+
   @VisibleForTesting
   static final Counter ESRI_LOOKUP_COUNT =
       Counter.build()
@@ -106,7 +111,7 @@ public abstract class EsriClient {
                     "Received an empty JSON response when searching for address candidates for"
                         + " address: [{}]",
                     address);
-                ESRI_LOOKUP_COUNT.labels("No suggestions").inc();
+                ESRI_LOOKUP_COUNT.labels(LOOKUP_LABEL_NO_SUGGESTIONS).inc();
                 return AddressSuggestionGroup.empty(address);
               }
 
@@ -138,7 +143,7 @@ public abstract class EsriClient {
                       || candidateAddress.getCity().isEmpty()
                       || candidateAddress.getState().isEmpty()
                       || candidateAddress.getZip().isEmpty()) {
-                    ESRI_LOOKUP_COUNT.labels("Partially formed address").inc();
+                    ESRI_LOOKUP_COUNT.labels(LOOKUP_LABEL_PARTIAL_ADDRESS).inc();
                     continue;
                   }
 
@@ -150,7 +155,7 @@ public abstract class EsriClient {
                           .setAddress(candidateAddress)
                           .build();
 
-                  ESRI_LOOKUP_COUNT.labels("Full address").inc();
+                  ESRI_LOOKUP_COUNT.labels(LOOKUP_LABEL_FULL_ADDRESS).inc();
                   suggestionBuilder.add(addressCandidate);
                 }
 
@@ -168,7 +173,7 @@ public abstract class EsriClient {
                 String errmsg =
                     String.format("Could not parse JSON response for address: [%s]", address);
                 logger.error(errmsg, e);
-                ESRI_LOOKUP_COUNT.labels("Parse failure").inc();
+                ESRI_LOOKUP_COUNT.labels(LOOKUP_LABEL_PARSE_FAILURE).inc();
                 return AddressSuggestionGroup.empty(address);
               }
             });

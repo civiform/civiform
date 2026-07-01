@@ -2,6 +2,10 @@ package services.geo.esri;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static services.geo.esri.EsriClient.ESRI_LOOKUP_COUNT;
+import static services.geo.esri.EsriClient.LOOKUP_LABEL_FULL_ADDRESS;
+import static services.geo.esri.EsriClient.LOOKUP_LABEL_NO_SUGGESTIONS;
+import static services.geo.esri.EsriClient.LOOKUP_LABEL_PARSE_FAILURE;
+import static services.geo.esri.EsriClient.LOOKUP_LABEL_PARTIAL_ADDRESS;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
@@ -20,13 +24,14 @@ import services.geo.esri.EsriTestHelper.TestType;
 import services.geo.esri.models.Attributes;
 
 public class EsriClientTest extends WithApplication {
-  public static final Address ADDRESS = Address.builder()
-                                               .setStreet("380 New York St")
-                                               .setLine2("")
-                                               .setCity("Redlands")
-                                               .setState("CA")
-                                               .setZip("92373")
-                                               .build();
+  public static final Address ADDRESS =
+      Address.builder()
+          .setStreet("380 New York St")
+          .setLine2("")
+          .setCity("Redlands")
+          .setState("CA")
+          .setZip("92373")
+          .build();
   private EsriTestHelper helper;
 
   @After
@@ -112,6 +117,9 @@ public class EsriClientTest extends WithApplication {
   @Test
   public void getAddressSuggestions() throws Exception {
     helper = new EsriTestHelper(TestType.STANDARD, instanceOf(ObjectMapper.class));
+    double fullBefore = ESRI_LOOKUP_COUNT.labels(LOOKUP_LABEL_FULL_ADDRESS).get();
+    double partialBefore = ESRI_LOOKUP_COUNT.labels(LOOKUP_LABEL_PARTIAL_ADDRESS).get();
+
     CompletionStage<AddressSuggestionGroup> group =
         helper.getClient().getAddressSuggestions(ADDRESS);
     ImmutableList<AddressSuggestion> suggestions =
@@ -123,6 +131,11 @@ public class EsriClientTest extends WithApplication {
     Optional<AddressSuggestion> addressSuggestion = suggestions.stream().findFirst();
     String street = addressSuggestion.get().getAddress().getStreet();
     assertThat(street).isEqualTo("Address In Area");
+
+    assertThat(ESRI_LOOKUP_COUNT.labels(LOOKUP_LABEL_FULL_ADDRESS).get() - fullBefore)
+        .isEqualTo(4.0);
+    assertThat(ESRI_LOOKUP_COUNT.labels(LOOKUP_LABEL_PARTIAL_ADDRESS).get() - partialBefore)
+        .isEqualTo(1.0);
   }
 
   @Test
@@ -164,18 +177,22 @@ public class EsriClientTest extends WithApplication {
   @Test
   public void getAddressSuggestionsWithEsriErrorResponse() {
     helper = new EsriTestHelper(TestType.ESRI_ERROR_RESPONSE, instanceOf(ObjectMapper.class));
+    double before = ESRI_LOOKUP_COUNT.labels(LOOKUP_LABEL_NO_SUGGESTIONS).get();
+
     AddressSuggestionGroup group =
         helper.getClient().getAddressSuggestions(ADDRESS).toCompletableFuture().join();
     ImmutableList<AddressSuggestion> suggestions = group.getAddressSuggestions();
     assertThat(suggestions).isEmpty();
     assertThat(group.getWellKnownId()).isEqualTo(0);
     assertThat(group.getOriginalAddress()).isEqualTo(ADDRESS);
+
+    assertThat(ESRI_LOOKUP_COUNT.labels(LOOKUP_LABEL_NO_SUGGESTIONS).get() - before).isEqualTo(1.0);
   }
 
   @Test
   public void getAddressSuggestionsWithParseFailure() {
     helper = new EsriTestHelper(TestType.PARSE_FAILURE, instanceOf(ObjectMapper.class));
-    double before = ESRI_LOOKUP_COUNT.labels("Parse failure").get();
+    double before = ESRI_LOOKUP_COUNT.labels(LOOKUP_LABEL_PARSE_FAILURE).get();
 
     AddressSuggestionGroup group =
         helper.getClient().getAddressSuggestions(ADDRESS).toCompletableFuture().join();
@@ -184,13 +201,14 @@ public class EsriClientTest extends WithApplication {
     assertThat(group.getWellKnownId()).isEqualTo(0);
     assertThat(group.getOriginalAddress()).isEqualTo(ADDRESS);
 
-    double after = ESRI_LOOKUP_COUNT.labels("Parse failure").get();
+    double after = ESRI_LOOKUP_COUNT.labels(LOOKUP_LABEL_PARSE_FAILURE).get();
     assertThat(after - before).isEqualTo(1.0);
   }
 
   @Test
   public void getAddressSuggestionsWithError() throws Exception {
     helper = new EsriTestHelper(TestType.ERROR, instanceOf(ObjectMapper.class));
+    double before = ESRI_LOOKUP_COUNT.labels(LOOKUP_LABEL_NO_SUGGESTIONS).get();
 
     AddressSuggestionGroup group =
         helper.getClient().getAddressSuggestions(ADDRESS).toCompletableFuture().join();
@@ -198,6 +216,8 @@ public class EsriClientTest extends WithApplication {
     assertThat(suggestions).isEmpty();
     assertThat(group.getWellKnownId()).isEqualTo(0);
     assertThat(group.getOriginalAddress()).isEqualTo(ADDRESS);
+
+    assertThat(ESRI_LOOKUP_COUNT.labels(LOOKUP_LABEL_NO_SUGGESTIONS).get() - before).isEqualTo(1.0);
   }
 
   @Test
