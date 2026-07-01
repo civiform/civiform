@@ -184,18 +184,19 @@ public final class ProgramQuestionBank {
                               .withClass("flex")
                               .with(
                                   div().withClass("flex-grow"),
-                                  CreateQuestionButton.renderCreateQuestionButton(
-                                      params.questionCreateRedirectUrl(),
-                                      /* isPrimaryButton= */ false,
-                                      getParentEnumeratorId(),
-                                      params.blockDefinition().isRepeated(),
-                                      settingsManifest,
-                                      request,
-                                      /* isEmptyBlock= */ params
-                                              .blockDefinition()
-                                              .getQuestionCount()
-                                          == 0,
-                                      /* isQuestionPage= */ false)))));
+                                  CreateQuestionButton
+                                      .renderCreateQuestionButtonForProgramQuestionBank(
+                                          params.questionCreateRedirectUrl(),
+                                          getParentEnumeratorId(),
+                                          params.blockDefinition().isRepeated(),
+                                          settingsManifest,
+                                          request,
+                                          /* isEmptyBlock= */ params
+                                                  .blockDefinition()
+                                                  .getQuestionCount()
+                                              == 0,
+                                          /* isInitialQuestion= */ params.mode()
+                                              == Mode.INITIAL_QUESTION)))));
     }
 
     // Sort by last modified, since that's the default of the sort by dropdown
@@ -427,7 +428,8 @@ public final class ProgramQuestionBank {
                         params.blockDefinition(),
                         q,
                         settingsManifest.getEnumeratorImprovementsEnabled(request),
-                        settingsManifest.getFileUploadQuestionImprovementsEnabled(request))
+                        settingsManifest.getFileUploadQuestionImprovementsEnabled(request),
+                        /* isInitialQuestionSelection= */ params.mode() == Mode.INITIAL_QUESTION)
                     == AddQuestionResult.ELIGIBLE);
   }
 
