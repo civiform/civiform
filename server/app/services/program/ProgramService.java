@@ -1657,7 +1657,8 @@ public final class ProgramService {
                   blockDefinition,
                   question.getQuestionDefinition(),
                   enumeratorImprovementsEnabled,
-                  fileUploadQuestionImprovementsEnabled);
+                  fileUploadQuestionImprovementsEnabled,
+                  /* isInitialQuestionSelection= */ false);
       if (canAddQuestion != AddQuestionResult.ELIGIBLE) {
         throw new CantAddQuestionToBlockException(
             programDefinition, blockDefinition, question.getQuestionDefinition(), canAddQuestion);

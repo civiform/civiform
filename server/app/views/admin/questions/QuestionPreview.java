@@ -81,7 +81,6 @@ public class QuestionPreview extends ApplicantBaseView {
     context.setVariable(
         "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(params.request()));
     context.setVariable("nameSuffixOptions", ApplicantModel.Suffix.values());
-    context.setVariable("isYesNoQuestionEnabled", settingsManifest.getYesNoQuestionEnabled());
     context.setVariable("maxFileSizeMb", 100);
     context.setVariable(
         "fileUploadAllowedFileTypeSpecifiers",

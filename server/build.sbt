@@ -48,8 +48,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20260313.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.46.15",
-      "software.amazon.awssdk" % "ses" % "2.46.15",
+      "software.amazon.awssdk" % "s3" % "2.46.17",
+      "software.amazon.awssdk" % "ses" % "2.46.17",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
@@ -88,13 +88,13 @@ lazy val root = (project in file("."))
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "13.0.3-PLAY3.0",
-      "org.pac4j" % "pac4j-core" % "6.5.3",
+      "org.pac4j" % "pac4j-core" % "6.5.4",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "6.5.3",
+      "org.pac4j" % "pac4j-http" % "6.5.4",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "6.5.3",
+      "org.pac4j" % "pac4j-oidc" % "6.5.4",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "6.5.3",
+      "org.pac4j" % "pac4j-saml" % "6.5.4",
 
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.13.0",
@@ -108,7 +108,7 @@ lazy val root = (project in file("."))
         "auto-value-shaded"
       ),
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.49.0",
+      "com.google.errorprone" % "error_prone_core" % "2.50.0",
       "org.checkerframework" % "dataflow-errorprone" % "4.2.0",
 
       // Apache libraries for export
@@ -145,7 +145,7 @@ lazy val root = (project in file("."))
 
       // Override default Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.5.34",
+      "ch.qos.logback" % "logback-classic" % "1.5.37",
 
       // Swagger 2.0 Dependencies
       "io.swagger" % "swagger-core" % "1.6.16" exclude (
@@ -156,10 +156,10 @@ lazy val root = (project in file("."))
 
       // OpenAPI 3.x Dependencies
       "io.swagger.core.v3" % "swagger-core" % "2.2.52",
-      "io.swagger.parser.v3" % "swagger-parser" % "2.1.44",
+      "io.swagger.parser.v3" % "swagger-parser" % "2.1.45",
 
       // JSON Schema validation
-      "com.networknt" % "json-schema-validator" % "2.0.2",
+      "com.networknt" % "json-schema-validator" % "2.0.3",
 
       // Logstash to write JSON formatted log lines with logback
       "net.logstash.logback" % "logstash-logback-encoder" % "8.1"

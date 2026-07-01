@@ -1013,18 +1013,87 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   /**
-   * Renders the selected initial question for HTMX swap into the {@code
-   * #add-initial-question-button} slot. Shows a stripped-down question card and carries a hidden
-   * {@code initialQuestionId} input that the enumerator-creation form will submit. The question is
-   * not yet attached to the block.
+   * Renders the {@code #initial-question-slot} populated with the selected initial question. Shows
+   * a stripped-down question card and carries a hidden {@code initialQuestionId} input that the
+   * enumerator-creation form will submit. The question is not yet attached to the block.
+   *
+   * @param initialQuestionWasNewlyCreated when true, an additional hidden input signals that the
+   *     question was just created (so {@code hxCreateEnumerator} should update its enumeratorId in
+   *     place instead of making a copy).
    */
-  public DomContent renderSelectedInitialQuestion(QuestionDefinition selectedQuestion) {
-    return div(
-        QuestionCard.renderForInitialQuestion(selectedQuestion),
-        input()
-            .withType("hidden")
-            .withName("initialQuestionId")
-            .withValue(String.valueOf(selectedQuestion.getId())));
+  public DivTag renderSelectedInitialQuestion(
+      Messages messages,
+      QuestionDefinition selectedQuestion,
+      long programId,
+      long blockId,
+      boolean initialQuestionWasNewlyCreated) {
+    DivTag slot =
+        div(
+                QuestionCard.renderForInitialQuestion(
+                    selectedQuestion,
+                    Optional.of(
+                        renderInitialQuestionDeleteButton(
+                            messages, programId, blockId, selectedQuestion.getName()))),
+                input()
+                    .withType("hidden")
+                    .withName(INITIAL_QUESTION_ID_PARAM)
+                    .withValue(String.valueOf(selectedQuestion.getId())))
+            .withId("initial-question-slot");
+    if (initialQuestionWasNewlyCreated) {
+      slot.with(
+          input().withType("hidden").withName("initialQuestionWasNewlyCreated").withValue("true"));
+    }
+    return slot;
+  }
+
+  /**
+   * Renders the empty {@code #initial-question-slot} containing the "Add question" button. Used
+   * both for the initial render when no initial question is selected and as the HTMX response when
+   * the admin clicks Delete on the initial question card to clear the selection.
+   */
+  public DivTag renderEmptyInitialQuestionSlot(Messages messages, long programId, long blockId) {
+    return div(button("")
+            .withClasses("usa-button", "usa-button--outline", "margin-top-05")
+            .attr("aria-describedby", "initial-question-label initial-question-description")
+            .attr("required")
+            .attr(
+                "hx-get",
+                controllers.admin.routes.AdminProgramBlocksController.hxQuestionBankPartial(
+                        programId, blockId, ProgramQuestionBank.Mode.INITIAL_QUESTION.name())
+                    .url())
+            .attr("hx-target", "#" + ProgramQuestionBank.PANEL_FORM_ID)
+            .attr("hx-swap", "outerHTML")
+            .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
+            .withText(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName())))
+        .withId("initial-question-slot");
+  }
+
+  /**
+   * Renders the HTMX Delete button shown on the initial question card during the
+   * enumerator-creation flow. Clicking it swaps {@code #initial-question-slot} back to its empty
+   * "Add question" state. The question has not yet been attached to the block, so this is a
+   * view-state reset rather than a destructive delete.
+   */
+  private ButtonTag renderInitialQuestionDeleteButton(
+      Messages messages, long programId, long blockId, String questionAdminId) {
+    return ViewUtils.makeSvgTextButton(
+            messages.at(MessageKey.BUTTON_REPEATED_SET_INITIAL_QUESTION_DELETE.getKeyName()),
+            Icons.DELETE)
+        .withType("button")
+        .attr(
+            "aria-label",
+            messages.at(
+                MessageKey.BUTTON_REPEATED_SET_INITIAL_QUESTION_REMOVE_ARIA_LABEL.getKeyName(),
+                questionAdminId))
+        .attr(
+            "hx-get",
+            controllers.admin.routes.AdminProgramBlockQuestionsController
+                .hxClearInitialQuestionSlot(programId, blockId)
+                .url())
+        .attr("hx-target", "#initial-question-slot")
+        .attr("hx-swap", "outerHTML")
+        .withClasses(
+            ReferenceClasses.REMOVE_QUESTION_BUTTON, ButtonStyles.OUTLINED_WHITE_WITH_ICON);
   }
 
   private DivTag renderChooseExistingQuestion(Messages messages, Long programId, Long blockId) {
@@ -1209,48 +1278,24 @@ public final class ProgramBlocksView extends ProgramBaseView {
                         .orElse(OptionalInt.empty()))
                 .getUSWDSNumberTag(),
             div(
-                    div(span(messages.at(
-                                MessageKey.LABEL_REPEATED_SET_INITIAL_QUESTION.getKeyName()))
-                            .with(ViewUtils.requiredQuestionIndicator()))
-                        .withId("initial-question-label")
-                        .withClasses("usa-label")
-                        .withTabindex(-1),
-                    p(messages.at(
-                            MessageKey.DESCRIPTION_REPEATED_SET_INITIAL_QUESTION.getKeyName()))
-                        .withId("initial-question-description")
-                        .withClasses("font-ui-sm", "text-base"),
-                    optionalNewInitialQuestion.isPresent()
-                        ? div(
-                            QuestionCard.renderForInitialQuestion(optionalNewInitialQuestion.get()),
-                            input()
-                                .withType("hidden")
-                                .withName(INITIAL_QUESTION_ID_PARAM)
-                                .withValue(
-                                    String.valueOf(optionalNewInitialQuestion.get().getId())),
-                            input()
-                                .withType("hidden")
-                                .withName("initialQuestionWasNewlyCreated")
-                                .withValue("true"))
-                        : button("")
-                            .withId("add-initial-question-button")
-                            .withClasses("usa-button", "usa-button--outline", "margin-top-05")
-                            .attr(
-                                "aria-describedby",
-                                "initial-question-label initial-question-description")
-                            .attr("required")
-                            .attr(
-                                "hx-get",
-                                controllers.admin.routes.AdminProgramBlocksController
-                                    .hxQuestionBankPartial(
-                                        programId,
-                                        blockId,
-                                        ProgramQuestionBank.Mode.INITIAL_QUESTION.name())
-                                    .url())
-                            .attr("hx-target", "#" + ProgramQuestionBank.PANEL_FORM_ID)
-                            .attr("hx-swap", "outerHTML")
-                            .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
-                            .withText(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName())))
-                .withId("initial-question-slot"),
+                div(span(messages.at(MessageKey.LABEL_REPEATED_SET_INITIAL_QUESTION.getKeyName()))
+                        .with(ViewUtils.requiredQuestionIndicator()))
+                    .withId("initial-question-label")
+                    .withClasses("usa-label")
+                    .withTabindex(-1),
+                p(messages.at(MessageKey.DESCRIPTION_REPEATED_SET_INITIAL_QUESTION.getKeyName()))
+                    .withId("initial-question-description")
+                    .withClasses("font-ui-sm", "text-base"),
+                optionalNewInitialQuestion
+                    .map(
+                        q ->
+                            renderSelectedInitialQuestion(
+                                messages,
+                                q,
+                                programId,
+                                blockId,
+                                /* initialQuestionWasNewlyCreated= */ true))
+                    .orElseGet(() -> renderEmptyInitialQuestionSlot(messages, programId, blockId))),
             div(
                     AlertComponent.renderSlimInfoAlert(
                         messages.at(MessageKey.ALERT_REPEATED_SET_NEW_QUESTION.getKeyName())),

@@ -1069,11 +1069,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED", request);
   }
 
-  /** Enables being able to add a new yes/no question. */
-  public boolean getYesNoQuestionEnabled() {
-    return getBool("YES_NO_QUESTION_ENABLED");
-  }
-
   /** Enable showing external program cards. */
   public boolean getExternalProgramCardsEnabled() {
     return getBool("EXTERNAL_PROGRAM_CARDS_ENABLED");
@@ -2350,12 +2345,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "YES_NO_QUESTION_ENABLED",
-                          "Enables being able to add a new yes/no question.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "EXTERNAL_PROGRAM_CARDS_ENABLED",
                           "Enable showing external program cards.",

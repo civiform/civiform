@@ -363,7 +363,7 @@ class AdminPrograms {
         } else {
           this.focusOnEnumeratorQuestionSection()
         }
-      } else if (targetElement.id === 'add-initial-question-button') {
+      } else if (targetElement.id === 'initial-question-slot') {
         this.focusOnInitialQuestionHeading()
       }
     })

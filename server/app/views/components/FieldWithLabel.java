@@ -753,8 +753,8 @@ public class FieldWithLabel {
     }
   }
 
-  protected <T extends Tag<T> & IName<T> & IDisabled<T>>
-      FieldErrorsInfo applyAttrsGenFieldErrorsInfo(T fieldTag) {
+  private <T extends Tag<T> & IName<T> & IDisabled<T>> FieldErrorsInfo applyAttrsGenFieldErrorsInfo(
+      T fieldTag) {
     String fieldErrorsId = String.format("%s-errors", this.id);
     boolean hasFieldErrors = hasFieldErrors();
 
