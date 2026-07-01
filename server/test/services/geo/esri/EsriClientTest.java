@@ -1,6 +1,7 @@
 package services.geo.esri;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static services.geo.esri.EsriClient.ESRI_LOOKUP_COUNT;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
@@ -19,6 +20,13 @@ import services.geo.esri.EsriTestHelper.TestType;
 import services.geo.esri.models.Attributes;
 
 public class EsriClientTest extends WithApplication {
+  public static final Address ADDRESS = Address.builder()
+                                               .setStreet("380 New York St")
+                                               .setLine2("")
+                                               .setCity("Redlands")
+                                               .setState("CA")
+                                               .setZip("92373")
+                                               .build();
   private EsriTestHelper helper;
 
   @After
@@ -104,17 +112,8 @@ public class EsriClientTest extends WithApplication {
   @Test
   public void getAddressSuggestions() throws Exception {
     helper = new EsriTestHelper(TestType.STANDARD, instanceOf(ObjectMapper.class));
-    Address address =
-        Address.builder()
-            .setStreet("380 New York St")
-            .setLine2("")
-            .setCity("Redlands")
-            .setState("CA")
-            .setZip("92373")
-            .build();
-
     CompletionStage<AddressSuggestionGroup> group =
-        helper.getClient().getAddressSuggestions(address);
+        helper.getClient().getAddressSuggestions(ADDRESS);
     ImmutableList<AddressSuggestion> suggestions =
         group.toCompletableFuture().join().getAddressSuggestions();
     // First item is guaranteed to be here since the response is taken from the JSON file.
@@ -122,7 +121,6 @@ public class EsriClientTest extends WithApplication {
     // in the street address or any street address at all.
     assertThat(suggestions).hasSizeGreaterThan(0);
     Optional<AddressSuggestion> addressSuggestion = suggestions.stream().findFirst();
-    assertThat(addressSuggestion.isPresent()).isTrue();
     String street = addressSuggestion.get().getAddress().getStreet();
     assertThat(street).isEqualTo("Address In Area");
   }
@@ -130,103 +128,76 @@ public class EsriClientTest extends WithApplication {
   @Test
   public void getAddressSuggestionsIncludesOriginalAddress() throws Exception {
     helper = new EsriTestHelper(TestType.STANDARD, instanceOf(ObjectMapper.class));
-    Address address =
-        Address.builder()
-            .setStreet("380 New York St")
-            .setLine2("")
-            .setCity("Redlands")
-            .setState("CA")
-            .setZip("92373")
-            .build();
-
     CompletionStage<AddressSuggestionGroup> group =
-        helper.getClient().getAddressSuggestions(address);
+        helper.getClient().getAddressSuggestions(ADDRESS);
     Address originalAddress = group.toCompletableFuture().join().getOriginalAddress();
 
-    assertThat(originalAddress.getStreet()).isEqualTo(address.getStreet());
-    assertThat(originalAddress.getLine2()).isEqualTo(address.getLine2());
-    assertThat(originalAddress.getCity()).isEqualTo(address.getCity());
-    assertThat(originalAddress.getState()).isEqualTo(address.getState());
-    assertThat(originalAddress.getZip()).isEqualTo(address.getZip());
+    assertThat(originalAddress.getStreet()).isEqualTo(ADDRESS.getStreet());
+    assertThat(originalAddress.getLine2()).isEqualTo(ADDRESS.getLine2());
+    assertThat(originalAddress.getCity()).isEqualTo(ADDRESS.getCity());
+    assertThat(originalAddress.getState()).isEqualTo(ADDRESS.getState());
+    assertThat(originalAddress.getZip()).isEqualTo(ADDRESS.getZip());
   }
 
   @Test
   public void getAddressSuggestionsWithNoCandidates() throws Exception {
     helper = new EsriTestHelper(TestType.NO_CANDIDATES, instanceOf(ObjectMapper.class));
-    Address address =
-        Address.builder()
-            .setStreet("380 New York St")
-            .setLine2("")
-            .setCity("Redlands")
-            .setState("CA")
-            .setZip("92373")
-            .build();
 
     AddressSuggestionGroup group =
-        helper.getClient().getAddressSuggestions(address).toCompletableFuture().join();
+        helper.getClient().getAddressSuggestions(ADDRESS).toCompletableFuture().join();
     ImmutableList<AddressSuggestion> suggestions = group.getAddressSuggestions();
     assertThat(suggestions).isEmpty();
-    assertThat(group.getOriginalAddress()).isEqualTo(address);
+    assertThat(group.getOriginalAddress()).isEqualTo(ADDRESS);
   }
 
   @Test
   public void getAddressSuggestionsWithEmptyResponse() throws Exception {
     helper = new EsriTestHelper(TestType.EMPTY_RESPONSE, instanceOf(ObjectMapper.class));
-    Address address =
-        Address.builder()
-            .setStreet("380 New York St")
-            .setLine2("")
-            .setCity("Redlands")
-            .setState("CA")
-            .setZip("92373")
-            .build();
-
     AddressSuggestionGroup group =
-        helper.getClient().getAddressSuggestions(address).toCompletableFuture().join();
+        helper.getClient().getAddressSuggestions(ADDRESS).toCompletableFuture().join();
     ImmutableList<AddressSuggestion> suggestions = group.getAddressSuggestions();
     assertThat(suggestions).isEmpty();
     assertThat(group.getWellKnownId()).isEqualTo(0);
-    assertThat(group.getOriginalAddress()).isEqualTo(address);
+    assertThat(group.getOriginalAddress()).isEqualTo(ADDRESS);
   }
 
   @Test
   public void getAddressSuggestionsWithEsriErrorResponse() {
     helper = new EsriTestHelper(TestType.ESRI_ERROR_RESPONSE, instanceOf(ObjectMapper.class));
-    Address address =
-        Address.builder()
-            .setStreet("380 New York St")
-            .setLine2("")
-            .setCity("Redlands")
-            .setState("CA")
-            .setZip("92373")
-            .build();
-
     AddressSuggestionGroup group =
-        helper.getClient().getAddressSuggestions(address).toCompletableFuture().join();
+        helper.getClient().getAddressSuggestions(ADDRESS).toCompletableFuture().join();
     ImmutableList<AddressSuggestion> suggestions = group.getAddressSuggestions();
     assertThat(suggestions).isEmpty();
     assertThat(group.getWellKnownId()).isEqualTo(0);
-    assertThat(group.getOriginalAddress()).isEqualTo(address);
+    assertThat(group.getOriginalAddress()).isEqualTo(ADDRESS);
+  }
+
+  @Test
+  public void getAddressSuggestionsWithParseFailure() {
+    helper = new EsriTestHelper(TestType.PARSE_FAILURE, instanceOf(ObjectMapper.class));
+    double before = ESRI_LOOKUP_COUNT.labels("Parse failure").get();
+
+    AddressSuggestionGroup group =
+        helper.getClient().getAddressSuggestions(ADDRESS).toCompletableFuture().join();
+    ImmutableList<AddressSuggestion> suggestions = group.getAddressSuggestions();
+    assertThat(suggestions).isEmpty();
+    assertThat(group.getWellKnownId()).isEqualTo(0);
+    assertThat(group.getOriginalAddress()).isEqualTo(ADDRESS);
+
+    double after = ESRI_LOOKUP_COUNT.labels("Parse failure").get();
+    assertThat(after - before).isEqualTo(1.0);
   }
 
   @Test
   public void getAddressSuggestionsWithError() throws Exception {
     helper = new EsriTestHelper(TestType.ERROR, instanceOf(ObjectMapper.class));
-    Address address =
-        Address.builder()
-            .setStreet("380 New York St")
-            .setLine2("")
-            .setCity("Redlands")
-            .setState("CA")
-            .setZip("92373")
-            .build();
 
     AddressSuggestionGroup group =
-        helper.getClient().getAddressSuggestions(address).toCompletableFuture().join();
+        helper.getClient().getAddressSuggestions(ADDRESS).toCompletableFuture().join();
     ImmutableList<AddressSuggestion> suggestions = group.getAddressSuggestions();
     assertThat(suggestions).isEmpty();
     assertThat(group.getWellKnownId()).isEqualTo(0);
-    assertThat(group.getOriginalAddress()).isEqualTo(address);
+    assertThat(group.getOriginalAddress()).isEqualTo(ADDRESS);
   }
 
   @Test

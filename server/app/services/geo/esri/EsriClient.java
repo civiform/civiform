@@ -43,7 +43,8 @@ public abstract class EsriClient {
           .help("Execution time of ESRI lookup")
           .register();
 
-  private static final Counter ESRI_LOOKUP_COUNT =
+  @VisibleForTesting
+  static final Counter ESRI_LOOKUP_COUNT =
       Counter.build()
           .name("esri_lookup_total")
           .help("Values retrieved in ESRI lookup")
