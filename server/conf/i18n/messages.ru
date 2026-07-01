@@ -702,7 +702,6 @@ validation.noPoBox=Введите действительный адрес. Не 
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
 title.confirmAddress=Подтвердите свой адрес
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
-content.confirmAddressLine1=Нам не удалось найти указанный адрес.
 content.confirmAddressLine1.v2=Требуется подтверждение адреса.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=Проверьте его на наличие ошибок или выберите вариант из списка предложенных.

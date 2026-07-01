@@ -702,7 +702,6 @@ validation.noPoBox=Maaari lamang na ilagay ang wasto na adres. Kami ay hindi nat
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
 title.confirmAddress=Kumpirmahin ang iyong address
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
-content.confirmAddressLine1=Hindi namin nahanap ang iyong address.
 content.confirmAddressLine1.v2=Kailangan ang kompirmasyon ng address.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=Pakitingnan kung tama ang spelling ng address mo o pumili ng opsyon sa listahang ibinigay.
