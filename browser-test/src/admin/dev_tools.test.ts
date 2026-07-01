@@ -32,6 +32,8 @@ test.describe('developer tools', () => {
   }) => {
     await enableFeatureFlag(page, 'staging_disable_demo_mode_logins')
 
+    await page.goto('/programs')
+
     const header = page.locator('nav')
 
     await test.step('link not shown in the header', async () => {
