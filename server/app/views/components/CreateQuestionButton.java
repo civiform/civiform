@@ -107,11 +107,15 @@ public final class CreateQuestionButton {
       if (type == QuestionType.NULL_QUESTION) {
         continue;
       }
-      // Only filter Enumerator on program block pages, not on the standalone questions list page
-      if (type == QuestionType.ENUMERATOR
-          && !isQuestionPage
-          && (settingsManifest.getEnumeratorImprovementsEnabled(request) || !isEmptyBlock)) {
-        continue;
+      if (type == QuestionType.ENUMERATOR) {
+        // Hide Enumerator from every dropdown when the enumerator improvements flag is enabled.
+        if (settingsManifest.getEnumeratorImprovementsEnabled(request)) {
+          continue;
+        }
+        // On a program block page, hide Enumerator once the block already contains a question.
+        if (!isQuestionPage && !isEmptyBlock) {
+          continue;
+        }
       }
       if (isInitialQuestion
           && !ProgramBlockValidation.VALID_INITIAL_QUESTION_TYPES.contains(type)) {
