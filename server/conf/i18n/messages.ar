@@ -702,7 +702,6 @@ validation.noPoBox=يُرجى إدخال عنوان صالح. لا نقبل با
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
 title.confirmAddress=تأكيد عنوانك
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
-content.confirmAddressLine1=لم نتمكن من العثور على عنوانك.
 content.confirmAddressLine1.v2=مطلوب تأكيد العنوان. 
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=يُرجى التحقق من عدم وجود أخطاء إملائية في عنوانك أو تحديد خيار من القائمة المُدرجة.
