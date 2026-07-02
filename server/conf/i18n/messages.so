@@ -702,7 +702,6 @@ validation.noPoBox=Fadlan gali ciwaan saxda ah.Ma aqbalno sanduuqyada boostada (
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
 title.confirmAddress=Hubi ciwaankaada
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
-content.confirmAddressLine1=Nooma suurta galin inaan helno ciwaankaaga.
 content.confirmAddressLine1.v2=Xaqiijinta ciwaanka waa loo baahan yahay.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=Fadlan ka sax ciwaankaaga higaada ama ka dooro liiska la bixiyay.
