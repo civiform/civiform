@@ -702,7 +702,6 @@ validation.noPoBox=유효한 주소를 입력하세요. 사서함은 주소 정�
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
 title.confirmAddress=주소 확인
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
-content.confirmAddressLine1=주소를 찾을 수 없습니다.
 content.confirmAddressLine1.v2=주소 확인이 필요합니다.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=주소의 철자를 확인하거나 제공된 목록에서 주소를 선택하세요.
