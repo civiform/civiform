@@ -33,11 +33,14 @@ import models.ApplicationModel;
 import models.ApplicationStep;
 import models.CategoryModel;
 import models.DisplayMode;
+import models.LifecycleStage;
 import models.ProgramModel;
 import models.ProgramNotificationPreference;
 import models.VersionModel;
 import modules.MainModule;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http.Request;
@@ -73,6 +76,8 @@ import services.statuses.StatusDefinitions;
  * services.question.QuestionService}.
  */
 public final class ProgramService {
+
+  private static final Logger logger = LoggerFactory.getLogger(ProgramService.class);
 
   private static final String MISSING_DISPLAY_NAME_MSG =
       "A public display name for the program is required";
@@ -1970,8 +1975,25 @@ public final class ProgramService {
       // program definition is not in the cache.
       if (programDef.hasEligibilityEnabled()
           && !programRepository.getFullProgramDefinitionFromCache(p).isPresent()) {
+        ImmutableList<VersionModel> versionsForProgram = programRepository.getVersionsForProgram(p);
+        // Deterministically pick the most recent published (active or obsolete) version. A draft
+        // version's question set is incomplete - it only contains edited questions - so picking
+        // one (which the previous findAny() usually did when a draft existed) resolves
+        // unedited questions to NULL_QUESTION definitions.
         VersionModel v =
-            programRepository.getVersionsForProgram(p).stream().findAny().orElseThrow();
+            versionsForProgram.stream()
+                .filter(version -> version.getLifecycleStage() != LifecycleStage.DRAFT)
+                .max(Comparator.comparingLong(version -> version.id))
+                .orElseGet(
+                    () -> {
+                      logger.warn(
+                          "Program {} has no active or obsolete version; falling back to its"
+                              + " latest version to sync questions.",
+                          programDef.id());
+                      return versionsForProgram.stream()
+                          .max(Comparator.comparingLong(version -> version.id))
+                          .orElseThrow();
+                    });
         ReadOnlyQuestionService questionServiceForVersion = versionToQuestionService.get(v.id);
         if (questionServiceForVersion == null) {
           questionServiceForVersion =

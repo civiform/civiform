@@ -1081,6 +1081,63 @@ public class VersionRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void getQuestions_staleVersionObjectDoesNotPoisonCache() {
+    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
+
+    // Publish an initial version containing a question.
+    VersionModel version1 = versionRepository.getDraftVersionOrCreate();
+    QuestionModel firstQuestion = resourceCreator.insertQuestion("first-question");
+    firstQuestion.addVersion(version1).save();
+    versionRepository.publishNewSynchronizedVersion();
+
+    // Start a draft with a second question and hold onto the draft version object with its
+    // questions collection lazily loaded while it is still a draft: it only contains the new
+    // question, not the active questions that publishing will associate with it.
+    VersionModel draft = versionRepository.getDraftVersionOrCreate();
+    QuestionModel secondQuestion = resourceCreator.insertQuestion("second-question");
+    secondQuestion.addVersion(draft).save();
+    draft.refresh();
+    assertThat(draft.getQuestions()).hasSize(1);
+
+    // Publish (e.g. from another request or server instance). The held object is now stale: its
+    // id is the active version's id, but its loaded collection is missing the first question.
+    versionRepository.publishNewSynchronizedVersion();
+
+    // Reading through the stale object must return the full question set and must not poison
+    // the cache with the stale draft-era collection (issue #9451).
+    ImmutableList<QuestionModel> questions = versionRepository.getQuestionsForVersion(draft);
+
+    assertThat(questions).hasSize(2);
+    assertThat(questionsByVersionCache.get(String.valueOf(draft.id)).get()).isEqualTo(questions);
+    assertThat(versionRepository.getQuestionsForVersion(draft)).hasSize(2);
+  }
+
+  @Test
+  public void getPrograms_staleVersionObjectDoesNotPoisonCache() {
+    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
+
+    // Publish an initial version containing a program.
+    resourceCreator.insertDraftProgram("first-program");
+    versionRepository.publishNewSynchronizedVersion();
+
+    // Start a draft with a second program and lazily load the draft version's programs
+    // collection while it is still a draft.
+    VersionModel draft = versionRepository.getDraftVersionOrCreate();
+    resourceCreator.insertDraftProgram("second-program");
+    draft.refresh();
+    assertThat(draft.getPrograms()).hasSize(1);
+
+    // Publish, making the held object stale.
+    versionRepository.publishNewSynchronizedVersion();
+
+    // Reading through the stale object must not poison the cache with the incomplete list.
+    ImmutableList<ProgramModel> programs = versionRepository.getProgramsForVersion(draft);
+
+    assertThat(programs).hasSize(2);
+    assertThat(programsByVersionCache.get(String.valueOf(draft.id)).get()).isEqualTo(programs);
+  }
+
+  @Test
   public void getPrograms_usesCacheIfEnabledForObsoleteVersion() {
     Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
 
@@ -1133,6 +1190,16 @@ public class VersionRepositoryTest extends ResetPostgres {
     versionRepository.getProgramsForVersion(version1);
 
     assertThat(programsByVersionCache.get(version1Key).isPresent()).isFalse();
+  }
+
+  @Test
+  public void getActiveVersionIdIfNoDraft() {
+    assertThat(versionRepository.getActiveVersionIdIfNoDraft())
+        .hasValue(versionRepository.getActiveVersion().id);
+
+    versionRepository.getDraftVersionOrCreate();
+
+    assertThat(versionRepository.getActiveVersionIdIfNoDraft()).isEmpty();
   }
 
   @Test
