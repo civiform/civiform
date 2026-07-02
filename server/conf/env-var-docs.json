@@ -777,6 +777,11 @@
         "mode": "ADMIN_READABLE",
         "description": "The Google Analytics tracking ID.  If set, Google Analytics JavaScript scripts are added to the CiviForm pages.",
         "type": "string"
+      },
+      "LEAK_DETECTION_THRESHOLD": {
+        "mode": "ADMIN_READABLE",
+        "description": "How long in milliseconds a database connection can be borrowed from the pool before a warning log is generated indicating a potential connection leak. Minimum value is 2000.",
+        "type": "int"
       }
     }
   },
