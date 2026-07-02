@@ -382,7 +382,39 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
     ImmutableList<VersionModel> versions = repo.getVersionsForProgram(program);
 
-    assertThat(versionsByProgramCache.get(String.valueOf(program.id)).get()).isEqualTo(versions);
+    String cacheKey =
+        ProgramRepository.versionsByProgramCacheKey(program.id, versionRepo.getActiveVersion().id);
+    assertThat(versionsByProgramCache.get(cacheKey).get()).isEqualTo(versions);
+  }
+
+  @Test
+  public void getVersionsForProgram_doesNotCacheWhileDraftVersionExists() {
+    Mockito.when(mockSettingsManifest.getProgramCacheEnabled()).thenReturn(true);
+    ProgramModel program = resourceCreator.insertActiveProgram("some program");
+    resourceCreator.insertDraftProgram("draft program");
+
+    ImmutableList<VersionModel> versions = repo.getVersionsForProgram(program);
+
+    assertThat(versions).hasSize(1);
+    String cacheKey =
+        ProgramRepository.versionsByProgramCacheKey(program.id, versionRepo.getActiveVersion().id);
+    assertThat(versionsByProgramCache.get(cacheKey)).isEmpty();
+  }
+
+  @Test
+  public void getVersionsForProgram_returnsNewAssociationsAfterPublish() {
+    Mockito.when(mockSettingsManifest.getProgramCacheEnabled()).thenReturn(true);
+    ProgramModel program = resourceCreator.insertActiveProgram("some program");
+
+    // Prime the cache under the current active version.
+    assertThat(repo.getVersionsForProgram(program)).hasSize(1);
+
+    // Publish a new version; the unedited program gets associated with it.
+    resourceCreator.insertDraftProgram("draft program");
+    versionRepo.publishNewSynchronizedVersion();
+
+    // The cached single-version list from before the publish must not be served.
+    assertThat(repo.getVersionsForProgram(program)).hasSize(2);
   }
 
   @Test

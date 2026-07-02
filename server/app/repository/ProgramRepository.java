@@ -3,6 +3,7 @@ package repository;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -10,6 +11,7 @@ import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.ExpressionList;
 import io.ebean.PagedList;
+import io.ebean.PersistenceContextScope;
 import io.ebean.Query;
 import io.ebean.SqlRow;
 import io.ebean.Transaction;
@@ -121,12 +123,61 @@ public final class ProgramRepository {
     return program;
   }
 
+  /**
+   * Returns all versions the program is associated with.
+   *
+   * <p>Results are cached when the program cache is enabled and no draft version exists. The cache
+   * key includes the active version id because publishing associates unedited programs with the new
+   * version - entries cached under the previous active version id naturally stop being read instead
+   * of serving stale associations. The cache is populated from a fresh database fetch rather than
+   * from the passed-in program, whose lazily-loaded versions collection (and the version entities
+   * inside it) may be stale (issue #9451).
+   */
   public ImmutableList<VersionModel> getVersionsForProgram(ProgramModel program) {
-    if (settingsManifest.getProgramCacheEnabled()) {
-      return versionsByProgramCache.getOrElseUpdate(
-          String.valueOf(program.id), program::getVersions);
+    if (!settingsManifest.getProgramCacheEnabled()) {
+      return program.getVersions();
     }
-    return program.getVersions();
+    Optional<Long> activeVersionId = versionRepository.get().getActiveVersionIdIfNoDraft();
+    if (activeVersionId.isEmpty()) {
+      // While a draft version exists, program-version associations may still change, so we
+      // neither read nor populate the cache.
+      return program.getVersions();
+    }
+    String cacheKey = versionsByProgramCacheKey(program.id, activeVersionId.get());
+    Optional<ImmutableList<VersionModel>> cachedVersions = versionsByProgramCache.get(cacheKey);
+    if (cachedVersions.isPresent()) {
+      return cachedVersions.get();
+    }
+    ImmutableList<VersionModel> versions =
+        getVersionsForProgramFresh(program.id).orElseGet(program::getVersions);
+    // A draft association appearing here means a draft version was created after the check
+    // above; don't cache in-flux data.
+    if (versions.stream()
+        .noneMatch(version -> version.getLifecycleStage() == LifecycleStage.DRAFT)) {
+      versionsByProgramCache.set(cacheKey, versions);
+    }
+    return versions;
+  }
+
+  @VisibleForTesting
+  static String versionsByProgramCacheKey(long programId, long activeVersionId) {
+    return programId + ":" + activeVersionId;
+  }
+
+  /**
+   * Fetches a fresh copy of the program's version associations from the database, bypassing the
+   * transaction's persistence context. Empty if the program row no longer exists.
+   */
+  private Optional<ImmutableList<VersionModel>> getVersionsForProgramFresh(long programId) {
+    return database
+        .find(ProgramModel.class)
+        .setId(programId)
+        .fetch("versions")
+        .setPersistenceContextScope(PersistenceContextScope.QUERY)
+        .setLabel("ProgramModel.findByIdFresh")
+        .setProfileLocation(queryProfileLocationBuilder.create("getVersionsForProgramFresh"))
+        .findOneOrEmpty()
+        .map(ProgramModel::getVersions);
   }
 
   public ImmutableSet<String> getAllProgramNames() {

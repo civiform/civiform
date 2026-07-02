@@ -13,6 +13,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import io.ebean.DB;
 import io.ebean.Database;
+import io.ebean.PersistenceContextScope;
 import io.ebean.SerializableConflictException;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
@@ -454,6 +455,48 @@ public final class VersionRepository {
   }
 
   /**
+   * Returns the id of the active version if and only if no draft version currently exists, and
+   * empty otherwise. Combines the draft-existence check and the active version lookup into a single
+   * query.
+   */
+  public Optional<Long> getActiveVersionIdIfNoDraft() {
+    ImmutableList<VersionModel> versions =
+        ImmutableList.copyOf(
+            database
+                .find(VersionModel.class)
+                .where()
+                .in("lifecycle_stage", LifecycleStage.ACTIVE, LifecycleStage.DRAFT)
+                .setLabel("VersionModel.findActiveAndDraft")
+                .setProfileLocation(profileLocationBuilder.create("getActiveVersionIdIfNoDraft"))
+                .findList());
+    if (versions.stream()
+        .anyMatch(version -> version.getLifecycleStage() == LifecycleStage.DRAFT)) {
+      return Optional.empty();
+    }
+    // More than one active version has been witnessed in production (see issue #9451); when that
+    // happens the newest one is the one the system actually serves.
+    return versions.stream().map(version -> version.id).max(Long::compareTo);
+  }
+
+  /**
+   * Fetches a fresh copy of a version from the database with the given relation ("questions" or
+   * "programs") eagerly loaded, bypassing the transaction's persistence context.
+   *
+   * <p>Used when populating the version caches so that the cached data reflects the database state
+   * rather than the possibly-stale state of a caller-supplied entity.
+   */
+  private Optional<VersionModel> getFreshVersion(long versionId, String relationToFetch) {
+    return database
+        .find(VersionModel.class)
+        .setId(versionId)
+        .fetch(relationToFetch)
+        .setPersistenceContextScope(PersistenceContextScope.QUERY)
+        .setLabel("VersionModel.findFresh")
+        .setProfileLocation(profileLocationBuilder.create("getFreshVersion"))
+        .findOneOrEmpty();
+  }
+
+  /**
    * Returns the previous version to the one passed in. If there is only one version there isn't a
    * previous version so the Optional result will be empty.
    *
@@ -565,8 +608,25 @@ public final class VersionRepository {
   public ImmutableList<QuestionModel> getQuestionsForVersion(VersionModel version) {
     // Only set the version cache for active and obsolete versions
     if (settingsManifest.getVersionCacheEnabled() && version.id <= getActiveVersion().id) {
-      return questionsByVersionCache.getOrElseUpdate(
-          String.valueOf(version.id), version::getQuestions);
+      String cacheKey = String.valueOf(version.id);
+      Optional<ImmutableList<QuestionModel>> cachedQuestions =
+          questionsByVersionCache.get(cacheKey);
+      if (cachedQuestions.isPresent()) {
+        return cachedQuestions.get();
+      }
+      // Populate the cache from a fresh database fetch rather than from the passed-in object.
+      // The caller's object may carry a lazily-loaded questions collection that was populated
+      // while the version was still a draft - before publishing associated the carried-over
+      // active questions with it. Caching that incomplete collection permanently poisons the
+      // entry for this version and produces NULL_QUESTION errors for every subsequent reader
+      // until the server restarts (issue #9451).
+      Optional<VersionModel> freshVersion = getFreshVersion(version.id, "questions");
+      if (freshVersion.isPresent()
+          && freshVersion.get().getLifecycleStage() != LifecycleStage.DRAFT) {
+        ImmutableList<QuestionModel> questions = freshVersion.get().getQuestions();
+        questionsByVersionCache.set(cacheKey, questions);
+        return questions;
+      }
     }
     return getQuestionsForVersionWithoutCache(version);
   }
@@ -630,8 +690,21 @@ public final class VersionRepository {
   public ImmutableList<ProgramModel> getProgramsForVersion(VersionModel version) {
     // Only set the version cache for active and obsolete versions
     if (settingsManifest.getVersionCacheEnabled() && version.id <= getActiveVersion().id) {
-      return programsByVersionCache.getOrElseUpdate(
-          String.valueOf(version.id), version::getPrograms);
+      String cacheKey = String.valueOf(version.id);
+      Optional<ImmutableList<ProgramModel>> cachedPrograms = programsByVersionCache.get(cacheKey);
+      if (cachedPrograms.isPresent()) {
+        return cachedPrograms.get();
+      }
+      // Populate the cache from a fresh database fetch rather than from the passed-in object,
+      // whose lazily-loaded programs collection may be stale. See the equivalent comment in
+      // getQuestionsForVersion (issue #9451).
+      Optional<VersionModel> freshVersion = getFreshVersion(version.id, "programs");
+      if (freshVersion.isPresent()
+          && freshVersion.get().getLifecycleStage() != LifecycleStage.DRAFT) {
+        ImmutableList<ProgramModel> programs = freshVersion.get().getPrograms();
+        programsByVersionCache.set(cacheKey, programs);
+        return programs;
+      }
     }
     return getProgramsForVersionWithoutCache(version);
   }
