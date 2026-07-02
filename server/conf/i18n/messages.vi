@@ -702,7 +702,6 @@ validation.noPoBox=Vui lòng nhập một địa chỉ hợp lệ. Chúng tôi k
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
 title.confirmAddress=Xác nhận địa chỉ của bạn
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
-content.confirmAddressLine1=Chúng tôi không thể tìm thấy địa chỉ của bạn.
 content.confirmAddressLine1.v2=Cần xác nhận địa chỉ.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=Vui lòng kiểm tra xem địa chỉ bạn nhập có lỗi chính tả không hoặc chọn một địa chỉ từ danh sách được cung cấp.
