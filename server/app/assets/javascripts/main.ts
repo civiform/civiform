@@ -9,6 +9,7 @@
  */
 
 import {addEventListenerToElements, assertNotNull} from '@/util'
+import {featureFlags} from '@/global/shared/feature_flags'
 import {MultiOptionQuestion} from '@/multi_option_question'
 
 export function attachDropdown(elementId: string) {
@@ -192,7 +193,9 @@ export function init() {
   // SC migration flag is on, and no other bundle wires these handlers, so this
   // must run unconditionally. init() is idempotent (options are tracked in a
   // WeakSet), so there is no double-binding risk.
-  new MultiOptionQuestion().init()
+  if (!featureFlags().isAdminUiMigrationScEnabled) {
+    new MultiOptionQuestion().init()
+  }
 
   // Note that this formatting logic mimics QuestionDefinition.getQuestionNameKey()
   const formatQuestionName = (unformatted: string) => {

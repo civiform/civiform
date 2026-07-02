@@ -1029,6 +1029,15 @@ error.internalServerHomeButton=Visit homepage
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
 error.statusCode=Error code: {0}
 
+# Override default Play error messages
+error.required=This field is required
+error.minLength=Minimum length is {0}
+error.maxLength=Maximum length is {0}
+error.email=Valid email required
+error.pattern=Invalid format
+error.min=Minimum value is {0}
+error.max=Maximum value is {0}
+
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #
 #-------------------------------------------------------------#
@@ -1470,3 +1479,143 @@ devtools.session.description=Inspect the current session
 devtools.session.pac4j=View current pac4j profile
 # Button text to view the current Play session.
 devtools.session.play=View current Play session
+
+#-----------------------------------------------------------------#
+# ADMIN UI - Common strings shared across multiple admin pages     #
+#-----------------------------------------------------------------#
+
+# Button to cancel an action
+admin.common.button.cancel=Cancel
+# Button to save changes
+admin.common.button.save=Save
+# Button to confirm an action
+admin.common.button.confirm=Confirm
+# Button to delete an item
+admin.common.button.delete=Delete
+# Button to edit an item
+admin.common.button.edit=Edit
+# Link to go back to previous page
+admin.common.link.back=Back
+# Aria label to close a modal window
+admin.common.modal.close=Close this window
+# Button to close a panel
+admin.common.button.close=Close
+# Button to add an item
+admin.common.button.add=Add
+# Label prefix for admin ID
+admin.common.label.adminid=Admin ID:
+# Label prefix for admin note
+admin.common.label.adminnote=Admin note:
+# Label prefix for categories
+admin.common.label.categories=Categories:
+# Tag for draft status
+admin.common.tag.draft=Draft
+# Tag for active status
+admin.common.tag.active=Active
+# Tag for universal question
+admin.common.tag.universal=Universal
+# Button to manage translations
+admin.common.button.managetranslations=Manage translations
+# Button to download PDF preview
+admin.common.button.downloadpdf=Download PDF preview
+# Button to preview as applicant
+admin.common.button.previewasapplicant=Preview as applicant
+# Button to continue to the next step
+admin.common.button.continue=Continue
+# Label for admin name
+admin.common.label.adminname=Admin name:
+# Label for program type
+admin.common.label.type=Type:
+# Text for pre-screener program type
+admin.common.type.prescreener=Pre-Screener
+# Text for external program type
+admin.common.type.external=External program
+# Text shown when translation is complete
+admin.common.text.translationcomplete=Translation complete
+# Text shown when translation is incomplete
+admin.common.text.translationincomplete=Translation incomplete
+# Bold label for English text in translation pages
+admin.common.label.englishtext=English text:
+# Required fields hint
+admin.common.text.requiredfields=Fields marked with a * are required.
+# Text for required question label
+admin.common.label.required=required question
+# Text for optional question label
+admin.common.label.optional=optional question
+# Label for move up button
+admin.common.button.moveup=move up
+# Label for move down button
+admin.common.button.movedown=move down
+
+#-----------------------------------------------------------------#
+# QUESTION NEW PAGE                                                #
+#-----------------------------------------------------------------#
+
+# Heading prefix for new question
+questionnew.heading.prefix=New
+# Heading suffix for new question
+questionnew.heading.suffix=question
+# Repeated question info paragraph 1
+questionnew.text.repeatedinfo1=By selecting an enumerator, you are creating a repeated question - a question that is asked for each repeated entity enumerated by the applicant.
+# Repeated question info paragraph 2
+questionnew.text.repeatedinfo2=Please reference the applicant-defined repeated entity name to give the applicant context on which repeated entity they are answering the question for by using
+# Repeated question info: $this reference
+questionnew.text.thisref="$this"
+# Repeated question info: in the text
+questionnew.text.inthetext=in the
+# Repeated question info: question text label
+questionnew.text.questiontextlabel=question''s text
+# Repeated question info: and optionally the
+questionnew.text.andoptionally=and optionally the
+# Repeated question info: help text label
+questionnew.text.helptextlabel=help text.
+# Repeated question info paragraph 3
+questionnew.text.repeatedinfo3=To reference the repeated entities containing this one, use
+# Section heading for visible to applicants
+questionnew.section.visibletoapplicants=Visible to applicants
+# Label for question text textarea
+questionnew.label.questiontext=Question text displayed to the applicant
+# Label for help text textarea
+questionnew.label.helptext=Question help text displayed to the applicant
+# Section heading for visible to admins only
+questionnew.section.visibletoadmins=Visible to administrators only
+# Label for admin identifier
+questionnew.label.adminidentifier=Administrative identifier. This value can''t be changed later
+# Help text for admin identifier
+questionnew.helptext.adminidentifier=This will be used to identify questions in the API and CSV export. It will be formatted so that white spaces are replaced with underscores, uppercase letters are converted to lowercase and all non-alphabetic characters are stripped.
+# Preview text for API visibility
+questionnew.text.apipreview=Visible in the API as:
+# Label for question description
+questionnew.label.description=Question note for administrative use only
+# Label for question enumerator select
+questionnew.label.enumerator=Question enumerator
+# Label for GeoJSON endpoint URL
+questionnew.label.geojsonurl=GeoJSON Endpoint URL
+# Help text for GeoJSON endpoint
+questionnew.helptext.geojsonurl=URL must be entered in order to configure question settings below.
+# Section heading for question settings
+questionnew.section.settings=Question settings
+# Button to create the question
+questionnew.button.create=Create
+
+#-----------------------------------------------------------------#
+# QUESTION EDIT PAGE                                               #
+#-----------------------------------------------------------------#
+
+# Heading prefix for edit question
+questionedit.heading.prefix=Edit
+# Heading suffix for edit question
+questionedit.heading.suffix=question
+# Label for admin identifier (read-only)
+questionedit.label.adminidentifier=Administrative identifier. This value can''t be changed
+# Button to update the question
+questionedit.button.update=Update
+# Modal heading for unset universal confirmation
+questionedit.modal.unsetuniversalheading=Are you sure you want to remove this question from the universal questions set?
+# Modal description prefix for unset universal
+questionedit.modal.unsetuniversaldesc.prefix=This question will no longer be set as a recommended
+# Modal description suffix for unset universal
+questionedit.modal.unsetuniversaldesc.suffix=question.
+# Button to confirm removal from universal questions
+questionedit.button.removefromuni=Remove from universal questions
+
