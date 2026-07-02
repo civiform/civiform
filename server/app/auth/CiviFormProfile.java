@@ -65,7 +65,8 @@ public class CiviFormProfile {
           .toCompletableFuture();
     }
 
-    // If the applicant id has not yet been stored in the profile, then get it from the account,
+    // If the applicant id has not yet been stored in the profile, then get it from
+    // the account,
     // which requires an extra db fetch.
     return this.getAccount()
         .thenApplyAsync(
@@ -75,26 +76,49 @@ public class CiviFormProfile {
             classLoaderExecutionContext.current());
   }
 
+  /**
+   * Synchronously gets the applicant. Use this when you are already running on a database thread to
+   * avoid thread pool deadlock.
+   */
+  public ApplicantModel getApplicantSync() {
+    if (profileData.containsAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME)) {
+      long applicantId =
+          profileData.getAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, Long.class);
+      return accountRepository
+          .lookupApplicantSync(applicantId)
+          .orElseThrow(() -> new MissingOptionalException(ApplicantModel.class));
+    }
+
+    AccountModel account = this.getAccountSync();
+    return getOldestApplicantForAccount(account)
+        .orElseThrow(() -> new MissingOptionalException(ApplicantModel.class));
+  }
+
   private Optional<ApplicantModel> getOldestApplicantForAccount(AccountModel account) {
-    // Accounts (should) correspond to a single applicant, but they don't in particular for guests
+    // Accounts (should) correspond to a single applicant, but they don't in
+    // particular for guests
     // merged into logged in accounts.
     return account.getApplicants().stream().min(comparing(ApplicantModel::getWhenCreated));
   }
 
   /** Look up the {@link AccountModel} associated with the profile from database. */
   public CompletableFuture<AccountModel> getAccount() {
-    return supplyAsync(
-        () -> {
-          AccountModel account = new AccountModel();
-          account.id = Long.valueOf(this.profileData.getId());
-          try {
-            account.refresh();
-          } catch (EntityNotFoundException e) {
-            throw new AccountNonexistentException(e.getMessage());
-          }
-          return account;
-        },
-        dbContext);
+    return supplyAsync(() -> getAccountSync(), dbContext);
+  }
+
+  /**
+   * Synchronously gets the account. Use this when you are already running on a database thread to
+   * avoid thread pool deadlock.
+   */
+  public AccountModel getAccountSync() {
+    AccountModel account = new AccountModel();
+    account.id = Long.valueOf(this.profileData.getId());
+    try {
+      account.refresh();
+    } catch (EntityNotFoundException e) {
+      throw new AccountNonexistentException(e.getMessage());
+    }
+    return account;
   }
 
   /**
@@ -225,7 +249,8 @@ public class CiviFormProfile {
       return completedFuture(profileData.getEmail());
     }
 
-    // If it's not present i.e. if user is a guest, fall back to the address in the database
+    // If it's not present i.e. if user is a guest, fall back to the address in the
+    // database
     return this.getAccount()
         .thenApplyAsync(AccountModel::getEmailAddress, classLoaderExecutionContext.current());
   }
