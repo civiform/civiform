@@ -35,7 +35,7 @@ public final class CreateQuestionButton {
         settingsManifest,
         request,
         /* isEmptyBlock= */ true,
-        /* isQuestionPage= */ true,
+        /* isProgramPage= */ false,
         /* isInitialQuestion= */ false);
   }
 
@@ -59,7 +59,7 @@ public final class CreateQuestionButton {
         settingsManifest,
         request,
         isEmptyBlock,
-        /* isQuestionPage= */ false,
+        /* isProgramPage= */ true,
         isInitialQuestion);
   }
 
@@ -75,7 +75,7 @@ public final class CreateQuestionButton {
       SettingsManifest settingsManifest,
       Http.Request request,
       boolean isEmptyBlock,
-      boolean isQuestionPage,
+      boolean isProgramPage,
       boolean isInitialQuestion) {
     String parentId = "create-question-button";
     String dropdownId = parentId + "-dropdown";
@@ -113,7 +113,7 @@ public final class CreateQuestionButton {
           continue;
         }
         // On a program block page, hide Enumerator once the block already contains a question.
-        if (!isQuestionPage && !isEmptyBlock) {
+        if (isProgramPage && !isEmptyBlock) {
           continue;
         }
       }
