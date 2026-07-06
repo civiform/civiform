@@ -48,8 +48,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20260313.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.46.15",
-      "software.amazon.awssdk" % "ses" % "2.46.15",
+      "software.amazon.awssdk" % "s3" % "2.46.20",
+      "software.amazon.awssdk" % "ses" % "2.46.20",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
@@ -59,8 +59,8 @@ lazy val root = (project in file("."))
       "com.microsoft.graph" % "microsoft-graph" % "6.65.0",
 
       // Database and database testing libraries
-      "org.postgresql" % "postgresql" % "42.7.11",
-      "com.google.cloud.sql" % "postgres-socket-factory" % "1.28.4",
+      "org.postgresql" % "postgresql" % "42.7.12",
+      "com.google.cloud.sql" % "postgres-socket-factory" % "1.28.6",
       "com.h2database" % "h2" % "2.4.240" % Test,
 
       // Metrics collection and export for Prometheus
@@ -109,7 +109,7 @@ lazy val root = (project in file("."))
       ),
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.50.0",
-      "org.checkerframework" % "dataflow-errorprone" % "4.2.0",
+      "org.checkerframework" % "dataflow-errorprone" % "4.2.1",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.14.1",
@@ -118,7 +118,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.5",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.33",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.34",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "4.0.0",
@@ -145,7 +145,7 @@ lazy val root = (project in file("."))
 
       // Override default Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.5.34",
+      "ch.qos.logback" % "logback-classic" % "1.5.37",
 
       // Swagger 2.0 Dependencies
       "io.swagger" % "swagger-core" % "1.6.16" exclude (

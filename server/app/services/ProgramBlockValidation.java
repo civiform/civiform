@@ -19,7 +19,7 @@ public final class ProgramBlockValidation {
   /**
    * Question types that may be chosen as the initial question on an enumerator block. Used by both
    * the server-side check in {@link #canAddQuestion} and the dropdown filter in {@code
-   * CreateQuestionButton}; the two must stay in sync.
+   * CreateQuestionButton} so that the two stay in sync.
    */
   public static final ImmutableSet<QuestionType> VALID_INITIAL_QUESTION_TYPES =
       ImmutableSet.of(

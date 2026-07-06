@@ -73,8 +73,6 @@ public abstract class ApplicantQuestionRendererParams {
 
   public abstract Optional<Boolean> isNameSuffixEnabled();
 
-  public abstract Optional<Boolean> isYesNoQuestionEnabled();
-
   public abstract ErrorDisplayMode errorDisplayMode();
 
   public boolean shouldShowErrors() {
@@ -117,8 +115,6 @@ public abstract class ApplicantQuestionRendererParams {
         StorageUploadRequest signedFileUploadRequest);
 
     public abstract Builder setIsNameSuffixEnabled(boolean isNameSuffixEnabled);
-
-    public abstract Builder setIsYesNoQuestionEnabled(boolean isYesNoQuestionEnabled);
 
     public abstract Builder setErrorDisplayMode(ErrorDisplayMode errorDisplayMode);
 

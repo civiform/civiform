@@ -540,6 +540,70 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           ).toHaveText('pets enumerator')
         })
       })
+
+      test('shows only valid question types in the "Create new question" dropdown for an initial question', async ({
+        page,
+      }) => {
+        const blockPanel = page.getByTestId('block-panel-edit')
+        const questionBankSidebar = page.getByRole('form', {
+          name: 'Add a question',
+        })
+        const initialQuestionSlot = blockPanel.locator('#initial-question-slot')
+
+        await test.step('Add a new repeated set', async () => {
+          await addRepeatedSetBlock(page, {selectParent: true})
+        })
+
+        await test.step('Open the question bank', async () => {
+          await initialQuestionSlot
+            .getByRole('button', {name: 'Add question'})
+            .click()
+        })
+
+        await test.step('Open the "Create new question" dropdown', async () => {
+          await questionBankSidebar
+            .getByRole('button', {name: 'Create new question'})
+            .click()
+        })
+
+        const dropdownLocator = page.getByTestId(
+          'create-question-button-dropdown',
+        )
+
+        await test.step('Validate only valid types appear', async () => {
+          const validInitialQuestionTypes = [
+            'Address',
+            'Currency',
+            'Date',
+            'Dropdown',
+            'Email',
+            'ID',
+            'Name',
+            'Number',
+            'Phone Number',
+            'Radio Button',
+            'Text',
+          ]
+          for (const questionType of validInitialQuestionTypes) {
+            await expect(
+              dropdownLocator.getByText(questionType, {exact: true}),
+            ).toBeVisible()
+          }
+
+          const invalidInitialQuestionTypes = [
+            'Checkbox',
+            'Enumerator',
+            'File Upload',
+            'Static Text',
+            'Yes/No',
+          ]
+          for (const questionType of invalidInitialQuestionTypes) {
+            await expect(
+              dropdownLocator.getByText(questionType, {exact: true}),
+            ).not.toBeAttached()
+          }
+        })
+      })
     })
 
     test('auto-fills and preserves editable repeated set suggestions', async ({

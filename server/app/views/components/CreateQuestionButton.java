@@ -64,8 +64,8 @@ public final class CreateQuestionButton {
   }
 
   /**
-   * Renders the "Create new question" button with a question type dropdown. Called by two public
-   * entry points; this is the shared implementation.
+   * Renders the "Create new question" button with a question type dropdown. This method should be
+   * the only way the button is rendered to keep all uses consistent.
    */
   private static DivTag renderCreateQuestionButton(
       String questionCreateRedirectUrl,
@@ -105,9 +105,6 @@ public final class CreateQuestionButton {
     for (QuestionType type : QuestionType.values()) {
       // Do not attempt to render a null question
       if (type == QuestionType.NULL_QUESTION) {
-        continue;
-      }
-      if (type == QuestionType.YES_NO && !settingsManifest.getYesNoQuestionEnabled()) {
         continue;
       }
       // Only filter Enumerator on program block pages, not on the standalone questions list page

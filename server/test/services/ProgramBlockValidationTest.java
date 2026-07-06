@@ -324,6 +324,24 @@ public class ProgramBlockValidationTest extends ResetPostgres {
 
   @Test
   public void
+      canAddQuestion_whenEnumeratorImprovementsEnabled_whenTextQuestionAsInitialQuestion_eligible()
+          throws ProgramNeedsABlockException {
+    ProgramDefinition program =
+        ProgramBuilder.newDraftProgram("program1").withEnumeratorBlock().buildDefinition();
+
+    assertThat(
+            programBlockValidation.canAddQuestion(
+                program,
+                program.getLastBlockDefinition(),
+                questionForEligible.getQuestionDefinition(), // text question type
+                /* enumeratorImprovementsEnabled= */ true,
+                /* fileUploadQuestionImprovementsEnabled= */ false,
+                /* isInitialQuestionSelection= */ true))
+        .isEqualTo(AddQuestionResult.ELIGIBLE);
+  }
+
+  @Test
+  public void
       canAddQuestion_whenEnumeratorImprovementsEnabled_whenCheckboxAsInitialQuestion_invalid()
           throws ProgramNeedsABlockException {
     QuestionDefinition checkboxQuestion =

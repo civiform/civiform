@@ -4,6 +4,7 @@
  */
 import '@/components/shared/modal'
 import * as main from '@/main'
+import {CategoryFilter} from '@/category_filter'
 import * as languageSelector from '@/language_selector'
 import * as enumerator from '@/enumerator'
 import * as radio from '@/radio'
@@ -32,6 +33,7 @@ window.addEventListener('load', () => {
   const AZURE_APPLICANT_FILEUPLOAD_FORM_ID = 'cf-block-form'
 
   main.init()
+  new CategoryFilter().init()
   languageSelector.init()
   enumerator.init()
   radio.init()

@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 public enum MessageKey {
   ACCT_STATUS_LABEL("label.acctStatus"),
-  ADDRESS_CORRECTION_LINE_1("content.confirmAddressLine1"),
+  ADDRESS_CORRECTION_LINE_1("content.confirmAddressLine1.v2"),
   ADDRESS_CORRECTION_FOUND_SIMILAR_LINE_2("content.foundSimilarAddressLine2"),
   ADDRESS_CORRECTION_NO_VALID_LINE_2("content.noValidAddressLine2"),
   ADDRESS_VALIDATION_CITY_REQUIRED("validation.cityRequired"),

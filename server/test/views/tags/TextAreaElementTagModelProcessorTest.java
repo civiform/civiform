@@ -421,7 +421,7 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
 <div class="usa-form-group">
 <label class="usa-label" for="summary">Summary</label>
 <span id="error-message-summary" class="usa-error-message" role="alert" hidden="hidden"></span>
-<textarea class="usa-textarea usa-textarea--small" id="summary" name="summary"></textarea>
+<textarea class="usa-textarea usa-input--small" id="summary" name="summary"></textarea>
 </div>
 """);
 
@@ -438,7 +438,7 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
 <div class="usa-form-group">
 <label class="usa-label" for="summary">Summary</label>
 <span id="error-message-summary" class="usa-error-message" role="alert" hidden="hidden"></span>
-<textarea class="usa-textarea usa-textarea--small" id="summary" name="summary"></textarea>
+<textarea class="usa-textarea usa-input--small" id="summary" name="summary"></textarea>
 </div>
 """);
   }
@@ -463,7 +463,7 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
 <div class="usa-form-group">
 <label class="usa-label" for="description">Description</label>
 <span id="error-message-description" class="usa-error-message" role="alert" hidden="hidden"></span>
-<textarea class="usa-textarea usa-textarea--medium" id="description" name="description"></textarea>
+<textarea class="usa-textarea usa-input--medium" id="description" name="description"></textarea>
 </div>
 """);
   }
@@ -502,7 +502,7 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
 <label class="usa-label" for="feedback">Feedback</label>
 <div id="help-text-feedback" class="usa-hint">Please be specific</div>
 <span id="error-message-feedback" class="usa-error-message" role="alert" hidden="hidden"></span>
-<textarea class="usa-textarea usa-textarea--md" id="feedback" name="feedback" placeholder="Enter your feedback" required="required" aria-describedby="help-text-feedback" minlength="1" maxlength="10">Initial feedback</textarea>
+<textarea class="usa-textarea usa-input--md" id="feedback" name="feedback" placeholder="Enter your feedback" required="required" aria-describedby="help-text-feedback" minlength="1" maxlength="10">Initial feedback</textarea>
 </div>
 """);
 
@@ -526,7 +526,7 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
 <label class="usa-label" for="feedback">Feedback</label>
 <div id="help-text-feedback" class="usa-hint">Please be specific</div>
 <span id="error-message-feedback" class="usa-error-message" role="alert" hidden="hidden"></span>
-<textarea class="usa-textarea usa-textarea--md" id="feedback" name="feedback" placeholder="Enter your feedback" required="required" aria-describedby="help-text-feedback" minlength="1" maxlength="10">Initial feedback</textarea>
+<textarea class="usa-textarea usa-input--md" id="feedback" name="feedback" placeholder="Enter your feedback" required="required" aria-describedby="help-text-feedback" minlength="1" maxlength="10">Initial feedback</textarea>
 </div>
 """);
   }

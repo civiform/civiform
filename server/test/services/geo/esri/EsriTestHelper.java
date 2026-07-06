@@ -63,6 +63,7 @@ public class EsriTestHelper {
     EMPTY_RESPONSE,
     ESRI_ERROR_RESPONSE,
     ERROR,
+    PARSE_FAILURE,
     SERVICE_AREA_VALIDATION,
     SERVICE_AREA_VALIDATION_ERROR,
     SERVICE_AREA_VALIDATION_NOT_INCLUDED,
@@ -118,6 +119,9 @@ public class EsriTestHelper {
           case ESRI_ERROR_RESPONSE ->
               createServerSettingsThatReturnOk(
                   "/findAddressCandidates", "esri/esriErrorResponse.json");
+          case PARSE_FAILURE ->
+              createServerSettingsThatReturnOk(
+                  "/findAddressCandidates", "esri/findAddressCandidatesParseFailure.json");
           case ERROR -> createServerSettingsThatReturnError("/findAddressCandidates");
           case SERVICE_AREA_VALIDATION ->
               createServerSettingsThatReturnOk("/query", "esri/serviceAreaFeatures.json");
