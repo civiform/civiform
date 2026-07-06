@@ -37,7 +37,9 @@ import services.program.ProgramQuestionDefinitionInvalidException;
 import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.program.ProgramService;
 import services.question.QuestionService;
+import services.question.QuestionService.InitialQuestionLinkResult;
 import services.question.exceptions.InvalidQuestionTypeException;
+import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.NullQuestionDefinition;
@@ -155,15 +157,17 @@ public class AdminProgramBlockQuestionsController extends Controller {
       return badRequest(e.getMessage());
     }
 
-    QuestionDefinition questionDefinition;
+    QuestionDefinition pendingEnumeratorQuestion;
     try {
-      questionDefinition = questionForm.getBuilder().build();
+      pendingEnumeratorQuestion = questionForm.getBuilder().build();
     } catch (UnsupportedQuestionTypeException e) {
       // Valid question type that is not yet fully supported.
       return badRequest(e.getMessage());
     }
 
-    ErrorAnd<QuestionDefinition, CiviFormError> result = questionService.create(questionDefinition);
+    ErrorAnd<QuestionDefinition, CiviFormError> result =
+        questionService.create(pendingEnumeratorQuestion);
+    // If there are validation errors in the repeated set form
     if (result.isError()) {
       return ok(
           blockEditView
@@ -178,15 +182,29 @@ public class AdminProgramBlockQuestionsController extends Controller {
               .render());
     }
 
-    QuestionDefinition createdQuestionDefinition;
+    QuestionDefinition persistedEnumeratorQuestion = result.getResult();
 
+    ImmutableList.Builder<Long> latestQuestionIdsBuilder = ImmutableList.builder();
+    latestQuestionIdsBuilder.add(persistedEnumeratorQuestion.getId());
+
+    Optional<Long> persistedInitialQuestionId = Optional.empty();
+    Optional<InitialQuestionLinkResult> optionalLinkResult;
     try {
-      createdQuestionDefinition = result.getResult();
-    } catch (RuntimeException e) {
-      return internalServerError("Problem getting the newly-created question definition.");
+      optionalLinkResult = attachInitialQuestion(questionForm, persistedEnumeratorQuestion);
+    } catch (QuestionNotFoundException e) {
+      return notFound(e.getMessage());
+    } catch (InvalidUpdateException | UnsupportedQuestionTypeException | RuntimeException e) {
+      return internalServerError(e.getMessage());
+    }
+    if (optionalLinkResult.isPresent()) {
+      InitialQuestionLinkResult linked = optionalLinkResult.get();
+      persistedEnumeratorQuestion = linked.enumeratorQuestion();
+      persistedInitialQuestionId = Optional.of(linked.initialQuestion().getId());
+      latestQuestionIdsBuilder.add(linked.initialQuestion().getId());
     }
 
-    ImmutableList<Long> latestQuestionIds = ImmutableList.of(createdQuestionDefinition.getId());
+    ImmutableList<Long> latestQuestionIds = latestQuestionIdsBuilder.build();
+    long enumeratorQuestionId = persistedEnumeratorQuestion.getId();
 
     ProgramDefinition programDefinition;
     BlockDefinition blockDefinition;
@@ -198,17 +216,18 @@ public class AdminProgramBlockQuestionsController extends Controller {
               programId,
               blockId,
               latestQuestionIds,
+              persistedInitialQuestionId,
               settingsManifest.getEnumeratorImprovementsEnabled(request),
               settingsManifest.getFileUploadQuestionImprovementsEnabled(request));
       blockDefinition = programDefinition.getBlockDefinition(blockId);
       programQuestionDefinition =
           blockDefinition.programQuestionDefinitions().stream()
-              .filter(pqd -> pqd.id() == createdQuestionDefinition.getId())
+              .filter(pqd -> pqd.id() == enumeratorQuestionId)
               .findFirst()
               .orElseThrow(
                   () ->
                       new ProgramQuestionDefinitionNotFoundException(
-                          programId, blockId, createdQuestionDefinition.getId()));
+                          programId, blockId, enumeratorQuestionId));
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
@@ -228,15 +247,40 @@ public class AdminProgramBlockQuestionsController extends Controller {
                         /* optionalCsrfTag= */ Optional.empty(),
                         programDefinition,
                         blockDefinition,
-                        createdQuestionDefinition,
+                        persistedEnumeratorQuestion,
                         programQuestionDefinition,
-                        /* questionIndex= */ 0, // Enumerator blocks have only one question
+                        /* questionIndex= */ 0,
                         blockDefinition.getQuestionCount(),
                         request,
                         messages)),
                 /* blockHasEnumeratorQuestion= */ true,
                 blockDefinition)
             .render());
+  }
+
+  /**
+   * If the form carries an initial question id, resolves it and delegates to {@link
+   * QuestionService#copyOrUpdateInitialQuestionAndLinkToEnumerator} to attach it to the
+   * just-created enumerator question. Returns {@link Optional#empty()} when no initial question was
+   * submitted.
+   */
+  private Optional<InitialQuestionLinkResult> attachInitialQuestion(
+      EnumeratorQuestionForm questionForm, QuestionDefinition persistedEnumeratorQuestion)
+      throws QuestionNotFoundException, InvalidUpdateException, UnsupportedQuestionTypeException {
+    Long initialQuestionId = questionForm.getInitialQuestionId();
+    if (initialQuestionId == null) {
+      return Optional.empty();
+    }
+    QuestionDefinition originalInitialQuestion =
+        questionService.getReadOnlyQuestionServiceSync().getQuestionDefinition(initialQuestionId);
+    if (originalInitialQuestion instanceof NullQuestionDefinition) {
+      throw new QuestionNotFoundException(initialQuestionId);
+    }
+    return Optional.of(
+        questionService.copyOrUpdateInitialQuestionAndLinkToEnumerator(
+            persistedEnumeratorQuestion,
+            originalInitialQuestion,
+            questionForm.getInitialQuestionWasNewlyCreated()));
   }
 
   /**

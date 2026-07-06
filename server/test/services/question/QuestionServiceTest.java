@@ -27,8 +27,10 @@ import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.Path;
 import services.TranslationLocales;
+import services.question.QuestionService.InitialQuestionLinkResult;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionDefinitionConfig;
@@ -185,6 +187,79 @@ public class QuestionServiceTest extends ResetPostgres {
     QuestionDefinition questionCopy = errorAndResult.getResult();
     assertThat(questionService.isTranslationComplete(translationLocales, question)).isTrue();
     assertThat(questionService.isTranslationComplete(translationLocales, questionCopy)).isTrue();
+  }
+
+  @Test
+  public void
+      copyOrUpdateInitialQuestionAndLinkToEnumerator_withExistingInitialQuestion_createsCopy()
+          throws Exception {
+    QuestionDefinition enumerator = createEnumerator("test-enumerator");
+    QuestionDefinition originalInitialQuestion = createTextQuestion("text-question");
+
+    InitialQuestionLinkResult result =
+        questionService.copyOrUpdateInitialQuestionAndLinkToEnumerator(
+            enumerator, originalInitialQuestion, /* initialQuestionWasNewlyCreated= */ false);
+
+    // The initial question is a fresh copy — new id, "-_- a" suffix on name, enumeratorId set.
+    assertThat(result.initialQuestion().getId()).isNotEqualTo(originalInitialQuestion.getId());
+    assertThat(result.initialQuestion().getName()).isEqualTo("text-question -_- a");
+    assertThat(result.initialQuestion().getEnumeratorId()).contains(enumerator.getId());
+    // The enumerator now links to the persisted initial question.
+    assertThat(result.enumeratorQuestion().getEnumeratorInitialQuestionId())
+        .contains(result.initialQuestion().getId());
+  }
+
+  @Test
+  public void
+      copyOrUpdateInitialQuestionAndLinkToEnumerator_withNewlyCreatedInitialQuestion_updatesInPlaceAndPersistsLink()
+          throws Exception {
+    QuestionDefinition enumerator = createEnumerator("test-enumerator");
+    QuestionDefinition originalInitialQuestion = createTextQuestion("text-question");
+
+    InitialQuestionLinkResult result =
+        questionService.copyOrUpdateInitialQuestionAndLinkToEnumerator(
+            enumerator, originalInitialQuestion, /* initialQuestionWasNewlyCreated= */ true);
+
+    // The initial question is updated in place — same id, same name, enumeratorId now set.
+    assertThat(result.initialQuestion().getId()).isEqualTo(originalInitialQuestion.getId());
+    assertThat(result.initialQuestion().getName()).isEqualTo(originalInitialQuestion.getName());
+    assertThat(result.initialQuestion().getEnumeratorId()).contains(enumerator.getId());
+    // The enumerator now links to the persisted initial question.
+    assertThat(result.enumeratorQuestion().getEnumeratorInitialQuestionId())
+        .contains(result.initialQuestion().getId());
+
+    // The enumerator link is persisted — reload from DB and verify.
+    QuestionDefinition reloadedEnumerator =
+        questionService
+            .getReadOnlyQuestionServiceSync()
+            .getQuestionDefinition(result.enumeratorQuestion().getId());
+    assertThat(reloadedEnumerator.getEnumeratorInitialQuestionId())
+        .contains(result.initialQuestion().getId());
+  }
+
+  private QuestionDefinition createEnumerator(String name) {
+    return questionService
+        .create(
+            new EnumeratorQuestionDefinition(
+                QuestionDefinitionConfig.builder()
+                    .setName(name)
+                    .setDescription("desc")
+                    .setQuestionText(LocalizedStrings.of(Locale.US, "?"))
+                    .build(),
+                LocalizedStrings.withDefaultValue("member")))
+        .getResult();
+  }
+
+  private QuestionDefinition createTextQuestion(String name) {
+    return questionService
+        .create(
+            new TextQuestionDefinition(
+                QuestionDefinitionConfig.builder()
+                    .setName(name)
+                    .setDescription("desc")
+                    .setQuestionText(LocalizedStrings.of(Locale.US, "?"))
+                    .build()))
+        .getResult();
   }
 
   @Test

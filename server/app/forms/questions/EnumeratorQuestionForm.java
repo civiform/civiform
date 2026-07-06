@@ -11,6 +11,9 @@ public class EnumeratorQuestionForm extends QuestionForm {
   private String entityType;
   private OptionalInt minEntities;
   private OptionalInt maxEntities;
+  // Only populated by the "Create repeated set" flow on the block edit page; unused elsewhere.
+  private Long initialQuestionId;
+  private boolean initialQuestionWasNewlyCreated;
   public static final int MAX_ENUM_ENTITIES_ALLOWED = 50;
 
   public EnumeratorQuestionForm() {
@@ -18,6 +21,8 @@ public class EnumeratorQuestionForm extends QuestionForm {
     this.entityType = "";
     this.minEntities = OptionalInt.empty();
     this.maxEntities = OptionalInt.empty();
+    this.initialQuestionId = null;
+    this.initialQuestionWasNewlyCreated = false;
   }
 
   public EnumeratorQuestionForm(EnumeratorQuestionDefinition qd) {
@@ -25,6 +30,8 @@ public class EnumeratorQuestionForm extends QuestionForm {
     this.entityType = qd.getEntityType().isEmpty() ? "" : qd.getEntityType().getDefault();
     this.minEntities = qd.getMinEntities();
     this.maxEntities = qd.getMaxEntities();
+    this.initialQuestionId = null;
+    this.initialQuestionWasNewlyCreated = false;
   }
 
   @Override
@@ -60,6 +67,22 @@ public class EnumeratorQuestionForm extends QuestionForm {
 
   public void setEntityType(String entityType) {
     this.entityType = entityType;
+  }
+
+  public Long getInitialQuestionId() {
+    return initialQuestionId;
+  }
+
+  public void setInitialQuestionId(Long initialQuestionId) {
+    this.initialQuestionId = initialQuestionId;
+  }
+
+  public boolean getInitialQuestionWasNewlyCreated() {
+    return initialQuestionWasNewlyCreated;
+  }
+
+  public void setInitialQuestionWasNewlyCreated(boolean initialQuestionWasNewlyCreated) {
+    this.initialQuestionWasNewlyCreated = initialQuestionWasNewlyCreated;
   }
 
   @Override

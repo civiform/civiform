@@ -919,11 +919,31 @@ public final class ProgramBlocksView extends ProgramBaseView {
     boolean shouldShowNestedButton = blockDefinition.enumeratorId().isEmpty();
     return div(
         renderEnumeratorQuestionCardSection(messages, optionalEnumeratorQuestionCard),
+        renderInitialQuestionDebugLine(blockDefinition),
         renderAddRepeatedScreenButtons(
             messages,
             blockHasEnumeratorQuestion,
             /* optionalParentEnumeratorBlock= */ Optional.empty(),
             shouldShowNestedButton));
+  }
+
+  // Temporary: unstyled line showing the linked initial question's admin id. Placeholder for the
+  // real UI treatment coming in a follow-up ticket.
+  private DivTag renderInitialQuestionDebugLine(BlockDefinition blockDefinition) {
+    if (!blockDefinition.hasEnumeratorQuestion()) {
+      return div();
+    }
+    Optional<Long> maybeInitialQuestionId =
+        blockDefinition.getEnumeratorQuestionDefinition().getEnumeratorInitialQuestionId();
+    if (maybeInitialQuestionId.isEmpty()) {
+      return div();
+    }
+    long initialQuestionId = maybeInitialQuestionId.get();
+    return blockDefinition.getQuestionDefinitions().stream()
+        .filter(qd -> qd.getId() == initialQuestionId)
+        .findFirst()
+        .map(qd -> div("Initial question: " + qd.getName()))
+        .orElseGet(() -> div());
   }
 
   private DivTag renderEnumeratorQuestionCardSection(

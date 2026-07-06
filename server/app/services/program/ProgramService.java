@@ -1622,6 +1622,29 @@ public final class ProgramService {
       throws CantAddQuestionToBlockException,
           ProgramNotFoundException,
           ProgramBlockDefinitionNotFoundException {
+    return addQuestionsToBlock(
+        programId,
+        blockDefinitionId,
+        questionIds,
+        /* initialQuestionId= */ Optional.empty(),
+        enumeratorImprovementsEnabled,
+        fileUploadQuestionImprovementsEnabled);
+  }
+
+  /**
+   * Overload of {@link #addQuestionsToBlock} that also accepts the id of an initial question being
+   * added to an enumerator block.
+   */
+  public ProgramDefinition addQuestionsToBlock(
+      long programId,
+      long blockDefinitionId,
+      ImmutableList<Long> questionIds,
+      Optional<Long> initialQuestionId,
+      boolean enumeratorImprovementsEnabled,
+      boolean fileUploadQuestionImprovementsEnabled)
+      throws CantAddQuestionToBlockException,
+          ProgramNotFoundException,
+          ProgramBlockDefinitionNotFoundException {
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
 
     BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
@@ -1658,12 +1681,27 @@ public final class ProgramService {
                   question.getQuestionDefinition(),
                   enumeratorImprovementsEnabled,
                   fileUploadQuestionImprovementsEnabled,
-                  /* isInitialQuestionSelection= */ false);
+                  /* isInitialQuestionSelection= */ initialQuestionId.isPresent()
+                      && initialQuestionId.get() == questionId);
       if (canAddQuestion != AddQuestionResult.ELIGIBLE) {
         throw new CantAddQuestionToBlockException(
             programDefinition, blockDefinition, question.getQuestionDefinition(), canAddQuestion);
       }
       updatedBlockQuestions.add(question);
+
+      // If we just added an enumerator question, reflect it in blockDefinition so subsequent
+      // validations in this loop (e.g. the initial question's enumeratorId match) see it.
+      if (questionDefinition.isEnumerator()) {
+        blockDefinition =
+            blockDefinition.toBuilder()
+                .setProgramQuestionDefinitions(
+                    ImmutableList.<ProgramQuestionDefinition>builder()
+                        .addAll(blockDefinition.programQuestionDefinitions())
+                        .add(question)
+                        .build())
+                .setIsEnumerator(Optional.of(true))
+                .build();
+      }
     }
 
     ImmutableList<ProgramQuestionDefinition> updatedBlockQuestionsList =
