@@ -2,11 +2,11 @@ package views.admin.questions;
 
 import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
-import forms.MapQuestionForm;
+import forms.questions.MapQuestionForm;
 import java.util.List;
 import java.util.OptionalInt;
 import lombok.Builder;
-import views.admin.BaseViewModel;
+import views.BaseViewModel;
 
 @Builder
 public record MapQuestionSettingsPartialViewModel(

@@ -145,7 +145,7 @@ test.describe('when email is configured for the status and applicant, a checkbox
         page,
         testUserDisplayName(),
       )
-      expect(emailsAfter.length).toEqual(emailsBefore.length)
+      expect(emailsAfter).toHaveLength(emailsBefore.length)
     }
   })
 

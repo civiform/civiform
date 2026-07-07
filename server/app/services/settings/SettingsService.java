@@ -11,9 +11,12 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Streams;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import controllers.BadRequestException;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import models.SettingsGroupModel;
 import org.apache.commons.lang3.StringUtils;
@@ -26,6 +29,7 @@ import play.libs.typedmap.TypedMap;
 import play.mvc.Http;
 import repository.SettingsGroupRepository;
 import services.ColorUtil;
+import services.program.ProgramService;
 
 /**
  * Service management of the resource backed by {@link SettingsGroupModel}.
@@ -48,15 +52,18 @@ public final class SettingsService {
   private final SettingsGroupRepository settingsGroupRepository;
   private final SettingsManifest settingsManifest;
   private final Environment environment;
+  private final Provider<ProgramService> programServiceProvider;
 
   @Inject
   public SettingsService(
       SettingsGroupRepository settingsGroupRepository,
       SettingsManifest settingsManifest,
-      Environment environment) {
+      Environment environment,
+      Provider<ProgramService> programServiceProvider) {
     this.settingsGroupRepository = checkNotNull(settingsGroupRepository);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.environment = checkNotNull(environment);
+    this.programServiceProvider = checkNotNull(programServiceProvider);
   }
 
   /**
@@ -175,6 +182,11 @@ public final class SettingsService {
                     throw new BadRequestException(
                         String.format("Invalid boolean value: %s", newValue));
                   }
+                  Optional<SettingsGroupUpdateResult.UpdateError> error =
+                      validateApplicationState(settingDescription, newValue);
+                  if (error.isPresent()) {
+                    validationErrors.put(settingDescription.variableName(), error.get());
+                  }
                 }
                 case ENUM -> validateEnum(settingDescription, newValue);
                 case INT -> {
@@ -183,8 +195,8 @@ public final class SettingsService {
                   }
                 }
 
-                  // LIST_OF_STRINGS included here for completeness since errorprone will produce a
-                  // warning if a case statement isn't exhaustive.
+                // LIST_OF_STRINGS included here for completeness since errorprone will produce a
+                // warning if a case statement isn't exhaustive.
                 case LIST_OF_STRINGS -> {}
                 case STRING -> {
                   Optional<SettingsGroupUpdateResult.UpdateError> error =
@@ -255,6 +267,21 @@ public final class SettingsService {
     return Optional.empty();
   }
 
+  private List<String> getMixedFileUploadProgramScreenDescriptions() {
+    return programServiceProvider
+        .get()
+        .getActiveAndDraftPrograms()
+        .getMostRecentProgramDefinitions()
+        .stream()
+        .flatMap(
+            pd ->
+                pd.blockDefinitions().stream()
+                    .filter(bd -> bd.isFileUpload() && bd.getQuestionCount() > 1)
+                    .map(
+                        bd -> String.format("%s (%s)", pd.localizedName().getDefault(), bd.name())))
+        .collect(Collectors.toList());
+  }
+
   /**
    * Inserts a new {@link SettingsGroupModel} if it finds admin writeable settings in the {@link
    * SettingsManifest} that are not in the current {@link SettingsGroupModel}.
@@ -305,6 +332,26 @@ public final class SettingsService {
       case ENUM -> settingDescription.allowableValues().get().stream().findFirst().get();
       case LIST_OF_STRINGS, STRING -> "CHANGE ME";
       case BOOLEAN -> "false";
+    };
+  }
+
+  private Optional<SettingsGroupUpdateResult.UpdateError> validateApplicationState(
+      SettingDescription settingDescription, String newValue) {
+    return switch (settingDescription.variableName()) {
+      case "FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED" -> {
+        List<String> programScreenDescriptions = getMixedFileUploadProgramScreenDescriptions();
+        if (newValue.equals("false") && !programScreenDescriptions.isEmpty()) {
+          yield Optional.of(
+              SettingsGroupUpdateResult.UpdateError.create(
+                  newValue,
+                  "To turn this off, first remove file upload questions from any"
+                      + " screens that contain other question types. Affected programs: "
+                      + String.join(", ", programScreenDescriptions)
+                      + "."));
+        }
+        yield Optional.empty();
+      }
+      default -> Optional.empty();
     };
   }
 

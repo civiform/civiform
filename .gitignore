@@ -84,3 +84,6 @@ server/dependencies-compile.graphml
 
 # Output of bin/renovate-test
 renovate-debug-output.txt
+
+# AI
+.claude/settings.local.json

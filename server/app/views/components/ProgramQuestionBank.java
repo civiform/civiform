@@ -22,14 +22,18 @@ import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.stream.Stream;
 import org.apache.http.client.utils.URIBuilder;
+import play.i18n.Messages;
 import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
+import services.MessageKey;
 import services.ProgramBlockValidation;
 import services.ProgramBlockValidation.AddQuestionResult;
 import services.ProgramBlockValidationFactory;
 import services.program.BlockDefinition;
+import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
@@ -45,6 +49,10 @@ public final class ProgramQuestionBank {
   // Url parameter used to force question bank open upon initial rendering
   // of program edit page.
   private static final String SHOW_QUESTION_BANK_PARAM = "sqb";
+  // Url parameter used to send focus to the enumerator question section heading
+  private static final String FOCUS_ENUMERATOR_HEADING_PARAM = "focusEnumeratorHeading";
+  // Url parameter used to indicate a newly created question that should be auto-added to the block
+  public static final String NEWLY_CREATED_QUESTION_ID_PARAM = "newQuestionId";
   // Data attribute used to store which text is relevant when filtering
   // questions via the search bar.
   private static final String RELEVANT_FILTER_TEXT_DATA_ATTR = "relevantfiltertext";
@@ -52,6 +60,7 @@ public final class ProgramQuestionBank {
   private final ProgramQuestionBankParams params;
   private final ProgramBlockValidationFactory programBlockValidationFactory;
   private final SettingsManifest settingsManifest;
+  private final Messages messages;
   private final Http.Request request;
 
   /**
@@ -64,14 +73,33 @@ public final class ProgramQuestionBank {
     HIDDEN
   }
 
+  /**
+   * The role the bank is playing for this render. The mode drives the form's submit endpoint
+   * (regular {@code create} vs HTMX {@code hxSelectInitialQuestion}), whether non-enumerator
+   * questions are filtered out, and whether the "Create new question" button is shown.
+   */
+  public enum Mode {
+    /** Standard "Add question" flow — native POST to {@code create}, all eligible questions. */
+    ANY_ELIGIBLE,
+    /** "Choose existing" flow on an empty enumerator block — enumerator-only, no create button. */
+    EXISTING_ENUMERATOR_ONLY,
+    /** Initial-question selection — HTMX POST that swaps the chosen question into the form. */
+    INITIAL_QUESTION
+  }
+
+  /** HTML id assigned to the bank's form element, used as the HTMX swap target for mode changes. */
+  public static final String PANEL_FORM_ID = "question-bank-panel-form";
+
   public ProgramQuestionBank(
       ProgramQuestionBankParams params,
       ProgramBlockValidationFactory programBlockValidationFactory,
       SettingsManifest settingsManifest,
+      Messages messages,
       Http.Request request) {
     this.params = checkNotNull(params);
     this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.messages = checkNotNull(messages);
     this.request = checkNotNull(request);
   }
 
@@ -102,11 +130,12 @@ public final class ProgramQuestionBank {
         .with(questionBankPanel());
   }
 
-  private FormTag questionBankPanel() {
+  public FormTag questionBankPanel() {
+    String headingId = "question-bank-heading";
     FormTag questionForm =
         form()
-            .withMethod(HttpVerbs.POST)
-            .withAction(params.questionAction())
+            .withId(PANEL_FORM_ID)
+            .attr("aria-labelledby", headingId)
             .with(params.csrfTag())
             .withClasses(
                 ReferenceClasses.QUESTION_BANK_PANEL,
@@ -118,6 +147,7 @@ public final class ProgramQuestionBank {
                 "right-0",
                 "top-0",
                 "transition-transform");
+    applyModeAttrs(questionForm);
 
     // We set pb-12 (padding bottom 12) to account for the fact that question bank height is screen
     // size while it's effective space is screen-height minus header-height. That pushes question
@@ -127,7 +157,7 @@ public final class ProgramQuestionBank {
     DivTag contentDiv = div().withClasses("relative", "grid", "gap-6", "px-5", "pt-6", "pb-12");
     questionForm.with(contentDiv);
 
-    H1Tag headerDiv = h1("Add a question").withClasses("mx-2", "text-xl");
+    H1Tag headerDiv = h1("Add a question").withId(headingId).withClasses("mx-2", "text-xl");
     contentDiv.with(
         div()
             .withClasses("flex", "items-center")
@@ -141,23 +171,33 @@ public final class ProgramQuestionBank {
     contentDiv.with(
         QuestionBank.renderFilterAndSort(
             ImmutableList.of(QuestionSortOption.LAST_MODIFIED, QuestionSortOption.ADMIN_NAME)));
-    contentDiv.with(
-        div()
-            .with(
-                div()
-                    .withClasses("flex", "items-center", "justify-end")
-                    .with(
-                        p("Not finding a question you're looking for in this list?")
-                            .withClass("mr-2"),
-                        div()
-                            .withClass("flex")
-                            .with(
-                                div().withClass("flex-grow"),
-                                CreateQuestionButton.renderCreateQuestionButton(
-                                    params.questionCreateRedirectUrl(),
-                                    /* isPrimaryButton= */ false,
-                                    settingsManifest,
-                                    request)))));
+    if (params.mode() != Mode.EXISTING_ENUMERATOR_ONLY) {
+      contentDiv.with(
+          div()
+              .with(
+                  div()
+                      .withClasses("flex", "items-center", "justify-end")
+                      .with(
+                          p("Not finding a question you're looking for in this list?")
+                              .withClass("mr-2"),
+                          div()
+                              .withClass("flex")
+                              .with(
+                                  div().withClass("flex-grow"),
+                                  CreateQuestionButton
+                                      .renderCreateQuestionButtonForProgramQuestionBank(
+                                          params.questionCreateRedirectUrl(),
+                                          getParentEnumeratorId(),
+                                          params.blockDefinition().isRepeated(),
+                                          settingsManifest,
+                                          request,
+                                          /* isEmptyBlock= */ params
+                                                  .blockDefinition()
+                                                  .getQuestionCount()
+                                              == 0,
+                                          /* isInitialQuestion= */ params.mode()
+                                              == Mode.INITIAL_QUESTION)))));
+    }
 
     // Sort by last modified, since that's the default of the sort by dropdown
     ImmutableList<QuestionDefinition> allQuestions =
@@ -168,12 +208,47 @@ public final class ProgramQuestionBank {
                     .reversed()
                     .thenComparing(qdef -> qdef.getName().toLowerCase(Locale.ROOT)))
             .collect(ImmutableList.toImmutableList());
-    ImmutableList<QuestionDefinition> universalQuestions =
-        allQuestions.stream().filter(q -> q.isUniversal()).collect(ImmutableList.toImmutableList());
-    ImmutableList<QuestionDefinition> nonUniversalQuestions =
+
+    boolean shouldShowPreviouslyUsedSection =
+        settingsManifest.getEnumeratorImprovementsEnabled(request)
+            && params.blockDefinition().isRepeated();
+
+    ImmutableList<QuestionDefinition> previouslyUsedForRepeatedSetQuestions =
+        shouldShowPreviouslyUsedSection
+            ? allQuestions.stream()
+                .filter(q -> q.getEnumeratorId().isPresent())
+                .collect(ImmutableList.toImmutableList())
+            : ImmutableList.of();
+
+    ImmutableList<QuestionDefinition> remainingQuestions =
         allQuestions.stream()
+            .filter(q -> !(shouldShowPreviouslyUsedSection && q.getEnumeratorId().isPresent()))
+            .collect(ImmutableList.toImmutableList());
+
+    ImmutableList<QuestionDefinition> universalQuestions =
+        remainingQuestions.stream()
+            .filter(QuestionDefinition::isUniversal)
+            .collect(ImmutableList.toImmutableList());
+    ImmutableList<QuestionDefinition> nonUniversalQuestions =
+        remainingQuestions.stream()
             .filter(q -> !q.isUniversal())
             .collect(ImmutableList.toImmutableList());
+
+    if (!previouslyUsedForRepeatedSetQuestions.isEmpty()) {
+      contentDiv.with(
+          div()
+              .withId("question-bank-previously-used")
+              .withClasses(ReferenceClasses.SORTABLE_QUESTIONS_CONTAINER)
+              .with(
+                  h2(messages.at(MessageKey.HEADING_REPEATED_SET_PREVIOUSLY_USED.getKeyName()))
+                      .withClasses(AdminStyles.SEMIBOLD_HEADER))
+              .with(
+                  AlertComponent.renderSlimInfoAlert(
+                      messages.at(MessageKey.ALERT_REPEATED_SET_PREVIOUSLY_USED.getKeyName())))
+              .with(
+                  each(previouslyUsedForRepeatedSetQuestions, qd -> renderQuestionDefinition(qd))));
+    }
+
     if (!universalQuestions.isEmpty()) {
       contentDiv.with(
           div()
@@ -286,28 +361,75 @@ public final class ProgramQuestionBank {
   }
 
   /**
-   * Used to filter questions in the question bank.
-   *
-   * <p>Questions that are filtered out:
-   *
-   * <ul>
-   *   <li>If there is at least one question in the current block, all single-block questions are
-   *       filtered.
-   *   <li>If there is a single block question in the current block, all questions are filtered.
-   *   <li>If this is a repeated block, only the appropriate repeated questions are showed.
-   *   <li>Questions already in the program are filtered.
-   * </ul>
+   * Configures the form's submission attributes for the current {@link Mode}. INITIAL_QUESTION mode
+   * uses HTMX to swap the selection into the enumerator-creation form without leaving the page; all
+   * other modes use a native POST to the {@code create} endpoint.
+   */
+  private void applyModeAttrs(FormTag questionForm) {
+    long programId = params.program().id();
+    long blockId = params.blockDefinition().id();
+    switch (params.mode()) {
+      case INITIAL_QUESTION ->
+          questionForm
+              .attr(
+                  "hx-post",
+                  controllers.admin.routes.AdminProgramBlockQuestionsController
+                      .hxSelectInitialQuestion(programId, blockId)
+                      .url())
+              .attr("hx-target", "#initial-question-slot")
+              .attr("hx-swap", "outerHTML");
+      case ANY_ELIGIBLE, EXISTING_ENUMERATOR_ONLY ->
+          questionForm
+              .withMethod(HttpVerbs.POST)
+              .withAction(
+                  controllers.admin.routes.AdminProgramBlockQuestionsController.create(
+                          programId, blockId)
+                      .url());
+    }
+  }
+
+  /**
+   * If this is a repeated question, return the id of the enumerator question for the parent block.
+   */
+  private Optional<String> getParentEnumeratorId() {
+    if (!settingsManifest.getEnumeratorImprovementsEnabled(request)
+        || !params.blockDefinition().isRepeated()) {
+      return Optional.empty();
+    }
+
+    try {
+      BlockDefinition parentEnumeratorBlock =
+          params.program().getBlockDefinition(params.blockDefinition().enumeratorId().get());
+      if (!parentEnumeratorBlock.hasEnumeratorQuestion()) {
+        return Optional.empty();
+      }
+      return Optional.of(
+          Long.toString(parentEnumeratorBlock.getEnumeratorQuestionDefinition().getId()));
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * Used to filter questions in the question bank based on whether they are eligible to be added to
+   * the current block.
    */
   private Stream<QuestionDefinition> filterQuestions() {
     ProgramBlockValidation programBlockValidation = programBlockValidationFactory.create();
+    // EXISTING_ENUMERATOR_ONLY mode (the "Choose existing" flow on an empty enumerator block)
+    // restricts the bank to enumerator-type questions; all other modes show everything eligible.
+    boolean allowAllQuestions = params.mode() != Mode.EXISTING_ENUMERATOR_ONLY;
     return params.questions().stream()
+        .filter(q -> allowAllQuestions || q.isEnumerator())
         .filter(
             q ->
                 programBlockValidation.canAddQuestion(
                         params.program(),
                         params.blockDefinition(),
                         q,
-                        settingsManifest.getEnumeratorImprovementsEnabled(request))
+                        settingsManifest.getEnumeratorImprovementsEnabled(request),
+                        settingsManifest.getFileUploadQuestionImprovementsEnabled(request),
+                        /* isInitialQuestionSelection= */ params.mode() == Mode.INITIAL_QUESTION)
                     == AddQuestionResult.ELIGIBLE);
   }
 
@@ -320,6 +442,37 @@ public final class ProgramQuestionBank {
     try {
       return new URIBuilder(url)
           .setParameter(ProgramQuestionBank.SHOW_QUESTION_BANK_PARAM, "true")
+          .build()
+          .toString();
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * When an admin has chosen an existing question as the enumerator question, we want focus to be
+   * sent to the section they were previously on after the page reloads.
+   */
+  public static String addFocusEnumeratorHeadingParam(String url) {
+    try {
+      return new URIBuilder(url)
+          .setParameter(ProgramQuestionBank.FOCUS_ENUMERATOR_HEADING_PARAM, "true")
+          .build()
+          .toString();
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * Adds the newly created question ID to the URL so it can be auto-added to the block when the
+   * user returns from question creation.
+   */
+  public static String addNewlyCreatedQuestionIdParam(String url, long questionId) {
+    try {
+      return new URIBuilder(url)
+          .setParameter(
+              ProgramQuestionBank.NEWLY_CREATED_QUESTION_ID_PARAM, String.valueOf(questionId))
           .build()
           .toString();
     } catch (URISyntaxException e) {
@@ -348,7 +501,8 @@ public final class ProgramQuestionBank {
 
     abstract InputTag csrfTag();
 
-    abstract String questionAction();
+    /** Drives the bank's submission target, filter, and CreateQuestionButton visibility. */
+    abstract Mode mode();
 
     public static Builder builder() {
       return new AutoValue_ProgramQuestionBank_ProgramQuestionBankParams.Builder();
@@ -366,7 +520,7 @@ public final class ProgramQuestionBank {
 
       public abstract Builder setCsrfTag(InputTag v);
 
-      public abstract Builder setQuestionAction(String v);
+      public abstract Builder setMode(Mode v);
 
       public abstract ProgramQuestionBankParams build();
     }

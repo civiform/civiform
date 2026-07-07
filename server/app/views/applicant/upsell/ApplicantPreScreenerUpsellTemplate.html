@@ -3,7 +3,7 @@
   <head
     th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
   ></head>
-  <body>
+  <body th:hx-headers='|{"CSRF-TOKEN":"${csrfToken}"}|'>
     <div th:replace="~{applicant/ApplicantBaseFragment :: skipNav}"></div>
     <div
       th:replace="~{applicant/shared/NavigationFragment :: pageHeader}"
@@ -93,7 +93,7 @@
 
             <section class="section-external" th:if="${isGuest}">
               <div
-                th:replace="~{applicant/shared/CreateAccountAlertFragment :: createAccount(${createAccountLink}, ${loginLink}, #{button.createAnAccount}, #{content.loginToExistingAccount})}"
+                th:replace="~{applicant/shared/CreateAccountAlertFragment :: createAccount(${createAccountLink}, ${upsellLoginUrl}, #{button.createAnAccount}, #{content.loginToExistingAccount})}"
               ></div>
             </section>
           </div>

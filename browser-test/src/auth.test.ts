@@ -1,5 +1,6 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
+  enableFeatureFlag,
   isLocalDevEnvironment,
   loginAsAdmin,
   loginAsTestUser,
@@ -10,6 +11,7 @@ import {
   validateToastMessage,
 } from './support'
 import {CardSectionName} from './support/applicant_program_list'
+import {waitForHtmxReady} from './support/wait'
 
 test.describe('Applicant auth', () => {
   const endYourSessionText = 'end your session'
@@ -113,38 +115,199 @@ test.describe('Applicant auth', () => {
     applicantProgramList,
     applicantQuestions,
   }) => {
-    await loginAsAdmin(page)
     const programName = 'Test program'
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.publishAllDrafts()
 
-    await logout(page)
-    await applicantQuestions.applyProgram(programName)
-    await applicantQuestions.submitFromReviewPage()
-    await loginAsTestUser(page)
-
-    // Check that program is marked as submitted.
-    const applicationCardLocator = page.getByRole('heading', {
-      name: programName,
+    await test.step('Add program', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
     })
-    await expect(applicationCardLocator).toBeAttached()
 
-    await expect(
-      applicantProgramList.getSubmittedTagLocator(
-        CardSectionName.MyApplications,
-        programName,
-      ),
-    ).toContainText(/\d?\d\/\d?\d\/\d\d/)
+    await test.step('Apply to program as Guest', async () => {
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.submitFromReviewPage()
+    })
 
-    // Logout and login to make sure data is tied to account.
-    await logout(page)
-    await loginAsTestUser(page)
+    await test.step('Log-in as user to merge accounts', async () => {
+      await loginAsTestUser(
+        page,
+        'a:has-text("Log in")',
+        false,
+        '',
+        '**/considerSignIn**',
+      )
+    })
 
-    await expect(
-      applicantProgramList.getSubmittedTagLocator(
-        CardSectionName.MyApplications,
-        programName,
-      ),
-    ).toContainText(/\d?\d\/\d?\d\/\d\d/)
+    await test.step('Verify the user now has access to the application', async () => {
+      await page.goto('/programs/')
+      const applicationCardLocator = page.getByRole('heading', {
+        name: programName,
+      })
+      await expect(applicationCardLocator).toBeAttached()
+
+      // Check submitted time exists.
+      await expect(
+        applicantProgramList.getSubmittedTagLocator(
+          CardSectionName.MyApplications,
+          programName,
+        ),
+      ).toContainText(/\d?\d\/\d?\d\/\d\d/)
+    })
+  })
+
+  test('Auth login, then Guest login, then auth login shows all applications', async ({
+    page,
+    adminPrograms,
+    applicantProgramList,
+    applicantQuestions,
+  }) => {
+    const programName1 = 'Test program 1'
+    const programName2 = 'Test program 2'
+
+    await test.step('Add program', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(programName1)
+      await adminPrograms.addProgram(programName2)
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
+    })
+
+    await test.step('Add user to the database', async () => {
+      await loginAsTestUser(page)
+      await applicantQuestions.applyProgram(programName1)
+      await applicantQuestions.submitFromReviewPage()
+      await logout(page)
+    })
+
+    await test.step('Apply to program as Guest', async () => {
+      await applicantQuestions.applyProgram(programName2)
+      await applicantQuestions.submitFromReviewPage()
+    })
+
+    await test.step('Log-in as user to merge accounts', async () => {
+      await loginAsTestUser(
+        page,
+        'a:has-text("Log in")',
+        false,
+        '',
+        '**/considerSignIn**',
+      )
+    })
+
+    await test.step('Verify the user sees both submitted applications', async () => {
+      await page.goto('/programs/')
+      const application1CardLocator = page.getByRole('heading', {
+        name: programName1,
+      })
+      await expect(application1CardLocator).toBeAttached()
+
+      const application2CardLocator = page.getByRole('heading', {
+        name: programName2,
+      })
+      await expect(application2CardLocator).toBeAttached()
+
+      // Check submitted time exists.
+      await expect(
+        applicantProgramList.getSubmittedTagLocator(
+          CardSectionName.MyApplications,
+          programName1,
+        ),
+      ).toContainText(/\d?\d\/\d?\d\/\d\d/)
+
+      await expect(
+        applicantProgramList.getSubmittedTagLocator(
+          CardSectionName.MyApplications,
+          programName2,
+        ),
+      ).toContainText(/\d?\d\/\d?\d\/\d\d/)
+    })
+  })
+
+  test.describe('Account merge with file upload', () => {
+    test.beforeEach(async ({page}) => {
+      await enableFeatureFlag(page, 'FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED')
+    })
+
+    test('auth user can access file uploaded as guest after account merge', async ({
+      page,
+      adminQuestions,
+      adminPrograms,
+      applicantProgramList,
+      applicantQuestions,
+    }) => {
+      const programName = 'Test program for account merge file upload'
+      const fileUploadQuestionText = 'File upload for merge test'
+      const fileName = 'file.pdf'
+      const fileContent =
+        '%PDF-1.4\n' +
+        '1 0 obj\n' +
+        '<< /Type /Catalog >>\n' +
+        'endobj\n' +
+        'trailer\n' +
+        '<<>>\n' +
+        '%%EOF\n' +
+        'some sample text'
+
+      await test.step('Add program with file upload question', async () => {
+        await loginAsAdmin(page)
+        await adminQuestions.addFileUploadQuestion({
+          questionName: 'file-upload-merge-test-q',
+          questionText: fileUploadQuestionText,
+        })
+        await adminPrograms.addAndPublishProgramWithQuestions(
+          ['file-upload-merge-test-q'],
+          programName,
+        )
+        await logout(page)
+      })
+
+      await test.step('Add user to the database', async () => {
+        await loginAsTestUser(page)
+        await logout(page)
+      })
+
+      await test.step('Apply to program as guest and upload file', async () => {
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerFileUploadQuestion(fileContent, fileName)
+        await waitForHtmxReady(page)
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.submitFromReviewPage()
+      })
+
+      await test.step('Log in as user to merge accounts', async () => {
+        await loginAsTestUser(
+          page,
+          'a:has-text("Log in")',
+          false,
+          '',
+          '**/considerSignIn**',
+        )
+      })
+
+      await test.step('Verify merged user sees submitted application', async () => {
+        await page.goto('/programs/')
+        await expect(
+          applicantProgramList.getSubmittedTagLocator(
+            CardSectionName.MyApplications,
+            programName,
+          ),
+        ).toContainText(/\d?\d\/\d?\d\/\d\d/)
+      })
+
+      await test.step('Verify merged user can see and download the uploaded file', async () => {
+        await applicantQuestions.applyProgram(
+          programName,
+          /* showProgramOverviewPage= */ false,
+        )
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          fileUploadQuestionText,
+          fileName,
+        )
+        const downloaded =
+          await applicantQuestions.downloadFileFromUploadPage(fileName)
+        expect(downloaded).toEqual(fileContent)
+      })
+    })
   })
 })

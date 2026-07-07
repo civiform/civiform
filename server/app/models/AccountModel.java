@@ -65,6 +65,7 @@ public class AccountModel extends BaseModel {
   @DbJsonB(name = "active_sessions")
   private Map<String, SessionDetails> activeSessions = new HashMap<>();
 
+  /** Updated automatically on every save via {@code @WhenModified}. */
   @WhenModified private Instant lastActivityTime;
 
   public Instant getLastActivityTime() {

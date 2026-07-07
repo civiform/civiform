@@ -9,6 +9,8 @@
   schedule: ["after 4am", "before 10am"],
   // Github label(s) applied to the generated pull request, unless overridden below
   labels: ["dependencies"],
+  // Amount of time to wait after a release before opening a PR, to avoid chasing yanked or broken releases.
+  minimumReleaseAge: "3 days",
   // These files deviate from standard compose naming convention. 
   // This makes sure renovate finds them.
   "docker-compose": {
@@ -33,15 +35,7 @@
     {
       groupName: "awssdk",
       matchPackageNames: ["software.amazon.awssdk:{/,}**"],
-      prHeader: "Release Notes: https://github.com/aws/aws-sdk-java-v2/blob/master/CHANGELOG.md"
-    },
-    {
-      matchPackageNames: ["github/codeql-action"],
-      prHeader: "Release Notes: https://github.com/github/codeql-action/blob/main/CHANGELOG.md",
-    },
-    {
-      matchPackageNames: ["org.checkerframework:dataflow-errorprone"],
-      prHeader: "Release Notes: https://checkerframework.org/CHANGELOG.md",
+      prHeader: "Release Notes: https://github.com/aws/aws-sdk-java-v2/blob/master/CHANGELOG.md",
     },
     {
       groupName: "guava",
@@ -55,25 +49,18 @@
     },
     {
       groupName: "jdk and jre",
-      // Allow for version 17.*
+      // Allow for version 25.*
       // 
       // Examples of what this should match are:
-      //   17.0.12_7-jdk-alpine
-      //   17.0.12_7-jre-alpine
-      //   17.0.12-10
-      allowedVersions: "/^17\\.([0-9]*)\\.([0-9]*)([-_]?)([0-9]*)(-?.*)$/",
-      matchPackageNames: [
-        "bellsoft/liberica-openjdk-alpine{/,}**",
-        "eclipse-temurin{/,}**",
-      ],
+      //   25.0.12_7-jdk-alpine
+      //   25.0.12_7-jre-alpine
+      //   25.0.12-10
+      allowedVersions: "/^25\\.([0-9]*)\\.([0-9]*)([-_]?)([0-9]*)(-?.*)$/",
+      matchPackageNames: ["eclipse-temurin{/,}**"],
     },
     {
       groupName: "jupiter",
       matchPackageNames: ["org.junit.jupiter:{/,}**"],
-    },
-    {
-      matchPackageNames: ["ch.qos.logback:logback-classic"],
-      prHeader: "Release Notes: https://logback.qos.ch/news.html",
     },
     {
       groupName: "microsoft graph",
@@ -85,25 +72,16 @@
       matchPackageNames: ["org.pac4j:pac4j{/,}**"],
     },
     {
+      groupName: "pekko",
+      matchPackageNames: ["org.apache.pekko:**"],
+    },
+    {
       groupName: "playwright",
       matchPackageNames: [
         "playwright{/,}**",
         "@playwright/test{/,}**",
         "mcr.microsoft.com/playwright{/,}**",
       ],
-    },
-    {
-      groupName: "sass-embedded",
-      matchPackageNames: ["sass-emdedded"],
-      prHeader: "Release Notes: https://github.com/sass/embedded-host-node/blob/main/CHANGELOG.md"
-    },
-    {
-      matchPackageNames: ["docker/setup-buildx-action"],
-      prHeader: "Release Notes: https://github.com/docker/setup-buildx-action/releases",
-    },
-    {
-      matchPackageNames: ["io.swagger.core.v3:swagger-core"],
-      prHeader: "Release Notes: https://github.com/swagger-api/swagger-core/releases",
     },
     {
       matchFileNames: [
@@ -114,18 +92,25 @@
       ],
       labels: ["dependencies", "ignore-for-release"],
     },
+    // Keep localstack on v4.x due to licensing changes
+    {
+      matchPackageNames: ["localstack/localstack"],
+      matchManagers: ["docker-compose"],
+      allowedVersions: "<5.0.0",
+    },
     {
       matchPackageNames: ["postgres"],
       allowedVersions: "<17.0.0",
-    },
-    {
-      matchPackageNames: ["prom/prometheus"],
-      prHeader: "Release Notes: https://github.com/prometheus/prometheus/releases",
+      prHeader: "Release Notes: https://www.postgresql.org/docs/release",
     },
     {
       groupName: "tailwindcss",
       matchPackageNames: ["tailwindcss"],
       allowedVersions: "<4.0.0",
+    },
+    {
+      "groupName": "vite and vitest",
+      "matchPackagePatterns": ["^vite", "^@vitejs/", "^@vitest/"]
     },
     {
       // Using groupName null prevents all the GitHub Actions updates being done in a single commit
@@ -144,6 +129,56 @@
       commitMessageExtra: "to latest commit",
       rebaseWhen: "always",
       description: "Ensures Docker images use SHA256 digests for security and reproducibility.",
+    },
+
+    // prHeader-only rules below here. They add noise masking actual config settings.
+    {
+      matchPackageNames: ["ch.qos.logback:logback-classic"],
+      prHeader: "Release Notes: https://logback.qos.ch/news.html",
+    },
+    {
+      matchPackageNames: ["docker/setup-buildx-action"],
+      prHeader: "Release Notes: https://github.com/docker/setup-buildx-action/releases",
+    },
+    {
+      matchPackageNames: ["github/codeql-action"],
+      prHeader: "Release Notes: https://github.com/github/codeql-action/blob/main/CHANGELOG.md",
+    },
+    {
+      matchPackageNames: ["io.swagger.core.v3:swagger-core"],
+      prHeader: "Release Notes: https://github.com/swagger-api/swagger-core/releases",
+    },
+    {
+      matchPackageNames: ["io.swagger.parser.v3:swagger-parser"],
+      prHeader: "Release Notes: https://github.com/swagger-api/swagger-parser/releases",
+    },
+    {
+      matchPackageNames: ["org.checkerframework:dataflow-errorprone"],
+      prHeader: "Release Notes: https://checkerframework.org/CHANGELOG.md",
+    },
+    {
+      matchPackageNames: ["org.glassfish.jaxb:jaxb-runtime"],
+      prHeader: "Release Notes: https://github.com/eclipse-ee4j/jaxb-ri/releases",
+    },
+    {
+      matchPackageNames: ["com.google.cloud.sql:postgres-socket-factory"],
+      prHeader: "Release Notes: https://github.com/GoogleCloudPlatform/cloud-sql-jdbc-socket-factory/blob/main/CHANGELOG.md",
+    },
+    {
+      matchPackageNames: ["org.projectlombok:lombok"],
+      prHeader: "Release Notes: https://github.com/projectlombok/lombok/blob/master/doc/changelog.markdown",
+    },
+    {
+      matchPackageNames: ["prom/prometheus"],
+      prHeader: "Release Notes: https://github.com/prometheus/prometheus/releases",
+    },
+    {
+      matchPackageNames: ["sass-emdedded"],
+      prHeader: "Release Notes: https://github.com/sass/embedded-host-node/blob/main/CHANGELOG.md",
+    },
+    {
+      matchPackageNames: ["slackapi/slack-github-action"],
+      prHeader: "Release Notes: https://github.com/slackapi/slack-github-action/releases",
     },
   ],
 }

@@ -2,6 +2,8 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static play.mvc.Http.Status.BAD_REQUEST;
+import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
@@ -115,8 +117,108 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
     Result result = controller.hxCreateEnumerator(request, program.id, 1);
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("<div id=\"enumerator-setup\">");
+    assertThat(contentAsString(result))
+        .contains("<div id=\"enumerator-setup\" class=\"maxw-mobile-lg\">");
     assertThat(contentAsString(result)).contains("Error: Question text cannot be blank.");
+  }
+
+  @Test
+  public void hxSelectInitialQuestion_returnsSlotFragmentAndCloseTrigger() {
+    QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
+    ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
+
+    Request request =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "question-" + nameQuestion.getId(), String.valueOf(nameQuestion.getId())))
+            .build();
+
+    Result result = controller.hxSelectInitialQuestion(request, program.id, 1);
+
+    assertThat(result.status()).isEqualTo(OK);
+    // The initial question card
+    assertThat(contentAsString(result))
+        .contains("<div data-testid=\"question-admin-name-" + nameQuestion.getName());
+    assertThat(contentAsString(result))
+        .contains(
+            """
+            <input type="hidden" name="initialQuestionId" value="%s">\
+            """
+                .formatted(nameQuestion.getId()));
+    assertThat(result.header("HX-Trigger-After-Swap")).hasValue("closeQuestionBank");
+  }
+
+  @Test
+  public void hxSelectInitialQuestion_doesNotAddQuestionToBlock()
+      throws ProgramBlockDefinitionNotFoundException {
+    QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
+    ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
+
+    Request request =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "question-" + nameQuestion.getId(), String.valueOf(nameQuestion.getId())))
+            .build();
+
+    Result result = controller.hxSelectInitialQuestion(request, program.id, 1);
+
+    assertThat(result.status()).isEqualTo(OK);
+    program.refresh();
+    BlockDefinition blockAfter = program.getProgramDefinition().getBlockDefinition(1L);
+    assertThat(blockAfter.programQuestionDefinitions()).isEmpty();
+  }
+
+  @Test
+  public void hxSelectInitialQuestion_withNoQuestionInForm_returnsBadRequest() {
+    ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
+
+    Request request = fakeRequestBuilder().bodyForm(ImmutableMap.of()).build();
+
+    Result result = controller.hxSelectInitialQuestion(request, program.id, 1);
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  @Test
+  public void hxSelectInitialQuestion_withUnknownQuestionId_returnsNotFound() {
+    ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
+
+    Request request =
+        fakeRequestBuilder().bodyForm(ImmutableMap.of("question-99999", "99999")).build();
+
+    Result result = controller.hxSelectInitialQuestion(request, program.id, 1);
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
+  public void hxSelectInitialQuestion_withActiveProgram_throws() {
+    Long programId = resourceCreator.insertActiveProgram("active program").id;
+    assertThatThrownBy(
+            () -> controller.hxSelectInitialQuestion(fakeRequest(), programId, /* blockId= */ 1))
+        .isInstanceOf(NotChangeableException.class);
+  }
+
+  @Test
+  public void hxClearInitialQuestionSlot_returnsEmptySlot() {
+    ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
+
+    Result result = controller.hxClearInitialQuestionSlot(fakeRequest(), program.id, 1);
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = contentAsString(result);
+    assertThat(content).contains("id=\"initial-question-slot\"");
+    assertThat(content).contains("Add question");
+  }
+
+  @Test
+  public void hxClearInitialQuestionSlot_withActiveProgram_throws() {
+    Long programId = resourceCreator.insertActiveProgram("active program").id;
+    assertThatThrownBy(
+            () -> controller.hxClearInitialQuestionSlot(fakeRequest(), programId, /* blockId= */ 1))
+        .isInstanceOf(NotChangeableException.class);
   }
 
   @Test

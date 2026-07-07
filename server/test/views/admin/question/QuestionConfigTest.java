@@ -3,17 +3,16 @@ package views.admin.question;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static play.test.Helpers.stubMessagesApi;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import forms.CheckboxQuestionForm;
-import forms.DateQuestionForm;
-import forms.MapQuestionForm;
-import forms.QuestionForm;
-import forms.QuestionFormBuilder;
-import forms.YesNoQuestionForm;
+import forms.questions.CheckboxQuestionForm;
+import forms.questions.DateQuestionForm;
+import forms.questions.MapQuestionForm;
+import forms.questions.QuestionForm;
+import forms.questions.QuestionFormBuilder;
+import forms.questions.YesNoQuestionForm;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -21,11 +20,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
-import modules.ThymeleafModule;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.thymeleaf.TemplateEngine;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
@@ -37,6 +34,7 @@ import support.FakeRequestBuilder;
 import views.admin.questions.MapQuestionSettingsPartialView;
 import views.admin.questions.MapQuestionSettingsPartialViewModel;
 import views.admin.questions.QuestionConfig;
+import views.shared.BaseViewDeps;
 
 @RunWith(JUnitParamsRunner.class)
 public class QuestionConfigTest extends ResetPostgres {
@@ -45,15 +43,11 @@ public class QuestionConfigTest extends ResetPostgres {
       stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));
   private SettingsManifest settingsManifest;
   private Request request;
-  private ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
 
   @Before
   public void setUp() {
     settingsManifest = mock(SettingsManifest.class);
     request = FakeRequestBuilder.fakeRequestBuilder().cspNonce("nonce-value").build();
-    playThymeleafContextFactory = mock(ThymeleafModule.PlayThymeleafContextFactory.class);
-    when(playThymeleafContextFactory.create(request))
-        .thenReturn(new ThymeleafModule.PlayThymeleafContext());
   }
 
   @Test
@@ -73,9 +67,9 @@ public class QuestionConfigTest extends ResetPostgres {
               .filters(ImmutableList.of())
               .possibleKeys(ImmutableList.of("name_key", "address_key", "url_key"))
               .build();
+
       MapQuestionSettingsPartialView view =
-          new MapQuestionSettingsPartialView(
-              mock(TemplateEngine.class), playThymeleafContextFactory, settingsManifest);
+          new MapQuestionSettingsPartialView(instanceOf(BaseViewDeps.class));
 
       Optional<DivTag> mapConfig =
           QuestionConfig.buildQuestionConfigUsingThymeleaf(request, view, model);
@@ -139,7 +133,7 @@ public class QuestionConfigTest extends ResetPostgres {
         assertThat(maybeConfig.get().renderFormatted()).contains("Yes");
       }
       default -> {
-        var unused =
+        var _ =
             fail(
                 "Unhandled question type: %s. Please add a configuration in"
                     + " QuestionConfig.buildQuestionConfig and add an explicit case statement for"
@@ -280,11 +274,9 @@ public class QuestionConfigTest extends ResetPostgres {
             .locationTag(MapQuestionForm.Setting.emptySetting())
             .possibleKeys(ImmutableList.of("name_key", "address_key", "url_key"))
             .build();
+
     MapQuestionSettingsPartialView view =
-        new MapQuestionSettingsPartialView(
-            instanceOf(TemplateEngine.class),
-            instanceOf(ThymeleafModule.PlayThymeleafContextFactory.class),
-            instanceOf(SettingsManifest.class));
+        new MapQuestionSettingsPartialView(instanceOf(BaseViewDeps.class));
 
     Optional<DivTag> maybeConfig =
         QuestionConfig.buildQuestionConfigUsingThymeleaf(request, view, model);

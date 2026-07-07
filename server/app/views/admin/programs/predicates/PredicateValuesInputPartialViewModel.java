@@ -6,7 +6,7 @@ import java.util.Optional;
 import lombok.Builder;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.types.QuestionType;
-import views.admin.BaseViewModel;
+import views.BaseViewModel;
 
 /**
  * Partial view for rendering PredicateValuesInputPartial.html. This partial is used for editing

@@ -1,4 +1,5 @@
 import {expect} from './civiform_fixtures'
+import {waitForPageJsLoad} from './wait'
 import {Page} from '@playwright/test'
 
 export class AdminTIGroups {
@@ -10,6 +11,7 @@ export class AdminTIGroups {
 
   async gotoAdminTIPage() {
     await this.page.click('nav :text("Intermediaries")')
+    await waitForPageJsLoad(this.page)
     await this.expectAdminTIPage()
   }
 
@@ -37,6 +39,8 @@ export class AdminTIGroups {
   async editGroup(groupName: string) {
     await this.gotoAdminTIPage()
     await this.page.click(this.selectWithinRow(groupName, ':text("Edit")'))
+    // Clicking navigates away.
+    await waitForPageJsLoad(this.page)
   }
 
   selectWithinRow(groupName: string, selector: string) {

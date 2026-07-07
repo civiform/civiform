@@ -69,7 +69,7 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
     context.setVariable("programTitle", params.programTitle());
     context.setVariable("programShortDescription", params.programShortDescription());
     context.setVariable("blocks", params.blocks());
-    context.setVariable("continueUrl", getContinueUrl(params));
+    context.setVariable("continueUrl", getContinueUrl(params, request));
     context.setVariable(
         "hasCompletedAllBlocks", params.completedBlockCount() == params.totalBlockCount());
     context.setVariable("submitUrl", getSubmitUrl(params));
@@ -81,8 +81,6 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
 
     // Toasts
     context.setVariable("alertBannerMessage", params.alertBannerMessage());
-    context.setVariable("successBannerMessage", params.successBannerMessage());
-    context.setVariable("notEligibleBannerMessage", params.notEligibleBannerMessage());
     context.setVariable("errorBannerMessage", request.flash().get(FlashKey.ERROR));
 
     // Modals
@@ -95,7 +93,6 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
 
     // loginOnly programs
     context.setVariable("loginOnly", params.loginOnly());
-    context.setVariable("createAccountLink", controllers.routes.LoginController.register().url());
     boolean isTi = params.profile().isTrustedIntermediary();
     boolean isGuest = params.applicantPersonalInfo().getType() == GUEST && !isTi;
     context.setVariable("isGuest", isGuest);
@@ -129,7 +126,7 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
 
     ImmutableList<BlockSummary> blockSummaries =
         params.blocks().stream()
-            .map(block -> new BlockSummary(block, getBlockEditUrl(params, block)))
+            .map(block -> new BlockSummary(block, getBlockEditUrl(params, block, request)))
             .collect(ImmutableList.toImmutableList());
 
     blockSummaries.forEach(
@@ -143,29 +140,55 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
     return templateEngine.process("applicant/review/ApplicantProgramSummaryTemplate", context);
   }
 
-  private String getBlockEditUrl(Params params, Block block) {
+  private String getBlockEditUrl(Params params, Block block, Request request) {
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     if (block.isAnsweredWithoutErrors()) {
+      if (programSlugUrlsEnabled) {
+        return applicantRoutes
+            .blockReview(
+                params.profile(),
+                params.applicantId(),
+                params.programSlug(),
+                block.getId(),
+                /* questionName= */ Optional.empty())
+            .url();
+      }
       return applicantRoutes
           .blockReview(
               params.profile(),
               params.applicantId(),
               params.programId(),
               block.getId(),
-              Optional.empty())
+              /* questionName= */ Optional.empty())
           .url();
     } else {
+      if (programSlugUrlsEnabled) {
+        return applicantRoutes
+            .blockEdit(
+                params.profile(),
+                params.applicantId(),
+                params.programSlug(),
+                block.getId(),
+                /* questionName= */ Optional.empty())
+            .url();
+      }
       return applicantRoutes
           .blockEdit(
               params.profile(),
               params.applicantId(),
               params.programId(),
               block.getId(),
-              Optional.empty())
+              /* questionName= */ Optional.empty())
           .url();
     }
   }
 
-  private String getContinueUrl(Params params) {
+  private String getContinueUrl(Params params, Request request) {
+    if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+      return applicantRoutes
+          .edit(params.profile(), params.applicantId(), params.programSlug())
+          .url();
+    }
     return applicantRoutes.edit(params.profile(), params.applicantId(), params.programId()).url();
   }
 
@@ -200,15 +223,13 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
 
     abstract long programId();
 
+    abstract String programSlug();
+
     abstract int totalBlockCount();
 
     abstract Messages messages();
 
     abstract Optional<String> alertBannerMessage();
-
-    abstract Optional<String> successBannerMessage();
-
-    abstract Optional<String> notEligibleBannerMessage();
 
     abstract AlertSettings eligibilityAlertSettings();
 
@@ -237,16 +258,13 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
 
       public abstract Builder setProgramId(long programId);
 
+      public abstract Builder setProgramSlug(String programSlug);
+
       public abstract Builder setTotalBlockCount(int totalBlockCount);
 
       public abstract Builder setMessages(Messages messages);
 
       public abstract Builder setAlertBannerMessage(Optional<String> alertBannerMessage);
-
-      public abstract Builder setSuccessBannerMessage(Optional<String> successBannerMessage);
-
-      public abstract Builder setNotEligibleBannerMessage(
-          Optional<String> notEligibleBannerMessage);
 
       public abstract Builder setEligibilityAlertSettings(AlertSettings eligibilityAlertSettings);
 

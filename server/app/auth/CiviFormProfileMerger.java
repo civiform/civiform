@@ -9,7 +9,9 @@ import models.AccountModel;
 import models.ApplicantModel;
 import org.pac4j.core.profile.UserProfile;
 import repository.AccountRepository;
+import repository.CiviFormAccountMerger;
 import repository.DatabaseExecutionContext;
+import repository.StoredFileRepository;
 import repository.TransactionManager;
 
 /** Helper class for common {@code UserProfile} merging logic. */
@@ -17,15 +19,18 @@ public final class CiviFormProfileMerger {
 
   private final ProfileFactory profileFactory;
   private final Provider<AccountRepository> applicantRepositoryProvider;
+  private final CiviFormAccountMerger accountMerger;
   private final DatabaseExecutionContext dbExecutionContext;
   private final TransactionManager transactionManager;
 
   public CiviFormProfileMerger(
       ProfileFactory profileFactory,
       Provider<AccountRepository> applicantRepositoryProvider,
+      Provider<StoredFileRepository> storedFileRepositoryProvider,
       DatabaseExecutionContext dbExecutionContext) {
     this.profileFactory = profileFactory;
     this.applicantRepositoryProvider = applicantRepositoryProvider;
+    this.accountMerger = new CiviFormAccountMerger(storedFileRepositoryProvider);
     this.dbExecutionContext = dbExecutionContext;
     this.transactionManager = new TransactionManager();
   }
@@ -43,11 +48,13 @@ public final class CiviFormProfileMerger {
    * @param optionalGuestProfile a guest profile from the browser session
    * @param mergeFunction a function that merges an external profile into a Civiform profile, or
    *     provides one if it doesn't exist
+   * @param newMergeStage the launch stage of the new merge logic.
    */
   public Optional<UserProfile> mergeProfiles(
       Optional<ApplicantModel> optionalApplicantInDatabase,
       Optional<CiviFormProfile> optionalGuestProfile,
-      Function<Optional<CiviFormProfile>, UserProfile> mergeFunction) {
+      Function<Optional<CiviFormProfile>, UserProfile> mergeFunction,
+      NewGuestMergeLaunchStage newMergeStage) {
     return supplyAsync(
             () ->
                 transactionManager.execute(
@@ -55,7 +62,7 @@ public final class CiviFormProfileMerger {
                       // Merge the applicant with the guest profile.
                       Optional<CiviFormProfile> optionalApplicantProfile =
                           mergeApplicantAndGuestProfile(
-                              optionalApplicantInDatabase, optionalGuestProfile);
+                              optionalApplicantInDatabase, optionalGuestProfile, newMergeStage);
 
                       // Let the caller finish the merge process. The merge
                       // function will handle the profile missing as
@@ -68,7 +75,8 @@ public final class CiviFormProfileMerger {
 
   private Optional<CiviFormProfile> mergeApplicantAndGuestProfile(
       Optional<ApplicantModel> optionalApplicantInDatabase,
-      Optional<CiviFormProfile> optionalGuestProfile) {
+      Optional<CiviFormProfile> optionalGuestProfile,
+      NewGuestMergeLaunchStage newMergeStage) {
     // This method makes some subjective decisions around the guest
     // profile's data which is informed by an applicant being present or not.
 
@@ -96,16 +104,36 @@ public final class CiviFormProfileMerger {
     // Merge the two applicants.
     return Optional.of(
         mergeApplicantAndGuestProfile(
-            optionalApplicantInDatabase.get(), optionalGuestProfile.get()));
+            optionalApplicantInDatabase.get(), optionalGuestProfile.get(), newMergeStage));
   }
 
   private CiviFormProfile mergeApplicantAndGuestProfile(
-      ApplicantModel applicantInDatabase, CiviFormProfile sessionGuestProfile) {
+      ApplicantModel applicantInDatabase,
+      CiviFormProfile sessionGuestProfile,
+      NewGuestMergeLaunchStage newMergeStage) {
     // Merge guest applicant data with already existing account in database.
     // TODO(#11304#issuecomment-3233634460): this merges the older account
     // into the newer which is incorrect.
     ApplicantModel guestApplicant = sessionGuestProfile.getApplicant().join();
     AccountModel existingAccount = applicantInDatabase.getAccount();
+
+    if (newMergeStage.equals(NewGuestMergeLaunchStage.ENABLED)
+        || newMergeStage.equals(NewGuestMergeLaunchStage.DRY_RUN)) {
+      // Run the new merge code, it will update the database if the launch is
+      // enabled, and log the dry run otherwise.
+      accountMerger.mergeApplicants(
+          /* civiformUser= */ applicantInDatabase, /* guestUser= */ guestApplicant, newMergeStage);
+    }
+
+    // If the new merge launch is enabled, then the above merge updated the
+    // database, and we want to use the mergeTo applicant.
+    // Note: post launch this method doesn't need to return anything as the
+    // caller can know that the applicant it passed in will be updated.
+    if (newMergeStage.equals(NewGuestMergeLaunchStage.ENABLED)) {
+      return profileFactory.wrap(applicantInDatabase);
+    }
+
+    // The current pre-existing behavior.
     ApplicantModel mergedApplicant =
         applicantRepositoryProvider
             .get()

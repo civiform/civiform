@@ -305,9 +305,7 @@ public class DevToolsController extends Controller {
       programDefCache.removeAll().toCompletableFuture().join();
     }
 
-    if (settingsManifest.getSettingsCacheEnabled()) {
-      settingsCache.removeAll().toCompletableFuture().join();
-    }
+    settingsCache.removeAll().toCompletableFuture().join();
 
     CompletableFuture.allOf(
             apikeysCache.removeAll().toCompletableFuture(),

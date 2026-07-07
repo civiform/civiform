@@ -174,6 +174,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
     boolean disableExternalLink = isDefaultProgram || isPreScreenerForm;
     boolean disableEmailNotifications = isExternalProgram;
     boolean disableApplicationSteps = isPreScreenerForm || isExternalProgram;
+    boolean disableLoginOnly = isExternalProgram;
     boolean disableConfirmationMessage = isExternalProgram;
 
     List<CategoryModel> categoryOptions = categoryRepository.listCategories();
@@ -331,7 +332,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
                         /* id= */ "login-only-applications",
                         /* name= */ "loginOnly",
                         /* isChecked= */ loginOnly,
-                        /* isDisabled= */ false,
+                        /* isDisabled= */ disableLoginOnly,
                         /* label= */ "Require applicants to log in to apply to this program"))
                 .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
             h2("Program overview").withClasses("py-2", "mt-6", "font-semibold"),

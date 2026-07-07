@@ -7,20 +7,24 @@
     "probe": "npx playwright test"
   },
   "devDependencies": {
-    "@axe-core/playwright": "4.11.1",
-    "@playwright/test": "1.58.2",
-    "@types/node": "24.10.13",
-    "@typescript-eslint/eslint-plugin": "8.56.0",
-    "@typescript-eslint/parser": "8.56.0",
-    "axe-core": "4.11.1",
-    "eslint": "9.39.2",
+    "@axe-core/playwright": "4.12.1",
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "1.61.1",
+    "@types/node": "24.13.2",
+    "@typescript-eslint/eslint-plugin": "8.62.1",
+    "@typescript-eslint/parser": "8.62.1",
+    "axe-core": "4.12.1",
+    "eslint": "10.6.0",
     "eslint-config-google": "0.14.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-no-unsanitized": "^4.0.2",
-    "eslint-plugin-playwright": "2.7.0",
-    "sharp": "0.34.5",
+    "eslint-plugin-playwright": "2.10.4",
+    "sharp": "0.35.3",
     "ts-node": "10.9.2",
     "ts-node-dev": "2.0.0",
-    "typescript": "5.9.3"
+    "typescript": "6.0.3"
+  },
+  "allowScripts": {
+    "sharp": false
   }
 }

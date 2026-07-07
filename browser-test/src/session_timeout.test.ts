@@ -1,10 +1,5 @@
 import {test, expect} from './support/civiform_fixtures'
-import {
-  enableFeatureFlag,
-  loginAsAdmin,
-  loginAsTestUser,
-  validateScreenshot,
-} from './support'
+import {loginAsAdmin, loginAsTestUser, validateScreenshot} from './support'
 import {Page} from '@playwright/test'
 
 // Config values from application.dev-browser-tests.conf:
@@ -23,7 +18,6 @@ test.describe('Session timeout for admins', () => {
     // This way server timestamps and browser time should be in sync
     await page.clock.install({time: realTime})
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'session_timeout_enabled')
   })
 
   test('shows inactivity warning modal after 50 minutes and logs user out after 90 more minutes', async ({
@@ -51,9 +45,7 @@ test.describe('Session timeout for admins', () => {
     })
 
     await test.step('Confirm toast appears confirming that session has been extended', async () => {
-      const toast = page
-        .getByRole('alert')
-        .getByText('Session successfully extended')
+      const toast = page.getByText('Session successfully extendedx')
       await expect(toast).toBeVisible()
     })
 
@@ -79,7 +71,6 @@ test.describe('Session timeout for applicants', () => {
     // Install clock at the current real time
     // This way server timestamps and browser time should be in sync
     await page.clock.install({time: realTime})
-    await enableFeatureFlag(page, 'session_timeout_enabled')
   })
 
   test('shows inactivity warning modal after 50 minutes and session length warning modal after 55 minutes', async ({

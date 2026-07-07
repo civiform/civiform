@@ -64,11 +64,13 @@ const md = new MarkdownIt({
  *
  * @param {string} text The text to parse into HTML.
  */
-export function formatTextHtml(text: string): Element {
+export function formatTextHtml(text: string): DocumentFragment {
   const parsedHtml = formatText(text)
   const html = parser.parseFromString(parsedHtml, 'text/html')
 
-  return html.body
+  const fragment = document.createDocumentFragment()
+  fragment.append(...html.body.childNodes)
+  return fragment
 }
 
 export function formatText(text: string): string {

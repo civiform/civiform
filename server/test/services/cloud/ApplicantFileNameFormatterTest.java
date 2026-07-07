@@ -62,4 +62,53 @@ public class ApplicantFileNameFormatterTest {
                     "applicant-1/program-2/block-3-4/${filename}", /* applicantId= */ 0))
         .isInstanceOf(IllegalArgumentException.class);
   }
+
+  @Test
+  public void formatFilenameApplicantLookupPrefixString() {
+    String prefix =
+        ApplicantFileNameFormatter.formatFilenameApplicantLookupPrefixString(/* applicantId= */ 1L);
+    assertThat(FILE_NAME).startsWith(prefix);
+  }
+
+  @Test
+  public void formatFileUploadQuestionFilenameWithUuid() {
+    String result =
+        ApplicantFileNameFormatter.formatFileUploadQuestionFilenameWithUuid(
+            /* applicantId= */ 1L, /* programId= */ 2L, /* blockId= */ "3-4", "report.pdf");
+    assertThat(result).startsWith("applicant-1/program-2/block-3-4/");
+    assertThat(result).endsWith(".pdf");
+    assertThat(ApplicantFileNameFormatter.isApplicantOwnedFileKey(result, /* applicantId= */ 1L))
+        .isTrue();
+    // Each call generates a unique key.
+    String result2 =
+        ApplicantFileNameFormatter.formatFileUploadQuestionFilenameWithUuid(
+            /* applicantId= */ 1L, /* programId= */ 2L, /* blockId= */ "3-4", "report.pdf");
+    assertThat(result).isNotEqualTo(result2);
+  }
+
+  @Test
+  public void buildResponseContentDisposition_macScreenshotName() {
+    // macOS uses narrow no-break space (U+202F) around "at" in screenshot names.
+    String macName = "Screenshot 2026-05-26\u202Fat\u202F10.30.45 AM.png";
+    String disposition = ApplicantFileNameFormatter.buildResponseContentDisposition(macName);
+
+    assertThat(disposition).startsWith("inline; filename*=UTF-8''");
+    assertThat(disposition).contains("%E2%80%AF");
+    assertThat(disposition).doesNotContain("\u202F");
+    assertThat(disposition).doesNotContain("filename=\"");
+  }
+
+  @Test
+  public void buildResponseContentDisposition_unicodeFileName() {
+    String disposition = ApplicantFileNameFormatter.buildResponseContentDisposition("고양이.jpg");
+
+    assertThat(disposition).isEqualTo("inline; filename*=UTF-8''%EA%B3%A0%EC%96%91%EC%9D%B4.jpg");
+  }
+
+  @Test
+  public void buildResponseContentDisposition_encodesQuotesInFilename() {
+    String disposition = ApplicantFileNameFormatter.buildResponseContentDisposition("my\"file.pdf");
+
+    assertThat(disposition).isEqualTo("inline; filename*=UTF-8''my%22file.pdf");
+  }
 }

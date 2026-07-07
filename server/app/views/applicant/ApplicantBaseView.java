@@ -28,6 +28,7 @@ import services.settings.SettingsManifest;
 import views.CspUtil;
 import views.components.Icons;
 import views.html.helper.CSRF;
+import views.shared.FeatureFlags;
 
 public abstract class ApplicantBaseView {
   protected final TemplateEngine templateEngine;
@@ -64,10 +65,13 @@ public abstract class ApplicantBaseView {
       ApplicantPersonalInfo applicantPersonalInfo,
       Messages messages) {
     ThymeleafModule.PlayThymeleafContext context = playThymeleafContextFactory.create(request);
+
+    context.setVariable(
+        "featureFlags", FeatureFlags.fromSettingsManifest(settingsManifest, request));
+
     context.setVariable("civiformImageTag", settingsManifest.getCiviformImageTag().get());
     context.setVariable("addNoIndexMetaTag", settingsManifest.getStagingAddNoindexMetaTag());
     context.setVariable("favicon", settingsManifest.getFaviconUrl().orElse(""));
-    context.setVariable("mapQuestionEnabled", settingsManifest.getMapQuestionEnabled());
 
     context.setVariable("useBundlerDevServer", bundledAssetsFinder.useBundlerDevServer());
     context.setVariable("viteClientUrl", bundledAssetsFinder.viteClientUrl());
@@ -131,7 +135,7 @@ public abstract class ApplicantBaseView {
     // Set branding theme colors.
     context.setVariable("themeColorPrimary", THEME_PRIMARY_HEX);
     context.setVariable("themeColorPrimaryDark", THEME_PRIMARY_DARKER_HEX);
-    if (settingsManifest.getCustomThemeColorsEnabled(request)) {
+    if (settingsManifest.getCustomThemeColorsEnabled()) {
       settingsManifest
           .getThemeColorPrimary(request)
           .filter(setting -> !setting.isEmpty())
@@ -155,7 +159,12 @@ public abstract class ApplicantBaseView {
             + "</a>");
     context.setVariable(
         "endSessionLinkAriaLabel", messages.at(MessageKey.END_YOUR_SESSION.getKeyName()));
-    context.setVariable("loginLink", routes.LoginController.applicantLogin(Optional.empty()).url());
+    String loginUrl =
+        controllers.routes.LoginController.applicantLogin(Optional.of(request.uri())).url();
+    context.setVariable("loginLink", loginUrl);
+    String registerUrl =
+        controllers.routes.LoginController.register(Optional.of(request.uri())).url();
+    context.setVariable("createAccountLink", registerUrl);
     if (!isGuest) {
       context.setVariable(
           "loggedInAs", getAccountIdentifier(isTi, profile, applicantPersonalInfo, messages));
@@ -167,22 +176,18 @@ public abstract class ApplicantBaseView {
     context.setVariable("isDevOrStaging", isDevOrStaging);
 
     maybeSetUpNotProductionBanner(context, request, messages);
-    boolean sessionTimeoutEnabled = settingsManifest.getSessionTimeoutEnabled(request);
+    boolean sessionTimeoutEnabled = settingsManifest.getSessionTimeoutEnabled();
     context.setVariable("sessionTimeoutEnabled", sessionTimeoutEnabled);
     if (sessionTimeoutEnabled) {
       context.setVariable("extendSessionUrl", routes.SessionController.extendSession().url());
     }
 
-    boolean sessionReplayProtectionEnabled = settingsManifest.getSessionReplayProtectionEnabled();
-    context.setVariable("sessionReplayProtectionEnabled", sessionReplayProtectionEnabled);
-    if (sessionReplayProtectionEnabled) {
-      int sessionDurationMinutes = settingsManifest.getMaximumSessionDurationMinutes().get();
-      String sessionExpirationBanner =
-          messages.at(
-              MessageKey.BANNER_SESSION_EXPIRATION.getKeyName(),
-              getSessionDurationMessage(sessionDurationMinutes, messages));
-      context.setVariable("sessionReplayBanner", sessionExpirationBanner);
-    }
+    int sessionDurationMinutes = settingsManifest.getMaximumSessionDurationMinutes().get();
+    String sessionExpirationBanner =
+        messages.at(
+            MessageKey.BANNER_SESSION_EXPIRATION.getKeyName(),
+            getSessionDurationMessage(sessionDurationMinutes, messages));
+    context.setVariable("sessionReplayBanner", sessionExpirationBanner);
 
     boolean loginDropdownEnabled = settingsManifest.getLoginDropdownEnabled(request);
     context.setVariable("loginDropdownEnabled", loginDropdownEnabled);
@@ -296,9 +301,10 @@ public abstract class ApplicantBaseView {
             .url();
   }
 
+  // TODO #13157: remove call to blockEditOrBlockReview
   /**
    * Calculate the redirect location after the language is changed. If the current request is a
-   * POST, the redirect is be mapped to the associated GET uri.
+   * POST, the redirect is mapped to the associated GET uri.
    */
   private String getUpdateLanguageRedirectUri(
       Request request, Optional<CiviFormProfile> profile, Optional<Long> applicantId) {
@@ -308,19 +314,21 @@ public abstract class ApplicantBaseView {
       return request.uri();
     }
     RouteExtractor routeExtractor = new RouteExtractor(request);
-    if (!routeExtractor.containsKey("programId")) {
+
+    // Some POST routes use a numeric programId and some use a string programParam, so we must
+    // account for both
+    boolean routeContainsProgramId = routeExtractor.containsKey("programId");
+    boolean routeContainsProgramParam = routeExtractor.containsKey("programParam");
+    if (!(routeContainsProgramId || routeContainsProgramParam)) {
       return request.uri();
     }
-
-    long programId = routeExtractor.getParamLongValue("programId");
-    // If the language was changed during /submit, redirect to /review
-    if (request.path().contains("submit")) {
-      String submitRedirectUri =
-          applicantId.isPresent() && profile.isPresent()
-              ? applicantRoutes.review(profile.get(), applicantId.get(), programId).url()
-              : applicantRoutes.review(programId).url();
-      return submitRedirectUri;
+    final long programId;
+    if (routeContainsProgramId) {
+      programId = routeExtractor.getParamLongValue("programId");
+    } else {
+      programId = Long.parseLong(routeExtractor.getParamStringValue("programParam"));
     }
+
     // If the language was changed during a block update, redirect to /block/edit or /block/review
     if (routeExtractor.containsKey("blockId") && profile.isPresent() && applicantId.isPresent()) {
       boolean inReview =

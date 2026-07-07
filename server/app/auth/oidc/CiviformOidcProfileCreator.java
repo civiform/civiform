@@ -4,6 +4,7 @@ import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
 import auth.CiviFormProfileMerger;
 import auth.IdentityProviderType;
+import auth.NewGuestMergeLaunchStage;
 import auth.ProfileFactory;
 import auth.ProfileUtils;
 import auth.Role;
@@ -53,7 +54,11 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     this.profileFactory = Preconditions.checkNotNull(params.profileFactory());
     this.accountRepositoryProvider = Preconditions.checkNotNull(params.accountRepositoryProvider());
     this.civiFormProfileMerger =
-        new CiviFormProfileMerger(profileFactory, accountRepositoryProvider, dbExecutionContext);
+        new CiviFormProfileMerger(
+            profileFactory,
+            accountRepositoryProvider,
+            Preconditions.checkNotNull(params.storedFileRepositoryProvider()),
+            dbExecutionContext);
     this.settingsManifest =
         new SettingsManifest(Preconditions.checkNotNull(params.configuration()));
   }
@@ -224,7 +229,23 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
 
     Function<Optional<CiviFormProfile>, UserProfile> mergeFunction =
         (civiFormProfile) -> this.mergeCiviFormProfile(civiFormProfile, oidcProfile);
-    return civiFormProfileMerger.mergeProfiles(existingApplicant, guestProfile, mergeFunction);
+    NewGuestMergeLaunchStage newMergeStage = NewGuestMergeLaunchStage.OFF;
+    if (settingsManifest.getNewApplicantGuestMergingStrategyDryRunEnabled()) {
+      newMergeStage = NewGuestMergeLaunchStage.DRY_RUN;
+    }
+    if (settingsManifest.getNewApplicantGuestMergingStrategyEnabled()) {
+      if (newMergeStage.equals(NewGuestMergeLaunchStage.DRY_RUN)) {
+        logger.warn(
+            """
+            New account-merging feature flags are both set, only one must be. \
+            Operating in dry_run and not enabled mode.
+            """);
+      } else {
+        newMergeStage = NewGuestMergeLaunchStage.ENABLED;
+      }
+    }
+    return civiFormProfileMerger.mergeProfiles(
+        existingApplicant, guestProfile, mergeFunction, newMergeStage);
   }
 
   /**

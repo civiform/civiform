@@ -7,7 +7,7 @@ import com.google.inject.Inject;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
-import forms.EnumeratorQuestionForm;
+import forms.questions.EnumeratorQuestionForm;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,8 +75,9 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
     this.mapDataRepository = mapDataRepository;
   }
 
-  public String render(
-      Request request, ApplicationBaseViewParams applicationParams, String programSlug) {
+  public String render(Request request, ApplicationBaseViewParams applicationParams) {
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
             request,
@@ -95,11 +96,9 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
             applicationParams.messages());
     context.setVariable("pageTitle", pageTitle);
     context.setVariable("homeUrl", index(applicationParams));
-    context.setVariable("programOverviewUrl", programOverview(applicationParams, programSlug));
+    context.setVariable("programOverviewUrl", programOverview(applicationParams));
     context.setVariable("goBackToAdminUrl", getGoBackToAdminUrl(applicationParams));
     context.setVariable("loginOnly", applicationParams.loginOnly());
-    context.setVariable(
-        "loginLink", controllers.routes.LoginController.applicantLogin(Optional.empty()).url());
     boolean isTi = applicationParams.profile().isTrustedIntermediary();
     boolean isGuest = applicationParams.applicantPersonalInfo().getType() == GUEST && !isTi;
     context.setVariable("isGuest", isGuest);
@@ -119,7 +118,9 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
         getApplicantQuestionRendererParams(applicationParams);
     context.setVariable("questionRendererParams", questionParams);
     context.setVariable(
-        "submitFormAction", getFormAction(applicationParams, ApplicantRequestedAction.NEXT_BLOCK));
+        "submitFormAction",
+        getFormAction(
+            applicationParams, ApplicantRequestedAction.NEXT_BLOCK, programSlugUrlsEnabled));
 
     /*
      * Expected flow:
@@ -133,26 +134,56 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
     context.setVariable("showErrorModal", showErrorModal);
 
     // Include file upload specific parameters.
-    if (applicationParams.block().isFileUpload()) {
+    if (applicationParams.block().isFileUpload()
+        && !settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
       this.addFileUploadParameters(request, applicationParams, context);
 
       return templateEngine.process(
           "applicant/blocks/ApplicantProgramFileUploadBlockEditTemplate", context);
     } else {
+      context.setVariable(
+          "maxFileSizeMb", applicationParams.applicantStorageClient().getFileLimitMb());
+      context.setVariable(
+          "fileUploadAllowedFileTypeSpecifiers",
+          settingsManifest
+              .getFileUploadAllowedFileTypeSpecifiers()
+              .orElse(ALLOWED_FILE_TYPE_SPECIFIERS_FALLBACK));
+      context.setVariable(
+          "hxSelectFileForUploadUrl",
+          applicantRoutes
+              .hxSelectFileForUpload(
+                  applicationParams.profile(),
+                  applicationParams.applicantId(),
+                  applicationParams.programId(),
+                  applicationParams.block().getId())
+              .url());
+      context.setVariable(
+          "hxRemoveFileUrl",
+          applicantRoutes
+              .hxRemoveFile(
+                  applicationParams.profile(),
+                  applicationParams.applicantId(),
+                  applicationParams.programId(),
+                  applicationParams.block().getId())
+              .url());
 
       context.setVariable(
           "previousFormAction",
-          getFormAction(applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK));
-      context.setVariable("previousWithoutSaving", previousWithoutSaving(applicationParams));
+          getFormAction(
+              applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK, programSlugUrlsEnabled));
+      context.setVariable(
+          "previousWithoutSaving",
+          previousWithoutSaving(applicationParams, programSlugUrlsEnabled));
       context.setVariable(
           "reviewFormAction",
-          getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE));
+          getFormAction(
+              applicationParams, ApplicantRequestedAction.REVIEW_PAGE, programSlugUrlsEnabled));
 
       if (applicationParams.errorDisplayMode()
           == ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW) {
-        setErrorContextForReview(context, applicationParams);
+        setErrorContextForReview(context, applicationParams, programSlugUrlsEnabled);
       } else {
-        setErrorContextForPrevious(context, applicationParams);
+        setErrorContextForPrevious(context, applicationParams, programSlugUrlsEnabled);
       }
 
       // TODO(#6910): Why am I unable to access static vars directly from Thymeleaf
@@ -161,7 +192,6 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
       context.setVariable("enumMaxEntityCount", EnumeratorQuestionForm.MAX_ENUM_ENTITIES_ALLOWED);
       context.setVariable(
           "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(request));
-      context.setVariable("isYesNoQuestionEnabled", settingsManifest.getYesNoQuestionEnabled());
       return templateEngine.process("applicant/blocks/ApplicantProgramBlockEditTemplate", context);
     }
   }
@@ -181,28 +211,47 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
 
   // Function to set context for the previous action
   private void setErrorContextForPrevious(
-      ThymeleafModule.PlayThymeleafContext context, ApplicationBaseViewParams applicationParams) {
+      ThymeleafModule.PlayThymeleafContext context,
+      ApplicationBaseViewParams applicationParams,
+      boolean programSlugUrlsEnabled) {
     setErrorContextForFormModal(
         context,
-        getFormAction(applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK),
+        getFormAction(
+            applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK, programSlugUrlsEnabled),
         MessageKey.MODAL_ERROR_SAVING_CONTENT_PREVIOUS.getKeyName(),
         MessageKey.MODAL_ERROR_SAVING_CONTINUE_BUTTON_PREVIOUS.getKeyName(),
-        previousWithoutSaving(applicationParams));
+        previousWithoutSaving(applicationParams, programSlugUrlsEnabled));
   }
 
   // Function to set context for the review action
   private void setErrorContextForReview(
-      ThymeleafModule.PlayThymeleafContext context, ApplicationBaseViewParams applicationParams) {
+      ThymeleafModule.PlayThymeleafContext context,
+      ApplicationBaseViewParams applicationParams,
+      boolean programSlugUrlsEnabled) {
     setErrorContextForFormModal(
         context,
-        getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE),
+        getFormAction(
+            applicationParams, ApplicantRequestedAction.REVIEW_PAGE, programSlugUrlsEnabled),
         MessageKey.MODAL_ERROR_SAVING_CONTENT_REVIEW.getKeyName(),
         MessageKey.MODAL_ERROR_SAVING_CONTINUE_BUTTON_REVIEW.getKeyName(),
-        reviewWithoutSaving(applicationParams));
+        reviewWithoutSaving(applicationParams, programSlugUrlsEnabled));
   }
 
   private String getFormAction(
-      ApplicationBaseViewParams params, ApplicantRequestedAction nextAction) {
+      ApplicationBaseViewParams params,
+      ApplicantRequestedAction nextAction,
+      boolean programSlugUrlsEnabled) {
+    if (programSlugUrlsEnabled) {
+      return applicantRoutes
+          .updateBlock(
+              params.profile(),
+              params.applicantId(),
+              params.programSlug(),
+              params.block().getId(),
+              params.inReview(),
+              nextAction)
+          .url();
+    }
     return applicantRoutes
         .updateBlock(
             params.profile(),
@@ -226,7 +275,19 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
             .url();
   }
 
-  private String previousWithoutSaving(ApplicationBaseViewParams params) {
+  private String previousWithoutSaving(
+      ApplicationBaseViewParams params, boolean programSlugUrlsEnabled) {
+    if (programSlugUrlsEnabled) {
+      return params
+          .applicantRoutes()
+          .blockPreviousOrReview(
+              params.profile(),
+              params.applicantId(),
+              params.programSlug(),
+              params.blockIndex(),
+              params.inReview())
+          .url();
+    }
     return params
         .applicantRoutes()
         .blockPreviousOrReview(
@@ -238,7 +299,14 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
         .url();
   }
 
-  private String reviewWithoutSaving(ApplicationBaseViewParams params) {
+  private String reviewWithoutSaving(
+      ApplicationBaseViewParams params, boolean programSlugUrlsEnabled) {
+    if (programSlugUrlsEnabled) {
+      return params
+          .applicantRoutes()
+          .review(params.profile(), params.applicantId(), params.programSlug())
+          .url();
+    }
     return params
         .applicantRoutes()
         .review(params.profile(), params.applicantId(), params.programId())
@@ -250,14 +318,14 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
     return params.applicantRoutes().index(params.profile(), params.applicantId()).url();
   }
 
-  private String programOverview(ApplicationBaseViewParams params, String programSlug) {
+  private String programOverview(ApplicationBaseViewParams params) {
     if (params.profile().isTrustedIntermediary()) {
       return params
           .applicantRoutes()
-          .show(params.profile(), params.applicantId(), programSlug)
+          .show(params.profile(), params.applicantId(), params.programSlug())
           .url();
     }
-    return params.applicantRoutes().show(programSlug).url();
+    return params.applicantRoutes().show(params.programSlug()).url();
   }
 
   private String getFileUploadSignedRequestKey(ApplicationBaseViewParams params) {
@@ -378,22 +446,39 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
         settingsManifest
             .getFileUploadAllowedFileTypeSpecifiers()
             .orElse(ALLOWED_FILE_TYPE_SPECIFIERS_FALLBACK));
-    context.setVariable(
-        "previousBlockWithoutFile",
-        params.baseUrl()
-            + applicantRoutes
-                .blockPreviousOrReview(
-                    params.profile(),
-                    params.applicantId(),
-                    params.programId(),
-                    params.blockIndex(),
-                    params.inReview())
-                .url());
-    context.setVariable(
-        "reviewPageWithoutFile",
-        params.baseUrl()
-            + applicantRoutes
-                .review(params.profile(), params.applicantId(), params.programId())
-                .url());
+
+    final String previousBlockRoute;
+    final String reviewRoute;
+    if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+      previousBlockRoute =
+          applicantRoutes
+              .blockPreviousOrReview(
+                  params.profile(),
+                  params.applicantId(),
+                  params.programSlug(),
+                  params.blockIndex(),
+                  params.inReview())
+              .url();
+
+      reviewRoute =
+          applicantRoutes
+              .review(params.profile(), params.applicantId(), params.programSlug())
+              .url();
+    } else {
+      previousBlockRoute =
+          applicantRoutes
+              .blockPreviousOrReview(
+                  params.profile(),
+                  params.applicantId(),
+                  params.programId(),
+                  params.blockIndex(),
+                  params.inReview())
+              .url();
+      reviewRoute =
+          applicantRoutes.review(params.profile(), params.applicantId(), params.programId()).url();
+    }
+
+    context.setVariable("previousBlockWithoutFile", params.baseUrl() + previousBlockRoute);
+    context.setVariable("reviewPageWithoutFile", params.baseUrl() + reviewRoute);
   }
 }

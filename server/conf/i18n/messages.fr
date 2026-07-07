@@ -67,6 +67,7 @@ label.primaryNavigation=Navigation principale
 label.agencyIdentifier=Identifiant de l''agence
 # Aria-label for guest session alert
 label.guestSessionAlert=Alerte informative de session Invité
+
 # Link to skip to the main content of the page
 link.skipToMainContent=Passer au contenu principal
 
@@ -550,6 +551,39 @@ content.disabledProgramInfo=Malheureusement, le programme auquel vous tentez d''
 button.homePage=Retour à la page d''accueil
 
 #--------------------------------------------------------------------------------------------------------------#
+# ADMIN PROGRAM IMAGE - admin-facing text for uploading a program summary card image                             #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Title of the admin page where a program''s summary image and alt text are set.
+title.adminProgramImage=Importation d''image
+# Link text to return to program editing from the program image page.
+link.adminProgramImage.back=Retour
+# Hint under the file input about maximum upload size for a program summary image.
+content.adminProgramImage.hintMaxSize=La taille maximale d''importation d'une image est de 1 Mo.
+# Hint explaining automatic 16x9 cropping and that the preview reflects saved images.
+content.adminProgramImage.hintCrop=L''image sera automatiquement recadrée au format 16:9. L''aperçu de la fiche de programme à droite affiche l''image enregistrée.
+# Label for the field where the admin enters alt text for the program summary image.
+label.adminProgramImage.altText=Saisissez une description de l''image (Texte alternatif)
+# Button to leave the program image step and continue program setup (creation flow).
+button.adminProgramImage.continue=Continuer
+# Button to save and return when editing an existing program (non-creation flow).
+button.adminProgramImage.save=Enregistrer
+# Button to delete an uploaded program image
+button.adminProgramImage.delete=Supprimer l''image
+# Message shown when alt text is required but missing.
+validation.adminProgramImage.altTextRequired=Une description de l''image est requise lors de l''importation d''une image de programme.
+# Toast after saving a program image and alt text together.
+toast.adminProgramImage.imageAndDescriptionSaved=Image enregistrée avec la description : {0}
+# Toast after saving alt text without uploading a new file.
+toast.adminProgramImage.descriptionSet=Description de l''image : {0}
+# Error when alt text cannot be cleared while an image remains.
+toast.adminProgramImage.descriptionNotRemovable=La description ne peut pas être supprimée en raison de la présence d''une image. Supprimez l''image avant de supprimer la description.
+# Toast after deleting a program image
+toast.adminProgramImage.imageRemoved=Image supprimée
+# Message when the program card preview cannot be rendered.
+content.adminProgramImage.cardPreviewError=Erreur lors de la génération de l''aperçu de la fiche
+
+#--------------------------------------------------------------------------------------------------------------#
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
 #--------------------------------------------------------------------------------------------------------------#
 
@@ -668,7 +702,7 @@ validation.noPoBox=Veuillez saisir une adresse valide. Les boîtes postales ne s
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
 title.confirmAddress=Confirmez votre adresse
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
-content.confirmAddressLine1=Adresse introuvable.
+content.confirmAddressLine1.v2=Confirmation d''adresse requise.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=Veuillez vérifier que votre adresse est exacte, ou sélectionnez une option dans la liste.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
@@ -779,6 +813,8 @@ placeholder.entityName={0} (nom)
 validation.fileRequired=Veuillez sélectionner un fichier.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Le fichier est trop volumineux. Veuillez en choisir un de moins de {0} Mo.
+# Shown when an HTMX file upload request fails (any non-success response).
+validation.fileUploadRequestFailed=Impossible d''importer votre fichier. Veuillez réessayer.
 # Text shown on a tag while a file is uploading.
 label.uploading=Importation
 # Label applied to a list of uploaded files
@@ -1057,6 +1093,21 @@ banner.hour=1 heure
 banner.minute=1 minute
 
 #------------------------------------------------------------------------------#
+# DATA SECURITY BANNER - alert explaining data protection to users             #
+#------------------------------------------------------------------------------#
+
+# Header for data security banner alert
+label.immigrationStatusInfoBanner.heading=Les immigrés et les réfugiés sont les bienvenus ici
+# Aria-label for data security banner alert
+label.immigrationStatusInfoBanner.label=Avis d'information concernant le statut d'immigration
+# Text in the data security banner explaining how user data is protected when no learn more link is configured
+banner.immigrationStatusInfoBanner.body=Nous ne vous poserons aucune question sur votre nationalité ou votre statut d'immigration.
+# Text in the data security banner explaining how user data is protected - the placeholder says 'here' and is a link to more information
+banner.immigrationStatusInfoBanner.bodyWithLink=Nous ne vous poserons aucune question concernant votre nationalité ou votre statut d'immigration. Vous pouvez en savoir plus {0}.
+# Link for more info about the data security banner
+banner.immigrationStatusInfoBanner.linkText=ici
+
+#------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
 # Note for developers: these messages aren't used in static text, but instead they #
 #  are seeded into the database, since these will be admin defined in the future #
@@ -1113,24 +1164,27 @@ ariaLabel.categories=Catégories
 
 # Title of the warning modal that appears when the user has been inactive for a while
 session.inactivity.warning.title=Avertissement de session inactive
-
+# Title of the session timeout warning modals
+session.warning.title=La session prendra fin sous peu
+# Text on a button on a session ending soon modal that gives users the options to save and log in
+session.login.button.loggedIn=Se connecter
+session.login.button.guest=Se connecter ou créer un compte
 # Message shown in a modal asking the user if they want to extend their session due to inactivity
 session.inactivity.warning.message=Votre session va bientôt expirer pour cause d''inactivité. Souhaitez-vous prolonger votre session ?
-
 # Title of a modal dialog displayed when a user's session is about to expire due to session length limit
 session.length.warning.title=Avertissement de durée de session
-
 # Message shown in a modal warning the user their session will end soon due to session length limit
 session.length.warning.message=Votre session va bientôt expirer à cause de sa durée. Veuillez enregistrer votre travail et vous reconnecter si nécessaire.
-
 # Text on a button that allows users to extend their session when shown timeout warnings
 session.extend.button=Prolonger la session
-
 # Success message shown when the user's session is successfully extended after clicking the extend button
 session.extended.success=Session prolongée
-
 # Error message shown when there was a problem extending the user's session
 session.extended.error=Échec de la prolongation de la session
+# Message shown to guest users warning that their session is about to expire due to session length
+session.length.warning.message.guest=Votre session est sur le point d''expirer. Veuillez enregistrer votre travail, puis vous connecter ou créer un compte pour continuer.
+# Message shown to logged-in users warning that their session is about to expire due to session length
+session.length.warning.message.loggedIn=Votre session est sur le point d'expirer. Veuillez enregistrer votre travail et vous reconnecter pour continuer. Vous ne perdrez pas la progression de votre demande.
 
 #------------------------------------------------------------------------------#
 #  ADMIN PROGRAM BLOCK EDIT                                                    #
@@ -1150,14 +1204,26 @@ input.repeatedSet.listedEntity=
 input.repeatedSet.adminId=
 # A text input field asking admins for the text that will prompt applicants to list out the entity
 input.repeatedSet.questionText=
+# Autofill suggestion template shown in the admin ID field when applicant selects a listed entity. {0} is the listed entity name.
+input.repeatedSet.adminIdAutofillSuggestion=
+# Autofill suggestion template shown in the question text field when applicant selects a listed entity. {0} is the listed entity name.
+input.repeatedSet.questionTextAutofillSuggestion=
 # A text input field for admins to add a hint that will help applicants decide what entities to list out
 input.repeatedSet.hintText=
 # A form field where admins set the minimum number of entities that applicants must list
 input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
 input.repeatedSet.maxEntities=
+# Label for the field on the new repeated set form where an admin will select the question that the user will complete first in the enumerator flow
+label.repeatedSet.initialQuestion=
+# Description explaining what the initial question is and what the "Add question" button does
+description.repeatedSet.initialQuestion=
+# Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
+alert.repeatedSet.addQuestionDisabled=Une question d''ensemble répété doit d''abord être ajoutée avant de pouvoir ajouter des questions répétées. Veuillez accéder à l''écran parent pour ajouter une question d''ensemble répété.
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
-alert.repeatedSet.newQuestion=
+alert.repeatedSet.newQuestion=La création d''un ensemble répété ajoutera une nouvelle question à la banque de questions.
+# Alert shown in the question bank section listing repeated questions that are already associated with this repeated set
+alert.repeatedSet.previouslyUsed=
 # Submission button for creating a new repeated set
 button.repeatedSet.submitNew=
 # Button for admins to add a new repeated set
@@ -1170,6 +1236,42 @@ text.nestedRepeatedSet=
 text.repeatedSet.prefix=étiquette parent
 # An uneditable prefix for the enumerator screen name representing the nested repeated object that will be enumerated
 text.repeatedSet.nestedPrefix=étiquette enfant
+# Instructions for admins on how to add or change the repeated set question in a program block
+text.repeatedSet.questionDescription=
+#An additional description explaining the uneditable prefix within the screen editing modal
+text.repeatedSet.screenNameDescription=
+#An additional description explaining what the add question button does
+text.repeatedSet.addQuestionDescription=
+# Information shown to admins when they are adding a question to a repeated screen.
+text.repeatedQuestions.description=Ajoutez les questions que vous souhaitez poser pour chaque objet ou chaque personne mentionnée par le demandeur. Si une question que vous ajoutez n''est pas déjà associée à l''ensemble répété, elle sera dupliquée dans la banque de questions pour cet ensemble répété.
+# Heading above the repeated set question in the program block editor
+heading.repeatedSet.question=
+# Heading shown above repeated questions in the question bank that are already associated with this repeated set
+heading.repeatedSet.previouslyUsed=
+# Heading above the questions section on repeated screens in the admin program screen editor.
+heading.repeatedQuestions=Questions répétées
+# Informative text above the listed entity input field to help admins understand what to enter in that field.
+description.repeatedSet.listedEntity=
+# Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
+description.repeatedSet.adminId=
+# An informative description above the question text input field to help admins understand what to enter in that field.
+description.repeatedSet.questionText=
+# An informative description above the hint text input field to help admins understand what to enter in that field.
+description.repeatedSet.hintText=
+#An informative description below the option to create a new repeated set question
+description.repeatedSet.createNewQuestion=
+#An informative description below the option to choose an existing question
+description.repeatedSet.chooseExistingQuestion=
+# A button for admins to add a repeated screen to a program
+button.addRepeatedScreen=
+# A button for admins to add a nested repeated set to a program
+button.addNestedRepeatedSet=Ajouter un ensemble répété imbriqué
+# A button for admins to add a pre-existing enumerator question to a program
+button.addQuestion=
+# A tooltip shown to admins when the delete screen button is disabled
+tooltip.deleteScreenDisabled=
+# A tooltip shown to admins when the delete question button is disabled for a repeated set question
+tooltip.removeEnumeratorQuestionDisabled=
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #
@@ -1220,3 +1322,147 @@ reportingProgram.timeToCompleteP75=Temps nécessaire pour terminer (p. 75)
 reportingProgram.timeToCompleteP99=Temps nécessaire pour terminer (p. 99)
 # Text on button to download CSV file
 reportingProgram.downloadCsv=Télécharger le CSV
+
+#------------------------------------------------------------------------------#
+#  ADMIN API DOCS                                                              #
+#------------------------------------------------------------------------------#
+
+# Admin API Docs page title
+adminApiDocs.pageTitle=Documentation API
+
+# Aria label for the nav that switches between API docs sub-pages.
+adminApiDocs.tabs.ariaLabel=Sections de la documentation API
+# Tab label for the main API docs page.
+adminApiDocs.tabs.docs=Docs
+# Tab label for the schema viewer page.
+adminApiDocs.tabs.schema=Visionneuse de schéma
+
+# Intro paragraph as text before the external-docs link.
+adminApiDocs.intro.beforeLink=Cette page contient la documentation API spécifique aux programmes actifs et brouillons. Une documentation détaillée sur l''authentification, la pagination et les valeurs possibles de chaque champ est disponible à l''adresse :
+# Visible text of the external-docs link in the intro paragraph.
+adminApiDocs.intro.linkText=docs.civiform.us/it-manual/api
+# Intro paragraph as text after the external-docs link.
+adminApiDocs.intro.afterLink=.
+
+# Heading on the collapsible "How does this work?" accordion.
+adminApiDocs.accordion.heading=Comment ça marche ?
+# First paragraph inside the accordion.
+adminApiDocs.accordion.paragraph1=L''aperçu de la réponse de l''API est un exemple de ce à quoi pourrait ressembler la réponse de l''API pour un programme donné. Toutes les données sont fictives. Les questions à choix unique et à choix multiple proposent des exemples de réponses sélectionnées parmi les réponses disponibles.
+# Second paragraph inside the accordion as text before the shareable link.
+adminApiDocs.accordion.paragraph2.beforeLink=Vous pouvez partager ce lien,
+# Second paragraph inside the accordion as text after the shareable link.
+adminApiDocs.accordion.paragraph2.afterLink=, avec toute personne ayant besoin de consulter la documentation de l''API. Il est accessible sans connexion ; il n''est donc pas nécessaire d''être administrateur CiviForm ou administrateur de programme pour consulter cette page.
+
+# Label for the program selector.
+adminApiDocs.selectProgram=Sélectionnez un programme :
+# Label for the program-version selector.
+adminApiDocs.selectVersion=Sélectionnez une version :
+# Option label for the active version of a program.
+adminApiDocs.version.active=Actif
+# Option label for the draft version of a program.
+adminApiDocs.version.draft=Brouillon
+
+# Message shown when the requested program + version combination does not exist.
+adminApiDocs.notFound=Aucun programme trouvé. Veuillez créer et publier un programme avant d''accéder à la documentation de l''API.
+# Heading for the list of questions on the selected program.
+adminApiDocs.questions=Questions
+# Label for a question's admin name
+adminApiDocs.adminName=Nom de l''admin
+# Label for a question's type (text, number, etc.).
+adminApiDocs.type=Type
+# Label for a question's display text.
+adminApiDocs.text=Texte
+# Label for a multi-option question's answer options.
+adminApiDocs.options=Options
+# Label preceding the list of a question's currently-available options.
+adminApiDocs.currentOptions=Options actuelles :
+# Label preceding the list of every option the question has ever had.
+adminApiDocs.allOptions=Toutes les options possibles :
+# Heading above the JSON preview of the API response.
+adminApiDocs.responsePreview=Aperçu de la réponse de l''API
+
+#------------------------------------------------------------------------------#
+#  ADMIN SCHEMA VIEWER                                                         #
+#------------------------------------------------------------------------------#
+
+# Admin API Docs page title
+adminSchemaViewer.pageTitle=Visionneuse de schéma de l''API
+# First intro paragraph on the OpenAPI schema viewer page.
+adminSchemaViewer.intro1=Cette page présente une visualisation du schéma OpenAPI. Les versions 2 (anciennement Swagger 2) et 3 sont disponibles.
+# Second intro paragraph on the OpenAPI schema viewer page.
+adminSchemaViewer.intro2=Nous recommandons d''utiliser uniquement la version 3, sauf besoin spécifique du format antérieur.
+# Label for the program selector on the schema viewer page.
+adminSchemaViewer.selectProgram=Programme :
+# Label for the program-status selector on the schema viewer page.
+adminSchemaViewer.selectStatus=Statut :
+# Label for the OpenAPI version selector on the schema viewer page.
+adminSchemaViewer.selectVersion=Version OpenAP :
+# Error generating OpenAPI YAML
+adminSchemaViewer.yamlError=Impossible de générer la version OpenAPI « {0} » pour le programme « {1} » à l'étape « {2} ».
+
+#------------------------------------------------------------------------------#
+#  DEV TOOLS - text for the developer tools page                               #
+#------------------------------------------------------------------------------#
+# The text on the button to go to the home page from the dev tools page.
+devtools.homepage=
+
+# Heading for the seed section of the dev tools page.
+devtools.seed.title=
+# Description for the seed section of the dev tools page.
+devtools.seed.description=
+# Button text to seed sample programs and categories.
+devtools.seed.programs=
+# Button text to seed sample questions.
+devtools.seed.questions=
+# Button text to clear the entire database (irreversible action).
+devtools.seed.clear=
+
+# Heading for the caching section of the dev tools page.
+devtools.cache.title=
+# Description for the caching section of the dev tools page.
+devtools.cache.description=
+# Button text to clear the cache.
+devtools.cache.clear=
+
+# Heading for the durable jobs section of the dev tools page.
+devtools.jobs.title=
+# Description for the durable jobs section of the dev tools page.
+devtools.jobs.description=
+# Label for the dropdown to select a durable job to run.
+devtools.jobs.select=
+# Button text to run the selected durable job.
+devtools.jobs.run=
+
+# Heading for the icons section of the dev tools page.
+devtools.icons.title=
+# Description for the icons section of the dev tools page.
+devtools.icons.description=
+# Button text to view all SVG icons.
+devtools.icons.view=
+
+# Heading for the Localstack section of the dev tools page.
+devtools.localstack.title=
+# Description for the Localstack section of the dev tools page.
+devtools.localstack.description=
+# Button text to view SES emails in Localstack.
+devtools.localstack.ses=
+# Button text to view the S3 private bucket in Localstack.
+devtools.localstack.private=
+# Button text to view the S3 public bucket in Localstack.
+devtools.localstack.public=
+
+# Heading for the address tools section of the dev tools page.
+devtools.address.title=
+# Description for the address tools section of the dev tools page.
+devtools.address.description=
+# Button text to go to the address tools page.
+devtools.address.go=
+
+# Heading for the session tools section of the dev tools page.
+devtools.session.title=
+# Description for the session tools section of the dev tools page.
+devtools.session.description=
+# Button text to view the current pac4j profile.
+devtools.session.pac4j=
+# Button text to view the current Play session.
+devtools.session.play=

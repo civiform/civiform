@@ -67,6 +67,7 @@ label.primaryNavigation=Hagitaanka aasasiga ah
 label.agencyIdentifier=Aqooonsiga hay''adda,
 # Aria-label for guest session alert
 label.guestSessionAlert=Digniinta warbixineed ee fadhi martiyeedka
+
 # Link to skip to the main content of the page
 link.skipToMainContent=U bood nuxurka muhiimka ah
 
@@ -550,6 +551,39 @@ content.disabledProgramInfo=Waanu ka xunahay, barnaamijka aad isku dayeyso inaad
 button.homePage=Ku noqo bogga hore
 
 #--------------------------------------------------------------------------------------------------------------#
+# ADMIN PROGRAM IMAGE - admin-facing text for uploading a program summary card image                             #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Title of the admin page where a program''s summary image and alt text are set.
+title.adminProgramImage=Gelinta sawirka
+# Link text to return to program editing from the program image page.
+link.adminProgramImage.back=Ka laabo
+# Hint under the file input about maximum upload size for a program summary image.
+content.adminProgramImage.hintMaxSize=Cabirka ugu yar ee gelinta sawirka waa 1MB.
+# Hint explaining automatic 16x9 cropping and that the preview reflects saved images.
+content.adminProgramImage.hintCrop=Sawirka si toos ah ayaa loogu jarayaa 16x9. Fiirinta kaarka barnaamijka ee dhinaca midig wuxuu muujinayaa sawirka la keydiyay.
+# Label for the field where the admin enters alt text for the program summary image.
+label.adminProgramImage.altText=Geli qeexida sawirka (Alt Text)
+# Button to leave the program image step and continue program setup (creation flow).
+button.adminProgramImage.continue=Sii wad
+# Button to save and return when editing an existing program (non-creation flow).
+button.adminProgramImage.save=Keydi
+# Button to delete an uploaded program image
+button.adminProgramImage.delete=Tirtir sawirka
+# Message shown when alt text is required but missing.
+validation.adminProgramImage.altTextRequired=Qeexida sawirka waa loo baahan yahay markii sawirka barnaamijka la geliyo.
+# Toast after saving a program image and alt text together.
+toast.adminProgramImage.imageAndDescriptionSaved=Sawirka waxaa lala keydiyay qeexida: {0}
+# Toast after saving alt text without uploading a new file.
+toast.adminProgramImage.descriptionSet=Qeexida sawirka waxaa lagu dejiyay {0}
+# Error when alt text cannot be cleared while an image remains.
+toast.adminProgramImage.descriptionNotRemovable=Qeexida lagama saari karo sababtoo ah sawir ayaa jira. Tirtir sawirka ka hor intaadan tirin qeexida.
+# Toast after deleting a program image
+toast.adminProgramImage.imageRemoved=Sawirka waa laga saaray
+# Message when the program card preview cannot be rendered.
+content.adminProgramImage.cardPreviewError=Waa qalad soo saarida fiirinta kaarka
+
+#--------------------------------------------------------------------------------------------------------------#
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
 #--------------------------------------------------------------------------------------------------------------#
 
@@ -668,7 +702,7 @@ validation.noPoBox=Fadlan gali ciwaan saxda ah.Ma aqbalno sanduuqyada boostada (
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
 title.confirmAddress=Hubi ciwaankaada
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
-content.confirmAddressLine1=Nooma suurta galin inaan helno ciwaankaaga.
+content.confirmAddressLine1.v2=Xaqiijinta ciwaanka waa loo baahan yahay.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=Fadlan ka sax ciwaankaaga higaada ama ka dooro liiska la bixiyay.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
@@ -779,6 +813,8 @@ placeholder.entityName=Naanaysta {0}
 validation.fileRequired=Fadlan dooro fayl.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Faylkaagu aad buu u weyn yahay. Fadlan dooro fayl ka yar {0} MB.
+# Shown when an HTMX file upload request fails (any non-success response).
+validation.fileUploadRequestFailed=Waan gelin waynay feelkaaga. Fadlan isku day markale.
 # Text shown on a tag while a file is uploading.
 label.uploading=Gelinaya
 # Label applied to a list of uploaded files
@@ -1057,6 +1093,21 @@ banner.hour=1 saac
 banner.minute=1 daqiiqo
 
 #------------------------------------------------------------------------------#
+# DATA SECURITY BANNER - alert explaining data protection to users             #
+#------------------------------------------------------------------------------#
+
+# Header for data security banner alert
+label.immigrationStatusInfoBanner.heading=Muhaajiriinta iyo qaxootiga waxaa lagu soo dhaweynayaa halkan
+# Aria-label for data security banner alert
+label.immigrationStatusInfoBanner.label=Digniinta macluumaadka heerka socdaalka
+# Text in the data security banner explaining how user data is protected when no learn more link is configured
+banner.immigrationStatusInfoBanner.body=Waxba kaama weydiineyno muwaadinnimadaada ama heerka socdaalkaaga.
+# Text in the data security banner explaining how user data is protected - the placeholder says 'here' and is a link to more information
+banner.immigrationStatusInfoBanner.bodyWithLink=Waxba kaama weydiineyno muwaadinnimadaada ama heerka socdaalkaaga. Waxaad wax badan ka baran kartaa {0}.\n 
+# Link for more info about the data security banner
+banner.immigrationStatusInfoBanner.linkText=halkan
+
+#------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
 # Note for developers: these messages aren't used in static text, but instead they #
 #  are seeded into the database, since these will be admin defined in the future #
@@ -1113,24 +1164,27 @@ ariaLabel.categories=Qaybaha
 
 # Title of the warning modal that appears when the user has been inactive for a while
 session.inactivity.warning.title=Digniinta Dhaqdhaqaaq La''aanta ku''aadan Kulanka
-
+# Title of the session timeout warning modals
+session.warning.title=Kullanka dhawaan ayuu dhammaanayaa
+# Text on a button on a session ending soon modal that gives users the options to save and log in
+session.login.button.loggedIn=Gal
+session.login.button.guest=Gal ama samee koonto
 # Message shown in a modal asking the user if they want to extend their session due to inactivity
 session.inactivity.warning.message=Kulankaaga wuxuu dhici doonaa dhawaan sababo la xiriira dhaqdhaqaaq la''aan. Ma jeclaan lahayd inaad mudo dheeraysato kulankaaga?
-
 # Title of a modal dialog displayed when a user's session is about to expire due to session length limit
 session.length.warning.title=Digniinta ku''aadan Dhererka Kulanka
-
 # Message shown in a modal warning the user their session will end soon due to session length limit
 session.length.warning.message=Kulankaaga wuxuu dhici doonaa dhawaan sababo la xiriira dhererka kulanka. Fadlan kaydi shaqadaada oo dib u soo gal haddii loo baahdo.
-
 # Text on a button that allows users to extend their session when shown timeout warnings
 session.extend.button=Mudo dheerayso Kulanka
-
 # Success message shown when the user's session is successfully extended after clicking the extend button
 session.extended.success=Kulanka si guul leh ayaa loo mudo dheereeyay
-
 # Error message shown when there was a problem extending the user's session
 session.extended.error=Waa lagu guul daraystay in la mudo dheereeyo kulanka
+# Message shown to guest users warning that their session is about to expire due to session length
+session.length.warning.message.guest=Kullankaaga wuu dhici rabaa. Fadlan kaydi shaqadaada oo gal ama samee koonto si aad u sii wado.
+# Message shown to logged-in users warning that their session is about to expire due to session length
+session.length.warning.message.loggedIn=Kullankaaga wuu dhici rabaa. Fadlan keydi shaqadaada oo dib u gal si aad u sii wadid. Ma lumineysid hormarkaaga ee arjiga.
 
 #------------------------------------------------------------------------------#
 #  ADMIN PROGRAM BLOCK EDIT                                                    #
@@ -1150,14 +1204,26 @@ input.repeatedSet.listedEntity=
 input.repeatedSet.adminId=
 # A text input field asking admins for the text that will prompt applicants to list out the entity
 input.repeatedSet.questionText=
+# Autofill suggestion template shown in the admin ID field when applicant selects a listed entity. {0} is the listed entity name.
+input.repeatedSet.adminIdAutofillSuggestion=
+# Autofill suggestion template shown in the question text field when applicant selects a listed entity. {0} is the listed entity name.
+input.repeatedSet.questionTextAutofillSuggestion=
 # A text input field for admins to add a hint that will help applicants decide what entities to list out
 input.repeatedSet.hintText=
 # A form field where admins set the minimum number of entities that applicants must list
 input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
 input.repeatedSet.maxEntities=
+# Label for the field on the new repeated set form where an admin will select the question that the user will complete first in the enumerator flow
+label.repeatedSet.initialQuestion=
+# Description explaining what the initial question is and what the "Add question" button does
+description.repeatedSet.initialQuestion=
+# Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
+alert.repeatedSet.addQuestionDisabled=
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
-alert.repeatedSet.newQuestion=
+alert.repeatedSet.newQuestion=Samaynta qaybta lagu soo celiyay waxay ku dari doontaa su'aal cusub kaydka su'aasha.
+# Alert shown in the question bank section listing repeated questions that are already associated with this repeated set
+alert.repeatedSet.previouslyUsed=
 # Submission button for creating a new repeated set
 button.repeatedSet.submitNew=
 # Button for admins to add a new repeated set
@@ -1170,6 +1236,42 @@ text.nestedRepeatedSet=
 text.repeatedSet.prefix=calaamada waalidka
 # An uneditable prefix for the enumerator screen name representing the nested repeated object that will be enumerated
 text.repeatedSet.nestedPrefix=calaamada ilmaha
+# Instructions for admins on how to add or change the repeated set question in a program block
+text.repeatedSet.questionDescription=
+#An additional description explaining the uneditable prefix within the screen editing modal
+text.repeatedSet.screenNameDescription=
+#An additional description explaining what the add question button does
+text.repeatedSet.addQuestionDescription=
+# Information shown to admins when they are adding a question to a repeated screen.
+text.repeatedQuestions.description=
+# Heading above the repeated set question in the program block editor
+heading.repeatedSet.question=
+# Heading shown above repeated questions in the question bank that are already associated with this repeated set
+heading.repeatedSet.previouslyUsed=
+# Heading above the questions section on repeated screens in the admin program screen editor.
+heading.repeatedQuestions=
+# Informative text above the listed entity input field to help admins understand what to enter in that field.
+description.repeatedSet.listedEntity=
+# Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
+description.repeatedSet.adminId=
+# An informative description above the question text input field to help admins understand what to enter in that field.
+description.repeatedSet.questionText=
+# An informative description above the hint text input field to help admins understand what to enter in that field.
+description.repeatedSet.hintText=
+#An informative description below the option to create a new repeated set question
+description.repeatedSet.createNewQuestion=
+#An informative description below the option to choose an existing question
+description.repeatedSet.chooseExistingQuestion=
+# A button for admins to add a repeated screen to a program
+button.addRepeatedScreen=
+# A button for admins to add a nested repeated set to a program
+button.addNestedRepeatedSet=
+# A button for admins to add a pre-existing enumerator question to a program
+button.addQuestion=
+# A tooltip shown to admins when the delete screen button is disabled
+tooltip.deleteScreenDisabled=
+# A tooltip shown to admins when the delete question button is disabled for a repeated set question
+tooltip.removeEnumeratorQuestionDisabled=
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #
@@ -1186,9 +1288,9 @@ content.timeToCompleteP25=Waqtiga la dhameynaayo (p25)
 # Column header for median (50th percentile) time to complete
 content.medianTimeToComplete=Waqti dhexdhexaad ah oo la dhameystiro
 # Column header for 75th percentile time to complete
-content.timeToCompleteP75=Waqtiga la dhameystiraayo (p25)
+content.timeToCompleteP75=Waqtiga la dhameystiraayo (p75)
 # Column header for 99th percentile time to complete
-content.timeToCompleteP99=Waqtiga la dhameystiraayo (p75)
+content.timeToCompleteP99=Waqtiga la dhameystiraayo (p99)
 # Text on button to download CSV file
 button.downloadCsv=Soo deji CSV
 # Caption for the table showing submissions by month
@@ -1220,3 +1322,147 @@ reportingProgram.timeToCompleteP75=Waqtiga la dhameystiraayo (p75)
 reportingProgram.timeToCompleteP99=Waqtiga la dhameystiraayo (p99)
 # Text on button to download CSV file
 reportingProgram.downloadCsv=Soo deji CSV
+
+#------------------------------------------------------------------------------#
+#  ADMIN API DOCS                                                              #
+#------------------------------------------------------------------------------#
+
+# Admin API Docs page title
+adminApiDocs.pageTitle=Dokumentiga API
+
+# Aria label for the nav that switches between API docs sub-pages.
+adminApiDocs.tabs.ariaLabel=Qeybaha dokumentiga API
+# Tab label for the main API docs page.
+adminApiDocs.tabs.docs=Dokumentiyada
+# Tab label for the schema viewer page.
+adminApiDocs.tabs.schema=Bandhigaha aaladaha qorshaha
+
+# Intro paragraph as text before the external-docs link.
+adminApiDocs.intro.beforeLink=Boggaan waxaa ka mid ah Dokumentiga API ee barnaamijka gaar u ah ee loogu tallogalay barnaamijyada Firfircoon iyo Qabyo qoraalka. Dokumentiga sharaxan ee ku saabsan xaqiijinta, kala qeybinta, iyo qiyamyada suurtogalka ah ee goob walba waxay ku taalaa
+# Visible text of the external-docs link in the intro paragraph.
+adminApiDocs.intro.linkText=docs.civiform.us/it-manual/api
+# Intro paragraph as text after the external-docs link.
+adminApiDocs.intro.afterLink=.
+
+# Heading on the collapsible "How does this work?" accordion.
+adminApiDocs.accordion.heading=Sidee ayay tan u shaqeysaa?
+# First paragraph inside the accordion.
+adminApiDocs.accordion.paragraph1=Hordhaca jawaabta API waa tusaale ka mid ah sida jawaabta API ugu ekaan karto barnaamij la bixiyay. Dhammaan xogta waa been abuur. Su'aalaha halka-doorasho iyo kuwa doorashada badan waxay leeyihiin jawaabo tusaale ah oo laga soo xulay jawaabaha la heli karo.
+# Second paragraph inside the accordion as text before the shareable link.
+adminApiDocs.accordion.paragraph2.beforeLink=Waxaad wadaagi kartaa linkigaan,
+# Second paragraph inside the accordion as text after the shareable link.
+adminApiDocs.accordion.paragraph2.afterLink=, iyo qof walba oo u baahan inuu arko dokumentiyada API. Waxaa la heli karaa iyadoon la geli, marka uma baahno inuu ahaato Maamulaha CiviForm ama Maamulaha Barnaamijka si uu u fiirisiyo boggaan.
+
+# Label for the program selector.
+adminApiDocs.selectProgram=Dooro barnaamij:
+# Label for the program-version selector.
+adminApiDocs.selectVersion=Dooro nooca:
+# Option label for the active version of a program.
+adminApiDocs.version.active=Firfircoon
+# Option label for the draft version of a program.
+adminApiDocs.version.draft=Qabyo qoraal
+
+# Message shown when the requested program + version combination does not exist.
+adminApiDocs.notFound=Ma jiraan barnaamijyo la helay. Fadlan samee oo daabac barnaamij ka hor intaan la gelin dokumentiyada API.
+# Heading for the list of questions on the selected program.
+adminApiDocs.questions=Su'aalaha
+# Label for a question's admin name
+adminApiDocs.adminName=Magaca Maamulaha
+# Label for a question's type (text, number, etc.).
+adminApiDocs.type=Nooca
+# Label for a question's display text.
+adminApiDocs.text=Qoraalka
+# Label for a multi-option question's answer options.
+adminApiDocs.options=Iqtiyaarada
+# Label preceding the list of a question's currently-available options.
+adminApiDocs.currentOptions=Iqtiyaarada hadda:
+# Label preceding the list of every option the question has ever had.
+adminApiDocs.allOptions=Dhammaan iqtiyaarada suurtogalka ah:
+# Heading above the JSON preview of the API response.
+adminApiDocs.responsePreview=Bandhiga jawaabta API
+
+#------------------------------------------------------------------------------#
+#  ADMIN SCHEMA VIEWER                                                         #
+#------------------------------------------------------------------------------#
+
+# Admin API Docs page title
+adminSchemaViewer.pageTitle=Bandhigaha qaabka API
+# First intro paragraph on the OpenAPI schema viewer page.
+adminSchemaViewer.intro1=Boggaan wuxuu muujinayaa muuqaalka Qaabka OpenAPI. Labadaba nooca 2 (horaan u ahaa Swagger 2) iyo nooca 3 ayaa la helayaa.
+# Second intro paragraph on the OpenAPI schema viewer page.
+adminSchemaViewer.intro2=Waxaan ku talineynaa keliya isticmaalka nooca 3 illaamaa ay ka jiraan baahi gaar ah oo nooca hore.
+# Label for the program selector on the schema viewer page.
+adminSchemaViewer.selectProgram=Barnaamijka:
+# Label for the program-status selector on the schema viewer page.
+adminSchemaViewer.selectStatus=Xaalada:
+# Label for the OpenAPI version selector on the schema viewer page.
+adminSchemaViewer.selectVersion=Nooca OpenApi:
+# Error generating OpenAPI YAML
+adminSchemaViewer.yamlError=Aan soo saari karin nuqulka OpenApi '{0}' ee barnaamijka '{1}' wakhtigan '{2}'.
+
+#------------------------------------------------------------------------------#
+#  DEV TOOLS - text for the developer tools page                               #
+#------------------------------------------------------------------------------#
+# The text on the button to go to the home page from the dev tools page.
+devtools.homepage=
+
+# Heading for the seed section of the dev tools page.
+devtools.seed.title=
+# Description for the seed section of the dev tools page.
+devtools.seed.description=
+# Button text to seed sample programs and categories.
+devtools.seed.programs=
+# Button text to seed sample questions.
+devtools.seed.questions=
+# Button text to clear the entire database (irreversible action).
+devtools.seed.clear=
+
+# Heading for the caching section of the dev tools page.
+devtools.cache.title=
+# Description for the caching section of the dev tools page.
+devtools.cache.description=
+# Button text to clear the cache.
+devtools.cache.clear=
+
+# Heading for the durable jobs section of the dev tools page.
+devtools.jobs.title=
+# Description for the durable jobs section of the dev tools page.
+devtools.jobs.description=
+# Label for the dropdown to select a durable job to run.
+devtools.jobs.select=
+# Button text to run the selected durable job.
+devtools.jobs.run=
+
+# Heading for the icons section of the dev tools page.
+devtools.icons.title=
+# Description for the icons section of the dev tools page.
+devtools.icons.description=
+# Button text to view all SVG icons.
+devtools.icons.view=
+
+# Heading for the Localstack section of the dev tools page.
+devtools.localstack.title=
+# Description for the Localstack section of the dev tools page.
+devtools.localstack.description=
+# Button text to view SES emails in Localstack.
+devtools.localstack.ses=
+# Button text to view the S3 private bucket in Localstack.
+devtools.localstack.private=
+# Button text to view the S3 public bucket in Localstack.
+devtools.localstack.public=
+
+# Heading for the address tools section of the dev tools page.
+devtools.address.title=
+# Description for the address tools section of the dev tools page.
+devtools.address.description=
+# Button text to go to the address tools page.
+devtools.address.go=
+
+# Heading for the session tools section of the dev tools page.
+devtools.session.title=
+# Description for the session tools section of the dev tools page.
+devtools.session.description=
+# Button text to view the current pac4j profile.
+devtools.session.pac4j=
+# Button text to view the current Play session.
+devtools.session.play=

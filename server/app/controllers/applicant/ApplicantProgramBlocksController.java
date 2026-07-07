@@ -13,7 +13,6 @@ import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMo
 import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -56,9 +55,7 @@ import services.cloud.ApplicantStorageClient;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
 import services.monitoring.MonitoringMetricCounters;
-import services.program.BlockDefinition;
 import services.program.PathNotInBlockException;
-import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -67,8 +64,6 @@ import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import views.applicant.addresscorrection.AddressCorrectionBlockView;
 import views.applicant.blocks.ApplicantProgramBlockEditView;
-import views.applicant.ineligible.ApplicantIneligibleView;
-import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.trustedintermediary.ApplicationBaseViewParams;
 
@@ -77,8 +72,10 @@ import views.trustedintermediary.ApplicationBaseViewParams;
  * check the current profile so that an unauthorized user cannot access another applicant's data!
  */
 public final class ApplicantProgramBlocksController extends CiviFormController {
-  private static final ImmutableSet<String> STRIPPED_FORM_FIELDS = ImmutableSet.of("csrfToken");
-  @VisibleForTesting static final String ADDRESS_JSON_SESSION_KEY = "addressJson";
+  // "file" is stripped because file uploads are handled separately
+  // not by the form submission.
+  private static final ImmutableSet<String> STRIPPED_FORM_FIELDS =
+      ImmutableSet.of("csrfToken", "file");
 
   private final ApplicantService applicantService;
   private final MessagesApi messagesApi;
@@ -89,8 +86,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final StoredFileRepository storedFileRepository;
   private final SettingsManifest settingsManifest;
   private final String baseUrl;
-  private final ApplicantIneligibleView applicantIneligibleView;
-  private final AddressCorrectionBlockView addressCorrectionBlockView;
   private final AddressSuggestionJsonSerializer addressSuggestionJsonSerializer;
   private final ProgramService programService;
   private final ProgramSlugHandler programSlugHandler;
@@ -112,8 +107,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ProfileUtils profileUtils,
       Config configuration,
       SettingsManifest settingsManifest,
-      ApplicantIneligibleView applicantIneligibleView,
-      AddressCorrectionBlockView addressCorrectionBlockView,
       AddressSuggestionJsonSerializer addressSuggestionJsonSerializer,
       ProgramService programService,
       VersionRepository versionRepository,
@@ -130,12 +123,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.storedFileRepository = checkNotNull(storedFileRepository);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.applicantIneligibleView = checkNotNull(applicantIneligibleView);
     this.addressSuggestionJsonSerializer = checkNotNull(addressSuggestionJsonSerializer);
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.eligibilityAlertSettingsCalculator = checkNotNull(eligibilityAlertSettingsCalculator);
     this.applicantProgramBlockEditView = checkNotNull(applicantProgramBlockEditView);
-    this.addressCorrectionBlockView = checkNotNull(addressCorrectionBlockView);
     this.programService = checkNotNull(programService);
     this.programSlugHandler = checkNotNull(programSlugHandler);
     this.metricCounters = checkNotNull(metricCounters);
@@ -152,12 +143,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long applicantId,
       String programParam,
       String blockId,
-      Optional<String> questionName,
-      Boolean isFromUrlCall) {
+      Optional<String> questionName) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled and it comes from the URL call
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+    // slug because the program slug URL is enabled
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels(
@@ -165,7 +155,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
           .inc();
       return CompletableFuture.completedFuture(redirectToHome());
     }
-    return editInternal(request, applicantId, programParam, blockId, questionName, isFromUrlCall);
+    return editInternal(request, applicantId, programParam, blockId, questionName);
   }
 
   private CompletionStage<Result> editInternal(
@@ -173,11 +163,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long applicantId,
       String programParam,
       String blockId,
-      Optional<String> questionName,
-      Boolean isFromUrlCall) {
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+      Optional<String> questionName) {
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
+        .resolveProgramParam(programParam, applicantId, programSlugUrlsEnabled)
         .thenCompose(
             programId -> {
               return editOrReview(
@@ -199,15 +188,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.APPLICANT)
   public CompletionStage<Result> edit(
-      Request request,
-      String programParam,
-      String blockId,
-      Optional<String> questionName,
-      Boolean isFromUrlCall) {
+      Request request, String programParam, String blockId, Optional<String> questionName) {
     // Redirect home when the program slug URL feature is enabled and the program param could be
     // a program slug but it is actually a program id (numeric).
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels("/programs/:programParam/blocks/:blockId/edit", programParam)
@@ -222,8 +207,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     }
 
-    return editInternal(
-        request, applicantId.get(), programParam, blockId, questionName, isFromUrlCall);
+    return editInternal(request, applicantId.get(), programParam, blockId, questionName);
   }
 
   /**
@@ -237,12 +221,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long applicantId,
       String programParam,
       String blockId,
-      Optional<String> questionName,
-      Boolean isFromUrlCall) {
+      Optional<String> questionName) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled and it comes from the URL call
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+    // slug because the program slug URL is enabled
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels(
@@ -251,7 +234,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
           .inc();
       return CompletableFuture.completedFuture(redirectToHome());
     }
-    return reviewInternal(request, applicantId, programParam, blockId, questionName, isFromUrlCall);
+    return reviewInternal(request, applicantId, programParam, blockId, questionName);
   }
 
   private CompletionStage<Result> reviewInternal(
@@ -259,12 +242,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long applicantId,
       String programParam,
       String blockId,
-      Optional<String> questionName,
-      Boolean isFromUrlCall) {
+      Optional<String> questionName) {
 
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
+        .resolveProgramParam(programParam, applicantId, programSlugUrlsEnabled)
         .thenCompose(
             programId -> {
               return editOrReview(
@@ -288,22 +270,16 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    *     depending on feature configuration
    * @param blockId the unique identifier of the specific block within the program to review
    * @param questionName optional parameter present when answering a question or reviewing an answer
-   * @param isFromUrlCall indicates whether this method was invoked directly from a URL call, used
-   *     to determine redirect behavior when program slug URLs are enabled
    * @return a CompletionStage that resolves to a Result containing the rendered review page or a
    *     redirect response
    */
   @Secure(authorizers = Authorizers.Labels.APPLICANT)
   public CompletionStage<Result> review(
-      Request request,
-      String programParam,
-      String blockId,
-      Optional<String> questionName,
-      Boolean isFromUrlCall) {
+      Request request, String programParam, String blockId, Optional<String> questionName) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled and it comes from the URL call
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+    // slug because the program slug URL is enabled
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels("/programs/:programParam/blocks/:blockId/review", programParam)
@@ -318,8 +294,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     }
 
-    return reviewInternal(
-        request, optionalApplicantId.get(), programParam, blockId, questionName, isFromUrlCall);
+    return reviewInternal(request, optionalApplicantId.get(), programParam, blockId, questionName);
   }
 
   /** Handles the applicant's selection from the address correction options. */
@@ -334,7 +309,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     DynamicForm form = formFactory.form().bindFromRequest(request);
     Optional<String> selectedAddress =
         Optional.ofNullable(form.get(AddressCorrectionBlockView.SELECTED_ADDRESS_NAME));
-    Optional<String> maybeAddressJson = request.session().get(ADDRESS_JSON_SESSION_KEY);
+    Optional<String> maybeAddressJson =
+        Optional.ofNullable(form.get(AddressCorrectionBlockView.ADDRESS_JSON_FIELD_NAME));
 
     ImmutableList<AddressSuggestion> suggestions =
         addressSuggestionJsonSerializer.deserialize(
@@ -407,7 +383,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             classLoaderExecutionContext.current())
         .thenComposeAsync(
             roApplicantProgramService -> {
-              removeAddressJsonFromSession(request);
               CiviFormProfile profile = profileUtils.currentUserProfile(request);
               return renderErrorOrRedirectToRequestedPage(
                   request,
@@ -421,19 +396,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   roApplicantProgramService);
             },
             classLoaderExecutionContext.current())
-        .exceptionally(
-            throwable -> {
-              removeAddressJsonFromSession(request);
-              return handleUpdateExceptions(throwable);
-            });
-  }
-
-  /**
-   * Clean up the address suggestions json from the session. Remove this to prevent the chance of
-   * the old session value being used on subsequent address corrections.
-   */
-  private void removeAddressJsonFromSession(Request request) {
-    request.session().removing(ADDRESS_JSON_SESSION_KEY);
+        .exceptionally(throwable -> handleUpdateExceptions(throwable));
   }
 
   /**
@@ -447,8 +410,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    *     block sequence
    * @param inReview indicates whether the applicant is currently in review mode (true) or edit mode
    *     (false), which affects navigation behavior and view rendering
-   * @param isFromUrlCall indicates whether this method was invoked directly from a URL call, used
-   *     to determine redirect behavior when program slug URLs are enabled
    * @return a CompletionStage that resolves to a Result containing the rendered previous block
    *     page, or error responses (unauthorized, not found, or redirect) if authorization fails or
    *     resources are not found
@@ -459,12 +420,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long applicantId,
       String programParam,
       int previousBlockIndex,
-      boolean inReview,
-      boolean isFromUrlCall) {
+      boolean inReview) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled and it comes from the URL call
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+    // slug because the program slug URL is enabled
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels(
@@ -475,7 +435,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
 
     return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
+        .resolveProgramParam(programParam, applicantId, programSlugUrlsEnabled)
         .thenCompose(
             programId -> {
               CompletionStage<ApplicantPersonalInfo> applicantStage =
@@ -505,15 +465,20 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       applicantAuthCompletableFuture, applicantProgramServiceCompletableFuture)
                   .thenApplyAsync(
                       (v) -> {
+                        ReadOnlyApplicantProgramService roApplicantProgramService =
+                            applicantProgramServiceCompletableFuture.join();
+
                         Optional<Result> applicationUpdatedOptional =
                             updateApplicationToLatestProgramVersionIfNeeded(
-                                applicantId, programId, profile);
+                                applicantId,
+                                programId,
+                                profile,
+                                programSlugUrlsEnabled,
+                                roApplicantProgramService);
                         if (applicationUpdatedOptional.isPresent()) {
                           return applicationUpdatedOptional.get();
                         }
 
-                        ReadOnlyApplicantProgramService roApplicantProgramService =
-                            applicantProgramServiceCompletableFuture.join();
                         ImmutableList<Block> blocks =
                             roApplicantProgramService.getAllActiveBlocks();
                         String blockId = blocks.get(previousBlockIndex).getId();
@@ -538,15 +503,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                                 ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS,
                                 applicantRoutes,
                                 profile);
-
-                        final String programSlug;
-                        try {
-                          programSlug = programService.getSlug(programId);
-                        } catch (ProgramNotFoundException e) {
-                          return notFound(e.toString());
-                        }
-                        return ok(applicantProgramBlockEditView.render(
-                                request, applicationParams, programSlug))
+                        return ok(applicantProgramBlockEditView.render(request, applicationParams))
                             .as(Http.MimeTypes.HTML);
                       },
                       classLoaderExecutionContext.current())
@@ -558,7 +515,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                             return unauthorized();
                           }
                           if (cause instanceof ProgramNotFoundException) {
-                            return notFound(cause.toString());
+                            return notFound();
                           }
                           throw new RuntimeException(cause);
                         }
@@ -577,22 +534,16 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    *     block sequence
    * @param inReview indicates whether the applicant is currently in review mode (true) or edit mode
    *     (false), which affects navigation behavior
-   * @param isFromUrlCall indicates whether this method was invoked directly from a URL call, used
-   *     to determine redirect behavior when program slug URLs are enabled
    * @return a CompletionStage that resolves to a Result containing the rendered review page or a
    *     redirect response
    */
   @Secure
   public CompletionStage<Result> previous(
-      Request request,
-      String programParam,
-      int previousBlockIndex,
-      boolean inReview,
-      Boolean isFromUrlCall) {
+      Request request, String programParam, int previousBlockIndex, boolean inReview) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled and it comes from the URL call
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
+    // slug because the program slug URL is enabled
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels(
@@ -609,17 +560,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
 
     Long applicantId = optionalApplicantId.get();
-    return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
-        .thenCompose(
-            programId ->
-                previousWithApplicantId(
-                    request,
-                    applicantId,
-                    Long.toString(programId),
-                    previousBlockIndex,
-                    inReview, /* isFromUrlCall */
-                    false));
+    return previousWithApplicantId(
+        request, applicantId, programParam, previousBlockIndex, inReview);
   }
 
   @Secure
@@ -632,10 +574,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Optional<String> questionName) {
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId);
-
-    Optional<String> successBannerMessage = request.flash().get(FlashKey.SUCCESS_BANNER);
-    Optional<ToastMessage> flashSuccessBanner =
-        successBannerMessage.map(m -> ToastMessage.success(m));
 
     return applicantStage
         .thenComposeAsync(
@@ -650,7 +588,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
               Optional<Result> applicationUpdatedOptional =
-                  updateApplicationToLatestProgramVersionIfNeeded(applicantId, programId, profile);
+                  updateApplicationToLatestProgramVersionIfNeeded(
+                      applicantId,
+                      programId,
+                      profile,
+                      settingsManifest.getProgramSlugUrlsEnabled(request),
+                      roApplicantProgramService);
               if (applicationUpdatedOptional.isPresent()) {
                 return applicationUpdatedOptional.get();
               }
@@ -673,17 +616,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                             questionName,
                             applicantRoutes,
                             profile)
-                        .setBannerToastMessage(flashSuccessBanner)
-                        .setBannerMessage(successBannerMessage)
                         .build();
-                final String programSlug;
-                try {
-                  programSlug = programService.getSlug(programId);
-                } catch (ProgramNotFoundException e) {
-                  return notFound(e.toString());
-                }
-                return ok(applicantProgramBlockEditView.render(
-                        request, applicationParams, programSlug))
+                return ok(applicantProgramBlockEditView.render(request, applicationParams))
                     .as(Http.MimeTypes.HTML);
               } else {
                 return notFound();
@@ -698,7 +632,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   return unauthorized();
                 }
                 if (cause instanceof ProgramNotFoundException) {
-                  return notFound(cause.toString());
+                  return notFound();
                 }
                 throw new RuntimeException(cause);
               }
@@ -710,37 +644,18 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    * Used by the file upload question. Removes the specified file and re-renders the question block.
    *
    * @param request the HTTP request containing context and session information
-   * @param programParam the program identifier, which can be either a program slug or program ID,
-   *     depending on feature configuration
+   * @param programId ID of the program
    * @param blockId the unique identifier of the specific block within the program containing the
    *     file upload question
    * @param fileKeyToRemove the file key of the specific file to be removed from the applicant's
    *     uploaded files list
    * @param inReview indicates whether the applicant is currently in review mode (true) or edit mode
    *     (false), which affects navigation behavior after file removal
-   * @param isFromUrlCall indicates whether this method was invoked directly from a URL call, used
-   *     to determine redirect behavior when program slug URLs are enabled
    * @return a CompletionStage that resolves to a Result handled by removeFileWithApplicantId()
    */
   @Secure
   public CompletionStage<Result> removeFile(
-      Request request,
-      String programParam,
-      String blockId,
-      String fileKeyToRemove,
-      boolean inReview,
-      boolean isFromUrlCall) {
-    // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled and it comes from the URL call
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
-      metricCounters
-          .getUrlWithProgramIdCall()
-          .labels(
-              "/programs/:programParam/blocks/:blockId/removeFile/:fileKey/:inReview", programParam)
-          .inc();
-      return CompletableFuture.completedFuture(redirectToHome());
-    }
+      Request request, Long programId, String blockId, String fileKeyToRemove, boolean inReview) {
 
     Optional<Long> optionalApplicantId = getApplicantId(request);
     if (optionalApplicantId.isEmpty()) {
@@ -750,154 +665,128 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
 
     Long applicantId = optionalApplicantId.get();
-    return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
-        .thenCompose(
-            programId ->
-                removeFileWithApplicantId(
-                    request,
-                    applicantId,
-                    Long.toString(programId),
-                    blockId,
-                    fileKeyToRemove,
-                    inReview,
-                    /* isFromUrlCall= */ false));
+    return removeFileWithApplicantId(
+        request, applicantId, programId, blockId, fileKeyToRemove, inReview);
   }
 
   @Secure
   public CompletionStage<Result> removeFileWithApplicantId(
       Request request,
       long applicantId,
-      String programParam,
+      Long programId,
       String blockId,
       String fileKeyToRemove,
-      boolean inReview,
-      boolean isFromUrlCall) {
-    // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled and it comes from the URL call
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
-      metricCounters
-          .getUrlWithProgramIdCall()
-          .labels(
-              "/applicants/:applicantId/programs/:programParam/blocks/:blockId/removeFile/:fileKey/:inReview"
-                  + " ",
-              programParam)
-          .inc();
-      return CompletableFuture.completedFuture(redirectToHome());
-    }
+      boolean inReview) {
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
 
-    return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
-        .thenCompose(
-            programId -> {
-              CompletionStage<ApplicantPersonalInfo> applicantStage =
-                  this.applicantService.getPersonalInfo(applicantId);
+    CompletionStage<ApplicantPersonalInfo> applicantStage =
+        this.applicantService.getPersonalInfo(applicantId);
 
-              return applicantStage
-                  .thenComposeAsync(
-                      v -> checkApplicantAuthorization(request, applicantId),
-                      classLoaderExecutionContext.current())
-                  .thenComposeAsync(
-                      v -> checkProgramAuthorization(request, programId),
-                      classLoaderExecutionContext.current())
-                  .thenComposeAsync(
-                      v ->
-                          applicantService.getReadOnlyApplicantProgramService(
-                              applicantId, programId),
-                      classLoaderExecutionContext.current())
-                  .thenComposeAsync(
-                      (roApplicantProgramService) -> {
-                        Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
+    return applicantStage
+        .thenComposeAsync(
+            v -> checkApplicantAuthorization(request, applicantId),
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            v -> checkProgramAuthorization(request, programId),
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            (roApplicantProgramService) -> {
+              Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
 
-                        if (block.isEmpty() || !block.get().isFileUpload()) {
-                          return failedFuture(
-                              new ProgramBlockNotFoundException(programId, blockId));
-                        }
+              if (block.isEmpty() || !block.get().isFileUpload()) {
+                return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
+              }
 
-                        FileUploadQuestion fileUploadQuestion =
-                            block.get().getVisibleQuestions().stream()
-                                .filter(
-                                    question -> question.getType().equals(QuestionType.FILEUPLOAD))
-                                .findAny()
-                                .get()
-                                .createFileUploadQuestion();
+              FileUploadQuestion fileUploadQuestion =
+                  block.get().getVisibleQuestions().stream()
+                      .filter(question -> question.getType().equals(QuestionType.FILEUPLOAD))
+                      .findAny()
+                      .get()
+                      .createFileUploadQuestion();
 
-                        ImmutableMap.Builder<String, String> fileUploadQuestionFormData =
-                            new ImmutableMap.Builder<>();
-                        Optional<ImmutableList<String>> keysOptional =
-                            fileUploadQuestion.getFileKeyListValue();
-                        Optional<ImmutableList<String>> originalFileNamesOptional =
-                            fileUploadQuestion.getOriginalFileNameListValue();
+              ImmutableMap.Builder<String, String> fileUploadQuestionFormData =
+                  new ImmutableMap.Builder<>();
+              Optional<ImmutableList<String>> keysOptional =
+                  fileUploadQuestion.getFileKeyListValue();
+              Optional<ImmutableList<String>> originalFileNamesOptional =
+                  fileUploadQuestion.getOriginalFileNameListValue();
 
-                        int fileKeyIndexRemoved = -1;
+              int fileKeyIndexRemoved = -1;
 
-                        if (keysOptional.isPresent()) {
-                          ImmutableList<String> keys = keysOptional.get();
-                          // Write all existing keys back to the form data, except the one we want
-                          // to delete.
-                          for (int i = 0; i < keys.size(); i++) {
-                            String keyValue = keys.get(i);
-                            boolean removeKey = false;
-                            if (keyValue.equals(fileKeyToRemove)) {
-                              removeKey = true;
-                              fileKeyIndexRemoved = i;
-                            }
-                            fileUploadQuestionFormData.put(
-                                fileUploadQuestion.getFileKeyListPathForIndex(i).toString(),
-                                removeKey ? "" : keyValue);
-                          }
-                        }
+              if (keysOptional.isPresent()) {
+                ImmutableList<String> keys = keysOptional.get();
+                // Write all existing keys back to the form data, except the one we want
+                // to delete.
+                for (int i = 0; i < keys.size(); i++) {
+                  String keyValue = keys.get(i);
+                  boolean removeKey = false;
+                  if (keyValue.equals(fileKeyToRemove)) {
+                    removeKey = true;
+                    fileKeyIndexRemoved = i;
+                  }
+                  fileUploadQuestionFormData.put(
+                      fileUploadQuestion.getFileKeyListPathForIndex(i).toString(),
+                      removeKey ? "" : keyValue);
+                }
+              }
 
-                        if (originalFileNamesOptional.isPresent() && (fileKeyIndexRemoved >= 0)) {
-                          // Write all existing original file names back to the form data, except
-                          // the one that was removed from the file keys list.
-                          ImmutableList<String> originalFileNames = originalFileNamesOptional.get();
-                          for (int i = 0; i < originalFileNames.size(); i++) {
-                            String originalFileNameValue = originalFileNames.get(i);
-                            fileUploadQuestionFormData.put(
-                                fileUploadQuestion
-                                    .getOriginalFileNameListPathForIndex(i)
-                                    .toString(),
-                                i == fileKeyIndexRemoved ? "" : originalFileNameValue);
-                          }
-                        }
+              if (originalFileNamesOptional.isPresent() && (fileKeyIndexRemoved >= 0)) {
+                // Write all existing original file names back to the form data, except
+                // the one that was removed from the file keys list.
+                ImmutableList<String> originalFileNames = originalFileNamesOptional.get();
+                for (int i = 0; i < originalFileNames.size(); i++) {
+                  String originalFileNameValue = originalFileNames.get(i);
+                  fileUploadQuestionFormData.put(
+                      fileUploadQuestion.getOriginalFileNameListPathForIndex(i).toString(),
+                      i == fileKeyIndexRemoved ? "" : originalFileNameValue);
+                }
+              }
 
-                        // Always force an update so that we save the change even if removing the
-                        // last file from a required question.
-                        return applicantService.stageAndUpdateIfValid(
-                            applicantId,
-                            programId,
-                            blockId,
-                            fileUploadQuestionFormData.build(),
-                            settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
-                            /* forceUpdate= */ true,
-                            settingsManifest.getApiBridgeEnabled(request));
-                      },
-                      classLoaderExecutionContext.current())
-                  .thenComposeAsync(
-                      roApplicantProgramService -> {
-                        Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
+              // Always force an update so that we save the change even if removing the
+              // last file from a required question.
+              return applicantService.stageAndUpdateIfValid(
+                  applicantId,
+                  programId,
+                  blockId,
+                  fileUploadQuestionFormData.build(),
+                  settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
+                  /* forceUpdate= */ true,
+                  settingsManifest.getApiBridgeEnabled(request));
+            },
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            roApplicantProgramService -> {
+              Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
 
-                        if (block.isEmpty() || !block.get().isFileUpload()) {
-                          return failedFuture(
-                              new ProgramBlockNotFoundException(programId, blockId));
-                        }
+              if (block.isEmpty() || !block.get().isFileUpload()) {
+                return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
+              }
 
-                        // Re-direct back to the current page.
-                        return supplyAsync(
-                            () -> {
-                              CiviFormProfile profile = profileUtils.currentUserProfile(request);
-                              return redirect(
-                                  applicantRoutes
-                                      .blockEditOrBlockReview(
-                                          profile, applicantId, programId, blockId, inReview)
-                                      .url());
-                            });
-                      },
-                      classLoaderExecutionContext.current())
-                  .exceptionally(this::handleUpdateExceptions);
-            });
+              // Re-direct back to the current page.
+              return supplyAsync(
+                  () -> {
+                    CiviFormProfile profile = profileUtils.currentUserProfile(request);
+                    if (programSlugUrlsEnabled) {
+                      String programSlug =
+                          programSlugHandler.getProgramSlug(String.valueOf(programId));
+                      return redirect(
+                          applicantRoutes
+                              .blockEditOrBlockReview(
+                                  profile, applicantId, programSlug, blockId, inReview)
+                              .url());
+                    }
+                    return redirect(
+                        applicantRoutes
+                            .blockEditOrBlockReview(
+                                profile, applicantId, programId, blockId, inReview)
+                            .url());
+                  });
+            },
+            classLoaderExecutionContext.current())
+        .exceptionally(this::handleUpdateExceptions);
   }
 
   /**
@@ -910,33 +799,17 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    * file.
    *
    * @param request the HTTP request containing context and session information
-   * @param programParam the program identifier, which can be either a program slug or program ID,
-   *     depending on feature configuration
+   * @param programId ID of the program
    * @param blockId the unique identifier of the specific block within the program containing the
    *     file upload question
    * @param inReview indicates whether the applicant is currently in review mode (true) or edit mode
    *     (false), which affects navigation behavior after file processing
-   * @param isFromUrlCall indicates whether this method was invoked directly from a URL call, used
-   *     to determine redirect behavior when program slug URLs are enabled
    * @return a CompletionStage that resolves to a Result handled by addFileWithApplicantId()
    */
   @Secure
   public CompletionStage<Result> addFile(
-      Request request,
-      String programParam,
-      String blockId,
-      boolean inReview,
-      boolean isFromUrlCall) {
-    // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled and it comes from the URL call
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
-      metricCounters
-          .getUrlWithProgramIdCall()
-          .labels("/programs/:programParam/blocks/:blockId/addFile/:inReview", programParam)
-          .inc();
-      return CompletableFuture.completedFuture(redirectToHome());
-    }
+      Request request, long programId, String blockId, boolean inReview) {
+    // boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
 
     Optional<Long> optionalApplicantId = getApplicantId(request);
     if (optionalApplicantId.isEmpty()) {
@@ -946,227 +819,190 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
 
     Long applicantId = optionalApplicantId.get();
-    return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
-        .thenCompose(
-            programId ->
-                addFileWithApplicantId(
-                    request,
-                    applicantId,
-                    Long.toString(programId),
-                    blockId,
-                    inReview,
-                    /* isFromUrlCall= */ false));
+    return addFileWithApplicantId(request, applicantId, programId, blockId, inReview);
   }
 
   @Secure
   public CompletionStage<Result> addFileWithApplicantId(
-      Request request,
-      long applicantId,
-      String programParam,
-      String blockId,
-      boolean inReview,
-      boolean isFromUrlCall) {
-    // Redirect home when the program param is the program id (numeric) but it should be the program
-    // slug because the program slug URL is enabled and it comes from the URL call
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && isFromUrlCall && StringUtils.isNumeric(programParam)) {
-      metricCounters
-          .getUrlWithProgramIdCall()
-          .labels(
-              "/applicants/:applicantId/programs/:programParam/blocks/:blockId/addFile/:inReview",
-              programParam)
-          .inc();
-      return CompletableFuture.completedFuture(redirectToHome());
-    }
+      Request request, long applicantId, long programId, String blockId, boolean inReview) {
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
 
-    return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, isFromUrlCall, programSlugUrlEnabled)
-        .thenCompose(
-            programId -> {
-              CompletionStage<ApplicantPersonalInfo> applicantStage =
-                  applicantService.getPersonalInfo(applicantId);
+    CompletionStage<ApplicantPersonalInfo> applicantStage =
+        applicantService.getPersonalInfo(applicantId);
 
-              return applicantStage
+    return applicantStage
+        .thenComposeAsync(
+            v -> checkApplicantAuthorization(request, applicantId),
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            v -> checkProgramAuthorization(request, programId),
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            (roApplicantProgramService) -> {
+              Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
+
+              if (block.isEmpty() || !block.get().isFileUpload()) {
+                return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
+              }
+
+              Optional<String> bucket = request.queryString("bucket");
+              Optional<String> key = request.queryString("key");
+
+              // Original file name is only set for Azure, where we have to generate a
+              // UUID when uploading a file to Azure Blob storage because we cannot upload
+              // a file without a name. For AWS, the file key and original file name are
+              // the same. For the future, GCS supports POST uploads so this field won't
+              // be needed either: <link>
+              // https://cloud.google.com/storage/docs/xml-api/post-object-forms </link>
+              // This is only really needed for Azure blob storage.
+              Optional<String> originalFileName = request.queryString("originalFileName");
+
+              if (bucket.isEmpty() || key.isEmpty()) {
+                return failedFuture(
+                    new IllegalArgumentException("missing file key and bucket names"));
+              }
+
+              FileUploadQuestion fileUploadQuestion =
+                  block.get().getVisibleQuestions().stream()
+                      .filter(question -> question.getType().equals(QuestionType.FILEUPLOAD))
+                      .findAny()
+                      .get()
+                      .createFileUploadQuestion();
+
+              ImmutableMap.Builder<String, String> fileUploadQuestionFormData =
+                  new ImmutableMap.Builder<>();
+              Optional<ImmutableList<String>> keysOptional =
+                  fileUploadQuestion.getFileKeyListValue();
+              Optional<ImmutableList<String>> originalFileNamesOptional =
+                  fileUploadQuestion.getOriginalFileNameListValue();
+
+              if (keysOptional.isPresent()) {
+                ImmutableList<String> keys = keysOptional.get();
+
+                if (!fileUploadQuestion.canUploadFile()) {
+                  return failedFuture(
+                      new IllegalArgumentException(
+                          String.format(
+                              "Cannot upload additional files for question %s, in program"
+                                  + " %s, block %s, for applicant %s.",
+                              fileUploadQuestion
+                                  .getApplicantQuestion()
+                                  .getQuestionDefinition()
+                                  .getId(),
+                              programId,
+                              blockId,
+                              applicantId)));
+                }
+
+                boolean appendValue = true;
+
+                // Write the existing keys so that we don't delete any.
+                for (int i = 0; i < keys.size(); i++) {
+                  String keyValue = keys.get(i);
+                  fileUploadQuestionFormData.put(
+                      fileUploadQuestion.getFileKeyListPathForIndex(i).toString(), keyValue);
+                  // Key already exists in question, no need to append it. But we may want
+                  // to render some kind of error in this case in the future, since it
+                  // means the user essentially "replaced" whatever file already existed
+                  // with that same name. Alternatively, we could prevent this on the
+                  // client-side.
+                  if (keyValue.equals(key.get())) {
+                    appendValue = false;
+                  }
+                }
+
+                if (appendValue) {
+                  fileUploadQuestionFormData.put(
+                      fileUploadQuestion.getFileKeyListPathForIndex(keys.size()).toString(),
+                      key.get());
+                }
+              } else {
+                fileUploadQuestionFormData.put(
+                    fileUploadQuestion.getFileKeyListPathForIndex(0).toString(), key.get());
+              }
+
+              // Original file names are only set for Azure deployments, when the form
+              // contains the original file name field. The value will be stored in the
+              // file record.
+              if (originalFileName.isPresent()) {
+                // If there are no originalFileNames in the question data, we don't need
+                // to append.
+                if (originalFileNamesOptional.isPresent()) {
+                  ImmutableList<String> originalFileNames = originalFileNamesOptional.get();
+
+                  // Write the existing filenames so that we don't delete any.
+                  for (int i = 0; i < originalFileNames.size(); i++) {
+                    String originalFileNameValue = originalFileNames.get(i);
+                    fileUploadQuestionFormData.put(
+                        fileUploadQuestion.getOriginalFileNameListPathForIndex(i).toString(),
+                        originalFileNameValue);
+                    // We do not need to check if this original file name already exists.
+                    // Original file names are stored in the record and not used to
+                    // reference the file in storage, so collisions in the names do not
+                    // affect the application.
+                    //
+                    // The actual file key is a UID in this case, and we've already
+                    // checked for key collisions above.
+                  }
+
+                  fileUploadQuestionFormData.put(
+                      fileUploadQuestion
+                          .getOriginalFileNameListPathForIndex(originalFileNames.size())
+                          .toString(),
+                      originalFileName.get());
+                } else {
+                  fileUploadQuestionFormData.put(
+                      fileUploadQuestion.getOriginalFileNameListPathForIndex(0).toString(),
+                      originalFileName.get());
+                }
+              }
+
+              return getOrMakeFileRecord(key.get(), originalFileName, applicantId)
                   .thenComposeAsync(
-                      v -> checkApplicantAuthorization(request, applicantId),
-                      classLoaderExecutionContext.current())
-                  .thenComposeAsync(
-                      v -> checkProgramAuthorization(request, programId),
-                      classLoaderExecutionContext.current())
-                  .thenComposeAsync(
-                      v ->
-                          applicantService.getReadOnlyApplicantProgramService(
-                              applicantId, programId),
-                      classLoaderExecutionContext.current())
-                  .thenComposeAsync(
-                      (roApplicantProgramService) -> {
-                        Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
+                      _ ->
+                          applicantService.stageAndUpdateIfValid(
+                              applicantId,
+                              programId,
+                              blockId,
+                              fileUploadQuestionFormData.build(),
+                              settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
+                              false,
+                              settingsManifest.getApiBridgeEnabled(request)));
+            },
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            roApplicantProgramService -> {
+              Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
 
-                        if (block.isEmpty() || !block.get().isFileUpload()) {
-                          return failedFuture(
-                              new ProgramBlockNotFoundException(programId, blockId));
-                        }
+              if (block.isEmpty() || !block.get().isFileUpload()) {
+                return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
+              }
 
-                        Optional<String> bucket = request.queryString("bucket");
-                        Optional<String> key = request.queryString("key");
-
-                        // Original file name is only set for Azure, where we have to generate a
-                        // UUID when uploading a file to Azure Blob storage because we cannot upload
-                        // a file without a name. For AWS, the file key and original file name are
-                        // the same. For the future, GCS supports POST uploads so this field won't
-                        // be needed either: <link>
-                        // https://cloud.google.com/storage/docs/xml-api/post-object-forms </link>
-                        // This is only really needed for Azure blob storage.
-                        Optional<String> originalFileName = request.queryString("originalFileName");
-
-                        if (bucket.isEmpty() || key.isEmpty()) {
-                          return failedFuture(
-                              new IllegalArgumentException("missing file key and bucket names"));
-                        }
-
-                        FileUploadQuestion fileUploadQuestion =
-                            block.get().getVisibleQuestions().stream()
-                                .filter(
-                                    question -> question.getType().equals(QuestionType.FILEUPLOAD))
-                                .findAny()
-                                .get()
-                                .createFileUploadQuestion();
-
-                        ImmutableMap.Builder<String, String> fileUploadQuestionFormData =
-                            new ImmutableMap.Builder<>();
-                        Optional<ImmutableList<String>> keysOptional =
-                            fileUploadQuestion.getFileKeyListValue();
-                        Optional<ImmutableList<String>> originalFileNamesOptional =
-                            fileUploadQuestion.getOriginalFileNameListValue();
-
-                        if (keysOptional.isPresent()) {
-                          ImmutableList<String> keys = keysOptional.get();
-
-                          if (!fileUploadQuestion.canUploadFile()) {
-                            return failedFuture(
-                                new IllegalArgumentException(
-                                    String.format(
-                                        "Cannot upload additional files for question %s, in program"
-                                            + " %s, block %s, for applicant %s.",
-                                        fileUploadQuestion
-                                            .getApplicantQuestion()
-                                            .getQuestionDefinition()
-                                            .getId(),
-                                        programId,
-                                        blockId,
-                                        applicantId)));
-                          }
-
-                          boolean appendValue = true;
-
-                          // Write the existing keys so that we don't delete any.
-                          for (int i = 0; i < keys.size(); i++) {
-                            String keyValue = keys.get(i);
-                            fileUploadQuestionFormData.put(
-                                fileUploadQuestion.getFileKeyListPathForIndex(i).toString(),
-                                keyValue);
-                            // Key already exists in question, no need to append it. But we may want
-                            // to render some kind of error in this case in the future, since it
-                            // means the user essentially "replaced" whatever file already existed
-                            // with that same name. Alternatively, we could prevent this on the
-                            // client-side.
-                            if (keyValue.equals(key.get())) {
-                              appendValue = false;
-                            }
-                          }
-
-                          if (appendValue) {
-                            fileUploadQuestionFormData.put(
-                                fileUploadQuestion
-                                    .getFileKeyListPathForIndex(keys.size())
-                                    .toString(),
-                                key.get());
-                          }
-                        } else {
-                          fileUploadQuestionFormData.put(
-                              fileUploadQuestion.getFileKeyListPathForIndex(0).toString(),
-                              key.get());
-                        }
-
-                        // Original file names are only set for Azure deployments, when the form
-                        // contains the original file name field. The value will be stored in the
-                        // file record.
-                        if (originalFileName.isPresent()) {
-                          // If there are no originalFileNames in the question data, we don't need
-                          // to append.
-                          if (originalFileNamesOptional.isPresent()) {
-                            ImmutableList<String> originalFileNames =
-                                originalFileNamesOptional.get();
-
-                            // Write the existing filenames so that we don't delete any.
-                            for (int i = 0; i < originalFileNames.size(); i++) {
-                              String originalFileNameValue = originalFileNames.get(i);
-                              fileUploadQuestionFormData.put(
-                                  fileUploadQuestion
-                                      .getOriginalFileNameListPathForIndex(i)
-                                      .toString(),
-                                  originalFileNameValue);
-                              // We do not need to check if this original file name already exists.
-                              // Original file names are stored in the record and not used to
-                              // reference the file in storage, so collisions in the names do not
-                              // affect the application.
-                              //
-                              // The actual file key is a UID in this case, and we've already
-                              // checked for key collisions above.
-                            }
-
-                            fileUploadQuestionFormData.put(
-                                fileUploadQuestion
-                                    .getOriginalFileNameListPathForIndex(originalFileNames.size())
-                                    .toString(),
-                                originalFileName.get());
-                          } else {
-                            fileUploadQuestionFormData.put(
-                                fileUploadQuestion
-                                    .getOriginalFileNameListPathForIndex(0)
-                                    .toString(),
-                                originalFileName.get());
-                          }
-                        }
-
-                        return getOrMakeFileRecord(key.get(), originalFileName, applicantId)
-                            .thenComposeAsync(
-                                (StoredFileModel unused) ->
-                                    applicantService.stageAndUpdateIfValid(
-                                        applicantId,
-                                        programId,
-                                        blockId,
-                                        fileUploadQuestionFormData.build(),
-                                        settingsManifest.getEsriAddressServiceAreaValidationEnabled(
-                                            request),
-                                        false,
-                                        settingsManifest.getApiBridgeEnabled(request)));
-                      },
-                      classLoaderExecutionContext.current())
-                  .thenComposeAsync(
-                      roApplicantProgramService -> {
-                        Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
-
-                        if (block.isEmpty() || !block.get().isFileUpload()) {
-                          return failedFuture(
-                              new ProgramBlockNotFoundException(programId, blockId));
-                        }
-
-                        // Re-direct back to the current page.
-                        return supplyAsync(
-                            () -> {
-                              CiviFormProfile profile = profileUtils.currentUserProfile(request);
-                              return redirect(
-                                  applicantRoutes
-                                      .blockEditOrBlockReview(
-                                          profile, applicantId, programId, blockId, inReview)
-                                      .url());
-                            });
-                      },
-                      classLoaderExecutionContext.current())
-                  .exceptionally(this::handleUpdateExceptions);
-            });
+              // Re-direct back to the current page.
+              return supplyAsync(
+                  () -> {
+                    CiviFormProfile profile = profileUtils.currentUserProfile(request);
+                    if (programSlugUrlsEnabled) {
+                      String programSlug =
+                          programSlugHandler.getProgramSlug(String.valueOf(programId));
+                      return redirect(
+                          applicantRoutes
+                              .blockEditOrBlockReview(
+                                  profile, applicantId, programSlug, blockId, inReview)
+                              .url());
+                    }
+                    return redirect(
+                        applicantRoutes
+                            .blockEditOrBlockReview(
+                                profile, applicantId, programId, blockId, inReview)
+                            .url());
+                  });
+            },
+            classLoaderExecutionContext.current())
+        .exceptionally(this::handleUpdateExceptions);
   }
 
   /**
@@ -1195,12 +1031,31 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   public CompletionStage<Result> updateWithApplicantId(
       Request request,
       long applicantId,
-      long programId,
+      String programParam,
       String blockId,
       boolean inReview,
       ApplicantRequestedActionWrapper applicantRequestedActionWrapper) {
+
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    // Redirect home when the program param is the program id (numeric) but it should be the program
+    // slug because the program slug URL is enabled
+    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
+      metricCounters
+          .getUrlWithProgramIdCall()
+          .labels(
+              "/applicants/:applicantId/programs/:programParam/blocks/:blockId/:inReview/:applicantRequestedActionWrapper",
+              programParam)
+          .inc();
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId);
+    Long programId =
+        programSlugHandler
+            .resolveProgramParam(programParam, applicantId, programSlugUrlsEnabled)
+            .toCompletableFuture()
+            .join();
 
     CompletableFuture<ReadOnlyApplicantProgramService> applicantProgramServiceCompletableFuture =
         applicantStage
@@ -1262,17 +1117,21 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .thenComposeAsync(
             (v) -> {
               CiviFormProfile profile = profileUtils.currentUserProfile(request);
+              ReadOnlyApplicantProgramService readOnlyApplicantProgramService =
+                  applicantProgramServiceCompletableFuture.join();
 
               Optional<Result> applicationUpdatedOptional =
-                  updateApplicationToLatestProgramVersionIfNeeded(applicantId, programId, profile);
+                  updateApplicationToLatestProgramVersionIfNeeded(
+                      applicantId,
+                      programId,
+                      profile,
+                      programSlugUrlsEnabled,
+                      readOnlyApplicantProgramService);
               if (applicationUpdatedOptional.isPresent()) {
                 return CompletableFuture.completedFuture(applicationUpdatedOptional.get());
               }
 
               ImmutableMap<String, String> formData = formDataCompletableFuture.join();
-
-              ReadOnlyApplicantProgramService readOnlyApplicantProgramService =
-                  applicantProgramServiceCompletableFuture.join();
 
               Optional<Block> optionalBlockBeforeUpdate =
                   readOnlyApplicantProgramService.getActiveBlock(blockId);
@@ -1282,6 +1141,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
               if (canNavigateAwayFromBlockImmediately(
                   formData, applicantRequestedAction, optionalBlockBeforeUpdate)) {
+
                 return redirectToRequestedPage(
                     profile,
                     applicantId,
@@ -1290,7 +1150,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     inReview,
                     applicantRequestedAction,
                     readOnlyApplicantProgramService,
-                    /* flashingMap= */ ImmutableMap.of());
+                    /* flashingMap= */ ImmutableMap.of(),
+                    programSlugUrlsEnabled);
               }
               return applicantService
                   .stageAndUpdateIfValid(
@@ -1318,7 +1179,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .exceptionally(this::handleUpdateExceptions);
   }
 
-  /**
+  /*
    * Returns true if applicants can immediately navigate away from a block because they haven't even
    * started answering it. Returns false if applicants have started answering the block or answered
    * the block in the past.
@@ -1356,10 +1217,23 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure
   public CompletionStage<Result> update(
       Request request,
-      long programId,
+      String programParam,
       String blockId,
       boolean inReview,
       ApplicantRequestedActionWrapper applicantRequestedActionWrapper) {
+
+    // Redirect home when the program param is the program id (numeric) but it should be the program
+    // slug because the program slug URL is enabled
+    if (settingsManifest.getProgramSlugUrlsEnabled(request)
+        && StringUtils.isNumeric(programParam)) {
+      metricCounters
+          .getUrlWithProgramIdCall()
+          .labels(
+              "/programs/:programParam/blocks/:blockId/:inReview/:applicantRequestedActionWrapper",
+              programParam)
+          .inc();
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
@@ -1369,7 +1243,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     return updateWithApplicantId(
         request,
         applicantId.orElseThrow(),
-        programId,
+        programParam,
         blockId,
         inReview,
         applicantRequestedActionWrapper);
@@ -1426,13 +1300,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     errorDisplayMode,
                     applicantRoutes,
                     submittingProfile);
-            final String programSlug;
-            try {
-              programSlug = programService.getSlug(programId);
-            } catch (ProgramNotFoundException e) {
-              return notFound(e.toString());
-            }
-            return ok(applicantProgramBlockEditView.render(request, applicationParams, programSlug))
+            return ok(applicantProgramBlockEditView.render(request, applicationParams))
                 .as(Http.MimeTypes.HTML);
           });
     }
@@ -1461,9 +1329,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         programId,
                         blockId,
                         inReview,
-                        roApplicantProgramService,
-                        thisBlockUpdated,
-                        personalInfo,
                         applicantRequestedAction));
       }
     }
@@ -1471,17 +1336,24 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     try {
       ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
       if (shouldRenderIneligibleBlockView(roApplicantProgramService, programDefinition, blockId)) {
-        return renderIneligiblePage(
-            request,
-            submittingProfile,
-            applicantId,
-            personalInfo,
-            roApplicantProgramService,
-            programDefinition,
-            blockId);
+        if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+          return supplyAsync(
+              () ->
+                  redirect(
+                      applicantRoutes.showIneligible(
+                          submittingProfile,
+                          applicantId,
+                          programSlugHandler.getProgramSlug(String.valueOf(programId)),
+                          Optional.of(blockId))));
+        }
+        return supplyAsync(
+            () ->
+                redirect(
+                    applicantRoutes.showIneligible(
+                        submittingProfile, applicantId, programId, Optional.of(blockId))));
       }
     } catch (ProgramNotFoundException e) {
-      return supplyAsync(() -> notFound(e.toString()));
+      return supplyAsync(() -> notFound());
     }
 
     Map<String, String> flashingMap = new HashMap<>();
@@ -1494,38 +1366,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         inReview,
         applicantRequestedAction,
         roApplicantProgramService,
-        flashingMap);
-  }
-
-  private CompletionStage<Result> renderIneligiblePage(
-      Request request,
-      CiviFormProfile profile,
-      long applicantId,
-      ApplicantPersonalInfo personalInfo,
-      ReadOnlyApplicantProgramService roApplicantProgramService,
-      ProgramDefinition programDefinition,
-      String blockId) {
-    Optional<BlockDefinition> blockDefinition;
-    try {
-      blockDefinition = Optional.of(programDefinition.getBlockDefinition(blockId));
-    } catch (ProgramBlockDefinitionNotFoundException e) {
-      throw new RuntimeException(e);
-    }
-    return supplyAsync(
-        () -> {
-          ApplicantIneligibleView.Params params =
-              ApplicantIneligibleView.Params.builder()
-                  .setRequest(request)
-                  .setApplicantId(applicantId)
-                  .setProfile(profile)
-                  .setApplicantPersonalInfo(personalInfo)
-                  .setProgramDefinition(programDefinition)
-                  .setBlockDefinition(blockDefinition)
-                  .setRoApplicantProgramService(roApplicantProgramService)
-                  .setMessages(messagesApi.preferred(request))
-                  .build();
-          return ok(applicantIneligibleView.render(params)).as(Http.MimeTypes.HTML);
-        });
+        flashingMap,
+        settingsManifest.getProgramSlugUrlsEnabled(request));
   }
 
   /** Returns the correct page based on the given {@code applicantRequestedAction}. */
@@ -1537,39 +1379,79 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean inReview,
       ApplicantRequestedAction applicantRequestedAction,
       ReadOnlyApplicantProgramService roApplicantProgramService,
-      Map<String, String> flashingMap) {
+      Map<String, String> flashingMap,
+      boolean programSlugUrlsEnabled) {
     if (applicantRequestedAction == REVIEW_PAGE) {
+      if (programSlugUrlsEnabled) {
+        return supplyAsync(
+            () ->
+                redirect(
+                    applicantRoutes.review(
+                        profile, applicantId, roApplicantProgramService.getProgramSlug())));
+      }
       return supplyAsync(() -> redirect(applicantRoutes.review(profile, applicantId, programId)));
     }
     if (applicantRequestedAction == PREVIOUS_BLOCK) {
       int currentBlockIndex = roApplicantProgramService.getBlockIndex(blockId);
       return supplyAsync(
-          () ->
-              redirect(
+          () -> {
+            if (programSlugUrlsEnabled) {
+              return redirect(
                   applicantRoutes
                       .blockPreviousOrReview(
-                          profile, applicantId, programId, currentBlockIndex, inReview)
-                      .url()));
+                          profile,
+                          applicantId,
+                          roApplicantProgramService.getProgramSlug(),
+                          currentBlockIndex,
+                          inReview)
+                      .url());
+            }
+            return redirect(
+                applicantRoutes
+                    .blockPreviousOrReview(
+                        profile, applicantId, programId, currentBlockIndex, inReview)
+                    .url());
+          });
     }
 
     Optional<String> nextBlockIdMaybe =
         inReview
-            ? roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().map(Block::getId)
+            ? roApplicantProgramService
+                .getFirstBlockRequiringAction(/* includeStatic= */ false)
+                .map(Block::getId)
             : roApplicantProgramService.getInProgressBlockAfter(blockId).map(Block::getId);
     return nextBlockIdMaybe
         .map(
             nextBlockId ->
                 supplyAsync(
-                    () ->
-                        redirect(
+                    () -> {
+                      if (programSlugUrlsEnabled) {
+                        return redirect(
                                 applicantRoutes.blockEditOrBlockReview(
-                                    profile, applicantId, programId, nextBlockId, inReview))
-                            .flashing(flashingMap)))
+                                    profile,
+                                    applicantId,
+                                    roApplicantProgramService.getProgramSlug(),
+                                    nextBlockId,
+                                    inReview))
+                            .flashing(flashingMap);
+                      }
+                      return redirect(
+                              applicantRoutes.blockEditOrBlockReview(
+                                  profile, applicantId, programId, nextBlockId, inReview))
+                          .flashing(flashingMap);
+                    }))
         // No next block so go to the program review page.
         .orElseGet(
             () ->
                 supplyAsync(
-                    () -> redirect(applicantRoutes.review(profile, applicantId, programId))));
+                    () -> {
+                      if (programSlugUrlsEnabled) {
+                        return redirect(
+                            applicantRoutes.review(
+                                profile, applicantId, roApplicantProgramService.getProgramSlug()));
+                      }
+                      return redirect(applicantRoutes.review(profile, applicantId, programId));
+                    }));
   }
 
   /**
@@ -1588,9 +1470,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long programId,
       String blockId,
       boolean inReview,
-      ReadOnlyApplicantProgramService roApplicantProgramService,
-      Block thisBlockUpdated,
-      ApplicantPersonalInfo personalInfo,
       ApplicantRequestedAction applicantRequestedAction) {
     ImmutableList<AddressSuggestion> suggestions = addressSuggestionGroup.getAddressSuggestions();
 
@@ -1610,35 +1489,23 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
           suggestions,
           applicantRequestedAction);
     } else {
-      String json = addressSuggestionJsonSerializer.serialize(suggestions);
-
-      Boolean isEligibilityEnabledOnThisBlock =
-          thisBlockUpdated.getLeafAddressNodeServiceAreaIds().isPresent();
-
       CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
-      ApplicationBaseViewParams applicationParams =
-          buildApplicationBaseViewParams(
-              request,
-              applicantId,
-              programId,
-              blockId,
-              inReview,
-              roApplicantProgramService,
-              thisBlockUpdated,
-              personalInfo,
-              ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS,
-              applicantRoutes,
-              profile);
+      if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+        return CompletableFuture.completedFuture(
+            redirect(
+                applicantRoutes.showAddressCorrection(
+                    profile,
+                    applicantId,
+                    programSlugHandler.getProgramSlug(String.valueOf(programId)),
+                    blockId,
+                    inReview,
+                    applicantRequestedAction)));
+      }
       return CompletableFuture.completedFuture(
-          ok(addressCorrectionBlockView.render(
-                  request,
-                  applicationParams,
-                  addressSuggestionGroup,
-                  applicantRequestedAction,
-                  isEligibilityEnabledOnThisBlock))
-              .as(Http.MimeTypes.HTML)
-              .addingToSession(request, ADDRESS_JSON_SESSION_KEY, json));
+          redirect(
+              applicantRoutes.showAddressCorrection(
+                  profile, applicantId, programId, blockId, inReview, applicantRequestedAction)));
     }
   }
 
@@ -1687,6 +1554,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .setProgramDescription(roApplicantProgramService.getProgramDescription())
         .setProgramShortDescription(roApplicantProgramService.getProgramShortDescription())
         .setProgramId(programId)
+        .setProgramSlug(roApplicantProgramService.getProgramSlug())
         .setBlock(block)
         .setInReview(inReview)
         .setBlockIndex(roApplicantProgramService.getBlockIndex(blockId))
@@ -1732,7 +1600,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .build();
   }
 
-  /** Gets StoredFileModel for {@code key}, creating one if it is not present. */
   private CompletionStage<StoredFileModel> getOrMakeFileRecord(
       String key, Optional<String> originalFileName, long applicantId) {
     return storedFileRepository
@@ -1810,12 +1677,22 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    * @return {@link Result} if application was updated; empty if not
    */
   private Optional<Result> updateApplicationToLatestProgramVersionIfNeeded(
-      long applicantId, long programId, CiviFormProfile profile) {
+      long applicantId,
+      long programId,
+      CiviFormProfile profile,
+      boolean programSlugUrlsEnabled,
+      ReadOnlyApplicantProgramService roApplicantProgramService) {
     return applicantService
         .updateApplicationToLatestProgramVersion(applicantId, programId)
         .map(
-            latestProgramId ->
-                redirect(applicantRoutes.review(profile, applicantId, latestProgramId).url())
-                    .flashing(FlashKey.SHOW_FAST_FORWARDED_MESSAGE, "true"));
+            (latestProgramId) -> {
+              String reviewPage =
+                  applicantRoutes.review(profile, applicantId, latestProgramId).url();
+              if (programSlugUrlsEnabled) {
+                String programSlug = roApplicantProgramService.getProgramSlug();
+                reviewPage = applicantRoutes.review(profile, applicantId, programSlug).url();
+              }
+              return redirect(reviewPage).flashing(FlashKey.SHOW_FAST_FORWARDED_MESSAGE, "true");
+            });
   }
 }

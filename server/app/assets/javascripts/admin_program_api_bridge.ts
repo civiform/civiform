@@ -1,4 +1,4 @@
-import {HtmxAfterSwapEvent} from '@/htmx_request'
+import {HtmxAfterSwapEvent} from '@/types/htmx'
 
 /**
  * Client side event handlers for the program api bridge edit page only
@@ -6,7 +6,7 @@ import {HtmxAfterSwapEvent} from '@/htmx_request'
 export class AdminProgramApiBridge {
   static init(event: HtmxAfterSwapEvent): void {
     // Only update if the target is the 'output' element in this swap
-    if (event.target.id !== 'output') {
+    if (event.detail.target.id !== 'output') {
       return
     }
 

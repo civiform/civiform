@@ -11,6 +11,7 @@ import static play.mvc.Http.Status.SEE_OTHER;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
+import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -37,7 +38,6 @@ import services.program.ProgramDefinition;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
-import views.applicant.ineligible.ApplicantIneligibleView;
 import views.applicant.review.ApplicantProgramSummaryView;
 
 public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
@@ -67,7 +67,6 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
             instanceOf(ClassLoaderExecutionContext.class),
             instanceOf(MessagesApi.class),
             instanceOf(ApplicantProgramSummaryView.class),
-            instanceOf(ApplicantIneligibleView.class),
             instanceOf(ProfileUtils.class),
             settingsManifest,
             instanceOf(ProgramService.class),
@@ -85,8 +84,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     Request request = fakeRequestBuilder().build();
     when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
 
-    Result result =
-        subject.review(request, programId, /* isFromUrlCall= */ true).toCompletableFuture().join();
+    Result result = subject.review(request, programId).toCompletableFuture().join();
 
     // Redirects to home since program IDs are not supported when feature is enabled and program
     // param expects a program slug
@@ -104,11 +102,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   @Test
   public void review_whenProgramSlugUrlsFeatureDisabledAndIsProgramIdFromUrl_isOk() {
     String programId = String.valueOf(activeProgram.id);
-    Result result =
-        subject
-            .review(fakeRequest(), programId, /* isFromUrlCall= */ true)
-            .toCompletableFuture()
-            .join();
+    Result result = subject.review(fakeRequest(), programId).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
   }
 
@@ -121,7 +115,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   @Test
   public void review_whenProgramSlugUrlsFeatureDisabledAndIsProgramSlugFromUrl_error() {
     String programSlug = activeProgram.getSlug();
-    assertThatThrownBy(() -> subject.review(fakeRequest(), programSlug, /* isFromUrlCall= */ true))
+    assertThatThrownBy(() -> subject.review(fakeRequest(), programSlug))
         .isInstanceOf(RuntimeException.class)
         .hasMessage("Could not parse value from '' to a numeric value");
   }
@@ -134,8 +128,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
     Result result =
         subject
-            .reviewWithApplicantId(
-                request, applicant.id, Long.toString(activeProgram.id), /* isFromUrlCall= */ true)
+            .reviewWithApplicantId(request, applicant.id, Long.toString(activeProgram.id))
             .toCompletableFuture()
             .join();
 
@@ -177,20 +170,12 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
       reviewWithApplicantId_whenProgramSlugUrlsFeatureDisabledAndIsProgramSlugFromUrl_error() {
     String programSlug = activeProgram.getSlug();
     assertThatThrownBy(
-            () ->
-                subject.reviewWithApplicantId(
-                    fakeRequest(), applicant.id, programSlug, /* isFromUrlCall= */ true))
+            () -> subject.reviewWithApplicantId(fakeRequest(), applicant.id, programSlug))
         .isInstanceOf(RuntimeException.class)
         .hasMessage("Could not parse value from '' to a numeric value");
   }
 
-  /**
-   * Tests that reviewWithApplicantId() returns OK when the feature is enabled and is from url call
-   * with a program slug. reviewWithApplicantId() also returns OK for other combinations: when the
-   * feature is disabled OR when the call is not from a URL OR when the program param is a program
-   * slug (not numeric), AND the program ID was properly retrieved. We don't test all combinations
-   * here because the ProgramSlugHandler tests have a comprehensive test cover for them.
-   */
+  /** Tests that reviewWithApplicantId() returns OK when the feature is enabled. */
   @Test
   public void
       reviewWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_isOk() {
@@ -200,7 +185,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
     Result result =
         subject
-            .reviewWithApplicantId(request, applicant.id, programSlug, /* isFromUrlCall= */ true)
+            .reviewWithApplicantId(request, applicant.id, programSlug)
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(OK);
@@ -309,7 +294,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
     answer(programDefinition.id());
 
-    var programId = programDefinition.id();
+    var programId = String.valueOf(programDefinition.id());
 
     ApplicantModel tiApplicant = createApplicant();
     createTIWithMockedProfile(tiApplicant);
@@ -331,7 +316,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     assertThat(result.redirectLocation().get())
         .isEqualTo(
             routes.ApplicantProgramReviewController.reviewWithApplicantId(
-                    tiApplicant.id, Long.toString(newProgramModel.id), /* isFromUrlCall= */ false)
+                    tiApplicant.id, Long.toString(newProgramModel.id))
                 .url());
 
     // An application was not submitted
@@ -358,7 +343,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
     answer(programDefinition.id());
 
-    var programId = programDefinition.id();
+    var programId = String.valueOf(programDefinition.id());
 
     Result result =
         blockController
@@ -375,8 +360,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     assertThat(result.redirectLocation().isPresent()).isTrue();
     assertThat(result.redirectLocation().get())
         .isEqualTo(
-            routes.ApplicantProgramReviewController.review(
-                    Long.toString(newProgramModel.id), /* isFromUrlCall= */ false)
+            routes.ApplicantProgramReviewController.review(Long.toString(newProgramModel.id))
                 .url());
 
     // An application was not submitted
@@ -465,17 +449,123 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     assertThat(applications.asList().get(0).getProgram().id).isEqualTo(activeProgram.id);
   }
 
+  @Test
+  public void
+      submit_duplicate_withProgramSlugUrlsEnabled_handlesErrorAndDoesNotSaveDuplicateApplication() {
+    Request request = fakeRequest();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    ProgramModel activeProgram =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().staticContent())
+            .build();
+    answer(activeProgram.id);
+
+    subject
+        .submitWithApplicantId(request, applicant.id, activeProgram.id)
+        .toCompletableFuture()
+        .join();
+
+    // Submit the application again without editing
+    Result noEditsResult =
+        subject
+            .submitWithApplicantId(request, applicant.id, activeProgram.id)
+            .toCompletableFuture()
+            .join();
+    // Error is handled and applicant is redirected to review page with flash message
+    assertThat(noEditsResult.status()).isEqualTo(FOUND);
+    assertThat(noEditsResult.redirectLocation().get()).contains("/review");
+
+    // Edit the application but re-enter the same values
+    answer(activeProgram.id);
+    Result sameValuesResult =
+        subject
+            .submitWithApplicantId(request, applicant.id, activeProgram.id)
+            .toCompletableFuture()
+            .join();
+    // Error is handled and applicant is redirected to review page with flash message
+    assertThat(sameValuesResult.status()).isEqualTo(FOUND);
+    String reviewRoute =
+        routes.ApplicantProgramReviewController.review(activeProgram.getSlug()).url();
+    assertThat(sameValuesResult.redirectLocation().get()).isEqualTo(reviewRoute);
+
+    // There is only one application saved in the db
+    ApplicationRepository applicationRepository = instanceOf(ApplicationRepository.class);
+    ImmutableSet<ApplicationModel> applications =
+        applicationRepository
+            .getApplicationsForApplicant(applicant.id, ImmutableSet.of(LifecycleStage.ACTIVE))
+            .toCompletableFuture()
+            .join();
+    assertThat(applications).hasSize(1);
+    assertThat(applications.asList().get(0).getProgram().id).isEqualTo(activeProgram.id);
+  }
+
+  @Test
+  public void submit_withProgramSlugUrlsEnabled_returnsRouteUsingSlug() {
+    Request request = fakeRequest();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    ProgramModel activeProgram =
+        ProgramBuilder.newActiveProgram("test-program")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().staticContent())
+            .build();
+    answer(activeProgram.id);
+
+    Result result =
+        subject
+            .submitWithApplicantId(request, applicant.id, activeProgram.id)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(FOUND);
+    assertThat(result.redirectLocation().get()).contains(activeProgram.getSlug());
+  }
+
+  @Test
+  public void
+      updateApplicationToLatestProgramVersionIfNeeded_withProgramSlugUrlsEnabled_redirectsToReviewWithProgramSlug() {
+    Request request = fakeRequest();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
+            .buildDefinition();
+
+    resourceCreator().insertDraftProgram(programDefinition.adminName());
+    VersionRepository versionRepository = instanceOf(VersionRepository.class);
+    CiviFormProfile profile = mock(CiviFormProfile.class);
+    versionRepository.publishNewSynchronizedVersion();
+    Result result =
+        subject
+            .updateApplicationToLatestProgramVersionIfNeeded(
+                applicant.id, programDefinition.id(), profile, /* programSlugUrlsEnabled= */ true)
+            .get();
+
+    // assertThat(result.status()).isEqualTo(FOUND);
+    String reviewRoute =
+        routes.ApplicantProgramReviewController.review(programDefinition.slug()).url();
+    assertThat(result.redirectLocation().get()).isEqualTo(reviewRoute);
+  }
+
   public Result reviewWithApplicantId(long applicantId, long programId) {
     String programIdStr = String.valueOf(programId);
     Request request =
         fakeRequestBuilder()
             .call(
                 routes.ApplicantProgramReviewController.reviewWithApplicantId(
-                    applicantId, programIdStr, /* isFromUrlCall= */ false))
+                    applicantId, programIdStr))
             .header(skipUserProfile, "false")
             .build();
     return subject
-        .reviewWithApplicantId(request, applicantId, programIdStr, /* isFromUrlCall= */ false)
+        .reviewWithApplicantId(request, applicantId, programIdStr)
         .toCompletableFuture()
         .join();
   }
@@ -510,7 +600,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
             .updateWithApplicantId(
                 request,
                 applicant.id,
-                programId,
+                String.valueOf(programId),
                 /* blockId= */ "1",
                 /* inReview= */ false,
                 new ApplicantRequestedActionWrapper())

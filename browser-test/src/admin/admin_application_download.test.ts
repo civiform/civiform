@@ -443,7 +443,7 @@ test.describe('csv json pdf download test- two applications', () => {
       expect(numberOfGusEntries).toEqual(2)
 
       const postEditJsonContent = await adminPrograms.getJson(noApplyFilters)
-      expect(postEditJsonContent.length).toEqual(3)
+      expect(postEditJsonContent).toHaveLength(3)
       // program name used in JSON export is the admin name. Which we slugified for this test.
       expect(postEditJsonContent[0].program_name).toEqual(
         'test-program-for-export',
@@ -481,7 +481,7 @@ test.describe('csv json pdf download test- two applications', () => {
       )
       expect(filteredCsvContent).not.toContain('Gus')
       const filteredJsonContent = await adminPrograms.getJson(applyFilters)
-      expect(filteredJsonContent.length).toEqual(1)
+      expect(filteredJsonContent).toHaveLength(1)
       expect(
         filteredJsonContent[0].application.sample_name_question.first_name,
       ).toEqual('sarah')
@@ -498,7 +498,7 @@ test.describe('csv json pdf download test- two applications', () => {
         '2000.00,01/01/1990,op2_admin,1600,Gus,,Guest,,',
       )
       const allJsonContent = await adminPrograms.getJson(noApplyFilters)
-      expect(allJsonContent.length).toEqual(3)
+      expect(allJsonContent).toHaveLength(3)
       expect(
         allJsonContent[0].application.sample_name_question.first_name,
       ).toEqual('Gus')

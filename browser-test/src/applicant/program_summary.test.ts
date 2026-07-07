@@ -178,8 +178,17 @@ test.describe('Applicant navigation flow', () => {
   }) => {
     const programName = 'Test program for single file upload'
     const fileUploadQuestionText = 'Required file upload question'
-    const fileName = 'foo.txt'
-    const fileContent = 'some sample text'
+    const fileName = 'foo.pdf'
+    const payload = 'some sample text'
+    const fileContent =
+      '%PDF-1.4\n' +
+      '1 0 obj\n' +
+      '<< /Type /Catalog >>\n' +
+      'endobj\n' +
+      'trailer\n' +
+      '<<>>\n' +
+      '%%EOF\n' +
+      payload
 
     await test.step('As admin, set up program', async () => {
       await loginAsAdmin(page)
@@ -198,7 +207,7 @@ test.describe('Applicant navigation flow', () => {
 
     await test.step('Upload file', async () => {
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerFileUploadQuestion(fileContent, fileName)
+      await applicantQuestions.answerFileUploadQuestion(payload, fileName)
       await applicantQuestions.clickContinue()
       await applicantQuestions.gotoApplicantHomePage()
     })

@@ -1500,7 +1500,8 @@ public class ProgramServiceTest extends ResetPostgres {
         program.id(),
         1L,
         ImmutableList.of(question.getId()),
-        /* enumeratorImprovementsEnabled= */ false);
+        /* enumeratorImprovementsEnabled= */ false,
+        /* fileUploadQuestionImprovementsEnabled= */ false);
 
     ProgramDefinition found =
         ps.updateProgramDefinition(
@@ -2001,7 +2002,8 @@ public class ProgramServiceTest extends ResetPostgres {
         program.id(),
         1L,
         ImmutableList.of(question.getId()),
-        /* enumeratorImprovementsEnabled= */ false);
+        /* enumeratorImprovementsEnabled= */ false,
+        /* fileUploadQuestionImprovementsEnabled= */ false);
 
     ProgramDefinition found = ps.getFullProgramDefinition(program.id());
 
@@ -2588,7 +2590,8 @@ public class ProgramServiceTest extends ResetPostgres {
                     program.id,
                     1L,
                     ImmutableList.of(questionA.getId()),
-                    /* enumeratorImprovementsEnabled= */ false))
+                    /* enumeratorImprovementsEnabled= */ false,
+                    /* fileUploadQuestionImprovementsEnabled= */ false))
         .isInstanceOf(CantAddQuestionToBlockException.class)
         .hasMessage(
             String.format(
@@ -2613,7 +2616,8 @@ public class ProgramServiceTest extends ResetPostgres {
             program.id(),
             1L,
             ImmutableList.of(questionB.getId()),
-            /* enumeratorImprovementsEnabled= */ false);
+            /* enumeratorImprovementsEnabled= */ false,
+            /* fileUploadQuestionImprovementsEnabled= */ false);
 
     assertThat(program.hasQuestion(questionA)).isTrue();
     assertThat(program.hasQuestion(questionB)).isTrue();
@@ -2629,10 +2633,72 @@ public class ProgramServiceTest extends ResetPostgres {
             program.id(),
             1L,
             ImmutableList.of(enumeratorQuestion.getId()),
-            /* enumeratorImprovementsEnabled= */ false);
+            /* enumeratorImprovementsEnabled= */ false,
+            /* fileUploadQuestionImprovementsEnabled= */ false);
 
     assertThat(program.hasQuestion(enumeratorQuestion)).isTrue();
     assertThat(program.getBlockDefinitionByIndex(0).get().getIsEnumerator()).isTrue();
+  }
+
+  @Test
+  public void
+      addQuestionsToBlock_isRepeatedBlockWithNonEnumeratorQuestion_enumeratorImprovementsEnabled_createsQuestionCopy()
+          throws Exception {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withName("enumerator")
+            .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
+            .withRepeatedBlock("repeatedBlock")
+            .buildDefinition();
+
+    programDefinition =
+        ps.addQuestionsToBlock(
+            programDefinition.id(),
+            2L,
+            ImmutableList.of(nameQuestion.getId()),
+            /* enumeratorImprovementsEnabled= */ true,
+            /* fileUploadQuestionImprovementsEnabled= */ false);
+    assertThat(programDefinition.getBlockDefinitionByIndex(0).get().hasEnumeratorQuestion())
+        .isTrue();
+
+    BlockDefinition repeatedBlock = programDefinition.getBlockDefinitionByIndex(1).get();
+    assertThat(repeatedBlock.isRepeated()).isTrue();
+    assertThat(programDefinition.hasQuestion(nameQuestion)).isFalse();
+    assertThat(repeatedBlock.getQuestionCount()).isEqualTo(1);
+
+    QuestionDefinition repeatedQuestion = repeatedBlock.getQuestionDefinition(0);
+    assertThat(repeatedQuestion.getEnumeratorId().get())
+        .isEqualTo(testQuestionBank.enumeratorApplicantHouseholdMembers().id);
+    assertThat(repeatedQuestion.getName()).isEqualTo(nameQuestion.getName() + " -_- a");
+  }
+
+  @Test
+  public void
+      addQuestionsToBlock_isRepeatedBlockWithNonEnumeratorQuestion_enumeratorImprovementsDisabled_throws()
+          throws Exception {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withName("enumerator")
+            .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
+            .withRepeatedBlock("repeatedBlock")
+            .buildDefinition();
+
+    assertThatThrownBy(
+            () ->
+                ps.addQuestionsToBlock(
+                    programDefinition.id(),
+                    2L,
+                    ImmutableList.of(nameQuestion.getId()),
+                    /* enumeratorImprovementsEnabled= */ false,
+                    /* fileUploadQuestionImprovementsEnabled= */ false))
+        .isInstanceOf(CantAddQuestionToBlockException.class)
+        .hasMessage(
+            String.format(
+                "Can't add question to the block. Error: %s. Program ID %d, block ID %d, question"
+                    + " ID %d",
+                "ENUMERATOR_MISMATCH", programDefinition.id(), 2L, nameQuestion.getId()));
   }
 
   @Test
@@ -2692,7 +2758,8 @@ public class ProgramServiceTest extends ResetPostgres {
             program.id(),
             1L,
             ImmutableList.of(enumeratorQuestion.getId()),
-            /* enumeratorImprovementsEnabled= */ false);
+            /* enumeratorImprovementsEnabled= */ false,
+            /* fileUploadQuestionImprovementsEnabled= */ false);
 
     assertThat(program.hasQuestion(enumeratorQuestion)).isTrue();
     assertThat(program.getBlockDefinitionByIndex(0).get().getIsEnumerator()).isTrue();
@@ -2723,7 +2790,8 @@ public class ProgramServiceTest extends ResetPostgres {
             programDefinition.id(),
             1L,
             ImmutableList.of(enumeratorQuestion.getId()),
-            /* enumeratorImprovementsEnabled= */ true);
+            /* enumeratorImprovementsEnabled= */ true,
+            /* fileUploadQuestionImprovementsEnabled= */ false);
 
     assertThat(programDefinition.hasQuestion(enumeratorQuestion)).isTrue();
     assertThat(programDefinition.getBlockDefinitionByIndex(0).get().getIsEnumerator()).isTrue();
@@ -4095,14 +4163,33 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void deleteSummaryImageFileKey_hadFileKey_keyRemoved() throws ProgramNotFoundException {
+  public void deleteSummaryImageFileKey_hadFileKey_keyRemoved()
+      throws ProgramNotFoundException, TranslationNotFoundException {
     ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
     ProgramDefinition setResult = ps.setSummaryImageFileKey(program.id(), "fileKey1.png");
     assertThat(setResult.summaryImageFileKey()).isPresent();
+    ps.setSummaryImageDescription(program.id(), Locale.US, "Alt text");
 
     ProgramDefinition deleteResult = ps.deleteSummaryImageFileKey(program.id());
 
     assertThat(deleteResult.summaryImageFileKey()).isEmpty();
+    assertThat(deleteResult.localizedSummaryImageDescription()).isPresent();
+    assertThat(deleteResult.localizedSummaryImageDescription().get().get(Locale.US))
+        .isEqualTo("Alt text");
+  }
+
+  @Test
+  public void deleteSummaryImageFileKey_andClearDescription_clearsFileKeyAndDescription()
+      throws ProgramNotFoundException {
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
+    ps.setSummaryImageFileKey(program.id(), "fileKey1.png");
+    ps.setSummaryImageDescription(program.id(), Locale.US, "Alt text");
+
+    ps.deleteSummaryImageFileKey(program.id());
+    ProgramDefinition deleteResult = ps.setSummaryImageDescription(program.id(), Locale.US, "");
+
+    assertThat(deleteResult.summaryImageFileKey()).isEmpty();
+    assertThat(deleteResult.localizedSummaryImageDescription()).isEmpty();
   }
 
   @Test

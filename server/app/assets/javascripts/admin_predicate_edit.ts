@@ -1,4 +1,4 @@
-import {HtmxAfterSwapEvent} from '@/htmx_request'
+import {HtmxAfterSwapEvent} from '@/types/htmx'
 import {addEventListenerToElements, assertNotNull} from '@/util'
 
 export class AdminPredicateEdit {
@@ -23,11 +23,11 @@ export class AdminPredicateEdit {
   static INITIAL_PREDICATE_FORM_STATE: string
 
   static onHtmxAfterSwap(event: HtmxAfterSwapEvent): void {
-    const targetId: string = event.target.id
+    const targetId: string = event.detail.target.id
     // Update for changes to 'subcondition-container', and also refreshes of condition lists.
     // The predicate list refreshes occur when a condition is deleted.
     if (
-      event.target.classList.contains('subcondition-container') ||
+      event.detail.target.classList.contains('subcondition-container') ||
       targetId === 'predicate-conditions-list' ||
       this.SUBCONDITION_LIST_ID_REGEX.test(targetId)
     ) {
@@ -359,13 +359,12 @@ export class AdminPredicateEdit {
     // Focus the first dropdown in the root node operator select.
     const visibilityBehaviorDropdown: HTMLSelectElement | null =
       nodeOperatorSelect.querySelector('#visibility-predicate-action-select')
-    const logicDropdown: HTMLSelectElement = assertNotNull(
-      nodeOperatorSelect.querySelector('#root-node-type'),
-    ) as HTMLSelectElement
+    const logicDropdown: HTMLSelectElement | null =
+      nodeOperatorSelect.querySelector('#root-node-type')
 
     if (visibilityBehaviorDropdown) {
       setTimeout(() => visibilityBehaviorDropdown.focus(), 100)
-    } else {
+    } else if (logicDropdown) {
       setTimeout(() => logicDropdown.focus(), 100)
     }
   }
@@ -544,8 +543,8 @@ export class AdminPredicateEdit {
       return
     }
 
-    const defaultInputField = assertNotNull(
-      defaultInputContainer.querySelector('input.usa-input'),
+    const defaultInputField = defaultInputContainer.querySelector(
+      'input.usa-input',
     ) as HTMLElement
     const csvInputContainer = document.querySelector(
       `#${firstValueInputGroupId} [data-csv-input-type]`,
@@ -568,18 +567,14 @@ export class AdminPredicateEdit {
     // Depending on the currently selected operator, filter visible input fields
     // Date operators vs. age operators vs. csv operators use different input fields.
     if (defaultInputField.hasAttribute('data-date-value')) {
-      const ageInputContainer = assertNotNull(
-        document.querySelector(
-          `#${firstValueInputGroupId} [data-age-input-type][data-first-input]`,
-        ),
+      const ageInputContainer = document.querySelector(
+        `#${firstValueInputGroupId} [data-age-input-type][data-first-input]`,
       ) as HTMLElement
-      const secondDateInputContainer = assertNotNull(
-        document.querySelector(
-          `#${secondValueGroupId} [data-default-input-type]`,
-        ),
+      const secondDateInputContainer = document.querySelector(
+        `#${secondValueGroupId} [data-default-input-type]`,
       ) as HTMLElement
-      const secondAgeInputContainer = assertNotNull(
-        document.querySelector(`#${secondValueGroupId} [data-age-input-type]`),
+      const secondAgeInputContainer = document.querySelector(
+        `#${secondValueGroupId} [data-age-input-type]`,
       ) as HTMLElement
       this.filterDateQuestionVisibleInputs(
         selectedOperatorValue,
@@ -755,8 +750,8 @@ export class AdminPredicateEdit {
     defaultInput: HTMLElement,
     csvInputContainer: HTMLElement,
   ) {
-    let hiddenElements = []
-    let shownElements = []
+    let hiddenElements
+    let shownElements
     if (AdminPredicateEdit.CSV_OPERATORS.includes(selectedOperatorValue)) {
       hiddenElements = [defaultInput]
       shownElements = [csvInputContainer]
@@ -789,8 +784,8 @@ export class AdminPredicateEdit {
   ) {
     const ageOperators = ['AGE_BETWEEN', 'AGE_OLDER_THAN', 'AGE_YOUNGER_THAN']
 
-    let hiddenElements: HTMLElement[] = []
-    let shownElements: HTMLElement[] = []
+    let hiddenElements: HTMLElement[]
+    let shownElements: HTMLElement[]
     if (ageOperators.includes(selectedOperatorValue)) {
       hiddenElements = [
         dateInputContainer,

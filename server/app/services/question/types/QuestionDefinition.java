@@ -278,12 +278,25 @@ public abstract class QuestionDefinition {
    *
    * <p>If a question definition does not have an enumeratorId, it is not repeated.
    *
-   * @return the {@link QuestionDefinition#id} for this question definition's enumerator, if it
-   *     exists.
+   * @return the {@link QuestionDefinition#getId()}} for this question definition's enumerator, if
+   *     it exists.
    */
   @JsonIgnore
   public final Optional<Long> getEnumeratorId() {
     return config.enumeratorId();
+  }
+
+  /**
+   * The id of the non-enumerator question that will be shown repeatedly on the enumerator screen as
+   * a way to get the list of repeated entities. Only present on enumerator questions via the
+   * new-flow.
+   *
+   * <p>For example, the enumerator question "List your household members", may have an initial
+   * question asking for the name of each household member.
+   */
+  @JsonIgnore
+  public final Optional<Long> getEnumeratorInitialQuestionId() {
+    return config.enumeratorInitialQuestionId();
   }
 
   /**
@@ -381,18 +394,9 @@ public abstract class QuestionDefinition {
     return validate(Optional.empty());
   }
 
-  /**
-   * Validate that all required fields are present and valid for the question.
-   *
-   * <p>If {@code previousDefinition} is provided, only the admin names of the new {@link
-   * QuestionOption} need to pass validation.
-   *
-   * @param previousDefinition the optional previous version of the {@link QuestionDefinition}
-   * @throws IllegalArgumentException if the previousDefinition is not of the same type as this
-   *     definition.
-   */
   public final ImmutableSet<CiviFormError> validate(
-      Optional<QuestionDefinition> previousDefinition) {
+      Optional<QuestionDefinition> previousDefinition,
+      boolean requireLegacyRepeatedEntitySelector) {
     if (previousDefinition.isPresent()
         && previousDefinition.get().getQuestionType() != getQuestionType()) {
       throw new IllegalArgumentException(
@@ -422,12 +426,29 @@ public abstract class QuestionDefinition {
               String.format("Administrative identifier '%s' is not allowed", getName())));
     }
 
-    if (isRepeated() && !questionTextContainsRepeatedEntityNameFormatString()) {
+    if (requireLegacyRepeatedEntitySelector
+        && isRepeated()
+        && !questionTextContainsRepeatedEntityNameFormatString()) {
       errors.add(CiviFormError.of("Repeated questions must reference '$this' in the text"));
     }
 
     errors.addAll(internalValidate(previousDefinition));
     return errors.build();
+  }
+
+  /**
+   * Validate that all required fields are present and valid for the question.
+   *
+   * <p>If {@code previousDefinition} is provided, only the admin names of the new {@link
+   * QuestionOption} need to pass validation.
+   *
+   * @param previousDefinition the optional previous version of the {@link QuestionDefinition}
+   * @throws IllegalArgumentException if the previousDefinition is not of the same type as this
+   *     definition.
+   */
+  public final ImmutableSet<CiviFormError> validate(
+      Optional<QuestionDefinition> previousDefinition) {
+    return validate(previousDefinition, /* requireLegacyRepeatedEntitySelector= */ true);
   }
 
   @Override

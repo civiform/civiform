@@ -322,6 +322,7 @@ public final class ApplicationRepository {
    */
   public CompletionStage<ImmutableSet<ApplicationModel>> getApplicationsForApplicant(
       long applicantId, ImmutableSet<LifecycleStage> stages) {
+
     return supplyAsync(
         () ->
             database
@@ -348,6 +349,7 @@ public final class ApplicationRepository {
    */
   public CompletionStage<Optional<Long>> getLatestProgramId(
       long applicantId, String programSlug, ImmutableSet<LifecycleStage> stages) {
+
     return supplyAsync(
         () ->
             Optional.ofNullable(

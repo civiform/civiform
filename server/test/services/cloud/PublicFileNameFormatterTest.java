@@ -13,6 +13,25 @@ public class PublicFileNameFormatterTest {
   }
 
   @Test
+  public void formatPublicProgramImageFileKey_withFileName_isCorrectlyFormatted() {
+    String fileKey = PublicFileNameFormatter.formatPublicProgramImageFileKey(156, "myImage.png");
+
+    assertThat(fileKey).isEqualTo("program-summary-image/program-156/myImage.png");
+  }
+
+  @Test
+  public void sanitizeProgramImageFileName_stripsPathComponents() {
+    assertThat(PublicFileNameFormatter.sanitizeProgramImageFileName("../../evil.png"))
+        .isEqualTo("evil.png");
+  }
+
+  @Test
+  public void sanitizeProgramImageFileName_stripsNonAlphanumericCharacters() {
+    assertThat(PublicFileNameFormatter.sanitizeProgramImageFileName("my image (1).png"))
+        .isEqualTo("myimage1.png");
+  }
+
+  @Test
   public void isFileKeyForPublicProgramImage_keyFromFormatMethod_isTrue() {
     String filename = PublicFileNameFormatter.formatPublicProgramImageFileKey(156);
 

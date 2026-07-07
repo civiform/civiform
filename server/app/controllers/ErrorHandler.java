@@ -158,6 +158,12 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
    */
   @Override
   protected CompletionStage<Result> onForbidden(RequestHeader request, String message) {
+    if (environment.isDev() && message != null && message.contains("No CSRF token found in body")) {
+      return CompletableFuture.completedFuture(
+          Results.forbidden(
+              "Missing CSRF Token. Make sure the form has the hidden csrfToken input."));
+    }
+
     return CompletableFuture.completedFuture(
         Results.redirect(controllers.routes.HomeController.index().url()));
   }

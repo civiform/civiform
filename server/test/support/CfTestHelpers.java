@@ -9,7 +9,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import javax.inject.Provider;
 import org.mockito.MockedStatic;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
@@ -17,7 +16,6 @@ import play.Application;
 import play.api.test.Helpers;
 import play.mvc.Http;
 import play.mvc.Result;
-import repository.AccountRepository;
 import services.program.predicate.PredicateValue;
 
 public class CfTestHelpers {
@@ -51,16 +49,6 @@ public class CfTestHelpers {
             String.format("http://%s:%d/session/end", host, port))
         .put("auth.oidc_provider_logout", true)
         .build();
-  }
-
-  public static Provider<AccountRepository> userRepositoryProvider(
-      AccountRepository accountRepository) {
-    return new Provider<AccountRepository>() {
-      @Override
-      public AccountRepository get() {
-        return accountRepository;
-      }
-    };
   }
 
   public static OidcConfiguration getOidcConfiguration(String host, int port) {

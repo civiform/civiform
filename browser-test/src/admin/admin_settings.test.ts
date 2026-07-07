@@ -1,4 +1,4 @@
-import {test} from '../support/civiform_fixtures'
+import {test, expect} from '../support/civiform_fixtures'
 import {disableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 
 test.describe('Managing system-wide settings', () => {
@@ -7,37 +7,21 @@ test.describe('Managing system-wide settings', () => {
     await disableFeatureFlag(page, 'allow_civiform_admin_access_programs')
   })
 
-  test('Displays the settings page', async ({page, adminSettings}) => {
-    await test.step('Go to admin settings page and take screenshot', async () => {
-      await page.setViewportSize({
-        width: 1280,
-        height: 720,
-      })
+  test('Navigates to a section via anchor link', async ({
+    page,
+    adminSettings,
+  }) => {
+    await adminSettings.gotoAdminSettings()
+    await page.locator('a:has-text("Branding")').click()
+    await expect(page.locator('h2#branding')).toBeInViewport()
+  })
 
-      await adminSettings.gotoAdminSettings()
-      await validateScreenshot(page, 'admin-settings-page', {fullPage: false})
-    })
+  test('Header wraps at narrow width', async ({page, adminSettings}) => {
+    await page.setViewportSize({width: 768, height: 720})
+    await adminSettings.gotoAdminSettings()
 
-    await test.step('Jump to a specific section', async () => {
-      await page.click('a:has-text("Branding")')
-      await validateScreenshot(page, 'admin-settings-page-scrolled', {
-        fullPage: false,
-      })
-    })
-
-    await test.step('Set viewport to a narrow width and take screenshot', async () => {
-      // We know the header will start to wrap at smaller widths
-      await page.setViewportSize({
-        width: 768,
-        height: 720,
-      })
-
-      await adminSettings.gotoAdminSettings()
-
-      await validateScreenshot(page, 'admin-settings-page-narrow', {
-        fullPage: false,
-      })
-    })
+    const navBar = page.locator('header.usa-header').first()
+    await validateScreenshot(navBar, 'admin-settings-header-narrow')
   })
 
   test('Updates settings on save', async ({adminSettings}) => {

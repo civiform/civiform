@@ -148,7 +148,7 @@ public final class RetryingWSClient implements WSClient {
 
     CompletableFuture<WSResponse> retryFuture = new CompletableFuture<>();
 
-    var unused =
+    var _ =
         scheduler.schedule(
             () -> {
               retryAction

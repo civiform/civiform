@@ -2,7 +2,6 @@ import {test, expect} from '../support/civiform_fixtures'
 import {
   ApplicantQuestions,
   AdminPrograms,
-  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
@@ -794,7 +793,6 @@ test.describe('applicant program index page', () => {
     page,
     adminSettings,
   }) => {
-    await enableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
     await loginAsAdmin(page)
     await adminSettings.gotoAdminSettings()
 
@@ -811,7 +809,6 @@ test.describe('applicant program index page', () => {
     page,
     adminSettings,
   }) => {
-    await enableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
     await loginAsAdmin(page)
     await adminSettings.gotoAdminSettings()
 
@@ -827,7 +824,6 @@ test.describe('applicant program index page', () => {
     page,
     adminSettings,
   }) => {
-    await enableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
     await loginAsAdmin(page)
     await adminSettings.gotoAdminSettings()
 
@@ -837,23 +833,6 @@ test.describe('applicant program index page', () => {
     await logout(page)
 
     await validateScreenshot(page, 'program-index-page-theme-primary-dark-only')
-  })
-
-  test('does not apply color theming on home page when disabled', async ({
-    page,
-    adminSettings,
-  }) => {
-    await disableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
-    await loginAsAdmin(page)
-    await adminSettings.gotoAdminSettings()
-
-    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '#6d4bfa')
-    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY_DARK', '#a72f10')
-
-    await adminSettings.saveChanges()
-    await logout(page)
-
-    await validateScreenshot(page, 'program-index-page-initial-load')
   })
 
   test('shows immigration status info banner on home page when enabled', async ({
@@ -884,7 +863,7 @@ test.describe('applicant program index page with images', () => {
     await loginAsAdmin(page)
     await adminPrograms.addProgram(programName)
     await adminPrograms.goToProgramImagePage(programName)
-    await adminProgramImage.setImageFileAndSubmit(
+    await adminProgramImage.legacySetImageFileAndSubmit(
       'src/assets/program-summary-image-wide.png',
     )
     await adminPrograms.publishAllDrafts()
@@ -913,7 +892,7 @@ test.describe('applicant program index page with images', () => {
     await loginAsAdmin(page)
     await adminPrograms.addProgram(programName)
     await adminPrograms.goToProgramImagePage(programName)
-    await adminProgramImage.setImageFileAndSubmit(
+    await adminProgramImage.legacySetImageFileAndSubmit(
       'src/assets/program-summary-image-tall.png',
     )
     await adminPrograms.publishAllDrafts()
@@ -934,7 +913,7 @@ test.describe('applicant program index page with images', () => {
 
     await adminPrograms.addProgram(programName)
     await adminPrograms.goToProgramImagePage(programName)
-    await adminProgramImage.setImageFileAndSubmit(
+    await adminProgramImage.legacySetImageFileAndSubmit(
       'src/assets/program-summary-image-wide.png',
     )
 
@@ -1002,7 +981,7 @@ test.describe('applicant program index page with images', () => {
       })
 
       await adminPrograms.goToProgramImagePage(programNameInProgressImage)
-      await adminProgramImage.setImageFileAndSubmit(
+      await adminProgramImage.legacySetImageFileAndSubmit(
         'src/assets/program-summary-image-wide.png',
       )
       await adminPrograms.publishAllDrafts()
@@ -1026,7 +1005,7 @@ test.describe('applicant program index page with images', () => {
       await adminPrograms.goToProgramImagePage(
         programNameSubmittedWithImageAndStatus,
       )
-      await adminProgramImage.setImageFileAndSubmit(
+      await adminProgramImage.legacySetImageFileAndSubmit(
         'src/assets/program-summary-image-wide.png',
       )
       await adminPrograms.gotoDraftProgramManageStatusesPage(
@@ -1090,7 +1069,7 @@ test.describe('applicant program index page with images', () => {
 
       await adminPrograms.addProgram(programNameSubmittedImage)
       await adminPrograms.goToProgramImagePage(programNameSubmittedImage)
-      await adminProgramImage.setImageFileAndSubmit(
+      await adminProgramImage.legacySetImageFileAndSubmit(
         'src/assets/program-summary-image-wide.png',
       )
       await adminPrograms.publishAllDrafts()
@@ -1111,7 +1090,7 @@ test.describe('applicant program index page with images', () => {
       const programNameNotStartedImage = 'Not Started Program [Image]'
       await adminPrograms.addProgram(programNameNotStartedImage)
       await adminPrograms.goToProgramImagePage(programNameNotStartedImage)
-      await adminProgramImage.setImageFileAndSubmit(
+      await adminProgramImage.legacySetImageFileAndSubmit(
         'src/assets/program-summary-image-wide.png',
       )
       await adminPrograms.publishAllDrafts()

@@ -1,0 +1,13 @@
+<th:block
+  th:with="fileUploadQuestion=${model.getFileUploadQuestion()}, hxRemoveFileUrl=${model.getHxRemoveFileUrl()}"
+>
+  <th:block
+    th:replace="~{questiontypes/FileUploadOobFragments :: file-key-field(${fileUploadQuestion}, true)}"
+  />
+  <th:block
+    th:replace="~{questiontypes/FileUploadOobFragments :: file-list-display(${fileUploadQuestion}, true)}"
+  />
+  <th:block
+    th:replace="~{questiontypes/FileUploadOobFragments :: file-upload-errors(${fileUploadQuestion}, true)}"
+  />
+</th:block>

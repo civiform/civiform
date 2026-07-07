@@ -1,6 +1,6 @@
-import {test} from '../support/civiform_fixtures'
-import {loginAsAdmin} from '../support'
-import {ProgramLifecycle} from '../support/admin_programs'
+import {expect, test} from '../support/civiform_fixtures'
+import {loginAsAdmin, logout} from '../support'
+import {ProgramLifecycle, ProgramVisibility} from '../support/admin_programs'
 
 test.describe('login only program', () => {
   test('default login only value for any program is false', async ({
@@ -16,6 +16,32 @@ test.describe('login only program', () => {
       )
       await adminPrograms.expectLoginOnlyProgramIsChecked(false)
     })
+  })
+
+  test('login only disabled for external programs', async ({
+    page,
+    adminPrograms,
+  }) => {
+    await test.step('create new external program and verify login only is disabled', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addExternalProgram(
+        'External Program Name',
+        'short program description',
+        'https://usa.gov',
+        ProgramVisibility.PUBLIC,
+      )
+      await adminPrograms.goToProgramDescriptionPage(
+        'External Program Name',
+        ProgramLifecycle.DRAFT,
+      )
+      await expect(
+        page.getByRole('checkbox', {
+          name: 'Require applicants to log in to apply to this program',
+        }),
+      ).toBeDisabled()
+    })
+
+    await logout(page)
   })
 
   test('login only persists through publish', async ({page, adminPrograms}) => {

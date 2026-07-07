@@ -186,7 +186,7 @@ public final class ApplicantService {
   public CompletionStage<ApplicantModel> createApplicant() {
 
     ApplicantModel applicant = new ApplicantModel();
-    return accountRepository.insertApplicant(applicant).thenApply((unused) -> applicant);
+    return accountRepository.insertApplicant(applicant).thenApply(_ -> applicant);
   }
 
   /**
@@ -769,7 +769,9 @@ public final class ApplicantService {
   private CompletableFuture<Void> validateApplicationForSubmission(
       ReadOnlyApplicantProgramService roApplicantProgramService, long programId) {
     // Check that all blocks have been answered.
-    if (!roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().isEmpty()) {
+    if (!roApplicantProgramService
+        .getFirstBlockRequiringAction(/* includeStatic= */ false)
+        .isEmpty()) {
       throw new ApplicationOutOfDateException();
     }
 
@@ -1163,7 +1165,7 @@ public final class ApplicantService {
    *     criteria.
    *     <p>Does not include the Pre-Screener Form.
    *     <p>"Appropriate programs" those returned by {@link #relevantProgramsForApplicant(long,
-   *     auth.CiviFormProfile)}.
+   *     CiviFormProfile, Request)}.
    */
   public CompletionStage<ImmutableList<ApplicantProgramData>> maybeEligibleProgramsForApplicant(
       long applicantId, CiviFormProfile requesterProfile, Request request) {
@@ -1432,7 +1434,7 @@ public final class ApplicantService {
   private ImmutableList<ApplicantProgramData> sortByProgramId(
       ImmutableList<ApplicantProgramData> programs) {
     return programs.stream()
-        .sorted(Comparator.comparing(p -> p.program().id()))
+        .sorted(Comparator.comparingLong(p -> p.program().id()))
         .collect(ImmutableList.toImmutableList());
   }
 
@@ -2038,7 +2040,7 @@ public final class ApplicantService {
 
   /**
    * Checks the block for any {@link PhoneQuestion}. If any are found grab the phone number from the
-   * formData and call the {@link PhoneValidationUtils#validatePhoneNumberWithCountryCode} to
+   * formData and call the {@link PhoneValidationUtils#validatePhoneNumber(Optional, Optional)} to
    * calculate the country code.
    */
   public CompletionStage<ImmutableMap<String, String>> setPhoneCountryCode(

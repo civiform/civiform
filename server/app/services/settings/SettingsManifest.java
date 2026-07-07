@@ -951,14 +951,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * Enable session replay protection, so that a session cookie cannot be replayed if the user logs
-   * out
-   */
-  public boolean getSessionReplayProtectionEnabled() {
-    return getBool("SESSION_REPLAY_PROTECTION_ENABLED");
-  }
-
-  /**
    * The amount of time, in minutes, that a session lasts. The default is 600 minutes, or 10 hours.
    * Note that there isn't yet messaging on the frontend to notify a user when their session is
    * expired.
@@ -1063,8 +1055,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** Enable using custom theme colors in the applicant UI. */
-  public boolean getCustomThemeColorsEnabled(RequestHeader request) {
-    return getBool("CUSTOM_THEME_COLORS_ENABLED", request);
+  public boolean getCustomThemeColorsEnabled() {
+    return getBool("CUSTOM_THEME_COLORS_ENABLED");
   }
 
   /** Enables suffix dropdown field in name question. */
@@ -1077,24 +1069,17 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED", request);
   }
 
-  /** Enable allowing CiviForm admins to add a map question to their programs. */
-  public boolean getMapQuestionEnabled() {
-    return getBool("MAP_QUESTION_ENABLED");
-  }
-
-  /** Enables being able to add a new yes/no question. */
-  public boolean getYesNoQuestionEnabled() {
-    return getBool("YES_NO_QUESTION_ENABLED");
-  }
-
-  /** Enables reading settings from the cache instead of directly from the database. */
-  public boolean getSettingsCacheEnabled() {
-    return getBool("SETTINGS_CACHE_ENABLED");
-  }
-
   /** Enable showing external program cards. */
   public boolean getExternalProgramCardsEnabled() {
     return getBool("EXTERNAL_PROGRAM_CARDS_ENABLED");
+  }
+
+  /**
+   * Enables new visibility/eligibility condition editing UI and expanded logic capabilities for
+   * admin.
+   */
+  public boolean getExpandedFormLogicEnabled(RequestHeader request) {
+    return getBool("EXPANDED_FORM_LOGIC_ENABLED", request);
   }
 
   /** Enables a dropdown for login that has both applicant and admin login. */
@@ -1107,13 +1092,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("IMMIGRATION_STATUS_INFO_BANNER_ENABLED", request);
   }
 
-  /**
-   * (NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration.
-   * Inactivity timeout is always enforced when enabled. Maximum duration enforcement additionally
-   * requires SESSION_REPLAY_PROTECTION_ENABLED=true.
-   */
-  public boolean getSessionTimeoutEnabled(RequestHeader request) {
-    return getBool("SESSION_TIMEOUT_ENABLED", request);
+  /** Enable session timeout based on inactivity and maximum duration. */
+  public boolean getSessionTimeoutEnabled() {
+    return getBool("SESSION_TIMEOUT_ENABLED");
   }
 
   /** (NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in URLs. */
@@ -1132,19 +1113,20 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * (NOT FOR PRODUCTION USE) Enables new visibility/eligibility condition editing UI and expanded
-   * logic capabilities for admin.
-   */
-  public boolean getExpandedFormLogicEnabled(RequestHeader request) {
-    return getBool("EXPANDED_FORM_LOGIC_ENABLED", request);
-  }
-
-  /**
    * (NOT FOR PRODUCTION USE) Enables improvements which make it easier for admins to work with
    * enumerators.
    */
   public boolean getEnumeratorImprovementsEnabled(RequestHeader request) {
     return getBool("ENUMERATOR_IMPROVEMENTS_ENABLED", request);
+  }
+
+  /**
+   * (NOT FOR PRODUCTION USE) Enables improvements which allow for file upload questions on the same
+   * page as other question types. Uses a new file upload method that uploads applicant files
+   * through CiviForm servers.
+   */
+  public boolean getFileUploadQuestionImprovementsEnabled(RequestHeader request) {
+    return getBool("FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED", request);
   }
 
   /** (NOT FOR PRODUCTION USE) Enable the admin UI migration in Thymeleaf. */
@@ -1155,6 +1137,18 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** (NOT FOR PRODUCTION USE) Enable extended options in the admin UI migration in Thymeleaf. */
   public boolean getAdminUiMigrationScExtendedEnabled(RequestHeader request) {
     return getBool("ADMIN_UI_MIGRATION_SC_EXTENDED_ENABLED", request);
+  }
+
+  /** (NOT FOR PRODUCTION USE) Enable the new applicant-guest merging strategy. */
+  public boolean getNewApplicantGuestMergingStrategyEnabled() {
+    return getBool("NEW_APPLICANT_GUEST_MERGING_STRATEGY_ENABLED");
+  }
+
+  /**
+   * (NOT FOR PRODUCTION USE) Enable dry run logging for the new applicant-guest merging strategy.
+   */
+  public boolean getNewApplicantGuestMergingStrategyDryRunEnabled() {
+    return getBool("NEW_APPLICANT_GUEST_MERGING_STRATEGY_DRY_RUN_ENABLED");
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -2215,13 +2209,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   ImmutableList.of(),
                   ImmutableList.of(
                       SettingDescription.create(
-                          "SESSION_REPLAY_PROTECTION_ENABLED",
-                          "Enable session replay protection, so that a session cookie cannot be"
-                              + " replayed if the user logs out",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
                           "MAXIMUM_SESSION_DURATION_MINUTES",
                           "The amount of time, in minutes, that a session lasts. The default is 600"
                               + " minutes, or 10 hours. Note that there isn't yet messaging on the"
@@ -2345,7 +2332,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "Enable using custom theme colors in the applicant UI.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
+                          SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "NAME_SUFFIX_DROPDOWN_ENABLED",
                           "Enables suffix dropdown field in name question.",
@@ -2359,31 +2346,18 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "MAP_QUESTION_ENABLED",
-                          "Enable allowing CiviForm admins to add a map question to their"
-                              + " programs.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
-                          "YES_NO_QUESTION_ENABLED",
-                          "Enables being able to add a new yes/no question.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
-                          "SETTINGS_CACHE_ENABLED",
-                          "Enables reading settings from the cache instead of directly from the"
-                              + " database.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
                           "EXTERNAL_PROGRAM_CARDS_ENABLED",
                           "Enable showing external program cards.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "EXPANDED_FORM_LOGIC_ENABLED",
+                          "Enables new visibility/eligibility condition editing UI and expanded"
+                              + " logic capabilities for admin.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "LOGIN_DROPDOWN_ENABLED",
                           "Enables a dropdown for login that has both applicant and admin login.",
@@ -2396,7 +2370,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " applicants.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE))))
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "SESSION_TIMEOUT_ENABLED",
+                          "Enable session timeout based on inactivity and maximum duration.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_READABLE))))
           .put(
               "Experimental",
               SettingsSection.create(
@@ -2405,15 +2385,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       + " enable or disable in-development features.",
                   ImmutableList.of(),
                   ImmutableList.of(
-                      SettingDescription.create(
-                          "SESSION_TIMEOUT_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and"
-                              + " maximum duration. Inactivity timeout is always enforced when"
-                              + " enabled. Maximum duration enforcement additionally requires"
-                              + " SESSION_REPLAY_PROTECTION_ENABLED=true.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "PROGRAM_SLUG_URLS_ENABLED",
                           "(NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in"
@@ -2435,16 +2406,18 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "EXPANDED_FORM_LOGIC_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enables new visibility/eligibility condition"
-                              + " editing UI and expanded logic capabilities for admin.",
+                          "ENUMERATOR_IMPROVEMENTS_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables improvements which make it easier for"
+                              + " admins to work with enumerators.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "ENUMERATOR_IMPROVEMENTS_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enables improvements which make it easier for"
-                              + " admins to work with enumerators.",
+                          "FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables improvements which allow for file"
+                              + " upload questions on the same page as other question types. Uses a"
+                              + " new file upload method that uploads applicant files through"
+                              + " CiviForm servers.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
@@ -2460,7 +2433,21 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " migration in Thymeleaf.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE))))
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "NEW_APPLICANT_GUEST_MERGING_STRATEGY_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enable the new applicant-guest merging"
+                              + " strategy.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "NEW_APPLICANT_GUEST_MERGING_STRATEGY_DRY_RUN_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enable dry run logging for the new"
+                              + " applicant-guest merging strategy.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_READABLE))))
           .put(
               "Miscellaneous",
               SettingsSection.create(

@@ -829,11 +829,6 @@
   "Session Management": {
     "group_description": "Configuration options for session management",
     "members": {
-      "SESSION_REPLAY_PROTECTION_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "Enable session replay protection, so that a session cookie cannot be replayed if the user logs out",
-        "type": "bool"
-      },
       "MAXIMUM_SESSION_DURATION_MINUTES": {
         "mode": "ADMIN_READABLE",
         "description": "The amount of time, in minutes, that a session lasts. The default is 600 minutes, or 10 hours. Note that there isn't yet messaging on the frontend to notify a user when their session is expired.",
@@ -918,7 +913,7 @@
         "type": "bool"
       },
       "CUSTOM_THEME_COLORS_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
+        "mode": "ADMIN_READABLE",
         "description": "Enable using custom theme colors in the applicant UI.",
         "type": "bool",
         "required": false
@@ -934,27 +929,15 @@
         "type": "bool",
         "required": false
       },
-      "MAP_QUESTION_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "Enable allowing CiviForm admins to add a map question to their programs.",
-        "type": "bool",
-        "required": false
-      },
-      "YES_NO_QUESTION_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "Enables being able to add a new yes/no question.",
-        "type": "bool",
-        "required": false
-      },
-      "SETTINGS_CACHE_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "Enables reading settings from the cache instead of directly from the database.",
-        "type": "bool",
-        "required": false
-      },
       "EXTERNAL_PROGRAM_CARDS_ENABLED": {
         "mode": "ADMIN_READABLE",
         "description": "Enable showing external program cards.",
+        "type": "bool",
+        "required": false
+      },
+      "EXPANDED_FORM_LOGIC_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enables new visibility/eligibility condition editing UI and expanded logic capabilities for admin.",
         "type": "bool",
         "required": false
       },
@@ -969,18 +952,18 @@
         "description": "Enable showing an immigration status informational banner to applicants.",
         "type": "bool",
         "required": false
+      },
+      "SESSION_TIMEOUT_ENABLED": {
+        "mode": "ADMIN_READABLE",
+        "description": "Enable session timeout based on inactivity and maximum duration.",
+        "type": "bool",
+        "required": false
       }
     }
   },
   "Experimental": {
     "group_description": "These are __NOT READY FOR PRODUCTION USE__. Use these configuration options to enable or disable in-development features.",
     "members": {
-      "SESSION_TIMEOUT_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration. Inactivity timeout is always enforced when enabled. Maximum duration enforcement additionally requires SESSION_REPLAY_PROTECTION_ENABLED=true.",
-        "type": "bool",
-        "required": false
-      },
       "PROGRAM_SLUG_URLS_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in URLs.",
@@ -999,15 +982,15 @@
         "type": "bool",
         "required": false
       },
-      "EXPANDED_FORM_LOGIC_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enables new visibility/eligibility condition editing UI and expanded logic capabilities for admin.",
-        "type": "bool",
-        "required": false
-      },
       "ENUMERATOR_IMPROVEMENTS_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Enables improvements which make it easier for admins to work with enumerators.",
+        "type": "bool",
+        "required": false
+      },
+      "FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enables improvements which allow for file upload questions on the same page as other question types. Uses a new file upload method that uploads applicant files through CiviForm servers.",
         "type": "bool",
         "required": false
       },
@@ -1020,6 +1003,18 @@
       "ADMIN_UI_MIGRATION_SC_EXTENDED_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Enable extended options in the admin UI migration in Thymeleaf.",
+        "type": "bool",
+        "required": false
+      },
+      "NEW_APPLICANT_GUEST_MERGING_STRATEGY_ENABLED": {
+        "mode": "ADMIN_READABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enable the new applicant-guest merging strategy.",
+        "type": "bool",
+        "required": false
+      },
+      "NEW_APPLICANT_GUEST_MERGING_STRATEGY_DRY_RUN_ENABLED": {
+        "mode": "ADMIN_READABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enable dry run logging for the new applicant-guest merging strategy.",
         "type": "bool",
         "required": false
       }

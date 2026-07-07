@@ -1,0 +1,45 @@
+<!--/*@thymesVar id="name" type="java.lang.String"*/-->
+<!--/*@thymesVar id="id" type="java.lang.String"*/-->
+<!--/*@thymesVar id="label" type="java.lang.String"*/-->
+<!--/*@thymesVar id="checked" type="boolean"*/-->
+<!--/*@thymesVar id="disabled" type="boolean"*/-->
+<!--/*@thymesVar id="hidden" type="boolean"*/-->
+<th:block
+  th:fragment="toggle(name, id, label, checked, disabled, hidden)"
+  th:assert="${!#strings.isEmpty(name)}, ${!#strings.isEmpty(id)}, ${!#strings.isEmpty(label)}"
+  th:with="checked=${checked == null ? false : checked},
+           disabled=${disabled == null ? false : disabled},
+           hidden=${hidden == null ? false : hidden}"
+>
+  <div class="cf-toggle" th:hidden="${hidden}">
+    <label class="cf-toggle__label">
+      <input
+        type="checkbox"
+        role="switch"
+        class="cf-toggle__input"
+        th:name="${name}"
+        value="true"
+        th:checked="${checked}"
+        th:disabled="${disabled}"
+        th:id="${id}"
+      />
+      <!--/*
+        It is very important that this is added after the checkbox. This
+        creates a javascript free, css only toggle. It works because both
+        the checkbox and hidden field have the same name.
+
+        When the checkbox is unchecked it does not POST and you get
+        `name: [false]` posted from the hidden field.
+
+        When the checkbox is checked it does POST and you get
+        `name: [true, false]` posted. The Play FormFactory databinding
+        uses the first value.
+
+        If hidden is added before the checkbox it will always end up false.
+      */-->
+      <input type="hidden" th:name="${name}" value="false" />
+      <span class="cf-toggle__track" aria-hidden="true"></span>
+      <span th:text="${label}"></span>
+    </label>
+  </div>
+</th:block>

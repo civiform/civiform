@@ -23,6 +23,7 @@ import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.program.BlockDefinition;
+import services.program.CantAddQuestionToBlockException;
 import services.program.IllegalApiBridgeStateException;
 import services.program.IllegalPredicateOrderingException;
 import services.program.ProgramBlockAdditionResult;
@@ -37,6 +38,7 @@ import services.question.ReadOnlyQuestionService;
 import services.settings.SettingsManifest;
 import views.admin.programs.BlockType;
 import views.admin.programs.ProgramBlocksView;
+import views.components.ProgramQuestionBank;
 import views.components.ToastMessage;
 
 /** Controller for admins editing screens (blocks) of a program. */
@@ -116,7 +118,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
 
       return redirect(redirectUrl);
     } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
-      return notFound(e.toString());
+      return notFound();
     }
   }
 
@@ -144,7 +146,19 @@ public final class AdminProgramBlocksController extends CiviFormController {
 
     try {
       ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result;
-      if (enumeratorId.isPresent()) {
+      if (enumeratorId.isPresent() && BlockType.ENUMERATOR.equals(blockType.orElse(null))) {
+        // Create a nested enumerator (enumerator under another enumerator)
+        // This feature requires the enumerator improvements flag to be enabled
+        if (!settingsManifest.getEnumeratorImprovementsEnabled(request)) {
+          return badRequest("Nested repeated sets require ENUMERATOR_IMPROVEMENTS_ENABLED flag");
+        }
+        result =
+            programService.addNestedRepeatedSetToProgram(
+                programId,
+                enumeratorId.get(),
+                messagesApi.preferred(request),
+                settingsManifest.getEnumeratorImprovementsEnabled(request));
+      } else if (enumeratorId.isPresent()) {
         result =
             programService.addRepeatedBlockToProgram(
                 programId,
@@ -187,10 +201,9 @@ public final class AdminProgramBlocksController extends CiviFormController {
         }
         addedBlockId++;
       }
-
       return redirect(routes.AdminProgramBlocksController.edit(programId, addedBlockId).url());
     } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
-      return notFound(e.toString());
+      return notFound();
     } catch (ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(
           "Something happened to the enumerator block while creating a repeated block", e);
@@ -206,6 +219,54 @@ public final class AdminProgramBlocksController extends CiviFormController {
     requestChecker.throwIfProgramNotDraft(programId);
 
     try {
+      Optional<String> newQuestionIdParam =
+          request.queryString(views.components.ProgramQuestionBank.NEWLY_CREATED_QUESTION_ID_PARAM);
+      if (newQuestionIdParam.isPresent()) {
+        // When a new question was just created from the question bank, determine whether it should
+        // be treated as an initial question selection (for enumerator setup) or auto-added to the
+        // block.
+        ProgramDefinition programForEnumeratorCheck =
+            programService.getFullProgramDefinition(programId);
+        BlockDefinition blockForEnumeratorCheck =
+            programForEnumeratorCheck.getBlockDefinition(blockId);
+        boolean isEnumeratorSetup =
+            settingsManifest.getEnumeratorImprovementsEnabled(request)
+                && blockForEnumeratorCheck.getIsEnumerator()
+                && !blockForEnumeratorCheck.hasEnumeratorQuestion();
+        if (isEnumeratorSetup) {
+          // Redirect with the new question as the initial question selection. The edit page
+          // reads initialQuestionId from the query string to render the initial question card.
+          // We omit sqb so the question bank doesn't re-open on landing.
+          return redirect(
+              routes.AdminProgramBlocksController.edit(programId, blockId).url()
+                  + "?"
+                  + ProgramBlocksView.INITIAL_QUESTION_ID_PARAM
+                  + "="
+                  + newQuestionIdParam.get());
+        }
+        try {
+          long newQuestionId = Long.parseLong(newQuestionIdParam.get());
+          programService.addQuestionsToBlock(
+              programId,
+              blockId,
+              ImmutableList.of(newQuestionId),
+              settingsManifest.getEnumeratorImprovementsEnabled(request),
+              settingsManifest.getFileUploadQuestionImprovementsEnabled(request));
+          // Redirect without the newQuestionId parameter to reload the page cleanly
+          return redirect(routes.AdminProgramBlocksController.edit(programId, blockId).url())
+              .flashing(request.flash().data());
+        } catch (NumberFormatException e) {
+          // Invalid question ID format, ignore and continue
+        } catch (ProgramNotFoundException
+            | ProgramBlockDefinitionNotFoundException
+            | CantAddQuestionToBlockException e) {
+          // If adding fails, show the block without the new question and flash an error toast
+          // message
+          return redirect(routes.AdminProgramBlocksController.edit(programId, blockId).url())
+              .flashing("error", "Question created, but could not be added to the program block");
+        }
+      }
+
       ProgramDefinition program = programService.getFullProgramDefinition(programId);
       BlockDefinition block = program.getBlockDefinition(blockId);
 
@@ -213,7 +274,53 @@ public final class AdminProgramBlocksController extends CiviFormController {
           request.flash().get(FlashKey.SUCCESS).map(ToastMessage::success);
       return renderEditViewWithMessage(request, program, block, maybeToastMessage);
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
-      return notFound(e.toString());
+      return notFound();
+    }
+  }
+
+  /**
+   * HTMX GET endpoint that returns the question bank's form element for a given {@link
+   * ProgramQuestionBank.Mode}. Used by open-bank buttons that need a different mode than the
+   * page-load default (the initial-question button and the choose-existing button on enumerator
+   * setup). The response replaces {@code #question-bank-panel-form} via {@code outerHTML} and
+   * triggers {@code openQuestionBank} on the client so the bank slides open.
+   *
+   * @param request the incoming request
+   * @param programId the program whose block the bank is being opened for
+   * @param blockId the block the bank is being opened for
+   * @param mode the {@link ProgramQuestionBank.Mode} name as a string (e.g. {@code
+   *     "INITIAL_QUESTION"}); call sites pass {@code Mode.X.name()} so that the enum constant
+   *     reference is compile-checked. Parsed back into the enum via {@code Mode.valueOf(mode)};
+   *     unknown values return {@code 400 Bad Request}.
+   */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result hxQuestionBankPartial(Request request, long programId, long blockId, String mode) {
+    requestChecker.throwIfProgramNotDraft(programId);
+
+    ProgramQuestionBank.Mode bankMode;
+    try {
+      bankMode = ProgramQuestionBank.Mode.valueOf(mode);
+    } catch (IllegalArgumentException e) {
+      return badRequest(String.format("Unknown question bank mode: %s", mode));
+    }
+
+    try {
+      ProgramDefinition program = programService.getFullProgramDefinition(programId);
+      BlockDefinition block = program.getBlockDefinition(blockId);
+      return ok(editView
+              .renderQuestionBankPanelForm(
+                  questionService.getReadOnlyQuestionServiceSync().getUpToDateQuestions(),
+                  program,
+                  block,
+                  bankMode,
+                  messagesApi.preferred(request),
+                  request)
+              .render())
+          .withHeader("HX-Trigger-After-Swap", "openQuestionBank");
+    } catch (ProgramNotFoundException e) {
+      return notFound(String.format("Program ID %d not found.", programId));
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
     }
   }
 
@@ -230,7 +337,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
       BlockDefinition block = program.getBlockDefinition(blockId);
       return renderReadOnlyViewWithMessage(request, program, block);
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
-      return notFound(e.toString());
+      return notFound();
     }
   }
 
@@ -251,7 +358,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
             request, result.getResult(), blockId, blockForm, Optional.of(message));
       }
     } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
-      return notFound(e.toString());
+      return notFound();
     }
 
     return redirect(routes.AdminProgramBlocksController.edit(programId, blockId));
@@ -270,7 +377,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
       return redirect(routes.AdminProgramBlocksController.edit(programId, blockId))
           .flashing(FlashKey.ERROR, e.getLocalizedMessage());
     } catch (ProgramNotFoundException e) {
-      return notFound(e.toString());
+      return notFound();
     }
     return redirect(routes.AdminProgramBlocksController.edit(programId, blockId));
   }
@@ -288,7 +395,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
     } catch (ProgramNotFoundException
         | ProgramNeedsABlockException
         | ProgramBlockDefinitionNotFoundException e) {
-      return notFound(e.toString());
+      return notFound();
     }
     return redirect(routes.AdminProgramBlocksController.index(programId));
   }
@@ -356,7 +463,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
               ImmutableList.of(),
               messagesApi.preferred(request)));
     } catch (ProgramBlockDefinitionNotFoundException e) {
-      return notFound(e.toString());
+      return notFound();
     }
   }
 }

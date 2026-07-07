@@ -13,44 +13,102 @@ permissions: read-all
 # to master.  Also re-build the dependancy docker images only if their code has changed.
 # On a manual trigger, re-build all the images.
 jobs:
-  build_civiform:
+  build_civiform_prod:
     runs-on: ubuntu-latest
-    # Only build the latest version.
+    concurrency:
+      group: build_civiform-prod-${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+    name: Build civiform prod (linux/amd64)
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
+      - run: echo "PUSH_IMAGE=1" >> $GITHUB_ENV
+        if: ${{ (github.event_name == 'workflow_dispatch') || (github.event_name == 'push') }}
+      - name: Run build-prod
+        env:
+          DOCKER_BUILDKIT: 1
+          PLATFORM: linux/amd64
+          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USER_NAME }}
+        run: bin/build-prod
+
+  build_civiform_dev:
     strategy:
       fail-fast: false
       matrix:
-        version: ['prod', 'dev']
         include:
-          - version: prod
-            image: 'civiform/civiform:latest'
-            script: 'bin/build-prod'
-            platform: 'linux/amd64'
-          - version: dev
-            image: 'civiform/civiform-dev:latest'
-            script: 'bin/build-dev'
-            platform: 'linux/amd64,linux/arm64' # build for m1 mac, too
+          - runner: ubuntu-latest
+            platform: linux/amd64
+            arch: amd64
+          - runner: ubuntu-24.04-arm
+            platform: linux/arm64
+            arch: arm64
+    runs-on: ${{ matrix.runner }}
     concurrency:
-      group: build_civiform-${{ matrix.version }}-${{ github.workflow }}-${{ github.ref }}
+      group: build_civiform-dev-${{ matrix.arch }}-${{ github.workflow }}-${{ github.ref }}
       cancel-in-progress: true
-    name: Build civiform ${{ matrix.version }} for ${{ matrix.platform }}
+    name: Build civiform-dev (${{ matrix.arch }})
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - name: Set up Docker QEMU
-        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
-      - name: Check if we should push
-        if: ${{ (github.event_name == 'workflow_dispatch') || (github.event_name == 'push') }}
-        run: echo "PUSH_IMAGE=1" >> $GITHUB_ENV
-      - name: Run build-${{ matrix.version }} ${{ matrix.image }} for ${{ matrix.platform }}
-        id: build_and_push
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
+      - name: Build & push by digest (${{ matrix.arch }})
         env:
           DOCKER_BUILDKIT: 1
           PLATFORM: ${{ matrix.platform }}
+          PUSH_BY_DIGEST: 1
+          METADATA_FILE: ${{ runner.temp }}/metadata.json
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USER_NAME }}
-        run: ${{ matrix.script }}
+        run: bin/build-dev
+      - name: Export digest
+        run: |
+          mkdir -p "${{ runner.temp }}/digests"
+          digest=$(jq -r '.["containerimage.digest"]' "${{ runner.temp }}/metadata.json")
+          touch "${{ runner.temp }}/digests/${digest#sha256:}"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: digests-${{ matrix.arch }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  # Assemble the multi-arch :latest manifest from the two pushed digests.
+  merge_civiform_dev:
+    needs: build_civiform_dev
+    runs-on: ubuntu-latest
+    name: Merge civiform-dev manifest
+    concurrency:
+      group: merge-civiform-dev-${{ github.ref }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digests-*
+          merge-multiple: true
+      - name: Verify both digests present
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          count=$(ls -1 | wc -l)
+          if [ "$count" -ne 2 ]; then
+            echo "Expected 2 digests, got ${count}:"
+            ls -la
+            exit 1
+          fi
+      - uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
+      - uses: docker/login-action@c99871dec2022cc055c062a10cc1a1310835ceb4 # v4
+        with:
+          username: ${{ secrets.DOCKER_HUB_USER_NAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      - name: Create manifest list
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          docker buildx imagetools create -t civiform/civiform-dev:latest \
+            $(printf 'civiform/civiform-dev@sha256:%s ' *)
+      - name: Inspect
+        run: docker buildx imagetools inspect civiform/civiform-dev:latest
 
   build_dependancies:
     runs-on: ubuntu-latest
@@ -91,7 +149,7 @@ jobs:
     name: Build civiform dependancy ${{ matrix.version }} for ${{ matrix.platform }}
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           fetch-depth: 0
 
@@ -115,17 +173,17 @@ jobs:
         run: echo "Skip ${{ matrix.image }} build for event ${{github.event_name}}" "${{steps.check_build.outputs.build}}"
 
       - name: Set up Docker QEMU
-        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
+        uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8 # v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
         if: ${{ steps.check_build.outputs.build == 'build' }}
 
       - name: Check if we should push
         if: ${{ (github.event_name == 'workflow_dispatch') || (github.event_name == 'push') }}
         run: echo "PUSH_IMAGE=1" >> $GITHUB_ENV
 
-      - name: Run build-${{ matrix.version }} ${{ matrix.image }} for ${{ matrix.platform }}
+      - name: Run build-${{ matrix.version }}
         if: ${{ steps.check_build.outputs.build == 'build' }}
         id: build_and_push
         env:

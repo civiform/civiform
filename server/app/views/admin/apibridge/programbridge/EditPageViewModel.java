@@ -5,7 +5,7 @@ import lombok.Builder;
 import models.ApiBridgeConfigurationModel;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
-import views.admin.BaseViewModel;
+import views.BaseViewModel;
 
 /** Holds data used to render the main program api bridge edit page */
 @Builder

@@ -210,7 +210,7 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
             .filter(v -> !v.isBlank());
 
     return switch (settingDescription.settingType()) {
-      case BOOLEAN -> renderBoolInput(settingDescription, value);
+      case BOOLEAN -> renderBoolInput(settingDescription, value, errorMessages);
       case LIST_OF_STRINGS, STRING -> renderStringInput(settingDescription, value, errorMessages);
       case ENUM -> renderEnumInput(settingDescription, value);
       case INT -> renderIntInput(settingDescription, value);
@@ -295,9 +295,16 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
   }
 
   private static DivTag renderBoolInput(
-      SettingDescription settingDescription, Optional<String> value) {
+      SettingDescription settingDescription,
+      Optional<String> value,
+      Optional<ImmutableMap<String, UpdateError>> maybeErrorMessages) {
     boolean isTrue = value.map("TRUE"::equals).orElse(false);
     String readonlyClass = settingDescription.isReadOnly() ? "bg-gray-100 text-gray-500" : "";
+
+    Optional<DivTag> errors =
+        maybeErrorMessages
+            .flatMap(errs -> Optional.ofNullable(errs.get(settingDescription.variableName())))
+            .map(err -> div(err.errorMessage()).withClasses(BaseStyles.FORM_ERROR_TEXT_XS));
 
     return div(div(
                 FieldWithLabel.radio()
@@ -322,6 +329,7 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
                     .withData(
                         "testid", String.format("disable-%s", settingDescription.variableName())))
             .withClasses("flex", "mt-2"))
-        .condWith(settingDescription.isReadOnly(), READ_ONLY_TEXT);
+        .condWith(settingDescription.isReadOnly(), READ_ONLY_TEXT)
+        .condWith(errors.isPresent(), errors.orElse(div()));
   }
 }

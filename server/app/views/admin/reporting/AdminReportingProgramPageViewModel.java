@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import lombok.Builder;
 import lombok.Data;
 import services.reporting.ApplicationSubmissionsStat;
-import views.admin.BaseViewModel;
+import views.BaseViewModel;
 
 @Data
 @Builder

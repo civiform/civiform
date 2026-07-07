@@ -21,6 +21,12 @@ import play.Environment;
 import play.mvc.Http;
 import repository.ResetPostgres;
 import repository.SettingsGroupRepository;
+import services.program.ActiveAndDraftPrograms;
+import services.program.ProgramDefinition;
+import services.program.ProgramService;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
+import support.ProgramBuilder;
 
 public class SettingsServiceTest extends ResetPostgres {
 
@@ -44,7 +50,10 @@ public class SettingsServiceTest extends ResetPostgres {
           "TEST_WRITEABLE_BOOLEAN_WITH_NO_HOCON_VALUE",
           "false",
           "TEST_WRITEABLE_LIST_OF_STRINGS_WITH_NO_HOCON_VALUE",
-          "CHANGE ME");
+          "CHANGE ME",
+          "FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED",
+          "true");
+  private ProgramService programService;
   private SettingsManifest testManifest =
       new SettingsManifest(
           ImmutableMap.of(
@@ -110,6 +119,12 @@ public class SettingsServiceTest extends ResetPostgres {
                           "",
                           true,
                           SettingType.LIST_OF_STRINGS,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED",
+                          "",
+                          true,
+                          SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE)))),
           ConfigFactory.parseMap(
               ImmutableMap.of(
@@ -120,7 +135,9 @@ public class SettingsServiceTest extends ResetPostgres {
                   "test_enum",
                   "test-2",
                   "test_regex_validated_string",
-                  "test")));
+                  "test",
+                  "file_upload_question_improvements_enabled",
+                  "true")));
 
   private CiviFormProfile testProfile;
 
@@ -129,10 +146,13 @@ public class SettingsServiceTest extends ResetPostgres {
     testProfile = mock(CiviFormProfile.class);
     when(testProfile.getAuthorityId())
         .thenReturn(CompletableFuture.completedFuture(TEST_AUTHORITY_ID));
+    programService = mock(ProgramService.class);
 
     repo = instanceOf(SettingsGroupRepository.class);
     repo.clearCurrentSettingsCache();
-    settingsService = new SettingsService(repo, testManifest, instanceOf(Environment.class));
+    settingsService =
+        new SettingsService(
+            repo, testManifest, instanceOf(Environment.class), () -> programService);
   }
 
   @Test
@@ -218,6 +238,47 @@ public class SettingsServiceTest extends ResetPostgres {
 
     assertThat(settingsService.loadSettings().toCompletableFuture().join().get())
         .isEqualTo(initialSettings);
+  }
+
+  @Test
+  public void updateSettings_disableFileUploadImprovementsWithMixedScreens_returnsError() {
+    createTestSettings();
+
+    ActiveAndDraftPrograms activeAndDraftPrograms = mock(ActiveAndDraftPrograms.class);
+    QuestionDefinition fileUploadQuestion = mock(QuestionDefinition.class);
+    QuestionDefinition textQuestion = mock(QuestionDefinition.class);
+
+    when(fileUploadQuestion.getId()).thenReturn(101L);
+    when(fileUploadQuestion.getQuestionType()).thenReturn(QuestionType.FILEUPLOAD);
+    when(textQuestion.getId()).thenReturn(102L);
+    when(textQuestion.getQuestionType()).thenReturn(QuestionType.TEXT);
+
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newProgram("Program A", 1L)
+            .withBlock("Combined upload")
+            .withQuestionDefinition(fileUploadQuestion, false)
+            .withQuestionDefinition(textQuestion, false)
+            .buildDefinition();
+
+    when(programService.getActiveAndDraftPrograms()).thenReturn(activeAndDraftPrograms);
+    when(activeAndDraftPrograms.getMostRecentProgramDefinitions())
+        .thenReturn(ImmutableList.of(programDefinition));
+
+    var result =
+        settingsService.updateSettings(
+            ImmutableMap.of("FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED", "false"), testProfile);
+    String expectedErrorMessage =
+        String.join(
+            "",
+            "To turn this off, first remove file upload questions from any screens that contain",
+            " other question types. Affected programs: Program A (Combined upload).");
+
+    assertThat(result.updated()).isFalse();
+    assertThat(result.errorMessages()).isPresent();
+    assertThat(result.errorMessages().get().get("FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED"))
+        .isEqualTo(
+            SettingsService.SettingsGroupUpdateResult.UpdateError.create(
+                "false", expectedErrorMessage));
   }
 
   @Test

@@ -2,7 +2,6 @@ package controllers.docs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static play.mvc.Results.badRequest;
-import static play.mvc.Results.internalServerError;
 import static play.mvc.Results.notFound;
 import static play.mvc.Results.ok;
 
@@ -11,41 +10,49 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
+import mapping.admin.docs.SchemaPageMapper;
 import models.LifecycleStage;
 import org.pac4j.play.java.Secure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.mvc.Result;
 import services.DeploymentType;
+import services.docs.ApiDocsService;
 import services.openapi.OpenApiSchemaGenerator;
 import services.openapi.OpenApiSchemaGeneratorFactory;
 import services.openapi.OpenApiSchemaSettings;
 import services.openapi.OpenApiVersion;
 import services.program.ProgramDefinition;
-import services.program.ProgramDraftNotFoundException;
-import services.program.ProgramService;
 import services.settings.SettingsManifest;
+import views.admin.docs.SchemaPageView;
 import views.docs.SchemaView;
 
 /** This handles endpoints related to serving openapi schema data */
 public final class OpenApiSchemaController {
-  private final ProgramService programService;
+  private final ApiDocsService apiDocsService;
   private final SettingsManifest settingsManifest;
   private final DeploymentType deploymentType;
   private final SchemaView schemaView;
+  private final SchemaPageView schemaPageView;
+  private final MessagesApi messagesApi;
   private static final Logger logger = LoggerFactory.getLogger(OpenApiSchemaController.class);
 
   @Inject
   public OpenApiSchemaController(
-      ProgramService programService,
+      ApiDocsService apiDocsService,
       SettingsManifest settingsManifest,
       DeploymentType deploymentType,
-      SchemaView schemaView) {
-    this.programService = checkNotNull(programService);
+      SchemaView schemaView,
+      SchemaPageView schemaPageView,
+      MessagesApi messagesApi) {
+    this.apiDocsService = checkNotNull(apiDocsService);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.deploymentType = checkNotNull(deploymentType);
     this.schemaView = checkNotNull(schemaView);
+    this.schemaPageView = checkNotNull(schemaPageView);
+    this.messagesApi = checkNotNull(messagesApi);
   }
 
   /** Endpoint to return the generated openapi schema */
@@ -62,12 +69,10 @@ public final class OpenApiSchemaController {
             .orElse(LifecycleStage.ACTIVE);
 
     Optional<ProgramDefinition> optionalProgramDefinition =
-        programService.getAllNonExternalProgramSlugs().contains(programSlug)
-            ? getProgramDefinition(programSlug, lifecycleStage)
-            : Optional.empty();
+        apiDocsService.getProgramDefinition(programSlug, lifecycleStage);
 
     if (optionalProgramDefinition.isEmpty()) {
-      return notFound("No program found");
+      return notFound(messagesApi.preferred(request).at("adminApiDocs.notFound"));
     }
 
     try {
@@ -86,38 +91,16 @@ public final class OpenApiSchemaController {
       return ok(response).as("text/yaml");
     } catch (RuntimeException ex) {
       String errorMsg =
-          String.format(
-              "Unable to generate OpenApi version '%s' for program '%s' at stage '%s'.",
-              openApiVersion.orElse(""), programSlug, lifecycleStage.getValue());
+          messagesApi
+              .preferred(request)
+              .at(
+                  "adminSchemaViewer.yamlError",
+                  openApiVersion.orElse(""),
+                  programSlug,
+                  lifecycleStage.getValue());
+
       logger.error(errorMsg, ex);
       return badRequest(errorMsg);
-    }
-  }
-
-  /** Get program definition for the specific slug and version */
-  private Optional<ProgramDefinition> getProgramDefinition(
-      String programSlug, LifecycleStage lifecycleStage) {
-    try {
-      switch (lifecycleStage) {
-        case ACTIVE -> {
-          ProgramDefinition activeProgramDefinition =
-              programService
-                  .getActiveFullProgramDefinitionAsync(programSlug)
-                  .toCompletableFuture()
-                  .join();
-          return Optional.of(activeProgramDefinition);
-        }
-        case DRAFT -> {
-          ProgramDefinition draftProgramDefinition =
-              programService.getDraftFullProgramDefinition(programSlug);
-          return Optional.of(draftProgramDefinition);
-        }
-        default -> {
-          return Optional.empty();
-        }
-      }
-    } catch (RuntimeException | ProgramDraftNotFoundException e) {
-      return Optional.empty();
     }
   }
 
@@ -140,7 +123,7 @@ public final class OpenApiSchemaController {
       Optional<String> openApiVersion) {
 
     ImmutableSet<String> allNonExternalProgramSlugs =
-        programService.getAllNonExternalProgramSlugs();
+        apiDocsService.getAllNonExternalProgramSlugs();
 
     if (programSlug.isEmpty() || !allNonExternalProgramSlugs.contains(programSlug)) {
       programSlug = allNonExternalProgramSlugs.stream().findFirst().orElse("");
@@ -148,23 +131,32 @@ public final class OpenApiSchemaController {
 
     // This will only happen if there are no programs at all in the system
     if (programSlug.isEmpty()) {
-      return ok("Please add a program.");
+      return ok(messagesApi.preferred(request).at("adminApiDocs.notFound"));
     }
 
-    try {
-      String url =
-          routes.OpenApiSchemaController.getSchemaByProgramSlug(
+    String url =
+        routes.OpenApiSchemaController.getSchemaByProgramSlug(
+                programSlug,
+                Optional.of(stage.orElse(LifecycleStage.ACTIVE.getValue())),
+                Optional.of(openApiVersion.orElse(OpenApiVersion.OPENAPI_V3_0.toString())))
+            .url();
+
+    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+      return ok(schemaPageView.render(
+              request,
+              SchemaPageMapper.map(
+                  messagesApi.preferred(request),
                   programSlug,
-                  Optional.of(stage.orElse(LifecycleStage.ACTIVE.getValue())),
-                  Optional.of(openApiVersion.orElse(OpenApiVersion.OPENAPI_V3_0.toString())))
-              .url();
-
-      SchemaView.Form form = new SchemaView.Form(programSlug, stage, openApiVersion);
-
-      return ok(schemaView.render(request, form, url, allNonExternalProgramSlugs));
-    } catch (RuntimeException ex) {
-      return internalServerError();
+                  stage,
+                  openApiVersion,
+                  url,
+                  allNonExternalProgramSlugs)))
+          .as(Http.MimeTypes.HTML);
     }
+
+    SchemaView.Form form = new SchemaView.Form(programSlug, stage, openApiVersion);
+
+    return ok(schemaView.render(request, form, url, allNonExternalProgramSlugs));
   }
 
   /** Redirect to the swagger ui to view the select swagger/openapi */

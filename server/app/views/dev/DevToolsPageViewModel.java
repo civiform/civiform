@@ -3,7 +3,7 @@ package views.dev;
 import com.google.common.collect.ImmutableList;
 import lombok.Builder;
 import lombok.Data;
-import views.admin.BaseViewModel;
+import views.BaseViewModel;
 
 @Data
 @Builder

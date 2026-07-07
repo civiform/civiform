@@ -4,6 +4,7 @@
  */
 import '@/components/shared/modal'
 import * as main from '@/main'
+import {CategoryFilter} from '@/category_filter'
 import * as languageSelector from '@/language_selector'
 import * as enumerator from '@/enumerator'
 import * as radio from '@/radio'
@@ -11,12 +12,14 @@ import * as toast from '@/toast'
 import * as map from '@/mapquestion/map'
 import * as modal from '@/modal'
 import * as northStarModal from '@/north_star_modal'
-import * as fileUpload from '@/file_upload'
+import * as legacyFileUpload from '@/legacy_file_upload'
 import * as azureDelete from '@/azure_delete'
 import * as azureUpload from '@/azure_upload'
 import * as phoneNumber from '@/phone'
 import * as htmx from '@/htmx'
+import * as fileUpload from '@/file_upload'
 import {SessionTimeoutHandler} from '@/session'
+import {featureFlags} from '@/global/shared/feature_flags'
 
 declare global {
   interface Window {
@@ -30,6 +33,7 @@ window.addEventListener('load', () => {
   const AZURE_APPLICANT_FILEUPLOAD_FORM_ID = 'cf-block-form'
 
   main.init()
+  new CategoryFilter().init()
   languageSelector.init()
   enumerator.init()
   radio.init()
@@ -37,7 +41,11 @@ window.addEventListener('load', () => {
   map.init()
   modal.init()
   northStarModal.init()
-  fileUpload.init()
+  if (featureFlags().isFileUploadQuestionImprovementsEnabled) {
+    fileUpload.init()
+  } else {
+    legacyFileUpload.init()
+  }
   azureDelete.init()
   azureUpload.init(AZURE_APPLICANT_FILEUPLOAD_FORM_ID)
   phoneNumber.init()

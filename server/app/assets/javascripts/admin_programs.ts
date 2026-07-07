@@ -7,15 +7,18 @@ enum ProgramType {
   EXTERNAL = 'External program',
 }
 
-interface HtmxDetail {
-  target?: HTMLElement
-}
-
 class AdminPrograms {
   private static PROGRAM_CARDS_SELECTOR = '.cf-admin-program-card'
   private static PROGRAM_LINK_ATTRIBUTE = 'data-copyable-program-link'
   private static DISABLED_TEXT_CLASS = 'read-only:text-gray-500'
   private static DISABLED_BACKGROUND_CLASS = 'read-only:bg-gray-100'
+  private static REPEATED_SET_LISTED_ENTITY_INPUT_ID = 'listed-entity-input'
+  private static REPEATED_SET_ADMIN_ID_INPUT_ID = 'enumerator-admin-id-input'
+  private static REPEATED_SET_QUESTION_TEXT_INPUT_ID = 'question-text-input'
+  private static REPEATED_SET_PREVIOUS_ADMIN_ID_SUGGESTION_DATA_ATTRIBUTE =
+    'previousAdminIdSuggestion'
+  private static REPEATED_SET_PREVIOUS_QUESTION_TEXT_SUGGESTION_DATA_ATTRIBUTE =
+    'previousQuestionTextSuggestion'
 
   static attachConfirmPreScreenerChangeListener() {
     addEventListenerToElements(
@@ -121,6 +124,13 @@ class AdminPrograms {
     this.updateUSWDSCheckboxesDisabledState(
       /* fieldSelectors= */ '[id^="notification-preferences-email"]',
       /* shouldDisable= */ disableNotificationPreferences,
+    )
+
+    // Login only applications
+    const diableLoginOnly = programType === ProgramType.EXTERNAL
+    this.updateUSWDSCheckboxesDisabledState(
+      /* fieldSelectors= */ '[id^="login-only-applications"]',
+      /* shouldDisable= */ diableLoginOnly,
     )
 
     // Long program description
@@ -346,17 +356,44 @@ class AdminPrograms {
 
   static attachEventListenerToHtmxSwap() {
     document.body.addEventListener('htmx:afterSwap', (e) => {
-      const targetElement = (e as CustomEvent<HtmxDetail>).detail.target
-      if (!targetElement) {
-        return
-      }
+      const targetElement = e.detail.target
       if (targetElement.id === 'enumerator-setup') {
         if (document.getElementById('new-enumerator-question-form-errors')) {
           this.focusOnFirstEnumeratorFormField()
         } else {
           this.focusOnEnumeratorQuestionSection()
         }
+      } else if (targetElement.id === 'initial-question-slot') {
+        this.focusOnInitialQuestionHeading()
       }
+    })
+  }
+
+  static attachEventListenerToEnumeratorCreationMethod() {
+    const radioButtons = document.querySelectorAll(
+      'input[name="creation-method-option"]',
+    )
+    const enumerator_question_form = document.querySelector(
+      '#new-enumerator-question-form',
+    ) as HTMLElement
+    const add_question_section = document.querySelector(
+      '#add-question-section',
+    ) as HTMLElement
+
+    radioButtons.forEach((radio) => {
+      radio.addEventListener('change', (event) => {
+        // hide all sections
+        enumerator_question_form.style.display = 'none'
+        add_question_section.style.display = 'none'
+
+        const target = event.target as HTMLInputElement
+
+        if (target.value == 'create-new') {
+          enumerator_question_form.style.display = 'block'
+        } else {
+          add_question_section.style.display = 'block'
+        }
+      })
     })
   }
 
@@ -369,11 +406,117 @@ class AdminPrograms {
     }
   }
 
+  static focusOnInitialQuestionHeading() {
+    const initialQuestionHeading = document.getElementById(
+      'initial-question-label',
+    )
+    if (initialQuestionHeading) {
+      initialQuestionHeading.focus()
+    }
+  }
+
+  /**
+   * After redirecting back to the block edit page from adding an existing enumerator question, the
+   * controller appends ?focusEnumeratorHeading=true so we know to move focus to the enumerator
+   * section heading. The param is then stripped so a refresh doesn't keep refocusing.
+   */
+  static focusOnEnumeratorQuestionSectionFromUrlParam() {
+    const url = new URL(window.location.href)
+    if (url.searchParams.get('focusEnumeratorHeading') !== 'true') {
+      return
+    }
+    this.focusOnEnumeratorQuestionSection()
+    url.searchParams.delete('focusEnumeratorHeading')
+    window.history.replaceState({}, '', url.toString())
+  }
+
   static focusOnFirstEnumeratorFormField() {
     const firstInputField = document.getElementById('listed-entity-input')
     if (firstInputField) {
       firstInputField.focus()
     }
+  }
+
+  static attachEventListenerToRepeatedSetFieldAutofill() {
+    const listedEntityInputElement = document.getElementById(
+      this.REPEATED_SET_LISTED_ENTITY_INPUT_ID,
+    ) as HTMLInputElement | null
+    if (!listedEntityInputElement) {
+      return
+    }
+
+    listedEntityInputElement.addEventListener('input', () => {
+      this.maybeAutofillRepeatedSetFormFields(listedEntityInputElement)
+    })
+  }
+
+  static maybeAutofillRepeatedSetFormFields(
+    listedEntityInput?: HTMLInputElement,
+  ) {
+    const listedEntity = listedEntityInput
+      ? listedEntityInput
+      : (document.getElementById(
+          this.REPEATED_SET_LISTED_ENTITY_INPUT_ID,
+        ) as HTMLInputElement | null)
+
+    const adminIdInput = document.getElementById(
+      this.REPEATED_SET_ADMIN_ID_INPUT_ID,
+    ) as HTMLInputElement | null
+    const questionTextInput = document.getElementById(
+      this.REPEATED_SET_QUESTION_TEXT_INPUT_ID,
+    ) as HTMLTextAreaElement | null
+
+    if (!listedEntity || !adminIdInput || !questionTextInput) {
+      return
+    }
+
+    const normalizedListedEntity = this.normalizeRepeatedSetEntity(
+      listedEntity.value,
+    )
+    // Get i18n message templates from data attributes
+    const adminIdTemplate = adminIdInput.dataset.adminIdAutofillTemplate ?? ''
+    const questionTextTemplate =
+      questionTextInput.dataset.questionTextAutofillTemplate ?? ''
+    const suggestedAdminId =
+      normalizedListedEntity.length > 0 && adminIdTemplate
+        ? adminIdTemplate.replace('{0}', normalizedListedEntity)
+        : ''
+    const suggestedQuestionText =
+      normalizedListedEntity.length > 0 && questionTextTemplate
+        ? questionTextTemplate.replace('{0}', normalizedListedEntity)
+        : ''
+
+    this.maybeSetAutofillValue(
+      adminIdInput,
+      suggestedAdminId,
+      this.REPEATED_SET_PREVIOUS_ADMIN_ID_SUGGESTION_DATA_ATTRIBUTE,
+    )
+    this.maybeSetAutofillValue(
+      questionTextInput,
+      suggestedQuestionText,
+      this.REPEATED_SET_PREVIOUS_QUESTION_TEXT_SUGGESTION_DATA_ATTRIBUTE,
+    )
+  }
+
+  static maybeSetAutofillValue(
+    input: HTMLInputElement | HTMLTextAreaElement,
+    suggestion: string,
+    previousSuggestionDataAttribute: string,
+  ) {
+    const previousSuggestion =
+      input.dataset[previousSuggestionDataAttribute] ?? ''
+
+    // Only overwrite when untouched by admins (still equal to previous suggestion)
+    // or when admins intentionally clear the field.
+    if (input.value === '' || input.value === previousSuggestion) {
+      input.value = suggestion
+    }
+
+    input.dataset[previousSuggestionDataAttribute] = suggestion
+  }
+
+  static normalizeRepeatedSetEntity(entity: string): string {
+    return entity.trim().replace(/\s+/g, ' ').toLowerCase()
   }
 }
 
@@ -386,4 +529,7 @@ export function init() {
   AdminPrograms.attachEventListenersToHideEditTiInTIOnlyMode()
   AdminPrograms.attachEventListenersToHideEditTiInHiddenMode()
   AdminPrograms.attachEventListenerToHtmxSwap()
+  AdminPrograms.attachEventListenerToEnumeratorCreationMethod()
+  AdminPrograms.attachEventListenerToRepeatedSetFieldAutofill()
+  AdminPrograms.focusOnEnumeratorQuestionSectionFromUrlParam()
 }

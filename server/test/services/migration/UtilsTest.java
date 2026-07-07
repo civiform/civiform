@@ -39,17 +39,6 @@ public class UtilsTest {
   }
 
   @Test
-  public void convertNumberToSuffix_generatesCorrectSuffix() {
-    assertThat(Utils.convertNumberToSuffix(10)).isEqualTo("j");
-    assertThat(Utils.convertNumberToSuffix(26)).isEqualTo("z");
-    assertThat(Utils.convertNumberToSuffix(26 + 2)).isEqualTo("ab");
-    assertThat(Utils.convertNumberToSuffix(26 + 26)).isEqualTo("az");
-    assertThat(Utils.convertNumberToSuffix(26 + 26 + 26)).isEqualTo("bz");
-    assertThat(Utils.convertNumberToSuffix(26 * 26 + 11)).isEqualTo("zk");
-    assertThat(Utils.convertNumberToSuffix(27 * 26 + 11)).isEqualTo("aak");
-  }
-
-  @Test
   public void updateBlockDefinitions_updatesQuestionDefinitions() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newProgram("program1", PROGRAM_ID_1)

@@ -36,6 +36,7 @@ import services.settings.SettingsManifest;
 import views.components.Icons;
 import views.components.SessionTimeoutModals;
 import views.components.ToastMessage;
+import views.shared.FeatureFlags;
 import views.trustedintermediary.ApplicantLayout;
 
 // NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING BaseHtmlLayout
@@ -128,23 +129,33 @@ public class BaseHtmlLayout {
       bundle.addToastMessages(privacyBanner);
     }
 
+    var featureFlagJson =
+        FeatureFlags.fromSettingsManifest(settingsManifest, bundle.getRequest()).toJson();
+
+    bundle.addHeadScripts(
+        script()
+            .with(rawHtml(featureFlagJson))
+            .withType("application/json")
+            .withId("feature-flags-data"));
+
     if (bundledAssetsFinder.useBundlerDevServer()) {
       bundle.addHeadScripts(
           script().withSrc(bundledAssetsFinder.viteClientUrl()).withType("module"));
     }
 
     bundle.addHeadScripts(
-        script().withSrc(bundledAssetsFinder.getUswdsJsInit()).withType("text/javascript"));
+        script()
+            .withSrc(bundledAssetsFinder.getUswdsJsInit())
+            .withType("text/javascript")
+            .attr("crossorigin"));
 
     // Add default stylesheets.
     bundle.addStylesheets(
         link().withHref(bundledAssetsFinder.getUswdsStylesheet()).withRel("stylesheet"));
     bundle.addStylesheets(
         link().withHref(bundledAssetsFinder.getTailwindStylesheet()).withRel("stylesheet"));
-    if (settingsManifest.getMapQuestionEnabled()) {
-      bundle.addStylesheets(
-          link().withHref(bundledAssetsFinder.getMapLibreGLStylesheet()).withRel("stylesheet"));
-    }
+    bundle.addStylesheets(
+        link().withHref(bundledAssetsFinder.getMapLibreGLStylesheet()).withRel("stylesheet"));
 
     // Add Google analytics scripts.
     measurementId
@@ -174,7 +185,7 @@ public class BaseHtmlLayout {
   }
 
   protected void addSessionTimeoutModals(HtmlBundle bundle, Messages messages) {
-    if (settingsManifest.getSessionTimeoutEnabled(bundle.getRequest())
+    if (settingsManifest.getSessionTimeoutEnabled()
         && bundle.getRequest() instanceof Http.Request) {
       // Add the session timeout modals to the bundle
       Http.Request request = (Http.Request) bundle.getRequest();
@@ -206,7 +217,8 @@ public class BaseHtmlLayout {
               dataLayer.push(arguments);
             }
             gtag('js', new Date());
-            gtag('config', '%s');""",
+            gtag('config', '%s');\
+            """,
             trackingTag);
     ScriptTag rawScript = script().with(rawHtml(googleAnalyticsCode)).withType("text/javascript");
     return new ImmutableList.Builder<ScriptTag>().add(scriptImport).add(rawScript).build();
@@ -278,6 +290,7 @@ public class BaseHtmlLayout {
         div()
             .withClasses("usa-banner__content", "usa-accordion__content", "sm: ml-0", "sm:pl-4")
             .withId("gov-banner-default-default")
+            .isHidden()
             .with(
                 div()
                     .withClasses("grid-row", "grid-gap-lg")

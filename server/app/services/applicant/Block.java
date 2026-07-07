@@ -14,6 +14,7 @@ import models.ApplicantModel;
 import models.QuestionDisplayMode;
 import services.Path;
 import services.applicant.question.AbstractQuestion;
+import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
@@ -190,6 +191,21 @@ public final class Block {
     return getVisibleQuestions().stream()
         .filter(ApplicantQuestion::isAddressCorrectionEnabled)
         .findFirst();
+  }
+
+  /**
+   * Returns true if this block has an address question with correction enabled that hasn't been
+   * through the correction flow yet. This can happen when an address is pre-filled from a different
+   * program that didn't have correction enabled.
+   */
+  public boolean hasAddressQuestionWithUncorrectedAddress() {
+    Optional<ApplicantQuestion> maybeAddressQuestion = getAddressQuestionWithCorrectionEnabled();
+    if (maybeAddressQuestion.isEmpty()) {
+      return false;
+    }
+
+    AddressQuestion addressQuestion = maybeAddressQuestion.get().createAddressQuestion();
+    return addressQuestion.needsAddressCorrection();
   }
 
   /** Returns the list of questions in this block that are VISIBLE to applicants. */

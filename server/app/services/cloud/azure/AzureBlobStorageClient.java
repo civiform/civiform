@@ -15,6 +15,7 @@ import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.Optional;
+import services.cloud.ApplicantFileNameFormatter;
 
 /** Class to use for deployed file uploads to Azure blob storage. */
 class AzureBlobStorageClient extends BaseAzureBlobStorageClient {
@@ -79,7 +80,9 @@ class AzureBlobStorageClient extends BaseAzureBlobStorageClient {
             .setProtocol(SasProtocol.HTTPS_ONLY);
 
     if (prefixedOriginalFileName.isPresent()) {
-      signatureValues.setContentDisposition("inline; filename=" + prefixedOriginalFileName.get());
+      signatureValues.setContentDisposition(
+          ApplicantFileNameFormatter.buildResponseContentDisposition(
+              prefixedOriginalFileName.get()));
       signatureValues.setContentType(
           URLConnection.guessContentTypeFromName(prefixedOriginalFileName.get()));
     }

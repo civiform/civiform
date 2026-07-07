@@ -67,6 +67,7 @@ label.primaryNavigation=Pangunahing navigation
 label.agencyIdentifier=Identifier ng ahensya,
 # Aria-label for guest session alert
 label.guestSessionAlert=Alerto ng impormasyon ng session ng bisita
+
 # Link to skip to the main content of the page
 link.skipToMainContent=Lumaktaw sa pangunahing content
 
@@ -550,6 +551,39 @@ content.disabledProgramInfo=Pasensya na, na-disable ang program na sinusubukan m
 button.homePage=Bumalik sa homepage
 
 #--------------------------------------------------------------------------------------------------------------#
+# ADMIN PROGRAM IMAGE - admin-facing text for uploading a program summary card image                             #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Title of the admin page where a program''s summary image and alt text are set.
+title.adminProgramImage=Pag-upload ng larawan
+# Link text to return to program editing from the program image page.
+link.adminProgramImage.back=Bumalik
+# Hint under the file input about maximum upload size for a program summary image.
+content.adminProgramImage.hintMaxSize=Ang pinakamalaking laki para sa pag-upload ng larawan ay 1MB.
+# Hint explaining automatic 16x9 cropping and that the preview reflects saved images.
+content.adminProgramImage.hintCrop=Ang larawan ay awtomatikong iko-crop sa 16x9. Ipinapakita ng preview ng card ng programa sa kanan ang naka-save na larawan.
+# Label for the field where the admin enters alt text for the program summary image.
+label.adminProgramImage.altText=Ilagay ang paglalarawan ng larawan (Alt Text)
+# Button to leave the program image step and continue program setup (creation flow).
+button.adminProgramImage.continue=Magpatuloy
+# Button to save and return when editing an existing program (non-creation flow).
+button.adminProgramImage.save=I-save
+# Button to delete an uploaded program image
+button.adminProgramImage.delete=Tanggalin ang larawan
+# Message shown when alt text is required but missing.
+validation.adminProgramImage.altTextRequired=Ang paglalarawan ng larawan ay kinakailangan kapag nag-upload ng isang larawan ng programa.
+# Toast after saving a program image and alt text together.
+toast.adminProgramImage.imageAndDescriptionSaved=Nai-save ang larawan gamit ang paglalarawan na: {0}
+# Toast after saving alt text without uploading a new file.
+toast.adminProgramImage.descriptionSet=Nai-set ang paglalarawan ng larawan sa {0}
+# Error when alt text cannot be cleared while an image remains.
+toast.adminProgramImage.descriptionNotRemovable=Ang paglalarawan ay hindi maaaring alisin dahil may larawan. Tanggalin ang larawan bago tanggalin ang paglalarawan.
+# Toast after deleting a program image
+toast.adminProgramImage.imageRemoved=Inalis ang larawan
+# Message when the program card preview cannot be rendered.
+content.adminProgramImage.cardPreviewError=Error sa pagbuo ng preview ng card
+
+#--------------------------------------------------------------------------------------------------------------#
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
 #--------------------------------------------------------------------------------------------------------------#
 
@@ -668,7 +702,7 @@ validation.noPoBox=Maaari lamang na ilagay ang wasto na adres. Kami ay hindi nat
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
 title.confirmAddress=Kumpirmahin ang iyong address
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
-content.confirmAddressLine1=Hindi namin nahanap ang iyong address.
+content.confirmAddressLine1.v2=Kailangan ang kompirmasyon ng address.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=Pakitingnan kung tama ang spelling ng address mo o pumili ng opsyon sa listahang ibinigay.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
@@ -779,6 +813,8 @@ placeholder.entityName={0} Palayaw
 validation.fileRequired=Maaari lamang ay pumili ng file.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Masyadong malaki ang iyong file. Pumili ng file na wala pang {0} MB.
+# Shown when an HTMX file upload request fails (any non-success response).
+validation.fileUploadRequestFailed=Hindi namin mai-upload ang iyong file. Mangyaring subukang muli.
 # Text shown on a tag while a file is uploading.
 label.uploading=Ina-upload
 # Label applied to a list of uploaded files
@@ -1057,6 +1093,21 @@ banner.hour=1 na oras
 banner.minute=1 na minuto
 
 #------------------------------------------------------------------------------#
+# DATA SECURITY BANNER - alert explaining data protection to users             #
+#------------------------------------------------------------------------------#
+
+# Header for data security banner alert
+label.immigrationStatusInfoBanner.heading=Tinatanggap ang mga imigrante at refugee dito
+# Aria-label for data security banner alert
+label.immigrationStatusInfoBanner.label=Alerto sa impormasyon tungkol sa katayuan sa imigrasyon
+# Text in the data security banner explaining how user data is protected when no learn more link is configured
+banner.immigrationStatusInfoBanner.body=Hindi kami magtatanong tungkol sa iyong pagkamamamayan o katayuan sa imigrasyon.
+# Text in the data security banner explaining how user data is protected - the placeholder says 'here' and is a link to more information
+banner.immigrationStatusInfoBanner.bodyWithLink=Hindi kami magtatanong tungkol sa iyong pagkamamamayan o katayuan sa imigrasyon. Maaari mong dagdagan ang iyong nalalaman {0}.
+# Link for more info about the data security banner
+banner.immigrationStatusInfoBanner.linkText=dito
+
+#------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
 # Note for developers: these messages aren't used in static text, but instead they #
 #  are seeded into the database, since these will be admin defined in the future #
@@ -1113,24 +1164,27 @@ ariaLabel.categories=Mga Kategorya
 
 # Title of the warning modal that appears when the user has been inactive for a while
 session.inactivity.warning.title=Babala sa Kawalan ng Aktibidad ng Session
-
+# Title of the session timeout warning modals
+session.warning.title=Malapit nang matapos ang sesyon
+# Text on a button on a session ending soon modal that gives users the options to save and log in
+session.login.button.loggedIn=Mag-log in
+session.login.button.guest=Mag-log in o gumawa ng account
 # Message shown in a modal asking the user if they want to extend their session due to inactivity
 session.inactivity.warning.message=Mag-e-expire ang iyong session dahil sa kawalan ng aktibidad. Gusto mo bang i-extend ang iyong session?
-
 # Title of a modal dialog displayed when a user's session is about to expire due to session length limit
 session.length.warning.title=Babala sa Tagal ng Session
-
 # Message shown in a modal warning the user their session will end soon due to session length limit
 session.length.warning.message=Malapit nang mag-expire ang iyong session dahil sa tagal. I-save ang iyong gawa at mag-log in ulit kung kailangan.
-
 # Text on a button that allows users to extend their session when shown timeout warnings
 session.extend.button=I-extend ang Session
-
 # Success message shown when the user's session is successfully extended after clicking the extend button
 session.extended.success=Na-extend na ang session
-
 # Error message shown when there was a problem extending the user's session
 session.extended.error=Hindi na-extend ang session
+# Message shown to guest users warning that their session is about to expire due to session length
+session.length.warning.message.guest=Malapit nang matapos ang iyong sesyon. Mangyaring i-save ang iyong trabaho at mag-log in o gumawa ng account upang magpatuloy.
+# Message shown to logged-in users warning that their session is about to expire due to session length
+session.length.warning.message.loggedIn=Malapit nang matapos ang iyong sesyon. Mangyaring i-save ang iyong trabaho at mag-log in muli upang magpatuloy. Hindi mawawala ang iyong nagawa na sa application.
 
 #------------------------------------------------------------------------------#
 #  ADMIN PROGRAM BLOCK EDIT                                                    #
@@ -1150,14 +1204,26 @@ input.repeatedSet.listedEntity=
 input.repeatedSet.adminId=
 # A text input field asking admins for the text that will prompt applicants to list out the entity
 input.repeatedSet.questionText=
+# Autofill suggestion template shown in the admin ID field when applicant selects a listed entity. {0} is the listed entity name.
+input.repeatedSet.adminIdAutofillSuggestion=
+# Autofill suggestion template shown in the question text field when applicant selects a listed entity. {0} is the listed entity name.
+input.repeatedSet.questionTextAutofillSuggestion=
 # A text input field for admins to add a hint that will help applicants decide what entities to list out
 input.repeatedSet.hintText=
 # A form field where admins set the minimum number of entities that applicants must list
 input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
 input.repeatedSet.maxEntities=
+# Label for the field on the new repeated set form where an admin will select the question that the user will complete first in the enumerator flow
+label.repeatedSet.initialQuestion=
+# Description explaining what the initial question is and what the "Add question" button does
+description.repeatedSet.initialQuestion=
+# Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
+alert.repeatedSet.addQuestionDisabled=
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
-alert.repeatedSet.newQuestion=
+alert.repeatedSet.newQuestion=Ang paggawa ng isang inuulit na set ay magdaragdag ng bagong tanong sa kaban ng mga tanong.
+# Alert shown in the question bank section listing repeated questions that are already associated with this repeated set
+alert.repeatedSet.previouslyUsed=
 # Submission button for creating a new repeated set
 button.repeatedSet.submitNew=
 # Button for admins to add a new repeated set
@@ -1170,6 +1236,42 @@ text.nestedRepeatedSet=
 text.repeatedSet.prefix=magulang na label
 # An uneditable prefix for the enumerator screen name representing the nested repeated object that will be enumerated
 text.repeatedSet.nestedPrefix=anak na label
+# Instructions for admins on how to add or change the repeated set question in a program block
+text.repeatedSet.questionDescription=
+#An additional description explaining the uneditable prefix within the screen editing modal
+text.repeatedSet.screenNameDescription=
+#An additional description explaining what the add question button does
+text.repeatedSet.addQuestionDescription=
+# Information shown to admins when they are adding a question to a repeated screen.
+text.repeatedQuestions.description=
+# Heading above the repeated set question in the program block editor
+heading.repeatedSet.question=
+# Heading shown above repeated questions in the question bank that are already associated with this repeated set
+heading.repeatedSet.previouslyUsed=
+# Heading above the questions section on repeated screens in the admin program screen editor.
+heading.repeatedQuestions=
+# Informative text above the listed entity input field to help admins understand what to enter in that field.
+description.repeatedSet.listedEntity=
+# Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
+description.repeatedSet.adminId=
+# An informative description above the question text input field to help admins understand what to enter in that field.
+description.repeatedSet.questionText=
+# An informative description above the hint text input field to help admins understand what to enter in that field.
+description.repeatedSet.hintText=
+#An informative description below the option to create a new repeated set question
+description.repeatedSet.createNewQuestion=
+#An informative description below the option to choose an existing question
+description.repeatedSet.chooseExistingQuestion=
+# A button for admins to add a repeated screen to a program
+button.addRepeatedScreen=
+# A button for admins to add a nested repeated set to a program
+button.addNestedRepeatedSet=
+# A button for admins to add a pre-existing enumerator question to a program
+button.addQuestion=
+# A tooltip shown to admins when the delete screen button is disabled
+tooltip.deleteScreenDisabled=
+# A tooltip shown to admins when the delete question button is disabled for a repeated set question
+tooltip.removeEnumeratorQuestionDisabled=
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #
@@ -1220,3 +1322,147 @@ reportingProgram.timeToCompleteP75=Oras upang kumpletuhin (p75)
 reportingProgram.timeToCompleteP99=Oras upang kumpletuhin (p99)
 # Text on button to download CSV file
 reportingProgram.downloadCsv=I-download ang CSV
+
+#------------------------------------------------------------------------------#
+#  ADMIN API DOCS                                                              #
+#------------------------------------------------------------------------------#
+
+# Admin API Docs page title
+adminApiDocs.pageTitle=Dokumentasyon ng API
+
+# Aria label for the nav that switches between API docs sub-pages.
+adminApiDocs.tabs.ariaLabel=Mga seksyon ng dokumentasyon ng API
+# Tab label for the main API docs page.
+adminApiDocs.tabs.docs=Mga dokumento
+# Tab label for the schema viewer page.
+adminApiDocs.tabs.schema=Tagatingin ng schema
+
+# Intro paragraph as text before the external-docs link.
+adminApiDocs.intro.beforeLink=Kasama sa pahinang ito ang partikular sa programa na Dokumentasyon ng API para sa mga Aktibo at Draft na programa. Ang detalyadong dokumentasyon tungkol sa pagpapatunay, pahinasyon, at mga posibleng value ng bawat field ay nasa
+# Visible text of the external-docs link in the intro paragraph.
+adminApiDocs.intro.linkText=docs.civiform.us/it-manual/api
+# Intro paragraph as text after the external-docs link.
+adminApiDocs.intro.afterLink=.\n
+
+# Heading on the collapsible "How does this work?" accordion.
+adminApiDocs.accordion.heading=Paano ito gumagana?
+# First paragraph inside the accordion.
+adminApiDocs.accordion.paragraph1=Ang preview ng sagot ng API ay halimbawa ng kung ano ang maaaring hitsura ng sagot ng API para sa isang partikular na programa. Ang lahat ng datos ay peke. Ang mga tanong na iisa-ang-pipiliing-sagot at maraming-pipiliing-sagot ay may mga halimbawang sagot na pinili mula sa mga magagamit na sagot.
+# Second paragraph inside the accordion as text before the shareable link.
+adminApiDocs.accordion.paragraph2.beforeLink=Maaari mong i-share ang link na ito,
+# Second paragraph inside the accordion as text after the shareable link.
+adminApiDocs.accordion.paragraph2.afterLink=, sa sinumang kailangang makakita ng mga dokumento ng API. Maaaring i-access ito nang hindi nagla-log in, kaya hindi nila kailangang maging CiviForm Admin o Program Admin upang makita ang pahinang ito.
+
+# Label for the program selector.
+adminApiDocs.selectProgram=Pumili ng programa:
+# Label for the program-version selector.
+adminApiDocs.selectVersion=Pumili ng bersyon:
+# Option label for the active version of a program.
+adminApiDocs.version.active=Aktibo
+# Option label for the draft version of a program.
+adminApiDocs.version.draft=Draft
+
+# Message shown when the requested program + version combination does not exist.
+adminApiDocs.notFound=Walang nakitang mga programa. Mangyaring gumawa at mag-publish ng programa bago mag-access ng mga dokumento ng API.
+# Heading for the list of questions on the selected program.
+adminApiDocs.questions=Mga Tanong
+# Label for a question's admin name
+adminApiDocs.adminName=Pangalan ng Admin
+# Label for a question's type (text, number, etc.).
+adminApiDocs.type=Uri
+# Label for a question's display text.
+adminApiDocs.text=Teksto
+# Label for a multi-option question's answer options.
+adminApiDocs.options=Mga Opsyon
+# Label preceding the list of a question's currently-available options.
+adminApiDocs.currentOptions=Mga kasalukuyang opsyon:
+# Label preceding the list of every option the question has ever had.
+adminApiDocs.allOptions=Lahat ng posibleng opsyon:
+# Heading above the JSON preview of the API response.
+adminApiDocs.responsePreview=Preview ng tugon ng API
+
+#------------------------------------------------------------------------------#
+#  ADMIN SCHEMA VIEWER                                                         #
+#------------------------------------------------------------------------------#
+
+# Admin API Docs page title
+adminSchemaViewer.pageTitle=Tagatingin ng schema ng API
+# First intro paragraph on the OpenAPI schema viewer page.
+adminSchemaViewer.intro1=Ang pahinang ito ay nagpapakita ng biswalisasyon ng OpenAPI Schema. Parehong magagamit ang bersyon 2 (dating Swagger 2) at bersyon 3.
+# Second intro paragraph on the OpenAPI schema viewer page.
+adminSchemaViewer.intro2=Inirerekomenda namin ang paggamit lang ng bersyon 3 maliban kung may partikular na pangangailangan para sa mas lumang format.
+# Label for the program selector on the schema viewer page.
+adminSchemaViewer.selectProgram=Programa:
+# Label for the program-status selector on the schema viewer page.
+adminSchemaViewer.selectStatus=Katayuan:
+# Label for the OpenAPI version selector on the schema viewer page.
+adminSchemaViewer.selectVersion=Bersyon ng OpenAPI:
+# Error generating OpenAPI YAML
+adminSchemaViewer.yamlError=Hindi mabuo ang bersyon ng OpenAPI na '{0}' para sa programang '{1}' sa yugtong '{2}'.
+
+#------------------------------------------------------------------------------#
+#  DEV TOOLS - text for the developer tools page                               #
+#------------------------------------------------------------------------------#
+# The text on the button to go to the home page from the dev tools page.
+devtools.homepage=
+
+# Heading for the seed section of the dev tools page.
+devtools.seed.title=
+# Description for the seed section of the dev tools page.
+devtools.seed.description=
+# Button text to seed sample programs and categories.
+devtools.seed.programs=
+# Button text to seed sample questions.
+devtools.seed.questions=
+# Button text to clear the entire database (irreversible action).
+devtools.seed.clear=
+
+# Heading for the caching section of the dev tools page.
+devtools.cache.title=
+# Description for the caching section of the dev tools page.
+devtools.cache.description=
+# Button text to clear the cache.
+devtools.cache.clear=
+
+# Heading for the durable jobs section of the dev tools page.
+devtools.jobs.title=
+# Description for the durable jobs section of the dev tools page.
+devtools.jobs.description=
+# Label for the dropdown to select a durable job to run.
+devtools.jobs.select=
+# Button text to run the selected durable job.
+devtools.jobs.run=
+
+# Heading for the icons section of the dev tools page.
+devtools.icons.title=
+# Description for the icons section of the dev tools page.
+devtools.icons.description=
+# Button text to view all SVG icons.
+devtools.icons.view=
+
+# Heading for the Localstack section of the dev tools page.
+devtools.localstack.title=
+# Description for the Localstack section of the dev tools page.
+devtools.localstack.description=
+# Button text to view SES emails in Localstack.
+devtools.localstack.ses=
+# Button text to view the S3 private bucket in Localstack.
+devtools.localstack.private=
+# Button text to view the S3 public bucket in Localstack.
+devtools.localstack.public=
+
+# Heading for the address tools section of the dev tools page.
+devtools.address.title=
+# Description for the address tools section of the dev tools page.
+devtools.address.description=
+# Button text to go to the address tools page.
+devtools.address.go=
+
+# Heading for the session tools section of the dev tools page.
+devtools.session.title=
+# Description for the session tools section of the dev tools page.
+devtools.session.description=
+# Button text to view the current pac4j profile.
+devtools.session.pac4j=
+# Button text to view the current Play session.
+devtools.session.play=

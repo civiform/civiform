@@ -1,10 +1,16 @@
 package services.geo.esri;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static services.geo.esri.EsriClient.ESRI_LOOKUP_COUNT;
+import static services.geo.esri.EsriClient.LOOKUP_LABEL_FULL_ADDRESS;
+import static services.geo.esri.EsriClient.LOOKUP_LABEL_NO_SUGGESTIONS;
+import static services.geo.esri.EsriClient.LOOKUP_LABEL_PARSE_FAILURE;
+import static services.geo.esri.EsriClient.LOOKUP_LABEL_PARTIAL_ADDRESS;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import org.junit.After;
@@ -19,6 +25,14 @@ import services.geo.esri.EsriTestHelper.TestType;
 import services.geo.esri.models.Attributes;
 
 public class EsriClientTest extends WithApplication {
+  public static final Address ADDRESS =
+      Address.builder()
+          .setStreet("380 New York St")
+          .setLine2("")
+          .setCity("Redlands")
+          .setState("CA")
+          .setZip("92373")
+          .build();
   private EsriTestHelper helper;
 
   @After
@@ -104,17 +118,10 @@ public class EsriClientTest extends WithApplication {
   @Test
   public void getAddressSuggestions() throws Exception {
     helper = new EsriTestHelper(TestType.STANDARD, instanceOf(ObjectMapper.class));
-    Address address =
-        Address.builder()
-            .setStreet("380 New York St")
-            .setLine2("")
-            .setCity("Redlands")
-            .setState("CA")
-            .setZip("92373")
-            .build();
+    LookupMetricCounts metricsBefore = LookupMetricCounts.snapshot();
 
     CompletionStage<AddressSuggestionGroup> group =
-        helper.getClient().getAddressSuggestions(address);
+        helper.getClient().getAddressSuggestions(ADDRESS);
     ImmutableList<AddressSuggestion> suggestions =
         group.toCompletableFuture().join().getAddressSuggestions();
     // First item is guaranteed to be here since the response is taken from the JSON file.
@@ -122,111 +129,104 @@ public class EsriClientTest extends WithApplication {
     // in the street address or any street address at all.
     assertThat(suggestions).hasSizeGreaterThan(0);
     Optional<AddressSuggestion> addressSuggestion = suggestions.stream().findFirst();
-    assertThat(addressSuggestion.isPresent()).isTrue();
     String street = addressSuggestion.get().getAddress().getStreet();
     assertThat(street).isEqualTo("Address In Area");
+
+    metricsBefore.assertDeltas(
+        Map.of(LOOKUP_LABEL_FULL_ADDRESS, 4.0, LOOKUP_LABEL_PARTIAL_ADDRESS, 1.0));
   }
 
   @Test
   public void getAddressSuggestionsIncludesOriginalAddress() throws Exception {
     helper = new EsriTestHelper(TestType.STANDARD, instanceOf(ObjectMapper.class));
-    Address address =
-        Address.builder()
-            .setStreet("380 New York St")
-            .setLine2("")
-            .setCity("Redlands")
-            .setState("CA")
-            .setZip("92373")
-            .build();
+    LookupMetricCounts metricsBefore = LookupMetricCounts.snapshot();
 
     CompletionStage<AddressSuggestionGroup> group =
-        helper.getClient().getAddressSuggestions(address);
+        helper.getClient().getAddressSuggestions(ADDRESS);
     Address originalAddress = group.toCompletableFuture().join().getOriginalAddress();
 
-    assertThat(originalAddress.getStreet()).isEqualTo(address.getStreet());
-    assertThat(originalAddress.getLine2()).isEqualTo(address.getLine2());
-    assertThat(originalAddress.getCity()).isEqualTo(address.getCity());
-    assertThat(originalAddress.getState()).isEqualTo(address.getState());
-    assertThat(originalAddress.getZip()).isEqualTo(address.getZip());
+    assertThat(originalAddress.getStreet()).isEqualTo(ADDRESS.getStreet());
+    assertThat(originalAddress.getLine2()).isEqualTo(ADDRESS.getLine2());
+    assertThat(originalAddress.getCity()).isEqualTo(ADDRESS.getCity());
+    assertThat(originalAddress.getState()).isEqualTo(ADDRESS.getState());
+    assertThat(originalAddress.getZip()).isEqualTo(ADDRESS.getZip());
+
+    metricsBefore.assertDeltas(
+        Map.of(LOOKUP_LABEL_FULL_ADDRESS, 4.0, LOOKUP_LABEL_PARTIAL_ADDRESS, 1.0));
   }
 
   @Test
   public void getAddressSuggestionsWithNoCandidates() throws Exception {
     helper = new EsriTestHelper(TestType.NO_CANDIDATES, instanceOf(ObjectMapper.class));
-    Address address =
-        Address.builder()
-            .setStreet("380 New York St")
-            .setLine2("")
-            .setCity("Redlands")
-            .setState("CA")
-            .setZip("92373")
-            .build();
+    LookupMetricCounts metricsBefore = LookupMetricCounts.snapshot();
 
     AddressSuggestionGroup group =
-        helper.getClient().getAddressSuggestions(address).toCompletableFuture().join();
+        helper.getClient().getAddressSuggestions(ADDRESS).toCompletableFuture().join();
     ImmutableList<AddressSuggestion> suggestions = group.getAddressSuggestions();
     assertThat(suggestions).isEmpty();
-    assertThat(group.getOriginalAddress()).isEqualTo(address);
+    assertThat(group.getOriginalAddress()).isEqualTo(ADDRESS);
+
+    metricsBefore.assertDeltas(Map.of());
   }
 
   @Test
   public void getAddressSuggestionsWithEmptyResponse() throws Exception {
     helper = new EsriTestHelper(TestType.EMPTY_RESPONSE, instanceOf(ObjectMapper.class));
-    Address address =
-        Address.builder()
-            .setStreet("380 New York St")
-            .setLine2("")
-            .setCity("Redlands")
-            .setState("CA")
-            .setZip("92373")
-            .build();
+    LookupMetricCounts metricsBefore = LookupMetricCounts.snapshot();
 
     AddressSuggestionGroup group =
-        helper.getClient().getAddressSuggestions(address).toCompletableFuture().join();
+        helper.getClient().getAddressSuggestions(ADDRESS).toCompletableFuture().join();
     ImmutableList<AddressSuggestion> suggestions = group.getAddressSuggestions();
     assertThat(suggestions).isEmpty();
     assertThat(group.getWellKnownId()).isEqualTo(0);
-    assertThat(group.getOriginalAddress()).isEqualTo(address);
+    assertThat(group.getOriginalAddress()).isEqualTo(ADDRESS);
+
+    metricsBefore.assertDeltas(Map.of());
   }
 
   @Test
   public void getAddressSuggestionsWithEsriErrorResponse() {
     helper = new EsriTestHelper(TestType.ESRI_ERROR_RESPONSE, instanceOf(ObjectMapper.class));
-    Address address =
-        Address.builder()
-            .setStreet("380 New York St")
-            .setLine2("")
-            .setCity("Redlands")
-            .setState("CA")
-            .setZip("92373")
-            .build();
+    LookupMetricCounts metricsBefore = LookupMetricCounts.snapshot();
 
     AddressSuggestionGroup group =
-        helper.getClient().getAddressSuggestions(address).toCompletableFuture().join();
+        helper.getClient().getAddressSuggestions(ADDRESS).toCompletableFuture().join();
     ImmutableList<AddressSuggestion> suggestions = group.getAddressSuggestions();
     assertThat(suggestions).isEmpty();
     assertThat(group.getWellKnownId()).isEqualTo(0);
-    assertThat(group.getOriginalAddress()).isEqualTo(address);
+    assertThat(group.getOriginalAddress()).isEqualTo(ADDRESS);
+
+    metricsBefore.assertDeltas(Map.of(LOOKUP_LABEL_NO_SUGGESTIONS, 1.0));
+  }
+
+  @Test
+  public void getAddressSuggestionsWithParseFailure() {
+    helper = new EsriTestHelper(TestType.PARSE_FAILURE, instanceOf(ObjectMapper.class));
+    LookupMetricCounts metricsBefore = LookupMetricCounts.snapshot();
+
+    AddressSuggestionGroup group =
+        helper.getClient().getAddressSuggestions(ADDRESS).toCompletableFuture().join();
+    ImmutableList<AddressSuggestion> suggestions = group.getAddressSuggestions();
+    assertThat(suggestions).isEmpty();
+    assertThat(group.getWellKnownId()).isEqualTo(0);
+    assertThat(group.getOriginalAddress()).isEqualTo(ADDRESS);
+
+    metricsBefore.assertDeltas(Map.of(LOOKUP_LABEL_PARSE_FAILURE, 1.0));
   }
 
   @Test
   public void getAddressSuggestionsWithError() throws Exception {
     helper = new EsriTestHelper(TestType.ERROR, instanceOf(ObjectMapper.class));
-    Address address =
-        Address.builder()
-            .setStreet("380 New York St")
-            .setLine2("")
-            .setCity("Redlands")
-            .setState("CA")
-            .setZip("92373")
-            .build();
+    LookupMetricCounts metricsBefore = LookupMetricCounts.snapshot();
 
     AddressSuggestionGroup group =
-        helper.getClient().getAddressSuggestions(address).toCompletableFuture().join();
+        helper.getClient().getAddressSuggestions(ADDRESS).toCompletableFuture().join();
     ImmutableList<AddressSuggestion> suggestions = group.getAddressSuggestions();
     assertThat(suggestions).isEmpty();
     assertThat(group.getWellKnownId()).isEqualTo(0);
-    assertThat(group.getOriginalAddress()).isEqualTo(address);
+    assertThat(group.getOriginalAddress()).isEqualTo(ADDRESS);
+
+    metricsBefore.assertDeltas(Map.of(LOOKUP_LABEL_NO_SUGGESTIONS, 1.0));
   }
 
   @Test
@@ -312,5 +312,37 @@ public class EsriClientTest extends WithApplication {
     assertThat(result.getCity()).isEqualTo(cityExpected);
     assertThat(result.getState()).isEqualTo(stateExpected);
     assertThat(result.getZip()).isEqualTo(zipExpected);
+  }
+
+  /** Snapshot of the ESRI_LOOKUP_COUNT counter values for every known label. */
+  private record LookupMetricCounts(
+      double noSuggestions, double partialAddress, double fullAddress, double parseFailure) {
+    static LookupMetricCounts snapshot() {
+      return new LookupMetricCounts(
+          ESRI_LOOKUP_COUNT.labels(LOOKUP_LABEL_NO_SUGGESTIONS).get(),
+          ESRI_LOOKUP_COUNT.labels(LOOKUP_LABEL_PARTIAL_ADDRESS).get(),
+          ESRI_LOOKUP_COUNT.labels(LOOKUP_LABEL_FULL_ADDRESS).get(),
+          ESRI_LOOKUP_COUNT.labels(LOOKUP_LABEL_PARSE_FAILURE).get());
+    }
+
+    /**
+     * Verifies that each label in {@code expectedDeltas} changed by the given amount since this
+     * snapshot was taken, and every other label did not change.
+     */
+    void assertDeltas(Map<String, Double> expectedDeltas) {
+      LookupMetricCounts after = LookupMetricCounts.snapshot();
+      assertThat(after.noSuggestions() - noSuggestions)
+          .as(LOOKUP_LABEL_NO_SUGGESTIONS)
+          .isEqualTo(expectedDeltas.getOrDefault(LOOKUP_LABEL_NO_SUGGESTIONS, 0.0));
+      assertThat(after.partialAddress() - partialAddress)
+          .as(LOOKUP_LABEL_PARTIAL_ADDRESS)
+          .isEqualTo(expectedDeltas.getOrDefault(LOOKUP_LABEL_PARTIAL_ADDRESS, 0.0));
+      assertThat(after.fullAddress() - fullAddress)
+          .as(LOOKUP_LABEL_FULL_ADDRESS)
+          .isEqualTo(expectedDeltas.getOrDefault(LOOKUP_LABEL_FULL_ADDRESS, 0.0));
+      assertThat(after.parseFailure() - parseFailure)
+          .as(LOOKUP_LABEL_PARSE_FAILURE)
+          .isEqualTo(expectedDeltas.getOrDefault(LOOKUP_LABEL_PARSE_FAILURE, 0.0));
+    }
   }
 }

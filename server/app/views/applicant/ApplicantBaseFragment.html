@@ -20,6 +20,8 @@
 
   <title th:text="${pageTitle}"></title>
 
+  <th:block th:insert="~{shared/FeatureFlags}" />
+
   <th:block th:if="${useBundlerDevServer}">
     <script
       th:if="${viteClientUrl}"
@@ -39,6 +41,7 @@
     th:nonce="${cspNonce}"
     th:src="${uswdsJsInit}"
     type="text/javascript"
+    th:crossorigin="${useBundlerDevServer ? 'anonymous' : null}"
   ></script>
 
   <style th:inline="css" th:nonce="${cspNonce}">
@@ -59,9 +62,9 @@
     th:nonce="${cspNonce}"
     th:src="${uswdsJsBundle}"
     type="text/javascript"
+    th:crossorigin="${useBundlerDevServer ? 'anonymous' : null}"
   ></script>
   <link
-    th:if="${mapQuestionEnabled}"
     th:href="${mapLibreGLStylesheet}"
     type="text/css"
     rel="stylesheet"

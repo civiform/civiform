@@ -43,30 +43,30 @@ public class SessionControllerTest {
   @Test
   public void extendSession_withValidRequest_updatesLastActivityTime() {
     Http.Request request = fakeRequestBuilder().build();
-    when(mockSettingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
+    when(mockSettingsManifest.getSessionTimeoutEnabled()).thenReturn(true);
 
     Result result = controller.extendSession(request);
 
     assertThat(result.status()).isEqualTo(Http.Status.OK);
-    verify(mockProfileData).updateLastActivityTime(clock);
+    verify(mockProfileData).updateLastSessionActivityTime(clock);
   }
 
   @Test
   public void extendSession_whenTimeoutDisabled_returnsBadRequest() {
     Http.Request request = fakeRequestBuilder().build();
-    when(mockSettingsManifest.getSessionTimeoutEnabled(request)).thenReturn(false);
+    when(mockSettingsManifest.getSessionTimeoutEnabled()).thenReturn(false);
 
     Result result = controller.extendSession(request);
 
     assertThat(result.status()).isEqualTo(Http.Status.BAD_REQUEST);
-    verify(mockProfileData, never()).updateLastActivityTime(any());
+    verify(mockProfileData, never()).updateLastSessionActivityTime(any());
   }
 
   @Test
   public void extendSession_withNoProfile_returnsUnauthorized() {
     Http.Request request = fakeRequestBuilder().build();
 
-    when(mockSettingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
+    when(mockSettingsManifest.getSessionTimeoutEnabled()).thenReturn(true);
 
     when(profileUtils.optionalCurrentUserProfile(any(Http.Request.class)))
         .thenReturn(Optional.empty());
@@ -74,6 +74,6 @@ public class SessionControllerTest {
     Result result = controller.extendSession(request);
 
     assertThat(result.status()).isEqualTo(Http.Status.UNAUTHORIZED);
-    verify(mockProfileData, never()).updateLastActivityTime(any());
+    verify(mockProfileData, never()).updateLastSessionActivityTime(any());
   }
 }

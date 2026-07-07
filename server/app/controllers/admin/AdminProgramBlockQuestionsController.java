@@ -6,9 +6,9 @@ import static views.ViewUtils.ProgramDisplayType.DRAFT;
 import auth.Authorizers.Labels;
 import com.google.common.collect.ImmutableList;
 import controllers.FlashKey;
-import forms.EnumeratorQuestionForm;
 import forms.ProgramQuestionDefinitionOptionalityForm;
-import forms.QuestionFormBuilder;
+import forms.questions.EnumeratorQuestionForm;
+import forms.questions.QuestionFormBuilder;
 import java.util.Map.Entry;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -16,6 +16,7 @@ import models.QuestionModel;
 import org.pac4j.play.java.Secure;
 import play.data.DynamicForm;
 import play.data.FormFactory;
+import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
@@ -39,6 +40,7 @@ import services.question.QuestionService;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.NullQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
@@ -92,12 +94,16 @@ public class AdminProgramBlockQuestionsController extends Controller {
 
     // The users' browser may be out of date. Find the last revision of each question.
     ImmutableList.Builder<Long> idBuilder = new ImmutableList.Builder<Long>();
+    boolean addedEnumeratorQuestion = false;
     for (Long qId : questionIds) {
       Optional<QuestionModel> latestQuestion = versionRepository.getLatestVersionOfQuestion(qId);
       if (latestQuestion.isEmpty()) {
         return notFound(String.format("Question ID %s not found", qId));
       }
       idBuilder.add(latestQuestion.get().id);
+      if (latestQuestion.get().getQuestionDefinition().isEnumerator()) {
+        addedEnumeratorQuestion = true;
+      }
     }
     ImmutableList<Long> latestQuestionIds = idBuilder.build();
 
@@ -108,25 +114,35 @@ public class AdminProgramBlockQuestionsController extends Controller {
           programId,
           blockId,
           latestQuestionIds,
-          settingsManifest.getEnumeratorImprovementsEnabled(request));
+          settingsManifest.getEnumeratorImprovementsEnabled(request),
+          settingsManifest.getFileUploadQuestionImprovementsEnabled(request));
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
       return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
-    } catch (QuestionNotFoundException e) {
-      return notFound(String.format("Question IDs %s not found", latestQuestionIds));
     } catch (CantAddQuestionToBlockException e) {
       return notFound(e.externalMessage());
     }
 
+    String editUrl =
+        controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId).url();
+
+    // When the enumerator-improvements flag is on, adding an enumerator question via the
+    // "Choose existing" flow replaces the setup section with the question card, so leaving the
+    // bank open would be confusing. In all other cases, keep it open so the admin can add more
+    // questions.
+    boolean closeBankAndFocusEnumeratorHeading =
+        addedEnumeratorQuestion && settingsManifest.getEnumeratorImprovementsEnabled(request);
     return redirect(
-        ProgramQuestionBank.addShowQuestionBankParam(
-            controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId).url()));
+        closeBankAndFocusEnumeratorHeading
+            ? ProgramQuestionBank.addFocusEnumeratorHeadingParam(editUrl)
+            : ProgramQuestionBank.addShowQuestionBankParam(editUrl));
   }
 
   /** HTMX POST endpoint for creating a new enumerator question and adding it to a screen. */
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
   public Result hxCreateEnumerator(Request request, long programId, long blockId) {
+    Messages messages = messagesApi.preferred(request);
     requestChecker.throwIfProgramNotDraft(programId);
 
     // Create the new enumerator question in the same way as in AdminQuestionController#create.
@@ -153,11 +169,12 @@ public class AdminProgramBlockQuestionsController extends Controller {
           blockEditView
               .renderEnumeratorSetupSection(
                   request,
-                  messagesApi.preferred(request),
+                  messages,
                   programId,
                   blockId,
                   Optional.of(questionForm),
-                  result.getErrors())
+                  result.getErrors(),
+                  /* optionalNewInitialQuestion= */ Optional.empty())
               .render());
     }
 
@@ -181,7 +198,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
               programId,
               blockId,
               latestQuestionIds,
-              settingsManifest.getEnumeratorImprovementsEnabled(request));
+              settingsManifest.getEnumeratorImprovementsEnabled(request),
+              settingsManifest.getFileUploadQuestionImprovementsEnabled(request));
       blockDefinition = programDefinition.getBlockDefinition(blockId);
       programQuestionDefinition =
           blockDefinition.programQuestionDefinitions().stream()
@@ -195,8 +213,6 @@ public class AdminProgramBlockQuestionsController extends Controller {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
       return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
-    } catch (QuestionNotFoundException e) {
-      return notFound(String.format("Question IDs %s not found", latestQuestionIds));
     } catch (CantAddQuestionToBlockException e) {
       return notFound(e.externalMessage());
     } catch (ProgramQuestionDefinitionNotFoundException e) {
@@ -206,8 +222,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
     return ok(
         blockEditView
             .renderEnumeratorSectionWithSelectedQuestion(
-                messagesApi.preferred(request),
-                /* optionalQuestionCard= */ Optional.of(
+                messages,
+                /* optionalEnumeratorQuestionCard= */ Optional.of(
                     blockEditView.renderQuestion(
                         /* optionalCsrfTag= */ Optional.empty(),
                         programDefinition,
@@ -216,8 +232,67 @@ public class AdminProgramBlockQuestionsController extends Controller {
                         programQuestionDefinition,
                         /* questionIndex= */ 0, // Enumerator blocks have only one question
                         blockDefinition.getQuestionCount(),
-                        request)),
-                /* blockHasEnumeratorQuestion= */ true)
+                        request,
+                        messages)),
+                /* blockHasEnumeratorQuestion= */ true,
+                blockDefinition)
+            .render());
+  }
+
+  /**
+   * HTMX POST endpoint for when an initial question is picked while setting up an enumerator block.
+   * Returns the fragment that replaces the {@code #initial-question-slot} and triggers the {@code
+   * closeQuestionBank} event on the client so the bank closes. The question is not yet attached to
+   * the block. Rather, the initial question id becomes the value of a hidden form field that will
+   * be submitted when the user clicks "Create repeated set".
+   */
+  @Secure(authorizers = Labels.CIVIFORM_ADMIN)
+  public Result hxSelectInitialQuestion(Request request, long programId, long blockId) {
+    requestChecker.throwIfProgramNotDraft(programId);
+
+    DynamicForm requestData = formFactory.form().bindFromRequest(request);
+    Optional<Long> questionId =
+        requestData.rawData().entrySet().stream()
+            .filter(formField -> formField.getKey().startsWith("question-"))
+            .map(Entry::getValue)
+            .map(Long::valueOf)
+            .findFirst();
+
+    if (questionId.isEmpty()) {
+      return badRequest("No question selected");
+    }
+
+    QuestionDefinition selected =
+        questionService.getReadOnlyQuestionServiceSync().getQuestionDefinition(questionId.get());
+
+    // ReadOnlyCurrentQuestionServiceImpl logs and returns a NullQuestionDefinition for unknown
+    // ids rather than throwing — catch that here so the caller gets a proper 404.
+    if (selected instanceof NullQuestionDefinition) {
+      return notFound(String.format("Question ID %d not found", questionId.get()));
+    }
+
+    return ok(blockEditView
+            .renderSelectedInitialQuestion(
+                messagesApi.preferred(request),
+                selected,
+                programId,
+                blockId,
+                /* initialQuestionWasNewlyCreated= */ false)
+            .render())
+        .withHeader("HX-Trigger-After-Swap", "closeQuestionBank");
+  }
+
+  /**
+   * HTMX GET endpoint that returns the empty {@code #initial-question-slot} fragment. Used by the
+   * Delete button on the initial-question card to swap the slot back to its empty "Add question"
+   * state. The question has not yet been attached to the block, so no DB writes occur.
+   */
+  @Secure(authorizers = Labels.CIVIFORM_ADMIN)
+  public Result hxClearInitialQuestionSlot(Request request, long programId, long blockId) {
+    requestChecker.throwIfProgramNotDraft(programId);
+    return ok(
+        blockEditView
+            .renderEmptyInitialQuestionSlot(messagesApi.preferred(request), programId, blockId)
             .render());
   }
 

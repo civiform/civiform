@@ -6,7 +6,7 @@
   <head
     th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
   ></head>
-  <body>
+  <body th:hx-headers='|{"CSRF-TOKEN":"${csrfToken}"}|'>
     <div th:replace="~{applicant/ApplicantBaseFragment :: skipNav}"></div>
     <div
       th:replace="~{applicant/shared/NavigationFragment :: pageHeader}"
@@ -60,7 +60,10 @@
               th:replace="~{applicant/ApplicantBaseFragment :: requiredFieldsExplanation}"
             ></div>
 
-            <ol class="application-summary usa-list--unstyled">
+            <ol
+              class="application-summary usa-list--unstyled"
+              th:aria-label="#{title.programSummary}"
+            >
               <li class="" th:each="blockSummary: ${blockSummaries}">
                 <div
                   th:replace="~{applicant/review/BlockSummaryFragment :: blockSummaryFragment(${blockSummary})}"

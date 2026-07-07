@@ -2,7 +2,7 @@ package views.dev.componentcatalog;
 
 import com.google.common.collect.ImmutableList;
 import lombok.Builder;
-import views.admin.BaseViewModel;
+import views.BaseViewModel;
 import views.dev.componentcatalog.fragments.ButtonControl;
 import views.dev.componentcatalog.fragments.CheckboxControl;
 import views.dev.componentcatalog.fragments.InputControl;

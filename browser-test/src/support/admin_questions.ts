@@ -144,10 +144,11 @@ export class AdminQuestions {
   }
 
   async expectAdminQuestionsPageWithSuccessToast(successText: string) {
-    const toastContainer = await this.page.innerHTML('#toast-container')
-
-    expect(toastContainer).toContain('bg-cf-toast-success')
-    expect(toastContainer).toContain(successText)
+    await expect(
+      this.page
+        .locator('#toast-container .bg-cf-toast-success')
+        .getByText(successText),
+    ).toBeVisible()
     await this.expectAdminQuestionsPage()
   }
 
@@ -216,9 +217,13 @@ export class AdminQuestions {
       'label:has-text("Question note for administrative use only")',
       description ?? '',
     )
-    await this.page.selectOption('#question-enumerator-select', {
-      label: enumeratorName,
-    })
+    // Only select enumerator if the dropdown is enabled
+    const enumeratorSelect = this.page.locator('#question-enumerator-select')
+    if (await enumeratorSelect.isEnabled()) {
+      await this.page.selectOption('#question-enumerator-select', {
+        label: enumeratorName,
+      })
+    }
     if (exportOption) {
       await this.selectExportOption(exportOption)
     }
@@ -292,11 +297,9 @@ export class AdminQuestions {
 
   async expectQuestionNotExist(questionName: string) {
     await this.gotoAdminQuestionsPage()
-    expect(
-      await this.page
-        .locator(this.selectQuestionTableRow(questionName))
-        .count(),
-    ).toEqual(0)
+    await expect(
+      this.page.locator(this.selectQuestionTableRow(questionName)),
+    ).toHaveCount(0)
   }
 
   async expectQuestionProgramReferencesText({
@@ -1527,7 +1530,7 @@ export class AdminQuestions {
   }
 
   async getUniversalToggleValue(): Promise<string> {
-    return this.page.inputValue('#universal-toggle-input')
+    return (await this.page.isChecked('#universal-toggle-input')).toString()
   }
 
   async clickPrimaryApplicantInfoToggle(field: PrimaryApplicantInfoField) {
@@ -1535,7 +1538,7 @@ export class AdminQuestions {
   }
 
   async getPrimaryApplicantInfoToggleValue(fieldName: string) {
-    return this.page.inputValue(`#${fieldName}-toggle-input`)
+    return (await this.page.isChecked(`#${fieldName}-toggle-input`)).toString()
   }
 
   async expectPrimaryApplicantInfoAlert(

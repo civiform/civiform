@@ -45,10 +45,8 @@ public class GeoJsonClientTest extends WithApplication {
 
   @Test
   public void fetchAndSaveGeoJson_invalidEndpoint() {
-    RuntimeException e =
-        assertThrows(
-            CompletionException.class,
-            () -> geoJsonClient.fetchAndSaveGeoJson("test").toCompletableFuture().join());
+    var completableFuture = geoJsonClient.fetchAndSaveGeoJson("test").toCompletableFuture();
+    RuntimeException e = assertThrows(CompletionException.class, () -> completableFuture.join());
     assertTrue(e.getCause() instanceof MalformedURLException);
     assertEquals("Not a valid URL, try retyping", e.getCause().getMessage());
   }
@@ -57,10 +55,8 @@ public class GeoJsonClientTest extends WithApplication {
   public void fetchAndSaveGeoJson_apiAccessExceptionResponse() {
     when(wsResponse.getStatus()).thenReturn(403);
 
-    RuntimeException e =
-        assertThrows(
-            CompletionException.class,
-            () -> geoJsonClient.fetchAndSaveGeoJson(endpoint).toCompletableFuture().join());
+    var completableFuture = geoJsonClient.fetchAndSaveGeoJson(endpoint).toCompletableFuture();
+    RuntimeException e = assertThrows(CompletionException.class, () -> completableFuture.join());
 
     assertTrue(e.getCause() instanceof GeoJsonAccessException);
     assertEquals("Please provide a publicly accessible URL", e.getCause().getMessage());
@@ -70,10 +66,8 @@ public class GeoJsonClientTest extends WithApplication {
   public void fetchAndSaveGeoJson_apiNotFoundExceptionResponse() {
     when(wsResponse.getStatus()).thenReturn(404);
 
-    RuntimeException e =
-        assertThrows(
-            CompletionException.class,
-            () -> geoJsonClient.fetchAndSaveGeoJson(endpoint).toCompletableFuture().join());
+    var completableFuture = geoJsonClient.fetchAndSaveGeoJson(endpoint).toCompletableFuture();
+    RuntimeException e = assertThrows(CompletionException.class, () -> completableFuture.join());
 
     assertTrue(e.getCause() instanceof GeoJsonNotFoundException);
     assertEquals("Failed to fetch GeoJSON", e.getCause().getMessage());
@@ -84,12 +78,8 @@ public class GeoJsonClientTest extends WithApplication {
     when(wsResponse.getStatus()).thenReturn(200);
     when(wsResponse.getBody()).thenReturn("");
 
-    RuntimeException e =
-        assertThrows(
-            CompletionException.class,
-            () -> {
-              geoJsonClient.fetchAndSaveGeoJson(endpoint).toCompletableFuture().join();
-            });
+    var completableFuture = geoJsonClient.fetchAndSaveGeoJson(endpoint).toCompletableFuture();
+    RuntimeException e = assertThrows(CompletionException.class, () -> completableFuture.join());
 
     assertTrue(e.getCause() instanceof GeoJsonProcessingException);
     assertEquals("Empty GeoJSON response", e.getCause().getMessage());
@@ -101,12 +91,8 @@ public class GeoJsonClientTest extends WithApplication {
     when(wsResponse.getStatus()).thenReturn(200);
     when(wsResponse.getBody()).thenReturn(testGeoJson);
 
-    RuntimeException e =
-        assertThrows(
-            CompletionException.class,
-            () -> {
-              geoJsonClient.fetchAndSaveGeoJson(endpoint).toCompletableFuture().join();
-            });
+    var completableFuture = geoJsonClient.fetchAndSaveGeoJson(endpoint).toCompletableFuture();
+    RuntimeException e = assertThrows(CompletionException.class, () -> completableFuture.join());
 
     assertTrue(e.getCause() instanceof GeoJsonProcessingException);
     assertEquals("Invalid GeoJSON format", e.getCause().getMessage());

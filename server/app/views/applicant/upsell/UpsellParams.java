@@ -28,8 +28,6 @@ public abstract class UpsellParams {
 
   abstract ApplicantPersonalInfo applicantPersonalInfo();
 
-  abstract Optional<String> bannerMessage();
-
   // Use programTitle or eligiblePrograms, but not both
   abstract Optional<String> programTitle();
 
@@ -39,6 +37,9 @@ public abstract class UpsellParams {
 
   // Program ID of the program that was just applied to
   abstract long completedProgramId();
+
+  // Program slug of the program that was just applied to
+  abstract String completedProgramSlug();
 
   abstract LocalizedStrings customConfirmationMessage();
 
@@ -60,8 +61,6 @@ public abstract class UpsellParams {
 
     public abstract Builder setApplicantPersonalInfo(ApplicantPersonalInfo applicantPersonalInfo);
 
-    public abstract Builder setBannerMessage(Optional<String> bannerMessage);
-
     public abstract Builder setProgramTitle(String programTitle);
 
     public abstract Builder setEligiblePrograms(
@@ -70,6 +69,8 @@ public abstract class UpsellParams {
     public abstract Builder setProgramShortDescription(String programShortDescription);
 
     public abstract Builder setCompletedProgramId(long programId);
+
+    public abstract Builder setCompletedProgramSlug(String programSlug);
 
     public abstract Builder setCustomConfirmationMessage(
         LocalizedStrings customConfirmationMessage);

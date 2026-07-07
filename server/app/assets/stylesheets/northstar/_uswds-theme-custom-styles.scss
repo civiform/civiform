@@ -824,14 +824,26 @@ main {
   }
 }
 
-/* When a file is being uploaded... */
+/* Legacy: When a file is being uploaded... */
 .cf-file-uploading {
-  /* Show the file uploading tag */
+  /* Legacy: Show the file uploading tag */
   .cf-file-uploading-tag {
     display: inline-block;
   }
 
-  /* Apply disabled styling to any interactive elements */
+  /* Legacy: Apply disabled styling to any interactive elements */
+  .cf-disable-when-uploading {
+    @include u-bg('white');
+    @include u-text('base-light');
+    @include u-border('base-light');
+    @include u-border('1px');
+    pointer-events: none;
+    cursor: default;
+  }
+}
+
+/* Applicant File Upload Improvements: disable nav and file actions while any upload is in flight */
+.cf-file-upload-in-progress {
   .cf-disable-when-uploading {
     @include u-bg('white');
     @include u-text('base-light');

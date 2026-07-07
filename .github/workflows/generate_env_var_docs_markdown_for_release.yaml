@@ -1,46 +1,41 @@
 name: Env Variable Docs - Generate
 
 on:
-  # Need to declare separate inputs for getting manually called (workflow_dispatch) and called by the release.yaml workflow (workflow_call).
+  release:
+    types: [published]
   workflow_dispatch:
     inputs:
       release_number:
         description: 'The release number to generate/update env var docs markdown for, v1.2.3 for example. IMPORTANT: the release number must already be a tag in this repo.'
         required: true
         type: string
-  workflow_call:
-    inputs:
-      release_number:
-        description: 'The release number to generate/update env var docs markdown for, v1.2.3 for example. IMPORTANT: the release number must already be a tag in this repo.'
-        required: true
-        type: string
-    secrets:
-      CIVIFORM_GITHUB_AUTOMATION_PERSONAL_ACCESS_TOKEN:
-        required: true
 
 permissions:
   contents: read
+
+env:
+  RELEASE_NUMBER: ${{ github.event.release.tag_name || inputs.release_number }}
 
 jobs:
   generate_markdown:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout civiform/civiform main
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           path: civiform-main
 
-      - name: Checkout civiform/civiform@${{ inputs.release_number }}
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Checkout civiform/civiform@${{ env.RELEASE_NUMBER }}
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
-          ref: ${{ inputs.release_number }}
+          ref: ${{ env.RELEASE_NUMBER }}
           path: civiform-main/civiform-release
 
       - name: Run bin/env-var-docs-generate-markdown
         env:
           LOCAL_OUTPUT: false
           ENV_VAR_DOCS_PATH: ./civiform-release/server/conf/env-var-docs.json
-          RELEASE_VERSION: ${{ inputs.release_number }}
+          RELEASE_VERSION: ${{ env.RELEASE_NUMBER }}
           GITHUB_ACCESS_TOKEN: ${{ secrets.CIVIFORM_GITHUB_AUTOMATION_PERSONAL_ACCESS_TOKEN }}
           TARGET_REPO: civiform/docs
           TARGET_PATH: docs/it-manual/sre-playbook/server-environment-variables

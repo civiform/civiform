@@ -10,6 +10,8 @@ When the Release engineer creates Release Notes, they will not look for this sec
 
 ### Checklist
 
+Remove any sections below that do not apply to your PR. For sections that do apply, complete all of the appropriate checklist items and check them off. If a checklist item doesn't apply to your PR, leave it unchecked but do not delete it.
+
 #### General
 
 Read the full guidelines for PRs [here](https://github.com/civiform/civiform/wiki/Technical-contribution-guide#creating-a-pull-request)
@@ -17,6 +19,7 @@ Read the full guidelines for PRs [here](https://github.com/civiform/civiform/wik
 - [ ] Added the correct label (see [docs](https://github.com/civiform/civiform/wiki/Technical-contribution-guide#adding-appropriate-labels) for more info): < feature | enhancement | bug | under-development | dependencies | infrastructure | ignore-for-release | database >
 - [ ] Assigned to a specific person, `civiform/developers`, or a [more specific round-robin list](https://github.com/civiform/civiform/wiki/Technical-contribution-guide#adding-reviewers)
 - [ ] Added an additional reviewer from `civiform/eng-admin` as FYI (if this PR includes functionality changes and neither you nor the primary reviewer is an admin)
+- [ ] Added an additional reviewer as required if changes potentially affect the security of the application.
 - [ ] Removed the release notes section if the title is sufficient for the release notes description, or put more details in that section.
 - [ ] Created unit and/or browser tests which fail without the change (if possible)
 - [ ] Performed manual testing (Chrome and Firefox if it includes front-end changes)

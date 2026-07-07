@@ -1,6 +1,10 @@
 import {Feature, FeatureCollection, GeoJsonProperties, Point} from 'geojson'
 import {GeoJSONSource, LngLatLike, Map as MapLibreMap, Popup} from 'maplibre-gl'
-import {initFilters} from '@/mapquestion/map_question_filters'
+import {
+  featureMatchesFilters,
+  getFilters,
+  initFilters,
+} from '@/mapquestion/map_question_filters'
 import {
   CF_MAP_QUESTION_PAGINATION_BUTTON,
   CF_MAP_QUESTION_PAGINATION_NEXT_BUTTON,
@@ -249,16 +253,18 @@ const addPopupsToMap = (
       return
     }
 
-    const geometry = features[0].geometry as Point
-    const properties = features[0].properties
+    // MapLibre will return all features within the click tolerance.
+    // Use the first one in the list as the 'clicked' feature
+    const clickedGeometry = features[0].geometry as Point
 
-    if (!geometry || !properties) {
+    if (!clickedGeometry) {
       return
     }
 
-    const coordinates: LngLatLike = geometry.coordinates.slice() as LngLatLike
-
-    const popup = new Popup().setLngLat(coordinates)
+    const clickedCoordinates = clickedGeometry.coordinates
+    const popup = new Popup().setLngLat(
+      clickedCoordinates.slice() as LngLatLike,
+    )
 
     const popupContentTemplate = mapQuerySelector(
       mapId,
@@ -266,18 +272,52 @@ const addPopupsToMap = (
     ) as HTMLTemplateElement
     if (!popupContentTemplate) {
       console.warn(`Map popup template not found for map: ${mapId}`)
-      return null
+      return
     }
 
-    const popupContent = createPopupContent(
+    const popupContent: Node[] = []
+    const clickedFeatureContent = createPopupContent(
       mapId,
       popupContentTemplate.content.children,
       settings,
-      properties,
+      features[0].properties,
     )
-    if (popupContent) {
-      popup.setDOMContent(popupContent)
+    if (clickedFeatureContent) {
+      popupContent.push(clickedFeatureContent)
     }
+    // Compare the remaining features' coordinates and only display the ones
+    // that are at approximately the same location as the 'clicked' feature.
+    for (let i = 1; i < features.length; i++) {
+      const featureCoords = (features[i].geometry as Point).coordinates
+      if (
+        !featureMatchesFilters(features[i], getFilters(mapId)) ||
+        Math.trunc(featureCoords[0] * 10000) !==
+          Math.trunc(clickedCoordinates[0] * 10000) ||
+        Math.trunc(featureCoords[1] * 10000) !==
+          Math.trunc(clickedCoordinates[1] * 10000)
+      ) {
+        continue
+      }
+      const content = createPopupContent(
+        mapId,
+        popupContentTemplate.content.children,
+        settings,
+        features[i].properties,
+      )
+      if (content) {
+        popupContent.push(content)
+      }
+    }
+
+    const popupContainer = document.createElement('div')
+    popupContent.forEach((location, index) => {
+      const locationElement = location as HTMLElement
+      if (index > 0) {
+        locationElement.classList.add('border-top-1px', 'border-base-lighter')
+      }
+      popupContainer.appendChild(locationElement)
+    })
+    popup.setDOMContent(popupContainer)
 
     popup.addTo(map)
   })

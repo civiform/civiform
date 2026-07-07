@@ -63,7 +63,7 @@ public final class AccountRepository {
     this.settingsManifest = checkNotNull(settingsManifest);
 
     int sessionDurationMinutes =
-        settingsManifest
+        this.settingsManifest
             .getMaximumSessionDurationMinutes()
             // Default to 10 hours if not configured.
             .orElse(600);
@@ -151,7 +151,7 @@ public final class AccountRepository {
   }
 
   /**
-   * Returns the most recent Applicant identified by Account, creating one if necessary.
+   * Returns the oldest Applicant identified by Account, creating one if necessary.
    *
    * <p>If no applicant exists, this is probably an account waiting for a trusted intermediary, so
    * we create one.
@@ -161,7 +161,7 @@ public final class AccountRepository {
         () -> {
           Optional<ApplicantModel> applicantOpt =
               account.getApplicants().stream()
-                  .max(Comparator.comparing(ApplicantModel::getWhenCreated));
+                  .min(Comparator.comparing(ApplicantModel::getWhenCreated));
           return applicantOpt.orElseGet(
               () -> new ApplicantModel().setAccount(account).saveAndReturn());
         });
@@ -543,18 +543,16 @@ public final class AccountRepository {
     idTokens.purgeExpiredIdTokens(clock);
     idTokens.storeIdToken(sessionId, idToken);
 
-    if (settingsManifest.getSessionReplayProtectionEnabled()) {
-      // For now, we set the duration to Auth0s default of 10 hours.
-      account.removeExpiredActiveSessions(sessionLifecycle);
-      if (!account.getActiveSession(sessionId).isPresent()) {
-        logger.warn(
-            "Session ID not found in account when adding ID token. Adding new session for account"
-                + " with ID: {}",
-            account.id);
-        account.addActiveSession(sessionId, clock);
-      }
-      account.storeIdTokenInActiveSession(sessionId, idToken);
+    // For now, we set the duration to Auth0s default of 10 hours.
+    account.removeExpiredActiveSessions(sessionLifecycle);
+    if (!account.getActiveSession(sessionId).isPresent()) {
+      logger.warn(
+          "Session ID not found in account when adding ID token. Adding new session for account"
+              + " with ID: {}",
+          account.id);
+      account.addActiveSession(sessionId, clock);
     }
+    account.storeIdTokenInActiveSession(sessionId, idToken);
 
     account.save();
   }

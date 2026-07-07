@@ -24,6 +24,7 @@ import services.applicant.ApplicantService.ApplicantProgramData;
 import services.cloud.PublicStorageClient;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
+import services.settings.SettingsManifest;
 import views.ProgramImageUtils;
 
 /**
@@ -36,6 +37,7 @@ public final class ProgramCardsSectionParamsFactory {
   private final ProfileUtils profileUtils;
   private final PublicStorageClient publicStorageClient;
   private final DateConverter dateConverter;
+  private final SettingsManifest settingsManifest;
 
   /** Enumerates the card section types, which may have different card components or styles. */
   public enum SectionType {
@@ -51,11 +53,13 @@ public final class ProgramCardsSectionParamsFactory {
       ApplicantRoutes applicantRoutes,
       ProfileUtils profileUtils,
       PublicStorageClient publicStorageClient,
-      DateConverter dateConverter) {
+      DateConverter dateConverter,
+      SettingsManifest settingsManifest) {
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.profileUtils = checkNotNull(profileUtils);
     this.publicStorageClient = checkNotNull(publicStorageClient);
     this.dateConverter = checkNotNull(dateConverter);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /**
@@ -117,6 +121,7 @@ public final class ProgramCardsSectionParamsFactory {
       ApplicantPersonalInfo personalInfo) {
     ProgramCardParams.Builder cardBuilder = ProgramCardParams.builder();
     ProgramDefinition program = programDatum.program();
+    Boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
 
     String actionUrl =
         getActionUrl(
@@ -127,7 +132,8 @@ public final class ProgramCardsSectionParamsFactory {
             program.externalLink(),
             programDatum.latestApplicationLifecycleStage(),
             applicantId,
-            profile);
+            profile,
+            programSlugUrlsEnabled);
 
     boolean isGuest = personalInfo.getType() == GUEST;
 
@@ -135,6 +141,7 @@ public final class ProgramCardsSectionParamsFactory {
     categoriesBuilder.addAll(
         program.categories().stream()
             .map(c -> c.getLocalizedName().getOrDefault(preferredLocale))
+            .sorted()
             .collect(ImmutableList.toImmutableList()));
 
     String description = program.localizedShortDescription().getOrDefault(preferredLocale);
@@ -216,7 +223,8 @@ public final class ProgramCardsSectionParamsFactory {
       String programExternalLink,
       Optional<LifecycleStage> optionalLifecycleStage,
       Optional<Long> applicantId,
-      Optional<CiviFormProfile> profile) {
+      Optional<CiviFormProfile> profile,
+      Boolean programSlugUrlsEnabled) {
     if (programType.equals(ProgramType.EXTERNAL)) {
       return programExternalLink;
     }
@@ -239,6 +247,12 @@ public final class ProgramCardsSectionParamsFactory {
             haveApplicant
                 ? applicantRoutes.review(profile.get(), applicantId.get(), programId).url()
                 : applicantRoutes.review(programId).url();
+        if (programSlugUrlsEnabled) {
+          actionUrl =
+              haveApplicant
+                  ? applicantRoutes.review(profile.get(), applicantId.get(), programSlug).url()
+                  : applicantRoutes.review(programSlug).url();
+        }
       } else if (optionalLifecycleStage.get() == LifecycleStage.DRAFT) {
         // DRAFT lifecycle stage means they have started but not submitted an application. Redirect
         // them to where they left off in the application.
@@ -246,6 +260,12 @@ public final class ProgramCardsSectionParamsFactory {
             haveApplicant
                 ? applicantRoutes.edit(profile.get(), applicantId.get(), programId).url()
                 : applicantRoutes.edit(programId).url();
+        if (programSlugUrlsEnabled) {
+          actionUrl =
+              haveApplicant
+                  ? applicantRoutes.edit(profile.get(), applicantId.get(), programSlug).url()
+                  : applicantRoutes.edit(programSlug).url();
+        }
       }
       // If they are completing the pre-screener form for the first time, skip the program overview
       // page
@@ -254,6 +274,12 @@ public final class ProgramCardsSectionParamsFactory {
           haveApplicant
               ? applicantRoutes.edit(profile.get(), applicantId.get(), programId).url()
               : applicantRoutes.edit(programId).url();
+      if (programSlugUrlsEnabled) {
+        actionUrl =
+            haveApplicant
+                ? applicantRoutes.edit(profile.get(), applicantId.get(), programSlug).url()
+                : applicantRoutes.edit(programSlug).url();
+      }
     }
 
     return actionUrl;
