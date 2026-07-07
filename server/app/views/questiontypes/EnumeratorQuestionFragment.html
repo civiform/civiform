@@ -19,39 +19,51 @@
 
   <!--/* Display question level errors */-->
   <div
-    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams}, ${questionId})}">
-  </div>
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams}, ${questionId})}"
+  ></div>
 
-  <div th:data-label-text="#{placeholder.entityName(${enumeratorQuestion.getEntityType()})}"
-    th:data-button-text="#{button.removeEntity(${enumeratorQuestion.getEntityType()})}">
+  <div
+    th:data-label-text="#{placeholder.entityName(${enumeratorQuestion.getEntityType()})}"
+    th:data-button-text="#{button.removeEntity(${enumeratorQuestion.getEntityType()})}"
+  >
     <div th:replace="~{this :: deleteInputTemplate}"></div>
     <!--/* Render each existing enumerator field, including remove button */-->
     <div id="enumerator-fields">
       <div th:each="option,iterator: ${enumeratorQuestion.getEntityNames()}">
-        <div th:replace="~{this :: enumeratorField(fieldId=${'id-' + #strings.randomAlphanumeric(8)},
+        <div
+          th:replace="~{this :: enumeratorField(fieldId=${'id-' + #strings.randomAlphanumeric(8)},
                                                   inputId=${'id-' + #strings.randomAlphanumeric(8)},
                                                   path=${question.getContextualizedPath()},
                                                   existingEntity=${option},
                                                   visibleIndex=${iterator.count},
                                                   deleteButtonId=${iterator.index},
-                                                  hidden=false)}"></div>
+                                                  hidden=false)}"
+        ></div>
       </div>
     </div>
     <!--/* Enumerator field template, used in TS to add another enumerator field */-->
-    <div th:replace="~{this :: enumeratorField(fieldId=enumerator-field-template,
+    <div
+      th:replace="~{this :: enumeratorField(fieldId=enumerator-field-template,
                                               inputId=enumerator-field-template-input,
                                               path=${question.getContextualizedPath()},
                                               existingEntity='',
                                               visibleIndex=-1,
                                               deleteButtonId=null,
-                                              hidden=true)}"></div>
+                                              hidden=true)}"
+    ></div>
     <!--/* Add entity button */-->
-    <button th:text="#{button.addEntity(${enumeratorQuestion.getEntityType()})}" id="enumerator-field-add-button"
+    <button
+      th:text="#{button.addEntity(${enumeratorQuestion.getEntityType()})}"
+      id="enumerator-field-add-button"
       th:attr="data-min-entities=${enumeratorQuestion.getMinEntities().isPresent() ? enumeratorQuestion.getMinEntities().getAsInt() : ''},
-                data-max-entities=${enumeratorQuestion.getMaxEntities().isPresent() ? enumeratorQuestion.getMaxEntities().getAsInt() : enumMaxEntityCount}" type="button" class="usa-button usa-button--outline margin-top-105"
-      th:aria-describedby="${hasErrors} ? ' ' + ${questionId} + '-error' : ''" th:aria-invalid="${hasErrors}"></button>
+                data-max-entities=${enumeratorQuestion.getMaxEntities().isPresent() ? enumeratorQuestion.getMaxEntities().getAsInt() : enumMaxEntityCount}"
+      type="button"
+      class="usa-button usa-button--outline margin-top-105"
+      th:aria-describedby="${hasErrors} ? ' ' + ${questionId} + '-error' : ''"
+      th:aria-invalid="${hasErrors}"
+    ></button>
   </div>
-  </fieldset>
+</fieldset>
 
 <!--/* Renders a single enumerator field (label, input, and remove button). This is used to render existing entities, and as a template used in TS to render a newly added entity.  */-->
 <div
