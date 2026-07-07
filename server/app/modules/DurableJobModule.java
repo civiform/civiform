@@ -42,7 +42,6 @@ import repository.VersionRepository;
 import scala.concurrent.ExecutionContext;
 import services.cloud.PublicStorageClient;
 import services.geojson.GeoJsonClient;
-import services.settings.SettingsManifest;
 import services.program.ProgramService;
 
 /**
