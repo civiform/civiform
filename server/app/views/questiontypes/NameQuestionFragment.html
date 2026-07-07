@@ -1,4 +1,4 @@
-<div
+<fieldset
   th:fragment="name(question, questionRendererParams)"
   th:with="nameQuestion=${question.createNameQuestion()},
              questionId=${'id-' + #strings.randomAlphanumeric(8)},
@@ -151,4 +151,4 @@
       ></option>
     </select>
   </div>
-</div>
+</fieldset>
