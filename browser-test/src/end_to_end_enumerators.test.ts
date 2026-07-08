@@ -18,16 +18,23 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
   test.describe('Admin', () => {
     test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
       await loginAsAdmin(page)
-      await adminPrograms.addProgram('Enumerator test program')
+
+      await test.step('Create enumerator question', async () => {
+        // Pre-create an enumerator in a program we won't use.
+        await adminPrograms.addProgram('Enumerator seeding program')
+        await adminPrograms.gotoEditDraftProgramPage(
+          'Enumerator seeding program',
+        )
+        await addRepeatedSetBlock(page, {selectParent: true})
+        await fillAndSubmitEnumeratorQuestionForm(page, {
+          listedEntity: 'household member',
+          questionText: 'Household members',
+          adminId: 'enumerator-ete-householdmembers',
+          maxEntities: 4,
+        })
+      })
 
       await test.step('Create questions', async () => {
-        await adminQuestions.addEnumeratorQuestion({
-          questionName: 'enumerator-ete-householdmembers',
-          description: 'desc',
-          questionText: 'Household members',
-          helpText: 'list household members',
-          maxNum: 4,
-        })
         await adminQuestions.addNameQuestion({
           questionName: 'enumerator-ete-repeated-name',
           description: 'desc',
@@ -42,6 +49,8 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           helpText: 'Monthly income',
         })
       })
+
+      await adminPrograms.addProgram('Enumerator test program')
 
       await test.step('Go to the program block edit page', async () => {
         await adminPrograms.gotoEditDraftProgramPage('Enumerator test program')

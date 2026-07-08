@@ -35,7 +35,7 @@ public final class CreateQuestionButton {
         settingsManifest,
         request,
         /* isEmptyBlock= */ true,
-        /* isQuestionPage= */ true,
+        /* isProgramPage= */ false,
         /* isInitialQuestion= */ false);
   }
 
@@ -59,7 +59,7 @@ public final class CreateQuestionButton {
         settingsManifest,
         request,
         isEmptyBlock,
-        /* isQuestionPage= */ false,
+        /* isProgramPage= */ true,
         isInitialQuestion);
   }
 
@@ -75,7 +75,7 @@ public final class CreateQuestionButton {
       SettingsManifest settingsManifest,
       Http.Request request,
       boolean isEmptyBlock,
-      boolean isQuestionPage,
+      boolean isProgramPage,
       boolean isInitialQuestion) {
     String parentId = "create-question-button";
     String dropdownId = parentId + "-dropdown";
@@ -107,11 +107,15 @@ public final class CreateQuestionButton {
       if (type == QuestionType.NULL_QUESTION) {
         continue;
       }
-      // Only filter Enumerator on program block pages, not on the standalone questions list page
-      if (type == QuestionType.ENUMERATOR
-          && !isQuestionPage
-          && (settingsManifest.getEnumeratorImprovementsEnabled(request) || !isEmptyBlock)) {
-        continue;
+      if (type == QuestionType.ENUMERATOR) {
+        // Hide Enumerator from every dropdown when the enumerator improvements flag is enabled.
+        if (settingsManifest.getEnumeratorImprovementsEnabled(request)) {
+          continue;
+        }
+        // On a program block page, hide Enumerator once the block already contains a question.
+        if (isProgramPage && !isEmptyBlock) {
+          continue;
+        }
       }
       if (isInitialQuestion
           && !ProgramBlockValidation.VALID_INITIAL_QUESTION_TYPES.contains(type)) {
