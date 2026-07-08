@@ -249,18 +249,18 @@ public final class QuestionService {
   }
 
   /** The persisted initial question and the enumerator question linked to it. */
-  public record InitialQuestionLinkResult(
-      QuestionDefinition initialQuestion, QuestionDefinition enumeratorQuestion) {}
+  public record EnumAndInitialQuestion(
+      QuestionDefinition enumeratorQuestion, QuestionDefinition initialQuestion) {}
 
   /**
-   * Attach an initial question to an enumerator question, establishing the mutual link.
+   * Attach an initial question to an enumerator question, establishing the mutual connection.
    *
    * <p>If {@code initialQuestionWasNewlyCreated}, the existing initial question is updated in place
    * to set its enumeratorId. Otherwise, a copy of the initial question is created with the
    * enumeratorId set. In either case the enumerator question is then updated to point at the
    * persisted initial question via enumeratorInitialQuestionId.
    */
-  public InitialQuestionLinkResult copyOrUpdateInitialQuestionAndLinkToEnumerator(
+  public EnumAndInitialQuestion copyOrUpdateInitialQuestionAndAttachToEnumerator(
       QuestionDefinition enumeratorQuestion,
       QuestionDefinition originalInitialQuestion,
       boolean initialQuestionWasNewlyCreated)
@@ -283,19 +283,22 @@ public final class QuestionService {
       persistedInitialQuestion = copyResult.getResult();
     }
 
-    QuestionDefinition linkedEnumeratorQuestion =
+    QuestionDefinition enumeratorQuestionWithInitialId =
         new QuestionDefinitionBuilder(enumeratorQuestion)
             .setEnumeratorInitialQuestionId(Optional.of(persistedInitialQuestion.getId()))
             .build();
-    ErrorAnd<QuestionDefinition, CiviFormError> linkResult =
-        update(Optional.of(enumeratorQuestion), linkedEnumeratorQuestion);
-    if (linkResult.isError()) {
+    ErrorAnd<QuestionDefinition, CiviFormError> updatedEnumeratorQuestion =
+        update(
+            /* previousDefinition= */ Optional.of(enumeratorQuestion),
+            /* updatedDefinition= */ enumeratorQuestionWithInitialId);
+    if (updatedEnumeratorQuestion.isError()) {
       throw new RuntimeException(
           String.format(
               "Could not link enumerator question %s to initial question %s",
               enumeratorQuestion.getName(), persistedInitialQuestion.getName()));
     }
-    return new InitialQuestionLinkResult(persistedInitialQuestion, linkResult.getResult());
+    return new EnumAndInitialQuestion(
+        updatedEnumeratorQuestion.getResult(), persistedInitialQuestion);
   }
 
   /** If this question is archived but a new version has not been published yet, un-archive it. */

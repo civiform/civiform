@@ -27,7 +27,6 @@ import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.Path;
 import services.TranslationLocales;
-import services.question.QuestionService.InitialQuestionLinkResult;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.EnumeratorQuestionDefinition;
@@ -196,8 +195,8 @@ public class QuestionServiceTest extends ResetPostgres {
     QuestionDefinition enumerator = createEnumerator("test-enumerator");
     QuestionDefinition originalInitialQuestion = createTextQuestion("text-question");
 
-    InitialQuestionLinkResult result =
-        questionService.copyOrUpdateInitialQuestionAndLinkToEnumerator(
+    QuestionService.EnumAndInitialQuestion result =
+        questionService.copyOrUpdateInitialQuestionAndAttachToEnumerator(
             enumerator, originalInitialQuestion, /* initialQuestionWasNewlyCreated= */ false);
 
     // The initial question is a fresh copy — new id, "-_- a" suffix on name, enumeratorId set.
@@ -211,13 +210,13 @@ public class QuestionServiceTest extends ResetPostgres {
 
   @Test
   public void
-      copyOrUpdateInitialQuestionAndLinkToEnumerator_withNewlyCreatedInitialQuestion_updatesInPlaceAndPersistsLink()
+      copyOrUpdateInitialQuestionAndLinkToEnumerator_withNewlyCreatedInitialQuestion_updatesInPlaceAndPersistsAttach()
           throws Exception {
     QuestionDefinition enumerator = createEnumerator("test-enumerator");
     QuestionDefinition originalInitialQuestion = createTextQuestion("text-question");
 
-    InitialQuestionLinkResult result =
-        questionService.copyOrUpdateInitialQuestionAndLinkToEnumerator(
+    QuestionService.EnumAndInitialQuestion result =
+        questionService.copyOrUpdateInitialQuestionAndAttachToEnumerator(
             enumerator, originalInitialQuestion, /* initialQuestionWasNewlyCreated= */ true);
 
     // The initial question is updated in place — same id, same name, enumeratorId now set.

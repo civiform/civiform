@@ -1,6 +1,7 @@
 package forms.questions;
 
 import java.util.OptionalInt;
+import java.util.OptionalLong;
 import services.LocalizedStrings;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -12,7 +13,7 @@ public class EnumeratorQuestionForm extends QuestionForm {
   private OptionalInt minEntities;
   private OptionalInt maxEntities;
   // Only populated by the "Create repeated set" flow on the block edit page; unused elsewhere.
-  private Long initialQuestionId;
+  private OptionalLong initialQuestionId;
   private boolean initialQuestionWasNewlyCreated;
   public static final int MAX_ENUM_ENTITIES_ALLOWED = 50;
 
@@ -21,7 +22,7 @@ public class EnumeratorQuestionForm extends QuestionForm {
     this.entityType = "";
     this.minEntities = OptionalInt.empty();
     this.maxEntities = OptionalInt.empty();
-    this.initialQuestionId = null;
+    this.initialQuestionId = OptionalLong.empty();
     this.initialQuestionWasNewlyCreated = false;
   }
 
@@ -30,7 +31,7 @@ public class EnumeratorQuestionForm extends QuestionForm {
     this.entityType = qd.getEntityType().isEmpty() ? "" : qd.getEntityType().getDefault();
     this.minEntities = qd.getMinEntities();
     this.maxEntities = qd.getMaxEntities();
-    this.initialQuestionId = null;
+    this.initialQuestionId = OptionalLong.empty();
     this.initialQuestionWasNewlyCreated = false;
   }
 
@@ -69,12 +70,15 @@ public class EnumeratorQuestionForm extends QuestionForm {
     this.entityType = entityType;
   }
 
-  public Long getInitialQuestionId() {
+  public OptionalLong getInitialQuestionId() {
     return initialQuestionId;
   }
 
-  public void setInitialQuestionId(Long initialQuestionId) {
-    this.initialQuestionId = initialQuestionId;
+  public void setInitialQuestionId(String initialQuestionIdAsString) {
+    this.initialQuestionId =
+        initialQuestionIdAsString.isEmpty()
+            ? OptionalLong.empty()
+            : OptionalLong.of(Long.parseLong(initialQuestionIdAsString));
   }
 
   public boolean getInitialQuestionWasNewlyCreated() {
