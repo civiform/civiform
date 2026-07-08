@@ -12,18 +12,16 @@
   th:aria-labelledby="|${questionId}-title ${questionId}-description|"
 >
   <!--/* Title and Help Text */-->
-  <div class="cf-question-header">
-    <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
-    ></div>
+  <div
+    th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
+  ></div>
 
-    <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(
+  <div
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(
       ${nameQuestion.getValidationErrors().get(question.getContextualizedPath())},
       ${questionRendererParams},
       ${questionId})}"
-    ></div>
-  </div>
+  ></div>
 
   <div
     th:with="firstNameId=${'id-' + #strings.randomAlphanumeric(8)},

@@ -11,20 +11,18 @@
   th:aria-labelledby="|${questionId}-title ${questionId}-description|"
   th:aria-describedby="${questionId} + '-description'"
 >
-  <div class="cf-question-header">
-    <!--/* Title and Help Text */-->
-    <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
-    ></div>
+  <!--/* Title and Help Text */-->
+  <div
+    th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
+  ></div>
 
-    <!--/* Display errors for the entire question */-->
-    <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(
+  <!--/* Display errors for the entire question */-->
+  <div
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(
                         ${addressQuestion.getValidationErrors().get(question.getContextualizedPath())},
                         ${questionRendererParams},
             ${questionId})}"
-    ></div>
-  </div>
+  ></div>
 
   <!--/* Street address */-->
   <div
