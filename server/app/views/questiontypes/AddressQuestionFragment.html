@@ -5,7 +5,7 @@
            firstPathWithError=${addressQuestion.getFirstPathWithError()},
            hasGroupErrors=${addressQuestion.getValidationErrors().get(addressQuestion.getContextualizedPath())},"
   th:id="${questionId}"
-  class="cf-question-address usa-fieldset"
+  class="cf-question-address cf-applicant-question-field usa-fieldset"
   th:classappend="${hasGroupErrors ? 'cf-question-field-with-error' : ''}"
   data-testid="questionRoot"
   th:aria-labelledby="|${questionId}-title ${questionId}-description|"
@@ -31,7 +31,7 @@
                       fieldErrors=${addressQuestion.getValidationErrors().get(streetPath)},
                       hasFieldErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()},
                       showFieldErrorMessages=${!hasGroupErrors && hasFieldErrors},"
-    class="cf-address-street-1 cf-applicant-question-field"
+    class="cf-address-street-1"
     th:classappend="${showFieldErrorMessages ? 'cf-question-field-with-error' : ''}"
   >
     <th:block th:if="${showFieldErrorMessages}">
@@ -70,7 +70,7 @@
                       fieldErrors=${addressQuestion.getValidationErrors().get(line2Path)},
                       hasFieldErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()},
                       showFieldErrorMessages=${!hasGroupErrors && hasFieldErrors},"
-    class="cf-address-street-2 cf-applicant-question-field"
+    class="cf-address-street-2"
     th:classappend="${showFieldErrorMessages ? 'cf-question-field-with-error' : ''}"
   >
     <th:block th:if="${showFieldErrorMessages}">
@@ -103,7 +103,7 @@
                       fieldErrors=${addressQuestion.getValidationErrors().get(cityPath)},
                       hasFieldErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()},
                       showFieldErrorMessages=${!hasGroupErrors && hasFieldErrors},"
-    class="cf-address-city cf-applicant-question-field"
+    class="cf-address-city"
     th:classappend="${showFieldErrorMessages ? 'cf-question-field-with-error' : ''}"
   >
     <th:block th:if="${showFieldErrorMessages}">
@@ -142,7 +142,7 @@
                       fieldErrors=${addressQuestion.getValidationErrors().get(statePath)},
                       hasFieldErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()},
                       showFieldErrorMessages=${!hasGroupErrors && hasFieldErrors},"
-    class="cf-address-state cf-applicant-question-field"
+    class="cf-address-state"
     th:classappend="${showFieldErrorMessages ? 'cf-question-field-with-error' : ''}"
   >
     <th:block th:if="${showFieldErrorMessages}">
@@ -188,7 +188,7 @@
                       fieldErrors=${addressQuestion.getValidationErrors().get(zipPath)},
                       hasFieldErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()},
                       showFieldErrorMessages=${!hasGroupErrors && hasFieldErrors},"
-    class="cf-address-zip cf-applicant-question-field"
+    class="cf-address-zip"
     th:classappend="${showFieldErrorMessages ? 'cf-question-field-with-error cf-address-zip-error' : ''}"
   >
     <th:block th:if="${showFieldErrorMessages}">

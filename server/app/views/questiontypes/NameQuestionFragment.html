@@ -6,7 +6,7 @@
              firstPathWithError=${nameQuestion.getFirstPathWithError()},
              hasGroupErrors=${nameQuestion.getValidationErrors().get(question.getContextualizedPath())},"
   th:id="${questionId}"
-  class="cf-question-name"
+  class="cf-question-name cf-applicant-question-field"
   th:classappend="${hasGroupErrors ? 'cf-question-field-with-error' : ''}"
   data-testid="questionRoot"
   th:aria-labelledby="|${questionId}-title ${questionId}-description|"
@@ -29,7 +29,7 @@
         fieldErrors=${nameQuestion.getValidationErrors().get(firstNamePath)},
         hasFieldErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()},
         showFieldErrorMessages=${!hasGroupErrors && hasFieldErrors},"
-    class="cf-name-first cf-applicant-question-field margin-bottom-1"
+    class="cf-name-first margin-bottom-1"
     th:classappend="${showFieldErrorMessages ? 'cf-question-field-with-error' : ''}"
   >
     <th:block th:if="${showFieldErrorMessages}">
@@ -64,7 +64,7 @@
 
   <div
     th:with="middleNameId=${'id-' + #strings.randomAlphanumeric(8)}"
-    class="cf-name-middle cf-applicant-question-field margin-bottom-1"
+    class="cf-name-middle margin-bottom-1"
   >
     <label
       class="usa-label"
@@ -88,7 +88,7 @@
     fieldErrors=${nameQuestion.getValidationErrors().get(lastNamePath)},
     hasFieldErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()},
     showFieldErrorMessages=${!hasGroupErrors && hasFieldErrors},"
-    class="cf-name-last cf-applicant-question-field"
+    class="cf-name-last"
     th:classappend="${showFieldErrorMessages ? 'cf-question-field-with-error' : ''}"
   >
     <th:block th:if="${showFieldErrorMessages}">
@@ -124,7 +124,7 @@
   <div
     th:if="${isNameSuffixEnabled}"
     th:with="nameSuffixId=${'id-' + #strings.randomAlphanumeric(8)}"
-    class="cf-dropdown-question cf-applicant-question-field"
+    class="cf-dropdown-question"
   >
     <label
       class="usa-label"
