@@ -97,6 +97,7 @@ ol.usa-list {
 fieldset.cf-applicant-question-field > legend {
   float: left;
   width: 100%;
+  max-width: none;
 }
 /**
  * Remove top margin because other surrounding elements add this margin.
