@@ -7,6 +7,7 @@ import {
   validateToastMessage,
 } from '../support'
 import {Eligibility} from '../support/admin_programs'
+import {SAMPLE_PROGRAMS} from '../support/seeding'
 
 test.describe('Admin can manage program image', () => {
   test.beforeEach(async ({page}) => {
@@ -21,15 +22,12 @@ test.describe('Admin can manage program image', () => {
       adminProgramImage,
       seeding,
     }) => {
-      const programName = 'Test Program'
-      const programDescription = 'Test description'
-      const shortDescription = 'Short description'
+      const programName = SAMPLE_PROGRAMS.minimal
+      const programDescription = 'display description'
+      const shortDescription = 'short description'
 
       await test.step('Set up program', async () => {
-        await adminPrograms.addProgram(programName, {
-          description: programDescription,
-          shortDescription: shortDescription,
-        })
+        await seeding.seedProgramsAndCategories()
 
         await adminPrograms.goToProgramImagePage(programName)
 
@@ -67,9 +65,8 @@ test.describe('Admin can manage program image', () => {
 
       await test.step('Verify preview with category tags', async () => {
         const programNameWithTags = 'Test program with tags'
-        await seeding.seedProgramsAndCategories()
-        await page.goto('/')
-
+        // Categories come from the seeding above, but a program can only
+        // select categories via the UI creation form.
         await adminPrograms.addProgram(programNameWithTags, {
           description: programDescription,
           shortDescription: shortDescription,
@@ -187,11 +184,9 @@ test.describe('Admin can manage program image', () => {
   })
 
   test.describe('description', () => {
-    const programName = 'Test program'
-
-    test.beforeEach(async ({adminPrograms}) => {
-      await adminPrograms.addProgram(programName)
-      await adminPrograms.goToProgramImagePage(programName)
+    test.beforeEach(async ({adminPrograms, seeding}) => {
+      await seeding.seedProgramsAndCategories()
+      await adminPrograms.goToProgramImagePage(SAMPLE_PROGRAMS.minimal)
     })
 
     test('sets new description', async ({adminProgramImage}) => {
@@ -320,11 +315,9 @@ test.describe('Admin can manage program image', () => {
   })
 
   test.describe('client validation', () => {
-    const programName = 'Test program'
-
-    test.beforeEach(async ({adminPrograms}) => {
-      await adminPrograms.addProgram(programName)
-      await adminPrograms.goToProgramImagePage(programName)
+    test.beforeEach(async ({adminPrograms, seeding}) => {
+      await seeding.seedProgramsAndCategories()
+      await adminPrograms.goToProgramImagePage(SAMPLE_PROGRAMS.minimal)
     })
 
     test('shows alt text required when submitting with file and no description', async ({
@@ -385,11 +378,9 @@ test.describe('Admin can manage program image', () => {
   })
 
   test.describe('image file upload', () => {
-    const programName = 'Test program'
-
-    test.beforeEach(async ({adminPrograms}) => {
-      await adminPrograms.addProgram(programName)
-      await adminPrograms.goToProgramImagePage(programName)
+    test.beforeEach(async ({adminPrograms, seeding}) => {
+      await seeding.seedProgramsAndCategories()
+      await adminPrograms.goToProgramImagePage(SAMPLE_PROGRAMS.minimal)
     })
 
     test('stays on program image page after submit', async ({

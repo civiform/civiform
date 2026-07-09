@@ -1,17 +1,19 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {loginAsAdmin, logout} from '../support'
 import {ProgramLifecycle, ProgramVisibility} from '../support/admin_programs'
+import {SAMPLE_PROGRAMS} from '../support/seeding'
 
 test.describe('login only program', () => {
   test('default login only value for any program is false', async ({
     page,
     adminPrograms,
+    seeding,
   }) => {
-    await test.step('create new program and verify default', async () => {
+    await test.step('seed a program and verify default', async () => {
+      await seeding.seedProgramsAndCategories()
       await loginAsAdmin(page)
-      await adminPrograms.addProgram('default program')
       await adminPrograms.goToProgramDescriptionPage(
-        'default program',
+        SAMPLE_PROGRAMS.minimal,
         ProgramLifecycle.DRAFT,
       )
       await adminPrograms.expectLoginOnlyProgramIsChecked(false)
@@ -44,12 +46,16 @@ test.describe('login only program', () => {
     await logout(page)
   })
 
-  test('login only persists through publish', async ({page, adminPrograms}) => {
-    const programName = 'test program'
+  test('login only persists through publish', async ({
+    page,
+    adminPrograms,
+    seeding,
+  }) => {
+    const programName = SAMPLE_PROGRAMS.minimal
 
-    await test.step('create new program', async () => {
+    await test.step('seed programs', async () => {
+      await seeding.seedProgramsAndCategories()
       await loginAsAdmin(page)
-      await adminPrograms.addProgram(programName)
     })
 
     await test.step('set login only to true and publish', async () => {

@@ -13,6 +13,7 @@ import {
   ApplicantQuestions,
   AdminProgramStatuses,
 } from '../support'
+import {Seeding} from '../support/seeding'
 
 test.describe('with program statuses', () => {
   const programName = 'Applicant with statuses program'
@@ -109,12 +110,19 @@ test.describe('when email is configured for the status and applicant, a checkbox
   const noEmailStatusName = 'No email status'
 
   test.beforeEach(
-    async ({page, adminPrograms, applicantQuestions, adminProgramStatuses}) => {
+    async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+      adminProgramStatuses,
+      seeding,
+    }) => {
       await setupProgramsWithStatuses(
         page,
         adminPrograms,
         applicantQuestions,
         adminProgramStatuses,
+        seeding,
       )
       await loginAsProgramAdmin(page)
       await adminPrograms.viewApplications(programWithStatusesName)
@@ -183,6 +191,7 @@ test.describe('when email is configured for the status and applicant, a checkbox
     adminPrograms: AdminPrograms,
     applicantQuestions: ApplicantQuestions,
     adminProgramStatuses: AdminProgramStatuses,
+    seeding: Seeding,
   ) => {
     await test.step('login as admin and create program with statuses', async () => {
       await loginAsAdmin(page)
@@ -199,10 +208,8 @@ test.describe('when email is configured for the status and applicant, a checkbox
       await logout(page)
     })
 
-    await test.step('submit an application as a guest', async () => {
-      await applicantQuestions.applyProgram(programWithStatusesName)
-      await applicantQuestions.submitFromReviewPage()
-      await logout(page)
+    await test.step('seed an application as a guest', async () => {
+      await seeding.seedApplications(programWithStatusesName, 1)
     })
 
     await test.step('submit an application as a logged in user', async () => {

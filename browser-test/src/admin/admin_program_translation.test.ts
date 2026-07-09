@@ -9,19 +9,21 @@ import {
 } from '../support'
 import {ProgramVisibility} from '../support/admin_programs'
 import {FormField} from '../support/admin_translations'
+import {SAMPLE_PROGRAMS, SAMPLE_QUESTIONS} from '../support/seeding'
 
 test.describe('Admin can manage program translations', () => {
   test('page layout screenshot', async ({
     page,
     adminPrograms,
     adminTranslations,
+    seeding,
   }) => {
+    await seeding.seedProgramsAndCategories()
     await loginAsAdmin(page)
 
-    const programName = 'Program to be translated no statuses'
-    await adminPrograms.addProgram(programName)
-
-    await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+    await adminPrograms.gotoDraftProgramManageTranslationsPage(
+      SAMPLE_PROGRAMS.minimal,
+    )
 
     await adminTranslations.selectLanguage('Spanish')
 
@@ -32,11 +34,13 @@ test.describe('Admin can manage program translations', () => {
     page,
     adminPrograms,
     adminTranslations,
+    seeding,
   }) => {
+    await seeding.seedProgramsAndCategories()
     await loginAsAdmin(page)
 
-    const programName = 'Program to be translated no statuses'
-    await adminPrograms.addProgram(programName)
+    // The seeded minimal sample program is a draft with no statuses.
+    const programName = SAMPLE_PROGRAMS.minimal
 
     // Go to manage translations page.
     await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
@@ -95,11 +99,15 @@ test.describe('Admin can manage program translations', () => {
     adminPrograms,
     adminProgramStatuses,
     adminTranslations,
+    seeding,
   }) => {
+    await seeding.seedProgramsAndCategories()
     await loginAsAdmin(page)
 
-    const programName = 'Program to be translated with statuses'
-    await adminPrograms.addProgram(programName)
+    // The seeded minimal sample program starts without statuses. Statuses
+    // with bespoke email configuration can't be seeded, so they're created
+    // via the UI.
+    const programName = SAMPLE_PROGRAMS.minimal
 
     // Add two statuses, one with a configured email and another without
     const statusWithEmailName = 'status-with-email'
@@ -283,11 +291,12 @@ test.describe('Admin can manage program translations', () => {
     adminPrograms,
     adminProgramImage,
     adminTranslations,
+    seeding,
   }) => {
+    await seeding.seedProgramsAndCategories()
     await loginAsAdmin(page)
 
-    const programName = 'Program with summary image description'
-    await adminPrograms.addProgram(programName)
+    const programName = SAMPLE_PROGRAMS.minimal
     await adminPrograms.goToProgramImagePage(programName)
     await adminProgramImage.legacySetImageDescriptionAndSubmit(
       'Fake image description',
@@ -328,11 +337,12 @@ test.describe('Admin can manage program translations', () => {
     adminPrograms,
     adminProgramImage,
     adminTranslations,
+    seeding,
   }) => {
+    await seeding.seedProgramsAndCategories()
     await loginAsAdmin(page)
 
-    const programName = 'Program with summary image description'
-    await adminPrograms.addProgram(programName)
+    const programName = SAMPLE_PROGRAMS.minimal
     await adminPrograms.goToProgramImagePage(programName)
     await adminProgramImage.legacySetImageDescriptionAndSubmit(
       'Fake image description',
@@ -370,11 +380,12 @@ test.describe('Admin can manage program translations', () => {
     adminPrograms,
     adminProgramImage,
     adminTranslations,
+    seeding,
   }) => {
+    await seeding.seedProgramsAndCategories()
     await loginAsAdmin(page)
 
-    const programName = 'Program with summary image description'
-    await adminPrograms.addProgram(programName)
+    const programName = SAMPLE_PROGRAMS.minimal
     await adminPrograms.goToProgramImagePage(programName)
     await adminProgramImage.legacySetImageDescriptionAndSubmit(
       'Fake image description',
@@ -408,25 +419,20 @@ test.describe('Admin can manage program translations', () => {
   test('Add translation for block name, description and eligibility message', async ({
     page,
     adminPrograms,
-    adminQuestions,
     adminTranslations,
     adminPredicates,
     applicantQuestions,
+    seeding,
   }) => {
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
 
-    const questionName = 'eligibility-question-q'
+    const questionName = SAMPLE_QUESTIONS.text
     const eligibilityMsg = 'Cutomized eligibility mesage'
     const programName = 'Program with blocks'
     const screenName = 'Screen 1'
 
     await test.step('Add program and a screen', async () => {
-      await adminQuestions.addTextQuestion({questionName: questionName})
-      await adminQuestions.addTextQuestion({
-        questionName: 'eligibility-other-q',
-        description: 'desc',
-        questionText: 'eligibility question',
-      })
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockUsingSpec(programName, {
         name: screenName,
@@ -452,7 +458,7 @@ test.describe('Admin can manage program translations', () => {
       )
       await expect(
         page.getByText(
-          'Applicant is eligible if "eligibility-question-q" text is equal to "eligible"',
+          `Applicant is eligible if "${questionName}" text is equal to "eligible"`,
         ),
       ).not.toBeEmpty()
     })

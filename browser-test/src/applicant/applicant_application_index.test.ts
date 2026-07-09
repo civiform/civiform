@@ -17,24 +17,25 @@ import {
 import {Locator, Page} from '@playwright/test'
 import {ProgramCategories, ProgramVisibility} from '../support/admin_programs'
 import {BASE_URL} from '../support/config'
+import {SAMPLE_QUESTIONS} from '../support/seeding'
 
 test.describe('applicant program index page', () => {
   const primaryProgramName = 'Application index primary program'
   const otherProgramName = 'Application index other program'
 
-  const firstQuestionText = 'This is the first question'
+  // Question text of the seeded sample text question.
+  const firstQuestionText = 'What is your favorite color?'
   const secondQuestionText = 'This is the second question'
 
-  test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
+  test.beforeEach(async ({page, adminPrograms, adminQuestions, seeding}) => {
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
 
     // Create a program with two questions on separate blocks so that an applicant can partially
-    // complete an application.
+    // complete an application. The first question is the seeded sample text
+    // question; the seed has only one text question, so the second one is
+    // still created via the UI.
     await adminPrograms.addProgram(primaryProgramName)
-    await adminQuestions.addTextQuestion({
-      questionName: 'first-q',
-      questionText: firstQuestionText,
-    })
     await adminQuestions.addTextQuestion({
       questionName: 'second-q',
       questionText: secondQuestionText,
@@ -42,7 +43,7 @@ test.describe('applicant program index page', () => {
     // Primary program's screen 1 has 0 questions, so the 'first block' is actually screen 2
     await adminPrograms.addProgramBlockUsingSpec(primaryProgramName, {
       description: 'first block',
-      questions: [{name: 'first-q'}],
+      questions: [{name: SAMPLE_QUESTIONS.text}],
     })
     // The 'second block' is actually screen 3
     await adminPrograms.addProgramBlockUsingSpec(primaryProgramName, {
@@ -53,7 +54,7 @@ test.describe('applicant program index page', () => {
     await adminPrograms.addProgram(otherProgramName)
     await adminPrograms.addProgramBlockUsingSpec(otherProgramName, {
       description: 'first block',
-      questions: [{name: 'first-q'}],
+      questions: [{name: SAMPLE_QUESTIONS.text}],
     })
 
     await adminPrograms.publishAllDrafts()
@@ -569,7 +570,7 @@ test.describe('applicant program index page', () => {
       await adminPrograms.addProgramBlockUsingSpec(preScreenerFormProgramName, {
         name: 'Screen 2',
         description: 'first block',
-        questions: [{name: 'first-q'}],
+        questions: [{name: SAMPLE_QUESTIONS.text}],
       })
       await adminPrograms.publishAllDrafts()
       await logout(page)
@@ -732,7 +733,7 @@ test.describe('applicant program index page', () => {
       await applicantQuestions.clickApplyProgramButton(primaryProgramName)
       await page
         .getByRole('listitem')
-        .filter({hasText: 'Screen 2 Edit This is the'})
+        .filter({hasText: 'Screen 2 Edit What is your'})
         .getByRole('link')
         .click()
       await applicantQuestions.answerTextQuestion('first answer 2')
@@ -953,8 +954,8 @@ test.describe('applicant program index page with images', () => {
     adminPrograms,
     adminProgramStatuses,
     adminProgramImage,
-    adminQuestions,
     applicantQuestions,
+    seeding,
   }) => {
     test.slow()
 
@@ -962,6 +963,7 @@ test.describe('applicant program index page with images', () => {
     const approvedStatusName = 'Approved'
 
     await test.step('create program with image as admin', async () => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
       const preScreenerFormProgramName = 'Benefits finder'
       await adminPrograms.addPreScreener(
@@ -971,13 +973,9 @@ test.describe('applicant program index page with images', () => {
       )
 
       await adminPrograms.addProgram(programNameInProgressImage)
-      await adminQuestions.addTextQuestion({
-        questionName: 'first-q',
-        questionText: 'first question text',
-      })
       await adminPrograms.addProgramBlockUsingSpec(programNameInProgressImage, {
         description: 'first block',
-        questions: [{name: 'first-q'}],
+        questions: [{name: SAMPLE_QUESTIONS.text}],
       })
 
       await adminPrograms.goToProgramImagePage(programNameInProgressImage)

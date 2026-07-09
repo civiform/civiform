@@ -8,6 +8,7 @@ import {
   validateScreenshot,
   validateToastMessage,
 } from '../support'
+import {SAMPLE_QUESTIONS} from '../support/seeding'
 
 test.describe('Applicant navigation flow', () => {
   const programName = 'Test program for summary page'
@@ -15,76 +16,36 @@ test.describe('Applicant navigation flow', () => {
   test.describe('navigation with five blocks', () => {
     const programDescription = 'Test description'
     const programShortDescription = 'Test short description'
-    const dateQuestionText = 'date question text'
-    const emailQuestionText = 'email question text'
-    const staticQuestionText = 'static question text'
-    const addressQuestionText = 'address question text'
-    const radioQuestionText = 'radio question text'
-    const phoneQuestionText = 'phone question text'
-    const currencyQuestionText = 'currency question text'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+    test.beforeEach(async ({page, adminPrograms, seeding}) => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
-
-      await adminQuestions.addDateQuestion({
-        questionName: 'nav-date-q',
-        questionText: dateQuestionText,
-      })
-      await adminQuestions.addEmailQuestion({
-        questionName: 'nav-email-q',
-        questionText: emailQuestionText,
-      })
-      await adminQuestions.addAddressQuestion({
-        questionName: 'nav-address-q',
-        questionText: addressQuestionText,
-      })
-      await adminQuestions.addRadioButtonQuestion({
-        questionName: 'nav-radio-q',
-        questionText: radioQuestionText,
-        options: [
-          {adminName: 'one_admin', text: 'one'},
-          {adminName: 'two_admin', text: 'two'},
-          {adminName: 'three_admin', text: 'three'},
-        ],
-      })
-      await adminQuestions.addStaticQuestion({
-        questionName: 'nav-static-q',
-        questionText: staticQuestionText,
-      })
-      await adminQuestions.addPhoneQuestion({
-        questionName: 'nav-phone-q',
-        questionText: phoneQuestionText,
-      })
-      await adminQuestions.addCurrencyQuestion({
-        questionName: 'nav-currency-q',
-        questionText: currencyQuestionText,
-      })
 
       await adminPrograms.addProgram(programName, {
         description: programDescription,
         shortDescription: programShortDescription,
       })
       await adminPrograms.editProgramBlock(programName, 'first description', [
-        'nav-date-q',
-        'nav-email-q',
+        SAMPLE_QUESTIONS.date,
+        SAMPLE_QUESTIONS.email,
       ])
       await adminPrograms.addProgramBlockUsingSpec(programName, {
         description: 'second description',
-        questions: [{name: 'nav-static-q', isOptional: false}],
+        questions: [{name: SAMPLE_QUESTIONS.staticContent, isOptional: false}],
       })
       await adminPrograms.addProgramBlockUsingSpec(programName, {
         description: 'third description',
-        questions: [{name: 'nav-address-q', isOptional: false}],
+        questions: [{name: SAMPLE_QUESTIONS.address, isOptional: false}],
       })
       await adminPrograms.addProgramBlockUsingSpec(programName, {
         description: 'fourth description',
-        questions: [{name: 'nav-radio-q', isOptional: true}],
+        questions: [{name: SAMPLE_QUESTIONS.radioButton, isOptional: true}],
       })
       await adminPrograms.addProgramBlockUsingSpec(programName, {
         description: 'fifth description',
         questions: [
-          {name: 'nav-phone-q', isOptional: false},
-          {name: 'nav-currency-q', isOptional: true},
+          {name: SAMPLE_QUESTIONS.phone, isOptional: false},
+          {name: SAMPLE_QUESTIONS.currency, isOptional: true},
         ],
       })
 
@@ -113,7 +74,7 @@ test.describe('Applicant navigation flow', () => {
           '54321',
         )
         await applicantQuestions.clickContinue()
-        await applicantQuestions.answerRadioButtonQuestion('one')
+        await applicantQuestions.answerRadioButtonQuestion('Spring')
         await applicantQuestions.clickContinue()
         await applicantQuestions.answerPhoneQuestion('4256373270')
         await applicantQuestions.clickContinue()
@@ -172,12 +133,11 @@ test.describe('Applicant navigation flow', () => {
 
   test('Click to download file', async ({
     page,
-    adminQuestions,
     adminPrograms,
     applicantQuestions,
+    seeding,
   }) => {
     const programName = 'Test program for single file upload'
-    const fileUploadQuestionText = 'Required file upload question'
     const fileName = 'foo.pdf'
     const payload = 'some sample text'
     const fileContent =
@@ -191,14 +151,11 @@ test.describe('Applicant navigation flow', () => {
       payload
 
     await test.step('As admin, set up program', async () => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
 
-      await adminQuestions.addFileUploadQuestion({
-        questionName: 'file-upload-test-q',
-        questionText: fileUploadQuestionText,
-      })
       await adminPrograms.addAndPublishProgramWithQuestions(
-        ['file-upload-test-q'],
+        [SAMPLE_QUESTIONS.fileUpload],
         programName,
       )
 
@@ -230,19 +187,15 @@ test.describe('Applicant navigation flow', () => {
 test.describe('guest cannot see program summary page for login only program', () => {
   const programName = 'loginonly'
 
-  test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
+  test.beforeEach(async ({page, adminPrograms, seeding}) => {
     await test.step('create a new program', async () => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
       await adminPrograms.addProgram(programName)
 
-      await adminQuestions.addNameQuestion({
-        questionName: 'name',
-        universal: true,
-      })
-
       await adminPrograms.editProgramBlockUsingSpec(programName, {
         description: 'First block',
-        questions: [{name: 'name', isOptional: false}],
+        questions: [{name: SAMPLE_QUESTIONS.name, isOptional: false}],
       })
       await adminPrograms.goToProgramDescriptionPage(programName)
       await adminPrograms.setProgramToLoginOnly(true)
@@ -279,7 +232,7 @@ test.describe('guest cannot see program summary page for login only program', ()
 
     await test.step('guest user tries to navigate to review page', async () => {
       await page.goto(reviewPageURL)
-      await expect(page.getByText('name')).toBeHidden()
+      await expect(page.getByText('What is your name?')).toBeHidden()
       await expect(
         page.getByRole('heading', {
           name: 'You must log in to apply for this program',

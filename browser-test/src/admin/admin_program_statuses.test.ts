@@ -6,9 +6,11 @@ import {
   validateToastMessage,
 } from '../support'
 import {waitForAnyModalLocator} from '../support/wait'
+import {SAMPLE_PROGRAMS} from '../support/seeding'
 
 test.describe('modify program statuses', () => {
-  test.beforeEach(async ({page}) => {
+  test.beforeEach(async ({page, seeding}) => {
+    await seeding.seedProgramsAndCategories()
     await loginAsAdmin(page)
   })
 
@@ -18,9 +20,8 @@ test.describe('modify program statuses', () => {
       adminPrograms,
       adminProgramStatuses,
     }) => {
-      // Add a draft program, no questions are needed.
-      const programName = 'Test program without statuses'
-      await adminPrograms.addProgram(programName)
+      // The seeded minimal sample program is a draft with no statuses.
+      const programName = SAMPLE_PROGRAMS.minimal
       await adminPrograms.gotoDraftProgramManageStatusesPage(programName)
       await adminProgramStatuses.expectNoStatuses()
       await validateScreenshot(page, 'status-list-with-no-statuses')
@@ -28,10 +29,9 @@ test.describe('modify program statuses', () => {
   })
 
   test.describe('new status creation', () => {
-    const programName = 'Test program create statuses'
+    const programName = SAMPLE_PROGRAMS.minimal
 
     test.beforeEach(async ({adminPrograms}) => {
-      await adminPrograms.addProgram(programName)
       await adminPrograms.gotoDraftProgramManageStatusesPage(programName)
     })
 
@@ -93,12 +93,11 @@ test.describe('modify program statuses', () => {
   })
 
   test.describe('edit existing statuses', () => {
-    const programName = 'Test program edit statuses'
+    const programName = SAMPLE_PROGRAMS.minimal
     const firstStatusName = 'First status'
     const secondStatusName = 'Second status'
 
     test.beforeEach(async ({adminPrograms, adminProgramStatuses}) => {
-      await adminPrograms.addProgram(programName)
       await adminPrograms.gotoDraftProgramManageStatusesPage(programName)
 
       // Create two existing statuses.
@@ -220,12 +219,11 @@ test.describe('modify program statuses', () => {
   })
 
   test.describe('delete existing status', () => {
-    const programName = 'Test program delete status'
+    const programName = SAMPLE_PROGRAMS.minimal
     const firstStatusName = 'First status'
     const secondStatusName = 'Second status'
 
     test.beforeEach(async ({adminPrograms, adminProgramStatuses}) => {
-      await adminPrograms.addProgram(programName)
       await adminPrograms.gotoDraftProgramManageStatusesPage(programName)
 
       // Create two existing statuses.
@@ -259,11 +257,9 @@ test.describe('modify program statuses', () => {
   })
 
   test.describe('default status', () => {
-    const programName = 'Test program default statuses'
+    const programName = SAMPLE_PROGRAMS.minimal
 
     test.beforeEach(async ({adminPrograms}) => {
-      await adminPrograms.addProgram(programName)
-      await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.gotoDraftProgramManageStatusesPage(programName)
     })
 

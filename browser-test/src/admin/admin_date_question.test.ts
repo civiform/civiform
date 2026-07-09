@@ -1,5 +1,6 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {loginAsAdmin, waitForPageJsLoad} from '../support'
+import {SAMPLE_QUESTIONS} from '../support/seeding'
 
 test.describe('Create date question with validation parameters', () => {
   test('Edit date question with date validation settings', async ({
@@ -103,17 +104,12 @@ test.describe('Create date question with validation parameters', () => {
   test('Date validation settings are prepopulated with saved values', async ({
     page,
     adminQuestions,
+    seeding,
   }) => {
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
-    const questionName = 'date-with-validation'
-
-    await test.step('Create date question', async () => {
-      await adminQuestions.addDateQuestion({
-        questionName: questionName,
-        questionText: 'date with validation',
-        helpText: 'date with validation help text',
-      })
-    })
+    // Use the non-universal sample date question.
+    const questionName = SAMPLE_QUESTIONS.datePredicate
 
     await test.step('Edit question to add date validation settings and save', async () => {
       await adminQuestions.gotoQuestionEditPage(questionName)

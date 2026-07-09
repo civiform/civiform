@@ -9,51 +9,47 @@ import {
   ClientInformation,
   selectApplicantLanguage,
 } from '../support'
+import {SAMPLE_QUESTIONS} from '../support/seeding'
 
 test.describe('Ineligible Page Tests', () => {
   const programName = 'Pet Assistance Program'
-  const eligibilityQuestionId = 'eligibility-q'
+  const eligibilityQuestionId = SAMPLE_QUESTIONS.number
+  // Question text of the seeded sample number question.
   const questionText = 'How many pets do you have?'
 
-  test.beforeEach(
-    async ({page, adminQuestions, adminPrograms, adminPredicates}) => {
-      await test.step('Setup: Create program with eligibility condition', async () => {
-        await loginAsAdmin(page)
+  test.beforeEach(async ({page, adminPrograms, adminPredicates, seeding}) => {
+    await test.step('Setup: Create program with eligibility condition', async () => {
+      await seeding.seedQuestions()
+      await loginAsAdmin(page)
 
-        await adminQuestions.addNumberQuestion({
-          questionName: eligibilityQuestionId,
-          questionText: questionText,
-        })
-
-        await adminPrograms.addProgram(programName)
-        await adminPrograms.editProgramBlockUsingSpec(programName, {
-          name: 'Screen 1',
-          description: 'first screen',
-          questions: [{name: eligibilityQuestionId}],
-        })
-
-        await adminPrograms.goToEditBlockEligibilityPredicatePage(
-          programName,
-          'Screen 1',
-          /* expandedFormLogicEnabled= */ true,
-        )
-        await adminPredicates.addPredicates(
-          /* expandedFormLogicEnabled= */ true,
-          {
-            questionName: eligibilityQuestionId,
-            scalar: 'number',
-            operator: 'is greater than',
-            value: '0',
-          },
-        )
-
-        await adminPrograms.gotoAdminProgramsPage()
-        await adminPrograms.publishProgram(programName)
-
-        await logout(page)
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        name: 'Screen 1',
+        description: 'first screen',
+        questions: [{name: eligibilityQuestionId}],
       })
-    },
-  )
+
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 1',
+        /* expandedFormLogicEnabled= */ true,
+      )
+      await adminPredicates.addPredicates(
+        /* expandedFormLogicEnabled= */ true,
+        {
+          questionName: eligibilityQuestionId,
+          scalar: 'number',
+          operator: 'is greater than',
+          value: '0',
+        },
+      )
+
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.publishProgram(programName)
+
+      await logout(page)
+    })
+  })
 
   test('As applicant, fill out application and view ineligible page', async ({
     page,

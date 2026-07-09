@@ -8,6 +8,7 @@ import {
   validateAccessibility,
   validateScreenshot,
 } from '../../support'
+import {SAMPLE_QUESTIONS, Seeding} from '../../support/seeding'
 
 const staticText = 'Hello, I am some static text!'
 const markdownText =
@@ -24,10 +25,11 @@ const markdownText =
 const programName = 'Test program for static text'
 
 test.describe('Static text question for applicant flow', () => {
-  test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+  test.beforeEach(async ({page, adminQuestions, adminPrograms, seeding}) => {
     await setUpForSingleQuestion(
       programName,
       page,
+      seeding,
       adminQuestions,
       adminPrograms,
     )
@@ -52,10 +54,14 @@ test.describe('Static text question for applicant flow', () => {
 async function setUpForSingleQuestion(
   programName: string,
   page: Page,
+  seeding: Seeding,
   adminQuestions: AdminQuestions,
   adminPrograms: AdminPrograms,
 ) {
-  // As admin, create program with static text question.
+  await seeding.seedQuestions()
+  // As admin, create program with static text question. The tests assert the
+  // rendering of this bespoke markdown, which the seeded sample static
+  // content question does not contain, so it is still created via the UI.
   await loginAsAdmin(page)
   await adminQuestions.addStaticQuestion({
     questionName: 'static-text-q',
@@ -63,9 +69,8 @@ async function setUpForSingleQuestion(
     markdownText: markdownText,
   })
   // Must add an answerable question for text to show.
-  await adminQuestions.addEmailQuestion({questionName: 'partner-email-q'})
   await adminPrograms.addAndPublishProgramWithQuestions(
-    ['static-text-q', 'partner-email-q'],
+    ['static-text-q', SAMPLE_QUESTIONS.email],
     programName,
   )
   await logout(page)

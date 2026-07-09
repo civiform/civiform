@@ -4,6 +4,8 @@ import {loginAsAdmin} from './support'
 import {loginAsProgramAdmin} from './support'
 import {loginAsTrustedIntermediary} from './support'
 import {logout} from './support'
+import {slugify} from './support/admin_programs'
+import {SAMPLE_PROGRAMS} from './support/seeding'
 
 async function expectAdminDashboard(page: Page) {
   await expect(
@@ -47,14 +49,13 @@ test.describe('applicant security', {tag: ['@parallel-candidate']}, () => {
 })
 
 test.describe('non applicant security', {tag: ['@parallel-candidate']}, () => {
-  const programName = 'Test program 1'
+  const programName = SAMPLE_PROGRAMS.minimal
 
-  test.beforeEach('Setup program', async ({page, adminPrograms}) => {
+  test.beforeEach('Setup program', async ({page, adminPrograms, seeding}) => {
+    await seeding.seedProgramsAndCategories()
+    await page.goto('/')
     await loginAsAdmin(page)
-    await adminPrograms.addProgram(programName)
-
-    await adminPrograms.gotoAdminProgramsPage()
-    await adminPrograms.publishProgram(programName)
+    await adminPrograms.publishAllDrafts()
     await logout(page)
   })
 
@@ -80,7 +81,7 @@ test.describe('non applicant security', {tag: ['@parallel-candidate']}, () => {
     page,
   }) => {
     await loginAsAdmin(page)
-    await page.goto('/programs/' + programName)
+    await page.goto('/programs/' + slugify(programName))
 
     await expectAdminDashboard(page)
   })
@@ -107,7 +108,7 @@ test.describe('non applicant security', {tag: ['@parallel-candidate']}, () => {
     page,
   }) => {
     await loginAsProgramAdmin(page)
-    await page.goto('/programs/' + programName)
+    await page.goto('/programs/' + slugify(programName))
 
     await expectProgramAdminDashboard(page)
   })
@@ -132,7 +133,7 @@ test.describe('non applicant security', {tag: ['@parallel-candidate']}, () => {
     page,
   }) => {
     await loginAsTrustedIntermediary(page)
-    await page.goto('/programs/' + programName)
+    await page.goto('/programs/' + slugify(programName))
 
     await expectTiDashboard(page)
   })

@@ -7,9 +7,8 @@ test.describe('Managing API keys', () => {
     page,
     adminApiKeys,
     adminPrograms,
+    seeding,
   }) => {
-    const internalProgramName = 'Api using program'
-    const internalProgramDescription = 'This program uses the API.'
     const externalProgramName = 'External Program'
     const externalProgramDescription =
       'This is an external program that should not appear in API key creation.'
@@ -40,10 +39,10 @@ test.describe('Managing API keys', () => {
       ).toBeVisible()
     })
 
-    await test.step('Add and publish default program', async () => {
-      await adminPrograms.addProgram(internalProgramName, {
-        description: internalProgramDescription,
-      })
+    await test.step('Seed and publish sample programs', async () => {
+      // Seeding happens here (not at test start) because the earlier steps
+      // verify the no-programs state of the API key page.
+      await seeding.seedProgramsAndCategories()
       await adminPrograms.publishAllDrafts()
     })
 
@@ -51,7 +50,7 @@ test.describe('Managing API keys', () => {
       await adminApiKeys.gotoNewApiKeyPage()
 
       await expect(
-        page.getByRole('checkbox', {name: 'api-using-program'}),
+        page.getByRole('checkbox', {name: 'minimal-sample-program'}),
       ).toBeVisible()
       await expect(
         page.getByRole('checkbox', {name: 'external-program'}),
@@ -73,7 +72,7 @@ test.describe('Managing API keys', () => {
         name: 'Test API key',
         expiration: '2100-01-01',
         subnet: '0.0.0.0/0,1.1.1.1/0',
-        programSlugs: ['api-using-program'],
+        programSlugs: ['minimal-sample-program'],
       })
 
       expect(typeof credentials).toEqual('string')

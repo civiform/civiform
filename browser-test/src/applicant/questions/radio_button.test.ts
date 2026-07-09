@@ -1,7 +1,6 @@
 import {Page} from '@playwright/test'
 import {test, expect} from '../../support/civiform_fixtures'
 import {
-  AdminQuestions,
   AdminPrograms,
   loginAsAdmin,
   logout,
@@ -9,18 +8,14 @@ import {
   validateScreenshot,
   selectApplicantLanguage,
 } from '../../support'
+import {SAMPLE_QUESTIONS, Seeding} from '../../support/seeding'
 
 test.describe('Radio button question for applicant flow', () => {
   test.describe('single radio button question', () => {
     const programName = 'Test program for single radio button'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      await setUpForSingleQuestion(
-        programName,
-        page,
-        adminQuestions,
-        adminPrograms,
-      )
+    test.beforeEach(async ({page, adminPrograms, seeding}) => {
+      await setUpForSingleQuestion(programName, page, seeding, adminPrograms)
     })
 
     test('validate screenshot', async ({page, applicantQuestions}) => {
@@ -70,13 +65,8 @@ test.describe('Radio button question for applicant flow', () => {
   test.describe('single radio button question', () => {
     const programName = 'Test program for single radio button'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      await setUpForSingleQuestion(
-        programName,
-        page,
-        adminQuestions,
-        adminPrograms,
-      )
+    test.beforeEach(async ({page, adminPrograms, seeding}) => {
+      await setUpForSingleQuestion(programName, page, seeding, adminPrograms)
     })
 
     test('Updates options in preview', async ({page, adminQuestions}) => {
@@ -126,7 +116,7 @@ test.describe('Radio button question for applicant flow', () => {
       applicantQuestions,
     }) => {
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerRadioButtonQuestion('matcha')
+      await applicantQuestions.answerRadioButtonQuestion('Summer')
       await applicantQuestions.clickContinue()
 
       await applicantQuestions.expectReviewPage()
@@ -231,18 +221,12 @@ test.describe('Radio button question for applicant flow', () => {
   test.describe('multiple radio button questions', () => {
     const programName = 'Test program for multiple radio button qs'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+    test.beforeEach(async ({page, adminQuestions, adminPrograms, seeding}) => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
 
-      await adminQuestions.addRadioButtonQuestion({
-        questionName: 'fave-ice-cream-q',
-        options: [
-          {adminName: 'matcha_admin', text: 'matcha'},
-          {adminName: 'strawberry_admin', text: 'strawberry'},
-          {adminName: 'vanilla_admin', text: 'vanilla'},
-        ],
-      })
-
+      // The seed contains a single radio button question, so the second one
+      // is still created via the UI.
       await adminQuestions.addRadioButtonQuestion({
         questionName: 'fave-vacation-q',
         options: [
@@ -257,7 +241,7 @@ test.describe('Radio button question for applicant flow', () => {
       await adminPrograms.editProgramBlockWithOptional(
         programName,
         'Optional question block',
-        ['fave-ice-cream-q'],
+        [SAMPLE_QUESTIONS.radioButton],
         'fave-vacation-q', // optional
       )
       await adminPrograms.publishAllDrafts()
@@ -269,7 +253,7 @@ test.describe('Radio button question for applicant flow', () => {
       applicantQuestions,
     }) => {
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerRadioButtonQuestion('matcha')
+      await applicantQuestions.answerRadioButtonQuestion('Summer')
       await applicantQuestions.answerRadioButtonQuestion('mountains')
       await applicantQuestions.clickContinue()
 
@@ -281,7 +265,7 @@ test.describe('Radio button question for applicant flow', () => {
     }) => {
       // Only answer second question. First is optional.
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerRadioButtonQuestion('matcha')
+      await applicantQuestions.answerRadioButtonQuestion('Summer')
       await applicantQuestions.clickContinue()
 
       await applicantQuestions.expectReviewPage()
@@ -300,22 +284,15 @@ test.describe('Radio button question for applicant flow', () => {
   async function setUpForSingleQuestion(
     programName: string,
     page: Page,
-    adminQuestions: AdminQuestions,
+    seeding: Seeding,
     adminPrograms: AdminPrograms,
   ) {
     // As admin, create program with radio button question.
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
 
-    await adminQuestions.addRadioButtonQuestion({
-      questionName: 'ice-cream-radio-q',
-      options: [
-        {adminName: 'matcha_admin', text: 'matcha'},
-        {adminName: 'strawberry_admin', text: 'strawberry'},
-        {adminName: 'vanilla_admin', text: 'vanilla'},
-      ],
-    })
     await adminPrograms.addAndPublishProgramWithQuestions(
-      ['ice-cream-radio-q'],
+      [SAMPLE_QUESTIONS.radioButton],
       programName,
     )
 

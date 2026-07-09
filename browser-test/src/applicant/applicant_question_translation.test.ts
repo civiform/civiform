@@ -5,6 +5,7 @@ import {
   selectApplicantLanguage,
   validateScreenshot,
 } from '../support'
+import {SAMPLE_QUESTIONS} from '../support/seeding'
 
 test.describe('Admin can manage translations', () => {
   test('Expect single-answer question is translated for applicant', async ({
@@ -14,12 +15,12 @@ test.describe('Admin can manage translations', () => {
     adminTranslations,
     applicantQuestions,
     applicantProgramOverview,
+    seeding,
   }) => {
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
 
-    // Add a new question to be translated
-    const questionName = 'name-translated'
-    await adminQuestions.addNameQuestion({questionName})
+    const questionName = SAMPLE_QUESTIONS.name
 
     // Go to the question translation page and add a translation for Spanish
     await adminQuestions.goToQuestionTranslationPage(questionName)
@@ -72,12 +73,12 @@ test.describe('Admin can manage translations', () => {
     adminQuestions,
     adminTranslations,
     applicantQuestions,
+    seeding,
   }) => {
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
 
-    // Add a new question to be translated
-    const questionName = 'name-translated'
-    await adminQuestions.addNameQuestion({questionName})
+    const questionName = SAMPLE_QUESTIONS.name
 
     // Go to the question translation page and add a translation for Spanish
     await adminQuestions.goToQuestionTranslationPage(questionName)
@@ -118,7 +119,9 @@ test.describe('Admin can manage translations', () => {
   }) => {
     await loginAsAdmin(page)
 
-    // Add a new question to be translated
+    // Add a new question to be translated. The seeded radio button question
+    // has four options, so it can't take this bespoke three-option
+    // translation; keep UI creation.
     const questionName = 'multi-option-translated'
     await adminQuestions.addRadioButtonQuestion({
       questionName,
@@ -160,12 +163,12 @@ test.describe('Admin can manage translations', () => {
     adminQuestions,
     adminTranslations,
     applicantQuestions,
+    seeding,
   }) => {
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
 
-    // Add a new question to be translated
-    const questionName = 'enumerator-translated'
-    await adminQuestions.addEnumeratorQuestion({questionName})
+    const questionName = SAMPLE_QUESTIONS.enumerator
 
     // Go to the question translation page and add a translation for Spanish
     await adminQuestions.goToQuestionTranslationPage(questionName)
