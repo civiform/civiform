@@ -202,10 +202,10 @@ public class QuestionServiceTest extends ResetPostgres {
     // The initial question is a fresh copy — new id, "-_- a" suffix on name, enumeratorId set.
     assertThat(result.initialQuestion().getId()).isNotEqualTo(originalInitialQuestion.getId());
     assertThat(result.initialQuestion().getName()).isEqualTo("text-question -_- a");
-    assertThat(result.initialQuestion().getEnumeratorId()).contains(enumerator.getId());
+    assertThat(result.initialQuestion().getEnumeratorId()).hasValue(enumerator.getId());
     // The enumerator now links to the persisted initial question.
     assertThat(result.enumeratorQuestion().getEnumeratorInitialQuestionId())
-        .contains(result.initialQuestion().getId());
+        .hasValue(result.initialQuestion().getId());
   }
 
   @Test
@@ -222,10 +222,10 @@ public class QuestionServiceTest extends ResetPostgres {
     // The initial question is updated in place — same id, same name, enumeratorId now set.
     assertThat(result.initialQuestion().getId()).isEqualTo(originalInitialQuestion.getId());
     assertThat(result.initialQuestion().getName()).isEqualTo(originalInitialQuestion.getName());
-    assertThat(result.initialQuestion().getEnumeratorId()).contains(enumerator.getId());
+    assertThat(result.initialQuestion().getEnumeratorId()).hasValue(enumerator.getId());
     // The enumerator now links to the persisted initial question.
     assertThat(result.enumeratorQuestion().getEnumeratorInitialQuestionId())
-        .contains(result.initialQuestion().getId());
+        .hasValue(result.initialQuestion().getId());
 
     // The enumerator link is persisted — reload from DB and verify.
     QuestionDefinition reloadedEnumerator =
@@ -233,7 +233,7 @@ public class QuestionServiceTest extends ResetPostgres {
             .getReadOnlyQuestionServiceSync()
             .getQuestionDefinition(result.enumeratorQuestion().getId());
     assertThat(reloadedEnumerator.getEnumeratorInitialQuestionId())
-        .contains(result.initialQuestion().getId());
+        .hasValue(result.initialQuestion().getId());
   }
 
   private QuestionDefinition createEnumerator(String name) {

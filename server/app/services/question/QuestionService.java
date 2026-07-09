@@ -265,7 +265,7 @@ public final class QuestionService {
       QuestionDefinition originalInitialQuestion,
       boolean initialQuestionWasNewlyCreated)
       throws InvalidUpdateException, UnsupportedQuestionTypeException {
-    QuestionDefinition persistedInitialQuestion;
+    final QuestionDefinition persistedInitialQuestion;
     if (initialQuestionWasNewlyCreated) {
       QuestionDefinition updatedInitialQuestion =
           questionRepository.updateEnumeratorId(

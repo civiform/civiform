@@ -271,10 +271,9 @@ public class AdminProgramBlockQuestionsController extends Controller {
   }
 
   /**
-   * If the form carries an initial question id, resolves it and delegates to {@link
+   * Resolves the initial question and delegates to {@link
    * QuestionService#copyOrUpdateInitialQuestionAndAttachToEnumerator} to attach it to the
-   * just-created enumerator question. Returns {@link Optional#empty()} when no initial question was
-   * submitted.
+   * just-created enumerator question.
    */
   private Optional<EnumAndInitialQuestion> attachInitialQuestion(
       Long initialQuestionId,
