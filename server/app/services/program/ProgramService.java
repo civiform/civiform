@@ -58,6 +58,7 @@ import services.pagination.BasePaginationSpec;
 import services.pagination.PaginationResult;
 import services.program.predicate.PredicateDefinition;
 import services.question.QuestionService;
+import services.question.QuestionService.EnumAndInitialQuestion;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
@@ -1622,6 +1623,50 @@ public final class ProgramService {
       throws CantAddQuestionToBlockException,
           ProgramNotFoundException,
           ProgramBlockDefinitionNotFoundException {
+    return addQuestionsToBlockInternal(
+        programId,
+        blockDefinitionId,
+        questionIds,
+        /* initialQuestionId= */ Optional.empty(),
+        enumeratorImprovementsEnabled,
+        fileUploadQuestionImprovementsEnabled);
+  }
+
+  /**
+   * Adds an enumerator question and its initial question to a block in one call. The pair type
+   * enforces the ordering that the block validation depends on (enumerator added first so the
+   * initial question's enumeratorId match sees it).
+   */
+  public ProgramDefinition addQuestionsToBlock(
+      long programId,
+      long blockDefinitionId,
+      EnumAndInitialQuestion enumAndInitialQuestion,
+      boolean enumeratorImprovementsEnabled,
+      boolean fileUploadQuestionImprovementsEnabled)
+      throws CantAddQuestionToBlockException,
+          ProgramNotFoundException,
+          ProgramBlockDefinitionNotFoundException {
+    return addQuestionsToBlockInternal(
+        programId,
+        blockDefinitionId,
+        ImmutableList.of(
+            enumAndInitialQuestion.enumeratorQuestion().getId(),
+            enumAndInitialQuestion.initialQuestion().getId()),
+        Optional.of(enumAndInitialQuestion.initialQuestion().getId()),
+        enumeratorImprovementsEnabled,
+        fileUploadQuestionImprovementsEnabled);
+  }
+
+  private ProgramDefinition addQuestionsToBlockInternal(
+      long programId,
+      long blockDefinitionId,
+      ImmutableList<Long> questionIds,
+      Optional<Long> initialQuestionId,
+      boolean enumeratorImprovementsEnabled,
+      boolean fileUploadQuestionImprovementsEnabled)
+      throws CantAddQuestionToBlockException,
+          ProgramNotFoundException,
+          ProgramBlockDefinitionNotFoundException {
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
 
     BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
@@ -1658,12 +1703,27 @@ public final class ProgramService {
                   question.getQuestionDefinition(),
                   enumeratorImprovementsEnabled,
                   fileUploadQuestionImprovementsEnabled,
-                  /* isInitialQuestionSelection= */ false);
+                  /* isInitialQuestionSelection= */ initialQuestionId.isPresent()
+                      && initialQuestionId.get() == questionId);
       if (canAddQuestion != AddQuestionResult.ELIGIBLE) {
         throw new CantAddQuestionToBlockException(
             programDefinition, blockDefinition, question.getQuestionDefinition(), canAddQuestion);
       }
       updatedBlockQuestions.add(question);
+
+      // If we just added an enumerator question, reflect it in blockDefinition so the next
+      // iteration's canAddQuestion sees it (e.g. the initial question's enumeratorId match).
+      if (questionDefinition.isEnumerator()) {
+        blockDefinition =
+            blockDefinition.toBuilder()
+                .setProgramQuestionDefinitions(
+                    ImmutableList.<ProgramQuestionDefinition>builder()
+                        .addAll(blockDefinition.programQuestionDefinitions())
+                        .add(question)
+                        .build())
+                .setIsEnumerator(Optional.of(true))
+                .build();
+      }
     }
 
     ImmutableList<ProgramQuestionDefinition> updatedBlockQuestionsList =

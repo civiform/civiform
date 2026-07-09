@@ -248,6 +248,59 @@ public final class QuestionService {
     return create(copy, /* requireLegacyRepeatedEntitySelector= */ false);
   }
 
+  /** The persisted initial question and the enumerator question linked to it. */
+  public record EnumAndInitialQuestion(
+      QuestionDefinition enumeratorQuestion, QuestionDefinition initialQuestion) {}
+
+  /**
+   * Attach an initial question to an enumerator question, establishing the mutual connection.
+   *
+   * <p>If {@code initialQuestionWasNewlyCreated}, the existing initial question is updated in place
+   * to set its enumeratorId. Otherwise, a copy of the initial question is created with the
+   * enumeratorId set. In either case the enumerator question is then updated to point at the
+   * persisted initial question via enumeratorInitialQuestionId.
+   */
+  public EnumAndInitialQuestion copyOrUpdateInitialQuestionAndAttachToEnumerator(
+      QuestionDefinition enumeratorQuestion,
+      QuestionDefinition originalInitialQuestion,
+      boolean initialQuestionWasNewlyCreated)
+      throws InvalidUpdateException, UnsupportedQuestionTypeException {
+    final QuestionDefinition persistedInitialQuestion;
+    if (initialQuestionWasNewlyCreated) {
+      QuestionDefinition updatedInitialQuestion =
+          questionRepository.updateEnumeratorId(
+              originalInitialQuestion, enumeratorQuestion.getId());
+      QuestionModel persisted = questionRepository.createOrUpdateDraft(updatedInitialQuestion);
+      persistedInitialQuestion = questionRepository.getQuestionDefinition(persisted);
+    } else {
+      ErrorAnd<QuestionDefinition, CiviFormError> copyResult =
+          createCopy(originalInitialQuestion, Optional.of(enumeratorQuestion.getId()));
+      if (copyResult.isError()) {
+        throw new RuntimeException(
+            String.format(
+                "Could not create copy of initial question %s", originalInitialQuestion.getName()));
+      }
+      persistedInitialQuestion = copyResult.getResult();
+    }
+
+    QuestionDefinition enumeratorQuestionWithInitialId =
+        new QuestionDefinitionBuilder(enumeratorQuestion)
+            .setEnumeratorInitialQuestionId(Optional.of(persistedInitialQuestion.getId()))
+            .build();
+    ErrorAnd<QuestionDefinition, CiviFormError> updatedEnumeratorQuestion =
+        update(
+            /* previousDefinition= */ Optional.of(enumeratorQuestion),
+            /* updatedDefinition= */ enumeratorQuestionWithInitialId);
+    if (updatedEnumeratorQuestion.isError()) {
+      throw new RuntimeException(
+          String.format(
+              "Could not link enumerator question %s to initial question %s",
+              enumeratorQuestion.getName(), persistedInitialQuestion.getName()));
+    }
+    return new EnumAndInitialQuestion(
+        updatedEnumeratorQuestion.getResult(), persistedInitialQuestion);
+  }
+
   /** If this question is archived but a new version has not been published yet, un-archive it. */
   public void restoreQuestion(Long id) throws InvalidUpdateException {
     Optional<QuestionModel> question =
