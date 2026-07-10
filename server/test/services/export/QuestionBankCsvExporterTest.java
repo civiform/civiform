@@ -115,7 +115,7 @@ public class QuestionBankCsvExporterTest extends ResetPostgres {
     List<CSVRecord> records = parseRecords(exporter.export(getActiveAndDraftQuestions()));
 
     assertThat(records).hasSize(1);
-    assertThat(records.get(0).get("Admin ID")).isEqualTo("applicant kitchen tools");
+    assertThat(records.get(0).get("Admin ID")).isEqualTo("kitchen tools");
     assertThat(records.get(0).get("Question Type")).isEqualTo("Checkbox");
   }
 
