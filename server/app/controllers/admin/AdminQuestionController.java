@@ -31,8 +31,8 @@ import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
-import services.question.QuestionOption;
 import services.export.QuestionBankCsvExporter;
+import services.question.QuestionOption;
 import services.question.QuestionService;
 import services.question.QuestionSetting;
 import services.question.ReadOnlyQuestionService;
@@ -120,13 +120,11 @@ public final class AdminQuestionController extends CiviFormController {
         .thenApplyAsync(
             readOnlyService -> {
               String csv =
-                  questionBankCsvExporter.export(
-                      readOnlyService.getActiveAndDraftQuestions());
+                  questionBankCsvExporter.export(readOnlyService.getActiveAndDraftQuestions());
               return ok(csv)
                   .as(Http.MimeTypes.BINARY)
                   .withHeader(
-                      "Content-Disposition",
-                      "attachment; filename=\"question-bank-export.csv\"");
+                      "Content-Disposition", "attachment; filename=\"question-bank-export.csv\"");
             },
             classLoaderExecutionContext.current());
   }

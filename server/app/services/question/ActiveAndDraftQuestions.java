@@ -151,9 +151,7 @@ public final class ActiveAndDraftQuestions {
       return false;
     }
     long questionId = questionDef.get().getId();
-    return referencingActiveProgramsByName
-        .getOrDefault(questionName, ImmutableSet.of())
-        .stream()
+    return referencingActiveProgramsByName.getOrDefault(questionName, ImmutableSet.of()).stream()
         .anyMatch(program -> program.isQuestionUsedInEligibilityPredicate(questionId));
   }
 
