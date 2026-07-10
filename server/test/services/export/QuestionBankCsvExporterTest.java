@@ -127,7 +127,7 @@ public class QuestionBankCsvExporterTest extends ResetPostgres {
 
     assertThat(records).hasSize(1);
     assertThat(records.get(0).get("Admin ID")).isEqualTo("applicant favorite season");
-    assertThat(records.get(0).get("Question Type")).isEqualTo("Radio button");
+    assertThat(records.get(0).get("Question Type")).isEqualTo("Radio Button");
   }
 
   // ---------------------------------------------------------------------------
