@@ -1,4 +1,5 @@
 import {test, expect} from '../support/civiform_fixtures'
+import {readFileSync} from 'fs'
 import {
   AdminPrograms,
   AdminQuestions,
@@ -529,5 +530,64 @@ test.describe('Translation tag shows up as expected', () => {
         'question-translation-complete',
       )
     })
+  })
+})
+
+test.describe('Question bank CSV export', () => {
+  test('Export to CSV button downloads a file with correct headers and question data', async ({
+    page,
+    adminQuestions,
+  }) => {
+    await loginAsAdmin(page)
+
+    // Create a few questions so the export is non-trivial.
+    await adminQuestions.addTextQuestion({
+      questionName: 'csv-export-text-q',
+      questionText: 'What is your name?',
+    })
+    await adminQuestions.addDropdownQuestion({
+      questionName: 'csv-export-dropdown-q',
+      questionText: 'Pick a color',
+      options: [
+        {adminName: 'red_admin', text: 'Red'},
+        {adminName: 'blue_admin', text: 'Blue'},
+      ],
+    })
+
+    await adminQuestions.gotoAdminQuestionsPage()
+
+    // Click the "Export to CSV" link and capture the download.
+    const [downloadEvent] = await Promise.all([
+      page.waitForEvent('download'),
+      page.click('text="Export to CSV"'),
+    ])
+
+    const path = await downloadEvent.path()
+    if (path === null) {
+      throw new Error('download failed')
+    }
+    const csvContent = readFileSync(path, 'utf8')
+
+    // Assert that the suggested filename is correct.
+    expect(downloadEvent.suggestedFilename()).toBe('question-bank-export.csv')
+
+    // Assert headers are present.
+    expect(csvContent).toContain('Admin ID')
+    expect(csvContent).toContain('Question Text')
+    expect(csvContent).toContain('Question Type')
+    expect(csvContent).toContain('Answer Options')
+    expect(csvContent).toContain('Universal')
+    expect(csvContent).toContain('Eligibility Question')
+    expect(csvContent).toContain('Programs')
+    expect(csvContent).toContain('Status')
+    expect(csvContent).toContain('Last Modified')
+
+    // Assert question data is present.
+    expect(csvContent).toContain('csv-export-text-q')
+    expect(csvContent).toContain('What is your name?')
+    expect(csvContent).toContain('csv-export-dropdown-q')
+    expect(csvContent).toContain('Pick a color')
+    // Dropdown answer options should appear semicolon-separated.
+    expect(csvContent).toContain('Red; Blue')
   })
 })

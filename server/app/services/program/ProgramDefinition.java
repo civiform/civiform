@@ -724,6 +724,26 @@ public abstract class ProgramDefinition {
   }
 
   /**
+   * True if the given question definition ID is used in an eligibility predicate in any block of
+   * this program. Unlike {@link #isQuestionUsedInPredicate}, this does NOT include visibility
+   * predicates.
+   */
+  public boolean isQuestionUsedInEligibilityPredicate(long questionDefinitionId) {
+    return blockDefinitions().stream()
+        .anyMatch(
+            block ->
+                block
+                    .eligibilityDefinition()
+                    .map(
+                        eligibilityDefinition ->
+                            eligibilityDefinition
+                                .predicate()
+                                .getQuestions()
+                                .contains(questionDefinitionId))
+                    .orElse(false));
+  }
+
+  /**
    * Returns a list of the question definitions that may be used to define predicates on the block
    * definition with the id {@code blockId}.
    *

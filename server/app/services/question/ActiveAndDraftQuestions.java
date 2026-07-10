@@ -135,6 +135,28 @@ public final class ActiveAndDraftQuestions {
         .build();
   }
 
+  /**
+   * Returns true if the question with the given name is used in an eligibility predicate in any
+   * active referencing program.
+   *
+   * <p>"Eligibility question" means the question appears in a {@link
+   * services.program.BlockDefinition#eligibilityDefinition()} predicate in at least one of the
+   * programs that reference it.
+   */
+  public boolean isUsedInEligibility(String questionName) {
+    Optional<QuestionDefinition> questionDef =
+        getActiveQuestionDefinition(questionName)
+            .or(() -> getDraftQuestionDefinition(questionName));
+    if (questionDef.isEmpty()) {
+      return false;
+    }
+    long questionId = questionDef.get().getId();
+    return referencingActiveProgramsByName
+        .getOrDefault(questionName, ImmutableSet.of())
+        .stream()
+        .anyMatch(program -> program.isQuestionUsedInEligibilityPredicate(questionId));
+  }
+
   public boolean draftVersionHasAnyEdits() {
     return draftVersionHasAnyEdits;
   }

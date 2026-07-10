@@ -114,6 +114,11 @@ public final class QuestionsListView extends BaseHtmlView {
                     .with(
                         h1(title),
                         div().withClass("flex-grow"),
+                        a("Export to CSV")
+                            .withHref(
+                                controllers.admin.routes.AdminQuestionController.exportCsv()
+                                    .url())
+                            .withClasses(ButtonStyles.OUTLINED_TRANSPARENT),
                         CreateQuestionButton.renderCreateQuestionButtonForQuestionListPage(
                             settingsManifest, request)),
                 QuestionBank.renderFilterAndSort(

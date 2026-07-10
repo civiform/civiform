@@ -32,6 +32,7 @@ import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.question.QuestionOption;
+import services.export.QuestionBankCsvExporter;
 import services.question.QuestionService;
 import services.question.QuestionSetting;
 import services.question.ReadOnlyQuestionService;
@@ -63,6 +64,7 @@ public final class AdminQuestionController extends CiviFormController {
   private final FormFactory formFactory;
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final SettingsManifest settingsManifest;
+  private final QuestionBankCsvExporter questionBankCsvExporter;
 
   private final MapQuestionSettingsFiltersPartialView mapQuestionSettingsFiltersPartialView;
   private final MapQuestionSettingsFiltersListPartialView mapQuestionSettingsFiltersListPartialView;
@@ -76,6 +78,7 @@ public final class AdminQuestionController extends CiviFormController {
       QuestionEditView editView,
       SettingsManifest settingsManifest,
       FormFactory formFactory,
+      QuestionBankCsvExporter questionBankCsvExporter,
       MapQuestionSettingsFiltersPartialView mapQuestionSettingsFiltersPartialView,
       MapQuestionSettingsFiltersListPartialView mapQuestionSettingsFiltersListPartialView,
       ClassLoaderExecutionContext classLoaderExecutionContext) {
@@ -86,6 +89,7 @@ public final class AdminQuestionController extends CiviFormController {
     this.settingsManifest = checkNotNull(settingsManifest);
     this.formFactory = checkNotNull(formFactory);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
+    this.questionBankCsvExporter = checkNotNull(questionBankCsvExporter);
     this.mapQuestionSettingsFiltersPartialView = mapQuestionSettingsFiltersPartialView;
     this.mapQuestionSettingsFiltersListPartialView = mapQuestionSettingsFiltersListPartialView;
   }
@@ -105,6 +109,25 @@ public final class AdminQuestionController extends CiviFormController {
                         readOnlyService.getActiveAndDraftQuestions(),
                         filter.map(TextFormatter::sanitizeHtml),
                         request)),
+            classLoaderExecutionContext.current());
+  }
+
+  /** Download a CSV file containing all questions in the question bank. */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public CompletionStage<Result> exportCsv(Request request) {
+    return service
+        .getReadOnlyQuestionService()
+        .thenApplyAsync(
+            readOnlyService -> {
+              String csv =
+                  questionBankCsvExporter.export(
+                      readOnlyService.getActiveAndDraftQuestions());
+              return ok(csv)
+                  .as(Http.MimeTypes.BINARY)
+                  .withHeader(
+                      "Content-Disposition",
+                      "attachment; filename=\"question-bank-export.csv\"");
+            },
             classLoaderExecutionContext.current());
   }
 
