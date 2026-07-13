@@ -423,7 +423,7 @@ test.describe('address applicant flow', () => {
     ).toBeVisible()
     // There is a red border on the left because of cf-question-field-with-error
     await expect(questionRoot.locator('.cf-address-street-1')).toHaveClass(
-      'cf-address-street-1 cf-applicant-question-field cf-question-field-with-error',
+      'cf-address-street-1 cf-question-field-with-error',
     )
     // The input box has a red border because of usa-input--error
     await expect(

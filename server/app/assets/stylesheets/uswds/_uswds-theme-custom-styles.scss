@@ -90,19 +90,6 @@ ol.usa-list {
   @include u-margin-top('105');
 }
 
-fieldset.cf-applicant-question-field {
-  display: flex;
-  flex-direction: column;
-}
-/*
- * Default browser behavior is to show legends on top of the upper border of the fieldset.
- * We override that behavior as we use the border to indicate validation errors.
- */
-fieldset.cf-applicant-question-field > legend {
-  float: left;
-  width: 100%;
-  max-width: none;
-}
 /**
  * Remove top margin because other surrounding elements add this margin.
  */
