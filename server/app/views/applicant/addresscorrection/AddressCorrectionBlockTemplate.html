@@ -51,15 +51,23 @@
                 th:value="${addressJson}"
               />
               <fieldset class="cf-no-margin-padding border-0">
+                <legend
+                  class="usa-sr-only"
+                  th:text="#{title.confirmAddress}"
+                ></legend>
                 <!--/* If this question is used for eligibility, we must use the corrected address */-->
                 <div th:if="${!isEligibilityEnabled}" class="usa-prose">
-                  <h4 th:text="#{content.addressEntered}"></h4>
+                  <h4
+                    id="address-entered-heading"
+                    th:text="#{content.addressEntered}"
+                  ></h4>
                   <div
                     th:replace="~{applicant/addresscorrection/AddressCorrectionOptionFragment :: address-correction-option(
                         ${addressSuggestionGroup.getOriginalAddress()},
                         ${!anySuggestions},
                         ${!anySuggestions},
-                        'USER_KEEPING_ADDRESS_VALUE')}"
+                        'USER_KEEPING_ADDRESS_VALUE',
+                        'address-entered-heading')}"
                   ></div>
                 </div>
 
@@ -69,10 +77,12 @@
                   class="usa-prose section-internal"
                 >
                   <h4
+                    id="suggested-address-heading"
                     th:if="${suggestions.size() == 1}"
                     th:text="#{content.suggestedAddress}"
                   ></h4>
                   <h4
+                    id="suggested-address-heading"
                     th:if="${suggestions.size() > 1}"
                     th:text="#{content.suggestedAddresses}"
                   ></h4>
@@ -86,7 +96,8 @@
                         ${suggestions.get(iterator.index).getAddress()},
                         ${iterator.index == 0},
                         false,
-                        ${suggestion.getSingleLineAddress()})}"
+                        ${suggestion.getSingleLineAddress()},
+                        'suggested-address-heading')}"
                     ></div>
                   </th:block>
                 </div>
