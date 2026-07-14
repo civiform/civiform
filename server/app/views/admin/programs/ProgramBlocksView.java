@@ -188,7 +188,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     String blockDeleteAction =
         controllers.admin.routes.AdminProgramBlocksController.delete(programId, blockId).url();
     Modal blockDeleteScreenModal =
-        renderBlockDeleteModal(csrfTag, blockDeleteAction, blockDefinition);
+        renderBlockDeleteModal(csrfTag, blockDeleteAction, blockDefinition, programId);
 
     boolean malformedQuestionDefinition =
         programDefinition.getNonRepeatedBlockDefinitions().stream()
@@ -906,7 +906,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
           optionalNewInitialQuestion);
     } else {
       return renderEnumeratorSectionWithSelectedQuestion(
-          messages, optionalEnumeratorQuestionCard, blockHasEnumeratorQuestion, blockDefinition);
+          messages,
+          optionalEnumeratorQuestionCard,
+          blockHasEnumeratorQuestion,
+          blockDefinition,
+          programId);
     }
   }
 
@@ -914,17 +918,20 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Messages messages,
       Optional<DivTag> optionalEnumeratorQuestionCard,
       boolean blockHasEnumeratorQuestion,
-      BlockDefinition blockDefinition) {
+      BlockDefinition blockDefinition,
+      long programId) {
     // For enumerators, only show nested button if enumerator is at first level (not nested itself)
     boolean shouldShowNestedButton = blockDefinition.enumeratorId().isEmpty();
     return div(
-        renderEnumeratorQuestionCardSection(messages, optionalEnumeratorQuestionCard),
-        renderInitialQuestionDebugLine(blockDefinition),
-        renderAddRepeatedScreenButtons(
-            messages,
-            blockHasEnumeratorQuestion,
-            /* optionalParentEnumeratorBlock= */ Optional.empty(),
-            shouldShowNestedButton));
+            renderEnumeratorQuestionCardSection(messages, optionalEnumeratorQuestionCard),
+            renderInitialQuestionDebugLine(blockDefinition),
+            renderAddRepeatedScreenButtons(
+                messages,
+                blockHasEnumeratorQuestion,
+                /* optionalParentEnumeratorBlock= */ Optional.empty(),
+                shouldShowNestedButton))
+        .withId("repeated-set-question-section")
+        .attr("data-clear-enumerator-form-storage", programId + ":" + blockDefinition.id());
   }
 
   // TODO(#13393): Remove this debug line entirely once the UX migration of the
@@ -1213,6 +1220,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
     return form(csrfTag)
         .withClasses("usa-summary-box", "bg-white", "border-gray-300")
         .withId("new-enumerator-question-form")
+        .attr("data-program-id", String.valueOf(programId))
+        .attr("data-block-id", String.valueOf(blockId))
         .attr("aria-labelledby", "new-enumerator-question-form-label")
         .attr(
             "hx-post",
@@ -2001,13 +2010,14 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
   /** Creates a modal, which allows the admin to confirm that they want to delete a block. */
   private Modal renderBlockDeleteModal(
-      InputTag csrfTag, String blockDeleteAction, BlockDefinition blockDefinition) {
+      InputTag csrfTag, String blockDeleteAction, BlockDefinition blockDefinition, long programId) {
 
     FormTag deleteBlockForm =
         form(csrfTag)
             .withId(DELETE_BLOCK_FORM_ID)
             .withMethod(HttpVerbs.POST)
-            .withAction(blockDeleteAction);
+            .withAction(blockDeleteAction)
+            .attr("data-clear-enumerator-form-storage", programId + ":" + blockDefinition.id());
 
     boolean hasQuestions = blockDefinition.getQuestionCount() > 0;
     boolean hasEligibilityCondition = !blockDefinition.eligibilityDefinition().isEmpty();
