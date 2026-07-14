@@ -29,6 +29,7 @@ POST    /admin/programs/:programId/newVersion                                   
 POST    /admin/programs                                                                                 controllers.admin.AdminProgramController.create(request: Request)
 POST    /admin/programs/publish                                                                         controllers.admin.AdminProgramController.publish()
 POST    /admin/programs/:programId/publish                                                              controllers.admin.AdminProgramController.publishProgram(request: Request, programId: Long)
+POST    /admin/programs/:programId/duplicate                                                            controllers.admin.AdminProgramController.duplicateProgram(request: Request, programId: Long)
 POST    /admin/programs/:programId/update/:editStatus                                                   controllers.admin.AdminProgramController.update(request: Request, programId: Long, editStatus: String)
 
 # Routes for a CiviForm admin to manage program admins for a given program.
