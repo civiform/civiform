@@ -777,6 +777,11 @@
         "mode": "ADMIN_READABLE",
         "description": "The Google Analytics tracking ID.  If set, Google Analytics JavaScript scripts are added to the CiviForm pages.",
         "type": "string"
+      },
+      "LEAK_DETECTION_THRESHOLD": {
+        "mode": "ADMIN_READABLE",
+        "description": "How long in milliseconds a database connection can be borrowed from the pool before a warning log is generated indicating a potential connection leak. Minimum value is 2000.",
+        "type": "int"
       }
     }
   },
@@ -913,7 +918,7 @@
         "type": "bool"
       },
       "CUSTOM_THEME_COLORS_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
+        "mode": "ADMIN_READABLE",
         "description": "Enable using custom theme colors in the applicant UI.",
         "type": "bool",
         "required": false
@@ -926,12 +931,6 @@
       "REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "Remove the CSV/JSON/PDF download capability for Program Admins.",
-        "type": "bool",
-        "required": false
-      },
-      "YES_NO_QUESTION_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "Enables being able to add a new yes/no question.",
         "type": "bool",
         "required": false
       },

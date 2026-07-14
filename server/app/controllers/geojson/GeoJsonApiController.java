@@ -9,6 +9,7 @@ import static play.mvc.Results.ok;
 
 import auth.Authorizers;
 import java.net.MalformedURLException;
+import java.util.Objects;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
@@ -59,7 +60,8 @@ public final class GeoJsonApiController {
             ex -> {
               logger.error("An error occurred trying to retrieve GeoJSON", ex);
               Throwable rootCause = ex;
-              while (rootCause.getCause() != null && rootCause.getCause() != rootCause) {
+              while (rootCause.getCause() != null
+                  && !Objects.equals(rootCause.getCause(), rootCause)) {
                 rootCause = rootCause.getCause();
               }
               String errorMessage =

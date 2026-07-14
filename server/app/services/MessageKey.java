@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 public enum MessageKey {
   ACCT_STATUS_LABEL("label.acctStatus"),
-  ADDRESS_CORRECTION_LINE_1("content.confirmAddressLine1"),
+  ADDRESS_CORRECTION_LINE_1("content.confirmAddressLine1.v2"),
   ADDRESS_CORRECTION_FOUND_SIMILAR_LINE_2("content.foundSimilarAddressLine2"),
   ADDRESS_CORRECTION_NO_VALID_LINE_2("content.noValidAddressLine2"),
   ADDRESS_VALIDATION_CITY_REQUIRED("validation.cityRequired"),
@@ -83,6 +83,9 @@ public enum MessageKey {
   BUTTON_NEXT("button.nextPage"),
   BUTTON_PREVIOUS_SCREEN("button.previousScreen"),
   BUTTON_REPEATED_SET_ADD_NEW("button.repeatedSet.addNew"),
+  BUTTON_REPEATED_SET_INITIAL_QUESTION_DELETE("button.repeatedSet.initialQuestion.delete"),
+  BUTTON_REPEATED_SET_INITIAL_QUESTION_REMOVE_ARIA_LABEL(
+      "button.repeatedSet.initialQuestion.removeAriaLabel"),
   BUTTON_REPEATED_SET_SUBMIT_NEW("button.repeatedSet.submitNew"),
   BUTTON_REVIEW("button.review"),
   BUTTON_SAVE("button.save"),

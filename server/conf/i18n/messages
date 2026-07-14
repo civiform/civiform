@@ -702,7 +702,6 @@ validation.noPoBox=Please enter a valid address. We do not accept PO Boxes.
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
 title.confirmAddress=Confirm your address
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
-content.confirmAddressLine1=We were not able to find your address.
 content.confirmAddressLine1.v2=Address confirmation needed.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=Please check your address for spelling or choose an option from the list provided.
@@ -1229,6 +1228,10 @@ alert.repeatedSet.previouslyUsed=Questions that are associated with a different 
 button.repeatedSet.submitNew=Create repeated set
 # Button for admins to add a new repeated set
 button.repeatedSet.addNew=Add repeated set
+# Button label on the initial question card that clears the selection
+button.repeatedSet.initialQuestion.delete=Delete
+# Screen-reader-only aria-label for the Delete button on the initial question card. {0} is the question's admin identifier.
+button.repeatedSet.initialQuestion.removeAriaLabel=Remove the {0} initial question
 # Text letting admins know which block represents the group of screens for repeating questions
 text.repeatedSet=Repeated set
 # Text letting admins know which block represents the group of screens for nested repeating questions

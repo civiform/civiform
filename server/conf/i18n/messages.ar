@@ -551,6 +551,39 @@ content.disabledProgramInfo=عذرًا، لقد تمّ إيقاف البرنام
 button.homePage=الرجوع إلى الصفحة الرئيسية
 
 #--------------------------------------------------------------------------------------------------------------#
+# ADMIN PROGRAM IMAGE - admin-facing text for uploading a program summary card image                             #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Title of the admin page where a program''s summary image and alt text are set.
+title.adminProgramImage=رفع صورة
+# Link text to return to program editing from the program image page.
+link.adminProgramImage.back=رجوع 
+# Hint under the file input about maximum upload size for a program summary image.
+content.adminProgramImage.hintMaxSize=الحد الأقصى لحجم رفع الصورة هو 1 ميغابايت. 
+# Hint explaining automatic 16x9 cropping and that the preview reflects saved images.
+content.adminProgramImage.hintCrop=سيتم اقتصاص الصورة تلقائيًا إلى 16×9. تعرض معاينة بطاقة البرنامج على اليمين الصورة المحفوظة.
+# Label for the field where the admin enters alt text for the program summary image.
+label.adminProgramImage.altText=أدخل وصف الصورة (نص بديل) 
+# Button to leave the program image step and continue program setup (creation flow).
+button.adminProgramImage.continue=متابعة
+# Button to save and return when editing an existing program (non-creation flow).
+button.adminProgramImage.save=حفظ 
+# Button to delete an uploaded program image
+button.adminProgramImage.delete=حذف الصورة 
+# Message shown when alt text is required but missing.
+validation.adminProgramImage.altTextRequired=وصف الصورة مطلوب عند رفع صورة برنامج.
+# Toast after saving a program image and alt text together.
+toast.adminProgramImage.imageAndDescriptionSaved=تم حفظ الصورة مع الوصف: {0} 
+# Toast after saving alt text without uploading a new file.
+toast.adminProgramImage.descriptionSet=تم تعيين وصف الصورة إلى {0}
+# Error when alt text cannot be cleared while an image remains.
+toast.adminProgramImage.descriptionNotRemovable=لا يمكن حذف الوصف لوجود صورة. احذف الصورة قبل حذف الوصف.
+# Toast after deleting a program image
+toast.adminProgramImage.imageRemoved=تمت إزالة الصورة 
+# Message when the program card preview cannot be rendered.
+content.adminProgramImage.cardPreviewError=ثمة خطأ في إنشاء معاينة البطاقة
+
+#--------------------------------------------------------------------------------------------------------------#
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
 #--------------------------------------------------------------------------------------------------------------#
 
@@ -669,7 +702,7 @@ validation.noPoBox=يُرجى إدخال عنوان صالح. لا نقبل با
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
 title.confirmAddress=تأكيد عنوانك
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
-content.confirmAddressLine1=لم نتمكن من العثور على عنوانك.
+content.confirmAddressLine1.v2=مطلوب تأكيد العنوان. 
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=يُرجى التحقق من عدم وجود أخطاء إملائية في عنوانك أو تحديد خيار من القائمة المُدرجة.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
@@ -780,6 +813,8 @@ placeholder.entityName=‏{0} اسم
 validation.fileRequired=يُرجى اختيار ملف.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=الملف كبير جدًا. يُرجى اختيار ملف لا يتجاوز حجمه {0} ميغابايت.
+# Shown when an HTMX file upload request fails (any non-success response).
+validation.fileUploadRequestFailed=تعذّر رفع ملفك. يُرجى المحاولة مرة أخرى. 
 # Text shown on a tag while a file is uploading.
 label.uploading=جارٍ التحميل
 # Label applied to a list of uploaded files
@@ -1170,21 +1205,25 @@ input.repeatedSet.adminId=
 # A text input field asking admins for the text that will prompt applicants to list out the entity
 input.repeatedSet.questionText=
 # Autofill suggestion template shown in the admin ID field when applicant selects a listed entity. {0} is the listed entity name.
-input.repeatedSet.adminIdAutofillSuggestion={0} repeated set
+input.repeatedSet.adminIdAutofillSuggestion=
 # Autofill suggestion template shown in the question text field when applicant selects a listed entity. {0} is the listed entity name.
-input.repeatedSet.questionTextAutofillSuggestion=Please add each {0}.
+input.repeatedSet.questionTextAutofillSuggestion=
 # A text input field for admins to add a hint that will help applicants decide what entities to list out
 input.repeatedSet.hintText=
 # A form field where admins set the minimum number of entities that applicants must list
 input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
 input.repeatedSet.maxEntities=
+# Label for the field on the new repeated set form where an admin will select the question that the user will complete first in the enumerator flow
+label.repeatedSet.initialQuestion=
+# Description explaining what the initial question is and what the "Add question" button does
+description.repeatedSet.initialQuestion=
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
 alert.repeatedSet.addQuestionDisabled=
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
 alert.repeatedSet.newQuestion=سيؤدي إنشاء مجموعة مكررة إلى إضافة سؤال جديد إلى بنك الأسئلة.
 # Alert shown in the question bank section listing repeated questions that are already associated with this repeated set
-alert.repeatedSet.previouslyUsed=Questions that are associated with a different repeated set are not available to be added.
+alert.repeatedSet.previouslyUsed=
 # Submission button for creating a new repeated set
 button.repeatedSet.submitNew=
 # Button for admins to add a new repeated set
@@ -1208,7 +1247,7 @@ text.repeatedQuestions.description=
 # Heading above the repeated set question in the program block editor
 heading.repeatedSet.question=
 # Heading shown above repeated questions in the question bank that are already associated with this repeated set
-heading.repeatedSet.previouslyUsed=Previously used for this repeated set
+heading.repeatedSet.previouslyUsed=
 # Heading above the questions section on repeated screens in the admin program screen editor.
 heading.repeatedQuestions=
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
@@ -1229,7 +1268,10 @@ button.addRepeatedScreen=
 button.addNestedRepeatedSet=
 # A button for admins to add a pre-existing enumerator question to a program
 button.addQuestion=
-
+# A tooltip shown to admins when the delete screen button is disabled
+tooltip.deleteScreenDisabled=
+# A tooltip shown to admins when the delete question button is disabled for a repeated set question
+tooltip.removeEnumeratorQuestionDisabled=
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #
@@ -1280,6 +1322,83 @@ reportingProgram.timeToCompleteP75=مدة الإنجاز (p75)
 reportingProgram.timeToCompleteP99=مدة الإنجاز (p99)
 # Text on button to download CSV file
 reportingProgram.downloadCsv=تنزيل ملف CSV
+
+#------------------------------------------------------------------------------#
+#  ADMIN API DOCS                                                              #
+#------------------------------------------------------------------------------#
+
+# Admin API Docs page title
+adminApiDocs.pageTitle=وثائق واجهة برمجة التطبيقات (API)
+
+# Aria label for the nav that switches between API docs sub-pages.
+adminApiDocs.tabs.ariaLabel=أقسام وثائق واجهة برمجة التطبيقات (API)
+# Tab label for the main API docs page.
+adminApiDocs.tabs.docs=الوثائق 
+# Tab label for the schema viewer page.
+adminApiDocs.tabs.schema=عارض المخطط
+
+# Intro paragraph as text before the external-docs link.
+adminApiDocs.intro.beforeLink=تتضمن هذه الصفحة وثائق واجهة برمجة التطبيقات (API) الخاصة بالبرامج النشطة والمسودة. تتوفر وثائق مفصلة حول المصادقة والترقيم وقيم كل حقل على الرابط التالي:
+# Visible text of the external-docs link in the intro paragraph.
+adminApiDocs.intro.linkText=docs.civiform.us/it-manual/api 
+# Intro paragraph as text after the external-docs link.
+adminApiDocs.intro.afterLink=. 
+
+# Heading on the collapsible "How does this work?" accordion.
+adminApiDocs.accordion.heading=كيف يعمل هذا؟ 
+# First paragraph inside the accordion.
+adminApiDocs.accordion.paragraph1=معاينة استجابة واجهة برمجة التطبيقات (API) هي مثال لما قد تبدو عليه استجابة واجهة برمجة التطبيقات لبرنامج معين. جميع البيانات وهمية. تحتوي أسئلة الاختيار الفردي والمتعدد على إجابات نموذجية مختارة من الاستجابات المتاحة.
+# Second paragraph inside the accordion as text before the shareable link.
+adminApiDocs.accordion.paragraph2.beforeLink=يمكنك مشاركة هذا الرابط،
+# Second paragraph inside the accordion as text after the shareable link.
+adminApiDocs.accordion.paragraph2.afterLink=مع أي شخص يحتاج إلى الاطلاع على وثائق واجهة برمجة التطبيقات. يمكن الوصول إليه دون تسجيل الدخول، لذا لا يشترط أن يكون المستخدم مسؤول CiviForm أو مسؤول برنامج لعرض هذه الصفحة.
+
+# Label for the program selector.
+adminApiDocs.selectProgram=حدد برنامجًا: 
+# Label for the program-version selector.
+adminApiDocs.selectVersion=حدد الإصدار: 
+# Option label for the active version of a program.
+adminApiDocs.version.active=نشط 
+# Option label for the draft version of a program.
+adminApiDocs.version.draft=مسودة 
+
+# Message shown when the requested program + version combination does not exist.
+adminApiDocs.notFound=لم نعثر على برامج. يُرجى إنشاء برنامج ونشره قبل الوصول إلى وثائق واجهة برمجة التطبيقات.
+# Heading for the list of questions on the selected program.
+adminApiDocs.questions=أسئلة 
+# Label for a question's admin name
+adminApiDocs.adminName=اسم المسؤول
+# Label for a question's type (text, number, etc.).
+adminApiDocs.type=النوع 
+# Label for a question's display text.
+adminApiDocs.text=نص 
+# Label for a multi-option question's answer options.
+adminApiDocs.options=خيارات 
+# Label preceding the list of a question's currently-available options.
+adminApiDocs.currentOptions=الخيارات الحالية: 
+# Label preceding the list of every option the question has ever had.
+adminApiDocs.allOptions=جميع الخيارات المتاحة:
+# Heading above the JSON preview of the API response.
+adminApiDocs.responsePreview=معاينة استجابة واجهة برمجة التطبيقات
+
+#------------------------------------------------------------------------------#
+#  ADMIN SCHEMA VIEWER                                                         #
+#------------------------------------------------------------------------------#
+
+# Admin API Docs page title
+adminSchemaViewer.pageTitle=عارض مخطط واجهة برمجة التطبيقات
+# First intro paragraph on the OpenAPI schema viewer page.
+adminSchemaViewer.intro1=تعرض هذه الصفحة تمثيلًا مرئيًا لمخطط OpenAPI. يتوفر كل من الإصدار 2 (Swagger 2 سابقًا) والإصدار 3.
+# Second intro paragraph on the OpenAPI schema viewer page.
+adminSchemaViewer.intro2=نوصي باستخدام الإصدار 3 فقط إلا إذا كانت هناك حاجة محددة للتنسيق الأقدم.
+# Label for the program selector on the schema viewer page.
+adminSchemaViewer.selectProgram=البرنامج: 
+# Label for the program-status selector on the schema viewer page.
+adminSchemaViewer.selectStatus=الحالة: 
+# Label for the OpenAPI version selector on the schema viewer page.
+adminSchemaViewer.selectVersion=إصدار OpenAPI: 
+# Error generating OpenAPI YAML
+adminSchemaViewer.yamlError=تعذر إنشاء إصدار OpenAPI '{0}' للبرنامج '{1}' في المرحلة '{2}'.
 
 #------------------------------------------------------------------------------#
 #  DEV TOOLS - text for the developer tools page                               #

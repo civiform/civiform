@@ -1,24 +1,24 @@
 package auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.util.zip.GZIPInputStream;
-import org.apache.shiro.crypto.AesCipherService;
 import org.junit.Test;
 import org.pac4j.core.context.session.SessionStore;
-import org.pac4j.core.util.serializer.JavaSerializer;
 import org.pac4j.play.PlayWebContext;
 import org.pac4j.play.store.JdkAesDataEncrypter;
 import org.pac4j.play.store.PlayCookieSessionStore;
@@ -50,22 +50,6 @@ public class CiviFormSessionStoreFactoryTest {
   public void deriveAes128Key_generatesDifferentKeysWithDifferentSecrets() throws Exception {
     byte[] key1 = CiviFormSessionStoreFactory.deriveAes128Key(SECRET1);
     byte[] key2 = CiviFormSessionStoreFactory.deriveAes128Key(SECRET2);
-
-    assertThat(key1).isNotEqualTo(key2);
-  }
-
-  @Test
-  public void deriveLegacyKey_generatesConsistentKeysWithSameSecret() throws Exception {
-    byte[] key1 = CiviFormSessionStoreFactory.deriveLegacyAesKey(SECRET1);
-    byte[] key2 = CiviFormSessionStoreFactory.deriveLegacyAesKey(SECRET1);
-
-    assertThat(key1).isEqualTo(key2);
-  }
-
-  @Test
-  public void deriveLegacyKey_generatesDifferentKeysWithDifferentSecrets() throws Exception {
-    byte[] key1 = CiviFormSessionStoreFactory.deriveLegacyAesKey(SECRET1);
-    byte[] key2 = CiviFormSessionStoreFactory.deriveLegacyAesKey(SECRET2);
 
     assertThat(key1).isNotEqualTo(key2);
   }
@@ -120,7 +104,7 @@ public class CiviFormSessionStoreFactoryTest {
   }
 
   @Test
-  public void sessionStore_cookieRoundTrip_differentSecret_rejectsSession() {
+  public void sessionStore_cookieRoundTrip_differentSecret_invalidatesSession() {
     CiviFormSessionStoreFactory factory1 = new CiviFormSessionStoreFactory(createConfig(SECRET1));
     CiviFormSessionStoreFactory factory2 = new CiviFormSessionStoreFactory(createConfig(SECRET2));
 
@@ -132,27 +116,29 @@ public class CiviFormSessionStoreFactoryTest {
 
     PlayWebContext context2 = newContextWithSessionFrom(context1);
 
-    assertThatThrownBy(() -> store2.get(context2, "test-key")).isInstanceOf(RuntimeException.class);
+    // A cookie encrypted under a different secret can't be decrypted; the store treats it as
+    // no session and drops the unreadable cookie rather than failing the request.
+    assertThat(store2.get(context2, "test-key")).isEmpty();
+    Request supplemented = context2.supplementRequest(fakeRequestBuilder().build());
+    assertThat(supplemented.session().get("pac4j")).isEmpty();
   }
 
   @Test
-  @SuppressWarnings("deprecation") // JavaSerializer is deprecated in pac4j v6.5.0
-  public void newSessionStore_readsLegacyJavaSerializedCookieFromPreviousDeploy() throws Exception {
+  public void newSessionStore_legacyJavaSerializedCookie_isTreatedAsEmptySession()
+      throws Exception {
     CiviFormSessionStoreFactory factory = new CiviFormSessionStoreFactory(createConfig(SECRET1));
 
-    // Mimic what a previous deploy would have written: a populated CiviFormProfileData inside
-    // the cookie's value map, serialized with vanilla JavaSerializer.
-    CiviFormProfileData profileData = new CiviFormProfileData();
-    profileData.setId("42");
-    profileData.addAttribute("custom-attr", "custom-value");
-
+    // Mimic what a deploy predating the JsonSerializer migration would have written: a
+    // Java-serialized value map, correctly encrypted with the modern key. With the fallback
+    // JavaSerializer removed, this deserializes to null and reads as an empty session.
     Map<String, Object> values = new HashMap<>();
-    values.put("profile-key", profileData);
+    values.put("test-key", "test-value");
 
-    JavaSerializer serializer = new JavaSerializer();
-    serializer.addTrustedClass(CiviFormProfileData.class);
-    byte[] serialized = serializer.serializeToBytes(values);
-    byte[] compressed = PlayCookieSessionStore.compressBytes(serialized);
+    ByteArrayOutputStream serialized = new ByteArrayOutputStream();
+    try (ObjectOutputStream oos = new ObjectOutputStream(serialized)) {
+      oos.writeObject(values);
+    }
+    byte[] compressed = PlayCookieSessionStore.compressBytes(serialized.toByteArray());
 
     byte[] aesKey = CiviFormSessionStoreFactory.deriveAes128Key(SECRET1);
     JdkAesDataEncrypter encrypter = new JdkAesDataEncrypter(aesKey);
@@ -164,11 +150,7 @@ public class CiviFormSessionStoreFactoryTest {
 
     SessionStore store = factory.newSessionStore();
 
-    Optional<Object> readBack = store.get(context, "profile-key");
-    assertThat(readBack).isPresent();
-    CiviFormProfileData restored = (CiviFormProfileData) readBack.get();
-    assertThat(restored.getId()).isEqualTo("42");
-    assertThat(restored.getAttribute("custom-attr")).isEqualTo("custom-value");
+    assertThat(store.get(context, "test-key")).isEmpty();
   }
 
   @Test
@@ -194,7 +176,7 @@ public class CiviFormSessionStoreFactoryTest {
     // pac4j's JsonSerializer uses Jackson with DefaultTyping.NON_FINAL, which wraps a
     // Map<String, Object> as a tagged JSON array: ["java.util.HashMap", {...}]. So the first
     // byte is '[' (0x5B). Negative-assert against the Java serialization magic
-    // (0xAC 0xED) to guard against accidental revert to JavaSerializer as primary.
+    // (0xAC 0xED) to guard against accidental reintroduction of JavaSerializer.
     assertThat(plaintext[0]).isEqualTo((byte) '[');
     assertThat(plaintext[0]).isNotEqualTo((byte) 0xAC);
     assertThat(plaintext[1]).isNotEqualTo((byte) 0xED);
@@ -240,30 +222,44 @@ public class CiviFormSessionStoreFactoryTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation") // JavaSerializer is deprecated in pac4j v6.5.0
-  public void sessionStore_cookieRoundTrip_legacyEncrypted_fallsBackToLegacyDecrypter() {
+  public void sessionStore_undecryptableCookie_invalidatesSessionAndDropsCookie() {
     CiviFormSessionStoreFactory factory = new CiviFormSessionStoreFactory(createConfig(SECRET1));
 
-    byte[] legacyKey = CiviFormSessionStoreFactory.deriveLegacyAesKey(SECRET1);
-
-    // Mimic what the old Shiro-based session store would have done to create
-    // the cookie value.
-    Map<String, Object> values = new HashMap<>();
-    values.put("test-key", "test-value");
-
-    JavaSerializer serializer = new JavaSerializer();
-    byte[] serialized = serializer.serializeToBytes(values);
-    byte[] compressed = PlayCookieSessionStore.compressBytes(serialized);
-
-    AesCipherService cipherService = new AesCipherService();
-    byte[] legacyEncrypted = cipherService.encrypt(compressed, legacyKey).getBytes();
-    String cookieValue = Base64.getEncoder().encodeToString(legacyEncrypted);
+    // Mimic a cookie written by the old Shiro-based encryption scheme (or any cookie the modern
+    // key can't decrypt). The length is deliberately not a multiple of the AES block size so
+    // decryption is guaranteed to fail rather than depending on the padding check.
+    byte[] garbage = new byte[47];
+    new Random(42).nextBytes(garbage);
+    String cookieValue = Base64.getEncoder().encodeToString(garbage);
 
     Request request = fakeRequestBuilder().addSessionValue("pac4j", cookieValue).build();
     PlayWebContext context = new PlayWebContext(request);
 
     SessionStore store = factory.newSessionStore();
 
-    assertThat(store.get(context, "test-key").get()).isEqualTo("test-value");
+    assertThat(store.get(context, "test-key")).isEmpty();
+    // The unreadable cookie is removed so it isn't re-processed on every request.
+    Request supplemented = context.supplementRequest(fakeRequestBuilder().build());
+    assertThat(supplemented.session().get("pac4j")).isEmpty();
+  }
+
+  @Test
+  public void sessionStore_invalidatedSession_canBeWrittenToAgain() {
+    CiviFormSessionStoreFactory factory = new CiviFormSessionStoreFactory(createConfig(SECRET1));
+
+    byte[] garbage = new byte[47];
+    new Random(42).nextBytes(garbage);
+    String cookieValue = Base64.getEncoder().encodeToString(garbage);
+
+    Request request = fakeRequestBuilder().addSessionValue("pac4j", cookieValue).build();
+    PlayWebContext context = new PlayWebContext(request);
+
+    SessionStore store = factory.newSessionStore();
+
+    // A write over an unreadable cookie replaces it with a fresh, readable session.
+    store.set(context, "test-key", "test-value");
+
+    PlayWebContext context2 = newContextWithSessionFrom(context);
+    assertThat(store.get(context2, "test-key").get()).isEqualTo("test-value");
   }
 }

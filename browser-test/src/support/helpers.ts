@@ -29,19 +29,19 @@ export const selectApplicantLanguage = async (
 
 export const disableFeatureFlag = async (page: Page, flag: string) => {
   await test.step(`Disable feature flag: ${flag}`, async () => {
-    const response = await page.goto(`/dev/feature/${flag}/disable`)
-    expect(response?.status(), {
+    const response = await page.request.get(`/dev/feature/${flag}/disable`)
+    await expect(response, {
       message: `Could not disable feature flag '${flag}'. Make sure the flag exists.`,
-    }).toBe(200)
+    }).toBeOK()
   })
 }
 
 export const enableFeatureFlag = async (page: Page, flag: string) => {
   await test.step(`Enable feature flag: ${flag}`, async () => {
-    const response = await page.goto(`/dev/feature/${flag}/enable`)
-    expect(response?.status(), {
+    const response = await page.request.get(`/dev/feature/${flag}/enable`)
+    await expect(response, {
       message: `Could not enable feature flag '${flag}'. Make sure the flag exists.`,
-    }).toBe(200)
+    }).toBeOK()
   })
 }
 

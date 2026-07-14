@@ -28,7 +28,7 @@ import services.question.types.QuestionDefinition.ValidationPredicates;
 import services.question.types.TextQuestionDefinition.TextValidationPredicates;
 
 /**
- * DEPRECATED. Provides helper functions to build a {@link QuestionDefinition}.
+ * Provides helper functions to build a {@link QuestionDefinition}.
  *
  * <p>TODO(#5271): Remove this class in favor of {@link QuestionDefinitionConfig.Builder}.
  */
@@ -99,6 +99,12 @@ public final class QuestionDefinitionBuilder {
 
   public QuestionDefinitionBuilder setEnumeratorId(Optional<Long> enumeratorId) {
     builder.setEnumeratorId(enumeratorId);
+    return this;
+  }
+
+  public QuestionDefinitionBuilder setEnumeratorInitialQuestionId(
+      Optional<Long> enumeratorInitialQuestionId) {
+    builder.setEnumeratorInitialQuestionId(enumeratorInitialQuestionId);
     return this;
   }
 

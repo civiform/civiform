@@ -101,6 +101,7 @@
     {
       matchPackageNames: ["postgres"],
       allowedVersions: "<17.0.0",
+      prHeader: "Release Notes: https://www.postgresql.org/docs/release",
     },
     {
       groupName: "tailwindcss",
@@ -154,6 +155,14 @@
     {
       matchPackageNames: ["org.checkerframework:dataflow-errorprone"],
       prHeader: "Release Notes: https://checkerframework.org/CHANGELOG.md",
+    },
+    {
+      matchPackageNames: ["org.glassfish.jaxb:jaxb-runtime"],
+      prHeader: "Release Notes: https://github.com/eclipse-ee4j/jaxb-ri/releases",
+    },
+    {
+      matchPackageNames: ["com.google.cloud.sql:postgres-socket-factory"],
+      prHeader: "Release Notes: https://github.com/GoogleCloudPlatform/cloud-sql-jdbc-socket-factory/blob/main/CHANGELOG.md",
     },
     {
       matchPackageNames: ["org.projectlombok:lombok"],

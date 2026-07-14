@@ -11,42 +11,63 @@ import j2html.tags.specialized.DivTag;
 import java.util.Locale;
 import java.util.Optional;
 import play.mvc.Http;
+import services.ProgramBlockValidation;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import views.style.StyleUtils;
 
 /**
- * Contains a helper method to render the create question button with it's corresponding dropdown.
+ * Contains helper methods to render the create question button with it's corresponding dropdown.
  */
 public final class CreateQuestionButton {
 
   /**
-   * Renders the "Create new question" button with a dropdown for each question type.
-   *
-   * <p>Set isEmptyBlock to true when the current block has no questions. Set isQuestionPage to true
-   * when rendering on the standalone questions list page.
+   * Renders the "Create new question" button with a question type dropdown, customized for the
+   * standalone admin questions list page.
    */
-  public static DivTag renderCreateQuestionButton(
-      String questionCreateRedirectUrl,
-      boolean isPrimaryButton,
-      Optional<String> enumeratorQuestion,
-      SettingsManifest settingsManifest,
-      Http.Request request,
-      boolean isEmptyBlock,
-      boolean isQuestionPage) {
+  public static DivTag renderCreateQuestionButtonForQuestionListPage(
+      SettingsManifest settingsManifest, Http.Request request) {
     return renderCreateQuestionButton(
-        questionCreateRedirectUrl,
-        isPrimaryButton,
-        enumeratorQuestion,
+        controllers.admin.routes.AdminQuestionController.index(Optional.empty()).url(),
+        /* isPrimaryButton= */ true,
+        /* enumeratorQuestion= */ Optional.empty(),
         /* isRepeatingBlock= */ true,
         settingsManifest,
         request,
-        isEmptyBlock,
-        isQuestionPage);
+        /* isEmptyBlock= */ true,
+        /* isProgramPage= */ false,
+        /* isInitialQuestion= */ false);
   }
 
-  /** Renders the "Create new question" button with a dropdown for each question type. */
-  public static DivTag renderCreateQuestionButton(
+  /**
+   * Renders the "Create new question" button with a question type dropdown, customized for the
+   * program block edit page's question bank sidebar.
+   */
+  public static DivTag renderCreateQuestionButtonForProgramQuestionBank(
+      String questionCreateRedirectUrl,
+      Optional<String> enumeratorQuestion,
+      boolean isRepeatingBlock,
+      SettingsManifest settingsManifest,
+      Http.Request request,
+      boolean isEmptyBlock,
+      boolean isInitialQuestion) {
+    return renderCreateQuestionButton(
+        questionCreateRedirectUrl,
+        /* isPrimaryButton= */ false,
+        enumeratorQuestion,
+        isRepeatingBlock,
+        settingsManifest,
+        request,
+        isEmptyBlock,
+        /* isProgramPage= */ true,
+        isInitialQuestion);
+  }
+
+  /**
+   * Renders the "Create new question" button with a question type dropdown. This method should be
+   * the only way the button is rendered to keep all uses consistent.
+   */
+  private static DivTag renderCreateQuestionButton(
       String questionCreateRedirectUrl,
       boolean isPrimaryButton,
       Optional<String> enumeratorQuestion,
@@ -54,7 +75,8 @@ public final class CreateQuestionButton {
       SettingsManifest settingsManifest,
       Http.Request request,
       boolean isEmptyBlock,
-      boolean isQuestionPage) {
+      boolean isProgramPage,
+      boolean isInitialQuestion) {
     String parentId = "create-question-button";
     String dropdownId = parentId + "-dropdown";
     ButtonTag createNewQuestionButton =
@@ -76,7 +98,7 @@ public final class CreateQuestionButton {
                 "absolute",
                 "ml-3",
                 "mt-1",
-                // Small padding at the abottom for visual spacing
+                // Small padding at the bottom for visual spacing
                 "pb-3",
                 "hidden");
 
@@ -85,13 +107,18 @@ public final class CreateQuestionButton {
       if (type == QuestionType.NULL_QUESTION) {
         continue;
       }
-      if (type == QuestionType.YES_NO && !settingsManifest.getYesNoQuestionEnabled()) {
-        continue;
+      if (type == QuestionType.ENUMERATOR) {
+        // Hide Enumerator from every dropdown when the enumerator improvements flag is enabled.
+        if (settingsManifest.getEnumeratorImprovementsEnabled(request)) {
+          continue;
+        }
+        // On a program block page, hide Enumerator once the block already contains a question.
+        if (isProgramPage && !isEmptyBlock) {
+          continue;
+        }
       }
-      // Only filter Enumerator on program block pages, not on the standalone questions list page
-      if (type == QuestionType.ENUMERATOR
-          && !isQuestionPage
-          && (settingsManifest.getEnumeratorImprovementsEnabled(request) || !isEmptyBlock)) {
+      if (isInitialQuestion
+          && !ProgramBlockValidation.VALID_INITIAL_QUESTION_TYPES.contains(type)) {
         continue;
       }
 

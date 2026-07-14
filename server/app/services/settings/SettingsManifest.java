@@ -894,6 +894,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
+   * How long in milliseconds a database connection can be borrowed from the pool before a warning
+   * log is generated indicating a potential connection leak. Minimum value is 2000.
+   */
+  public Optional<Integer> getLeakDetectionThreshold() {
+    return getInt("LEAK_DETECTION_THRESHOLD");
+  }
+
+  /**
    * A cryptographic [secret salt](https://en.wikipedia.org/wiki/Salt_(cryptography)) used for
    * salting API keys before storing their hash values in the database. This value should be kept
    * strictly secret. If one suspects the secret has been leaked or otherwise comprised it should be
@@ -1055,8 +1063,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** Enable using custom theme colors in the applicant UI. */
-  public boolean getCustomThemeColorsEnabled(RequestHeader request) {
-    return getBool("CUSTOM_THEME_COLORS_ENABLED", request);
+  public boolean getCustomThemeColorsEnabled() {
+    return getBool("CUSTOM_THEME_COLORS_ENABLED");
   }
 
   /** Enables suffix dropdown field in name question. */
@@ -1067,11 +1075,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** Remove the CSV/JSON/PDF download capability for Program Admins. */
   public boolean getRemoveDownloadForProgramAdminsEnabled(RequestHeader request) {
     return getBool("REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED", request);
-  }
-
-  /** Enables being able to add a new yes/no question. */
-  public boolean getYesNoQuestionEnabled() {
-    return getBool("YES_NO_QUESTION_ENABLED");
   }
 
   /** Enable showing external program cards. */
@@ -2131,6 +2134,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " scripts are added to the CiviForm pages.",
                           /* isRequired= */ false,
                           SettingType.STRING,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "LEAK_DETECTION_THRESHOLD",
+                          "How long in milliseconds a database connection can be borrowed from the"
+                              + " pool before a warning log is generated indicating a potential"
+                              + " connection leak. Minimum value is 2000.",
+                          /* isRequired= */ false,
+                          SettingType.INT,
                           SettingMode.ADMIN_READABLE))))
           .put(
               "Data Export API",
@@ -2337,7 +2348,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "Enable using custom theme colors in the applicant UI.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
+                          SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "NAME_SUFFIX_DROPDOWN_ENABLED",
                           "Enables suffix dropdown field in name question.",
@@ -2350,12 +2361,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "YES_NO_QUESTION_ENABLED",
-                          "Enables being able to add a new yes/no question.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "EXTERNAL_PROGRAM_CARDS_ENABLED",
                           "Enable showing external program cards.",

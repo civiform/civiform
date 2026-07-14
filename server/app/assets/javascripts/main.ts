@@ -11,7 +11,7 @@
 import {addEventListenerToElements, assertNotNull} from '@/util'
 import {MultiOptionQuestion} from '@/multi_option_question'
 
-function attachDropdown(elementId: string) {
+export function attachDropdown(elementId: string) {
   const dropdownId = elementId + '-dropdown'
   const element = document.getElementById(elementId)
   const dropdown = document.getElementById(dropdownId)
@@ -218,52 +218,6 @@ export function init() {
       }
     })
   }
-
-  // Add USWDS checkbox tile CSS class to program filter checkboxes for tablet and mobile
-  const handleMediaQueryChange = () => {
-    const mediaQuery = window.matchMedia('(max-width: 63.9em)')
-    const checkboxes = document.querySelectorAll('[id*="ns-check-category-"]')
-
-    if (mediaQuery.matches) {
-      checkboxes.forEach((checkbox) => {
-        checkbox.classList.add('usa-checkbox__input--tile')
-      })
-    } else {
-      checkboxes.forEach((checkbox) => {
-        checkbox.classList.remove('usa-checkbox__input--tile')
-      })
-    }
-  }
-
-  addEventListener('resize', handleMediaQueryChange)
-  handleMediaQueryChange()
-
-  /* Bind click handler to submit category filter form when any category is clicked
-    and set the URL fragment to the most recently clicked category */
-  addEventListenerToElements('[id*="check-category"]', 'click', (event) => {
-    const form = document.getElementById(
-      'category-filter-form',
-    ) as HTMLFormElement
-
-    // Update the form action URL with the current selected category as a fragment
-    if (event.srcElement) {
-      const srcElement = event.srcElement as HTMLElement
-      const action = form.action + '#' + srcElement.id
-      form.action = action
-    }
-
-    form.submit()
-  })
-
-  /* Uncheck all program filter checkboxes when the clear filters button is clicked */
-  addEventListenerToElements('#clear-filters', 'click', () => {
-    const checkboxes = document.querySelectorAll('[id*="ns-check-category"]')
-
-    checkboxes.forEach((checkbox) => {
-      const checkboxInput = checkbox as HTMLInputElement
-      checkboxInput.checked = false
-    })
-  })
 
   attachFormDebouncers()
 
