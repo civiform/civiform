@@ -1,13 +1,17 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {disableFeatureFlag, enableFeatureFlag, loginAsAdmin} from '../support'
 import {QuestionDisplayMode} from '../support/admin_questions'
+import {SAMPLE_QUESTIONS} from '../support/seeding'
 
 test.describe('Question display mode', () => {
-  test.beforeEach(async ({page}) => {
+  test.beforeEach(async ({page, seeding}) => {
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
   })
 
   test('Set display mode on question', async ({page, adminQuestions}) => {
+    // Setting the display mode in the question creation form is the behavior
+    // under test, so these questions are created via the UI.
     const visibleQuestionName: string = 'text-question-visible'
     const hiddenQuestionName: string = 'text-question-hidden'
 
@@ -35,16 +39,10 @@ test.describe('Question display mode', () => {
   })
 
   test('Defaults to visible display mode', async ({page, adminQuestions}) => {
-    const noDisplayModeQuestionName: string = 'text-question-no-display-mode'
-
     await disableFeatureFlag(page, 'API_BRIDGE_ENABLED')
 
-    await test.step('Add visible text question', async () => {
-      await adminQuestions.addTextQuestion({
-        questionName: noDisplayModeQuestionName,
-      })
-
-      await adminQuestions.gotoQuestionEditPage(noDisplayModeQuestionName)
+    await test.step('Check seeded text question has no display mode section', async () => {
+      await adminQuestions.gotoQuestionEditPage(SAMPLE_QUESTIONS.text)
 
       await expect(
         page.getByRole('group', {name: 'Display Mode'}),

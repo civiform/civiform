@@ -6,21 +6,20 @@ import {
   validateScreenshot,
   waitForPageJsLoad,
 } from '../support'
+import {SAMPLE_QUESTIONS} from '../support/seeding'
 
 test.describe('Admin can manage question translations', () => {
   test('creates a question and adds translations', async ({
     page,
     adminQuestions,
     adminTranslations,
+    seeding,
   }) => {
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
 
-    // Add a new question to be translated
-    const questionName = 'name-translated'
-    await adminQuestions.addNameQuestion({questionName})
-
     // Go to the question translation page and add a translation for Spanish
-    await adminQuestions.goToQuestionTranslationPage(questionName)
+    await adminQuestions.goToQuestionTranslationPage(SAMPLE_QUESTIONS.name)
     await adminTranslations.selectLanguage('Spanish')
 
     await validateScreenshot(page, 'question-translation')
@@ -30,22 +29,15 @@ test.describe('Admin can manage question translations', () => {
     page,
     adminQuestions,
     adminTranslations,
+    seeding,
   }) => {
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
 
-    // Add a new question to be translated
-    const questionName = 'multi-option-translated'
-    await adminQuestions.addRadioButtonQuestion({
-      questionName,
-      options: [
-        {adminName: 'one_admin', text: 'one'},
-        {adminName: 'two_admin', text: 'two'},
-        {adminName: 'three_admin', text: 'three'},
-      ],
-    })
-
     // Go to the question translation page and add a translation for Spanish
-    await adminQuestions.goToQuestionTranslationPage(questionName)
+    await adminQuestions.goToQuestionTranslationPage(
+      SAMPLE_QUESTIONS.radioButton,
+    )
     await adminTranslations.selectLanguage('Spanish')
 
     await validateScreenshot(page, 'multi-option-question-translation')
@@ -100,12 +92,12 @@ test.describe('Admin can manage question translations', () => {
     page,
     adminQuestions,
     adminTranslations,
+    seeding,
   }) => {
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
 
-    // Add a new question.
-    const questionName = 'translate-no-clobber'
-    await adminQuestions.addNumberQuestion({questionName})
+    const questionName = SAMPLE_QUESTIONS.number
 
     // Add a translation for a non-English language.
     await adminQuestions.goToQuestionTranslationPage(questionName)
@@ -130,12 +122,13 @@ test.describe('Admin can manage question translations', () => {
     page,
     adminQuestions,
     adminTranslations,
+    seeding,
   }) => {
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
 
-    // Add a new question with help text
-    const questionName = 'translate-help-text-deletion'
-    await adminQuestions.addNumberQuestion({questionName})
+    // The seeded question already has English help text.
+    const questionName = SAMPLE_QUESTIONS.number
 
     // Add a translation for a non-English language.
     await adminQuestions.goToQuestionTranslationPage(questionName)
@@ -170,6 +163,9 @@ test.describe('Admin can manage question translations', () => {
   }) => {
     await enableFeatureFlag(page, 'translation_management_improvement_enabled')
     await loginAsAdmin(page)
+    // This test screenshots a bare .cf-admin-question-table-row locator, which
+    // requires the question table to contain exactly one question, so the
+    // question is created via the UI rather than seeded.
     const questionName = 'name-translated'
 
     await test.step('create a question in active mode', async () => {

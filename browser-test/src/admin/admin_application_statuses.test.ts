@@ -17,6 +17,7 @@ import {
   waitForPageJsLoad,
   ClientInformation,
 } from '../support'
+import {SAMPLE_PROGRAMS, SAMPLE_QUESTIONS} from '../support/seeding'
 
 test.describe('view program statuses', () => {
   const programWithStatusesName = 'Test program with statuses'
@@ -25,20 +26,18 @@ test.describe('view program statuses', () => {
   const emailBody = 'Some email content'
 
   test.describe('without program statuses', () => {
-    const programWithoutStatusesName = 'Test program without statuses'
+    // The Minimal Sample Program has no statuses.
+    const programWithoutStatusesName = SAMPLE_PROGRAMS.minimal
 
-    test.beforeEach(async ({page, adminPrograms, applicantQuestions}) => {
+    test.beforeEach(async ({page, adminPrograms, seeding}) => {
+      await seeding.seedProgramsAndCategories()
       await loginAsAdmin(page)
-
-      // Add a program, no questions are needed.
-      await adminPrograms.addProgram(programWithoutStatusesName)
-      await adminPrograms.publishProgram(programWithoutStatusesName)
+      await adminPrograms.publishAllDrafts()
       await adminPrograms.expectActiveProgram(programWithoutStatusesName)
       await logout(page)
 
-      // Submit an application as a guest.
-      await applicantQuestions.applyProgram(programWithoutStatusesName)
-      await applicantQuestions.submitFromReviewPage()
+      // Seed a submitted application as a guest.
+      await seeding.seedApplications(programWithoutStatusesName, 1)
 
       // Navigate to the submitted application as the program admin.
       await loginAsProgramAdmin(page)
@@ -78,20 +77,12 @@ test.describe('view program statuses', () => {
     test.skip('shows pagination if there are more than 100 applications', async ({
       page,
       adminPrograms,
-      applicantQuestions,
+      seeding,
     }) => {
       test.slow()
       await page.getByRole('link', {name: 'Back'}).click()
-      // There is already 1 application from the beforeEach, so apply to 100 more programs.
-      for (let i = 0; i < 100; i++) {
-        await logout(page)
-
-        // Submit an application as a guest.
-        await applicantQuestions.applyProgram(programWithoutStatusesName)
-        await applicantQuestions.submitFromReviewPage()
-
-        await loginAsProgramAdmin(page)
-      }
+      // There is already 1 application from the beforeEach, so seed 100 more.
+      await seeding.seedApplications(programWithoutStatusesName, 100)
 
       // Navigate to the applications list
       await adminPrograms.viewApplications(programWithoutStatusesName)
@@ -495,10 +486,11 @@ test.describe('view program statuses', () => {
       async ({
         page,
         adminPrograms,
-        adminQuestions,
         applicantQuestions,
         adminProgramStatuses,
+        seeding,
       }) => {
+        await seeding.seedQuestions()
         await loginAsAdmin(page)
 
         // Add a program with a single question that is used for asserting downloaded content.
@@ -508,13 +500,10 @@ test.describe('view program statuses', () => {
         )
         await adminProgramStatuses.createStatus(approvedStatusName)
         await adminProgramStatuses.createStatus(rejectedStatusName)
-        await adminQuestions.addTextQuestion({
-          questionName: 'statuses-fave-color-q',
-        })
         await adminPrograms.editProgramBlock(
           programForFilteringName,
           'dummy description',
-          ['statuses-fave-color-q'],
+          [SAMPLE_QUESTIONS.text],
         )
         await adminPrograms.publishProgram(programForFilteringName)
         await adminPrograms.expectActiveProgram(programForFilteringName)
@@ -578,7 +567,7 @@ test.describe('view program statuses', () => {
         await adminPrograms.getJson(applyFilters)
       expect(noStatusFilteredJsonContent).toHaveLength(1)
       expect(
-        noStatusFilteredJsonContent[0].application.statusesfavecolorq.text,
+        noStatusFilteredJsonContent[0].application.sample_text_question.text,
       ).toEqual(favoriteColorAnswer)
 
       // Ensure that the application is excluded if the filter excludes it.
@@ -687,33 +676,25 @@ test.describe('view program statuses', () => {
 
   test.describe('correctly shows eligibility', () => {
     const eligibilityProgramName = 'Test program for eligibility status'
-    const eligibilityQuestionId = 'eligibility-number-q'
+    const eligibilityQuestionId = SAMPLE_QUESTIONS.number
 
     test.beforeEach(
       async ({
         page,
-        adminQuestions,
         adminPredicates,
         applicantQuestions,
         adminPrograms,
+        seeding,
       }) => {
+        await seeding.seedQuestions()
         await loginAsAdmin(page)
 
         // Create a program without eligibility
-        await adminQuestions.addNameQuestion({
-          questionName: 'NameQuestion',
-        })
-        await adminQuestions.addNumberQuestion({
-          questionName: eligibilityQuestionId,
-        })
-        await adminQuestions.addTextQuestion({
-          questionName: 'statuses-fave-color-q',
-        })
         await adminPrograms.addProgram(eligibilityProgramName)
         await adminPrograms.editProgramBlock(
           eligibilityProgramName,
           'first description',
-          [eligibilityQuestionId, 'statuses-fave-color-q', 'NameQuestion'],
+          [eligibilityQuestionId, SAMPLE_QUESTIONS.text, SAMPLE_QUESTIONS.name],
         )
         await adminPrograms.gotoAdminProgramsPage()
         await adminPrograms.publishProgram(eligibilityProgramName)
@@ -785,8 +766,9 @@ test.describe('view program statuses', () => {
         adminPrograms,
         applicantQuestions,
         adminProgramStatuses,
-        adminQuestions,
+        seeding,
       }) => {
+        await seeding.seedQuestions()
         await setupProgramsWithStatuses(
           page,
           adminPrograms,
@@ -794,16 +776,13 @@ test.describe('view program statuses', () => {
           adminProgramStatuses,
         )
         await loginAsAdmin(page)
-        await adminQuestions.addEmailQuestion({
-          questionName: 'Email',
-          universal: true,
-          primaryApplicantInfo: true,
-        })
         await adminPrograms.editProgram(programWithStatusesName)
+        // The Sample Email Question is universal + primary applicant info
+        // (email), matching the question previously created via the UI.
         await adminPrograms.editProgramBlock(
           programWithStatusesName,
           'block description',
-          ['Email'],
+          [SAMPLE_QUESTIONS.email],
         )
         await adminPrograms.publishAllDrafts()
         await logout(page)

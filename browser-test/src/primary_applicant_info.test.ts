@@ -11,6 +11,7 @@ import {
   PrimaryApplicantInfoAlertType,
   PrimaryApplicantInfoField,
 } from './support/admin_questions'
+import {SAMPLE_QUESTIONS} from './support/seeding'
 
 test.describe('primary applicant info questions', () => {
   test('shows primary applicant info toggles/alerts correctly when creating a new question, and tag is persisted', async ({
@@ -191,17 +192,13 @@ test.describe('primary applicant info questions', () => {
   test('shows the alert when a different question has the primary applicant info tag', async ({
     page,
     adminQuestions,
+    seeding,
   }) => {
+    // The seeded sample name question is universal with the PAI name tag set.
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
 
-    const paiNameQuestion = 'pai-name-question'
     const nonPaiNameQuestion = 'non-pai-name-question'
-    // Create universal question with PAI tag set
-    await adminQuestions.addNameQuestion({
-      questionName: paiNameQuestion,
-      universal: true,
-      primaryApplicantInfo: true,
-    })
 
     // Create another question of the same type, set universal, verify correct alert shown
     await adminQuestions.addNameQuestion({
@@ -232,21 +229,21 @@ test.describe('primary applicant info questions', () => {
     adminQuestions,
     adminPrograms,
     applicantQuestions,
+    seeding,
   }) => {
+    // The seeded sample name question is universal with the PAI name tag set.
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
 
-    await adminQuestions.addNameQuestion({
-      questionName: 'name',
-      universal: true,
-      primaryApplicantInfo: true,
-    })
     await adminPrograms.addProgram('test')
-    await adminPrograms.editProgramBlock('test', 'desc', ['name'])
+    await adminPrograms.editProgramBlock('test', 'desc', [
+      SAMPLE_QUESTIONS.name,
+    ])
     await adminPrograms.gotoAdminProgramsPage()
     await adminPrograms.expectDraftProgram('test')
     await adminPrograms.publishProgram('test')
     await adminPrograms.expectActiveProgram('test')
-    await adminQuestions.expectActiveQuestionExist('name')
+    await adminQuestions.expectActiveQuestionExist(SAMPLE_QUESTIONS.name)
 
     await logout(page)
     await loginAsTestUser(page)

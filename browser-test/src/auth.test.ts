@@ -9,6 +9,7 @@ import {
   validateToastMessage,
 } from './support'
 import {CardSectionName} from './support/applicant_program_list'
+import {SAMPLE_QUESTIONS} from './support/seeding'
 import {waitForHtmxReady} from './support/wait'
 
 test.describe('Applicant auth', () => {
@@ -210,13 +211,13 @@ test.describe('Applicant auth', () => {
 
     test('auth user can access file uploaded as guest after account merge', async ({
       page,
-      adminQuestions,
       adminPrograms,
       applicantProgramList,
       applicantQuestions,
+      seeding,
     }) => {
       const programName = 'Test program for account merge file upload'
-      const fileUploadQuestionText = 'File upload for merge test'
+      const fileUploadQuestionText = 'Upload anything from your computer'
       const fileName = 'file.pdf'
       const fileContent =
         '%PDF-1.4\n' +
@@ -229,13 +230,10 @@ test.describe('Applicant auth', () => {
         'some sample text'
 
       await test.step('Add program with file upload question', async () => {
+        await seeding.seedQuestions()
         await loginAsAdmin(page)
-        await adminQuestions.addFileUploadQuestion({
-          questionName: 'file-upload-merge-test-q',
-          questionText: fileUploadQuestionText,
-        })
         await adminPrograms.addAndPublishProgramWithQuestions(
-          ['file-upload-merge-test-q'],
+          [SAMPLE_QUESTIONS.fileUpload],
           programName,
         )
         await logout(page)

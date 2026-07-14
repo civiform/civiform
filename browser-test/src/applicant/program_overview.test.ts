@@ -11,22 +11,19 @@ import {
   waitForPageJsLoad,
 } from '../support'
 import {Eligibility, ProgramLifecycle} from '../support/admin_programs'
+import {SAMPLE_QUESTIONS} from '../support/seeding'
 
 test.describe('Applicant program overview', () => {
   const programName = 'test'
-  const questionText = 'This is a text question'
 
-  test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
+  test.beforeEach(async ({page, adminPrograms, seeding}) => {
     await test.step('create a new program with one text question', async () => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
-      await adminQuestions.addTextQuestion({
-        questionName: 'text question',
-        questionText: questionText,
-      })
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockUsingSpec(programName, {
         description: 'First block',
-        questions: [{name: 'text question', isOptional: false}],
+        questions: [{name: SAMPLE_QUESTIONS.text, isOptional: false}],
       })
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishProgram(programName)
@@ -184,7 +181,7 @@ test.describe('Applicant program overview', () => {
       await adminPrograms.addProgram(secondProgram)
       await adminPrograms.editProgramBlockUsingSpec(secondProgram, {
         description: 'First block',
-        questions: [{name: 'text question', isOptional: false}],
+        questions: [{name: SAMPLE_QUESTIONS.text, isOptional: false}],
       })
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         secondProgram,
@@ -194,7 +191,7 @@ test.describe('Applicant program overview', () => {
       await adminPredicates.addPredicates(
         /* expandedFormLogicEnabled= */ true,
         {
-          questionName: 'text question',
+          questionName: SAMPLE_QUESTIONS.text,
           scalar: 'text',
           operator: 'is equal to',
           value: 'eligible',
@@ -493,19 +490,15 @@ test.describe('Applicant program overview for login only program', () => {
 test.describe('guest cannot complete applications for login only program', () => {
   const programName = 'loginonly'
 
-  test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
+  test.beforeEach(async ({page, adminPrograms, seeding}) => {
     await test.step('create a new program', async () => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
       await adminPrograms.addProgram(programName)
 
-      await adminQuestions.addNameQuestion({
-        questionName: 'name',
-        universal: true,
-      })
-
       await adminPrograms.editProgramBlockUsingSpec(programName, {
         description: 'First block',
-        questions: [{name: 'name', isOptional: false}],
+        questions: [{name: SAMPLE_QUESTIONS.name, isOptional: false}],
       })
       await adminPrograms.goToProgramDescriptionPage(programName)
       await adminPrograms.setProgramToLoginOnly(true)
@@ -524,14 +517,14 @@ test.describe('guest cannot complete applications for login only program', () =>
     await waitForPageJsLoad(page)
 
     // logged in user can see the application page
-    await expect(page.getByText('name question text')).toBeVisible()
+    await expect(page.getByText('What is your name?')).toBeVisible()
 
     const applicationURL = page.url()
     await logout(page)
 
     // go to the the middle of the application as a guest using the same URL
     await page.goto(applicationURL)
-    await expect(page.getByText('name')).toBeHidden()
+    await expect(page.getByText('What is your name?')).toBeHidden()
     await expect(
       page.getByRole('heading', {
         name: 'You must log in to apply for this program',

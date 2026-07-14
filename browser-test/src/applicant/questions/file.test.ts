@@ -9,6 +9,7 @@ import {
   loginAsTestUser,
 } from '../../support'
 import {waitForHtmxReady} from '../../support/wait'
+import {SAMPLE_QUESTIONS} from '../../support/seeding'
 
 test.describe('file upload applicant flow (feature flag enabled)', () => {
   test.beforeEach(async ({page}) => {
@@ -17,17 +18,14 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
 
   test.describe('required file upload question', () => {
     const programName = 'Test program for single file upload'
-    const fileUploadQuestionText = 'Required file upload question'
+    const fileUploadQuestionText = 'Upload anything from your computer'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+    test.beforeEach(async ({page, adminPrograms, seeding}) => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
 
-      await adminQuestions.addFileUploadQuestion({
-        questionName: 'file-upload-test-q',
-        questionText: fileUploadQuestionText,
-      })
       await adminPrograms.addAndPublishProgramWithQuestions(
-        ['file-upload-test-q'],
+        [SAMPLE_QUESTIONS.fileUpload],
         programName,
       )
 
@@ -382,17 +380,14 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
 
   test.describe('required file upload question with multiple file uploads', () => {
     const programName = 'Test program for multiple file upload'
-    const fileUploadQuestionText = 'Required file upload question'
+    const fileUploadQuestionText = 'Upload anything from your computer'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+    test.beforeEach(async ({page, adminPrograms, seeding}) => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
 
-      await adminQuestions.addFileUploadQuestion({
-        questionName: 'file-upload-test-q',
-        questionText: fileUploadQuestionText,
-      })
       await adminPrograms.addAndPublishProgramWithQuestions(
-        ['file-upload-test-q'],
+        [SAMPLE_QUESTIONS.fileUpload],
         programName,
       )
 
@@ -724,21 +719,18 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
   // Optional file upload.
   test.describe('optional file upload question', () => {
     const programName = 'Test program for optional file upload'
-    const fileUploadQuestionText = 'Optional file upload question'
+    const fileUploadQuestionText = 'Upload anything from your computer'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+    test.beforeEach(async ({page, adminPrograms, seeding}) => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
 
-      await adminQuestions.addFileUploadQuestion({
-        questionName: 'file-upload-test-optional-q',
-        questionText: fileUploadQuestionText,
-      })
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockWithOptional(
         programName,
         'Optional question block',
         [],
-        'file-upload-test-optional-q',
+        SAMPLE_QUESTIONS.fileUpload, // optional
       )
       await adminPrograms.publishAllDrafts()
 
@@ -945,11 +937,12 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
    */
   test.describe('buttons', () => {
     const programName = 'Test program for file upload buttons'
-    const emailQuestionText = 'Test email question'
-    const fileUploadQuestionText = 'Test file upload question'
-    const numberQuestionText = 'Test number question'
+    const emailQuestionText = 'What is your email?'
+    const fileUploadQuestionText = 'Upload anything from your computer'
+    const numberQuestionText = 'How many pets do you have?'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+    test.beforeEach(async ({page, adminPrograms, seeding}) => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
 
       // Create a program with 3 blocks:
@@ -961,29 +954,16 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
       // Making the questions optional lets us click "Review" and "Previous"
       // without seeing the "error saving answers" modal, since that modal will
       // trigger if there are validation errors (like missing required questions).
-      await adminQuestions.addEmailQuestion({
-        questionName: 'email-test-q',
-        questionText: emailQuestionText,
-      })
-      await adminQuestions.addFileUploadQuestion({
-        questionName: 'file-upload-buttons-test-q',
-        questionText: fileUploadQuestionText,
-      })
-      await adminQuestions.addNumberQuestion({
-        questionName: 'number-test-q',
-        questionText: numberQuestionText,
-      })
-
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockWithOptional(
         programName,
         'Email block',
         [],
-        'email-test-q',
+        SAMPLE_QUESTIONS.email,
       )
 
       await adminPrograms.addProgramBlock(programName, 'File upload block', [
-        'file-upload-buttons-test-q',
+        SAMPLE_QUESTIONS.fileUpload,
       ])
 
       await adminPrograms.addProgramBlock(programName)
@@ -992,7 +972,7 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
         programName,
         'Number block',
         [],
-        'number-test-q',
+        SAMPLE_QUESTIONS.number,
       )
 
       await adminPrograms.publishAllDrafts()
@@ -1223,17 +1203,14 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
 
 test.describe('file upload improvements feature flag enabled', () => {
   const programName = 'File upload improvements program'
-  const fileUploadQuestionText = 'File upload improvements question'
+  const fileUploadQuestionText = 'Upload anything from your computer'
 
-  test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+  test.beforeEach(async ({page, adminPrograms, seeding}) => {
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
 
-    await adminQuestions.addFileUploadQuestion({
-      questionName: 'file-upload-improvements-q',
-      questionText: fileUploadQuestionText,
-    })
     await adminPrograms.addAndPublishProgramWithQuestions(
-      ['file-upload-improvements-q'],
+      [SAMPLE_QUESTIONS.fileUpload],
       programName,
     )
 
@@ -1270,20 +1247,17 @@ test.describe('file upload improvements feature flag enabled', () => {
 test.describe('for login only program, guest cannot see file upload question (feature flag enabled)', () => {
   const programName = 'loginonly'
 
-  test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
+  test.beforeEach(async ({page, adminPrograms, seeding}) => {
+    await seeding.seedQuestions()
     await enableFeatureFlag(page, 'FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED')
 
     await test.step('create a new program', async () => {
       await loginAsAdmin(page)
       await adminPrograms.addProgram(programName)
 
-      await adminQuestions.addFileUploadQuestion({
-        questionName: 'file-upload',
-        questionText: 'file upload question',
-      })
       await adminPrograms.editProgramBlockUsingSpec(programName, {
         description: 'First block',
-        questions: [{name: 'file-upload', isOptional: false}],
+        questions: [{name: SAMPLE_QUESTIONS.fileUpload, isOptional: false}],
       })
       await adminPrograms.goToProgramDescriptionPage(programName)
       await adminPrograms.setProgramToLoginOnly(true)
@@ -1333,19 +1307,14 @@ test.describe('for login only program, guest cannot see file upload question (fe
 
 test.describe('file upload question with file upload improvements feature flag enabled', () => {
   const programName = 'File upload improvements program'
-  const fileUploadQuestionText = 'File upload improvements question'
-  const fileUploadImprevementsQuestionName = 'file-upload-improvements-q'
 
-  test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+  test.beforeEach(async ({page, adminPrograms, seeding}) => {
+    await seeding.seedQuestions()
     await enableFeatureFlag(page, 'FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED')
     await loginAsAdmin(page)
 
-    await adminQuestions.addFileUploadQuestion({
-      questionName: fileUploadImprevementsQuestionName,
-      questionText: fileUploadQuestionText,
-    })
     await adminPrograms.addAndPublishProgramWithQuestions(
-      [fileUploadImprevementsQuestionName],
+      [SAMPLE_QUESTIONS.fileUpload],
       programName,
     )
     await logout(page)

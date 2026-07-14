@@ -1,6 +1,7 @@
 import {test} from '../support/civiform_fixtures'
 import {loginAsAdmin} from '../support'
 import {ProgramLifecycle} from '../support/admin_programs'
+import {SAMPLE_PROGRAMS} from '../support/seeding'
 
 // TODO(#8576): Add tests that emails are actually sent, once #8575 is complete
 
@@ -31,12 +32,13 @@ test.describe('program email notifications', () => {
   test('program admin application submission email preference persists through publish', async ({
     page,
     adminPrograms,
+    seeding,
   }) => {
-    const programName = 'test program'
+    const programName = SAMPLE_PROGRAMS.minimal
 
-    await test.step('create new program and unset notifications', async () => {
+    await test.step('seed programs', async () => {
+      await seeding.seedProgramsAndCategories()
       await loginAsAdmin(page)
-      await adminPrograms.addProgram(programName)
     })
 
     await test.step('unset email preference', async () => {

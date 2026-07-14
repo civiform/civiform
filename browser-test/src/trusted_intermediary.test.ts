@@ -11,6 +11,7 @@ import {
   selectApplicantLanguage,
 } from './support'
 import {ProgramCategories} from './support/admin_programs'
+import {SAMPLE_PROGRAMS, SAMPLE_QUESTIONS} from './support/seeding'
 
 test.describe('Trusted intermediaries', () => {
   test('sees client name and link in sub-banner while applying on behalf of applicant', async ({
@@ -48,7 +49,6 @@ test.describe('Trusted intermediaries', () => {
   test('categorizes programs correctly for Trusted Intermediaries', async ({
     page,
     adminPrograms,
-    adminQuestions,
     tiDashboard,
     applicantQuestions,
     seeding,
@@ -56,8 +56,10 @@ test.describe('Trusted intermediaries', () => {
     const primaryProgramName = 'Application index primary program'
     const otherProgramName = 'Application index other program'
 
-    const firstQuestionText = 'This is the first question'
-    const secondQuestionText = 'This is the second question'
+    await test.step('seed questions, sample programs, and categories', async () => {
+      await seeding.seedProgramsAndCategories()
+      await page.goto('/')
+    })
 
     await test.step('Setup test programs', async () => {
       await loginAsAdmin(page)
@@ -65,58 +67,43 @@ test.describe('Trusted intermediaries', () => {
       // Create a program with two questions on separate blocks so that an applicant can partially
       // complete an application.
       await adminPrograms.addProgram(primaryProgramName)
-      await adminQuestions.addTextQuestion({
-        questionName: 'first-q',
-        questionText: firstQuestionText,
-      })
-      await adminQuestions.addTextQuestion({
-        questionName: 'second-q',
-        questionText: secondQuestionText,
-      })
       // Primary program's screen 1 has 0 questions, so the 'first block' is actually screen 2
       await adminPrograms.addProgramBlock(primaryProgramName, 'first block', [
-        'first-q',
+        SAMPLE_QUESTIONS.text,
       ])
       // The 'second block' is actually screen 3
       await adminPrograms.addProgramBlock(primaryProgramName, 'second block', [
-        'second-q',
+        SAMPLE_QUESTIONS.number,
       ])
 
       await adminPrograms.addProgram(otherProgramName)
       await adminPrograms.addProgramBlock(otherProgramName, 'first block', [
-        'first-q',
+        SAMPLE_QUESTIONS.text,
       ])
-
-      await adminPrograms.publishAllDrafts()
-      await logout(page)
-    })
-
-    await test.step('seed categories', async () => {
-      await seeding.seedProgramsAndCategories()
-      await page.goto('/')
     })
 
     await test.step('add categories to primary and other program', async () => {
-      await loginAsAdmin(page)
       await adminPrograms.selectProgramCategories(
         primaryProgramName,
         [ProgramCategories.EDUCATION, ProgramCategories.HEALTHCARE],
-        /* isActive= */ true,
+        /* isActive= */ false,
       )
       await adminPrograms.selectProgramCategories(
         otherProgramName,
         [ProgramCategories.GENERAL, ProgramCategories.UTILITIES],
-        /* isActive= */ true,
+        /* isActive= */ false,
       )
     })
 
     await test.step('publish programs with categories', async () => {
       await adminPrograms.publishAllDrafts()
     })
+
     await test.step('Navigate to homepage', async () => {
       await logout(page)
       await loginAsTrustedIntermediary(page)
     })
+
     await test.step('Create a new client', async () => {
       await waitForPageJsLoad(page)
       const client: ClientInformation = {
@@ -130,6 +117,7 @@ test.describe('Trusted intermediaries', () => {
       await tiDashboard.expectDashboardContainClient(client)
       await tiDashboard.clickOnViewApplications()
     })
+
     await test.step('Apply to a program and verify that applied program is under my applicatins section of view application page', async () => {
       await applicantQuestions.applyProgram(primaryProgramName)
       await applicantQuestions.answerTextQuestion('first answer')
@@ -172,7 +160,7 @@ test.describe('Trusted intermediaries', () => {
         primaryProgramName,
         /* showProgramOverviewPage= */ false,
       )
-      await applicantQuestions.answerTextQuestion('second answer')
+      await applicantQuestions.answerNumberQuestion('5')
       await applicantQuestions.clickContinue()
       await applicantQuestions.submitFromReviewPage()
       await applicantQuestions.expectConfirmationPage()
@@ -192,6 +180,7 @@ test.describe('Trusted intermediaries', () => {
         /* filtersOn= */ false,
       )
     })
+
     await test.step('Select a filter, click the filter submit button and verify the Recommended and Other programs sections with finished application', async () => {
       await applicantQuestions.filterProgramsAndExpectInCorrectSections(
         {
@@ -208,6 +197,7 @@ test.describe('Trusted intermediaries', () => {
       )
     })
   })
+
   test('expect Client Date Of Birth to be Updated', async ({
     page,
     tiDashboard,
@@ -242,6 +232,7 @@ test.describe('Trusted intermediaries', () => {
     await waitForPageJsLoad(page)
     await tiDashboard.expectDashboardContainClient(updatedClient)
   })
+
   test('expect client info to be updated with empty emails', async ({
     page,
     tiDashboard,
@@ -661,26 +652,24 @@ test.describe('Trusted intermediaries', () => {
     applicantQuestions,
     adminTranslations,
     tiDashboard,
+    seeding,
   }) => {
-    // Add a new program with one non-translated question
+    // The minimal sample program contains the sample name question.
+    await seeding.seedProgramsAndCategories()
+    await page.goto('/')
     await loginAsAdmin(page)
 
-    const programName = 'TI Client Translation program'
-    await adminPrograms.addProgram(programName)
+    const programName = SAMPLE_PROGRAMS.minimal
 
-    const questionName = 'name-translated'
-    await adminQuestions.addNameQuestion({questionName})
     // Go to the question translation page and add a translation for Spanish
-
-    await adminQuestions.goToQuestionTranslationPage(questionName)
+    await adminQuestions.goToQuestionTranslationPage(SAMPLE_QUESTIONS.name)
     await adminTranslations.selectLanguage('Spanish')
     await validateScreenshot(page, 'question-translation')
     await adminTranslations.editQuestionTranslations(
       'Spanish question text',
       'Spanish help text',
     )
-    await adminPrograms.editProgramBlock(programName, 'block', [questionName])
-    await adminPrograms.publishProgram(programName)
+    await adminPrograms.publishAllDrafts()
     await logout(page)
 
     await loginAsTrustedIntermediary(page)
@@ -854,6 +843,7 @@ test.describe('Trusted intermediaries', () => {
     adminTiGroups,
   }) => {
     await loginAsAdmin(page)
+
     await test.step('set up group aaa with 3 memebers', async () => {
       await adminTiGroups.gotoAdminTIPage()
       await adminTiGroups.fillInGroupBasics('aaa', 'aaa')
@@ -933,136 +923,51 @@ test.describe('Trusted intermediaries', () => {
     expect(await page.innerHTML('body')).toContain('id="name-search"')
   })
 
-  test.describe('application flow with eligibility conditions', () => {
-    // Create a program with 2 questions and an eligibility condition.
-    const fullProgramName = 'Test program for eligibility navigation flows'
-    const eligibilityQuestionId = 'ti-eligibility-number-q'
-
-    test.beforeEach(
-      async ({
-        page,
-        adminQuestions,
-        adminPrograms,
-        adminPredicates,
-        tiDashboard,
-      }) => {
-        await loginAsAdmin(page)
-
-        await adminQuestions.addNumberQuestion({
-          questionName: eligibilityQuestionId,
-        })
-        await adminQuestions.addEmailQuestion({
-          questionName: 'ti-eligibility-email-q',
-        })
-
-        // Add the full program.
-        await adminPrograms.addProgram(fullProgramName)
-        await adminPrograms.editProgramBlock(
-          fullProgramName,
-          'first description',
-          [eligibilityQuestionId],
-        )
-        await adminPrograms.goToEditBlockEligibilityPredicatePage(
-          fullProgramName,
-          'Screen 1',
-        )
-        await adminPredicates.addPredicates({
-          questionName: eligibilityQuestionId,
-          scalar: 'number',
-          operator: 'is equal to',
-          value: '5',
-        })
-
-        await adminPrograms.addProgramBlock(
-          fullProgramName,
-          'second description',
-          ['ti-eligibility-email-q'],
-        )
-
-        await adminPrograms.gotoAdminProgramsPage()
-        await adminPrograms.publishProgram(fullProgramName)
-
-        await logout(page)
-
-        await loginAsTrustedIntermediary(page)
-
-        await waitForPageJsLoad(page)
-        const client: ClientInformation = {
-          emailAddress: 'fake@sample.com',
-          firstName: 'first',
-          middleName: 'middle',
-          lastName: 'last',
-          dobDate: '2021-05-10',
-        }
-        await tiDashboard.createClient(client)
-        await tiDashboard.expectDashboardContainClient(client)
-      },
-    )
-  })
-
   test.describe('application flow', () => {
     // Create a program with 1 question.
     const program1 = 'Test program 1'
     const program2 = 'Test program 2'
     const program3 = 'Test program 3'
-    const emailQuestionId = 'ti-email-question'
-    const numberQuestionId = 'ti-number-question'
 
-    test.beforeEach(
-      async ({page, adminQuestions, adminPrograms, tiDashboard}) => {
-        await loginAsAdmin(page)
+    test.beforeEach(async ({page, adminPrograms, tiDashboard, seeding}) => {
+      await seeding.seedQuestions()
+      await loginAsAdmin(page)
 
-        await adminQuestions.addEmailQuestion({
-          questionName: emailQuestionId,
-        })
+      // Create program 1
+      await adminPrograms.addProgram(program1)
+      await adminPrograms.editProgramBlock(program1, 'description', [
+        SAMPLE_QUESTIONS.email,
+      ])
 
-        await adminQuestions.addNumberQuestion({
-          questionName: numberQuestionId,
-        })
+      // Create program 2
+      await adminPrograms.addProgram(program2)
+      await adminPrograms.editProgramBlock(program2, 'description', [
+        SAMPLE_QUESTIONS.email,
+      ])
 
-        // Create program 1
-        await adminPrograms.addProgram(program1)
-        await adminPrograms.editProgramBlock(program1, 'description', [
-          emailQuestionId,
-        ])
+      // Create program 3
+      await adminPrograms.addProgram(program3)
+      await adminPrograms.editProgramBlock(program3, 'description', [
+        SAMPLE_QUESTIONS.number,
+      ])
 
-        await adminPrograms.gotoAdminProgramsPage()
-        await adminPrograms.publishProgram(program1)
+      await adminPrograms.publishAllDrafts()
 
-        // Create program 2
-        await adminPrograms.addProgram(program2)
-        await adminPrograms.editProgramBlock(program2, 'description', [
-          emailQuestionId,
-        ])
+      await logout(page)
 
-        await adminPrograms.gotoAdminProgramsPage()
-        await adminPrograms.publishProgram(program2)
+      await loginAsTrustedIntermediary(page)
 
-        // Create program 3
-        await adminPrograms.addProgram(program3)
-        await adminPrograms.editProgramBlock(program3, 'description', [
-          numberQuestionId,
-        ])
-
-        await adminPrograms.gotoAdminProgramsPage()
-        await adminPrograms.publishProgram(program3)
-
-        await logout(page)
-
-        await loginAsTrustedIntermediary(page)
-
-        await waitForPageJsLoad(page)
-        const client: ClientInformation = {
-          emailAddress: 'fake@sample.com',
-          firstName: 'first',
-          middleName: 'middle',
-          lastName: 'last',
-          dobDate: '2021-05-10',
-        }
-        await tiDashboard.createClient(client)
-        await tiDashboard.expectDashboardContainClient(client)
-      },
-    )
+      await waitForPageJsLoad(page)
+      const client: ClientInformation = {
+        emailAddress: 'fake@sample.com',
+        firstName: 'first',
+        middleName: 'middle',
+        lastName: 'last',
+        dobDate: '2021-05-10',
+      }
+      await tiDashboard.createClient(client)
+      await tiDashboard.expectDashboardContainClient(client)
+    })
 
     test('shows correct number of submitted applications in the client list', async ({
       page,
@@ -1232,35 +1137,24 @@ test.describe('Trusted intermediaries', () => {
       phoneNumber: '9178675309',
     }
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+    // The sample date, name, phone, and email questions are universal
+    // questions with their primary applicant info tags set.
+    const dobQuestionText = 'When is your birthday?'
+    const nameQuestionText = 'What is your name?'
+    const phoneQuestionText = 'what is your phone number'
+    const emailQuestionText = 'What is your email?'
+
+    test.beforeEach(async ({page, adminPrograms, seeding}) => {
       await test.step('create a program with PAI questions', async () => {
+        await seeding.seedQuestions()
         await loginAsAdmin(page)
-        await adminQuestions.addDateQuestion({
-          questionName: 'dob',
-          questionText: 'Date of birth',
-          universal: true,
-          primaryApplicantInfo: true,
-        })
-        await adminQuestions.addNameQuestion({
-          questionName: 'name',
-          questionText: 'Name',
-          universal: true,
-          primaryApplicantInfo: true,
-        })
-        await adminQuestions.addPhoneQuestion({
-          questionName: 'phone',
-          questionText: 'Phone',
-          universal: true,
-          primaryApplicantInfo: true,
-        })
-        await adminQuestions.addEmailQuestion({
-          questionName: 'email',
-          questionText: 'Email',
-          universal: true,
-          primaryApplicantInfo: true,
-        })
         await adminPrograms.addAndPublishProgramWithQuestions(
-          ['dob', 'name', 'phone', 'email'],
+          [
+            SAMPLE_QUESTIONS.date,
+            SAMPLE_QUESTIONS.name,
+            SAMPLE_QUESTIONS.phone,
+            SAMPLE_QUESTIONS.email,
+          ],
           'PAI Program',
         )
         await logout(page)
@@ -1281,25 +1175,25 @@ test.describe('Trusted intermediaries', () => {
       await test.step('verify client info is pre-populated on the application review page', async () => {
         await page.getByRole('button', {name: 'Review and submit'}).click()
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-          'Date of birth',
+          dobQuestionText,
           '01/01/2001',
         )
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-          'Name',
+          nameQuestionText,
           'first middle last',
         )
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-          'Phone',
+          phoneQuestionText,
           '+1 917-867-5309',
         )
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-          'Email',
+          emailQuestionText,
           'test@email.com',
         )
       })
 
       await test.step('verify client info is pre-populated in the application form', async () => {
-        await applicantQuestions.editQuestionFromReviewPage('Date of birth')
+        await applicantQuestions.editQuestionFromReviewPage(dobQuestionText)
 
         await expect(page.getByRole('textbox', {name: 'Day'})).toHaveValue('1')
         await expect(page.getByRole('textbox', {name: 'Year'})).toHaveValue(
@@ -1347,19 +1241,19 @@ test.describe('Trusted intermediaries', () => {
 
       await test.step('verify the new values for name are shown in the application and the other values are unchanged', async () => {
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-          'Date of birth',
+          dobQuestionText,
           '01/01/2001',
         )
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-          'Name',
+          nameQuestionText,
           'newfirst middle newlast',
         )
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-          'Phone',
+          phoneQuestionText,
           '+1 917-867-5309',
         )
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-          'Email',
+          emailQuestionText,
           'test@email.com',
         )
       })
@@ -1408,6 +1302,7 @@ test.describe('Trusted intermediaries', () => {
         dobDate: '2001-01-01',
         notes: 'Notes',
       }
+
       await test.step('verify the client info is shown in the TI Dashboard', async () => {
         await tiDashboard.gotoTIDashboardPage(page, true)
         await waitForPageJsLoad(page)

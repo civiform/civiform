@@ -1800,6 +1800,10 @@ export class AdminPrograms {
 
     const saveButton = (await editModal.$('text=Save'))!
     await saveButton.click()
+    // Saving submits a form and reloads the page. Wait for the modal to be
+    // torn down before waitForPageJsLoad, which can otherwise resolve against
+    // the old page and let the next action cancel the in-flight save.
+    await editModal.waitForElementState('hidden')
     await waitForPageJsLoad(this.page)
   }
 

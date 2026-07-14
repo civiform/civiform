@@ -11,6 +11,7 @@ import {
 } from '../support'
 import {TEST_USER_DISPLAY_NAME} from '../support/config'
 import {ProgramVisibility} from '../support/admin_programs'
+import {SAMPLE_PROGRAMS} from '../support/seeding'
 
 test.describe('Validate program visibility is correct for applicants and TIs', () => {
   test('Create a new hidden program, verify applicants cannot see it on the home page', async ({
@@ -40,14 +41,14 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     page,
     adminPrograms,
     applicantProgramList,
+    seeding,
   }) => {
+    // Seeded programs are public.
+    await seeding.seedProgramsAndCategories()
     await loginAsAdmin(page)
 
-    const programName = 'Public program'
-    const programShortDescription = 'Short Description'
-    await adminPrograms.addProgram(programName, {
-      shortDescription: programShortDescription,
-    })
+    const programName = SAMPLE_PROGRAMS.minimal
+    const programShortDescription = 'short description'
     await adminPrograms.publishAllDrafts()
 
     // Login as applicant

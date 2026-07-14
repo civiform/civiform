@@ -1,19 +1,18 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
+import {SAMPLE_PROGRAMS} from '../support/seeding'
 
 test.describe('admin program page headers', () => {
-  test('predicate page program header', async ({page, adminPrograms}) => {
+  test('predicate page program header', async ({
+    page,
+    adminPrograms,
+    seeding,
+  }) => {
+    await seeding.seedProgramsAndCategories()
     await enableFeatureFlag(page, 'expanded_form_logic_enabled')
     await loginAsAdmin(page)
 
-    const programName = 'Predicate page program header'
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.editProgramBlockUsingSpec(programName, {
-      name: 'Screen 1',
-      description: 'first screen',
-      questions: [],
-    })
-
+    const programName = SAMPLE_PROGRAMS.minimal
     await adminPrograms.goToEditBlockEligibilityPredicatePage(
       programName,
       'Screen 1',

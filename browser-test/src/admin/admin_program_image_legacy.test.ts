@@ -7,6 +7,7 @@ import {
   validateToastHidden,
 } from '../support'
 import {Eligibility} from '../support/admin_programs'
+import {SAMPLE_PROGRAMS} from '../support/seeding'
 
 test.describe('Admin can manage program image', () => {
   test.beforeEach(async ({page}) => {
@@ -20,15 +21,12 @@ test.describe('Admin can manage program image', () => {
       adminProgramImage,
       seeding,
     }) => {
-      const programName = 'Test Program'
-      const programDescription = 'Test description'
-      const shortDescription = 'Short description'
+      const programName = SAMPLE_PROGRAMS.minimal
+      const programDescription = 'display description'
+      const shortDescription = 'short description'
 
       await test.step('Set up program', async () => {
-        await adminPrograms.addProgram(programName, {
-          description: programDescription,
-          shortDescription: shortDescription,
-        })
+        await seeding.seedProgramsAndCategories()
 
         await adminPrograms.goToProgramImagePage(programName)
 
@@ -70,10 +68,10 @@ test.describe('Admin can manage program image', () => {
       })
 
       await test.step('Verify preview with category tags', async () => {
-        await seeding.seedProgramsAndCategories()
-        await page.goto('/')
-
-        await adminPrograms.addProgram('Test program with tags', {
+        const programNameWithTags = 'Test program with tags'
+        // Categories come from the seeding above, but a program can only
+        // select categories via the UI creation form.
+        await adminPrograms.addProgram(programNameWithTags, {
           description: programDescription,
           shortDescription: shortDescription,
           eligibility: Eligibility.IS_GATING,
@@ -85,15 +83,13 @@ test.describe('Admin can manage program image', () => {
         await adminPrograms.submitProgramDetailsEdits()
 
         await validateScreenshot(
-          page
-            .getByRole('listitem')
-            .filter({hasText: 'Test program with tags'}),
+          page.getByRole('listitem').filter({hasText: programNameWithTags}),
           'admin-program-image-card-preview-with-tags',
         )
 
         await adminProgramImage.expectNoImagePreview()
         await adminProgramImage.expectProgramPreviewCard(
-          programName,
+          programNameWithTags,
           programDescription,
           shortDescription,
         )
@@ -198,10 +194,10 @@ test.describe('Admin can manage program image', () => {
   })
 
   test.describe('description', () => {
-    const programName = 'Test program'
+    const programName = SAMPLE_PROGRAMS.minimal
 
-    test.beforeEach(async ({adminPrograms}) => {
-      await adminPrograms.addProgram(programName)
+    test.beforeEach(async ({adminPrograms, seeding}) => {
+      await seeding.seedProgramsAndCategories()
       await adminPrograms.goToProgramImagePage(programName)
     })
 
@@ -431,11 +427,9 @@ test.describe('Admin can manage program image', () => {
   })
 
   test.describe('image file upload', () => {
-    const programName = 'Test program'
-
-    test.beforeEach(async ({adminPrograms}) => {
-      await adminPrograms.addProgram(programName)
-      await adminPrograms.goToProgramImagePage(programName)
+    test.beforeEach(async ({adminPrograms, seeding}) => {
+      await seeding.seedProgramsAndCategories()
+      await adminPrograms.goToProgramImagePage(SAMPLE_PROGRAMS.minimal)
     })
 
     test('shows uploaded image before submitting', async ({

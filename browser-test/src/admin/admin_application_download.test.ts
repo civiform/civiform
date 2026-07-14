@@ -10,6 +10,7 @@ import {
   logout,
   waitForPageJsLoad,
 } from '../support'
+import {SAMPLE_QUESTIONS} from '../support/seeding'
 
 test.describe('Program admin download button visibility and endpoint access', () => {
   const programName = 'download-visibility-program'
@@ -53,7 +54,7 @@ test.describe('Program admin download button visibility and endpoint access', ()
         await loginAsAdmin(page)
         await adminPrograms.addProgram(programName)
         await adminPrograms.editProgramBlock(programName, 'dummy description', [
-          'Sample Name Question',
+          SAMPLE_QUESTIONS.name,
         ])
 
         const pattern = /\/admin\/programs\/(?<id>[0-9]*)\/*/
@@ -157,7 +158,7 @@ test.describe('csv export for multioption question', () => {
         /* clickSubmit= */ true,
       )
       await adminPrograms.addAndPublishProgramWithQuestions(
-        ['Sample Name Question', 'csv-color'],
+        [SAMPLE_QUESTIONS.name, 'csv-color'],
         programName,
       )
       await logout(page)
@@ -301,16 +302,18 @@ test.describe('csv json pdf download test- two applications', () => {
         },
         /* clickSubmit= */ true,
       )
+      // These questions stay UI-created: the CSV/JSON assertions below depend
+      // on their exact admin names and the resulting column ordering.
       await adminQuestions.addDateQuestion({questionName: 'csv-date'})
       await adminQuestions.addCurrencyQuestion({questionName: 'csv-currency'})
-      await adminQuestions.exportQuestion('Sample Name Question')
+      await adminQuestions.exportQuestion(SAMPLE_QUESTIONS.name)
       await adminQuestions.exportQuestion('dropdown-csv-download')
       await adminQuestions.exportQuestion('csv-date')
       await adminQuestions.exportQuestion('csv-currency')
       await adminQuestions.exportQuestion('csv-color')
       await adminPrograms.addAndPublishProgramWithQuestions(
         [
-          'Sample Name Question',
+          SAMPLE_QUESTIONS.name,
           'dropdown-csv-download',
           'csv-date',
           'csv-currency',
@@ -574,8 +577,8 @@ test.describe('csv json pdf download test- two applications', () => {
         )
       }
 
-      await adminQuestions.createNewVersion('Sample Name Question')
-      await adminQuestions.exportQuestionOpaque('Sample Name Question')
+      await adminQuestions.createNewVersion(SAMPLE_QUESTIONS.name)
+      await adminQuestions.exportQuestionOpaque(SAMPLE_QUESTIONS.name)
       await adminPrograms.publishProgram(programName)
 
       await adminPrograms.gotoAdminProgramsPage()

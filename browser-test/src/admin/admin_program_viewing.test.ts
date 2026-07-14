@@ -5,7 +5,6 @@ import {
   logout,
   loginAsTestUser,
   validateScreenshot,
-  testUserDisplayName,
   loginAsProgramAdmin,
 } from '../support'
 import {
@@ -13,18 +12,19 @@ import {
   ProgramHeaderButton,
   ProgramVisibility,
 } from '../support/admin_programs'
+import {SAMPLE_PROGRAMS, SAMPLE_QUESTIONS} from '../support/seeding'
 
 test.describe('admin program view page', () => {
   test('view active program shows read only view', async ({
     page,
     adminPrograms,
+    seeding,
   }) => {
+    await seeding.seedProgramsAndCategories()
     await loginAsAdmin(page)
 
-    const programName = 'Active Program'
-    await adminPrograms.addProgram(programName)
     await adminPrograms.publishAllDrafts()
-    await adminPrograms.gotoViewActiveProgramPage(programName)
+    await adminPrograms.gotoViewActiveProgramPage(SAMPLE_PROGRAMS.minimal)
     await validateScreenshot(page, 'program-read-only-view')
     // After publishing, editing is not allowed and text mentions draft mode
     await expect(page.locator('#eligibility-predicate')).toContainText(
@@ -37,8 +37,6 @@ test.describe('admin program view page', () => {
     adminPrograms,
     seeding,
   }) => {
-    const programName = 'Active Program'
-
     await seeding.seedProgramsAndCategories()
 
     await test.step('login as admin', async () => {
@@ -46,19 +44,18 @@ test.describe('admin program view page', () => {
       await loginAsAdmin(page)
     })
 
-    await test.step('create and publish new program', async () => {
-      await adminPrograms.addProgram(programName)
+    await test.step('publish seeded programs', async () => {
       await adminPrograms.publishAllDrafts()
     })
 
     await test.step('expect categories to be none on details page', async () => {
-      await adminPrograms.gotoViewActiveProgramPage(programName)
+      await adminPrograms.gotoViewActiveProgramPage(SAMPLE_PROGRAMS.minimal)
       await expect(page.getByText('Categories: None')).toBeVisible()
     })
 
     await test.step('add two categories', async () => {
       await adminPrograms.selectProgramCategories(
-        programName,
+        SAMPLE_PROGRAMS.minimal,
         [ProgramCategories.INTERNET, ProgramCategories.EDUCATION],
         /* isActive= */ true,
       )
@@ -71,12 +68,11 @@ test.describe('admin program view page', () => {
     })
   })
 
-  test('view draft program', async ({page, adminPrograms}) => {
+  test('view draft program', async ({page, adminPrograms, seeding}) => {
+    await seeding.seedProgramsAndCategories()
     await loginAsAdmin(page)
 
-    const programName = 'Draft Program'
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.gotoEditDraftProgramPage(programName)
+    await adminPrograms.gotoEditDraftProgramPage(SAMPLE_PROGRAMS.minimal)
 
     await validateScreenshot(page, 'program-draft-view')
   })
@@ -84,29 +80,18 @@ test.describe('admin program view page', () => {
   test('view program with universal questions', async ({
     page,
     adminPrograms,
-    adminQuestions,
+    seeding,
   }) => {
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
 
     const programName = 'Program with universal questions'
-    await adminQuestions.addTextQuestion({
-      questionName: 'nonuniversal-text',
-      universal: false,
-    })
-    await adminQuestions.addTextQuestion({
-      questionName: 'universal-text',
-      universal: true,
-    })
-    await adminQuestions.addAddressQuestion({
-      questionName: 'universal-address',
-      universal: true,
-    })
-
+    // Sample name/email questions are universal, sample text question is not.
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(programName, 'dummy description', [
-      'universal-text',
-      'nonuniversal-text',
-      'universal-address',
+      SAMPLE_QUESTIONS.name,
+      SAMPLE_QUESTIONS.text,
+      SAMPLE_QUESTIONS.email,
     ])
     await adminPrograms.publishAllDrafts()
 
@@ -114,15 +99,15 @@ test.describe('admin program view page', () => {
     await adminPrograms.gotoToBlockInReadOnlyProgram('1')
     await adminPrograms.expectReadOnlyProgramBlock('1')
     await adminPrograms.expectQuestionCardUniversalBadgeState(
-      'universal-text',
+      SAMPLE_QUESTIONS.name,
       true,
     )
     await adminPrograms.expectQuestionCardUniversalBadgeState(
-      'nonuniversal-text',
+      SAMPLE_QUESTIONS.text,
       false,
     )
     await adminPrograms.expectQuestionCardUniversalBadgeState(
-      'universal-address',
+      SAMPLE_QUESTIONS.email,
       true,
     )
     await validateScreenshot(page, 'program-view-universal-questions')
@@ -131,14 +116,13 @@ test.describe('admin program view page', () => {
   test('view program, view multiple blocks, then start editing with extra long screen name and description', async ({
     page,
     adminPrograms,
-    adminQuestions,
+    seeding,
   }) => {
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'esri_address_correction_enabled')
 
     const programName = 'Apc program'
-    await adminQuestions.addAddressQuestion({questionName: 'address-q'})
-
     await adminPrograms.addProgram(programName)
     await adminPrograms.addProgramBlock(programName, 'screen 2 description', [])
 
@@ -156,7 +140,7 @@ test.describe('admin program view page', () => {
         'ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo',
       questions: [
         {
-          name: 'address-q',
+          name: SAMPLE_QUESTIONS.address,
         },
       ],
     })
@@ -171,7 +155,7 @@ test.describe('admin program view page', () => {
     await adminPrograms.expectReadOnlyProgramBlock('2')
 
     await adminPrograms.expectQuestionCardWithLabel(
-      'address-q',
+      SAMPLE_QUESTIONS.address,
       'required question',
     )
     await validateScreenshot(
@@ -191,22 +175,19 @@ test.describe('admin program view page', () => {
   test('view program, view multiple blocks, then start editing', async ({
     page,
     adminPrograms,
-    adminQuestions,
+    seeding,
   }) => {
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'esri_address_correction_enabled')
 
     const programName = 'Apc program'
-    await adminQuestions.addAddressQuestion({questionName: 'address-q'})
-    await adminQuestions.addDateQuestion({questionName: 'date-q'})
-    await adminQuestions.addEmailQuestion({questionName: 'email-q'})
-
     await adminPrograms.addProgram(programName)
     await adminPrograms.addProgramBlock(programName, 'screen 2 description', [])
     await adminPrograms.editProgramBlock(programName, 'dummy description', [
-      'address-q',
-      'date-q',
-      'email-q',
+      SAMPLE_QUESTIONS.address,
+      SAMPLE_QUESTIONS.date,
+      SAMPLE_QUESTIONS.email,
     ])
     await adminPrograms.publishAllDrafts()
 
@@ -218,19 +199,19 @@ test.describe('admin program view page', () => {
     await adminPrograms.expectReadOnlyProgramBlock('2')
 
     await adminPrograms.expectQuestionCardWithLabel(
-      'address-q',
+      SAMPLE_QUESTIONS.address,
       'required question',
     )
     await adminPrograms.expectQuestionCardWithLabel(
-      'address-q',
+      SAMPLE_QUESTIONS.address,
       'address correction: disabled',
     )
     await adminPrograms.expectQuestionCardWithLabel(
-      'date-q',
+      SAMPLE_QUESTIONS.date,
       'required question',
     )
     await adminPrograms.expectQuestionCardWithLabel(
-      'email-q',
+      SAMPLE_QUESTIONS.email,
       'required question',
     )
 
@@ -279,38 +260,31 @@ test.describe('admin program view page', () => {
   test('admin views application with long text answer', async ({
     page,
     adminPrograms,
-    adminQuestions,
     applicantQuestions,
+    seeding,
   }) => {
     const ProgramWithLongText = 'longTextProgram'
     const longParagraph =
       'Fur seals and sea lions make up the family Otariidae. Along with the Phocidae and Odobenidae, ottariids are pinnipeds descending from a common ancestor most closely related to modern bears (as hinted by the subfamily Arctocephalinae, meaning "bear-headed"). The name pinniped refers to mammals with front and rear flippers. Otariids arose about 15-17 million years ago in the Miocene, and were originally land mammals that rapidly diversified and adapted to a marine environment, giving rise to the semiaquatic marine mammals that thrive today. Fur seals and sea lions are closely related and commonly known together as the "eared seals". Until recently, fur seals were all grouped under a single subfamily of Pinnipedia, called the Arctocephalinae, to contrast them with Otariinae – the sea lions – based on the most prominent common feature, namely the coat of dense underfur intermixed with guard hairs. Recent genetic evidence, however, suggests Callorhinus is more closely related to some sea lion species, and the fur seal/sea lion subfamily distinction has been eliminated from many taxonomies. Nonetheless, all fur seals have certain features in common: the fur, generally smaller sizes, farther and longer foraging trips, smaller and more abundant prey items, and greater sexual dimorphism. For these reasons, the distinction remains useful. Fur seals comprise two genera: Callorhinus, and Arctocephalus. Callorhinus is represented by just one species in the Northern Hemisphere, the northern fur seal (Callorhinus ursinus), and Arctocephalus is represented by eight species in the Southern Hemisphere. The southern fur seals comprising the genus Arctocephalus include Antarctic fur seals, Galapagos fur seals, Juan Fernandez fur seals, New Zealand fur seals, brown fur seals, South American fur seals, and subantarctic fur seals.'
 
     await test.step('create a new program', async () => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
       await adminPrograms.addProgram(ProgramWithLongText)
-
-      await adminQuestions.addTextQuestion({
-        questionName: 'long-text',
-        questionText: 'long text question',
-      })
-      await adminQuestions.addAddressQuestion({questionName: 'address-1'})
-      await adminQuestions.addDateQuestion({questionName: 'date-2'})
-      await adminQuestions.addEmailQuestion({questionName: 'email-3'})
 
       await adminPrograms.editProgramBlockUsingSpec(ProgramWithLongText, {
         name: 'First Block',
         description: 'First block',
-        questions: [{name: 'long-text', isOptional: false}],
+        questions: [{name: SAMPLE_QUESTIONS.text, isOptional: false}],
       })
 
       await adminPrograms.editProgramBlockUsingSpec(ProgramWithLongText, {
         name: 'Second Block',
         description: 'Second block',
         questions: [
-          {name: 'address-1', isOptional: false},
-          {name: 'date-2', isOptional: false},
-          {name: 'email-3', isOptional: false},
+          {name: SAMPLE_QUESTIONS.address, isOptional: false},
+          {name: SAMPLE_QUESTIONS.date, isOptional: false},
+          {name: SAMPLE_QUESTIONS.email, isOptional: false},
         ],
       })
       await adminPrograms.publishAllDrafts()
@@ -342,7 +316,10 @@ test.describe('admin program view page', () => {
     await test.step('Admin views applications and verifies answer', async () => {
       await loginAsProgramAdmin(page)
       await adminPrograms.viewApplications(ProgramWithLongText)
-      await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
+      // The sample email question carries the primary-applicant-info email
+      // tag, so the answered email replaces the account email as the
+      // applicant's display name.
+      await adminPrograms.viewApplicationForApplicant('test@example.com')
 
       await validateScreenshot(page, 'admin-view-application-long-text-answer')
     })
