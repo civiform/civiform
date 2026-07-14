@@ -1228,6 +1228,10 @@ alert.repeatedSet.previouslyUsed=
 button.repeatedSet.submitNew=
 # Button for admins to add a new repeated set
 button.repeatedSet.addNew=
+# Button label on the initial question card that clears the selection
+button.repeatedSet.initialQuestion.delete=
+# Screen-reader-only aria-label for the Delete button on the initial question card. {0} is the question's admin identifier.
+button.repeatedSet.initialQuestion.removeAriaLabel=
 # Text letting admins know which block represents the group of screens for repeating questions
 text.repeatedSet=
 # Text letting admins know which block represents the group of screens for nested repeating questions
