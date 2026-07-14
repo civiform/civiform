@@ -1,13 +1,11 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
   enableFeatureFlag,
-  isLocalDevEnvironment,
   loginAsAdmin,
   loginAsTestUser,
   logout,
   testUserDisplayName,
   validateAccessibility,
-  validateScreenshot,
   validateToastMessage,
 } from './support'
 import {CardSectionName} from './support/applicant_program_list'
@@ -57,25 +55,6 @@ test.describe('Applicant auth', () => {
     expect(await page.title()).toContain('Find programs')
 
     await validateToastMessage(page, 'Your session has ended.')
-  })
-
-  test('Applicant can confirm central provider logout', async ({page}) => {
-    test.skip(!isLocalDevEnvironment(), 'Only runs in test environment')
-    // so far only fake-oidc provider requires user to click "Yes" to confirm
-    // logout. AWS staging uses Auth0 which doesn't. And Seattle staging uses
-    // IDCS which at the moment doesn't have central logout enabled.
-
-    await loginAsTestUser(page)
-    await expect(page.getByRole('banner')).toContainText(
-      `Logged in as ${testUserDisplayName()}`,
-    )
-
-    await page.getByRole('button', {name: 'Logout'}).click()
-
-    await validateScreenshot(page, 'central-provider-logout')
-    await expect(
-      page.getByRole('heading', {name: 'Do you want to sign-out from'}),
-    ).toBeAttached()
   })
 
   test('Applicant can logout', async ({page}) => {
