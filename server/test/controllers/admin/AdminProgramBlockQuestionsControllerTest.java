@@ -80,10 +80,9 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
 
   @Test
   public void create_addEnumeratorWithInitialQuestion_addsInitialQuestionToBlock()
-      throws ProgramBlockDefinitionNotFoundException,
-          ProgramNotFoundException,
-          UnsupportedQuestionTypeException {
-    var enumeratorQuestionModel = testQuestionBank.enumeratorWithInitialQuestionNotCached();
+      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException {
+    var enumeratorQuestionModel =
+        testQuestionBank.enumeratorWithInitialQuestionApplicantHouseholdPlantNames();
     long enumeratorId = enumeratorQuestionModel.id;
     long initialQuestionId =
         enumeratorQuestionModel
