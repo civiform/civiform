@@ -84,7 +84,7 @@
               <ul
                 th:if="${fileUploadQuestion.getFileKeyListValue().isPresent()}"
                 data-th-attr="data-uploaded-files=${fileUploadViewStrategy.getUploadedFileData(fileUploadQuestion)}, aria-label=#{label.uploadedFiles}"
-                class="grid"
+                class="usa-list--unstyled"
               >
                 <li
                   th:each="fileKey, iter: ${fileUploadQuestion.getFileKeyListValue().get()}"
@@ -96,6 +96,7 @@
                     class="overflow-hidden grid-col flex-fill"
                   ></span>
                   <a
+                    class="usa-link"
                     th:text="#{link.removeFile}"
                     th:aria-label="#{link.removeFileSr(${fileName})}"
                     role="button"
@@ -113,7 +114,7 @@
             </form>
 
             <!--/* Hidden forms that allow users to pass through without submitting a file.  */-->
-            <div class="hidden">
+            <div class="display-none">
               <form
                 id="cf-fileupload-continue-form"
                 method="POST"
