@@ -86,6 +86,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
   public Result create(Request request, long programId, long blockId) {
     requestChecker.throwIfProgramNotDraft(programId);
+    boolean enumeratorImprovementsEnabled =
+        settingsManifest.getEnumeratorImprovementsEnabled(request);
 
     DynamicForm requestData = formFactory.form().bindFromRequest(request);
     ImmutableList<Long> questionIds =
@@ -95,7 +97,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
             .map(Long::valueOf)
             .collect(ImmutableList.toImmutableList());
 
-    // The users' browser may be out of date. Find the last revision of each question.
+    // The user's browser may be out of date. Find the last revision of each question.
     ImmutableList.Builder<Long> idBuilder = new ImmutableList.Builder<Long>();
     boolean addedEnumeratorQuestion = false;
     for (Long qId : questionIds) {
@@ -103,7 +105,12 @@ public class AdminProgramBlockQuestionsController extends Controller {
       if (latestQuestion.isEmpty()) {
         return notFound(String.format("Question ID %s not found", qId));
       }
-      idBuilder.add(latestQuestion.get().id);
+      QuestionModel question = latestQuestion.get();
+      idBuilder.add(question.id);
+      // If adding a new-flow enumerator, also add its initial question.
+      if (enumeratorImprovementsEnabled) {
+        question.getQuestionDefinition().getEnumeratorInitialQuestionId().ifPresent(idBuilder::add);
+      }
       if (latestQuestion.get().getQuestionDefinition().isEnumerator()) {
         addedEnumeratorQuestion = true;
       }
@@ -117,7 +124,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
           programId,
           blockId,
           latestQuestionIds,
-          settingsManifest.getEnumeratorImprovementsEnabled(request),
+          enumeratorImprovementsEnabled,
           settingsManifest.getFileUploadQuestionImprovementsEnabled(request));
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
@@ -217,20 +224,23 @@ public class AdminProgramBlockQuestionsController extends Controller {
 
     try {
       // TODO (#13548): Remove this condition once initialQuestionId is required
-      programDefinition =
+      ImmutableList<Long> questionIds =
           optionalEnumAndInitialQuestion.isPresent()
-              ? programService.addQuestionsToBlock(
-                  programId,
-                  blockId,
-                  optionalEnumAndInitialQuestion.get(),
-                  settingsManifest.getEnumeratorImprovementsEnabled(request),
-                  settingsManifest.getFileUploadQuestionImprovementsEnabled(request))
-              : programService.addQuestionsToBlock(
-                  programId,
-                  blockId,
-                  ImmutableList.of(persistedEnumeratorQuestion.getId()),
-                  settingsManifest.getEnumeratorImprovementsEnabled(request),
-                  settingsManifest.getFileUploadQuestionImprovementsEnabled(request));
+              ?
+              // The enum must come before the initial question as the validation
+              // will require the enum to be present for the initial question.
+              ImmutableList.of(
+                  optionalEnumAndInitialQuestion.get().enumeratorQuestion().getId(),
+                  optionalEnumAndInitialQuestion.get().initialQuestion().getId())
+              : ImmutableList.of(persistedEnumeratorQuestion.getId());
+
+      programDefinition =
+          programService.addQuestionsToBlock(
+              programId,
+              blockId,
+              questionIds,
+              settingsManifest.getEnumeratorImprovementsEnabled(request),
+              settingsManifest.getFileUploadQuestionImprovementsEnabled(request));
       blockDefinition = programDefinition.getBlockDefinition(blockId);
       programQuestionDefinition =
           blockDefinition.programQuestionDefinitions().stream()

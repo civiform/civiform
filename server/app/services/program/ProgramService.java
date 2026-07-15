@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
@@ -58,7 +59,6 @@ import services.pagination.BasePaginationSpec;
 import services.pagination.PaginationResult;
 import services.program.predicate.PredicateDefinition;
 import services.question.QuestionService;
-import services.question.QuestionService.EnumAndInitialQuestion;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
@@ -1605,9 +1605,14 @@ public final class ProgramService {
   /**
    * Update a {@link BlockDefinition} to include additional questions.
    *
+   * <p>Questions in {@code questionIds} are added in the specified order.
+   *
+   * <p>Enforces that the block is correctly configured and will not allow incorrect configurations,
+   * such as tombstoned questions, multiple enumerators, other questions with enumerators.
+   *
    * @param programId the ID of the program to update
    * @param blockDefinitionId the ID of the block to update
-   * @param questionIds an {@link ImmutableList} of question IDs for the block
+   * @param questionIds the questions to add
    * @return the updated {@link ProgramDefinition}
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
@@ -1618,50 +1623,6 @@ public final class ProgramService {
       long programId,
       long blockDefinitionId,
       ImmutableList<Long> questionIds,
-      boolean enumeratorImprovementsEnabled,
-      boolean fileUploadQuestionImprovementsEnabled)
-      throws CantAddQuestionToBlockException,
-          ProgramNotFoundException,
-          ProgramBlockDefinitionNotFoundException {
-    return addQuestionsToBlockInternal(
-        programId,
-        blockDefinitionId,
-        questionIds,
-        /* initialQuestionId= */ Optional.empty(),
-        enumeratorImprovementsEnabled,
-        fileUploadQuestionImprovementsEnabled);
-  }
-
-  /**
-   * Adds an enumerator question and its initial question to a block in one call. The pair type
-   * enforces the ordering that the block validation depends on (enumerator added first so the
-   * initial question's enumeratorId match sees it).
-   */
-  public ProgramDefinition addQuestionsToBlock(
-      long programId,
-      long blockDefinitionId,
-      EnumAndInitialQuestion enumAndInitialQuestion,
-      boolean enumeratorImprovementsEnabled,
-      boolean fileUploadQuestionImprovementsEnabled)
-      throws CantAddQuestionToBlockException,
-          ProgramNotFoundException,
-          ProgramBlockDefinitionNotFoundException {
-    return addQuestionsToBlockInternal(
-        programId,
-        blockDefinitionId,
-        ImmutableList.of(
-            enumAndInitialQuestion.enumeratorQuestion().getId(),
-            enumAndInitialQuestion.initialQuestion().getId()),
-        Optional.of(enumAndInitialQuestion.initialQuestion().getId()),
-        enumeratorImprovementsEnabled,
-        fileUploadQuestionImprovementsEnabled);
-  }
-
-  private ProgramDefinition addQuestionsToBlockInternal(
-      long programId,
-      long blockDefinitionId,
-      ImmutableList<Long> questionIds,
-      Optional<Long> initialQuestionId,
       boolean enumeratorImprovementsEnabled,
       boolean fileUploadQuestionImprovementsEnabled)
       throws CantAddQuestionToBlockException,
@@ -1679,8 +1640,13 @@ public final class ProgramService {
     ReadOnlyQuestionService roQuestionService =
         questionService.getReadOnlyQuestionService().toCompletableFuture().join();
 
+    Set<Long> newFlowEnumIds = new HashSet<>();
     for (long questionId : questionIds) {
       QuestionDefinition questionDefinition = roQuestionService.getQuestionDefinition(questionId);
+      if (questionDefinition.isEnumerator()
+          && questionDefinition.getEnumeratorInitialQuestionId().isPresent()) {
+        newFlowEnumIds.add(questionId);
+      }
 
       // If this is a repeated block and the question is not repeated
       // Create a new question that is a copy and save that question before adding it to the block.
@@ -1694,6 +1660,8 @@ public final class ProgramService {
 
       ProgramQuestionDefinition question =
           ProgramQuestionDefinition.create(questionDefinition, Optional.of(programId));
+      boolean isInitialQuestion =
+          questionDefinition.getEnumeratorId().map(newFlowEnumIds::contains).orElse(false);
       AddQuestionResult canAddQuestion =
           programBlockValidationFactory
               .create()
@@ -1703,8 +1671,7 @@ public final class ProgramService {
                   question.getQuestionDefinition(),
                   enumeratorImprovementsEnabled,
                   fileUploadQuestionImprovementsEnabled,
-                  /* isInitialQuestionSelection= */ initialQuestionId.isPresent()
-                      && initialQuestionId.get() == questionId);
+                  isInitialQuestion);
       if (canAddQuestion != AddQuestionResult.ELIGIBLE) {
         throw new CantAddQuestionToBlockException(
             programDefinition, blockDefinition, question.getQuestionDefinition(), canAddQuestion);

@@ -212,6 +212,43 @@ public class TestQuestionBank {
         this::enumeratorNestedApplicantHouseholdMemberJobs);
   }
 
+  /**
+   * Creates an new-flow enumerator and an initial question that each reference the other.
+   *
+   * <p>Because this is a transitional new alternative to the ENUMERATOR type it can't be cached as
+   * the cache is keyed by question type.
+   */
+  public QuestionModel enumeratorWithInitialQuestionNotCached()
+      throws UnsupportedQuestionTypeException {
+    QuestionDefinition initialQuestion =
+        new TextQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("plant species")
+                .setDescription("The species of the plant")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What species is this plant?"))
+                .build());
+    var initialQuestionModel = maybeSave(initialQuestion);
+
+    QuestionDefinition enumeratorQuestion =
+        new EnumeratorQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("household plants")
+                .setDescription("The names of the plants in the household")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "List your household plants"))
+                .setEnumeratorInitialQuestionId(initialQuestionModel.id)
+                .build(),
+            LocalizedStrings.empty());
+    var enumeratorQuestionModel = maybeSave(enumeratorQuestion);
+
+    var updatedEnumeratorQuestionModel =
+        new QuestionModel(
+            new QuestionDefinitionBuilder(enumeratorQuestionModel.getQuestionDefinition())
+                .setEnumeratorInitialQuestionId(Optional.of(initialQuestionModel.id))
+                .build());
+    updatedEnumeratorQuestionModel.update();
+    return updatedEnumeratorQuestionModel;
+  }
+
   /** Returns a sample FILE_UPLOAD question. */
   public QuestionModel fileUploadApplicantFile() {
     return questionCache.computeIfAbsent(

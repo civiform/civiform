@@ -79,6 +79,39 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void create_addEnumeratorWithInitialQuestion_addsInitialQuestionToBlock()
+      throws ProgramBlockDefinitionNotFoundException,
+          ProgramNotFoundException,
+          UnsupportedQuestionTypeException {
+    var enumeratorQuestionModel = testQuestionBank.enumeratorWithInitialQuestionNotCached();
+    long enumeratorId = enumeratorQuestionModel.id;
+    long initialQuestionId =
+        enumeratorQuestionModel
+            .getQuestionDefinition()
+            .getEnumeratorInitialQuestionId()
+            .orElseThrow();
+
+    ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
+
+    // Execute. Submit only the enumerator question to the block.
+    Request request =
+        fakeRequestBuilder()
+            .call(
+                controllers.admin.routes.AdminProgramBlockQuestionsController.create(program.id, 1))
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
+            .bodyForm(ImmutableMap.of("question-", String.valueOf(enumeratorId)))
+            .build();
+    Result result = controller.create(request, program.id, 1);
+
+    // Verify.
+    assertThat(result.status()).withFailMessage(contentAsString(result)).isEqualTo(SEE_OTHER);
+    BlockDefinition blockAfter =
+        programService.getFullProgramDefinition(program.id).getBlockDefinition(1L);
+    assertThat(blockAfter.programQuestionDefinitions().stream().map(ProgramQuestionDefinition::id))
+        .containsExactly(enumeratorId, initialQuestionId);
+  }
+
+  @Test
   public void hxCreateEnumerator_addsNewEnumeratorQuestionToBlock()
       throws ProgramBlockDefinitionNotFoundException {
 
