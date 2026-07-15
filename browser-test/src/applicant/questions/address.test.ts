@@ -1,25 +1,27 @@
 import {Page} from '@playwright/test'
 import {test, expect} from '../../support/civiform_fixtures'
 import {
-  AdminPrograms,
-  AdminQuestions,
   loginAsAdmin,
   logout,
   validateAccessibility,
   validateScreenshot,
 } from '../../support'
+import {SAMPLE_QUESTIONS} from '../../support/seeding'
 
 test.describe('address applicant flow', () => {
   test.describe('single required address question', () => {
     const programName = 'Test program for single address'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      await setUpProgramWithSingleAddressQuestion(
-        page,
-        adminQuestions,
-        adminPrograms,
+    test.beforeEach(async ({page, adminPrograms, seeding}) => {
+      await seeding.seedQuestions()
+      await loginAsAdmin(page)
+
+      await adminPrograms.addAndPublishProgramWithQuestions(
+        [SAMPLE_QUESTIONS.address],
         programName,
       )
+
+      await logout(page)
     })
 
     test('with valid address does submit', async ({
@@ -131,21 +133,17 @@ test.describe('address applicant flow', () => {
   test.describe('multiple address questions', () => {
     const programName = 'Test program for multiple addresses'
 
-    test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
+    test.beforeEach(async ({page, adminPrograms, adminQuestions, seeding}) => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
 
-      await adminQuestions.addAddressQuestion({
-        questionName: 'address-test-a-q',
-        description: '',
-        questionText: 'Question A',
-      })
       await adminQuestions.addAddressQuestion({
         questionName: 'address-test-b-q',
         description: '',
         questionText: 'Question B',
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
-        ['address-test-a-q', 'address-test-b-q'],
+        [SAMPLE_QUESTIONS.address, 'address-test-b-q'],
         programName,
       )
 
@@ -227,7 +225,7 @@ test.describe('address applicant flow', () => {
       // Expect the application did NOT advance to the summary page
       await expect(page.getByText('1 of 2')).toBeVisible() // Page 1 of 2
       await expect(page.getByText('Screen 1')).toBeVisible()
-      await expect(page.getByText('Question A')).toBeVisible()
+      await expect(page.getByText('What is your address?')).toBeVisible()
       await expect(
         page.locator('[data-testid="questionRoot"]').nth(0),
       ).toBeVisible()
@@ -257,13 +255,10 @@ test.describe('address applicant flow', () => {
   test.describe('optional address question', () => {
     const programName = 'Test program for optional address'
 
-    test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
+    test.beforeEach(async ({page, adminPrograms, adminQuestions, seeding}) => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
 
-      await adminQuestions.addAddressQuestion({
-        questionName: 'address-test-optional-q',
-        questionText: 'Optional Question',
-      })
       await adminQuestions.addAddressQuestion({
         questionName: 'address-test-required-q',
         questionText: 'Required Question',
@@ -273,7 +268,7 @@ test.describe('address applicant flow', () => {
         programName,
         'Optional question block',
         ['address-test-required-q'],
-        'address-test-optional-q',
+        SAMPLE_QUESTIONS.address, // optional
       )
       await adminPrograms.publishAllDrafts()
 
@@ -359,25 +354,6 @@ test.describe('address applicant flow', () => {
       await expectQuestionHasGroupErrors(page, 1)
     })
   })
-
-  async function setUpProgramWithSingleAddressQuestion(
-    page: Page,
-    adminQuestions: AdminQuestions,
-    adminPrograms: AdminPrograms,
-    programName: string,
-  ) {
-    await loginAsAdmin(page)
-
-    await adminQuestions.addAddressQuestion({
-      questionName: 'address-test-q',
-    })
-    await adminPrograms.addAndPublishProgramWithQuestions(
-      ['address-test-q'],
-      programName,
-    )
-
-    await logout(page)
-  }
 
   // index: The index of the question of this type on the page. For example, on a page with 2 address
   // questions, the top question is index 0. The second question is index 1.

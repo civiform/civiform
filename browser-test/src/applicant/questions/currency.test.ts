@@ -1,13 +1,11 @@
-import {Page} from '@playwright/test'
 import {test, expect} from '../../support/civiform_fixtures'
 import {
-  AdminPrograms,
-  AdminQuestions,
   loginAsAdmin,
   logout,
   validateAccessibility,
   validateScreenshot,
 } from '../../support'
+import {SAMPLE_QUESTIONS} from '../../support/seeding'
 
 test.describe('currency applicant flow', () => {
   const validCurrency = '1000'
@@ -19,13 +17,16 @@ test.describe('currency applicant flow', () => {
   test.describe('single currency question', () => {
     const programName = 'Test program for single currency'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      await setUpSingleCurrencyQuestion(
+    test.beforeEach(async ({page, adminPrograms, seeding}) => {
+      await seeding.seedQuestions()
+      await loginAsAdmin(page)
+
+      await adminPrograms.addAndPublishProgramWithQuestions(
+        [SAMPLE_QUESTIONS.currency],
         programName,
-        page,
-        adminQuestions,
-        adminPrograms,
       )
+
+      await logout(page)
     })
 
     test('validate screenshot', async ({page, applicantQuestions}) => {
@@ -85,12 +86,10 @@ test.describe('currency applicant flow', () => {
   test.describe('multiple currency questions', () => {
     const programName = 'Test program for multiple currencies'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+    test.beforeEach(async ({page, adminQuestions, adminPrograms, seeding}) => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
 
-      await adminQuestions.addCurrencyQuestion({
-        questionName: 'currency-a-q',
-      })
       await adminQuestions.addCurrencyQuestion({
         questionName: 'currency-b-q',
       })
@@ -100,7 +99,7 @@ test.describe('currency applicant flow', () => {
         programName,
         'Optional question block',
         ['currency-b-q'],
-        'currency-a-q', // optional
+        SAMPLE_QUESTIONS.currency, // optional
       )
       await adminPrograms.publishAllDrafts()
 
@@ -154,21 +153,4 @@ test.describe('currency applicant flow', () => {
       await expect(page.getByText(currencyError)).toBeVisible()
     })
   })
-
-  async function setUpSingleCurrencyQuestion(
-    programName: string,
-    page: Page,
-    adminQuestions: AdminQuestions,
-    adminPrograms: AdminPrograms,
-  ) {
-    await loginAsAdmin(page)
-
-    await adminQuestions.addCurrencyQuestion({questionName: 'currency-q'})
-    await adminPrograms.addAndPublishProgramWithQuestions(
-      ['currency-q'],
-      programName,
-    )
-
-    await logout(page)
-  }
 })
