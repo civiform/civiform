@@ -188,22 +188,69 @@ public final class DateQuestion extends AbstractQuestion {
   }
 
   public Optional<Integer> getMonthValue() {
-    return getDateValue()
-        .map(localDate -> Optional.of(localDate.getMonthValue()))
-        .orElse(Optional.empty());
+    if(getDateValue().isPresent()){
+      return Optional.of(getDateValue().get().getMonthValue());
+    }else{
+      return getDatePartFromFailedUpdates(1);
+    }
   }
 
   public Optional<Integer> getYearValue() {
-    return getDateValue()
-        .map(localDate -> Optional.of(localDate.getYear()))
-        .orElse(Optional.empty());
+    if(getDateValue().isPresent()){
+      return Optional.of(getDateValue().get().getYear());
+    }else{
+      return getDatePartFromFailedUpdates(0);
+    }
   }
 
   public Optional<Integer> getDayValue() {
-    return getDateValue()
-        .map(localDate -> Optional.of(localDate.getDayOfMonth()))
-        .orElse(Optional.empty());
+    if(getDateValue().isPresent()){
+      return Optional.of(getDateValue().get().getDayOfMonth());
+    }else{
+      return getDatePartFromFailedUpdates(2);
+    }
   }
+
+  /**
+   * Returns a part of the date that the user entered and failed to parse.
+   * Used to re-populate the date fields in the UI after a failed update attempt.
+   *
+   * @param index 0 for year, 1 for month, 2 for day.
+   * @return Optional<Integer> containing the requested part of the date that the user entered and failed to parse. 
+   *         Returns empty if the index is out of bounds, the date part couldn't be parsed or if the update did not fail.
+   */
+  private Optional<Integer> getDatePartFromFailedUpdates(int index) {
+    if (index < 0 || index > 2) {
+      return Optional.empty();
+    }
+
+  ApplicantData applicantData = getApplicantQuestion().getApplicantData();
+    if (!applicantData.updateDidFailAt(getDatePath())) {
+      return Optional.empty();
+    }
+  
+  // This contains the raw user input for the date, formatted as "YYYY-MM-DD".
+  String failedDate = applicantData.getFailedUpdates().get(getDatePath());
+
+  if(failedDate == null){
+    return Optional.empty();
+  }
+
+  String[] parts = failedDate.split("-", -1);
+  if(parts.length != 3){
+    return Optional.empty();
+  }
+
+  if(parts[index].isEmpty()){
+    return Optional.empty();
+  }
+
+  try{
+    return Optional.of(Integer.parseInt(parts[index]));
+  }catch(NumberFormatException e){
+    return Optional.empty();
+  }
+}
 
   public DateQuestionDefinition getQuestionDefinition() {
     return (DateQuestionDefinition) applicantQuestion.getQuestionDefinition();
