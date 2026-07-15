@@ -10,10 +10,10 @@
   ></div>
 </th:block>
 
-<div
+<th:block
   th:fragment="titleAndHelpTextMultipleInput(question, questionId)"
-  class="margin-bottom-105"
   th:with="ariaLabelForNewTabs=#{link.opensNewTabSr}"
+  th:remove="tag"
 >
   <!--/* Question title */-->
   <legend th:id="${questionId} + '-title'" class="usa-legend display-flex">
@@ -24,9 +24,9 @@
   <div
     th:id="${questionId} + '-description'"
     th:utext="${question.getFormattedQuestionHelpText(ariaLabelForNewTabs)}"
-    class="font-sans-xs padding-top-05 cf-applicant-question-help-text"
+    class="font-sans-xs padding-top-05 cf-applicant-question-help-text margin-bottom-105"
   ></div>
-</div>
+</th:block>
 
 <div
   th:fragment="titleAndHelpTextSingleInput(question, questionId, inputId)"

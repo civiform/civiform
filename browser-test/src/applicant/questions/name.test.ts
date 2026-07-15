@@ -356,7 +356,7 @@ test.describe('name applicant flow', () => {
       questionRoot.getByText('Error: Please enter your last name.'),
     ).toBeVisible()
     await expect(questionRoot.locator('.cf-name-last')).toHaveClass(
-      'cf-name-last cf-applicant-question-field cf-question-field-with-error',
+      'cf-name-last cf-question-field-with-error',
     )
     await expect(questionRoot.locator('.cf-name-last input')).toHaveClass(
       'usa-input cf-input-large usa-input--error',
