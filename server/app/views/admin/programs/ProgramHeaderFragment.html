@@ -27,22 +27,24 @@
       th:text="${programHeader.displayTypeName()}"
     ></span>
   </p>
-  <div
-    id="program-title"
-    class="font-sans-xl padding-bottom-105"
-    th:text="${programHeader.programName()}"
-  ></div>
-  <div
-    class="font-sans-xs margin-bottom-1 cf-no-margin-padding"
-    th:utext="${programHeader.programDescription()}"
-  ></div>
-  <div class="font-sans-xs margin-bottom-1">
-    <span class="text-bold">Admin note: </span
-    ><span th:text="${programHeader.adminNote()}"></span>
-  </div>
-  <div class="font-sans-xs">
-    <span class="text-bold">Categories: </span
-    ><span th:text="${programHeader.categories()}"></span>
+  <div class="spacing-1">
+    <div
+      id="program-title"
+      class="font-sans-xl"
+      th:text="${programHeader.programName()}"
+    ></div>
+    <th:block
+      class="font-sans-xs"
+      th:utext="${programHeader.programDescription()}"
+    ></th:block>
+    <div class="font-sans-xs">
+      <span class="text-bold">Admin note: </span
+      ><span th:text="${programHeader.adminNote()}"></span>
+    </div>
+    <div class="font-sans-xs">
+      <span class="text-bold">Categories: </span
+      ><span th:text="${programHeader.categories()}"></span>
+    </div>
   </div>
   <div class="display-flex">
     <button
