@@ -36,17 +36,11 @@ https://designsystem.digital.gov/utilities/.
   $theme-show-notifications: false,
   $color-palettes: ('palette-color-system-gray-cool'),
   $background-color-palettes: ('palette-color-system-gray'),
-  // $theme-body-background-color: 'gray-3',
   $theme-utility-breakpoints: (
-      'mobile-lg': true,
-      'tablet': true,
-      'desktop': true,
-      // desktop-lg is not default
-      'desktop-lg': true
-    ),
-
-  // Disables mobile menu entirely as the admin area is not mobile friendly and
-  // we don't want it to be collapsing into a vertical menu. Making the min width mobile
-  // is the key setting for this as it defaults to desktop width size.
-  $theme-header-min-width: 'mobile'
+    'mobile-lg': true,
+    'tablet': true,
+    'desktop': true,
+    // desktop-lg is not default
+    'desktop-lg': true
+  )
 );
