@@ -2,7 +2,11 @@
 <!--/*@thymesVar id="layoutParams" type="views.shared.LayoutParams"*/-->
 <!--/*@thymesVar id="featureFlags" type="views.shared.FeatureFlags"*/-->
 <!doctype html>
-<html lang="en-US" xmlns:th="http://www.thymeleaf.org">
+<html
+  lang="en-US"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:cf="https://civiform.us/thymeleaf/cf"
+>
   <head>
     <title
       th:text="${#strings.isEmpty(templateGlobals.pageTitle()) ? 'CiviForm' : templateGlobals.pageTitle() + ' - CiviForm'}"
@@ -143,6 +147,16 @@
             class="grid-col"
             th:classappend="${layoutParams.layoutType().name() != 'CONTENT_ONLY'} ? 'desktop:grid-col-8' : ''"
           >
+            <!--/* Common region for page-level alerts. Server-rendered alerts
+                   come from templateGlobals; htmx responses swap alerts in
+                   out-of-band and client scripts insert into it directly.
+                   aria-live requires the region to exist (possibly empty) at
+                   page load for later insertions to be announced. */-->
+            <div id="alertContainer" aria-live="polite">
+              <th:block
+                th:insert="~{admin/shared/AlertFragment :: alerts(${templateGlobals.pageAlerts()})}"
+              ></th:block>
+            </div>
             <th:block
               th:insert="~{${layoutParams.pageTemplate()} :: content}"
             ></th:block>

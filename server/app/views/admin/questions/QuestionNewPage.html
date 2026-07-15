@@ -5,11 +5,6 @@
   xmlns:th="http://www.thymeleaf.org"
   xmlns:cf="https://civiform.us/thymeleaf/cf"
 >
-  <!--/* Error message */-->
-  <cf:alert th:if="${model.errorMessage.isPresent()}" type="error" slim="true">
-    <text th:text="${model.errorMessage.get()}">placeholder</text>
-  </cf:alert>
-
   <!--/* Left column: form */-->
   <div id="question-form" hx-ext="response-targets">
     <form

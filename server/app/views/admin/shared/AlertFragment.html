@@ -1,0 +1,28 @@
+<!--/* Renders page-level alerts. The layout inserts the `alerts` fragment
+       into #alertContainer for server-side rendering; htmx partial responses
+       include the `oobAlerts` fragment to swap alerts into the same container
+       out-of-band. */-->
+<th:block th:fragment="alerts(alerts)" xmlns:th="http://www.thymeleaf.org">
+  <div
+    th:each="alert : ${alerts}"
+    th:class="'usa-alert usa-alert--slim usa-alert--' + ${alert.typeClass()}"
+  >
+    <div class="usa-alert__body">
+      <p class="usa-alert__text" th:text="${alert.text()}"></p>
+    </div>
+  </div>
+</th:block>
+
+<!--/* Out-of-band carrier for htmx responses. htmx matches this element to
+       the layout's #alertContainer by id and replaces that container's
+       children with this element's children. */-->
+<div
+  th:fragment="oobAlerts(alerts)"
+  id="alertContainer"
+  hx-swap-oob="innerHTML"
+  xmlns:th="http://www.thymeleaf.org"
+>
+  <th:block
+    th:insert="~{admin/shared/AlertFragment :: alerts(${alerts})}"
+  ></th:block>
+</div>

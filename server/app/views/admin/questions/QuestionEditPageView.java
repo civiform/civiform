@@ -7,6 +7,7 @@ import views.LayoutType;
 import views.admin.AdminLayout;
 import views.admin.AdminLayoutBaseView;
 import views.shared.LayoutDeps;
+import views.shared.PageAlert;
 import views.shared.ScriptElementSettings;
 
 /** Thymeleaf view for the edit question page. */
@@ -15,6 +16,15 @@ public final class QuestionEditPageView extends AdminLayoutBaseView<QuestionEdit
   @Inject
   public QuestionEditPageView(LayoutDeps adminLayoutDeps) {
     super(adminLayoutDeps);
+  }
+
+  @Override
+  protected ImmutableList<PageAlert> pageAlerts(QuestionEditPageViewModel model) {
+    return model
+        .getErrorMessage()
+        .map(PageAlert::error)
+        .map(ImmutableList::of)
+        .orElse(ImmutableList.of());
   }
 
   @Override

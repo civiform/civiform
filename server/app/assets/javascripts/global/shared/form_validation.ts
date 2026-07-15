@@ -1,7 +1,10 @@
 import {assertNotNull} from '@/util'
 import {HtmxConfirmEvent} from '@/types/htmx'
+import {AlertContainer, ErrorSummaryItem} from '@/global/shared/alert_container'
 
 type FormControl = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+
+const ERROR_SUMMARY_HEADING = 'Please fix the following errors'
 
 type CheckableInput = HTMLInputElement & {type: 'checkbox' | 'radio'}
 
@@ -102,13 +105,44 @@ export class FormValidation {
       })
 
     if (!isValid) {
-      form
-        .querySelector('.usa-form-group--error')
-        ?.querySelector<FormControl>('input,textarea,select')
-        ?.focus()
+      if (!this.showErrorSummary(form)) {
+        // No alert container on this page: fall back to focusing the first
+        // errored control directly.
+        form
+          .querySelector('.usa-form-group--error')
+          ?.querySelector<FormControl>('input,textarea,select')
+          ?.focus()
+      }
+    } else {
+      AlertContainer.clear()
     }
 
     return isValid
+  }
+
+  /**
+   * Builds a page-level error summary from the errored form groups and shows
+   * it in the layout's alert container. Field-level messages stay inline next
+   * to their controls; the summary links back to each failing control.
+   *
+   * @returns false when the page has no alert container.
+   */
+  private showErrorSummary(form: HTMLFormElement): boolean {
+    const items: ErrorSummaryItem[] = []
+
+    form.querySelectorAll('.usa-form-group--error').forEach((group) => {
+      const message =
+        group.querySelector('.usa-error-message')?.textContent ?? ''
+
+      if (message === '') {
+        return
+      }
+
+      const control = group.querySelector<FormControl>('input,textarea,select')
+      items.push({message, controlId: control?.id || undefined})
+    })
+
+    return AlertContainer.showErrorSummary(ERROR_SUMMARY_HEADING, items)
   }
 
   /**

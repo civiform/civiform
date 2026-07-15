@@ -1,5 +1,10 @@
 <!--/*@thymesVar id="model" type="views.admin.programs.predicates.FailedRequestPartialViewModel"*/-->
 
-<div
-  th:replace="~{admin/programs/predicates/PredicateAlertFragment :: failedRequestAlert()}"
-></div>
+<!--/* Swapped out-of-band into the layout's #alertContainer. The controller
+       sends HX-Reswap: none with this partial so the hx-target (the
+       conditions list) is left untouched. */-->
+<div id="alertContainer" hx-swap-oob="innerHTML">
+  <div
+    th:replace="~{admin/programs/predicates/PredicateAlertFragment :: failedRequestAlert()}"
+  ></div>
+</div>

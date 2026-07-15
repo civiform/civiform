@@ -518,6 +518,74 @@ describe('FormValidation', () => {
     })
   })
 
+  describe('error summary', () => {
+    function createAlertContainer(): HTMLElement {
+      const container = document.createElement('div')
+      container.id = 'alertContainer'
+      document.body.appendChild(container)
+      return container
+    }
+
+    it('shows a summary in the alert container on invalid submit', () => {
+      const container = createAlertContainer()
+      const form = createForm(
+        createFormGroup('<input id="first" type="text" required />'),
+      )
+      initFormValidation()
+
+      submit(form)
+
+      const alert = container.querySelector('.usa-alert')!
+      expect(alert.classList.contains('usa-alert--error')).toBe(true)
+      expect(alert.querySelectorAll('li').length).toBe(1)
+    })
+
+    it('links each summary entry to its control', () => {
+      createAlertContainer()
+      const html =
+        createFormGroup('<input id="first" type="text" required />') +
+        createFormGroup('<input id="second" type="text" required />')
+      const form = createForm(html)
+      initFormValidation()
+
+      submit(form)
+
+      const links = document.querySelectorAll<HTMLAnchorElement>(
+        '#alertContainer li a',
+      )
+      expect(links.length).toBe(2)
+      expect(links[0].getAttribute('href')).toBe('#first')
+      expect(links[1].getAttribute('href')).toBe('#second')
+    })
+
+    it('focuses the summary instead of the first control', () => {
+      const container = createAlertContainer()
+      const form = createForm(
+        createFormGroup('<input id="first" type="text" required />'),
+      )
+      initFormValidation()
+
+      submit(form)
+
+      expect(document.activeElement).toBe(container.querySelector('.usa-alert'))
+    })
+
+    it('clears the alert container on valid submit', () => {
+      const container = createAlertContainer()
+      const form = createForm(
+        createFormGroup('<input id="first" type="text" required />'),
+      )
+      initFormValidation()
+
+      submit(form)
+      expect(container.children.length).toBe(1)
+
+      form.querySelector('input')!.value = 'hello'
+      submit(form)
+      expect(container.children.length).toBe(0)
+    })
+  })
+
   describe('dynamic forms', () => {
     it('configures controls added after initialization', async () => {
       const form = createForm('', 'dynamic')

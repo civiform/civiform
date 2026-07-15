@@ -1,5 +1,6 @@
 package views.shared;
 
+import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import lombok.Builder;
 
@@ -9,6 +10,7 @@ import lombok.Builder;
  * @param pageTitle Page title shown in browser window/tab
  * @param pageHeading Page heading shown on the page's H1 element
  * @param pageIntro Page intro shown below the {@link #pageHeading }
+ * @param pageAlerts Page-level alerts rendered by the layout into the alert container
  * @param cspNonce CSP Nonce value used for scripts and styles elements
  * @param csrfToken CSRF Token used when submitting forms
  * @param isDev Is development mode
@@ -18,6 +20,7 @@ public record TemplateGlobals(
     String pageTitle,
     String pageHeading,
     Optional<String> pageIntro,
+    ImmutableList<PageAlert> pageAlerts,
     String cspNonce,
     String csrfToken,
     Boolean isDev) {}

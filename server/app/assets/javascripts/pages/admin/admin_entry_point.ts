@@ -35,6 +35,7 @@ import * as azureUpload from '@/azure_upload'
 import htmx from '@/htmx'
 
 import {AdminProgramApiBridge} from '@/admin_program_api_bridge'
+import {AlertContainer} from '@/global/shared/alert_container'
 import {featureFlags} from '@/global/shared/feature_flags'
 import {FormValidation} from '@/global/shared/form_validation'
 
@@ -60,6 +61,7 @@ function initializeEverything(): void {
   main.init()
   radio.init()
   toast.init()
+  AlertContainer.init()
   adminApiKeys.init()
   adminApplicationView.init()
   legacyAdminPredicates.init()

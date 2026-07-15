@@ -871,8 +871,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     DynamicForm form = formFactory.form().bindFromRequest(request);
     ImmutableMap<String, String> formData = ImmutableMap.copyOf(form.rawData());
     if (formData.get("conditionId") == null) {
-      return ok(failedRequestPartialView.render(request, new FailedRequestPartialViewModel()))
-          .as(Http.MimeTypes.HTML);
+      return failedRequestResponse(request);
     }
 
     try {
@@ -931,8 +930,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     } catch (ProgramNotFoundException
         | ProgramBlockDefinitionNotFoundException
         | IllegalArgumentException e) {
-      return ok(failedRequestPartialView.render(request, new FailedRequestPartialViewModel()))
-          .as(Http.MimeTypes.HTML);
+      return failedRequestResponse(request);
     }
   }
 
@@ -949,8 +947,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     }
     DynamicForm form = formFactory.form().bindFromRequest(request);
     if (form.hasErrors() || form.get("conditionId") == null || form.get("subconditionId") == null) {
-      return ok(failedRequestPartialView.render(request, new FailedRequestPartialViewModel()))
-          .as(Http.MimeTypes.HTML);
+      return failedRequestResponse(request);
     }
 
     try {
@@ -995,8 +992,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     } catch (ProgramNotFoundException
         | ProgramBlockDefinitionNotFoundException
         | IllegalArgumentException e) {
-      return ok(failedRequestPartialView.render(request, new FailedRequestPartialViewModel()))
-          .as(Http.MimeTypes.HTML);
+      return failedRequestResponse(request);
     }
   }
 
@@ -1009,8 +1005,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     }
     DynamicForm form = formFactory.form().bindFromRequest(request);
     if (form.hasErrors() || form.get("conditionId") == null) {
-      return ok(failedRequestPartialView.render(request, new FailedRequestPartialViewModel()))
-          .as(Http.MimeTypes.HTML);
+      return failedRequestResponse(request);
     }
 
     try {
@@ -1051,8 +1046,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     } catch (ProgramNotFoundException
         | ProgramBlockDefinitionNotFoundException
         | IllegalArgumentException e) {
-      return ok(failedRequestPartialView.render(request, new FailedRequestPartialViewModel()))
-          .as(Http.MimeTypes.HTML);
+      return failedRequestResponse(request);
     }
   }
 
@@ -1069,8 +1063,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
 
     DynamicForm form = formFactory.form().bindFromRequest(request);
     if (form.hasErrors() || form.get("conditionId") == null) {
-      return ok(failedRequestPartialView.render(request, new FailedRequestPartialViewModel()))
-          .as(Http.MimeTypes.HTML);
+      return failedRequestResponse(request);
     }
     int conditionId = Integer.parseInt(form.rawData().get("conditionId"));
 
@@ -1114,8 +1107,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     } catch (ProgramBlockDefinitionNotFoundException
         | ProgramNotFoundException
         | IllegalArgumentException e) {
-      return ok(failedRequestPartialView.render(request, new FailedRequestPartialViewModel()))
-          .as(Http.MimeTypes.HTML);
+      return failedRequestResponse(request);
     }
   }
 
@@ -1131,8 +1123,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     if (form.hasErrors()
         || form.rawData().get("conditionId") == null
         || form.rawData().get("subconditionId") == null) {
-      return ok(failedRequestPartialView.render(request, new FailedRequestPartialViewModel()))
-          .as(Http.MimeTypes.HTML);
+      return failedRequestResponse(request);
     }
     Long conditionId = Long.valueOf(form.rawData().get("conditionId"));
     Long subconditionId = Long.valueOf(form.rawData().get("subconditionId"));
@@ -1188,8 +1179,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     } catch (ProgramBlockDefinitionNotFoundException
         | ProgramNotFoundException
         | IllegalArgumentException e) {
-      return ok(failedRequestPartialView.render(request, new FailedRequestPartialViewModel()))
-          .as(Http.MimeTypes.HTML);
+      return failedRequestResponse(request);
     }
   }
 
@@ -1209,6 +1199,16 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                 .predicateUseCase(PredicateUseCase.valueOf(predicateUseCase))
                 .conditions(ImmutableList.of())
                 .build()))
+        .as(Http.MimeTypes.HTML);
+  }
+
+  /**
+   * Renders the failed-request alert into the layout's #alertContainer via an out-of-band swap.
+   * HX-Reswap: none keeps the hx-target (the conditions list) untouched.
+   */
+  private Result failedRequestResponse(Request request) {
+    return ok(failedRequestPartialView.render(request, new FailedRequestPartialViewModel()))
+        .withHeader("HX-Reswap", "none")
         .as(Http.MimeTypes.HTML);
   }
 

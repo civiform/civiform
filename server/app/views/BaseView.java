@@ -13,6 +13,7 @@ import views.html.helper.CSRF;
 import views.shared.BaseViewDeps;
 import views.shared.FeatureFlags;
 import views.shared.LayoutParams;
+import views.shared.PageAlert;
 import views.shared.ScriptElementSettings;
 import views.shared.TemplateGlobals;
 
@@ -85,6 +86,15 @@ public abstract class BaseView<TModel extends BaseViewModel> {
   }
 
   /**
+   * Page-level alerts rendered by the layout into the alert container, in addition to any built
+   * automatically from the flash scope. Override to surface page specific messages, such as a
+   * validation error shown when re-rendering after a failed POST.
+   */
+  protected ImmutableList<PageAlert> pageAlerts(TModel model) {
+    return ImmutableList.of();
+  }
+
+  /**
    * Override if needing to add additional configuration to the Thymeleaf context.
    *
    * <p>Most page level values should be added to your {@code TModel} instead of being added as
@@ -131,6 +141,11 @@ public abstract class BaseView<TModel extends BaseViewModel> {
             .pageTitle(pageTitle(model, messages))
             .pageHeading(pageHeading(model, messages))
             .pageIntro(pageIntro(model, messages))
+            .pageAlerts(
+                ImmutableList.<PageAlert>builder()
+                    .addAll(PageAlert.fromFlash(request.flash()))
+                    .addAll(pageAlerts(model))
+                    .build())
             .cspNonce(CspUtil.getNonce(request))
             .csrfToken(CSRF.getToken(request.asScala()).value())
             .isDev(environment.isDev())
