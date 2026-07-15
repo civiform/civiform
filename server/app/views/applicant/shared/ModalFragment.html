@@ -14,11 +14,14 @@
   >
     <div class="usa-modal__content">
       <div class="usa-modal__main">
-        <h2 class="usa-modal__heading" id="debug-content-modal-heading">
+        <h2
+          class="usa-modal__heading margin-bottom-0"
+          id="debug-content-modal-heading"
+        >
           Dev Tools
         </h2>
         <div class="display-flex flex-column">
-          <p>Log in as:</p>
+          <p class="margin-0">Log in as:</p>
           <a
             th:href="${fakeCiviformAdminUrl}"
             class="usa-button margin-y-2"
@@ -43,7 +46,7 @@
             id="trusted-intermediary"
             >Trusted Intermediary</a
           >
-          <p>Other:</p>
+          <p class="margin-0">Other:</p>
           <a
             th:href="${additionalToolsUrl}"
             class="usa-button margin-y-2"
@@ -123,7 +126,7 @@
   <div class="usa-modal__content">
     <div class="usa-modal__main">
       <h2
-        class="usa-modal__heading"
+        class="usa-modal__heading margin-bottom-0"
         th:id="${dialogId + '-heading'}"
         th:text="#{title.signInModal}"
       ></h2>
@@ -179,12 +182,12 @@
     <div class="usa-modal__content">
       <div class="usa-modal__main">
         <h2
-          class="usa-modal__heading"
+          class="usa-modal__heading margin-bottom-0"
           id="validation-modal-heading"
           th:text="#{modal.errorSaving.title}"
         ></h2>
 
-        <p th:text="#{${errorModalContent}}"></p>
+        <p class="margin-0" th:text="#{${errorModalContent}}"></p>
 
         <button
           type="button"
@@ -237,11 +240,11 @@
     <div class="usa-modal__content">
       <div class="usa-modal__main">
         <h2
-          class="usa-modal__heading"
+          class="usa-modal__heading margin-bottom-0"
           id="duplicate-submission-modal-heading"
           th:text="#{title.noChangesToSave(${programTitle})}"
         ></h2>
-        <p th:text="#{content.noChanges}"></p>
+        <p class="margin-0" th:text="#{content.noChanges}"></p>
 
         <div class="usa-modal__footer">
           <ul class="usa-button-group">
@@ -300,15 +303,18 @@
     aria-describedby="session-inactivity-warning-description"
   >
     <div class="usa-modal__content">
-      <div class="usa-modal__main mx-4">
+      <div class="usa-modal__main">
         <h2
-          class="usa-modal__heading"
+          class="usa-modal__heading margin-bottom-0"
           id="session-inactivity-warning-heading"
           th:text="#{session.warning.title}"
         ></h2>
-        <div class="usa-prose my-6" id="session-inactivity-warning-description">
+        <div class="usa-prose" id="session-inactivity-warning-description">
           <div>
-            <p th:text="#{session.inactivity.warning.message}"></p>
+            <p
+              class="margin-0"
+              th:text="#{session.inactivity.warning.message}"
+            ></p>
             <div class="usa-modal__footer">
               <ul class="usa-button-group">
                 <li class="usa-button-group__item">
@@ -360,15 +366,16 @@
     aria-describedby="session-length-warning-description"
   >
     <div class="usa-modal__content">
-      <div class="usa-modal__main mx-4">
+      <div class="usa-modal__main">
         <h2
-          class="usa-modal__heading"
+          class="usa-modal__heading margin-bottom-0"
           id="session-length-warning-heading"
           th:text="#{session.warning.title}"
         ></h2>
-        <div class="usa-prose my-6" id="session-length-warning-description">
+        <div class="usa-prose" id="session-length-warning-description">
           <div>
             <p
+              class="margin-0"
               th:text="${isGuest} ? #{session.length.warning.message.guest} : #{session.length.warning.message.loggedIn}"
             ></p>
           </div>
@@ -424,7 +431,7 @@
     <div class="usa-modal__content">
       <div class="usa-modal__main">
         <h2
-          class="usa-modal__heading"
+          class="usa-modal__heading margin-bottom-0"
           th:id="${'external-program-modal-heading-' + modalId}"
           th:text="#{title.externalProgramModal}"
         ></h2>
