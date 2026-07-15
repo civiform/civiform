@@ -73,7 +73,7 @@
 <div
   th:fragment="enumeratorField(fieldId, inputId, path, existingEntity, visibleIndex, deleteButtonId, hidden)"
   class="cf-enumerator-field maxw-mobile-lg"
-  th:classappend="${hidden ? 'hidden' : ''}"
+  th:classappend="${hidden ? 'display-none' : ''}"
   th:id="${fieldId}"
   th:with="indexString=${visibleIndex == -1 ? '' : ' #' + visibleIndex}"
 >
@@ -118,5 +118,5 @@
   id="enumerator-delete-template"
   name="delete_entity[]"
   disabled
-  class="hidden"
+  class="display-none"
 />
