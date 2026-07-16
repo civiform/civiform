@@ -266,7 +266,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
                         request,
                         messages)),
                 /* blockHasEnumeratorQuestion= */ true,
-                blockDefinition)
+                blockDefinition,
+                programId)
             .render());
   }
 
