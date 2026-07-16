@@ -876,6 +876,28 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await fillEnumeratorQuestionForm(page)
       })
 
+      await test.step('Ensure form input is auto-saved by switching blocks and returning', async () => {
+        await navigateToRepeatedScreen(
+          page,
+          /* screenNumber= */ 3,
+          /* repeatedFrom= */ 2,
+        )
+        // Return to enumerator screen
+        await page.getByRole('link', {name: 'Screen 2'}).click()
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'Listed entity'}),
+        ).toHaveValue('Pets')
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'Question text'}),
+        ).toHaveValue('List the names of your pets.')
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'Repeated set admin ID'}),
+        ).toHaveValue('pets enumerator')
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'Hint text'}),
+        ).toHaveValue('Hint')
+      })
+
       await test.step('Delete the block', async () => {
         await page.getByRole('button', {name: 'Delete screen'}).click()
         await page.locator('#delete-block-button').click()
