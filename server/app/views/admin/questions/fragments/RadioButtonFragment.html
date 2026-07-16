@@ -1,0 +1,54 @@
+<!--/*@thymesVar id="questionForm" type="forms.questions.MultiOptionQuestionForm"*/-->
+<!--/*
+  Type-specific question config for RADIO_BUTTON and DROPDOWN questions:
+  the editable option rows, the "Add answer option" button, and the hidden
+  nextAvailableId field.
+*/-->
+<th:block th:fragment="build(questionForm)" xmlns:th="http://www.thymeleaf.org">
+  <div id="multi-option-container">
+    <th:block th:each="optionText, stat : ${questionForm.getOptions()}">
+      <div
+        th:replace="~{admin/questions/fragments/LegacyFieldFragments :: multiOptionRow(false, ${questionForm.getOptionIds().get(stat.index)}, ${questionForm.getOptionAdminNames().get(stat.index)}, ${optionText})}"
+      ></div>
+    </th:block>
+    <th:block th:each="newOptionText, stat : ${questionForm.getNewOptions()}">
+      <div
+        th:replace="~{admin/questions/fragments/LegacyFieldFragments :: multiOptionRow(true, '', ${questionForm.getNewOptionAdminNames().get(stat.index)}, ${newOptionText})}"
+      ></div>
+    </th:block>
+  </div>
+  <button
+    type="button"
+    id="add-new-option"
+    class="m-2 font-semibold block py-2 text-center rounded-full border text-civiform-blue border-civiform-blue hover:bg-blue-100 flex items-center font-medium space-x-2 bg-white hover:bg-gray-200"
+  >
+    <svg
+      th:replace="~{admin/questions/fragments/LegacyFieldFragments :: iconPlus('inline-block h-4.5 w-4.5')}"
+    ></svg>
+    <span class="text-left">Add answer option</span>
+  </button>
+  <!--/* Hidden number field carrying nextAvailableId. */-->
+  <div class="hidden" th:with="nextAvailableIdFieldId=${model.randomFieldId()}">
+    <label th:for="${nextAvailableIdFieldId}" class="sr-only"
+      ><span
+        th:replace="~{admin/questions/fragments/LegacyFieldFragments :: requiredIndicator(false)}"
+      ></span
+    ></label>
+    <div class="flex flex-col">
+      <input
+        type="number"
+        inputmode="decimal"
+        step="any"
+        th:value="${questionForm.getNextAvailableId().isPresent() ? questionForm.getNextAvailableId().getAsLong() : null}"
+        maxlength="10000"
+        th:id="${nextAvailableIdFieldId}"
+        name="nextAvailableId"
+        class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+      />
+      <div
+        th:id="|${nextAvailableIdFieldId}-errors|"
+        class="text-red-600 text-xs p-1 hidden"
+      ></div>
+    </div>
+  </div>
+</th:block>

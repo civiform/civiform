@@ -1,0 +1,539 @@
+<!--/*
+  Helper fragments (icons, indicators, alerts, toggles, labeled fields) shared
+  by the question new/edit pages.
+
+  Field ids: fields without a fixed id get a random 8-character alphabetic id
+  (so labels stay associated with inputs). Callers generate them with
+  ${model.randomFieldId()}.
+*/-->
+
+<!--/* ============================== Icons ============================== */-->
+<!--/* Each icon fragment takes its sizing classes. */-->
+
+<svg
+  th:fragment="iconInfo(classes)"
+  xmlns="http://www.w3.org/2000/svg"
+  fill="currentColor"
+  stroke="currentColor"
+  stroke-width="1%"
+  aria-hidden="true"
+  viewBox="0 0 48 48"
+  th:class="${classes}"
+>
+  <path
+    d="M22.65 34h3V22h-3ZM24 18.3q.7 0 1.175-.45.475-.45.475-1.15t-.475-1.2Q24.7 15 24 15q-.7 0-1.175.5-.475.5-.475 1.2t.475 1.15q.475.45 1.175.45ZM24 44q-4.1 0-7.75-1.575-3.65-1.575-6.375-4.3-2.725-2.725-4.3-6.375Q4 28.1 4 23.95q0-4.1 1.575-7.75 1.575-3.65 4.3-6.35 2.725-2.7 6.375-4.275Q19.9 4 24.05 4q4.1 0 7.75 1.575 3.65 1.575 6.35 4.275 2.7 2.7 4.275 6.35Q44 19.85 44 24q0 4.1-1.575 7.75-1.575 3.65-4.275 6.375t-6.35 4.3Q28.15 44 24 44Zm.05-3q7.05 0 12-4.975T41 23.95q0-7.05-4.95-12T24 7q-7.05 0-12.025 4.95Q7 16.9 7 24q0 7.05 4.975 12.025Q16.95 41 24.05 41ZM24 24Z"
+  ></path>
+</svg>
+
+<svg
+  th:fragment="iconPlus(classes)"
+  xmlns="http://www.w3.org/2000/svg"
+  fill="currentColor"
+  stroke="currentColor"
+  stroke-width="1%"
+  aria-hidden="true"
+  viewBox="0 0 20 20"
+  th:class="${classes}"
+>
+  <path
+    d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+  ></path>
+</svg>
+
+<svg
+  th:fragment="iconKeyboardArrowUp(classes)"
+  xmlns="http://www.w3.org/2000/svg"
+  fill="currentColor"
+  stroke="currentColor"
+  stroke-width="1%"
+  aria-hidden="true"
+  viewBox="0 -960 960 960"
+  th:class="${classes}"
+>
+  <path d="M480-528 296-344l-56-56 240-240 240 240-56 56-184-184Z"></path>
+</svg>
+
+<svg
+  th:fragment="iconKeyboardArrowDown(classes)"
+  xmlns="http://www.w3.org/2000/svg"
+  fill="currentColor"
+  stroke="currentColor"
+  stroke-width="1%"
+  aria-hidden="true"
+  viewBox="0 -960 960 960"
+  th:class="${classes}"
+>
+  <path d="M480-344 240-584l56-56 184 184 184-184 56 56-240 240Z"></path>
+</svg>
+
+<svg
+  th:fragment="iconDelete(classes)"
+  xmlns="http://www.w3.org/2000/svg"
+  fill="currentColor"
+  stroke="currentColor"
+  stroke-width="1%"
+  aria-hidden="true"
+  viewBox="0 0 20 20"
+  th:class="${classes}"
+>
+  <path
+    d="M5.896 17.5Q5.167 17.5 4.656 16.99Q4.146 16.479 4.146 15.75V5.125H3.333V3.375H7.542V2.5H12.458V3.375H16.667V5.125H15.833V15.75Q15.833 16.479 15.323 16.99Q14.812 17.5 14.083 17.5ZM14.083 5.125H5.896V15.75Q5.896 15.75 5.896 15.75Q5.896 15.75 5.896 15.75H14.083Q14.083 15.75 14.083 15.75Q14.083 15.75 14.083 15.75ZM7.458 14H9.208V6.875H7.458ZM10.771 14H12.521V6.875H10.771ZM5.896 5.125V15.75Q5.896 15.75 5.896 15.75Q5.896 15.75 5.896 15.75Q5.896 15.75 5.896 15.75Q5.896 15.75 5.896 15.75Z"
+  ></path>
+</svg>
+
+<svg
+  th:fragment="iconClose(classes)"
+  xmlns="http://www.w3.org/2000/svg"
+  fill="currentColor"
+  stroke="currentColor"
+  stroke-width="1%"
+  aria-hidden="true"
+  viewBox="0 0 48 48"
+  th:class="${classes}"
+>
+  <path
+    d="m12.45 37.65-2.1-2.1L21.9 24 10.35 12.45l2.1-2.1L24 21.9l11.55-11.55 2.1 2.1L26.1 24l11.55 11.55-2.1 2.1L24 26.1Z"
+  ></path>
+</svg>
+
+<!--/* fill/stroke carry the label text color class. */-->
+<svg
+  th:fragment="iconMarkdown"
+  xmlns="http://www.w3.org/2000/svg"
+  fill="text-gray-600"
+  stroke="text-gray-600"
+  stroke-width="1%"
+  aria-hidden="true"
+  viewBox="0 -960 960 960"
+  class="h-6 w-6 mr-1"
+>
+  <path
+    d="m640-360 120-120-42-43-48 48v-125h-60v125l-48-48-42 43 120 120ZM140-160q-24 0-42-18t-18-42v-520q0-24 18-42t42-18h680q24 0 42 18t18 42v520q0 24-18 42t-42 18H140Zm0-60h680v-520H140v520Zm0 0v-520 520Zm79-140h50v-190h53v127h50v-127h60v190h50v-200q0-14-13-27t-27-13H259q-14 0-27 13t-13 27v200Z"
+  ></path>
+</svg>
+
+<!--/* ====================== Small shared pieces ======================= */-->
+
+<!--/* Required-field indicator (*) */-->
+<span
+  th:fragment="requiredIndicator(visible)"
+  class="usa-hint--required"
+  th:classappend="${visible} ? '' : 'hidden'"
+  aria-hidden="true"
+  >&nbsp;*</span
+>
+
+<!--/* "Markdown is supported" indicator with a docs link */-->
+<span
+  th:fragment="markdownIndicator(text)"
+  class="flex flex-row mt-2 items-center"
+>
+  <svg th:replace="~{:: iconMarkdown}"></svg>
+  <span class="text-gray-600 text-sm"
+    >[[${text}]]<a
+      href="https://docs.civiform.us/user-manual/civiform-admin-guide/using-markdown"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="text-blue-600 hover:text-blue-500 inline-flex items-center"
+      >see how it works</a
+    ></span
+  >
+</span>
+
+<!--/* Slim USWDS info alert */-->
+<div
+  th:fragment="slimInfoAlert(text, hidden, extraClasses)"
+  th:hidden="${hidden}"
+  class="usa-alert usa-alert--info usa-alert--slim"
+  th:classappend="${extraClasses}"
+  aria-live="polite"
+  role="alert"
+>
+  <div class="usa-alert__body">
+    <p class="usa-alert__text" th:text="${text}"></p>
+  </div>
+</div>
+
+<!--/* A CSS-only toggle. The hidden companion field MUST come after the
+     checkbox: when the box is unchecked only `false` posts; when checked
+     both post and Play form binding takes the first value. */-->
+<div
+  th:fragment="toggle(name, idPrefix, checked, hidden, text)"
+  class="cf-toggle mt-2"
+  th:hidden="${hidden}"
+>
+  <label class="cf-toggle__label" th:id="|${idPrefix}-toggle|">
+    <input
+      type="checkbox"
+      role="switch"
+      class="cf-toggle__input"
+      th:name="${name}"
+      value="true"
+      th:checked="${checked}"
+      th:id="|${idPrefix}-toggle-input|"
+    />
+    <input type="hidden" th:name="${name}" value="false" />
+    <span class="cf-toggle__track" aria-hidden="true"></span>
+    <span th:text="${text}"></span>
+  </label>
+</div>
+
+<!--/* ========================= Labeled fields ========================= */-->
+
+<!--/* Labeled textarea field */-->
+<div
+  th:fragment="textareaField(id, name, label, value, required, markdown)"
+  class="mb-2"
+>
+  <label
+    th:for="${id}"
+    class="pointer-events-none text-gray-600 text-base px-1 py-2"
+    >[[${label}]]<span th:replace="~{:: requiredIndicator(${required})}"></span
+  ></label>
+  <div class="flex flex-col">
+    <textarea
+      maxlength="10000"
+      th:attr="aria-required=${required} ? 'true'"
+      th:id="${id}"
+      th:name="${name}"
+      class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+      th:text="${value}"
+    ></textarea>
+    <div th:id="|${id}-errors|" class="text-red-600 text-xs p-1 hidden"></div>
+  </div>
+  <th:block th:if="${markdown}">
+    <span
+      th:replace="~{:: markdownIndicator('Markdown is supported, ')}"
+    ></span>
+  </th:block>
+</div>
+
+<!--/* Number field for the optional min/max style settings fields (never
+     marked required). Pass value as a String or null. */-->
+<div th:fragment="numberField(id, name, label, value, min)" class="mb-2">
+  <label
+    th:for="${id}"
+    class="pointer-events-none text-gray-600 text-base px-1 py-2"
+    >[[${label}]]<span th:replace="~{:: requiredIndicator(false)}"></span
+  ></label>
+  <div class="flex flex-col">
+    <input
+      type="number"
+      inputmode="decimal"
+      step="any"
+      th:min="${min}"
+      th:value="${value}"
+      maxlength="10000"
+      th:id="${id}"
+      th:name="${name}"
+      class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+    />
+    <div th:id="|${id}-errors|" class="text-red-600 text-xs p-1 hidden"></div>
+  </div>
+</div>
+
+<!--/* Label-wrapped radio option */-->
+<label
+  th:fragment="radioOption(id, name, label, value, checked)"
+  class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue align-middle flex flex-row mb-2 cf-radio-option"
+  th:for="${id}"
+  ><input
+    type="radio"
+    th:value="${value}"
+    maxlength="10000"
+    aria-required="true"
+    th:id="${id}"
+    th:name="${name}"
+    class="h-4 w-4 mr-4 align-middle self-center flex-none"
+    th:checked="${checked}"
+  />[[${label}]]</label
+>
+
+<!--/* Date validation type select */-->
+<div
+  th:fragment="dateTypeSelect(id, name, label, anyLabel, value)"
+  class="mb-2"
+>
+  <label
+    th:for="${id}"
+    class="pointer-events-none text-gray-600 text-base px-1 py-2"
+    >[[${label}]]<span th:replace="~{:: requiredIndicator(true)}"></span
+  ></label>
+  <div class="flex flex-col">
+    <select
+      maxlength="10000"
+      aria-required="true"
+      th:id="${id}"
+      th:name="${name}"
+      class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500 h-11.5"
+    >
+      <option value="" hidden th:selected="${#strings.isEmpty(value)}"></option>
+      <optgroup label="">
+        <option
+          class="cf-multi-option-question-option cf-multi-option-value"
+          value="ANY"
+          th:selected="${value == 'ANY'}"
+          th:text="${anyLabel}"
+        ></option>
+        <option
+          class="cf-multi-option-question-option cf-multi-option-value"
+          value="APPLICATION_DATE"
+          th:selected="${value == 'APPLICATION_DATE'}"
+        >
+          Current date of application
+        </option>
+        <option
+          class="cf-multi-option-question-option cf-multi-option-value"
+          value="CUSTOM"
+          th:selected="${value == 'CUSTOM'}"
+        >
+          Custom date
+        </option>
+      </optgroup>
+    </select>
+    <div th:id="|${id}-errors|" class="text-red-600 text-xs p-1 hidden"></div>
+  </div>
+</div>
+
+<!--/* USWDS memorable date (month/day/year) picker with required
+     indicators. */-->
+<fieldset
+  th:fragment="memorableDate(idPrefix, hidden, monthName, monthValue, dayName, dayValue, yearName, yearValue)"
+  th:id="|${idPrefix}-fieldset|"
+  class="pb-2"
+  th:hidden="${hidden}"
+>
+  <div class="text-red-600 text-xs" id="memorable_date_error"></div>
+  <div class="usa-memorable-date">
+    <div class="usa-form-group usa-form-group--month usa-form-group--select">
+      <label class="usa-label" th:for="|${idPrefix}-month|"
+        >[[#{label.month}]]<span
+          th:replace="~{:: requiredIndicator(true)}"
+        ></span
+      ></label>
+      <select
+        class="usa-select"
+        th:id="|${idPrefix}-month|"
+        th:name="${monthName}"
+        aria-describedby="mdHint"
+      >
+        <option
+          value=""
+          th:selected="${monthValue == ''}"
+          th:text="'- ' + #{placeholder.memorableDate} + ' -'"
+        ></option>
+        <option
+          value="1"
+          th:selected="${monthValue == '1'}"
+          th:text="#{option.memorableDate.January}"
+        ></option>
+        <option
+          value="2"
+          th:selected="${monthValue == '2'}"
+          th:text="#{option.memorableDate.February}"
+        ></option>
+        <option
+          value="3"
+          th:selected="${monthValue == '3'}"
+          th:text="#{option.memorableDate.March}"
+        ></option>
+        <option
+          value="4"
+          th:selected="${monthValue == '4'}"
+          th:text="#{option.memorableDate.April}"
+        ></option>
+        <option
+          value="5"
+          th:selected="${monthValue == '5'}"
+          th:text="#{option.memorableDate.May}"
+        ></option>
+        <option
+          value="6"
+          th:selected="${monthValue == '6'}"
+          th:text="#{option.memorableDate.June}"
+        ></option>
+        <option
+          value="7"
+          th:selected="${monthValue == '7'}"
+          th:text="#{option.memorableDate.July}"
+        ></option>
+        <option
+          value="8"
+          th:selected="${monthValue == '8'}"
+          th:text="#{option.memorableDate.August}"
+        ></option>
+        <option
+          value="9"
+          th:selected="${monthValue == '9'}"
+          th:text="#{option.memorableDate.September}"
+        ></option>
+        <option
+          value="10"
+          th:selected="${monthValue == '10'}"
+          th:text="#{option.memorableDate.October}"
+        ></option>
+        <option
+          value="11"
+          th:selected="${monthValue == '11'}"
+          th:text="#{option.memorableDate.November}"
+        ></option>
+        <option
+          value="12"
+          th:selected="${monthValue == '12'}"
+          th:text="#{option.memorableDate.December}"
+        ></option>
+      </select>
+    </div>
+    <div class="usa-form-group usa-form-group--day">
+      <label class="usa-label" th:for="|${idPrefix}-day|"
+        >[[#{label.day}]]<span th:replace="~{:: requiredIndicator(true)}"></span
+      ></label>
+      <input
+        class="usa-input"
+        th:id="|${idPrefix}-day|"
+        th:name="${dayName}"
+        aria-describedby="mdHint"
+        inputmode="numeric"
+        maxlength="2"
+        pattern="[0-9]*"
+        th:value="${dayValue}"
+      />
+    </div>
+    <div class="usa-form-group usa-form-group--year">
+      <label class="usa-label" th:for="|${idPrefix}-year|"
+        >[[#{label.year}]]<span
+          th:replace="~{:: requiredIndicator(true)}"
+        ></span
+      ></label>
+      <input
+        class="usa-input"
+        th:id="|${idPrefix}-year|"
+        th:name="${yearName}"
+        aria-describedby="mdHint"
+        minlength="4"
+        inputmode="numeric"
+        maxlength="4"
+        pattern="[0-9]*"
+        th:value="${yearValue}"
+      />
+    </div>
+  </div>
+</fieldset>
+
+<!--/* ==================== Multi-option answer row ===================== -->
+<!--/*
+  One editable answer option row for CHECKBOX / DROPDOWN / RADIO_BUTTON
+  questions. New (unsaved) options post to newOptions[] /
+  newOptionAdminNames[] and have no hidden optionIds[] field; existing
+  options are also readonly on the Admin ID.
+
+  Relies on the page's `model` exposing randomFieldId() for the generated
+  label/input ids.
+*/-->
+<div
+  th:fragment="multiOptionRow(isForNewOption, optionId, adminName, optionText)"
+  class="cf-multi-option-question-option cf-multi-option-question-option-editable grid grid-cols-8 grid-rows-4 items-center mb-4"
+  th:with="optionIdFieldId=${model.randomFieldId()},
+           adminNameFieldId=${model.randomFieldId()},
+           optionTextFieldId=${model.randomFieldId()}"
+>
+  <div th:if="${isForNewOption}"></div>
+  <div th:unless="${isForNewOption}" class="hidden">
+    <label th:for="${optionIdFieldId}" class="sr-only"
+      >option ids<span th:replace="~{:: requiredIndicator(false)}"></span
+    ></label>
+    <div class="flex flex-col">
+      <input
+        type="text"
+        th:value="${optionId}"
+        maxlength="10000"
+        th:id="${optionIdFieldId}"
+        name="optionIds[]"
+        class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+      />
+      <div
+        th:id="|${optionIdFieldId}-errors|"
+        class="text-red-600 text-xs p-1 hidden"
+      ></div>
+    </div>
+  </div>
+  <div
+    class="cf-multi-option-admin-input col-start-1 col-span-5 mb-2 ml-2 row-start-1 row-span-2"
+  >
+    <label
+      th:for="${adminNameFieldId}"
+      class="pointer-events-none text-gray-600 text-base px-1 py-2"
+      >Admin ID<span th:replace="~{:: requiredIndicator(true)}"></span
+    ></label>
+    <div class="flex flex-col">
+      <input
+        type="text"
+        th:value="${adminName}"
+        maxlength="10000"
+        aria-required="true"
+        th:id="${adminNameFieldId}"
+        th:name="${isForNewOption} ? 'newOptionAdminNames[]' : 'optionAdminNames[]'"
+        th:readonly="${!isForNewOption}"
+        class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+        th:classappend="${!isForNewOption} ? 'read-only:text-gray-500 read-only:bg-gray-100'"
+      />
+      <div
+        th:id="|${adminNameFieldId}-errors|"
+        class="cf-multi-option-admin-input-error text-red-600 text-xs p-1 hidden"
+      >
+        <div
+          th:text="#{toast.errorMessageOutline(#{adminValidation.multiOptionAdminError})}"
+        ></div>
+      </div>
+    </div>
+  </div>
+  <button
+    class="bg-transparent p-0 w-6 text-center text-gray-500 hover:bg-gray-200 hover:text-gray-900 col-start-8 multi-option-question-field-move-up-button row-start-1"
+    aria-label="move up"
+  >
+    <svg th:replace="~{:: iconKeyboardArrowUp('w-6 h-6')}"></svg>
+  </button>
+  <button
+    class="bg-transparent p-0 w-6 text-center text-gray-500 hover:bg-gray-200 hover:text-gray-900 col-start-8 multi-option-question-field-move-down-button row-start-2"
+    aria-label="move down"
+  >
+    <svg th:replace="~{:: iconKeyboardArrowDown('w-6 h-6')}"></svg>
+  </button>
+  <div
+    class="cf-multi-option-input col-start-1 col-span-5 mb-2 ml-2 row-start-3 row-span-2"
+  >
+    <label
+      th:for="${optionTextFieldId}"
+      class="pointer-events-none text-gray-600 text-base px-1 py-2"
+      >Option Text<span th:replace="~{:: requiredIndicator(true)}"></span
+    ></label>
+    <div class="flex flex-col">
+      <input
+        type="text"
+        th:value="${optionText}"
+        maxlength="10000"
+        aria-required="true"
+        th:id="${optionTextFieldId}"
+        th:name="${isForNewOption} ? 'newOptions[]' : 'options[]'"
+        class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+      />
+      <div
+        th:id="|${optionTextFieldId}-errors|"
+        class="cf-multi-option-input-error text-red-600 text-xs p-1 hidden"
+      >
+        <div
+          th:text="#{toast.errorMessageOutline(#{adminValidation.multiOptionEmpty})}"
+        ></div>
+      </div>
+    </div>
+    <span
+      th:replace="~{:: markdownIndicator('Some markdown is supported, ')}"
+    ></span>
+  </div>
+  <button
+    class="bg-transparent p-0 w-6 text-center text-blue-900 hover:bg-gray-200 hover:text-gray-900 multi-option-question-field-remove-button col-start-8 row-span-2"
+    aria-label="delete"
+  >
+    <svg th:replace="~{:: iconDelete('w-6 h-6')}"></svg>
+  </button>
+</div>
