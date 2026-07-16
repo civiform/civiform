@@ -282,8 +282,9 @@ public class DateQuestionTest extends ResetPostgres {
         ApplicantData.APPLICANT_PATH
             .join(dateQuestionDefinition.getQuestionPathSegment())
             .join(Scalar.DATE);
-    // Use a date without a year and an invalid month.
-    applicantData.setFailedUpdates(ImmutableMap.of(datePath, "-13-10"));
+    // User input from the 3 fields are concatenated in YYYY-MM-DD format.
+    // Test a date with no year and an invalid month.
+    applicantData.setFailedUpdates(ImmutableMap.of(datePath, "-invalid-10"));
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(dateQuestionDefinition, applicant, applicantData, Optional.empty());
 
@@ -292,9 +293,9 @@ public class DateQuestionTest extends ResetPostgres {
     // Date should have validation errors.
     assertThat(dateQuestion.getDateValue()).isEmpty();
     assertThat(dateQuestion.getValidationErrors()).isNotEmpty();
-    // Previously entered values should be kept so the user doesn't lose their input.
+    // Previously entered integer values should be kept so the user doesn't lose their input.
     assertThat(dateQuestion.getYearValue()).isEmpty();
-    assertThat(dateQuestion.getMonthValue()).hasValue(13);
+    assertThat(dateQuestion.getMonthValue()).isEmpty();
     assertThat(dateQuestion.getDayValue()).hasValue(10);
   }
 
