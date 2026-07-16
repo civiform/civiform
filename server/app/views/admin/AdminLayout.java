@@ -182,7 +182,12 @@ public final class AdminLayout extends BaseHtmlLayout {
 
     HeaderTag headerAccordion =
         header()
-            .withClasses("usa-header", "usa-header--basic", "display-inline-block", "width-full")
+            .withClasses(
+                "usa-header",
+                "usa-header--basic",
+                "cf-admin-header",
+                "display-inline-block",
+                "width-full")
             .with(
                 nav().attr("aria-label", "Primary navigation").with(createAdminHeaderUl(request)));
 

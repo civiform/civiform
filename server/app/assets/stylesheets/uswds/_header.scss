@@ -2,6 +2,7 @@
 This contains customizations for the ".usa-header"
 */
 
+@use 'sass:map';
 @use 'uswds-core' as *;
 
 .usa-header {
@@ -24,6 +25,184 @@ This contains customizations for the ".usa-header"
     &:hover,
     &:visited {
       color: white;
+    }
+  }
+}
+
+// Below $theme-header-min-width USWDS swaps the header navigation to its
+// mobile variant (stacked accordion list inside a slide-in panel). The
+// applicant header uses that behavior, but the admin header and the API
+// bridge tab strip have no menu button or slide-in panel, so pin them to
+// the desktop nav styles at every viewport width by re-applying the
+// USWDS desktop rules below the breakpoint.
+
+$cf-nav-chevron-icon: (
+  'color': ButtonText,
+  'svg-height': 24,
+  'svg-width': 24,
+  'height': units(2),
+);
+
+.cf-admin-header,
+.cf-tab-strip {
+  @include at-media-max($theme-header-min-width) {
+    // Neutralize the slide-in panel styles. Only the tab strip markup has a
+    // .usa-nav element; the admin header nav is unclassed.
+    .usa-nav {
+      align-items: center;
+      background: none;
+      display: flex;
+      flex-direction: row;
+      overflow-y: visible;
+      padding: 0;
+      position: static;
+      width: 100%;
+      z-index: auto;
+    }
+
+    .usa-nav__primary {
+      display: flex;
+    }
+
+    .usa-nav__primary-item {
+      border-top: none;
+    }
+
+    .usa-nav__primary > .usa-nav__primary-item {
+      font-size: font-size($theme-navigation-font-family, '2xs');
+      line-height: line-height($theme-navigation-font-family, 1);
+
+      > a {
+        align-items: center;
+        color: color('base-dark');
+        display: flex;
+        font-weight: font-weight('bold');
+        height: 100%;
+        padding: units(2);
+
+        &:hover {
+          background-color: transparent;
+          color: color('primary');
+        }
+      }
+    }
+
+    .usa-nav__primary a:not(.usa-button):focus {
+      outline-offset: units($theme-focus-offset);
+    }
+
+    .usa-nav__primary button {
+      color: color('base-dark');
+      font-size: font-size($theme-navigation-font-family, '2xs');
+      font-weight: font-weight('bold');
+      line-height: line-height($theme-navigation-font-family, 1);
+      padding: units(2);
+
+      &:hover {
+        background-color: transparent;
+      }
+
+      &[aria-expanded='false'] {
+        span {
+          @include place-icon(
+            map.merge(
+              $cf-nav-chevron-icon,
+              (
+                'name': 'expand_more',
+              )
+            ),
+            'after'
+          );
+
+          &::after {
+            right: units(1.5);
+          }
+        }
+
+        &:hover span::after {
+          background-color: color('blue-warm-70v');
+        }
+      }
+
+      &[aria-expanded='true'] {
+        background-color: color('primary-darker');
+        background-image: none;
+        color: color('white');
+
+        span {
+          @include place-icon(
+            map.merge(
+              $cf-nav-chevron-icon,
+              (
+                'name': 'expand_less',
+              )
+            ),
+            'after'
+          );
+
+          &::after {
+            background-color: white;
+            right: units(1.5);
+          }
+        }
+      }
+    }
+
+    .usa-accordion__button span {
+      display: inline-block;
+      margin-right: 0;
+      padding-right: units(2);
+    }
+
+    // Restore the desktop current-page/hover underline bar in place of the
+    // left-edge pill the mobile nav list draws. The mobile pill sets top and
+    // width on the same ::after, so clear them explicitly.
+    .usa-nav__primary-item > .usa-current,
+    .usa-nav__link:hover {
+      @include add-bar(0.5, 'primary', 'bottom', 0, 2, -0.5);
+
+      &::after {
+        top: auto;
+        width: auto;
+      }
+    }
+
+    // Don't show the underline bar if the dropdown is active.
+    .usa-nav__link[aria-expanded='true']::after,
+    .usa-nav__link[aria-expanded='true']:hover::after {
+      display: none;
+    }
+
+    .usa-nav__submenu {
+      @include add-list-reset;
+      @include u-padding-y(1);
+      background-color: color('primary-darker');
+      margin: 0;
+      position: absolute;
+      width: units('card-lg');
+      z-index: z-index(400);
+
+      .usa-nav__submenu-item {
+        border-top: none;
+
+        a {
+          @include u-padding-x(2);
+          @include u-padding-y(1);
+          color: color('white');
+          display: block;
+          line-height: line-height($theme-navigation-font-family, 3);
+
+          &:focus {
+            outline-offset: units('neg-05');
+          }
+
+          &:hover {
+            background-color: transparent;
+            color: color('white');
+            text-decoration: underline;
+          }
+        }
+      }
     }
   }
 }

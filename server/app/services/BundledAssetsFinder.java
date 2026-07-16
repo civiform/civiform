@@ -76,12 +76,6 @@ public final class BundledAssetsFinder {
         : bundlerPath("dist/uswds_css.min.css");
   }
 
-  public String getNorthStarStylesheet() {
-    return useDevServer
-        ? bundlerPath("app/assets/stylesheets/northstar/styles.scss")
-        : bundlerPath("dist/northstar_css.min.css");
-  }
-
   public String getMapLibreGLStylesheet() {
     return useDevServer
         ? bundlerPath("node_modules/maplibre-gl/dist/maplibre-gl.css")

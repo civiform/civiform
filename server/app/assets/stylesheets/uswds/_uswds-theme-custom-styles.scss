@@ -26,8 +26,29 @@ See the radio-option below as an example.
 @use 'usa-label' as *;
 @use 'usa-error-message' as *;
 
-.cf-radio-option:focus-within {
+/* Rather than having a focus outline around the checkbox or radio button,
+it is around the label */
+.usa-checkbox__input:focus + [class*='__label']::before,
+.usa-radio__input:focus + [class*='__label']::before {
+  outline: 2px solid rgba(0, 0, 0, 0);
+  outline-offset: 2px;
+}
+
+.cf-radio-option:focus-within,
+.usa-checkbox__input:focus + [class*='__label'],
+.usa-radio__input:focus + [class*='__label'] {
   @include u-border('blue-40v');
+  @include u-border('05');
+}
+
+/* By default, the USWDS checkbox input element is positioned off-screen and the label
+ is styled to look like a checkbox.  This causes a problem with screen reader
+ linear navigation because the screen reader navigation outline (different than focus outline)
+ does not show.  These styles set that navigation outline around the label yet make it invisible
+ when the screen reader linear navigation isn't being used.*/
+.usa-checkbox__input {
+  @include u-left('auto');
+  opacity: 0;
 }
 
 // Put the focus outline around the chip instead of the underlying checkbox
@@ -62,8 +83,12 @@ See the radio-option below as an example.
   @include u-border-left('05', 'secondary-dark');
 }
 
-.cf-applicant-question-field,
-.cf-question-header {
+/*
+ * The base left padding was removed from applicant question rendering (#8023)
+ * but kept for the admin question preview. Scoped to the preview wrapper with
+ * :where() so the error-state padding below still wins on specificity.
+ */
+:where(#sample-question) .cf-applicant-question-field {
   @include u-padding-left(2);
 }
 
@@ -271,11 +296,30 @@ button.usa-button.usa-button--unstyled.htmx-request {
   @include u-maxw('full');
 }
 
+// Let the body expand to fill the entire viewport
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+// Allow main content to grow and push footer down
+main {
+  flex: 1 0 auto;
+}
+
+// Prevents improper scaling on mobile devices
+body,
+html {
+  overflow-x: hidden;
+}
+
 // At widescreen (≥1400px) the admin content column (maxw 1200px)
 // sits inside a gray page chrome per the Figma desktop-lg/widescreen
 // spec (node 3522:2651). Below widescreen the body stays white so
-// the column reads edge-to-edge.
-body {
+// the column reads edge-to-edge. Scoped with :has so the shared
+// bundle doesn't apply the gray chrome to applicant pages.
+body:has(.cf-admin-page-wrapper) {
   @include at-media('desktop-lg') {
     @include u-bg('gray-3');
   }
@@ -340,6 +384,20 @@ body {
   }
 }
 
+// -- start
+// Backwards compatible step for migrating tailwind to keep some SVGs correctly
+// sized. This is shared in admin and applicant sides so until we rewrite SVG
+// support or migrate the admin we'll use the same settings from tailwind.
+svg {
+  &.w-auto {
+    width: auto;
+  }
+  &.h-5 {
+    height: 1.25rem;
+  }
+}
+// -- end
+
 .cf-legacy-program-header {
   // Set background and text colors to match
   // tailwind colors for admin program status
@@ -374,26 +432,11 @@ body {
     padding: 0px;
   }
 
-  // -- start
-  // Backwards compatible step for migrating tailwind to keep some SVGs correctly
-  // sized. This is shared in admin and applicant sides so until we rewrite SVG
-  // support or migrate the admin we'll use the same settings from tailwind.
-  svg.legacy-program-svg {
-    &.w-auto {
-      width: auto;
-    }
-    &.h-5 {
-      height: 1.25rem;
-    }
-    &.h-4\.5 {
-      height: 18px;
-    }
+  // w-auto and h-5 are covered by the global svg rule above; h-4.5 only
+  // exists on legacy program header SVGs.
+  svg.legacy-program-svg.h-4\.5 {
+    height: 18px;
   }
-  // -- end
-}
-
-.usa-button.usa-button--unstyled.cf-map-question-filter-button {
-  background-color: transparent;
 }
 
 // Backwards compatibility after enabling USWDS to generate it's border options.
@@ -413,8 +456,6 @@ body {
 }
 
 // Toast notification styles
-// If you make any changes here, you should also update the toast styles in
-// admin/app/assets/stylesheets/northstar/_uswds-theme-custom-styles.scss
 .cf-toast-container {
   position: absolute;
   left: 50%;
@@ -564,4 +605,14 @@ hr.code-separator {
   @include u-border('1px', 'dashed');
   @include u-margin-y(4);
   @include u-margin-x(0);
+}
+
+// Hide usa-modal elements until USWDS wraps them in usa-modal-wrapper.
+// This prevents a flash of the modal content on page load.
+.usa-modal:not(.usa-modal-wrapper .usa-modal) {
+  display: none;
+}
+
+.usa-alert .usa-alert__heading {
+  font-weight: font-weight('bold');
 }
