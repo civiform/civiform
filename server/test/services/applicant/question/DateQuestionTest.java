@@ -142,25 +142,6 @@ public class DateQuestionTest extends ResetPostgres {
                         DateQuestion.ALLOWABLE_YEAR_FOR_DATE_VALIDATION))));
   }
 
-    @Test
-  public void withInvalidDateParts_retainsValuesOnFailedUpdate() {
-    ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(dateQuestionDefinition, applicant, applicantData, Optional.empty());
-    // Use a date without a year and an invalid month.
-    QuestionAnswerer.answerDateQuestion(
-        applicantData, applicantQuestion.getContextualizedPath(), "-13-10");
-
-    DateQuestion dateQuestion = new DateQuestion(applicantQuestion);
-
-    // Date should fail to parse.
-    assertThat(dateQuestion.getDateValue()).isEmpty();
-    assertThat(dateQuestion.getValidationErrors()).isNotEmpty();
-    // Previously entered values should be kept so the user doesn't lose their input.
-    assertThat(dateQuestion.getYearValue()).isEmpty();
-    assertThat(dateQuestion.getMonthValue()).hasValue(13);
-    assertThat(dateQuestion.getDayValue()).hasValue(10);
-  }
-
   @SuppressWarnings("unused")
   private Object[] passingDateValidationCases() {
     return new Object[] {
@@ -293,6 +274,28 @@ public class DateQuestionTest extends ResetPostgres {
                     ValidationErrorMessage.create(
                         MessageKey.DATE_VALIDATION_INVALID_DATE_FORMAT))));
     assertThat(dateQuestion.getDateValue().isPresent()).isFalse();
+  }
+
+  @Test
+  public void withMisformattedDate_retainsValuesOnFailedUpdate() {
+    Path datePath =
+        ApplicantData.APPLICANT_PATH
+            .join(dateQuestionDefinition.getQuestionPathSegment())
+            .join(Scalar.DATE);
+    // Use a date without a year and an invalid month.
+    applicantData.setFailedUpdates(ImmutableMap.of(datePath, "-13-10"));
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(dateQuestionDefinition, applicant, applicantData, Optional.empty());
+
+    DateQuestion dateQuestion = applicantQuestion.createDateQuestion();
+
+    // Date should have validation errors.
+    assertThat(dateQuestion.getDateValue()).isEmpty();
+    assertThat(dateQuestion.getValidationErrors()).isNotEmpty();
+    // Previously entered values should be kept so the user doesn't lose their input.
+    assertThat(dateQuestion.getYearValue()).isEmpty();
+    assertThat(dateQuestion.getMonthValue()).hasValue(13);
+    assertThat(dateQuestion.getDayValue()).hasValue(10);
   }
 
   @Test
