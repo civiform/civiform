@@ -1,9 +1,9 @@
 package services.export;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.apache.commons.lang3.math.NumberUtils.isNumber;
 
 import annotations.BindingAnnotations.Now;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Provider;
 import com.itextpdf.text.Anchor;
@@ -48,8 +48,10 @@ import services.question.QuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
+import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import services.statuses.StatusService;
+import services.settings.SettingsManifest;
 
 /** PdfExporter is meant to generate PDF files. */
 public final class PdfExporter {
@@ -58,6 +60,7 @@ public final class PdfExporter {
   private final String baseUrl;
   private final DateConverter dateConverter;
   private final StatusService statusService;
+  private final Provider<SettingsManifest> settingsManifest;
 
   // A set of fonts that approximate various heading and text sizes to easily create visual
   // hierarchy in the PDF.
@@ -81,16 +84,18 @@ public final class PdfExporter {
 
   @Inject
   PdfExporter(
-      ApplicantService applicantService,
-      @Now Provider<LocalDateTime> nowProvider,
-      Config configuration,
-      DateConverter dateConverter,
-      StatusService statusService) {
+    ApplicantService applicantService,
+    @Now Provider<LocalDateTime> nowProvider,
+    Config configuration,
+    DateConverter dateConverter,
+    StatusService statusService,
+    Provider<SettingsManifest> settingsManifest) {
     this.applicantService = checkNotNull(applicantService);
     this.nowProvider = checkNotNull(nowProvider);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.dateConverter = checkNotNull(dateConverter);
     this.statusService = checkNotNull(statusService);
+    this.settingsManifest=checkNotNull(settingsManifest);
   }
 
   /**
@@ -123,6 +128,22 @@ public final class PdfExporter {
         application.getApplicant().getApplicantDisplayName().orElse("name-unavailable");
     String applicantNameWithApplicationId = String.format("%s (%d)", applicantName, application.id);
     String filename = String.format("%s-%s.pdf", applicantNameWithApplicationId, nowProvider.get());
+    // Check if program is part of the scored programs list.
+    ImmutableList<String> allowedProgramsForScoring = settingsManifest.get().getAllowedProgramsForSummingInPDF().orElse(ImmutableList.of());
+    //Scored pdfs only for prorgamAdmins and TI.
+    if (allowedProgramsForScoring.contains(application.getProgram().getProgramDefinition().adminName()) && isAdmin || application.getSubmitterEmail().isPresent()) {
+      byte[] bytes =
+        buildApplicationPdfWithScore(
+          answersOnlyActive,
+          answersOnlyHidden,
+          applicantNameWithApplicationId,
+          application.getOriginalApplicantId().orElse(application.getApplicant().id),
+          application.getProgram().getProgramDefinition(),
+          application.getLatestStatus(),
+          getSubmitTime(application.getSubmitTime()),
+          isAdmin);
+      return new InMemoryPdf(bytes, filename);
+    }
     byte[] bytes =
         buildApplicationPdf(
             answersOnlyActive,
@@ -142,7 +163,7 @@ public final class PdfExporter {
         : dateConverter.renderDateTimeHumanReadable(submitTime);
   }
 
-  private byte[] buildApplicationPdf(
+  private byte[] buildApplicationPdfWithScore(
     ImmutableList<AnswerData> answersOnlyActive,
     ImmutableList<AnswerData> answersOnlyHidden,
     String applicantNameWithApplicationId,
