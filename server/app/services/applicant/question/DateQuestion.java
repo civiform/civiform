@@ -28,9 +28,11 @@ import services.question.types.DateQuestionDefinition.DateValidationOption;
 public final class DateQuestion extends AbstractQuestion {
 
   private Optional<LocalDate> dateValue;
+  private ApplicantData applicantData;
 
   DateQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
+    this.applicantData = applicantQuestion.getApplicantData();
   }
 
   // Since we cannot inject Config class here to check the zone, we take the systemDefaultZone as
@@ -43,7 +45,6 @@ public final class DateQuestion extends AbstractQuestion {
 
   @Override
   protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
-    ApplicantData applicantData = applicantQuestion.getApplicantData();
     // When staging updates, the attempt to update ApplicantData would have failed to
     // convert to a date and been noted as a failed update. We check for that here.
     if (applicantData.updateDidFailAt(getDatePath())) {
@@ -178,7 +179,6 @@ public final class DateQuestion extends AbstractQuestion {
       return dateValue;
     }
 
-    ApplicantData applicantData = applicantQuestion.getApplicantData();
     dateValue = applicantData.readDate(getDatePath());
 
     if (dateValue.isEmpty() && isPaiQuestion()) {
@@ -225,17 +225,12 @@ public final class DateQuestion extends AbstractQuestion {
       return Optional.empty();
     }
 
-    ApplicantData applicantData = getApplicantQuestion().getApplicantData();
     if (!applicantData.updateDidFailAt(getDatePath())) {
       return Optional.empty();
     }
 
     // This contains the raw user input for the date, formatted as "YYYY-MM-DD".
     String failedDate = applicantData.getFailedUpdates().get(getDatePath());
-
-    if (failedDate == null) {
-      return Optional.empty();
-    }
 
     String[] parts = failedDate.split("-", -1);
     if (parts.length != 3) {
@@ -247,7 +242,11 @@ public final class DateQuestion extends AbstractQuestion {
     }
 
     try {
-      return Optional.of(Integer.parseInt(parts[index]));
+      int parsedValue = Integer.parseInt(parts[index]);
+      if (parsedValue == 0) {
+        return Optional.empty();
+      }
+      return Optional.of(parsedValue);
     } catch (NumberFormatException e) {
       return Optional.empty();
     }
