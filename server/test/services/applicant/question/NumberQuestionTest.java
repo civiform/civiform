@@ -170,4 +170,34 @@ public class NumberQuestionTest extends ResetPostgres {
                     ValidationErrorMessage.create(MessageKey.NUMBER_VALIDATION_NON_INTEGER))));
     assertThat(numberQuestion.getNumberValue().isPresent()).isFalse();
   }
+
+  @Test
+  public void withNoMaxConfigured_withValueExceedingGlobalMax_failsValidation() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(numberQuestionDefinition, applicant, applicantData, Optional.empty());
+    QuestionAnswerer.answerNumberQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), 1_000_000_001L);
+
+    NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
+
+    assertThat(numberQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.of(
+                numberQuestion.getNumberPath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(
+                        MessageKey.NUMBER_VALIDATION_TOO_BIG, 1_000_000_000L))));
+  }
+
+  @Test
+  public void withNoMaxConfigured_withValueAtGlobalMax_passesValidation() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(numberQuestionDefinition, applicant, applicantData, Optional.empty());
+    QuestionAnswerer.answerNumberQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), 1_000_000_000L);
+
+    NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
+
+    assertThat(numberQuestion.getValidationErrors()).isEmpty();
+  }
 }

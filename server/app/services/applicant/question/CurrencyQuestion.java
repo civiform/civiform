@@ -16,6 +16,8 @@ import services.question.types.CurrencyQuestionDefinition;
  * <p>See {@link ApplicantQuestion} for details.
  */
 public final class CurrencyQuestion extends AbstractQuestion {
+  // Values shouldn't exceed $1B
+  private static final long CURRENCY_MAX_DOLLARS = 1_000_000_000;
 
   // Stores the value, loading and caching it on first access.
   private Optional<Optional<Currency>> currencyCache;
@@ -40,7 +42,20 @@ public final class CurrencyQuestion extends AbstractQuestion {
           ImmutableSet.of(
               ValidationErrorMessage.create(MessageKey.CURRENCY_VALIDATION_MISFORMATTED)));
     }
-    return ImmutableMap.of();
+
+    return ImmutableMap.of(getCurrencyPath(), validateCurrencyValue());
+  }
+
+  public ImmutableSet<ValidationErrorMessage> validateCurrencyValue() {
+    ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
+    if (getCurrencyValue().isPresent()
+        && getCurrencyValue().get().getCents() > CURRENCY_MAX_DOLLARS * 100) {
+      errors.add(
+          ValidationErrorMessage.create(
+              MessageKey.NUMBER_VALIDATION_TOO_BIG, CURRENCY_MAX_DOLLARS));
+    }
+
+    return errors.build();
   }
 
   public Optional<Currency> getCurrencyValue() {

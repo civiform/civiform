@@ -15,6 +15,7 @@ import services.question.types.NumberQuestionDefinition;
  * <p>See {@link ApplicantQuestion} for details.
  */
 public final class NumberQuestion extends AbstractQuestion {
+  private static final long NUMBER_MAX = 1_000_000_000;
 
   private Optional<Long> numberValue;
 
@@ -61,12 +62,14 @@ public final class NumberQuestion extends AbstractQuestion {
       }
     }
 
-    if (questionDefinition.getMax().isPresent()) {
-      long max = questionDefinition.getMax().getAsLong();
-      // If value is empty, don't test against max.
-      if (getNumberValue().isPresent() && getNumberValue().get() > max) {
-        errors.add(ValidationErrorMessage.create(MessageKey.NUMBER_VALIDATION_TOO_BIG, max));
-      }
+    // Fall back to global max if no max is set
+    long max =
+        questionDefinition.getMax().isPresent()
+            ? questionDefinition.getMax().getAsLong()
+            : NUMBER_MAX;
+    // If value is empty, don't test against max.
+    if (getNumberValue().isPresent() && getNumberValue().get() > max) {
+      errors.add(ValidationErrorMessage.create(MessageKey.NUMBER_VALIDATION_TOO_BIG, max));
     }
 
     return errors.build();
