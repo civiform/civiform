@@ -1,0 +1,111 @@
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="layoutParams" type="views.shared.LayoutParams"*/-->
+<!doctype html>
+<html lang="en-US" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title
+      th:text="${#strings.isEmpty(templateGlobals.pageTitle()) ? 'CiviForm' : templateGlobals.pageTitle() + ' - CiviForm'}"
+    >
+    </title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="civiform-build-tag"
+      th:content="${layoutParams.civiformImageTag()}"
+    />
+    <meta
+      th:if="${layoutParams.addNoIndexMetaTag()}"
+      name="robots"
+      content="noindex"
+    />
+    <meta
+      name="htmx-config"
+      th:content='|{"inlineStyleNonce":"${templateGlobals.cspNonce()}"}|'
+    />
+
+    <link rel="icon" th:href="${layoutParams.favicon()}" />
+
+    <!--/* Stylesheets to be added */-->
+    <link
+      th:each="stylesheet: ${layoutParams.stylesheets()}"
+      th:nonce="${templateGlobals.cspNonce()}"
+      th:href="${stylesheet}"
+      type="text/css"
+      rel="stylesheet"
+    />
+
+    <!--/* Add feature flag json blob */-->
+    <th:block th:insert="~{shared/FeatureFlags}" />
+
+    <!--/* Scripts to be added before body content. Keep these to a minimum  */-->
+    <script
+      th:each="script: ${layoutParams.headScripts()}"
+      th:nonce="${templateGlobals.cspNonce()}"
+      th:src="${script.src()}"
+      th:type="${script.type()}"
+      th:async="${script.async()}"
+      th:defer="${script.defer()}"
+      th:integrity="${script.integrity()}"
+      th:id="${script.id()}"
+      th:crossorigin="${#strings.equals(script.type(), 'text/javascript') ? 'anonymous' : null}"
+    ></script>
+  </head>
+
+  <!--/*
+    Body and main classes match the legacy j2html admin skeleton exactly:
+    AdminStyles.BODY and AdminStyles.MAIN (+ MAIN_FULL/MAIN_CENTERED) rendered
+    by HtmlBundle. Keep them in sync with views/style/AdminStyles.java.
+  */-->
+  <!--/* Body sets HTMX header so the CSRF token is always there */-->
+  <body
+    class="bg-gradient-to-r from-gray-100 via-white to-gray-100 box-border flex min-h-screen mt-5"
+    th:hx-headers='|{"CSRF-TOKEN":"${templateGlobals.csrfToken()}"}|'
+  >
+    <!--/* Header navigation */-->
+    <th:block
+      th:insert="~{admin/shared/TransitionalAdminCommonHeader}"
+    ></th:block>
+
+    <!--/* Main */-->
+    <main
+      class="bg-white border border-gray-200 mt-12 shadow-lg w-screen admin-responsive-main-padding"
+      th:classappend="${layoutParams.isWidescreen() ? 'flex flex-row' : 'px-2 max-w-screen-2xl mx-auto'}"
+    >
+      <th:block
+        th:insert="~{${layoutParams.pageTemplate()} :: content}"
+      ></th:block>
+    </main>
+
+    <!--/* Modal container rendered by the legacy layout on every page; admin JS expects it */-->
+    <div id="modal-container" class="hidden fixed h-screen w-screen z-20">
+      <div
+        id="modal-glass-pane"
+        class="fixed h-screen w-screen bg-gray-400 opacity-75"
+      ></div>
+    </div>
+
+    <!--/* Google Tag Manager */-->
+    <th:block
+      th:insert="~{components/GoogleTagManagerFragment :: tagManager(${layoutParams.measurementId()}, ${templateGlobals.cspNonce()})}"
+    ></th:block>
+
+    <!--/* Scripts to be added at the end, inside a footer as the legacy layout did */-->
+    <footer>
+      <script
+        th:each="script: ${layoutParams.bodyScripts()}"
+        th:nonce="${templateGlobals.cspNonce()}"
+        th:src="${script.src()}"
+        th:type="${script.type()}"
+        th:async="${script.async()}"
+        th:defer="${script.defer()}"
+        th:integrity="${script.integrity()}"
+        th:id="${script.id()}"
+      ></script>
+    </footer>
+
+    <!--/* Optional page specific scripts. These should be load last. */-->
+    <th:block
+      th:insert="~{${layoutParams.pageTemplate()} :: scripts} ?: ~{}"
+    ></th:block>
+  </body>
+</html>
