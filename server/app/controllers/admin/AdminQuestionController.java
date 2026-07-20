@@ -20,6 +20,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import mapping.admin.questions.QuestionEditPageMapper;
 import mapping.admin.questions.QuestionNewPageMapper;
 import models.ConcurrentUpdateException;
 import org.pac4j.play.java.Secure;
@@ -53,6 +54,8 @@ import views.admin.questions.MapQuestionSettingsFiltersListPartialViewModel;
 import views.admin.questions.MapQuestionSettingsFiltersPartialView;
 import views.admin.questions.MapQuestionSettingsFiltersPartialViewModel;
 import views.admin.questions.MapQuestionSettingsPartialViewModel;
+import views.admin.questions.QuestionEditPageView;
+import views.admin.questions.QuestionEditPageViewModel;
 import views.admin.questions.QuestionEditView;
 import views.admin.questions.QuestionNewPageView;
 import views.admin.questions.QuestionNewPageViewModel;
@@ -72,6 +75,7 @@ public final class AdminQuestionController extends CiviFormController {
   private final MapQuestionSettingsFiltersPartialView mapQuestionSettingsFiltersPartialView;
   private final MapQuestionSettingsFiltersListPartialView mapQuestionSettingsFiltersListPartialView;
   private final GeoJsonDataRepository geoJsonDataRepository;
+  private final QuestionEditPageView questionEditPageView;
   private final QuestionNewPageView questionNewPageView;
 
   @Inject
@@ -87,6 +91,7 @@ public final class AdminQuestionController extends CiviFormController {
       MapQuestionSettingsFiltersListPartialView mapQuestionSettingsFiltersListPartialView,
       GeoJsonDataRepository geoJsonDataRepository,
       ClassLoaderExecutionContext classLoaderExecutionContext,
+      QuestionEditPageView questionEditPageView,
       QuestionNewPageView questionNewPageView) {
     super(profileUtils, versionRepository);
     this.service = checkNotNull(service);
@@ -98,6 +103,7 @@ public final class AdminQuestionController extends CiviFormController {
     this.mapQuestionSettingsFiltersPartialView = mapQuestionSettingsFiltersPartialView;
     this.mapQuestionSettingsFiltersListPartialView = mapQuestionSettingsFiltersListPartialView;
     this.geoJsonDataRepository = checkNotNull(geoJsonDataRepository);
+    this.questionEditPageView = checkNotNull(questionEditPageView);
     this.questionNewPageView = checkNotNull(questionNewPageView);
   }
 
@@ -386,6 +392,29 @@ public final class AdminQuestionController extends CiviFormController {
 
               Optional<QuestionDefinition> maybeEnumerationQuestion =
                   maybeGetEnumerationQuestion(readOnlyService, questionDefinition);
+
+              if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+                try {
+                  QuestionForm questionForm = QuestionFormBuilder.create(questionDefinition);
+                  if (!redirectUrl.isBlank()) {
+                    questionForm.setRedirectUrl(redirectUrl);
+                  }
+                  Optional<String> errorMessage = request.flash().get(FlashKey.CONCURRENT_UPDATE);
+                  QuestionEditPageViewModel model =
+                      buildEditQuestionPageModel(
+                          id,
+                          questionForm,
+                          maybeEnumerationQuestion,
+                          readOnlyService,
+                          request,
+                          errorMessage);
+                  return ok(questionEditPageView.render(request, model)).as(Http.MimeTypes.HTML);
+                } catch (InvalidQuestionTypeException e) {
+                  return badRequest(
+                      invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));
+                }
+              }
+
               try {
                 Optional<ToastMessage> message =
                     request
@@ -460,10 +489,23 @@ public final class AdminQuestionController extends CiviFormController {
     }
 
     if (errorAndUpdatedQuestionDefinition.isError()) {
-      ToastMessage errorMessage =
-          ToastMessage.errorNonLocalized(joinErrors(errorAndUpdatedQuestionDefinition.getErrors()));
+      String errorText = joinErrors(errorAndUpdatedQuestionDefinition.getErrors());
       Optional<QuestionDefinition> maybeEnumerationQuestion =
           maybeGetEnumerationQuestion(roService, questionDefinition);
+
+      if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+        QuestionEditPageViewModel model =
+            buildEditQuestionPageModel(
+                id,
+                questionForm,
+                maybeEnumerationQuestion,
+                roService,
+                request,
+                Optional.of(errorText));
+        return ok(questionEditPageView.render(request, model)).as(Http.MimeTypes.HTML);
+      }
+
+      ToastMessage errorMessage = ToastMessage.errorNonLocalized(errorText);
       return ok(
           editView.renderEditQuestionForm(
               request, id, questionForm, maybeEnumerationQuestion, errorMessage));
@@ -706,6 +748,26 @@ public final class AdminQuestionController extends CiviFormController {
     }
 
     updatedQuestionDefinitionBuilder.setQuestionSettings(newSettingsListBuilder.build());
+  }
+
+  private QuestionEditPageViewModel buildEditQuestionPageModel(
+      long questionId,
+      QuestionForm questionForm,
+      Optional<QuestionDefinition> maybeEnumerationQuestion,
+      ReadOnlyQuestionService readOnlyQuestionService,
+      Request request,
+      Optional<String> errorMessage) {
+    MapQuestionSettingsPartialViewModel mapSettings = buildMapSettingsViewModel(questionForm);
+    QuestionEditPageMapper editMapper = new QuestionEditPageMapper();
+    return editMapper.map(
+        questionId,
+        questionForm,
+        maybeEnumerationQuestion,
+        mapSettings,
+        settingsManifest.getApiBridgeEnabled(request),
+        settingsManifest.getEnumeratorImprovementsEnabled(request),
+        readOnlyQuestionService,
+        errorMessage);
   }
 
   /**

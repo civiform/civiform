@@ -1,0 +1,467 @@
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.questions.QuestionEditPageViewModel"*/-->
+<th:block th:fragment="content">
+  <!--/* The layout's <main> is the flex row (isWidescreen), so the form and
+       preview are its direct children, matching the legacy j2html DOM. */-->
+  <div
+    id="question-form"
+    hx-ext="response-targets"
+    class="border-gray-400 border-r p-6 flex flex-col h-full overflow-hidden overflow-y-auto relative w-2/5"
+  >
+    <h1 class="mb-4" th:text="${model.title}"></h1>
+
+    <!--/* Markup cloned by the client when adding a new multi-option answer. */-->
+    <template id="multi-option-question-answer-template">
+      <div
+        th:replace="~{admin/questions/fragments/LegacyFieldFragments :: multiOptionRow(true, '', '', '')}"
+      ></div>
+    </template>
+
+    <form id="full-edit-form" method="POST" th:action="${model.formActionUrl}">
+      <input hidden name="questionType" th:value="${model.questionTypeName}" />
+      <input hidden name="redirectUrl" th:value="${model.redirectUrl}" />
+      <input
+        hidden
+        name="concurrencyToken"
+        th:value="${model.concurrencyToken}"
+      />
+      <p class="text-sm">
+        <span class="text-gray-600">Note: Fields marked with a </span
+        ><span class="text-red-600">*</span
+        ><span class="text-gray-600"> are required.</span>
+      </p>
+
+      <h2 class="py-2 mt-6 font-semibold">Visible to applicants</h2>
+
+      <!--/* Hidden by default; preview.ts reveals it when an enumerator is
+             selected. Rendered via th:text so the sentences stay contiguous
+             in the output regardless of source formatting. */-->
+      <div
+        id="repeated-question-information"
+        class="hidden text-blue-600 text-sm p-2 font-mono border-4 border-blue-400 space-y-4"
+      >
+        <p
+          th:text="'By selecting an enumerator, you are creating a repeated question - a question that is asked for each repeated entity enumerated by the applicant.'"
+        ></p>
+        <th:block th:unless="${model.enumeratorImprovementsEnabled}">
+          <p>
+            Please reference the applicant-defined repeated entity name to give
+            the applicant context on which repeated entity they are answering
+            the question for by using <em>"$this"</em> in the
+            <strong>question's text</strong> and optionally the
+            <strong>help text.</strong>
+          </p>
+          <p>
+            To reference the repeated entities containing this one, use
+            <em>"$this.parent"</em>, <em>"$this.parent.parent"</em>, etc.
+          </p>
+        </th:block>
+      </div>
+
+      <div
+        th:replace="~{admin/questions/fragments/LegacyFieldFragments :: textareaField('question-text-textarea', 'questionText', 'Question text displayed to the applicant', ${model.questionText}, true, true)}"
+      ></div>
+      <th:block th:if="${model.showHelpText}">
+        <div
+          th:replace="~{admin/questions/fragments/LegacyFieldFragments :: textareaField('question-help-text-textarea', 'questionHelpText', 'Question help text displayed to the applicant', ${model.questionHelpText}, false, true)}"
+        ></div>
+      </th:block>
+
+      <h2 class="py-2 mt-6 font-semibold">Visible to administrators only</h2>
+
+      <!--/* Administrative identifier: static when editing; a hidden input
+             carries the value. */-->
+      <div class="mb-2">
+        <p class="pointer-events-none text-gray-600 text-base px-1 py-2">
+          Administrative identifier. This value can't be changed
+        </p>
+        <p
+          id="question-name-input"
+          class="px-3 bg-white text-black text-lg"
+          th:text="${model.questionName}"
+        ></p>
+        <input hidden name="questionName" th:value="${model.questionName}" />
+      </div>
+      <input hidden name="enumeratorId" th:value="${model.enumeratorIdValue}" />
+
+      <div
+        th:replace="~{admin/questions/fragments/LegacyFieldFragments :: textareaField(${model.randomFieldId()}, 'questionDescription', 'Question note for administrative use only', ${model.questionDescription}, false, false)}"
+      ></div>
+
+      <!--/* Question enumerator select: locked when editing (the hidden
+             input above carries the value). */-->
+      <div class="mb-2">
+        <label
+          for="question-enumerator-select"
+          class="pointer-events-none text-gray-600 text-base px-1 py-2"
+          >Question enumerator<span
+            th:replace="~{admin/questions/fragments/LegacyFieldFragments :: requiredIndicator(true)}"
+          ></span
+        ></label>
+        <div class="flex flex-col">
+          <select
+            maxlength="10000"
+            aria-required="true"
+            class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500 h-11.5 read-only:text-gray-500 read-only:bg-gray-100"
+            th:attr="id='question-enumerator-select',name='enumeratorId',readonly='readonly',disabled='disabled'"
+          >
+            <option
+              value=""
+              hidden
+              th:selected="${#strings.isEmpty(model.enumeratorIdValue)}"
+            ></option>
+            <optgroup label="">
+              <option
+                class="cf-multi-option-question-option cf-multi-option-value"
+                th:value="${model.enumeratorIdValue}"
+                th:text="${model.enumeratorDisplayName}"
+                selected
+              ></option>
+            </optgroup>
+          </select>
+          <div
+            id="question-enumerator-select-errors"
+            class="text-red-600 text-xs p-1 hidden"
+          ></div>
+        </div>
+      </div>
+
+      <!--/* GeoJSON endpoint URL (MAP questions only; read-only after
+             creation). */-->
+      <th:block th:if="${model.mapQuestion}">
+        <div class="mb-2">
+          <label
+            for="geoJsonURL"
+            class="pointer-events-none text-gray-600 text-base px-1 py-2"
+            >GeoJSON Endpoint URL<span
+              th:replace="~{admin/questions/fragments/LegacyFieldFragments :: requiredIndicator(true)}"
+            ></span
+          ></label>
+          <p class="text-xs text-gray-500 pb-3 text-base px-1">
+            <span
+              th:text="'URL must be entered in order to configure question settings below.'"
+            ></span>
+          </p>
+          <div class="flex flex-col">
+            <input
+              type="text"
+              th:hx-post="${model.geoJsonPostUrl}"
+              hx-target="#geoJsonOutput"
+              hx-target-error="#geoJsonURL-errors"
+              hx-swap="outerHTML"
+              hx-trigger="input changed delay:300ms"
+              th:value="${model.geoJsonEndpoint}"
+              maxlength="10000"
+              aria-required="true"
+              id="geoJsonURL"
+              name="geoJsonEndpoint"
+              readonly="readonly"
+              class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500 read-only:text-gray-500 read-only:bg-gray-100"
+            />
+            <div
+              id="geoJsonURL-errors"
+              class="text-red-600 text-xs p-1 hidden"
+            ></div>
+          </div>
+        </div>
+      </th:block>
+
+      <h2 class="py-2 mt-6 font-semibold">Question settings</h2>
+
+      <!--/* Type-specific question settings. The th:replace is nested
+             INSIDE the th:case on purpose: fragment inclusion runs before
+             conditional evaluation, so combining them on one element would
+             include every fragment regardless of the match. */-->
+      <div th:if="${model.hasQuestionConfig()}" class="cf-question-config">
+        <div class="w-full pt-0 -mt-4">
+          <div
+            id="question-settings"
+            data-testid="question-settings"
+            class="border bg-gray-100 p-4 m-4 border-gray-200"
+          >
+            <th:block th:switch="${model.questionTypeName}">
+              <th:block th:case="'ADDRESS'">
+                <th:block
+                  th:replace="~{admin/questions/fragments/AddressFragment :: build(${model.questionForm})}"
+                ></th:block>
+              </th:block>
+              <th:block th:case="'CHECKBOX'">
+                <th:block
+                  th:replace="~{admin/questions/fragments/CheckboxFragment :: build(${model.questionForm})}"
+                ></th:block>
+              </th:block>
+              <th:block th:case="'DATE'">
+                <th:block
+                  th:replace="~{admin/questions/fragments/DateFragment :: build(${model.questionForm})}"
+                ></th:block>
+              </th:block>
+              <th:block th:case="'DROPDOWN'">
+                <th:block
+                  th:replace="~{admin/questions/fragments/RadioButtonFragment :: build(${model.questionForm})}"
+                ></th:block>
+              </th:block>
+              <th:block th:case="'ENUMERATOR'">
+                <th:block
+                  th:replace="~{admin/questions/fragments/EnumeratorFragment :: build(${model.questionForm})}"
+                ></th:block>
+              </th:block>
+              <th:block th:case="'FILEUPLOAD'">
+                <th:block
+                  th:replace="~{admin/questions/fragments/FileUploadFragment :: build(${model.questionForm})}"
+                ></th:block>
+              </th:block>
+              <th:block th:case="'ID'">
+                <th:block
+                  th:replace="~{admin/questions/fragments/IdFragment :: build(${model.questionForm})}"
+                ></th:block>
+              </th:block>
+              <th:block th:case="'MAP'">
+                <th:block
+                  th:replace="~{admin/questions/fragments/MapFragment :: build(${model.mapSettings})}"
+                ></th:block>
+              </th:block>
+              <th:block th:case="'NUMBER'">
+                <th:block
+                  th:replace="~{admin/questions/fragments/NumberFragment :: build(${model.questionForm})}"
+                ></th:block>
+              </th:block>
+              <th:block th:case="'PHONE'">
+                <th:block
+                  th:replace="~{admin/questions/fragments/PhoneFragment :: build(${model.questionForm})}"
+                ></th:block>
+              </th:block>
+              <th:block th:case="'RADIO_BUTTON'">
+                <th:block
+                  th:replace="~{admin/questions/fragments/RadioButtonFragment :: build(${model.questionForm})}"
+                ></th:block>
+              </th:block>
+              <th:block th:case="'TEXT'">
+                <th:block
+                  th:replace="~{admin/questions/fragments/TextFragment :: build(${model.questionForm})}"
+                ></th:block>
+              </th:block>
+              <th:block th:case="'YES_NO'">
+                <th:block
+                  th:replace="~{admin/questions/fragments/YesNoFragment :: build(${model.yesNoConfig})}"
+                ></th:block>
+              </th:block>
+            </th:block>
+          </div>
+        </div>
+      </div>
+
+      <!--/* Universal question */-->
+      <fieldset>
+        <legend class="pointer-events-none text-gray-600 text-base px-1 py-2">
+          Universal question
+        </legend>
+        <p class="px-1 pb-2 text-sm text-gray-600">
+          <span
+            th:text="'Universal questions will be recommended as a standardized type of question to be added to all programs.'"
+          ></span>
+        </p>
+        <div
+          th:replace="~{admin/questions/fragments/LegacyFieldFragments :: toggle('isUniversal', 'universal', ${model.currentlyUniversal}, false, 'Set as a universal question')}"
+        ></div>
+      </fieldset>
+
+      <!--/* Primary applicant information */-->
+      <fieldset
+        th:if="${model.showPrimaryApplicantInfo}"
+        id="primary-applicant-info"
+      >
+        <legend class="pointer-events-none text-gray-600 text-base px-1 py-2">
+          Primary applicant information
+        </legend>
+        <div
+          th:each="tag : ${model.paiTags}"
+          class="cf-primary-applicant-info-subsection"
+        >
+          <p class="px-1 pb-2 text-sm text-gray-600">
+            <span th:text="${tag.description}"></span>
+            <div
+              th:replace="~{admin/questions/fragments/LegacyFieldFragments :: toggle(${tag.fieldName}, ${tag.fieldName}, ${tag.enabled}, ${tag.toggleHidden}, ${tag.displayName})}"
+            ></div>
+          </p>
+          <th:block th:unless="${tag.differentQuestionHasTag}">
+            <div
+              th:replace="~{admin/questions/fragments/LegacyFieldFragments :: slimInfoAlert('You cannot make this question a Primary applicant information question because the question is not a Universal question.', ${model.currentlyUniversal}, 'cf-pai-not-universal-alert usa-alert-remove-top-margin')}"
+            ></div>
+          </th:block>
+          <th:block th:if="${tag.differentQuestionHasTag}">
+            <div
+              th:replace="~{admin/questions/fragments/LegacyFieldFragments :: slimInfoAlert(${tag.alreadySetAlertText}, ${!model.currentlyUniversal}, 'cf-pai-tag-set-alert usa-alert-remove-top-margin')}"
+            ></div>
+            <div
+              th:replace="~{admin/questions/fragments/LegacyFieldFragments :: slimInfoAlert(${tag.notUniversalAlreadySetAlertText}, ${model.currentlyUniversal}, 'cf-pai-tag-set-not-universal-alert usa-alert-remove-top-margin')}"
+            ></div>
+          </th:block>
+        </div>
+      </fieldset>
+
+      <!--/* Demographic data privacy settings */-->
+      <fieldset th:if="${model.showDemographicFields}">
+        <legend class="pointer-events-none text-gray-600 text-base px-1 py-2">
+          Demographic data privacy settings<span
+            th:replace="~{admin/questions/fragments/LegacyFieldFragments :: requiredIndicator(true)}"
+          ></span>
+        </legend>
+        <p class="px-1 pb-2 text-sm text-gray-600">
+          <span
+            th:text="'The setting below only controls what is exported in the demographic export. Answers are always exported via the API.'"
+          ></span>
+        </p>
+        <!--/* This option's label contains an apostrophe, which the
+               fragment-expression parameter parser cannot handle in a string
+               literal, so the radioOption markup is inlined with the label as
+               plain text. */-->
+        <label
+          th:with="fieldId=${model.randomFieldId()}"
+          class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue align-middle flex flex-row mb-2 cf-radio-option"
+          th:for="${fieldId}"
+          ><input
+            type="radio"
+            value="NON_DEMOGRAPHIC"
+            maxlength="10000"
+            aria-required="true"
+            th:id="${fieldId}"
+            name="questionExportState"
+            class="h-4 w-4 mr-4 align-middle self-center flex-none"
+            th:checked="${model.questionExportState == 'NON_DEMOGRAPHIC'}"
+          />Don't include in demographic export</label
+        >
+        <label
+          th:replace="~{admin/questions/fragments/LegacyFieldFragments :: radioOption(${model.randomFieldId()}, 'questionExportState', 'Include in demographic export', 'DEMOGRAPHIC', ${model.questionExportState == 'DEMOGRAPHIC'})}"
+        ></label>
+        <label
+          th:replace="~{admin/questions/fragments/LegacyFieldFragments :: radioOption(${model.randomFieldId()}, 'questionExportState', 'Obfuscate and include in demographic export', 'DEMOGRAPHIC_PII', ${model.questionExportState == 'DEMOGRAPHIC_PII'})}"
+        ></label>
+        <span
+          >Learn more about each of the demographic data export settings in the </span
+        ><a
+          href="https://docs.civiform.us/user-manual/civiform-admin-guide/manage-questions#question-export-settings"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-blue-600 hover:text-blue-500 inline-flex items-center"
+          >documentation</a
+        ><span>.</span>
+      </fieldset>
+
+      <!--/* Display mode */-->
+      <fieldset th:if="${model.showDisplayModeFields}">
+        <legend class="pointer-events-none text-gray-600 text-base px-1 py-2">
+          Display Mode<span
+            th:replace="~{admin/questions/fragments/LegacyFieldFragments :: requiredIndicator(true)}"
+          ></span>
+        </legend>
+        <p class="px-1 pb-2 text-sm text-gray-600">
+          <span
+            th:text="'This controls whether or not the question is visible to Applicants.'"
+          ></span>
+        </p>
+        <label
+          th:replace="~{admin/questions/fragments/LegacyFieldFragments :: radioOption(${model.randomFieldId()}, 'displayMode', 'Visible - Shown to Applicants', 'VISIBLE', ${model.displayMode == 'VISIBLE'})}"
+        ></label>
+        <label
+          th:replace="~{admin/questions/fragments/LegacyFieldFragments :: radioOption(${model.randomFieldId()}, 'displayMode', 'Hidden - Not shown to Applicants', 'HIDDEN', ${model.displayMode == 'HIDDEN'})}"
+        ></label>
+      </fieldset>
+
+      <!--/* The Update button opens the unset-universal confirmation modal
+             (admin_question_edit.ts decides whether to show the modal or
+             submit directly). */-->
+      <button
+        type="button"
+        class="ml-2 block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base"
+        id="confirm-question-updates-modal-button"
+      >
+        Update
+      </button>
+      <input
+        hidden
+        th:value="${templateGlobals.csrfToken()}"
+        name="csrfToken"
+      />
+    </form>
+
+    <!--/* Error toast (form validation errors, concurrent update notice),
+           consumed by toast.ts. */-->
+    <div
+      th:if="${model.errorMessage.isPresent()}"
+      class="hidden cf-toast-data"
+      th:id="${model.errorToastId}"
+      canDismiss="true"
+      canIgnore="false"
+      toastDuration="0"
+      condOnStorageKey
+      toastType="ERROR"
+      th:text="${model.errorMessage.get()}"
+    ></div>
+  </div>
+
+  <!--/* Question preview, loaded over HTMX. */-->
+  <div
+    hx-swap="outerHTML"
+    th:hx-get="${model.previewUrl}"
+    hx-trigger="load"
+  ></div>
+
+  <!--/* Modal container (with its glass pane) holding the unset-universal
+       confirmation modal. */-->
+  <div id="modal-container" class="hidden fixed h-screen w-screen z-20">
+    <div
+      id="modal-glass-pane"
+      class="fixed h-screen w-screen bg-gray-400 opacity-75"
+    ></div>
+    <div
+      id="confirm-question-updates-modal"
+      aria-labelledby="confirm-question-updates-modal-title"
+      tabindex="0"
+      class="cf-modal hidden absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-3xl shadow-xl bg-white max-h-screen overflow-y-auto w-11/12 lg:w-1/3 top-1/2"
+    >
+      <div
+        id="confirm-question-updates-modal-title"
+        class="sticky top-0 px-2 pt-2 flex gap-4 place-items-center"
+      >
+        <div class="text-2xl text-gray-600 my-5 mx-4">
+          Are you sure you want to remove this question from the universal
+          questions set?
+        </div>
+        <div class="w-12"></div>
+      </div>
+      <div class="my-5 mx-6">
+        <form>
+          <div
+            class="mb-8"
+            th:text="|This question will no longer be set as a recommended ${model.questionTypeLabel} question.|"
+          ></div>
+          <div class="flex flex-col md:flex-row">
+            <button
+              type="submit"
+              id="accept-question-updates-button"
+              form="full-edit-form"
+              class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base"
+            >
+              Remove from universal questions
+            </button>
+            <button
+              type="button"
+              class="text-blue-900 font-bold opacity-75 underline hover:opacity-100 border-none hover:bg-opacity-0 bg-transparent cf-modal-close"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+      <button
+        type="button"
+        aria-label="Close"
+        class="cf-modal-close flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200 top-0 right-0 absolute my-6 mx-4"
+      >
+        <svg
+          th:replace="~{admin/questions/fragments/LegacySvgFragments :: iconClose('w-6 h-6 cursor-pointer')}"
+        ></svg>
+      </button>
+    </div>
+  </div>
+</th:block>
